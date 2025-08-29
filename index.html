@@ -153,14 +153,34 @@
                 <div id="collection-content">
                     <!-- Rarity Index -->
                     <div class="mb-8">
-                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">📚 Rarity Index</h4>
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">📚 Dynamic Rarity System</h4>
+                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg mb-4">
+                            <h5 class="font-semibold text-sm text-gray-800 dark:text-gray-200 mb-2">🎯 Reward Chances by Assignment Length</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                <div class="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                    <div class="font-semibold text-gray-700 dark:text-gray-300">Short (5-9 min)</div>
+                                    <div class="text-gray-600 dark:text-gray-400">25% reward chance</div>
+                                </div>
+                                <div class="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                    <div class="font-semibold text-gray-700 dark:text-gray-300">Medium (25-49 min)</div>
+                                    <div class="text-gray-600 dark:text-gray-400">45% reward chance</div>
+                                </div>
+                                <div class="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                    <div class="font-semibold text-gray-700 dark:text-gray-300">Long (50+ min)</div>
+                                    <div class="text-gray-600 dark:text-gray-400">60% reward chance</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                                🍅 <strong>Pomodoro Bonus:</strong> +15% chance for any timer completion!
+                            </div>
+                        </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div class="bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 p-3 rounded">
                                 <div class="flex items-center gap-2 mb-1">
                                     <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
                                     <span class="font-semibold text-sm text-gray-700 dark:text-gray-300">COMMON</span>
                                 </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">50% chance</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">30-50% chance*</div>
                                 <div class="text-xs text-gray-600 dark:text-gray-300 mt-1">Basic fish & food</div>
                             </div>
                             <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-3 rounded">
@@ -176,7 +196,7 @@
                                     <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
                                     <span class="font-semibold text-sm text-blue-700 dark:text-blue-300">RARE</span>
                                 </div>
-                                <div class="text-xs text-blue-600 dark:text-blue-400">15% chance</div>
+                                <div class="text-xs text-blue-600 dark:text-blue-400">15-25% chance*</div>
                                 <div class="text-xs text-blue-700 dark:text-blue-300 mt-1">Special creatures & treasures</div>
                             </div>
                             <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-3 rounded">
@@ -184,9 +204,12 @@
                                     <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
                                     <span class="font-semibold text-sm text-yellow-700 dark:text-yellow-300">LEGENDARY</span>
                                 </div>
-                                <div class="text-xs text-yellow-600 dark:text-yellow-400">5% chance</div>
+                                <div class="text-xs text-yellow-600 dark:text-yellow-400">5-15% chance*</div>
                                 <div class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Afghan landmarks & gems</div>
                             </div>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            *Higher chances for longer assignments
                         </div>
                     </div>
 
@@ -780,7 +803,7 @@
                         task.completedDate = new Date().toISOString();
                         
                         // Give reward for manual completion (fewer points than Pomodoro)
-                        giveReward('ASSIGNMENT_COMPLETE', 2, "Quick Complete!");
+                        giveReward('ASSIGNMENT_COMPLETE', 2, "Quick Complete!", task.Minutes);
                         
                         // Update streak and check daily goals
                         updateStreak();
@@ -852,7 +875,7 @@
         // =============================
         // Reward Functions
         // =============================
-        function giveReward(type, customPoints = null, customMessage = null) {
+        function giveReward(type, customPoints = null, customMessage = null, assignmentMinutes = null) {
             const reward = REWARD_TYPES[type];
             const points = customPoints || reward.points;
             const message = customMessage || reward.message;
@@ -866,23 +889,62 @@
                 localStorage.setItem('lastStudyDate', lastStudyDate);
             } catch {}
             
-            // Check for fun reward (30% chance)
-            if (Math.random() < 0.3) {
-                giveFunReward();
+            // Calculate fun reward chance based on assignment length and completion method
+            let funRewardChance = 0.2; // Base 20% chance
+            
+            if (assignmentMinutes) {
+                // Longer assignments = better reward chances
+                if (assignmentMinutes >= 50) funRewardChance = 0.6;        // 60% for 50+ min assignments
+                else if (assignmentMinutes >= 25) funRewardChance = 0.45;  // 45% for 25-49 min assignments
+                else if (assignmentMinutes >= 10) funRewardChance = 0.35;  // 35% for 10-24 min assignments
+                else if (assignmentMinutes >= 5) funRewardChance = 0.25;   // 25% for 5-9 min assignments
+                // else stays at 20% for very short assignments
+            }
+            
+            // Bonus chance for Pomodoro completions
+            if (type === 'POMODORO_COMPLETE') {
+                funRewardChance += 0.15; // +15% bonus for using Pomodoro
+            }
+            
+            // Cap at 80% max chance
+            funRewardChance = Math.min(0.8, funRewardChance);
+            
+            console.log(`Fun reward chance: ${Math.round(funRewardChance * 100)}% for ${assignmentMinutes || 'unknown'} min assignment`);
+            
+            // Roll for fun reward
+            if (Math.random() < funRewardChance) {
+                giveFunReward(assignmentMinutes);
             }
             
             showRewardNotification(message, points);
             updateRewardDisplay();
         }
 
-        function giveFunReward() {
-            // Determine rarity based on probability
+        function giveFunReward(assignmentMinutes = null) {
+            // Determine rarity based on probability and assignment length
             const rarityRoll = Math.random();
             let targetRarity;
-            if (rarityRoll < 0.5) targetRarity = "common";          // 50%
-            else if (rarityRoll < 0.8) targetRarity = "uncommon";   // 30%
-            else if (rarityRoll < 0.95) targetRarity = "rare";      // 15%
-            else targetRarity = "legendary";                        // 5%
+            
+            // Better items for longer assignments
+            if (assignmentMinutes && assignmentMinutes >= 50) {
+                // 50+ minute assignments get better odds
+                if (rarityRoll < 0.3) targetRarity = "common";          // 30%
+                else if (rarityRoll < 0.6) targetRarity = "uncommon";   // 30%
+                else if (rarityRoll < 0.85) targetRarity = "rare";      // 25%
+                else targetRarity = "legendary";                        // 15%
+            } else if (assignmentMinutes && assignmentMinutes >= 25) {
+                // 25-49 minute assignments get slightly better odds
+                if (rarityRoll < 0.4) targetRarity = "common";          // 40%
+                else if (rarityRoll < 0.7) targetRarity = "uncommon";   // 30%
+                else if (rarityRoll < 0.9) targetRarity = "rare";       // 20%
+                else targetRarity = "legendary";                        // 10%
+            } else {
+                // Standard odds for shorter assignments
+                if (rarityRoll < 0.5) targetRarity = "common";          // 50%
+                else if (rarityRoll < 0.8) targetRarity = "uncommon";   // 30%
+                else if (rarityRoll < 0.95) targetRarity = "rare";      // 15%
+                else targetRarity = "legendary";                        // 5%
+            }
             
             const availableRewards = FUN_REWARDS.filter(r => r.rarity === targetRarity);
             const randomReward = availableRewards[Math.floor(Math.random() * availableRewards.length)];
@@ -1188,11 +1250,11 @@
                         activeTask.completed = true;
                         activeTask.completedDate = new Date().toISOString();
                         
-                        // Give rewards for completing Pomodoro
-                        giveReward('POMODORO_COMPLETE');
+                        // Give rewards for completing Pomodoro (pass assignment minutes for better rewards)
+                        giveReward('POMODORO_COMPLETE', null, null, activeTask.Minutes);
                         
                         // Give additional reward for completing assignment
-                        giveReward('ASSIGNMENT_COMPLETE');
+                        giveReward('ASSIGNMENT_COMPLETE', null, null, activeTask.Minutes);
                         
                         // Update streak and check daily goals
                         updateStreak();
