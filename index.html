@@ -115,6 +115,59 @@
         </div>
     </div>
 
+    <!-- Collection Modal -->
+    <div id="collection-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">🎁 Your Collection</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">Rewards earned through your study achievements</p>
+                </div>
+                <button id="collection-modal-close-btn" class="text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Statistics</h4>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" id="total-points">0</div>
+                            <div class="text-sm text-yellow-700 dark:text-yellow-300">Total Points</div>
+                        </div>
+                        <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="total-collected">0</div>
+                            <div class="text-sm text-purple-700 dark:text-purple-300">Items Collected</div>
+                        </div>
+                        <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="current-streak">0</div>
+                            <div class="text-sm text-blue-700 dark:text-blue-300">Day Streak</div>
+                        </div>
+                        <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-600 dark:text-green-400" id="completion-rate">0%</div>
+                            <div class="text-sm text-green-700 dark:text-green-300">Completion Rate</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="collection-content">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Collected Items</h4>
+                    <div id="collected-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Collected items will be populated here -->
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Available Items</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Complete more assignments to discover these items!</p>
+                        <div id="available-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 opacity-50">
+                            <!-- Available items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // =============================
@@ -857,6 +910,89 @@
         }
 
         // =============================
+        // Collection Modal Functions
+        // =============================
+        function showCollectionModal() {
+            const modal = document.getElementById('collection-modal-backdrop');
+            
+            // Update statistics
+            document.getElementById('total-points').textContent = rewardPoints;
+            document.getElementById('total-collected').textContent = collectedRewards.length;
+            document.getElementById('current-streak').textContent = streakCount;
+            
+            // Calculate completion rate
+            const totalTasks = studyData.length;
+            const completedTasks = studyData.filter(task => task.completed).length;
+            const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            document.getElementById('completion-rate').textContent = `${completionRate}%`;
+            
+            // Populate collected items
+            const collectedContainer = document.getElementById('collected-items');
+            if (collectedRewards.length === 0) {
+                collectedContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <div class="text-4xl mb-2">🎁</div>
+                        <p class="text-gray-500 dark:text-gray-400">No items collected yet!</p>
+                        <p class="text-sm text-gray-400 dark:text-gray-500">Complete assignments to start collecting.</p>
+                    </div>
+                `;
+            } else {
+                collectedContainer.innerHTML = collectedRewards.map(item => `
+                    <div class="bg-white dark:bg-gray-700 border-2 ${getRarityBorderClass(item.rarity)} rounded-lg p-4 text-center hover:scale-105 transition-transform">
+                        <div class="text-3xl mb-2">${item.emoji}</div>
+                        <div class="font-semibold text-sm text-gray-900 dark:text-gray-100">${item.name}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 uppercase font-bold ${getRarityTextClass(item.rarity)}">${item.rarity}</div>
+                        <div class="text-xs text-gray-400 dark:text-gray-500 mt-2">${new Date(item.dateCollected).toLocaleDateString()}</div>
+                    </div>
+                `).join('');
+            }
+            
+            // Populate available items (not yet collected)
+            const availableContainer = document.getElementById('available-items');
+            const uncollectedItems = FUN_REWARDS.filter(item => 
+                !collectedRewards.find(collected => collected.name === item.name)
+            );
+            
+            availableContainer.innerHTML = uncollectedItems.map(item => `
+                <div class="bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2 grayscale">${item.emoji}</div>
+                    <div class="font-semibold text-sm text-gray-600 dark:text-gray-300">???</div>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 mt-1 uppercase font-bold">${item.rarity}</div>
+                </div>
+            `).join('');
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideCollectionModal() {
+            const modal = document.getElementById('collection-modal-backdrop');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function getRarityBorderClass(rarity) {
+            switch(rarity) {
+                case 'common': return 'border-gray-400';
+                case 'uncommon': return 'border-green-400';
+                case 'rare': return 'border-blue-400';
+                case 'legendary': return 'border-yellow-400';
+                default: return 'border-gray-400';
+            }
+        }
+
+        function getRarityTextClass(rarity) {
+            switch(rarity) {
+                case 'common': return 'text-gray-500';
+                case 'uncommon': return 'text-green-500';
+                case 'rare': return 'text-blue-500';
+                case 'legendary': return 'text-yellow-500';
+                default: return 'text-gray-500';
+            }
+        }
+
+        // =============================
         // Break Modal Functions
         // =============================
         function showBreakModal() {
@@ -993,6 +1129,19 @@
                 hideBreakModal();
                 if (pomodoro) {
                     pomodoro.reset(); // End the break and reset
+                }
+            });
+
+            // Collection Modal Controls
+            document.getElementById('collection-btn').addEventListener('click', () => {
+                showCollectionModal();
+            });
+            document.getElementById('collection-modal-close-btn').addEventListener('click', () => {
+                hideCollectionModal();
+            });
+            document.getElementById('collection-modal-backdrop').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('collection-modal-backdrop')) {
+                    hideCollectionModal();
                 }
             });
         });
