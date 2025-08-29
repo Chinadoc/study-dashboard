@@ -273,35 +273,43 @@
                     const pomodoroProgress = isActiveTask && pState.phaseSeconds > 0 ? Math.round(((pState.phaseSeconds - pState.remainingSeconds) / pState.phaseSeconds) * 100) : 0;
                     const timerLabel = isActiveTask ? `${pState.phase.charAt(0).toUpperCase() + pState.phase.slice(1)}` : 'Ready';
                     const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : (pomodoro ? PomodoroEngine.formatTime(pomodoro.config.workSeconds) : '25:00');
+                    
+                    // Calculate assignment progress overlay
+                    const assignmentProgress = isActiveTask && pState.phase === 'work' ? pomodoroProgress : 0;
 
                     return `
-                        <div class="subject-card p-3 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-semibold pr-2 text-sm ${isCompleted ? 'line-through' : ''}">${subject.Subject}</h3>
-                                <p class="text-xs text-gray-600 font-medium whitespace-nowrap ${isCompleted ? 'line-through' : ''}">${subject.Minutes} min</p>
-                            </div>
-                            <div class="flex justify-between items-end mt-2">
-                                <div>
-                                    <p class="text-xs text-gray-500 ${isCompleted ? 'line-through' : ''}">${subject.Pages} Pages</p>
-                                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1" style="width: 120px;">
-                                        <div class="${colorClass} h-1.5 rounded-full" style="width: ${percentage}%"></div>
-                                    </div>
+                        <div class="subject-card relative p-3 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'} overflow-hidden">
+                            ${isActiveTask && pState.phase === 'work' ? `
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-400/20 to-blue-500/20 dark:from-green-400/30 dark:to-blue-500/30 transition-all duration-1000" style="width: ${assignmentProgress}%; z-index: 1;"></div>
+                            ` : ''}
+                            <div class="relative z-10">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-semibold pr-2 text-sm ${isCompleted ? 'line-through' : ''}">${subject.Subject}</h3>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap ${isCompleted ? 'line-through' : ''}">${subject.Minutes} min</p>
                                 </div>
-                                ${!isCompleted ? `<button class="complete-btn text-xs bg-green-500 text-white font-semibold py-1 px-3 rounded-full hover:bg-green-600 transition-colors" data-task-id="${subject.id}">Complete</button>` : `<span class="text-xs font-bold text-green-600">Done!</span>`}
+                                <div class="flex justify-between items-end mt-2">
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 ${isCompleted ? 'line-through' : ''}">${subject.Pages} Pages</p>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mt-1" style="width: 120px;">
+                                            <div class="${colorClass} h-1.5 rounded-full transition-all duration-300" style="width: ${percentage}%"></div>
+                                        </div>
+                                    </div>
+                                    ${!isCompleted ? `<button class="complete-btn text-xs bg-green-500 text-white font-semibold py-1 px-3 rounded-full hover:bg-green-600 transition-colors" data-task-id="${subject.id}">Complete</button>` : `<span class="text-xs font-bold text-green-600">Done!</span>`}
+                                </div>
                             </div>
                             ${!isCompleted ? `
-                            <div class="mt-3">
-                                <div class="flex items-center justify-between text-xs text-gray-600">
+                            <div class="mt-3 relative z-10">
+                                <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                                     <span class="font-medium">${timerLabel}</span>
-                                    <span class="font-bold tabular-nums">${timeDisplay}</span>
+                                    <span class="font-bold tabular-nums ${isActiveTask ? 'text-indigo-600 dark:text-indigo-400' : ''}">${timeDisplay}</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                    <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: ${pomodoroProgress}%"></div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mt-1">
+                                    <div class="bg-indigo-500 dark:bg-indigo-400 h-2 rounded-full transition-all duration-500" style="width: ${pomodoroProgress}%"></div>
                                 </div>
                                 <div class="mt-2 flex gap-2 flex-wrap">
-                                    ${!isActiveTask || pState.paused ? `<button class="pomo-btn text-xs bg-indigo-500 text-white px-2 py-1 rounded" data-action="${isActiveTask ? 'resume' : 'start'}" data-task-id="${subject.id}">${isActiveTask ? 'Resume' : 'Start'}</button>` : ''}
-                                    ${isActiveTask && !pState.paused ? `<button class="pomo-btn text-xs bg-yellow-500 text-white px-2 py-1 rounded" data-action="pause" data-task-id="${subject.id}">Pause</button>` : ''}
-                                    ${isActiveTask ? `<button class="pomo-btn text-xs bg-gray-500 text-white px-2 py-1 rounded" data-action="reset" data-task-id="${subject.id}">Reset</button>` : ''}
+                                    ${!isActiveTask || (pState && pState.paused) ? `<button class="pomo-btn text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded transition-colors" data-action="${isActiveTask && pState && pState.paused ? 'resume' : 'start'}" data-task-id="${subject.id}">${isActiveTask && pState && pState.paused ? 'Resume' : 'Start'}</button>` : ''}
+                                    ${isActiveTask && pState && !pState.paused ? `<button class="pomo-btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded transition-colors" data-action="pause" data-task-id="${subject.id}">Pause</button>` : ''}
+                                    ${isActiveTask ? `<button class="pomo-btn text-xs bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded transition-colors" data-action="reset" data-task-id="${subject.id}">Reset</button>` : ''}
                                 </div>
                             </div>
                             ` : ''}
@@ -368,23 +376,38 @@
                 });
             });
 
-            // Pomodoro controls
-            document.querySelectorAll('.pomo-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
+            // Pomodoro controls - use event delegation
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('pomo-btn')) {
                     const action = e.target.dataset.action;
                     const taskId = parseInt(e.target.dataset.taskId, 10);
                     const task = studyData.find(t => t.id === taskId);
-                    if (!task || task.completed) return;
-                    if (action === 'start') {
-                        pomodoro.start(taskId, task.Subject);
-                    } else if (action === 'pause') {
-                        pomodoro.pause();
-                    } else if (action === 'resume') {
-                        pomodoro.resume();
-                    } else if (action === 'reset') {
-                        pomodoro.reset();
+                    
+                    console.log('Pomodoro button clicked:', action, taskId, task?.Subject);
+                    
+                    if (!task || task.completed || !pomodoro) {
+                        console.warn('Cannot perform action:', { task: !!task, completed: task?.completed, pomodoro: !!pomodoro });
+                        return;
                     }
-                });
+                    
+                    try {
+                        if (action === 'start') {
+                            console.log('Starting pomodoro for:', task.Subject);
+                            pomodoro.start(taskId, task.Subject);
+                        } else if (action === 'pause') {
+                            console.log('Pausing pomodoro');
+                            pomodoro.pause();
+                        } else if (action === 'resume') {
+                            console.log('Resuming pomodoro');
+                            pomodoro.resume();
+                        } else if (action === 'reset') {
+                            console.log('Resetting pomodoro');
+                            pomodoro.reset();
+                        }
+                    } catch (error) {
+                        console.error('Pomodoro action failed:', error);
+                    }
+                }
             });
         }
 
@@ -422,24 +445,36 @@
             renderDashboard();
 
             // Initialize Pomodoro after render
-            try {
-                pomodoro = new PomodoroEngine.PomodoroTimer({ workSeconds: 25 * 60, shortBreakSeconds: 5 * 60 });
-                pomodoro.on(state => {
-                    const activeTask = studyData.find(t => t.id === state.taskId);
-                    if (state.phase === 'complete' && activeTask && !activeTask.completed) {
-                        activeTask.completed = true;
-                        rewardPoints += 3; // 3 points for finishing a pomodoro session
-                        try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
-                        triggerCelebration();
-                        pomodoro.reset();
+            setTimeout(() => {
+                try {
+                    if (window.PomodoroEngine) {
+                        pomodoro = new PomodoroEngine.PomodoroTimer({ 
+                            workSeconds: 25 * 60, 
+                            shortBreakSeconds: 5 * 60,
+                            longBreakSeconds: 15 * 60,
+                            cyclesPerSet: 1  // Complete task after 1 cycle
+                        });
+                        pomodoro.on(state => {
+                            console.log('Pomodoro state update:', state);
+                            const activeTask = studyData.find(t => t.id === state.taskId);
+                            if (state.phase === 'complete' && activeTask && !activeTask.completed) {
+                                activeTask.completed = true;
+                                rewardPoints += 3; // 3 points for finishing a pomodoro session
+                                try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
+                                triggerCelebration();
+                                pomodoro.reset();
+                            }
+                            updatePomodoroUI(state);
+                        });
+                        console.log('Pomodoro timer initialized successfully');
                     } else {
-                        updatePomodoroUI(state);
+                        console.warn('PomodoroEngine not available');
                     }
-                });
-            } catch (e) {
-                console.warn('Pomodoro initialization failed:', e);
-                // Continue without Pomodoro
-            }
+                } catch (e) {
+                    console.warn('Pomodoro initialization failed:', e);
+                    // Continue without Pomodoro
+                }
+            }, 100);
 
             // Dark Mode Toggle
             const darkModeToggle = document.getElementById('dark-mode-toggle');
