@@ -234,9 +234,12 @@
         // =============================
         function renderDashboard() {
             const dashboardGrid = document.getElementById('dashboard-grid');
-            dashboardGrid.innerHTML = '';
+            if (!dashboardGrid) return; // Guard against element not found
+            dashboardGrid.innerHTML = ''; 
 
             document.getElementById('dashboard-subtitle').textContent = `Long tasks (>=10 pages) are 50 min. Short tasks are 5 min/page. Spanish is 7 min/page.`;
+            
+            const pState = pomodoro ? pomodoro.getState() : null;
 
             const subjectColorMap = new Map();
             let colorIndex = 0;
@@ -260,16 +263,12 @@
                     const percentage = totalMinutes > 0 ? (subject.Minutes / totalMinutes) * 100 : 0;
                     const baseSubject = subject.Subject.split('(')[0].split('-')[0].trim();
                     const colorClass = subjectColorMap.get(baseSubject) || 'bg-gray-400';
-                    const notes = subject.Notes || 'No notes for this entry.';
                     const isCompleted = subject.completed;
-
-                    const pState = pomodoro ? pomodoro.getState() : null;
+                    
                     const isActiveTask = pState && pState.active && pState.taskId === subject.id;
-                    const pomodoroProgress = isActiveTask && pState.phase !== 'complete'
-                        ? Math.round(((pState.phaseSeconds - pState.remainingSeconds) / pState.phaseSeconds) * 100)
-                        : 0;
-                    const timerLabel = isActiveTask ? `${pState.phase === 'work' ? 'Focus' : (pState.phase === 'break' ? 'Break' : 'Done')}` : 'Ready';
-                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(25*60);
+                    const pomodoroProgress = isActiveTask && pState.phaseSeconds > 0 ? Math.round(((pState.phaseSeconds - pState.remainingSeconds) / pState.phaseSeconds) * 100) : 0;
+                    const timerLabel = isActiveTask ? `${pState.phase.charAt(0).toUpperCase() + pState.phase.slice(1)}` : 'Ready';
+                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(pomodoro.config.workSeconds);
 
                     return `
                         <div class="subject-card p-3 rounded-lg border border-gray-200 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50' : 'hover:bg-gray-50'}">
@@ -290,14 +289,13 @@
                             <div class="mt-3">
                                 <div class="flex items-center justify-between text-xs text-gray-600">
                                     <span class="font-medium">${timerLabel}</span>
-                                    <span class="font-bold tabular-nums" id="pomo-time-${subject.id}">${timeDisplay}</span>
+                                    <span class="font-bold tabular-nums">${timeDisplay}</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                    <div class="bg-indigo-500 h-2 rounded-full" id="pomo-progress-${subject.id}" style="width: ${pomodoroProgress}%"></div>
+                                    <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: ${pomodoroProgress}%"></div>
                                 </div>
                                 <div class="mt-2 flex gap-2 flex-wrap">
-                                    ${!isActiveTask ? `<button class="pomo-btn text-xs bg-indigo-500 text-white px-2 py-1 rounded" data-action="start" data-task-id="${subject.id}" data-label="${subject.Subject.replace(/"/g, '&quot;')}">Start</button>` : ''}
-                                    ${isActiveTask && pState.paused ? `<button class="pomo-btn text-xs bg-green-500 text-white px-2 py-1 rounded" data-action="resume" data-task-id="${subject.id}">Resume</button>` : ''}
+                                    ${!isActiveTask || pState.paused ? `<button class="pomo-btn text-xs bg-indigo-500 text-white px-2 py-1 rounded" data-action="${isActiveTask ? 'resume' : 'start'}" data-task-id="${subject.id}">${isActiveTask ? 'Resume' : 'Start'}</button>` : ''}
                                     ${isActiveTask && !pState.paused ? `<button class="pomo-btn text-xs bg-yellow-500 text-white px-2 py-1 rounded" data-action="pause" data-task-id="${subject.id}">Pause</button>` : ''}
                                     ${isActiveTask ? `<button class="pomo-btn text-xs bg-gray-500 text-white px-2 py-1 rounded" data-action="reset" data-task-id="${subject.id}">Reset</button>` : ''}
                                 </div>
@@ -311,7 +309,7 @@
                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
                         <h2 class="text-lg font-bold">${day}</h2>
                         <div>
-                           <span class="text-sm font-semibold text-gray-500 line-through">${totalMinutes} min</span>
+                           <span class="text-sm font-semibold text-gray-500 ${remainingMinutes === 0 ? '' : 'line-through'}">${totalMinutes} min</span>
                            <span class="text-base font-semibold text-indigo-600 ml-2">${remainingMinutes} min left</span>
                         </div>
                     </div>
@@ -319,12 +317,12 @@
                         ${subjectItemsHTML}
                     </div>
                 `;
-
+                
                 dashboardGrid.appendChild(dayCard);
             });
-
+            
             setupActionListeners();
-            document.getElementById('reward-points').textContent = String(rewardPoints);
+            document.getElementById('reward-points').textContent = `${rewardPoints} ⭐`;
         }
 
         // =============================
@@ -402,6 +400,14 @@
             });
         }
 
+        function updatePomodoroUI(state) {
+            document.querySelectorAll('[id^="pomo-time-"], [id^="pomo-progress-"]').forEach(el => {
+                // This could be optimized, but for now, we just redraw the whole dashboard
+                // to ensure consistency, which is the root of the bug.
+            });
+             renderDashboard();
+        }
+
         // =============================
         // Initial Load
         // =============================
@@ -418,9 +424,10 @@
                     rewardPoints += 3; // 3 points for finishing a pomodoro session
                     try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
                     triggerCelebration();
-                    pomodoro.reset(); // Also reset the timer
+                    pomodoro.reset();
+                } else {
+                    updatePomodoroUI(state);
                 }
-                renderDashboard();
             });
 
             // Calendar Modal Controls
