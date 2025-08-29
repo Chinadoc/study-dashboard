@@ -458,6 +458,7 @@
         let collectedRewards = [];
         let streakCount = 0;
         let lastStudyDate = null;
+        let assignmentProgress = {}; // Store time spent on each assignment
 
         // =============================
         // Rewards System
@@ -696,23 +697,23 @@
                     const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(defaultTime);
                     
                     // Calculate assignment progress overlay based on actual assignment time, not Pomodoro time
-                    let assignmentProgress = 0;
+                    let assignmentProgressPercent = 0;
+                    let totalTimeSpentOnAssignment = assignmentProgress[subject.id] || 0; // Previously saved time
+                    
                     if (isActiveTask && pState.phase === 'work') {
-                        const timeSpentOnAssignment = (pState.phaseSeconds - pState.remainingSeconds) / 60; // minutes spent
-                        assignmentProgress = Math.min(100, Math.round((timeSpentOnAssignment / subject.Minutes) * 100));
+                        const currentSessionTime = (pState.phaseSeconds - pState.remainingSeconds) / 60; // minutes spent in current session
+                        totalTimeSpentOnAssignment += currentSessionTime;
                     }
                     
-                    // Calculate remaining time for this specific task
-                    let displayMinutes = subject.Minutes;
-                    if (isActiveTask && pState.phase === 'work') {
-                        const timeSpent = (pState.phaseSeconds - pState.remainingSeconds) / 60; // minutes spent
-                        displayMinutes = Math.max(0, Math.round(subject.Minutes - timeSpent));
-                    }
+                    assignmentProgressPercent = Math.min(100, Math.round((totalTimeSpentOnAssignment / subject.Minutes) * 100));
+                    
+                    // Use the same total time spent calculation for display minutes
+                    const displayMinutes = Math.max(0, Math.round(subject.Minutes - totalTimeSpentOnAssignment));
 
                     return `
                         <div class="subject-card relative p-3 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'} overflow-hidden">
-                            ${isActiveTask && pState.phase === 'work' ? `
-                                <div class="absolute inset-0 bg-gradient-to-r from-green-400/20 to-blue-500/20 dark:from-green-400/30 dark:to-blue-500/30 transition-all duration-1000" style="width: ${assignmentProgress}%; z-index: 1;"></div>
+                            ${assignmentProgressPercent > 0 ? `
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-400/20 to-blue-500/20 dark:from-green-400/30 dark:to-blue-500/30 transition-all duration-1000" style="width: ${assignmentProgressPercent}%; z-index: 1;"></div>
                             ` : ''}
                             <div class="relative z-10">
                                 <div class="flex justify-between items-start">
@@ -726,7 +727,12 @@
                                             <div class="${colorClass} h-1.5 rounded-full transition-all duration-300" style="width: ${percentage}%"></div>
                                         </div>
                                     </div>
-                                    ${!isCompleted ? `<button class="complete-btn text-xs bg-green-500 text-white font-semibold py-1 px-3 rounded-full hover:bg-green-600 transition-colors" data-task-id="${subject.id}">Complete</button>` : `<span class="text-xs font-bold text-green-600">Done!</span>`}
+                                    ${!isCompleted ? `<button class="complete-btn text-xs bg-green-500 text-white font-semibold py-1 px-3 rounded-full hover:bg-green-600 transition-colors" data-task-id="${subject.id}">Complete</button>` : `
+                                        <div class="flex gap-2 items-center">
+                                            <span class="text-xs font-bold text-green-600">Done!</span>
+                                            <button class="undo-btn text-xs bg-gray-500 text-white font-semibold py-1 px-2 rounded hover:bg-gray-600 transition-colors" data-task-id="${subject.id}">↶ Undo</button>
+                                        </div>
+                                    `}
                                 </div>
                             </div>
                             ${!isCompleted ? `
@@ -815,6 +821,21 @@
                 });
             });
 
+            // Undo button for completed assignments
+            document.querySelectorAll('.undo-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const taskId = parseInt(e.target.dataset.taskId, 10);
+                    const task = studyData.find(t => t.id === taskId);
+                    if (task && task.completed) {
+                        task.completed = false;
+                        task.completedDate = null;
+                        
+                        console.log('Undoing completion for:', task.Subject);
+                        renderDashboard();
+                    }
+                });
+            });
+
             // Pomodoro controls - use event delegation
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('pomo-btn')) {
@@ -832,6 +853,23 @@
                     try {
                         if (action === 'start') {
                             console.log('Starting pomodoro for:', task.Subject);
+                            
+                            // Save progress from current timer if switching
+                            const currentState = pomodoro.getState();
+                            if (currentState.active && currentState.taskId !== taskId) {
+                                const timeSpent = (currentState.phaseSeconds - currentState.remainingSeconds) / 60;
+                                if (!assignmentProgress[currentState.taskId]) {
+                                    assignmentProgress[currentState.taskId] = 0;
+                                }
+                                assignmentProgress[currentState.taskId] += timeSpent;
+                                console.log(`Saved ${timeSpent.toFixed(1)} minutes of progress for task ${currentState.taskId}`);
+                                
+                                // Save to localStorage
+                                try { 
+                                    localStorage.setItem('assignmentProgress', JSON.stringify(assignmentProgress)); 
+                                } catch {}
+                            }
+                            
                             // Use task duration for short tasks (5 minutes), otherwise use 25 minutes
                             const timerDuration = task.Minutes <= 5 ? task.Minutes * 60 : 25 * 60;
                             pomodoro.start(taskId, task.Subject, { workSeconds: timerDuration });
@@ -1217,11 +1255,13 @@
                 streakCount = parseInt(localStorage.getItem('streakCount') || '0', 10) || 0;
                 lastStudyDate = localStorage.getItem('lastStudyDate') || null;
                 collectedRewards = JSON.parse(localStorage.getItem('collectedRewards') || '[]');
+                assignmentProgress = JSON.parse(localStorage.getItem('assignmentProgress') || '{}');
             } catch { 
                 rewardPoints = 0; 
                 streakCount = 0;
                 lastStudyDate = null;
                 collectedRewards = [];
+                assignmentProgress = {};
             }
             
             // Process data first
