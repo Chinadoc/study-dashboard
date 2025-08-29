@@ -568,8 +568,12 @@
                     let defaultTime = subject.Minutes <= 5 ? subject.Minutes * 60 : 25 * 60;
                     const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(defaultTime);
                     
-                    // Calculate assignment progress overlay and time reduction
-                    const assignmentProgress = isActiveTask && pState.phase === 'work' ? pomodoroProgress : 0;
+                    // Calculate assignment progress overlay based on actual assignment time, not Pomodoro time
+                    let assignmentProgress = 0;
+                    if (isActiveTask && pState.phase === 'work') {
+                        const timeSpentOnAssignment = (pState.phaseSeconds - pState.remainingSeconds) / 60; // minutes spent
+                        assignmentProgress = Math.min(100, Math.round((timeSpentOnAssignment / subject.Minutes) * 100));
+                    }
                     
                     // Calculate remaining time for this specific task
                     let displayMinutes = subject.Minutes;
