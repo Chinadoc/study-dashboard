@@ -36,10 +36,25 @@
 <body class="bg-gray-100 text-gray-800 p-4 sm:p-6">
     <canvas id="confetti-canvas"></canvas>
 
+    <div class="max-w-7xl mx-auto mb-4">
+        <a href="gunnaiza.html" class="text-blue-600 underline">View Gunnaiza's Dashboard</a>
+    </div>
+
     <div id="dashboard-container" class="max-w-7xl mx-auto">
-        <header class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Study Dashboard</h1>
-            <p id="dashboard-subtitle" class="text-gray-500 mt-1"></p>
+        <header class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Assignment Sheet</h1>
+                    <p id="dashboard-subtitle" class="text-gray-500 mt-1"></p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm font-semibold">
+                        <span>Rewards:</span> 
+                        <span id="reward-points" class="font-bold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-md">0 ⭐</span>
+                    </div>
+                    <button id="toggle-calendar" class="text-sm bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-600 transition-colors">Show Calendar</button>
+                </div>
+            </div>
         </header>
         
         <main id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -55,6 +70,17 @@
                 <button id="modal-close-btn" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
             </div>
             <p id="modal-body" class="text-gray-600"></p>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div id="calendar-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="text-lg font-semibold">Full Assignment Calendar</h3>
+                <button id="calendar-modal-close-btn" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+            </div>
+            <iframe src="gunnaiza.html" class="w-full h-full"></iframe>
         </div>
     </div>
 
