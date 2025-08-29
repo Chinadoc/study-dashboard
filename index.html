@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Confetti library for celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="pomodoro.js"></script>
     <style>
         /* Use the Inter font family */
         body {
@@ -90,6 +91,8 @@
         // State Management
         // =============================
         let studyData = [];
+        let rewardPoints = 0;
+        let pomodoro;
 
         // =============================
         // Configuration
@@ -259,6 +262,12 @@
                     const notes = subject.Notes || 'No notes for this entry.';
                     const isCompleted = subject.completed;
 
+                    const pState = pomodoro ? pomodoro.getState() : null;
+                    const isActiveTask = pState && pState.active && pState.taskId === subject.id;
+                    const pomodoroProgress = isActiveTask && pState.phaseSeconds > 0 ? Math.round(((pState.phaseSeconds - pState.remainingSeconds) / pState.phaseSeconds) * 100) : 0;
+                    const timerLabel = isActiveTask ? `${pState.phase.charAt(0).toUpperCase() + pState.phase.slice(1)}` : 'Ready';
+                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(pomodoro.config.workSeconds);
+
                     return `
                         <div class="subject-card p-3 rounded-lg border border-gray-200 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50' : 'hover:bg-gray-50'}">
                             <div class="flex justify-between items-start">
@@ -274,6 +283,22 @@
                                 </div>
                                 ${!isCompleted ? `<button class="complete-btn text-xs bg-green-500 text-white font-semibold py-1 px-3 rounded-full hover:bg-green-600 transition-colors" data-task-id="${subject.id}">Complete</button>` : `<span class="text-xs font-bold text-green-600">Done!</span>`}
                             </div>
+                            ${!isCompleted ? `
+                            <div class="mt-3">
+                                <div class="flex items-center justify-between text-xs text-gray-600">
+                                    <span class="font-medium">${timerLabel}</span>
+                                    <span class="font-bold tabular-nums">${timeDisplay}</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                    <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: ${pomodoroProgress}%"></div>
+                                </div>
+                                <div class="mt-2 flex gap-2 flex-wrap">
+                                    ${!isActiveTask || pState.paused ? `<button class="pomo-btn text-xs bg-indigo-500 text-white px-2 py-1 rounded" data-action="${isActiveTask ? 'resume' : 'start'}" data-task-id="${subject.id}">${isActiveTask ? 'Resume' : 'Start'}</button>` : ''}
+                                    ${isActiveTask && !pState.paused ? `<button class="pomo-btn text-xs bg-yellow-500 text-white px-2 py-1 rounded" data-action="pause" data-task-id="${subject.id}">Pause</button>` : ''}
+                                    ${isActiveTask ? `<button class="pomo-btn text-xs bg-gray-500 text-white px-2 py-1 rounded" data-action="reset" data-task-id="${subject.id}">Reset</button>` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     `;
                 }).join('');
@@ -282,7 +307,7 @@
                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
                         <h2 class="text-lg font-bold">${day}</h2>
                         <div>
-                           <span class="text-sm font-semibold text-gray-500 line-through">${totalMinutes} min</span>
+                           <span class="text-sm font-semibold text-gray-500 ${remainingMinutes === 0 ? '' : 'line-through'}">${totalMinutes} min</span>
                            <span class="text-base font-semibold text-indigo-600 ml-2">${remainingMinutes} min left</span>
                         </div>
                     </div>
@@ -295,47 +320,65 @@
             });
             
             setupActionListeners();
+            document.getElementById('reward-points').textContent = `${rewardPoints} ⭐`;
         }
 
         // =============================
         // Interactivity Setup
         // =============================
         function setupActionListeners() {
-            const modalBackdrop = document.getElementById('modal-backdrop');
-            const modalTitle = document.getElementById('modal-title');
-            const modalBody = document.getElementById('modal-body');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-
+            // Notes Modal
+            const notesModalBackdrop = document.getElementById('modal-backdrop');
+            const notesModalTitle = document.getElementById('modal-title');
+            const notesModalBody = document.getElementById('modal-body');
+            const notesModalCloseBtn = document.getElementById('modal-close-btn');
+            
             document.querySelectorAll('.subject-card h3').forEach(title => {
                 title.addEventListener('click', (e) => {
-                    const card = e.target.closest('.subject-card');
-                    modalTitle.textContent = title.textContent;
-                    modalBody.textContent = "Notes would be displayed here.";
-                    modalBackdrop.classList.remove('hidden');
+                    notesModalTitle.textContent = title.textContent;
+                    notesModalBody.textContent = "Notes would be displayed here."; // Placeholder
+                    notesModalBackdrop.classList.remove('hidden');
                 });
             });
+            
+            const closeNotesModal = () => notesModalBackdrop.classList.add('hidden');
+            notesModalCloseBtn.addEventListener('click', closeNotesModal);
+            notesModalBackdrop.addEventListener('click', (event) => {
+                if (event.target === notesModalBackdrop) closeNotesModal();
+            });
 
+            // Manual complete button
             document.querySelectorAll('.complete-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const taskId = parseInt(e.target.dataset.taskId, 10);
                     const task = studyData.find(t => t.id === taskId);
-                    if (task) {
+                    if (task && !task.completed) {
                         task.completed = true;
+                        rewardPoints += 1; // 1 point for manual completion
+                        try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
                         triggerCelebration();
                         renderDashboard();
                     }
                 });
             });
 
-            const closeModal = () => {
-                modalBackdrop.classList.add('hidden');
-            };
-
-            modalCloseBtn.addEventListener('click', closeModal);
-            modalBackdrop.addEventListener('click', (event) => {
-                if (event.target === modalBackdrop) {
-                    closeModal();
-                }
+            // Pomodoro controls
+            document.querySelectorAll('.pomo-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    const taskId = parseInt(e.target.dataset.taskId, 10);
+                    const task = studyData.find(t => t.id === taskId);
+                    if (!task || task.completed) return;
+                    if (action === 'start') {
+                        pomodoro.start(taskId, task.Subject);
+                    } else if (action === 'pause') {
+                        pomodoro.pause();
+                    } else if (action === 'resume') {
+                        pomodoro.resume();
+                    } else if (action === 'reset') {
+                        pomodoro.reset();
+                    }
+                });
             });
         }
 
@@ -355,12 +398,31 @@
             });
         }
 
+        function updatePomodoroUI(state) {
+            renderDashboard();
+        }
+
         // =============================
         // Initial Load
         // =============================
         document.addEventListener('DOMContentLoaded', () => {
+            try { rewardPoints = parseInt(localStorage.getItem('rewardPointsV1') || '0', 10) || 0; } catch { rewardPoints = 0; }
+            
             studyData = processData(ROWS);
-            renderDashboard();
+
+            pomodoro = new PomodoroEngine.PomodoroTimer({ workSeconds: 25 * 60, shortBreakSeconds: 5 * 60 });
+            pomodoro.on(state => {
+                const activeTask = studyData.find(t => t.id === state.taskId);
+                if (state.phase === 'complete' && activeTask && !activeTask.completed) {
+                    activeTask.completed = true;
+                    rewardPoints += 3; // 3 points for finishing a pomodoro session
+                    try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
+                    triggerCelebration();
+                    pomodoro.reset();
+                } else {
+                    updatePomodoroUI(state);
+                }
+            });
 
             // Calendar Modal Controls
             const calModal = document.getElementById('calendar-modal-backdrop');
@@ -369,6 +431,8 @@
             calModal.addEventListener('click', (e) => {
                 if (e.target === calModal) calModal.classList.add('hidden');
             });
+
+            renderDashboard();
         });
     </script>
 </body>
