@@ -361,6 +361,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             studyData = processData(ROWS);
             renderDashboard();
+
+            // Calendar Modal Controls
+            const calModal = document.getElementById('calendar-modal-backdrop');
+            document.getElementById('toggle-calendar').addEventListener('click', () => calModal.classList.remove('hidden'));
+            document.getElementById('calendar-modal-close-btn').addEventListener('click', () => calModal.classList.add('hidden'));
+            calModal.addEventListener('click', (e) => {
+                if (e.target === calModal) calModal.classList.add('hidden');
+            });
         });
     </script>
 </body>
