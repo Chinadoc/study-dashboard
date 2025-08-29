@@ -90,6 +90,30 @@
         </div>
     </div>
 
+    <!-- Break Time Modal -->
+    <div id="break-modal-backdrop" class="fixed inset-0 bg-gradient-to-br from-green-400 to-blue-500 dark:from-green-600 dark:to-blue-700 hidden items-center justify-center z-[100]">
+        <div class="text-center text-white p-8 max-w-2xl mx-auto">
+            <div class="mb-8">
+                <div class="text-8xl mb-4">🎉</div>
+                <h1 class="text-4xl font-bold mb-4">Great Work!</h1>
+                <p id="break-message" class="text-xl mb-6">You've completed a focused work session. Time for a well-deserved break!</p>
+            </div>
+            <div class="mb-8">
+                <p class="text-lg mb-2">Break Time:</p>
+                <p id="break-timer" class="text-6xl font-bold text-yellow-200">5:00</p>
+            </div>
+            <div class="space-y-4">
+                <p class="text-lg">💧 Drink some water</p>
+                <p class="text-lg">👀 Look away from the screen</p>
+                <p class="text-lg">🧘 Take deep breaths</p>
+                <p class="text-lg">🚶 Move around a bit</p>
+            </div>
+            <button id="skip-break-btn" class="mt-8 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                Skip Break
+            </button>
+        </div>
+    </div>
+
 
     <script>
         // =============================
@@ -249,6 +273,23 @@
         let studyData = [];
         let rewardPoints = 0;
         let pomodoro;
+        let breakInterval = null;
+
+        // =============================
+        // Encouraging Messages
+        // =============================
+        const ENCOURAGING_MESSAGES = [
+            "Amazing focus! 🌟 You're making great progress on your studies.",
+            "Excellent work! 💪 Your dedication is really paying off.",
+            "Fantastic job! 🚀 You're building great study habits.",
+            "Well done! 📚 Every focused session brings you closer to your goals.",
+            "Outstanding effort! ⭐ You're developing excellent concentration skills.",
+            "Brilliant work! 🎯 Your consistent effort is inspiring.",
+            "Great job! 🏆 You're proving that focused work really pays off.",
+            "Wonderful progress! 🌈 Your commitment to learning is admirable.",
+            "Excellent focus! 💎 You're turning your study time into real achievement.",
+            "Impressive dedication! 🔥 Your hard work is building towards success."
+        ];
 
         // =============================
         // Configuration
@@ -406,7 +447,23 @@
             DAYS_ORDER.forEach(day => {
                 const dayData = studyData.filter(row => row.Day === day);
                 const totalMinutes = dayData.reduce((sum, row) => sum + row.Minutes, 0);
-                const remainingMinutes = dayData.reduce((sum, row) => sum + (row.completed ? 0 : row.Minutes), 0);
+                
+                // Calculate remaining minutes accounting for active Pomodoro
+                let remainingMinutes = 0;
+                const pState = pomodoro ? pomodoro.getState() : null;
+                
+                dayData.forEach(row => {
+                    if (row.completed) return; // Skip completed tasks
+                    
+                    if (pState && pState.active && pState.taskId === row.id && pState.phase === 'work') {
+                        const timeSpent = (pState.phaseSeconds - pState.remainingSeconds) / 60;
+                        remainingMinutes += Math.max(0, row.Minutes - timeSpent);
+                    } else {
+                        remainingMinutes += row.Minutes;
+                    }
+                });
+                
+                remainingMinutes = Math.round(remainingMinutes);
 
                 const dayCard = document.createElement('div');
                 dayCard.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 flex flex-col border border-gray-200 dark:border-gray-700 transition-colors';
@@ -424,8 +481,15 @@
                     const timerLabel = isActiveTask ? `${pState.phase.charAt(0).toUpperCase() + pState.phase.slice(1)}` : 'Ready';
                     const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : (pomodoro ? PomodoroEngine.formatTime(pomodoro.config.workSeconds) : '25:00');
                     
-                    // Calculate assignment progress overlay
+                    // Calculate assignment progress overlay and time reduction
                     const assignmentProgress = isActiveTask && pState.phase === 'work' ? pomodoroProgress : 0;
+                    
+                    // Calculate remaining time for this specific task
+                    let displayMinutes = subject.Minutes;
+                    if (isActiveTask && pState.phase === 'work') {
+                        const timeSpent = (pState.phaseSeconds - pState.remainingSeconds) / 60; // minutes spent
+                        displayMinutes = Math.max(0, Math.round(subject.Minutes - timeSpent));
+                    }
 
                     return `
                         <div class="subject-card relative p-3 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'} overflow-hidden">
@@ -435,7 +499,7 @@
                             <div class="relative z-10">
                                 <div class="flex justify-between items-start">
                                     <h3 class="font-semibold pr-2 text-sm ${isCompleted ? 'line-through' : ''}">${subject.Subject}</h3>
-                                    <p class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap ${isCompleted ? 'line-through' : ''}">${subject.Minutes} min</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap ${isCompleted ? 'line-through' : ''} ${isActiveTask ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}">${displayMinutes} min</p>
                                 </div>
                                 <div class="flex justify-between items-end mt-2">
                                     <div>
@@ -582,6 +646,51 @@
         }
 
         // =============================
+        // Break Modal Functions
+        // =============================
+        function showBreakModal() {
+            const modal = document.getElementById('break-modal-backdrop');
+            const messageElement = document.getElementById('break-message');
+            const timerElement = document.getElementById('break-timer');
+            
+            // Show random encouraging message
+            const randomMessage = ENCOURAGING_MESSAGES[Math.floor(Math.random() * ENCOURAGING_MESSAGES.length)];
+            messageElement.textContent = randomMessage;
+            
+            // Set up break timer (5 minutes)
+            let breakTimeLeft = 5 * 60; // 5 minutes in seconds
+            timerElement.textContent = PomodoroEngine.formatTime(breakTimeLeft);
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Start break countdown
+            breakInterval = setInterval(() => {
+                breakTimeLeft--;
+                timerElement.textContent = PomodoroEngine.formatTime(breakTimeLeft);
+                
+                if (breakTimeLeft <= 0) {
+                    hideBreakModal();
+                }
+            }, 1000);
+            
+            // Trigger celebration
+            triggerCelebration();
+        }
+
+        function hideBreakModal() {
+            const modal = document.getElementById('break-modal-backdrop');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            if (breakInterval) {
+                clearInterval(breakInterval);
+                breakInterval = null;
+            }
+        }
+
+        // =============================
         // Initial Load
         // =============================
         document.addEventListener('DOMContentLoaded', () => {
@@ -605,7 +714,11 @@
                 pomodoro.on(state => {
                     console.log('Pomodoro state update:', state);
                     const activeTask = studyData.find(t => t.id === state.taskId);
-                    if (state.phase === 'complete' && activeTask && !activeTask.completed) {
+                    
+                    if (state.phase === 'break' && state.remainingSeconds === state.phaseSeconds) {
+                        // Just started break - show break modal
+                        showBreakModal();
+                    } else if (state.phase === 'complete' && activeTask && !activeTask.completed) {
                         activeTask.completed = true;
                         rewardPoints += 3; // 3 points for finishing a pomodoro session
                         try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
@@ -641,6 +754,14 @@
             document.getElementById('calendar-modal-close-btn').addEventListener('click', () => calModal.classList.add('hidden'));
             calModal.addEventListener('click', (e) => {
                 if (e.target === calModal) calModal.classList.add('hidden');
+            });
+
+            // Break Modal Controls
+            document.getElementById('skip-break-btn').addEventListener('click', () => {
+                hideBreakModal();
+                if (pomodoro) {
+                    pomodoro.reset(); // End the break and reset
+                }
             });
         });
     </script>
