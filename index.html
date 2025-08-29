@@ -57,6 +57,7 @@
                         <span>Rewards:</span> 
                         <span id="reward-points" class="font-bold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-md">0 ⭐</span>
                     </div>
+                    <button id="collection-btn" class="text-sm bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors">🎁 Collection</button>
                     <button id="dark-mode-toggle" class="text-sm bg-gray-700 dark:bg-gray-300 text-white dark:text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">🌙</button>
                     <button id="toggle-calendar" class="text-sm bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-600 transition-colors">Show Calendar</button>
                 </div>
@@ -274,6 +275,37 @@
         let rewardPoints = 0;
         let pomodoro;
         let breakInterval = null;
+        let collectedRewards = [];
+        let streakCount = 0;
+        let lastStudyDate = null;
+
+        // =============================
+        // Rewards System
+        // =============================
+        const REWARD_TYPES = {
+            POMODORO_COMPLETE: { points: 3, message: "Focused Work Session!" },
+            ASSIGNMENT_COMPLETE: { points: 5, message: "Assignment Completed!" },
+            DAILY_GOAL: { points: 10, message: "Daily Goal Achieved!" },
+            STREAK_3: { points: 15, message: "3-Day Study Streak!" },
+            STREAK_7: { points: 25, message: "Week Study Streak!" }
+        };
+
+        const FUN_REWARDS = [
+            { emoji: "🐟", name: "Rainbow Trout", rarity: "common", message: "You caught a beautiful rainbow trout!" },
+            { emoji: "🐠", name: "Tropical Fish", rarity: "common", message: "A colorful tropical fish swims by!" },
+            { emoji: "🐡", name: "Pufferfish", rarity: "uncommon", message: "A rare pufferfish appears!" },
+            { emoji: "🦈", name: "Shark", rarity: "rare", message: "Whoa! A mighty shark emerges!" },
+            { emoji: "🐙", name: "Octopus", rarity: "rare", message: "An intelligent octopus greets you!" },
+            { emoji: "🍕", name: "Pizza", rarity: "common", message: "Delicious pizza slice earned!" },
+            { emoji: "🍛", name: "Kabuli Pulao", rarity: "uncommon", message: "Traditional Afghan rice dish unlocked!" },
+            { emoji: "🥘", name: "Qorma", rarity: "uncommon", message: "Savory Afghan stew discovered!" },
+            { emoji: "🍖", name: "Kebab", rarity: "common", message: "Juicy Afghan kebab earned!" },
+            { emoji: "🫓", name: "Naan", rarity: "common", message: "Fresh Afghan bread acquired!" },
+            { emoji: "🍯", name: "Afghan Honey", rarity: "rare", message: "Sweet golden honey from Afghanistan!" },
+            { emoji: "🧿", name: "Nazar", rarity: "rare", message: "Protective evil eye charm found!" },
+            { emoji: "🏔️", name: "Hindu Kush", rarity: "legendary", message: "You've conquered the Hindu Kush mountains!" },
+            { emoji: "💎", name: "Lapis Lazuli", rarity: "legendary", message: "Precious Afghan gemstone discovered!" }
+        ];
 
         // =============================
         // Encouraging Messages
@@ -479,7 +511,9 @@
                     const isActiveTask = pState && pState.active && pState.taskId === subject.id;
                     const pomodoroProgress = isActiveTask && pState.phaseSeconds > 0 ? Math.round(((pState.phaseSeconds - pState.remainingSeconds) / pState.phaseSeconds) * 100) : 0;
                     const timerLabel = isActiveTask ? `${pState.phase.charAt(0).toUpperCase() + pState.phase.slice(1)}` : 'Ready';
-                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : (pomodoro ? PomodoroEngine.formatTime(pomodoro.config.workSeconds) : '25:00');
+                    // Show appropriate timer duration based on task length
+                    let defaultTime = subject.Minutes <= 5 ? subject.Minutes * 60 : 25 * 60;
+                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(defaultTime);
                     
                     // Calculate assignment progress overlay and time reduction
                     const assignmentProgress = isActiveTask && pState.phase === 'work' ? pomodoroProgress : 0;
@@ -582,8 +616,15 @@
                     const task = studyData.find(t => t.id === taskId);
                     if (task && !task.completed) {
                         task.completed = true;
-                        rewardPoints += 1; // 1 point for manual completion
-                        try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
+                        task.completedDate = new Date().toISOString();
+                        
+                        // Give reward for manual completion (fewer points than Pomodoro)
+                        giveReward('ASSIGNMENT_COMPLETE', 2, "Quick Complete!");
+                        
+                        // Update streak and check daily goals
+                        updateStreak();
+                        checkDailyGoal();
+                        
                         triggerCelebration();
                         renderDashboard();
                     }
@@ -607,7 +648,9 @@
                     try {
                         if (action === 'start') {
                             console.log('Starting pomodoro for:', task.Subject);
-                            pomodoro.start(taskId, task.Subject);
+                            // Use task duration for short tasks (5 minutes), otherwise use 25 minutes
+                            const timerDuration = task.Minutes <= 5 ? task.Minutes * 60 : 25 * 60;
+                            pomodoro.start(taskId, task.Subject, { workSeconds: timerDuration });
                         } else if (action === 'pause') {
                             console.log('Pausing pomodoro');
                             pomodoro.pause();
@@ -643,6 +686,174 @@
 
         function updatePomodoroUI(state) {
             renderDashboard();
+        }
+
+        // =============================
+        // Reward Functions
+        // =============================
+        function giveReward(type, customPoints = null, customMessage = null) {
+            const reward = REWARD_TYPES[type];
+            const points = customPoints || reward.points;
+            const message = customMessage || reward.message;
+            
+            rewardPoints += points;
+            
+            // Save to localStorage
+            try { 
+                localStorage.setItem('rewardPointsV1', String(rewardPoints)); 
+                localStorage.setItem('streakCount', String(streakCount));
+                localStorage.setItem('lastStudyDate', lastStudyDate);
+            } catch {}
+            
+            // Check for fun reward (30% chance)
+            if (Math.random() < 0.3) {
+                giveFunReward();
+            }
+            
+            showRewardNotification(message, points);
+            updateRewardDisplay();
+        }
+
+        function giveFunReward() {
+            // Determine rarity based on probability
+            const rarityRoll = Math.random();
+            let targetRarity;
+            if (rarityRoll < 0.5) targetRarity = "common";          // 50%
+            else if (rarityRoll < 0.8) targetRarity = "uncommon";   // 30%
+            else if (rarityRoll < 0.95) targetRarity = "rare";      // 15%
+            else targetRarity = "legendary";                        // 5%
+            
+            const availableRewards = FUN_REWARDS.filter(r => r.rarity === targetRarity);
+            const randomReward = availableRewards[Math.floor(Math.random() * availableRewards.length)];
+            
+            // Add to collection if not already owned
+            if (!collectedRewards.find(r => r.name === randomReward.name)) {
+                collectedRewards.push({
+                    ...randomReward,
+                    dateCollected: new Date().toISOString()
+                });
+                
+                // Save collection
+                try { 
+                    localStorage.setItem('collectedRewards', JSON.stringify(collectedRewards)); 
+                } catch {}
+                
+                showFunRewardNotification(randomReward);
+            }
+        }
+
+        function showRewardNotification(message, points) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">⭐</span>
+                    <div>
+                        <div class="font-semibold">${message}</div>
+                        <div class="text-sm">+${points} points</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showFunRewardNotification(reward) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 bg-gradient-to-r ${getRarityColors(reward.rarity)} text-white px-4 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">${reward.emoji}</span>
+                    <div>
+                        <div class="font-semibold">${reward.name}</div>
+                        <div class="text-sm opacity-90">${reward.message}</div>
+                        <div class="text-xs font-bold uppercase">${reward.rarity}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+            
+            // Extra confetti for rare rewards
+            if (reward.rarity === 'rare' || reward.rarity === 'legendary') {
+                setTimeout(() => triggerCelebration(), 500);
+            }
+        }
+
+        function getRarityColors(rarity) {
+            switch(rarity) {
+                case 'common': return 'from-gray-500 to-gray-600';
+                case 'uncommon': return 'from-green-500 to-green-600';
+                case 'rare': return 'from-blue-500 to-purple-600';
+                case 'legendary': return 'from-yellow-400 to-orange-500';
+                default: return 'from-gray-500 to-gray-600';
+            }
+        }
+
+        function updateRewardDisplay() {
+            document.getElementById('reward-points').textContent = `${rewardPoints} ⭐`;
+        }
+
+        function checkDailyGoal() {
+            const today = new Date().toDateString();
+            const completedToday = studyData.filter(task => 
+                task.completed && 
+                task.completedDate && 
+                new Date(task.completedDate).toDateString() === today
+            ).length;
+            
+            if (completedToday >= 3) { // Goal: complete 3 tasks per day
+                giveReward('DAILY_GOAL');
+            }
+        }
+
+        function updateStreak() {
+            const today = new Date().toDateString();
+            
+            if (lastStudyDate === today) return; // Already updated today
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+            
+            if (lastStudyDate === yesterdayStr) {
+                streakCount++;
+            } else if (lastStudyDate !== today) {
+                streakCount = 1; // Reset streak
+            }
+            
+            lastStudyDate = today;
+            
+            // Check for streak rewards
+            if (streakCount === 3) {
+                giveReward('STREAK_3');
+            } else if (streakCount === 7) {
+                giveReward('STREAK_7');
+            }
         }
 
         // =============================
@@ -694,7 +905,18 @@
         // Initial Load
         // =============================
         document.addEventListener('DOMContentLoaded', () => {
-            try { rewardPoints = parseInt(localStorage.getItem('rewardPointsV1') || '0', 10) || 0; } catch { rewardPoints = 0; }
+            // Load saved data
+            try { 
+                rewardPoints = parseInt(localStorage.getItem('rewardPointsV1') || '0', 10) || 0;
+                streakCount = parseInt(localStorage.getItem('streakCount') || '0', 10) || 0;
+                lastStudyDate = localStorage.getItem('lastStudyDate') || null;
+                collectedRewards = JSON.parse(localStorage.getItem('collectedRewards') || '[]');
+            } catch { 
+                rewardPoints = 0; 
+                streakCount = 0;
+                lastStudyDate = null;
+                collectedRewards = [];
+            }
             
             // Process data first
             studyData = processData(ROWS);
@@ -720,8 +942,18 @@
                         showBreakModal();
                     } else if (state.phase === 'complete' && activeTask && !activeTask.completed) {
                         activeTask.completed = true;
-                        rewardPoints += 3; // 3 points for finishing a pomodoro session
-                        try { localStorage.setItem('rewardPointsV1', String(rewardPoints)); } catch {}
+                        activeTask.completedDate = new Date().toISOString();
+                        
+                        // Give rewards for completing Pomodoro
+                        giveReward('POMODORO_COMPLETE');
+                        
+                        // Give additional reward for completing assignment
+                        giveReward('ASSIGNMENT_COMPLETE');
+                        
+                        // Update streak and check daily goals
+                        updateStreak();
+                        checkDailyGoal();
+                        
                         triggerCelebration();
                         pomodoro.reset();
                     }
