@@ -151,11 +151,115 @@
                 </div>
                 
                 <div id="collection-content">
+                    <!-- Rarity Index -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">📚 Rarity Index</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 p-3 rounded">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                                    <span class="font-semibold text-sm text-gray-700 dark:text-gray-300">COMMON</span>
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">50% chance</div>
+                                <div class="text-xs text-gray-600 dark:text-gray-300 mt-1">Basic fish & food</div>
+                            </div>
+                            <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-3 rounded">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                                    <span class="font-semibold text-sm text-green-700 dark:text-green-300">UNCOMMON</span>
+                                </div>
+                                <div class="text-xs text-green-600 dark:text-green-400">30% chance</div>
+                                <div class="text-xs text-green-700 dark:text-green-300 mt-1">Afghan cuisine</div>
+                            </div>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-3 rounded">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                                    <span class="font-semibold text-sm text-blue-700 dark:text-blue-300">RARE</span>
+                                </div>
+                                <div class="text-xs text-blue-600 dark:text-blue-400">15% chance</div>
+                                <div class="text-xs text-blue-700 dark:text-blue-300 mt-1">Special creatures & treasures</div>
+                            </div>
+                            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-3 rounded">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                    <span class="font-semibold text-sm text-yellow-700 dark:text-yellow-300">LEGENDARY</span>
+                                </div>
+                                <div class="text-xs text-yellow-600 dark:text-yellow-400">5% chance</div>
+                                <div class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Afghan landmarks & gems</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Collected Items</h4>
                     <div id="collected-items" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <!-- Collected items will be populated here -->
                     </div>
                     
+                    <!-- Item Catalog by Rarity -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">📖 Complete Item Catalog</h4>
+                        <div class="space-y-4">
+                            <!-- Common Items -->
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                                    COMMON (50% chance)
+                                </h5>
+                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-center">
+                                    <div class="text-2xl">🐟</div>
+                                    <div class="text-2xl">🐠</div>
+                                    <div class="text-2xl">🍕</div>
+                                    <div class="text-2xl">🍖</div>
+                                    <div class="text-2xl">🫓</div>
+                                </div>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">Rainbow Trout, Tropical Fish, Pizza, Kebab, Naan</p>
+                            </div>
+
+                            <!-- Uncommon Items -->
+                            <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                                <h5 class="font-semibold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                                    UNCOMMON (30% chance)
+                                </h5>
+                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-center">
+                                    <div class="text-2xl">🐡</div>
+                                    <div class="text-2xl">🍛</div>
+                                    <div class="text-2xl">🥘</div>
+                                </div>
+                                <p class="text-xs text-green-600 dark:text-green-400 mt-2">Pufferfish, Kabuli Pulao, Qorma</p>
+                            </div>
+
+                            <!-- Rare Items -->
+                            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                                <h5 class="font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                                    RARE (15% chance)
+                                </h5>
+                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-center">
+                                    <div class="text-2xl">🦈</div>
+                                    <div class="text-2xl">🐙</div>
+                                    <div class="text-2xl">🍯</div>
+                                    <div class="text-2xl">🧿</div>
+                                </div>
+                                <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">Shark, Octopus, Afghan Honey, Nazar (Evil Eye)</p>
+                            </div>
+
+                            <!-- Legendary Items -->
+                            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border-2 border-yellow-300 dark:border-yellow-600">
+                                <h5 class="font-semibold text-yellow-700 dark:text-yellow-300 mb-2 flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                    LEGENDARY (5% chance) ⭐
+                                </h5>
+                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-center">
+                                    <div class="text-2xl">🏔️</div>
+                                    <div class="text-2xl">💎</div>
+                                </div>
+                                <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-2">Hindu Kush Mountains, Lapis Lazuli Gemstone</p>
+                                <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1 font-semibold">🎉 Extra confetti when collected!</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-8">
                         <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Available Items</h4>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">Complete more assignments to discover these items!</p>
