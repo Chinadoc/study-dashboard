@@ -266,7 +266,7 @@
                     const isActiveTask = pState && pState.active && pState.taskId === subject.id;
                     const pomodoroProgress = isActiveTask && pState.phaseSeconds > 0 ? Math.round(((pState.phaseSeconds - pState.remainingSeconds) / pState.phaseSeconds) * 100) : 0;
                     const timerLabel = isActiveTask ? `${pState.phase.charAt(0).toUpperCase() + pState.phase.slice(1)}` : 'Ready';
-                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : PomodoroEngine.formatTime(pomodoro.config.workSeconds);
+                    const timeDisplay = isActiveTask ? PomodoroEngine.formatTime(pState.remainingSeconds) : (pomodoro ? PomodoroEngine.formatTime(pomodoro.config.workSeconds) : '25:00');
 
                     return `
                         <div class="subject-card p-3 rounded-lg border border-gray-200 transition-all duration-300 ${isCompleted ? 'opacity-50 bg-gray-50' : 'hover:bg-gray-50'}">
