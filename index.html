@@ -3700,6 +3700,14 @@
             document.getElementById('tools-section').classList.add('hidden');
             document.getElementById('tutorials-section').classList.add('hidden');
             document.getElementById('resultsArea').classList.add('hidden');
+            
+            // Hide quick products on non-VIN tabs
+            const quickProducts = document.getElementById('quickProductsSection');
+            if (tab === 'tutorials' || tab === 'tools') {
+                quickProducts.classList.add('hidden');
+            } else {
+                quickProducts.classList.remove('hidden');
+            }
 
             // Show selected section
             if (tab === 'vin') {
