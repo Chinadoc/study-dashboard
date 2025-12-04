@@ -170,6 +170,8 @@
                 <button onclick="switchTab('tools')" id="tab-tools"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔧 Tools
                     Lookup</button>
+                <button onclick="switchTab('tutorials')" id="tab-tutorials"
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬 Tutorials</button>
             </div>
         </div>
 
@@ -339,6 +341,34 @@
         <div id="loadingState" class="hidden py-12 text-center">
             <div class="inline-block animate-spin rounded-full h-14 w-14 border-t-3 border-b-3 border-brand-400 mb-4"></div>
             <p class="text-brand-400 animate-pulse font-medium text-lg">Accessing Database...</p>
+        </div>
+
+        <!-- Tutorials Section -->
+        <div id="tutorials-section" class="hidden mb-12 animate-fade-in">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
+                🎬 <span class="gold-text">Video</span> Tutorials
+            </h1>
+            <p class="text-slate-400 text-center mb-8">Step-by-step key programming guides for locksmiths and DIY enthusiasts.</p>
+
+            <div class="glass-panel rounded-3xl p-6 max-w-6xl mx-auto shadow-2xl">
+                <!-- Tutorial Filters -->
+                <div class="flex flex-wrap gap-2 mb-6 justify-center">
+                    <button onclick="filterTutorials('all')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950">All Videos</button>
+                    <button onclick="filterTutorials('ford')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Ford</button>
+                    <button onclick="filterTutorials('dodge')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Dodge/Chrysler/Jeep</button>
+                    <button onclick="filterTutorials('gm')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">GM/Chevy</button>
+                    <button onclick="filterTutorials('toyota')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Toyota/Lexus</button>
+                    <button onclick="filterTutorials('honda')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Honda/Acura</button>
+                    <button onclick="filterTutorials('nissan')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Nissan/Infiniti</button>
+                    <button onclick="filterTutorials('european')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">BMW/VW/Mercedes</button>
+                    <button onclick="filterTutorials('tools')" class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">🔧 Tool Training</button>
+                </div>
+
+                <!-- Video Grid -->
+                <div id="tutorialGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
         </div>
 
         <!-- Results Section -->
@@ -3662,11 +3692,13 @@
             document.getElementById('tab-vin').className = tab === 'vin' ? activeClass : inactiveClass;
             document.getElementById('tab-browse').className = tab === 'browse' ? activeClass : inactiveClass;
             document.getElementById('tab-tools').className = tab === 'tools' ? activeClass : inactiveClass;
+            document.getElementById('tab-tutorials').className = tab === 'tutorials' ? activeClass : inactiveClass;
 
             // Hide all sections first
             document.getElementById('vin-section').classList.add('hidden');
             document.getElementById('browse-section').classList.add('hidden');
             document.getElementById('tools-section').classList.add('hidden');
+            document.getElementById('tutorials-section').classList.add('hidden');
             document.getElementById('resultsArea').classList.add('hidden');
 
             // Show selected section
@@ -3677,6 +3709,9 @@
             } else if (tab === 'tools') {
                 document.getElementById('tools-section').classList.remove('hidden');
                 renderTools(); // Initialize tools display
+            } else if (tab === 'tutorials') {
+                document.getElementById('tutorials-section').classList.remove('hidden');
+                renderTutorials(); // Initialize tutorials display
             }
             
             // Reset to popular products when switching tabs
@@ -4501,6 +4536,153 @@
             event.target.className = 'tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950';
             
             renderTools();
+        }
+
+        // ============================================================================
+        // VIDEO TUTORIALS DATABASE
+        // ============================================================================
+        const VIDEO_TUTORIALS = [
+            // FORD / LINCOLN / MERCURY
+            { id: 'ford-f150-flip', category: 'ford', title: 'Ford F-150 Flip Key Programming (2015-2021)', videoId: 'ePlutle8Jek', desc: 'How to program a flip key remote fob for F-150 using Smart Pro.', tool: 'Smart Pro', difficulty: 'Professional' },
+            { id: 'ford-f150-backup', category: 'ford', title: 'F-150 Smart Key Backup Slot Programming', videoId: 'Ldgm5FLzVu0', desc: 'Program smart key using cup holder backup slot - requires 2 working keys.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'ford-f150-2021', category: 'ford', title: '2021+ F-150 Key Programming (FDRS)', videoId: 'bSpVWxDALwA', desc: 'Using Ford Diagnostic & Repair System with Autel V200.', tool: 'FDRS + Autel', difficulty: 'Advanced' },
+            { id: 'ford-8cycle', category: 'ford', title: 'Ford 8-Cycle Method (Older Remotes)', videoId: 'IYPCsoQYTrw', desc: 'Classic "cycle ignition 8 times" method for older Ford remotes.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'ford-transit', category: 'ford', title: 'Transit Connect Key Programming (FORScan)', videoId: 'lRFXtsIYXLI', desc: 'Using FORScan software to program Transit Connect keys.', tool: 'FORScan', difficulty: 'Intermediate' },
+            { id: 'ford-f150-forscan', category: 'ford', title: 'F150 Spare Key with FORScan (One Key)', videoId: 'JrUM2XtaZ00', desc: 'Program Ford spare key with only one key using FORScan.', tool: 'FORScan', difficulty: 'Intermediate' },
+            { id: 'ford-f150-2010', category: 'ford', title: 'Programming Key Fobs on 2010 F150', videoId: '1dQj9rbJglI', desc: 'Simple key fob programming for 2010 F150.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'ford-f150-akl', category: 'ford', title: 'Ford F150 All Keys Lost (2014)', videoId: 'DZbKDE81Z0g', desc: 'Make a new key from scratch when all keys are lost.', tool: 'Professional', difficulty: 'Advanced' },
+            
+            // DODGE / CHRYSLER / JEEP / RAM
+            { id: 'dodge-challenger-akl', category: 'dodge', title: '2018 Dodge Challenger All Keys Lost', videoId: 'oLPnmpCJuUM', desc: 'Critical walkthrough showing Star Connector location and programming.', tool: 'Autel IM608', difficulty: 'Advanced' },
+            { id: 'dodge-challenger-add', category: 'dodge', title: '2011-2018 Challenger/Charger Smart Key Add', videoId: '5PZJKYCgRcQ', desc: 'General procedure for adding smart key to LX platform.', tool: 'Smart Pro', difficulty: 'Professional' },
+            { id: 'dodge-challenger-2017', category: 'dodge', title: '2017 Dodge Challenger Key Programming', videoId: '25Pn6t2t1sU', desc: 'Comprehensive guide for 2017 Challenger all keys lost.', tool: 'Autel IM608', difficulty: 'Advanced' },
+            { id: 'dodge-challenger-km100', category: 'dodge', title: 'Dodge Keys with Autel KM100 (2022)', videoId: 'LEkHxchBvhU', desc: 'Generate and program universal key for 2022 Challenger.', tool: 'Autel KM100', difficulty: 'Professional' },
+            { id: 'dodge-challenger-fob', category: 'dodge', title: 'Dodge Key Fob DIY (No Dealership)', videoId: '-LEmmCAOiyA', desc: 'Program Dodge, Chrysler, Jeep key fob at home.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'chrysler-pacifica-2018', category: 'dodge', title: '2018-2023 Chrysler Pacifica Key Programming', videoId: '8RCu9spvOQc', desc: 'Autel IM508 programming for Pacifica/Voyager.', tool: 'Autel IM508', difficulty: 'Professional' },
+            { id: 'chrysler-pacifica-12-8', category: 'dodge', title: 'Pacifica Key with 12/8 Cable', videoId: 'XrIFUx3sDuQ', desc: 'Using 12+8 bypass cable for 2018-2021 Pacifica.', tool: 'Autel + Cable', difficulty: 'Professional' },
+            { id: 'chrysler-pacifica-2023', category: 'dodge', title: '2023 Chrysler Pacifica Locksmith Programming', videoId: 'ZujH6Ny2xnM', desc: 'Shows unique Star Connector location for newest Pacifica.', tool: 'Professional', difficulty: 'Advanced' },
+            { id: 'chrysler-keysense', category: 'dodge', title: 'KeySense Key Programming', videoId: 'truY6o7VPrw', desc: 'Specific guide for KeySense activity restriction keys.', tool: 'Autel', difficulty: 'Professional' },
+            { id: 'ram-1500-diy', category: 'dodge', title: '2018 RAM 1500 DIY (JScan App)', videoId: 'kYwGd2H7S0I', desc: 'Using JScan app and security bypass cable at home.', tool: 'JScan App', difficulty: 'Intermediate' },
+            { id: 'ram-1500-2023', category: 'dodge', title: '2023 RAM 1500 Programming (Autel 12+8)', videoId: 'Yxb_NuYY_4A', desc: 'Professional guide using Autel IM508 with 12+8 bypass cable.', tool: 'Autel IM508', difficulty: 'Professional' },
+            
+            // GM / CHEVROLET / GMC / CADILLAC
+            { id: 'gm-silverado-2019', category: 'gm', title: '2019+ Silverado Key Programming', videoId: 'qs8ZvPFVH-I', desc: 'Resolving programming slot location issues on newer trucks.', tool: 'Professional', difficulty: 'Intermediate' },
+            { id: 'gm-techline-2021', category: 'gm', title: '2021+ GM CAN FD (Techline)', videoId: 'WuyBH20TKok', desc: 'Using official GM Techline Connect software.', tool: 'GM Techline', difficulty: 'Professional' },
+            { id: 'gm-tahoe-spare', category: 'gm', title: 'Tahoe/Suburban Spare Key (DIY)', videoId: '2sn5_Ht7nfk', desc: 'Simple on-board procedure for adding a spare key.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'gm-camaro-bypass', category: 'gm', title: '2011 Camaro AKL Bypass', videoId: 'PLOKOGoY8_BefVtYX5Jio77c_DLx7qRxmS', desc: '10-minute bypass procedure using Zed-FULL.', tool: 'Zed-FULL', difficulty: 'Professional' },
+            
+            // TOYOTA / LEXUS
+            { id: 'toyota-camry-flip', category: 'toyota', title: '2018 Toyota Camry Flip Key', videoId: 'rfupA_Uegz0', desc: 'Programming the new style flip key remotes.', tool: 'Autel', difficulty: 'Professional' },
+            { id: 'toyota-chicken-dance', category: 'toyota', title: 'Toyota Remote "Chicken Dance" Method', videoId: 'zA8Rjr1MPWw', desc: 'Famous door open/close sequence for manual remote programming.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'toyota-4runner', category: 'toyota', title: '2010-2020 4Runner Add Key', videoId: 'kazUAnDNhhM', desc: "Using Tom's Key DIY programmer.", tool: "Tom's Key", difficulty: 'Intermediate' },
+            { id: 'toyota-smart-key', category: 'toyota', title: 'Toyota Smart Key Registration', videoId: 'SmCN-YDkqwo', desc: 'General procedure for registering new proximity fob.', tool: 'Professional', difficulty: 'Intermediate' },
+            { id: 'toyota-camry-prog', category: 'toyota', title: 'Program Toyota Camry Key and Remote', videoId: '3hPh9BD_ZMM', desc: 'Complete key and remote programming guide.', tool: 'AutoProPAD', difficulty: 'Intermediate' },
+            { id: 'toyota-camry-obd', category: 'toyota', title: 'Toyota Camry Key via OBD', videoId: 'z6hK2TW_LkQ', desc: 'Using USB to OBD2 cable for programming.', tool: 'OBD Cable', difficulty: 'Intermediate' },
+            
+            // HONDA / ACURA
+            { id: 'honda-civic-autel', category: 'honda', title: '2012-2015 Honda Civic (Autel IM508)', videoId: 'a4oUWkEFo4c', desc: 'Fast walkthrough for high-security laser key.', tool: 'Autel IM508', difficulty: 'Professional' },
+            { id: 'honda-remote-cycle', category: 'honda', title: 'Honda Remote Programming (Cycle Method)', videoId: 'eG4RWmq7xr4', desc: 'Manual Ignition ON/OFF x4 method to sync remote buttons.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'honda-accord-akl', category: 'honda', title: 'Honda Accord All Keys Lost', videoId: '0RphQ3Oxr34', desc: 'Step-by-step AKL procedure for Accord.', tool: 'Autel', difficulty: 'Advanced' },
+            
+            // NISSAN / INFINITI
+            { id: 'nissan-standard', category: 'nissan', title: 'Nissan Standard Key Programming', videoId: 'Wk8IZGwTXjc', desc: 'Walkthrough of the 5-flash confirmation method.', tool: 'Professional', difficulty: 'Intermediate' },
+            { id: 'nissan-smart-key', category: 'nissan', title: 'Nissan Smart Key (Proximity)', videoId: 'zXW6ZIp1Wtw', desc: 'Programming push-to-start fob (logo to start button).', tool: 'DIY', difficulty: 'Intermediate' },
+            { id: 'nissan-maxima-2022', category: 'nissan', title: '2022 Maxima New System (Autel IM608)', videoId: 'lZT-4Je_6eE', desc: 'Programming 22+ models with latest Autel firmware.', tool: 'Autel IM608', difficulty: 'Professional' },
+            
+            // HYUNDAI / KIA
+            { id: 'hyundai-smart-key', category: 'hyundai', title: 'Hyundai/Kia Smart Key Programming', videoId: 'Zu5ycnGVkpI', desc: 'General smart key adding procedure.', tool: 'Autel', difficulty: 'Professional' },
+            { id: 'hyundai-key-slot', category: 'hyundai', title: 'Hyundai/Kia Key Slot Method (2010-2015)', videoId: 'ny1Sk7-3kzM', desc: 'Using emergency key slot in glove box/console.', tool: 'DIY', difficulty: 'Easy' },
+            
+            // SUBARU
+            { id: 'subaru-impreza', category: 'subaru', title: 'Subaru Impreza/Forester AKL (2017+)', videoId: '4Ix0HNl9Bw4', desc: 'All Keys Lost using Autel & Emulator.', tool: 'Autel + Emulator', difficulty: 'Advanced' },
+            { id: 'subaru-legacy', category: 'subaru', title: 'Subaru Legacy DIY Remote', videoId: 'gIZWESJZ1hw', desc: 'Manual remote programming (10x ignition cycle).', tool: 'DIY', difficulty: 'Easy' },
+            
+            // MAZDA
+            { id: 'mazda-3-push', category: 'mazda', title: 'Mazda 3 Push-to-Start (2014+)', videoId: '05Rx9hdBvM4', desc: 'Push-to-start key programming walkthrough.', tool: 'Autel', difficulty: 'Professional' },
+            { id: 'mazda-older', category: 'mazda', title: 'Older Mazda Remotes (3x Door)', videoId: '9_n77fhwH3w', desc: 'The "3x Door Open" manual programming method.', tool: 'DIY', difficulty: 'Easy' },
+            
+            // EUROPEAN - BMW / VW / MERCEDES
+            { id: 'bmw-f-series', category: 'european', title: 'BMW F-Series Key Learn', videoId: 'zFrZecJFksU', desc: 'Sync new key to CAS module (holding against steering column).', tool: 'Professional', difficulty: 'Advanced' },
+            { id: 'bmw-diamond-e46', category: 'european', title: 'BMW Diamond Key (E46)', videoId: 'VJi04xiBn0c', desc: 'Manual remote syncing for older BMWs.', tool: 'DIY', difficulty: 'Intermediate' },
+            { id: 'mercedes-akl', category: 'european', title: 'Mercedes All Keys Lost (IR Key)', videoId: 'HtCBdQfvBrw', desc: '2013 E350 programming using XP400 (may require EIS removal).', tool: 'XP400', difficulty: 'Expert' },
+            { id: 'audi-a4-dealer', category: 'european', title: 'Audi A4 Key Generation (2009-2014)', videoId: 'KsE6-GCKtZI', desc: 'Dealer key generation and learning procedure.', tool: 'VVDI', difficulty: 'Professional' },
+            
+            // TOOL TRAINING
+            { id: 'lishi-general', category: 'tools', title: 'How to Use Lishi 2-in-1 (General)', videoId: 'bynvkP2dFlI', desc: 'Excellent primer on reading the Lishi tool grid.', tool: 'Lishi', difficulty: 'Beginner' },
+            { id: 'lishi-chrysler', category: 'tools', title: 'Chrysler 8-Cut Lishi (CY24)', videoId: 'pHUN7RCAA9Q', desc: 'Specific guide for the CY24 keyway.', tool: 'Lishi CY24', difficulty: 'Intermediate' },
+            { id: 'autel-im508-beginner', category: 'tools', title: 'Autel IM508 Beginners Guide', videoId: 'CzM9P2bfHSo', desc: 'Getting started with the IM508 interface.', tool: 'Autel IM508', difficulty: 'Beginner' },
+            { id: 'autel-smart-expert', category: 'tools', title: 'Autel Smart Mode vs Expert Mode', videoId: 'jh6zAWkpRnM', desc: 'When to use automated Smart features vs manual coding.', tool: 'Autel', difficulty: 'Intermediate' }
+        ];
+
+        let currentTutorialFilter = 'all';
+
+        function renderTutorials() {
+            const grid = document.getElementById('tutorialGrid');
+            if (!grid) return;
+
+            grid.innerHTML = '';
+            
+            const filteredVideos = currentTutorialFilter === 'all' 
+                ? VIDEO_TUTORIALS 
+                : VIDEO_TUTORIALS.filter(v => {
+                    if (currentTutorialFilter === 'hyundai') return v.category === 'hyundai' || v.category === 'subaru' || v.category === 'mazda';
+                    return v.category === currentTutorialFilter;
+                });
+
+            if (filteredVideos.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No tutorials found for this category.</div>`;
+                return;
+            }
+
+            filteredVideos.forEach(video => {
+                const difficultyColors = {
+                    'Easy': 'bg-green-500/20 text-green-400',
+                    'Beginner': 'bg-green-500/20 text-green-400',
+                    'Intermediate': 'bg-yellow-500/20 text-yellow-400',
+                    'Professional': 'bg-blue-500/20 text-blue-400',
+                    'Advanced': 'bg-orange-500/20 text-orange-400',
+                    'Expert': 'bg-red-500/20 text-red-400'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'bg-navy-950/60 rounded-xl overflow-hidden border border-brand-500/20 hover:border-brand-400/50 transition-all';
+                card.innerHTML = `
+                    <!-- Video Embed Container (16:9 aspect ratio) -->
+                    <div class="relative w-full" style="padding-bottom: 56.25%;">
+                        <iframe 
+                            class="absolute inset-0 w-full h-full"
+                            src="https://www.youtube.com/embed/${video.videoId}?rel=0&modestbranding=1"
+                            title="${video.title}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            loading="lazy"
+                        ></iframe>
+                    </div>
+                    <!-- Video Info -->
+                    <div class="p-4">
+                        <h3 class="text-white font-bold text-sm mb-2 line-clamp-2">${video.title}</h3>
+                        <p class="text-slate-400 text-xs mb-3 line-clamp-2">${video.desc}</p>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded">${video.tool}</span>
+                            <span class="px-2 py-0.5 rounded ${difficultyColors[video.difficulty] || 'bg-slate-500/20 text-slate-400'}">${video.difficulty}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterTutorials(category) {
+            currentTutorialFilter = category;
+            
+            // Update button styles
+            document.querySelectorAll('.tutorial-filter-btn').forEach(btn => {
+                btn.className = 'tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700';
+            });
+            event.target.className = 'tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950';
+            
+            renderTutorials();
         }
 
         // ============================================================================
