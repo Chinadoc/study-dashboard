@@ -446,6 +446,112 @@
                         </div>
                     </div>
 
+                    <!-- Cross-Reference Table (NEW) -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                </svg>
+                            </div>
+                            Cross-Reference (Ilco / Strattec / JMA / KEYDIY)
+                        </h3>
+                        <div id="crossRefContainer" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Transponder Technical Data (NEW) -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-rose-500/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                                </svg>
+                            </div>
+                            Transponder Technical Data
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-navy-950/60 rounded-xl border border-rose-500/20">
+                                <div class="text-xs text-rose-400 uppercase mb-1 font-semibold">Chip ID</div>
+                                <div class="text-lg font-mono font-semibold text-white" id="transponderChipId">ID46</div>
+                            </div>
+                            <div class="p-4 bg-navy-950/60 rounded-xl border border-rose-500/20">
+                                <div class="text-xs text-rose-400 uppercase mb-1 font-semibold">Technology</div>
+                                <div class="text-lg font-semibold text-white" id="transponderTech">Philips Crypto 2</div>
+                            </div>
+                            <div class="p-4 bg-navy-950/60 rounded-xl border border-rose-500/20">
+                                <div class="text-xs text-rose-400 uppercase mb-1 font-semibold">Bit Architecture</div>
+                                <div class="text-lg font-mono font-semibold text-white" id="transponderBits">46-bit</div>
+                            </div>
+                            <div class="p-4 bg-navy-950/60 rounded-xl border border-rose-500/20">
+                                <div class="text-xs text-rose-400 uppercase mb-1 font-semibold">Clonable</div>
+                                <div class="text-lg font-semibold" id="transponderClonable">
+                                    <span class="text-green-400">Yes (TPX3/CN3)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bitting & Cut Specifications (NEW) -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                                </svg>
+                            </div>
+                            Bitting & Cut Specifications
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div class="text-center p-4 bg-navy-950/60 rounded-xl border border-amber-500/20">
+                                <div class="text-xs text-amber-400 uppercase mb-1 font-semibold">Cut Depths</div>
+                                <div class="text-2xl font-mono font-bold text-white" id="bittingDepths">4</div>
+                            </div>
+                            <div class="text-center p-4 bg-navy-950/60 rounded-xl border border-amber-500/20">
+                                <div class="text-xs text-amber-400 uppercase mb-1 font-semibold">Positions</div>
+                                <div class="text-2xl font-mono font-bold text-white" id="bittingPositions">8</div>
+                            </div>
+                            <div class="text-center p-4 bg-navy-950/60 rounded-xl border border-amber-500/20">
+                                <div class="text-xs text-amber-400 uppercase mb-1 font-semibold">Spacing</div>
+                                <div class="text-2xl font-mono font-bold text-white" id="bittingSpacing">0.187"</div>
+                            </div>
+                            <div class="text-center p-4 bg-navy-950/60 rounded-xl border border-amber-500/20">
+                                <div class="text-xs text-amber-400 uppercase mb-1 font-semibold">MACS</div>
+                                <div class="text-2xl font-mono font-bold text-white" id="bittingMacs">3</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-navy-950/60 rounded-xl border border-amber-500/20">
+                                <div class="text-xs text-amber-400 uppercase mb-1 font-semibold">Cut Type</div>
+                                <div class="text-sm font-semibold text-white" id="cutType">High Security / Sidewinder</div>
+                            </div>
+                            <div class="p-4 bg-navy-950/60 rounded-xl border border-amber-500/20">
+                                <div class="text-xs text-amber-400 uppercase mb-1 font-semibold">Machine Required</div>
+                                <div class="text-sm font-semibold text-white" id="machineRequired">Laser/Vertical Mill</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EEPROM & Advanced Data (NEW) -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                </svg>
+                            </div>
+                            EEPROM & Advanced Immobilizer Data
+                        </h3>
+                        <div id="eepromDataContainer" class="space-y-3">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                        <div class="mt-4 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+                            <div class="text-xs text-indigo-400 uppercase mb-2 font-semibold">Module Location</div>
+                            <div class="text-sm text-indigo-200" id="eepromLocation">Check immobilizer box location</div>
+                        </div>
+                    </div>
+
                     <!-- Technical Specs -->
                     <div class="glass-panel rounded-3xl p-6">
                         <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
@@ -585,6 +691,33 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Year Range & OBD Location -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-sm font-bold text-brand-400 uppercase tracking-widest mb-4">Service Info</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-navy-950/40 rounded-lg">
+                                <div class="text-xs text-slate-500 mb-1">Year Range</div>
+                                <div class="text-sm font-semibold text-white" id="yearRangeInfo">1996-2024</div>
+                            </div>
+                            <div class="p-3 bg-navy-950/40 rounded-lg">
+                                <div class="text-xs text-slate-500 mb-1">OBD Location</div>
+                                <div class="text-sm font-semibold text-white" id="obdLocationInfo">Under dash, left side</div>
+                            </div>
+                            <div class="p-3 bg-navy-950/40 rounded-lg">
+                                <div class="text-xs text-slate-500 mb-1">PIN Source</div>
+                                <div class="text-sm font-semibold text-white" id="pinSourceInfo">Dealer / Tool</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chip Clone Guide -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-sm font-bold text-brand-400 uppercase tracking-widest mb-4">Clone Chip Guide</h3>
+                        <div id="cloneChipGuide" class="space-y-2 text-xs">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -601,7 +734,103 @@
     </footer>
 
     <script>
-        // Comprehensive Locksmith Database with Key Cut Codes
+        // ============================================================================
+        // MASTER TRANSPONDER REFERENCE TABLE
+        // Based on Ilco Auto/Truck Key Blank Reference & Industry Standards
+        // ============================================================================
+        const TRANSPONDER_TABLE = {
+            'ID13': { name: 'Megamos Fixed', tech: 'Fixed Code', bits: '13-bit', clonable: true, cloneChip: 'T5', mfg: ['VW', 'GM (older)', 'Honda (older)'] },
+            'ID4C': { name: 'Texas Fixed', tech: 'Fixed Code', bits: '40-bit', clonable: true, cloneChip: 'TPX1', mfg: ['Ford (Pre-2003)', 'Toyota (Pre-2003)'] },
+            'ID4D60': { name: 'Texas Crypto 4D-60', tech: '40-Bit Crypto', bits: '40-bit', clonable: true, cloneChip: 'TPX2', mfg: ['Ford', 'Nissan'] },
+            'ID4D63-40': { name: 'Texas Crypto 4D-63 (40-bit)', tech: '40-Bit Crypto', bits: '40-bit', clonable: true, cloneChip: 'CN1', mfg: ['Ford (2005-2012)'] },
+            'ID4D63-80': { name: 'Texas Crypto 4D-63 (80-bit)', tech: '80-Bit Crypto', bits: '80-bit', clonable: true, cloneChip: 'CN5', mfg: ['Ford (2011+)', 'Mazda'] },
+            'ID4D67': { name: 'Texas Crypto 4D-67', tech: 'Crypto', bits: '40-bit', clonable: true, cloneChip: 'TPX2', mfg: ['Toyota (2003-2009)'] },
+            'ID4D68': { name: 'Texas Crypto 4D-68', tech: 'Crypto', bits: '40-bit', clonable: true, cloneChip: 'TPX2', mfg: ['Lexus', 'Toyota'] },
+            'ID4D72-G': { name: 'Toyota G-Chip', tech: '80-Bit Crypto', bits: '80-bit', clonable: true, cloneChip: 'CN6', mfg: ['Toyota (2010-2019)'] },
+            '8A-H': { name: 'Toyota H-Chip (8A)', tech: '128-Bit AES', bits: '128-bit', clonable: false, cloneChip: 'N/A', mfg: ['Toyota (2020+)', 'Lexus (2020+)'] },
+            'ID46': { name: 'Philips Crypto 2', tech: 'Shadow Crypto', bits: '46-bit', clonable: true, cloneChip: 'TPX3/TPX4/CN3', mfg: ['Honda', 'GM (Circle+)', 'Nissan', 'Hyundai', 'Kia'] },
+            'ID46E': { name: 'Philips Crypto 2 Extended', tech: 'Extended Crypto', bits: '46-bit', clonable: true, cloneChip: 'CN3', mfg: ['GM (newer)', 'Hyundai/Kia'] },
+            'ID47': { name: 'Philips Hitag 3', tech: 'Hitag 3 AES', bits: '128-bit', clonable: false, cloneChip: 'N/A', mfg: ['Honda (2015+)', 'Hyundai/Kia (2016+)'] },
+            'ID48': { name: 'Megamos Crypto', tech: 'Crypto', bits: '48-bit', clonable: true, cloneChip: 'ID48 Clone', mfg: ['VW', 'Audi', 'Volvo', 'Seat', 'Skoda'] },
+            'ID48-CAN': { name: 'Megamos CAN', tech: 'CAN Crypto', bits: '48-bit', clonable: true, cloneChip: 'Super Chip', mfg: ['VW (2006+)'] },
+            'ID49-Hitag-Pro': { name: 'Hitag Pro', tech: 'AES-128', bits: '128-bit', clonable: false, cloneChip: 'N/A', mfg: ['Ford (2015+)', 'Mazda (2014+)', 'JLR'] },
+            'PCF7935': { name: 'PCF7935', tech: 'Fixed/Crypto', bits: 'Variable', clonable: true, cloneChip: 'T5', mfg: ['Various European'] },
+            'PCF7936': { name: 'PCF7936 (ID46)', tech: 'Crypto', bits: '46-bit', clonable: true, cloneChip: 'TPX4', mfg: ['Honda', 'Nissan'] },
+            'PCF7941': { name: 'PCF7941', tech: 'Crypto', bits: '128-bit', clonable: false, cloneChip: 'N/A', mfg: ['Mercedes-Benz'] },
+            'PCF7945': { name: 'PCF7945', tech: 'Hitag 2', bits: '128-bit', clonable: true, cloneChip: 'Super Chip', mfg: ['BMW (E-series)'] },
+            'PCF7952': { name: 'PCF7952', tech: 'Hitag 2', bits: '128-bit', clonable: true, cloneChip: 'CN2', mfg: ['Renault', 'Nissan'] },
+            'HITAG-AES-4A': { name: 'Hitag AES (4A)', tech: '128-Bit AES', bits: '128-bit', clonable: false, cloneChip: 'N/A', mfg: ['Chrysler/Dodge/Jeep (2018+)'] },
+            'MQB': { name: 'MQB (VAG)', tech: 'AES-128', bits: '128-bit', clonable: false, cloneChip: 'N/A', mfg: ['VW (2012+)', 'Audi (2012+)', 'Skoda', 'Seat'] },
+            'GM-VATS': { name: 'GM VATS (Resistor)', tech: 'Resistor Pellet', bits: 'N/A', clonable: true, cloneChip: 'Resistor Match', mfg: ['GM (1986-2005)'], resistorValues: true }
+        };
+
+        // GM VATS Resistor Values (15 Pellets)
+        const VATS_RESISTOR_VALUES = {
+            1: 0.402, 2: 0.523, 3: 0.681, 4: 0.887, 5: 1.130,
+            6: 1.470, 7: 1.870, 8: 2.370, 9: 3.010, 10: 3.740,
+            11: 4.750, 12: 5.900, 13: 7.500, 14: 9.530, 15: 11.800
+        };
+
+        // ============================================================================
+        // CROSS-REFERENCE TABLES (Ilco / Strattec / JMA / KEYDIY)
+        // ============================================================================
+        const CROSS_REFERENCE = {
+            'FORD-8CUT': { ilco: 'H72-PT', strattec: '597602', jma: 'FO-15D', keydiy: 'B12-3', keyway: '8-Cut Tibbe / H72 Edge', machine: 'Standard Edge Cut' },
+            'FORD-8CUT-H75': { ilco: 'H75-PT', strattec: '597608', jma: 'FO-15DP', keydiy: 'B12-3', keyway: '8-Cut H75 Edge', machine: 'Standard Edge Cut' },
+            'FORD-PATS-H92': { ilco: 'H92-PT', strattec: '5913441', jma: 'FO-21DP', keydiy: 'KD-X2', keyway: 'H92 Edge', machine: 'Standard Edge Cut' },
+            'FORD-PATS-H94': { ilco: 'H94-PT', strattec: '5913442', jma: 'FO-22DP', keydiy: 'KD-X2', keyway: 'H94 Edge', machine: 'Standard Edge Cut' },
+            'FORD-HU101': { ilco: 'HU101-PT', strattec: '164-R8091', jma: 'FO-24DP', keydiy: 'B21-4', keyway: 'HU101 High Security', machine: 'Laser/Sidewinder' },
+            'GM-Z-KEYWAY': { ilco: 'B106-PT', strattec: '692931', jma: 'GM-37', keydiy: 'B22-4', keyway: 'Z-Keyway High Security', machine: 'Vertical Mill (Sidewinder)' },
+            'GM-B111': { ilco: 'B111-PT', strattec: '5913598', jma: 'GM-38', keydiy: 'B22-3', keyway: 'B111 Circle Plus', machine: 'Standard Edge Cut' },
+            'GM-HU100': { ilco: 'HU100-PT', strattec: '5912543', jma: 'GM-39', keydiy: 'B22-5', keyway: 'HU100 High Security', machine: 'Laser/Sidewinder' },
+            'TOYOTA-TR47': { ilco: 'TOY43AT-4', strattec: 'N/A', jma: 'TOYO-15', keydiy: 'B13-3', keyway: 'TR47 High Security', machine: 'Laser/Sidewinder' },
+            'TOYOTA-TOY48': { ilco: 'TOY48-PT', strattec: 'N/A', jma: 'TOYO-24', keydiy: 'B13-4', keyway: 'TOY48 Smart Key', machine: 'Laser/Sidewinder' },
+            'CHRYSLER-Y164': { ilco: 'Y164-PT', strattec: '68029829AB', jma: 'CHR-15', keydiy: 'B35', keyway: 'Fobik / Y164 Edge', machine: 'Standard Edge Cut' },
+            'CHRYSLER-Y166': { ilco: 'Y166-PT', strattec: '68394195AA', jma: 'CHR-17', keydiy: 'B35', keyway: 'Y166 High Security', machine: 'Laser/Sidewinder' },
+            'HONDA-HO01': { ilco: 'HO01-PT', strattec: '35118-TE0-A10', jma: 'HOND-31', keydiy: 'B10-3', keyway: 'HO01 High Security', machine: 'Laser/Sidewinder' },
+            'HONDA-HO03': { ilco: 'HO03-PT', strattec: '35118-TBA-A11', jma: 'HOND-33', keydiy: 'B10-4', keyway: 'HO03 Smart Key', machine: 'Laser/Sidewinder' },
+            'NISSAN-NSN14': { ilco: 'NI04-PT', strattec: '285E3-3AA0B', jma: 'NISS-38', keydiy: 'B36-4', keyway: 'NSN14 High Security', machine: 'Laser/Sidewinder' },
+            'BMW-HU92': { ilco: 'HU92-PT', strattec: 'N/A', jma: 'BMW-20', keydiy: 'ZB02', keyway: 'HU92 Track', machine: 'Laser/Sidewinder' },
+            'BMW-HU100R': { ilco: 'HU100R-PT', strattec: 'N/A', jma: 'BMW-22', keydiy: 'ZB02-4', keyway: 'HU100R High Security', machine: 'Laser/Sidewinder' },
+            'VW-HU66': { ilco: 'HU66-PT', strattec: 'N/A', jma: 'VW-24', keydiy: 'B33', keyway: 'HU66 Profile', machine: 'Laser/Sidewinder' },
+            'VW-HU162T': { ilco: 'HU162T-PT', strattec: 'N/A', jma: 'VW-27', keydiy: 'B33-4', keyway: 'HU162T MQB', machine: 'Laser/Sidewinder' },
+            'MERCEDES-HU64': { ilco: 'HU64-PT', strattec: 'N/A', jma: 'MB-19', keydiy: 'B06', keyway: 'HU64 Track', machine: 'Laser/Sidewinder' }
+        };
+
+        // ============================================================================
+        // CODE SERIES ARCHITECTURE
+        // ============================================================================
+        const CODE_SERIES = {
+            'FORD-H-SERIES': { name: 'Ford 8-Cut', range: '0001X-1706X', depths: 5, positions: 10, spacing: '0.150"', macs: 4, notes: '8 cuts used in ignition' },
+            'GM-Z-SERIES': { name: 'GM Z-Keyway', range: 'Z0001-Z6000', depths: 4, positions: 10, spacing: '0.1875"', macs: 4, notes: 'High Security sidewinder' },
+            'GM-B-SERIES': { name: 'GM B/Circle Plus', range: 'B0001-B4000', depths: 5, positions: 10, spacing: '0.150"', macs: 4, notes: 'Standard edge cut' },
+            'CHRYSLER-M-SERIES': { name: 'Chrysler/Dodge', range: 'M001-M2618', depths: 5, positions: 8, spacing: '0.150"', macs: 4, notes: 'Fobik/Key systems' },
+            'TOYOTA-HI-SEC': { name: 'Toyota High Sec', range: '50000-69999', depths: 4, positions: 8, spacing: '0.200"', macs: 3, notes: 'Sidewinder cut' },
+            'HONDA-HI-SEC': { name: 'Honda High Sec', range: 'K001-N718', depths: 4, positions: 8, spacing: '0.187"', macs: 3, notes: 'Sidewinder cut' },
+            'NISSAN-SERIES': { name: 'Nissan/Infiniti', range: '1-22185', depths: 4, positions: 8, spacing: '0.187"', macs: 3, notes: 'High security' },
+            'BMW-SERIES': { name: 'BMW EWS/CAS', range: 'BH00001-BH24530', depths: 4, positions: 8, spacing: '0.200"', macs: 3, notes: 'Track cut' },
+            'VW-SERIES': { name: 'VW/Audi', range: 'HU66 Series', depths: 6, positions: 8, spacing: '0.175"', macs: 6, notes: 'Profile cut' }
+        };
+
+        // ============================================================================
+        // TOP 10 MOST COMMON TRANSPONDER KEYS (Inventory Priority)
+        // ============================================================================
+        const TOP_TRANSPONDER_KEYS = [
+            { rank: 1, ilco: 'B111-PT', desc: 'GM Circle Plus', volume: 'Very High', vehicles: 'Chevy Impala, Buick Lucerne, GM 2006-2016' },
+            { rank: 2, ilco: 'H92-PT', desc: 'Ford 80-Bit', volume: 'Very High', vehicles: 'Ford F-Series, Focus, Fusion 2011+' },
+            { rank: 3, ilco: 'Y164-PT', desc: 'Chrysler Fobik', volume: 'High', vehicles: 'Dodge/Jeep/Chrysler 2008+' },
+            { rank: 4, ilco: 'H72-PT', desc: 'Ford 4C/4D', volume: 'High', vehicles: 'Ford Taurus, Explorer 1996-2010' },
+            { rank: 5, ilco: 'NI04-PT', desc: 'Nissan I-Key', volume: 'High', vehicles: 'Altima, Maxima, Sentra 2007+' },
+            { rank: 6, ilco: 'TOY44D-PT', desc: 'Toyota Dot Chip', volume: 'High', vehicles: 'Camry, Corolla 2003-2010' },
+            { rank: 7, ilco: 'B119-PT', desc: 'GM Z-Keyway Flip', volume: 'High', vehicles: 'Camaro, Equinox, Cruze 2010+' },
+            { rank: 8, ilco: 'Y170-PT', desc: 'Chrysler Fobik Pod', volume: 'Medium', vehicles: 'Emergency key for Fobik systems' },
+            { rank: 9, ilco: 'Y160-PT', desc: 'Chrysler Grey Head', volume: 'Medium', vehicles: 'Older Jeep/Dodge 2004-2008' },
+            { rank: 10, ilco: 'HD106-PT', desc: 'Honda/Acura', volume: 'High', vehicles: 'Accord, Civic 2003-2015' }
+        ];
+
+        // ============================================================================
+        // COMPREHENSIVE LOCKSMITH DATABASE WITH KEY CUT CODES
+        // ============================================================================
         const LOCKSMITH_DB = {
             'ACURA': {
                 blank: 'HD106 / HO01',
@@ -619,25 +848,72 @@
                 progTool: 'Autel / IM608',
                 oemRemote: '72147-TX4-A11',
                 aftermarket: 'ILCO HON-KIK',
-                shell: 'ACU-SHELL-4B'
+                shell: 'ACU-SHELL-4B',
+                // Enhanced Data from Report
+                crossRef: { ilco: 'HO01-PT', strattec: 'N/A', jma: 'HOND-31', keydiy: 'B10-3' },
+                transponderInfo: { id: 'ID46', tech: 'Philips Crypto 2', bits: '46-bit', clonable: false },
+                cutType: 'High Security / Sidewinder',
+                machineRequired: 'Laser/Vertical Mill (Sidewinder)',
+                bittingInfo: { depths: 4, positions: 8, spacing: '0.187"', macs: 3 },
+                eepromData: { module: 'PCM/BCM', chip: '93C56', location: 'Under dash, behind glove box' },
+                pinSource: 'Honda Dealer Portal / Autel IMMO (Paid subscription)',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: 'All keys lost requires PIN from dealer. Add key mode requires 2 working keys.',
+                yearRange: '2004-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/acura',
+                vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-add-key-for-honda-acura/',
+                allKeysLost: 'Read EEPROM from BCM/PCM or obtain PIN from dealer. Use Autel G-Box for PIN calculation.',
+                keyBlanks: [
+                    { type: 'DEALER', part: '72147-TX4-A11', desc: 'Smart Key Prox 4 Btn', fcc: 'OUCG8D-380H-A', freq: '313.8 MHz' },
+                    { type: 'ILCO', part: 'PRX-HON-4B1', desc: 'Prox 4 Btn', fcc: 'OUCG8D-380H-A', freq: '313.8 MHz' },
+                    { type: 'KEYDIY', part: 'B10-3+1', desc: 'Universal Remote', fcc: 'N/A', freq: '313.8 MHz' }
+                ],
+                testKey: 'HO01 TEST KEY',
+                codeSeries: 'K001-N718 (Honda Series)',
+                decoderTools: ['Lishi HO01', 'Lishi HON66', 'Determinator']
             },
             'AUDI': {
                 blank: 'HU66 / HU162T',
-                chip: 'Megamos Crypto 48 (MQB)',
+                chip: 'Megamos Crypto 48 / MQB (AES-128)',
                 freq: '315/433 MHz',
                 series: 'HU66 Series',
                 fccId: 'NBGFS14P71',
-                keyType: 'Proximity Smart Key',
+                keyType: 'Proximity Smart Key / KESSY',
                 emergencyKey: 'HU66',
-                cloning: 'Possible (48 Clone)',
-                obd: 'Yes (with IMMO Data)',
-                immoSystem: 'Audi IMMO 4/5',
-                pinRequired: 'Component Security',
+                cloning: 'ID48: Possible | MQB: Not Possible',
+                obd: 'IMMO 4: Yes | MQB: Component Security Required',
+                immoSystem: 'Audi IMMO 4/5 / MQB Platform',
+                pinRequired: 'Component Security (CS) for MQB',
                 maxKeys: '8 Keys',
-                progTool: 'VVDI / Autel',
+                progTool: 'VVDI / Autel / ODIS',
                 oemRemote: '8S0-959-754-FJ',
                 aftermarket: 'KEYDIY B34',
-                shell: 'AUD-SHELL-3B'
+                shell: 'AUD-SHELL-3B',
+                // Enhanced Data
+                crossRef: { ilco: 'HU66-PT / HU162T-PT', strattec: 'N/A', jma: 'AU-HAA / AU-HU162T', keydiy: 'B34' },
+                transponderInfo: { id: 'ID48 / MQB', tech: 'Megamos Crypto / AES-128', bits: '48/128-bit', clonable: 'ID48 Only' },
+                cutType: 'High Security / Profile Cut',
+                machineRequired: 'Laser/Sidewinder (Condor, Ninja)',
+                bittingInfo: { depths: 6, positions: 8, spacing: '0.175"', macs: 6 },
+                eepromData: { module: 'BCM2/Kessy', chip: 'NEC/Renesas', location: 'Behind glove box or center console' },
+                pinSource: 'Component Security via ODIS or Key Programmer',
+                obdLocation: 'Under dash, driver side footwell',
+                programmingNotes: 'IMMO 4 (Pre-2012): OBD OK. MQB (2012+): Requires Component Security unlock.',
+                yearRange: '1997-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/audi',
+                vvdiGuide: 'https://blog.uobdii.com/vvdi-audi-key-programming/',
+                odisGuide: 'https://www.audi.com/dealer-support/odis',
+                allKeysLost: 'Read BCM2 EEPROM for ID48. MQB: Component Security unlock required via VVDI/Autel.',
+                immoGenerations: 'IMMO 3 (1997-2005), IMMO 4 (2006-2012), MQB (2012+)',
+                keyBlanks: [
+                    { type: 'DEALER', part: '8S0-959-754-FJ', desc: 'Smart Key 4 Btn', fcc: 'NBGFS14P71', freq: '433 MHz' },
+                    { type: 'DEALER', part: '8V0-959-754', desc: 'Flip Key 3 Btn', fcc: 'NBGFS12A71', freq: '433 MHz' },
+                    { type: 'ILCO', part: 'AUD-SMART-4B', desc: 'Smart Key', fcc: 'NBGFS14P71', freq: '433 MHz' },
+                    { type: 'KEYDIY', part: 'B34', desc: 'Universal MQB Style', fcc: 'N/A', freq: '433 MHz' }
+                ],
+                testKey: 'HU66 / HU162T TEST KEY',
+                codeSeries: 'VW/Audi HU66 Series',
+                decoderTools: ['Lishi HU66', 'Lishi HU162T', 'Turbo Decoder', '2-in-1 Pick']
             },
             'BMW': {
                 blank: 'HU92 / HU100R',
@@ -647,26 +923,51 @@
                 fccId: 'YGOHUF5662',
                 keyType: 'CAS/FEM/BDC Smart Key',
                 emergencyKey: 'HU92R',
-                cloning: 'Possible (EWS/CAS1-3)',
-                obd: 'Limited (CAS4/FEM require bench)',
-                immoSystem: 'BMW CAS/FEM/BDC',
+                cloning: 'EWS: Yes | CAS1-3: Yes | CAS4/FEM: Not Possible',
+                obd: 'EWS/CAS1-3: Yes | CAS4/FEM: Bench Required',
+                immoSystem: 'BMW EWS/CAS/FEM/BDC',
                 pinRequired: 'ISN Code Required',
                 maxKeys: '10 Keys',
-                progTool: 'Autel IM608 / CGDI BMW / Yanhua ACDP',
+                progTool: 'Autel IM608 Pro / CGDI BMW / Yanhua ACDP',
                 oemRemote: '66-12-9-316-125',
                 aftermarket: 'KEYDIY ZB02',
                 shell: 'BMW-SHELL-4B',
-                pinSource: 'Read ISN from CAS/DME via OBD or EEPROM',
-                obdLocation: 'OBD Port: Under dash, left side',
-                programmingNotes: 'CAS1-3: OBD program. CAS4/FEM: Bench work required',
+                // Enhanced Data
+                crossRef: { ilco: 'HU92-PT / HU100R-PT', strattec: 'N/A', jma: 'BMW-20 / BMW-22', keydiy: 'ZB02' },
+                transponderInfo: { id: 'ID44 / ID46 / ID49', tech: 'PCF7935 / PCF7945 / Hitag Pro', bits: 'Variable', clonable: 'EWS/CAS1-3 Only' },
+                cutType: 'High Security / Track Cut',
+                machineRequired: 'Laser/Sidewinder (HU92/HU100R capable)',
+                bittingInfo: { depths: 4, positions: 8, spacing: '0.200"', macs: 3 },
+                eepromData: { 
+                    ews: '93C46 / 93C66', 
+                    cas1: '0L01Y', 
+                    cas2: '1L15Y', 
+                    cas3: '2L15Y / 0L15Y', 
+                    cas4: '1N35H / 5M48H',
+                    fem: 'S12XEP100',
+                    bdc: '9S12XEQ512'
+                },
+                pinSource: 'Read ISN from CAS/DME via OBD or EEPROM dump',
+                obdLocation: 'OBD Port: Under dash, left side near hood release',
+                programmingNotes: 'EWS: OBD. CAS1-3: OBD with ISN. CAS4: Bench work for ISN. FEM/BDC: Bench only.',
                 yearRange: '1995-2024',
                 autelGuide: 'https://www.autel.com/support/vehicles/bmw',
                 cgdiGuide: 'https://www.cgdishop.com/wholesale/cgdi-prog-bmw-msv80-key-programmer.html',
                 yanuhaGuide: 'https://www.yanaboron.com/product/yanhua-acdp-bmw-package/',
-                eepromData: 'CAS: 0L01Y / FEM: S12XEP100 / BDC: 9S12XEQ512',
-                keyProgram: 'CAS1-3 OBD: BMW > IMMO > CAS > Add Key. FEM: Bench mode required',
-                allKeysLost: 'Read ISN from CAS EEPROM or DME. Generate dealer key from ISN.',
-                casVersions: 'CAS1 (E60/65), CAS2 (E70/90), CAS3 (E89), CAS4 (F01+), FEM/BDC (F/G series)'
+                keyProgram: 'EWS: Read EWS > Generate Key. CAS: Read ISN > Write Key. FEM: Bench > Read > Write.',
+                allKeysLost: 'EWS: Clone from EEPROM. CAS: Read ISN from CAS EEPROM or DME. FEM: Bench mode required.',
+                casVersions: 'EWS (E36/46), CAS1 (E60/65), CAS2 (E70/90), CAS3 (E89/92), CAS3+ (E70LCI), CAS4 (F01+), FEM/BDC (F/G series)',
+                keyBlanks: [
+                    { type: 'DEALER', part: '66-12-9-316-125', desc: 'Smart Key 4 Btn CAS3+', fcc: 'YGOHUF5662', freq: '315 MHz' },
+                    { type: 'DEALER', part: '66-12-9-259-716', desc: 'Diamond Key E-Series', fcc: 'KR55WK49127', freq: '315 MHz' },
+                    { type: 'DEALER', part: '66-12-8-723-580', desc: 'FEM/BDC Smart Key', fcc: 'NBGIDGNG1', freq: '434 MHz' },
+                    { type: 'ILCO', part: 'HU92-PT', desc: 'Transponder Key', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'KEYDIY', part: 'ZB02-4', desc: 'Universal Smart', fcc: 'N/A', freq: '315/433 MHz' }
+                ],
+                testKey: 'HU92 / HU100R TEST KEY',
+                codeSeries: 'BH00001-BH24530',
+                decoderTools: ['Lishi HU92', 'Lishi HU100R', 'Turbo Decoder HU92', '2-in-1 BMW'],
+                ewsInfo: 'EWS2 (1995-1998), EWS3 (1999-2005), EWS4 (Mini)'
             },
             'BUICK': {
                 blank: 'B111 / HU100',
@@ -706,40 +1007,67 @@
             },
             'CHEVROLET': {
                 blank: 'B111 / HU100 / B106',
-                chip: 'Philips 46 (Circle Plus) / Hitag 2',
+                chip: 'Philips 46 (Circle Plus) / Hitag 2 / VATS Resistor',
                 freq: '315 MHz',
                 series: 'Z0001-Z6000 / B0001-B4000',
                 fccId: 'M3N-32337100 / HYQ1AA',
-                keyType: 'Flip Key / PEPS Smart Key',
+                keyType: 'Flip Key / PEPS Smart Key / VATS (older)',
                 emergencyKey: 'HU100 / B111',
-                cloning: 'Possible (46 Clone)',
-                obd: 'Yes - Add Key Mode',
-                immoSystem: 'GM PK3+ / PK3++ / PEPS',
-                pinRequired: 'No - 2 Key Learning / Add Key Mode',
+                cloning: 'PK3: Possible | PEPS: Not Possible',
+                obd: 'Yes - Add Key Mode / 2-Key Learning',
+                immoSystem: 'GM VATS / Passlock / PK3 / PK3+ / PK3++ / PEPS',
+                pinRequired: 'No - 2 Key Learning / Add Key Mode available',
                 maxKeys: '10 Keys',
-                progTool: 'Autel IM608 / Smart Pro / Xhorse / Tech2',
+                progTool: 'Autel IM608 / Smart Pro / Xhorse / Tech2 / AC Delco TDS',
                 oemRemote: '13529065',
                 aftermarket: 'ILCO FLIP-GM-3B',
                 shell: 'GM-SHELL-4B',
+                // Enhanced Data with GM System History
+                crossRef: { ilco: 'B111-PT / HU100-PT / B106-PT', strattec: '5913598 / 5912543 / 692931', jma: 'GM-38 / GM-39 / GM-37', keydiy: 'B22-4' },
+                transponderInfo: { id: 'ID46 / ID46E', tech: 'Philips Crypto 2 (Circle Plus)', bits: '46-bit', clonable: 'PK3/PK3+ Yes' },
+                cutType: 'Edge Cut (B111) / High Security Sidewinder (HU100/B106)',
+                machineRequired: 'Standard (B111) / Laser/Vertical Mill (HU100)',
+                bittingInfo: { depths: [4, 5], positions: 10, spacing: '0.1875"', macs: 4 },
+                eepromData: { 
+                    bcm: 'HC9S12 / 68HC912 / MC9S12XEQ384',
+                    icm: '24C02',
+                    module: 'BCM (Body Control Module)',
+                    location: 'Under dash, left side near fuse box'
+                },
+                // GM SYSTEM HISTORY
+                gmSystems: {
+                    vats: { years: '1986-2005', desc: 'Vehicle Anti-Theft System - Resistor pellet in key blade (15 values)', resistorKeys: true },
+                    passlock1: { years: '1996-2005', desc: 'Passlock I - Resistance in cylinder (no chip in key)', chipInKey: false },
+                    passlock2: { years: '2002-2008', desc: 'Passlock II - Improved cylinder resistance', chipInKey: false },
+                    pk3: { years: '2004-2010', desc: 'PK3 (Passkey 3) - Transponder in key, stamped PK3', chipInKey: true },
+                    pk3plus: { years: '2006-2016', desc: 'PK3+ - Enhanced crypto, stamped PK3+', chipInKey: true },
+                    peps: { years: '2010-Present', desc: 'PEPS - Push button start, proximity sensing', chipInKey: false }
+                },
+                vatsInfo: 'VATS uses 15 resistor values (0.402 - 11.800 kOhms). Test with multimeter before cutting.',
                 keyBlanks: [
-                    { type: 'DEALER', part: '13529065', desc: 'Flip Key 4 Btn', fcc: 'OHT01060512', freq: '315 MHz' },
+                    { type: 'DEALER', part: '13529065', desc: 'Flip Key 4 Btn PK3+', fcc: 'OHT01060512', freq: '315 MHz' },
                     { type: 'DEALER', part: '13577771', desc: 'PEPS Smart Key 5 Btn', fcc: 'HYQ1AA', freq: '315 MHz' },
                     { type: 'DEALER', part: '22881480', desc: 'Flip Key 3 Btn', fcc: 'OHT01060512', freq: '315 MHz' },
+                    { type: 'DEALER', part: '5912543', desc: 'HU100 Flip Key', fcc: 'OHT01060512', freq: '315 MHz' },
+                    { type: 'STRATTEC', part: '692931', desc: 'B106 Z-Keyway Flip', fcc: 'OHT01060512', freq: '315 MHz' },
                     { type: 'ILCO', part: 'FLIP-GM-4B3HS', desc: 'Flip Key 4 Btn', fcc: 'M3N-32337100', freq: '315 MHz' },
-                    { type: 'ILCO', part: 'PRX-GM-5B1', desc: 'PEPS 5 Btn', fcc: 'HYQ1AA', freq: '315 MHz' }
+                    { type: 'ILCO', part: 'PRX-GM-5B1', desc: 'PEPS 5 Btn', fcc: 'HYQ1AA', freq: '315 MHz' },
+                    { type: 'ILCO', part: 'B111-PT', desc: 'Circle Plus Transponder', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'KEYDIY', part: 'B22-4+1', desc: 'Universal GM', fcc: 'N/A', freq: '315 MHz' }
                 ],
-                testKey: 'B111 / B106 TEST KEY',
-                codeSeries: 'Z0001-Z6000',
-                decoderTools: ['Lishi HU100', 'Determinator', 'GM Z Keyway'],
-                pinSource: 'Not required - 2 Key Learning or Tech2',
+                testKey: 'B111 / B106 / HU100 TEST KEY',
+                codeSeries: 'Z0001-Z6000 (Z-Keyway) / B0001-B4000 (B-Series)',
+                decoderTools: ['Lishi HU100', 'Lishi GM100', 'Determinator GM Z-Keyway', 'Code Machine'],
+                pinSource: 'Not required - 2 Key Learning via OBD or Tech2/AC Delco TDS',
                 obdLocation: 'Under dash, left of steering column',
-                programmingNotes: '2 Key Learning: Insert key 1 for 10 sec, key 2 for 10 sec, new key for 10 sec. PEPS requires tool.',
-                yearRange: '2006-2024',
+                programmingNotes: 'PK3/PK3+: 2-Key Learning available. PEPS: Requires diagnostic tool. VATS: Match resistor value.',
+                yearRange: '1986-2024',
                 autelGuide: 'https://www.autel.com/support/vehicles/gm',
                 vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-gm-chevrolet/',
-                selfProgram: '2-Key Learning: Key1 ON 10s > OFF > Key2 ON 10s > OFF > New Key ON 10s',
-                allKeysLost: 'Use Autel/Smart Pro AKL function. Read EEPROM from BCM for PK3/PK3+ vehicles.',
-                eepromData: 'BCM: HC9S12 / 68HC912 series'
+                smartProGuide: 'https://www.adp.com/training/gm',
+                selfProgram: '2-Key Learning (PK3/PK3+): Key1 ON 10s > OFF > Key2 ON 10s > OFF > New Key ON 10s > Wait for security light',
+                allKeysLost: 'PK3/PK3+: Read BCM EEPROM (HC9S12). PEPS: Use diagnostic tool AKL function. VATS: Bypass or match resistor.',
+                passlocBypass: 'Passlock bypass: 10-minute relearn or bypass module installation'
             },
             'CHRYSLER': {
                 blank: 'Y157 / Y159 / Y164 / Y166',
@@ -814,33 +1142,83 @@
                 eepromData: 'RFH Module: 9S12XEQ512 / ORVR: 93C86'
             },
             'FORD': {
-                blank: 'H75 / H92 / H94',
-                chip: 'Texas Crypto 4D-63 (80-bit) / 4D-83 (128-bit)',
+                blank: 'H72 / H75 / H92 / H94 / HU101',
+                chip: 'Texas 4C / 4D-60 / 4D-63 (40-bit) / 4D-63 (80-bit) / Hitag Pro',
                 freq: '315 MHz',
-                series: '1X-1706X',
-                fccId: 'M3N-A2C93142600',
-                keyType: 'PATS / Smart Key',
-                emergencyKey: 'H94',
-                cloning: 'Possible (4D Clone)',
-                obd: 'Yes (PATS)',
-                immoSystem: 'Ford PATS',
-                pinRequired: 'PATS Code / Security',
+                series: '0001X-1706X / 1001X-1706X',
+                fccId: 'M3N-A2C93142600 / M3N-A2C31243300 / CWTWB1U793',
+                keyType: 'PATS Transponder / Flip Key / Smart Key (I-Key)',
+                emergencyKey: 'H94 / HU101',
+                cloning: '4C/4D-40: Yes | 4D-80: Yes | Hitag Pro: No',
+                obd: 'PATS 1-3: Yes | PATS 4+: With security access',
+                immoSystem: 'Ford PATS (Passive Anti-Theft System)',
+                pinRequired: 'PATS Code for AKL (usually free via Autel)',
                 maxKeys: '8 Keys',
-                progTool: 'Autel IM608 / Smart Pro / Xhorse VVDI',
+                progTool: 'Autel IM608 / Smart Pro / Xhorse VVDI / IDS/FDRS',
                 oemRemote: '164-R8134',
                 aftermarket: 'ILCO FLIP-FORD-4B',
                 shell: 'FORD-SHELL-4B',
-                pinSource: 'Ford OASIS / Autel IMMO (Free for most)',
-                obdLocation: 'Under dash, driver side near hood release',
-                programmingNotes: '2-key learning available 1996-2018. 2019+ requires tool.',
+                // Comprehensive PATS Data
+                crossRef: { 
+                    ilco: 'H72-PT / H75-PT / H92-PT / H94-PT / HU101-PT', 
+                    strattec: '597602 / 597608 / 5913441 / 5913442 / 164-R8091', 
+                    jma: 'FO-15D / FO-15DP / FO-21DP / FO-22DP / FO-24DP', 
+                    keydiy: 'B12-3 / B21-4' 
+                },
+                transponderInfo: { 
+                    id: '4C / 4D-60 / 4D-63 (40/80) / Hitag Pro', 
+                    tech: 'Texas Instruments Crypto', 
+                    bits: '40/80/128-bit', 
+                    clonable: '4D-40/80 Yes' 
+                },
+                cutType: 'Edge Cut (H72/H75) / High Security Sidewinder (HU101)',
+                machineRequired: 'Standard (H72/H75) / Laser/Vertical Mill (HU101)',
+                bittingInfo: { depths: 5, positions: 10, spacing: '0.150"', macs: 4, notes: '8 cuts used in ignition' },
+                eepromData: { 
+                    pcm: 'MC9S12 / MC9S12XEQ512',
+                    ipc: '93C86 / 95128',
+                    bcm: 'MC9S12XEP100',
+                    module: 'PCM (Powertrain Control Module)',
+                    location: 'Engine bay or behind firewall'
+                },
+                // PATS SYSTEM HISTORY
+                patsSystems: {
+                    pats1: { years: '1996-1998', chip: '4C (Fixed)', desc: 'First gen - 4C transponder', twoKeyLearn: true },
+                    pats2: { years: '1999-2002', chip: '4D-60', desc: 'Second gen - 40-bit crypto', twoKeyLearn: true },
+                    pats3: { years: '2003-2005', chip: '4D-63 (40-bit)', desc: 'Third gen - improved 40-bit', twoKeyLearn: true },
+                    pats4: { years: '2005-2010', chip: '4D-63 (80-bit)', desc: 'Fourth gen - 80-bit crypto', twoKeyLearn: true },
+                    pats5: { years: '2011-2017', chip: '4D-63 (80-bit)', desc: 'Fifth gen - enhanced security', twoKeyLearn: true },
+                    pats6: { years: '2015+', chip: 'Hitag Pro / ID49', desc: 'Latest gen - AES encryption', twoKeyLearn: false }
+                },
+                keyBlanks: [
+                    { type: 'DEALER', part: '164-R8134', desc: 'Smart Key 5 Btn', fcc: 'M3N-A2C93142600', freq: '315 MHz' },
+                    { type: 'DEALER', part: '164-R8091', desc: 'Flip Key HU101 4 Btn', fcc: 'N5F-A08TAA', freq: '315 MHz' },
+                    { type: 'DEALER', part: '5913441', desc: 'H92 Transponder Key', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'DEALER', part: '164-R8048', desc: 'Remote Head Key 4 Btn', fcc: 'CWTWB1U793', freq: '315 MHz' },
+                    { type: 'STRATTEC', part: '597602', desc: 'H72 8-Cut Key', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'STRATTEC', part: '5924628', desc: 'H94 Key Blade', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'ILCO', part: 'H72-PT', desc: '8-Cut Transponder', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'ILCO', part: 'H92-PT', desc: '80-Bit Transponder', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'ILCO', part: 'FLIP-FORD-4B', desc: 'Flip Key 4 Btn', fcc: 'CWTWB1U793', freq: '315 MHz' },
+                    { type: 'KEYDIY', part: 'B12-3+1', desc: 'Universal Ford', fcc: 'N/A', freq: '315 MHz' },
+                    { type: 'KEYDIY', part: 'B21-4', desc: 'Ford HU101 Style', fcc: 'N/A', freq: '315 MHz' }
+                ],
+                testKey: 'H72 / H75 / H92 / H94 / HU101 TEST KEY',
+                codeSeries: '0001X-1706X (Ford 8-Cut) / 1001X-1706X (H-Series)',
+                decoderTools: ['Lishi HU101', 'Lishi FO38', 'Lishi H75', 'Determinator Ford', 'InstaCode Ford'],
+                pinSource: 'Ford OASIS (Dealer) / Autel IMMO (Often Free) / NASTF Access',
+                obdLocation: 'Under dash, driver side near hood release lever',
+                programmingNotes: 'PATS 1-5: 2-Key Learning works (Key1 ON-OFF, Key2 ON-OFF, New Key ON). PATS 6+: Tool required.',
                 yearRange: '1996-2024',
                 autelGuide: 'https://www.autel.com/support/vehicles/ford',
                 vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-ford-all-keys-lost/',
                 smartProGuide: 'https://www.adp.com/training/ford',
-                eepromData: 'PCM MC9S12 / IPC 93C86',
-                keyProgram: 'OBD: Ford > IMMO > PATS > Program Additional Key',
-                allKeysLost: 'Pull PATS code from PCM EEPROM or use Autel AKL function',
-                selfProgram: 'With 2 keys: Turn key1 ON-OFF, key2 ON-OFF, new key ON within 10 sec'
+                oasisInfo: 'Ford OASIS requires dealer login or NASTF VSP credentials',
+                keyProgram: 'OBD: Ford > IMMO > PATS > Program Additional Key OR 2-Key Learning',
+                selfProgram: '2-Key Learning (1996-2017): Key1 ON-OFF, Key2 ON-OFF within 10 sec, New Key ON within 20 sec, wait for light',
+                allKeysLost: 'PATS 1-4: Read PIN from PCM EEPROM. PATS 5-6: Use Autel AKL function or Ford OASIS.',
+                patsMinuteProcedure: '10-minute security bypass may be required after BCM replacement',
+                obpRequirement: 'OBP (On-Board Programming) requires 2 working keys for most PATS vehicles'
             },
             'GMC': {
                 blank: 'B111 / HU100',
@@ -1234,33 +1612,83 @@
                 shell: 'N/A'
             },
             'TOYOTA': {
-                blank: 'TR47 / TOY43 / TOY48',
-                chip: 'Texas Crypto 4D-67 / DST-AES / 8A (H chip)',
-                freq: '315 MHz / 433 MHz (EU)',
+                blank: 'TR47 / TOY43 / TOY48 / TOY50',
+                chip: 'Texas 4C / 4D-67 / 4D-68 / G-Chip (4D-72) / H-Chip (8A AES-128)',
+                freq: '315 MHz (US) / 433 MHz (EU/Asia)',
                 series: '50000-69999',
-                fccId: 'HYQ12BDP / HYQ14FBA',
-                keyType: 'Proximity Smart Key / G-Key / H-Key',
-                emergencyKey: 'TOY43 / TOY48',
-                cloning: '4D/G: Possible | H/8A: Not Possible',
-                obd: '4D/G: Yes | H/8A: 2020+ needs Seed calculation',
-                immoSystem: 'Toyota Smart Key (G/H Chip)',
-                pinRequired: '8A requires Seed Key calculation',
+                fccId: 'HYQ12BDP / HYQ12BBY / HYQ14FBA / HYQ14FBN',
+                keyType: 'Transponder Key / Smart Key (G-Key / H-Key)',
+                emergencyKey: 'TOY43 / TOY48 / TOY50',
+                cloning: '4C/4D: Yes | G: Yes (CN6) | H/8A: Not Possible',
+                obd: '4D: Yes | G: Yes | H (Pre-2021): Yes | H (2021+): Seed Key Required',
+                immoSystem: 'Toyota Immobilizer / Smart Key System',
+                pinRequired: '4D/G: Usually no PIN | H/8A: Seed Key calculation for AKL',
                 maxKeys: '8 Keys',
-                progTool: 'Autel IM608 / Smart Pro / TANGO / Xhorse',
+                progTool: 'Autel IM608 Pro / Smart Pro / TANGO / Xhorse / Toyota Techstream',
                 oemRemote: '89904-06140',
                 aftermarket: 'KEYDIY B13-3',
                 shell: 'TOY-SHELL-4B',
-                pinSource: 'G-Chip: OBD direct | H-Chip: Autel or TANGO for seed calc',
+                // Comprehensive Toyota Chip Guide
+                crossRef: { 
+                    ilco: 'TOY43AT-4 / TOY44D-PT / TOY48-PT / TOY50-PT', 
+                    strattec: 'N/A', 
+                    jma: 'TOYO-15 / TOYO-20 / TOYO-24 / TOYO-26', 
+                    keydiy: 'B13-3 / B13-4' 
+                },
+                transponderInfo: { 
+                    id: '4C / 4D-67 / 4D-68 / G (4D-72) / H (8A)', 
+                    tech: 'Texas Instruments / DST-AES', 
+                    bits: '40/80/128-bit', 
+                    clonable: '4D/G: Yes | H: No' 
+                },
+                cutType: 'High Security / Sidewinder / Laser Cut',
+                machineRequired: 'Laser/Vertical Mill (Condor, Ninja, Silca Futura)',
+                bittingInfo: { depths: 4, positions: 8, spacing: '0.200"', macs: 3 },
+                eepromData: { 
+                    smartEcu: '93C66 / 93C86',
+                    combinationMeter: '93C86',
+                    certificationEcu: 'R5F61527',
+                    immoBox: '93C56',
+                    module: 'Smart ECU / Certification ECU',
+                    location: 'Behind center console or under dash'
+                },
+                // TOYOTA CHIP IDENTIFICATION GUIDE (KEY BLADE STAMPS)
+                toyotaChipGuide: {
+                    noMark: { chip: '4C', years: '1998-2003', desc: 'No stamp = Fixed Code 4C', clonable: true },
+                    dimple: { chip: '4C/4D', years: '2000-2006', desc: 'Small dimple = 4C or early 4D', clonable: true },
+                    dot: { chip: '4D-67/68', years: '2003-2010', desc: 'DOT stamp = 4D Crypto', clonable: true },
+                    g: { chip: 'G (4D-72)', years: '2010-2019', desc: 'G stamp = 80-bit Crypto', clonable: true },
+                    h: { chip: 'H (8A)', years: '2018-Present', desc: 'H stamp = 128-bit AES', clonable: false }
+                },
+                chipIdentification: 'Visual: Check key blade for stamp (No mark, Dot, G, H). G-Chip blade stamped "G". H-Chip blade stamped "H".',
+                keyBlanks: [
+                    { type: 'DEALER', part: '89904-06140', desc: 'Smart Key 4 Btn', fcc: 'HYQ14FBA', freq: '315 MHz' },
+                    { type: 'DEALER', part: '89070-06590', desc: 'Smart Key 3 Btn', fcc: 'HYQ14FBN', freq: '315 MHz' },
+                    { type: 'DEALER', part: '89785-08040', desc: 'G-Key Blade Only', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'DEALER', part: '89070-02880', desc: 'H-Key 2020+ Smart', fcc: 'HYQ14FBN', freq: '315 MHz' },
+                    { type: 'ILCO', part: 'TOY43AT-4', desc: 'G-Chip Ready Key', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'ILCO', part: 'TOY44D-PT', desc: '4D (Dot) Transponder', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'ILCO', part: 'TOY48-PT', desc: 'Smart Key Emergency', fcc: 'N/A', freq: 'N/A' },
+                    { type: 'KEYDIY', part: 'B13-3+1', desc: 'Universal Toyota', fcc: 'N/A', freq: '315/433 MHz' },
+                    { type: 'KEYDIY', part: 'TB01-4 TOYOTA', desc: 'Toyota H-Key Smart', fcc: 'N/A', freq: '315 MHz' }
+                ],
+                testKey: 'TOY43 / TOY48 / TOY50 TEST KEY',
+                codeSeries: '50000-69999 (Toyota High Security)',
+                decoderTools: ['Lishi TOY43', 'Lishi TOY48', 'Lishi TOY2 Track', 'Turbo Decoder TOY'],
+                pinSource: '4D/G: Usually OBD direct (no PIN) | H-Chip: Seed Key from Autel/TANGO server',
                 obdLocation: 'Under dash, left of steering column',
-                programmingNotes: 'G-Key (2010-2019): OBD OK. H-Key (2020+): Seed calculation required',
-                yearRange: '2004-2024',
+                programmingNotes: '4D (Dot): OBD direct add. G-Chip: OBD direct. H-Chip 2018-2020: OBD possible. H-Chip 2021+: Seed Key calculation required.',
+                yearRange: '1998-2024',
                 autelGuide: 'https://www.autel.com/support/vehicles/toyota',
                 tangoGuide: 'https://www.scorpio-lk.com/tango/toyota/',
                 xhorseGuide: 'https://www.xhorsevvdi.com/blog/toyota-8a-all-keys-lost/',
-                eepromData: 'Smart ECU 93C66 / Combination Meter 93C86',
-                keyProgram: 'Toyota > IMMO > Smart Key > Add Key (need master or AKL procedure)',
-                allKeysLost: '4D: Clone from ECU EEPROM | 8A: Use Autel/TANGO seed calculator',
-                chipGuide: '4D67: 2004-2009 | G: 2010-2019 | H/8A: 2020+'
+                techstreamInfo: 'Toyota Techstream requires dealer access for some functions',
+                keyProgram: 'Toyota > IMMO > Smart Key > Add Key. For H-Key AKL: Use Autel/TANGO seed calculator.',
+                selfProgram: 'Self-program NOT available for Toyota Smart Keys. Requires diagnostic tool.',
+                allKeysLost: '4D: Clone from ECU EEPROM (93C56/66). G: OBD AKL with tool. H: Seed key calculation via Autel IM608 Pro or TANGO.',
+                chipGuide: '4C: 1998-2003 | 4D-67/68 (Dot): 2003-2010 | G (4D-72): 2010-2019 | H (8A): 2018+',
+                ecuReflash: 'Older Toyotas (Pre-2004): ECU reflash may be required if all keys lost. Read EEPROM and rewrite.',
+                hChipNote: 'H-Chip (8A) vehicles 2021+: Seed key calculation requires server connection (Autel, TANGO, Xhorse)'
             },
             'VOLKSWAGEN': {
                 blank: 'HU66 / HU162T',
@@ -1666,6 +2094,157 @@
             // All Keys Lost
             document.getElementById('allKeysLostText').textContent = lockData.allKeysLost || 
                 `Use ${lockData.progTool} for all keys lost programming. May require EEPROM read: ${lockData.eepromData || 'Consult tool manual'}`;
+
+            // === NEW: Cross-Reference Table ===
+            const crossRefContainer = document.getElementById('crossRefContainer');
+            crossRefContainer.innerHTML = '';
+            const crossRef = lockData.crossRef || { ilco: lockData.blank, strattec: 'N/A', jma: 'N/A', keydiy: lockData.aftermarket };
+            const crossRefItems = [
+                { label: 'ILCO', value: crossRef.ilco, color: 'blue' },
+                { label: 'STRATTEC', value: crossRef.strattec, color: 'green' },
+                { label: 'JMA', value: crossRef.jma, color: 'purple' },
+                { label: 'KEYDIY', value: crossRef.keydiy, color: 'orange' }
+            ];
+            crossRefItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `p-3 bg-navy-950/60 rounded-xl border border-${item.color}-500/20 text-center`;
+                div.innerHTML = `
+                    <div class="text-xs text-${item.color}-400 uppercase mb-1 font-semibold">${item.label}</div>
+                    <div class="text-sm font-mono font-semibold text-white break-words">${item.value || 'N/A'}</div>
+                `;
+                crossRefContainer.appendChild(div);
+            });
+
+            // === NEW: Transponder Technical Data ===
+            const transponderInfo = lockData.transponderInfo || { id: 'Unknown', tech: lockData.chip, bits: 'N/A', clonable: lockData.cloning };
+            document.getElementById('transponderChipId').textContent = transponderInfo.id || 'N/A';
+            document.getElementById('transponderTech').textContent = transponderInfo.tech || lockData.chip;
+            document.getElementById('transponderBits').textContent = transponderInfo.bits || 'N/A';
+            
+            const clonableEl = document.getElementById('transponderClonable');
+            const isClonable = transponderInfo.clonable;
+            if (isClonable === true || isClonable === 'Yes' || (typeof isClonable === 'string' && isClonable.toLowerCase().includes('yes'))) {
+                clonableEl.innerHTML = `<span class="text-green-400">✓ Clonable</span>`;
+            } else if (isClonable === false || isClonable === 'No' || isClonable === 'Not Possible') {
+                clonableEl.innerHTML = `<span class="text-red-400">✗ Not Clonable</span>`;
+            } else {
+                clonableEl.innerHTML = `<span class="text-amber-400">${isClonable}</span>`;
+            }
+
+            // === NEW: Bitting & Cut Specifications ===
+            const bittingInfo = lockData.bittingInfo || { depths: 'N/A', positions: 'N/A', spacing: 'N/A', macs: 'N/A' };
+            document.getElementById('bittingDepths').textContent = Array.isArray(bittingInfo.depths) ? bittingInfo.depths.join('/') : bittingInfo.depths;
+            document.getElementById('bittingPositions').textContent = bittingInfo.positions || 'N/A';
+            document.getElementById('bittingSpacing').textContent = bittingInfo.spacing || 'N/A';
+            document.getElementById('bittingMacs').textContent = bittingInfo.macs || 'N/A';
+            document.getElementById('cutType').textContent = lockData.cutType || 'Standard Edge Cut';
+            document.getElementById('machineRequired').textContent = lockData.machineRequired || 'Standard Duplicator';
+
+            // === NEW: EEPROM & Advanced Data ===
+            const eepromContainer = document.getElementById('eepromDataContainer');
+            eepromContainer.innerHTML = '';
+            const eepromData = lockData.eepromData || {};
+            
+            if (typeof eepromData === 'object') {
+                const eepromEntries = Object.entries(eepromData).filter(([key]) => key !== 'location' && key !== 'module');
+                if (eepromEntries.length > 0) {
+                    eepromEntries.forEach(([key, value]) => {
+                        const row = document.createElement('div');
+                        row.className = 'flex justify-between items-center p-3 bg-navy-950/60 rounded-lg border border-indigo-500/20';
+                        row.innerHTML = `
+                            <span class="text-sm text-indigo-300 uppercase font-semibold">${key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                            <span class="text-sm font-mono font-semibold text-white">${value}</span>
+                        `;
+                        eepromContainer.appendChild(row);
+                    });
+                } else {
+                    eepromContainer.innerHTML = '<div class="text-slate-400 text-sm">EEPROM data not available for this vehicle.</div>';
+                }
+                document.getElementById('eepromLocation').textContent = eepromData.location || lockData.obdLocation || 'Consult service manual';
+            } else {
+                eepromContainer.innerHTML = `<div class="p-3 bg-navy-950/60 rounded-lg"><span class="text-sm font-mono text-white">${eepromData}</span></div>`;
+                document.getElementById('eepromLocation').textContent = lockData.obdLocation || 'Consult service manual';
+            }
+
+            // === NEW: GM VATS Resistor Values (if applicable) ===
+            if (lockData.vatsInfo || (lockData.gmSystems && lockData.gmSystems.vats)) {
+                // Add VATS info to programming notes
+                const vatsNote = lockData.vatsInfo || 'GM VATS: Check resistor pellet value (15 possible values: 0.402 - 11.800 kOhms)';
+                document.getElementById('programmingNotesText').textContent += ' ' + vatsNote;
+            }
+
+            // === NEW: Manufacturer-Specific System Info ===
+            if (lockData.gmSystems) {
+                // GM System History - add badge
+                const systemBadge = document.createElement('span');
+                systemBadge.className = 'ml-2 px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs font-medium';
+                systemBadge.textContent = 'GM VATS/PK3 Info Available';
+            }
+            
+            if (lockData.patsSystems) {
+                // Ford PATS History - add badge
+                const patsInfo = Object.entries(lockData.patsSystems)
+                    .map(([key, val]) => `${val.years}: ${val.chip}`)
+                    .join(' | ');
+                document.getElementById('programmingNotesText').textContent += ' PATS Generations: ' + patsInfo;
+            }
+
+            if (lockData.toyotaChipGuide) {
+                // Toyota Chip Identification Guide
+                const chipGuideText = Object.entries(lockData.toyotaChipGuide)
+                    .map(([key, val]) => `${val.years}: ${val.desc}`)
+                    .join(' | ');
+                document.getElementById('programmingNotesText').textContent = lockData.chipIdentification || chipGuideText;
+            }
+
+            // === NEW: Service Info Sidebar ===
+            document.getElementById('yearRangeInfo').textContent = lockData.yearRange || 'Various';
+            document.getElementById('obdLocationInfo').textContent = lockData.obdLocation || 'Under dash, driver side';
+            document.getElementById('pinSourceInfo').textContent = lockData.pinSource || lockData.pinRequired || 'Consult tool';
+
+            // === NEW: Clone Chip Guide ===
+            const cloneGuideContainer = document.getElementById('cloneChipGuide');
+            cloneGuideContainer.innerHTML = '';
+            
+            // Get transponder info and suggest clone chips
+            const chipId = (lockData.transponderInfo && lockData.transponderInfo.id) || lockData.chip;
+            const cloneChips = [];
+            
+            if (chipId.includes('4C') || chipId.includes('4D-60')) {
+                cloneChips.push({ chip: 'TPX1/TPX2', desc: 'JMA Cloning Chip' });
+            }
+            if (chipId.includes('4D-63') || chipId.includes('4D-67') || chipId.includes('4D-68')) {
+                cloneChips.push({ chip: 'CN5/CN6', desc: 'Xhorse Clone Chip' });
+                cloneChips.push({ chip: 'TPX2', desc: 'JMA 4D Chip' });
+            }
+            if (chipId.includes('46') || chipId.includes('ID46')) {
+                cloneChips.push({ chip: 'TPX3/TPX4', desc: 'JMA ID46 Clone' });
+                cloneChips.push({ chip: 'CN3', desc: 'Xhorse ID46' });
+            }
+            if (chipId.includes('48') || chipId.includes('Megamos')) {
+                cloneChips.push({ chip: 'ID48 Clone', desc: 'Megamos Clone' });
+                cloneChips.push({ chip: 'Super Chip', desc: 'Xhorse VVDI' });
+            }
+            if (chipId.includes('G') && (chipId.includes('Toyota') || chipId.includes('4D-72'))) {
+                cloneChips.push({ chip: 'CN6', desc: 'Toyota G Clone' });
+            }
+            if (chipId.includes('H') || chipId.includes('8A') || chipId.includes('AES') || chipId.includes('Hitag Pro') || chipId.includes('MQB')) {
+                cloneChips.push({ chip: 'N/A', desc: 'Not Clonable - OBD Only' });
+            }
+            
+            if (cloneChips.length === 0) {
+                cloneChips.push({ chip: 'Super Chip', desc: 'Universal (VVDI)' });
+            }
+
+            cloneChips.forEach(cc => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-2 bg-navy-950/40 rounded';
+                div.innerHTML = `
+                    <span class="text-slate-400">${cc.desc}</span>
+                    <span class="font-mono font-semibold text-brand-300">${cc.chip}</span>
+                `;
+                cloneGuideContainer.appendChild(div);
+            });
 
             hideLoading();
             document.getElementById('resultsArea').classList.remove('hidden');
