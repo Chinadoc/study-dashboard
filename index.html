@@ -160,13 +160,16 @@
 
         <!-- Tabs -->
         <div class="flex justify-center mb-8">
-            <div class="bg-navy-900/80 p-1.5 rounded-2xl flex gap-1 border border-brand-500/20 shadow-xl">
+            <div class="bg-navy-900/80 p-1.5 rounded-2xl flex gap-1 border border-brand-500/20 shadow-xl flex-wrap justify-center">
                 <button onclick="switchTab('vin')" id="tab-vin"
-                    class="px-8 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg">VIN
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg">VIN
                     Decoder</button>
                 <button onclick="switchTab('browse')" id="tab-browse"
-                    class="px-8 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">Browse
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">Browse
                     Database</button>
+                <button onclick="switchTab('tools')" id="tab-tools"
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔧 Tools
+                    Lookup</button>
             </div>
         </div>
 
@@ -287,6 +290,47 @@
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Section -->
+        <div id="tools-section" class="hidden mb-12 animate-fade-in">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
+                🔧 <span class="gold-text">Tools</span> Database
+            </h1>
+            <p class="text-slate-400 text-center mb-8">Search Lishi picks, decoders, and programming tools by vehicle compatibility.</p>
+
+            <div class="glass-panel rounded-3xl p-6 max-w-5xl mx-auto shadow-2xl">
+                <!-- Search Box -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <input type="text" id="toolSearch" placeholder="Search tools (e.g., Lishi HO01, Honda, Ford...)" 
+                            oninput="filterTools()"
+                            class="w-full pl-12 pr-4 py-4 bg-navy-950/80 border-2 border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400 transition-all text-lg">
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="filterToolsByType('all')" class="tool-filter-btn active px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950">All Tools</button>
+                    <button onclick="filterToolsByType('lishi')" class="tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Lishi Picks</button>
+                    <button onclick="filterToolsByType('decoder')" class="tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Decoders</button>
+                    <button onclick="filterToolsByType('programmer')" class="tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Programmers</button>
+                    <button onclick="filterToolsByType('reader')" class="tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Code Readers</button>
+                </div>
+
+                <!-- Results Count -->
+                <div class="mb-4 text-sm text-slate-400">
+                    Showing <span id="toolsCount" class="text-brand-400 font-bold">0</span> tools
+                </div>
+
+                <!-- Tools Grid -->
+                <div id="toolsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                    <!-- Tools populated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -3431,23 +3475,29 @@
         }
 
         function switchTab(tab) {
-            document.getElementById('tab-vin').className = tab === 'vin'
-                ? 'px-8 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg'
-                : 'px-8 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
+            const activeClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg';
+            const inactiveClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
+            
+            // Update tab button styles
+            document.getElementById('tab-vin').className = tab === 'vin' ? activeClass : inactiveClass;
+            document.getElementById('tab-browse').className = tab === 'browse' ? activeClass : inactiveClass;
+            document.getElementById('tab-tools').className = tab === 'tools' ? activeClass : inactiveClass;
 
-            document.getElementById('tab-browse').className = tab === 'browse'
-                ? 'px-8 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg'
-                : 'px-8 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
+            // Hide all sections first
+            document.getElementById('vin-section').classList.add('hidden');
+            document.getElementById('browse-section').classList.add('hidden');
+            document.getElementById('tools-section').classList.add('hidden');
+            document.getElementById('resultsArea').classList.add('hidden');
 
+            // Show selected section
             if (tab === 'vin') {
                 document.getElementById('vin-section').classList.remove('hidden');
-                document.getElementById('browse-section').classList.add('hidden');
-            } else {
-                document.getElementById('vin-section').classList.add('hidden');
+            } else if (tab === 'browse') {
                 document.getElementById('browse-section').classList.remove('hidden');
+            } else if (tab === 'tools') {
+                document.getElementById('tools-section').classList.remove('hidden');
+                renderTools(); // Initialize tools display
             }
-
-            document.getElementById('resultsArea').classList.add('hidden');
             
             // Reset to popular products when switching tabs
             displayPopularProducts();
@@ -4123,6 +4173,149 @@
             if (btnIcon) {
                 btnIcon.style.transform = inlineExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
             }
+        }
+
+        // ============================================================================
+        // LOCKSMITH TOOLS DATABASE
+        // Lishi picks, decoders, programmers, and code readers
+        // ============================================================================
+        const LOCKSMITH_TOOLS = [
+            // LISHI 2-IN-1 PICKS
+            { name: 'Lishi HO01', type: 'lishi', desc: '2-in-1 Pick/Decoder for Honda HON66', makes: ['Honda', 'Acura'], years: '2002-2024', keyway: 'HON66 / HO01', uses: 'Ignition, Door, Trunk', amazonUrl: 'https://www.amazon.com/s?k=lishi+HO01+honda' },
+            { name: 'Lishi TOY43', type: 'lishi', desc: '2-in-1 Pick/Decoder for Toyota', makes: ['Toyota', 'Lexus', 'Scion'], years: '1998-2024', keyway: 'TOY43 / TR47', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+TOY43+toyota' },
+            { name: 'Lishi TOY48', type: 'lishi', desc: '2-in-1 for Toyota/Lexus newer models', makes: ['Toyota', 'Lexus'], years: '2013-2024', keyway: 'TOY48', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+TOY48+toyota' },
+            { name: 'Lishi FO38', type: 'lishi', desc: '2-in-1 Pick/Decoder for Ford 8-cut', makes: ['Ford', 'Lincoln', 'Mercury'], years: '2001-2020', keyway: 'H75 / FO38', uses: 'Ignition, Door, Trunk', amazonUrl: 'https://www.amazon.com/s?k=lishi+FO38+ford' },
+            { name: 'Lishi HU101', type: 'lishi', desc: '2-in-1 for Ford Tibbe/High Security', makes: ['Ford', 'Lincoln'], years: '2011-2024', keyway: 'HU101', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+HU101+ford' },
+            { name: 'Lishi GM37', type: 'lishi', desc: '2-in-1 for GM High Security Z-Keyway', makes: ['Chevrolet', 'GMC', 'Buick', 'Cadillac'], years: '2006-2024', keyway: 'B106 / GM37', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+GM37+chevrolet' },
+            { name: 'Lishi GM39', type: 'lishi', desc: '2-in-1 for GM 6-cut', makes: ['Chevrolet', 'GMC', 'Buick'], years: '1998-2008', keyway: 'B102 / GM39', uses: 'Ignition, Door, Trunk', amazonUrl: 'https://www.amazon.com/s?k=lishi+GM39+chevrolet' },
+            { name: 'Lishi CY24', type: 'lishi', desc: '2-in-1 for Chrysler/Dodge/Jeep', makes: ['Chrysler', 'Dodge', 'Jeep', 'Ram'], years: '2001-2024', keyway: 'Y159 / CY24', uses: 'Ignition, Door, Trunk', amazonUrl: 'https://www.amazon.com/s?k=lishi+CY24+chrysler' },
+            { name: 'Lishi NSN14', type: 'lishi', desc: '2-in-1 for Nissan/Infiniti', makes: ['Nissan', 'Infiniti'], years: '2003-2024', keyway: 'NSN14 / DA34', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+NSN14+nissan' },
+            { name: 'Lishi MAZ24', type: 'lishi', desc: '2-in-1 for Mazda', makes: ['Mazda'], years: '2003-2024', keyway: 'MAZ24', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+MAZ24+mazda' },
+            { name: 'Lishi HYN14', type: 'lishi', desc: '2-in-1 for Hyundai/Kia', makes: ['Hyundai', 'Kia'], years: '2006-2024', keyway: 'HYN14 / KK10', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+HYN14+hyundai+kia' },
+            { name: 'Lishi MIT8', type: 'lishi', desc: '2-in-1 for Mitsubishi', makes: ['Mitsubishi'], years: '2000-2024', keyway: 'MIT8 / MIT11', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+MIT8+mitsubishi' },
+            { name: 'Lishi HU66', type: 'lishi', desc: '2-in-1 for VW/Audi Group', makes: ['Volkswagen', 'Audi', 'Porsche', 'Bentley'], years: '1997-2024', keyway: 'HU66', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+HU66+volkswagen+audi' },
+            { name: 'Lishi HU92', type: 'lishi', desc: '2-in-1 for BMW', makes: ['BMW', 'Mini'], years: '1995-2024', keyway: 'HU92', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+HU92+bmw' },
+            { name: 'Lishi HU64', type: 'lishi', desc: '2-in-1 for Mercedes', makes: ['Mercedes-Benz'], years: '2000-2014', keyway: 'HU64', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+HU64+mercedes' },
+            { name: 'Lishi HU100R', type: 'lishi', desc: '2-in-1 for BMW newer models', makes: ['BMW', 'Mini'], years: '2004-2024', keyway: 'HU100R', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+HU100R+bmw' },
+            { name: 'Lishi SX9', type: 'lishi', desc: '2-in-1 for Subaru', makes: ['Subaru'], years: '2010-2024', keyway: 'SX9 / SUB1', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+SX9+subaru' },
+            { name: 'Lishi NE72', type: 'lishi', desc: '2-in-1 for Volvo', makes: ['Volvo'], years: '2000-2024', keyway: 'NE72', uses: 'Ignition, Door', amazonUrl: 'https://www.amazon.com/s?k=lishi+NE72+volvo' },
+            
+            // DECODERS
+            { name: 'Lishi 2M2 Tank', type: 'decoder', desc: 'CNC Key Cutting Machine with decoder', makes: ['Universal'], years: 'All', keyway: 'Multiple', uses: 'Cut keys by code/decode', amazonUrl: 'https://www.amazon.com/s?k=2m2+tank+key+cutting+machine' },
+            { name: 'Turbo Decoder HU66', type: 'decoder', desc: 'Fast opening for VAG group', makes: ['Volkswagen', 'Audi', 'Skoda', 'Seat'], years: '1997-2024', keyway: 'HU66', uses: 'Fast Opening', amazonUrl: 'https://www.amazon.com/s?k=turbo+decoder+HU66' },
+            { name: 'Turbo Decoder HU92', type: 'decoder', desc: 'Fast opening for BMW', makes: ['BMW', 'Mini'], years: '1995-2020', keyway: 'HU92', uses: 'Fast Opening', amazonUrl: 'https://www.amazon.com/s?k=turbo+decoder+HU92+bmw' },
+            { name: 'Turbo Decoder HU101', type: 'decoder', desc: 'Fast opening for Ford', makes: ['Ford', 'Land Rover', 'Jaguar'], years: '2010-2024', keyway: 'HU101', uses: 'Fast Opening', amazonUrl: 'https://www.amazon.com/s?k=turbo+decoder+HU101+ford' },
+            { name: 'Determinator HO01', type: 'decoder', desc: 'Electronic decoder for Honda', makes: ['Honda', 'Acura'], years: '2002-2024', keyway: 'HON66', uses: 'Digital Decode', amazonUrl: 'https://www.amazon.com/s?k=determinator+honda+decoder' },
+            
+            // PROGRAMMERS
+            { name: 'Autel IM608 Pro', type: 'programmer', desc: 'Advanced Key Programmer with J2534', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'Key Programming, IMMO, AKL', amazonUrl: 'https://www.amazon.com/s?k=autel+im608+pro' },
+            { name: 'Autel IM508', type: 'programmer', desc: 'Key Programmer with XP200 addon', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'Key Programming, IMMO', amazonUrl: 'https://www.amazon.com/s?k=autel+im508' },
+            { name: 'VVDI Key Tool Max', type: 'programmer', desc: 'Xhorse Multi-function key tool', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'Key Generation, Cloning', amazonUrl: 'https://www.amazon.com/s?k=vvdi+key+tool+max' },
+            { name: 'VVDI Mini Key Tool', type: 'programmer', desc: 'Compact remote programmer', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'Remote Cloning, Chip Copy', amazonUrl: 'https://www.amazon.com/s?k=vvdi+mini+key+tool' },
+            { name: 'Smart Pro', type: 'programmer', desc: 'Advanced Diagnostics key programmer', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'OBD Key Programming', amazonUrl: 'https://www.amazon.com/s?k=advanced+diagnostics+smart+pro' },
+            { name: 'Lonsdor K518', type: 'programmer', desc: 'Key programmer with special functions', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'Key Programming, AKL', amazonUrl: 'https://www.amazon.com/s?k=lonsdor+k518' },
+            { name: 'Xtool X100 PAD3', type: 'programmer', desc: 'Tablet key programmer', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'Key Programming, IMMO', amazonUrl: 'https://www.amazon.com/s?k=xtool+x100+pad3' },
+            
+            // CODE READERS
+            { name: 'VCDS (VAG-COM)', type: 'reader', desc: 'VW/Audi diagnostics and coding', makes: ['Volkswagen', 'Audi', 'Skoda', 'Seat'], years: '1996-2024', keyway: 'N/A', uses: 'Diagnostics, PIN Read', amazonUrl: 'https://www.amazon.com/s?k=vcds+vag+com' },
+            { name: 'Forscan ELM327', type: 'reader', desc: 'Ford/Mazda diagnostics', makes: ['Ford', 'Mazda', 'Lincoln'], years: '2005-2024', keyway: 'N/A', uses: 'Diagnostics, Key Programming', amazonUrl: 'https://www.amazon.com/s?k=forscan+elm327' },
+            { name: 'Honda HDS', type: 'reader', desc: 'Honda diagnostic system', makes: ['Honda', 'Acura'], years: '2004-2024', keyway: 'N/A', uses: 'Diagnostics, IMMO PIN', amazonUrl: 'https://www.amazon.com/s?k=honda+hds+diagnostic' },
+            { name: 'Techstream', type: 'reader', desc: 'Toyota diagnostic tool', makes: ['Toyota', 'Lexus', 'Scion'], years: '2004-2024', keyway: 'N/A', uses: 'Diagnostics, Key Registration', amazonUrl: 'https://www.amazon.com/s?k=toyota+techstream' },
+            { name: 'TPMS Tool', type: 'reader', desc: 'Tire Pressure Sensor programmer', makes: ['Universal'], years: 'All', keyway: 'N/A', uses: 'TPMS Relearn/Program', amazonUrl: 'https://www.amazon.com/s?k=tpms+tool+relearn' }
+        ];
+
+        let currentToolFilter = 'all';
+        let currentToolSearch = '';
+
+        function renderTools() {
+            const grid = document.getElementById('toolsGrid');
+            const countEl = document.getElementById('toolsCount');
+            if (!grid) return;
+
+            let filteredTools = LOCKSMITH_TOOLS;
+
+            // Apply type filter
+            if (currentToolFilter !== 'all') {
+                filteredTools = filteredTools.filter(t => t.type === currentToolFilter);
+            }
+
+            // Apply search filter
+            if (currentToolSearch) {
+                const search = currentToolSearch.toLowerCase();
+                filteredTools = filteredTools.filter(t => 
+                    t.name.toLowerCase().includes(search) ||
+                    t.desc.toLowerCase().includes(search) ||
+                    t.makes.some(m => m.toLowerCase().includes(search)) ||
+                    t.keyway.toLowerCase().includes(search)
+                );
+            }
+
+            // Update count
+            if (countEl) countEl.textContent = filteredTools.length;
+
+            // Render tools
+            grid.innerHTML = '';
+            
+            if (filteredTools.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8">No tools found matching your search.</div>';
+                return;
+            }
+
+            filteredTools.forEach(tool => {
+                const typeColors = {
+                    lishi: 'bg-blue-500/20 text-blue-400',
+                    decoder: 'bg-purple-500/20 text-purple-400',
+                    programmer: 'bg-green-500/20 text-green-400',
+                    reader: 'bg-orange-500/20 text-orange-400'
+                };
+                const typeLabels = {
+                    lishi: '🔓 Lishi Pick',
+                    decoder: '🔍 Decoder',
+                    programmer: '💻 Programmer',
+                    reader: '📖 Code Reader'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'bg-navy-950/60 rounded-xl p-4 border border-brand-500/20 hover:border-brand-400/40 transition-all';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <h3 class="text-white font-bold">${tool.name}</h3>
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold ${typeColors[tool.type]}">${typeLabels[tool.type]}</span>
+                    </div>
+                    <p class="text-slate-400 text-sm mb-3">${tool.desc}</p>
+                    <div class="space-y-1 text-xs mb-3">
+                        <div class="flex"><span class="text-slate-500 w-16">Makes:</span><span class="text-brand-400">${tool.makes.join(', ')}</span></div>
+                        <div class="flex"><span class="text-slate-500 w-16">Years:</span><span class="text-slate-300">${tool.years}</span></div>
+                        <div class="flex"><span class="text-slate-500 w-16">Keyway:</span><span class="text-slate-300 font-mono">${tool.keyway}</span></div>
+                        <div class="flex"><span class="text-slate-500 w-16">Uses:</span><span class="text-slate-300">${tool.uses}</span></div>
+                    </div>
+                    <a href="${tool.amazonUrl}" target="_blank" rel="noopener noreferrer" 
+                       class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-brand-500 hover:bg-brand-400 rounded-lg text-navy-950 font-bold text-sm transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Buy on Amazon
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterTools() {
+            currentToolSearch = document.getElementById('toolSearch').value;
+            renderTools();
+        }
+
+        function filterToolsByType(type) {
+            currentToolFilter = type;
+            
+            // Update button styles
+            document.querySelectorAll('.tool-filter-btn').forEach(btn => {
+                btn.className = 'tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700';
+            });
+            event.target.className = 'tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950';
+            
+            renderTools();
         }
     </script>
 </body>
