@@ -48,6 +48,15 @@ export default async function handler(req, res) {
         
         const html = await response.text();
         
+        // Check for email confirmation error
+        if (html.includes('Email Confirmation') || html.includes('confirm your email')) {
+            return res.status(503).json({
+                error: 'API not activated',
+                message: 'Please confirm your ScrapeOps email to activate the API',
+                action: 'Check your email and click the confirmation link from ScrapeOps'
+            });
+        }
+        
         // Parse product data from HTML
         const productData = parseAmazonProductPage(html, asin);
         
