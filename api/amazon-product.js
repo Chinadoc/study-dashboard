@@ -82,13 +82,26 @@ function parseAmazonProductPage(html, asin) {
         asin: asin,
         title: extractBetween(html, '<span id="productTitle"', '</span>') || 'Unknown Product',
         price: null,
+        couponPrice: null,
         rating: null,
         reviewCount: null,
         isPrime: false,
         inStock: true,
         seller: null,
         imageUrl: null,
-        fccIdInListing: false
+        fccIdInListing: false,
+        // Enhanced compatibility data
+        compatibility: {
+            fccId: null,
+            partNumbers: [],
+            boardNumber: null,
+            frequency: null,
+            vehicles: [],
+            requiresProgramming: false,
+            isOEM: false
+        },
+        brand: null,
+        features: []
     };
     
     // Extract price - try multiple patterns
@@ -147,6 +160,81 @@ function parseAmazonProductPage(html, asin) {
         if (data.title.length > 100) {
             data.title = data.title.substring(0, 100) + '...';
         }
+    }
+    
+    // Extract compatibility data from "About this item" section
+    const aboutSection = html.match(/About this item([\s\S]*?)(?:<\/ul>|See more product details)/i);
+    if (aboutSection) {
+        const aboutText = aboutSection[1];
+        
+        // Extract FCC ID
+        const fccMatch = aboutText.match(/FCC\s*ID[:\s]*([A-Z0-9-]+)/i);
+        if (fccMatch) {
+            data.compatibility.fccId = fccMatch[1].toUpperCase();
+            data.fccIdInListing = true;
+        }
+        
+        // Extract Part Numbers
+        const partMatch = aboutText.match(/Part\s*Numbers?[:\s]*([0-9-]+(?:\s*,\s*[0-9-]+)*)/i);
+        if (partMatch) {
+            data.compatibility.partNumbers = partMatch[1].split(/\s*,\s*/).map(p => p.trim());
+        }
+        
+        // Extract Board Number
+        const boardMatch = aboutText.match(/Board\s*Number[:\s]*([0-9-]+)/i);
+        if (boardMatch) {
+            data.compatibility.boardNumber = boardMatch[1];
+        }
+        
+        // Extract Frequency
+        const freqMatch = aboutText.match(/Frequency[:\s]*([0-9.]+\s*MHz)/i);
+        if (freqMatch) {
+            data.compatibility.frequency = freqMatch[1];
+        }
+        
+        // Extract compatible vehicles
+        const vehiclePatterns = [
+            /Compatible\s*(?:with|for)[:\s]*((?:[A-Z][a-z]+\s+[A-Z0-9]+\s+\d{4}(?:-\d{4})?(?:\s*,?\s*)?)+)/gi,
+            /REPLACEMENT[:\s]*Compatible\s*(?:with|for)[:\s]*([^,]+(?:\d{4}(?:-\d{4})?)[^\.]+)/i
+        ];
+        
+        for (const pattern of vehiclePatterns) {
+            const vehicleMatch = aboutText.match(pattern);
+            if (vehicleMatch) {
+                // Parse vehicle strings like "LEXUS ES350 LS460 2007-2008"
+                const vehicleText = vehicleMatch[1];
+                const vehicles = vehicleText.match(/([A-Z]+)\s+([A-Z0-9]+)\s+(\d{4}(?:-\d{4})?)/gi);
+                if (vehicles) {
+                    data.compatibility.vehicles = vehicles.map(v => {
+                        const parts = v.match(/([A-Z]+)\s+([A-Z0-9]+)\s+(\d{4}(?:-\d{4})?)/i);
+                        if (parts) {
+                            return { make: parts[1], model: parts[2], years: parts[3] };
+                        }
+                        return null;
+                    }).filter(Boolean);
+                }
+                break;
+            }
+        }
+        
+        // Check if requires professional programming
+        data.compatibility.requiresProgramming = /requires?\s*programming|professional\s*locksmith|Self-programming\s*is\s*not\s*supported/i.test(aboutText);
+        
+        // Check if OEM
+        data.compatibility.isOEM = /\bOEM\b/i.test(aboutText) && !/non-OEM|aftermarket/i.test(aboutText);
+    }
+    
+    // Extract brand
+    const brandMatch = html.match(/Brand[:\s]*<[^>]+>([^<]+)</i) || html.match(/"brand"\s*:\s*"([^"]+)"/);
+    if (brandMatch) {
+        data.brand = brandMatch[1].trim();
+    }
+    
+    // Extract coupon/discount price
+    const couponMatch = html.match(/(\d+)%\s*off\s*coupon/i);
+    if (couponMatch && data.price) {
+        const discount = parseInt(couponMatch[1]) / 100;
+        data.couponPrice = Math.round(data.price * (1 - discount) * 100) / 100;
     }
     
     return data;

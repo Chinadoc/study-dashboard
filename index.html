@@ -6004,77 +6004,134 @@
         // ============================================================================
         
         const RANKED_PRODUCTS = {
-            // LEXUS ES350 2007 - HYQ14AAB (Example from user's screenshot)
+            // LEXUS ES350/LS460/IS350/GS350 & Toyota Camry/Avalon - HYQ14AAB
+            // Verified products from Amazon - Dec 2024
             'HYQ14AAB': [
                 {
-                    asin: 'B0CJK8VXYZ',
-                    name: 'KeylessOption OEM Replacement',
-                    price: 47.97,
-                    rating: 3.8,
-                    reviews: 15,
+                    asin: 'B0FNLCDHR5',
+                    name: 'YDTHTLAH Smart Key Fob Lexus ES350/LS460/IS350/GS350',
+                    price: 49.98,
+                    couponPrice: 44.98, // 10% coupon available
+                    rating: 4.6,
+                    reviews: 3,
                     isPrime: true,
                     chipType: 'Premium Clone',
-                    chipDetail: 'Pre-programmed 4D67 chip',
+                    chipDetail: 'FCC: HYQ14AAB | PN: 89904-30270 | Board: 271451-0140 | 314.3 MHz',
                     fccVerified: true,
-                    seller: 'KeylessOption',
+                    seller: 'YDTHTLAH',
                     inStock: true,
-                    deliveryDays: 2
+                    deliveryDays: 2,
+                    compatibility: {
+                        fccId: 'HYQ14AAB',
+                        partNumbers: ['89904-30270'],
+                        boardNumber: '271451-0140',
+                        frequency: '314.3 MHz',
+                        vehicles: [
+                            { make: 'Lexus', model: 'ES350', years: '2007-2008' },
+                            { make: 'Lexus', model: 'LS460', years: '2007-2008' },
+                            { make: 'Lexus', model: 'IS350', years: '2006-2008' },
+                            { make: 'Lexus', model: 'GS350', years: '2006-2008' }
+                        ]
+                    },
+                    requiresProgramming: true,
+                    programmingNote: 'Professional locksmith required. Self-programming NOT supported.',
+                    isOEM: false
                 },
                 {
-                    asin: 'B0CPXVHYQ1',
-                    name: 'Keyecu Smart Remote',
-                    price: 44.49,
+                    asin: 'B0FCGBZKWS',
+                    name: 'FengRKey Toyota Camry/Avalon Smart Key Fob',
+                    price: 47.97,
+                    rating: 5.0,
+                    reviews: 2,
+                    isPrime: false,
+                    chipType: 'Premium Clone',
+                    chipDetail: 'FCC: HYQ14AAB | 314.3 MHz | Pre-installed battery',
+                    fccVerified: true,
+                    seller: 'FengRKey',
+                    inStock: true,
+                    deliveryDays: 5,
+                    compatibility: {
+                        fccId: 'HYQ14AAB',
+                        vehicles: [
+                            { make: 'Toyota', model: 'Camry', years: '2006-2009' },
+                            { make: 'Toyota', model: 'Avalon', years: '2006-2009' }
+                        ]
+                    },
+                    requiresProgramming: true,
+                    isOEM: false
+                },
+                {
+                    asin: 'B0DHNLQ6ZF',
+                    name: 'Alliskeys Toyota Camry/Avalon Smart Key',
+                    price: 44.99,
+                    rating: 4.2,
+                    reviews: 8,
+                    isPrime: true,
+                    chipType: 'Premium Clone',
+                    chipDetail: 'FCC: HYQ14AAB | PN: 271451-0140, 89904-06041, 89904-33181',
+                    fccVerified: true,
+                    seller: 'Alliskeys',
+                    inStock: true,
+                    deliveryDays: 2,
+                    compatibility: {
+                        fccId: 'HYQ14AAB',
+                        partNumbers: ['271451-0140', '89904-06041', '89904-33181'],
+                        vehicles: [
+                            { make: 'Toyota', model: 'Camry', years: '2006-2009' },
+                            { make: 'Toyota', model: 'Avalon', years: '2006-2009' }
+                        ]
+                    },
+                    requiresProgramming: true,
+                    isOEM: false
+                },
+                {
+                    asin: 'B0DDBFBJ7W',
+                    name: 'Keyecu Lexus 2005-2011 Smart Remote',
+                    price: 42.99,
                     rating: 3.2,
                     reviews: 21,
                     isPrime: true,
                     chipType: 'Standard Clone',
-                    chipDetail: 'Requires programming',
+                    chipDetail: 'FCC: HYQ14AAB | 314.3MHz | 4 Buttons',
                     fccVerified: true,
                     seller: 'Keyecu',
                     inStock: true,
-                    deliveryDays: 2
+                    deliveryDays: 2,
+                    compatibility: {
+                        fccId: 'HYQ14AAB',
+                        partNumbers: ['271451-0140', '89904-30270'],
+                        frequency: '314.3 MHz',
+                        vehicles: [
+                            { make: 'Lexus', model: 'ES350', years: '2005-2011' },
+                            { make: 'Lexus', model: 'GS350', years: '2005-2011' },
+                            { make: 'Lexus', model: 'IS350', years: '2005-2011' }
+                        ]
+                    },
+                    requiresProgramming: true,
+                    isOEM: false
                 },
                 {
-                    asin: 'B0F17LEXES',
-                    name: 'Key Fob Keyless Entry',
-                    price: 48.85,
-                    rating: 5.0,
-                    reviews: 1,
-                    isPrime: false,
-                    chipType: 'Premium Clone',
-                    chipDetail: '4D67 chip included',
-                    fccVerified: true,
-                    seller: 'Various',
-                    inStock: true,
-                    deliveryDays: 5
-                },
-                {
-                    asin: 'B0LEXSHELL',
-                    name: '2 Pack Key Fob Shell',
-                    price: 8.49,
+                    asin: 'B0DHNB5JGV',
+                    name: 'Alliskeys Toyota RAV4 Smart Key 2008-2012',
+                    price: 45.99,
                     rating: 4.2,
-                    reviews: 62,
+                    reviews: 5,
                     isPrime: true,
-                    chipType: 'Shell Only',
-                    chipDetail: 'Case replacement only - NO electronics',
-                    fccVerified: false,
-                    seller: 'Various',
-                    inStock: true,
-                    deliveryDays: 1
-                },
-                {
-                    asin: 'B0LEXSTAND',
-                    name: 'Smart Proximity Replacement',
-                    price: 49.98,
-                    rating: 4.6,
-                    reviews: 3,
-                    isPrime: false,
-                    chipType: 'Standard Clone',
-                    chipDetail: 'Universal programmable',
+                    chipType: 'Premium Clone',
+                    chipDetail: 'FCC: HYQ14AAB | PN: 271451-0140, 89904-48100',
                     fccVerified: true,
-                    seller: 'FengRKey',
+                    seller: 'Alliskeys',
                     inStock: true,
-                    deliveryDays: 6
+                    deliveryDays: 2,
+                    compatibility: {
+                        fccId: 'HYQ14AAB',
+                        partNumbers: ['271451-0140', '89904-48100'],
+                        vehicles: [
+                            { make: 'Toyota', model: 'RAV4', years: '2008-2012' }
+                        ]
+                    },
+                    requiresProgramming: true,
+                    isOEM: false
                 }
             ],
             
@@ -6275,6 +6332,32 @@
                 '<span class="text-xs text-green-400">✓ FCC Verified</span>' : 
                 '<span class="text-xs text-slate-500">Unverified</span>';
             
+            // Price display with coupon
+            const priceDisplay = product.couponPrice 
+                ? `<span class="text-brand-400 font-bold">$${product.couponPrice.toFixed(2)}</span>
+                   <span class="text-slate-500 text-xs line-through">$${product.price.toFixed(2)}</span>
+                   <span class="text-green-400 text-xs">🏷️ Coupon</span>`
+                : `<span class="text-brand-400 font-bold">$${product.price.toFixed(2)}</span>`;
+            
+            // Programming requirement badge
+            const programmingBadge = product.requiresProgramming 
+                ? '<span class="text-xs text-orange-400">🔧 Pro Programming</span>' 
+                : '<span class="text-xs text-green-400">✅ DIY Possible</span>';
+            
+            // Compatibility info for expanded view
+            let compatibilityHtml = '';
+            if (isTopPick && product.compatibility && product.compatibility.vehicles) {
+                const vehicleList = product.compatibility.vehicles.map(v => 
+                    `${v.make} ${v.model} ${v.years}`
+                ).join(', ');
+                compatibilityHtml = `
+                    <div class="mt-2 text-xs">
+                        <span class="text-cyan-400">🚗 Fits:</span> 
+                        <span class="text-slate-300">${vehicleList}</span>
+                    </div>
+                `;
+            }
+            
             return `
                 <a href="https://www.amazon.com/dp/${product.asin}?tag=eurokeys-20" 
                    target="_blank" rel="noopener noreferrer"
@@ -6292,14 +6375,16 @@
                             <div class="flex flex-wrap items-center gap-2 mb-2">
                                 ${getChipBadge(product.chipType)}
                                 ${verifiedBadge}
+                                ${programmingBadge}
                             </div>
                             <p class="text-xs text-slate-400 mb-2">${product.chipDetail}</p>
-                            <div class="flex items-center gap-3">
-                                <span class="text-brand-400 font-bold">$${product.price.toFixed(2)}</span>
+                            <div class="flex flex-wrap items-center gap-3">
+                                ${priceDisplay}
                                 <span class="text-yellow-400 text-sm">★ ${product.rating}</span>
                                 <span class="text-slate-500 text-xs">(${product.reviews} reviews)</span>
                                 ${primeIcon}
                             </div>
+                            ${product.seller ? `<div class="text-xs text-slate-500 mt-1">Sold by: ${product.seller}</div>` : ''}
                         </div>
                         <div class="flex-shrink-0 self-center">
                             <span class="inline-flex items-center justify-center w-10 h-10 bg-brand-500 group-hover:bg-brand-400 rounded-lg transition-colors">
@@ -6309,9 +6394,13 @@
                             </span>
                         </div>
                     </div>
-                    ${isTopPick ? `<div class="mt-3 pt-3 border-t border-brand-500/20 text-xs text-slate-400">
-                        <strong class="text-brand-400">Why Top Pick:</strong> ${product.isPrime ? 'Prime shipping' : 'Fast delivery'}, ${product.rating}★ rating, ${product.chipType}
-                    </div>` : ''}
+                    ${isTopPick ? `
+                        <div class="mt-3 pt-3 border-t border-brand-500/20 text-xs text-slate-400">
+                            <strong class="text-brand-400">Why Top Pick:</strong> ${product.isPrime ? 'Prime shipping' : 'Fast delivery'}, ${product.rating}★ rating, ${product.chipType}
+                            ${compatibilityHtml}
+                            ${product.programmingNote ? `<div class="mt-1 text-orange-400">⚠️ ${product.programmingNote}</div>` : ''}
+                        </div>
+                    ` : ''}
                 </a>
             `;
         }
