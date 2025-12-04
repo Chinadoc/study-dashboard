@@ -6890,7 +6890,7 @@
                 
                 switch(type) {
                     case 'fcc':
-                        // Check main FCC ID
+                        // Check main FCC ID in LOCKSMITH_DB
                         if (data.fccId && data.fccId.toUpperCase().includes(value.toUpperCase())) {
                             matched = true;
                             matchReason = `FCC: ${data.fccId}`;
@@ -6903,6 +6903,21 @@
                                     matchReason = `FCC: ${kb.fcc} (${kb.desc})`;
                                 }
                             });
+                        }
+                        // ALSO check FCC_CROSS_REFERENCE for this make
+                        const normalizedSearchFcc = value.replace(/[-\s]/g, '').toUpperCase();
+                        for (const [fccKey, fccData] of Object.entries(FCC_CROSS_REFERENCE)) {
+                            const normalizedKey = fccKey.replace(/[-\s]/g, '').toUpperCase();
+                            if (normalizedKey === normalizedSearchFcc || normalizedKey.includes(normalizedSearchFcc)) {
+                                if (fccData.vehicles) {
+                                    fccData.vehicles.forEach(v => {
+                                        if (make.toUpperCase() === v.make.toUpperCase()) {
+                                            matched = true;
+                                            matchReason = `FCC: ${fccKey} (${v.model} ${v.years})`;
+                                        }
+                                    });
+                                }
+                            }
                         }
                         break;
                     
@@ -6997,8 +7012,43 @@
                 }
             }
             
+            // For FCC searches, also add vehicles directly from FCC_CROSS_REFERENCE
+            if (type === 'fcc') {
+                const normalizedFccSearch = value.replace(/[-\s]/g, '').toUpperCase();
+                for (const [fccKey, fccData] of Object.entries(FCC_CROSS_REFERENCE)) {
+                    const normalizedKey = fccKey.replace(/[-\s]/g, '').toUpperCase();
+                    if (normalizedKey === normalizedFccSearch || normalizedKey.includes(normalizedFccSearch)) {
+                        if (fccData.vehicles) {
+                            fccData.vehicles.forEach(v => {
+                                // Check if this make/model combo isn't already in matches
+                                const alreadyExists = matches.some(m => 
+                                    m.make.toUpperCase() === v.make.toUpperCase() && 
+                                    m.model === v.model
+                                );
+                                if (!alreadyExists) {
+                                    matches.push({
+                                        make: v.make.toUpperCase(),
+                                        model: v.model,
+                                        years: v.years,
+                                        fccId: fccKey,
+                                        fccData: fccData,
+                                        data: LOCKSMITH_DB[v.make.toUpperCase()] || {},
+                                        reason: `FCC: ${fccKey}`,
+                                        fromFccDatabase: true
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            
             // Update subtitle with count
             subtitle.textContent = `Found ${matches.length} compatible vehicle${matches.length !== 1 ? 's' : ''}`;
+            
+            // Get FCC data for affiliate products
+            const searchedFccId = type === 'fcc' ? value.toUpperCase() : null;
+            const fccDataForProducts = searchedFccId ? FCC_CROSS_REFERENCE[searchedFccId] : null;
             
             // Render results
             resultsContainer.innerHTML = '';
@@ -7009,25 +7059,61 @@
                         <div class="text-4xl mb-4">🔍</div>
                         <p class="text-slate-400">No vehicles found matching "${value}"</p>
                         <p class="text-slate-500 text-sm mt-2">Try a different search term</p>
+                        ${type === 'fcc' ? `
+                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(value + ' key fob')}&tag=eurokeys-20" 
+                               target="_blank" rel="noopener noreferrer"
+                               class="inline-block mt-4 px-4 py-2 bg-brand-500 text-navy-950 rounded-lg font-semibold hover:bg-brand-400 transition-colors">
+                                🛒 Search Amazon for ${value}
+                            </a>
+                        ` : ''}
                     </div>
                 `;
             } else {
+                // Add affiliate products section at top for FCC searches
+                if (type === 'fcc' && searchedFccId) {
+                    const productsSection = document.createElement('div');
+                    productsSection.className = 'col-span-full mb-4 bg-gradient-to-br from-brand-900/30 to-navy-900/50 rounded-xl p-4 border border-brand-400/30';
+                    productsSection.innerHTML = `
+                        <h4 class="text-brand-400 font-bold mb-3 flex items-center gap-2">
+                            🛒 Buy Keys for ${searchedFccId}
+                            <span class="text-xs font-normal text-slate-400 ml-2">Amazon Affiliate</span>
+                        </h4>
+                        <div id="reverseSearchProducts_${searchedFccId.replace(/[^a-zA-Z0-9]/g, '_')}" class="space-y-2">
+                            <div class="text-slate-400 text-sm">Loading products...</div>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(productsSection);
+                    
+                    // Load ranked products asynchronously
+                    setTimeout(() => {
+                        displayRankedProducts(searchedFccId, 'reverseSearchProducts_' + searchedFccId.replace(/[^a-zA-Z0-9]/g, '_'));
+                    }, 100);
+                }
+                
                 matches.forEach(match => {
                     const card = document.createElement('div');
                     card.className = 'bg-navy-950/60 rounded-xl p-4 border border-brand-500/20 hover:border-brand-400 transition-all cursor-pointer';
                     card.onclick = () => {
                         closeReverseModal();
                         // Simulate a search for this make
-                        document.getElementById('yearSelect').value = '2020';
+                        document.getElementById('yearSelect').value = match.years ? match.years.split('-')[0] : '2020';
                         document.getElementById('makeSelect').value = match.make;
                         document.getElementById('makeSelect').disabled = false;
                         switchTab('browse');
                         displayProductsForMake(match.make);
                     };
+                    
+                    // Build card content based on source
+                    const modelInfo = match.model ? `<span class="text-brand-400">${match.model}</span> ` : '';
+                    const yearsInfo = match.years ? `<span class="text-slate-400">(${match.years})</span>` : '';
+                    
                     card.innerHTML = `
                         <div class="flex items-start justify-between mb-2">
-                            <h3 class="text-white font-bold text-lg">${match.make}</h3>
-                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 text-xs rounded-full">${match.data.keyType || 'Standard'}</span>
+                            <div>
+                                <h3 class="text-white font-bold text-lg">${match.make}</h3>
+                                ${match.model ? `<div class="text-sm">${modelInfo}${yearsInfo}</div>` : ''}
+                            </div>
+                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 text-xs rounded-full">${match.data.keyType || (match.fccData ? 'Smart Key' : 'Standard')}</span>
                         </div>
                         <div class="space-y-1 text-sm">
                             <div class="flex items-center gap-2">
@@ -7035,20 +7121,30 @@
                                 <span class="text-green-400 font-mono text-xs">${match.reason}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-slate-500">Blanks:</span>
-                                <span class="text-slate-300">${match.data.blank || 'N/A'}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
                                 <span class="text-slate-500">Chip:</span>
-                                <span class="text-slate-300">${match.data.chip || 'N/A'}</span>
+                                <span class="text-cyan-400">${match.fccData?.chip || match.data.chip || 'N/A'}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-slate-500">Freq:</span>
-                                <span class="text-brand-400">${match.data.freq || 'N/A'}</span>
+                                <span class="text-slate-500">Frequency:</span>
+                                <span class="text-purple-400">${match.fccData?.frequency || match.data.freq || 'N/A'}</span>
                             </div>
+                            ${match.data.blank ? `
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500">Blanks:</span>
+                                    <span class="text-slate-300">${match.data.blank}</span>
+                                </div>
+                            ` : ''}
                         </div>
-                        <div class="mt-3 pt-3 border-t border-brand-500/20">
+                        <div class="mt-3 pt-3 border-t border-brand-500/20 flex justify-between items-center">
                             <span class="text-xs text-slate-500">Click to view full specs →</span>
+                            ${match.fccId ? `
+                                <a href="https://www.amazon.com/s?k=${encodeURIComponent(match.fccId + ' ' + match.make + ' key fob')}&tag=eurokeys-20" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   onclick="event.stopPropagation();"
+                                   class="text-xs px-2 py-1 bg-brand-500/20 text-brand-400 rounded hover:bg-brand-500/30 transition-colors">
+                                    🛒 Buy on Amazon
+                                </a>
+                            ` : ''}
                         </div>
                     `;
                     resultsContainer.appendChild(card);
