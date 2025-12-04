@@ -1290,7 +1290,26 @@
                     { make: 'Acura', model: 'RDX', years: '2014-2018' },
                     { make: 'Acura', model: 'MDX', years: '2014-2018' }
                 ],
-                partNumbers: ['72147-T2A-A01', '72147-T2A-A11', '72147-T3L-A01', '72147-TZ3-A01']
+                partNumbers: ['72147-T2A-A01', '72147-T2A-A11', '72147-T3L-A01', '72147-TZ3-A01'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'K001-N718 (Honda)',
+                testKey: 'HO01 / HON66 TEST KEY',
+                aftermarket: { ilco: 'PRX-HON-4B', keydiy: 'B10-4', jma: 'HOND-31' },
+                shell: 'HON-SHELL-4B / ACU-SHELL-4B',
+                decoderTools: ['Lishi HO01', 'Lishi HON66', 'Determinator', 'Instacode'],
+                autelModels: ['IM608', 'IM508', 'MaxiIM KM100'],
+                progMethod: 'OBD Add Key / Autel G-Box for AKL',
+                cloneChips: ['JMA TPX4', 'CN3', 'Xhorse ID46'],
+                pinRequired: true,
+                pinSource: 'Honda Dealer Portal / Autel G-Box PIN Calc',
+                sgwBypass: false,
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-honda-hon66',
+                    autel: 'https://www.auteltech.com/im608/',
+                    blank: 'https://www.locksmithkeyless.com/products/honda-accord-smart-key-4b'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=a4oUWkEFo4c',
+                notes: 'ID46/Hitag2 proximity fob. AKL requires BCM EEPROM read or PIN from dealer.'
             },
             'ACJ932HK1210A': {
                 frequency: '315 MHz',
@@ -1303,7 +1322,26 @@
                     { make: 'Honda', model: 'Fit', years: '2009-2014' },
                     { make: 'Honda', model: 'Odyssey', years: '2011-2017' }
                 ],
-                partNumbers: ['35118-TA0-A00', '35118-SDA-A01']
+                partNumbers: ['35118-TA0-A00', '35118-SDA-A01'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'K001-N718 (Honda)',
+                testKey: 'HO01 / HON66 TEST KEY',
+                aftermarket: { ilco: 'HO03-PT', keydiy: 'B10-3', jma: 'HOND-31' },
+                shell: 'HON-SHELL-3B / HON-SHELL-4B',
+                decoderTools: ['Lishi HO01', 'Lishi HON66', 'Determinator', 'Instacode'],
+                autelModels: ['IM608', 'IM508', 'MaxiIM KM100'],
+                progMethod: 'OBD Add Key (2 keys required)',
+                cloneChips: ['JMA TPX2', 'CN3', 'Xhorse 4D67'],
+                pinRequired: false,
+                pinSource: 'Not Required - 2 Key Add Mode',
+                sgwBypass: false,
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-honda-ho01-hon66-2-in-1',
+                    autel: 'https://www.auteltech.com/im608/',
+                    blank: 'https://www.clksupplies.com/products/honda-ho03-pt-transponder-key'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=eG4RWmq7xr4',
+                notes: 'Dot chip (4D67) - clonable. Remote program: Ignition ON/OFF x4 within 40 seconds.'
             },
             'MLBHLIK6-1T': {
                 frequency: '315 MHz',
@@ -1314,7 +1352,25 @@
                     { make: 'Honda', model: 'Civic', years: '2014-2015' },
                     { make: 'Honda', model: 'CR-V', years: '2013-2016' }
                 ],
-                partNumbers: ['35118-T2A-A20', '35118-T0A-A20']
+                partNumbers: ['35118-T2A-A20', '35118-T0A-A20'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'K001-N718 (Honda)',
+                testKey: 'HO01 / HON66 TEST KEY',
+                aftermarket: { ilco: 'HO03-PT', keydiy: 'B10-4', jma: 'HOND-31' },
+                shell: 'HON-SHELL-4B',
+                decoderTools: ['Lishi HO01', 'Lishi HON66', 'Determinator'],
+                autelModels: ['IM608', 'IM508'],
+                progMethod: 'OBD Add Key (2 keys required)',
+                cloneChips: ['JMA TPX3', 'CN3', 'ID46'],
+                pinRequired: false,
+                pinSource: 'Not Required - 2 Key Add Mode',
+                sgwBypass: false,
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-honda-hon66',
+                    blank: 'https://www.clksupplies.com/products/honda-ho03-pt'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=eG4RWmq7xr4',
+                notes: 'ID46 chip - clonable to CN3. Remote: Ignition ON/OFF x4.'
             },
             'CWTWBU729': {
                 frequency: '315 MHz',
@@ -1403,6 +1459,98 @@
                     { make: 'Lexus', model: 'RX', years: '2020-2024' }
                 ],
                 partNumbers: ['89904-06220', '89904-0E092']
+            },
+            'HYQ14ADR': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas G-Chip (80-bit)',
+                vehicles: [
+                    { make: 'Toyota', model: 'Sienna', years: '2011-2020' },
+                    { make: 'Toyota', model: 'Highlander', years: '2008-2013' },
+                    { make: 'Toyota', model: 'Sequoia', years: '2008-2017' },
+                    { make: 'Toyota', model: 'Tundra', years: '2008-2018' }
+                ],
+                partNumbers: ['89904-08010', '89904-0C020'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: '50000-69999 (physical stamp)',
+                testKey: 'TOY43 / TR47 TEST KEY',
+                aftermarket: { ilco: 'TOY44G-PT', keydiy: 'KD-TOY43', jma: 'TPX2-TOY' },
+                shell: 'TOY-SHELL-43G (laser cut)',
+                decoderTools: ['Lishi TOY43', 'Lishi TOY2', 'Determinator', 'Instacode'],
+                autelModels: ['IM608', 'IM508', 'MaxiIM IM608 Pro'],
+                progMethod: 'Techstream / OBD Add Key',
+                cloneChips: ['Xhorse G-Chip', 'JMA TPX4-G', 'CN5'],
+                pinRequired: false,
+                pinSource: 'Not Required - OBD Add Key',
+                sgwBypass: false,
+                codeLocation: 'Door lock / Ignition stamp',
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-toyota-toy43-2-in-1',
+                    autel: 'https://www.auteltech.com/im608pro/',
+                    blank: 'https://www.clksupplies.com/products/toyota-toy44g-pt-g-chip'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=kazUAnDNhhM',
+                notes: 'G-chip (80-bit) - OBD preferred for add key. Code series stamped on passenger door.'
+            },
+            'GQ4-52T': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas H-Chip (128-bit AES)',
+                vehicles: [
+                    { make: 'Toyota', model: 'Sienna', years: '2021-2024' },
+                    { make: 'Toyota', model: 'Venza', years: '2021-2024' },
+                    { make: 'Toyota', model: 'Highlander', years: '2020-2024' }
+                ],
+                partNumbers: ['8990H-08010', '89904-0E120'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'New Series (VIN required)',
+                testKey: 'TOY51 / TOY-51 TEST KEY',
+                aftermarket: { ilco: 'TOY-51-PT', keydiy: 'KD-TOY51', jma: 'TPX4-TOY' },
+                shell: 'TOY-SHELL-51H (smart key)',
+                decoderTools: ['Lishi TOY51', 'Determinator', 'Instacode'],
+                autelModels: ['IM608 Pro II', 'IM608 Pro', 'MaxiIM Ultra'],
+                progMethod: 'Techstream / Autel (token required)',
+                cloneChips: ['Xhorse H-Chip', 'CN5'],
+                pinRequired: false,
+                pinSource: 'Not Required - Token Programming',
+                sgwBypass: false,
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-toyota-toy51',
+                    autel: 'https://www.auteltech.com/im608pro2/',
+                    blank: 'https://www.uhs-hardware.com/products/toyota-sienna-smart-key'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=SmCN-YDkqwo',
+                notes: 'H-chip (128-bit AES) - requires token. 2021+ uses new platform.'
+            },
+            'HYQ14FBN': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas H-Chip (128-bit AES)',
+                vehicles: [
+                    { make: 'Toyota', model: 'Sienna', years: '2015-2020' },
+                    { make: 'Toyota', model: 'Prius', years: '2016-2022' },
+                    { make: 'Toyota', model: 'Mirai', years: '2016-2020' }
+                ],
+                partNumbers: ['89904-08020', '89904-47530'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: '50000-69999 (physical stamp)',
+                testKey: 'TOY48 / TR48 TEST KEY',
+                aftermarket: { ilco: 'TOY44H-PT', keydiy: 'KD-TOY48', jma: 'TPX4-H' },
+                shell: 'TOY-SHELL-48H (proximity)',
+                decoderTools: ['Lishi TOY48', 'Determinator', 'Instacode'],
+                autelModels: ['IM608', 'IM508', 'MaxiIM IM608 Pro'],
+                progMethod: 'Techstream / OBD Add Key',
+                cloneChips: ['Xhorse H-Chip', 'CN5', 'TPX4-H'],
+                pinRequired: false,
+                pinSource: 'Not Required - OBD Add Key',
+                sgwBypass: false,
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-toyota-toy48',
+                    autel: 'https://www.auteltech.com/im608/',
+                    blank: 'https://www.clksupplies.com/products/toyota-toy44h-pt-h-chip'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=SmCN-YDkqwo',
+                notes: 'H-chip (128-bit) push-to-start. Code series on door lock.'
             },
             'TQ8-BSK2C2K': {
                 frequency: '315 MHz',
