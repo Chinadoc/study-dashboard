@@ -47,3 +47,5 @@ Simply open `index.html` in any modern web browser. No server required!
 - **Vanilla JavaScript**: For interactivity and data processing
 - **Canvas Confetti**: For celebration effects
 - **Google Fonts (Inter)**: For clean typography
+
+
