@@ -177,32 +177,6 @@
             </div>
         </div>
 
-        <!-- Mobile-Friendly Quick Products Section -->
-        <div id="quickProductsSection" class="mb-8">
-            <div class="glass-panel rounded-2xl p-4 md:p-6 border-2 border-brand-400/50 bg-gradient-to-br from-brand-900/30 to-navy-900/50">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <span class="text-brand-400 text-xl">🔑</span>
-                        <h3 class="text-lg md:text-xl font-bold text-white">Quick Buy Keys</h3>
-                    </div>
-                    <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-semibold rounded-full">AFFILIATE</span>
-                </div>
-                
-                <!-- Compact Product Cards for Mobile -->
-                <div id="affiliateProductsContainer" class="space-y-3">
-                    <!-- Products populated by JavaScript -->
-                </div>
-                
-                <!-- Expand Button -->
-                <button id="expandProductsBtn" onclick="toggleExpandProducts()" class="hidden w-full mt-4 py-3 text-brand-400 hover:text-brand-300 font-semibold text-sm flex items-center justify-center gap-2 border border-brand-500/30 rounded-xl hover:bg-brand-500/10 transition-all">
-                    <span id="expandBtnText">Show More Keys</span>
-                    <svg id="expandBtnIcon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        
         <!-- VIN Section -->
         <div id="vin-section" class="mb-12 animate-fade-in">
             <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight text-center">
@@ -1998,44 +1972,40 @@
     ],
     'DODGE': [
         {
-            name: 'Dodge Charger Fobik Smart Key',
+            name: 'Dodge Charger/Challenger Fobik Smart Key 2008-2021',
             fccId: 'M3N-40821302',
-            price: '$37.99',
-            rating: '4.4',
-            reviews: '23',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+charger+smart+key&tag=eurokeys-20',
+            price: '$44.99',
+            rating: '4.3',
+            reviews: '412',
+            asin: 'B07WZQLV4M',
+            amazonUrl: 'https://www.amazon.com/dp/B07WZQLV4M?tag=eurokeys-20',
         },
         {
-            name: 'Dodge Challenger Fobik Smart Key',
+            name: 'Dodge Durango Fobik Smart Key 2011-2021',
             fccId: 'M3N-40821302',
-            price: '$37.99',
+            price: '$42.99',
             rating: '4.4',
-            reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+challenger+smart+key&tag=eurokeys-20',
+            reviews: '156',
+            asin: 'B07XZQM7W2',
+            amazonUrl: 'https://www.amazon.com/dp/B07XZQM7W2?tag=eurokeys-20',
         },
         {
-            name: 'Dodge Durango Fobik Smart Key',
+            name: 'Dodge Journey Fobik Smart Key 2009-2020',
+            fccId: 'M3N-40821302',
+            price: '$39.99',
+            rating: '4.2',
+            reviews: '89',
+            asin: 'B08LNWD4HN',
+            amazonUrl: 'https://www.amazon.com/dp/B08LNWD4HN?tag=eurokeys-20',
+        },
+        {
+            name: 'Dodge Grand Caravan Fobik Key 2008-2020',
             fccId: 'M3N-40821302',
             price: '$38.99',
-            rating: '4.5',
-            reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+durango+smart+key&tag=eurokeys-20',
-        },
-        {
-            name: 'Dodge Journey Fobik Smart Key',
-            fccId: 'M3N-40821302',
-            price: '$36.99',
             rating: '4.3',
-            reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+journey+smart+key&tag=eurokeys-20',
-        },
-        {
-            name: 'Dodge Grand Caravan Fobik Key',
-            fccId: 'M3N-40821302',
-            price: '$36.99',
-            rating: '4.3',
-            reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+grand+caravan+smart+key&tag=eurokeys-20',
+            reviews: '67',
+            asin: 'B07YZR3T5K',
+            amazonUrl: 'https://www.amazon.com/dp/B07YZR3T5K?tag=eurokeys-20',
         },
     ],
     'FORD': [
@@ -4369,13 +4339,6 @@
             document.getElementById('database-section').classList.add('hidden');
             document.getElementById('resultsArea').classList.add('hidden');
             
-            // Hide quick products on non-VIN tabs
-            const quickProducts = document.getElementById('quickProductsSection');
-            if (tab === 'tutorials' || tab === 'tools' || tab === 'database') {
-                quickProducts.classList.add('hidden');
-            } else {
-                quickProducts.classList.remove('hidden');
-            }
 
             // Show selected section
             if (tab === 'vin') {
