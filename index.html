@@ -4724,11 +4724,32 @@
         // Helper function for FCC ID reverse search from button
         function reverseSearchFcc(element) {
             const fccText = element.textContent || element.innerText;
-            const fccId = fccText.replace('FCC ID:', '').replace('FCC:', '').trim();
+            let fccId = fccText.replace('FCC ID:', '').replace('FCC:', '').trim();
+            
+            // Handle multiple FCC IDs (separated by / or ,)
+            if (fccId.includes('/')) {
+                fccId = fccId.split('/')[0].trim();
+            }
+            if (fccId.includes(',')) {
+                fccId = fccId.split(',')[0].trim();
+            }
+            
             if (fccId && fccId !== 'N/A') {
-                // Check if we have extended data in FCC_CROSS_REFERENCE
-                if (FCC_CROSS_REFERENCE[fccId]) {
-                    showFccCrossReference(fccId);
+                // Normalize FCC ID format (some have hyphens, some don't)
+                const normalizedFccId = fccId.replace(/[-\s]/g, '').toUpperCase();
+                
+                // Check FCC_CROSS_REFERENCE with different formats
+                let matchedKey = null;
+                for (const key of Object.keys(FCC_CROSS_REFERENCE)) {
+                    const normalizedKey = key.replace(/[-\s]/g, '').toUpperCase();
+                    if (normalizedKey === normalizedFccId || normalizedKey.includes(normalizedFccId) || normalizedFccId.includes(normalizedKey)) {
+                        matchedKey = key;
+                        break;
+                    }
+                }
+                
+                if (matchedKey) {
+                    showFccCrossReference(matchedKey);
                 } else {
                     reverseSearch('fcc', fccId);
                 }
