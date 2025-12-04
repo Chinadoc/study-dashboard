@@ -6317,25 +6317,62 @@
         }
         
         // Display ranked products for an FCC ID
-        function displayRankedProducts(fccId, containerId) {
+        // First tries static data, then falls back to live API search
+        async function displayRankedProducts(fccId, containerId) {
             const container = document.getElementById(containerId);
             if (!container) return;
             
             const ranked = getRankedProducts(fccId);
             
             if (ranked.length === 0) {
-                // Fallback to search link
+                // Show loading state and fetch from API
+                container.innerHTML = `
+                    <div class="flex items-center justify-center p-4 text-slate-400">
+                        <svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Searching Amazon for ${fccId}...
+                    </div>
+                `;
+                
+                // Try fetching from live API
+                try {
+                    const liveProducts = await fetchLiveAmazonProducts(fccId);
+                    if (liveProducts && liveProducts.length > 0) {
+                        renderRankedProductsHTML(container, liveProducts, fccId, true);
+                        return;
+                    }
+                } catch (err) {
+                    console.log('Live API unavailable, using search link fallback');
+                }
+                
+                // Final fallback to search link
                 container.innerHTML = `
                     <a href="https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20" 
                        target="_blank" rel="noopener noreferrer"
                        class="block bg-navy-950/60 rounded-xl p-4 border border-brand-500/20 hover:border-brand-400 transition-all text-center">
                         <span class="text-brand-400">🔍 Search Amazon for ${fccId}</span>
                     </a>
+                    <button onclick="refreshLiveProducts('${fccId}', '${containerId}')" 
+                            class="mt-2 w-full py-2 text-xs text-slate-400 hover:text-brand-400 border border-slate-700 rounded-lg hover:border-brand-500/50 transition-all">
+                        🔄 Try Live Search (uses API credits)
+                    </button>
                 `;
                 return;
             }
             
+            // Render static data
+            renderRankedProductsHTML(container, ranked, fccId, false);
+        }
+        
+        // Render ranked products HTML
+        function renderRankedProductsHTML(container, ranked, fccId, isLive) {
             let html = '';
+            
+            if (isLive) {
+                html += '<div class="mb-2 px-2 py-1 bg-green-500/10 text-green-400 text-xs rounded inline-block">🔴 LIVE from Amazon</div>';
+            }
             
             // Top Pick
             html += '<div class="mb-4">';
@@ -6354,6 +6391,127 @@
             }
             
             container.innerHTML = html;
+        }
+        
+        // ============================================================================
+        // LIVE AMAZON API INTEGRATION (ScrapeOps)
+        // Fetches real-time product data when static data is unavailable
+        // ============================================================================
+        
+        const API_BASE = '/api';
+        let apiRequestCount = 0;
+        const MAX_API_REQUESTS = 50; // Limit client-side to prevent abuse
+        
+        // Fetch live Amazon products for an FCC ID
+        async function fetchLiveAmazonProducts(fccId) {
+            if (apiRequestCount >= MAX_API_REQUESTS) {
+                console.warn('API request limit reached');
+                return null;
+            }
+            
+            try {
+                apiRequestCount++;
+                const response = await fetch(`${API_BASE}/amazon-search?fccId=${encodeURIComponent(fccId)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.products && data.products.length > 0) {
+                    // Convert API response to our product format
+                    return data.products.map(p => ({
+                        asin: p.asin,
+                        name: p.title || 'Amazon Product',
+                        price: p.price || 0,
+                        rating: p.rating || 0,
+                        reviews: p.reviewCount || 0,
+                        isPrime: p.isPrime,
+                        chipType: p.chipType || 'Standard Clone',
+                        chipDetail: p.fccVerified ? 'FCC ID verified in listing' : 'Check listing for chip details',
+                        fccVerified: p.fccVerified,
+                        seller: p.seller || 'Various',
+                        inStock: true,
+                        deliveryDays: p.isPrime ? 2 : 7,
+                        score: p.score || 0,
+                        imageUrl: p.imageUrl
+                    }));
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('API fetch error:', error);
+                return null;
+            }
+        }
+        
+        // Fetch single product details by ASIN
+        async function fetchProductByASIN(asin) {
+            if (apiRequestCount >= MAX_API_REQUESTS) {
+                return null;
+            }
+            
+            try {
+                apiRequestCount++;
+                const response = await fetch(`${API_BASE}/amazon-product?asin=${encodeURIComponent(asin)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Product fetch error:', error);
+                return null;
+            }
+        }
+        
+        // Manual refresh button handler
+        async function refreshLiveProducts(fccId, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="flex items-center justify-center p-4 text-brand-400">
+                    <svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Fetching live data from Amazon...
+                </div>
+            `;
+            
+            try {
+                const liveProducts = await fetchLiveAmazonProducts(fccId);
+                if (liveProducts && liveProducts.length > 0) {
+                    renderRankedProductsHTML(container, liveProducts, fccId, true);
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center p-4">
+                            <div class="text-red-400 mb-2">⚠️ Could not fetch live data</div>
+                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20" 
+                               target="_blank" rel="noopener noreferrer"
+                               class="inline-block px-4 py-2 bg-brand-500 text-navy-950 rounded-lg font-semibold hover:bg-brand-400 transition-colors">
+                                Search on Amazon →
+                            </a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="text-center p-4 text-red-400">
+                        ⚠️ API Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Show API status in console
+        function showAPIStatus() {
+            console.log(`API Requests Used: ${apiRequestCount}/${MAX_API_REQUESTS}`);
+            console.log('ScrapeOps Free Tier: 1,000 requests/month');
+            return { used: apiRequestCount, limit: MAX_API_REQUESTS };
         }
         
         // Legacy compatibility - still support single ASIN lookups

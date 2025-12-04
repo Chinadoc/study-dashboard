@@ -1,4 +1,3 @@
-Total products: 170
 const AFFILIATE_PRODUCTS = {
     'ACURA': [
         {
@@ -7,7 +6,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.6',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+tlx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+tlx+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Acura RDX Smart Key',
@@ -15,7 +14,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.7',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+rdx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+rdx+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Acura MDX Smart Key',
@@ -23,7 +22,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.6',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+mdx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+tlx+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Acura ILX Smart Key',
@@ -31,7 +30,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$40.99',
             rating: '4.5',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+ilx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCG8D-380H-A+acura+rdx+smart+key&tag=eurokeys-20',
         },
     ],
     'AUDI': [
@@ -41,7 +40,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$49.99',
             rating: '4.6',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a4+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a4+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Audi A6 Smart Key KESSY',
@@ -49,7 +48,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$50.99',
             rating: '4.7',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a6+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a6+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Audi Q5 Smart Key KESSY',
@@ -57,7 +56,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$51.99',
             rating: '4.6',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+q5+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a4+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Audi Q7 Smart Key KESSY',
@@ -65,7 +64,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$52.99',
             rating: '4.7',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+q7+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a6+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Audi A3 Smart Key KESSY',
@@ -73,7 +72,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$48.99',
             rating: '4.5',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a3+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a4+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Audi Q3 Smart Key KESSY',
@@ -81,7 +80,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$50.99',
             rating: '4.6',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+q3+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS14P71+audi+a6+smart+key&tag=eurokeys-20',
         },
     ],
     'BMW': [
@@ -91,7 +90,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$53.99',
             rating: '4.6',
             reviews: '18',
-            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+3+series+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+3+series+smart+key&tag=eurokeys-20',
         },
         {
             name: 'BMW 5-Series Smart Key CAS',
@@ -99,7 +98,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$54.99',
             rating: '4.7',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+5+series+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+5+series+smart+key&tag=eurokeys-20',
         },
         {
             name: 'BMW X3 Smart Key FEM',
@@ -107,7 +106,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$55.99',
             rating: '4.6',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+x3+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+3+series+smart+key&tag=eurokeys-20',
         },
         {
             name: 'BMW X5 Smart Key FEM',
@@ -115,7 +114,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$56.99',
             rating: '4.7',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+x5+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+5+series+smart+key&tag=eurokeys-20',
         },
         {
             name: 'BMW X1 Smart Key',
@@ -123,7 +122,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$54.99',
             rating: '4.5',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+x1+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+3+series+smart+key&tag=eurokeys-20',
         },
         {
             name: 'BMW X7 Smart Key',
@@ -131,7 +130,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$57.99',
             rating: '4.8',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+x7+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=YGOHUF5662+bmw+5+series+smart+key&tag=eurokeys-20',
         },
     ],
     'BUICK': [
@@ -141,7 +140,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$30.99',
             rating: '4.3',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=OUC6000066+buick+lacrosse+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUC6000066+buick+lacrosse+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Buick Enclave Smart Key',
@@ -149,7 +148,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$31.99',
             rating: '4.4',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=OUC6000066+buick+enclave+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUC6000066+buick+enclave+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Buick Encore Smart Key',
@@ -157,7 +156,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$30.99',
             rating: '4.3',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=OUC6000066+buick+encore+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUC6000066+buick+lacrosse+smart+key&tag=eurokeys-20',
         },
     ],
     'CADILLAC': [
@@ -167,7 +166,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+cts+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+cts+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Cadillac Escalade Smart Key PEPS',
@@ -175,7 +174,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.6',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+escalade+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+escalade+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Cadillac XT5 Smart Key PEPS',
@@ -183,7 +182,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+xt5+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+cts+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Cadillac XT6 Smart Key PEPS',
@@ -191,7 +190,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.6',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+xt6+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ2EB+cadillac+escalade+smart+key&tag=eurokeys-20',
         },
     ],
     'CHEVROLET': [
@@ -201,7 +200,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '28',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Equinox Smart Key 2010-2017',
@@ -209,7 +208,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.4',
             reviews: '21',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Cruze Smart Key 2011-2016',
@@ -217,7 +216,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+cruze+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Malibu Smart Key 2013-2018',
@@ -225,7 +224,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$33.99',
             rating: '4.3',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+malibu+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Impala Smart Key Circle Plus',
@@ -233,7 +232,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$28.99',
             rating: '4.3',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=OHT01060512+chevrolet+impala+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OHT01060512+chevrolet+impala+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Tahoe Smart Key 2015-2020',
@@ -241,7 +240,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.6',
             reviews: '31',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+tahoe+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Suburban Smart Key 2015-2020',
@@ -249,7 +248,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.6',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+suburban+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Traverse Smart Key 2018-2023',
@@ -257,7 +256,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '23',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+traverse+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Colorado Smart Key 2015-2022',
@@ -265,7 +264,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.4',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+colorado+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Camaro Smart Key 2016-2023',
@@ -273,7 +272,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.5',
             reviews: '18',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+camaro+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Corvette Smart Key 2014-2023',
@@ -281,7 +280,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$39.99',
             rating: '4.7',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+corvette+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chevy Blazer Smart Key 2019-2023',
@@ -289,7 +288,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+blazer+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
     ],
     'CHRYSLER': [
@@ -299,7 +298,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.4',
             reviews: '17',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chrysler Pacifica Fobik Smart Key',
@@ -307,7 +306,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.5',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+pacifica+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Chrysler Town & Country Fobik Key',
@@ -315,7 +314,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.3',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+town+country+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
     ],
     'DODGE': [
@@ -325,7 +324,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.4',
             reviews: '23',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+charger+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Dodge Challenger Fobik Smart Key',
@@ -333,7 +332,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.4',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+challenger+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Dodge Durango Fobik Smart Key',
@@ -341,7 +340,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.5',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+durango+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Dodge Journey Fobik Smart Key',
@@ -349,7 +348,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.3',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+journey+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Dodge Grand Caravan Fobik Key',
@@ -357,7 +356,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.3',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+dodge+grand+caravan+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
     ],
     'FORD': [
@@ -367,7 +366,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$39.99',
             rating: '4.4',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+fusion+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford Focus Smart Key 2012-2018',
@@ -375,7 +374,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.3',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+focus+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
         {
             name: 'Ford Escape Smart Key 2013-2019',
@@ -383,7 +382,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.5',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+escape+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford Explorer Smart Key 2011-2019',
@@ -391,7 +390,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.6',
             reviews: '24',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+explorer+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
         {
             name: 'Ford Mustang Smart Key 2015-2023',
@@ -399,7 +398,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$40.99',
             rating: '4.4',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+mustang+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford Edge Smart Key 2015-2023',
@@ -407,7 +406,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.5',
             reviews: '17',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+edge+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
         {
             name: 'Ford Transit Smart Key 2014-2023',
@@ -415,7 +414,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$44.99',
             rating: '4.4',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+transit+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford Expedition Smart Key 2015-2022',
@@ -423,7 +422,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$45.99',
             rating: '4.6',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+expedition+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
         {
             name: 'Ford Ranger Smart Key 2019-2023',
@@ -431,7 +430,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.5',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+ranger+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford Bronco Smart Key 2021-2023',
@@ -439,7 +438,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.6',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+bronco+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
     ],
     'FORD F-150': [
@@ -449,7 +448,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$49.99',
             rating: '4.5',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford F-150 Key Replacement 164-R8166',
@@ -457,7 +456,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$45.99',
             rating: '4.4',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
         {
             name: 'Ford F-150 Remote Head Key H92',
@@ -465,7 +464,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.3',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+h92+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
         {
             name: 'Ford F-150 Key Shell Replacement',
@@ -473,7 +472,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$18.99',
             rating: '4.2',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+key+shell',
+            amazonUrl: 'https://www.amazon.com/s?k=164-R8166+ford+f150+key&tag=eurokeys-20',
         },
         {
             name: 'Ford F-150 Emergency Key Blade H94',
@@ -481,7 +480,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$14.99',
             rating: '4.3',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=H94+ford+f150+emergency+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C93142600+ford+f150+smart+key+2023&tag=eurokeys-20',
         },
     ],
     'GMC': [
@@ -491,7 +490,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.6',
             reviews: '20',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+gmc+sierra+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'GMC Yukon Smart Key',
@@ -499,7 +498,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.6',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+gmc+yukon+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'GMC Acadia Smart Key',
@@ -507,7 +506,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+gmc+acadia+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
         {
             name: 'GMC Terrain Smart Key',
@@ -515,7 +514,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.4',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+gmc+terrain+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+equinox+smart+key&tag=eurokeys-20',
         },
         {
             name: 'GMC Canyon Smart Key',
@@ -523,7 +522,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+gmc+canyon+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ1AA+chevrolet+silverado+smart+key&tag=eurokeys-20',
         },
     ],
     'HONDA': [
@@ -533,7 +532,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$31.99',
             rating: '4.4',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+civic+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+civic+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda CR-V Smart Key 2017-2022',
@@ -541,7 +540,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$33.99',
             rating: '4.5',
             reviews: '18',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+crv+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+crv+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda Pilot Smart Key 2016-2022',
@@ -549,7 +548,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.6',
             reviews: '22',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+pilot+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+civic+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda Odyssey Smart Key 2018-2023',
@@ -557,7 +556,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.5',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+odyssey+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+crv+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda HR-V Smart Key 2016-2021',
@@ -565,7 +564,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$32.99',
             rating: '4.4',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+hrv+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+civic+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda Ridgeline Smart Key 2017-2023',
@@ -573,7 +572,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+ridgeline+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+crv+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda Passport Smart Key 2019-2023',
@@ -581,7 +580,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.6',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+passport+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49303+honda+civic+smart+key&tag=eurokeys-20',
         },
     ],
     'HONDA ACCORD': [
@@ -591,7 +590,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$32.99',
             rating: '5.0',
             reviews: '2',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+smart+key+2018',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+smart+key&tag=eurokeys-20',
         },
         {
             name: 'USA Grade Honda Accord Key Shell Replacement',
@@ -599,7 +598,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$17.00',
             rating: '4.1',
             reviews: '15+',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+key+shell',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+key+shell&tag=eurokeys-20',
         },
         {
             name: 'Honda Accord Emergency Key Blade HO01',
@@ -607,7 +606,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$12.99',
             rating: '4.3',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=35118-T2A-A50+honda+accord+emergency+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Honda Accord 5-Button Smart Key w/Remote Start',
@@ -615,7 +614,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+5+button+remote+start',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G0090+honda+accord+key+shell&tag=eurokeys-20',
         },
     ],
     'HYUNDAI': [
@@ -625,7 +624,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$33.99',
             rating: '4.4',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+elantra+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+elantra+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Hyundai Sonata Smart Key Flip',
@@ -633,7 +632,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.5',
             reviews: '24',
-            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+sonata+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+sonata+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Hyundai Tucson Smart Key Flip',
@@ -641,7 +640,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '27',
-            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+tucson+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+elantra+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Hyundai Santa Fe Smart Key Flip',
@@ -649,7 +648,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.6',
             reviews: '21',
-            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+santa+fe+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+sonata+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Hyundai Kona Smart Key Flip',
@@ -657,7 +656,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.4',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+kona+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+elantra+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Hyundai Palisade Smart Key Flip',
@@ -665,7 +664,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.6',
             reviews: '18',
-            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+palisade+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=SY5MDFNA433+hyundai+sonata+smart+key&tag=eurokeys-20',
         },
     ],
     'INFINITI': [
@@ -675,7 +674,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.5',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+q50+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+q50+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Infiniti QX60 Smart Key',
@@ -683,7 +682,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.6',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+qx60+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+qx60+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Infiniti QX80 Smart Key',
@@ -691,7 +690,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.6',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+qx80+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+q50+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Infiniti QX50 Smart Key',
@@ -699,7 +698,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.5',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+qx50+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1G744+infiniti+qx60+smart+key&tag=eurokeys-20',
         },
     ],
     'JAGUAR': [
@@ -709,7 +708,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$55.99',
             rating: '4.6',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+xf+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+xf+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jaguar F-Pace Smart Key',
@@ -717,7 +716,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$56.99',
             rating: '4.7',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+f-pace+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+range+rover+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jaguar XE Smart Key',
@@ -725,7 +724,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$55.99',
             rating: '4.6',
             reviews: '4',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+xe+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+xf+smart+key&tag=eurokeys-20',
         },
     ],
     'JEEP': [
@@ -735,7 +734,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.4',
             reviews: '28',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jeep Cherokee Fobik Smart Key',
@@ -743,7 +742,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.4',
             reviews: '22',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+cherokee+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jeep Grand Cherokee Fobik Smart Key',
@@ -751,7 +750,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.5',
             reviews: '31',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+grand+cherokee+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jeep Compass Fobik Smart Key',
@@ -759,7 +758,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.3',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+compass+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jeep Renegade Fobik Smart Key',
@@ -767,7 +766,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.3',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+renegade+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+chrysler+300+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Jeep Gladiator Fobik Smart Key',
@@ -775,7 +774,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.5',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+gladiator+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-40821302+jeep+wrangler+smart+key&tag=eurokeys-20',
         },
     ],
     'KIA': [
@@ -785,7 +784,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$33.99',
             rating: '4.4',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+forte+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+forte+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Kia Optima Smart Key Flip',
@@ -793,7 +792,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.5',
             reviews: '18',
-            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+optima+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+optima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Kia Sorento Smart Key Flip',
@@ -801,7 +800,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '20',
-            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+sorento+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+forte+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Kia Sportage Smart Key Flip',
@@ -809,7 +808,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.4',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+sportage+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+optima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Kia Telluride Smart Key Flip',
@@ -817,7 +816,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.6',
             reviews: '22',
-            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+telluride+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+forte+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Kia Soul Smart Key Flip',
@@ -825,7 +824,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$33.99',
             rating: '4.3',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+soul+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=TQ8-FOB-4F08+kia+optima+smart+key&tag=eurokeys-20',
         },
     ],
     'LAND ROVER': [
@@ -835,7 +834,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$55.99',
             rating: '4.6',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+range+rover+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+xf+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Land Rover Discovery Smart Key',
@@ -843,7 +842,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$56.99',
             rating: '4.7',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+discovery+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+range+rover+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Land Rover Range Rover Sport Smart Key',
@@ -851,7 +850,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$56.99',
             rating: '4.7',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+range+rover+sport+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+jaguar+xf+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Land Rover Defender Smart Key',
@@ -859,7 +858,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$57.99',
             rating: '4.8',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+defender+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KOBJTF10A+land+rover+range+rover+smart+key&tag=eurokeys-20',
         },
     ],
     'LEXUS': [
@@ -869,7 +868,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$46.99',
             rating: '4.7',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+lexus+es+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lexus RX Smart Key 2016-2022',
@@ -877,7 +876,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$47.99',
             rating: '4.8',
             reviews: '24',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+lexus+rx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lexus IS Smart Key 2014-2020',
@@ -885,7 +884,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$46.99',
             rating: '4.6',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+lexus+is+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lexus GX Smart Key 2010-2023',
@@ -893,7 +892,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$48.99',
             rating: '4.7',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+lexus+gx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lexus NX Smart Key 2015-2023',
@@ -901,7 +900,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$47.99',
             rating: '4.7',
             reviews: '15',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+lexus+nx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lexus UX Smart Key 2019-2023',
@@ -909,7 +908,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$46.99',
             rating: '4.6',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+lexus+ux+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
     ],
     'LINCOLN': [
@@ -919,7 +918,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.6',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+mkz+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+mkz+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lincoln MKX Smart Key',
@@ -927,7 +926,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$44.99',
             rating: '4.6',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+mkx+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+navigator+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lincoln Navigator Smart Key',
@@ -935,7 +934,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$45.99',
             rating: '4.7',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+navigator+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+mkz+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Lincoln Continental Smart Key',
@@ -943,7 +942,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$44.99',
             rating: '4.6',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+continental+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=M3N-A2C31243800+lincoln+navigator+smart+key&tag=eurokeys-20',
         },
     ],
     'MAZDA': [
@@ -953,7 +952,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '29',
-            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx5+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx5+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mazda 6 Smart Key Flip',
@@ -961,7 +960,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.6',
             reviews: '17',
-            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+6+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+6+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mazda CX-9 Smart Key Flip',
@@ -969,7 +968,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.5',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx9+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx5+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mazda CX-3 Smart Key Flip',
@@ -977,7 +976,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.4',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx3+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+6+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mazda CX-30 Smart Key Flip',
@@ -985,7 +984,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx30+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=WAZSKE13D01+mazda+cx5+smart+key&tag=eurokeys-20',
         },
     ],
     'MERCEDES': [
@@ -995,7 +994,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$59.99',
             rating: '4.7',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+c+class+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+c+class+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mercedes E-Class Smart Key',
@@ -1003,7 +1002,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$60.99',
             rating: '4.8',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+e+class+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+e+class+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mercedes GLE Smart Key',
@@ -1011,7 +1010,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$61.99',
             rating: '4.7',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+gle+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+c+class+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mercedes GLC Smart Key',
@@ -1019,7 +1018,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$60.99',
             rating: '4.7',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+glc+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+e+class+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mercedes S-Class Smart Key',
@@ -1027,7 +1026,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$62.99',
             rating: '4.8',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+s+class+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=IYZ-3317+mercedes+c+class+smart+key&tag=eurokeys-20',
         },
     ],
     'MINI': [
@@ -1037,7 +1036,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$50.99',
             rating: '4.5',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGIDGNG1+mini+cooper+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGIDGNG1+mini+cooper+smart+key&tag=eurokeys-20',
         },
         {
             name: 'MINI Countryman Smart Key',
@@ -1045,7 +1044,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$51.99',
             rating: '4.6',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGIDGNG1+mini+countryman+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGIDGNG1+mini+countryman+smart+key&tag=eurokeys-20',
         },
         {
             name: 'MINI Clubman Smart Key',
@@ -1053,7 +1052,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$51.99',
             rating: '4.5',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGIDGNG1+mini+clubman+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGIDGNG1+mini+cooper+smart+key&tag=eurokeys-20',
         },
     ],
     'MITSUBISHI': [
@@ -1063,7 +1062,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$34.99',
             rating: '4.4',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCJ166N+mitsubishi+lancer+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCJ166N+mitsubishi+lancer+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mitsubishi Outlander Smart Key',
@@ -1071,7 +1070,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.5',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCJ166N+mitsubishi+outlander+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCJ166N+mitsubishi+outlander+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Mitsubishi Eclipse Cross Smart Key',
@@ -1079,7 +1078,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$35.99',
             rating: '4.4',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=OUCJ166N+mitsubishi+eclipse+cross+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=OUCJ166N+mitsubishi+lancer+smart+key&tag=eurokeys-20',
         },
     ],
     'NISSAN': [
@@ -1089,7 +1088,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$39.99',
             rating: '4.5',
             reviews: '26',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+altima+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+altima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Maxima I-Key Smart Key',
@@ -1097,7 +1096,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$40.99',
             rating: '4.6',
             reviews: '18',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+maxima+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+maxima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Sentra I-Key Smart Key',
@@ -1105,7 +1104,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.4',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK48903+nissan+sentra+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK48903+nissan+sentra+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Rogue I-Key Smart Key',
@@ -1113,7 +1112,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.6',
             reviews: '32',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+rogue+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+altima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Pathfinder I-Key Smart Key',
@@ -1121,7 +1120,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.5',
             reviews: '21',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+pathfinder+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+maxima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Murano I-Key Smart Key',
@@ -1129,7 +1128,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.5',
             reviews: '17',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+murano+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+altima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Frontier I-Key Smart Key',
@@ -1137,7 +1136,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$40.99',
             rating: '4.4',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+frontier+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+maxima+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Nissan Titan I-Key Smart Key',
@@ -1145,7 +1144,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.6',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+titan+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=CWTWB1U840+nissan+altima+smart+key&tag=eurokeys-20',
         },
     ],
     'PORSCHE': [
@@ -1155,7 +1154,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$65.99',
             rating: '4.7',
             reviews: '4',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK50138+porsche+911+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK50138+porsche+911+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Porsche Cayenne Smart Key',
@@ -1163,7 +1162,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$66.99',
             rating: '4.8',
             reviews: '5',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK50138+porsche+cayenne+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK50138+porsche+cayenne+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Porsche Macan Smart Key',
@@ -1171,7 +1170,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$65.99',
             rating: '4.7',
             reviews: '3',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK50138+porsche+macan+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK50138+porsche+911+smart+key&tag=eurokeys-20',
         },
     ],
     'RAM': [
@@ -1181,7 +1180,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.5',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+1500+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+1500+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Ram 2500 Fobik Smart Key',
@@ -1189,7 +1188,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$39.99',
             rating: '4.5',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+2500+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+2500+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Ram 3500 Fobik Smart Key',
@@ -1197,7 +1196,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$40.99',
             rating: '4.6',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+3500+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+1500+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Ram ProMaster Fobik Smart Key',
@@ -1205,7 +1204,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.4',
             reviews: '6',
-            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+promaster+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=GQ4-76T+ram+2500+smart+key&tag=eurokeys-20',
         },
     ],
     'SUBARU': [
@@ -1215,7 +1214,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+impreza+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+impreza+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Subaru Outback Smart Key Flip',
@@ -1223,7 +1222,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.6',
             reviews: '25',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+outback+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+outback+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Subaru Forester Smart Key Flip',
@@ -1231,7 +1230,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$37.99',
             rating: '4.6',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+forester+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+impreza+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Subaru Legacy Smart Key Flip',
@@ -1239,7 +1238,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$36.99',
             rating: '4.5',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+legacy+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+outback+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Subaru Ascent Smart Key Flip',
@@ -1247,7 +1246,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$38.99',
             rating: '4.6',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+ascent+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14AHC+subaru+impreza+smart+key&tag=eurokeys-20',
         },
     ],
     'TOYOTA': [
@@ -1257,7 +1256,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$42.99',
             rating: '4.7',
             reviews: '45',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Corolla Smart Key 2014-2019',
@@ -1265,7 +1264,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.6',
             reviews: '38',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota RAV4 Smart Key 2013-2018',
@@ -1273,7 +1272,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$43.99',
             rating: '4.7',
             reviews: '52',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+rav4+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Highlander Smart Key 2014-2019',
@@ -1281,7 +1280,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$44.99',
             rating: '4.7',
             reviews: '29',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+highlander+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota 4Runner Smart Key 2010-2019',
@@ -1289,7 +1288,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$45.99',
             rating: '4.8',
             reviews: '34',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+4runner+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Tundra Smart Key 2014-2021',
@@ -1297,7 +1296,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$46.99',
             rating: '4.7',
             reviews: '27',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+tundra+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Tacoma Smart Key 2016-2023',
@@ -1305,7 +1304,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$45.99',
             rating: '4.8',
             reviews: '41',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+tacoma+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Sienna Smart Key 2011-2020',
@@ -1313,7 +1312,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$44.99',
             rating: '4.6',
             reviews: '22',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+sienna+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Prius Smart Key 2010-2015',
@@ -1321,7 +1320,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$41.99',
             rating: '4.5',
             reviews: '19',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ12BDP+toyota+prius+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ12BDP+toyota+prius+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Avalon Smart Key 2013-2022',
@@ -1329,7 +1328,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$45.99',
             rating: '4.7',
             reviews: '16',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+avalon+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Sequoia Smart Key 2008-2022',
@@ -1337,7 +1336,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$46.99',
             rating: '4.6',
             reviews: '13',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+sequoia+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+corolla+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Toyota Land Cruiser Smart Key 2008-2021',
@@ -1345,7 +1344,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$47.99',
             rating: '4.8',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+land+cruiser+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=HYQ14FBA+toyota+camry+smart+key&tag=eurokeys-20',
         },
     ],
     'VOLKSWAGEN': [
@@ -1355,7 +1354,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$47.99',
             rating: '4.6',
             reviews: '14',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+jetta+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+jetta+smart+key&tag=eurokeys-20',
         },
         {
             name: 'VW Passat Smart Key KESSY',
@@ -1363,7 +1362,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$48.99',
             rating: '4.7',
             reviews: '10',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+passat+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+passat+smart+key&tag=eurokeys-20',
         },
         {
             name: 'VW Tiguan Smart Key KESSY',
@@ -1371,7 +1370,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$49.99',
             rating: '4.6',
             reviews: '12',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+tiguan+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+jetta+smart+key&tag=eurokeys-20',
         },
         {
             name: 'VW Atlas Smart Key KESSY',
@@ -1379,7 +1378,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$50.99',
             rating: '4.7',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+atlas+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+passat+smart+key&tag=eurokeys-20',
         },
         {
             name: 'VW Golf Smart Key KESSY',
@@ -1387,7 +1386,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$47.99',
             rating: '4.5',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+golf+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=NBGFS12P71+volkswagen+jetta+smart+key&tag=eurokeys-20',
         },
     ],
     'VOLVO': [
@@ -1397,7 +1396,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$51.99',
             rating: '4.6',
             reviews: '7',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+s60+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+s60+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Volvo XC90 Smart Key',
@@ -1405,7 +1404,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$52.99',
             rating: '4.7',
             reviews: '9',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+xc90+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+xc90+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Volvo XC60 Smart Key',
@@ -1413,7 +1412,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$52.99',
             rating: '4.6',
             reviews: '11',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+xc60+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+s60+smart+key&tag=eurokeys-20',
         },
         {
             name: 'Volvo XC40 Smart Key',
@@ -1421,7 +1420,7 @@ const AFFILIATE_PRODUCTS = {
             price: '$51.99',
             rating: '4.5',
             reviews: '8',
-            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+xc40+smart+key',
+            amazonUrl: 'https://www.amazon.com/s?k=KR55WK49264+volvo+xc90+smart+key&tag=eurokeys-20',
         },
     ],
 };
