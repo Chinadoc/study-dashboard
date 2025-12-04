@@ -376,10 +376,11 @@
                     <thead>
                         <tr class="text-left text-brand-400 border-b border-brand-500/30">
                             <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(0)">FCC ID ↕</th>
-                            <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(1)">Frequency ↕</th>
+                            <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(1)">Freq/Mod ↕</th>
                             <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(2)">Chip Type ↕</th>
                             <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(3)">Vehicles ↕</th>
-                            <th class="p-3">Part Numbers</th>
+                            <th class="p-3">Code Series</th>
+                            <th class="p-3">Autel</th>
                         </tr>
                     </thead>
                     <tbody id="fccDatabaseBody" class="text-slate-300">
@@ -1015,6 +1016,9 @@
         // ============================================================================
         // FCC ID CROSS-REFERENCE (One FCC ID → Multiple Vehicles)
         // ============================================================================
+        // ============================================================================
+        // ENHANCED FCC CROSS-REFERENCE DATABASE WITH LOCKSMITH DATA
+        // ============================================================================
         const FCC_CROSS_REFERENCE = {
             'M3N-40821302': {
                 frequency: '433.92 MHz',
@@ -1026,17 +1030,57 @@
                     { make: 'Chrysler', model: '300', years: '2015-2023' },
                     { make: 'Jeep', model: 'Grand Cherokee', years: '2014-2021' }
                 ],
-                partNumbers: ['68234959AB (Red)', '05026676AC (Black)']
+                partNumbers: ['68234959AB (Red)', '05026676AC (Black)'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'M0001-M2618',
+                testKey: 'Y159/Y157 TEST KEY (sidewinder)',
+                aftermarket: { ilco: 'Y159-PT', keydiy: 'B22-4', jma: 'TP00-CHR-31' },
+                shell: 'FCA-SHELL-Y159',
+                decoderTools: ['Lishi CY24 v2', 'Determinator', 'Instacode M-series'],
+                autelModels: ['IM608', 'IM508', 'MaxiIM IM608 Pro'],
+                progMethod: 'OBD (12+8 cable for SGW bypass)',
+                cloneChips: ['JMA ID46', 'TPX4', 'Xhorse ID46', 'CN3'],
+                pinRequired: true,
+                pinSource: 'SKIM Module / Autel PIN Pull',
+                sgwBypass: true,
+                toolLinks: {
+                    lishi: 'https://royalkeysupply.com/products/original-lishi-chrysler-dodge-jeep-cy24-v-2-2-in-1-pick-decoder-dr-bt-ag-1',
+                    autel: 'https://www.auteltech.com/im608pro/',
+                    blank: 'https://www.americankeysupply.com/product/chrysler-dodge-jeep-y159-y157-sidewinder-key'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=s98iW-y7814'
             },
             'M3N-97395900': {
                 frequency: '434 MHz',
                 modulation: 'FSK',
-                chip: 'Hitag AES (128-bit)',
+                chip: 'Hitag AES (128-bit) / ID4A',
                 vehicles: [
-                    { make: 'Chrysler', model: 'Pacifica', years: '2021-2024' },
-                    { make: 'Chrysler', model: 'Voyager', years: '2021-2024' }
+                    { make: 'Chrysler', model: 'Pacifica', years: '2017-2024' },
+                    { make: 'Chrysler', model: 'Voyager', years: '2020-2024' }
                 ],
-                partNumbers: ['68238689 (KeySense)', '68394195AB']
+                partNumbers: ['68238689 (KeySense)', '68394195AB'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'M0001-M2618 (FOBIK)',
+                testKey: 'Y171 TEST KEY (internal track)',
+                aftermarket: { ilco: 'Y171-PT', keydiy: 'KD-Y171', jma: 'CHR-Y171' },
+                shell: 'CHRY-SHELL-Y171 (KeySense variant)',
+                decoderTools: ['Lishi CY24 (adapted)', 'Determinator', 'Instacode'],
+                autelModels: ['IM508 + ADC2011', 'IM608', 'MaxiIM IM608 Pro II'],
+                progMethod: 'OBD + 12+8 SGW Bypass Cable',
+                cloneChips: ['Xhorse ID4A (AES)', 'CN5 (NXP)', 'Limited ID46 pre-2018'],
+                pinRequired: true,
+                pinSource: 'SKIM Module PIN / Autel PIN Calculation',
+                sgwBypass: true,
+                keySense: true,
+                keySenseNote: 'KeySense fob (68238689) limits vehicle speed - for teen/valet',
+                toolLinks: {
+                    lishi: 'https://royalkeysupply.com/products/original-lishi-chrysler-dodge-jeep-cy24-v-2-2-in-1-pick-decoder-dr-bt-ag-1',
+                    autel: 'https://www.auteltech.com/adc2011/',
+                    cable: 'https://www.adptools.com/collections/chrysler-bypass-cables',
+                    blank: 'https://www.uhs-hardware.com/products/chrysler-y171-key-blank'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=8RCu9spvOQc',
+                notes: 'Hard to clone post-2018 (AES). 12+8 harness essential for SGW bypass. PIN from SKIM module.'
             },
             'GQ4-76T': {
                 frequency: '433.92 MHz',
@@ -1095,7 +1139,7 @@
             'KOBLEAR1XT': {
                 frequency: '315 MHz',
                 modulation: 'ASK',
-                chip: 'ID46 (Philips Crypto 2)',
+                chip: 'ID46 (Philips Crypto 2 / Circle Plus)',
                 vehicles: [
                     { make: 'Chevrolet', model: 'Silverado', years: '2014-2018' },
                     { make: 'Chevrolet', model: 'Tahoe', years: '2015-2020' },
@@ -1103,7 +1147,27 @@
                     { make: 'GMC', model: 'Sierra', years: '2014-2018' },
                     { make: 'GMC', model: 'Yukon', years: '2015-2020' }
                 ],
-                partNumbers: ['13577770', '13580082']
+                partNumbers: ['13577770', '13580082'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'Z0001-Z6000 (Circle Plus)',
+                testKey: 'HU100 TEST KEY (10-pack brass)',
+                aftermarket: { ilco: 'B111-PT', keydiy: 'KD8003', jma: 'GM-37' },
+                shell: 'GM-SHELL-5B (no chip)',
+                decoderTools: ['Lishi B111', 'Lishi HU100', 'Determinator', 'Instacode MACs'],
+                autelModels: ['IM608', 'IM508', 'MaxiIM KM100'],
+                progMethod: '2-Key Learning / OBD Add Key Mode',
+                cloneChips: ['JMA ID46 (PCF7936)', 'TPX4', 'Xhorse ID46', 'CN3'],
+                pinRequired: false,
+                pinSource: 'Not Required - 2 Key Learning Available',
+                sgwBypass: false,
+                selfProgram: 'Key1 ON 10sec > OFF > Key2 ON 10sec > OFF > New Key ON 10sec',
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-gm-hu100-2-in-1-pick-decoder',
+                    autel: 'https://www.auteltech.com/km100/',
+                    blank: 'https://www.clksupplies.com/products/gm-b111-pt-transponder-key'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=CM47DBGiwd0',
+                notes: 'Avoid 46E sync loss - clone from working key only. OBD preferred for all-keys-lost.'
             },
             'HYQ12BDB': {
                 frequency: '315 MHz',
@@ -1123,9 +1187,31 @@
                 vehicles: [
                     { make: 'Toyota', model: 'Camry', years: '2015-2017' },
                     { make: 'Toyota', model: 'Avalon', years: '2013-2018' },
-                    { make: 'Toyota', model: 'Corolla', years: '2014-2019' }
+                    { make: 'Toyota', model: 'Corolla', years: '2014-2019' },
+                    { make: 'Toyota', model: 'RAV4', years: '2014-2018' },
+                    { make: 'Toyota', model: 'Highlander', years: '2014-2019' }
                 ],
-                partNumbers: ['89904-06140', '89904-02450']
+                partNumbers: ['89904-06140', '89904-02450'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: '50000-69999 (physical stamp)',
+                testKey: 'TR47 TEST KEY (AT3 profile)',
+                aftermarket: { ilco: 'TOY44H-PT', keydiy: 'KD-TOY44', jma: 'TPX2-TOY' },
+                shell: 'TOY-SHELL-44G (laser cut)',
+                decoderTools: ['Lishi TOY38', 'Determinator', 'Instacode'],
+                autelModels: ['IM608', 'IM608 Pro', 'MaxiIM IM508'],
+                progMethod: 'Techstream / OBD Add Key',
+                cloneChips: ['Xhorse H-Chip', 'JMA TPX4-H', 'CN5'],
+                pinRequired: false,
+                pinSource: 'Not Required - OBD Add Key',
+                sgwBypass: false,
+                codeLocation: 'Passenger door lock / Ignition stamp',
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-toyota-toy38-2-in-1',
+                    autel: 'https://www.auteltech.com/im608pro/',
+                    blank: 'https://www.clksupplies.com/products/toyota-toy44h-pt-h-chip-transponder-key'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=o5FEnM-P9zY',
+                notes: 'H-chip (128-bit AES) - generate new key via OBD preferred. Code series stamped on door locks.'
             },
             'M3N5WY8609': {
                 frequency: '315 MHz',
@@ -1145,9 +1231,32 @@
                 vehicles: [
                     { make: 'Ford', model: 'F-150', years: '2015-2020' },
                     { make: 'Ford', model: 'Edge', years: '2015-2021' },
-                    { make: 'Ford', model: 'Explorer', years: '2016-2019' }
+                    { make: 'Ford', model: 'Explorer', years: '2016-2019' },
+                    { make: 'Ford', model: 'Mustang', years: '2015-2017' }
                 ],
-                partNumbers: ['164-R8130', '164-R8163']
+                partNumbers: ['164-R8130', '164-R8163'],
+                // ENHANCED LOCKSMITH DATA
+                codeSeries: 'H0001X-H1706X (8-cut)',
+                testKey: 'HU101 TEST KEY (laser)',
+                aftermarket: { ilco: 'H92-PT', keydiy: 'KD-HU101', jma: 'FO-21D' },
+                shell: 'FORD-SHELL-H92 (flip key)',
+                decoderTools: ['Lishi HU101', 'Determinator PATS', 'Instacode', 'FORScan'],
+                autelModels: ['IM608', 'IM508', 'MaxiSys MS906Pro'],
+                progMethod: 'FORScan (free) / 2-Key Method / Autel PATS',
+                cloneChips: ['JMA T5 (4D63-80)', 'TPX2', 'Xhorse 4D'],
+                pinRequired: false,
+                pinSource: 'FORScan (Extended License) or BCM Dash Code',
+                sgwBypass: false,
+                selfProgram: '2-Key Method: Key1 > Key2 > New Key (10 sec each)',
+                securiCode: 'BCM-stored 5-digit keypad code (separate from key code)',
+                toolLinks: {
+                    lishi: 'https://www.americankeysupply.com/product/lishi-ford-hu101-2-in-1',
+                    autel: 'https://www.auteltech.com/im608/',
+                    forscan: 'https://forscan.org/',
+                    blank: 'https://www.clksupplies.com/products/ford-h92-pt-80-bit-transponder-key'
+                },
+                videoTutorial: 'https://www.youtube.com/watch?v=zR2hGkb5A1I',
+                notes: '80-bit upgrade from 40-bit. Clone to T5 chips. SecuriCode keypad separate from key code.'
             },
             'KR5S180144014': {
                 frequency: '433 MHz',
@@ -5115,12 +5224,23 @@
                 const vehicleList = data.vehicles.map(v => `${v.make} ${v.model} (${v.years})`).join(', ');
                 const partList = data.partNumbers ? data.partNumbers.join(', ') : 'N/A';
                 
+                // Enhanced data fields
+                const codeSeries = data.codeSeries || 'N/A';
+                const testKey = data.testKey || 'N/A';
+                const autelModels = data.autelModels ? data.autelModels.join(', ') : 'N/A';
+                const progMethod = data.progMethod || 'OBD';
+                const sgwBadge = data.sgwBypass ? '<span class="px-1 py-0.5 bg-red-500/20 text-red-400 rounded text-xs ml-1">SGW</span>' : '';
+                const pinBadge = data.pinRequired ? '<span class="px-1 py-0.5 bg-orange-500/20 text-orange-400 rounded text-xs ml-1">PIN</span>' : '';
+                
                 const row = document.createElement('tr');
                 row.className = 'border-b border-navy-700/50 hover:bg-navy-800/50 cursor-pointer transition-colors';
                 row.setAttribute('data-fcc', fccId);
+                row.setAttribute('data-code', codeSeries);
+                row.setAttribute('data-autel', autelModels);
                 row.innerHTML = `
                     <td class="p-3">
                         <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
+                        ${sgwBadge}${pinBadge}
                     </td>
                     <td class="p-3">
                         <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">${data.frequency}</span>
@@ -5131,7 +5251,11 @@
                         <span class="text-brand-400 font-semibold">${vehicleCount} vehicles</span>
                         <div class="text-xs text-slate-500 mt-1 line-clamp-2">${vehicleList}</div>
                     </td>
-                    <td class="p-3 text-xs text-slate-400 font-mono">${partList}</td>
+                    <td class="p-3">
+                        <div class="text-xs text-cyan-400 font-mono">${codeSeries}</div>
+                        <div class="text-xs text-slate-500 mt-1">${testKey.split(' ')[0] || ''}</div>
+                    </td>
+                    <td class="p-3 text-xs text-slate-400">${autelModels.split(',')[0] || 'N/A'}</td>
                 `;
                 
                 // Click to expand
@@ -5140,7 +5264,7 @@
                 tbody.appendChild(row);
             });
             
-            stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations`;
+            stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations | 🔧 Click any row for full locksmith data`;
         }
         
         function toggleDatabaseRow(fccId, row) {
@@ -5154,22 +5278,109 @@
             document.querySelectorAll('.fcc-detail-row').forEach(el => el.remove());
             
             const data = FCC_CROSS_REFERENCE[fccId];
+            
+            // Build tool links HTML
+            let toolLinksHtml = '';
+            if (data.toolLinks) {
+                const links = [];
+                if (data.toolLinks.lishi) links.push(`<a href="${data.toolLinks.lishi}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">🔧 Lishi Tool</a>`);
+                if (data.toolLinks.autel) links.push(`<a href="${data.toolLinks.autel}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">🛠️ Autel</a>`);
+                if (data.toolLinks.blank) links.push(`<a href="${data.toolLinks.blank}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">🔑 Key Blank</a>`);
+                if (data.toolLinks.forscan) links.push(`<a href="${data.toolLinks.forscan}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">💻 FORScan</a>`);
+                if (data.toolLinks.cable) links.push(`<a href="${data.toolLinks.cable}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">🔌 Bypass Cable</a>`);
+                toolLinksHtml = links.join(' | ');
+            }
+            
+            // Build clone chips HTML
+            const cloneChipsHtml = data.cloneChips ? data.cloneChips.map(c => `<span class="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs mr-1">${c}</span>`).join('') : 'N/A';
+            
+            // Build decoder tools HTML  
+            const decoderHtml = data.decoderTools ? data.decoderTools.map(d => `<span class="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded text-xs mr-1">${d}</span>`).join('') : 'N/A';
+            
+            // Build aftermarket HTML
+            let aftermarketHtml = 'N/A';
+            if (data.aftermarket) {
+                const am = [];
+                if (data.aftermarket.ilco) am.push(`Ilco: ${data.aftermarket.ilco}`);
+                if (data.aftermarket.keydiy) am.push(`Keydiy: ${data.aftermarket.keydiy}`);
+                if (data.aftermarket.jma) am.push(`JMA: ${data.aftermarket.jma}`);
+                aftermarketHtml = am.join(' | ');
+            }
+            
             const detailRow = document.createElement('tr');
             detailRow.className = 'fcc-detail-row bg-navy-900/80';
             detailRow.innerHTML = `
-                <td colspan="5" class="p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        ${data.vehicles.map(v => `
-                            <div class="bg-navy-950/60 p-3 rounded-lg border border-brand-500/20 hover:border-brand-400/50 cursor-pointer transition-all"
-                                 onclick="loadVehicleFromFCC('${v.make}', '${v.model}', '${v.years}')">
-                                <div class="font-bold text-white">${v.make} ${v.model}</div>
-                                <div class="text-xs text-brand-400">${v.years}</div>
-                                <div class="text-xs text-slate-500 mt-1">Click to view specs →</div>
-                            </div>
-                        `).join('')}
+                <td colspan="6" class="p-4">
+                    <!-- Vehicles Grid -->
+                    <div class="mb-4">
+                        <div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Compatible Vehicles</div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                            ${data.vehicles.map(v => `
+                                <div class="bg-navy-950/60 p-2 rounded-lg border border-brand-500/20 hover:border-brand-400/50 cursor-pointer transition-all"
+                                     onclick="loadVehicleFromFCC('${v.make}', '${v.model}', '${v.years}')">
+                                    <div class="font-semibold text-white text-sm">${v.make} ${v.model}</div>
+                                    <div class="text-xs text-brand-400">${v.years}</div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
+                    
+                    <!-- Locksmith Data Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Code Series</div>
+                            <div class="text-cyan-400 font-mono">${data.codeSeries || 'N/A'}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Test Key</div>
+                            <div class="text-white">${data.testKey || 'N/A'}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Shell</div>
+                            <div class="text-white">${data.shell || 'N/A'}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Aftermarket Keys</div>
+                            <div class="text-white text-xs">${aftermarketHtml}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Autel Models</div>
+                            <div class="text-orange-400">${data.autelModels ? data.autelModels.join(', ') : 'N/A'}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Programming Method</div>
+                            <div class="text-white">${data.progMethod || 'OBD'}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg col-span-1 md:col-span-2">
+                            <div class="text-xs text-brand-400 uppercase">Decoder Tools</div>
+                            <div class="mt-1">${decoderHtml}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg">
+                            <div class="text-xs text-brand-400 uppercase">Clone Chips</div>
+                            <div class="mt-1">${cloneChipsHtml}</div>
+                        </div>
+                        <div class="bg-navy-950/40 p-3 rounded-lg col-span-1 md:col-span-3">
+                            <div class="text-xs text-brand-400 uppercase">PIN / Access</div>
+                            <div class="text-white">
+                                ${data.pinRequired ? '🔐 PIN Required: ' + (data.pinSource || 'Yes') : '✅ No PIN Required'}
+                                ${data.sgwBypass ? ' | <span class="text-red-400">🚨 SGW Bypass Needed</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Links & Notes -->
+                    <div class="mt-4 pt-4 border-t border-navy-700">
+                        <div class="flex flex-wrap gap-4 items-center">
+                            ${toolLinksHtml ? `<div class="text-xs">${toolLinksHtml}</div>` : ''}
+                            ${data.videoTutorial ? `<a href="${data.videoTutorial}" target="_blank" class="text-red-400 hover:text-red-300 text-xs">📺 Video Tutorial</a>` : ''}
+                        </div>
+                        ${data.notes ? `<div class="mt-2 text-xs text-slate-400 italic">💡 ${data.notes}</div>` : ''}
+                        ${data.selfProgram ? `<div class="mt-1 text-xs text-green-400">🔄 Self-Program: ${data.selfProgram}</div>` : ''}
+                    </div>
+                    
+                    <!-- Part Numbers -->
                     <div class="mt-3 text-xs text-slate-500">
-                        <strong>Part Numbers:</strong> ${data.partNumbers ? data.partNumbers.join(' | ') : 'N/A'}
+                        <strong>OEM Part Numbers:</strong> ${data.partNumbers ? data.partNumbers.join(' | ') : 'N/A'}
                     </div>
                 </td>
             `;
@@ -5195,6 +5406,18 @@
                         year: years.split('-')[0],
                         vehicleType: 'Passenger Car'
                     });
+                }
+            }, 100);
+        }
+        
+        // Search FCC Database from Browse Database results
+        function searchFCCFromBrowse(make, fccId) {
+            switchTab('database');
+            setTimeout(() => {
+                const searchBox = document.getElementById('databaseSearch');
+                if (searchBox) {
+                    searchBox.value = fccId || make;
+                    filterDatabaseTable();
                 }
             }, 100);
         }
@@ -5263,11 +5486,16 @@
         }
         
         function exportDatabaseCSV() {
-            let csv = 'FCC ID,Frequency,Modulation,Chip Type,Make,Model,Years,Part Numbers\n';
+            let csv = 'FCC ID,Frequency,Modulation,Chip Type,Make,Model,Years,Code Series,Test Key,Aftermarket Ilco,Aftermarket Keydiy,Shell,Autel Models,Prog Method,Clone Chips,PIN Required,SGW Bypass,Part Numbers,Video Tutorial,Notes\n';
             
             Object.entries(FCC_CROSS_REFERENCE).forEach(([fccId, data]) => {
+                const afterIlco = data.aftermarket?.ilco || '';
+                const afterKeydiy = data.aftermarket?.keydiy || '';
+                const autelModels = data.autelModels ? data.autelModels.join('; ') : '';
+                const cloneChips = data.cloneChips ? data.cloneChips.join('; ') : '';
+                
                 data.vehicles.forEach(v => {
-                    csv += `"${fccId}","${data.frequency}","${data.modulation}","${data.chip}","${v.make}","${v.model}","${v.years}","${data.partNumbers ? data.partNumbers.join(' | ') : ''}"\n`;
+                    csv += `"${fccId}","${data.frequency}","${data.modulation}","${data.chip}","${v.make}","${v.model}","${v.years}","${data.codeSeries || ''}","${data.testKey || ''}","${afterIlco}","${afterKeydiy}","${data.shell || ''}","${autelModels}","${data.progMethod || ''}","${cloneChips}","${data.pinRequired ? 'Yes' : 'No'}","${data.sgwBypass ? 'Yes' : 'No'}","${data.partNumbers ? data.partNumbers.join(' | ') : ''}","${data.videoTutorial || ''}","${data.notes || ''}"\n`;
                 });
             });
             
@@ -5275,7 +5503,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'fcc_cross_reference_database.csv';
+            a.download = 'euro_keys_fcc_database.csv';
             a.click();
             URL.revokeObjectURL(url);
         }
