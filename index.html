@@ -548,6 +548,16 @@
                             <!-- Populated by JavaScript -->
                         </div>
                         
+                        <!-- Vehicle-Specific Video Tutorial -->
+                        <div id="vehicleVideoSection" class="mt-6 pt-6 border-t border-brand-500/20">
+                            <div class="text-xs text-brand-400 uppercase tracking-wider mb-3 font-semibold flex items-center gap-2">
+                                🎬 Video Tutorial for This Vehicle
+                            </div>
+                            <div id="vehicleVideoContainer" class="rounded-xl overflow-hidden border border-brand-500/30">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                        
                         <!-- Programming Notes -->
                         <div class="mt-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
                             <div class="flex items-start gap-3">
@@ -3611,7 +3621,137 @@
             initYearSelect();
             initMakeSelect();
             displayPopularProducts(); // Show popular products on load
+            
+            // Check URL for vehicle lookup (e.g., /2020-toyota-sienna or ?vehicle=2020-toyota-sienna)
+            parseVehicleFromURL();
         });
+        
+        // URL-based vehicle lookup
+        function parseVehicleFromURL() {
+            const path = window.location.pathname;
+            const params = new URLSearchParams(window.location.search);
+            
+            let vehicleString = null;
+            
+            // Check URL path (e.g., /2020-toyota-sienna)
+            if (path && path !== '/' && path !== '/index.html') {
+                vehicleString = path.replace(/^\//, '').replace(/-/g, ' ');
+            }
+            
+            // Check query parameter (e.g., ?vehicle=2020-toyota-sienna)
+            if (params.has('vehicle')) {
+                vehicleString = params.get('vehicle').replace(/-/g, ' ');
+            }
+            
+            if (vehicleString) {
+                // Parse year, make, model from string like "2020 toyota sienna"
+                const parts = vehicleString.toLowerCase().split(' ');
+                let year = null, make = null, model = null;
+                
+                parts.forEach(part => {
+                    if (/^\d{4}$/.test(part)) {
+                        year = part;
+                    } else if (!make && LOCKSMITH_DB[part.toUpperCase()]) {
+                        make = part.toUpperCase();
+                    } else if (make && !model) {
+                        model = part;
+                    }
+                });
+                
+                if (year && make) {
+                    // Set the dropdowns
+                    document.getElementById('yearSelect').value = year;
+                    document.getElementById('makeSelect').value = make;
+                    document.getElementById('makeSelect').disabled = false;
+                    
+                    // Trigger display
+                    setTimeout(() => {
+                        displayProductsForMake(make);
+                        document.getElementById('resultsArea').classList.remove('hidden');
+                        
+                        // Update vehicle header
+                        document.getElementById('vehicleName').textContent = `${year} ${make.charAt(0) + make.slice(1).toLowerCase()}${model ? ' ' + model.charAt(0).toUpperCase() + model.slice(1) : ''}`;
+                        document.getElementById('vehicleTrim').textContent = 'URL Lookup';
+                        document.getElementById('vinDisplay').textContent = 'Direct URL Access';
+                        
+                        // Find and display video for this vehicle
+                        displayVehicleVideo(make, model, year);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Find and display vehicle-specific video tutorial
+        function displayVehicleVideo(make, model, year) {
+            const container = document.getElementById('vehicleVideoContainer');
+            const section = document.getElementById('vehicleVideoSection');
+            if (!container || !section) return;
+            
+            // Find matching video
+            let matchedVideo = null;
+            let matchScore = 0;
+            
+            VIDEO_TUTORIALS.forEach(video => {
+                if (!video.makes) return;
+                
+                let score = 0;
+                
+                // Check make match
+                if (video.makes.includes(make.toUpperCase())) {
+                    score += 10;
+                }
+                
+                // Check model match
+                if (model && video.models && video.models.some(m => m.toLowerCase() === model.toLowerCase())) {
+                    score += 20;
+                }
+                
+                // Check year range
+                if (video.years && year) {
+                    const yearRange = video.years.split('-');
+                    const startYear = parseInt(yearRange[0]);
+                    const endYear = yearRange[1] ? parseInt(yearRange[1]) : startYear;
+                    const vehicleYear = parseInt(year);
+                    
+                    if (vehicleYear >= startYear && vehicleYear <= endYear) {
+                        score += 15;
+                    }
+                }
+                
+                if (score > matchScore) {
+                    matchScore = score;
+                    matchedVideo = video;
+                }
+            });
+            
+            if (matchedVideo && matchScore >= 10) {
+                section.classList.remove('hidden');
+                container.innerHTML = `
+                    <div class="relative w-full" style="padding-bottom: 56.25%;">
+                        <iframe 
+                            class="absolute inset-0 w-full h-full rounded-xl"
+                            src="https://www.youtube.com/embed/${matchedVideo.videoId}?rel=0&modestbranding=1"
+                            title="${matchedVideo.title}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            loading="lazy"
+                        ></iframe>
+                    </div>
+                    <div class="p-4 bg-navy-950/60">
+                        <h4 class="text-white font-bold mb-1">${matchedVideo.title}</h4>
+                        <p class="text-slate-400 text-sm mb-2">${matchedVideo.desc}</p>
+                        <div class="flex gap-2 text-xs">
+                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded">${matchedVideo.tool}</span>
+                            <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded">${matchedVideo.difficulty}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Hide section if no matching video
+                section.classList.add('hidden');
+            }
+        }
 
         function initYearSelect() {
             const select = document.getElementById('yearSelect');
@@ -4149,6 +4289,9 @@
             // Display affiliate products (both top section and inline)
             displayAffiliateProducts(data.make, data.model);
             displayInlineProducts(data.make, data.model);
+            
+            // Display vehicle-specific video tutorial
+            displayVehicleVideo(data.make, data.model, data.year);
 
             hideLoading();
             document.getElementById('resultsArea').classList.remove('hidden');
@@ -4619,7 +4762,52 @@
             { id: 'lishi-general', category: 'tools', title: 'How to Use Lishi 2-in-1 (General)', videoId: 'bynvkP2dFlI', desc: 'Excellent primer on reading the Lishi tool grid.', tool: 'Lishi', difficulty: 'Beginner' },
             { id: 'lishi-chrysler', category: 'tools', title: 'Chrysler 8-Cut Lishi (CY24)', videoId: 'pHUN7RCAA9Q', desc: 'Specific guide for the CY24 keyway.', tool: 'Lishi CY24', difficulty: 'Intermediate' },
             { id: 'autel-im508-beginner', category: 'tools', title: 'Autel IM508 Beginners Guide', videoId: 'CzM9P2bfHSo', desc: 'Getting started with the IM508 interface.', tool: 'Autel IM508', difficulty: 'Beginner' },
-            { id: 'autel-smart-expert', category: 'tools', title: 'Autel Smart Mode vs Expert Mode', videoId: 'jh6zAWkpRnM', desc: 'When to use automated Smart features vs manual coding.', tool: 'Autel', difficulty: 'Intermediate' }
+            { id: 'autel-smart-expert', category: 'tools', title: 'Autel Smart Mode vs Expert Mode', videoId: 'jh6zAWkpRnM', desc: 'When to use automated Smart features vs manual coding.', tool: 'Autel', difficulty: 'Intermediate' },
+            
+            // TOYOTA SIENNA
+            { id: 'toyota-sienna-2015', category: 'toyota', title: 'Toyota Sienna Smart Key Programming 2015-2020', videoId: 'SmCN-YDkqwo', desc: 'Smart key registration for Toyota Sienna proximity fobs.', tool: 'Autel', difficulty: 'Professional', makes: ['TOYOTA'], models: ['SIENNA'], years: '2015-2020' },
+            { id: 'toyota-sienna-remote', category: 'toyota', title: 'Toyota Sienna Remote Programming (Chicken Dance)', videoId: 'zA8Rjr1MPWw', desc: 'Door open/close sequence for manual remote programming.', tool: 'DIY', difficulty: 'Easy', makes: ['TOYOTA'], models: ['SIENNA', 'CAMRY', 'COROLLA', 'RAV4'], years: '2004-2020' },
+            { id: 'toyota-sienna-2021', category: 'toyota', title: 'Toyota Sienna 2021+ Key Programming', videoId: 'rfupA_Uegz0', desc: 'Programming flip key remotes for newer Toyota models.', tool: 'Autel IM608', difficulty: 'Professional', makes: ['TOYOTA'], models: ['SIENNA', 'CAMRY', 'HIGHLANDER'], years: '2018-2024' },
+            
+            // DODGE CHARGER
+            { id: 'dodge-charger-2020', category: 'dodge', title: '2020 Dodge Charger Smart Key Programming', videoId: 'MarbEYfwuRU', desc: 'Programming smart key to Dodge Charger with Autel.', tool: 'Autel', difficulty: 'Professional', makes: ['DODGE'], models: ['CHARGER', 'CHALLENGER'], years: '2015-2023' },
+            { id: 'dodge-charger-fob', category: 'dodge', title: 'Dodge Charger Key Fob Easy Method', videoId: 'BFspm0u20MM', desc: 'Step-by-step Charger key fob reprogramming for keyless entry.', tool: 'DIY', difficulty: 'Easy', makes: ['DODGE'], models: ['CHARGER'], years: '2011-2023' },
+            
+            // JEEP WRANGLER
+            { id: 'jeep-wrangler-jk', category: 'dodge', title: 'Jeep Wrangler JK/JL Key Fob Programming', videoId: '_ydFnHYT_T4', desc: 'Remote pairing for Jeep Wrangler JK and JL models.', tool: 'DIY', difficulty: 'Intermediate', makes: ['JEEP'], models: ['WRANGLER'], years: '2007-2024' },
+            { id: 'jeep-wrangler-step', category: 'dodge', title: 'Jeep Wrangler Key Fob Step By Step', videoId: 'IpiEK51qSmE', desc: 'Complete step-by-step key fob programming covering smart keys.', tool: 'Autel', difficulty: 'Professional', makes: ['JEEP'], models: ['WRANGLER'], years: '2007-2024' },
+            
+            // NISSAN ALTIMA
+            { id: 'nissan-altima-easy', category: 'nissan', title: 'Nissan Altima Key Fob Programming (EASY)', videoId: 'HV9MBT50sQ4', desc: 'Easy DIY programming using Simple Key tool.', tool: 'Simple Key', difficulty: 'Easy', makes: ['NISSAN'], models: ['ALTIMA'], years: '2013-2021' },
+            { id: 'nissan-altima-2015', category: 'nissan', title: '2015 Nissan Altima Smart Key Programming', videoId: 'JzFlPh8srbE', desc: 'Using AutoProPad G2 Turbo for smart keys.', tool: 'AutoProPad', difficulty: 'Professional', makes: ['NISSAN'], models: ['ALTIMA'], years: '2013-2018' },
+            { id: 'nissan-altima-2019', category: 'nissan', title: '2019 Nissan Altima Intelligent Key', videoId: 'Qi6DsR8RqdQ', desc: 'Intelligent key programming via OBD2.', tool: 'Autel', difficulty: 'Professional', makes: ['NISSAN'], models: ['ALTIMA'], years: '2019-2024' },
+            { id: 'nissan-altima-akl', category: 'nissan', title: '2013 Nissan Altima AKL Smart Key', videoId: 'zSm0gX6wW6s', desc: 'All keys lost programming with Autel KM100.', tool: 'Autel KM100', difficulty: 'Advanced', makes: ['NISSAN'], models: ['ALTIMA'], years: '2013-2018' },
+            
+            // CHEVROLET SILVERADO
+            { id: 'chevy-silverado-easy', category: 'gm', title: 'Chevy Silverado Key Programming (Easy)', videoId: 'CM47DBGiwd0', desc: 'Quick DIY spare key programming via OBD.', tool: 'DIY', difficulty: 'Easy', makes: ['CHEVROLET', 'GMC'], models: ['SILVERADO', 'SIERRA'], years: '2007-2024' },
+            { id: 'chevy-silverado-2006', category: 'gm', title: '2006 Chevy Silverado Remote Fob Programming', videoId: 'YbzNWpN4erI', desc: 'Onboard programming for 2000-2006 remotes.', tool: 'DIY', difficulty: 'Easy', makes: ['CHEVROLET', 'GMC'], models: ['SILVERADO', 'SIERRA'], years: '2000-2006' },
+            { id: 'chevy-silverado-smart', category: 'gm', title: 'Chevy Silverado Smart Key Fob', videoId: 'eYooV5uprWM', desc: "Smart key programming with Tom's Key Company tool.", tool: "Tom's Key", difficulty: 'Intermediate', makes: ['CHEVROLET'], models: ['SILVERADO'], years: '2014-2024' },
+            { id: 'chevy-silverado-2023', category: 'gm', title: '2023 Chevy Silverado Key Programming', videoId: '-FojAuVr5nY', desc: 'Using AutoProPad G2 Turbo for 2023 Silverado.', tool: 'AutoProPad', difficulty: 'Professional', makes: ['CHEVROLET'], models: ['SILVERADO'], years: '2022-2024' },
+            { id: 'chevy-silverado-trouble', category: 'gm', title: "Chevy Truck Key Fob WON'T PROGRAM? FIX", videoId: 'a-gKtwVfAIA', desc: 'Troubleshooting programming failures on Silverado.', tool: 'Diagnostic', difficulty: 'Intermediate', makes: ['CHEVROLET', 'GMC'], models: ['SILVERADO', 'SIERRA'], years: '2007-2024' },
+            
+            // FORD MUSTANG
+            { id: 'ford-mustang-1998', category: 'ford', title: 'Ford Mustang Key Fob 1998-2008 (NO Tools)', videoId: 'JZp4L-NQxXo', desc: 'No-tools-needed remote programming for older Mustang.', tool: 'DIY', difficulty: 'Easy', makes: ['FORD'], models: ['MUSTANG'], years: '1998-2008' },
+            { id: 'ford-mustang-only', category: 'ford', title: 'Ford Mustang Key Fob (Only Way)', videoId: '9JwCs0S_o0k', desc: 'Simple DIY method to program Ford Mustang key fob.', tool: 'DIY', difficulty: 'Easy', makes: ['FORD'], models: ['MUSTANG'], years: '2015-2024' },
+            
+            // TOYOTA COROLLA
+            { id: 'toyota-corolla-fob', category: 'toyota', title: 'Toyota Corolla Key Fob Programming', videoId: 'ZmzeD7qlvEk', desc: 'Programming with two working keys.', tool: 'DIY', difficulty: 'Easy', makes: ['TOYOTA'], models: ['COROLLA'], years: '2009-2024' },
+            { id: 'toyota-corolla-akl', category: 'toyota', title: 'Toyota Corolla All Keys Lost (Lonsdor)', videoId: 'XM0l6JHbjHs', desc: 'All keys lost smart key programming with Lonsdor K518.', tool: 'Lonsdor K518', difficulty: 'Advanced', makes: ['TOYOTA'], models: ['COROLLA'], years: '2014-2024' },
+            
+            // HONDA CIVIC
+            { id: 'honda-civic-full', category: 'honda', title: 'Honda Civic Key Fob Full Guide', videoId: 'FY4QRlha044', desc: 'Full guide including transponder setup.', tool: 'Autel', difficulty: 'Professional', makes: ['HONDA'], models: ['CIVIC'], years: '2006-2024' },
+            { id: 'honda-civic-2010', category: 'honda', title: 'Honda Civic 2010 Key Fob Programming', videoId: 'pKFmt_BXaJI', desc: 'Duplicate immobilizer remote key programming.', tool: 'DIY', difficulty: 'Intermediate', makes: ['HONDA'], models: ['CIVIC'], years: '2006-2015' },
+            { id: 'honda-chip-all', category: 'honda', title: 'Chip Key Programming for Any Honda/Acura', videoId: 'e77b1jOn3jM', desc: 'Universal chip key programming for Honda/Acura models.', tool: 'Autel', difficulty: 'Professional', makes: ['HONDA', 'ACURA'], models: ['CIVIC', 'ACCORD', 'CR-V', 'TLX', 'MDX'], years: '2003-2024' },
+            
+            // GENERAL AUTOMOTIVE
+            { id: 'general-easy', category: 'tools', title: 'Car Key Programming Made EASY', videoId: 'nKenS2gO9ZM', desc: 'Overview of transponder key programming concepts.', tool: 'Various', difficulty: 'Beginner' },
+            { id: 'general-home', category: 'tools', title: 'How To Program A Key Fob At Home', videoId: 'fO2xiSAgSRE', desc: 'Home programming using scan tools.', tool: 'OBD Scanner', difficulty: 'Intermediate' },
+            { id: 'general-km100', category: 'tools', title: 'Autel KM100 Best Beginner Programmer', videoId: 'rP4UuN3IDmE', desc: 'Beginner guide to Autel KM100 for key cloning.', tool: 'Autel KM100', difficulty: 'Beginner' },
+            { id: 'general-diy', category: 'tools', title: 'DIY Program ANY Vehicle Key EASILY', videoId: 'c-qjSdQBfiY', desc: 'Universal vehicle key programming with affordable tools.', tool: 'Various', difficulty: 'Intermediate' }
         ];
 
         let currentTutorialFilter = 'all';
