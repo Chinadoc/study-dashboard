@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate comprehensive affiliate products database with 200+ products"""
+"""Extract all unique FCC IDs from the affiliate products data"""
 
 import json
 
@@ -241,26 +241,14 @@ products = {
     ],
 }
 
-# Count total
-total = sum(len(products[make]) for make in products)
-print(f"Total products: {total}")
-
-# Generate JavaScript
-js_lines = ["const AFFILIATE_PRODUCTS = {"]
-for make, items in sorted(products.items()):
-    js_lines.append(f"    '{make}': [")
+# Extract unique FCC IDs
+unique_fcc_ids = set()
+for make, items in products.items():
     for item in items:
-        js_lines.append("        {")
-        js_lines.append(f"            name: '{item['name']}',")
-        js_lines.append(f"            fccId: '{item['fccId']}',")
-        js_lines.append(f"            price: '{item['price']}',")
-        js_lines.append(f"            rating: '{item['rating']}',")
-        js_lines.append(f"            reviews: '{item['reviews']}',")
-        js_lines.append(f"            amazonUrl: '{item['amazonUrl']}',")
-        js_lines.append("        },")
-    js_lines.append("    ],")
-js_lines.append("};")
+        unique_fcc_ids.add(item['fccId'])
 
-print("\n".join(js_lines))
+print("Unique FCC IDs:")
+for fcc_id in sorted(unique_fcc_ids):
+    print(fcc_id)
 
-
+print(f"\nTotal unique FCC IDs: {len(unique_fcc_ids)}")

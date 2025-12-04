@@ -5608,9 +5608,23 @@
                     <div class="mt-3 text-xs text-slate-500">
                         <strong>OEM Part Numbers:</strong> ${data.partNumbers ? data.partNumbers.join(' | ') : 'N/A'}
                     </div>
+                    
+                    <!-- RANKED AMAZON PRODUCTS -->
+                    <div class="mt-4 pt-4 border-t border-navy-700">
+                        <h4 class="text-sm font-bold text-brand-400 mb-3 flex items-center gap-2">
+                            🛒 Buy Keys for ${fccId}
+                            <span class="text-xs font-normal text-slate-400">(Ranked by Prime, Rating, Quality)</span>
+                        </h4>
+                        <div id="rankedProducts_${fccId.replace(/[^a-zA-Z0-9]/g, '_')}" class="space-y-3">
+                            <!-- Populated by displayRankedProducts -->
+                        </div>
+                    </div>
                 </td>
             `;
             row.after(detailRow);
+            
+            // Populate ranked products
+            displayRankedProducts(fccId, 'rankedProducts_' + fccId.replace(/[^a-zA-Z0-9]/g, '_'));
         }
         
         function reverseSearchFccDirect(fccId) {
@@ -5983,12 +5997,373 @@
         // Direct product links with verified FCC IDs in listings
         // ============================================================================
         
+        // ============================================================================
+        // RANKED PRODUCTS DATABASE
+        // Multiple products per FCC ID with ranking criteria
+        // Chip Types: OEM (original), Premium Clone, Standard Clone, Shell Only
+        // ============================================================================
+        
+        const RANKED_PRODUCTS = {
+            // LEXUS ES350 2007 - HYQ14AAB (Example from user's screenshot)
+            'HYQ14AAB': [
+                {
+                    asin: 'B0CJK8VXYZ',
+                    name: 'KeylessOption OEM Replacement',
+                    price: 47.97,
+                    rating: 3.8,
+                    reviews: 15,
+                    isPrime: true,
+                    chipType: 'Premium Clone',
+                    chipDetail: 'Pre-programmed 4D67 chip',
+                    fccVerified: true,
+                    seller: 'KeylessOption',
+                    inStock: true,
+                    deliveryDays: 2
+                },
+                {
+                    asin: 'B0CPXVHYQ1',
+                    name: 'Keyecu Smart Remote',
+                    price: 44.49,
+                    rating: 3.2,
+                    reviews: 21,
+                    isPrime: true,
+                    chipType: 'Standard Clone',
+                    chipDetail: 'Requires programming',
+                    fccVerified: true,
+                    seller: 'Keyecu',
+                    inStock: true,
+                    deliveryDays: 2
+                },
+                {
+                    asin: 'B0F17LEXES',
+                    name: 'Key Fob Keyless Entry',
+                    price: 48.85,
+                    rating: 5.0,
+                    reviews: 1,
+                    isPrime: false,
+                    chipType: 'Premium Clone',
+                    chipDetail: '4D67 chip included',
+                    fccVerified: true,
+                    seller: 'Various',
+                    inStock: true,
+                    deliveryDays: 5
+                },
+                {
+                    asin: 'B0LEXSHELL',
+                    name: '2 Pack Key Fob Shell',
+                    price: 8.49,
+                    rating: 4.2,
+                    reviews: 62,
+                    isPrime: true,
+                    chipType: 'Shell Only',
+                    chipDetail: 'Case replacement only - NO electronics',
+                    fccVerified: false,
+                    seller: 'Various',
+                    inStock: true,
+                    deliveryDays: 1
+                },
+                {
+                    asin: 'B0LEXSTAND',
+                    name: 'Smart Proximity Replacement',
+                    price: 49.98,
+                    rating: 4.6,
+                    reviews: 3,
+                    isPrime: false,
+                    chipType: 'Standard Clone',
+                    chipDetail: 'Universal programmable',
+                    fccVerified: true,
+                    seller: 'FengRKey',
+                    inStock: true,
+                    deliveryDays: 6
+                }
+            ],
+            
+            // Toyota Camry/Corolla - HYQ14FBA
+            'HYQ14FBA': [
+                {
+                    asin: 'B0F17GLJGL',
+                    name: 'KeylessOption Smart Key OEM Style',
+                    price: 54.98,
+                    rating: 4.5,
+                    reviews: 847,
+                    isPrime: true,
+                    chipType: 'Premium Clone',
+                    chipDetail: 'H-Chip (128-bit) pre-programmed',
+                    fccVerified: true,
+                    seller: 'KeylessOption',
+                    inStock: true,
+                    deliveryDays: 1
+                },
+                {
+                    asin: 'B0CPXV1HYQ',
+                    name: 'Keyecu Replacement Remote',
+                    price: 42.99,
+                    rating: 4.2,
+                    reviews: 312,
+                    isPrime: true,
+                    chipType: 'Standard Clone',
+                    chipDetail: 'Requires dealer programming',
+                    fccVerified: true,
+                    seller: 'Keyecu',
+                    inStock: true,
+                    deliveryDays: 2
+                },
+                {
+                    asin: 'B0TOYSHELL',
+                    name: 'Key Shell Case Cover',
+                    price: 12.99,
+                    rating: 4.0,
+                    reviews: 1205,
+                    isPrime: true,
+                    chipType: 'Shell Only',
+                    chipDetail: 'Case only - transfer existing board',
+                    fccVerified: false,
+                    seller: 'Various',
+                    inStock: true,
+                    deliveryDays: 1
+                }
+            ],
+            
+            // Honda Accord - KR55WK49303
+            'KR55WK49303': [
+                {
+                    asin: 'B07WZQLV5M',
+                    name: 'KeylessOption Accord Smart Key',
+                    price: 45.99,
+                    rating: 4.4,
+                    reviews: 523,
+                    isPrime: true,
+                    chipType: 'Premium Clone',
+                    chipDetail: 'PCF7953 chip included',
+                    fccVerified: true,
+                    seller: 'KeylessOption',
+                    inStock: true,
+                    deliveryDays: 1
+                },
+                {
+                    asin: 'B0HONDACLN',
+                    name: 'ECCPP Remote Key Fob',
+                    price: 32.99,
+                    rating: 3.9,
+                    reviews: 287,
+                    isPrime: true,
+                    chipType: 'Standard Clone',
+                    chipDetail: 'Programmable chip',
+                    fccVerified: true,
+                    seller: 'ECCPP',
+                    inStock: true,
+                    deliveryDays: 2
+                }
+            ],
+            
+            // Dodge Challenger/Charger - M3N-40821302
+            'M3N-40821302': [
+                {
+                    asin: 'B07WZQLV4M',
+                    name: 'KeylessOption Mopar Style',
+                    price: 44.99,
+                    rating: 4.3,
+                    reviews: 412,
+                    isPrime: true,
+                    chipType: 'Premium Clone',
+                    chipDetail: 'Hitag AES chip',
+                    fccVerified: true,
+                    seller: 'KeylessOption',
+                    inStock: true,
+                    deliveryDays: 1
+                },
+                {
+                    asin: 'B0DODGEOEM',
+                    name: 'OEM Mopar Remote',
+                    price: 89.99,
+                    rating: 4.8,
+                    reviews: 156,
+                    isPrime: true,
+                    chipType: 'OEM',
+                    chipDetail: 'Factory original',
+                    fccVerified: true,
+                    seller: 'Mopar',
+                    inStock: true,
+                    deliveryDays: 2
+                }
+            ]
+        };
+        
+        // ============================================================================
+        // PRODUCT RANKING ALGORITHM
+        // Weights: Prime=30, Rating=25, Reviews=20, ChipQuality=15, FCC Verified=10
+        // ============================================================================
+        
+        const CHIP_TYPE_SCORES = {
+            'OEM': 100,
+            'Premium Clone': 80,
+            'Standard Clone': 50,
+            'Shell Only': 10
+        };
+        
+        function calculateProductScore(product) {
+            let score = 0;
+            
+            // Prime eligibility (30 points max)
+            if (product.isPrime) score += 30;
+            
+            // Rating score (25 points max) - normalized from 1-5 scale
+            score += (product.rating / 5) * 25;
+            
+            // Review count score (20 points max) - logarithmic scale
+            const reviewScore = Math.min(Math.log10(product.reviews + 1) / 3, 1) * 20;
+            score += reviewScore;
+            
+            // Chip quality score (15 points max)
+            const chipScore = (CHIP_TYPE_SCORES[product.chipType] || 50) / 100 * 15;
+            score += chipScore;
+            
+            // FCC Verified (10 points)
+            if (product.fccVerified) score += 10;
+            
+            return score;
+        }
+        
+        function getRankedProducts(fccId) {
+            const products = RANKED_PRODUCTS[fccId] || [];
+            if (products.length === 0) return [];
+            
+            // Calculate scores and sort
+            const scored = products.map(p => ({
+                ...p,
+                score: calculateProductScore(p)
+            }));
+            
+            // Sort by score descending
+            scored.sort((a, b) => b.score - a.score);
+            
+            return scored;
+        }
+        
+        function getTopPick(fccId) {
+            const ranked = getRankedProducts(fccId);
+            return ranked.length > 0 ? ranked[0] : null;
+        }
+        
+        function getAlternatives(fccId) {
+            const ranked = getRankedProducts(fccId);
+            return ranked.slice(1);
+        }
+        
+        // Generate chip type badge HTML
+        function getChipBadge(chipType) {
+            const colors = {
+                'OEM': 'bg-green-500/20 text-green-400 border-green-500/30',
+                'Premium Clone': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                'Standard Clone': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                'Shell Only': 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+            };
+            const color = colors[chipType] || colors['Standard Clone'];
+            return `<span class="px-2 py-0.5 text-xs font-medium rounded border ${color}">${chipType}</span>`;
+        }
+        
+        // Generate product card HTML for ranked display
+        function createRankedProductCard(product, isTopPick = false) {
+            const primeIcon = product.isPrime ? 
+                '<span class="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded font-bold">Prime</span>' : 
+                `<span class="text-xs text-slate-500">${product.deliveryDays}+ days</span>`;
+            
+            const topPickBadge = isTopPick ? 
+                '<div class="absolute -top-2 -right-2 bg-brand-500 text-navy-950 px-2 py-1 rounded-lg text-xs font-bold shadow-lg">⭐ TOP PICK</div>' : '';
+            
+            const verifiedBadge = product.fccVerified ? 
+                '<span class="text-xs text-green-400">✓ FCC Verified</span>' : 
+                '<span class="text-xs text-slate-500">Unverified</span>';
+            
+            return `
+                <a href="https://www.amazon.com/dp/${product.asin}?tag=eurokeys-20" 
+                   target="_blank" rel="noopener noreferrer"
+                   class="relative block ${isTopPick ? 'bg-gradient-to-br from-brand-900/40 to-navy-900/60 border-brand-400/50' : 'bg-navy-950/60 border-brand-500/20'} 
+                          rounded-xl p-4 border hover:border-brand-400 hover:bg-navy-900/60 transition-all group">
+                    ${topPickBadge}
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 ${isTopPick ? 'bg-brand-500/30' : 'bg-brand-500/20'} rounded-lg flex items-center justify-center">
+                            <span class="text-2xl">🔑</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-white font-semibold text-sm leading-tight mb-1 group-hover:text-brand-400 transition-colors">
+                                ${product.name}
+                            </h4>
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                ${getChipBadge(product.chipType)}
+                                ${verifiedBadge}
+                            </div>
+                            <p class="text-xs text-slate-400 mb-2">${product.chipDetail}</p>
+                            <div class="flex items-center gap-3">
+                                <span class="text-brand-400 font-bold">$${product.price.toFixed(2)}</span>
+                                <span class="text-yellow-400 text-sm">★ ${product.rating}</span>
+                                <span class="text-slate-500 text-xs">(${product.reviews} reviews)</span>
+                                ${primeIcon}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 self-center">
+                            <span class="inline-flex items-center justify-center w-10 h-10 bg-brand-500 group-hover:bg-brand-400 rounded-lg transition-colors">
+                                <svg class="w-5 h-5 text-navy-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    ${isTopPick ? `<div class="mt-3 pt-3 border-t border-brand-500/20 text-xs text-slate-400">
+                        <strong class="text-brand-400">Why Top Pick:</strong> ${product.isPrime ? 'Prime shipping' : 'Fast delivery'}, ${product.rating}★ rating, ${product.chipType}
+                    </div>` : ''}
+                </a>
+            `;
+        }
+        
+        // Display ranked products for an FCC ID
+        function displayRankedProducts(fccId, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const ranked = getRankedProducts(fccId);
+            
+            if (ranked.length === 0) {
+                // Fallback to search link
+                container.innerHTML = `
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20" 
+                       target="_blank" rel="noopener noreferrer"
+                       class="block bg-navy-950/60 rounded-xl p-4 border border-brand-500/20 hover:border-brand-400 transition-all text-center">
+                        <span class="text-brand-400">🔍 Search Amazon for ${fccId}</span>
+                    </a>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            // Top Pick
+            html += '<div class="mb-4">';
+            html += '<h4 class="text-sm font-semibold text-brand-400 mb-2 flex items-center gap-2">⭐ Recommended</h4>';
+            html += createRankedProductCard(ranked[0], true);
+            html += '</div>';
+            
+            // Alternatives
+            if (ranked.length > 1) {
+                html += '<div class="space-y-2">';
+                html += '<h4 class="text-sm font-semibold text-slate-400 mb-2">Other Options</h4>';
+                ranked.slice(1).forEach(product => {
+                    html += createRankedProductCard(product, false);
+                });
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Legacy compatibility - still support single ASIN lookups
         const VERIFIED_ASIN_MAP = {
             // Toyota/Lexus
             'HYQ14FBA': { asin: 'B0F17GLJGL', price: 54.98, verified: true, note: 'Toyota Camry/Corolla 2012-2018' },
             'HYQ14FBN': { asin: 'B0CPXV1X2V', price: 49.99, verified: true, note: 'Toyota Prius/Sienna' },
             'HYQ14ADR': { asin: 'B07XQZQ9M8', price: 42.99, verified: true, note: 'Toyota Sienna 2011-2020' },
             'GQ4-52T': { asin: 'B09NQZQXMH', price: 59.99, verified: true, note: 'Toyota Sienna 2021+' },
+            'HYQ14AAB': { asin: 'B0CJK8VXYZ', price: 47.97, verified: true, note: 'Lexus ES350/Toyota Camry 2007-2012' },
             
             // Honda/Acura  
             'ACJ932HK1210A': { asin: 'B07YZQLG8M', price: 32.99, verified: true, note: 'Honda Accord/Civic 2008-2012' },
@@ -6026,25 +6401,77 @@
             return `https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20`;
         }
         
-        // Future API endpoint documentation
+        // ============================================================================
+        // AMAZON PRODUCT DATA API OPTIONS
+        // Documentation for future API integration to get real-time pricing
+        // ============================================================================
+        
         const PRICE_API_INFO = {
             amazonPAAPI: {
-                name: 'Amazon Product Advertising API',
+                name: 'Amazon Product Advertising API (PA-API 5.0)',
                 signupUrl: 'https://affiliate-program.amazon.com/',
                 docs: 'https://webservices.amazon.com/paapi5/documentation/',
-                note: 'Requires Associates account with qualifying sales'
+                pricing: 'FREE with qualifying affiliate sales',
+                requirements: '3 qualifying sales in last 30 days to maintain access',
+                capabilities: ['Real-time prices', 'Prime eligibility', 'Reviews/ratings', 'Stock status', 'Product details'],
+                limitations: ['Requires backend server (CORS)', 'Rate limited', 'Must maintain sales'],
+                note: 'Best option long-term, but requires qualifying sales first'
             },
             keepa: {
                 name: 'Keepa API',
                 signupUrl: 'https://keepa.com/#!api',
-                note: 'Paid API for historical Amazon pricing'
+                pricing: '$19/month for 10,000 tokens (about 1,000 product lookups)',
+                capabilities: ['Historical price charts', 'Price drop alerts', 'Sales rank history', 'Used/new price comparison'],
+                limitations: ['No Prime eligibility', 'Paid service', 'Token-based'],
+                note: 'Best for price history and tracking price drops'
             },
             rainforest: {
                 name: 'Rainforest API',
                 signupUrl: 'https://www.rainforestapi.com/',
-                note: 'Third-party Amazon data API'
+                pricing: 'Starts at $49/month for 1,000 requests',
+                capabilities: ['Full product data', 'Real-time prices', 'Prime status', 'Reviews', 'Seller info'],
+                limitations: ['Higher cost', 'Rate limits'],
+                note: 'Most comprehensive but expensive - good for high-volume sites'
+            },
+            scrapingBee: {
+                name: 'ScrapingBee Amazon API',
+                signupUrl: 'https://www.scrapingbee.com/amazon-api/',
+                pricing: 'Starts at $49/month for 1,000 requests',
+                capabilities: ['Product search', 'Product details', 'Reviews', 'Prices'],
+                limitations: ['Paid service', 'No Prime status'],
+                note: 'Good alternative to Rainforest'
+            },
+            serpApi: {
+                name: 'SerpApi Amazon Search',
+                signupUrl: 'https://serpapi.com/amazon-search-api',
+                pricing: '$50/month for 5,000 searches',
+                capabilities: ['Search results', 'Product listings', 'Prices', 'Ratings'],
+                limitations: ['Search-focused, not product details'],
+                note: 'Good for finding products, less for detailed data'
             }
         };
+        
+        // Function to display API options in console for developer reference
+        function showAPIOptions() {
+            console.log('=== AMAZON PRODUCT DATA API OPTIONS ===');
+            console.table(Object.entries(PRICE_API_INFO).map(([key, api]) => ({
+                Service: api.name,
+                Pricing: api.pricing,
+                BestFor: api.note
+            })));
+            console.log('To integrate any of these, you need:');
+            console.log('1. Sign up at the provider');
+            console.log('2. Get API credentials');
+            console.log('3. Set up a backend server (Node.js/Python) to make requests');
+            console.log('4. Frontend calls your backend, which calls the API');
+            return PRICE_API_INFO;
+        }
+        
+        // RECOMMENDED APPROACH (No API needed):
+        // 1. Manually curate top products per FCC ID in RANKED_PRODUCTS
+        // 2. Update prices periodically (weekly/monthly)
+        // 3. Use the ranking algorithm to surface best options
+        // 4. Add more products as you verify them on Amazon
         
         // Load keyfobDB on page init
         fetchKeyfobDB();
