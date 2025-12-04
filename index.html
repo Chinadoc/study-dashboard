@@ -1267,6 +1267,110 @@
                 keyProgram: 'OBD: Select Honda > IMMO > Add Smart Key > Enter PIN',
                 allKeysLost: 'Read EEPROM from BCM or use Autel G-Box for PIN calc'
             },
+            // ============================================================================
+            // 2018 HONDA ACCORD - COMPREHENSIVE LOCKSMITH SPECIFICATIONS
+            // ============================================================================
+            'HONDA ACCORD': {
+                blank: 'HON66 (HO01)',
+                chip: 'NXP AES 128-bit (ID4A) / HITAG AES (NCF29AxM / PCF7961x)',
+                freq: '433 MHz',
+                series: 'K001-N718',
+                fccId: 'CWTWB1G0090',
+                keyType: 'Proximity Smart Key (Push-to-Start)',
+                emergencyKey: 'HO01 / 35118-T2A-A50',
+                cloning: 'Not Possible (ID4A AES Encrypted)',
+                obd: 'Yes - Add Key w/ 2 working keys | AKL requires EEPROM/PIN',
+                immoSystem: 'Honda IMMO-V5+ (Crypto-3 Encryption)',
+                pinRequired: 'Yes - 4-digit PIN from BCM EEPROM or Honda Dealer Portal',
+                maxKeys: '5 Keys',
+                progTool: 'Autel IM608 / Xhorse VVDI Key Tool Plus / Smart Pro',
+                oemRemote: '72147-TVA-A11',
+                aftermarket: 'Ilco PRX-HON-4B / JMA TPX2-HON-4B',
+                shell: 'HON-SHELL-4B',
+                // Comprehensive Cross-Reference
+                crossRef: { 
+                    ilco: 'HO01-PT / PRX-HON-4B / PRX-HON-5B', 
+                    strattec: '591389 / 591390', 
+                    jma: 'HOND-31 / TPX2-HON-4B', 
+                    keydiy: 'B10-3+1' 
+                },
+                transponderInfo: { 
+                    id: 'ID4A / HITAG AES', 
+                    tech: 'NXP AES 128-bit (PCF7961x) / Crypto-3', 
+                    bits: '128-bit', 
+                    clonable: 'Not Clonable via OBD - Requires RW4+ for partial generation'
+                },
+                cutType: 'High Security / Laser Cut (HON66)',
+                machineRequired: 'Laser/Sidewinder (HPC/Silca HO01 cards)',
+                bittingInfo: { depths: 5, positions: 5, spacing: '1.04-1.41mm depths', macs: 4 },
+                eepromData: { 
+                    bcm: '93C86 (16-bit, x16 mode)',
+                    bcmPart: '37820-T2A-A00 (Base) / 37820-6G0-A (Hybrid)',
+                    pinLocation: 'End of 14-digit IMMO number (repeated 3x)',
+                    readTools: 'UPA-USB / Autel G-Box2 / Carprog',
+                    module: 'BCM (Body Control Module)',
+                    location: 'Under dash, left of steering column (remove knee panel, 4 Torx screws)'
+                },
+                // Detailed Key Blanks (2018 Accord Specific)
+                keyBlanks: [
+                    { type: 'DEALER', part: '72147-TVA-A11', desc: 'Prox Fob 4 Btn (Lock/Unlock/Trunk/Panic)', fcc: 'CWTWB1G0090', freq: '433 MHz', battery: 'CR2032', cost: '$70-90' },
+                    { type: 'DEALER', part: '72147-TWA-A31', desc: 'Prox Fob 5 Btn w/Remote Start (Touring)', fcc: 'CWTWB1G0090', freq: '433 MHz', battery: 'CR2032', cost: '$80-100' },
+                    { type: 'DEALER', part: '72147-TSV-W01', desc: 'Prox Fob 3 Btn (Legacy/Rare)', fcc: 'CWTWB1G0090', freq: '433 MHz', battery: 'CR2032', cost: '$60-70' },
+                    { type: 'DEALER', part: '35118-T2A-A50', desc: 'Emergency Blade Only (HON66)', fcc: 'N/A', freq: 'N/A', battery: 'N/A', cost: '$10-20' },
+                    { type: 'ILCO', part: 'PRX-HON-4B', desc: 'Aftermarket 4 Btn Prox', fcc: 'CWTWB1G0090', freq: '433 MHz', battery: 'CR2032', cost: '$40-60' },
+                    { type: 'ILCO', part: 'PRX-HON-5B', desc: 'Aftermarket 5 Btn w/RS', fcc: 'CWTWB1G0090', freq: '433 MHz', battery: 'CR2032', cost: '$50-70' },
+                    { type: 'ILCO', part: 'HO01-PT', desc: 'Mechanical Blank (Chipless)', fcc: 'N/A', freq: 'N/A', battery: 'N/A', cost: '$8-12' },
+                    { type: 'JMA', part: 'HOND-31', desc: 'Aftermarket Blade', fcc: 'N/A', freq: 'N/A', battery: 'N/A', cost: '$10-15' },
+                    { type: 'STRATTEC', part: '591389', desc: 'OEM 4 Btn Replacement', fcc: 'CWTWB1G0090', freq: '433 MHz', battery: 'CR2032', cost: '$65-85' },
+                    { type: 'TEST', part: 'HO01-TST', desc: 'Test Key (Uncut, No Chip)', fcc: 'N/A', freq: 'N/A', battery: 'N/A', cost: '$5' },
+                    { type: 'SHELL', part: 'HON-SHELL-4B', desc: 'Replacement Housing Only', fcc: 'N/A', freq: 'N/A', battery: 'N/A', cost: '$12' }
+                ],
+                testKey: 'HO01 / HON66 TEST KEY',
+                codeSeries: 'K001-N718 (5 cuts, depths 1-5)',
+                decoderTools: ['Lishi HO01/HON66 2-in-1', 'Lishi AG (Anti-Glare)', '2M2 Tank 2 Pro CNC', 'Determinator', 'DEFU 368A Cutter'],
+                pinSource: 'Honda Dealer Portal (paid ~$20-30/query via NASTF) / BCM EEPROM dump / Autel G-Box2 calculation',
+                obdLocation: 'Under dash, left of steering column (BCM sticker has code)',
+                programmingNotes: 'Add Key: Requires 2 working keys, insert sequentially near RF antenna (overhead console). AKL: PIN mandatory - read EEPROM from BCM or use Autel G-Box for calc. All keys erased first. Max 5 keys. Reduce RF interference (phones off). Hybrids may need 12V adapter.',
+                yearRange: '2018 (10th Generation CV Chassis)',
+                autelGuide: 'https://www.autel.com/support/vehicles/honda',
+                vvdiGuide: 'https://www.youtube.com/watch?v=gr4ZjMzNuB4',
+                smartProGuide: 'https://www.adp.com/training/honda',
+                autelAklVideo: 'https://www.youtube.com/watch?v=I3t3qBzBK8A',
+                // Programming Procedures
+                addKeyProcedure: 'Autel IM608: OBD connect > Honda > Accord > 2018 > Smart Key > Add. Ignition ON w/ working key 1, insert key 2, place new key near antenna (overhead). Prompt: "Lights off? Yes." Test start. Time: 5-10 min.',
+                aklProcedure: 'Xhorse VVDI: 1) Remove BCM (4 bolts, unplug harness). 2) Bench-read 93C86 EEPROM (x16 mode - CH341A incompatible, use Carprog). 3) Calc PIN (end of 14-digit IMMO, hex decode). 4) Reinstall > OBD > Generate token > Program keys 1-5. Time: 20-30 min.',
+                aklAltProcedure: 'Autel KM100 w/ Universal iKey: Generate key > IMMO > Keyless Honda > All Lost > Hold stop button > Place key inside > Ignition cycles (off/on twice). Security light off confirms.',
+                keyProgram: 'OBD: Honda > Accord > Smart Key > Add Key (2 working req.) OR All Keys Lost (PIN from EEPROM)',
+                selfProgram: 'Not Available - Professional tool required for all programming',
+                allKeysLost: 'BCM EEPROM dump required (93C86). Read via UPA-USB/G-Box2/Carprog. Calc 4-digit PIN from 14-digit IMMO number. Program 1-5 keys. Dealer alt: Honda HDS software.',
+                // Clone Chip Info
+                cloneChipInfo: {
+                    nxpId4a: { chip: 'NXP ID4A AES', method: 'Partial generation only', tools: 'Xhorse RW4+ (~$800)', notes: 'Not OBD-clonable, requires key generation' },
+                    hitagAes: { chip: 'HITAG AES (NCF29AxM)', method: 'Bench read/write only', tools: 'VVDI2 clone mode / Autel iKeyDo', notes: 'Crypto-3 encrypted, N/A for shells' },
+                    tpx: { chip: 'TPX3/TPX4', method: 'Emulation only', tools: 'Xhorse', notes: 'For testing only, not permanent' },
+                    cn3: { chip: 'CN3', method: 'N/A', tools: 'N/A', notes: 'Legacy, not applicable to 2018 Accord' },
+                    overall: 'OBD-Only programming (No direct cloning) - Honda HDS dealer-locked; locksmiths use EEPROM for full reset'
+                },
+                // Battery and Service
+                batteryType: 'CR2032 (3V, ~2 year life)',
+                remoteRange: '30-100 ft (100m max)',
+                vinDecode: 'Positions 4-8 confirm trim/engine (e.g., CR2F3 = 1.5T LX). VIN starts 1HGCR2F3XJAxxxxxx for base.',
+                recallInfo: 'BCM updates (NHTSA 20V-312) addressed phantom drains - verify via VIN',
+                airbagWarning: 'Disconnect battery 10+ minutes before BCM work to avoid SRS codes',
+                hybridNotes: 'Hybrid models use same keyway but BCM 37820-6G0-A - extra EEPROM steps (RL56/L56R chips for mileage/PIN). ID47 variant chip possible.',
+                dealerCost: 'Honda dealer charges $150+ for programming; locksmith ~$50-150',
+                fccDetails: { fccId: 'CWTWB1G0090', icNumber: '1788F-FWB1G0090', frequencyTolerance: '±0.92 MHz' },
+                // Key Citations
+                citations: [
+                    'Ilco Honda Key Blanks - ilco.us',
+                    'Locksmith Keyless 2018 Accord Smart Key',
+                    'Transpondery Honda Catalog',
+                    'American Key Supply Lishi HO01',
+                    'UHS Hardware 2018 Accord 5B Key',
+                    'CLK Supplies HO01-PT Blank',
+                    'OBDII365 EEPROM PIN Guide'
+                ]
+            },
             'HYUNDAI': {
                 blank: 'HY15 / HYN14R',
                 chip: 'Philips 46 / Hitag 3',
@@ -1949,14 +2053,26 @@
             document.getElementById('specCountry').textContent = data.country;
             document.getElementById('specBody').textContent = data.body || 'N/A';
 
-            // Get Locksmith Data
+            // Get Locksmith Data - Check for specific model entries first
             let lockData = LOCKSMITH_DB['DEFAULT'];
             const makeUpper = data.make.toUpperCase().replace('-', ' ').replace('BENZ', '');
+            const modelUpper = data.model ? data.model.toUpperCase() : '';
+            const fullKey = `${makeUpper} ${modelUpper}`.trim();
 
+            // First check for specific make+model combo (e.g., "HONDA ACCORD")
             for (const key in LOCKSMITH_DB) {
-                if (makeUpper.includes(key) || key.includes(makeUpper.split(' ')[0])) {
+                if (fullKey.includes(key) || key === fullKey) {
                     lockData = LOCKSMITH_DB[key];
                     break;
+                }
+            }
+            // Fallback to make-only if no specific model found
+            if (lockData === LOCKSMITH_DB['DEFAULT']) {
+                for (const key in LOCKSMITH_DB) {
+                    if (makeUpper.includes(key) || key.includes(makeUpper.split(' ')[0])) {
+                        lockData = LOCKSMITH_DB[key];
+                        break;
+                    }
                 }
             }
 
@@ -1995,12 +2111,15 @@
                 lockData.keyBlanks.forEach(kb => {
                     const row = document.createElement('div');
                     row.className = 'bg-navy-950/60 p-4 rounded-xl border border-brand-500/20';
+                    const batteryInfo = kb.battery ? `<span class="text-green-400 text-xs ml-2">🔋 ${kb.battery}</span>` : '';
+                    const costInfo = kb.cost ? `<span class="text-amber-400 text-xs ml-2">💰 ${kb.cost}</span>` : '';
                     row.innerHTML = `
                         <div class="flex flex-wrap items-start justify-between gap-2">
                             <div>
                                 <span class="text-brand-400 font-bold text-sm">${kb.type} #</span>
                                 <span class="text-white font-mono font-semibold ml-2">${kb.part}</span>
                                 <span class="text-slate-400 text-sm ml-2">(${kb.desc})</span>
+                                ${batteryInfo}${costInfo}
                             </div>
                             <div class="text-right">
                                 <div class="text-xs text-slate-500">FCC: ${kb.fcc} - ${kb.freq}</div>
@@ -2087,13 +2206,19 @@
                 guidesContainer.appendChild(link);
             });
 
-            // Programming Notes
-            document.getElementById('programmingNotesText').textContent = lockData.programmingNotes || 
-                `OBD Location: ${lockData.obdLocation || 'Under dash, driver side'}. PIN Source: ${lockData.pinSource || lockData.pinRequired}`;
+            // Programming Notes - Show detailed procedure if available
+            let progNotes = lockData.programmingNotes || `OBD Location: ${lockData.obdLocation || 'Under dash, driver side'}. PIN Source: ${lockData.pinSource || lockData.pinRequired}`;
+            if (lockData.addKeyProcedure) {
+                progNotes = `ADD KEY: ${lockData.addKeyProcedure}`;
+            }
+            document.getElementById('programmingNotesText').textContent = progNotes;
             
-            // All Keys Lost
-            document.getElementById('allKeysLostText').textContent = lockData.allKeysLost || 
-                `Use ${lockData.progTool} for all keys lost programming. May require EEPROM read: ${lockData.eepromData || 'Consult tool manual'}`;
+            // All Keys Lost - Show detailed AKL procedure if available
+            let aklNotes = lockData.allKeysLost || `Use ${lockData.progTool} for all keys lost programming. May require EEPROM read: ${lockData.eepromData || 'Consult tool manual'}`;
+            if (lockData.aklProcedure) {
+                aklNotes = `AKL: ${lockData.aklProcedure}`;
+            }
+            document.getElementById('allKeysLostText').textContent = aklNotes;
 
             // === NEW: Cross-Reference Table ===
             const crossRefContainer = document.getElementById('crossRefContainer');
