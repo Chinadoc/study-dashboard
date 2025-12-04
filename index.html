@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyAutoSmart | Professional Locksmith Data</title>
+    <title>Euro Keys | Professional Automotive Locksmith</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -139,7 +139,7 @@
                         </path>
                     </svg>
                 </div>
-                <span class="text-2xl font-bold tracking-wide gold-text">MyAutoSmart</span>
+                <span class="text-2xl font-bold tracking-widest text-white">EURO KEYS</span>
             </div>
             <div class="flex items-center gap-4">
                 <a href="dashboard.html" class="text-sm text-slate-400 hover:text-brand-400 transition-colors font-medium">Dashboard</a>
@@ -311,9 +311,9 @@
                             <div class="w-10 h-10 gold-accent rounded-xl flex items-center justify-center">
                                 <svg class="w-5 h-5 text-navy-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 19.364a1.5 1.5 0 01-2.227 0l-.498-.498a1.5 1.5 0 010-2.121l.612-1.729 2.802-2.802A5.5 5.5 0 0121 9z">
-                                    </path>
-                                </svg>
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 19.364a1.5 1.5 0 01-2.227 0l-.498-.498a1.5 1.5 0 010-2.121l.612-1.729 2.802-2.802A5.5 5.5 0 0121 9z">
+                                </path>
+                            </svg>
                             </div>
                             Key & Transponder Data
                         </h3>
@@ -364,15 +364,97 @@
                         </div>
                     </div>
 
+                    <!-- Key Blanks Table (Like App Screenshot) -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                            Key Blanks
+                        </h3>
+                        <div id="keyBlanksContainer" class="space-y-3">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                        
+                        <!-- Code Series & Test Key -->
+                        <div class="mt-6 pt-6 border-t border-brand-500/20 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Code Series</div>
+                                <div class="bg-navy-950/60 p-4 rounded-xl border border-brand-500/20">
+                                    <span class="text-xl font-mono font-bold gold-text" id="codeSeriesValue">M001-2618</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Test Key</div>
+                                <div class="bg-navy-950/60 p-4 rounded-xl border border-brand-500/20">
+                                    <span class="text-xl font-mono font-bold text-white" id="testKeyValue">Y157 / Y159</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Decoder Tools -->
+                        <div class="mt-4">
+                            <div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Decoder/Reader Tools</div>
+                            <div id="decoderToolsContainer" class="flex flex-wrap gap-2">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Programming Guides & Links -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div>
+                            Programming Guides & Walkthroughs
+                        </h3>
+                        <div id="programmingGuidesContainer" class="space-y-3">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                        
+                        <!-- Programming Notes -->
+                        <div class="mt-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <div class="text-amber-400 font-semibold text-sm mb-1">Programming Notes</div>
+                                    <div class="text-amber-200/80 text-sm" id="programmingNotesText">Check vehicle year for specific procedure requirements.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- All Keys Lost Procedure -->
+                        <div class="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <div class="text-red-400 font-semibold text-sm mb-1">All Keys Lost (AKL) Procedure</div>
+                                    <div class="text-red-200/80 text-sm" id="allKeysLostText">Refer to tool-specific guide for AKL programming.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Technical Specs -->
                     <div class="glass-panel rounded-3xl p-6">
                         <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
                             <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
                                 <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
-                                    </path>
-                                </svg>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                                </path>
+                            </svg>
                             </div>
                             Technical Specifications
                         </h3>
@@ -492,7 +574,7 @@
                             <div class="flex justify-between items-center p-3 bg-navy-950/40 rounded-lg">
                                 <span class="text-sm text-slate-400">OEM Remote</span>
                                 <span class="text-sm font-mono font-semibold text-white" id="oemRemote">72147-TBA-A11</span>
-                            </div>
+                </div>
                             <div class="flex justify-between items-center p-3 bg-navy-950/40 rounded-lg">
                                 <span class="text-sm text-slate-400">Aftermarket</span>
                                 <span class="text-sm font-mono font-semibold text-white" id="aftermarketRemote">ILCO HO-KIK</span>
@@ -511,8 +593,9 @@
 
     <footer class="border-t border-brand-500/20 bg-navy-900/80 mt-12">
         <div class="max-w-7xl mx-auto py-8 px-4 text-center">
-            <p class="gold-text font-semibold text-lg mb-2">&copy; 2025 MyAutoSmart</p>
-            <p class="text-slate-500 text-sm">Professional Automotive Locksmith Data</p>
+            <p class="gold-text font-semibold text-lg mb-2">&copy; 2025 Euro Keys</p>
+            <p class="text-slate-500 text-sm">Professional Automotive Locksmith - Richmond, VA</p>
+            <p class="mt-2 text-brand-400 font-semibold"><a href="tel:8045060709">(804) 506-0709</a></p>
             <p class="mt-3 text-xs text-slate-600">Data provided by NHTSA vPIC API. Key codes sourced from professional locksmith databases.</p>
         </div>
     </footer>
@@ -558,21 +641,32 @@
             },
             'BMW': {
                 blank: 'HU92 / HU100R',
-                chip: 'PCF7945 / Hitag Pro',
+                chip: 'PCF7945 / Hitag Pro / ID49',
                 freq: '315/433/868 MHz',
                 series: 'BH00001-BH24530',
                 fccId: 'YGOHUF5662',
-                keyType: 'CAS/FEM Smart Key',
+                keyType: 'CAS/FEM/BDC Smart Key',
                 emergencyKey: 'HU92R',
-                cloning: 'Possible (EWS)',
-                obd: 'Limited (FEM Only)',
+                cloning: 'Possible (EWS/CAS1-3)',
+                obd: 'Limited (CAS4/FEM require bench)',
                 immoSystem: 'BMW CAS/FEM/BDC',
                 pinRequired: 'ISN Code Required',
                 maxKeys: '10 Keys',
-                progTool: 'Autel / CGDI / Yanhua',
+                progTool: 'Autel IM608 / CGDI BMW / Yanhua ACDP',
                 oemRemote: '66-12-9-316-125',
                 aftermarket: 'KEYDIY ZB02',
-                shell: 'BMW-SHELL-4B'
+                shell: 'BMW-SHELL-4B',
+                pinSource: 'Read ISN from CAS/DME via OBD or EEPROM',
+                obdLocation: 'OBD Port: Under dash, left side',
+                programmingNotes: 'CAS1-3: OBD program. CAS4/FEM: Bench work required',
+                yearRange: '1995-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/bmw',
+                cgdiGuide: 'https://www.cgdishop.com/wholesale/cgdi-prog-bmw-msv80-key-programmer.html',
+                yanuhaGuide: 'https://www.yanaboron.com/product/yanhua-acdp-bmw-package/',
+                eepromData: 'CAS: 0L01Y / FEM: S12XEP100 / BDC: 9S12XEQ512',
+                keyProgram: 'CAS1-3 OBD: BMW > IMMO > CAS > Add Key. FEM: Bench mode required',
+                allKeysLost: 'Read ISN from CAS EEPROM or DME. Generate dealer key from ISN.',
+                casVersions: 'CAS1 (E60/65), CAS2 (E70/90), CAS3 (E89), CAS4 (F01+), FEM/BDC (F/G series)'
             },
             'BUICK': {
                 blank: 'B111 / HU100',
@@ -611,62 +705,117 @@
                 shell: 'CAD-SHELL-5B'
             },
             'CHEVROLET': {
-                blank: 'B111 / HU100',
-                chip: 'Philips 46 (Circle Plus)',
+                blank: 'B111 / HU100 / B106',
+                chip: 'Philips 46 (Circle Plus) / Hitag 2',
                 freq: '315 MHz',
-                series: 'Z0001-Z6000',
-                fccId: 'M3N-32337100',
-                keyType: 'Flip Key / PEPS',
-                emergencyKey: 'HU100',
+                series: 'Z0001-Z6000 / B0001-B4000',
+                fccId: 'M3N-32337100 / HYQ1AA',
+                keyType: 'Flip Key / PEPS Smart Key',
+                emergencyKey: 'HU100 / B111',
                 cloning: 'Possible (46 Clone)',
-                obd: 'Yes',
-                immoSystem: 'GM PK3+ / PK3++',
-                pinRequired: 'No - Add Key Mode',
+                obd: 'Yes - Add Key Mode',
+                immoSystem: 'GM PK3+ / PK3++ / PEPS',
+                pinRequired: 'No - 2 Key Learning / Add Key Mode',
                 maxKeys: '10 Keys',
-                progTool: 'Autel / Smart Pro / Xhorse',
+                progTool: 'Autel IM608 / Smart Pro / Xhorse / Tech2',
                 oemRemote: '13529065',
                 aftermarket: 'ILCO FLIP-GM-3B',
-                shell: 'GM-SHELL-4B'
+                shell: 'GM-SHELL-4B',
+                keyBlanks: [
+                    { type: 'DEALER', part: '13529065', desc: 'Flip Key 4 Btn', fcc: 'OHT01060512', freq: '315 MHz' },
+                    { type: 'DEALER', part: '13577771', desc: 'PEPS Smart Key 5 Btn', fcc: 'HYQ1AA', freq: '315 MHz' },
+                    { type: 'DEALER', part: '22881480', desc: 'Flip Key 3 Btn', fcc: 'OHT01060512', freq: '315 MHz' },
+                    { type: 'ILCO', part: 'FLIP-GM-4B3HS', desc: 'Flip Key 4 Btn', fcc: 'M3N-32337100', freq: '315 MHz' },
+                    { type: 'ILCO', part: 'PRX-GM-5B1', desc: 'PEPS 5 Btn', fcc: 'HYQ1AA', freq: '315 MHz' }
+                ],
+                testKey: 'B111 / B106 TEST KEY',
+                codeSeries: 'Z0001-Z6000',
+                decoderTools: ['Lishi HU100', 'Determinator', 'GM Z Keyway'],
+                pinSource: 'Not required - 2 Key Learning or Tech2',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: '2 Key Learning: Insert key 1 for 10 sec, key 2 for 10 sec, new key for 10 sec. PEPS requires tool.',
+                yearRange: '2006-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/gm',
+                vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-gm-chevrolet/',
+                selfProgram: '2-Key Learning: Key1 ON 10s > OFF > Key2 ON 10s > OFF > New Key ON 10s',
+                allKeysLost: 'Use Autel/Smart Pro AKL function. Read EEPROM from BCM for PK3/PK3+ vehicles.',
+                eepromData: 'BCM: HC9S12 / 68HC912 series'
             },
             'CHRYSLER': {
-                blank: 'Y160 / Y164',
-                chip: 'Hitag AES (4A)',
-                freq: '433 MHz',
-                series: '1X-8000X',
-                fccId: 'M3N-40821302',
-                keyType: 'Fobik / Smart Key',
-                emergencyKey: 'Y164',
+                blank: 'Y157 / Y159 / Y164 / Y166',
+                chip: 'Hitag AES (4A) / Hitag 128-bit',
+                freq: '433.92 MHz',
+                series: 'M001-2618',
+                fccId: 'M3N-40821302 / GQ4-76T',
+                keyType: 'Fobik / Prox Smart Key',
+                emergencyKey: 'Y164 / Y166',
                 cloning: 'Not Possible (AES)',
-                obd: 'Yes (wiTECH)',
-                immoSystem: 'Chrysler AES',
-                pinRequired: 'Yes - wiTECH',
+                obd: 'Yes (wiTECH / Autel)',
+                immoSystem: 'Chrysler AES / Secured Gateway',
+                pinRequired: 'PIN from wiTECH or SGW Bypass',
                 maxKeys: '8 Keys',
-                progTool: 'Autel / wiTECH / Smart Pro',
+                progTool: 'Autel IM608 Pro / wiTECH 2.0 / Smart Pro',
                 oemRemote: '68394195AA',
                 aftermarket: 'KEYDIY B35',
-                shell: 'CHY-FOBIK-5B'
+                shell: 'CHY-FOBIK-5B',
+                keyBlanks: [
+                    { type: 'DEALER', part: '68394195AA', desc: 'Prox Fob, 5 Btn w/Rmt Start', fcc: 'M3N40821302', freq: '433.92 MHz' },
+                    { type: 'DEALER', part: '68217974AB', desc: 'Prox Fob, 4 Btn', fcc: 'M3N40821302', freq: '433.92 MHz' },
+                    { type: 'ILCO', part: 'PRX-CHRY-5B5', desc: 'Prox Remote 5 Btn', fcc: 'M3N40821302', freq: '433 MHz' },
+                    { type: 'ILCO', part: 'PRX-CHRY-4B6', desc: 'Prox Remote 4 Btn', fcc: 'M3N40821302', freq: '433 MHz' }
+                ],
+                testKey: 'Y157 / Y159 / Y166 TEST KEY',
+                codeSeries: 'M001-2618',
+                decoderTools: ['Determinator', 'CHR2', 'Lishi CHY3'],
+                pinSource: 'wiTECH 2.0 / Autel IM608 Pro',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: '2018+: SGW bypass required. Older: Direct OBD OK.',
+                yearRange: '2004-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/chrysler-dodge',
+                sgwBypass: 'APB112 or equivalent required for 2018+',
+                allKeysLost: 'Read PIN from ORVR module EEPROM or use wiTECH with subscription'
             },
             'DODGE': {
-                blank: 'Y160 / Y164',
-                chip: 'Hitag AES (4A)',
-                freq: '433 MHz',
-                series: '1X-8000X',
-                fccId: 'GQ4-54T',
-                keyType: 'Fobik / Smart Key',
+                blank: 'Y157 / Y159 / Y164',
+                chip: 'Hitag AES (4A) / Hitag 128-bit',
+                freq: '433.92 MHz',
+                series: 'M001-2618',
+                fccId: 'M3N40821302 / GQ4-54T',
+                keyType: 'Fobik / Prox Smart Key',
                 emergencyKey: 'Y164',
-                cloning: 'Not Possible',
-                obd: 'Yes (wiTECH)',
-                immoSystem: 'Chrysler AES',
-                pinRequired: 'Yes - wiTECH',
+                cloning: 'Not Possible (AES)',
+                obd: 'Yes (wiTECH / Autel)',
+                immoSystem: 'Chrysler AES / Secured Gateway',
+                pinRequired: 'PIN from wiTECH or Security Gateway Bypass',
                 maxKeys: '8 Keys',
-                progTool: 'Autel / wiTECH',
+                progTool: 'Autel IM608 Pro / wiTECH 2.0 / Smart Pro',
                 oemRemote: '68066350AJ',
                 aftermarket: 'KEYDIY B35',
-                shell: 'DOD-FOBIK-4B'
+                shell: 'DOD-FOBIK-4B',
+                // Detailed Key Blanks (like screenshot)
+                keyBlanks: [
+                    { type: 'DEALER', part: '05026676AH', desc: 'Prox Fob, 5 Btn w/Rmt Start', fcc: 'M3N40821302', freq: '433.90 MHz' },
+                    { type: 'DEALER', part: '68051387AH', desc: 'Prox Fob, 4 Btn', fcc: 'M3N40821302', freq: '433.90 MHz' },
+                    { type: 'ILCO', part: 'PRX-CHRY-3B4', desc: 'Prox Remote', fcc: 'M3N40821302', freq: '433 MHz' },
+                    { type: 'ILCO', part: 'PRX-CHRY-4B6', desc: 'Prox Remote', fcc: 'M3N40821302', freq: '433 MHz' },
+                    { type: 'ILCO', part: 'PRX-CHRY-5B5', desc: 'Prox Remote', fcc: 'M3N40821302', freq: '433 MHz' }
+                ],
+                testKey: 'Y157 / Y159 TEST KEY',
+                codeSeries: 'M001-2618',
+                decoderTools: ['Determinator', 'CHR2', 'Lishi CHY3'],
+                pinSource: 'wiTECH 2.0 / Autel IM608 with SGW Bypass',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: '2018+: Requires Security Gateway (SGW) bypass adapter. Pre-2018: Direct OBD.',
+                yearRange: '2008-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/chrysler-dodge',
+                witechInfo: 'wiTECH 2.0 subscription required for dealer-level access',
+                sgwBypass: 'Autel APB112 or THINKDIAG SGW bypass required for 2018+',
+                allKeysLost: 'Use Autel IM608 Pro with SGW bypass. Read PIN from ORVR module or use wiTECH.',
+                eepromData: 'RFH Module: 9S12XEQ512 / ORVR: 93C86'
             },
             'FORD': {
                 blank: 'H75 / H92 / H94',
-                chip: 'Texas Crypto 4D-63 (80-bit)',
+                chip: 'Texas Crypto 4D-63 (80-bit) / 4D-83 (128-bit)',
                 freq: '315 MHz',
                 series: '1X-1706X',
                 fccId: 'M3N-A2C93142600',
@@ -677,10 +826,21 @@
                 immoSystem: 'Ford PATS',
                 pinRequired: 'PATS Code / Security',
                 maxKeys: '8 Keys',
-                progTool: 'Autel / Smart Pro / Xhorse',
+                progTool: 'Autel IM608 / Smart Pro / Xhorse VVDI',
                 oemRemote: '164-R8134',
                 aftermarket: 'ILCO FLIP-FORD-4B',
-                shell: 'FORD-SHELL-4B'
+                shell: 'FORD-SHELL-4B',
+                pinSource: 'Ford OASIS / Autel IMMO (Free for most)',
+                obdLocation: 'Under dash, driver side near hood release',
+                programmingNotes: '2-key learning available 1996-2018. 2019+ requires tool.',
+                yearRange: '1996-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/ford',
+                vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-ford-all-keys-lost/',
+                smartProGuide: 'https://www.adp.com/training/ford',
+                eepromData: 'PCM MC9S12 / IPC 93C86',
+                keyProgram: 'OBD: Ford > IMMO > PATS > Program Additional Key',
+                allKeysLost: 'Pull PATS code from PCM EEPROM or use Autel AKL function',
+                selfProgram: 'With 2 keys: Turn key1 ON-OFF, key2 ON-OFF, new key ON within 10 sec'
             },
             'GMC': {
                 blank: 'B111 / HU100',
@@ -713,10 +873,21 @@
                 immoSystem: 'Honda G-Chip System',
                 pinRequired: 'Yes - From Honda Dealer',
                 maxKeys: '8 Keys',
-                progTool: 'Autel / Smart Pro',
+                progTool: 'Autel IM608 / Smart Pro / VVDI',
                 oemRemote: '72147-TBA-A11',
                 aftermarket: 'ILCO HO-KIK',
-                shell: 'HON-SHELL-4B'
+                shell: 'HON-SHELL-4B',
+                // Enhanced Data
+                pinSource: 'Honda Dealer Portal / Autel IMMO (Paid)',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: 'All keys lost requires PIN. Add key mode: 2 working keys needed.',
+                yearRange: '2012-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/honda',
+                vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-add-key-for-honda/',
+                smartProGuide: 'https://www.adp.com/training/honda',
+                eepromData: 'PCM 93C56 / BCM SPC56',
+                keyProgram: 'OBD: Select Honda > IMMO > Add Smart Key > Enter PIN',
+                allKeysLost: 'Read EEPROM from BCM or use Autel G-Box for PIN calc'
             },
             'HYUNDAI': {
                 blank: 'HY15 / HYN14R',
@@ -773,22 +944,41 @@
                 shell: 'JAG-SHELL-5B'
             },
             'JEEP': {
-                blank: 'Y160 / Y164',
-                chip: 'Hitag AES (4A)',
-                freq: '433 MHz',
-                series: '1X-8000X',
-                fccId: 'GQ4-76T',
-                keyType: 'Fobik / Smart Key',
-                emergencyKey: 'Y164',
-                cloning: 'Not Possible',
-                obd: 'Yes (wiTECH)',
-                immoSystem: 'Chrysler AES',
-                pinRequired: 'Yes - wiTECH',
+                blank: 'Y157 / Y159 / Y164 / Y166',
+                chip: 'Hitag AES (4A) / Hitag 128-bit',
+                freq: '433.92 MHz',
+                series: 'M001-2618',
+                fccId: 'GQ4-76T / M3N-40821302',
+                keyType: 'Fobik / Prox Smart Key',
+                emergencyKey: 'Y164 / Y166',
+                cloning: 'Not Possible (AES)',
+                obd: 'Yes (wiTECH / Autel with SGW bypass)',
+                immoSystem: 'Chrysler AES / Secured Gateway Module',
+                pinRequired: 'PIN from wiTECH or SGW Bypass',
                 maxKeys: '8 Keys',
-                progTool: 'Autel / wiTECH',
+                progTool: 'Autel IM608 Pro / wiTECH 2.0 / Smart Pro',
                 oemRemote: '68394198AA',
                 aftermarket: 'KEYDIY B18',
-                shell: 'JEEP-FOBIK-4B'
+                shell: 'JEEP-FOBIK-4B',
+                keyBlanks: [
+                    { type: 'DEALER', part: '68394198AA', desc: 'Prox Fob 5 Btn w/Rmt Start', fcc: 'M3N40821302', freq: '433.92 MHz' },
+                    { type: 'DEALER', part: '68416784AA', desc: 'Fobik 5 Btn', fcc: 'GQ4-76T', freq: '433.92 MHz' },
+                    { type: 'DEALER', part: '68105083AG', desc: 'Fobik 4 Btn', fcc: 'GQ4-54T', freq: '433 MHz' },
+                    { type: 'ILCO', part: 'PRX-CHRY-5B5', desc: 'Prox 5 Btn', fcc: 'M3N40821302', freq: '433 MHz' },
+                    { type: 'KEYDIY', part: 'B18', desc: 'Fobik Style', fcc: 'N/A', freq: '433 MHz' }
+                ],
+                testKey: 'Y157 / Y159 / Y164 TEST KEY',
+                codeSeries: 'M001-2618',
+                decoderTools: ['Determinator', 'CHR2', 'Lishi CHY3'],
+                pinSource: 'wiTECH 2.0 / Autel IM608 Pro with SGW bypass',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: '2018+ Jeeps require Security Gateway (SGW) bypass adapter (APB112). Pre-2018: Direct OBD.',
+                yearRange: '2005-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/chrysler-dodge',
+                witechInfo: 'wiTECH 2.0 subscription required for dealer-level programming',
+                sgwBypass: 'Autel APB112 Smart Key Emulator required for 2018+ vehicles',
+                allKeysLost: 'Use Autel IM608 Pro with APB112 SGW bypass. Read PIN from ORVR module EEPROM.',
+                eepromData: 'RFH Module: 9S12XEQ512 / ORVR: 93C86'
             },
             'KIA': {
                 blank: 'KIA7 / HYN14R',
@@ -935,22 +1125,41 @@
                 shell: 'MIT-SHELL-3B'
             },
             'NISSAN': {
-                blank: 'DA34 / NSN14',
-                chip: 'Philips 46 (Encrypted)',
-                freq: '315 MHz',
-                series: '1-22185',
-                fccId: 'KR55WK48903',
-                keyType: 'I-Key Smart Key',
+                blank: 'DA34 / NSN14 / NSN19',
+                chip: 'Philips 46 (Encrypted) / Hitag AES',
+                freq: '315 MHz / 433 MHz',
+                series: '1-22185 / A0001-A5000',
+                fccId: 'KR55WK48903 / CWTWB1U840',
+                keyType: 'I-Key Smart Key / Push Button Start',
                 emergencyKey: 'NSN14',
-                cloning: 'Not Possible',
-                obd: 'Limited (Pre-2018)',
+                cloning: 'Not Possible (NATS 5/6)',
+                obd: 'Limited - BCM learning most models',
                 immoSystem: 'Nissan NATS 5/6',
-                pinRequired: 'BCM Data / NERS',
+                pinRequired: 'BCM Data Required / NERS for AKL',
                 maxKeys: '6 Keys',
-                progTool: 'Autel / Smart Pro / NERS',
+                progTool: 'Autel IM608 / Smart Pro / NERS (Dealer)',
                 oemRemote: '285E3-3AA0B',
                 aftermarket: 'KEYDIY B36-4',
-                shell: 'NIS-SHELL-4B'
+                shell: 'NIS-SHELL-4B',
+                keyBlanks: [
+                    { type: 'DEALER', part: '285E3-3AA0B', desc: 'I-Key 4 Btn', fcc: 'KR55WK48903', freq: '315 MHz' },
+                    { type: 'DEALER', part: '285E3-9NF5A', desc: 'I-Key 5 Btn w/Rmt Start', fcc: 'CWTWB1U840', freq: '315 MHz' },
+                    { type: 'DEALER', part: '285E3-5AA3D', desc: 'I-Key 3 Btn', fcc: 'CWTWB1G767', freq: '315 MHz' },
+                    { type: 'ILCO', part: 'PRX-NIS-4B1', desc: 'Prox 4 Btn', fcc: 'KR55WK48903', freq: '315 MHz' },
+                    { type: 'KEYDIY', part: 'B36-4', desc: 'Universal Prox', fcc: 'N/A', freq: '315 MHz' }
+                ],
+                testKey: 'NSN14 / DA34 TEST KEY',
+                codeSeries: '1-22185',
+                decoderTools: ['Lishi NSN14', 'Lishi DAT17', 'Determinator'],
+                pinSource: 'NERS (Dealer) / Autel BCM Read / Smart Pro EEPROM',
+                obdLocation: 'Under dash, left side near fuse box',
+                programmingNotes: '2008-2017: BCM programming via OBD. 2018+: May require BCM EEPROM backup.',
+                yearRange: '2003-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/nissan',
+                vvdiGuide: 'https://blog.uobdii.com/vvdi-key-tool-plus-nissan-all-keys-lost/',
+                nersInfo: 'NERS (Nissan Electronic Registration System) required for some AKL procedures',
+                allKeysLost: 'Read BCM EEPROM data via Autel IM608. Use NERS for dealer-level access on newer vehicles.',
+                eepromData: 'BCM: R5F61524 / R5F61526'
             },
             'PORSCHE': {
                 blank: 'HU66 / PO01',
@@ -1025,22 +1234,33 @@
                 shell: 'N/A'
             },
             'TOYOTA': {
-                blank: 'TR47 / TOY43',
-                chip: 'Texas Crypto 4D-67 / DST-AES',
-                freq: '315 MHz',
+                blank: 'TR47 / TOY43 / TOY48',
+                chip: 'Texas Crypto 4D-67 / DST-AES / 8A (H chip)',
+                freq: '315 MHz / 433 MHz (EU)',
                 series: '50000-69999',
-                fccId: 'HYQ12BDP',
-                keyType: 'Proximity Smart Key',
-                emergencyKey: 'TOY43',
-                cloning: 'Possible (4D)',
-                obd: 'Yes (Pre-2020)',
-                immoSystem: 'Toyota Smart Key',
-                pinRequired: 'Seed Key (8A)',
+                fccId: 'HYQ12BDP / HYQ14FBA',
+                keyType: 'Proximity Smart Key / G-Key / H-Key',
+                emergencyKey: 'TOY43 / TOY48',
+                cloning: '4D/G: Possible | H/8A: Not Possible',
+                obd: '4D/G: Yes | H/8A: 2020+ needs Seed calculation',
+                immoSystem: 'Toyota Smart Key (G/H Chip)',
+                pinRequired: '8A requires Seed Key calculation',
                 maxKeys: '8 Keys',
-                progTool: 'Autel / Smart Pro / TANGO',
+                progTool: 'Autel IM608 / Smart Pro / TANGO / Xhorse',
                 oemRemote: '89904-06140',
                 aftermarket: 'KEYDIY B13-3',
-                shell: 'TOY-SHELL-4B'
+                shell: 'TOY-SHELL-4B',
+                pinSource: 'G-Chip: OBD direct | H-Chip: Autel or TANGO for seed calc',
+                obdLocation: 'Under dash, left of steering column',
+                programmingNotes: 'G-Key (2010-2019): OBD OK. H-Key (2020+): Seed calculation required',
+                yearRange: '2004-2024',
+                autelGuide: 'https://www.autel.com/support/vehicles/toyota',
+                tangoGuide: 'https://www.scorpio-lk.com/tango/toyota/',
+                xhorseGuide: 'https://www.xhorsevvdi.com/blog/toyota-8a-all-keys-lost/',
+                eepromData: 'Smart ECU 93C66 / Combination Meter 93C86',
+                keyProgram: 'Toyota > IMMO > Smart Key > Add Key (need master or AKL procedure)',
+                allKeysLost: '4D: Clone from ECU EEPROM | 8A: Use Autel/TANGO seed calculator',
+                chipGuide: '4D67: 2004-2009 | G: 2010-2019 | H/8A: 2020+'
             },
             'VOLKSWAGEN': {
                 blank: 'HU66 / HU162T',
@@ -1304,7 +1524,7 @@
             // Get Locksmith Data
             let lockData = LOCKSMITH_DB['DEFAULT'];
             const makeUpper = data.make.toUpperCase().replace('-', ' ').replace('BENZ', '');
-            
+
             for (const key in LOCKSMITH_DB) {
                 if (makeUpper.includes(key) || key.includes(makeUpper.split(' ')[0])) {
                     lockData = LOCKSMITH_DB[key];
@@ -1338,6 +1558,114 @@
             document.getElementById('oemRemote').textContent = lockData.oemRemote;
             document.getElementById('aftermarketRemote').textContent = lockData.aftermarket;
             document.getElementById('shellPart').textContent = lockData.shell;
+
+            // === NEW: Key Blanks Table ===
+            const keyBlanksContainer = document.getElementById('keyBlanksContainer');
+            keyBlanksContainer.innerHTML = '';
+            
+            if (lockData.keyBlanks && lockData.keyBlanks.length > 0) {
+                lockData.keyBlanks.forEach(kb => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-navy-950/60 p-4 rounded-xl border border-brand-500/20';
+                    row.innerHTML = `
+                        <div class="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                                <span class="text-brand-400 font-bold text-sm">${kb.type} #</span>
+                                <span class="text-white font-mono font-semibold ml-2">${kb.part}</span>
+                                <span class="text-slate-400 text-sm ml-2">(${kb.desc})</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500">FCC: ${kb.fcc} - ${kb.freq}</div>
+                            </div>
+                        </div>
+                    `;
+                    keyBlanksContainer.appendChild(row);
+                });
+            } else {
+                // Generate default key blanks from basic data
+                const defaultBlanks = [
+                    { type: 'OEM', part: lockData.oemRemote, desc: lockData.keyType, fcc: lockData.fccId, freq: lockData.freq },
+                    { type: 'ILCO', part: lockData.aftermarket, desc: 'Aftermarket Remote', fcc: lockData.fccId, freq: lockData.freq }
+                ];
+                defaultBlanks.forEach(kb => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-navy-950/60 p-4 rounded-xl border border-brand-500/20';
+                    row.innerHTML = `
+                        <div class="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                                <span class="text-brand-400 font-bold text-sm">${kb.type} #</span>
+                                <span class="text-white font-mono font-semibold ml-2">${kb.part}</span>
+                                <span class="text-slate-400 text-sm ml-2">(${kb.desc})</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500">FCC: ${kb.fcc} - ${kb.freq}</div>
+                            </div>
+                        </div>
+                    `;
+                    keyBlanksContainer.appendChild(row);
+                });
+            }
+
+            // Code Series & Test Key
+            document.getElementById('codeSeriesValue').textContent = lockData.codeSeries || lockData.series;
+            document.getElementById('testKeyValue').textContent = lockData.testKey || lockData.emergencyKey + ' TEST KEY';
+
+            // === NEW: Decoder Tools ===
+            const decoderContainer = document.getElementById('decoderToolsContainer');
+            decoderContainer.innerHTML = '';
+            const decoders = lockData.decoderTools || ['Lishi', 'Determinator', 'InstaCode'];
+            decoders.forEach(tool => {
+                const badge = document.createElement('span');
+                badge.className = 'px-3 py-1.5 bg-blue-500/20 text-blue-300 rounded-lg text-sm font-medium';
+                badge.textContent = tool;
+                decoderContainer.appendChild(badge);
+            });
+
+            // === NEW: Programming Guides ===
+            const guidesContainer = document.getElementById('programmingGuidesContainer');
+            guidesContainer.innerHTML = '';
+            
+            const guides = [];
+            if (lockData.autelGuide) guides.push({ name: 'Autel Programming Guide', url: lockData.autelGuide, color: 'orange' });
+            if (lockData.vvdiGuide) guides.push({ name: 'VVDI / Xhorse Guide', url: lockData.vvdiGuide, color: 'green' });
+            if (lockData.smartProGuide) guides.push({ name: 'Smart Pro Guide', url: lockData.smartProGuide, color: 'blue' });
+            if (lockData.cgdiGuide) guides.push({ name: 'CGDI Guide', url: lockData.cgdiGuide, color: 'purple' });
+            if (lockData.tangoGuide) guides.push({ name: 'TANGO Guide', url: lockData.tangoGuide, color: 'red' });
+            if (lockData.xhorseGuide) guides.push({ name: 'Xhorse Guide', url: lockData.xhorseGuide, color: 'cyan' });
+            if (lockData.yanuhaGuide) guides.push({ name: 'Yanhua ACDP Guide', url: lockData.yanuhaGuide, color: 'pink' });
+            if (lockData.witechInfo) guides.push({ name: 'wiTECH Info', url: '#', color: 'yellow', note: lockData.witechInfo });
+            
+            if (guides.length === 0) {
+                guides.push({ name: 'Autel Support', url: 'https://www.autel.com/support', color: 'orange' });
+                guides.push({ name: 'VVDI Support', url: 'https://www.xhorsevvdi.com/', color: 'green' });
+            }
+
+            guides.forEach(guide => {
+                const link = document.createElement('a');
+                link.href = guide.url;
+                link.target = '_blank';
+                link.className = `flex items-center justify-between p-4 bg-${guide.color}-500/10 border border-${guide.color}-500/30 rounded-xl hover:bg-${guide.color}-500/20 transition-colors`;
+                link.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-${guide.color}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        <span class="text-white font-medium">${guide.name}</span>
+                    </div>
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                `;
+                guidesContainer.appendChild(link);
+            });
+
+            // Programming Notes
+            document.getElementById('programmingNotesText').textContent = lockData.programmingNotes || 
+                `OBD Location: ${lockData.obdLocation || 'Under dash, driver side'}. PIN Source: ${lockData.pinSource || lockData.pinRequired}`;
+            
+            // All Keys Lost
+            document.getElementById('allKeysLostText').textContent = lockData.allKeysLost || 
+                `Use ${lockData.progTool} for all keys lost programming. May require EEPROM read: ${lockData.eepromData || 'Consult tool manual'}`;
 
             hideLoading();
             document.getElementById('resultsArea').classList.remove('hidden');
