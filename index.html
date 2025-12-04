@@ -417,14 +417,14 @@
                             Key & Transponder Data
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all">
-                                <div class="text-xs text-brand-400 uppercase tracking-wider mb-1 font-semibold">Key Blank</div>
-                                <div class="text-2xl font-mono font-bold text-white" id="keyBlank">HO03</div>
+                            <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all hover:border-brand-400 cursor-pointer" onclick="reverseSearchBlank(document.getElementById('keyBlank').textContent)" title="Click to find all vehicles using this key blank">
+                                <div class="text-xs text-brand-400 uppercase tracking-wider mb-1 font-semibold">Key Blank <span class="text-blue-400 text-[10px]">🔍 Click to search</span></div>
+                                <div class="text-2xl font-mono font-bold text-white hover:text-brand-400 transition-colors" id="keyBlank">HO03</div>
                                 <div class="text-xs text-slate-400 mt-2" id="keyBlankDesc">High Security Laser Cut</div>
                             </div>
-                            <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all">
-                                <div class="text-xs text-brand-400 uppercase tracking-wider mb-1 font-semibold">Transponder Chip</div>
-                                <div class="text-2xl font-mono font-bold text-white" id="chipType">Philips 46</div>
+                            <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all hover:border-brand-400 cursor-pointer" onclick="reverseSearchChip(document.getElementById('chipType').textContent)" title="Click to find all vehicles using this chip">
+                                <div class="text-xs text-brand-400 uppercase tracking-wider mb-1 font-semibold">Transponder Chip <span class="text-blue-400 text-[10px]">🔍 Click to search</span></div>
+                                <div class="text-2xl font-mono font-bold text-white hover:text-brand-400 transition-colors" id="chipType">Philips 46</div>
                                 <div class="text-xs text-slate-400 mt-2" id="chipDesc">Crypto Encrypted</div>
                             </div>
                             <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all">
@@ -435,7 +435,7 @@
                             <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all">
                                 <div class="text-xs text-brand-400 uppercase tracking-wider mb-1 font-semibold">Remote Frequency</div>
                                 <div class="text-2xl font-mono font-bold text-white" id="remoteFreq">315 MHz</div>
-                                <div class="text-xs text-slate-400 mt-2" id="fccId">FCC ID: KR55WK49303</div>
+                                <button id="fccId" onclick="reverseSearchFcc(this)" class="text-xs text-blue-400 mt-2 hover:text-blue-300 hover:underline cursor-pointer transition-colors" title="Click to find all vehicles with this FCC ID">FCC ID: KR55WK49303</button>
                             </div>
                         </div>
 
@@ -822,6 +822,35 @@
         </div>
 
     </main>
+
+    <!-- Reverse Search Modal -->
+    <div id="reverseSearchModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeReverseModal()"></div>
+        <div class="absolute inset-4 md:inset-10 lg:inset-20 bg-navy-900 rounded-3xl border-2 border-brand-400 overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-brand-500/30 flex items-center justify-between">
+                <div>
+                    <h2 id="reverseModalTitle" class="text-2xl font-bold text-white">🔍 Reverse Search</h2>
+                    <p id="reverseModalSubtitle" class="text-slate-400 text-sm mt-1">Finding all vehicles...</p>
+                </div>
+                <button onclick="closeReverseModal()" class="p-2 hover:bg-brand-500/20 rounded-xl transition-colors">
+                    <svg class="w-6 h-6 text-slate-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div id="reverseSearchResults" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Results populated by JavaScript -->
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-brand-500/30 bg-navy-950/50">
+                <p class="text-xs text-slate-500 text-center">Click on a vehicle to see full specifications</p>
+            </div>
+        </div>
+    </div>
 
     <footer class="border-t border-brand-500/20 bg-navy-900/80 mt-12">
         <div class="max-w-7xl mx-auto py-8 px-4 text-center">
@@ -3657,9 +3686,12 @@
             if (lockData.keyBlanks && lockData.keyBlanks.length > 0) {
                 lockData.keyBlanks.forEach(kb => {
                     const row = document.createElement('div');
-                    row.className = 'bg-navy-950/60 p-4 rounded-xl border border-brand-500/20';
+                    row.className = 'bg-navy-950/60 p-4 rounded-xl border border-brand-500/20 hover:border-brand-500/40 transition-colors';
                     const batteryInfo = kb.battery ? `<span class="text-green-400 text-xs ml-2">🔋 ${kb.battery}</span>` : '';
                     const costInfo = kb.cost ? `<span class="text-amber-400 text-xs ml-2">💰 ${kb.cost}</span>` : '';
+                    const fccClickable = kb.fcc && kb.fcc !== 'N/A' 
+                        ? `<button onclick="reverseSearch('fcc', '${kb.fcc}')" class="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer" title="Find all vehicles with FCC ${kb.fcc}">FCC: ${kb.fcc}</button>`
+                        : `<span>FCC: ${kb.fcc}</span>`;
                     row.innerHTML = `
                         <div class="flex flex-wrap items-start justify-between gap-2">
                             <div>
@@ -3669,7 +3701,7 @@
                                 ${batteryInfo}${costInfo}
                             </div>
                             <div class="text-right">
-                                <div class="text-xs text-slate-500">FCC: ${kb.fcc} - ${kb.freq}</div>
+                                <div class="text-xs text-slate-500">${fccClickable} - ${kb.freq}</div>
                             </div>
                         </div>
                     `;
@@ -3704,14 +3736,16 @@
             document.getElementById('codeSeriesValue').textContent = lockData.codeSeries || lockData.series;
             document.getElementById('testKeyValue').textContent = lockData.testKey || lockData.emergencyKey + ' TEST KEY';
 
-            // === NEW: Decoder Tools ===
+            // === NEW: Decoder Tools (Clickable for reverse search) ===
             const decoderContainer = document.getElementById('decoderToolsContainer');
             decoderContainer.innerHTML = '';
             const decoders = lockData.decoderTools || ['Lishi', 'Determinator', 'InstaCode'];
             decoders.forEach(tool => {
-                const badge = document.createElement('span');
-                badge.className = 'px-3 py-1.5 bg-blue-500/20 text-blue-300 rounded-lg text-sm font-medium';
+                const badge = document.createElement('button');
+                badge.className = 'px-3 py-1.5 bg-blue-500/20 text-blue-300 rounded-lg text-sm font-medium hover:bg-blue-500/40 hover:text-blue-200 transition-all cursor-pointer border border-blue-500/30 hover:border-blue-400';
                 badge.textContent = tool;
+                badge.title = `Click to find all vehicles using ${tool}`;
+                badge.onclick = () => reverseSearch('tool', tool);
                 decoderContainer.appendChild(badge);
             });
 
@@ -4316,6 +4350,198 @@
             event.target.className = 'tool-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950';
             
             renderTools();
+        }
+
+        // ============================================================================
+        // REVERSE SEARCH FUNCTIONALITY
+        // Search for all vehicles that use a specific FCC ID, tool, key blank, etc.
+        // ============================================================================
+        
+        function reverseSearch(type, value) {
+            const modal = document.getElementById('reverseSearchModal');
+            const title = document.getElementById('reverseModalTitle');
+            const subtitle = document.getElementById('reverseModalSubtitle');
+            const resultsContainer = document.getElementById('reverseSearchResults');
+            
+            // Set title based on search type
+            const typeLabels = {
+                'fcc': '📡 FCC ID',
+                'tool': '🔧 Decoder Tool',
+                'keyblank': '🔑 Key Blank',
+                'chip': '💾 Transponder Chip',
+                'freq': '📻 Frequency'
+            };
+            
+            title.textContent = `${typeLabels[type] || '🔍'} ${value}`;
+            subtitle.textContent = 'Finding all compatible vehicles...';
+            
+            // Search LOCKSMITH_DB for matches
+            const matches = [];
+            
+            for (const [make, data] of Object.entries(LOCKSMITH_DB)) {
+                if (make === 'DEFAULT') continue;
+                
+                let matched = false;
+                let matchReason = '';
+                
+                switch(type) {
+                    case 'fcc':
+                        // Check main FCC ID
+                        if (data.fccId && data.fccId.toUpperCase().includes(value.toUpperCase())) {
+                            matched = true;
+                            matchReason = `FCC: ${data.fccId}`;
+                        }
+                        // Check key blanks FCC IDs
+                        if (data.keyBlanks) {
+                            data.keyBlanks.forEach(kb => {
+                                if (kb.fcc && kb.fcc.toUpperCase().includes(value.toUpperCase())) {
+                                    matched = true;
+                                    matchReason = `FCC: ${kb.fcc} (${kb.desc})`;
+                                }
+                            });
+                        }
+                        break;
+                        
+                    case 'tool':
+                        if (data.decoderTools && data.decoderTools.some(t => t.toLowerCase().includes(value.toLowerCase()))) {
+                            matched = true;
+                            matchReason = `Tools: ${data.decoderTools.join(', ')}`;
+                        }
+                        break;
+                        
+                    case 'keyblank':
+                        if (data.blank && data.blank.toUpperCase().includes(value.toUpperCase())) {
+                            matched = true;
+                            matchReason = `Blanks: ${data.blank}`;
+                        }
+                        if (data.keyBlanks) {
+                            data.keyBlanks.forEach(kb => {
+                                if (kb.part && kb.part.toUpperCase().includes(value.toUpperCase())) {
+                                    matched = true;
+                                    matchReason = `Part: ${kb.part} (${kb.desc})`;
+                                }
+                            });
+                        }
+                        break;
+                        
+                    case 'chip':
+                        if (data.chip && data.chip.toLowerCase().includes(value.toLowerCase())) {
+                            matched = true;
+                            matchReason = `Chip: ${data.chip}`;
+                        }
+                        break;
+                        
+                    case 'freq':
+                        if (data.freq && data.freq.includes(value)) {
+                            matched = true;
+                            matchReason = `Frequency: ${data.freq}`;
+                        }
+                        break;
+                }
+                
+                if (matched) {
+                    matches.push({
+                        make: make,
+                        data: data,
+                        reason: matchReason
+                    });
+                }
+            }
+            
+            // Update subtitle with count
+            subtitle.textContent = `Found ${matches.length} compatible vehicle${matches.length !== 1 ? 's' : ''}`;
+            
+            // Render results
+            resultsContainer.innerHTML = '';
+            
+            if (matches.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-4xl mb-4">🔍</div>
+                        <p class="text-slate-400">No vehicles found matching "${value}"</p>
+                        <p class="text-slate-500 text-sm mt-2">Try a different search term</p>
+                    </div>
+                `;
+            } else {
+                matches.forEach(match => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-navy-950/60 rounded-xl p-4 border border-brand-500/20 hover:border-brand-400 transition-all cursor-pointer';
+                    card.onclick = () => {
+                        closeReverseModal();
+                        // Simulate a search for this make
+                        document.getElementById('yearSelect').value = '2020';
+                        document.getElementById('makeSelect').value = match.make;
+                        document.getElementById('makeSelect').disabled = false;
+                        switchTab('browse');
+                        displayProductsForMake(match.make);
+                    };
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="text-white font-bold text-lg">${match.make}</h3>
+                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 text-xs rounded-full">${match.data.keyType || 'Standard'}</span>
+                        </div>
+                        <div class="space-y-1 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500">Match:</span>
+                                <span class="text-green-400 font-mono text-xs">${match.reason}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500">Blanks:</span>
+                                <span class="text-slate-300">${match.data.blank || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500">Chip:</span>
+                                <span class="text-slate-300">${match.data.chip || 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500">Freq:</span>
+                                <span class="text-brand-400">${match.data.freq || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-brand-500/20">
+                            <span class="text-xs text-slate-500">Click to view full specs →</span>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(card);
+                });
+            }
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeReverseModal() {
+            document.getElementById('reverseSearchModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeReverseModal();
+        });
+        
+        // Helper function for FCC ID reverse search from button
+        function reverseSearchFcc(element) {
+            const fccText = element.textContent || element.innerText;
+            const fccId = fccText.replace('FCC ID:', '').replace('FCC:', '').trim();
+            if (fccId && fccId !== 'N/A') {
+                reverseSearch('fcc', fccId);
+            }
+        }
+        
+        // Helper function for key blank reverse search
+        function reverseSearchBlank(blank) {
+            if (blank && blank !== 'N/A') {
+                reverseSearch('keyblank', blank);
+            }
+        }
+        
+        // Helper function for chip reverse search
+        function reverseSearchChip(chip) {
+            if (chip && chip !== 'N/A' && chip !== 'Unknown') {
+                reverseSearch('chip', chip);
+            }
         }
     </script>
 </body>
