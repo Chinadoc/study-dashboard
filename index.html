@@ -172,6 +172,8 @@
                     Lookup</button>
                 <button onclick="switchTab('tutorials')" id="tab-tutorials"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬 Tutorials</button>
+                <button onclick="switchTab('database')" id="tab-database"
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊 FCC Database</button>
             </div>
         </div>
 
@@ -341,6 +343,51 @@
         <div id="loadingState" class="hidden py-12 text-center">
             <div class="inline-block animate-spin rounded-full h-14 w-14 border-t-3 border-b-3 border-brand-400 mb-4"></div>
             <p class="text-brand-400 animate-pulse font-medium text-lg">Accessing Database...</p>
+        </div>
+
+        <!-- FCC Database Section (CSV-style) -->
+        <div id="database-section" class="hidden mb-12 animate-fade-in">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
+                📊 <span class="gold-text">FCC ID</span> Cross-Reference Database
+            </h1>
+            <p class="text-slate-400 text-center mb-4">Complete database of FCC IDs, frequencies, chips, and compatible vehicles. Click any row to expand.</p>
+            
+            <!-- Export Buttons -->
+            <div class="flex justify-center gap-4 mb-6">
+                <button onclick="exportDatabaseCSV()" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Export CSV
+                </button>
+                <button onclick="copyDatabaseTable()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    Copy Table
+                </button>
+            </div>
+
+            <!-- Search Box -->
+            <div class="max-w-2xl mx-auto mb-6">
+                <input type="text" id="databaseSearch" placeholder="Search FCC ID, make, model, chip type..."
+                    class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
+                    oninput="filterDatabaseTable()">
+            </div>
+
+            <div class="glass-panel rounded-3xl p-4 md:p-6 max-w-7xl mx-auto shadow-2xl overflow-x-auto">
+                <table id="fccDatabaseTable" class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-brand-400 border-b border-brand-500/30">
+                            <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(0)">FCC ID ↕</th>
+                            <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(1)">Frequency ↕</th>
+                            <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(2)">Chip Type ↕</th>
+                            <th class="p-3 cursor-pointer hover:text-brand-300" onclick="sortDatabaseTable(3)">Vehicles ↕</th>
+                            <th class="p-3">Part Numbers</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fccDatabaseBody" class="text-slate-300">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+                <div id="databaseStats" class="mt-4 text-center text-slate-500 text-sm"></div>
+            </div>
         </div>
 
         <!-- Tutorials Section -->
@@ -1113,6 +1160,163 @@
                     { make: 'Infiniti', model: 'QX60', years: '2014-2020' }
                 ],
                 partNumbers: ['285E3-9HP4B', '285E3-3JA0A']
+            },
+            'KR55WK49303': {
+                frequency: '313.8 MHz',
+                modulation: 'FSK',
+                chip: 'Philips 46 (Hitag 2) / Hitag 3',
+                vehicles: [
+                    { make: 'Honda', model: 'Accord', years: '2013-2017' },
+                    { make: 'Honda', model: 'Civic', years: '2014-2017' },
+                    { make: 'Honda', model: 'CR-V', years: '2014-2017' },
+                    { make: 'Honda', model: 'Fit', years: '2015-2018' },
+                    { make: 'Honda', model: 'HR-V', years: '2016-2018' },
+                    { make: 'Honda', model: 'Pilot', years: '2016-2018' },
+                    { make: 'Acura', model: 'ILX', years: '2014-2018' },
+                    { make: 'Acura', model: 'TLX', years: '2015-2018' },
+                    { make: 'Acura', model: 'RDX', years: '2014-2018' },
+                    { make: 'Acura', model: 'MDX', years: '2014-2018' }
+                ],
+                partNumbers: ['72147-T2A-A01', '72147-T2A-A11', '72147-T3L-A01', '72147-TZ3-A01']
+            },
+            'ACJ932HK1210A': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas 4D-67 / G-Chip',
+                vehicles: [
+                    { make: 'Honda', model: 'Accord', years: '2008-2012' },
+                    { make: 'Honda', model: 'Civic', years: '2006-2013' },
+                    { make: 'Honda', model: 'CR-V', years: '2007-2013' },
+                    { make: 'Honda', model: 'Fit', years: '2009-2014' },
+                    { make: 'Honda', model: 'Odyssey', years: '2011-2017' }
+                ],
+                partNumbers: ['35118-TA0-A00', '35118-SDA-A01']
+            },
+            'MLBHLIK6-1T': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'ID46 (Philips Crypto 2)',
+                vehicles: [
+                    { make: 'Honda', model: 'Accord', years: '2013-2015' },
+                    { make: 'Honda', model: 'Civic', years: '2014-2015' },
+                    { make: 'Honda', model: 'CR-V', years: '2013-2016' }
+                ],
+                partNumbers: ['35118-T2A-A20', '35118-T0A-A20']
+            },
+            'CWTWBU729': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas 4D-60 / 4D-63',
+                vehicles: [
+                    { make: 'Nissan', model: 'Altima', years: '2007-2012' },
+                    { make: 'Nissan', model: 'Maxima', years: '2007-2014' },
+                    { make: 'Nissan', model: 'Sentra', years: '2007-2012' },
+                    { make: 'Nissan', model: 'Versa', years: '2007-2012' },
+                    { make: 'Infiniti', model: 'G35', years: '2007-2008' },
+                    { make: 'Infiniti', model: 'G37', years: '2008-2013' }
+                ],
+                partNumbers: ['285E3-JA02A', '285E3-JA05A']
+            },
+            'KR55WK48903': {
+                frequency: '433 MHz',
+                modulation: 'FSK',
+                chip: 'ID46E (Hitag 2)',
+                vehicles: [
+                    { make: 'Nissan', model: 'Altima', years: '2013-2015' },
+                    { make: 'Nissan', model: 'Rogue', years: '2014-2017' },
+                    { make: 'Nissan', model: 'Sentra', years: '2013-2017' },
+                    { make: 'Nissan', model: 'Pathfinder', years: '2013-2016' }
+                ],
+                partNumbers: ['285E3-3TP0A', '285E3-9HP5A']
+            },
+            'GQ4-53T': {
+                frequency: '433 MHz',
+                modulation: 'FSK',
+                chip: 'ID46E (Hitag 2)',
+                vehicles: [
+                    { make: 'Jeep', model: 'Wrangler JK', years: '2018-2018' },
+                    { make: 'Jeep', model: 'Cherokee', years: '2014-2018' },
+                    { make: 'Jeep', model: 'Grand Cherokee', years: '2014-2018' },
+                    { make: 'Dodge', model: 'Durango', years: '2014-2018' }
+                ],
+                partNumbers: ['68159657AB', '68159657AC']
+            },
+            'OHT692427AA': {
+                frequency: '315 MHz',
+                modulation: 'FSK',
+                chip: 'ID46 (Philips Crypto 2)',
+                vehicles: [
+                    { make: 'Jeep', model: 'Wrangler JL', years: '2018-2024' },
+                    { make: 'Jeep', model: 'Gladiator', years: '2020-2024' }
+                ],
+                partNumbers: ['68416782AA', '68416782AB']
+            },
+            'HYQ14AAB': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas 4D-67 (Dot)',
+                vehicles: [
+                    { make: 'Toyota', model: 'Camry', years: '2007-2011' },
+                    { make: 'Toyota', model: 'Corolla', years: '2009-2013' },
+                    { make: 'Toyota', model: 'Matrix', years: '2009-2013' },
+                    { make: 'Toyota', model: 'Venza', years: '2009-2015' },
+                    { make: 'Toyota', model: 'Avalon', years: '2007-2012' },
+                    { make: 'Lexus', model: 'ES350', years: '2007-2012' }
+                ],
+                partNumbers: ['89904-06041', '89904-33181']
+            },
+            'HYQ14ACX': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas G-Chip (80-bit)',
+                vehicles: [
+                    { make: 'Toyota', model: 'Highlander', years: '2011-2013' },
+                    { make: 'Toyota', model: 'RAV4', years: '2010-2015' },
+                    { make: 'Toyota', model: '4Runner', years: '2010-2019' },
+                    { make: 'Toyota', model: 'Sequoia', years: '2010-2019' }
+                ],
+                partNumbers: ['89904-35010', '89904-48100']
+            },
+            'HYQIHBUT': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Texas H-Chip (128-bit AES)',
+                vehicles: [
+                    { make: 'Toyota', model: 'Camry', years: '2018-2024' },
+                    { make: 'Toyota', model: 'Corolla', years: '2019-2024' },
+                    { make: 'Toyota', model: 'RAV4', years: '2019-2024' },
+                    { make: 'Toyota', model: 'Highlander', years: '2020-2024' },
+                    { make: 'Lexus', model: 'ES', years: '2019-2024' },
+                    { make: 'Lexus', model: 'RX', years: '2020-2024' }
+                ],
+                partNumbers: ['89904-06220', '89904-0E092']
+            },
+            'TQ8-BSK2C2K': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'Philips 46 / ID47',
+                vehicles: [
+                    { make: 'Kia', model: 'Optima', years: '2014-2020' },
+                    { make: 'Kia', model: 'Sorento', years: '2015-2020' },
+                    { make: 'Kia', model: 'Sportage', years: '2017-2021' },
+                    { make: 'Hyundai', model: 'Sonata', years: '2015-2019' },
+                    { make: 'Hyundai', model: 'Santa Fe', years: '2013-2018' },
+                    { make: 'Hyundai', model: 'Tucson', years: '2016-2021' }
+                ],
+                partNumbers: ['95440-C1001', '95440-2T100']
+            },
+            'SY5HMFNA04': {
+                frequency: '315 MHz',
+                modulation: 'ASK',
+                chip: 'ID46 (Philips Crypto 2)',
+                vehicles: [
+                    { make: 'Hyundai', model: 'Elantra', years: '2011-2016' },
+                    { make: 'Hyundai', model: 'Sonata', years: '2011-2014' },
+                    { make: 'Hyundai', model: 'Veloster', years: '2012-2017' },
+                    { make: 'Kia', model: 'Optima', years: '2011-2013' },
+                    { make: 'Kia', model: 'Forte', years: '2011-2016' }
+                ],
+                partNumbers: ['95440-3Q000', '95440-3R500']
             }
         };
 
@@ -3833,17 +4037,19 @@
             document.getElementById('tab-browse').className = tab === 'browse' ? activeClass : inactiveClass;
             document.getElementById('tab-tools').className = tab === 'tools' ? activeClass : inactiveClass;
             document.getElementById('tab-tutorials').className = tab === 'tutorials' ? activeClass : inactiveClass;
+            document.getElementById('tab-database').className = tab === 'database' ? activeClass : inactiveClass;
 
             // Hide all sections first
             document.getElementById('vin-section').classList.add('hidden');
             document.getElementById('browse-section').classList.add('hidden');
             document.getElementById('tools-section').classList.add('hidden');
             document.getElementById('tutorials-section').classList.add('hidden');
+            document.getElementById('database-section').classList.add('hidden');
             document.getElementById('resultsArea').classList.add('hidden');
             
             // Hide quick products on non-VIN tabs
             const quickProducts = document.getElementById('quickProductsSection');
-            if (tab === 'tutorials' || tab === 'tools') {
+            if (tab === 'tutorials' || tab === 'tools' || tab === 'database') {
                 quickProducts.classList.add('hidden');
             } else {
                 quickProducts.classList.remove('hidden');
@@ -3860,6 +4066,9 @@
             } else if (tab === 'tutorials') {
                 document.getElementById('tutorials-section').classList.remove('hidden');
                 renderTutorials(); // Initialize tutorials display
+            } else if (tab === 'database') {
+                document.getElementById('database-section').classList.remove('hidden');
+                renderFCCDatabase(); // Initialize database display
             }
             
             // Reset to popular products when switching tabs
@@ -4879,6 +5088,210 @@
             event.target.className = 'tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950';
             
             renderTutorials();
+        }
+
+        // ============================================================================
+        // FCC DATABASE (CSV-STYLE) FUNCTIONS
+        // ============================================================================
+        let databaseSortColumn = 0;
+        let databaseSortAsc = true;
+        
+        function renderFCCDatabase() {
+            const tbody = document.getElementById('fccDatabaseBody');
+            const stats = document.getElementById('databaseStats');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            let totalVehicles = 0;
+            
+            const fccIds = Object.keys(FCC_CROSS_REFERENCE).sort();
+            
+            fccIds.forEach(fccId => {
+                const data = FCC_CROSS_REFERENCE[fccId];
+                const vehicleCount = data.vehicles.length;
+                totalVehicles += vehicleCount;
+                
+                // Create vehicle list string
+                const vehicleList = data.vehicles.map(v => `${v.make} ${v.model} (${v.years})`).join(', ');
+                const partList = data.partNumbers ? data.partNumbers.join(', ') : 'N/A';
+                
+                const row = document.createElement('tr');
+                row.className = 'border-b border-navy-700/50 hover:bg-navy-800/50 cursor-pointer transition-colors';
+                row.setAttribute('data-fcc', fccId);
+                row.innerHTML = `
+                    <td class="p-3">
+                        <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">${data.frequency}</span>
+                        <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs ml-1">${data.modulation}</span>
+                    </td>
+                    <td class="p-3 text-yellow-400">${data.chip}</td>
+                    <td class="p-3">
+                        <span class="text-brand-400 font-semibold">${vehicleCount} vehicles</span>
+                        <div class="text-xs text-slate-500 mt-1 line-clamp-2">${vehicleList}</div>
+                    </td>
+                    <td class="p-3 text-xs text-slate-400 font-mono">${partList}</td>
+                `;
+                
+                // Click to expand
+                row.onclick = () => toggleDatabaseRow(fccId, row);
+                
+                tbody.appendChild(row);
+            });
+            
+            stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations`;
+        }
+        
+        function toggleDatabaseRow(fccId, row) {
+            const existingDetail = row.nextElementSibling;
+            if (existingDetail && existingDetail.classList.contains('fcc-detail-row')) {
+                existingDetail.remove();
+                return;
+            }
+            
+            // Remove any other open details
+            document.querySelectorAll('.fcc-detail-row').forEach(el => el.remove());
+            
+            const data = FCC_CROSS_REFERENCE[fccId];
+            const detailRow = document.createElement('tr');
+            detailRow.className = 'fcc-detail-row bg-navy-900/80';
+            detailRow.innerHTML = `
+                <td colspan="5" class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        ${data.vehicles.map(v => `
+                            <div class="bg-navy-950/60 p-3 rounded-lg border border-brand-500/20 hover:border-brand-400/50 cursor-pointer transition-all"
+                                 onclick="loadVehicleFromFCC('${v.make}', '${v.model}', '${v.years}')">
+                                <div class="font-bold text-white">${v.make} ${v.model}</div>
+                                <div class="text-xs text-brand-400">${v.years}</div>
+                                <div class="text-xs text-slate-500 mt-1">Click to view specs →</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-3 text-xs text-slate-500">
+                        <strong>Part Numbers:</strong> ${data.partNumbers ? data.partNumbers.join(' | ') : 'N/A'}
+                    </div>
+                </td>
+            `;
+            row.after(detailRow);
+        }
+        
+        function reverseSearchFccDirect(fccId) {
+            reverseSearch('fcc', fccId);
+        }
+        
+        function loadVehicleFromFCC(make, model, years) {
+            // Set the browse database dropdowns and search
+            document.getElementById('makeSelect').value = make.toUpperCase();
+            switchTab('browse');
+            
+            // Trigger the search after a brief delay
+            setTimeout(() => {
+                const makeData = LOCKSMITH_DB[make.toUpperCase()];
+                if (makeData) {
+                    displayResults({
+                        make: make.toUpperCase(),
+                        model: model,
+                        year: years.split('-')[0],
+                        vehicleType: 'Passenger Car'
+                    });
+                }
+            }, 100);
+        }
+        
+        function filterDatabaseTable() {
+            const searchTerm = document.getElementById('databaseSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#fccDatabaseBody tr:not(.fcc-detail-row)');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const fccId = row.getAttribute('data-fcc');
+                const data = FCC_CROSS_REFERENCE[fccId];
+                
+                // Search in vehicles too
+                let vehicleMatch = false;
+                if (data && data.vehicles) {
+                    vehicleMatch = data.vehicles.some(v => 
+                        v.make.toLowerCase().includes(searchTerm) ||
+                        v.model.toLowerCase().includes(searchTerm) ||
+                        v.years.includes(searchTerm)
+                    );
+                }
+                
+                if (text.includes(searchTerm) || vehicleMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Remove any open details
+            document.querySelectorAll('.fcc-detail-row').forEach(el => el.remove());
+            
+            document.getElementById('databaseStats').innerHTML = 
+                `📊 Showing <span class="text-brand-400 font-bold">${visibleCount}</span> FCC IDs matching "${searchTerm || 'all'}"`;
+        }
+        
+        function sortDatabaseTable(columnIndex) {
+            if (databaseSortColumn === columnIndex) {
+                databaseSortAsc = !databaseSortAsc;
+            } else {
+                databaseSortColumn = columnIndex;
+                databaseSortAsc = true;
+            }
+            
+            const tbody = document.getElementById('fccDatabaseBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.fcc-detail-row)'));
+            
+            rows.sort((a, b) => {
+                const aVal = a.children[columnIndex].textContent.trim();
+                const bVal = b.children[columnIndex].textContent.trim();
+                
+                if (columnIndex === 3) {
+                    // Sort by vehicle count
+                    const aNum = parseInt(aVal) || 0;
+                    const bNum = parseInt(bVal) || 0;
+                    return databaseSortAsc ? aNum - bNum : bNum - aNum;
+                }
+                
+                return databaseSortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+        
+        function exportDatabaseCSV() {
+            let csv = 'FCC ID,Frequency,Modulation,Chip Type,Make,Model,Years,Part Numbers\n';
+            
+            Object.entries(FCC_CROSS_REFERENCE).forEach(([fccId, data]) => {
+                data.vehicles.forEach(v => {
+                    csv += `"${fccId}","${data.frequency}","${data.modulation}","${data.chip}","${v.make}","${v.model}","${v.years}","${data.partNumbers ? data.partNumbers.join(' | ') : ''}"\n`;
+                });
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fcc_cross_reference_database.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function copyDatabaseTable() {
+            let text = 'FCC ID\tFrequency\tModulation\tChip Type\tMake\tModel\tYears\tPart Numbers\n';
+            
+            Object.entries(FCC_CROSS_REFERENCE).forEach(([fccId, data]) => {
+                data.vehicles.forEach(v => {
+                    text += `${fccId}\t${data.frequency}\t${data.modulation}\t${data.chip}\t${v.make}\t${v.model}\t${v.years}\t${data.partNumbers ? data.partNumbers.join(' | ') : ''}\n`;
+                });
+            });
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Table copied to clipboard! Paste into Excel or Google Sheets.');
+            });
         }
 
         // ============================================================================
