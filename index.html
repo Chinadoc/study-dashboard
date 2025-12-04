@@ -3313,6 +3313,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initYearSelect();
             initMakeSelect();
+            displayPopularProducts(); // Show popular products on load
         });
 
         function initYearSelect() {
@@ -3341,7 +3342,13 @@
                     document.getElementById('makeSelect').value = '';
                     document.getElementById('modelSelect').value = '';
                     document.getElementById('modelSelect').disabled = true;
+                    displayPopularProducts(); // Reset to popular products
                 }
+            });
+            
+            // Update affiliate products when make is selected
+            document.getElementById('makeSelect').addEventListener('change', (e) => {
+                displayProductsForMake(e.target.value);
             });
         }
 
@@ -3398,6 +3405,9 @@
             }
 
             document.getElementById('resultsArea').classList.add('hidden');
+            
+            // Reset to popular products when switching tabs
+            displayPopularProducts();
         }
 
         function fillSampleVin(make) {
@@ -3822,6 +3832,62 @@
             document.getElementById('resultsArea').classList.remove('hidden');
         }
 
+        // Display popular products on page load (mix from top brands)
+        function displayPopularProducts() {
+            const container = document.getElementById('affiliateProductsContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            // Get popular products from top brands
+            const popularBrands = ['TOYOTA', 'HONDA', 'FORD', 'CHEVROLET', 'NISSAN', 'JEEP'];
+            let products = [];
+            
+            popularBrands.forEach(brand => {
+                if (AFFILIATE_PRODUCTS[brand] && AFFILIATE_PRODUCTS[brand].length > 0) {
+                    products.push(AFFILIATE_PRODUCTS[brand][0]); // Get first product from each brand
+                }
+            });
+
+            // Display up to 6 popular products
+            products.slice(0, 6).forEach(product => {
+                const card = createProductCard(product);
+                container.appendChild(card);
+            });
+        }
+
+        // Create product card element
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'bg-navy-950/80 rounded-2xl p-6 border-2 border-brand-500/20 hover:border-brand-400/40 transition-all hover:shadow-xl hover:shadow-brand-500/10';
+            card.innerHTML = `
+                <div class="flex flex-col h-full">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="text-white font-semibold text-sm mb-2 line-clamp-2">${product.name}</h3>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-brand-400 font-bold text-lg">${product.price}</span>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-yellow-400 text-xs">★</span>
+                                    <span class="text-slate-400 text-xs">${product.rating}</span>
+                                    <span class="text-slate-500 text-xs">(${product.reviews} reviews)</span>
+                                </div>
+                            </div>
+                            <div class="text-xs text-slate-500 font-mono mb-3">FCC: ${product.fccId}</div>
+                        </div>
+                    </div>
+                    <a href="${product.amazonUrl}" target="_blank" rel="noopener noreferrer" 
+                       class="mt-auto gold-accent hover:opacity-90 text-navy-950 font-bold py-3 px-4 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-sm">
+                        <span>Buy on Amazon</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </a>
+                </div>
+            `;
+            return card;
+        }
+
         function displayAffiliateProducts(make, model) {
             const container = document.getElementById('affiliateProductsContainer');
             if (!container) return;
@@ -3862,35 +3928,18 @@
             }
 
             products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'bg-navy-950/80 rounded-2xl p-6 border-2 border-brand-500/20 hover:border-brand-400/40 transition-all hover:shadow-xl hover:shadow-brand-500/10';
-                card.innerHTML = `
-                    <div class="flex flex-col h-full">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex-1">
-                                <h3 class="text-white font-semibold text-sm mb-2 line-clamp-2">${product.name}</h3>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-brand-400 font-bold text-lg">${product.price}</span>
-                                    <div class="flex items-center gap-1">
-                                        <span class="text-yellow-400 text-xs">★</span>
-                                        <span class="text-slate-400 text-xs">${product.rating}</span>
-                                        <span class="text-slate-500 text-xs">(${product.reviews} reviews)</span>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-slate-500 font-mono mb-3">FCC: ${product.fccId}</div>
-                            </div>
-                        </div>
-                        <a href="${product.amazonUrl}" target="_blank" rel="noopener noreferrer" 
-                           class="mt-auto gold-accent hover:opacity-90 text-navy-950 font-bold py-3 px-4 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-sm">
-                            <span>Buy on Amazon</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                            </svg>
-                        </a>
-                    </div>
-                `;
+                const card = createProductCard(product);
                 container.appendChild(card);
             });
+        }
+        
+        // Display products for a specific make (called when make dropdown changes)
+        function displayProductsForMake(make) {
+            if (!make) {
+                displayPopularProducts();
+                return;
+            }
+            displayAffiliateProducts(make, '');
         }
     </script>
 </body>
