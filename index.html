@@ -944,6 +944,67 @@
         </div>
     </div>
 
+    <!-- Shopping Cart / Wishlist Modal -->
+    <div id="shoppingCartModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeCartModal()"></div>
+        <div class="absolute inset-4 md:inset-10 lg:inset-20 bg-navy-900 rounded-3xl border-2 border-green-500 overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-green-500/30 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">🛒 Inventory Planner</h2>
+                    <p id="cartItemCount" class="text-slate-400 text-sm mt-1">0 items saved</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="exportCartCSV()" class="px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
+                        📥 Export List
+                    </button>
+                    <button onclick="clearCart()" class="px-4 py-2 bg-red-600/20 text-red-400 text-sm font-semibold rounded-lg hover:bg-red-600/40 transition-colors">
+                        🗑️ Clear All
+                    </button>
+                    <button onclick="closeCartModal()" class="p-2 hover:bg-green-500/20 rounded-xl transition-colors">
+                        <svg class="w-6 h-6 text-slate-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div id="cartItemsContainer" class="space-y-3">
+                    <!-- Cart items populated by JavaScript -->
+                </div>
+                <div id="emptyCartMessage" class="hidden text-center py-12">
+                    <div class="text-6xl mb-4">🛒</div>
+                    <p class="text-slate-400 text-lg">Your inventory planner is empty</p>
+                    <p class="text-slate-500 text-sm mt-2">Click the 🛒 button on any FCC ID to save it for future purchasing</p>
+                </div>
+            </div>
+            <!-- Modal Footer with Total -->
+            <div class="p-4 border-t border-green-500/30 bg-navy-950/50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-sm">Estimated Total (based on avg prices)</p>
+                        <p id="cartEstimatedTotal" class="text-2xl font-bold text-green-400">$0.00</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="copyCartToClipboard()" class="px-4 py-2 bg-brand-500/20 text-brand-400 text-sm font-semibold rounded-lg hover:bg-brand-500/40 transition-colors">
+                            📋 Copy List
+                        </button>
+                        <a id="amazonCartLink" href="#" target="_blank" class="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-lg hover:from-orange-400 hover:to-orange-500 transition-all flex items-center gap-2">
+                            🛍️ Shop on Amazon
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <button onclick="openCartModal()" id="floatingCartBtn" class="fixed bottom-6 right-6 z-40 p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full shadow-lg hover:from-green-400 hover:to-green-500 transition-all transform hover:scale-110">
+        <span class="text-2xl">🛒</span>
+        <span id="floatingCartCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center hidden">0</span>
+    </button>
+
     <footer class="border-t border-brand-500/20 bg-navy-900/80 mt-12">
         <div class="max-w-7xl mx-auto py-8 px-4 text-center">
             <p class="gold-text font-semibold text-lg mb-2">&copy; 2025 Euro Keys</p>
@@ -5389,9 +5450,22 @@
                 row.setAttribute('data-fcc', fccId);
                 row.setAttribute('data-code', codeSeries);
                 row.setAttribute('data-autel', autelModels);
+                
+                // Check if item is in cart
+                const inCart = shoppingCart.some(item => item.fccId === fccId);
+                const cartBtnClass = inCart ? 'bg-green-600 text-white' : 'bg-green-500/20 text-green-400 hover:bg-green-500/40';
+                const cartBtnIcon = inCart ? '✓' : '🛒';
+                
                 row.innerHTML = `
                     <td class="p-3">
-                        <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="event.stopPropagation(); addToCart('${fccId}', ${JSON.stringify(data).replace(/"/g, '&quot;')})" 
+                                    class="w-7 h-7 rounded-lg ${cartBtnClass} flex items-center justify-center text-sm transition-colors"
+                                    title="Add to Inventory Planner">
+                                ${cartBtnIcon}
+                            </button>
+                            <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
+                        </div>
                         ${sgwBadge}${pinBadge}
                     </td>
                     <td class="p-3">
@@ -5577,6 +5651,355 @@
         // Current reverse search value for FCC Database link
         let currentReverseSearchValue = '';
         let currentReverseSearchType = '';
+        
+        // ============================================================================
+        // SHOPPING CART / INVENTORY PLANNER
+        // Save FCC IDs for future purchasing decisions
+        // ============================================================================
+        
+        // Initialize cart from localStorage
+        let shoppingCart = JSON.parse(localStorage.getItem('eurokeys_cart') || '[]');
+        
+        // Average prices for estimation (can be updated via API later)
+        const AVG_PRICES = {
+            'smart_key': 45,
+            'flip_key': 35,
+            'remote': 25,
+            'blade': 15,
+            'shell': 12,
+            'chip': 8,
+            'default': 40
+        };
+        
+        // Update cart count badge
+        function updateCartBadge() {
+            const count = shoppingCart.length;
+            const floatingCount = document.getElementById('floatingCartCount');
+            const cartItemCount = document.getElementById('cartItemCount');
+            
+            if (floatingCount) {
+                floatingCount.textContent = count;
+                floatingCount.classList.toggle('hidden', count === 0);
+            }
+            if (cartItemCount) {
+                cartItemCount.textContent = `${count} item${count !== 1 ? 's' : ''} saved`;
+            }
+        }
+        
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('eurokeys_cart', JSON.stringify(shoppingCart));
+            updateCartBadge();
+        }
+        
+        // Add item to cart
+        function addToCart(fccId, data = {}) {
+            // Check if already in cart
+            const existingIndex = shoppingCart.findIndex(item => item.fccId === fccId);
+            if (existingIndex >= 0) {
+                // Update quantity
+                shoppingCart[existingIndex].quantity = (shoppingCart[existingIndex].quantity || 1) + 1;
+            } else {
+                // Add new item
+                const fccData = FCC_CROSS_REFERENCE[fccId] || {};
+                const item = {
+                    fccId: fccId,
+                    frequency: data.frequency || fccData.frequency || 'N/A',
+                    chip: data.chip || fccData.chip || 'N/A',
+                    vehicles: data.vehicles || fccData.vehicles || [],
+                    codeSeries: data.codeSeries || fccData.codeSeries || 'N/A',
+                    aftermarket: data.aftermarket || fccData.aftermarket || {},
+                    estimatedPrice: data.price || AVG_PRICES.default,
+                    amazonUrl: data.amazonUrl || `https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}`,
+                    quantity: 1,
+                    addedAt: new Date().toISOString(),
+                    notes: ''
+                };
+                shoppingCart.push(item);
+            }
+            saveCart();
+            showToast(`✅ ${fccId} added to inventory planner!`);
+        }
+        
+        // Remove item from cart
+        function removeFromCart(fccId) {
+            shoppingCart = shoppingCart.filter(item => item.fccId !== fccId);
+            saveCart();
+            renderCartItems();
+        }
+        
+        // Update item quantity
+        function updateCartQuantity(fccId, delta) {
+            const item = shoppingCart.find(i => i.fccId === fccId);
+            if (item) {
+                item.quantity = Math.max(1, (item.quantity || 1) + delta);
+                saveCart();
+                renderCartItems();
+            }
+        }
+        
+        // Update item notes
+        function updateCartNotes(fccId, notes) {
+            const item = shoppingCart.find(i => i.fccId === fccId);
+            if (item) {
+                item.notes = notes;
+                saveCart();
+            }
+        }
+        
+        // Calculate total
+        function calculateCartTotal() {
+            return shoppingCart.reduce((sum, item) => sum + (item.estimatedPrice || AVG_PRICES.default) * (item.quantity || 1), 0);
+        }
+        
+        // Render cart items
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsContainer');
+            const emptyMsg = document.getElementById('emptyCartMessage');
+            const totalEl = document.getElementById('cartEstimatedTotal');
+            
+            if (shoppingCart.length === 0) {
+                container.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+                if (totalEl) totalEl.textContent = '$0.00';
+                return;
+            }
+            
+            emptyMsg.classList.add('hidden');
+            
+            container.innerHTML = shoppingCart.map(item => `
+                <div class="bg-navy-950/60 rounded-xl p-4 border border-green-500/20 hover:border-green-400/40 transition-all">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-lg font-bold text-green-400 font-mono">${item.fccId}</span>
+                                <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">${item.frequency}</span>
+                                <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">${item.chip}</span>
+                            </div>
+                            <p class="text-slate-400 text-sm mb-2">
+                                ${Array.isArray(item.vehicles) ? item.vehicles.slice(0, 3).map(v => `${v.make} ${v.model}`).join(', ') : 'Multiple vehicles'}
+                                ${item.vehicles && item.vehicles.length > 3 ? `<span class="text-slate-500">+${item.vehicles.length - 3} more</span>` : ''}
+                            </p>
+                            ${item.aftermarket && item.aftermarket.ilco ? `
+                                <p class="text-xs text-slate-500">Aftermarket: <span class="text-brand-400">${item.aftermarket.ilco}</span></p>
+                            ` : ''}
+                            <input type="text" placeholder="Add notes..." 
+                                   value="${item.notes || ''}"
+                                   onchange="updateCartNotes('${item.fccId}', this.value)"
+                                   class="mt-2 w-full px-3 py-1.5 bg-navy-800 border border-slate-700 rounded text-sm text-slate-300 placeholder-slate-500 focus:border-green-500 focus:outline-none">
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <p class="text-xl font-bold text-green-400">$${((item.estimatedPrice || AVG_PRICES.default) * (item.quantity || 1)).toFixed(2)}</p>
+                            <div class="flex items-center gap-2 bg-navy-800 rounded-lg p-1">
+                                <button onclick="updateCartQuantity('${item.fccId}', -1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded">−</button>
+                                <span class="w-8 text-center text-white font-semibold">${item.quantity || 1}</span>
+                                <button onclick="updateCartQuantity('${item.fccId}', 1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded">+</button>
+                            </div>
+                            <div class="flex gap-1">
+                                <a href="${item.amazonUrl}" target="_blank" class="px-3 py-1.5 bg-orange-500/20 text-orange-400 text-xs font-semibold rounded hover:bg-orange-500/40 transition-colors">
+                                    🛍️ Amazon
+                                </a>
+                                <button onclick="removeFromCart('${item.fccId}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 text-xs font-semibold rounded hover:bg-red-500/40 transition-colors">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (totalEl) {
+                totalEl.textContent = '$' + calculateCartTotal().toFixed(2);
+            }
+        }
+        
+        // Open cart modal
+        function openCartModal() {
+            renderCartItems();
+            document.getElementById('shoppingCartModal').classList.remove('hidden');
+        }
+        
+        // Close cart modal
+        function closeCartModal() {
+            document.getElementById('shoppingCartModal').classList.add('hidden');
+        }
+        
+        // Clear cart
+        function clearCart() {
+            if (confirm('Are you sure you want to clear all items from your inventory planner?')) {
+                shoppingCart = [];
+                saveCart();
+                renderCartItems();
+            }
+        }
+        
+        // Export cart as CSV
+        function exportCartCSV() {
+            const headers = ['FCC ID', 'Frequency', 'Chip', 'Vehicles', 'Aftermarket', 'Quantity', 'Est. Price', 'Notes', 'Amazon URL'];
+            const rows = shoppingCart.map(item => [
+                item.fccId,
+                item.frequency,
+                item.chip,
+                Array.isArray(item.vehicles) ? item.vehicles.map(v => `${v.make} ${v.model} ${v.years}`).join('; ') : '',
+                item.aftermarket?.ilco || '',
+                item.quantity || 1,
+                `$${((item.estimatedPrice || AVG_PRICES.default) * (item.quantity || 1)).toFixed(2)}`,
+                item.notes || '',
+                item.amazonUrl
+            ]);
+            
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `eurokeys_inventory_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Copy cart to clipboard
+        function copyCartToClipboard() {
+            const text = shoppingCart.map(item => 
+                `${item.fccId} - ${Array.isArray(item.vehicles) ? item.vehicles.slice(0, 2).map(v => `${v.make} ${v.model}`).join(', ') : 'Multiple vehicles'} - Qty: ${item.quantity || 1} - $${((item.estimatedPrice || AVG_PRICES.default) * (item.quantity || 1)).toFixed(2)}${item.notes ? ` (${item.notes})` : ''}`
+            ).join('\\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Inventory list copied to clipboard!');
+            });
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-20 right-6 z-50 px-4 py-3 bg-navy-800 border border-green-500 text-white rounded-lg shadow-xl animate-fade-in';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+        
+        // Initialize cart badge on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartBadge();
+        });
+        
+        // ============================================================================
+        // KEYFOBDB INTEGRATION
+        // Fetch and merge data from open-source GitHub keyfobDB
+        // ============================================================================
+        
+        let keyfobDbData = [];
+        
+        async function fetchKeyfobDB() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/gusgorman402/keyfobDB/main/car_fcc_info_DB.csv');
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.split('\\n');
+                const headers = lines[0].split(',');
+                
+                keyfobDbData = lines.slice(1).filter(line => line.trim()).map(line => {
+                    const values = line.split(',');
+                    return {
+                        year: values[0],
+                        make: values[1],
+                        model: values[2],
+                        fccId: values[3],
+                        frequency: values[4],
+                        modulation: values[5],
+                        exploit: values[6] || '',
+                        exploitSource: values[7] || '',
+                        chipset: values[8] || ''
+                    };
+                });
+                
+                console.log(`📡 Loaded ${keyfobDbData.length} entries from keyfobDB`);
+                return keyfobDbData;
+            } catch (error) {
+                console.error('Error fetching keyfobDB:', error);
+                return [];
+            }
+        }
+        
+        // Search keyfobDB
+        function searchKeyfobDB(query) {
+            if (!keyfobDbData.length) return [];
+            const q = query.toLowerCase();
+            return keyfobDbData.filter(entry => 
+                entry.make.toLowerCase().includes(q) ||
+                entry.model.toLowerCase().includes(q) ||
+                entry.fccId.toLowerCase().includes(q) ||
+                entry.year.includes(q)
+            ).slice(0, 100); // Limit results
+        }
+        
+        // Get all FCC IDs for a specific make/model from keyfobDB
+        function getKeyfobDBByVehicle(make, model) {
+            if (!keyfobDbData.length) return [];
+            const m = make.toLowerCase();
+            const mo = model ? model.toLowerCase() : '';
+            return keyfobDbData.filter(entry => 
+                entry.make.toLowerCase().includes(m) &&
+                (!mo || entry.model.toLowerCase().includes(mo))
+            );
+        }
+        
+        // ============================================================================
+        // AMAZON PRICE API (Placeholder)
+        // Note: Requires Amazon Product Advertising API credentials
+        // Sign up at: https://affiliate-program.amazon.com/
+        // ============================================================================
+        
+        // This is a placeholder for future Amazon PA-API integration
+        // Currently returns estimated prices based on product type
+        async function fetchAmazonPrice(fccId, asin = null) {
+            // In production, this would call Amazon PA-API:
+            // const response = await fetch(`/api/amazon-price?fccId=${fccId}&asin=${asin}`);
+            // return await response.json();
+            
+            // For now, return estimated prices
+            const estimates = {
+                // Estimated prices by FCC ID prefix
+                'M3N': { price: 45, currency: 'USD', source: 'estimate' },
+                'HYQ': { price: 42, currency: 'USD', source: 'estimate' },
+                'KR5': { price: 38, currency: 'USD', source: 'estimate' },
+                'KOBLEAR': { price: 35, currency: 'USD', source: 'estimate' },
+                'CWTWB': { price: 40, currency: 'USD', source: 'estimate' },
+                'GQ4': { price: 55, currency: 'USD', source: 'estimate' },
+                'default': { price: 40, currency: 'USD', source: 'estimate' }
+            };
+            
+            const prefix = Object.keys(estimates).find(p => fccId.startsWith(p)) || 'default';
+            return estimates[prefix];
+        }
+        
+        // Future API endpoint documentation
+        const PRICE_API_INFO = {
+            amazonPAAPI: {
+                name: 'Amazon Product Advertising API',
+                signupUrl: 'https://affiliate-program.amazon.com/',
+                docs: 'https://webservices.amazon.com/paapi5/documentation/',
+                note: 'Requires Associates account with qualifying sales'
+            },
+            keepa: {
+                name: 'Keepa API',
+                signupUrl: 'https://keepa.com/#!api',
+                note: 'Paid API for historical Amazon pricing'
+            },
+            rainforest: {
+                name: 'Rainforest API',
+                signupUrl: 'https://www.rainforestapi.com/',
+                note: 'Third-party Amazon data API'
+            }
+        };
+        
+        // Load keyfobDB on page init
+        fetchKeyfobDB();
         
         // View current search in FCC Database
         function viewInFCCDatabase() {
