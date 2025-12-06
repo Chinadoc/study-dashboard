@@ -6649,6 +6649,9 @@ const SUPPLIER_PAGE_SIZE = 200;
         let IMMOBILIZER_MODELS = [];
         let currentImmoMake = '';
         let currentImmoModel = '';
+        let immoOffset = 0;
+        let immoTotal = 0;
+        const IMMO_PAGE_SIZE = 1000;
         const IMMOBILIZER_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/locksmith';
         // Minimal embedded fallback only if API is unreachable
         const IMMOBILIZER_EMBED = [
@@ -6789,29 +6792,48 @@ const SUPPLIER_PAGE_SIZE = 200;
             return MASTER_DATA;
         }
 
-        async function loadImmobilizerList(force = false, searchTerm = '', makeFilter = '', modelFilter = '') {
+        async function loadImmobilizerList(force = false, searchTerm = '', makeFilter = '', modelFilter = '', append = false) {
             const tbody = document.getElementById('immobilizerTableBody');
             const stats = document.getElementById('immobilizerStats');
-            if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
+            if (!append) {
+                immoOffset = 0;
+                if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
+            } else {
+                if (tbody) tbody.innerHTML += '<tr id="immoLoadingRow"><td class="p-2 text-slate-500" colspan="6">Loading more…</td></tr>';
+            }
             if (stats) stats.textContent = 'Loading…';
             try {
                 const url = new URL(MASTER_API_URL);
                 if (searchTerm) url.searchParams.set('q', searchTerm);
                 if (makeFilter) url.searchParams.set('make', makeFilter);
                 if (modelFilter) url.searchParams.set('model', modelFilter);
-                url.searchParams.set('limit', '500');
+                url.searchParams.set('limit', `${IMMO_PAGE_SIZE}`);
+                url.searchParams.set('offset', `${immoOffset}`);
                 const res = await fetch(url.toString());
                 if (!res.ok) throw new Error('immobilizer API fetch failed');
                 const json = await res.json();
-                const rows = json.rows || [];
-                IMMOBILIZER_DATA = rows.filter(r => r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system);
+                const rows = (json.rows || []).filter(r => r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system);
+                immoTotal = json.total || rows.length;
+                if (append) {
+                    const loadingRow = document.getElementById('immoLoadingRow');
+                    if (loadingRow) loadingRow.remove();
+                    IMMOBILIZER_DATA = IMMOBILIZER_DATA.concat(rows);
+                } else {
+                    IMMOBILIZER_DATA = rows;
+                }
+                immoOffset += IMMO_PAGE_SIZE;
+                populateImmobilizerFilters(); // refresh options based on new data
                 renderImmobilizerTable();
-                if (stats) stats.textContent = `${IMMOBILIZER_DATA.length} rows • ${json.total || IMMOBILIZER_DATA.length} total`;
+                const showing = IMMOBILIZER_DATA.length;
+                const total = immoTotal || showing;
+                if (stats) stats.textContent = `${showing} rows • ${total} total`;
+                updateImmoLoadMore(showing, total);
             } catch (err) {
                 console.warn('Using embedded immobilizer data (API unavailable):', err.message || err);
                 IMMOBILIZER_DATA = IMMOBILIZER_EMBED;
                 renderImmobilizerTable();
                 if (stats) stats.textContent = `${IMMOBILIZER_DATA.length} rows • fallback`;
+                updateImmoLoadMore(IMMOBILIZER_DATA.length, IMMOBILIZER_DATA.length);
             }
         }
 
@@ -6871,7 +6893,8 @@ const SUPPLIER_PAGE_SIZE = 200;
             if (!makeSelect || !modelSelect) return;
             const makeSet = new Set();
             const modelSet = new Set();
-            MASTER_DATA.forEach(r => {
+            const source = IMMOBILIZER_DATA.length ? IMMOBILIZER_DATA : MASTER_DATA;
+            source.forEach(r => {
                 if (r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system) {
                     if (r.make) makeSet.add(r.make);
                     if (r.model) modelSet.add(r.model);
@@ -6897,6 +6920,36 @@ const SUPPLIER_PAGE_SIZE = 200;
                 }
             }
             filterImmobilizerTable();
+        }
+
+        function updateImmoLoadMore(showing, total) {
+            let btn = document.getElementById('immoLoadMore');
+            if (!btn) {
+                const statsSpan = document.getElementById('immobilizerStats');
+                if (statsSpan && statsSpan.parentElement) {
+                    btn = document.createElement('button');
+                    btn.id = 'immoLoadMore';
+                    btn.className = 'px-3 py-1 rounded-lg bg-navy-800 text-slate-300 border border-brand-500/30 hover:border-brand-400 text-xs';
+                    btn.style.marginLeft = '8px';
+                    statsSpan.parentElement.appendChild(btn);
+                }
+            }
+            if (!btn) return;
+            const remaining = Math.max(0, total - showing);
+            if (remaining > 0) {
+                btn.textContent = `Load more (${remaining} left)`;
+                btn.onclick = () => {
+                    const val = document.getElementById('immobilizerSearch')?.value || '';
+                    const makeVal = document.getElementById('immobilizerMakeFilter')?.value || '';
+                    const modelVal = document.getElementById('immobilizerModelFilter')?.value || '';
+                    loadImmobilizerList(true, val, makeVal, modelVal, true);
+                };
+                btn.classList.remove('hidden');
+            } else {
+                btn.textContent = 'All results loaded';
+                btn.onclick = null;
+                btn.classList.add('hidden');
+            }
         }
 
         function findImmobilizerEntry(make, year) {
