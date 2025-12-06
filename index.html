@@ -4729,7 +4729,12 @@
             const fccStatus = document.getElementById('summaryFccStatus');
             if (fccLink) {
                 fccLink.textContent = fccPrimary || 'N/A';
-                fccLink.href = fccPrimary ? `https://fccid.io/${fccPrimary}` : '#';
+                fccLink.href = 'javascript:void(0)';
+                fccLink.onclick = () => {
+                    if (fccPrimary) {
+                        openSupplierCatalogWithFcc(fccPrimary);
+                    }
+                };
             }
             if (fccStatus) {
                 fccStatus.textContent = (fccMatches && fccMatches.length > 0) ? 'From FCC DB' : 'From local data';
@@ -4849,6 +4854,35 @@ function renderSupplierCatalog() {
                 onclick="supplierCatalogPage=Math.min(${totalPages}, supplierCatalogPage+1); renderSupplierCatalog();">Next</button>
         </div>
     `;
+}
+
+function openSupplierCatalogWithFcc(fccId) {
+    // Default to LocksmithKeyless source; adjust if you want UHS
+    const sourceSelect = document.getElementById('supplierSourceSelect');
+    if (sourceSelect) {
+        if (sourceSelect.value !== 'locksmithkeyless') {
+            sourceSelect.value = 'locksmithkeyless';
+            // Load then apply filter after a small delay
+            loadSupplierCatalog('locksmithkeyless');
+            setTimeout(() => {
+                const fccInput = document.getElementById('supplierFccInput');
+                if (fccInput) fccInput.value = fccId;
+                const searchInput = document.getElementById('supplierSearchInput');
+                if (searchInput) searchInput.value = '';
+                filterSupplierCatalog();
+            }, 300);
+        } else {
+            const fccInput = document.getElementById('supplierFccInput');
+            if (fccInput) fccInput.value = fccId;
+            const searchInput = document.getElementById('supplierSearchInput');
+            if (searchInput) searchInput.value = '';
+            filterSupplierCatalog();
+        }
+    }
+    const section = document.getElementById('supplierCatalogSection');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
         function displayResults(data) {

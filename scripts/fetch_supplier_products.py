@@ -9,7 +9,6 @@ import html
 import re
 import sys
 import time
-from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
@@ -36,29 +35,6 @@ KEY_KEYWORDS = {
     "fobik",
     "blade",
 }
-
-
-@dataclass
-class ProductRow:
-    source: str
-    product_id: int
-    handle: str
-    title: str
-    vendor: str
-    product_type: str
-    tags: str
-    sku: str
-    price: str
-    compare_at_price: str
-    available: bool
-    fcc_id: str
-    frequency: str
-    chip: str
-    part_number: str
-    ic: str
-    body_text: str
-    image_url: str
-    product_url: str
 
 
 def fetch_all_products(url: str) -> List[Dict]:
@@ -88,7 +64,8 @@ def strip_html(text: Optional[str]) -> str:
 
 
 def extract_field(body: str, label: str) -> str:
-    pattern = re.compile(rf"{label}\s*:?\s*([A-Za-z0-9\-\s/#\.]+)", re.IGNORECASE)
+    # Grab up to comma, double-space, or end
+    pattern = re.compile(rf"{label}\s*:?\s*([A-Za-z0-9\-\s/#\.]+?)(?:,|\s{{2,}}|$)", re.IGNORECASE)
     m = pattern.search(body)
     return m.group(1).strip() if m else ""
 
@@ -105,8 +82,8 @@ def is_key_product(prod: Dict) -> bool:
     return any(kw in text_fields for kw in KEY_KEYWORDS)
 
 
-def product_rows(source: str, products: Iterable[Dict]) -> List[ProductRow]:
-    rows: List[ProductRow] = []
+def product_rows(source: str, products: Iterable[Dict]) -> List[Dict]:
+    rows: List[Dict] = []
     for p in products:
         if not is_key_product(p):
             continue
@@ -130,43 +107,51 @@ def product_rows(source: str, products: Iterable[Dict]) -> List[ProductRow]:
         image_url = images[0].get("src", "") if images else ""
 
         rows.append(
-            ProductRow(
-                source=source,
-                product_id=p.get("id", 0),
-                handle=p.get("handle", ""),
-                title=p.get("title", ""),
-                vendor=p.get("vendor", ""),
-                product_type=p.get("product_type", ""),
-                tags=";".join(p.get("tags", [])),
-                sku=sku,
-                price=price,
-                compare_at_price=compare,
-                available=available,
-                fcc_id=fcc_id,
-                frequency=frequency,
-                chip=chip,
-                part_number=part_number,
-                ic=ic,
-                body_text=body_text,
-                image_url=image_url,
-                product_url=f"https://www.{source.replace('_', '-')}.com/products/{p.get('handle','')}",
-            )
+            {
+                "source": source,
+                "product_id": p.get("id", 0),
+                "handle": p.get("handle", ""),
+                "title": p.get("title", ""),
+                "vendor": p.get("vendor", ""),
+                "product_type": p.get("product_type", ""),
+                "tags": ";".join(p.get("tags", [])),
+                "sku": sku,
+                "price": price,
+                "compare_at_price": compare,
+                "available": available,
+                "fcc_id": fcc_id,
+                "frequency": frequency,
+                "chip": chip,
+                "part_number": part_number,
+                "ic": ic,
+                "body_text": body_text,
+                "image_url": image_url,
+                "product_url": f"https://www.{source.replace('_', '-')}.com/products/{p.get('handle','')}",
+            }
         )
     return rows
 
 
-def write_csv(path: Path, rows: List[ProductRow]) -> None:
+def write_csv(path: Path, rows: List[Dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(asdict(rows[0]).keys()))
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         for r in rows:
-            writer.writerow(asdict(r))
+            writer.writerow(r)
+
+
+def write_json(path: Path, rows: List[Dict]) -> None:
+    import json
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(rows, f, ensure_ascii=False)
 
 
 def main():
     out_dir = Path("data")
-    all_rows: List[ProductRow] = []
+    all_rows: List[Dict] = []
     for source, url in SUPPLIERS.items():
         print(f"Fetching {source} ...", file=sys.stderr)
         products = fetch_all_products(url)
@@ -174,6 +159,7 @@ def main():
         if rows:
             csv_path = out_dir / f"{source}_products.csv"
             write_csv(csv_path, rows)
+            write_json(out_dir / f"{source}_products.json", rows)
             print(f" wrote {len(rows)} rows -> {csv_path}", file=sys.stderr)
             all_rows.extend(rows)
         else:
