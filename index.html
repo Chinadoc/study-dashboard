@@ -519,6 +519,45 @@
                 </div>
             </div>
 
+            <!-- Keycutter Quick Facts -->
+            <div class="glass-panel rounded-3xl p-5 border border-brand-500/20 bg-navy-950/40">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="text-yellow-300">🔑</span> Keycutter Quick Facts
+                    </h3>
+                    <span class="text-xs text-slate-500">Pulled from FCC DB + locksmith notes</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                    <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase mb-1">FCC ID</div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <a id="summaryFccLink" href="#" target="_blank" class="text-brand-300 font-semibold hover:underline">N/A</a>
+                            <span id="summaryFccStatus" class="text-xs text-amber-300"></span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase mb-1">Key Blank</div>
+                        <div id="summaryKeyBlank" class="text-white font-semibold">N/A</div>
+                    </div>
+                    <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase mb-1">Programmer</div>
+                        <div id="summaryProgrammer" class="text-white font-semibold">N/A</div>
+                    </div>
+                    <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase mb-1">Programming Method</div>
+                        <div id="summaryMethod" class="text-white">N/A</div>
+                    </div>
+                    <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase mb-1">Chip / Transponder</div>
+                        <div id="summaryChip" class="text-white">N/A</div>
+                    </div>
+                    <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase mb-1">Quick Note</div>
+                        <div id="summaryNote" class="text-white">N/A</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Inline Buy Keys Section for This Vehicle -->
             <div id="inlineProductsSection" class="glass-panel rounded-2xl p-4 md:p-6 border-2 border-green-500/30 bg-gradient-to-r from-green-900/20 to-brand-900/20">
                 <div class="flex items-center justify-between mb-4">
@@ -4587,6 +4626,25 @@
             }
         }
 
+        function updateKeycutterSummary(lockData, fccMatches) {
+            const fccPrimary = (fccMatches && fccMatches.length > 0) ? fccMatches[0] : lockData.fccId;
+            const fccLink = document.getElementById('summaryFccLink');
+            const fccStatus = document.getElementById('summaryFccStatus');
+            if (fccLink) {
+                fccLink.textContent = fccPrimary || 'N/A';
+                fccLink.href = fccPrimary ? `https://fccid.io/${fccPrimary}` : '#';
+            }
+            if (fccStatus) {
+                fccStatus.textContent = (fccMatches && fccMatches.length > 0) ? 'From FCC DB' : 'From local data';
+            }
+
+            document.getElementById('summaryKeyBlank').textContent = lockData.blank || 'N/A';
+            document.getElementById('summaryProgrammer').textContent = lockData.progTool || lockData.programmer || 'N/A';
+            document.getElementById('summaryMethod').textContent = lockData.progMethod || lockData.programmingNotes || 'N/A';
+            document.getElementById('summaryChip').textContent = lockData.chip || lockData.transponder || 'N/A';
+            document.getElementById('summaryNote').textContent = lockData.notes || lockData.programmingNotes || 'No notes available';
+        }
+
         function displayResults(data) {
             document.getElementById('vehicleTitle').textContent = `${data.year} ${data.make} ${data.model}`;
             document.getElementById('vehicleTrim').textContent = data.trim;
@@ -4597,6 +4655,7 @@
             document.getElementById('specManuf').textContent = data.manuf;
             document.getElementById('specCountry').textContent = data.country;
             document.getElementById('specBody').textContent = data.body || 'N/A';
+            currentVehicleData = { year: data.year, make: data.make, model: data.model };
 
             // Get Locksmith Data - Check for specific model entries first
             let lockData = LOCKSMITH_DB['DEFAULT'];
@@ -4630,6 +4689,13 @@
             } else {
                 dealerWarningEl.classList.add('hidden');
             }
+
+            // Load FCC data and update summary + product validation
+            loadFccDb().then(() => {
+                currentFccMatches = findFccMatches(data.year, data.make, data.model);
+                updateKeycutterSummary(lockData, currentFccMatches);
+                displayInlineProducts(data.make, data.model, currentFccMatches);
+            });
 
             // Update Key Data
             document.getElementById('keyBlank').textContent = lockData.blank;
@@ -5089,7 +5155,7 @@
         let inlineProducts = [];
         let inlineExpanded = false;
 
-        function displayInlineProducts(make, model) {
+        function displayInlineProducts(make, model, fccMatches = []) {
             const container = document.getElementById('inlineAffiliateProducts');
             const expandBtn = document.getElementById('inlineExpandBtn');
             if (!container) return;
@@ -5118,6 +5184,11 @@
                 }
             }
 
+            // If FCC matches are known, filter products to those FCC IDs
+            if (fccMatches && fccMatches.length > 0) {
+                products = products.filter(p => p.fccId && fccMatches.includes(p.fccId));
+            }
+
             inlineProducts = products;
             inlineExpanded = false;
             renderInlineProducts(products.slice(0, 3));
@@ -5142,7 +5213,10 @@
             container.innerHTML = '';
 
             if (products.length === 0) {
-                container.innerHTML = '<div class="text-center text-slate-400 py-3 text-sm">No matching keys found for this vehicle.</div>';
+                const fccMsg = (currentFccMatches && currentFccMatches.length > 0)
+                    ? `No keys matching FCC ${currentFccMatches.join(', ')}`
+                    : 'No matching keys found for this vehicle.';
+                container.innerHTML = `<div class="text-center text-slate-400 py-3 text-sm">${fccMsg}</div>`;
                 return;
             }
 
@@ -5337,6 +5411,55 @@
         // ============================================================================
         // VIDEO TUTORIALS DATABASE
         // ============================================================================
+        const FCC_CSV_URL = 'https://raw.githubusercontent.com/gusgorman402/keyfobDB/main/car_fcc_info_DB.csv';
+        let FCC_DB = [];
+        let FCC_MAP = {};
+        let fccLoadPromise = null;
+        let currentFccMatches = [];
+        let currentVehicleData = {};
+
+        function loadFccDb() {
+            if (fccLoadPromise) return fccLoadPromise;
+            fccLoadPromise = fetch(FCC_CSV_URL)
+                .then(res => res.text())
+                .then(text => {
+                    const rows = text.trim().split(/\r?\n/);
+                    const headers = rows.shift().split(',');
+                    const records = [];
+                    rows.forEach(line => {
+                        const cols = line.split(',');
+                        if (cols.length < headers.length) return;
+                        const entry = {};
+                        headers.forEach((h, idx) => entry[h.trim()] = (cols[idx] || '').trim());
+                        const year = entry.Year;
+                        const make = (entry.Make || '').toUpperCase();
+                        const model = (entry.Model || '').toUpperCase();
+                        const fcc = entry.FCCid || entry.FCCId || entry.FCCID;
+                        if (!year || !make || !model || !fcc) return;
+                        const key = `${year}|${make}|${model}`;
+                        if (!FCC_MAP[key]) FCC_MAP[key] = [];
+                        FCC_MAP[key].push(entry);
+                        records.push(entry);
+                    });
+                    FCC_DB = records;
+                    return FCC_DB;
+                })
+                .catch(err => {
+                    console.error('Failed to load FCC DB', err);
+                    return [];
+                });
+            return fccLoadPromise;
+        }
+
+        function findFccMatches(year, make, model) {
+            const makeU = (make || '').toUpperCase();
+            const modelU = (model || '').toUpperCase();
+            const key = `${year}|${makeU}|${modelU}`;
+            const entries = FCC_MAP[key] || [];
+            const fccList = [...new Set(entries.map(e => e.FCCid || e.FCCId || e.FCCID).filter(Boolean))];
+            return fccList;
+        }
+
         const VIDEO_TUTORIALS = [
             // FORD / LINCOLN / MERCURY
             { id: 'ford-f150-flip', category: 'ford', title: 'Ford F-150 Flip Key Programming (2015-2021)', videoId: 'ePlutle8Jek', desc: 'How to program a flip key remote fob for F-150 using Smart Pro.', tool: 'Smart Pro', difficulty: 'Professional' },
