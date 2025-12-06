@@ -7600,7 +7600,7 @@ const SUPPLIER_PAGE_SIZE = 200;
         }
         
         function getTopPick(fccId) {
-            const ranked = getRankedProducts(fccId);
+            const ranked = getRankedProducts(fccId).slice(0, 3);
             return ranked.length > 0 ? ranked[0] : null;
         }
         
@@ -7753,8 +7753,9 @@ const SUPPLIER_PAGE_SIZE = 200;
                 // Try fetching from live API
                 try {
                     const liveProducts = await fetchLiveAmazonProducts(fccId);
-                    if (liveProducts && liveProducts.length > 0) {
-                        renderRankedProductsHTML(container, liveProducts, fccId, true);
+                    const topLive = (liveProducts || []).slice(0, 3);
+                    if (topLive.length > 0) {
+                        renderRankedProductsHTML(container, topLive, fccId, true);
                         return;
                     }
                 } catch (err) {
@@ -7903,8 +7904,9 @@ const SUPPLIER_PAGE_SIZE = 200;
             
             try {
                 const liveProducts = await fetchLiveAmazonProducts(fccId);
-                if (liveProducts && liveProducts.length > 0) {
-                    renderRankedProductsHTML(container, liveProducts, fccId, true);
+                const topLive = (liveProducts || []).slice(0, 3);
+                if (topLive.length > 0) {
+                    renderRankedProductsHTML(container, topLive, fccId, true);
                 } else {
                     container.innerHTML = `
                         <div class="text-center p-4">
