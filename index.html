@@ -447,6 +447,51 @@
                     </table>
                 </div>
             </div>
+
+            <div class="glass-panel rounded-3xl p-6 mt-6 shadow-2xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">🔑 Locksmith Catalog (OEMCarKeyMall scrape)</h3>
+                        <p class="text-slate-400 text-sm">Locally scraped CSV with FCC IDs, chip, keyway, button count, battery, and price hints useful to locksmiths.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadLocksmithCatalog(true)" class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄 Refresh locksmith CSV</button>
+                        <a href="./data/oem_locksmith_catalog.csv" target="_blank"
+                            class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">Open CSV</a>
+                        <a href="./api/scrape_oem_locksmith.py" target="_blank"
+                            class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">View scraper</a>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div class="w-full md:w-96">
+                        <input id="locksmithSearch" type="text" placeholder="Search make/model/FCC/chip/keyway..."
+                            class="w-full px-4 py-3 bg-navy-950/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
+                            oninput="filterLocksmithCatalog()">
+                    </div>
+                    <div id="locksmithStats" class="text-sm text-slate-400">Not loaded yet.</div>
+                </div>
+
+                <div class="mt-4 overflow-x-auto max-h-96">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-brand-400 border-b border-brand-500/20">
+                                <th class="p-2">Vehicle</th>
+                                <th class="p-2">FCC / PN</th>
+                                <th class="p-2">Chip / Keyway / Features</th>
+                                <th class="p-2">Battery / Freq</th>
+                                <th class="p-2">Notes</th>
+                                <th class="p-2">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="locksmithTableBody" class="text-slate-300">
+                            <tr>
+                                <td class="p-2 text-slate-500" colspan="6">Click "Refresh locksmith CSV" to load the catalog.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Tutorials Section -->
@@ -1040,6 +1085,55 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Supplier Catalog (LocksmithKeyless / UHS Hardware) -->
+        <div id="supplierCatalogSection" class="mb-12 animate-fade-in">
+            <div class="glass-panel rounded-3xl p-6 border border-brand-500/20">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-white mb-1">Supplier Catalog (Keys & Remotes)</h2>
+                        <p class="text-slate-400 text-sm">Search and filter products from LocksmithKeyless and UHS Hardware CSV feeds.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <select id="supplierSourceSelect" class="bg-navy-900/60 border border-brand-500/30 text-white text-sm rounded-lg px-3 py-2"
+                            onchange="loadSupplierCatalog(this.value)">
+                            <option value="">Select source</option>
+                            <option value="locksmithkeyless">LocksmithKeyless</option>
+                            <option value="uhs_hardware">UHS Hardware</option>
+                        </select>
+                        <input id="supplierSearchInput" type="text" placeholder="Search title, FCC, part, vendor, tags..."
+                            class="bg-navy-900/60 border border-brand-500/30 text-white text-sm rounded-lg px-3 py-2 w-60"
+                            oninput="filterSupplierCatalog()">
+                        <input id="supplierFccInput" type="text" placeholder="FCC only" class="bg-navy-900/60 border border-brand-500/30 text-white text-sm rounded-lg px-3 py-2 w-32"
+                            oninput="filterSupplierCatalog()">
+                        <label class="flex items-center gap-2 text-slate-300 text-sm">
+                            <input type="checkbox" id="supplierInStock" class="rounded" onchange="filterSupplierCatalog()"> In stock
+                        </label>
+                    </div>
+                </div>
+
+                <div id="supplierCatalogStats" class="text-slate-400 text-sm mb-2">Select a source to load products.</div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="text-brand-400 border-b border-brand-500/30">
+                            <tr>
+                                <th class="p-3 text-left">Title</th>
+                                <th class="p-3 text-left">FCC</th>
+                                <th class="p-3 text-left">Part #</th>
+                                <th class="p-3 text-left">Vendor</th>
+                                <th class="p-3 text-left">SKU</th>
+                                <th class="p-3 text-left">Price</th>
+                                <th class="p-3 text-left">Avail</th>
+                                <th class="p-3 text-left">Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supplierCatalogBody" class="text-slate-300"></tbody>
+                    </table>
+                </div>
+                <div id="supplierCatalogPagination" class="text-slate-400 text-xs mt-2"></div>
             </div>
         </div>
 
@@ -4525,6 +4619,9 @@
                 if (!externalFccList.length) {
                     loadExternalFccList();
                 }
+                if (!locksmithCatalog.length) {
+                    loadLocksmithCatalog();
+                }
             }
             
             // Reset to popular products when switching tabs
@@ -4644,6 +4741,115 @@
             document.getElementById('summaryChip').textContent = lockData.chip || lockData.transponder || 'N/A';
             document.getElementById('summaryNote').textContent = lockData.notes || lockData.programmingNotes || 'No notes available';
         }
+
+// Supplier catalog helpers
+async function loadSupplierCatalog(source) {
+    supplierCatalogData = [];
+    supplierCatalogFiltered = [];
+    supplierCatalogPage = 1;
+    const stats = document.getElementById('supplierCatalogStats');
+    const body = document.getElementById('supplierCatalogBody');
+    const pagination = document.getElementById('supplierCatalogPagination');
+    if (!source) {
+        if (stats) stats.textContent = 'Select a source to load products.';
+        if (body) body.innerHTML = '';
+        if (pagination) pagination.textContent = '';
+        return;
+    }
+    if (stats) stats.textContent = 'Loading products...';
+    if (body) body.innerHTML = '<tr><td class="p-3 text-slate-400" colspan="8">Loading...</td></tr>';
+    try {
+        const resp = await fetch(`data/${source}_products.csv`);
+        const text = await resp.text();
+        supplierCatalogData = parseCsv(text);
+        filterSupplierCatalog();
+    } catch (e) {
+        console.error(e);
+        if (stats) stats.textContent = 'Failed to load catalog.';
+        if (body) body.innerHTML = '';
+        if (pagination) pagination.textContent = '';
+    }
+}
+
+function parseCsv(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (lines.length === 0) return [];
+    const headers = lines.shift().split(',');
+    return lines.map(line => {
+        const cols = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"'));
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = cols[i] || '');
+        obj.available = obj.available === 'True' || obj.available === 'true';
+        return obj;
+    });
+}
+
+function filterSupplierCatalog() {
+    const q = (document.getElementById('supplierSearchInput')?.value || '').toLowerCase();
+    const fccQ = (document.getElementById('supplierFccInput')?.value || '').toLowerCase();
+    const inStock = document.getElementById('supplierInStock')?.checked;
+    supplierCatalogFiltered = supplierCatalogData.filter(p => {
+        const hay = `${p.title} ${p.fcc_id} ${p.part_number} ${p.vendor} ${p.tags} ${p.sku} ${p.body_text}`.toLowerCase();
+        if (q && !hay.includes(q)) return false;
+        if (fccQ && !(p.fcc_id || '').toLowerCase().includes(fccQ)) return false;
+        if (inStock && !p.available) return false;
+        return true;
+    });
+    supplierCatalogPage = 1;
+    renderSupplierCatalog();
+}
+
+function renderSupplierCatalog() {
+    const body = document.getElementById('supplierCatalogBody');
+    const stats = document.getElementById('supplierCatalogStats');
+    const pagination = document.getElementById('supplierCatalogPagination');
+    if (!body || !stats || !pagination) return;
+
+    const total = supplierCatalogFiltered.length;
+    if (total === 0) {
+        body.innerHTML = '<tr><td class="p-3 text-slate-400" colspan="8">No matching products.</td></tr>';
+        stats.textContent = '0 results';
+        pagination.textContent = '';
+        return;
+    }
+
+    const start = (supplierCatalogPage - 1) * SUPPLIER_PAGE_SIZE;
+    const end = Math.min(start + SUPPLIER_PAGE_SIZE, total);
+    const slice = supplierCatalogFiltered.slice(start, end);
+
+    body.innerHTML = slice.map(p => `
+        <tr class="border-b border-slate-800/60">
+            <td class="p-3">
+                <div class="text-white font-semibold text-sm">${p.title}</div>
+                <div class="text-xs text-slate-500 truncate">Tags: ${p.tags}</div>
+            </td>
+            <td class="p-3 text-slate-200">${p.fcc_id || '-'}</td>
+            <td class="p-3 text-slate-200">${p.part_number || '-'}</td>
+            <td class="p-3 text-slate-200">${p.vendor || '-'}</td>
+            <td class="p-3 text-slate-200">${p.sku || '-'}</td>
+            <td class="p-3 text-green-400 font-semibold">$${p.price || '-'}</td>
+            <td class="p-3">${p.available ? '<span class="text-green-400 text-xs">In stock</span>' : '<span class="text-slate-500 text-xs">Out</span>'}</td>
+            <td class="p-3">
+                <a href="${p.product_url}" target="_blank" class="text-brand-300 hover:underline text-sm">View</a>
+            </td>
+        </tr>
+    `).join('');
+
+    stats.textContent = `${total} results — showing ${start + 1}-${end}`;
+
+    const totalPages = Math.ceil(total / SUPPLIER_PAGE_SIZE);
+    pagination.innerHTML = `
+        <div class="flex items-center gap-3">
+            <button class="px-3 py-1 text-xs rounded bg-navy-900/60 border border-slate-700 text-slate-300 disabled:opacity-40"
+                ${supplierCatalogPage <= 1 ? 'disabled' : ''}
+                onclick="supplierCatalogPage=Math.max(1, supplierCatalogPage-1); renderSupplierCatalog();">Prev</button>
+            <span>Page ${supplierCatalogPage} / ${totalPages}</span>
+            <button class="px-3 py-1 text-xs rounded bg-navy-900/60 border border-slate-700 text-slate-300 disabled:opacity-40"
+                ${supplierCatalogPage >= totalPages ? 'disabled' : ''}
+                onclick="supplierCatalogPage=Math.min(${totalPages}, supplierCatalogPage+1); renderSupplierCatalog();">Next</button>
+        </div>
+    `;
+}
 
         function displayResults(data) {
             document.getElementById('vehicleTitle').textContent = `${data.year} ${data.make} ${data.model}`;
@@ -5432,6 +5638,11 @@
         let fccLoadPromise = null;
         let currentFccMatches = [];
         let currentVehicleData = {};
+// Supplier catalog state
+let supplierCatalogData = [];
+let supplierCatalogFiltered = [];
+let supplierCatalogPage = 1;
+const SUPPLIER_PAGE_SIZE = 200;
 
         function loadFccDb() {
             if (fccLoadPromise) return fccLoadPromise;
@@ -6161,6 +6372,9 @@
         
         let keyfobDbData = [];
         let externalFccList = [];
+        let locksmithCatalog = [];
+        let locksmithFiltered = [];
+        const LOCKSMITH_CSV_URL = './data/oem_locksmith_catalog.csv';
 
         const FCC_REFERENCE_RESOURCES = [
             {
@@ -6171,6 +6385,15 @@
                 docs: 'https://github.com/gusgorman402/keyfobDB',
                 description: 'Open-source CSV of FCC IDs by year/make/model from the keyfobDB project.',
                 details: 'Best for quick cross-checks of FCC IDs against make/model/year.'
+            },
+            {
+                id: 'oem-locksmith',
+                name: 'OEMCarKeyMall locksmith catalog (CSV)',
+                type: 'CSV',
+                url: './data/oem_locksmith_catalog.csv',
+                docs: './api/scrape_oem_locksmith.py',
+                description: 'Scraped locksmith-facing fields (FCC ID, chip, keyway, buttons, battery, price) from oemcarkeymall.com.',
+                details: 'Regenerate with api/scrape_oem_locksmith.py; respects sitemap and polite rate limits.'
             },
             {
                 id: 'fccid-io',
@@ -6307,6 +6530,128 @@
             }
         }
 
+        function parseCsvLine(line) {
+            const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+            return values.map(v => v.replace(/^"|"$/g, '').trim());
+        }
+
+        async function loadLocksmithCatalog(force = false) {
+            const statsEl = document.getElementById('locksmithStats');
+            const tbody = document.getElementById('locksmithTableBody');
+            if (!statsEl || !tbody) return;
+
+            if (locksmithCatalog.length && !force) {
+                renderLocksmithRows(locksmithFiltered.length ? locksmithFiltered : locksmithCatalog);
+                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> products from the locksmith CSV.`;
+                return;
+            }
+
+            statsEl.textContent = 'Loading locksmith catalog...';
+            tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
+
+            try {
+                const response = await fetch(LOCKSMITH_CSV_URL);
+                const csvText = await response.text();
+                const lines = csvText.split('\n').filter(line => line.trim());
+                const headers = parseCsvLine(lines[0]);
+
+                locksmithCatalog = lines.slice(1).map(line => {
+                    const values = parseCsvLine(line);
+                    const row = {};
+                    headers.forEach((h, i) => {
+                        row[h.trim()] = values[i] || '';
+                    });
+                    return row;
+                });
+
+                locksmithFiltered = [];
+                renderLocksmithRows(locksmithCatalog.slice(0, 100));
+                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> products from the locksmith CSV. Showing first ${Math.min(100, locksmithCatalog.length)}.`;
+                const searchInput = document.getElementById('locksmithSearch');
+                if (searchInput) searchInput.value = '';
+            } catch (error) {
+                console.error('Error loading locksmith CSV:', error);
+                tbody.innerHTML = '<tr><td class="p-2 text-red-400" colspan="6">Failed to load locksmith CSV.</td></tr>';
+                statsEl.textContent = 'Failed to load locksmith CSV.';
+            }
+        }
+
+        function renderLocksmithRows(rows) {
+            const tbody = document.getElementById('locksmithTableBody');
+            if (!tbody) return;
+
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">No locksmith rows match this search.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rows.slice(0, 100).map(row => {
+                const price = row.price ? `$${row.price}${row.currency ? ' ' + row.currency : ''}` : '—';
+                const features = [
+                    row.buttons ? `${row.buttons} btn` : '',
+                    row.remote_start ? 'remote start' : '',
+                    row.immobilizer ? 'immobilizer' : ''
+                ].filter(Boolean).join(' • ');
+
+                const freq = row.frequency ? `${row.frequency} MHz` : '';
+                const battery = row.battery || '';
+                const freqBattery = [battery, freq].filter(Boolean).join(' • ');
+
+                return `
+                    <tr class="border-b border-brand-500/10 hover:bg-navy-900/40 transition-colors">
+                        <td class="p-2">
+                            <div class="font-semibold text-white">${row.year || '—'} ${row.make || ''} ${row.model || ''}</div>
+                            <div class="text-xs text-slate-500">${row.title_raw || ''}</div>
+                        </td>
+                        <td class="p-2">
+                            <div class="font-mono text-brand-300">${row.fcc_id || '—'}</div>
+                            <div class="text-xs text-slate-400">${row.part_number || ''}</div>
+                        </td>
+                        <td class="p-2">
+                            <div class="text-slate-300">${row.chip || row.keyway || '—'}</div>
+                            <div class="text-xs text-slate-500">${features || '—'}</div>
+                        </td>
+                        <td class="p-2 text-slate-300">${freqBattery || '—'}</td>
+                        <td class="p-2 text-slate-300">
+                            ${row.notes || row.compatibility_raw || '—'}
+                        </td>
+                        <td class="p-2 text-slate-300">
+                            <div>${price}</div>
+                            ${row.url ? `<a class="text-brand-400 text-xs underline" href="${row.url}" target="_blank" rel="noreferrer">Open</a>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterLocksmithCatalog() {
+            const searchInput = document.getElementById('locksmithSearch');
+            const statsEl = document.getElementById('locksmithStats');
+            if (!searchInput) return;
+            const term = searchInput.value.toLowerCase();
+
+            if (!locksmithCatalog.length) {
+                loadLocksmithCatalog();
+                return;
+            }
+
+            const filtered = !term ? locksmithCatalog : locksmithCatalog.filter(row => {
+                const haystack = [
+                    row.make, row.model, row.year, row.fcc_id,
+                    row.part_number, row.chip, row.keyway, row.notes,
+                    row.title_raw, row.compatibility_raw
+                ].join(' ').toLowerCase();
+                return haystack.includes(term);
+            });
+
+            locksmithFiltered = filtered;
+            renderLocksmithRows(filtered.slice(0, 100));
+
+            if (statsEl) {
+                statsEl.innerHTML = `Showing <span class="text-brand-400 font-bold">${Math.min(100, filtered.length)}</span> of <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> locksmith rows${term ? ` matching "${term}"` : ''}.`;
+            }
+        }
+
         async function previewResource(resourceId) {
             const resource = FCC_REFERENCE_RESOURCES.find(r => r.id === resourceId);
             const preview = document.getElementById('referencePreview');
@@ -6352,6 +6697,42 @@
                             </table>
                         </div>
                         <p class="text-slate-400 text-xs">Use "Open CSV" to view the full file or "Refresh list" to re-fetch.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (resource.id === 'oem-locksmith') {
+                await loadLocksmithCatalog();
+                const sample = (locksmithFiltered.length ? locksmithFiltered : locksmithCatalog).slice(0, 8);
+                preview.innerHTML = `
+                    <div class="text-slate-300 space-y-2">
+                        <p>Previewing the locksmith CSV. Showing ${sample.length} of ${locksmithCatalog.length || 0} rows loaded.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-brand-400 border-b border-brand-500/20">
+                                        <th class="p-2">Vehicle</th>
+                                        <th class="p-2">FCC / PN</th>
+                                        <th class="p-2">Chip/Keyway</th>
+                                        <th class="p-2">Freq/Batt</th>
+                                        <th class="p-2">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${sample.map(row => `
+                                        <tr class="border-b border-brand-500/10">
+                                            <td class="p-2 text-slate-300">${row.year || '—'} ${row.make || ''} ${row.model || ''}</td>
+                                            <td class="p-2 text-brand-300 font-mono">${row.fcc_id || '—'}${row.part_number ? ` / ${row.part_number}` : ''}</td>
+                                            <td class="p-2 text-slate-300">${row.chip || row.keyway || '—'}</td>
+                                            <td class="p-2 text-slate-300">${row.frequency || '—'}${row.battery ? ` / ${row.battery}` : ''}</td>
+                                            <td class="p-2 text-slate-300">${row.price ? `$${row.price}` : '—'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-slate-400 text-xs">Regenerate with api/scrape_oem_locksmith.py, then click Refresh to reload the CSV.</p>
                     </div>
                 `;
                 return;
@@ -6764,6 +7145,26 @@
             const ranked = getRankedProducts(fccId);
             return ranked.slice(1);
         }
+
+        function sanitizeId(value) {
+            return (value || '').toString().replace(/[^a-zA-Z0-9]/g, '_');
+        }
+
+        async function hydrateProductImage(product, thumbId) {
+            if (!product || product.imageUrl || !product.asin) return;
+            try {
+                const details = await fetchProductByASIN(product.asin);
+                if (details && details.imageUrl) {
+                    const el = document.getElementById(thumbId);
+                    if (el) {
+                        el.outerHTML = `<img id="${thumbId}" src="${details.imageUrl}" alt="Product" class="w-full h-full object-contain bg-white" loading="lazy" referrerpolicy="no-referrer">`;
+                    }
+                    product.imageUrl = details.imageUrl;
+                }
+            } catch (err) {
+                console.warn('Image hydrate failed', err);
+            }
+        }
         
         // Generate chip type badge HTML
         function getChipBadge(chipType) {
@@ -6782,6 +7183,7 @@
             const primeIcon = product.isPrime ? 
                 '<span class="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded font-bold">Prime</span>' : 
                 `<span class="text-xs text-slate-500">${product.deliveryDays}+ days</span>`;
+            const thumbId = `thumb_${sanitizeId(product.asin || product.name || 'product')}`;
             
             const topPickBadge = isTopPick ? 
                 '<div class="absolute -top-2 -right-2 bg-brand-500 text-navy-950 px-2 py-1 rounded-lg text-xs font-bold shadow-lg">⭐ TOP PICK</div>' : '';
@@ -6824,7 +7226,9 @@
                     ${topPickBadge}
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-brand-500/10 border border-brand-500/30">
-                            ${product.imageUrl ? `<img src="${product.imageUrl}" alt="Product" class="w-full h-full object-contain bg-white" loading="lazy" referrerpolicy="no-referrer">` : `<div class="w-full h-full flex items-center justify-center text-2xl">🔑</div>`}
+                            ${product.imageUrl 
+                                ? `<img id="${thumbId}" src="${product.imageUrl}" alt="Product" class="w-full h-full object-contain bg-white" loading="lazy" referrerpolicy="no-referrer">` 
+                                : `<div id="${thumbId}" class="w-full h-full flex items-center justify-center text-2xl">🔑</div>`}
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="text-white font-semibold text-sm leading-tight mb-1 group-hover:text-brand-400 transition-colors">
@@ -6911,6 +7315,11 @@
             
             // Render static data
             renderRankedProductsHTML(container, ranked, fccId, false);
+            
+            // Try to hydrate image for top pick if missing
+            const top = ranked[0];
+            const thumbId = `thumb_${sanitizeId(top.asin || top.name || 'product')}`;
+            hydrateProductImage(top, thumbId);
         }
         
         // Render ranked products HTML
