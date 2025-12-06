@@ -1,0 +1,8 @@
+name = "euro-keys"
+main = "src/index.ts"
+compatibility_date = "2024-12-06"
+
+[[kv_namespaces]]
+binding = "LOCKSMITH_KV"
+id = "ad8b37aa307a45d0bcc2a833c2293499"
+

@@ -378,7 +378,7 @@
             <div class="glass-panel rounded-3xl p-4 md:p-6 max-w-7xl mx-auto shadow-2xl">
                 <div class="flex flex-col md:flex-row gap-3 md:items-center justify-between mb-4">
                     <div class="w-full md:w-80">
-                        <input id="immobilizerSearch" type="text" placeholder="Search make, module, notes..."
+                        <input id="immobilizerSearch" type="text" placeholder="Search make, model, IMMO, notes..."
                             class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
                             oninput="filterImmobilizerTable()">
                     </div>
@@ -392,10 +392,11 @@
                         <thead>
                             <tr class="text-left text-brand-400 border-b border-brand-500/30">
                                 <th class="p-3">Make</th>
-                                <th class="p-3">Module/System</th>
-                                <th class="p-3">Years</th>
+                                <th class="p-3">Model</th>
+                                <th class="p-3">Year/Range</th>
+                                <th class="p-3">Immobilizer</th>
+                                <th class="p-3">Key Type</th>
                                 <th class="p-3">Notes</th>
-                                <th class="p-3">Source</th>
                             </tr>
                         </thead>
                         <tbody id="immobilizerTableBody" class="text-slate-300">
@@ -5033,7 +5034,9 @@ function openSupplierCatalogWithFcc(fccId) {
             ensureImmobilizersLoaded().then(() => {
                 const match = findImmobilizerEntry(data.make, data.year);
                 if (match) {
-                    setImmoDisplay(match.module_or_system || lockData.immoSystem, match.years);
+                    const immoLabel = match.immobilizer_system_specific || match.immobilizer_system || match.module_or_system || lockData.immoSystem;
+                    const yearLabel = match.year || (match.compat_year_min && match.compat_year_max ? `${match.compat_year_min}-${match.compat_year_max}` : match.immobilizer_years || match.years || '');
+                    setImmoDisplay(immoLabel, yearLabel);
                 }
             });
             document.getElementById('pinRequired').textContent = lockData.pinRequired;
@@ -6535,41 +6538,16 @@ const SUPPLIER_PAGE_SIZE = 200;
         // Fetch and merge data from open-source GitHub keyfobDB
         // ============================================================================
         
-        let keyfobDbData = [];
+        const MASTER_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/master';
+        let MASTER_DATA = [];
         let externalFccList = [];
         let locksmithCatalog = [];
         let locksmithFiltered = [];
-        const LOCKSMITH_CSV_URL = './data/oem_locksmith_catalog.csv';
         let IMMOBILIZER_DATA = [];
-        const IMMOBILIZER_CSV_URL = './data/immobilizers.csv';
-        // Embedded fallback so UI still works if the CSV is unreachable in production
+        const IMMOBILIZER_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/locksmith';
+        // Minimal embedded fallback only if API is unreachable
         const IMMOBILIZER_EMBED = [
-            { make: 'BMW', module_or_system: 'EWS', years: '~1998-2005', models_notes: 'Older BMW 3/5/7/X/Z platforms; EWS transponder keys.', source_file: 'suppliers_products.csv' },
-            { make: 'BMW', module_or_system: 'CAS3/CAS3+', years: '~2006-2010', models_notes: 'BMW 3/5 Comfort Access CAS3+ smart keys.', source_file: 'suppliers_products.csv; cgdi_bmw_user_manual.pdf' },
-            { make: 'BMW', module_or_system: 'CAS4/CAS4+', years: '~2009-2016', models_notes: 'BMW 3/5/7 CAS4 smart keys.', source_file: 'suppliers_products.csv; cgdi_bmw_user_manual.pdf' },
-            { make: 'BMW', module_or_system: 'FEM/BDC', years: '~2013-2018', models_notes: 'BMW F/G-chassis smart keys; FEM/BDC add/all-keys-lost.', source_file: 'suppliers_products.csv; cgdi_bmw_fem_bdc_add_key.pdf' },
-            { make: 'BMW', module_or_system: 'FEM/BDC', years: '2013-2018', models_notes: 'BMW 3 (F30/F31/F34), 5 (F10/F11), 7 (F01/F02); FEM/BDC.', source_file: 'cgdi_bmw_fem_bdc_add_key.pdf' },
-            { make: 'BMW', module_or_system: 'CAS4', years: '2009-2016', models_notes: 'BMW 3 (E90 LCI), 5 (F07/F10), 7 (F01/F02); CAS4.', source_file: 'cgdi_bmw_user_manual.pdf' },
-            { make: 'BMW', module_or_system: 'CAS3+', years: '2006-2010', models_notes: 'BMW 3/5 (E9x/E6x) Comfort Access CAS3+.', source_file: 'cgdi_bmw_user_manual.pdf' },
-            { make: 'Audi/VW', module_or_system: 'BCM2 Immo5', years: '~2007-2018', models_notes: 'Audi A4/A5/A6/A7/A8/Q5 BCM2 smart systems.', source_file: 'obdstar.com/News_2269.html' },
-            { make: 'Mercedes-Benz', module_or_system: 'EIS/FBS3', years: '~2009-2015', models_notes: 'W204/W207/W212/W164/W166/W221 proximity keys.', source_file: 'suppliers_products.csv' },
-            { make: 'Ford', module_or_system: 'PATS (4D63/ID49)', years: '2000-2025', models_notes: 'Ford/Lincoln/Mazda/Mercury transponder & prox; late-gen 2021+ blade/prox.', source_file: 'suppliers_products.csv; Ilco 2025; obdstar.com/News_2269.html' },
-            { make: 'Ford', module_or_system: 'PATS (late-gen)', years: '2021-2025', models_notes: 'EcoSport/Edge/Escape/Focus/F250/F350/Explorer/Mustang blade & prox (OBDSTAR Nov 2025).', source_file: 'obdstar.com/News_2269.html' },
-            { make: 'Ford', module_or_system: 'PATS (4D63)', years: '2000-2019', models_notes: 'Crown Victoria, Expedition, Explorer, Taurus, F-150/250/350, Fusion, Mustang, Ranger, E-Series.', source_file: 'ilco_auto_truck_2025.pdf' },
-            { make: 'GM', module_or_system: 'ID46 transponder (Circle+/B111/B119)', years: '2005-2021', models_notes: 'GM high-security Z keyway transponders and smart keys.', source_file: 'suppliers_products.csv; Ilco 2025' },
-            { make: 'GM', module_or_system: 'ID46 (B111 Z-Keyway)', years: '2005-2017', models_notes: 'Chevrolet Silverado/Suburban/Tahoe/Impala/Malibu/Cobalt; GMC Sierra/Yukon; Buick Lucerne; Cadillac DTS.', source_file: 'ilco_auto_truck_2025.pdf' },
-            { make: 'GM', module_or_system: 'ID46 EXT (B119)', years: '2010-2021', models_notes: 'Chevrolet Camaro/Equinox/Silverado/Tahoe/Suburban; GMC Sierra/Terrain/Yukon; Buick Encore/Regal.', source_file: 'ilco_auto_truck_2025.pdf' },
-            { make: 'Chrysler/RAM', module_or_system: 'Fobik / GQ4-53T', years: '~2008-2023', models_notes: 'Dodge/RAM Fobik proximity keys with Philips ID46 CHR.', source_file: 'suppliers_products.csv' },
-            { make: 'Chrysler/RAM', module_or_system: 'Fobik / GQ4-53T', years: '2013-2023', models_notes: 'RAM 1500/2500/3500 (incl. remote start).', source_file: 'suppliers_products.csv' },
-            { make: 'Nissan', module_or_system: 'NATS smart (KR55WK...)', years: '~2007-2014', models_notes: 'Altima/Maxima smart keys (ID46).', source_file: 'suppliers_products.csv' },
-            { make: 'Nissan', module_or_system: 'NATS smart (KR55WK48903)', years: '2007-2014', models_notes: 'Altima 2007-2012; Maxima 2009-2014 smart keys.', source_file: 'suppliers_products.csv' },
-            { make: 'Honda/Acura', module_or_system: 'ID46/47/HOxx', years: '~2003-2020', models_notes: 'Honda/Acura transponder and smart keys (HO01/HO03).', source_file: 'suppliers_products.csv; Ilco 2025' },
-            { make: 'Honda', module_or_system: 'ID46 (KR55WK49308)', years: '2008-2014', models_notes: 'Accord EX 4drs remote head key.', source_file: 'suppliers_products.csv' },
-            { make: 'Honda', module_or_system: 'ID47 (MLBHLIK6-1TA)', years: '2016-2020', models_notes: 'Accord LX/LXS/Sport 2016-2017; Civic LX 2016-2020.', source_file: 'suppliers_products.csv' },
-            { make: 'Toyota/Lexus', module_or_system: '4D/8A/H-chip/Smart', years: '~2004-2020', models_notes: 'Toyota/Lexus H-chip, 8A, and smart systems.', source_file: 'suppliers_products.csv; Ilco 2025' },
-            { make: 'Toyota', module_or_system: '4D H-chip (HYQ12BEL)', years: '2014-2019', models_notes: 'Corolla key fob H-chip 4B.', source_file: 'suppliers_products.csv' },
-            { make: 'Land Rover', module_or_system: 'EWS reference', years: '~2005-2011', models_notes: 'LR3/Range Rover EWS-based flip keys.', source_file: 'suppliers_products.csv' },
-            { make: 'ORA (Great Wall)', module_or_system: 'KBCM/ESCL/TBOX/VCU', years: '2022-2025', models_notes: 'ORA Funky Cat proximity modules per OBDSTAR Nov 2025 update.', source_file: 'obdstar.com/News_2269.html' },
+            { make: 'BMW', model: 'Generic', year: 2015, immobilizer_system: 'FEM/BDC', immobilizer_system_specific: 'FEM/BDC', notes: 'Fallback embedded entry' }
         ];
 
         // Basic CSV parser that respects quoted fields
@@ -6607,27 +6585,29 @@ const SUPPLIER_PAGE_SIZE = 200;
             return true;
         }
 
-        async function loadImmobilizerList(force = false) {
-            // Always seed with embedded data so the table is never empty
-            if (!IMMOBILIZER_DATA.length || force) {
-                IMMOBILIZER_DATA = IMMOBILIZER_EMBED;
-                renderImmobilizerTable();
-            } else if (!force) {
-                renderImmobilizerTable();
-            }
-            // Try to hydrate from CSV in the background
+        async function loadMasterData(force = false) {
+            if (MASTER_DATA.length && !force) return MASTER_DATA;
             try {
-                const res = await fetch(IMMOBILIZER_CSV_URL);
-                if (!res.ok) throw new Error('immobilizer CSV fetch failed');
-                const text = await res.text();
-                const parsed = parseCsv(text);
-                if (parsed && parsed.length) {
-                    IMMOBILIZER_DATA = parsed;
-                    renderImmobilizerTable();
+                const res = await fetch(MASTER_API_URL);
+                if (!res.ok) throw new Error('master API fetch failed');
+                const json = await res.json();
+                const rows = json.rows || json || [];
+                if (Array.isArray(rows) && rows.length) {
+                    MASTER_DATA = rows;
+                    return MASTER_DATA;
                 }
             } catch (err) {
-                console.warn('Using embedded immobilizer data (CSV unavailable):', err.message || err);
+                console.warn('Using embedded fallback (API unavailable):', err.message || err);
             }
+            MASTER_DATA = IMMOBILIZER_EMBED;
+            return MASTER_DATA;
+        }
+
+        async function loadImmobilizerList(force = false) {
+            await loadMasterData(force);
+            // Filter to rows that have immobilizer fields
+            IMMOBILIZER_DATA = MASTER_DATA.filter(r => r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system);
+            renderImmobilizerTable();
         }
 
         function renderImmobilizerTable(filter = '') {
@@ -6639,19 +6619,24 @@ const SUPPLIER_PAGE_SIZE = 200;
             if (term) {
                 rows = rows.filter(r =>
                     (r.make || '').toLowerCase().includes(term) ||
-                    (r.module_or_system || '').toLowerCase().includes(term) ||
-                    (r.models_notes || '').toLowerCase().includes(term)
+                    (r.model || '').toLowerCase().includes(term) ||
+                    (r.immobilizer_system || '').toLowerCase().includes(term) ||
+                    (r.immobilizer_system_specific || '').toLowerCase().includes(term) ||
+                    (r.notes || '').toLowerCase().includes(term)
                 );
             }
             rows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-brand-500/10 hover:bg-navy-900/40';
+                const yearsDisplay = r.year || (r.compat_year_min && r.compat_year_max ? `${r.compat_year_min}-${r.compat_year_max}` : '');
+                const immoDisplay = r.immobilizer_system_specific || r.immobilizer_system || r.module_or_system || '';
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-white">${r.make || ''}</td>
-                    <td class="p-3 text-slate-200">${r.module_or_system || ''}</td>
-                    <td class="p-3 text-slate-300">${r.years || ''}</td>
-                    <td class="p-3 text-slate-400">${r.models_notes || ''}</td>
-                    <td class="p-3 text-slate-400 text-xs break-all">${r.source_file || r.source_url || ''}</td>
+                    <td class="p-3 text-slate-200">${r.model || ''}</td>
+                    <td class="p-3 text-slate-200">${yearsDisplay || ''}</td>
+                    <td class="p-3 text-slate-200">${immoDisplay}</td>
+                    <td class="p-3 text-slate-300">${r.key_type || ''}</td>
+                    <td class="p-3 text-slate-400">${r.notes || r.models_notes || ''}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -6673,7 +6658,21 @@ const SUPPLIER_PAGE_SIZE = 200;
         function findImmobilizerEntry(make, year) {
             const yearNum = parseInt(year, 10);
             const upper = (make || '').toUpperCase();
-            return IMMOBILIZER_DATA.find(entry => entry.make?.toUpperCase() === upper && matchesYearRange(entry.years || '', yearNum));
+            return IMMOBILIZER_DATA.find(entry => {
+                const makeMatch = entry.make?.toUpperCase() === upper || entry.make_norm?.toUpperCase() === upper;
+                if (!makeMatch) return false;
+                // Prefer exact year match when present
+                if (!isNaN(yearNum) && entry.year && parseInt(entry.year, 10) === yearNum) return true;
+                // Range match using compat_year_min/max
+                if (!isNaN(yearNum) && entry.compat_year_min && entry.compat_year_max) {
+                    const ymin = parseInt(entry.compat_year_min, 10);
+                    const ymax = parseInt(entry.compat_year_max, 10);
+                    if (!isNaN(ymin) && !isNaN(ymax) && yearNum >= ymin && yearNum <= ymax) return true;
+                }
+                // Fallback to legacy range string
+                if (!isNaN(yearNum) && entry.immobilizer_years) return matchesYearRange(entry.immobilizer_years, yearNum);
+                return true;
+            });
         }
 
         const FCC_REFERENCE_RESOURCES = [
@@ -6727,13 +6726,14 @@ const SUPPLIER_PAGE_SIZE = 200;
                 description: 'Vehicle make/model data used for VIN and browse workflows.',
                 details: 'Helpful to validate year/make/model before cross-referencing FCC IDs.'
             },
+            // authoritative source now via Cloudflare Worker
             {
-                id: 'supplier-csv',
-                name: 'Local Supplier Catalog (Keys & Remotes)',
-                type: 'Local CSV',
-                url: 'data/suppliers_products.csv',
-                description: 'Combined LocksmithKeyless and UHS Hardware products (keys/remotes) for local FCC reference.',
-                details: 'Use this CSV as an offline source of truth for FCC IDs and parts/prices.'
+                id: 'master-api',
+                name: 'Locksmith Master (Cloudflare KV)',
+                type: 'API',
+                url: 'https://euro-keys.jeremy-samuels17.workers.dev/api/master',
+                description: 'Single source of truth served from KV via Worker.',
+                details: 'Filters: make, model, year, immo, fcc.'
             }
         ];
 
@@ -6787,17 +6787,18 @@ const SUPPLIER_PAGE_SIZE = 200;
             if (statsEl) statsEl.textContent = 'Loading FCC IDs from GitHub...';
             if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="3">Loading…</td></tr>';
 
-            const data = keyfobDbData.length ? keyfobDbData : await fetchKeyfobDB();
+            await loadMasterData();
+            const data = MASTER_DATA;
             const map = new Map();
 
             data.forEach(entry => {
-                const fccId = (entry.fccId || '').trim();
+                const fccId = (entry.fcc_id || entry.fccId || '').trim();
                 if (!fccId) return;
                 const key = fccId.toUpperCase();
                 if (!map.has(key)) {
                     map.set(key, {
                         fccId: key,
-                        frequency: entry.frequency || '',
+                        frequency: entry.frequency_mhz || entry.frequency || '',
                         modulation: entry.modulation || '',
                         examples: []
                     });
@@ -6813,7 +6814,7 @@ const SUPPLIER_PAGE_SIZE = 200;
             renderExternalFccRows(externalFccList.slice(0, 50));
 
             if (statsEl) {
-                statsEl.innerHTML = `Found <span class="text-brand-400 font-bold">${externalFccList.length}</span> unique FCC IDs across <span class="text-brand-400 font-bold">${data.length}</span> rows from the GitHub CSV. Showing first ${Math.min(50, externalFccList.length)}.`;
+                statsEl.innerHTML = `Found <span class="text-brand-400 font-bold">${externalFccList.length}</span> FCC IDs from master data. Showing first ${Math.min(50, externalFccList.length)}.`;
             }
 
             const searchInput = document.getElementById('externalFccSearch');
@@ -6850,37 +6851,25 @@ const SUPPLIER_PAGE_SIZE = 200;
 
             if (locksmithCatalog.length && !force) {
                 renderLocksmithRows(locksmithFiltered.length ? locksmithFiltered : locksmithCatalog);
-                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> products from the locksmith CSV.`;
+                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> rows from master API.`;
                 return;
             }
 
-            statsEl.textContent = 'Loading locksmith catalog...';
+            statsEl.textContent = 'Loading master data...';
             tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
 
             try {
-                const response = await fetch(LOCKSMITH_CSV_URL);
-                const csvText = await response.text();
-                const lines = csvText.split('\n').filter(line => line.trim());
-                const headers = parseCsvLine(lines[0]);
-
-                locksmithCatalog = lines.slice(1).map(line => {
-                    const values = parseCsvLine(line);
-                    const row = {};
-                    headers.forEach((h, i) => {
-                        row[h.trim()] = values[i] || '';
-                    });
-                    return row;
-                });
-
+                await loadMasterData(true);
+                locksmithCatalog = MASTER_DATA;
                 locksmithFiltered = [];
                 renderLocksmithRows(locksmithCatalog.slice(0, 100));
-                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> products from the locksmith CSV. Showing first ${Math.min(100, locksmithCatalog.length)}.`;
+                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> rows from master API. Showing first ${Math.min(100, locksmithCatalog.length)}.`;
                 const searchInput = document.getElementById('locksmithSearch');
                 if (searchInput) searchInput.value = '';
             } catch (error) {
-                console.error('Error loading locksmith CSV:', error);
-                tbody.innerHTML = '<tr><td class="p-2 text-red-400" colspan="6">Failed to load locksmith CSV.</td></tr>';
-                statsEl.textContent = 'Failed to load locksmith CSV.';
+                console.error('Error loading master API:', error);
+                tbody.innerHTML = '<tr><td class="p-2 text-red-400" colspan="6">Failed to load master API.</td></tr>';
+                statsEl.textContent = 'Failed to load master API.';
             }
         }
 
@@ -6894,38 +6883,29 @@ const SUPPLIER_PAGE_SIZE = 200;
             }
 
             tbody.innerHTML = rows.slice(0, 100).map(row => {
-                const price = row.price ? `$${row.price}${row.currency ? ' ' + row.currency : ''}` : '—';
-                const features = [
-                    row.buttons ? `${row.buttons} btn` : '',
-                    row.remote_start ? 'remote start' : '',
-                    row.immobilizer ? 'immobilizer' : ''
-                ].filter(Boolean).join(' • ');
-
-                const freq = row.frequency ? `${row.frequency} MHz` : '';
-                const battery = row.battery || '';
-                const freqBattery = [battery, freq].filter(Boolean).join(' • ');
+                const freq = row.frequency_mhz || row.frequency || '';
+                const freqDisplay = freq ? `${freq} MHz` : '';
+                const immo = row.immobilizer_system_specific || row.immobilizer_system || row.module_or_system || '';
+                const keyway = row.keyway_norm || row.keyway || '';
 
                 return `
                     <tr class="border-b border-brand-500/10 hover:bg-navy-900/40 transition-colors">
                         <td class="p-2">
                             <div class="font-semibold text-white">${row.year || '—'} ${row.make || ''} ${row.model || ''}</div>
-                            <div class="text-xs text-slate-500">${row.title_raw || ''}</div>
+                            <div class="text-xs text-slate-500">${row.part_number || ''}</div>
                         </td>
                         <td class="p-2">
                             <div class="font-mono text-brand-300">${row.fcc_id || '—'}</div>
-                            <div class="text-xs text-slate-400">${row.part_number || ''}</div>
+                            <div class="text-xs text-slate-400">${freqDisplay || '—'}</div>
                         </td>
                         <td class="p-2">
-                            <div class="text-slate-300">${row.chip || row.keyway || '—'}</div>
-                            <div class="text-xs text-slate-500">${features || '—'}</div>
+                            <div class="text-slate-300">${immo || '—'}</div>
+                            <div class="text-xs text-slate-500">${keyway || ''}</div>
                         </td>
-                        <td class="p-2 text-slate-300">${freqBattery || '—'}</td>
+                        <td class="p-2 text-slate-300">${row.key_type || row.key_category || ''}</td>
+                        <td class="p-2 text-slate-300">${row.prog_method || ''}</td>
                         <td class="p-2 text-slate-300">
-                            ${row.notes || row.compatibility_raw || '—'}
-                        </td>
-                        <td class="p-2 text-slate-300">
-                            <div>${price}</div>
-                            ${row.url ? `<a class="text-brand-400 text-xs underline" href="${row.url}" target="_blank" rel="noreferrer">Open</a>` : ''}
+                            ${row.notes || row.compatibility_raw || ''}
                         </td>
                     </tr>
                 `;
