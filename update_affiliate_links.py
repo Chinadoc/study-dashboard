@@ -404,3 +404,4 @@ with open('affiliate_products_clean.js', 'w') as f:
 
 print("Updated affiliate_products_clean.js with affiliate links and store ID: eurokeys-20")
 
+
