@@ -6595,6 +6595,60 @@ const SUPPLIER_PAGE_SIZE = 200;
             return 9999; // push unknown years to bottom
         }
 
+        function groupImmobilizers(rows) {
+            const map = new Map();
+            rows.forEach(r => {
+                const immoDisplay = (r.immobilizer_system_specific || r.immobilizer_system || r.module_or_system || '').trim();
+                const keyType = (r.key_type || r.key_category || '').trim();
+                const key = [
+                    (r.make || '').toLowerCase(),
+                    (r.model || '').toLowerCase(),
+                    immoDisplay.toLowerCase(),
+                    keyType.toLowerCase()
+                ].join('|');
+                if (!map.has(key)) {
+                    map.set(key, {
+                        make: r.make || '',
+                        model: r.model || '',
+                        immo: immoDisplay,
+                        keyType,
+                        notes: r.notes || r.models_notes || '',
+                        years: [],
+                        compatMin: r.compat_year_min,
+                        compatMax: r.compat_year_max,
+                        immoYears: r.immobilizer_years || r.years || ''
+                    });
+                }
+                const g = map.get(key);
+                const y = getYearNumeric(r);
+                if (!Number.isNaN(y) && y !== 9999) g.years.push(y);
+            });
+
+            const grouped = Array.from(map.values()).map(g => {
+                let yearLabel = '';
+                if (g.years.length) {
+                    const min = Math.min(...g.years);
+                    const max = Math.max(...g.years);
+                    yearLabel = min === max ? `${min}` : `${min}-${max}`;
+                } else if (g.compatMin && g.compatMax) {
+                    yearLabel = `${g.compatMin}-${g.compatMax}`;
+                } else if (g.immoYears) {
+                    yearLabel = g.immoYears;
+                }
+                return { ...g, yearLabel };
+            });
+
+            return grouped.sort((a, b) => {
+                const ma = a.make.toLowerCase(), mb = b.make.toLowerCase();
+                if (ma !== mb) return ma.localeCompare(mb);
+                const moa = a.model.toLowerCase(), mob = b.model.toLowerCase();
+                if (moa !== mob) return moa.localeCompare(mob);
+                const ia = a.immo.toLowerCase(), ib = b.immo.toLowerCase();
+                if (ia !== ib) return ia.localeCompare(ib);
+                return (a.yearLabel || '').localeCompare(b.yearLabel || '');
+            });
+        }
+
         function sortImmobilizers(rows) {
             return [...rows].sort((a, b) => {
                 const ma = (a.make || '').toLowerCase();
@@ -6669,23 +6723,24 @@ const SUPPLIER_PAGE_SIZE = 200;
                     (r.notes || '').toLowerCase().includes(term)
                 );
             }
-            rows.forEach(r => {
+            const grouped = groupImmobilizers(rows);
+            grouped.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-brand-500/10 hover:bg-navy-900/40';
-                const yearsDisplay = r.year || (r.compat_year_min && r.compat_year_max ? `${r.compat_year_min}-${r.compat_year_max}` : (r.immobilizer_years || r.years || ''));
-                const immoDisplay = r.immobilizer_system_specific || r.immobilizer_system || r.module_or_system || '';
+                const yearsDisplay = r.yearLabel || '';
+                const immoDisplay = r.immo || '';
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-white">${r.make || ''}</td>
                     <td class="p-3 text-slate-200">${r.model || ''}</td>
                     <td class="p-3 text-slate-200">${yearsDisplay || ''}</td>
                     <td class="p-3 text-slate-200">${immoDisplay}</td>
-                    <td class="p-3 text-slate-300">${r.key_type || ''}</td>
-                    <td class="p-3 text-slate-400">${r.notes || r.models_notes || ''}</td>
+                    <td class="p-3 text-slate-300">${r.keyType || ''}</td>
+                    <td class="p-3 text-slate-400">${r.notes || ''}</td>
                 `;
                 tbody.appendChild(tr);
             });
             const stats = document.getElementById('immobilizerStats');
-            if (stats) stats.textContent = `${rows.length} rows • ${IMMOBILIZER_DATA.length} total`;
+            if (stats) stats.textContent = `${grouped.length} groups • ${IMMOBILIZER_DATA.length} rows total`;
         }
 
         function filterImmobilizerTable() {
