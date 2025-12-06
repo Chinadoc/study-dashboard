@@ -174,6 +174,8 @@
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬 Tutorials</button>
                 <button onclick="switchTab('database')" id="tab-database"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊 FCC Database</button>
+                <button onclick="switchTab('immobilizers')" id="tab-immobilizers"
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔒 Immobilizers</button>
                 <button onclick="switchTab('references')" id="tab-references"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🌐 References</button>
             </div>
@@ -367,6 +369,43 @@
             </div>
         </div>
 
+        <!-- Immobilizers Section -->
+        <div id="immobilizers-section" class="hidden mb-12 animate-fade-in">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
+                🔒 <span class="gold-text">Immobilizer Systems</span> by Make
+            </h1>
+            <p class="text-slate-400 text-center mb-8">See immobilizer modules and programming expectations by brand.</p>
+            <div class="glass-panel rounded-3xl p-4 md:p-6 max-w-7xl mx-auto shadow-2xl">
+                <div class="flex flex-col md:flex-row gap-3 md:items-center justify-between mb-4">
+                    <div class="w-full md:w-80">
+                        <input id="immobilizerSearch" type="text" placeholder="Search make, module, notes..."
+                            class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
+                            oninput="filterImmobilizerTable()">
+                    </div>
+                    <div class="flex gap-2 flex-wrap items-center text-sm text-slate-400">
+                        <button onclick="loadImmobilizerList(true)" class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄 Refresh</button>
+                        <span id="immobilizerStats"></span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm" id="immobilizerTable">
+                        <thead>
+                            <tr class="text-left text-brand-400 border-b border-brand-500/30">
+                                <th class="p-3">Make</th>
+                                <th class="p-3">Module/System</th>
+                                <th class="p-3">Years</th>
+                                <th class="p-3">Notes</th>
+                                <th class="p-3">Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="immobilizerTableBody" class="text-slate-300">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Online References Section -->
         <div id="references-section" class="hidden mb-12 animate-fade-in">
             <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
@@ -543,6 +582,9 @@
                             <span id="vehicleTrim" class="bg-brand-500/20 text-brand-300 px-3 py-1 rounded-lg text-sm font-medium">LX Sedan 4D</span>
                             <span class="text-brand-500/50">•</span>
                             <span id="vehicleVin" class="font-mono text-slate-500 text-sm">1HGBH41JXMN...</span>
+                            <span id="immoBadge" class="hidden bg-purple-500/20 text-purple-200 px-3 py-1 rounded-lg text-sm font-semibold border border-purple-500/40">
+                                Immobilizer: —
+                            </span>
                         </p>
                     </div>
                     <div class="flex gap-3">
@@ -4587,6 +4629,7 @@
             document.getElementById('tab-tools').className = tab === 'tools' ? activeClass : inactiveClass;
             document.getElementById('tab-tutorials').className = tab === 'tutorials' ? activeClass : inactiveClass;
             document.getElementById('tab-database').className = tab === 'database' ? activeClass : inactiveClass;
+            document.getElementById('tab-immobilizers').className = tab === 'immobilizers' ? activeClass : inactiveClass;
             document.getElementById('tab-references').className = tab === 'references' ? activeClass : inactiveClass;
 
             // Hide all sections first
@@ -4595,6 +4638,7 @@
             document.getElementById('tools-section').classList.add('hidden');
             document.getElementById('tutorials-section').classList.add('hidden');
             document.getElementById('database-section').classList.add('hidden');
+            document.getElementById('immobilizers-section').classList.add('hidden');
             document.getElementById('references-section').classList.add('hidden');
             document.getElementById('resultsArea').classList.add('hidden');
             
@@ -4613,6 +4657,9 @@
             } else if (tab === 'database') {
                 document.getElementById('database-section').classList.remove('hidden');
                 renderFCCDatabase(); // Initialize database display
+            } else if (tab === 'immobilizers') {
+                document.getElementById('immobilizers-section').classList.remove('hidden');
+                loadImmobilizerList();
             } else if (tab === 'references') {
                 document.getElementById('references-section').classList.remove('hidden');
                 renderReferenceList();
@@ -4958,7 +5005,22 @@ function openSupplierCatalogWithFcc(fccId) {
             document.getElementById('obdStatus').textContent = lockData.obd;
 
             // Immobilizer Info
-            document.getElementById('immoSystem').textContent = lockData.immoSystem;
+            const immoBadgeEl = document.getElementById('immoBadge');
+            const setImmoDisplay = (label, years = '') => {
+                document.getElementById('immoSystem').textContent = label || 'Immobilizer';
+                if (immoBadgeEl) {
+                    const suffix = years ? ` (${years})` : '';
+                    immoBadgeEl.textContent = `Immobilizer: ${label || 'Immobilizer'}${suffix}`;
+                    immoBadgeEl.classList.remove('hidden');
+                }
+            };
+            setImmoDisplay(lockData.immoSystem);
+            ensureImmobilizersLoaded().then(() => {
+                const match = findImmobilizerEntry(data.make, data.year);
+                if (match) {
+                    setImmoDisplay(match.module_or_system || lockData.immoSystem, match.years);
+                }
+            });
             document.getElementById('pinRequired').textContent = lockData.pinRequired;
             document.getElementById('maxKeys').textContent = lockData.maxKeys;
             document.getElementById('progTool').textContent = lockData.progTool;
@@ -6452,6 +6514,104 @@ const SUPPLIER_PAGE_SIZE = 200;
         let locksmithCatalog = [];
         let locksmithFiltered = [];
         const LOCKSMITH_CSV_URL = './data/oem_locksmith_catalog.csv';
+        let IMMOBILIZER_DATA = [];
+        const IMMOBILIZER_CSV_URL = './data/immobilizers.csv';
+
+        // Basic CSV parser that respects quoted fields
+        function parseCsv(text) {
+            const lines = text.trim().split(/\r?\n/);
+            const headers = lines.shift().split(',');
+            return lines.map(line => {
+                const cols = [];
+                let cur = '';
+                let inQ = false;
+                for (let i = 0; i < line.length; i++) {
+                    const ch = line[i];
+                    if (ch === '"') { inQ = !inQ; continue; }
+                    if (ch === ',' && !inQ) {
+                        cols.push(cur);
+                        cur = '';
+                    } else {
+                        cur += ch;
+                    }
+                }
+                cols.push(cur);
+                return Object.fromEntries(headers.map((h, idx) => [h.trim(), (cols[idx] || '').trim()]));
+            }).filter(row => Object.keys(row).length);
+        }
+
+        function matchesYearRange(rangeStr, yearNum) {
+            if (!rangeStr || isNaN(yearNum)) return true;
+            const nums = (rangeStr.match(/\d{4}/g) || []).map(n => parseInt(n, 10));
+            if (nums.length === 2) return yearNum >= nums[0] && yearNum <= nums[1];
+            if (nums.length === 1) {
+                if (rangeStr.trim().startsWith('~')) return yearNum <= nums[0];
+                if (rangeStr.trim().endsWith('+')) return yearNum >= nums[0];
+                return yearNum === nums[0];
+            }
+            return true;
+        }
+
+        async function loadImmobilizerList(force = false) {
+            if (IMMOBILIZER_DATA.length && !force) {
+                renderImmobilizerTable();
+                return;
+            }
+            try {
+                const res = await fetch(IMMOBILIZER_CSV_URL);
+                const text = await res.text();
+                IMMOBILIZER_DATA = parseCsv(text);
+                renderImmobilizerTable();
+            } catch (err) {
+                console.error('Failed to load immobilizer CSV', err);
+            }
+        }
+
+        function renderImmobilizerTable(filter = '') {
+            const tbody = document.getElementById('immobilizerTableBody');
+            if (!tbody) return;
+            const term = filter.toLowerCase();
+            tbody.innerHTML = '';
+            let rows = IMMOBILIZER_DATA;
+            if (term) {
+                rows = rows.filter(r =>
+                    (r.make || '').toLowerCase().includes(term) ||
+                    (r.module_or_system || '').toLowerCase().includes(term) ||
+                    (r.models_notes || '').toLowerCase().includes(term)
+                );
+            }
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-brand-500/10 hover:bg-navy-900/40';
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-white">${r.make || ''}</td>
+                    <td class="p-3 text-slate-200">${r.module_or_system || ''}</td>
+                    <td class="p-3 text-slate-300">${r.years || ''}</td>
+                    <td class="p-3 text-slate-400">${r.models_notes || ''}</td>
+                    <td class="p-3 text-slate-400 text-xs break-all">${r.source_file || r.source_url || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            const stats = document.getElementById('immobilizerStats');
+            if (stats) stats.textContent = `${rows.length} rows • ${IMMOBILIZER_DATA.length} total`;
+        }
+
+        function filterImmobilizerTable() {
+            const val = document.getElementById('immobilizerSearch')?.value || '';
+            renderImmobilizerTable(val);
+        }
+
+        async function ensureImmobilizersLoaded() {
+            if (!IMMOBILIZER_DATA.length) {
+                await loadImmobilizerList();
+            }
+        }
+
+        function findImmobilizerEntry(make, year) {
+            const yearNum = parseInt(year, 10);
+            const upper = (make || '').toUpperCase();
+            return IMMOBILIZER_DATA.find(entry => entry.make?.toUpperCase() === upper && matchesYearRange(entry.years || '', yearNum));
+        }
 
         const FCC_REFERENCE_RESOURCES = [
             {
