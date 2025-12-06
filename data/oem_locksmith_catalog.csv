@@ -1,0 +1,7 @@
+make,model,year,fcc_id,part_number,sku,chip,keyway,buttons,battery,frequency,remote_start,immobilizer,notes,price,currency,url,title_raw,compatibility_raw
+Ford,F-150,2018,N5F-A08TAA,164-R8130,,High security blade,High security,3,,315,,,"Remote flip key",55,USD,,2018 Ford F150 High Security Remote Flip Key Fob 3B (FCC: N5F-A08TAA, P/N: 164-R8130),
+Mitsubishi,Outlander,2018,OUC644M-KEY-N,8637A316,,Smart key,,3,,315,,,"Smart remote key",95,USD,,2018 Mitsubishi Outlander Smart Remote Key Fob 3B (FCC: OUC644M-KEY-N, P/N: 8637A316),
+Toyota,Camry,2018,HYQ12BFB,89070-06790,,H Chip key,Blade,4,,314,,,Remote flip w/ trunk,65,USD,,2018 Toyota Camry Remote Flip Key Fob 4B w/ Trunk (FCC: HYQ12BFB, H Chip, P/N: 89070-06790),
+Dodge,Durango,2017,M3N-40821302,68150061,,Smart key,,5,,433,yes,,Remote start listed,59,USD,,2017 Dodge Durango Smart Remote Key Fob 5B w/ Remote Start (FCC: M3N-40821302, P/N: 68150061),
+Lincoln,MKX,2012,M3N5WY8609,164-R8094,,Smart key,,5,,315,yes,,,99,USD,,2012 Lincoln MKX Smart Remote Key Fob 5B (FCC: M3N5WY8609, P/N: 164-R8094),
+Nissan,Altima,2012,KR55WK48903,285E3-JA05A,,Smart key,,4,,315,,,"",50,USD,,2012 Nissan Altima Smart Remote Key Fob 4B (FCC: KR55WK48903, P/N: 285E3-JA05A),
