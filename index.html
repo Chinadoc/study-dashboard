@@ -5676,6 +5676,13 @@ function openSupplierCatalogWithFcc(fccId) {
         let fccLoadPromise = null;
         let currentFccMatches = [];
         let currentVehicleData = {};
+        const MAKE_ALIASES = {
+            'VOLKSWAGEN': ['VOLKSWAGEN', 'VW'],
+            'MERCEDES-BENZ': ['MERCEDES-BENZ', 'MERCEDES', 'BENZ', 'MB'],
+            'MERCEDES': ['MERCEDES', 'MERCEDES-BENZ', 'BENZ', 'MB'],
+            'BMW': ['BMW'],
+            'AUDI': ['AUDI'],
+        };
 // Supplier catalog state
 let supplierCatalogData = [];
 let supplierCatalogFiltered = [];
@@ -5715,13 +5722,45 @@ const SUPPLIER_PAGE_SIZE = 200;
             return fccLoadPromise;
         }
 
-        function findFccMatches(year, make, model) {
+        function getMakeVariants(make) {
             const makeU = (make || '').toUpperCase();
+            const variants = new Set([makeU]);
+            const aliasList = MAKE_ALIASES[makeU] || MAKE_ALIASES[makeU.replace(' BENZ', '')] || [];
+            aliasList.forEach(a => variants.add(a));
+            return Array.from(variants);
+        }
+
+        function findFccMatches(year, make, model) {
+            const yearStr = `${year}`.trim();
             const modelU = (model || '').toUpperCase();
-            const key = `${year}|${makeU}|${modelU}`;
-            const entries = FCC_MAP[key] || [];
-            const fccList = [...new Set(entries.map(e => e.FCCid || e.FCCId || e.FCCID).filter(Boolean))];
-            return fccList;
+            const makeVariants = getMakeVariants(make);
+            const fccSet = new Set();
+
+            // First try keyed map lookups
+            makeVariants.forEach(mv => {
+                const key = `${yearStr}|${mv}|${modelU}`;
+                const entries = FCC_MAP[key] || [];
+                entries.forEach(e => {
+                    const fcc = e.FCCid || e.FCCId || e.FCCID;
+                    if (fcc) fccSet.add(fcc.trim());
+                });
+            });
+
+            // Fallback: scan FCC_DB for loose matches on make/model
+            if (fccSet.size === 0 && FCC_DB.length) {
+                FCC_DB.forEach(entry => {
+                    const entryYear = (entry.Year || '').trim();
+                    const entryMake = (entry.Make || '').toUpperCase();
+                    const entryModel = (entry.Model || '').toUpperCase();
+                    if (entryYear !== yearStr) return;
+                    if (!makeVariants.includes(entryMake)) return;
+                    if (modelU && entryModel && !(modelU.includes(entryModel) || entryModel.includes(modelU))) return;
+                    const fcc = entry.FCCid || entry.FCCId || entry.FCCID;
+                    if (fcc) fccSet.add(fcc.trim());
+                });
+            }
+
+            return Array.from(fccSet);
         }
 
         const VIDEO_TUTORIALS = [
