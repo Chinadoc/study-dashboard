@@ -6526,6 +6526,8 @@ const SUPPLIER_PAGE_SIZE = 200;
         document.addEventListener('DOMContentLoaded', () => {
             updateCartBadge();
             renderReferenceList();
+            // Preload immobilizer data so the tab is ready when opened
+            loadImmobilizerList();
         });
         
         // ============================================================================
@@ -6606,20 +6608,25 @@ const SUPPLIER_PAGE_SIZE = 200;
         }
 
         async function loadImmobilizerList(force = false) {
-            if (IMMOBILIZER_DATA.length && !force) {
-                renderImmobilizerTable();
-                return;
-            }
-            try {
-                const res = await fetch(IMMOBILIZER_CSV_URL);
-                const text = await res.text();
-                const parsed = parseCsv(text);
-                IMMOBILIZER_DATA = parsed && parsed.length ? parsed : IMMOBILIZER_EMBED;
-                renderImmobilizerTable();
-            } catch (err) {
-                console.error('Failed to load immobilizer CSV', err);
+            // Always seed with embedded data so the table is never empty
+            if (!IMMOBILIZER_DATA.length || force) {
                 IMMOBILIZER_DATA = IMMOBILIZER_EMBED;
                 renderImmobilizerTable();
+            } else if (!force) {
+                renderImmobilizerTable();
+            }
+            // Try to hydrate from CSV in the background
+            try {
+                const res = await fetch(IMMOBILIZER_CSV_URL);
+                if (!res.ok) throw new Error('immobilizer CSV fetch failed');
+                const text = await res.text();
+                const parsed = parseCsv(text);
+                if (parsed && parsed.length) {
+                    IMMOBILIZER_DATA = parsed;
+                    renderImmobilizerTable();
+                }
+            } catch (err) {
+                console.warn('Using embedded immobilizer data (CSV unavailable):', err.message || err);
             }
         }
 
