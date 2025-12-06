@@ -6693,13 +6693,23 @@ const SUPPLIER_PAGE_SIZE = 200;
             return true;
         }
 
+        const CURRENT_YEAR = new Date().getFullYear();
+        function clampYear(val) {
+            const num = parseInt(val, 10);
+            if (Number.isNaN(num)) return null;
+            return Math.min(Math.max(num, 1900), CURRENT_YEAR + 1); // cap bad maxima like 2998
+        }
+
         function getYearNumeric(row) {
-            const direct = parseInt(row.year, 10);
-            if (!Number.isNaN(direct)) return direct;
-            const ymin = parseInt(row.compat_year_min || '', 10);
-            if (!Number.isNaN(ymin)) return ymin;
-            const yrs = (row.immobilizer_years || row.years || '').match(/\d{4}/g);
-            if (yrs && yrs.length) return parseInt(yrs[0], 10);
+            const candidates = [
+                row.year,
+                row.compat_year_min,
+                ...((row.immobilizer_years || row.years || '').match(/\d{4}/g) || [])
+            ];
+            for (const c of candidates) {
+                const clamped = clampYear(c);
+                if (clamped !== null) return clamped;
+            }
             return 9999; // push unknown years to bottom
         }
 
@@ -6853,21 +6863,21 @@ const SUPPLIER_PAGE_SIZE = 200;
                 );
             }
             const grouped = groupImmobilizers(rows);
-            grouped.forEach(r => {
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-brand-500/10 hover:bg-navy-900/40';
+            const html = grouped.map(r => {
                 const yearsDisplay = r.yearLabel || '';
                 const immoDisplay = r.immo || '';
-                tr.innerHTML = `
-                    <td class="p-3 font-semibold text-white">${r.make || ''}</td>
-                    <td class="p-3 text-slate-200">${r.model || ''}</td>
-                    <td class="p-3 text-slate-200">${yearsDisplay || ''}</td>
-                    <td class="p-3 text-slate-200">${immoDisplay}</td>
-                    <td class="p-3 text-slate-300">${r.keyType || ''}</td>
-                    <td class="p-3 text-slate-400">${r.notes || ''}</td>
+                return `
+                    <tr class="border-b border-brand-500/10 hover:bg-navy-900/40">
+                        <td class="p-3 font-semibold text-white">${r.make || ''}</td>
+                        <td class="p-3 text-slate-200">${r.model || ''}</td>
+                        <td class="p-3 text-slate-200">${yearsDisplay || ''}</td>
+                        <td class="p-3 text-slate-200">${immoDisplay}</td>
+                        <td class="p-3 text-slate-300">${r.keyType || ''}</td>
+                        <td class="p-3 text-slate-400">${r.notes || ''}</td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            }).join('');
+            tbody.innerHTML = html;
             const stats = document.getElementById('immobilizerStats');
             if (stats) stats.textContent = `${grouped.length} groups • ${IMMOBILIZER_DATA.length} rows total`;
         }
