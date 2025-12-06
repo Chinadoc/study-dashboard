@@ -376,25 +376,26 @@
             </h1>
             <p class="text-slate-400 text-center mb-8">See immobilizer modules and programming expectations by brand.</p>
             <div class="glass-panel rounded-3xl p-4 md:p-6 max-w-7xl mx-auto shadow-2xl">
-                <div class="flex flex-col lg:flex-row gap-3 lg:items-center justify-between mb-4">
-                    <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
-                        <div class="w-full sm:w-72">
+                <div class="flex flex-col gap-3 mb-4">
+                    <div class="flex flex-col lg:flex-row gap-2 lg:items-center">
+                        <div class="w-full lg:w-96">
                             <input id="immobilizerSearch" type="text" placeholder="Search make, model, IMMO, notes..."
                                 class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
                                 oninput="filterImmobilizerTable()">
                         </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <select id="immobilizerMakeFilter" class="px-3 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white text-sm focus:outline-none focus:border-brand-400 w-full sm:w-48" onchange="onImmobilizerMakeChange()">
-                                <option value="">All makes</option>
-                            </select>
-                            <select id="immobilizerModelFilter" class="px-3 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white text-sm focus:outline-none focus:border-brand-400 w-full sm:w-48" onchange="filterImmobilizerTable()">
-                                <option value="">All models</option>
-                            </select>
+                        <div class="flex gap-2 flex-wrap items-center text-sm text-slate-400">
+                            <button onclick="refreshImmobilizers()" class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄 Refresh</button>
+                            <span id="immobilizerStats"></span>
+                            <button id="immoLoadMore" class="hidden px-3 py-1 rounded-lg bg-navy-800 text-slate-300 border border-brand-500/30 hover:border-brand-400 text-xs"></button>
                         </div>
                     </div>
-                    <div class="flex gap-2 flex-wrap items-center text-sm text-slate-400">
-                        <button onclick="loadImmobilizerList(true)" class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄 Refresh</button>
-                        <span id="immobilizerStats"></span>
+                    <div class="space-y-2">
+                        <div class="text-xs text-slate-400">Makes</div>
+                        <div id="immoMakeChips" class="flex gap-2 overflow-x-auto pb-1"></div>
+                    </div>
+                    <div class="space-y-2" id="immoModelChipsWrapper" style="display:none;">
+                        <div class="text-xs text-slate-400">Models</div>
+                        <div id="immoModelChips" class="flex gap-2 overflow-x-auto pb-1"></div>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -6630,6 +6631,7 @@ const SUPPLIER_PAGE_SIZE = 200;
             renderReferenceList();
             await loadMasterData();
             populateImmobilizerFilters();
+            renderImmoMakeChips();
             // Preload immobilizer data so the tab is ready when opened
             loadImmobilizerList();
         });
@@ -6832,7 +6834,9 @@ const SUPPLIER_PAGE_SIZE = 200;
                     IMMOBILIZER_DATA = rows;
                 }
                 immoOffset += IMMO_PAGE_SIZE;
-                populateImmobilizerFilters(); // refresh options based on new data
+                populateImmobilizerFilters(); // refresh make/model chips
+                renderImmoMakeChips();
+                renderImmoModelChips();
                 renderImmobilizerTable();
                 const showing = IMMOBILIZER_DATA.length;
                 const total = immoTotal || showing;
@@ -6884,11 +6888,7 @@ const SUPPLIER_PAGE_SIZE = 200;
 
         function filterImmobilizerTable() {
             const val = document.getElementById('immobilizerSearch')?.value || '';
-            const makeVal = document.getElementById('immobilizerMakeFilter')?.value || '';
-            const modelVal = document.getElementById('immobilizerModelFilter')?.value || '';
-            currentImmoMake = makeVal;
-            currentImmoModel = modelVal;
-            loadImmobilizerList(true, val, makeVal, modelVal);
+            loadImmobilizerList(true, val, currentImmoMake, currentImmoModel);
         }
 
         async function ensureImmobilizersLoaded() {
@@ -6898,9 +6898,6 @@ const SUPPLIER_PAGE_SIZE = 200;
         }
 
         function populateImmobilizerFilters() {
-            const makeSelect = document.getElementById('immobilizerMakeFilter');
-            const modelSelect = document.getElementById('immobilizerModelFilter');
-            if (!makeSelect || !modelSelect) return;
             const makeSet = new Set();
             const modelSet = new Set();
             const source = IMMOBILIZER_DATA.length ? IMMOBILIZER_DATA : MASTER_DATA;
@@ -6912,47 +6909,68 @@ const SUPPLIER_PAGE_SIZE = 200;
             });
             IMMOBILIZER_MAKES = Array.from(makeSet).sort();
             IMMOBILIZER_MODELS = Array.from(modelSet).sort();
-            makeSelect.innerHTML = '<option value=\"\">All makes</option>' + IMMOBILIZER_MAKES.map(m => `<option value=\"${m}\">${m}</option>`).join('');
-            modelSelect.innerHTML = '<option value=\"\">All models</option>' + IMMOBILIZER_MODELS.map(m => `<option value=\"${m}\">${m}</option>`).join('');
         }
 
-        function onImmobilizerMakeChange() {
-            const makeVal = document.getElementById('immobilizerMakeFilter')?.value || '';
-            currentImmoMake = makeVal;
-            const modelSelect = document.getElementById('immobilizerModelFilter');
-            if (modelSelect) {
-                const filteredModels = makeVal
-                    ? IMMOBILIZER_MODELS.filter(m => m && m.toLowerCase().includes(makeVal.toLowerCase()))
-                    : IMMOBILIZER_MODELS;
-                modelSelect.innerHTML = '<option value=\"\">All models</option>' + filteredModels.map(m => `<option value=\"${m}\">${m}</option>`).join('');
-                if (currentImmoModel && !filteredModels.includes(currentImmoModel)) {
-                    currentImmoModel = '';
-                }
+        function renderImmoMakeChips() {
+            const container = document.getElementById('immoMakeChips');
+            if (!container) return;
+            const makes = ['All makes', ...IMMOBILIZER_MAKES];
+            container.innerHTML = makes.map(m => {
+                const active = (!currentImmoMake && m === 'All makes') || currentImmoMake === m;
+                const base = 'px-3 py-2 rounded-full border text-sm whitespace-nowrap transition-colors';
+                const activeCls = 'bg-brand-500 text-navy-950 border-brand-400';
+                const inactive = 'bg-navy-900/60 text-slate-200 border-brand-500/30 hover:border-brand-400';
+                return `<button class="${base} ${active ? activeCls : inactive}" onclick="setImmoMake('${m === 'All makes' ? '' : m}')">${m}</button>`;
+            }).join('');
+        }
+
+        function renderImmoModelChips() {
+            const wrapper = document.getElementById('immoModelChipsWrapper');
+            const container = document.getElementById('immoModelChips');
+            if (!wrapper || !container) return;
+            if (!currentImmoMake) {
+                wrapper.style.display = 'none';
+                return;
             }
+            const models = IMMOBILIZER_MODELS.filter(m => m && m.toLowerCase().includes(currentImmoMake.toLowerCase())).slice(0, 20);
+            if (!models.length) {
+                wrapper.style.display = 'none';
+                return;
+            }
+            wrapper.style.display = '';
+            const options = ['All models', ...models];
+            container.innerHTML = options.map(m => {
+                const active = (!currentImmoModel && m === 'All models') || currentImmoModel === m;
+                const base = 'px-3 py-2 rounded-full border text-sm whitespace-nowrap transition-colors';
+                const activeCls = 'bg-brand-400 text-navy-950 border-brand-300';
+                const inactive = 'bg-navy-900/60 text-slate-200 border-brand-500/30 hover:border-brand-400';
+                return `<button class="${base} ${active ? activeCls : inactive}" onclick="setImmoModel('${m === 'All models' ? '' : m}')">${m}</button>`;
+            }).join('');
+        }
+
+        function setImmoMake(makeVal) {
+            currentImmoMake = makeVal;
+            currentImmoModel = '';
+            renderImmoMakeChips();
+            renderImmoModelChips();
+            filterImmobilizerTable();
+        }
+
+        function setImmoModel(modelVal) {
+            currentImmoModel = modelVal;
+            renderImmoModelChips();
             filterImmobilizerTable();
         }
 
         function updateImmoLoadMore(showing, total) {
             let btn = document.getElementById('immoLoadMore');
-            if (!btn) {
-                const statsSpan = document.getElementById('immobilizerStats');
-                if (statsSpan && statsSpan.parentElement) {
-                    btn = document.createElement('button');
-                    btn.id = 'immoLoadMore';
-                    btn.className = 'px-3 py-1 rounded-lg bg-navy-800 text-slate-300 border border-brand-500/30 hover:border-brand-400 text-xs';
-                    btn.style.marginLeft = '8px';
-                    statsSpan.parentElement.appendChild(btn);
-                }
-            }
             if (!btn) return;
             const remaining = Math.max(0, total - showing);
             if (remaining > 0) {
                 btn.textContent = `Load more (${remaining} left)`;
                 btn.onclick = () => {
                     const val = document.getElementById('immobilizerSearch')?.value || '';
-                    const makeVal = document.getElementById('immobilizerMakeFilter')?.value || '';
-                    const modelVal = document.getElementById('immobilizerModelFilter')?.value || '';
-                    loadImmobilizerList(true, val, makeVal, modelVal, true);
+                    loadImmobilizerList(true, val, currentImmoMake, currentImmoModel, true);
                 };
                 btn.classList.remove('hidden');
             } else {
