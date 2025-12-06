@@ -378,6 +378,9 @@
             <div class="glass-panel rounded-3xl p-4 md:p-6 max-w-7xl mx-auto shadow-2xl">
                 <div class="flex flex-col gap-3 mb-4">
                     <div class="flex flex-col lg:flex-row gap-2 lg:items-center">
+                        <div class="flex items-center gap-2">
+                            <button class="px-3 py-2 bg-navy-800 text-slate-200 rounded-lg border border-brand-500/30 hover:border-brand-400 text-xs" onclick="history.back()">← Back</button>
+                        </div>
                         <div class="w-full lg:w-96">
                             <input id="immobilizerSearch" type="text" placeholder="Search make, model, IMMO, notes..."
                                 class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
@@ -6653,7 +6656,9 @@ const SUPPLIER_PAGE_SIZE = 200;
         let currentImmoModel = '';
         let immoOffset = 0;
         let immoTotal = 0;
-        const IMMO_PAGE_SIZE = 1000;
+        const IMMO_PAGE_SIZE = 500;
+        const IMMO_CACHE = new Map(); // key -> {rows,total,offset}
+        let immoAbortController = null;
         const IMMOBILIZER_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/locksmith';
         // Minimal embedded fallback only if API is unreachable
         const IMMOBILIZER_EMBED = [
@@ -6814,6 +6819,25 @@ const SUPPLIER_PAGE_SIZE = 200;
                 if (tbody) tbody.innerHTML += '<tr id="immoLoadingRow"><td class="p-2 text-slate-500" colspan="6">Loading more…</td></tr>';
             }
             if (stats) stats.textContent = 'Loading…';
+
+            const cacheKey = `${makeFilter || ''}|||${modelFilter || ''}|||${searchTerm || ''}`;
+            if (!append && !force && IMMO_CACHE.has(cacheKey)) {
+                const cached = IMMO_CACHE.get(cacheKey);
+                IMMOBILIZER_DATA = cached.rows.slice();
+                immoTotal = cached.total;
+                immoOffset = cached.offset;
+                populateImmobilizerFilters();
+                renderImmoMakeChips();
+                renderImmoModelChips();
+                renderImmobilizerTable(searchTerm);
+                updateImmoLoadMore(IMMOBILIZER_DATA.length, immoTotal || IMMOBILIZER_DATA.length);
+                if (stats) stats.textContent = `${IMMOBILIZER_DATA.length} rows • ${immoTotal || IMMOBILIZER_DATA.length} total (cached)`;
+                return;
+            }
+
+            // Abort any in-flight request
+            if (immoAbortController) immoAbortController.abort();
+            immoAbortController = new AbortController();
             try {
                 const url = new URL(MASTER_API_URL);
                 if (searchTerm) url.searchParams.set('q', searchTerm);
@@ -6821,7 +6845,7 @@ const SUPPLIER_PAGE_SIZE = 200;
                 if (modelFilter) url.searchParams.set('model', modelFilter);
                 url.searchParams.set('limit', `${IMMO_PAGE_SIZE}`);
                 url.searchParams.set('offset', `${immoOffset}`);
-                const res = await fetch(url.toString());
+                const res = await fetch(url.toString(), { signal: immoAbortController.signal });
                 if (!res.ok) throw new Error('immobilizer API fetch failed');
                 const json = await res.json();
                 const rows = (json.rows || []).filter(r => r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system);
@@ -6834,6 +6858,7 @@ const SUPPLIER_PAGE_SIZE = 200;
                     IMMOBILIZER_DATA = rows;
                 }
                 immoOffset += IMMO_PAGE_SIZE;
+                IMMO_CACHE.set(cacheKey, { rows: IMMOBILIZER_DATA.slice(), total: immoTotal, offset: immoOffset });
                 populateImmobilizerFilters(); // refresh make/model chips
                 renderImmoMakeChips();
                 renderImmoModelChips();
@@ -6886,9 +6911,13 @@ const SUPPLIER_PAGE_SIZE = 200;
             if (stats) stats.textContent = `${grouped.length} groups • ${IMMOBILIZER_DATA.length} rows total`;
         }
 
+        let immoSearchTimer = null;
         function filterImmobilizerTable() {
             const val = document.getElementById('immobilizerSearch')?.value || '';
-            loadImmobilizerList(true, val, currentImmoMake, currentImmoModel);
+            clearTimeout(immoSearchTimer);
+            immoSearchTimer = setTimeout(() => {
+                loadImmobilizerList(true, val, currentImmoMake, currentImmoModel);
+            }, 250);
         }
 
         async function ensureImmobilizersLoaded() {
@@ -6932,7 +6961,13 @@ const SUPPLIER_PAGE_SIZE = 200;
                 wrapper.style.display = 'none';
                 return;
             }
-            const models = IMMOBILIZER_MODELS.filter(m => m && m.toLowerCase().includes(currentImmoMake.toLowerCase())).slice(0, 20);
+            const modelCounts = {};
+            IMMOBILIZER_DATA.forEach(r => {
+                if (!r.model) return;
+                if (r.make && currentImmoMake && r.make.toLowerCase() !== currentImmoMake.toLowerCase()) return;
+                modelCounts[r.model] = (modelCounts[r.model] || 0) + 1;
+            });
+            const models = Object.entries(modelCounts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([m]) => m);
             if (!models.length) {
                 wrapper.style.display = 'none';
                 return;
