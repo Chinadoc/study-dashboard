@@ -1089,7 +1089,7 @@
         </div>
 
         <!-- Supplier Catalog (LocksmithKeyless / UHS Hardware) -->
-        <div id="supplierCatalogSection" class="mb-12 animate-fade-in">
+        <div id="supplierCatalogSection" class="hidden mb-12 animate-fade-in">
             <div class="glass-panel rounded-3xl p-6 border border-brand-500/20">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                     <div>
@@ -6464,6 +6464,14 @@ const SUPPLIER_PAGE_SIZE = 200;
                 url: 'https://vpic.nhtsa.dot.gov/api/',
                 description: 'Vehicle make/model data used for VIN and browse workflows.',
                 details: 'Helpful to validate year/make/model before cross-referencing FCC IDs.'
+            },
+            {
+                id: 'supplier-csv',
+                name: 'Local Supplier Catalog (Keys & Remotes)',
+                type: 'Local CSV',
+                url: 'data/suppliers_products.csv',
+                description: 'Combined LocksmithKeyless and UHS Hardware products (keys/remotes) for local FCC reference.',
+                details: 'Use this CSV as an offline source of truth for FCC IDs and parts/prices.'
             }
         ];
 
