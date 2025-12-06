@@ -4787,6 +4787,7 @@
 
         function updateKeycutterSummary(lockData, fccMatches) {
             const fccPrimary = (fccMatches && fccMatches.length > 0) ? fccMatches[0] : lockData.fccId;
+            currentFccId = fccPrimary || '';
             const fccLink = document.getElementById('summaryFccLink');
             const fccStatus = document.getElementById('summaryFccStatus');
             if (fccLink) {
@@ -4800,13 +4801,16 @@
             }
             if (fccStatus) {
                 if (fccMatches && fccMatches.length > 0) {
-                    fccStatus.textContent = 'From keyfobDB (authoritative)';
+                    fccStatus.textContent = 'From master data (KV)';
                     fccStatus.className = 'text-xs text-green-300';
                 } else {
                     fccStatus.textContent = 'From local data';
                     fccStatus.className = 'text-xs text-amber-300';
                 }
             }
+
+            // Surface FCC on vehicle header badges + affiliate buttons
+            updateFccBadges(currentFccId);
 
             document.getElementById('summaryKeyBlank').textContent = lockData.blank || 'N/A';
             document.getElementById('summaryProgrammer').textContent = lockData.progTool || lockData.programmer || 'N/A';
