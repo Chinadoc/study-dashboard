@@ -5160,6 +5160,26 @@
             const expandBtn = document.getElementById('inlineExpandBtn');
             if (!container) return;
 
+            // If we have FCC matches from keyfobDB, use the ranked/Amazon pipeline
+            if (fccMatches && fccMatches.length > 0) {
+                const primaryFcc = fccMatches[0];
+                if (expandBtn) {
+                    expandBtn.classList.add('hidden');
+                    expandBtn.classList.remove('flex');
+                }
+                
+                container.innerHTML = `
+                    <div class="text-xs text-slate-400 mb-2">
+                        Using FCC <span class="text-brand-400 font-semibold">${primaryFcc}</span> from keyfobDB to surface Amazon options.
+                    </div>
+                    <div id="inlineFccProducts"></div>
+                `;
+                
+                displayRankedProducts(primaryFcc, 'inlineFccProducts');
+                return;
+            }
+
+            // Legacy fallback: affiliate list when no FCC match is available
             const makeUpper = make ? make.toUpperCase().replace('-', ' ').replace('BENZ', '') : '';
             const modelUpper = model ? model.toUpperCase() : '';
             const fullKey = `${makeUpper} ${modelUpper}`.trim();
@@ -5182,11 +5202,6 @@
                         break;
                     }
                 }
-            }
-
-            // If FCC matches are known, filter products to those FCC IDs
-            if (fccMatches && fccMatches.length > 0) {
-                products = products.filter(p => p.fccId && fccMatches.includes(p.fccId));
             }
 
             inlineProducts = products;
@@ -6808,8 +6823,8 @@
                           rounded-xl p-4 border hover:border-brand-400 hover:bg-navy-900/60 transition-all group">
                     ${topPickBadge}
                     <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-12 h-12 ${isTopPick ? 'bg-brand-500/30' : 'bg-brand-500/20'} rounded-lg flex items-center justify-center">
-                            <span class="text-2xl">🔑</span>
+                        <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-brand-500/10 border border-brand-500/30">
+                            ${product.imageUrl ? `<img src="${product.imageUrl}" alt="Product" class="w-full h-full object-contain bg-white" loading="lazy" referrerpolicy="no-referrer">` : `<div class="w-full h-full flex items-center justify-center text-2xl">🔑</div>`}
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="text-white font-semibold text-sm leading-tight mb-1 group-hover:text-brand-400 transition-colors">
