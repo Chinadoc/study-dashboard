@@ -4933,6 +4933,10 @@ function openSupplierCatalogWithFcc(fccId) {
             // Load FCC data and update summary + product validation
             loadFccDb().then(() => {
                 currentFccMatches = findFccMatches(data.year, data.make, data.model);
+                // If authoritative FCC from keyfobDB is present, override lockData FCC
+                if (currentFccMatches && currentFccMatches.length > 0) {
+                    lockData.fccId = currentFccMatches[0];
+                }
                 updateKeycutterSummary(lockData, currentFccMatches);
                 displayInlineProducts(data.make, data.model, currentFccMatches);
             });
