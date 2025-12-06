@@ -4992,6 +4992,15 @@ function openSupplierCatalogWithFcc(fccId) {
                 }
                 updateKeycutterSummary(lockData, currentFccMatches);
                 displayInlineProducts(data.make, data.model, currentFccMatches);
+                // Also reflect authoritative FCC in the details card
+                const fccIdEl = document.getElementById('fccId');
+                if (fccIdEl) {
+                    fccIdEl.textContent = `FCC ID: ${lockData.fccId}`;
+                }
+                const keyCutDesc = document.getElementById('keyCutDesc');
+                if (keyCutDesc) {
+                    keyCutDesc.textContent = `FCC: ${lockData.fccId}`;
+                }
             });
 
             // Update Key Data
