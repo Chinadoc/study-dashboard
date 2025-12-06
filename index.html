@@ -376,11 +376,21 @@
             </h1>
             <p class="text-slate-400 text-center mb-8">See immobilizer modules and programming expectations by brand.</p>
             <div class="glass-panel rounded-3xl p-4 md:p-6 max-w-7xl mx-auto shadow-2xl">
-                <div class="flex flex-col md:flex-row gap-3 md:items-center justify-between mb-4">
-                    <div class="w-full md:w-80">
-                        <input id="immobilizerSearch" type="text" placeholder="Search make, model, IMMO, notes..."
-                            class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
-                            oninput="filterImmobilizerTable()">
+                <div class="flex flex-col lg:flex-row gap-3 lg:items-center justify-between mb-4">
+                    <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                        <div class="w-full sm:w-72">
+                            <input id="immobilizerSearch" type="text" placeholder="Search make, model, IMMO, notes..."
+                                class="w-full px-4 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-brand-400"
+                                oninput="filterImmobilizerTable()">
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <select id="immobilizerMakeFilter" class="px-3 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white text-sm focus:outline-none focus:border-brand-400 w-full sm:w-48" onchange="onImmobilizerMakeChange()">
+                                <option value="">All makes</option>
+                            </select>
+                            <select id="immobilizerModelFilter" class="px-3 py-3 bg-navy-900/60 border border-brand-500/30 rounded-xl text-white text-sm focus:outline-none focus:border-brand-400 w-full sm:w-48" onchange="filterImmobilizerTable()">
+                                <option value="">All models</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="flex gap-2 flex-wrap items-center text-sm text-slate-400">
                         <button onclick="loadImmobilizerList(true)" class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄 Refresh</button>
@@ -5778,6 +5788,7 @@ function openSupplierCatalogWithFcc(fccId) {
         let currentFccMatches = [];
         let currentVehicleData = {};
         let currentFccId = '';
+        let FCC_MASTER_MAP = null;
         const MAKE_ALIASES = {
             'VOLKSWAGEN': ['VOLKSWAGEN', 'VW'],
             'MERCEDES-BENZ': ['MERCEDES-BENZ', 'MERCEDES', 'BENZ', 'MB'],
@@ -6127,40 +6138,52 @@ const SUPPLIER_PAGE_SIZE = 200;
         let databaseSortColumn = 0;
         let databaseSortAsc = true;
         
-        function renderFCCDatabase() {
+        async function renderFCCDatabase() {
             const tbody = document.getElementById('fccDatabaseBody');
             const stats = document.getElementById('databaseStats');
             if (!tbody) return;
             
             tbody.innerHTML = '';
             let totalVehicles = 0;
-            
-            const fccIds = Object.keys(FCC_CROSS_REFERENCE).sort();
+            // Build master-derived FCC map once
+            if (!FCC_MASTER_MAP) {
+                await loadMasterData();
+                FCC_MASTER_MAP = new Map();
+                MASTER_DATA.forEach(r => {
+                    const fccId = (r.fcc_id || r.fccId || '').trim();
+                    if (!fccId) return;
+                    const key = fccId.toUpperCase();
+                    if (!FCC_MASTER_MAP.has(key)) {
+                        FCC_MASTER_MAP.set(key, {
+                            fccId: key,
+                            frequency: r.frequency_mhz || r.frequency || 'N/A',
+                            modulation: r.modulation || 'N/A',
+                            chip: r.transponder_family || r.chip || 'N/A',
+                            vehicles: []
+                        });
+                    }
+                    const rec = FCC_MASTER_MAP.get(key);
+                    rec.vehicles.push({
+                        make: r.make || '',
+                        model: r.model || '',
+                        years: r.year || r.compat_years_list || r.compat_year_min || ''
+                    });
+                });
+            }
+
+            const fccIds = Array.from(FCC_MASTER_MAP.keys()).sort();
             
             fccIds.forEach(fccId => {
-                const data = FCC_CROSS_REFERENCE[fccId];
+                const data = FCC_MASTER_MAP.get(fccId);
                 const vehicleCount = data.vehicles.length;
                 totalVehicles += vehicleCount;
                 
-                // Create vehicle list string
                 const vehicleList = data.vehicles.map(v => `${v.make} ${v.model} (${v.years})`).join(', ');
-                const partList = data.partNumbers ? data.partNumbers.join(', ') : 'N/A';
-                
-                // Enhanced data fields
-                const codeSeries = data.codeSeries || 'N/A';
-                const testKey = data.testKey || 'N/A';
-                const autelModels = data.autelModels ? data.autelModels.join(', ') : 'N/A';
-                const progMethod = data.progMethod || 'OBD';
-                const sgwBadge = data.sgwBypass ? '<span class="px-1 py-0.5 bg-red-500/20 text-red-400 rounded text-xs ml-1">SGW</span>' : '';
-                const pinBadge = data.pinRequired ? '<span class="px-1 py-0.5 bg-orange-500/20 text-orange-400 rounded text-xs ml-1">PIN</span>' : '';
                 
                 const row = document.createElement('tr');
                 row.className = 'border-b border-navy-700/50 hover:bg-navy-800/50 cursor-pointer transition-colors';
                 row.setAttribute('data-fcc', fccId);
-                row.setAttribute('data-code', codeSeries);
-                row.setAttribute('data-autel', autelModels);
                 
-                // Check if item is in cart
                 const inCart = shoppingCart.some(item => item.fccId === fccId);
                 const cartBtnClass = inCart ? 'bg-green-600 text-white' : 'bg-green-500/20 text-green-400 hover:bg-green-500/40';
                 const cartBtnIcon = inCart ? '✓' : '🛒';
@@ -6175,7 +6198,6 @@ const SUPPLIER_PAGE_SIZE = 200;
                             </button>
                             <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
                         </div>
-                        ${sgwBadge}${pinBadge}
                     </td>
                     <td class="p-3">
                         <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">${data.frequency}</span>
@@ -6186,20 +6208,16 @@ const SUPPLIER_PAGE_SIZE = 200;
                         <span class="text-brand-400 font-semibold">${vehicleCount} vehicles</span>
                         <div class="text-xs text-slate-500 mt-1 line-clamp-2">${vehicleList}</div>
                     </td>
-                    <td class="p-3">
-                        <div class="text-xs text-cyan-400 font-mono">${codeSeries}</div>
-                        <div class="text-xs text-slate-500 mt-1">${testKey.split(' ')[0] || ''}</div>
-                    </td>
-                    <td class="p-3 text-xs text-slate-400">${autelModels.split(',')[0] || 'N/A'}</td>
+                    <td class="p-3 text-xs text-slate-400">N/A</td>
+                    <td class="p-3 text-xs text-slate-400">N/A</td>
                 `;
                 
-                // Click to expand
                 row.onclick = () => toggleDatabaseRow(fccId, row);
                 
                 tbody.appendChild(row);
             });
             
-            stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations | 🔧 Click any row for full locksmith data`;
+            stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations (master data)`;
         }
         
         function toggleDatabaseRow(fccId, row) {
@@ -6212,7 +6230,7 @@ const SUPPLIER_PAGE_SIZE = 200;
             // Remove any other open details
             document.querySelectorAll('.fcc-detail-row').forEach(el => el.remove());
             
-            const data = FCC_CROSS_REFERENCE[fccId];
+            const data = (FCC_MASTER_MAP && FCC_MASTER_MAP.get(fccId)) || FCC_CROSS_REFERENCE[fccId] || { vehicles: [] };
             
             // Build tool links HTML
             let toolLinksHtml = '';
@@ -6250,7 +6268,7 @@ const SUPPLIER_PAGE_SIZE = 200;
                     <div class="mb-4">
                         <div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Compatible Vehicles</div>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                            ${data.vehicles.map(v => `
+                            ${(data.vehicles || []).map(v => `
                                 <div class="bg-navy-950/60 p-2 rounded-lg border border-brand-500/20 hover:border-brand-400/50 cursor-pointer transition-all"
                                      onclick="loadVehicleFromFCC('${v.make}', '${v.model}', '${v.years}')">
                                     <div class="font-semibold text-white text-sm">${v.make} ${v.model}</div>
@@ -6606,9 +6624,11 @@ const SUPPLIER_PAGE_SIZE = 200;
         }
         
         // Initialize cart badge on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             updateCartBadge();
             renderReferenceList();
+            await loadMasterData();
+            populateImmobilizerFilters();
             // Preload immobilizer data so the tab is ready when opened
             loadImmobilizerList();
         });
@@ -6624,6 +6644,10 @@ const SUPPLIER_PAGE_SIZE = 200;
         let locksmithCatalog = [];
         let locksmithFiltered = [];
         let IMMOBILIZER_DATA = [];
+        let IMMOBILIZER_MAKES = [];
+        let IMMOBILIZER_MODELS = [];
+        let currentImmoMake = '';
+        let currentImmoModel = '';
         const IMMOBILIZER_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/locksmith';
         // Minimal embedded fallback only if API is unreachable
         const IMMOBILIZER_EMBED = [
@@ -6764,7 +6788,7 @@ const SUPPLIER_PAGE_SIZE = 200;
             return MASTER_DATA;
         }
 
-        async function loadImmobilizerList(force = false, searchTerm = '') {
+        async function loadImmobilizerList(force = false, searchTerm = '', makeFilter = '', modelFilter = '') {
             const tbody = document.getElementById('immobilizerTableBody');
             const stats = document.getElementById('immobilizerStats');
             if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
@@ -6772,6 +6796,8 @@ const SUPPLIER_PAGE_SIZE = 200;
             try {
                 const url = new URL(MASTER_API_URL);
                 if (searchTerm) url.searchParams.set('q', searchTerm);
+                if (makeFilter) url.searchParams.set('make', makeFilter);
+                if (modelFilter) url.searchParams.set('model', modelFilter);
                 url.searchParams.set('limit', '500');
                 const res = await fetch(url.toString());
                 if (!res.ok) throw new Error('immobilizer API fetch failed');
@@ -6825,13 +6851,51 @@ const SUPPLIER_PAGE_SIZE = 200;
 
         function filterImmobilizerTable() {
             const val = document.getElementById('immobilizerSearch')?.value || '';
-            loadImmobilizerList(true, val);
+            const makeVal = document.getElementById('immobilizerMakeFilter')?.value || '';
+            const modelVal = document.getElementById('immobilizerModelFilter')?.value || '';
+            currentImmoMake = makeVal;
+            currentImmoModel = modelVal;
+            loadImmobilizerList(true, val, makeVal, modelVal);
         }
 
         async function ensureImmobilizersLoaded() {
             if (!IMMOBILIZER_DATA.length) {
                 await loadImmobilizerList();
             }
+        }
+
+        function populateImmobilizerFilters() {
+            const makeSelect = document.getElementById('immobilizerMakeFilter');
+            const modelSelect = document.getElementById('immobilizerModelFilter');
+            if (!makeSelect || !modelSelect) return;
+            const makeSet = new Set();
+            const modelSet = new Set();
+            MASTER_DATA.forEach(r => {
+                if (r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system) {
+                    if (r.make) makeSet.add(r.make);
+                    if (r.model) modelSet.add(r.model);
+                }
+            });
+            IMMOBILIZER_MAKES = Array.from(makeSet).sort();
+            IMMOBILIZER_MODELS = Array.from(modelSet).sort();
+            makeSelect.innerHTML = '<option value=\"\">All makes</option>' + IMMOBILIZER_MAKES.map(m => `<option value=\"${m}\">${m}</option>`).join('');
+            modelSelect.innerHTML = '<option value=\"\">All models</option>' + IMMOBILIZER_MODELS.map(m => `<option value=\"${m}\">${m}</option>`).join('');
+        }
+
+        function onImmobilizerMakeChange() {
+            const makeVal = document.getElementById('immobilizerMakeFilter')?.value || '';
+            currentImmoMake = makeVal;
+            const modelSelect = document.getElementById('immobilizerModelFilter');
+            if (modelSelect) {
+                const filteredModels = makeVal
+                    ? IMMOBILIZER_MODELS.filter(m => m && m.toLowerCase().includes(makeVal.toLowerCase()))
+                    : IMMOBILIZER_MODELS;
+                modelSelect.innerHTML = '<option value=\"\">All models</option>' + filteredModels.map(m => `<option value=\"${m}\">${m}</option>`).join('');
+                if (currentImmoModel && !filteredModels.includes(currentImmoModel)) {
+                    currentImmoModel = '';
+                }
+            }
+            filterImmobilizerTable();
         }
 
         function findImmobilizerEntry(make, year) {
