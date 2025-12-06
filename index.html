@@ -4784,7 +4784,13 @@
                 };
             }
             if (fccStatus) {
-                fccStatus.textContent = (fccMatches && fccMatches.length > 0) ? 'From FCC DB' : 'From local data';
+                if (fccMatches && fccMatches.length > 0) {
+                    fccStatus.textContent = 'From keyfobDB (authoritative)';
+                    fccStatus.className = 'text-xs text-green-300';
+                } else {
+                    fccStatus.textContent = 'From local data';
+                    fccStatus.className = 'text-xs text-amber-300';
+                }
             }
 
             document.getElementById('summaryKeyBlank').textContent = lockData.blank || 'N/A';
@@ -5744,6 +5750,15 @@ function openSupplierCatalogWithFcc(fccId) {
             'MERCEDES': ['MERCEDES', 'MERCEDES-BENZ', 'BENZ', 'MB'],
             'BMW': ['BMW'],
             'AUDI': ['AUDI'],
+            'VOLVO': ['VOLVO'],
+            'JAGUAR': ['JAGUAR', 'JAG'],
+            'LAND ROVER': ['LAND ROVER', 'ROVER'],
+            'CHEVROLET': ['CHEVROLET', 'CHEVY'],
+            'CADILLAC': ['CADILLAC', 'CADDY'],
+            'GENERAL MOTORS': ['GENERAL MOTORS', 'GM'],
+            'PONTIAC': ['PONTIAC'],
+            'GMC': ['GMC'],
+            'BUICK': ['BUICK'],
         };
 // Supplier catalog state
 let supplierCatalogData = [];
@@ -6516,6 +6531,35 @@ const SUPPLIER_PAGE_SIZE = 200;
         const LOCKSMITH_CSV_URL = './data/oem_locksmith_catalog.csv';
         let IMMOBILIZER_DATA = [];
         const IMMOBILIZER_CSV_URL = './data/immobilizers.csv';
+        // Embedded fallback so UI still works if the CSV is unreachable in production
+        const IMMOBILIZER_EMBED = [
+            { make: 'BMW', module_or_system: 'EWS', years: '~1998-2005', models_notes: 'Older BMW 3/5/7/X/Z platforms; EWS transponder keys.', source_file: 'suppliers_products.csv' },
+            { make: 'BMW', module_or_system: 'CAS3/CAS3+', years: '~2006-2010', models_notes: 'BMW 3/5 Comfort Access CAS3+ smart keys.', source_file: 'suppliers_products.csv; cgdi_bmw_user_manual.pdf' },
+            { make: 'BMW', module_or_system: 'CAS4/CAS4+', years: '~2009-2016', models_notes: 'BMW 3/5/7 CAS4 smart keys.', source_file: 'suppliers_products.csv; cgdi_bmw_user_manual.pdf' },
+            { make: 'BMW', module_or_system: 'FEM/BDC', years: '~2013-2018', models_notes: 'BMW F/G-chassis smart keys; FEM/BDC add/all-keys-lost.', source_file: 'suppliers_products.csv; cgdi_bmw_fem_bdc_add_key.pdf' },
+            { make: 'BMW', module_or_system: 'FEM/BDC', years: '2013-2018', models_notes: 'BMW 3 (F30/F31/F34), 5 (F10/F11), 7 (F01/F02); FEM/BDC.', source_file: 'cgdi_bmw_fem_bdc_add_key.pdf' },
+            { make: 'BMW', module_or_system: 'CAS4', years: '2009-2016', models_notes: 'BMW 3 (E90 LCI), 5 (F07/F10), 7 (F01/F02); CAS4.', source_file: 'cgdi_bmw_user_manual.pdf' },
+            { make: 'BMW', module_or_system: 'CAS3+', years: '2006-2010', models_notes: 'BMW 3/5 (E9x/E6x) Comfort Access CAS3+.', source_file: 'cgdi_bmw_user_manual.pdf' },
+            { make: 'Audi/VW', module_or_system: 'BCM2 Immo5', years: '~2007-2018', models_notes: 'Audi A4/A5/A6/A7/A8/Q5 BCM2 smart systems.', source_file: 'obdstar.com/News_2269.html' },
+            { make: 'Mercedes-Benz', module_or_system: 'EIS/FBS3', years: '~2009-2015', models_notes: 'W204/W207/W212/W164/W166/W221 proximity keys.', source_file: 'suppliers_products.csv' },
+            { make: 'Ford', module_or_system: 'PATS (4D63/ID49)', years: '2000-2025', models_notes: 'Ford/Lincoln/Mazda/Mercury transponder & prox; late-gen 2021+ blade/prox.', source_file: 'suppliers_products.csv; Ilco 2025; obdstar.com/News_2269.html' },
+            { make: 'Ford', module_or_system: 'PATS (late-gen)', years: '2021-2025', models_notes: 'EcoSport/Edge/Escape/Focus/F250/F350/Explorer/Mustang blade & prox (OBDSTAR Nov 2025).', source_file: 'obdstar.com/News_2269.html' },
+            { make: 'Ford', module_or_system: 'PATS (4D63)', years: '2000-2019', models_notes: 'Crown Victoria, Expedition, Explorer, Taurus, F-150/250/350, Fusion, Mustang, Ranger, E-Series.', source_file: 'ilco_auto_truck_2025.pdf' },
+            { make: 'GM', module_or_system: 'ID46 transponder (Circle+/B111/B119)', years: '2005-2021', models_notes: 'GM high-security Z keyway transponders and smart keys.', source_file: 'suppliers_products.csv; Ilco 2025' },
+            { make: 'GM', module_or_system: 'ID46 (B111 Z-Keyway)', years: '2005-2017', models_notes: 'Chevrolet Silverado/Suburban/Tahoe/Impala/Malibu/Cobalt; GMC Sierra/Yukon; Buick Lucerne; Cadillac DTS.', source_file: 'ilco_auto_truck_2025.pdf' },
+            { make: 'GM', module_or_system: 'ID46 EXT (B119)', years: '2010-2021', models_notes: 'Chevrolet Camaro/Equinox/Silverado/Tahoe/Suburban; GMC Sierra/Terrain/Yukon; Buick Encore/Regal.', source_file: 'ilco_auto_truck_2025.pdf' },
+            { make: 'Chrysler/RAM', module_or_system: 'Fobik / GQ4-53T', years: '~2008-2023', models_notes: 'Dodge/RAM Fobik proximity keys with Philips ID46 CHR.', source_file: 'suppliers_products.csv' },
+            { make: 'Chrysler/RAM', module_or_system: 'Fobik / GQ4-53T', years: '2013-2023', models_notes: 'RAM 1500/2500/3500 (incl. remote start).', source_file: 'suppliers_products.csv' },
+            { make: 'Nissan', module_or_system: 'NATS smart (KR55WK...)', years: '~2007-2014', models_notes: 'Altima/Maxima smart keys (ID46).', source_file: 'suppliers_products.csv' },
+            { make: 'Nissan', module_or_system: 'NATS smart (KR55WK48903)', years: '2007-2014', models_notes: 'Altima 2007-2012; Maxima 2009-2014 smart keys.', source_file: 'suppliers_products.csv' },
+            { make: 'Honda/Acura', module_or_system: 'ID46/47/HOxx', years: '~2003-2020', models_notes: 'Honda/Acura transponder and smart keys (HO01/HO03).', source_file: 'suppliers_products.csv; Ilco 2025' },
+            { make: 'Honda', module_or_system: 'ID46 (KR55WK49308)', years: '2008-2014', models_notes: 'Accord EX 4drs remote head key.', source_file: 'suppliers_products.csv' },
+            { make: 'Honda', module_or_system: 'ID47 (MLBHLIK6-1TA)', years: '2016-2020', models_notes: 'Accord LX/LXS/Sport 2016-2017; Civic LX 2016-2020.', source_file: 'suppliers_products.csv' },
+            { make: 'Toyota/Lexus', module_or_system: '4D/8A/H-chip/Smart', years: '~2004-2020', models_notes: 'Toyota/Lexus H-chip, 8A, and smart systems.', source_file: 'suppliers_products.csv; Ilco 2025' },
+            { make: 'Toyota', module_or_system: '4D H-chip (HYQ12BEL)', years: '2014-2019', models_notes: 'Corolla key fob H-chip 4B.', source_file: 'suppliers_products.csv' },
+            { make: 'Land Rover', module_or_system: 'EWS reference', years: '~2005-2011', models_notes: 'LR3/Range Rover EWS-based flip keys.', source_file: 'suppliers_products.csv' },
+            { make: 'ORA (Great Wall)', module_or_system: 'KBCM/ESCL/TBOX/VCU', years: '2022-2025', models_notes: 'ORA Funky Cat proximity modules per OBDSTAR Nov 2025 update.', source_file: 'obdstar.com/News_2269.html' },
+        ];
 
         // Basic CSV parser that respects quoted fields
         function parseCsv(text) {
@@ -6560,10 +6604,13 @@ const SUPPLIER_PAGE_SIZE = 200;
             try {
                 const res = await fetch(IMMOBILIZER_CSV_URL);
                 const text = await res.text();
-                IMMOBILIZER_DATA = parseCsv(text);
+                const parsed = parseCsv(text);
+                IMMOBILIZER_DATA = parsed && parsed.length ? parsed : IMMOBILIZER_EMBED;
                 renderImmobilizerTable();
             } catch (err) {
                 console.error('Failed to load immobilizer CSV', err);
+                IMMOBILIZER_DATA = IMMOBILIZER_EMBED;
+                renderImmobilizerTable();
             }
         }
 
