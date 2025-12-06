@@ -6147,26 +6147,27 @@ const SUPPLIER_PAGE_SIZE = 200;
             let totalVehicles = 0;
             // Build master-derived FCC map once
             if (!FCC_MASTER_MAP) {
-                await loadMasterData();
+                // Reuse FCC_DB (built from master.csv) to avoid size limits on JSON API
+                await loadFccDb();
                 FCC_MASTER_MAP = new Map();
-                MASTER_DATA.forEach(r => {
-                    const fccId = (r.fcc_id || r.fccId || '').trim();
+                (FCC_DB || []).forEach(r => {
+                    const fccId = (r.fcc_id || r.FCCid || r.FCCId || r.FCCID || '').trim();
                     if (!fccId) return;
                     const key = fccId.toUpperCase();
                     if (!FCC_MASTER_MAP.has(key)) {
                         FCC_MASTER_MAP.set(key, {
                             fccId: key,
-                            frequency: r.frequency_mhz || r.frequency || 'N/A',
-                            modulation: r.modulation || 'N/A',
-                            chip: r.transponder_family || r.chip || 'N/A',
+                            frequency: r.frequency_mhz || r.frequency || r.Frequency || 'N/A',
+                            modulation: r.modulation || r.Modulation || 'N/A',
+                            chip: r.transponder_family || r.chip || r.Chip || 'N/A',
                             vehicles: []
                         });
                     }
                     const rec = FCC_MASTER_MAP.get(key);
                     rec.vehicles.push({
-                        make: r.make || '',
-                        model: r.model || '',
-                        years: r.year || r.compat_years_list || r.compat_year_min || ''
+                        make: r.make || r.Make || '',
+                        model: r.model || r.Model || '',
+                        years: r.year || r.Year || r.compat_years_list || r.compat_year_min || ''
                     });
                 });
             }
