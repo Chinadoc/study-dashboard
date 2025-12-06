@@ -583,9 +583,20 @@
                             <span id="vehicleTrim" class="bg-brand-500/20 text-brand-300 px-3 py-1 rounded-lg text-sm font-medium">LX Sedan 4D</span>
                             <span class="text-brand-500/50">•</span>
                             <span id="vehicleVin" class="font-mono text-slate-500 text-sm">1HGBH41JXMN...</span>
-                            <span id="immoBadge" class="hidden bg-purple-500/20 text-purple-200 px-3 py-1 rounded-lg text-sm font-semibold border border-purple-500/40">
+                            <span class="text-brand-500/50">•</span>
+                            <span id="immoBadge" class="hidden bg-purple-500/20 text-purple-200 px-3 py-1 rounded-lg text-sm font-semibold border border-purple-500/40 cursor-pointer hover:border-purple-300/60"
+                                  title="Jump to Immobilizers tab" onclick="goToImmobilizerTab()">
                                 Immobilizer: —
                             </span>
+                            <span class="text-brand-500/50">•</span>
+                            <span id="fccBadge" class="hidden bg-blue-500/15 text-blue-200 px-3 py-1 rounded-lg text-sm font-semibold border border-blue-400/30 cursor-pointer hover:border-blue-300/60"
+                                  title="Open in FCC database" onclick="goToFccDatabaseFromBadge()">
+                                FCC: —
+                            </span>
+                            <button id="fccAmazonBadge" class="hidden inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-semibold bg-amber-400/20 text-amber-200 border border-amber-300/40 hover:bg-amber-300/25 transition-colors"
+                                    title="Search Amazon for this FCC (affiliate)" onclick="openAmazonAffiliate(currentFccId); event.stopPropagation();">
+                                🛒 Amazon
+                            </button>
                         </p>
                     </div>
                     <div class="flex gap-3">
@@ -709,7 +720,10 @@
                             <div class="data-card bg-navy-950/60 p-5 rounded-2xl border border-brand-500/20 transition-all hover:border-brand-400 cursor-pointer" onclick="reverseSearch('freq', document.getElementById('remoteFreq').textContent)" title="Click to find all vehicles with this frequency">
                                 <div class="text-xs text-brand-400 uppercase tracking-wider mb-1 font-semibold">Remote Frequency <span class="text-blue-400 text-[10px]">🔍 Click to search</span></div>
                                 <div class="text-2xl font-mono font-bold text-white hover:text-brand-400 transition-colors" id="remoteFreq">315 MHz</div>
-                                <button id="fccId" onclick="event.stopPropagation(); reverseSearchFcc(this)" class="text-xs text-blue-400 mt-2 hover:text-blue-300 hover:underline cursor-pointer transition-colors" title="Click to find all vehicles with this FCC ID">FCC ID: KR55WK49303</button>
+                                <div class="flex items-center gap-3 mt-2 flex-wrap">
+                                    <button id="fccId" onclick="event.stopPropagation(); reverseSearchFcc(this)" class="text-xs text-blue-400 hover:text-blue-300 hover:underline cursor-pointer transition-colors" title="Click to find all vehicles with this FCC ID">FCC ID: KR55WK49303</button>
+                                    <button id="fccAmazonLink" class="hidden text-xs text-amber-300 hover:text-amber-200 underline-offset-2 underline" title="Open Amazon (affiliate) for this FCC" onclick="event.stopPropagation(); openAmazonAffiliate(currentFccId);">🛒 Amazon</button>
+                                </div>
                             </div>
                         </div>
 
@@ -4984,16 +4998,18 @@ function openSupplierCatalogWithFcc(fccId) {
                 dealerWarningEl.classList.add('hidden');
             }
 
+            currentFccId = lockData.fccId || '';
+            updateFccBadges(currentFccId);
+
             // Load FCC data and update summary + product validation
             loadFccDb().then(() => {
                 currentFccMatches = findFccMatches(data.year, data.make, data.model);
-                // If authoritative FCC from keyfobDB is present, override lockData FCC
                 if (currentFccMatches && currentFccMatches.length > 0) {
                     lockData.fccId = currentFccMatches[0];
                 }
+                currentFccId = lockData.fccId || '';
                 updateKeycutterSummary(lockData, currentFccMatches);
                 displayInlineProducts(data.make, data.model, currentFccMatches);
-                // Also reflect authoritative FCC in the details card
                 const fccIdEl = document.getElementById('fccId');
                 if (fccIdEl) {
                     fccIdEl.textContent = `FCC ID: ${lockData.fccId}`;
@@ -5002,6 +5018,7 @@ function openSupplierCatalogWithFcc(fccId) {
                 if (keyCutDesc) {
                     keyCutDesc.textContent = `FCC: ${lockData.fccId}`;
                 }
+                updateFccBadges(currentFccId);
             });
 
             // Update Key Data
@@ -5750,12 +5767,13 @@ function openSupplierCatalogWithFcc(fccId) {
         // ============================================================================
         // VIDEO TUTORIALS DATABASE
         // ============================================================================
-        const FCC_CSV_URL = 'https://raw.githubusercontent.com/gusgorman402/keyfobDB/main/car_fcc_info_DB.csv';
+        const FCC_CSV_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/master.csv';
         let FCC_DB = [];
         let FCC_MAP = {};
         let fccLoadPromise = null;
         let currentFccMatches = [];
         let currentVehicleData = {};
+        let currentFccId = '';
         const MAKE_ALIASES = {
             'VOLKSWAGEN': ['VOLKSWAGEN', 'VW'],
             'MERCEDES-BENZ': ['MERCEDES-BENZ', 'MERCEDES', 'BENZ', 'MB'],
@@ -5784,17 +5802,17 @@ const SUPPLIER_PAGE_SIZE = 200;
                 .then(res => res.text())
                 .then(text => {
                     const rows = text.trim().split(/\r?\n/);
-                    const headers = rows.shift().split(',');
+                    const headers = parseCsvLine(rows.shift());
                     const records = [];
                     rows.forEach(line => {
-                        const cols = line.split(',');
+                        const cols = parseCsvLine(line);
                         if (cols.length < headers.length) return;
                         const entry = {};
                         headers.forEach((h, idx) => entry[h.trim()] = (cols[idx] || '').trim());
-                        const year = entry.Year;
-                        const make = (entry.Make || '').toUpperCase();
-                        const model = (entry.Model || '').toUpperCase();
-                        const fcc = entry.FCCid || entry.FCCId || entry.FCCID;
+                        const year = entry.year || entry.Year;
+                        const make = (entry.make || entry.Make || '').toUpperCase();
+                        const model = (entry.model || entry.Model || '').toUpperCase();
+                        const fcc = entry.fcc_id || entry.FCCid || entry.FCCId || entry.FCCID;
                         if (!year || !make || !model || !fcc) return;
                         const key = `${year}|${make}|${model}`;
                         if (!FCC_MAP[key]) FCC_MAP[key] = [];
@@ -5850,6 +5868,64 @@ const SUPPLIER_PAGE_SIZE = 200;
             }
 
             return Array.from(fccSet);
+        }
+
+        function updateFccBadges(fccId) {
+            const badge = document.getElementById('fccBadge');
+            const amazonBadge = document.getElementById('fccAmazonBadge');
+            const inlineAmazon = document.getElementById('fccAmazonLink');
+            const hasFcc = Boolean(fccId && fccId !== 'N/A');
+            if (badge) {
+                if (hasFcc) {
+                    badge.textContent = `FCC: ${fccId}`;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+            if (amazonBadge) {
+                amazonBadge.classList.toggle('hidden', !hasFcc);
+            }
+            if (inlineAmazon) {
+                inlineAmazon.classList.toggle('hidden', !hasFcc);
+            }
+        }
+
+        function goToFccDatabaseFromBadge() {
+            if (!currentFccId || currentFccId === 'N/A') return;
+            switchTab('database');
+            setTimeout(() => {
+                const searchBox = document.getElementById('databaseSearch');
+                if (searchBox) {
+                    searchBox.value = currentFccId;
+                    filterDatabaseTable();
+                }
+                const dbSection = document.getElementById('database-section');
+                if (dbSection) dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 120);
+        }
+
+        function goToImmobilizerTab() {
+            switchTab('immobilizers');
+            setTimeout(() => {
+                const searchBox = document.getElementById('immobilizerSearch');
+                if (searchBox && currentVehicleData) {
+                    const { make, model } = currentVehicleData;
+                    searchBox.value = [make, model].filter(Boolean).join(' ');
+                    filterImmobilizerTable();
+                    searchBox.focus();
+                }
+                const immoSection = document.getElementById('immobilizers-section');
+                if (immoSection) immoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 120);
+        }
+
+        function openAmazonAffiliate(fccId) {
+            const id = fccId || currentFccId;
+            if (!id || id === 'N/A') return;
+            const tag = 'eurokeys-20';
+            const url = `https://www.amazon.com/s?k=${encodeURIComponent(id)}&i=automotive&tag=${tag}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
         }
 
         const VIDEO_TUTORIALS = [
@@ -6883,7 +6959,7 @@ const SUPPLIER_PAGE_SIZE = 200;
         async function loadExternalFccList() {
             const statsEl = document.getElementById('externalFccStats');
             const tbody = document.getElementById('externalFccTableBody');
-            if (statsEl) statsEl.textContent = 'Loading FCC IDs from GitHub...';
+            if (statsEl) statsEl.textContent = 'Loading FCC IDs from master API...';
             if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="3">Loading…</td></tr>';
 
             await loadMasterData();
@@ -7973,9 +8049,6 @@ const SUPPLIER_PAGE_SIZE = 200;
         // 2. Update prices periodically (weekly/monthly)
         // 3. Use the ranking algorithm to surface best options
         // 4. Add more products as you verify them on Amazon
-        
-        // Load keyfobDB on page init
-        fetchKeyfobDB();
         
         // View current search in FCC Database
         function viewInFCCDatabase() {
