@@ -6585,6 +6585,33 @@ const SUPPLIER_PAGE_SIZE = 200;
             return true;
         }
 
+        function getYearNumeric(row) {
+            const direct = parseInt(row.year, 10);
+            if (!Number.isNaN(direct)) return direct;
+            const ymin = parseInt(row.compat_year_min || '', 10);
+            if (!Number.isNaN(ymin)) return ymin;
+            const yrs = (row.immobilizer_years || row.years || '').match(/\d{4}/g);
+            if (yrs && yrs.length) return parseInt(yrs[0], 10);
+            return 9999; // push unknown years to bottom
+        }
+
+        function sortImmobilizers(rows) {
+            return [...rows].sort((a, b) => {
+                const ma = (a.make || '').toLowerCase();
+                const mb = (b.make || '').toLowerCase();
+                if (ma !== mb) return ma.localeCompare(mb);
+                const moa = (a.model || '').toLowerCase();
+                const mob = (b.model || '').toLowerCase();
+                if (moa !== mob) return moa.localeCompare(mob);
+                const ya = getYearNumeric(a);
+                const yb = getYearNumeric(b);
+                if (ya !== yb) return ya - yb;
+                const ia = (a.immobilizer_system_specific || a.immobilizer_system || a.module_or_system || '').toLowerCase();
+                const ib = (b.immobilizer_system_specific || b.immobilizer_system || b.module_or_system || '').toLowerCase();
+                return ia.localeCompare(ib);
+            });
+        }
+
         async function loadMasterData(force = false) {
             if (MASTER_DATA.length && !force) return MASTER_DATA;
             try {
@@ -6603,11 +6630,28 @@ const SUPPLIER_PAGE_SIZE = 200;
             return MASTER_DATA;
         }
 
-        async function loadImmobilizerList(force = false) {
-            await loadMasterData(force);
-            // Filter to rows that have immobilizer fields
-            IMMOBILIZER_DATA = MASTER_DATA.filter(r => r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system);
-            renderImmobilizerTable();
+        async function loadImmobilizerList(force = false, searchTerm = '') {
+            const tbody = document.getElementById('immobilizerTableBody');
+            const stats = document.getElementById('immobilizerStats');
+            if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
+            if (stats) stats.textContent = 'Loading…';
+            try {
+                const url = new URL(MASTER_API_URL);
+                if (searchTerm) url.searchParams.set('q', searchTerm);
+                url.searchParams.set('limit', '500');
+                const res = await fetch(url.toString());
+                if (!res.ok) throw new Error('immobilizer API fetch failed');
+                const json = await res.json();
+                const rows = json.rows || [];
+                IMMOBILIZER_DATA = rows.filter(r => r.immobilizer_system || r.immobilizer_system_specific || r.module_or_system);
+                renderImmobilizerTable();
+                if (stats) stats.textContent = `${IMMOBILIZER_DATA.length} rows • ${json.total || IMMOBILIZER_DATA.length} total`;
+            } catch (err) {
+                console.warn('Using embedded immobilizer data (API unavailable):', err.message || err);
+                IMMOBILIZER_DATA = IMMOBILIZER_EMBED;
+                renderImmobilizerTable();
+                if (stats) stats.textContent = `${IMMOBILIZER_DATA.length} rows • fallback`;
+            }
         }
 
         function renderImmobilizerTable(filter = '') {
@@ -6615,7 +6659,7 @@ const SUPPLIER_PAGE_SIZE = 200;
             if (!tbody) return;
             const term = filter.toLowerCase();
             tbody.innerHTML = '';
-            let rows = IMMOBILIZER_DATA;
+            let rows = sortImmobilizers(IMMOBILIZER_DATA);
             if (term) {
                 rows = rows.filter(r =>
                     (r.make || '').toLowerCase().includes(term) ||
@@ -6628,7 +6672,7 @@ const SUPPLIER_PAGE_SIZE = 200;
             rows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-brand-500/10 hover:bg-navy-900/40';
-                const yearsDisplay = r.year || (r.compat_year_min && r.compat_year_max ? `${r.compat_year_min}-${r.compat_year_max}` : '');
+                const yearsDisplay = r.year || (r.compat_year_min && r.compat_year_max ? `${r.compat_year_min}-${r.compat_year_max}` : (r.immobilizer_years || r.years || ''));
                 const immoDisplay = r.immobilizer_system_specific || r.immobilizer_system || r.module_or_system || '';
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-white">${r.make || ''}</td>
@@ -6646,7 +6690,7 @@ const SUPPLIER_PAGE_SIZE = 200;
 
         function filterImmobilizerTable() {
             const val = document.getElementById('immobilizerSearch')?.value || '';
-            renderImmobilizerTable(val);
+            loadImmobilizerList(true, val);
         }
 
         async function ensureImmobilizersLoaded() {

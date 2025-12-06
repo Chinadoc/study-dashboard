@@ -69,6 +69,7 @@ function filterRows(rows: Record<string, string>[], params: URLSearchParams) {
   const year = params.get("year");
   const immo = params.get("immo")?.toLowerCase();
   const fcc = params.get("fcc")?.toLowerCase();
+  const q = params.get("q")?.toLowerCase();
 
   return rows.filter((row) => {
     if (make && row.make?.toLowerCase() !== make && row.make_norm?.toLowerCase() !== make) return false;
@@ -80,6 +81,23 @@ function filterRows(rows: Record<string, string>[], params: URLSearchParams) {
     }
     if (immo && !(row.immobilizer_system || "").toLowerCase().includes(immo) && !(row.immobilizer_system_specific || "").toLowerCase().includes(immo)) return false;
     if (fcc && !(row.fcc_id || "").toLowerCase().includes(fcc)) return false;
+    if (q) {
+      const fields = [
+        row.make,
+        row.make_norm,
+        row.model,
+        row.immobilizer_system,
+        row.immobilizer_system_specific,
+        row.notes,
+        row.fcc_id,
+        row.part_number,
+        row.keyway,
+        row.keyway_norm,
+      ]
+        .filter(Boolean)
+        .map((s) => s.toLowerCase());
+      if (!fields.some((f) => f.includes(q))) return false;
+    }
     return true;
   });
 }
@@ -106,7 +124,11 @@ export default {
         const csv = await fetchCsv(env);
         const rows = parseCsv(csv);
         const filtered = filterRows(rows, url.searchParams);
-        return textResponse(JSON.stringify({ count: filtered.length, rows: filtered }));
+        const total = filtered.length;
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "500", 10) || 500, 2000);
+        const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
+        const sliced = filtered.slice(offset, offset + limit);
+        return textResponse(JSON.stringify({ count: sliced.length, total, rows: sliced }));
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message || "failed to load data" }), 500);
       }
