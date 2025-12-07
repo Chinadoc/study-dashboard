@@ -4650,8 +4650,19 @@
             }
 
             // Check query parameter (e.g., ?vehicle=2020-toyota-sienna)
-            if (params.has('vehicle')) {
-                vehicleString = params.get('vehicle').replace(/-/g, ' ');
+            // Note: In hash routing, search params might be before or after the hash
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has('vehicle')) {
+                vehicleString = searchParams.get('vehicle').replace(/-/g, ' ');
+            } else {
+                // Fallback: Check if param is after hash (e.g. #/browse?vehicle=...)
+                const hashParts = window.location.hash.split('?');
+                if (hashParts.length > 1) {
+                    const hashParams = new URLSearchParams(hashParts[1]);
+                    if (hashParams.has('vehicle')) {
+                        vehicleString = hashParams.get('vehicle').replace(/-/g, ' ');
+                    }
+                }
             }
 
             if (vehicleString) {
@@ -7185,7 +7196,16 @@
                 }
 
                 function initTabFromHash() {
-                    const hash = window.location.hash.replace('#/', '') || 'vin';
+                    let hash = window.location.hash;
+                    if (hash.startsWith('#/')) {
+                        hash = hash.substring(2);
+                    } else if (hash.startsWith('#')) {
+                        hash = hash.substring(1);
+                    }
+                    // Strip query params from hash (e.g. browse?vehicle=...)
+                    hash = hash.split('?')[0];
+
+                    if (!hash) hash = 'vin';
                     switchTab(hash, false);
                 }
 
