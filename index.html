@@ -140,12 +140,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div
-                    class="w-10 h-10 gold-accent rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 key-icon-glow">
-                    <svg class="w-6 h-6 text-navy-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 19.364a1.5 1.5 0 01-2.227 0l-.498-.498a1.5 1.5 0 010-2.121l.612-1.729 2.802-2.802A5.5 5.5 0 0121 9z">
-                        </path>
-                    </svg>
+                    class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 key-icon-glow overflow-hidden">
+                    <img src="images/logo.png" alt="Euro Keys Logo" class="w-full h-full object-cover">
                 </div>
                 <span class="text-2xl font-bold tracking-widest text-white">EURO KEYS</span>
             </div>
@@ -4853,66 +4849,74 @@
         let databaseRendered = false;
 
         function switchTab(tab, pushHash = false) {
+            const validTabs = ['vin', 'browse', 'tools', 'tutorials', 'database', 'immobilizers', 'references'];
+            if (!validTabs.includes(tab)) {
+                console.warn(`Invalid tab: ${tab}, defaulting to vin`);
+                tab = 'vin';
+            }
+
             const activeClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg';
             const inactiveClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
 
-            if (pushHash) {
-                const current = window.location.hash.replace('#/', '');
-                if (current !== tab) {
-                    window.location.hash = `#/${tab}`;
+            try {
+                if (pushHash) {
+                    const current = window.location.hash.replace('#/', '');
+                    // Only update hash if it's different and we are explicitly pushing
+                    if (current !== tab && current.split('?')[0] !== tab) {
+                        window.location.hash = `#/${tab}`;
+                    }
                 }
+
+                // Update tab button styles
+                validTabs.forEach(t => {
+                    const btn = document.getElementById(`tab-${t}`);
+                    if (btn) btn.className = t === tab ? activeClass : inactiveClass;
+
+                    const section = document.getElementById(`${t}-section`);
+                    if (section) section.classList.add('hidden');
+                });
+
+                // Hide results area
+                const resultsArea = document.getElementById('resultsArea');
+                if (resultsArea) resultsArea.classList.add('hidden');
+
+
+
+                // Show selected section
+                if (tab === 'vin') {
+                    document.getElementById('vin-section').classList.remove('hidden');
+                } else if (tab === 'browse') {
+                    document.getElementById('browse-section').classList.remove('hidden');
+                } else if (tab === 'tools') {
+                    document.getElementById('tools-section').classList.remove('hidden');
+                    renderTools(); // Initialize tools display
+                } else if (tab === 'tutorials') {
+                    document.getElementById('tutorials-section').classList.remove('hidden');
+                    renderTutorials(); // Initialize tutorials display
+                } else if (tab === 'database') {
+                    document.getElementById('database-section').classList.remove('hidden');
+                    ensureFccRendered();
+                } else if (tab === 'immobilizers') {
+                    document.getElementById('immobilizers-section').classList.remove('hidden');
+                    loadImmobilizerList();
+                } else if (tab === 'references') {
+                    document.getElementById('references-section').classList.remove('hidden');
+                    renderReferenceList();
+                    if (!externalFccList.length) {
+                        loadExternalFccList();
+                    }
+                    if (!locksmithCatalog.length) {
+                        loadLocksmithCatalog();
+                    }
+                }
+
+                // Reset to popular products when switching tabs
+                displayPopularProducts();
+            } catch (e) {
+                console.error('Error switching tab:', e);
+                // Fallback to VIN tab on error
+                if (tab !== 'vin') switchTab('vin', false);
             }
-
-            // Update tab button styles
-            document.getElementById('tab-vin').className = tab === 'vin' ? activeClass : inactiveClass;
-            document.getElementById('tab-browse').className = tab === 'browse' ? activeClass : inactiveClass;
-            document.getElementById('tab-tools').className = tab === 'tools' ? activeClass : inactiveClass;
-            document.getElementById('tab-tutorials').className = tab === 'tutorials' ? activeClass : inactiveClass;
-            document.getElementById('tab-database').className = tab === 'database' ? activeClass : inactiveClass;
-            document.getElementById('tab-immobilizers').className = tab === 'immobilizers' ? activeClass : inactiveClass;
-            document.getElementById('tab-references').className = tab === 'references' ? activeClass : inactiveClass;
-
-            // Hide all sections first
-            document.getElementById('vin-section').classList.add('hidden');
-            document.getElementById('browse-section').classList.add('hidden');
-            document.getElementById('tools-section').classList.add('hidden');
-            document.getElementById('tutorials-section').classList.add('hidden');
-            document.getElementById('database-section').classList.add('hidden');
-            document.getElementById('immobilizers-section').classList.add('hidden');
-            document.getElementById('references-section').classList.add('hidden');
-            document.getElementById('resultsArea').classList.add('hidden');
-
-
-            // Show selected section
-            if (tab === 'vin') {
-                document.getElementById('vin-section').classList.remove('hidden');
-            } else if (tab === 'browse') {
-                document.getElementById('browse-section').classList.remove('hidden');
-            } else if (tab === 'tools') {
-                document.getElementById('tools-section').classList.remove('hidden');
-                renderTools(); // Initialize tools display
-            } else if (tab === 'tutorials') {
-                document.getElementById('tutorials-section').classList.remove('hidden');
-                renderTutorials(); // Initialize tutorials display
-            } else if (tab === 'database') {
-                document.getElementById('database-section').classList.remove('hidden');
-                ensureFccRendered();
-            } else if (tab === 'immobilizers') {
-                document.getElementById('immobilizers-section').classList.remove('hidden');
-                loadImmobilizerList();
-            } else if (tab === 'references') {
-                document.getElementById('references-section').classList.remove('hidden');
-                renderReferenceList();
-                if (!externalFccList.length) {
-                    loadExternalFccList();
-                }
-                if (!locksmithCatalog.length) {
-                    loadLocksmithCatalog();
-                }
-            }
-
-            // Reset to popular products when switching tabs
-            displayPopularProducts();
         }
 
         function fillSampleVin(make) {
