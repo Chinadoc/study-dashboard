@@ -5622,6 +5622,7 @@
 
                 // Display popular products on page load (mix from top brands)
                 function displayPopularProducts() {
+                    window.displayPopularProducts = displayPopularProducts;
                     const popularBrands = ['TOYOTA', 'HONDA', 'FORD', 'CHEVROLET', 'NISSAN', 'JEEP', 'BMW', 'NISSAN'];
                     let products = [];
 
@@ -5747,6 +5748,7 @@
 
                 // Display products for a specific make
                 function displayProductsForMake(make) {
+                    window.displayProductsForMake = displayProductsForMake;
                     if (!make) {
                         displayPopularProducts();
                         return;
@@ -5936,6 +5938,7 @@
                 let currentToolSearch = '';
 
                 function renderTools() {
+                    window.renderTools = renderTools;
                     const grid = document.getElementById('toolsGrid');
                     const countEl = document.getElementById('toolsCount');
                     if (!grid) return;
@@ -6619,6 +6622,7 @@
                 let currentTutorialFilter = 'all';
 
                 function renderTutorials() {
+                    window.renderTutorials = renderTutorials;
                     const grid = document.getElementById('tutorialGrid');
                     if (!grid) return;
 
@@ -7195,6 +7199,7 @@
                 }
 
                 function ensureFccRendered() {
+                    window.ensureFccRendered = ensureFccRendered;
                     if (!databaseRendered) {
                         renderFCCDatabase();
                         databaseRendered = true;
@@ -7586,6 +7591,7 @@
                 }
 
                 async function loadImmobilizerList(force = false, searchTerm = '', makeFilter = '', modelFilter = '', append = false) {
+                    window.loadImmobilizerList = loadImmobilizerList;
                     const tbody = document.getElementById('immobilizerTableBody');
                     const stats = document.getElementById('immobilizerStats');
                     if (!append) {
@@ -7874,6 +7880,7 @@
                 ];
 
                 function renderReferenceList(force = false) {
+                    window.renderReferenceList = renderReferenceList;
                     const container = document.getElementById('referenceList');
                     if (!container) return;
                     if (container.dataset.rendered === 'true' && !force) return;
@@ -7918,6 +7925,7 @@
                 }
 
                 async function loadExternalFccList() {
+                    window.loadExternalFccList = loadExternalFccList;
                     const statsEl = document.getElementById('externalFccStats');
                     const tbody = document.getElementById('externalFccTableBody');
                     if (statsEl) statsEl.textContent = 'Loading FCC IDs from master API...';
