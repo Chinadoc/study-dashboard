@@ -6213,9 +6213,23 @@
             }, 120);
         }
 
+        const AMAZON_DEEP_LINKS = {
+            'CWTWB1U793': 'https://www.amazon.com/Replacement-CWTWB1U793-2004-2014-2004-2016-2009-2017/dp/B09GFV2YRJ/ref=sr_1_5?crid=2IOXEKCQ3XN3R&dib=eyJ2IjoiMSJ9.6OOqZ2F8r6MimZt4HNwZBOwF2X2v5saKHTkTVgWHlFWrgSKZhDffIT-6PM90graNrXet7YlR6IPLN-DpK9jMiepuZRFwJRXQDAHWIwldtEFK6X0vj86YwryNFvLaOekdoRKsbFhWjNNL6iMPl1-IeaGRUO931tW7sph46E-PHmVAC82qYMMnJ167s5mTh-jCKqsBJ6W8udnQznaAOISo3Dm9AAPRKm1tgoD3yMaWZTelv4NHCIFWsHhnnu-lLn-Dw-AGGzky-0JwS1dHwKS3GtDenhQE8jPobCTk5IPCGuw.Hg9esSZi6zwuEVkjpmAd__uzr8_QQZYWE32QbYuUD6E&dib_tag=se&keywords=CWTWB1U793&nsdOptOutParam=true&qid=1765070917&s=automotive&sprefix=cwtwb1u793%2Cautomotive%2C221&sr=1-5'
+        };
+
         function openAmazonAffiliate(fccId) {
-            const id = fccId || currentFccId;
+            let id = fccId || currentFccId;
             if (!id || id === 'N/A') return;
+            // If multiple FCC IDs separated by / or comma, pick first
+            if (id.includes('/') || id.includes(',')) {
+                id = id.split(/[\/,]/)[0].trim();
+            }
+            // Deep link if known
+            const deepLink = AMAZON_DEEP_LINKS[id.toUpperCase()];
+            if (deepLink) {
+                window.open(deepLink, '_blank', 'noopener,noreferrer');
+                return;
+            }
             const tag = 'eurokeys-20';
             const url = `https://www.amazon.com/s?k=${encodeURIComponent(id)}&i=automotive&tag=${tag}`;
             window.open(url, '_blank', 'noopener,noreferrer');
@@ -7227,6 +7241,9 @@
         let externalFccList = [];
         let locksmithCatalog = [];
         let locksmithFiltered = [];
+        let supplierEnrich = {};
+        let supplierEnrichLoaded = false;
+        const SUPPLIER_FEED_URL = './data/suppliers_products.csv';
         let IMMOBILIZER_DATA = [];
         let IMMOBILIZER_MAKES = [];
         let IMMOBILIZER_MODELS = [];
