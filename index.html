@@ -140,7 +140,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <img src="euro_keys_logo.png" alt="Euro Keys Logo"
-                    class="w-10 h-10 rounded-xl shadow-lg shadow-brand-500/30">
+                    class="w-10 h-10 rounded-xl shadow-lg shadow-brand-500/30"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <span class="text-2xl font-bold tracking-widest text-white">EURO KEYS</span>
             </div>
             <div class="flex items-center gap-4">
@@ -5017,6 +5018,8 @@
             const make = document.getElementById('makeSelect').value;
             const model = document.getElementById('modelSelect').value;
 
+            console.log('Search initiated:', { year, make, model });
+
             if (!year || !make || !model) {
                 alert('Please select Year, Make, and Model.');
                 return;
@@ -5026,6 +5029,7 @@
 
             try {
                 // Fetch real data from D1 database
+                console.log('Fetching from D1:', BROWSE_API_URL);
                 const url = new URL(BROWSE_API_URL);
                 url.searchParams.set('year', year);
                 url.searchParams.set('make', make);
@@ -5033,12 +5037,19 @@
                 url.searchParams.set('limit', '10');
 
                 const response = await fetch(url.toString());
-                if (!response.ok) throw new Error('API fetch failed');
+                console.log('D1 Response status:', response.status);
+
+                if (!response.ok) throw new Error('API fetch failed: ' + response.status);
+
                 const json = await response.json();
+                console.log('D1 Data received:', json);
+
                 const rows = json.rows || [];
 
                 if (rows.length === 0) {
+                    console.log('No D1 data for this vehicle, using fallback');
                     // No D1 data found - use fallback from LOCKSMITH_DB
+
                     console.log('No D1 data for this vehicle, using fallback');
                     const vehicleData = {
                         year: year,
@@ -5075,13 +5086,14 @@
                 }
             } catch (error) {
                 console.error('Error fetching from D1:', error);
-                // Fallback to hardcoded data
+                alert('Error loading vehicle data. Please try again.');
+                // Fallback to hardcoded data on error
                 const vehicleData = {
                     year: year,
                     make: make,
                     model: model,
                     trim: 'Standard Trim',
-                    vin: 'N/A (Database Lookup)',
+                    vin: 'N/A (Error Fallback)',
                     engine: 'Standard Engine',
                     drive: 'FWD/AWD',
                     manuf: make + ' Corporation',
@@ -5089,6 +5101,11 @@
                     body: 'Sedan/SUV'
                 };
                 displayResults(vehicleData);
+            } finally {
+                console.log('Search finished, hiding loading state');
+                hideLoading();
+                // Ensure results area is visible even if displayResults didn't run perfectly
+                document.getElementById('resultsArea').classList.remove('hidden');
             }
         }
 
