@@ -370,6 +370,50 @@ export default {
       }
     }
 
+    // Lishi Tools endpoint - decoder/pick tool compatibility data
+    if (path === "/api/lishi") {
+      try {
+        const q = url.searchParams.get("q")?.toLowerCase() || "";
+        const category = url.searchParams.get("category")?.toLowerCase() || "";
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
+
+        const conditions: string[] = [];
+        const params: string[] = [];
+
+        if (q) {
+          conditions.push("(LOWER(tool_model) LIKE ? OR LOWER(vehicle_makes) LIKE ? OR LOWER(vehicle_models) LIKE ? OR LOWER(keyway) LIKE ? OR LOWER(notes) LIKE ?)");
+          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+        }
+        if (category) {
+          conditions.push("LOWER(category) = ?");
+          params.push(category);
+        }
+        if (make) {
+          conditions.push("LOWER(vehicle_makes) LIKE ?");
+          params.push(`%${make}%`);
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+        const countResult = await env.LOCKSMITH_DB.prepare(`SELECT COUNT(*) as cnt FROM lishi_tools ${whereClause}`).bind(...params).first<{ cnt: number }>();
+        const total = countResult?.cnt || 0;
+
+        const dataSql = `SELECT * FROM lishi_tools ${whereClause} ORDER BY category, tool_model LIMIT ?`;
+        const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit).all();
+
+        return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
