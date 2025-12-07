@@ -161,22 +161,22 @@
         <!-- Tabs -->
         <div class="flex justify-center mb-8">
             <div class="bg-navy-900/80 p-1.5 rounded-2xl flex gap-1 border border-brand-500/20 shadow-xl flex-wrap justify-center">
-                <button onclick="switchTab('vin')" id="tab-vin"
+                <button onclick="switchTab('vin', true)" id="tab-vin"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg">VIN
                     Decoder</button>
-                <button onclick="switchTab('browse')" id="tab-browse"
+                <button onclick="switchTab('browse', true)" id="tab-browse"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">Browse
                     Database</button>
-                <button onclick="switchTab('tools')" id="tab-tools"
+                <button onclick="switchTab('tools', true)" id="tab-tools"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔧 Tools
                     Lookup</button>
-                <button onclick="switchTab('tutorials')" id="tab-tutorials"
+                <button onclick="switchTab('tutorials', true)" id="tab-tutorials"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬 Tutorials</button>
-                <button onclick="switchTab('database')" id="tab-database"
+                <button onclick="switchTab('database', true)" id="tab-database"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊 FCC Database</button>
-                <button onclick="switchTab('immobilizers')" id="tab-immobilizers"
+                <button onclick="switchTab('immobilizers', true)" id="tab-immobilizers"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔒 Immobilizers</button>
-                <button onclick="switchTab('references')" id="tab-references"
+                <button onclick="switchTab('references', true)" id="tab-references"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🌐 References</button>
             </div>
         </div>
@@ -4649,10 +4649,17 @@
             }
         }
 
-        function switchTab(tab) {
+        function switchTab(tab, pushHash = false) {
             const activeClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg';
             const inactiveClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
             
+            if (pushHash) {
+                const current = window.location.hash.replace('#/', '');
+                if (current !== tab) {
+                    window.location.hash = `#/${tab}`;
+                }
+            }
+
             // Update tab button styles
             document.getElementById('tab-vin').className = tab === 'vin' ? activeClass : inactiveClass;
             document.getElementById('tab-browse').className = tab === 'browse' ? activeClass : inactiveClass;
@@ -6910,13 +6917,20 @@ const SUPPLIER_PAGE_SIZE = 200;
             }, 2000);
         }
         
+        function initTabFromHash() {
+            const hash = window.location.hash.replace('#/', '') || 'vin';
+            switchTab(hash, false);
+        }
+
+        window.addEventListener('hashchange', initTabFromHash);
+
         // Initialize cart badge on page load
         document.addEventListener('DOMContentLoaded', async () => {
             updateCartBadge();
             renderReferenceList();
             await loadMasterData();
-            populateImmobilizerFilters();
             renderImmoMakeChips();
+            initTabFromHash();
             // Preload immobilizer data so the tab is ready when opened
             loadImmobilizerList();
         });
