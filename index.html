@@ -168,26 +168,26 @@
         <div class="flex justify-center mb-8">
             <div
                 class="bg-navy-900/80 p-1.5 rounded-2xl flex gap-1 border border-brand-500/20 shadow-xl flex-wrap justify-center">
-                <button onclick="switchTab('vin', true)" id="tab-vin"
+                <button onclick="setTab('vin')" id="tab-vin"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg">VIN
                     Decoder</button>
-                <button onclick="switchTab('browse', true)" id="tab-browse"
+                <button onclick="setTab('browse')" id="tab-browse"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">Browse
                     Database</button>
-                <button onclick="switchTab('tools', true)" id="tab-tools"
+                <button onclick="setTab('tools')" id="tab-tools"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔧
                     Tools
                     Lookup</button>
-                <button onclick="switchTab('tutorials', true)" id="tab-tutorials"
+                <button onclick="setTab('tutorials')" id="tab-tutorials"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬
                     Tutorials</button>
-                <button onclick="switchTab('database', true)" id="tab-database"
+                <button onclick="setTab('database')" id="tab-database"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊
                     FCC Database</button>
-                <button onclick="switchTab('immobilizers', true)" id="tab-immobilizers"
+                <button onclick="setTab('immobilizers')" id="tab-immobilizers"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔒
                     Immobilizers</button>
-                <button onclick="switchTab('references', true)" id="tab-references"
+                <button onclick="setTab('references')" id="tab-references"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🌐
                     References</button>
             </div>
@@ -4848,8 +4848,18 @@
 
         let databaseRendered = false;
 
-        function switchTab(tab, pushHash = false) {
+        // Hash-driven navigation helper
+        function setTab(tab) {
+            window.location.hash = `#/${tab}`;
+        }
+
+        function switchTab(tab) {
+            console.log('Switching to tab:', tab);
             const validTabs = ['vin', 'browse', 'tools', 'tutorials', 'database', 'immobilizers', 'references'];
+
+            // Handle cases where tab might include query params or be malformed
+            tab = tab.split('?')[0].replace('#/', '').replace('#', '');
+
             if (!validTabs.includes(tab)) {
                 console.warn(`Invalid tab: ${tab}, defaulting to vin`);
                 tab = 'vin';
@@ -4859,14 +4869,6 @@
             const inactiveClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
 
             try {
-                if (pushHash) {
-                    const current = window.location.hash.replace('#/', '');
-                    // Only update hash if it's different and we are explicitly pushing
-                    if (current !== tab && current.split('?')[0] !== tab) {
-                        window.location.hash = `#/${tab}`;
-                    }
-                }
-
                 // Update tab button styles
                 validTabs.forEach(t => {
                     const btn = document.getElementById(`tab-${t}`);
@@ -4915,7 +4917,7 @@
             } catch (e) {
                 console.error('Error switching tab:', e);
                 // Fallback to VIN tab on error
-                if (tab !== 'vin') switchTab('vin', false);
+                if (tab !== 'vin') switchTab('vin');
             }
         }
 
@@ -6161,7 +6163,7 @@
 
                 function goToFccSearch(fccId) {
                     if (!fccId || fccId === 'N/A') return;
-                    switchTab('database', true);
+                    setTab('database', true);
                     setTimeout(() => {
                         ensureFccRendered();
                         const searchBox = document.getElementById('databaseSearch');
@@ -7210,7 +7212,7 @@
                     hash = hash.split('?')[0];
 
                     if (!hash) hash = 'vin';
-                    switchTab(hash, false);
+                    switchTab(hash);
                 }
 
                 window.addEventListener('hashchange', initTabFromHash);
@@ -9521,6 +9523,7 @@
                         reverseSearch('chip', chip);
                     }
                 }
+            });
     </script>
 </body>
 
