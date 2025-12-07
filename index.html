@@ -124,6 +124,10 @@
         // Hash-driven navigation - defined early so onclick handlers work
         function setTab(tab) {
             window.location.hash = `#/${tab}`;
+            // Call switchTab if it's already defined (via window)
+            if (typeof window.switchTab === 'function') {
+                window.switchTab(tab);
+            }
         }
     </script>
 </head>
@@ -146,8 +150,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div
-                    class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 key-icon-glow overflow-hidden">
-                    <img src="images/logo.png" alt="Euro Keys Logo" class="w-full h-full object-cover">
+                    class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 key-icon-glow overflow-hidden bg-transparent">
+                    <img src="images/logo.svg" alt="Euro Keys Logo" class="w-full h-full object-cover">
                 </div>
                 <span class="text-2xl font-bold tracking-widest text-white">EURO KEYS</span>
             </div>
@@ -174,26 +178,26 @@
         <div class="flex justify-center mb-8">
             <div
                 class="bg-navy-900/80 p-1.5 rounded-2xl flex gap-1 border border-brand-500/20 shadow-xl flex-wrap justify-center">
-                <button onclick="switchTab('vin', true)" id="tab-vin"
+                <button onclick="setTab('vin')" id="tab-vin"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg">VIN
                     Decoder</button>
-                <button onclick="switchTab('browse', true)" id="tab-browse"
+                <button onclick="setTab('browse')" id="tab-browse"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">Browse
                     Database</button>
-                <button onclick="switchTab('tools', true)" id="tab-tools"
+                <button onclick="setTab('tools')" id="tab-tools"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔧
                     Tools
                     Lookup</button>
-                <button onclick="switchTab('tutorials', true)" id="tab-tutorials"
+                <button onclick="setTab('tutorials')" id="tab-tutorials"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬
                     Tutorials</button>
-                <button onclick="switchTab('database', true)" id="tab-database"
+                <button onclick="setTab('database')" id="tab-database"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊
                     FCC Database</button>
-                <button onclick="switchTab('immobilizers', true)" id="tab-immobilizers"
+                <button onclick="setTab('immobilizers')" id="tab-immobilizers"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔒
                     Immobilizers</button>
-                <button onclick="switchTab('references', true)" id="tab-references"
+                <button onclick="setTab('references')" id="tab-references"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🌐
                     References</button>
             </div>
@@ -4860,6 +4864,7 @@
         }
 
         function switchTab(tab, pushHash = false) {
+            window.switchTab = switchTab; // Expose to window for setTab to find
             console.log('Switching to tab:', tab);
             const validTabs = ['vin', 'browse', 'tools', 'tutorials', 'database', 'immobilizers', 'references'];
 
