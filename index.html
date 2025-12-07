@@ -5020,19 +5020,25 @@
             showLoading();
 
             setTimeout(() => {
-                const vehicleData = {
-                    year: year,
-                    make: make,
-                    model: model,
-                    trim: 'Standard Trim',
-                    vin: 'N/A (Database Lookup)',
-                    engine: 'Standard Engine',
-                    drive: 'FWD/AWD',
-                    manuf: make + ' Corporation',
-                    country: 'International',
-                    body: 'Sedan/SUV'
-                };
-                displayResults(vehicleData);
+                try {
+                    const vehicleData = {
+                        year: year,
+                        make: make,
+                        model: model,
+                        trim: 'Standard Trim',
+                        vin: 'N/A (Database Lookup)',
+                        engine: 'Standard Engine',
+                        drive: 'FWD/AWD',
+                        manuf: make + ' Corporation',
+                        country: 'International',
+                        body: 'Sedan/SUV'
+                    };
+                    displayResults(vehicleData);
+                } catch (error) {
+                    console.error('Error displaying results:', error);
+                    hideLoading();
+                    alert('Error loading vehicle data. Please try again.');
+                }
             }, 800);
         }
 
