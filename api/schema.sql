@@ -45,7 +45,11 @@ CREATE TABLE IF NOT EXISTS locksmith_data (
   match_basis TEXT,
   url TEXT,
   fcc_confidence TEXT,
-  fcc_source TEXT
+  fcc_source TEXT,
+  -- New columns for unified database
+  video_id TEXT,
+  data_completeness INTEGER DEFAULT 0,
+  needs_enrichment INTEGER DEFAULT 1
 );
 
 -- Create indexes for fast filtering
@@ -55,3 +59,5 @@ CREATE INDEX IF NOT EXISTS idx_model ON locksmith_data(model);
 CREATE INDEX IF NOT EXISTS idx_year ON locksmith_data(year);
 CREATE INDEX IF NOT EXISTS idx_immobilizer ON locksmith_data(immobilizer_system);
 CREATE INDEX IF NOT EXISTS idx_fcc ON locksmith_data(fcc_id);
+CREATE INDEX IF NOT EXISTS idx_completeness ON locksmith_data(data_completeness);
+CREATE INDEX IF NOT EXISTS idx_needs_enrichment ON locksmith_data(needs_enrichment);

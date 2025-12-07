@@ -7223,6 +7223,8 @@
 
         const MASTER_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/master';
         const IMMO_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/immo';
+        const BROWSE_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/browse';
+        const FCC_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/fcc';
         let MASTER_DATA = [];
         let externalFccList = [];
         let locksmithCatalog = [];
@@ -7865,37 +7867,29 @@
         async function loadExternalFccList() {
             const statsEl = document.getElementById('externalFccStats');
             const tbody = document.getElementById('externalFccTableBody');
-            if (statsEl) statsEl.textContent = 'Loading FCC IDs from master API...';
+            if (statsEl) statsEl.textContent = 'Loading FCC IDs from D1 database...';
             if (tbody) tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="3">Loading…</td></tr>';
 
-            await loadMasterData();
-            const data = MASTER_DATA;
-            const map = new Map();
+            try {
+                const response = await fetch(`${FCC_API_URL}?limit=100`);
+                const data = await response.json();
 
-            data.forEach(entry => {
-                const fccId = (entry.fcc_id || entry.fccId || '').trim();
-                if (!fccId) return;
-                const key = fccId.toUpperCase();
-                if (!map.has(key)) {
-                    map.set(key, {
-                        fccId: key,
-                        frequency: entry.frequency_mhz || entry.frequency || '',
-                        modulation: entry.modulation || '',
-                        examples: []
-                    });
+                externalFccList = (data.rows || []).map(row => ({
+                    fccId: row.fcc_id,
+                    frequency: row.frequency_mhz || '',
+                    chip: row.chip || '',
+                    examples: row.vehicles ? row.vehicles.split(',').slice(0, 3) : [],
+                    vehicleCount: row.vehicle_count || 0
+                }));
+
+                renderExternalFccRows(externalFccList);
+
+                if (statsEl) {
+                    statsEl.innerHTML = `Found <span class="text-brand-400 font-bold">${data.total || externalFccList.length}</span> FCC IDs. Showing ${externalFccList.length}.`;
                 }
-                const rec = map.get(key);
-                const example = `${entry.make || ''} ${entry.model || ''} ${entry.year || ''}`.trim();
-                if (example && rec.examples.length < 3 && !rec.examples.includes(example)) {
-                    rec.examples.push(example);
-                }
-            });
-
-            externalFccList = Array.from(map.values()).sort((a, b) => a.fccId.localeCompare(b.fccId));
-            renderExternalFccRows(externalFccList.slice(0, 50));
-
-            if (statsEl) {
-                statsEl.innerHTML = `Found <span class="text-brand-400 font-bold">${externalFccList.length}</span> FCC IDs from master data. Showing first ${Math.min(50, externalFccList.length)}.`;
+            } catch (err) {
+                console.error('Error loading FCC list:', err);
+                if (statsEl) statsEl.textContent = 'Error loading FCC database';
             }
 
             const searchInput = document.getElementById('externalFccSearch');
@@ -7932,25 +7926,26 @@
 
             if (locksmithCatalog.length && !force) {
                 renderLocksmithRows(locksmithFiltered.length ? locksmithFiltered : locksmithCatalog);
-                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> rows from master API.`;
+                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> rows from D1 database.`;
                 return;
             }
 
-            statsEl.textContent = 'Loading master data...';
+            statsEl.textContent = 'Loading from D1 database...';
             tbody.innerHTML = '<tr><td class="p-2 text-slate-500" colspan="6">Loading…</td></tr>';
 
             try {
-                await loadMasterData(true);
-                locksmithCatalog = MASTER_DATA;
+                const response = await fetch(`${BROWSE_API_URL}?limit=100`);
+                const data = await response.json();
+                locksmithCatalog = data.rows || [];
                 locksmithFiltered = [];
-                renderLocksmithRows(locksmithCatalog.slice(0, 100));
-                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${locksmithCatalog.length}</span> rows from master API. Showing first ${Math.min(100, locksmithCatalog.length)}.`;
+                renderLocksmithRows(locksmithCatalog);
+                statsEl.innerHTML = `Loaded <span class="text-brand-400 font-bold">${data.total || locksmithCatalog.length}</span> rows. Showing ${locksmithCatalog.length}.`;
                 const searchInput = document.getElementById('locksmithSearch');
                 if (searchInput) searchInput.value = '';
             } catch (error) {
-                console.error('Error loading master API:', error);
-                tbody.innerHTML = '<tr><td class="p-2 text-red-400" colspan="6">Failed to load master API.</td></tr>';
-                statsEl.textContent = 'Failed to load master API.';
+                console.error('Error loading D1 database:', error);
+                tbody.innerHTML = '<tr><td class="p-2 text-red-400" colspan="6">Failed to load database.</td></tr>';
+                statsEl.textContent = 'Failed to load database.';
             }
         }
 

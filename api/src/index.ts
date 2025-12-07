@@ -277,6 +277,99 @@ export default {
       }
     }
 
+    // Browse Database endpoint - uses D1 for fast queries
+    if (path === "/api/browse") {
+      try {
+        const year = url.searchParams.get("year");
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
+        const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
+
+        const conditions: string[] = ["needs_enrichment = 0"]; // Only show complete data
+        const params: (string | number)[] = [];
+
+        if (year) {
+          conditions.push("year = ?");
+          params.push(parseInt(year, 10));
+        }
+        if (make) {
+          conditions.push("(LOWER(make) = ? OR LOWER(make_norm) = ?)");
+          params.push(make, make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+
+        const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
+        const countResult = await env.LOCKSMITH_DB.prepare(`SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`).bind(...params).first<{ cnt: number }>();
+        const total = countResult?.cnt || 0;
+
+        const dataSql = `SELECT * FROM locksmith_data ${whereClause} ORDER BY make, model, year LIMIT ? OFFSET ?`;
+        const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
+
+        return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // FCC Database endpoint - grouped by FCC ID, uses D1
+    if (path === "/api/fcc") {
+      try {
+        const q = url.searchParams.get("q")?.toLowerCase() || "";
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
+        const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
+
+        let whereClause = "WHERE fcc_id IS NOT NULL AND fcc_id != '' AND needs_enrichment = 0";
+        const params: string[] = [];
+
+        if (q) {
+          whereClause += " AND (LOWER(fcc_id) LIKE ? OR LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(chip) LIKE ?)";
+          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+        }
+
+        // Get unique FCC IDs with aggregated data
+        const sql = `
+          SELECT 
+            fcc_id,
+            frequency_mhz,
+            chip,
+            GROUP_CONCAT(DISTINCT make || ' ' || model || ' (' || year || ')') as vehicles,
+            COUNT(*) as vehicle_count
+          FROM locksmith_data 
+          ${whereClause}
+          GROUP BY fcc_id
+          ORDER BY fcc_id
+          LIMIT ? OFFSET ?
+        `;
+
+        const countSql = `SELECT COUNT(DISTINCT fcc_id) as cnt FROM locksmith_data ${whereClause}`;
+        const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
+        const total = countResult?.cnt || 0;
+
+        const dataResult = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit, offset).all();
+
+        return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
