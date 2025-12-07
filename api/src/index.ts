@@ -102,6 +102,69 @@ function filterRows(rows: Record<string, string>[], params: URLSearchParams) {
   });
 }
 
+type ImmoRow = {
+  make?: string;
+  model?: string;
+  year?: string;
+  compat_year_min?: string;
+  compat_year_max?: string;
+  immobilizer_system?: string;
+  immobilizer_system_specific?: string;
+  module_or_system?: string;
+  key_type?: string;
+  key_category?: string;
+  notes?: string;
+};
+
+function buildImmoSlice(rows: Record<string, string>[], params: URLSearchParams) {
+  const make = params.get("make")?.toLowerCase() || "";
+  const model = params.get("model")?.toLowerCase() || "";
+  const q = params.get("q")?.toLowerCase() || "";
+  const limit = Math.min(parseInt(params.get("limit") || "300", 10) || 300, 1000);
+  const offset = parseInt(params.get("offset") || "0", 10) || 0;
+
+  const filtered: ImmoRow[] = [];
+  for (const r of rows) {
+    const makeVal = (r.make || r.make_norm || "").toLowerCase();
+    if (make && makeVal !== make) continue;
+    const modelVal = (r.model || "").toLowerCase();
+    if (model && !modelVal.includes(model)) continue;
+    if (q) {
+      const hay = [
+        r.make,
+        r.model,
+        r.immobilizer_system,
+        r.immobilizer_system_specific,
+        r.module_or_system,
+        r.key_type,
+        r.key_category,
+        r.notes,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!hay.includes(q)) continue;
+    }
+    filtered.push({
+      make: r.make,
+      model: r.model,
+      year: r.year,
+      compat_year_min: r.compat_year_min,
+      compat_year_max: r.compat_year_max,
+      immobilizer_system: r.immobilizer_system,
+      immobilizer_system_specific: r.immobilizer_system_specific,
+      module_or_system: r.module_or_system,
+      key_type: r.key_type,
+      key_category: r.key_category,
+      notes: r.notes,
+    });
+  }
+
+  const total = filtered.length;
+  const sliced = filtered.slice(offset, offset + limit);
+  return { total, rows: sliced };
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -131,6 +194,30 @@ export default {
         return textResponse(JSON.stringify({ count: sliced.length, total, rows: sliced }));
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message || "failed to load data" }), 500);
+      }
+    }
+
+    // Lightweight immobilizer endpoint with trimmed fields and cache
+    if (path === "/api/immo") {
+      const cache = caches.default;
+      const cacheKey = new URL(request.url);
+      cacheKey.searchParams.sort();
+      const cached = await cache.match(cacheKey.toString());
+      if (cached) return cached;
+      try {
+        const csv = await fetchCsv(env);
+        const rows = parseCsv(csv);
+        const result = buildImmoSlice(rows, url.searchParams);
+        const resp = new Response(JSON.stringify(result), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+          },
+        });
+        await cache.put(cacheKey.toString(), resp.clone());
+        return resp;
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message || "failed to load immobilizers" }), 500);
       }
     }
 
