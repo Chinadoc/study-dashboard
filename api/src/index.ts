@@ -8,6 +8,7 @@
 
 export interface Env {
   LOCKSMITH_KV: KVNamespace;
+  LOCKSMITH_DB: D1Database;
 }
 
 let cachedCsv = "";
@@ -211,17 +212,53 @@ export default {
       }
     }
 
-    // Lightweight immobilizer endpoint with trimmed fields and cache
+    // Lightweight immobilizer endpoint - now uses D1 for fast queries
     if (path === "/api/immo") {
       const cache = caches.default;
       const cacheKey = new URL(request.url);
       cacheKey.searchParams.sort();
       const cached = await cache.match(cacheKey.toString());
       if (cached) return cached;
+
       try {
-        const rows = await fetchRows(env);
-        const result = buildImmoSlice(rows, url.searchParams);
-        const resp = new Response(JSON.stringify(result), {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const q = url.searchParams.get("q")?.toLowerCase() || "";
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "300", 10) || 300, 1000);
+        const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
+
+        // Build SQL query with parameters
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("(LOWER(make) = ? OR LOWER(make_norm) = ?)");
+          params.push(make, make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (q) {
+          conditions.push("(LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(immobilizer_system) LIKE ? OR LOWER(immobilizer_system_specific) LIKE ? OR LOWER(notes) LIKE ?)");
+          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+        }
+        // Only include rows with immobilizer data
+        conditions.push("(immobilizer_system IS NOT NULL AND immobilizer_system != '')");
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+        // Get total count
+        const countSql = `SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`;
+        const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
+        const total = countResult?.cnt || 0;
+
+        // Get paginated rows
+        const dataSql = `SELECT make, model, year, compat_year_min, compat_year_max, immobilizer_system, immobilizer_system_specific, key_type, key_category, notes FROM locksmith_data ${whereClause} ORDER BY make, model, year LIMIT ? OFFSET ?`;
+        const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
+        const rows = dataResult.results || [];
+
+        const resp = new Response(JSON.stringify({ total, rows }), {
           headers: {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
