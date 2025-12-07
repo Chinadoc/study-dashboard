@@ -7209,7 +7209,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             updateCartBadge();
             renderReferenceList();
-            await loadMasterData();
+            // Note: loadMasterData removed - now using fast D1 endpoints per tab
             renderImmoMakeChips();
             initTabFromHash();
             // Preload immobilizer data so the tab is ready when opened
