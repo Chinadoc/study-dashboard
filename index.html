@@ -174,26 +174,26 @@
         <div class="flex justify-center mb-8">
             <div
                 class="bg-navy-900/80 p-1.5 rounded-2xl flex gap-1 border border-brand-500/20 shadow-xl flex-wrap justify-center">
-                <button onclick="setTab('vin')" id="tab-vin"
+                <button onclick="switchTab('vin', true)" id="tab-vin"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg">VIN
                     Decoder</button>
-                <button onclick="setTab('browse')" id="tab-browse"
+                <button onclick="switchTab('browse', true)" id="tab-browse"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">Browse
                     Database</button>
-                <button onclick="setTab('tools')" id="tab-tools"
+                <button onclick="switchTab('tools', true)" id="tab-tools"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔧
                     Tools
                     Lookup</button>
-                <button onclick="setTab('tutorials')" id="tab-tutorials"
+                <button onclick="switchTab('tutorials', true)" id="tab-tutorials"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬
                     Tutorials</button>
-                <button onclick="setTab('database')" id="tab-database"
+                <button onclick="switchTab('database', true)" id="tab-database"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊
                     FCC Database</button>
-                <button onclick="setTab('immobilizers')" id="tab-immobilizers"
+                <button onclick="switchTab('immobilizers', true)" id="tab-immobilizers"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🔒
                     Immobilizers</button>
-                <button onclick="setTab('references')" id="tab-references"
+                <button onclick="switchTab('references', true)" id="tab-references"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🌐
                     References</button>
             </div>
@@ -4859,7 +4859,7 @@
             window.location.hash = `#/${tab}`;
         }
 
-        function switchTab(tab) {
+        function switchTab(tab, pushHash = false) {
             console.log('Switching to tab:', tab);
             const validTabs = ['vin', 'browse', 'tools', 'tutorials', 'database', 'immobilizers', 'references'];
 
@@ -4869,6 +4869,14 @@
             if (!validTabs.includes(tab)) {
                 console.warn(`Invalid tab: ${tab}, defaulting to vin`);
                 tab = 'vin';
+            }
+
+            // Update URL hash if requested
+            if (pushHash) {
+                const current = window.location.hash.replace('#/', '');
+                if (current !== tab) {
+                    window.location.hash = `#/${tab}`;
+                }
             }
 
             const activeClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg';
@@ -4897,33 +4905,25 @@
                     document.getElementById('browse-section').classList.remove('hidden');
                 } else if (tab === 'tools') {
                     document.getElementById('tools-section').classList.remove('hidden');
-                    renderTools(); // Initialize tools display
+                    if (typeof window.renderTools === 'function') window.renderTools();
                 } else if (tab === 'tutorials') {
                     document.getElementById('tutorials-section').classList.remove('hidden');
-                    renderTutorials(); // Initialize tutorials display
+                    if (typeof window.renderTutorials === 'function') window.renderTutorials();
                 } else if (tab === 'database') {
                     document.getElementById('database-section').classList.remove('hidden');
-                    ensureFccRendered();
+                    if (typeof window.ensureFccRendered === 'function') window.ensureFccRendered();
                 } else if (tab === 'immobilizers') {
                     document.getElementById('immobilizers-section').classList.remove('hidden');
-                    loadImmobilizerList();
+                    if (typeof window.loadImmobilizerList === 'function') window.loadImmobilizerList();
                 } else if (tab === 'references') {
                     document.getElementById('references-section').classList.remove('hidden');
-                    renderReferenceList();
-                    if (!externalFccList.length) {
-                        loadExternalFccList();
-                    }
-                    if (!locksmithCatalog.length) {
-                        loadLocksmithCatalog();
-                    }
+                    if (typeof window.renderReferenceList === 'function') window.renderReferenceList();
                 }
 
                 // Reset to popular products when switching tabs
-                displayPopularProducts();
+                if (typeof window.displayPopularProducts === 'function') window.displayPopularProducts();
             } catch (e) {
                 console.error('Error switching tab:', e);
-                // Fallback to VIN tab on error
-                if (tab !== 'vin') switchTab('vin');
             }
         }
 
