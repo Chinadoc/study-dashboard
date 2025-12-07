@@ -287,3 +287,4 @@ async function migrateImmobilizers(csvContent) {
 4. Create API endpoint handlers
 5. Deploy Workers
 6. Update `index.html` to fetch from Workers API
+

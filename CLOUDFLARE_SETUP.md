@@ -160,3 +160,4 @@ GET /api/oem-catalog              → OEM catalog
 - [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
 - [KV Namespace API](https://developers.cloudflare.com/workers/runtime-apis/kv/)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) (for local development)
+

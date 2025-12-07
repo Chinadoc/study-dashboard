@@ -253,3 +253,4 @@ for fcc_id in sorted(unique_fcc_ids):
 
 print(f"\nTotal unique FCC IDs: {len(unique_fcc_ids)}")
 
+

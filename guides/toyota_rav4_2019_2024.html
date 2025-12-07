@@ -1,0 +1,45 @@
+<div class="p-6 bg-navy-800 rounded-xl shadow-lg border border-navy-700">
+            <h2 class="text-2xl font-bold text-white mb-4">Toyota RAV4 2019-2024</h2>
+            <div class="space-y-6">
+                <div class="bg-navy-900/50 p-4 rounded-lg border border-navy-600">
+                    <h3 class="text-brand-400 font-semibold mb-2">Required Tools</h3>
+                    <p class="text-slate-300">Autel IM508, working key, new smart key.</p>
+                </div>
+                <div>
+                    <h3 class="text-brand-400 font-semibold mb-2">Procedure</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-300">
+                        <li>First, Backup Immobilizer Data. Navigate: Toyota -&gt; Control Unit -&gt;
+Keyless System -&gt; Backup immobilizer data via OBD. Turn ignition OFF
+and hazards ON. This saves an EEPROM file and allows function without a</li>
+                        <li>If the system is full (max keys reached), you must Erase Keys.
+* Navigate to Erase Keys. The tool will use the saved EEPROM file.
+* Hold the key you wish to KEEP near the start button until it beeps
+once. This key will be retained; all others will be erased.</li>
+                        <li>To add a new key, navigate to Add Smart Key.</li>
+                        <li>Turn ignition ON. The tool will use the backed-up data to bypass the
+PIN.</li>
+                        <li>Hold the working key near the start button (beeps once), then hold the
+new key near the start button (beeps twice).</li>
+                        <li>Follow final prompts to hold the new key to the button again to finalize.
+"Learning succeeded" will be displayed.</li>
+                        <li>* This procedure is identical to the Toyota Camry (2018-2024)
+process.
+* Part 1: Program Key Chip. Set programmer to KEY, ignition ON
+with working key, plug in programmer, wait for solid red
+security light, swap to new key, wait 60 seconds for light to go
+out.
+* Part 2: Program Remote. Set programmer to REMOTE,
+ignition ON with working key, plug in programmer, wait for
+beeps, open door, press Lock+Unlock then Lock on new
+remote.</li>
+                    </ol>
+                </div>
+                
+                <div class="bg-red-500/10 border border-red-500/30 p-4 rounded-lg">
+                    <h3 class="text-red-400 font-semibold mb-2">Important Notes</h3>
+                    <p class="text-red-200/80 text-sm">Backing up the immobilizer data is the critical first step. When erasing
+keys, be extremely careful to keep the one you want to save; erased keys
+cannot be re-learned.</p>
+                </div>
+            </div>
+        </div>

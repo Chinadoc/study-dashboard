@@ -397,3 +397,4 @@ For issues:
 1. Check Cloudflare Dashboard > Workers > Logs
 2. Run `wrangler tail` for real-time logs
 3. Verify KV namespace has data: `wrangler kv:key list`
+
