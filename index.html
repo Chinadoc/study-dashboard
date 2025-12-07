@@ -6091,32 +6091,26 @@
 
         function loadFccDb() {
             if (fccLoadPromise) return fccLoadPromise;
-            fccLoadPromise = fetch(FCC_CSV_URL)
-                .then(res => res.text())
-                .then(text => {
-                    const rows = text.trim().split(/\r?\n/);
-                    const headers = parseCsvLine(rows.shift());
-                    const records = [];
-                    rows.forEach(line => {
-                        const cols = parseCsvLine(line);
-                        if (cols.length < headers.length) return;
-                        const entry = {};
-                        headers.forEach((h, idx) => entry[h.trim()] = (cols[idx] || '').trim());
-                        const year = entry.year || entry.Year;
-                        const make = (entry.make || entry.Make || '').toUpperCase();
-                        const model = (entry.model || entry.Model || '').toUpperCase();
-                        const fcc = entry.fcc_id || entry.FCCid || entry.FCCId || entry.FCCID;
-                        if (!year || !make || !model || !fcc) return;
+            // Use fast D1 endpoint instead of slow CSV parsing
+            fccLoadPromise = fetch(`${BROWSE_API_URL}?limit=500`)
+                .then(res => res.json())
+                .then(json => {
+                    const records = json.rows || [];
+                    records.forEach(entry => {
+                        const year = entry.year;
+                        const make = (entry.make || '').toUpperCase();
+                        const model = (entry.model || '').toUpperCase();
+                        const fcc = entry.fcc_id;
+                        if (!year || !make || !model) return;
                         const key = `${year}|${make}|${model}`;
                         if (!FCC_MAP[key]) FCC_MAP[key] = [];
                         FCC_MAP[key].push(entry);
-                        records.push(entry);
                     });
                     FCC_DB = records;
                     return FCC_DB;
                 })
                 .catch(err => {
-                    console.error('Failed to load FCC DB', err);
+                    console.error('Failed to load FCC DB from D1', err);
                     return [];
                 });
             return fccLoadPromise;
