@@ -225,12 +225,18 @@ export default {
           headers: {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
           },
         });
         await cache.put(cacheKey.toString(), resp.clone());
         return resp;
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message || "failed to load immobilizers" }), 500);
+        return textResponse(
+          JSON.stringify({ error: err.message || "failed to load immobilizers" }),
+          500
+        );
       }
     }
 
