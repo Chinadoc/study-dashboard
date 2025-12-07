@@ -4896,6 +4896,8 @@
             }
         }
 
+        let databaseRendered = false;
+
         function switchTab(tab, pushHash = false) {
             const activeClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all gold-accent text-navy-950 shadow-lg';
             const inactiveClass = 'tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all';
@@ -5281,13 +5283,28 @@
             currentFccId = lockData.fccId || '';
             updateFccBadges(currentFccId);
 
+            // Unblock UI immediately - populate async data later
+            hideLoading();
+            document.getElementById('resultsArea').classList.remove('hidden');
+
             // Load FCC data and update summary + product validation
-            loadFccDb().then(() => {
+            loadFccDb().then(async () => {
                 currentFccMatches = findFccMatches(data.year, data.make, data.model);
                 if (currentFccMatches && currentFccMatches.length > 0) {
                     lockData.fccId = currentFccMatches[0];
                 }
                 currentFccId = lockData.fccId || '';
+                await ensureSupplierEnrich();
+                const enrich = supplierEnrich[currentFccId] || {};
+                lockData.codeSeries = lockData.codeSeries || lockData.series || enrich.codeSeries || enrich.keyway;
+                lockData.testKey = lockData.testKey || enrich.testKey || enrich.keyway;
+                lockData.shell = lockData.shell || enrich.shell;
+                lockData.aftermarket = lockData.aftermarket || {};
+                if (!lockData.aftermarket.ilco && enrich.aftermarketKeys) lockData.aftermarket.ilco = enrich.aftermarketKeys;
+                lockData.autelModels = lockData.autelModels || enrich.autelModels;
+                lockData.programmingNotes = lockData.programmingNotes || enrich.programmingMethod;
+                lockData.cloneChips = lockData.cloneChips || enrich.cloneChips;
+                lockData.pinRequired = lockData.pinRequired || enrich.pinRequired;
                 updateKeycutterSummary(lockData, currentFccMatches);
                 displayInlineProducts(data.make, data.model, currentFccMatches);
                 const fccIdEl = document.getElementById('fccId');
@@ -5636,9 +5653,6 @@
 
             // Display vehicle-specific video tutorial
             displayVehicleVideo(data.make, data.model, data.year);
-
-            hideLoading();
-            document.getElementById('resultsArea').classList.remove('hidden');
 
             // Scroll to results
             setTimeout(() => {
@@ -7228,6 +7242,9 @@
             initTabFromHash();
             // Preload immobilizer data so the tab is ready when opened
             loadImmobilizerList();
+            // Preload FCC and Supplier data to avoid blocking search
+            loadFccDb();
+            ensureSupplierEnrich();
         });
 
         // ============================================================================
@@ -7545,6 +7562,50 @@
             }
             MASTER_DATA = IMMOBILIZER_EMBED;
             return MASTER_DATA;
+        }
+
+        async function ensureSupplierEnrich() {
+            if (supplierEnrichLoaded && Object.keys(supplierEnrich).length) return supplierEnrich;
+            supplierEnrichLoaded = true;
+            try {
+                const resp = await fetch(SUPPLIER_FEED_URL);
+                if (!resp.ok) throw new Error('supplier feed fetch failed');
+                const text = await resp.text();
+                const rows = parseCsv(text);
+                const map = {};
+                rows.forEach(r => {
+                    const fcc = (r.fcc_id || '').trim().toUpperCase();
+                    if (!fcc) return;
+                    if (!map[fcc]) {
+                        map[fcc] = {
+                            codeSeries: '',
+                            shell: '',
+                            aftermarketKeys: '',
+                            autelModels: '',
+                            programmingMethod: '',
+                            cloneChips: '',
+                            pinRequired: '',
+                            testKey: '',
+                            keyway: ''
+                        };
+                    }
+                    const hay = `${r.title || ''} ${r.tags || ''} ${r.body_text || ''}`.toUpperCase();
+                    const codeSeries = (r.keyway || r.tags || '').match(/HU\d+|YM\d+|B\d{3}|SIP\d+|TOY\d+/i);
+                    if (codeSeries && !map[fcc].codeSeries) map[fcc].codeSeries = codeSeries[0];
+                    if (!map[fcc].keyway && r.keyway) map[fcc].keyway = r.keyway;
+                    if (!map[fcc].testKey && r.keyway) map[fcc].testKey = r.keyway;
+                    if (hay.includes('SHELL') || hay.includes('CASE')) map[fcc].shell = 'Available';
+                    if ((r.vendor || '').toUpperCase().includes('AUTEL') || hay.includes('AUTEL')) map[fcc].autelModels = 'Autel Compatible';
+                    if (hay.includes('XHORSE') || hay.includes('KEYDIY') || hay.includes('CLONE')) map[fcc].cloneChips = 'Clone-friendly';
+                    if (hay.includes('OBD')) map[fcc].programmingMethod = 'OBD';
+                    if (hay.includes('NO PIN')) map[fcc].pinRequired = 'No PIN Required';
+                    if (!map[fcc].aftermarketKeys && r.vendor) map[fcc].aftermarketKeys = r.vendor;
+                });
+                supplierEnrich = map;
+            } catch (err) {
+                console.warn('Supplier enrich unavailable:', err.message || err);
+            }
+            return supplierEnrich;
         }
 
         async function loadImmobilizerList(force = false, searchTerm = '', makeFilter = '', modelFilter = '', append = false) {
@@ -8989,14 +9050,14 @@
         }
 
         function filterDatabaseTable() {
-            const rawSearchTerm = document.getElementById('databaseSearch').value.toLowerCase();
-            const searchTerm = rawSearchTerm.replace(/[^a-z0-9]/g, '');
+            const rawSearchTerm = (document.getElementById('databaseSearch').value || '').toLowerCase();
+            const tokens = rawSearchTerm.split(/[^a-z0-9]+/).filter(Boolean);
             const rows = document.querySelectorAll('#fccDatabaseBody tr:not(.fcc-detail-row)');
             let visibleCount = 0;
 
             rows.forEach(row => {
                 const rawText = row.textContent.toLowerCase();
-                const text = rawText.replace(/[^a-z0-9]/g, '');
+                const normText = rawText.replace(/[^a-z0-9]/g, '');
                 const fccId = row.getAttribute('data-fcc');
                 const data = FCC_CROSS_REFERENCE[fccId] || (FCC_MASTER_MAP && FCC_MASTER_MAP.get(fccId));
 
@@ -9010,7 +9071,11 @@
                     );
                 }
 
-                if ((searchTerm && text.includes(searchTerm)) || rawText.includes(rawSearchTerm) || vehicleMatch) {
+                const tokenMatch = tokens.length === 0
+                    ? true
+                    : tokens.some(t => normText.includes(t) || (fccId || '').toLowerCase().includes(t));
+
+                if (tokenMatch || vehicleMatch) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
