@@ -4927,6 +4927,23 @@
             }
         }
 
+        // Parse hash and call switchTab - global scope for hashchange listener
+        function initTabFromHash() {
+            let hash = window.location.hash;
+            if (hash.startsWith('#/')) {
+                hash = hash.substring(2);
+            } else if (hash.startsWith('#')) {
+                hash = hash.substring(1);
+            }
+            // Strip query params from hash
+            hash = hash.split('?')[0];
+            if (!hash) hash = 'vin';
+            switchTab(hash);
+        }
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', initTabFromHash);
+
         function fillSampleVin(make) {
             document.getElementById('vinInput').value = SAMPLE_VINS[make] || '';
         }
