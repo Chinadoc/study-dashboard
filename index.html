@@ -120,6 +120,12 @@
             background: #facc15;
         }
     </style>
+    <script>
+        // Hash-driven navigation - defined early so onclick handlers work
+        function setTab(tab) {
+            window.location.hash = `#/${tab}`;
+        }
+    </script>
 </head>
 
 <body class="text-slate-200 min-h-screen flex flex-col">
