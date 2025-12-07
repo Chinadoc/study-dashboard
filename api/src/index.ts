@@ -10,6 +10,11 @@ export interface Env {
   LOCKSMITH_KV: KVNamespace;
 }
 
+let cachedCsv = "";
+let cachedRows: Record<string, string>[] | null = null;
+let cachedAt = 0;
+const CACHE_MS = 5 * 60 * 1000;
+
 function textResponse(body: string, status = 200, contentType = "application/json") {
   return new Response(body, {
     status,
@@ -23,9 +28,19 @@ function textResponse(body: string, status = 200, contentType = "application/jso
 }
 
 async function fetchCsv(env: Env): Promise<string> {
+  if (cachedCsv && Date.now() - cachedAt < CACHE_MS) return cachedCsv;
   const csv = await env.LOCKSMITH_KV.get("master_locksmith.csv");
   if (!csv) throw new Error("CSV not found in KV (master_locksmith.csv)");
+  cachedCsv = csv;
+  cachedAt = Date.now();
   return csv;
+}
+
+async function fetchRows(env: Env): Promise<Record<string, string>[]> {
+  if (cachedRows && Date.now() - cachedAt < CACHE_MS) return cachedRows;
+  const csv = await fetchCsv(env);
+  cachedRows = parseCsv(csv);
+  return cachedRows;
 }
 
 function parseCsv(csv: string): Record<string, string>[] {
@@ -184,8 +199,7 @@ export default {
 
     if (path === "/api/master" || path === "/api/locksmith") {
       try {
-        const csv = await fetchCsv(env);
-        const rows = parseCsv(csv);
+        const rows = await fetchRows(env);
         const filtered = filterRows(rows, url.searchParams);
         const total = filtered.length;
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "500", 10) || 500, 2000);
@@ -205,8 +219,7 @@ export default {
       const cached = await cache.match(cacheKey.toString());
       if (cached) return cached;
       try {
-        const csv = await fetchCsv(env);
-        const rows = parseCsv(csv);
+        const rows = await fetchRows(env);
         const result = buildImmoSlice(rows, url.searchParams);
         const resp = new Response(JSON.stringify(result), {
           headers: {
