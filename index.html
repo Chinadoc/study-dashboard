@@ -1341,6 +1341,7 @@
                             <option value="">Select source</option>
                             <option value="locksmithkeyless">LocksmithKeyless</option>
                             <option value="uhs_hardware">UHS Hardware</option>
+                            <option value="suppliers">All Suppliers</option>
                         </select>
                         <input id="supplierSearchInput" type="text"
                             placeholder="Search title, FCC, part, vendor, tags..."
@@ -6044,7 +6045,14 @@
                 function loadFccDb() {
                     if (fccLoadPromise) return fccLoadPromise;
                     fccLoadPromise = fetch(FCC_CSV_URL)
-                        .then(res => res.text())
+                        .then(res => {
+                            if (!res.ok) throw new Error('API failed');
+                            return res.text();
+                        })
+                        .catch(err => {
+                            console.warn('API load failed, falling back to local file:', err);
+                            return fetch('data/master_locksmith.csv').then(res => res.text());
+                        })
                         .then(text => {
                             const rows = text.trim().split(/\r?\n/);
                             const headers = parseCsvLine(rows.shift());
@@ -6194,14 +6202,14 @@
 
                 const VIDEO_TUTORIALS = [
                     // FORD / LINCOLN / MERCURY
-                    { id: 'ford-f150-flip', category: 'ford', title: 'Ford F-150 Flip Key Programming (2015-2021)', videoId: 'ePlutle8Jek', desc: 'How to program a flip key remote fob for F-150 using Smart Pro.', tool: 'Smart Pro', difficulty: 'Professional' },
-                    { id: 'ford-f150-backup', category: 'ford', title: 'F-150 Smart Key Backup Slot Programming', videoId: 'Ldgm5FLzVu0', desc: 'Program smart key using cup holder backup slot - requires 2 working keys.', tool: 'DIY', difficulty: 'Easy' },
-                    { id: 'ford-f150-2021', category: 'ford', title: '2021+ F-150 Key Programming (FDRS)', videoId: 'bSpVWxDALwA', desc: 'Using Ford Diagnostic & Repair System with Autel V200.', tool: 'FDRS + Autel', difficulty: 'Advanced' },
-                    { id: 'ford-8cycle', category: 'ford', title: 'Ford 8-Cycle Method (Older Remotes)', videoId: 'IYPCsoQYTrw', desc: 'Classic "cycle ignition 8 times" method for older Ford remotes.', tool: 'DIY', difficulty: 'Easy' },
-                    { id: 'ford-transit', category: 'ford', title: 'Transit Connect Key Programming (FORScan)', videoId: 'lRFXtsIYXLI', desc: 'Using FORScan software to program Transit Connect keys.', tool: 'FORScan', difficulty: 'Intermediate' },
-                    { id: 'ford-f150-forscan', category: 'ford', title: 'F150 Spare Key with FORScan (One Key)', videoId: 'JrUM2XtaZ00', desc: 'Program Ford spare key with only one key using FORScan.', tool: 'FORScan', difficulty: 'Intermediate' },
-                    { id: 'ford-f150-2010', category: 'ford', title: 'Programming Key Fobs on 2010 F150', videoId: '1dQj9rbJglI', desc: 'Simple key fob programming for 2010 F150.', tool: 'DIY', difficulty: 'Easy' },
-                    { id: 'ford-f150-akl', category: 'ford', title: 'Ford F150 All Keys Lost (2014)', videoId: 'DZbKDE81Z0g', desc: 'Make a new key from scratch when all keys are lost.', tool: 'Professional', difficulty: 'Advanced' },
+                    { id: 'ford-f150-flip', category: 'ford', title: 'Ford F-150 Flip Key Programming (2015-2021)', videoId: 'ePlutle8Jek', desc: 'How to program a flip key remote fob for F-150 using Smart Pro.', tool: 'Smart Pro', difficulty: 'Professional', makes: ['FORD'], models: ['F-150'], years: '2015-2021' },
+                    { id: 'ford-f150-backup', category: 'ford', title: 'F-150 Smart Key Backup Slot Programming', videoId: 'Ldgm5FLzVu0', desc: 'Program smart key using cup holder backup slot - requires 2 working keys.', tool: 'DIY', difficulty: 'Easy', makes: ['FORD'], models: ['F-150'], years: '2015-2020' },
+                    { id: 'ford-f150-2021', category: 'ford', title: '2021+ F-150 Key Programming (FDRS)', videoId: 'bSpVWxDALwA', desc: 'Using Ford Diagnostic & Repair System with Autel V200.', tool: 'FDRS + Autel', difficulty: 'Advanced', makes: ['FORD'], models: ['F-150'], years: '2021-2024' },
+                    { id: 'ford-8cycle', category: 'ford', title: 'Ford 8-Cycle Method (Older Remotes)', videoId: 'IYPCsoQYTrw', desc: 'Classic "cycle ignition 8 times" method for older Ford remotes.', tool: 'DIY', difficulty: 'Easy', makes: ['FORD'], models: ['F-150', 'EXPLORER', 'EXPEDITION', 'MUSTANG', 'FOCUS', 'FUSION'], years: '1998-2010' },
+                    { id: 'ford-transit', category: 'ford', title: 'Transit Connect Key Programming (FORScan)', videoId: 'lRFXtsIYXLI', desc: 'Using FORScan software to program Transit Connect keys.', tool: 'FORScan', difficulty: 'Intermediate', makes: ['FORD'], models: ['TRANSIT CONNECT'], years: '2014-2021' },
+                    { id: 'ford-f150-forscan', category: 'ford', title: 'F150 Spare Key with FORScan (One Key)', videoId: 'JrUM2XtaZ00', desc: 'Program Ford spare key with only one key using FORScan.', tool: 'FORScan', difficulty: 'Intermediate', makes: ['FORD'], models: ['F-150'], years: '2011-2014' },
+                    { id: 'ford-f150-2010', category: 'ford', title: 'Programming Key Fobs on 2010 F150', videoId: '1dQj9rbJglI', desc: 'Simple key fob programming for 2010 F150.', tool: 'DIY', difficulty: 'Easy', makes: ['FORD'], models: ['F-150'], years: '2004-2010' },
+                    { id: 'ford-f150-akl', category: 'ford', title: 'Ford F150 All Keys Lost (2014)', videoId: 'DZbKDE81Z0g', desc: 'Make a new key from scratch when all keys are lost.', tool: 'Professional', difficulty: 'Advanced', makes: ['FORD'], models: ['F-150'], years: '2011-2014' },
 
                     // DODGE / CHRYSLER / JEEP / RAM
                     { id: 'dodge-challenger-akl', category: 'dodge', title: '2018 Dodge Challenger All Keys Lost', videoId: 'oLPnmpCJuUM', desc: 'Critical walkthrough showing Star Connector location and programming.', tool: 'Autel IM608', difficulty: 'Advanced' },
