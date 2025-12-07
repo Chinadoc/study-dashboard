@@ -5007,7 +5007,7 @@
             }
         }
 
-        function searchDatabase() {
+        async function searchDatabase() {
             const year = document.getElementById('yearSelect').value;
             const make = document.getElementById('makeSelect').value;
             const model = document.getElementById('modelSelect').value;
@@ -5019,8 +5019,22 @@
 
             showLoading();
 
-            setTimeout(() => {
-                try {
+            try {
+                // Fetch real data from D1 database
+                const url = new URL(BROWSE_API_URL);
+                url.searchParams.set('year', year);
+                url.searchParams.set('make', make);
+                url.searchParams.set('model', model);
+                url.searchParams.set('limit', '10');
+
+                const response = await fetch(url.toString());
+                if (!response.ok) throw new Error('API fetch failed');
+                const json = await response.json();
+                const rows = json.rows || [];
+
+                if (rows.length === 0) {
+                    // No D1 data found - use fallback from LOCKSMITH_DB
+                    console.log('No D1 data for this vehicle, using fallback');
                     const vehicleData = {
                         year: year,
                         make: make,
@@ -5034,12 +5048,43 @@
                         body: 'Sedan/SUV'
                     };
                     displayResults(vehicleData);
-                } catch (error) {
-                    console.error('Error displaying results:', error);
-                    hideLoading();
-                    alert('Error loading vehicle data. Please try again.');
+                } else {
+                    // Use real D1 data - pick the first/best match
+                    const d1Row = rows[0];
+                    const vehicleData = {
+                        year: d1Row.year || year,
+                        make: d1Row.make || make,
+                        model: d1Row.model || model,
+                        trim: d1Row.key_type || 'Standard Trim',
+                        vin: 'N/A (Database Lookup)',
+                        engine: d1Row.chip || 'See transponder info',
+                        drive: d1Row.frequency ? `${d1Row.frequency} MHz` : 'N/A',
+                        manuf: make + ' Corporation',
+                        country: 'International',
+                        body: d1Row.key_category || 'Sedan/SUV',
+                        // Pass the full D1 row for rich data display
+                        d1Data: d1Row,
+                        allMatches: rows
+                    };
+                    displayResults(vehicleData);
                 }
-            }, 800);
+            } catch (error) {
+                console.error('Error fetching from D1:', error);
+                // Fallback to hardcoded data
+                const vehicleData = {
+                    year: year,
+                    make: make,
+                    model: model,
+                    trim: 'Standard Trim',
+                    vin: 'N/A (Database Lookup)',
+                    engine: 'Standard Engine',
+                    drive: 'FWD/AWD',
+                    manuf: make + ' Corporation',
+                    country: 'International',
+                    body: 'Sedan/SUV'
+                };
+                displayResults(vehicleData);
+            }
         }
 
         function showLoading() {
@@ -5251,25 +5296,63 @@
             document.getElementById('specBody').textContent = data.body || 'N/A';
             currentVehicleData = { year: data.year, make: data.make, model: data.model };
 
-            // Get Locksmith Data - Check for specific model entries first
-            let lockData = LOCKSMITH_DB['DEFAULT'];
-            const makeUpper = data.make.toUpperCase().replace('-', ' ').replace('BENZ', '');
-            const modelUpper = data.model ? data.model.toUpperCase() : '';
-            const fullKey = `${makeUpper} ${modelUpper}`.trim();
+            // Get Locksmith Data - Use D1 data if available, otherwise fallback to LOCKSMITH_DB
+            let lockData;
 
-            // First check for specific make+model combo (e.g., "HONDA ACCORD")
-            for (const key in LOCKSMITH_DB) {
-                if (fullKey.includes(key) || key === fullKey) {
-                    lockData = LOCKSMITH_DB[key];
-                    break;
-                }
-            }
-            // Fallback to make-only if no specific model found
-            if (lockData === LOCKSMITH_DB['DEFAULT']) {
+            if (data.d1Data) {
+                // Use real D1 database data
+                const d1 = data.d1Data;
+                lockData = {
+                    blank: d1.keyway || d1.key_category || 'N/A',
+                    chip: d1.chip || d1.transponder || 'See Notes',
+                    freq: d1.frequency ? `${d1.frequency} MHz` : d1.frequency_mhz ? `${d1.frequency_mhz} MHz` : 'N/A',
+                    series: d1.code_series || 'N/A',
+                    fccId: d1.fcc_id || '',
+                    keyType: d1.key_type || d1.key_category || 'Standard Key',
+                    emergencyKey: d1.keyway || 'N/A',
+                    cloning: d1.transponder_notes || 'Check compatibility',
+                    obd: d1.programming_method || 'OBD Programming',
+                    immoSystem: d1.immobilizer_system || d1.immobilizer_system_specific || 'Immobilizer System',
+                    pinRequired: d1.pin_code_source || 'Check with dealer',
+                    maxKeys: '8 Keys',
+                    progTool: d1.autel_coverage || 'Autel / IM608',
+                    oemRemote: d1.part_number || 'N/A',
+                    aftermarket: d1.aftermarket_cross_ref || 'N/A',
+                    shell: 'N/A',
+                    crossRef: { ilco: 'N/A', strattec: 'N/A', jma: 'N/A', keydiy: 'N/A' },
+                    transponderInfo: { id: d1.chip || d1.transponder || 'N/A', tech: d1.transponder || 'N/A', bits: 'N/A', clonable: false },
+                    cutType: d1.cut_type || 'Standard',
+                    machineRequired: 'Key Cutting Machine',
+                    bittingInfo: { depths: 4, positions: 8, spacing: '0.187"', macs: 3 },
+                    eepromData: { module: 'N/A', chip: 'N/A', location: d1.notes || 'N/A' },
+                    pinSource: d1.pin_code_source || 'Dealer',
+                    obdLocation: 'Under dash, left of steering column',
+                    programmingNotes: d1.notes || 'Standard programming procedure',
+                    yearRange: d1.compat_year_min && d1.compat_year_max ? `${d1.compat_year_min}-${d1.compat_year_max}` : `${d1.year || 'N/A'}`,
+                    autelGuide: d1.autel_guide_url || '#'
+                };
+                console.log('Using D1 data for display:', lockData);
+            } else {
+                // Fallback to hardcoded LOCKSMITH_DB
+                lockData = LOCKSMITH_DB['DEFAULT'];
+                const makeUpper = data.make.toUpperCase().replace('-', ' ').replace('BENZ', '');
+                const modelUpper = data.model ? data.model.toUpperCase() : '';
+                const fullKey = `${makeUpper} ${modelUpper}`.trim();
+
+                // First check for specific make+model combo (e.g., "HONDA ACCORD")
                 for (const key in LOCKSMITH_DB) {
-                    if (makeUpper.includes(key) || key.includes(makeUpper.split(' ')[0])) {
+                    if (fullKey.includes(key) || key === fullKey) {
                         lockData = LOCKSMITH_DB[key];
                         break;
+                    }
+                }
+                // Fallback to make-only if no specific model found
+                if (lockData === LOCKSMITH_DB['DEFAULT']) {
+                    for (const key in LOCKSMITH_DB) {
+                        if (makeUpper.includes(key) || key.includes(makeUpper.split(' ')[0])) {
+                            lockData = LOCKSMITH_DB[key];
+                            break;
+                        }
                     }
                 }
             }
