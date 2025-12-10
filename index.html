@@ -5338,6 +5338,20 @@
             }
         }
 
+        // Global helper to find programming guide
+        function findGuide(make, model, year) {
+            if (!make || !model || typeof GENERATED_GUIDES === 'undefined') return null;
+            const normalize = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const target = normalize(make + model);
+            for (const guideKey of Object.keys(GENERATED_GUIDES)) {
+                const normKey = normalize(guideKey);
+                if (normKey.includes(target)) {
+                    return guideKey;
+                }
+            }
+            return null;
+        }
+
         function displayResults(data) {
             document.getElementById('vehicleTitle').textContent = `${data.year} ${data.make} ${data.model}`;
             document.getElementById('vehicleTrim').textContent = data.trim;
