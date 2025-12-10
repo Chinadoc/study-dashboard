@@ -1,0 +1,2 @@
+-- ALTER TABLE locksmith_data ADD COLUMN key_type TEXT;
+-- ALTER TABLE locksmith_data ADD COLUMN explainer_text TEXT;

@@ -178,8 +178,8 @@
                     Tools
                     Lookup</button>
                 <button onclick="switchTab('tutorials', true)" id="tab-tutorials"
-                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">🎬
-                    Tutorials</button>
+                    class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📖
+                    Walkthroughs</button>
                 <button onclick="switchTab('database', true)" id="tab-database"
                     class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-brand-400 transition-all">📊
                     FCC Database</button>
@@ -619,43 +619,102 @@
         </div>
 
         <!-- Tutorials Section -->
+        <!-- Walkthroughs Hub Section -->
         <div id="tutorials-section" class="hidden mb-12 animate-fade-in">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center">
-                🎬 <span class="gold-text">Video</span> Tutorials
-            </h1>
-            <p class="text-slate-400 text-center mb-8">Step-by-step key programming guides for locksmiths and DIY
-                enthusiasts.</p>
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
+                    Premium <span
+                        class="bg-clip-text text-transparent bg-gradient-to-r from-brand-400 to-purple-500">Walkthroughs</span>
+                </h1>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                    AI-powered step-by-step guides, expert pearls, and deep insights for every vehicle.
+                </p>
+            </div>
 
-            <div class="glass-panel rounded-3xl p-6 max-w-6xl mx-auto shadow-2xl">
-                <!-- Tutorial Filters -->
-                <div class="flex flex-wrap gap-2 mb-6 justify-center">
-                    <button onclick="filterTutorials('all')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950">All
-                        Videos</button>
-                    <button onclick="filterTutorials('ford')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Ford</button>
-                    <button onclick="filterTutorials('dodge')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Dodge/Chrysler/Jeep</button>
-                    <button onclick="filterTutorials('gm')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">GM/Chevy</button>
-                    <button onclick="filterTutorials('toyota')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Toyota/Lexus</button>
-                    <button onclick="filterTutorials('honda')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Honda/Acura</button>
-                    <button onclick="filterTutorials('nissan')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Nissan/Infiniti</button>
-                    <button onclick="filterTutorials('hyundai')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">Hyundai/Kia/Asian</button>
-                    <button onclick="filterTutorials('european')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">BMW/VW/Mercedes</button>
-                    <button onclick="filterTutorials('tools')"
-                        class="tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700">🔧
-                        Tool Training</button>
+            <!-- Model Selector Grid -->
+            <div class="max-w-7xl mx-auto mb-12">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <!-- Honda Models -->
+                    <button onclick="filterTutorials('Honda', 'Civic')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
+                            <div class="text-xl font-bold text-white">Civic</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <button onclick="filterTutorials('Honda', 'Accord')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
+                            <div class="text-xl font-bold text-white">Accord</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <button onclick="filterTutorials('Honda', 'CR-V')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
+                            <div class="text-xl font-bold text-white">CR-V</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <button onclick="filterTutorials('Honda', 'Pilot')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
+                            <div class="text-xl font-bold text-white">Pilot</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <button onclick="filterTutorials('Honda', 'Odyssey')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
+                            <div class="text-xl font-bold text-white">Odyssey</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <button onclick="filterTutorials('Honda', 'Fit')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
+                            <div class="text-xl font-bold text-white">Fit</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
                 </div>
+            </div>
 
-                <!-- Video Grid -->
-                <div id="tutorialGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Populated by JavaScript -->
+            <!-- Video Grid -->
+            <div id="tutorialGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                <!-- Populated by JavaScript -->
+                <div class="col-span-full text-center py-12 text-slate-500">
+                    Select a model above to view premium walkthroughs.
                 </div>
             </div>
         </div>
@@ -698,6 +757,10 @@
                                 class="hidden bg-blue-500/15 text-blue-200 px-3 py-1 rounded-lg text-sm font-semibold border border-blue-400/30 cursor-pointer hover:border-blue-300/60"
                                 title="Open in FCC database" onclick="goToFccDatabaseFromBadge()">
                                 FCC: —
+                            </span>
+                            <span id="keyTypeBadge"
+                                class="hidden bg-indigo-500/20 text-indigo-200 px-3 py-1 rounded-lg text-sm font-semibold border border-indigo-500/40">
+                                Key Type: —
                             </span>
                             <button id="fccAmazonBadge"
                                 class="hidden inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-semibold bg-amber-400/20 text-amber-200 border border-amber-300/40 hover:bg-amber-300/25 transition-colors"
@@ -786,6 +849,19 @@
                         <div class="text-xs text-slate-500 uppercase mb-1">Quick Note</div>
                         <div id="summaryNote" class="text-white">N/A</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Pearl / Explainer Section -->
+            <div id="pearlContainer" class="hidden mt-6"></div>
+
+            <!-- Video Tutorials Section -->
+            <div class="mt-6">
+                <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                    <span class="text-red-500">📺</span> Video Tutorials
+                </h3>
+                <div id="videoContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
@@ -5428,37 +5504,31 @@
             updateFccBadges(currentFccId);
 
             // Load FCC data and update summary + product validation
-            loadFccDb().then(() => {
-                const match = findFccMatches(data.year, data.make, data.model);
-                currentFccMatches = match.fccList || [];
-                if (match.entry && match.entry.fcc_id) {
-                    lockData.fccId = match.entry.fcc_id;
-                    if (match.entry.key_blank) lockData.blank = match.entry.key_blank;
-                    if (match.entry.chip) lockData.chip = match.entry.chip;
-                    if (match.entry.frequency) lockData.freq = match.entry.frequency;
-                    if (match.entry.programmer) lockData.progTool = match.entry.programmer;
-                    if (match.entry.immo_system) lockData.immoSystem = match.entry.immo_system;
-                    if (match.entry.notes) lockData.programmingNotes = match.entry.notes;
-                } else if (currentFccMatches && currentFccMatches.length > 0) {
-                    lockData.fccId = currentFccMatches[0];
-                }
-                currentFccId = lockData.fccId || '';
-                updateKeycutterSummary(lockData, currentFccMatches, match.source === 'curated');
-                displayInlineProducts(data.make, data.model, currentFccMatches);
-                const fccIdEl = document.getElementById('fccId');
-                if (fccIdEl) {
-                    fccIdEl.textContent = `FCC ID: ${lockData.fccId}`;
-                }
-                const keyCutDesc = document.getElementById('keyCutDesc');
-                if (keyCutDesc) {
-                    keyCutDesc.textContent = `FCC: ${lockData.fccId}`;
-                }
-                updateFccBadges(currentFccId);
+            const match = await findFccMatches(data.year, data.make, data.model);
+            currentFccMatches = match.fccList || [];
+            if (match.entry && match.entry.fcc_id) {
+                lockData.fccId = match.entry.fcc_id;
+                if (match.entry.key_blank) lockData.blank = match.entry.key_blank;
+                if (match.entry.chip) lockData.chip = match.entry.chip;
+                if (match.entry.frequency) lockData.freq = match.entry.frequency;
+                if (match.entry.programmer) lockData.progTool = match.entry.programmer;
+                if (match.entry.immo_system) lockData.immoSystem = match.entry.immo_system;
+                if (match.entry.notes) lockData.programmingNotes = match.entry.notes;
+            } else if (currentFccMatches && currentFccMatches.length > 0) {
+                lockData.fccId = currentFccMatches[0];
+            }
+            currentFccId = lockData.fccId || '';
+            updateKeycutterSummary(lockData, currentFccMatches, match.source === 'curated');
+            displayInlineProducts(data.make, data.model, currentFccMatches);
+            const fccIdEl = document.getElementById('fccId');
+            if (fccIdEl) {
+                fccIdEl.textContent = `FCC ID: ${lockData.fccId}`;
+            }
+            updateFccBadges(currentFccId);
 
-                // Populate new Phase 2 sections
-                populateTroubleshooting(data.make);
-                fetchNHTSARecalls(data.make, data.model, data.year);
-            });
+            // Populate new Phase 2 sections
+            populateTroubleshooting(data.make);
+            fetchNHTSARecalls(data.make, data.model, data.year);
 
             // Update Key Data
             document.getElementById('keyBlank').textContent = lockData.blank;
@@ -5479,6 +5549,7 @@
             // Immobilizer Info
             const immoBadgeEl = document.getElementById('immoBadge');
             const setImmoDisplay = (label, years = '') => {
+                currentImmoId = label || '';
                 document.getElementById('immoSystem').textContent = label || 'Immobilizer';
                 if (immoBadgeEl) {
                     const suffix = years ? ` (${years})` : '';
@@ -5495,6 +5566,88 @@
                     setImmoDisplay(immoLabel, yearLabel);
                 }
             });
+
+            // Key Type Badge
+            const keyTypeBadge = document.getElementById('keyTypeBadge');
+            if (keyTypeBadge) {
+                if (lockData.key_type) {
+                    keyTypeBadge.textContent = lockData.key_type;
+                    keyTypeBadge.classList.remove('hidden');
+                } else {
+                    keyTypeBadge.classList.add('hidden');
+                }
+            }
+
+            // Display Pearl (Explainer Text)
+            const pearlContainer = document.getElementById('pearlContainer');
+            if (pearlContainer) {
+                if (lockData.explainer_text) {
+                    pearlContainer.innerHTML = `
+                        <div class="bg-indigo-900/30 border border-indigo-500/30 p-4 rounded-xl mb-6">
+                            <h3 class="text-indigo-300 font-bold mb-2 flex items-center gap-2">
+                                💡 Locksmith Pearl
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">${lockData.explainer_text}</p>
+                        </div>
+                    `;
+                    pearlContainer.classList.remove('hidden');
+                } else {
+                    pearlContainer.classList.add('hidden');
+                }
+            }
+
+            // Fetch and Display Videos
+            const videoContainer = document.getElementById('videoContainer');
+            if (videoContainer) {
+                videoContainer.innerHTML = '<div class="text-slate-500 text-sm col-span-2">Loading videos...</div>';
+                fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/videos?make=${encodeURIComponent(data.make)}&model=${encodeURIComponent(data.model)}&year=${data.year}`)
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.rows && json.rows.length > 0) {
+                            videoContainer.innerHTML = '';
+                            json.rows.forEach(video => {
+                                const vEl = document.createElement('div');
+                                vEl.className = 'bg-navy-900/50 p-3 rounded-lg border border-navy-700 hover:border-brand-500/50 transition-colors flex gap-3 items-start';
+                                vEl.innerHTML = `
+                                    <div class="shrink-0 w-24 h-16 bg-black rounded overflow-hidden relative">
+                                        <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" class="w-full h-full object-cover opacity-80">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
+                                                <svg class="w-3 h-3 text-white fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex justify-between items-start">
+                                            <a href="https://www.youtube.com/watch?v=${video.video_id}" target="_blank" class="text-brand-300 font-medium text-sm hover:text-brand-200 line-clamp-1">${video.title}</a>
+                                            ${video.walkthrough ? `<button onclick="toggleWalkthrough('${video.video_id}')" class="text-xs bg-brand-600/20 text-brand-300 px-2 py-1 rounded hover:bg-brand-600/40 transition-colors ml-2 shrink-0">📖 Walkthrough</button>` : ''}
+                                        </div>
+                                        <p class="text-slate-400 text-xs mt-1 line-clamp-2">${video.description || ''}</p>
+                                        
+                                        ${video.highlights ? `
+                                            <div class="mt-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded text-xs text-amber-200/90">
+                                                <span class="text-amber-400 font-semibold">💡 Pearl:</span> ${video.highlights}
+                                            </div>
+                                        ` : ''}
+
+                                        ${video.walkthrough ? `
+                                            <div id="walkthrough-${video.video_id}" class="hidden mt-2 p-3 bg-slate-900/80 border border-slate-700 rounded text-xs text-slate-300 whitespace-pre-wrap font-mono max-h-60 overflow-y-auto custom-scrollbar">
+                                                ${video.walkthrough}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `;
+                                videoContainer.appendChild(vEl);
+                            });
+                        } else {
+                            videoContainer.innerHTML = '<div class="text-slate-500 text-sm italic col-span-2">No specific video tutorials found.</div>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Failed to load videos', err);
+                        videoContainer.innerHTML = '<div class="text-red-400 text-xs col-span-2">Failed to load videos.</div>';
+                    });
+            }
             document.getElementById('pinRequired').textContent = lockData.pinRequired;
             document.getElementById('maxKeys').textContent = lockData.maxKeys;
             document.getElementById('progTool').textContent = lockData.progTool;
@@ -6222,17 +6375,14 @@
         // ============================================================================
         // VIDEO TUTORIALS DATABASE
         // ============================================================================
-        const FCC_CSV_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/master.csv';
-        const CURATED_CSV_URL = 'data/curated_fcc_overrides.csv';
-        let FCC_DB = [];           // master FCC records
-        let FCC_MAP = {};          // master FCC map keyed by year|make|model
-        let CURATED_DB = [];       // curated overrides
-        let CURATED_MAP = {};      // curated map keyed by year|make|model
-        let fccLoadPromise = null;
-        let fccDatabasePromise = null;
+        // ============================================================================
+        // VIDEO TUTORIALS DATABASE
+        // ============================================================================
+        const CURATED_API_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/curated';
         let currentFccMatches = [];
         let currentVehicleData = {};
         let currentFccId = '';
+        let currentImmoId = '';
         const MAKE_ALIASES = {
             'VOLKSWAGEN': ['VOLKSWAGEN', 'VW'],
             'MERCEDES-BENZ': ['MERCEDES-BENZ', 'MERCEDES', 'BENZ', 'MB'],
@@ -6255,80 +6405,8 @@
         let supplierCatalogPage = 1;
         const SUPPLIER_PAGE_SIZE = 200;
 
-        function loadCuratedDb() {
-            if (CURATED_DB.length) return Promise.resolve(CURATED_DB);
-            return fetch(CURATED_CSV_URL)
-                .then(res => res.text())
-                .then(text => {
-                    const lines = text.trim().split(/\r?\n/);
-                    if (!lines.length) return [];
-                    const headers = lines.shift().split(',');
-                    const records = [];
-                    lines.forEach(line => {
-                        if (!line.trim()) return;
-                        const cols = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                        const entry = {};
-                        headers.forEach((h, idx) => entry[h.trim()] = (cols[idx] || '').trim());
-                        records.push(entry);
-                        const ys = parseInt(entry.year_start || entry.year || entry.Year, 10);
-                        const ye = parseInt(entry.year_end || entry.year || entry.Year, 10);
-                        const years = [];
-                        if (ys && ye) {
-                            for (let y = ys; y <= ye; y++) years.push(`${y}`);
-                        } else if (ys) {
-                            years.push(`${ys}`);
-                        }
-                        const makeVars = getMakeVariants(entry.make || entry.Make || '');
-                        const modelU = (entry.model || entry.Model || '').toUpperCase();
-                        years.forEach(y => {
-                            makeVars.forEach(mv => {
-                                const key = `${y}|${mv}|${modelU}`;
-                                if (!CURATED_MAP[key]) CURATED_MAP[key] = [];
-                                CURATED_MAP[key].push(entry);
-                            });
-                        });
-                    });
-                    CURATED_DB = records;
-                    return records;
-                })
-                .catch(err => {
-                    console.error('Failed to load curated FCC overrides', err);
-                    return [];
-                });
-        }
-
-        function loadFccDb() {
-            if (fccLoadPromise) return fccLoadPromise;
-            fccLoadPromise = Promise.all([
-                loadCuratedDb(),
-                fetch(FCC_CSV_URL).then(res => res.text()).then(text => {
-                    const lines = text.trim().split(/\r?\n/);
-                    if (!lines.length) return [];
-                    const headers = lines.shift().split(',');
-                    const records = [];
-                    lines.forEach(line => {
-                        if (!line.trim()) return;
-                        const cols = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                        const entry = {};
-                        headers.forEach((h, idx) => entry[h.trim()] = (cols[idx] || '').trim());
-                        records.push(entry);
-                        const year = (entry.year || entry.Year || '').trim();
-                        const make = (entry.make || entry.Make || '').toUpperCase();
-                        const model = (entry.model || entry.Model || '').toUpperCase();
-                        if (!year || !make || !model) return;
-                        const key = `${year}|${make}|${model}`;
-                        if (!FCC_MAP[key]) FCC_MAP[key] = [];
-                        FCC_MAP[key].push(entry);
-                    });
-                    FCC_DB = records;
-                    return records;
-                }).catch(err => {
-                    console.error('Failed to load FCC DB from Cloudflare CSV', err);
-                    return [];
-                })
-            ]).then(() => FCC_DB);
-            return fccLoadPromise;
-        }
+        // loadCuratedDb removed - now using /api/curated directly
+        // loadFccDb removed - now using /api/fcc and /api/browse directly
 
         function getMakeVariants(make) {
             const makeU = (make || '').toUpperCase();
@@ -6338,60 +6416,36 @@
             return Array.from(variants);
         }
 
-        function findFccMatches(year, make, model) {
+        async function findFccMatches(year, make, model) {
             const yearStr = `${year}`.trim();
             const modelU = (model || '').toUpperCase();
-            const makeVariants = getMakeVariants(make);
-            const fccSet = new Set();
-            let source = 'fallback';
+            const makeU = (make || '').toUpperCase();
+            let source = 'd1';
             let matchedEntry = null;
+            const fccSet = new Set();
 
-            // Curated first
-            makeVariants.forEach(mv => {
-                const key = `${yearStr}|${mv}|${modelU}`;
-                const entries = CURATED_MAP[key] || [];
-                entries.forEach(e => {
-                    const fcc = e.fcc_id || e.FCCid || e.FCCId || e.FCCID;
-                    if (fcc) {
-                        fccSet.add(fcc.trim());
-                        matchedEntry = matchedEntry || e;
-                        source = 'curated';
+            try {
+                const params = new URLSearchParams({
+                    year: yearStr,
+                    make: makeU,
+                    model: modelU
+                });
+                const res = await fetch(`${CURATED_API_URL}?${params.toString()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.curated && data.rows && data.rows.length > 0) {
+                        data.rows.forEach(e => {
+                            const fcc = e.fcc_id || e.FCCid;
+                            if (fcc) {
+                                fccSet.add(fcc.trim());
+                                matchedEntry = matchedEntry || e;
+                                source = 'curated';
+                            }
+                        });
                     }
-                });
-            });
-
-            // Master CSV (Cloudflare)
-            if (!fccSet.size) {
-                makeVariants.forEach(mv => {
-                    const key = `${yearStr}|${mv}|${modelU}`;
-                    const entries = FCC_MAP[key] || [];
-                    entries.forEach(e => {
-                        const fcc = e.fcc_id || e.FCCid || e.FCCId || e.FCCID;
-                        if (fcc) {
-                            fccSet.add(fcc.trim());
-                            matchedEntry = matchedEntry || e;
-                            source = 'master';
-                        }
-                    });
-                });
-            }
-
-            // Fallback: loose scan master
-            if (!fccSet.size && FCC_DB.length) {
-                FCC_DB.forEach(entry => {
-                    const entryYear = (entry.year || entry.Year || '').trim();
-                    const entryMake = (entry.make || entry.Make || '').toUpperCase();
-                    const entryModel = (entry.model || entry.Model || '').toUpperCase();
-                    if (entryYear !== yearStr) return;
-                    if (!makeVariants.includes(entryMake)) return;
-                    if (modelU && entryModel && !(modelU.includes(entryModel) || entryModel.includes(modelU))) return;
-                    const fcc = entry.fcc_id || entry.FCCid || entry.FCCId || entry.FCCID;
-                    if (fcc) {
-                        fccSet.add(fcc.trim());
-                        matchedEntry = matchedEntry || entry;
-                        source = 'master';
-                    }
-                });
+                }
+            } catch (err) {
+                console.error('Failed to fetch curated FCC data:', err);
             }
 
             return { fccList: Array.from(fccSet), entry: matchedEntry, source };
@@ -6416,6 +6470,13 @@
             if (inlineAmazon) {
                 inlineAmazon.classList.toggle('hidden', !hasFcc);
             }
+
+            function toggleWalkthrough(videoId) {
+                const el = document.getElementById(`walkthrough-${videoId}`);
+                if (el) {
+                    el.classList.toggle('hidden');
+                }
+            }
         }
 
         function goToFccDatabaseFromBadge() {
@@ -6436,9 +6497,9 @@
             switchTab('immobilizers');
             setTimeout(() => {
                 const searchBox = document.getElementById('immobilizerSearch');
-                if (searchBox && currentVehicleData) {
-                    const { make, model } = currentVehicleData;
-                    searchBox.value = [make, model].filter(Boolean).join(' ');
+                if (searchBox) {
+                    const query = currentImmoId || (currentVehicleData ? [currentVehicleData.make, currentVehicleData.model].filter(Boolean).join(' ') : '');
+                    searchBox.value = query;
                     filterImmobilizerTable();
                     searchBox.focus();
                 }
@@ -6479,9 +6540,8 @@
             });
         }
 
+        // VIDEO_TUTORIALS - Hardcoded fallback, but primarily fetching from API now
         const VIDEO_TUTORIALS = [
-            // FORD / LINCOLN / MERCURY
-            { id: 'ford-f150-flip', category: 'ford', title: 'Ford F-150 Flip Key Programming (2015-2021)', videoId: 'ePlutle8Jek', desc: 'How to program a flip key remote fob for F-150 using Smart Pro.', tool: 'Smart Pro', difficulty: 'Professional' },
             { id: 'ford-f150-backup', category: 'ford', title: 'F-150 Smart Key Backup Slot Programming', videoId: 'Ldgm5FLzVu0', desc: 'Program smart key using cup holder backup slot - requires 2 working keys.', tool: 'DIY', difficulty: 'Easy' },
             { id: 'ford-f150-2021', category: 'ford', title: '2021+ F-150 Key Programming (FDRS)', videoId: 'bSpVWxDALwA', desc: 'Using Ford Diagnostic & Repair System with Autel V200.', tool: 'FDRS + Autel', difficulty: 'Advanced' },
             { id: 'ford-8cycle', category: 'ford', title: 'Ford 8-Cycle Method (Older Remotes)', videoId: 'IYPCsoQYTrw', desc: 'Classic "cycle ignition 8 times" method for older Ford remotes.', tool: 'DIY', difficulty: 'Easy' },
@@ -6518,9 +6578,9 @@
             { id: 'toyota-camry-obd', category: 'toyota', title: 'Toyota Camry Key via OBD', videoId: 'z6hK2TW_LkQ', desc: 'Using USB to OBD2 cable for programming.', tool: 'OBD Cable', difficulty: 'Intermediate' },
 
             // HONDA / ACURA
-            { id: 'honda-civic-autel', category: 'honda', title: '2012-2015 Honda Civic (Autel IM508)', videoId: 'a4oUWkEFo4c', desc: 'Fast walkthrough for high-security laser key.', tool: 'Autel IM508', difficulty: 'Professional' },
-            { id: 'honda-remote-cycle', category: 'honda', title: 'Honda Remote Programming (Cycle Method)', videoId: 'eG4RWmq7xr4', desc: 'Manual Ignition ON/OFF x4 method to sync remote buttons.', tool: 'DIY', difficulty: 'Easy' },
-            { id: 'honda-accord-akl', category: 'honda', title: 'Honda Accord All Keys Lost', videoId: '0RphQ3Oxr34', desc: 'Step-by-step AKL procedure for Accord.', tool: 'Autel', difficulty: 'Advanced' },
+            { id: 'honda-civic-autel', category: 'honda', make: 'Honda', model: 'Civic', title: '2012-2015 Honda Civic (Autel IM508)', videoId: 'a4oUWkEFo4c', desc: 'Fast walkthrough for high-security laser key.', tool: 'Autel IM508', difficulty: 'Professional' },
+            { id: 'honda-remote-cycle', category: 'honda', make: 'Honda', model: 'Civic', title: 'Honda Remote Programming (Cycle Method)', videoId: 'eG4RWmq7xr4', desc: 'Manual Ignition ON/OFF x4 method to sync remote buttons.', tool: 'DIY', difficulty: 'Easy' },
+            { id: 'honda-accord-akl', category: 'honda', make: 'Honda', model: 'Accord', title: 'Honda Accord All Keys Lost', videoId: '0RphQ3Oxr34', desc: 'Step-by-step AKL procedure for Accord.', tool: 'Autel', difficulty: 'Advanced' },
 
             // NISSAN / INFINITI
             { id: 'nissan-standard', category: 'nissan', title: 'Nissan Standard Key Programming', videoId: 'Wk8IZGwTXjc', desc: 'Walkthrough of the 5-flash confirmation method.', tool: 'Professional', difficulty: 'Intermediate' },
@@ -6878,7 +6938,71 @@
             { id: 'lexus-rx350-lexusrx35', category: 'toyota', title: "Lexus RX350 (2010-2016) Key Programming", videoId: '2Q5qQ4c', desc: "Programming tutorial for Lexus RX350 (2010-2016).", tool: 'Various', difficulty: 'Intermediate', makes: ["LEXUS"], models: ["RX350"], years: '2010-2016' }
         ];
 
-        let currentTutorialFilter = 'all';
+        // Initialize API Base URL based on environment
+        const API_BASE_URL = window.location.protocol === 'file:'
+            ? 'https://study-dashboard-six.vercel.app'
+            : '';
+
+        let currentTutorialFilter = { make: 'all', model: 'all' };
+        let fetchedVideos = []; // Store API fetched videos
+
+        async function fetchVideoTutorials() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/videos`);
+                if (!response.ok) throw new Error('Failed to fetch videos');
+                const data = await response.json();
+
+                // Merge API data with local fallback if needed, or just use API
+                // For now, we'll prioritize API data but keep local structure if API is empty
+                if (data && data.length > 0) {
+                    fetchedVideos = data.map(v => ({
+                        id: v.id || v.video_id,
+                        category: v.category || 'general',
+                        title: v.title,
+                        videoId: v.video_id,
+                        desc: v.description,
+                        tool: v.tool || 'Unknown',
+                        difficulty: v.difficulty || 'Intermediate',
+                        makes: v.related_make ? [v.related_make] : [],
+                        models: v.related_model ? [v.related_model] : [],
+                        years: v.related_year_start ? `${v.related_year_start}-${v.related_year_end}` : '',
+                        walkthrough: v.walkthrough,
+                        highlights: v.highlights
+                    }));
+                    console.log('Loaded videos from API:', fetchedVideos.length);
+                    renderTutorials();
+                }
+            } catch (err) {
+                console.error('Error fetching video tutorials:', err);
+                // Fallback to static VIDEO_TUTORIALS is automatic since fetchedVideos will be empty
+                // But we should probably assign VIDEO_TUTORIALS to fetchedVideos initially
+            }
+        }
+
+        // Initialize fetchedVideos with static data as fallback
+        fetchedVideos = [...VIDEO_TUTORIALS];
+
+        // Call fetch on load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchVideoTutorials();
+        });
+
+        function filterTutorials(arg1, arg2 = 'all') {
+            // Handle legacy category calls (e.g. 'ford') and new make/model calls (e.g. 'Honda', 'Civic')
+            currentTutorialFilter = { make: arg1, model: arg2 };
+            renderTutorials();
+
+            // Update active state for model buttons if applicable
+            if (arg2 !== 'all') {
+                document.querySelectorAll('#tutorials-section button').forEach(btn => {
+                    btn.classList.remove('ring-2', 'ring-brand-500', 'bg-navy-800');
+                    // Simple check if button text contains the model
+                    if (btn.textContent.includes(arg2)) {
+                        btn.classList.add('ring-2', 'ring-brand-500', 'bg-navy-800');
+                    }
+                });
+            }
+        }
 
         function renderTutorials() {
             const grid = document.getElementById('tutorialGrid');
@@ -6886,15 +7010,34 @@
 
             grid.innerHTML = '';
 
-            const filteredVideos = currentTutorialFilter === 'all'
-                ? VIDEO_TUTORIALS
-                : VIDEO_TUTORIALS.filter(v => {
-                    if (currentTutorialFilter === 'hyundai') return v.category === 'hyundai' || v.category === 'subaru' || v.category === 'mazda' || v.category === 'mitsubishi';
-                    return v.category === currentTutorialFilter;
-                });
+            // Use fetchedVideos instead of static VIDEO_TUTORIALS
+            const sourceData = fetchedVideos.length > 0 ? fetchedVideos : VIDEO_TUTORIALS;
+
+            const filteredVideos = sourceData.filter(v => {
+                const filterMake = currentTutorialFilter.make.toLowerCase();
+                const filterModel = currentTutorialFilter.model.toLowerCase();
+
+                if (filterMake === 'all') return true;
+
+                // Check category or make
+                let videoMatchesMake = false;
+                if (v.category === filterMake) videoMatchesMake = true;
+                if (v.makes && v.makes.some(m => m.toLowerCase() === filterMake)) videoMatchesMake = true;
+                if (v.make && v.make.toLowerCase() === filterMake) videoMatchesMake = true;
+
+                if (!videoMatchesMake) return false;
+
+                if (filterModel === 'all') return true;
+
+                let videoMatchesModel = false;
+                if (v.models && v.models.some(m => m.toLowerCase() === filterModel)) videoMatchesModel = true;
+                if (v.model && v.model.toLowerCase() === filterModel) videoMatchesModel = true;
+
+                return videoMatchesModel;
+            });
 
             if (filteredVideos.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No tutorials found for this category.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No tutorials found for this selection.</div>`;
                 return;
             }
 
@@ -6909,11 +7052,11 @@
                 };
 
                 const card = document.createElement('div');
-                card.className = 'bg-navy-950/60 rounded-xl overflow-hidden border border-brand-500/20 hover:border-brand-400/50 transition-all';
+                card.className = 'bg-navy-950/60 rounded-xl overflow-hidden border border-brand-500/20 hover:border-brand-400/50 transition-all group';
                 card.innerHTML = `
                     <!-- Video Embed Container (16:9 aspect ratio) -->
                     <div class="relative w-full" style="padding-bottom: 56.25%;">
-                        <iframe 
+                        <iframe
                             class="absolute inset-0 w-full h-full"
                             src="https://www.youtube.com/embed/${video.videoId}?rel=0&modestbranding=1"
                             title="${video.title}"
@@ -6921,32 +7064,39 @@
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen
                             loading="lazy"
+                            referrerpolicy="no-referrer"
                         ></iframe>
                     </div>
                     <!-- Video Info -->
                     <div class="p-4">
-                        <h3 class="text-white font-bold text-sm mb-2 line-clamp-2">${video.title}</h3>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-white font-bold text-sm line-clamp-2 group-hover:text-brand-400 transition-colors">${video.title}</h3>
+                            ${video.walkthrough ? `<span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">AI Guide</span>` : ''}
+                        </div>
                         <p class="text-slate-400 text-xs mb-3 line-clamp-2">${video.desc}</p>
-                        <div class="flex items-center justify-between text-xs">
+
+                        <!-- Highlights / Pearls (if available) -->
+                        ${video.highlights ? `
+                        <div class="mb-3 p-2 bg-navy-900/50 rounded border border-navy-700">
+                            <div class="text-[10px] text-brand-400 font-bold uppercase mb-1">💡 Pro Tip</div>
+                            <p class="text-slate-300 text-xs line-clamp-3 italic">"${video.highlights.substring(0, 150)}..."</p>
+                        </div>
+                        ` : ''}
+
+                        <div class="flex items-center justify-between text-xs mt-auto">
                             <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded">${video.tool}</span>
                             <span class="px-2 py-0.5 rounded ${difficultyColors[video.difficulty] || 'bg-slate-500/20 text-slate-400'}">${video.difficulty}</span>
                         </div>
+
+                        ${video.walkthrough ? `
+                        <button onclick="toggleWalkthrough('${video.id || video.videoId}')" class="w-full mt-3 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded transition-colors flex items-center justify-center gap-2">
+                            <span>📖 View Step-by-Step Guide</span>
+                        </button>
+                        ` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
             });
-        }
-
-        function filterTutorials(category) {
-            currentTutorialFilter = category;
-
-            // Update button styles
-            document.querySelectorAll('.tutorial-filter-btn').forEach(btn => {
-                btn.className = 'tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-navy-800 text-slate-300 hover:bg-navy-700';
-            });
-            event.target.className = 'tutorial-filter-btn px-4 py-2 rounded-lg text-sm font-semibold bg-brand-500 text-navy-950';
-
-            renderTutorials();
         }
 
         // ============================================================================

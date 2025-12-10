@@ -1,20 +1,14 @@
-// Cloudflare Worker to serve master locksmith data from KV
+// Cloudflare Worker to serve master locksmith data from D1
 // Exposes:
 //   GET /api/master               -> full list (JSON)
-//   GET /api/master.csv           -> full CSV
 //   GET /api/master?make=...&model=...&year=...&immo=...&fcc=... -> filtered JSON
-//   (legacy aliases) /api/locksmith, /api/locksmith.csv
-// Uses KV key: "master_locksmith.csv"
+//   (legacy aliases) /api/locksmith
+// Uses D1 Database: locksmith_data
 
 export interface Env {
   LOCKSMITH_KV: KVNamespace;
   LOCKSMITH_DB: D1Database;
 }
-
-let cachedCsv = "";
-let cachedRows: Record<string, string>[] | null = null;
-let cachedAt = 0;
-const CACHE_MS = 5 * 60 * 1000;
 
 function textResponse(body: string, status = 200, contentType = "application/json") {
   return new Response(body, {
@@ -28,159 +22,6 @@ function textResponse(body: string, status = 200, contentType = "application/jso
   });
 }
 
-async function fetchCsv(env: Env): Promise<string> {
-  if (cachedCsv && Date.now() - cachedAt < CACHE_MS) return cachedCsv;
-  const csv = await env.LOCKSMITH_KV.get("master_locksmith.csv");
-  if (!csv) throw new Error("CSV not found in KV (master_locksmith.csv)");
-  cachedCsv = csv;
-  cachedAt = Date.now();
-  return csv;
-}
-
-async function fetchRows(env: Env): Promise<Record<string, string>[]> {
-  if (cachedRows && Date.now() - cachedAt < CACHE_MS) return cachedRows;
-  const csv = await fetchCsv(env);
-  cachedRows = parseCsv(csv);
-  return cachedRows;
-}
-
-function parseCsv(csv: string): Record<string, string>[] {
-  const [headerLine, ...rows] = csv.split(/\r?\n/);
-  const headers = headerLine.split(",");
-  return rows
-    .filter((r) => r.trim().length > 0)
-    .map((r) => {
-      const parts: string[] = [];
-      let current = "";
-      let inQuotes = false;
-      for (let i = 0; i < r.length; i++) {
-        const ch = r[i];
-        if (ch === '"') {
-          // toggle inQuotes unless escaped
-          if (inQuotes && r[i + 1] === '"') {
-            current += '"';
-            i++; // skip next quote
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (ch === ',' && !inQuotes) {
-          parts.push(current);
-          current = "";
-        } else {
-          current += ch;
-        }
-      }
-      parts.push(current);
-      const obj: Record<string, string> = {};
-      headers.forEach((h, idx) => {
-        obj[h] = parts[idx] ?? "";
-      });
-      return obj;
-    });
-}
-
-function filterRows(rows: Record<string, string>[], params: URLSearchParams) {
-  const make = params.get("make")?.toLowerCase();
-  const model = params.get("model")?.toLowerCase();
-  const year = params.get("year");
-  const immo = params.get("immo")?.toLowerCase();
-  const fcc = params.get("fcc")?.toLowerCase();
-  const q = params.get("q")?.toLowerCase();
-
-  return rows.filter((row) => {
-    if (make && row.make?.toLowerCase() !== make && row.make_norm?.toLowerCase() !== make) return false;
-    if (model && row.model?.toLowerCase() !== model) return false;
-    if (year) {
-      const y = parseInt(year, 10);
-      const ry = parseInt(row.year || "0", 10);
-      if (!Number.isNaN(y) && ry !== y) return false;
-    }
-    if (immo && !(row.immobilizer_system || "").toLowerCase().includes(immo) && !(row.immobilizer_system_specific || "").toLowerCase().includes(immo)) return false;
-    if (fcc && !(row.fcc_id || "").toLowerCase().includes(fcc)) return false;
-    if (q) {
-      const fields = [
-        row.make,
-        row.make_norm,
-        row.model,
-        row.immobilizer_system,
-        row.immobilizer_system_specific,
-        row.notes,
-        row.fcc_id,
-        row.part_number,
-        row.keyway,
-        row.keyway_norm,
-      ]
-        .filter(Boolean)
-        .map((s) => s.toLowerCase());
-      if (!fields.some((f) => f.includes(q))) return false;
-    }
-    return true;
-  });
-}
-
-type ImmoRow = {
-  make?: string;
-  model?: string;
-  year?: string;
-  compat_year_min?: string;
-  compat_year_max?: string;
-  immobilizer_system?: string;
-  immobilizer_system_specific?: string;
-  module_or_system?: string;
-  key_type?: string;
-  key_category?: string;
-  notes?: string;
-};
-
-function buildImmoSlice(rows: Record<string, string>[], params: URLSearchParams) {
-  const make = params.get("make")?.toLowerCase() || "";
-  const model = params.get("model")?.toLowerCase() || "";
-  const q = params.get("q")?.toLowerCase() || "";
-  const limit = Math.min(parseInt(params.get("limit") || "300", 10) || 300, 1000);
-  const offset = parseInt(params.get("offset") || "0", 10) || 0;
-
-  const filtered: ImmoRow[] = [];
-  for (const r of rows) {
-    const makeVal = (r.make || r.make_norm || "").toLowerCase();
-    if (make && makeVal !== make) continue;
-    const modelVal = (r.model || "").toLowerCase();
-    if (model && !modelVal.includes(model)) continue;
-    if (q) {
-      const hay = [
-        r.make,
-        r.model,
-        r.immobilizer_system,
-        r.immobilizer_system_specific,
-        r.module_or_system,
-        r.key_type,
-        r.key_category,
-        r.notes,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      if (!hay.includes(q)) continue;
-    }
-    filtered.push({
-      make: r.make,
-      model: r.model,
-      year: r.year,
-      compat_year_min: r.compat_year_min,
-      compat_year_max: r.compat_year_max,
-      immobilizer_system: r.immobilizer_system,
-      immobilizer_system_specific: r.immobilizer_system_specific,
-      module_or_system: r.module_or_system,
-      key_type: r.key_type,
-      key_category: r.key_category,
-      notes: r.notes,
-    });
-  }
-
-  const total = filtered.length;
-  const sliced = filtered.slice(offset, offset + limit);
-  return { total, rows: sliced };
-}
-
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -189,24 +30,72 @@ export default {
     }
 
     const path = url.pathname;
-    if (path === "/api/master.csv" || path === "/api/locksmith.csv") {
-      try {
-        const csv = await fetchCsv(env);
-        return textResponse(csv, 200, "text/csv");
-      } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message || "failed to load csv" }), 500);
-      }
-    }
 
+    // Master Locksmith Data Endpoint - Migrated to D1
+    // Unified with /api/browse but supports more legacy filters
     if (path === "/api/master" || path === "/api/locksmith") {
       try {
-        const rows = await fetchRows(env);
-        const filtered = filterRows(rows, url.searchParams);
-        const total = filtered.length;
+        const make = url.searchParams.get("make")?.toLowerCase();
+        const model = url.searchParams.get("model")?.toLowerCase();
+        const year = url.searchParams.get("year");
+        const immo = url.searchParams.get("immo")?.toLowerCase();
+        const fcc = url.searchParams.get("fcc")?.toLowerCase();
+        const q = url.searchParams.get("q")?.toLowerCase();
+
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "500", 10) || 500, 2000);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
-        const sliced = filtered.slice(offset, offset + limit);
-        return textResponse(JSON.stringify({ count: sliced.length, total, rows: sliced }));
+
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("(LOWER(make) = ? OR LOWER(make_norm) = ?)");
+          params.push(make, make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          const y = parseInt(year, 10);
+          if (!Number.isNaN(y)) {
+            conditions.push("year = ?");
+            params.push(y);
+          }
+        }
+        if (immo) {
+          conditions.push("(LOWER(immobilizer_system) LIKE ? OR LOWER(immobilizer_system_specific) LIKE ?)");
+          params.push(`%${immo}%`, `%${immo}%`);
+        }
+        if (fcc) {
+          conditions.push("LOWER(fcc_id) LIKE ?");
+          params.push(`%${fcc}%`);
+        }
+        if (q) {
+          conditions.push("(LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(immobilizer_system) LIKE ? OR LOWER(fcc_id) LIKE ? OR LOWER(notes) LIKE ?)");
+          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+        // Get total count
+        const countSql = `SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`;
+        const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
+        const total = countResult?.cnt || 0;
+
+        // Get paginated rows
+        const dataSql = `SELECT * FROM locksmith_data ${whereClause} ORDER BY make, model, year LIMIT ? OFFSET ?`;
+        const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
+
+        return new Response(JSON.stringify({ count: dataResult.results?.length || 0, total, rows: dataResult.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message || "failed to load data" }), 500);
       }
@@ -363,6 +252,8 @@ export default {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=300",
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
           },
         });
       } catch (err: any) {
@@ -407,6 +298,8 @@ export default {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=3600",
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
           },
         });
       } catch (err: any) {
@@ -466,7 +359,49 @@ export default {
       }
     }
 
+    // Video Tutorials endpoint
+    if (path === "/api/videos") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = parseInt(url.searchParams.get("year") || "0", 10);
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10) || 20, 100);
+
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("LOWER(related_make) = ?");
+          params.push(make);
+        }
+        if (model) {
+          conditions.push("LOWER(related_model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          conditions.push("(related_year_start IS NULL OR related_year_start <= ?) AND (related_year_end IS NULL OR related_year_end >= ?)");
+          params.push(year, year);
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+        const sql = `SELECT * FROM video_tutorials ${whereClause} LIMIT ?`;
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit).all();
+
+        return new Response(JSON.stringify({ rows: result.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
-

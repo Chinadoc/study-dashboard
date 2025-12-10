@@ -35,7 +35,9 @@
   -- New columns for unified database
   video_id TEXT,
   data_completeness INTEGER DEFAULT 0,
-  needs_enrichment INTEGER DEFAULT 1
+  needs_enrichment INTEGER DEFAULT 1,
+  key_type TEXT,
+  explainer_text TEXT
 );
 
 -- Create indexes for fast filtering
@@ -47,6 +49,24 @@ CREATE INDEX IF NOT EXISTS idx_immobilizer ON locksmith_data(immobilizer_system)
 CREATE INDEX IF NOT EXISTS idx_fcc ON locksmith_data(fcc_id);
 CREATE INDEX IF NOT EXISTS idx_completeness ON locksmith_data(data_completeness);
 CREATE INDEX IF NOT EXISTS idx_needs_enrichment ON locksmith_data(needs_enrichment);
+
+-- Video Tutorials table
+CREATE TABLE IF NOT EXISTS video_tutorials (
+  id TEXT PRIMARY KEY,
+  video_id TEXT,
+  title TEXT,
+  description TEXT,
+  category TEXT,
+  tool TEXT,
+  difficulty TEXT,
+  transcript_summary TEXT,
+  related_make TEXT,
+  related_model TEXT,
+  related_year_start INTEGER,
+  related_year_end INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_video_make_model ON video_tutorials(related_make, related_model);
 
 -- Curated FCC overrides - manually verified locksmith data takes precedence
 CREATE TABLE IF NOT EXISTS curated_overrides (
