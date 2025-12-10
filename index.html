@@ -7051,6 +7051,8 @@
                     'Expert': 'bg-red-500/20 text-red-400'
                 };
 
+                const videoUniqueId = video.id || video.videoId;
+
                 const card = document.createElement('div');
                 card.className = 'bg-navy-950/60 rounded-xl overflow-hidden border border-brand-500/20 hover:border-brand-400/50 transition-all group';
                 card.innerHTML = `
@@ -7073,7 +7075,7 @@
                             <h3 class="text-white font-bold text-sm line-clamp-2 group-hover:text-brand-400 transition-colors">${video.title}</h3>
                             ${video.walkthrough ? `<span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">AI Guide</span>` : ''}
                         </div>
-                        <p class="text-slate-400 text-xs mb-3 line-clamp-2">${video.desc}</p>
+                        <p class="text-slate-400 text-xs mb-3 line-clamp-2">${video.desc || ''}</p>
 
                         <!-- Highlights / Pearls (if available) -->
                         ${video.highlights ? `
@@ -7084,19 +7086,32 @@
                         ` : ''}
 
                         <div class="flex items-center justify-between text-xs mt-auto">
-                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded">${video.tool}</span>
-                            <span class="px-2 py-0.5 rounded ${difficultyColors[video.difficulty] || 'bg-slate-500/20 text-slate-400'}">${video.difficulty}</span>
+                            <span class="px-2 py-0.5 bg-brand-500/20 text-brand-400 rounded">${video.tool || 'General'}</span>
+                            <span class="px-2 py-0.5 rounded ${difficultyColors[video.difficulty] || 'bg-slate-500/20 text-slate-400'}">${video.difficulty || 'N/A'}</span>
                         </div>
 
                         ${video.walkthrough ? `
-                        <button onclick="toggleWalkthrough('${video.id || video.videoId}')" class="w-full mt-3 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded transition-colors flex items-center justify-center gap-2">
+                        <button onclick="toggleWalkthrough('${videoUniqueId}')" class="w-full mt-3 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded transition-colors flex items-center justify-center gap-2">
                             <span>📖 View Step-by-Step Guide</span>
                         </button>
+                        <!-- Walkthrough Panel (Initially Hidden) -->
+                        <div id="walkthrough-${videoUniqueId}" class="hidden mt-3 p-3 bg-navy-900 rounded-lg border border-brand-500/30 max-h-96 overflow-y-auto">
+                            <h4 class="text-brand-400 font-bold text-sm mb-2">📝 Step-by-Step Guide</h4>
+                            <div class="text-slate-300 text-xs whitespace-pre-wrap leading-relaxed">${video.walkthrough.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                        </div>
                         ` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
             });
+        }
+
+        // Global toggleWalkthrough function
+        function toggleWalkthrough(videoId) {
+            const el = document.getElementById(`walkthrough-${videoId}`);
+            if (el) {
+                el.classList.toggle('hidden');
+            }
         }
 
         // ============================================================================
