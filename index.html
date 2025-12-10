@@ -7063,23 +7063,24 @@
             }
         }
 
-        // Handle legacy category calls (e.g. 'ford') and new make/model calls (e.g. 'Honda', 'Civic')
-        currentTutorialFilter = { make: arg1, model: arg2 };
-        renderTutorials();
+        function filterTutorials(arg1, arg2 = 'all') {
+            // Handle legacy category calls (e.g. 'ford') and new make/model calls (e.g. 'Honda', 'Civic')
+            currentTutorialFilter = { make: arg1, model: arg2 };
+            renderTutorials();
 
-        // Fetch Master Guide for selected make/model
-        fetchMasterGuide(arg1, arg2);
+            // Fetch Master Guide for selected make/model
+            fetchMasterGuide(arg1, arg2);
 
-        // Update active state for model buttons if applicable
-        if (arg2 !== 'all') {
-            document.querySelectorAll('#tutorials-section button').forEach(btn => {
-                btn.classList.remove('ring-2', 'ring-brand-500', 'bg-navy-800');
-                // Simple check if button text contains the model
-                if (btn.textContent.includes(arg2)) {
-                    btn.classList.add('ring-2', 'ring-brand-500', 'bg-navy-800');
-                }
-            });
-        }
+            // Update active state for model buttons if applicable
+            if (arg2 !== 'all') {
+                document.querySelectorAll('#tutorials-section button').forEach(btn => {
+                    btn.classList.remove('ring-2', 'ring-brand-500', 'bg-navy-800');
+                    // Simple check if button text contains the model
+                    if (btn.textContent.includes(arg2)) {
+                        btn.classList.add('ring-2', 'ring-brand-500', 'bg-navy-800');
+                    }
+                });
+            }
         }
 
         // Fetch Master Guide from API
