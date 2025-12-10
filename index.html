@@ -761,7 +761,7 @@
                     <div class="p-3 bg-navy-900/70 rounded-xl border border-brand-500/20">
                         <div class="text-xs text-slate-500 uppercase mb-1">FCC ID</div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <a id="summaryFccLink" href="#" target="_blank"
+                            <a id="summaryFccLink" href="javascript:void(0)"
                                 class="text-brand-300 font-semibold hover:underline">N/A</a>
                             <span id="summaryFccStatus" class="text-xs text-amber-300"></span>
                         </div>
@@ -5534,17 +5534,7 @@
                 fccLink.href = 'javascript:void(0)';
                 fccLink.onclick = () => {
                     if (fccPrimary) {
-                        switchTab('database', true);
-                        setTimeout(() => {
-                            const searchBox = document.getElementById('databaseSearch');
-                            if (searchBox) {
-                                searchBox.value = fccPrimary;
-                                filterDatabaseTable();
-                                searchBox.focus();
-                            }
-                            const dbSection = document.getElementById('database-section');
-                            if (dbSection) dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 100);
+                        openFccDatabaseWithId(fccPrimary);
                     }
                 };
             }
@@ -6662,6 +6652,7 @@
         let CURATED_DB = [];       // curated overrides
         let CURATED_MAP = {};      // curated map keyed by year|make|model
         let fccLoadPromise = null;
+        let fccDatabasePromise = null;
         let currentFccMatches = [];
         let currentVehicleData = {};
         let currentFccId = '';
@@ -6885,6 +6876,21 @@
             const tag = 'eurokeys-20';
             const url = `https://www.amazon.com/s?k=${encodeURIComponent(id)}&i=automotive&tag=${tag}`;
             window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function openFccDatabaseWithId(fccId) {
+            if (!fccId || fccId === 'N/A') return;
+            switchTab('database', true);
+            renderFCCDatabase().then(() => {
+                const searchBox = document.getElementById('databaseSearch');
+                if (searchBox) {
+                    searchBox.value = fccId;
+                    filterDatabaseTable();
+                    searchBox.focus();
+                }
+                const dbSection = document.getElementById('database-section');
+                if (dbSection) dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         }
 
         const VIDEO_TUTORIALS = [
@@ -7363,102 +7369,111 @@
         let databaseSortColumn = 0;
         let databaseSortAsc = true;
         
-        async function renderFCCDatabase() {
-            const tbody = document.getElementById('fccDatabaseBody');
-            const stats = document.getElementById('databaseStats');
-            if (!tbody) return;
-            
-            tbody.innerHTML = '';
-            let totalVehicles = 0;
-            // Build master-derived FCC map once
-            if (!FCC_MASTER_MAP) {
-                // Reuse FCC_DB (built from master.csv) to avoid size limits on JSON API
-                await loadFccDb();
-                FCC_MASTER_MAP = new Map();
-                (FCC_DB || []).forEach(r => {
-                    const fccId = (r.fcc_id || r.FCCid || r.FCCId || r.FCCID || '').trim();
-                    if (!fccId) return;
-                    const key = fccId.toUpperCase();
-                    if (!FCC_MASTER_MAP.has(key)) {
-                        FCC_MASTER_MAP.set(key, {
-                            fccId: key,
-                            frequency: r.frequency_mhz || r.frequency || r.Frequency || 'N/A',
-                            modulation: r.modulation || r.Modulation || 'N/A',
-                            chip: r.transponder_family || r.chip || r.Chip || 'N/A',
-                            vehicles: []
-                        });
-                    }
-                    const rec = FCC_MASTER_MAP.get(key);
-                    rec.vehicles.push({
-                        make: r.make || r.Make || '',
-                        model: r.model || r.Model || '',
-                        years: r.year || r.Year || r.compat_years_list || r.compat_year_min || ''
-                    });
-                });
+        async function renderFCCDatabase(force = false) {
+            if (fccDatabasePromise && !force) {
+                await fccDatabasePromise;
+                filterDatabaseTable();
+                return;
             }
-
-            const masterKeys = Array.from(FCC_MASTER_MAP.keys());
-            const localKeys = Object.keys(FCC_CROSS_REFERENCE);
-            const allKeys = new Set([...masterKeys, ...localKeys]);
-            const fccIds = Array.from(allKeys).sort();
-            
-            fccIds.forEach(fccId => {
-                let data = FCC_MASTER_MAP.get(fccId);
-                if (!data) {
-                    // Fallback to local data if not in master
-                    const local = FCC_CROSS_REFERENCE[fccId];
-                    data = {
-                        fccId: fccId,
-                        frequency: local.frequency || 'N/A',
-                        modulation: local.modulation || 'N/A',
-                        chip: local.chip || 'N/A',
-                        vehicles: local.vehicles || []
-                    };
+            fccDatabasePromise = (async () => {
+                const tbody = document.getElementById('fccDatabaseBody');
+                const stats = document.getElementById('databaseStats');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                let totalVehicles = 0;
+                // Build master-derived FCC map once
+                if (!FCC_MASTER_MAP) {
+                    // Reuse FCC_DB (built from master.csv) to avoid size limits on JSON API
+                    await loadFccDb();
+                    FCC_MASTER_MAP = new Map();
+                    (FCC_DB || []).forEach(r => {
+                        const fccId = (r.fcc_id || r.FCCid || r.FCCId || r.FCCID || '').trim();
+                        if (!fccId) return;
+                        const key = fccId.toUpperCase();
+                        if (!FCC_MASTER_MAP.has(key)) {
+                            FCC_MASTER_MAP.set(key, {
+                                fccId: key,
+                                frequency: r.frequency_mhz || r.frequency || r.Frequency || 'N/A',
+                                modulation: r.modulation || r.Modulation || 'N/A',
+                                chip: r.transponder_family || r.chip || r.Chip || 'N/A',
+                                vehicles: []
+                            });
+                        }
+                        const rec = FCC_MASTER_MAP.get(key);
+                        rec.vehicles.push({
+                            make: r.make || r.Make || '',
+                            model: r.model || r.Model || '',
+                            years: r.year || r.Year || r.compat_years_list || r.compat_year_min || ''
+                        });
+                    });
                 }
 
-                const vehicleCount = data.vehicles.length;
-                totalVehicles += vehicleCount;
+                const masterKeys = Array.from(FCC_MASTER_MAP.keys());
+                const localKeys = Object.keys(FCC_CROSS_REFERENCE);
+                const allKeys = new Set([...masterKeys, ...localKeys]);
+                const fccIds = Array.from(allKeys).sort();
                 
-                const vehicleList = data.vehicles.map(v => `${v.make} ${v.model} (${v.years})`).join(', ');
-                
-                const row = document.createElement('tr');
-                row.className = 'border-b border-navy-700/50 hover:bg-navy-800/50 cursor-pointer transition-colors';
-                row.setAttribute('data-fcc', fccId);
-                
-                const inCart = shoppingCart.some(item => item.fccId === fccId);
-                const cartBtnClass = inCart ? 'bg-green-600 text-white' : 'bg-green-500/20 text-green-400 hover:bg-green-500/40';
-                const cartBtnIcon = inCart ? '✓' : '🛒';
-                
-                row.innerHTML = `
-                    <td class="p-3">
-                        <div class="flex items-center gap-2">
-                            <button onclick="event.stopPropagation(); addToCart('${fccId}', ${JSON.stringify(data).replace(/"/g, '&quot;')})" 
-                                    class="w-7 h-7 rounded-lg ${cartBtnClass} flex items-center justify-center text-sm transition-colors"
-                                    title="Add to Inventory Planner">
-                                ${cartBtnIcon}
-                            </button>
-                            <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
-                        </div>
-                    </td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">${data.frequency}</span>
-                        <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs ml-1">${data.modulation}</span>
-                    </td>
-                    <td class="p-3 text-yellow-400">${data.chip}</td>
-                    <td class="p-3">
-                        <span class="text-brand-400 font-semibold">${vehicleCount} vehicles</span>
-                        <div class="text-xs text-slate-500 mt-1 line-clamp-2">${vehicleList}</div>
-                    </td>
-                    <td class="p-3 text-xs text-slate-400">N/A</td>
-                    <td class="p-3 text-xs text-slate-400">N/A</td>
-                `;
+                fccIds.forEach(fccId => {
+                    let data = FCC_MASTER_MAP.get(fccId);
+                    if (!data) {
+                        // Fallback to local data if not in master
+                        const local = FCC_CROSS_REFERENCE[fccId];
+                        data = {
+                            fccId: fccId,
+                            frequency: local.frequency || 'N/A',
+                            modulation: local.modulation || 'N/A',
+                            chip: local.chip || 'N/A',
+                            vehicles: local.vehicles || []
+                        };
+                    }
 
-                row.onclick = () => toggleDatabaseRow(fccId, row);
+                    const vehicleCount = data.vehicles.length;
+                    totalVehicles += vehicleCount;
+                    
+                    const vehicleList = data.vehicles.map(v => `${v.make} ${v.model} (${v.years})`).join(', ');
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-navy-700/50 hover:bg-navy-800/50 cursor-pointer transition-colors';
+                    row.setAttribute('data-fcc', fccId);
+                    
+                    const inCart = shoppingCart.some(item => item.fccId === fccId);
+                    const cartBtnClass = inCart ? 'bg-green-600 text-white' : 'bg-green-500/20 text-green-400 hover:bg-green-500/40';
+                    const cartBtnIcon = inCart ? '✓' : '🛒';
+                    
+                    row.innerHTML = `
+                        <td class="p-3">
+                            <div class="flex items-center gap-2">
+                                <button onclick="event.stopPropagation(); addToCart('${fccId}', ${JSON.stringify(data).replace(/"/g, '&quot;')})" 
+                                        class="w-7 h-7 rounded-lg ${cartBtnClass} flex items-center justify-center text-sm transition-colors"
+                                        title="Add to Inventory Planner">
+                                    ${cartBtnIcon}
+                                </button>
+                                <span class="text-blue-400 font-mono font-bold hover:underline" onclick="event.stopPropagation(); reverseSearchFccDirect('${fccId}')">${fccId}</span>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">${data.frequency}</span>
+                            <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs ml-1">${data.modulation}</span>
+                        </td>
+                        <td class="p-3 text-yellow-400">${data.chip}</td>
+                        <td class="p-3">
+                            <span class="text-brand-400 font-semibold">${vehicleCount} vehicles</span>
+                            <div class="text-xs text-slate-500 mt-1 line-clamp-2">${vehicleList}</div>
+                        </td>
+                        <td class="p-3 text-xs text-slate-400">N/A</td>
+                        <td class="p-3 text-xs text-slate-400">N/A</td>
+                    `;
+
+                    row.onclick = () => toggleDatabaseRow(fccId, row);
+                    
+                    tbody.appendChild(row);
+                });
                 
-                tbody.appendChild(row);
-            });
-            
-            stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations (master data)`;
+                stats.innerHTML = `📊 Showing <span class="text-brand-400 font-bold">${fccIds.length}</span> FCC IDs covering <span class="text-brand-400 font-bold">${totalVehicles}</span> vehicle configurations (master data)`;
+                filterDatabaseTable();
+            })();
+            return fccDatabasePromise;
         }
         
         function toggleDatabaseRow(fccId, row) {
