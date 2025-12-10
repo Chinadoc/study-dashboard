@@ -8030,6 +8030,10 @@
                 `;
                     });
                 }
+
+                // Create composite key for grouping
+                const key = `${(r.make || '').toLowerCase()}|${(r.model || '').toLowerCase()}|${immoDisplay.toLowerCase()}|${keyType.toLowerCase()}`;
+
                 if (!map.has(key)) {
                     map.set(key, {
                         make: r.make || '',
