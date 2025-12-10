@@ -7211,9 +7211,11 @@
                     const fccPatterns = [
                         /^[A-Z]{1,5}\d{1,2}[A-Z]{1,5}[0-9A-Z-]+$/i, // CWTWB1U345, KR5V2X, HYQ12BDM
                         /^OUC[A-Z0-9-]+$/i, // OUCG8D-340H-A
+                        /^OHT[0-9]+$/i, // OHT4882056
                         /^M3N[-A-Z0-9]+$/i, // M3N-A2C31243300
-                        /^GQ[0-9]+-[A-Z0-9]+$/i, // GQ4-52T
-                        /^[A-Z]{3,4}[0-9]{2}[A-Z]{2,5}/i // HYQ14FLA
+                        /^GQ[0-9]+-[A-Z0-9]+$/i, // GQ4-52T, GQ4-54T
+                        /^[A-Z]{3,4}[0-9]{2}[A-Z]{2,5}/i, // HYQ14FLA
+                        /^TQ8[-A-Z0-9]+$/i // TQ8-FOB-4F16
                     ];
                     const isFccId = fccPatterns.some(p => p.test(match));
                     if (isFccId) {
