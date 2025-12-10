@@ -1264,22 +1264,44 @@
 
                     <!-- EEPROM & Advanced Data (NEW) -->
                     <div class="glass-panel rounded-3xl p-6">
-                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                            <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                                </svg>
-                            </div>
-                            EEPROM & Advanced Immobilizer Data
-                        </h3>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                                <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                </div>
+                                EEPROM & Advanced Immobilizer Data
+                            </h3>
+                            <span
+                                class="px-2 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30">🔒
+                                Pro</span>
+                        </div>
                         <div id="eepromDataContainer" class="space-y-3">
                             <!-- Populated by JavaScript -->
                         </div>
                         <div class="mt-4 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
                             <div class="text-xs text-indigo-400 uppercase mb-2 font-semibold">Module Location</div>
                             <div class="text-sm text-indigo-200" id="eepromLocation">Check immobilizer box location
+                            </div>
+                        </div>
+
+                        <!-- Pro Tier Feature Preview -->
+                        <div class="mt-4 relative">
+                            <div
+                                class="blur-sm opacity-50 p-4 bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-xl border border-purple-500/20">
+                                <div class="text-xs text-purple-400 uppercase mb-2 font-semibold">PIN Retrieval Workflow
+                                </div>
+                                <div class="text-sm text-purple-200">Step 1: Connect to OBD... Step 2: Read EEPROM...
+                                    Step 3: Calculate PIN...</div>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <button onclick="showProModal()"
+                                    class="px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:from-amber-400 hover:to-orange-400 transition-all">
+                                    🔓 Unlock with Pro Verification
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -5412,6 +5434,68 @@
             if (btn) {
                 btn.textContent = isHidden ? 'Show' : 'Hide';
             }
+        }
+
+        // Pro Tier Modal (UI Concept Only)
+        function showProModal() {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.id = 'proModal';
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm';
+            modal.innerHTML = `
+                <div class="bg-navy-900 rounded-2xl p-6 max-w-md w-full mx-4 border border-amber-500/30 shadow-2xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Pro Verification</h3>
+                            <p class="text-sm text-amber-300">Unlock advanced locksmith features</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 mb-6">
+                        <div class="p-3 bg-navy-800/50 rounded-xl border border-amber-500/20">
+                            <label class="text-xs text-slate-400 uppercase mb-1 block">ALOA Membership #</label>
+                            <input type="text" placeholder="Enter membership number" class="w-full px-3 py-2 bg-navy-950 border border-slate-600 rounded-lg text-white text-sm focus:border-amber-500 focus:outline-none">
+                        </div>
+                        <div class="p-3 bg-navy-800/50 rounded-xl border border-amber-500/20">
+                            <label class="text-xs text-slate-400 uppercase mb-1 block">State License</label>
+                            <input type="text" placeholder="State locksmith license #" class="w-full px-3 py-2 bg-navy-950 border border-slate-600 rounded-lg text-white text-sm focus:border-amber-500 focus:outline-none">
+                        </div>
+                        <div class="p-3 bg-navy-800/50 rounded-xl border border-amber-500/20">
+                            <label class="text-xs text-slate-400 uppercase mb-1 block">NASTF Registration</label>
+                            <input type="text" placeholder="NASTF ID (optional)" class="w-full px-3 py-2 bg-navy-950 border border-slate-600 rounded-lg text-white text-sm focus:border-amber-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 mb-4">
+                        <p>🔒 This is a <strong>concept mockup</strong>. Pro features would unlock:</p>
+                        <ul class="mt-2 space-y-1 text-slate-400">
+                            <li>• Full EEPROM diagrams & PIN workflows</li>
+                            <li>• Direct dealer lookup integration</li>
+                            <li>• Priority support & tool discounts</li>
+                        </ul>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="closeProModal()" class="flex-1 px-4 py-2 text-sm font-semibold rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800">
+                            Maybe Later
+                        </button>
+                        <button onclick="closeProModal()" class="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400">
+                            Coming Soon
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeProModal();
+            });
+        }
+
+        function closeProModal() {
+            const modal = document.getElementById('proModal');
+            if (modal) modal.remove();
         }
 
         function updateKeycutterSummary(lockData, fccMatches, isCurated = false) {
