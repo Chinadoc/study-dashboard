@@ -634,91 +634,165 @@
             <!-- Make/Model Selector - Two Column Layout -->
             <div class="max-w-7xl mx-auto mb-12">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <!-- Left: Makes List -->
-                    <div class="lg:col-span-1 space-y-2" id="makesList">
+                    <!-- Left: Makes List (scrollable on mobile, vertical on desktop) -->
+                    <div class="lg:col-span-1">
                         <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Select Make</h3>
-                        <button onclick="selectMake('Honda')" data-make="Honda"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-brand-500/30 hover:border-brand-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-brand-400 font-bold">🔴 Honda</span>
-                            <span class="text-slate-500 text-xs group-hover:text-brand-300" id="honda-count">16</span>
-                        </button>
-                        <button onclick="selectMake('Toyota')" data-make="Toyota"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-blue-500/30 hover:border-blue-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-blue-400 font-bold">🔵 Toyota</span>
-                            <span class="text-slate-500 text-xs group-hover:text-blue-300">7</span>
-                        </button>
-                        <button onclick="selectMake('Ford')" data-make="Ford"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-green-500/30 hover:border-green-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-green-400 font-bold">🟢 Ford</span>
-                            <span class="text-slate-500 text-xs group-hover:text-green-300">4</span>
-                        </button>
-                        <button onclick="selectMake('Jeep')" data-make="Jeep"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-lime-500/30 hover:border-lime-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-lime-400 font-bold">🟩 Jeep</span>
-                            <span class="text-slate-500 text-xs group-hover:text-lime-300">3</span>
-                        </button>
-                        <button onclick="selectMake('Hyundai')" data-make="Hyundai"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-cyan-500/30 hover:border-cyan-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-cyan-400 font-bold">🩵 Hyundai</span>
-                            <span class="text-slate-500 text-xs group-hover:text-cyan-300">3</span>
-                        </button>
-                        <button onclick="selectMake('Kia')" data-make="Kia"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-rose-400 font-bold">🩷 Kia</span>
-                            <span class="text-slate-500 text-xs group-hover:text-rose-300">3</span>
-                        </button>
-                        <button onclick="selectMake('Ram')" data-make="Ram"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-violet-500/30 hover:border-violet-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-violet-400 font-bold">🟣 Ram</span>
-                            <span class="text-slate-500 text-xs group-hover:text-violet-300">2</span>
-                        </button>
-                        <button onclick="selectMake('Nissan')" data-make="Nissan"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-amber-400 font-bold">🟡 Nissan</span>
-                            <span class="text-slate-500 text-xs group-hover:text-amber-300">2</span>
-                        </button>
-                        <button onclick="selectMake('Subaru')" data-make="Subaru"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-sky-500/30 hover:border-sky-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-sky-400 font-bold">⭐ Subaru</span>
-                            <span class="text-slate-500 text-xs group-hover:text-sky-300">2</span>
-                        </button>
-                        <button onclick="selectMake('BMW')" data-make="BMW"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-blue-600/30 hover:border-blue-600/60 transition-all flex items-center justify-between group">
-                            <span class="text-blue-300 font-bold">🏎️ BMW</span>
-                            <span class="text-slate-500 text-xs group-hover:text-blue-300">2</span>
-                        </button>
-                        <button onclick="selectMake('Mercedes')" data-make="Mercedes"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-slate-400/30 hover:border-slate-400/60 transition-all flex items-center justify-between group">
-                            <span class="text-slate-300 font-bold">⭐ Mercedes</span>
-                            <span class="text-slate-500 text-xs group-hover:text-slate-300">2</span>
-                        </button>
-                        <button onclick="selectMake('Volkswagen')" data-make="Volkswagen"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-indigo-500/30 hover:border-indigo-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-indigo-400 font-bold">🔵 VW</span>
-                            <span class="text-slate-500 text-xs group-hover:text-indigo-300">2</span>
-                        </button>
-                        <button onclick="selectMake('GMC')" data-make="GMC"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-red-600/30 hover:border-red-600/60 transition-all flex items-center justify-between group">
-                            <span class="text-red-300 font-bold">🔴 GMC</span>
-                            <span class="text-slate-500 text-xs group-hover:text-red-300">2</span>
-                        </button>
-                        <button onclick="selectMake('Chevrolet')" data-make="Chevrolet"
-                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-red-500/30 hover:border-red-500/60 transition-all flex items-center justify-between group">
-                            <span class="text-red-400 font-bold">⚪ Chevrolet</span>
-                            <span class="text-slate-500 text-xs group-hover:text-red-300">1</span>
-                        </button>
+                        <!-- Mobile: Horizontal scroll -->
+                        <div class="flex lg:hidden overflow-x-auto gap-2 pb-3 -mx-4 px-4 scrollbar-hide"
+                            id="makesListMobile">
+                            <button onclick="selectMake('Honda')" data-make="Honda"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-brand-500/40 text-brand-400 font-bold text-sm whitespace-nowrap">Honda
+                                <span class="text-xs text-slate-500">16</span></button>
+                            <button onclick="selectMake('Toyota')" data-make="Toyota"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-blue-500/40 text-blue-400 font-bold text-sm whitespace-nowrap">Toyota
+                                <span class="text-xs text-slate-500">7</span></button>
+                            <button onclick="selectMake('Ford')" data-make="Ford"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-green-500/40 text-green-400 font-bold text-sm whitespace-nowrap">Ford
+                                <span class="text-xs text-slate-500">4</span></button>
+                            <button onclick="selectMake('Jeep')" data-make="Jeep"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-lime-500/40 text-lime-400 font-bold text-sm whitespace-nowrap">Jeep
+                                <span class="text-xs text-slate-500">3</span></button>
+                            <button onclick="selectMake('Hyundai')" data-make="Hyundai"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-cyan-500/40 text-cyan-400 font-bold text-sm whitespace-nowrap">Hyundai
+                                <span class="text-xs text-slate-500">3</span></button>
+                            <button onclick="selectMake('Kia')" data-make="Kia"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-rose-500/40 text-rose-400 font-bold text-sm whitespace-nowrap">Kia
+                                <span class="text-xs text-slate-500">3</span></button>
+                            <button onclick="selectMake('Dodge')" data-make="Dodge"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-red-500/40 text-red-400 font-bold text-sm whitespace-nowrap">Dodge
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Audi')" data-make="Audi"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-gray-400/40 text-gray-300 font-bold text-sm whitespace-nowrap">Audi
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Lexus')" data-make="Lexus"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-amber-500/40 text-amber-300 font-bold text-sm whitespace-nowrap">Lexus
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('VW')" data-make="Volkswagen"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-indigo-500/40 text-indigo-400 font-bold text-sm whitespace-nowrap">VW
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Subaru')" data-make="Subaru"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-sky-500/40 text-sky-400 font-bold text-sm whitespace-nowrap">Subaru
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('BMW')" data-make="BMW"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-blue-600/40 text-blue-300 font-bold text-sm whitespace-nowrap">BMW
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Mercedes')" data-make="Mercedes"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-slate-400/40 text-slate-300 font-bold text-sm whitespace-nowrap">Mercedes
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('GMC')" data-make="GMC"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-red-600/40 text-red-300 font-bold text-sm whitespace-nowrap">GMC
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Ram')" data-make="Ram"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-violet-500/40 text-violet-400 font-bold text-sm whitespace-nowrap">Ram
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Nissan')" data-make="Nissan"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-amber-500/40 text-amber-400 font-bold text-sm whitespace-nowrap">Nissan
+                                <span class="text-xs text-slate-500">2</span></button>
+                            <button onclick="selectMake('Chevrolet')" data-make="Chevrolet"
+                                class="make-btn flex-shrink-0 px-4 py-2 rounded-lg bg-navy-900/70 border border-yellow-500/40 text-yellow-400 font-bold text-sm whitespace-nowrap">Chevy
+                                <span class="text-xs text-slate-500">1</span></button>
+                        </div>
+                        <!-- Desktop: Vertical list -->
+                        <div class="hidden lg:block space-y-2 max-h-[600px] overflow-y-auto" id="makesList">
+                            <button onclick="selectMake('Honda')" data-make="Honda"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-brand-500/30 hover:border-brand-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-brand-400 font-bold">Honda</span>
+                                <span class="text-slate-500 text-xs group-hover:text-brand-300">16</span>
+                            </button>
+                            <button onclick="selectMake('Toyota')" data-make="Toyota"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-blue-500/30 hover:border-blue-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-blue-400 font-bold">Toyota</span>
+                                <span class="text-slate-500 text-xs group-hover:text-blue-300">7</span>
+                            </button>
+                            <button onclick="selectMake('Ford')" data-make="Ford"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-green-500/30 hover:border-green-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-green-400 font-bold">Ford</span>
+                                <span class="text-slate-500 text-xs group-hover:text-green-300">4</span>
+                            </button>
+                            <button onclick="selectMake('Jeep')" data-make="Jeep"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-lime-500/30 hover:border-lime-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-lime-400 font-bold">Jeep</span>
+                                <span class="text-slate-500 text-xs group-hover:text-lime-300">3</span>
+                            </button>
+                            <button onclick="selectMake('Hyundai')" data-make="Hyundai"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-cyan-500/30 hover:border-cyan-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-cyan-400 font-bold">Hyundai</span>
+                                <span class="text-slate-500 text-xs group-hover:text-cyan-300">3</span>
+                            </button>
+                            <button onclick="selectMake('Kia')" data-make="Kia"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-rose-400 font-bold">Kia</span>
+                                <span class="text-slate-500 text-xs group-hover:text-rose-300">3</span>
+                            </button>
+                            <button onclick="selectMake('Dodge')" data-make="Dodge"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-red-500/30 hover:border-red-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-red-400 font-bold">Dodge</span>
+                                <span class="text-slate-500 text-xs group-hover:text-red-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Audi')" data-make="Audi"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-gray-400/30 hover:border-gray-400/60 transition-all flex items-center justify-between group">
+                                <span class="text-gray-300 font-bold">Audi</span>
+                                <span class="text-slate-500 text-xs group-hover:text-gray-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Lexus')" data-make="Lexus"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-amber-300 font-bold">Lexus</span>
+                                <span class="text-slate-500 text-xs group-hover:text-amber-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Volkswagen')" data-make="Volkswagen"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-indigo-500/30 hover:border-indigo-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-indigo-400 font-bold">VW</span>
+                                <span class="text-slate-500 text-xs group-hover:text-indigo-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Subaru')" data-make="Subaru"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-sky-500/30 hover:border-sky-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-sky-400 font-bold">Subaru</span>
+                                <span class="text-slate-500 text-xs group-hover:text-sky-300">2</span>
+                            </button>
+                            <button onclick="selectMake('BMW')" data-make="BMW"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-blue-600/30 hover:border-blue-600/60 transition-all flex items-center justify-between group">
+                                <span class="text-blue-300 font-bold">BMW</span>
+                                <span class="text-slate-500 text-xs group-hover:text-blue-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Mercedes')" data-make="Mercedes"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-slate-400/30 hover:border-slate-400/60 transition-all flex items-center justify-between group">
+                                <span class="text-slate-300 font-bold">Mercedes</span>
+                                <span class="text-slate-500 text-xs group-hover:text-slate-300">2</span>
+                            </button>
+                            <button onclick="selectMake('GMC')" data-make="GMC"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-red-600/30 hover:border-red-600/60 transition-all flex items-center justify-between group">
+                                <span class="text-red-300 font-bold">GMC</span>
+                                <span class="text-slate-500 text-xs group-hover:text-red-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Ram')" data-make="Ram"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-violet-500/30 hover:border-violet-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-violet-400 font-bold">Ram</span>
+                                <span class="text-slate-500 text-xs group-hover:text-violet-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Nissan')" data-make="Nissan"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-amber-400 font-bold">Nissan</span>
+                                <span class="text-slate-500 text-xs group-hover:text-amber-300">2</span>
+                            </button>
+                            <button onclick="selectMake('Chevrolet')" data-make="Chevrolet"
+                                class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-yellow-500/30 hover:border-yellow-500/60 transition-all flex items-center justify-between group">
+                                <span class="text-yellow-400 font-bold">Chevrolet</span>
+                                <span class="text-slate-500 text-xs group-hover:text-yellow-300">1</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Right: Models Grid (populated when make is selected) -->
                     <div class="lg:col-span-3">
                         <div id="modelsPanel"
-                            class="bg-navy-950/50 rounded-2xl border border-navy-700 p-6 min-h-[300px]">
-                            <div id="modelsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            class="bg-navy-950/50 rounded-2xl border border-navy-700 p-4 md:p-6 min-h-[250px] md:min-h-[300px]">
+                            <div id="modelsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                                 <!-- Default state -->
-                                <div class="col-span-full text-center py-12">
-                                    <div class="text-6xl mb-4">🚗</div>
-                                    <p class="text-slate-400 text-lg">Select a make to view available models</p>
-                                    <p class="text-slate-500 text-sm mt-2">51 guides across 14 manufacturers</p>
+                                <div class="col-span-full text-center py-8 md:py-12">
+                                    <div class="text-5xl md:text-6xl mb-4">🚗</div>
+                                    <p class="text-slate-400 text-base md:text-lg">Select a make to view models</p>
+                                    <p class="text-slate-500 text-xs md:text-sm mt-2">57 guides across 17 manufacturers
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -7014,6 +7088,9 @@
             'Jeep': { border: 'lime-500', text: 'lime-400', hover: 'lime-300' },
             'Hyundai': { border: 'cyan-500', text: 'cyan-400', hover: 'cyan-300' },
             'Kia': { border: 'rose-500', text: 'rose-400', hover: 'rose-300' },
+            'Dodge': { border: 'red-500', text: 'red-400', hover: 'red-300' },
+            'Audi': { border: 'gray-400', text: 'gray-300', hover: 'gray-200' },
+            'Lexus': { border: 'amber-500', text: 'amber-300', hover: 'amber-200' },
             'Ram': { border: 'violet-500', text: 'violet-400', hover: 'violet-300' },
             'Nissan': { border: 'amber-500', text: 'amber-400', hover: 'amber-300' },
             'Subaru': { border: 'sky-500', text: 'sky-400', hover: 'sky-300' },
@@ -7021,7 +7098,7 @@
             'Mercedes': { border: 'slate-400', text: 'slate-300', hover: 'slate-200' },
             'Volkswagen': { border: 'indigo-500', text: 'indigo-400', hover: 'indigo-300' },
             'GMC': { border: 'red-600', text: 'red-300', hover: 'red-200' },
-            'Chevrolet': { border: 'red-500', text: 'red-400', hover: 'red-300' }
+            'Chevrolet': { border: 'yellow-500', text: 'yellow-400', hover: 'yellow-300' }
         };
 
         let currentSelectedMake = null;
