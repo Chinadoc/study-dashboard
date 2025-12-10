@@ -7192,9 +7192,164 @@
                             <button onclick="printMasterGuide()" class="px-3 py-1.5 bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs rounded transition-colors">🖨️ Print</button>
                             <button onclick="shareMasterGuide()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded transition-colors">📤 Share</button>
                         </div>
-                    </div>
+            </div>
                 </div>
             `;
+        }
+
+        // Chip type definitions for locksmiths
+        const chipDefinitions = {
+            'ID13': {
+                name: 'ID13 (Megamos)',
+                desc: 'Legacy fixed-code transponder. Glass wedge chip from late 90s-early 2000s. Easy to clone with basic equipment.',
+                security: 'Low',
+                tools: 'T5 glass chip, basic cloner'
+            },
+            'ID46': {
+                name: 'ID46 (PCF7936)',
+                desc: 'Philips Crypto 2 chip. Most common 2003-2017 chip. Requires PIN/SKC from dealer or bypass tool. Cannot be directly cloned.',
+                security: 'Medium',
+                tools: 'Autel, VVDI, Zedbull with PIN'
+            },
+            'ID47': {
+                name: 'ID47 (HITAG 3)',
+                desc: 'Honda G-chip. 128-bit AES encryption. Must be OEM or high-quality aftermarket. Requires dealer or advanced tool.',
+                security: 'High',
+                tools: 'Autel IM608, dealer'
+            },
+            'ID4A': {
+                name: 'ID4A (NCF29A1M)',
+                desc: 'Latest 128-bit AES proximity chip. Found in 2020+ vehicles. Requires newest tools and OEM-spec blanks.',
+                security: 'Very High',
+                tools: 'Autel IM608 Pro II, Xtool'
+            },
+            'ID8A': {
+                name: 'ID8A (DST-AES)',
+                desc: '128-bit AES Texas Instruments chip. Used in Hyundai/Kia 2015+. Requires professional programming.',
+                security: 'High',
+                tools: 'Autel, VVDI Key Tool Max'
+            },
+            'HITAG': {
+                name: 'HITAG Family',
+                desc: 'NXP/Philips chip series. HITAG 2 (cracked), HITAG 3 (secure). Common in European/Asian vehicles.',
+                security: 'Medium-High',
+                tools: 'Varies by version'
+            }
+        };
+
+        // Process markdown tables into proper HTML tables
+        function processMarkdownTables(html) {
+            // Split by <br> which represents newlines
+            const lines = html.split('<br>');
+            let inTable = false;
+            let tableHtml = '';
+            let headerRow = null;
+            let result = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                // Detect table row (starts and ends with |)
+                if (line.startsWith('|') && line.endsWith('|')) {
+                    const cells = line.slice(1, -1).split('|').map(c => c.trim());
+
+                    // Check if separator row (contains ---)
+                    if (cells.every(c => /^[-:]+$/.test(c))) {
+                        continue; // Skip separator row
+                    }
+
+                    if (!inTable) {
+                        // Start new table
+                        inTable = true;
+                        tableHtml = '<div class="overflow-x-auto my-4"><table class="w-full text-sm border-collapse">';
+                        // First row is header
+                        tableHtml += '<thead><tr class="bg-navy-800 text-brand-400">';
+                        tableHtml += cells.map(c => `<th class="px-4 py-2 text-left font-bold border-b-2 border-brand-500/50">${c}</th>`).join('');
+                        tableHtml += '</tr></thead><tbody>';
+                    } else {
+                        // Data row
+                        tableHtml += '<tr class="border-b border-navy-700 hover:bg-navy-800/50">';
+                        tableHtml += cells.map(c => `<td class="px-4 py-2 text-slate-300">${c}</td>`).join('');
+                        tableHtml += '</tr>';
+                    }
+                } else {
+                    // Not a table row
+                    if (inTable) {
+                        // Close table
+                        tableHtml += '</tbody></table></div>';
+                        result.push(tableHtml);
+                        inTable = false;
+                        tableHtml = '';
+                    }
+                    result.push(line);
+                }
+            }
+
+            // Close any unclosed table
+            if (inTable) {
+                tableHtml += '</tbody></table></div>';
+                result.push(tableHtml);
+            }
+
+            return result.join('<br>');
+        }
+
+        // Add tooltips for chip types
+        function addChipTooltips(html) {
+            // Match chip type mentions
+            const chipPatterns = [
+                /\b(ID13)\b/g,
+                /\b(ID46)\b/g,
+                /\b(ID47)\b/g,
+                /\b(ID4A)\b/g,
+                /\b(ID8A)\b/g,
+                /\b(HITAG[- ]?[23]?)\b/gi
+            ];
+
+            chipPatterns.forEach(pattern => {
+                html = html.replace(pattern, (match) => {
+                    const key = match.toUpperCase().replace(/[- ]/g, '');
+                    const chipKey = key.startsWith('HITAG') ? 'HITAG' : key;
+                    const chip = chipDefinitions[chipKey];
+                    if (!chip) return match;
+
+                    return `<span class="chip-tooltip relative cursor-help border-b border-dotted border-cyan-400 text-cyan-300" 
+                        data-chip="${chipKey}"
+                        onclick="showChipInfo('${chipKey}')"
+                        title="${chip.desc}">${match}</span>`;
+                });
+            });
+
+            return html;
+        }
+
+        // Show chip info modal/toast for mobile
+        function showChipInfo(chipKey) {
+            const chip = chipDefinitions[chipKey];
+            if (!chip) return;
+
+            // Create toast notification
+            const existing = document.getElementById('chip-toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'chip-toast';
+            toast.className = 'fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-navy-800 border border-cyan-500/50 rounded-xl p-4 shadow-2xl z-50 animate-fade-in';
+            toast.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="text-cyan-400 font-bold">${chip.name}</h4>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-slate-400 hover:text-white">&times;</button>
+                </div>
+                <p class="text-slate-300 text-sm mb-3">${chip.desc}</p>
+                <div class="flex gap-4 text-xs">
+                    <div><span class="text-slate-500">Security:</span> <span class="text-amber-400">${chip.security}</span></div>
+                    <div><span class="text-slate-500">Tools:</span> <span class="text-green-400">${chip.tools}</span></div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            // Auto-hide after 5s
+            setTimeout(() => toast.remove(), 5000);
         }
 
         // Simple Markdown to HTML parser for guide content
@@ -7234,18 +7389,17 @@
                 .replace(/^- (.+)$/gm, '<li class="flex gap-2 items-start mb-1"><span class="text-brand-400 mt-1">•</span><span>$1</span></li>')
                 // Blockquotes (for Pearl tips)
                 .replace(/^> (.+)$/gm, '<blockquote class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-2 my-3 text-yellow-200 italic">$1</blockquote>')
-                // Tables (basic)
-                .replace(/\|(.+)\|$/gm, (match, content) => {
-                    const cells = content.split('|').map(c => c.trim()).filter(c => c);
-                    const isHeader = content.includes('---');
-                    if (isHeader) return '';
-                    return `<tr class="border-b border-navy-700">${cells.map(c => `<td class="px-3 py-2 text-xs">${c}</td>`).join('')}</tr>`;
-                })
                 // Horizontal rules
                 .replace(/^---$/gm, '<hr class="border-brand-500/30 my-6">')
                 // Line breaks
                 .replace(/\n\n/g, '</p><p class="mb-3">')
                 .replace(/\n/g, '<br>');
+
+            // Process tables separately (more complex parsing needed)
+            html = processMarkdownTables(html);
+
+            // Add chip type tooltips
+            html = addChipTooltips(html);
 
             return `<p class="mb-3">${html}</p>`;
         }
