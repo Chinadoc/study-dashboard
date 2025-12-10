@@ -1598,6 +1598,121 @@
         </div>
     </div>
 
+    <!-- Mobile Results Panel (Slide-up, hidden on desktop) -->
+    <div id="mobileResultsPanel"
+        class="fixed inset-x-0 bottom-0 z-40 transform translate-y-full transition-transform duration-300 ease-out md:hidden"
+        style="max-height: 85vh;">
+        <div class="bg-navy-900 rounded-t-3xl shadow-2xl border-t-2 border-brand-400 overflow-hidden flex flex-col"
+            style="max-height: 85vh;">
+            <!-- Handle and Header -->
+            <div class="sticky top-0 z-10 bg-navy-900 p-4 border-b border-brand-500/30">
+                <div class="w-12 h-1 bg-slate-600 rounded-full mx-auto mb-3 cursor-grab" id="mobileResultsHandle"></div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 id="mobileVehicleTitle" class="text-lg font-bold text-white truncate max-w-[250px]">Vehicle
+                            Details</h3>
+                        <p id="mobileVehicleSubtitle" class="text-sm text-brand-400"></p>
+                    </div>
+                    <button onclick="closeMobileResults()"
+                        class="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div id="mobileResultsContent" class="flex-1 overflow-y-auto p-4 space-y-4 pb-8">
+                <!-- Quick Facts (always visible) -->
+                <div id="mobileQuickFacts" class="grid grid-cols-2 gap-3">
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase">FCC ID</div>
+                        <div id="mobileFccId" class="text-brand-400 font-mono font-bold">—</div>
+                    </div>
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase">Key Blank</div>
+                        <div id="mobileKeyBlank" class="text-white font-semibold">—</div>
+                    </div>
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase">Chip</div>
+                        <div id="mobileChip" class="text-white font-semibold">—</div>
+                    </div>
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-brand-500/20">
+                        <div class="text-xs text-slate-500 uppercase">Frequency</div>
+                        <div id="mobileFreq" class="text-white font-semibold">—</div>
+                    </div>
+                </div>
+
+                <!-- Expandable Sections -->
+                <div class="space-y-2" id="mobileExpandableSections">
+                    <!-- Programming Section -->
+                    <div class="bg-navy-950/60 rounded-xl border border-brand-500/20 overflow-hidden">
+                        <button onclick="toggleMobileSection('mobileProgrammingContent')"
+                            class="w-full px-4 py-3 flex items-center justify-between text-left">
+                            <span class="font-semibold text-white">🔧 Programming Info</span>
+                            <svg class="w-5 h-5 text-brand-400 expand-icon transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="mobileProgrammingContent" class="hidden px-4 pb-4 space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-400">Tool:</span><span
+                                    id="mobileProgTool" class="text-white">—</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">OBD:</span><span
+                                    id="mobileObd" class="text-white">—</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">PIN Required:</span><span
+                                    id="mobilePin" class="text-white">—</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Remote Section -->
+                    <div class="bg-navy-950/60 rounded-xl border border-brand-500/20 overflow-hidden">
+                        <button onclick="toggleMobileSection('mobileRemoteContent')"
+                            class="w-full px-4 py-3 flex items-center justify-between text-left">
+                            <span class="font-semibold text-white">📡 Remote & Frequency</span>
+                            <svg class="w-5 h-5 text-brand-400 expand-icon transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="mobileRemoteContent" class="hidden px-4 pb-4 space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-400">Frequency:</span><span
+                                    id="mobileRemoteFreq" class="text-white">—</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Immobilizer:</span><span
+                                    id="mobileImmo" class="text-white">—</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeMobileResults(); scrollToDesktopResults();"
+                        class="flex-1 py-3 bg-brand-500 text-navy-950 font-bold rounded-xl hover:bg-brand-400 transition-colors">
+                        View Full Details
+                    </button>
+                    <button id="mobileAmazonBtn" onclick="openAmazonAffiliate(currentFccId)"
+                        class="px-5 py-3 bg-amber-500/20 text-amber-300 font-bold rounded-xl hover:bg-amber-500/30 transition-colors">
+                        🛒
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Swipe Indicator Dots (Mobile Only) -->
+    <div id="swipeIndicator"
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 md:hidden opacity-0 pointer-events-none transition-opacity">
+        <div class="swipe-dot w-2 h-2 rounded-full bg-slate-600" data-tab="browse"></div>
+        <div class="swipe-dot w-2 h-2 rounded-full bg-slate-600" data-tab="database"></div>
+        <div class="swipe-dot w-2 h-2 rounded-full bg-slate-600" data-tab="immobilizers"></div>
+        <div class="swipe-dot w-2 h-2 rounded-full bg-slate-600" data-tab="lishi"></div>
+        <div class="swipe-dot w-2 h-2 rounded-full bg-slate-600" data-tab="videos"></div>
+    </div>
+
     <!-- Shopping Cart / Wishlist Modal -->
     <div id="shoppingCartModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeCartModal()"></div>
@@ -10264,6 +10379,184 @@
             if (chip && chip !== 'N/A' && chip !== 'Unknown') {
                 reverseSearch('chip', chip);
             }
+        }
+
+        // ============================================================================
+        // MOBILE UX - SWIPE GESTURES & RESULTS PANEL
+        // ============================================================================
+
+        // Swipe gesture state
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        const TAB_ORDER = ['browse', 'database', 'immobilizers', 'lishi', 'videos'];
+        let currentTab = 'browse';
+
+        // Initialize swipe listeners on mobile
+        if (window.innerWidth < 768) {
+            document.addEventListener('touchstart', handleTouchStart, { passive: true });
+            document.addEventListener('touchend', handleTouchEnd, { passive: true });
+        }
+
+        function handleTouchStart(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }
+
+        function handleTouchEnd(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipeGesture();
+        }
+
+        function handleSwipeGesture() {
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+
+            // Require horizontal movement > vertical and min 80px swipe
+            if (Math.abs(diffX) < 80 || Math.abs(diffY) > Math.abs(diffX)) return;
+
+            // Don't swipe if mobile panel is open
+            const mobilePanel = document.getElementById('mobileResultsPanel');
+            if (mobilePanel && !mobilePanel.classList.contains('translate-y-full')) return;
+
+            const currentIdx = TAB_ORDER.indexOf(currentTab);
+
+            if (diffX > 0 && currentIdx < TAB_ORDER.length - 1) {
+                // Swipe left → next tab
+                switchTab(TAB_ORDER[currentIdx + 1]);
+                showSwipeIndicator();
+            } else if (diffX < 0 && currentIdx > 0) {
+                // Swipe right → previous tab  
+                switchTab(TAB_ORDER[currentIdx - 1]);
+                showSwipeIndicator();
+            }
+        }
+
+        function showSwipeIndicator() {
+            const indicator = document.getElementById('swipeIndicator');
+            if (!indicator) return;
+
+            // Update active dot
+            indicator.querySelectorAll('.swipe-dot').forEach(dot => {
+                dot.classList.toggle('bg-brand-400', dot.dataset.tab === currentTab);
+                dot.classList.toggle('bg-slate-600', dot.dataset.tab !== currentTab);
+            });
+
+            // Fade in, then fade out
+            indicator.classList.remove('opacity-0', 'pointer-events-none');
+            indicator.classList.add('opacity-100');
+
+            setTimeout(() => {
+                indicator.classList.remove('opacity-100');
+                indicator.classList.add('opacity-0');
+            }, 1500);
+        }
+
+        // Override switchTab to track current tab
+        const originalSwitchTab = typeof switchTab === 'function' ? switchTab : null;
+        if (originalSwitchTab) {
+            window.switchTab = function (tabName, ...args) {
+                currentTab = tabName;
+                originalSwitchTab(tabName, ...args);
+
+                // Update swipe indicator on mobile
+                if (window.innerWidth < 768) {
+                    showSwipeIndicator();
+                }
+            };
+        }
+
+        // Mobile Results Panel Functions
+        function showMobileResults(data) {
+            const panel = document.getElementById('mobileResultsPanel');
+            if (!panel || window.innerWidth >= 768) return;
+
+            // Populate panel
+            document.getElementById('mobileVehicleTitle').textContent =
+                `${data.year || ''} ${data.make || ''} ${data.model || ''}`.trim();
+            document.getElementById('mobileVehicleSubtitle').textContent = data.trim || '';
+
+            // Quick facts
+            document.getElementById('mobileFccId').textContent = data.fccId || '—';
+            document.getElementById('mobileKeyBlank').textContent = data.keyBlank || data.blank || '—';
+            document.getElementById('mobileChip').textContent = data.chip || '—';
+            document.getElementById('mobileFreq').textContent = data.freq || data.frequency || '—';
+
+            // Programming info
+            document.getElementById('mobileProgTool').textContent = data.progTool || '—';
+            document.getElementById('mobileObd').textContent = data.obd || '—';
+            document.getElementById('mobilePin').textContent = data.pinRequired || '—';
+
+            // Remote info
+            document.getElementById('mobileRemoteFreq').textContent = data.freq || data.frequency || '—';
+            document.getElementById('mobileImmo').textContent = data.immoSystem || data.immobilizer || '—';
+
+            // Show panel with animation
+            panel.classList.remove('translate-y-full');
+            panel.classList.add('translate-y-0');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileResults() {
+            const panel = document.getElementById('mobileResultsPanel');
+            if (!panel) return;
+
+            panel.classList.remove('translate-y-0');
+            panel.classList.add('translate-y-full');
+            document.body.style.overflow = '';
+        }
+
+        function scrollToDesktopResults() {
+            const resultsArea = document.getElementById('resultsArea');
+            if (resultsArea) {
+                setTimeout(() => {
+                    resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+            }
+        }
+
+        // Toggle expandable sections in mobile panel
+        function toggleMobileSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            const button = section.previousElementSibling;
+            const icon = button ? button.querySelector('.expand-icon') : null;
+
+            section.classList.toggle('hidden');
+            if (icon) {
+                icon.classList.toggle('rotate-180');
+            }
+        }
+
+        // Integrate mobile panel with displayResults
+        const originalDisplayResults = typeof displayResults === 'function' ? displayResults : null;
+        if (originalDisplayResults) {
+            window.displayResults = async function (data) {
+                await originalDisplayResults(data);
+
+                // On mobile, show the slide-up panel
+                if (window.innerWidth < 768 && data) {
+                    setTimeout(() => {
+                        showMobileResults({
+                            year: data.year,
+                            make: data.make,
+                            model: data.model,
+                            trim: data.trim,
+                            fccId: currentFccId || document.getElementById('fccId')?.textContent?.replace('FCC ID: ', '') || '—',
+                            keyBlank: document.getElementById('keyBlank')?.textContent || '—',
+                            chip: document.getElementById('chipType')?.textContent || '—',
+                            freq: document.getElementById('remoteFreq')?.textContent || '—',
+                            progTool: document.getElementById('progTool')?.textContent || '—',
+                            obd: document.getElementById('obdProgramming')?.textContent || '—',
+                            pinRequired: document.getElementById('pinRequired')?.textContent || '—',
+                            immoSystem: document.getElementById('immobilizerType')?.textContent || '—'
+                        });
+                    }, 200);
+                }
+            };
         }
     </script>
 </body>
