@@ -710,6 +710,9 @@
                 </div>
             </div>
 
+            <!-- Master Guide Container (populated by JS when model selected) -->
+            <div id="masterGuideContainer" class="max-w-7xl mx-auto mb-6"></div>
+
             <!-- Video Grid -->
             <div id="tutorialGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                 <!-- Populated by JavaScript -->
@@ -6938,10 +6941,8 @@
             { id: 'lexus-rx350-lexusrx35', category: 'toyota', title: "Lexus RX350 (2010-2016) Key Programming", videoId: '2Q5qQ4c', desc: "Programming tutorial for Lexus RX350 (2010-2016).", tool: 'Various', difficulty: 'Intermediate', makes: ["LEXUS"], models: ["RX350"], years: '2010-2016' }
         ];
 
-        // Initialize API Base URL based on environment
-        const API_BASE_URL = window.location.protocol === 'file:'
-            ? 'https://study-dashboard-six.vercel.app'
-            : '';
+        // Reuse the Cloudflare worker base for tutorials + guides
+        const API_BASE_URL = API_BASE;
 
         let currentTutorialFilter = { make: 'all', model: 'all' };
         let fetchedVideos = []; // Store API fetched videos
@@ -6952,12 +6953,16 @@
                 if (!response.ok) throw new Error('Failed to fetch videos');
                 const data = await response.json();
 
-                // Merge API data with local fallback if needed, or just use API
-                // For now, we'll prioritize API data but keep local structure if API is empty
-                if (data && data.length > 0) {
-                    fetchedVideos = data.map(v => ({
+                // API returns { rows: [...] }; normalize and keep only valid video IDs
+                const rows = Array.isArray(data) ? data : (data.rows || []);
+                const validRows = rows.filter(v => typeof v.video_id === 'string' && v.video_id.trim().length === 11);
+
+                if (validRows.length === 0) {
+                    console.warn('Video API returned no valid rows; keeping fallback tutorials');
+                } else {
+                    fetchedVideos = validRows.map(v => ({
                         id: v.id || v.video_id,
-                        category: v.category || 'general',
+                        category: (v.category || v.related_make || 'general').toLowerCase(),
                         title: v.title,
                         videoId: v.video_id,
                         desc: v.description,
@@ -6965,17 +6970,18 @@
                         difficulty: v.difficulty || 'Intermediate',
                         makes: v.related_make ? [v.related_make] : [],
                         models: v.related_model ? [v.related_model] : [],
-                        years: v.related_year_start ? `${v.related_year_start}-${v.related_year_end}` : '',
+                        years: v.related_year_start ? `${v.related_year_start}-${v.related_year_end || v.related_year_start}` : '',
                         walkthrough: v.walkthrough,
                         highlights: v.highlights
                     }));
                     console.log('Loaded videos from API:', fetchedVideos.length);
-                    renderTutorials();
                 }
             } catch (err) {
                 console.error('Error fetching video tutorials:', err);
-                // Fallback to static VIDEO_TUTORIALS is automatic since fetchedVideos will be empty
-                // But we should probably assign VIDEO_TUTORIALS to fetchedVideos initially
+                // Keep the fallback list that was pre-populated
+            } finally {
+                // Always render so the UI shows either API-backed or fallback tutorials
+                renderTutorials();
             }
         }
 
@@ -7032,15 +7038,11 @@
 
         // Render the Master Guide as a premium card
         function renderMasterGuide() {
-            let container = document.getElementById('masterGuideContainer');
+            console.log('renderMasterGuide called, guide:', currentMasterGuide);
+            const container = document.getElementById('masterGuideContainer');
             if (!container) {
-                // Create container if it doesn't exist
-                const grid = document.getElementById('tutorialGrid');
-                if (!grid) return;
-                container = document.createElement('div');
-                container.id = 'masterGuideContainer';
-                container.className = 'col-span-full mb-6';
-                grid.parentNode.insertBefore(container, grid);
+                console.error('masterGuideContainer not found!');
+                return;
             }
 
             if (!currentMasterGuide) {
@@ -7179,8 +7181,9 @@
 
             // Use fetchedVideos instead of static VIDEO_TUTORIALS
             const sourceData = fetchedVideos.length > 0 ? fetchedVideos : VIDEO_TUTORIALS;
+            const validSource = sourceData.filter(v => v.videoId && v.videoId.trim().length === 11);
 
-            const filteredVideos = sourceData.filter(v => {
+            const filteredVideos = validSource.filter(v => {
                 const filterMake = currentTutorialFilter.make.toLowerCase();
                 const filterModel = currentTutorialFilter.model.toLowerCase();
 
