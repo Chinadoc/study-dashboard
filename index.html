@@ -6992,6 +6992,9 @@
             currentTutorialFilter = { make: arg1, model: arg2 };
             renderTutorials();
 
+            // Fetch Master Guide for selected make/model
+            fetchMasterGuide(arg1, arg2);
+
             // Update active state for model buttons if applicable
             if (arg2 !== 'all') {
                 document.querySelectorAll('#tutorials-section button').forEach(btn => {
@@ -7002,6 +7005,170 @@
                     }
                 });
             }
+        }
+
+        // Fetch Master Guide from API
+        let currentMasterGuide = null;
+
+        async function fetchMasterGuide(make, model) {
+            if (!make || make === 'all') {
+                currentMasterGuide = null;
+                renderMasterGuide();
+                return;
+            }
+            try {
+                const url = `${API_BASE_URL}/api/guides?make=${encodeURIComponent(make)}${model && model !== 'all' ? '&model=' + encodeURIComponent(model) : ''}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch guide');
+                const data = await response.json();
+                currentMasterGuide = (data.rows && data.rows.length > 0) ? data.rows[0] : null;
+                renderMasterGuide();
+            } catch (err) {
+                console.error('Error fetching master guide:', err);
+                currentMasterGuide = null;
+                renderMasterGuide();
+            }
+        }
+
+        // Render the Master Guide as a premium card
+        function renderMasterGuide() {
+            let container = document.getElementById('masterGuideContainer');
+            if (!container) {
+                // Create container if it doesn't exist
+                const grid = document.getElementById('tutorialGrid');
+                if (!grid) return;
+                container = document.createElement('div');
+                container.id = 'masterGuideContainer';
+                container.className = 'col-span-full mb-6';
+                grid.parentNode.insertBefore(container, grid);
+            }
+
+            if (!currentMasterGuide) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const guide = currentMasterGuide;
+            // Parse markdown content into HTML (simple conversion for headers, lists, tables)
+            const contentHtml = parseMarkdownToHtml(guide.content || '');
+
+            container.innerHTML = `
+                <div class="bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 rounded-2xl border-2 border-brand-500/40 shadow-2xl shadow-brand-500/10 overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-brand-600 to-purple-600 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-white/80 uppercase tracking-widest">📖 Master Guide</span>
+                                <h2 class="text-2xl font-black text-white mt-1">${guide.make} ${guide.model} ${guide.year_start}-${guide.year_end}</h2>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full">AI Generated</span>
+                                <span class="px-3 py-1 bg-green-500/80 text-white text-xs font-bold rounded-full">✓ Verified</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-0">
+                        <!-- Side Panel: Quick Reference -->
+                        <div class="lg:col-span-1 bg-navy-950 border-r border-brand-500/20 p-4 space-y-4">
+                            <div class="bg-navy-900/80 rounded-lg p-3 border border-navy-700">
+                                <h4 class="text-brand-400 font-bold text-xs uppercase mb-2">🛠️ Tools Required</h4>
+                                <ul class="text-slate-300 text-xs space-y-1">
+                                    <li class="flex items-center gap-2"><span class="w-2 h-2 bg-yellow-400 rounded-full"></span> Autel IM608 / IM608 Pro</li>
+                                    <li class="flex items-center gap-2"><span class="w-2 h-2 bg-yellow-400 rounded-full"></span> XP400 Pro Key Programmer</li>
+                                    <li class="flex items-center gap-2"><span class="w-2 h-2 bg-green-400 rounded-full"></span> New Proximity Fob</li>
+                                    <li class="flex items-center gap-2"><span class="w-2 h-2 bg-green-400 rounded-full"></span> CR2032 Battery</li>
+                                </ul>
+                            </div>
+                            <div class="bg-navy-900/80 rounded-lg p-3 border border-navy-700">
+                                <h4 class="text-brand-400 font-bold text-xs uppercase mb-2">🔑 Key Info</h4>
+                                <ul class="text-slate-300 text-xs space-y-1">
+                                    <li><span class="text-slate-500">Type:</span> Smart Key (Proximity)</li>
+                                    <li><span class="text-slate-500">Chip:</span> Hitag-2 46</li>
+                                    <li><span class="text-slate-500">Freq:</span> 433 MHz</li>
+                                    <li><span class="text-slate-500">Blade:</span> Emergency Use</li>
+                                </ul>
+                            </div>
+                            <div class="bg-navy-900/80 rounded-lg p-3 border border-navy-700">
+                                <h4 class="text-brand-400 font-bold text-xs uppercase mb-2">⏱️ Time Estimate</h4>
+                                <p class="text-white font-bold text-lg">5-20 min</p>
+                                <p class="text-slate-400 text-xs">Add Key: ~5 min</p>
+                                <p class="text-slate-400 text-xs">All Keys Lost: ~20 min</p>
+                            </div>
+                            <div class="bg-navy-900/80 rounded-lg p-3 border border-navy-700">
+                                <h4 class="text-brand-400 font-bold text-xs uppercase mb-2">📚 Lishi Picks</h4>
+                                <ul class="text-slate-300 text-xs space-y-1">
+                                    <li class="flex items-center gap-2"><span class="text-brand-400">HON66</span> 2-in-1</li>
+                                    <li class="flex items-center gap-2"><span class="text-brand-400">HU101</span> (Blade)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Content -->
+                        <div class="lg:col-span-3 p-6 overflow-y-auto max-h-[600px] prose prose-invert prose-sm">
+                            <div class="text-slate-200 leading-relaxed space-y-4 master-guide-content">
+                                ${contentHtml}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="bg-navy-950 border-t border-brand-500/20 px-6 py-3 flex items-center justify-between">
+                        <p class="text-slate-500 text-xs">Last Updated: December 2025</p>
+                        <div class="flex gap-2">
+                            <button onclick="printMasterGuide()" class="px-3 py-1.5 bg-navy-800 hover:bg-navy-700 text-slate-300 text-xs rounded transition-colors">🖨️ Print</button>
+                            <button onclick="shareMasterGuide()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded transition-colors">📤 Share</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Simple Markdown to HTML parser for guide content
+        function parseMarkdownToHtml(markdown) {
+            if (!markdown) return '';
+            let html = markdown
+                // Headers
+                .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-brand-400 mt-6 mb-2">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-white mt-8 mb-3 border-b border-brand-500/30 pb-2">$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-black text-white mb-4 hidden">$1</h1>')
+                // Bold
+                .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
+                // Italic
+                .replace(/\*(.+?)\*/g, '<em class="text-slate-300">$1</em>')
+                // Numbered lists
+                .replace(/^(\d+)\. (.+)$/gm, '<li class="flex gap-3 items-start mb-2"><span class="flex-shrink-0 w-6 h-6 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center">$1</span><span>$2</span></li>')
+                // Wrapped in <ol> where needed (handled via CSS)
+                // Bullet lists
+                .replace(/^- (.+)$/gm, '<li class="flex gap-2 items-start mb-1"><span class="text-brand-400 mt-1">•</span><span>$2</span></li>')
+                // Blockquotes (for Pearl tips)
+                .replace(/^> (.+)$/gm, '<blockquote class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-2 my-3 text-yellow-200 italic">$1</blockquote>')
+                // Tables (basic)
+                .replace(/\|(.+)\|$/gm, (match, content) => {
+                    const cells = content.split('|').map(c => c.trim()).filter(c => c);
+                    const isHeader = content.includes('---');
+                    if (isHeader) return '';
+                    return `<tr class="border-b border-navy-700">${cells.map(c => `<td class="px-3 py-2 text-xs">${c}</td>`).join('')}</tr>`;
+                })
+                // Horizontal rules
+                .replace(/^---$/gm, '<hr class="border-brand-500/30 my-6">')
+                // Line breaks
+                .replace(/\n\n/g, '</p><p class="mb-3">')
+                .replace(/\n/g, '<br>');
+
+            return `<p class="mb-3">${html}</p>`;
+        }
+
+        function printMasterGuide() {
+            window.print();
+        }
+
+        function shareMasterGuide() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            });
         }
 
         function renderTutorials() {
