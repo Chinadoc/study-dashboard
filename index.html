@@ -783,6 +783,32 @@
                                 Guides →</div>
                         </div>
                     </button>
+                    <!-- Hyundai -->
+                    <button onclick="filterTutorials('Hyundai', 'Sonata')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-cyan-700/50 hover:border-cyan-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-cyan-400 font-bold uppercase tracking-wider mb-1">Hyundai</div>
+                            <div class="text-xl font-bold text-white">Sonata</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-cyan-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <!-- Kia -->
+                    <button onclick="filterTutorials('Kia', 'Optima')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-rose-700/50 hover:border-rose-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-rose-400 font-bold uppercase tracking-wider mb-1">Kia</div>
+                            <div class="text-xl font-bold text-white">Optima</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-rose-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
                 </div>
             </div>
 
@@ -7017,8 +7043,10 @@
             { id: 'lexus-rx350-lexusrx35', category: 'toyota', title: "Lexus RX350 (2010-2016) Key Programming", videoId: '2Q5qQ4c', desc: "Programming tutorial for Lexus RX350 (2010-2016).", tool: 'Various', difficulty: 'Intermediate', makes: ["LEXUS"], models: ["RX350"], years: '2010-2016' }
         ];
 
-        // Reuse the Cloudflare worker base for tutorials + guides
-        const API_BASE_URL = API_BASE;
+        // Reuse the Cloudflare worker base for tutorials + guides (with safe fallback)
+        const API_BASE_URL = typeof API_BASE !== 'undefined' && API_BASE
+            ? API_BASE
+            : 'https://euro-keys.jeremy-samuels17.workers.dev';
 
         let currentTutorialFilter = { make: 'all', model: 'all' };
         let fetchedVideos = []; // Store API fetched videos
@@ -7033,28 +7061,23 @@
                 const rows = Array.isArray(data) ? data : (data.rows || []);
                 const validRows = rows.filter(v => typeof v.video_id === 'string' && v.video_id.trim().length === 11);
 
-                if (validRows.length === 0) {
-                    console.warn('Video API returned no valid rows; keeping fallback tutorials');
-                } else {
-                    fetchedVideos = validRows.map(v => ({
-                        id: v.id || v.video_id,
-                        category: (v.category || v.related_make || 'general').toLowerCase(),
-                        title: v.title,
-                        videoId: v.video_id,
-                        desc: v.description,
-                        tool: v.tool || 'Unknown',
-                        difficulty: v.difficulty || 'Intermediate',
-                        makes: v.related_make ? [v.related_make] : [],
-                        models: v.related_model ? [v.related_model] : [],
-                        years: v.related_year_start ? `${v.related_year_start}-${v.related_year_end || v.related_year_start}` : '',
-                        walkthrough: v.walkthrough,
-                        highlights: v.highlights
-                    }));
-                    console.log('Loaded videos from API:', fetchedVideos.length);
-                }
+                fetchedVideos = validRows.map(v => ({
+                    id: v.id || v.video_id,
+                    category: (v.category || v.related_make || 'general').toLowerCase(),
+                    title: v.title,
+                    videoId: v.video_id,
+                    desc: v.description,
+                    tool: v.tool || 'Unknown',
+                    difficulty: v.difficulty || 'Intermediate',
+                    makes: v.related_make ? [v.related_make] : [],
+                    models: v.related_model ? [v.related_model] : [],
+                    years: v.related_year_start ? `${v.related_year_start}-${v.related_year_end || v.related_year_start}` : '',
+                    walkthrough: v.walkthrough,
+                    highlights: v.highlights
+                }));
+                console.log('Loaded videos from API:', fetchedVideos.length);
             } catch (err) {
                 console.error('Error fetching video tutorials:', err);
-                // Keep the fallback list that was pre-populated
             } finally {
                 // Always render so the UI shows either API-backed or fallback tutorials
                 renderTutorials();
@@ -7235,7 +7258,7 @@
                 .replace(/^(\d+)\. (.+)$/gm, '<li class="flex gap-3 items-start mb-2"><span class="flex-shrink-0 w-6 h-6 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center">$1</span><span>$2</span></li>')
                 // Wrapped in <ol> where needed (handled via CSS)
                 // Bullet lists
-                .replace(/^- (.+)$/gm, '<li class="flex gap-2 items-start mb-1"><span class="text-brand-400 mt-1">•</span><span>$2</span></li>')
+                .replace(/^- (.+)$/gm, '<li class="flex gap-2 items-start mb-1"><span class="text-brand-400 mt-1">•</span><span>$1</span></li>')
                 // Blockquotes (for Pearl tips)
                 .replace(/^> (.+)$/gm, '<blockquote class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-2 my-3 text-yellow-200 italic">$1</blockquote>')
                 // Tables (basic)
