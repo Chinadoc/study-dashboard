@@ -5352,6 +5352,8 @@
 
             // Get Locksmith Data - Use D1 data if available, otherwise fallback to LOCKSMITH_DB
             let lockData;
+            const makeUpper = data.make ? data.make.toUpperCase().replace('-', ' ').replace('BENZ', '') : '';
+            const modelUpper = data.model ? data.model.toUpperCase() : '';
 
             if (data.d1Data) {
                 // Use real D1 database data
@@ -5389,8 +5391,6 @@
             } else {
                 // Fallback to hardcoded LOCKSMITH_DB
                 lockData = LOCKSMITH_DB['DEFAULT'];
-                const makeUpper = data.make.toUpperCase().replace('-', ' ').replace('BENZ', '');
-                const modelUpper = data.model ? data.model.toUpperCase() : '';
                 const fullKey = `${makeUpper} ${modelUpper}`.trim();
 
                 // First check for specific make+model combo (e.g., "HONDA ACCORD")
