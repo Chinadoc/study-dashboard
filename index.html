@@ -4909,11 +4909,14 @@
                         }).filter(m => m))].sort();
                         console.log('D1 models found:', models.length, 'models:', models.slice(0, 3));
                         populateModels(models);
-                        // Ensure dropdown is enabled after population
+                        // Ensure dropdown is enabled after population - explicitly remove disabled attribute
                         const ms = document.getElementById('modelSelect');
                         if (ms && models.length > 0) {
                             ms.disabled = false;
-                            console.log('Model dropdown enabled:', !ms.disabled);
+                            ms.removeAttribute('disabled');
+                            // Also remove the visual disabled classes
+                            ms.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+                            console.log('Model dropdown enabled, disabled attr:', ms.hasAttribute('disabled'));
                         }
                         return;
                     }
