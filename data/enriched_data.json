@@ -1,0 +1,210 @@
+{
+  "lishi": [
+    {
+      "tool_model": "HU66",
+      "category": "VAG",
+      "make": "Audi, VW, Seat, Skoda",
+      "model": "Various",
+      "year_start": 1998,
+      "year_end": 2015,
+      "keyway": "HU66",
+      "notes": "2-track internal",
+      "description": "HU66 for Audi, VW, Seat, Skoda (1998-2015)"
+    },
+    {
+      "tool_model": "HU101",
+      "category": "Ford",
+      "make": "Ford, Land Rover, Volvo",
+      "model": "Focus, Fiesta, Mondeo",
+      "year_start": 2005,
+      "year_end": 2023,
+      "keyway": "HU101",
+      "notes": "Laser track",
+      "description": "HU101 for Ford, Land Rover, Volvo (2005-2023)"
+    },
+    {
+      "tool_model": "HU92",
+      "category": "BMW",
+      "make": "BMW, Mini, Rover",
+      "model": "3 Series, 5 Series, X5",
+      "year_start": 2000,
+      "year_end": 2013,
+      "keyway": "HU92",
+      "notes": "2-track",
+      "description": "HU92 for BMW, Mini, Rover (2000-2013)"
+    },
+    {
+      "tool_model": "HON66",
+      "category": "Honda",
+      "make": "Honda, Acura",
+      "model": "Accord, Civic, CR-V",
+      "year_start": 2003,
+      "year_end": 2023,
+      "keyway": "HON66",
+      "notes": "High security",
+      "description": "HON66 for Honda, Acura (2003-2023)"
+    },
+    {
+      "tool_model": "TOY43",
+      "category": "Toyota",
+      "make": "Toyota, Suzuki",
+      "model": "Camry, Corolla",
+      "year_start": 1995,
+      "year_end": 2015,
+      "keyway": "TOY43",
+      "notes": "8-cut",
+      "description": "TOY43 for Toyota, Suzuki (1995-2015)"
+    },
+    {
+      "tool_model": "TOY48",
+      "category": "Toyota",
+      "make": "Toyota, Lexus",
+      "model": "Avalon, RX300",
+      "year_start": 2000,
+      "year_end": 2010,
+      "keyway": "TOY48",
+      "notes": "4-track",
+      "description": "TOY48 for Toyota, Lexus (2000-2010)"
+    },
+    {
+      "tool_model": "SIP22",
+      "category": "Fiat",
+      "make": "Fiat, Alfa Romeo, Lancia",
+      "model": "500, Punto",
+      "year_start": 2000,
+      "year_end": 2023,
+      "keyway": "SIP22",
+      "notes": "Laser",
+      "description": "SIP22 for Fiat, Alfa Romeo, Lancia (2000-2023)"
+    },
+    {
+      "tool_model": "VA2",
+      "category": "PSA",
+      "make": "Peugeot, Citroen, Renault",
+      "model": "Clio, C3",
+      "year_start": 2005,
+      "year_end": 2023,
+      "keyway": "VA2",
+      "notes": "2-track",
+      "description": "VA2 for Peugeot, Citroen, Renault (2005-2023)"
+    },
+    {
+      "tool_model": "HU100",
+      "category": "GM",
+      "make": "Chevrolet, Opel, Buick",
+      "model": "Cruze, Insignia",
+      "year_start": 2010,
+      "year_end": 2023,
+      "keyway": "HU100",
+      "notes": "Laser",
+      "description": "HU100 for Chevrolet, Opel, Buick (2010-2023)"
+    },
+    {
+      "tool_model": "HU58",
+      "category": "BMW",
+      "make": "BMW",
+      "model": "3 Series, 5 Series",
+      "year_start": 1990,
+      "year_end": 2000,
+      "keyway": "HU58",
+      "notes": "4-track",
+      "description": "HU58 for BMW (1990-2000)"
+    },
+    {
+      "tool_model": "CY24",
+      "category": "Chrysler",
+      "make": "Chrysler, Dodge, Jeep",
+      "model": "Sebring, Stratus",
+      "year_start": 1998,
+      "year_end": 2008,
+      "keyway": "CY24",
+      "notes": "8-cut",
+      "description": "CY24 for Chrysler, Dodge, Jeep (1998-2008)"
+    },
+    {
+      "tool_model": "FO38",
+      "category": "Ford",
+      "make": "Ford, Lincoln, Mercury",
+      "model": "F-150, Mustang",
+      "year_start": 1996,
+      "year_end": 2010,
+      "keyway": "H75",
+      "notes": "8-cut Tibbe",
+      "description": "FO38 for Ford, Lincoln, Mercury (1996-2010)"
+    }
+  ],
+  "locksmith": [
+    {
+      "make": "Dodge",
+      "model": "Journey",
+      "year": 2017,
+      "keyway": "Y159",
+      "fcc_id": "M3N-40821302",
+      "chip": "Philips 46",
+      "code_series": "M0001-M2618",
+      "transponder": "ID46",
+      "programming": "OBD",
+      "search_term": "2017 dodge journey"
+    },
+    {
+      "make": "Ford",
+      "model": "F-150",
+      "year": 2015,
+      "keyway": "HU101",
+      "fcc_id": "N5F-A08TAA",
+      "chip": "Texas Crypto 128-bit",
+      "code_series": "10001-11500",
+      "transponder": "ID49",
+      "programming": "OBD",
+      "search_term": "2015 ford f-150"
+    },
+    {
+      "make": "Honda",
+      "model": "Civic",
+      "year": 2018,
+      "keyway": "HON66",
+      "fcc_id": "KR5V2X",
+      "chip": "Megamos AES",
+      "code_series": "K001-N718",
+      "transponder": "ID48",
+      "programming": "OBD",
+      "search_term": "2018 honda civic"
+    },
+    {
+      "make": "Toyota",
+      "model": "Camry",
+      "year": 2019,
+      "keyway": "TOY48",
+      "fcc_id": "HYQ14FBC",
+      "chip": "Toyota H",
+      "code_series": "50000-69999",
+      "transponder": "H-Chip",
+      "programming": "OBD",
+      "search_term": "2019 toyota camry"
+    },
+    {
+      "make": "Chevrolet",
+      "model": "Cruze",
+      "year": 2014,
+      "keyway": "HU100",
+      "fcc_id": "OHT01060512",
+      "chip": "Philips 46",
+      "code_series": "Z0001-Z6000",
+      "transponder": "ID46",
+      "programming": "OBD",
+      "search_term": "2014 chevrolet cruze"
+    },
+    {
+      "make": "BMW",
+      "model": "3 Series",
+      "year": 2010,
+      "keyway": "HU92",
+      "fcc_id": "KR55WK49127",
+      "chip": "PCF7945",
+      "code_series": "1-20000",
+      "transponder": "ID46",
+      "programming": "OBD/EEPROM",
+      "search_term": "2010 bmw 3 series"
+    }
+  ]
+}

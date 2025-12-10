@@ -4877,15 +4877,10 @@
             modelSelect.innerHTML = '<option value="">Loading...</option>';
             modelSelect.disabled = true;
 
-            try {
-                const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${make}/modelyear/${year}?format=json`);
-                const data = await response.json();
-
+            // Helper to populate dropdown
+            const populateModels = (models) => {
                 modelSelect.innerHTML = '<option value="">Select Model</option>';
-
-                if (data.Results && data.Results.length > 0) {
-                    const models = [...new Set(data.Results.map(m => m.Model_Name))].sort();
-
+                if (models.length > 0) {
                     models.forEach(model => {
                         const option = document.createElement('option');
                         option.value = model;
@@ -4893,6 +4888,43 @@
                         modelSelect.appendChild(option);
                     });
                     modelSelect.disabled = false;
+                } else {
+                    modelSelect.innerHTML = '<option value="">No models found</option>';
+                }
+            };
+
+            // Try D1 database first (faster and more reliable)
+            try {
+                console.log('Loading models from D1 for', make, year);
+                const d1Response = await fetch(`${BROWSE_API_URL}?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+                if (d1Response.ok) {
+                    const d1Data = await d1Response.json();
+                    if (d1Data.rows && d1Data.rows.length > 0) {
+                        // Extract unique model names
+                        const models = [...new Set(d1Data.rows.map(r => {
+                            // Clean up model names (remove "Smart Remote Key Fob 5B w" suffixes)
+                            let model = r.model || '';
+                            model = model.replace(/\s+(Smart|Keyless|Remote|Key|Fob|Flip|\d+B|w\/?).*$/i, '').trim();
+                            return model;
+                        }).filter(m => m))].sort();
+                        console.log('D1 models found:', models.length);
+                        populateModels(models);
+                        return;
+                    }
+                }
+            } catch (d1Error) {
+                console.warn('D1 model lookup failed:', d1Error);
+            }
+
+            // Fallback to NHTSA API
+            try {
+                console.log('Falling back to NHTSA API for', make, year);
+                const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${make}/modelyear/${year}?format=json`);
+                const data = await response.json();
+
+                if (data.Results && data.Results.length > 0) {
+                    const models = [...new Set(data.Results.map(m => m.Model_Name))].sort();
+                    populateModels(models);
                 } else {
                     modelSelect.innerHTML = '<option value="">No models found</option>';
                 }

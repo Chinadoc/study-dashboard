@@ -1,18 +1,4 @@
 -- Schema for locksmith_data table
-CREATE TABLE IF NOT EXISTS locksmith_data (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  make TEXT,
-  make_norm TEXT,
-  model TEXT,
-  year INTEGER,
-  immobilizer_system TEXT,
-  immobilizer_system_specific TEXT,
-  immobilizer_years TEXT,
-  key_type TEXT,
-  key_category TEXT,
-  transponder_family TEXT,
-  chip TEXT,
-  fcc_id TEXT,
   fcc_present TEXT,
   part_number TEXT,
   keyway TEXT,

@@ -286,7 +286,7 @@ export default {
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-        const conditions: string[] = ["needs_enrichment = 0"]; // Only show complete data
+        const conditions: string[] = []; // Show all data (removed needs_enrichment filter)
         const params: (string | number)[] = [];
 
         if (year) {
@@ -302,7 +302,7 @@ export default {
           params.push(`%${model}%`);
         }
 
-        const whereClause = `WHERE ${conditions.join(" AND ")}`;
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
         const countResult = await env.LOCKSMITH_DB.prepare(`SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
@@ -329,7 +329,7 @@ export default {
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-        let whereClause = "WHERE fcc_id IS NOT NULL AND fcc_id != '' AND needs_enrichment = 0";
+        let whereClause = "WHERE fcc_id IS NOT NULL AND fcc_id != ''"; // Removed needs_enrichment filter
         const params: string[] = [];
 
         if (q) {
