@@ -1,0 +1,8 @@
+fcc_id,make,model,year_start,year_end,frequency,chip,key_blank,programmer,immo_system,notes,amazon_url,source
+NBG92596263,Volkswagen,Jetta,2006,2009,315 MHz,Megamos Crypto 48 / MQB,HU66 / HU162T,VVDI / Autel / ODIS,Immobilizer 4 (MQB),Preferred FCC for 2006-2009 VW Jetta; use MQB 48; avoid NBGFS12P71 fallback,,
+fcc_id,make,model,year_start,year_end,frequency,chip,key_blank,programmer,immo_system,notes,amazon_url,source
+NBG92596263,Volkswagen,Jetta,2006,2009,315 MHz,Megamos 48/MQB,"HU66,HU162T","Autel IM608,VVDI,Lonsdor K518",Immobilizer III,Requires PIN from cluster. Can read PIN via OBD with Autel.,https://www.amazon.com/s?k=NBG92596263&tag=eurokeys-20,manual
+M3N-40821302,Dodge,Challenger,2015,2023,433 MHz,AES Hitag,"Y170,SIP22","Autel IM608,Smart Pro",Fobik System,OBD programming available. Proximity key requires all keys present.,https://www.amazon.com/s?k=M3N-40821302&i=automotive&tag=eurokeys-20,manual
+M3N-40821302,Dodge,Charger,2015,2023,433 MHz,AES Hitag,"Y170,SIP22","Autel IM608,Smart Pro",Fobik System,OBD programming available. Proximity key requires all keys present.,https://www.amazon.com/s?k=M3N-40821302&i=automotive&tag=eurokeys-20,manual
+KR55WK49303,Honda,Accord,2008,2012,313.8 MHz,Hitag 3,"HON66,MIT11","Autel IM608,VVDI Key Tool",HISS Immobilizer,Standard programming. Blade type varies by year.,https://www.amazon.com/s?k=KR55WK49303&i=automotive&tag=eurokeys-20,manual
+HYQ14FBA,Toyota,Camry,2012,2017,315 MHz,DST 80 (H Chip),"TOY48,TOY43","Autel IM608,Lonsdor K518",Toyota H System,Requires seed/key calculation. Toyota Techstream optional.,https://www.amazon.com/s?k=HYQ14FBA&i=automotive&tag=eurokeys-20,manual

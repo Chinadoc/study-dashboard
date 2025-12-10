@@ -5159,7 +5159,7 @@
             }
         }
 
-        function updateKeycutterSummary(lockData, fccMatches) {
+        function updateKeycutterSummary(lockData, fccMatches, isCurated = false) {
             const fccPrimary = (fccMatches && fccMatches.length > 0) ? fccMatches[0] : lockData.fccId;
             currentFccId = fccPrimary || '';
             const fccLink = document.getElementById('summaryFccLink');
@@ -5181,7 +5181,10 @@
                 };
             }
             if (fccStatus) {
-                if (fccMatches && fccMatches.length > 0) {
+                if (isCurated) {
+                    fccStatus.textContent = '✓ Verified Data';
+                    fccStatus.className = 'text-xs text-emerald-400 font-semibold';
+                } else if (fccMatches && fccMatches.length > 0) {
                     fccStatus.textContent = 'From master data (KV)';
                     fccStatus.className = 'text-xs text-green-300';
                 } else {
@@ -5352,7 +5355,7 @@
             return null;
         }
 
-        function displayResults(data) {
+        async function displayResults(data) {
             document.getElementById('vehicleTitle').textContent = `${data.year} ${data.make} ${data.model}`;
             document.getElementById('vehicleTrim').textContent = data.trim;
             document.getElementById('vehicleVin').textContent = data.vin;
@@ -5364,12 +5367,63 @@
             document.getElementById('specBody').textContent = data.body || 'N/A';
             currentVehicleData = { year: data.year, make: data.make, model: data.model };
 
-            // Get Locksmith Data - Use D1 data if available, otherwise fallback to LOCKSMITH_DB
+            // === Check for CURATED DATA first (manually verified, takes precedence) ===
+            let curatedData = null;
+            let isCurated = false;
+            try {
+                const curatedUrl = `${MASTER_API_URL.replace('/master', '/curated')}?make=${encodeURIComponent(data.make)}&model=${encodeURIComponent(data.model)}&year=${data.year}`;
+                const curatedResp = await fetch(curatedUrl);
+                if (curatedResp.ok) {
+                    const curatedJson = await curatedResp.json();
+                    if (curatedJson.curated && curatedJson.rows && curatedJson.rows.length > 0) {
+                        curatedData = curatedJson.rows[0];
+                        isCurated = true;
+                        console.log('✓ Using CURATED data:', curatedData);
+                    }
+                }
+            } catch (e) {
+                console.warn('Curated data check failed:', e);
+            }
+
+            // Get Locksmith Data - Use CURATED first, then D1 data, then LOCKSMITH_DB fallback
             let lockData;
             const makeUpper = data.make ? data.make.toUpperCase().replace('-', ' ').replace('BENZ', '') : '';
             const modelUpper = data.model ? data.model.toUpperCase() : '';
 
-            if (data.d1Data) {
+            if (isCurated && curatedData) {
+                // Use manually curated data (highest priority)
+                lockData = {
+                    blank: curatedData.key_blank || 'N/A',
+                    chip: curatedData.chip || 'See Notes',
+                    freq: curatedData.frequency || 'N/A',
+                    series: 'N/A',
+                    fccId: curatedData.fcc_id || '',
+                    keyType: 'Proximity Key',
+                    emergencyKey: curatedData.key_blank ? curatedData.key_blank.split(',')[0] : 'N/A',
+                    cloning: 'Check compatibility',
+                    obd: 'OBD Programming',
+                    immoSystem: curatedData.immo_system || 'Immobilizer System',
+                    pinRequired: 'Check notes',
+                    maxKeys: '8 Keys',
+                    progTool: curatedData.programmer || 'Autel / IM608',
+                    oemRemote: 'N/A',
+                    aftermarket: 'N/A',
+                    shell: 'N/A',
+                    crossRef: { ilco: 'N/A', strattec: 'N/A', jma: 'N/A', keydiy: 'N/A' },
+                    transponderInfo: { id: curatedData.chip || 'N/A', tech: curatedData.chip || 'N/A', bits: 'N/A', clonable: false },
+                    cutType: 'Standard',
+                    machineRequired: 'Key Cutting Machine',
+                    bittingInfo: { depths: 4, positions: 8, spacing: '0.187"', macs: 3 },
+                    eepromData: { module: 'N/A', chip: 'N/A', location: curatedData.notes || 'N/A' },
+                    pinSource: 'See notes',
+                    obdLocation: 'Under dash, left of steering column',
+                    programmingNotes: curatedData.notes || 'Standard programming procedure',
+                    yearRange: curatedData.year_start && curatedData.year_end ? `${curatedData.year_start}-${curatedData.year_end}` : `${data.year || 'N/A'}`,
+                    amazonUrl: curatedData.amazon_url || null,
+                    source: curatedData.source || 'curated'
+                };
+                console.log('Using CURATED data for display:', lockData);
+            } else if (data.d1Data) {
                 // Use real D1 database data
                 const d1 = data.d1Data;
                 lockData = {
@@ -5445,7 +5499,7 @@
                     lockData.fccId = currentFccMatches[0];
                 }
                 currentFccId = lockData.fccId || '';
-                updateKeycutterSummary(lockData, currentFccMatches);
+                updateKeycutterSummary(lockData, currentFccMatches, lockData.source === 'curated');
                 displayInlineProducts(data.make, data.model, currentFccMatches);
                 const fccIdEl = document.getElementById('fccId');
                 if (fccIdEl) {

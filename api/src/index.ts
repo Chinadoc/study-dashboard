@@ -414,6 +414,58 @@ export default {
       }
     }
 
+    // Curated Data endpoint - manually verified data takes precedence
+    if (path === "/api/curated") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = parseInt(url.searchParams.get("year") || "0", 10);
+        const fcc = url.searchParams.get("fcc")?.toLowerCase() || "";
+
+        if (!make && !fcc) {
+          return textResponse(JSON.stringify({ error: "make or fcc required" }), 400);
+        }
+
+        let sql = `SELECT * FROM curated_overrides WHERE 1=1`;
+        const params: (string | number)[] = [];
+
+        if (fcc) {
+          sql += ` AND LOWER(fcc_id) = ?`;
+          params.push(fcc);
+        }
+        if (make) {
+          sql += ` AND LOWER(make) = ?`;
+          params.push(make);
+        }
+        if (model) {
+          sql += ` AND LOWER(model) LIKE ?`;
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          sql += ` AND (year_start IS NULL OR year_start <= ?) AND (year_end IS NULL OR year_end >= ?)`;
+          params.push(year, year);
+        }
+
+        sql += ` LIMIT 10`;
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+        const rows = result.results || [];
+
+        return new Response(JSON.stringify({
+          curated: rows.length > 0,
+          rows
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=60",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };

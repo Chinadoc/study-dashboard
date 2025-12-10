@@ -47,3 +47,24 @@ CREATE INDEX IF NOT EXISTS idx_immobilizer ON locksmith_data(immobilizer_system)
 CREATE INDEX IF NOT EXISTS idx_fcc ON locksmith_data(fcc_id);
 CREATE INDEX IF NOT EXISTS idx_completeness ON locksmith_data(data_completeness);
 CREATE INDEX IF NOT EXISTS idx_needs_enrichment ON locksmith_data(needs_enrichment);
+
+-- Curated FCC overrides - manually verified locksmith data takes precedence
+CREATE TABLE IF NOT EXISTS curated_overrides (
+  fcc_id TEXT NOT NULL,
+  make TEXT NOT NULL,
+  model TEXT NOT NULL,
+  year_start INTEGER,
+  year_end INTEGER,
+  frequency TEXT,
+  chip TEXT,
+  key_blank TEXT,
+  programmer TEXT,
+  immo_system TEXT,
+  notes TEXT,
+  amazon_url TEXT,
+  source TEXT DEFAULT 'manual',
+  PRIMARY KEY (fcc_id, make, model)
+);
+
+CREATE INDEX IF NOT EXISTS idx_curated_make_model ON curated_overrides(make, model);
+CREATE INDEX IF NOT EXISTS idx_curated_fcc ON curated_overrides(fcc_id);
