@@ -631,210 +631,73 @@
                 </p>
             </div>
 
-            <!-- Model Selector Grid -->
+            <!-- Make/Model Selector - Two Column Layout -->
             <div class="max-w-7xl mx-auto mb-12">
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <!-- Honda Models -->
-                    <button onclick="filterTutorials('Honda', 'Civic')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left: Makes List -->
+                    <div class="lg:col-span-1 space-y-2" id="makesList">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Select Make</h3>
+                        <button onclick="selectMake('Honda')" data-make="Honda"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-brand-500/30 hover:border-brand-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-brand-400 font-bold">🔴 Honda</span>
+                            <span class="text-slate-500 text-xs group-hover:text-brand-300" id="honda-count">16</span>
+                        </button>
+                        <button onclick="selectMake('Toyota')" data-make="Toyota"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-blue-500/30 hover:border-blue-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-blue-400 font-bold">🔵 Toyota</span>
+                            <span class="text-slate-500 text-xs group-hover:text-blue-300">7</span>
+                        </button>
+                        <button onclick="selectMake('Ford')" data-make="Ford"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-green-500/30 hover:border-green-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-green-400 font-bold">🟢 Ford</span>
+                            <span class="text-slate-500 text-xs group-hover:text-green-300">4</span>
+                        </button>
+                        <button onclick="selectMake('Jeep')" data-make="Jeep"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-lime-500/30 hover:border-lime-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-lime-400 font-bold">🟩 Jeep</span>
+                            <span class="text-slate-500 text-xs group-hover:text-lime-300">3</span>
+                        </button>
+                        <button onclick="selectMake('Hyundai')" data-make="Hyundai"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-cyan-500/30 hover:border-cyan-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-cyan-400 font-bold">🩵 Hyundai</span>
+                            <span class="text-slate-500 text-xs group-hover:text-cyan-300">3</span>
+                        </button>
+                        <button onclick="selectMake('Kia')" data-make="Kia"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-rose-400 font-bold">🩷 Kia</span>
+                            <span class="text-slate-500 text-xs group-hover:text-rose-300">3</span>
+                        </button>
+                        <button onclick="selectMake('Ram')" data-make="Ram"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-violet-500/30 hover:border-violet-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-violet-400 font-bold">🟣 Ram</span>
+                            <span class="text-slate-500 text-xs group-hover:text-violet-300">2</span>
+                        </button>
+                        <button onclick="selectMake('Nissan')" data-make="Nissan"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-amber-400 font-bold">🟡 Nissan</span>
+                            <span class="text-slate-500 text-xs group-hover:text-amber-300">2</span>
+                        </button>
+                        <button onclick="selectMake('Chevrolet')" data-make="Chevrolet"
+                            class="make-btn w-full text-left px-4 py-3 rounded-xl bg-navy-900/50 border border-red-500/30 hover:border-red-500/60 transition-all flex items-center justify-between group">
+                            <span class="text-red-400 font-bold">⚪ Chevrolet</span>
+                            <span class="text-slate-500 text-xs group-hover:text-red-300">1</span>
+                        </button>
+                    </div>
+
+                    <!-- Right: Models Grid (populated when make is selected) -->
+                    <div class="lg:col-span-3">
+                        <div id="modelsPanel"
+                            class="bg-navy-950/50 rounded-2xl border border-navy-700 p-6 min-h-[300px]">
+                            <div id="modelsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <!-- Default state -->
+                                <div class="col-span-full text-center py-12">
+                                    <div class="text-6xl mb-4">🚗</div>
+                                    <p class="text-slate-400 text-lg">Select a make to view available models</p>
+                                    <p class="text-slate-500 text-sm mt-2">41 guides across 9 manufacturers</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
-                            <div class="text-xl font-bold text-white">Civic</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Honda', 'Accord')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
-                            <div class="text-xl font-bold text-white">Accord</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Honda', 'CR-V')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
-                            <div class="text-xl font-bold text-white">CR-V</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Honda', 'Pilot')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
-                            <div class="text-xl font-bold text-white">Pilot</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Honda', 'Odyssey')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
-                            <div class="text-xl font-bold text-white">Odyssey</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Honda', 'Fit')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-navy-700 hover:border-brand-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-1">Honda</div>
-                            <div class="text-xl font-bold text-white">Fit</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-brand-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Ford Models -->
-                    <button onclick="filterTutorials('Ford', 'F-150')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-green-700/50 hover:border-green-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-green-400 font-bold uppercase tracking-wider mb-1">Ford</div>
-                            <div class="text-xl font-bold text-white">F-150 🏆</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-green-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Ford', 'Mustang')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-green-700/50 hover:border-green-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-green-400 font-bold uppercase tracking-wider mb-1">Ford</div>
-                            <div class="text-xl font-bold text-white">Mustang</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-green-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Toyota Models -->
-                    <button onclick="filterTutorials('Toyota', 'Camry')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-blue-700/50 hover:border-blue-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">Toyota</div>
-                            <div class="text-xl font-bold text-white">Camry</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-blue-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <button onclick="filterTutorials('Toyota', 'RAV4')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-blue-700/50 hover:border-blue-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">Toyota</div>
-                            <div class="text-xl font-bold text-white">RAV4</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-blue-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Chevrolet -->
-                    <button onclick="filterTutorials('Chevrolet', 'Silverado')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-red-700/50 hover:border-red-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-red-400 font-bold uppercase tracking-wider mb-1">Chevrolet</div>
-                            <div class="text-xl font-bold text-white">Silverado</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-red-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Nissan -->
-                    <button onclick="filterTutorials('Nissan', 'Altima')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-amber-700/50 hover:border-amber-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">Nissan</div>
-                            <div class="text-xl font-bold text-white">Altima</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-amber-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Hyundai -->
-                    <button onclick="filterTutorials('Hyundai', 'Sonata')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-cyan-700/50 hover:border-cyan-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-cyan-400 font-bold uppercase tracking-wider mb-1">Hyundai</div>
-                            <div class="text-xl font-bold text-white">Sonata</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-cyan-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Kia -->
-                    <button onclick="filterTutorials('Kia', 'Optima')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-rose-700/50 hover:border-rose-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-rose-400 font-bold uppercase tracking-wider mb-1">Kia</div>
-                            <div class="text-xl font-bold text-white">Optima</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-rose-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Jeep -->
-                    <button onclick="filterTutorials('Jeep', 'Wrangler')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-lime-700/50 hover:border-lime-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-lime-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-lime-400 font-bold uppercase tracking-wider mb-1">Jeep</div>
-                            <div class="text-xl font-bold text-white">Wrangler 🏕️</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-lime-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
-                    <!-- Ram -->
-                    <button onclick="filterTutorials('Ram', '1500')"
-                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-violet-700/50 hover:border-violet-500/50 transition-all p-4 text-left">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        </div>
-                        <div class="relative z-10">
-                            <div class="text-xs text-violet-400 font-bold uppercase tracking-wider mb-1">Ram</div>
-                            <div class="text-xl font-bold text-white">1500</div>
-                            <div class="text-slate-500 text-xs mt-2 group-hover:text-violet-300 transition-colors">View
-                                Guides →</div>
-                        </div>
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -7118,24 +6981,105 @@
             fetchVideoTutorials();
         });
 
-        function filterTutorials(arg1, arg2 = 'all') {
-            // Handle legacy category calls (e.g. 'ford') and new make/model calls (e.g. 'Honda', 'Civic')
-            currentTutorialFilter = { make: arg1, model: arg2 };
-            renderTutorials();
+        // Color mappings for each make
+        const makeColors = {
+            'Honda': { border: 'brand-500', text: 'brand-400', hover: 'brand-300' },
+            'Toyota': { border: 'blue-500', text: 'blue-400', hover: 'blue-300' },
+            'Ford': { border: 'green-500', text: 'green-400', hover: 'green-300' },
+            'Jeep': { border: 'lime-500', text: 'lime-400', hover: 'lime-300' },
+            'Hyundai': { border: 'cyan-500', text: 'cyan-400', hover: 'cyan-300' },
+            'Kia': { border: 'rose-500', text: 'rose-400', hover: 'rose-300' },
+            'Ram': { border: 'violet-500', text: 'violet-400', hover: 'violet-300' },
+            'Nissan': { border: 'amber-500', text: 'amber-400', hover: 'amber-300' },
+            'Chevrolet': { border: 'red-500', text: 'red-400', hover: 'red-300' }
+        };
 
-            // Fetch Master Guide for selected make/model
-            fetchMasterGuide(arg1, arg2);
+        let currentSelectedMake = null;
 
-            // Update active state for model buttons if applicable
-            if (arg2 !== 'all') {
-                document.querySelectorAll('#tutorials-section button').forEach(btn => {
-                    btn.classList.remove('ring-2', 'ring-brand-500', 'bg-navy-800');
-                    // Simple check if button text contains the model
-                    if (btn.textContent.includes(arg2)) {
-                        btn.classList.add('ring-2', 'ring-brand-500', 'bg-navy-800');
-                    }
-                });
+        async function selectMake(make) {
+            currentSelectedMake = make;
+            const modelsGrid = document.getElementById('modelsGrid');
+            const colors = makeColors[make] || makeColors['Honda'];
+
+            // Update make button active states
+            document.querySelectorAll('.make-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-offset-navy-950', 'bg-navy-800');
+                if (btn.dataset.make === make) {
+                    btn.classList.add('ring-2', 'ring-offset-2', 'ring-offset-navy-950', 'bg-navy-800');
+                }
+            });
+
+            // Show loading state
+            modelsGrid.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <div class="animate-spin text-4xl mb-4">⏳</div>
+                    <p class="text-slate-400">Loading ${make} models...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/guides?make=${encodeURIComponent(make)}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const data = await response.json();
+                const guides = data.rows || [];
+
+                if (guides.length === 0) {
+                    modelsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <div class="text-4xl mb-4">📭</div>
+                            <p class="text-slate-400">No guides found for ${make}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render model cards
+                modelsGrid.innerHTML = `
+                    <div class="col-span-full mb-4">
+                        <h3 class="text-${colors.text} font-bold text-lg uppercase tracking-wider">${make} Models</h3>
+                        <p class="text-slate-500 text-sm">${guides.length} guide${guides.length > 1 ? 's' : ''} available</p>
+                    </div>
+                    ${guides.map(guide => `
+                        <button onclick="filterTutorials('${guide.make}', '${guide.model}')"
+                            class="group relative overflow-hidden rounded-xl bg-navy-900/50 border border-${colors.border}/30 hover:border-${colors.border}/60 transition-all p-4 text-left">
+                            <div class="absolute inset-0 bg-gradient-to-br from-${colors.border}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="relative z-10">
+                                <div class="text-xl font-bold text-white">${guide.model}</div>
+                                <div class="text-slate-500 text-xs mt-1">${guide.year_start}-${guide.year_end}</div>
+                                <div class="text-${colors.hover} text-xs mt-2 group-hover:text-${colors.text} transition-colors">View Guide →</div>
+                            </div>
+                        </button>
+                    `).join('')}
+                `;
+            } catch (err) {
+                console.error('Error fetching models for', make, err);
+                modelsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-4xl mb-4">⚠️</div>
+                        <p class="text-red-400">Error loading ${make} models</p>
+                        <p class="text-slate-500 text-sm mt-2">Please try again</p>
+                    </div>
+                `;
             }
+        }
+
+        // Handle legacy category calls (e.g. 'ford') and new make/model calls (e.g. 'Honda', 'Civic')
+        currentTutorialFilter = { make: arg1, model: arg2 };
+        renderTutorials();
+
+        // Fetch Master Guide for selected make/model
+        fetchMasterGuide(arg1, arg2);
+
+        // Update active state for model buttons if applicable
+        if (arg2 !== 'all') {
+            document.querySelectorAll('#tutorials-section button').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-brand-500', 'bg-navy-800');
+                // Simple check if button text contains the model
+                if (btn.textContent.includes(arg2)) {
+                    btn.classList.add('ring-2', 'ring-brand-500', 'bg-navy-800');
+                }
+            });
+        }
         }
 
         // Fetch Master Guide from API
