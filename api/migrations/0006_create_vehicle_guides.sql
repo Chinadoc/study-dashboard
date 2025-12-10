@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS vehicle_guides (
     year_start INTEGER,
     year_end INTEGER,
     content TEXT, -- Markdown content of the master guide
-    references TEXT, -- JSON string of references (videos, urls)
+    "references" TEXT, -- JSON string of references (videos, urls)
     last_updated INTEGER DEFAULT (strftime('%s', 'now'))
 );

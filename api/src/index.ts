@@ -402,6 +402,49 @@ export default {
       }
     }
 
+    // Vehicle Master Guides endpoint - comprehensive walkthroughs
+    if (path === "/api/guides") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const id = url.searchParams.get("id") || "";
+
+        const conditions: string[] = [];
+        const params: string[] = [];
+
+        if (id) {
+          conditions.push("id = ?");
+          params.push(id);
+        } else {
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+        const sql = `SELECT * FROM vehicle_guides ${whereClause} ORDER BY make, model`;
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({ rows: result.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };

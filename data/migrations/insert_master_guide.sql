@@ -1,5 +1,5 @@
 -- Insert the Honda Civic 2012 Master Guide
-INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, content, references) VALUES (
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, content, "references") VALUES (
     'honda-civic-2012-2015',
     'Honda',
     'Civic',
