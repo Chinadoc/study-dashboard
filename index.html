@@ -5534,13 +5534,16 @@
                 fccLink.href = 'javascript:void(0)';
                 fccLink.onclick = () => {
                     if (fccPrimary) {
-                        switchTab('database');
+                        switchTab('database', true);
                         setTimeout(() => {
                             const searchBox = document.getElementById('databaseSearch');
                             if (searchBox) {
                                 searchBox.value = fccPrimary;
                                 filterDatabaseTable();
+                                searchBox.focus();
                             }
+                            const dbSection = document.getElementById('database-section');
+                            if (dbSection) dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }, 100);
                     }
                 };
