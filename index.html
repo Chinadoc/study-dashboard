@@ -809,6 +809,32 @@
                                 Guides →</div>
                         </div>
                     </button>
+                    <!-- Jeep -->
+                    <button onclick="filterTutorials('Jeep', 'Wrangler')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-lime-700/50 hover:border-lime-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-lime-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-lime-400 font-bold uppercase tracking-wider mb-1">Jeep</div>
+                            <div class="text-xl font-bold text-white">Wrangler 🏕️</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-lime-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
+                    <!-- Ram -->
+                    <button onclick="filterTutorials('Ram', '1500')"
+                        class="group relative overflow-hidden rounded-2xl bg-navy-900/50 border border-violet-700/50 hover:border-violet-500/50 transition-all p-4 text-left">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div class="text-xs text-violet-400 font-bold uppercase tracking-wider mb-1">Ram</div>
+                            <div class="text-xl font-bold text-white">1500</div>
+                            <div class="text-slate-500 text-xs mt-2 group-hover:text-violet-300 transition-colors">View
+                                Guides →</div>
+                        </div>
+                    </button>
                 </div>
             </div>
 
@@ -7281,8 +7307,8 @@
         function handleFccClick(fccId) {
             if (!fccId) return;
 
-            // Open Amazon search in new tab (mobile app-friendly)
-            const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}`;
+            // Open Amazon search in new tab with eurokeys-20 affiliate tag
+            const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20`;
             window.open(amazonUrl, '_blank', 'noopener,noreferrer');
 
             // Navigate to FCC tab and pre-fill search
