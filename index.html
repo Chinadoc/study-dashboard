@@ -4907,8 +4907,14 @@
                             model = model.replace(/\s+(Smart|Keyless|Remote|Key|Fob|Flip|\d+B|w\/?).*$/i, '').trim();
                             return model;
                         }).filter(m => m))].sort();
-                        console.log('D1 models found:', models.length);
+                        console.log('D1 models found:', models.length, 'models:', models.slice(0, 3));
                         populateModels(models);
+                        // Ensure dropdown is enabled after population
+                        const ms = document.getElementById('modelSelect');
+                        if (ms && models.length > 0) {
+                            ms.disabled = false;
+                            console.log('Model dropdown enabled:', !ms.disabled);
+                        }
                         return;
                     }
                 }
