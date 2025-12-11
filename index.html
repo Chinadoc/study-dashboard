@@ -11006,26 +11006,52 @@
 
                 if (!initialData.vehicle) throw new Error('Vehicle data not found');
 
-                // 2. Fetch siblings (same Make/Model) to build tabs
-                // We use the /api/master endpoint to find matches
+                // 2. Fetch curated generations from the new unified endpoint
                 const make = initialData.vehicle.make;
                 const model = initialData.vehicle.model;
-                const siblingsResp = await fetch(`${API_BASE_URL}/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=100`);
-                const siblingsData = await siblingsResp.json();
+                const searchedYear = initialData.vehicle.year || new Date().getFullYear();
 
-                // Group by Year
+                // Try to get curated generation data first
+                const genResp = await fetch(`${API_BASE_URL}/generations?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+                const genData = await genResp.json();
+
+                // Build yearMap from curated generations if available, otherwise fallback to locksmith_data
                 const yearMap = new Map();
-                if (siblingsData.rows) {
-                    siblingsData.rows.forEach(row => {
-                        // Handle year ranges if present in DB (e.g. "2011-2014") or single years
-                        // For now, we assume the DB has rows. If a row is "2011-2014", we might want to show it as such.
-                        // But user asked for "2011, 2012...". 
-                        // If the DB has explicit years, great. If ranges, we use the range string as key.
-                        const key = row.year || 'Unknown';
-                        if (!yearMap.has(key)) {
-                            yearMap.set(key, row);
-                        }
+                let hasCuratedData = false;
+
+                if (genData.generations && genData.generations.length > 0) {
+                    hasCuratedData = true;
+                    genData.generations.forEach(gen => {
+                        // Use year range as key (e.g., "2011-2016")
+                        const key = `${gen.year_start}-${gen.year_end}`;
+                        yearMap.set(key, {
+                            year: key,
+                            make: gen.make,
+                            model: gen.model,
+                            keyway: gen.keyway,
+                            chip: gen.chip,
+                            fcc_id: gen.fcc_id,
+                            frequency: gen.frequency,
+                            part_number: gen.part_number,
+                            generation_name: gen.generation_name,
+                            notes: gen.notes,
+                            source: 'curated',
+                            verified: gen.verified
+                        });
                     });
+                } else {
+                    // Fallback to locksmith_data siblings
+                    const siblingsResp = await fetch(`${API_BASE_URL}/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=100`);
+                    const siblingsData = await siblingsResp.json();
+
+                    if (siblingsData.rows) {
+                        siblingsData.rows.forEach(row => {
+                            const key = row.year || 'Unknown';
+                            if (!yearMap.has(key)) {
+                                yearMap.set(key, row);
+                            }
+                        });
+                    }
                 }
 
                 // Sort years

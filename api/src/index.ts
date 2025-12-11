@@ -607,6 +607,50 @@ export default {
       }
     }
 
+    // Get vehicle generations (structured data from curated guides)
+    if (path === "/api/generations" || path.startsWith("/api/generations?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = url.searchParams.get("year") || "";
+
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          const yearNum = parseInt(year, 10);
+          conditions.push("year_start <= ? AND year_end >= ?");
+          params.push(yearNum, yearNum);
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+        const sql = `SELECT * FROM vehicle_generations ${whereClause} ORDER BY make, model, year_start`;
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          generations: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
