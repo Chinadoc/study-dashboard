@@ -1,0 +1,292 @@
+{
+  "mini": {
+    "infographics": [
+      {
+        "path": "assets/BMW infographic.png",
+        "name": "BMW infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/BMW_Security_Mastery_The_Professional_Ladder.pdf",
+        "name": "BMW_Security_Mastery_The_Professional_Ladder.pdf"
+      }
+    ]
+  },
+  "bmw": {
+    "infographics": [
+      {
+        "path": "assets/BMW infographic.png",
+        "name": "BMW infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/BMW_Security_Mastery_The_Professional_Ladder.pdf",
+        "name": "BMW_Security_Mastery_The_Professional_Ladder.pdf"
+      }
+    ]
+  },
+  "ford": {
+    "infographics": [
+      {
+        "path": "assets/Ford key programming infographic.png",
+        "name": "Ford key programming infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Ford_Key_Programming_Deep_Dive.pdf",
+        "name": "Ford_Key_Programming_Deep_Dive.pdf"
+      }
+    ]
+  },
+  "mercury": {
+    "infographics": [
+      {
+        "path": "assets/Ford key programming infographic.png",
+        "name": "Ford key programming infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Ford_Key_Programming_Deep_Dive.pdf",
+        "name": "Ford_Key_Programming_Deep_Dive.pdf"
+      }
+    ]
+  },
+  "lincoln": {
+    "infographics": [
+      {
+        "path": "assets/Ford key programming infographic.png",
+        "name": "Ford key programming infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Ford_Key_Programming_Deep_Dive.pdf",
+        "name": "Ford_Key_Programming_Deep_Dive.pdf"
+      }
+    ]
+  },
+  "kia": {
+    "infographics": [
+      {
+        "path": "assets/Hyundai infographic.png",
+        "name": "Hyundai infographic.png"
+      },
+      {
+        "path": "assets/Hyundai key programming infographic.png",
+        "name": "Hyundai key programming infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Hyundai_Key_Programming_Field_Guide.pdf",
+        "name": "Hyundai_Key_Programming_Field_Guide.pdf"
+      }
+    ]
+  },
+  "hyundai": {
+    "infographics": [
+      {
+        "path": "assets/Hyundai infographic.png",
+        "name": "Hyundai infographic.png"
+      },
+      {
+        "path": "assets/Hyundai key programming infographic.png",
+        "name": "Hyundai key programming infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Hyundai_Key_Programming_Field_Guide.pdf",
+        "name": "Hyundai_Key_Programming_Field_Guide.pdf"
+      }
+    ]
+  },
+  "genesis": {
+    "infographics": [
+      {
+        "path": "assets/Hyundai infographic.png",
+        "name": "Hyundai infographic.png"
+      },
+      {
+        "path": "assets/Hyundai key programming infographic.png",
+        "name": "Hyundai key programming infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Hyundai_Key_Programming_Field_Guide.pdf",
+        "name": "Hyundai_Key_Programming_Field_Guide.pdf"
+      }
+    ]
+  },
+  "mercedes-benz": {
+    "infographics": [],
+    "guides": [
+      {
+        "path": "assets/Mercedes_Locksmith_Codex.pdf",
+        "name": "Mercedes_Locksmith_Codex.pdf"
+      }
+    ]
+  },
+  "mercedes": {
+    "infographics": [],
+    "guides": [
+      {
+        "path": "assets/Mercedes_Locksmith_Codex.pdf",
+        "name": "Mercedes_Locksmith_Codex.pdf"
+      }
+    ]
+  },
+  "smart": {
+    "infographics": [],
+    "guides": [
+      {
+        "path": "assets/Mercedes_Locksmith_Codex.pdf",
+        "name": "Mercedes_Locksmith_Codex.pdf"
+      }
+    ]
+  },
+  "mazda": {
+    "infographics": [
+      {
+        "path": "assets/Mazda Infographic.png",
+        "name": "Mazda Infographic.png"
+      }
+    ],
+    "guides": []
+  },
+  "honda": {
+    "infographics": [
+      {
+        "path": "assets/Honda 1998-2024 infographic.png",
+        "name": "Honda 1998-2024 infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Honda_Immobilizer_Master_Guide.pdf",
+        "name": "Honda_Immobilizer_Master_Guide.pdf"
+      }
+    ]
+  },
+  "acura": {
+    "infographics": [
+      {
+        "path": "assets/Honda 1998-2024 infographic.png",
+        "name": "Honda 1998-2024 infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Honda_Immobilizer_Master_Guide.pdf",
+        "name": "Honda_Immobilizer_Master_Guide.pdf"
+      }
+    ]
+  },
+  "infiniti": {
+    "infographics": [
+      {
+        "path": "assets/Nissan infographic.png",
+        "name": "Nissan infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf",
+        "name": "Nissan_Immobilizer_Systems_A_Professional_Guide.pdf"
+      }
+    ]
+  },
+  "nissan": {
+    "infographics": [
+      {
+        "path": "assets/Nissan infographic.png",
+        "name": "Nissan infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf",
+        "name": "Nissan_Immobilizer_Systems_A_Professional_Guide.pdf"
+      }
+    ]
+  },
+  "jeep": {
+    "infographics": [
+      {
+        "path": "assets/Chrysler infographic.png",
+        "name": "Chrysler infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/CDJR_Security_Eras_Explained.pdf",
+        "name": "CDJR_Security_Eras_Explained.pdf"
+      }
+    ]
+  },
+  "chrysler": {
+    "infographics": [
+      {
+        "path": "assets/Chrysler infographic.png",
+        "name": "Chrysler infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/CDJR_Security_Eras_Explained.pdf",
+        "name": "CDJR_Security_Eras_Explained.pdf"
+      }
+    ]
+  },
+  "ram": {
+    "infographics": [
+      {
+        "path": "assets/Chrysler infographic.png",
+        "name": "Chrysler infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/CDJR_Security_Eras_Explained.pdf",
+        "name": "CDJR_Security_Eras_Explained.pdf"
+      }
+    ]
+  },
+  "dodge": {
+    "infographics": [
+      {
+        "path": "assets/Chrysler infographic.png",
+        "name": "Chrysler infographic.png"
+      }
+    ],
+    "guides": [
+      {
+        "path": "assets/CDJR_Security_Eras_Explained.pdf",
+        "name": "CDJR_Security_Eras_Explained.pdf"
+      }
+    ]
+  },
+  "fiat": {
+    "infographics": [],
+    "guides": [
+      {
+        "path": "assets/CDJR_Security_Eras_Explained.pdf",
+        "name": "CDJR_Security_Eras_Explained.pdf"
+      }
+    ]
+  },
+  "cdjr": {
+    "infographics": [],
+    "guides": [
+      {
+        "path": "assets/CDJR_Security_Eras_Explained.pdf",
+        "name": "CDJR_Security_Eras_Explained.pdf"
+      }
+    ]
+  }
+}

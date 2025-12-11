@@ -10884,6 +10884,108 @@
             };
         }
         // === UNIFIED DATA LOADING ===
+        let ASSET_MANIFEST = null;
+
+        async function loadAssetManifest() {
+            try {
+                const resp = await fetch('assets/manifest.json');
+                if (resp.ok) {
+                    ASSET_MANIFEST = await resp.json();
+                    console.log('Asset manifest loaded:', Object.keys(ASSET_MANIFEST).length, 'makes');
+                }
+            } catch (e) {
+                console.warn('Failed to load asset manifest:', e);
+            }
+        }
+
+        // Call on load
+        loadAssetManifest();
+
+        function renderUnifiedFlashCard(data) {
+            // Helper to safely get value
+            const val = (v) => v || 'N/A';
+            const isVerified = data.source === 'd1' || data.source === 'curated';
+
+            return `
+                <div class="bg-navy-900/50 rounded-xl border border-brand-500/30 p-6 mb-8 relative overflow-hidden group">
+                    <!-- Background Glow -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10">
+                        <div>
+                            <div class="flex items-center gap-3 mb-1">
+                                <h2 class="text-2xl font-bold text-white">${val(data.year)} ${val(data.make)} ${val(data.model)}</h2>
+                                ${isVerified ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold border border-emerald-500/30">Verified</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-slate-400">
+                                <span>${val(data.trim) || 'Standard Trim'}</span>
+                                <span class="text-brand-500">•</span>
+                                <span>${val(data.ilco_ref) || 'Database Lookup'}</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <button onclick="saveToHistory('${val(data.make)} ${val(data.model)} ${val(data.year)}')" class="px-4 py-2 bg-navy-800 hover:bg-navy-700 text-brand-400 text-sm font-medium rounded-lg border border-brand-500/30 transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                Save to History
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+                        <!-- FCC ID -->
+                        <div class="bg-navy-900/80 p-4 rounded-lg border border-white/5 hover:border-brand-500/30 transition-colors">
+                            <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">FCC ID</div>
+                            <div class="font-mono text-brand-400 font-semibold text-lg truncate" title="${val(data.fcc_id)}">
+                                ${val(data.fcc_id)}
+                            </div>
+                        </div>
+
+                        <!-- Chip -->
+                        <div class="bg-navy-900/80 p-4 rounded-lg border border-white/5 hover:border-brand-500/30 transition-colors">
+                            <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Chip / Transponder</div>
+                            <div class="text-white font-medium truncate" title="${val(data.chip)}">
+                                ${val(data.chip)}
+                            </div>
+                        </div>
+
+                        <!-- Keyway -->
+                        <div class="bg-navy-900/80 p-4 rounded-lg border border-white/5 hover:border-brand-500/30 transition-colors">
+                            <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Keyway / Blade</div>
+                            <div class="text-white font-medium truncate" title="${val(data.keyway)}">
+                                ${val(data.keyway)}
+                            </div>
+                        </div>
+
+                        <!-- Code Series -->
+                        <div class="bg-navy-900/80 p-4 rounded-lg border border-white/5 hover:border-brand-500/30 transition-colors">
+                            <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Code Series</div>
+                            <div class="text-white font-medium truncate" title="${val(data.code_series)}">
+                                ${val(data.code_series)}
+                            </div>
+                        </div>
+
+                        <!-- Frequency -->
+                        <div class="bg-navy-900/80 p-4 rounded-lg border border-white/5 hover:border-brand-500/30 transition-colors">
+                            <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Frequency</div>
+                            <div class="text-white font-medium truncate" title="${val(data.frequency)}">
+                                ${val(data.frequency)}
+                            </div>
+                        </div>
+
+                        <!-- System -->
+                        <div class="bg-navy-900/80 p-4 rounded-lg border border-white/5 hover:border-brand-500/30 transition-colors">
+                            <div class="text-xs text-slate-500 uppercase tracking-wider mb-1">System</div>
+                            <div class="text-white font-medium truncate" title="${val(data.cloning)}">
+                                ${val(data.cloning) || 'Standard'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         async function loadUnifiedVehicleData(vehicleId) {
             if (!vehicleId) return;
 
@@ -10891,71 +10993,153 @@
             const guidesContainer = document.getElementById('programmingGuidesContainer');
             const videoContainer = document.getElementById('vehicleVideoContainer');
 
+            // Clear previous content
+            guidesContainer.innerHTML = '<div class="text-center p-8 text-slate-500">Loading vehicle data...</div>';
+            videoContainer.innerHTML = '';
+            document.getElementById('vehicleVideoSection').classList.add('hidden');
+
             try {
+                // 1. Fetch initial vehicle data
                 const response = await fetch(`${API_BASE_URL}/vehicle/${vehicleId}`);
                 if (!response.ok) throw new Error('Failed to load unified data');
+                const initialData = await response.json();
 
-                const data = await response.json();
-                console.log('Unified data received:', data);
+                if (!initialData.vehicle) throw new Error('Vehicle data not found');
 
-                // 1. Render Guides
-                if (data.guides && data.guides.length > 0) {
-                    // Clear existing guides (except the header if any)
-                    // We'll append to the existing container which might have some default links
+                // 2. Fetch siblings (same Make/Model) to build tabs
+                // We use the /api/master endpoint to find matches
+                const make = initialData.vehicle.make;
+                const model = initialData.vehicle.model;
+                const siblingsResp = await fetch(`${API_BASE_URL}/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=100`);
+                const siblingsData = await siblingsResp.json();
 
-                    // Create a specific container for unified guides if not exists
-                    let unifiedGuidesDiv = document.getElementById('unifiedGuidesList');
-                    if (!unifiedGuidesDiv) {
-                        unifiedGuidesDiv = document.createElement('div');
-                        unifiedGuidesDiv.id = 'unifiedGuidesList';
-                        unifiedGuidesDiv.className = 'space-y-3 mt-4 pt-4 border-t border-brand-500/20';
-                        guidesContainer.appendChild(unifiedGuidesDiv);
-                    }
-                    unifiedGuidesDiv.innerHTML = '<div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Unified Guides</div>';
-
-                    data.guides.forEach(guide => {
-                        const guideEl = document.createElement('div');
-                        guideEl.className = 'bg-navy-900/50 rounded-xl border border-brand-500/30 overflow-hidden';
-
-                        // Header
-                        const header = document.createElement('div');
-                        header.className = 'p-4 bg-navy-900/80 cursor-pointer flex justify-between items-center';
-                        header.innerHTML = `
-                            <div class="font-bold text-white">📘 Guide: ${guide.make} ${guide.model} (${guide.year_start}-${guide.year_end})</div>
-                            <svg class="w-5 h-5 text-brand-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        `;
-
-                        // Content (Markdown)
-                        const content = document.createElement('div');
-                        content.className = 'hidden p-6 prose prose-invert max-w-none text-sm';
-                        // Use marked if available, otherwise simple text
-                        content.innerHTML = typeof marked !== 'undefined' ? marked.parse(guide.content) : guide.content.replace(/\n/g, '<br>');
-
-                        // Toggle logic
-                        header.onclick = () => {
-                            content.classList.toggle('hidden');
-                            header.querySelector('svg').classList.toggle('rotate-180');
-                        };
-
-                        guideEl.appendChild(header);
-                        guideEl.appendChild(content);
-                        unifiedGuidesDiv.appendChild(guideEl);
+                // Group by Year
+                const yearMap = new Map();
+                if (siblingsData.rows) {
+                    siblingsData.rows.forEach(row => {
+                        // Handle year ranges if present in DB (e.g. "2011-2014") or single years
+                        // For now, we assume the DB has rows. If a row is "2011-2014", we might want to show it as such.
+                        // But user asked for "2011, 2012...". 
+                        // If the DB has explicit years, great. If ranges, we use the range string as key.
+                        const key = row.year || 'Unknown';
+                        if (!yearMap.has(key)) {
+                            yearMap.set(key, row);
+                        }
                     });
-
-                    // Show the guides panel if it was hidden
-                    const panelBody = document.getElementById('programmingPanelBody');
-                    if (panelBody) panelBody.classList.remove('hidden');
                 }
 
-                // 2. Render Videos (from locksmith_data or separate table if we had one)
-                // Currently we check locksmith_data rows for video_id
+                // Sort years
+                const sortedYears = Array.from(yearMap.keys()).sort((a, b) => {
+                    // Try to parse start year if range
+                    const getStart = y => parseInt(y.toString().split('-')[0]) || 0;
+                    return getStart(b) - getStart(a); // Descending
+                });
+
+                // 3. Render Tabs
+                let html = '';
+
+                // Tab Container
+                html += '<div class="flex overflow-x-auto gap-2 mb-6 pb-2 border-b border-brand-500/20 no-scrollbar">';
+                sortedYears.forEach(year => {
+                    const isActive = year == initialData.vehicle.year; // Loose equality for string/number
+                    const activeClass = isActive
+                        ? 'bg-brand-500 text-white border-brand-500 shadow-lg shadow-brand-500/20'
+                        : 'bg-navy-800 text-slate-400 border-white/5 hover:bg-navy-700 hover:text-white';
+
+                    html += `
+                        <button onclick="switchVehicleYear('${year}')" 
+                                class="px-4 py-2 rounded-lg text-sm font-semibold border transition-all whitespace-nowrap ${activeClass}"
+                                data-year="${year}">
+                            ${year}
+                        </button>
+                    `;
+                });
+                html += '</div>';
+
+                // Flash Card Container (ID for updates)
+                html += '<div id="unifiedFlashCard">';
+                html += renderUnifiedFlashCard(initialData.vehicle);
+                html += '</div>';
+
+                // Store sibling data globally for switching
+                window.currentVehicleSiblings = yearMap;
+
+                // 4. Official Assets (Infographics & PDFs)
+                // ... (Existing Asset Logic) ...
+                if (ASSET_MANIFEST && make) {
+                    const makeKey = make.toLowerCase();
+                    const assets = ASSET_MANIFEST[makeKey];
+
+                    if (assets && (assets.infographics.length > 0 || assets.guides.length > 0)) {
+                        html += '<div id="officialAssetsList" class="space-y-4 mb-6 pb-6 border-b border-brand-500/20">';
+                        html += '<div class="text-xs text-brand-400 uppercase tracking-wider mb-3 font-semibold">Official Resources</div>';
+                        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+
+                        // Infographics
+                        assets.infographics.forEach(info => {
+                            html += `
+                                <div class="group relative rounded-xl overflow-hidden border border-brand-500/30 bg-navy-900/50 cursor-pointer" onclick="window.open('${info.path}', '_blank')">
+                                    <div class="aspect-w-16 aspect-h-9 bg-navy-800">
+                                        <img src="${info.path}" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity" alt="${info.name}">
+                                    </div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-black/70 text-xs text-white truncate">
+                                        📊 ${info.name.replace('.png', '')}
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        // PDF Guides
+                        assets.guides.forEach(guide => {
+                            html += `
+                                <a href="${guide.path}" target="_blank" class="flex items-center p-3 rounded-xl border border-brand-500/30 bg-navy-900/50 hover:bg-navy-800 transition-colors group">
+                                    <div class="p-2 bg-red-500/20 rounded-lg mr-3 text-red-400 group-hover:text-red-300">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-sm font-bold text-white truncate">${guide.name.replace(/_/g, ' ').replace('.pdf', '')}</div>
+                                        <div class="text-xs text-slate-400">Official PDF Guide</div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        html += '</div></div>';
+                    }
+                }
+
+                // 5. Unified Guides
+                if (initialData.guides && initialData.guides.length > 0) {
+                    html += '<div id="unifiedGuidesList" class="space-y-3 mt-4 pt-4 border-t border-brand-500/20">';
+                    html += '<div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Unified Guides</div>';
+                    // ... (We'll generate this dynamically or just append)
+                    // For simplicity, let's generate string HTML here
+                    initialData.guides.forEach((guide, idx) => {
+                        const contentHtml = typeof marked !== 'undefined' ? marked.parse(guide.content) : guide.content.replace(/\n/g, '<br>');
+                        html += `
+                            <div class="bg-navy-900/50 rounded-xl border border-brand-500/30 overflow-hidden">
+                                <div class="p-4 bg-navy-900/80 cursor-pointer flex justify-between items-center" onclick="toggleGuide(this)">
+                                    <div class="font-bold text-white">📘 Guide: ${guide.make} ${guide.model} (${guide.year_start}-${guide.year_end})</div>
+                                    <svg class="w-5 h-5 text-brand-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                                <div class="hidden p-6 prose prose-invert max-w-none text-sm">
+                                    ${contentHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Set Container HTML
+                guidesContainer.innerHTML = html;
+
+                // 6. Videos
                 const videoIds = new Set();
-                if (data.locksmith_data) {
-                    data.locksmith_data.forEach(row => {
+                if (initialData.locksmith_data) {
+                    initialData.locksmith_data.forEach(row => {
                         if (row.video_id) videoIds.add(row.video_id);
                     });
                 }
-
                 if (videoIds.size > 0) {
                     videoContainer.innerHTML = '';
                     videoIds.forEach(vid => {
@@ -10971,10 +11155,41 @@
 
             } catch (err) {
                 console.error('Error loading unified data:', err);
+                guidesContainer.innerHTML = `<div class="text-red-400 p-4">Error loading data: ${err.message}</div>`;
             }
         }
+
+        // Helper for switching years
+        window.switchVehicleYear = function (year) {
+            if (!window.currentVehicleSiblings || !window.currentVehicleSiblings.has(year)) return;
+
+            const data = window.currentVehicleSiblings.get(year);
+
+            // Update Flash Card
+            const cardContainer = document.getElementById('unifiedFlashCard');
+            if (cardContainer) {
+                cardContainer.innerHTML = renderUnifiedFlashCard(data);
+            }
+
+            // Update Tab Styles
+            const buttons = document.querySelectorAll('[data-year]');
+            buttons.forEach(btn => {
+                if (btn.dataset.year === year) {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold border transition-all whitespace-nowrap bg-brand-500 text-white border-brand-500 shadow-lg shadow-brand-500/20';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold border transition-all whitespace-nowrap bg-navy-800 text-slate-400 border-white/5 hover:bg-navy-700 hover:text-white';
+                }
+            });
+        };
+
+        // Helper for toggling guides (since we generate HTML string now)
+        window.toggleGuide = function (header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('svg');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        };
     </script>
 </body>
 
 </html>
-```
