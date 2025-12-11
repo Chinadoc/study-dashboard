@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Euro Keys | Professional Automotive Locksmith</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -518,15 +519,14 @@
             <div class="glass-panel rounded-3xl p-6 mt-6 shadow-2xl">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-xl font-bold text-white flex items-center gap-2">📡 KeyfobDB FCC ID CSV (GitHub)
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">📡 Community FCC Database
                         </h3>
-                        <p class="text-slate-400 text-sm">Community CSV of FCC IDs by year/make/model. Refresh to
-                            re-fetch the live list.</p>
+                        <p class="text-slate-400 text-sm">Community-validated list of FCC IDs by year/make/model.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="loadExternalFccList()"
                             class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄
-                            Refresh list</button>
+                            Refresh Database</button>
                         <a href="https://raw.githubusercontent.com/gusgorman402/keyfobDB/main/car_fcc_info_DB.csv"
                             target="_blank"
                             class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">Open
@@ -568,21 +568,18 @@
             <div class="glass-panel rounded-3xl p-6 mt-6 shadow-2xl">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-xl font-bold text-white flex items-center gap-2">🔑 Locksmith Catalog
-                            (OEMCarKeyMall scrape)</h3>
-                        <p class="text-slate-400 text-sm">Locally scraped CSV with FCC IDs, chip, keyway, button count,
-                            battery, and price hints useful to locksmiths.</p>
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">🔍 FCC Database Searcher</h3>
+                        <p class="text-slate-400 text-sm">Comprehensive database of FCC IDs, chips, keyways, and button
+                            counts. Validated from OEMCarKeyMall.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="loadLocksmithCatalog(true)"
                             class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄
-                            Refresh locksmith CSV</button>
+                            Refresh Database</button>
                         <a href="./data/oem_locksmith_catalog.csv" target="_blank"
                             class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">Open
                             CSV</a>
-                        <a href="./api/scrape_oem_locksmith.py" target="_blank"
-                            class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">View
-                            scraper</a>
+
                     </div>
                 </div>
 
@@ -5434,6 +5431,11 @@
                     autelGuide: d1.autel_guide_url || '#'
                 };
                 console.log('Using D1 data for display:', lockData);
+
+                // Load unified data (Guides, Videos) if vehicle_id exists
+                if (d1.vehicle_id) {
+                    loadUnifiedVehicleData(d1.vehicle_id);
+                }
             } else {
                 // Fallback to hardcoded LOCKSMITH_DB
                 lockData = LOCKSMITH_DB['DEFAULT'];
@@ -6384,15 +6386,18 @@
         // New loader for FCC data from the worker API
         async function loadFccDb() {
             if (FCC_DB && FCC_DB.length) return FCC_DB;
+            console.log('Loading FCC DB from:', `${FCC_API_URL}?limit=500`);
             try {
                 const resp = await fetch(`${FCC_API_URL}?limit=500`);
                 if (!resp.ok) throw new Error(`FCC API failed ${resp.status}`);
                 const json = await resp.json();
+                console.log('FCC API Response:', json);
                 const rows = json.rows || [];
                 FCC_DB = rows.map(r => {
                     const vehicles = [];
                     const vehicleStr = r.vehicles || '';
                     vehicleStr.split(',').map(s => s.trim()).filter(Boolean).forEach(seg => {
+                        // Try matching "Make Model (Year)"
                         const m = seg.match(/^(.*)\((.*)\)$/);
                         if (m) {
                             const name = m[1].trim();
@@ -6401,6 +6406,9 @@
                             const make = (parts.shift() || '').toUpperCase();
                             const model = parts.join(' ').trim();
                             vehicles.push({ make, model, years });
+                        } else {
+                            // Fallback for non-standard formats
+                            vehicles.push({ make: 'Unknown', model: seg, years: '' });
                         }
                     });
                     return {
@@ -6411,6 +6419,7 @@
                         vehicles
                     };
                 });
+                console.log('Parsed FCC DB:', FCC_DB.length, 'entries');
             } catch (err) {
                 console.error('Failed to load FCC DB:', err);
                 FCC_DB = [];
@@ -6548,6 +6557,19 @@
                 const dbSection = document.getElementById('database-section');
                 if (dbSection) dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
+        }
+
+        function openToolsLookupWithKeyway(keyway) {
+            if (!keyway || keyway === 'N/A') return;
+            switchTab('tools', true);
+            // Wait for tab switch
+            setTimeout(() => {
+                const searchBox = document.getElementById('toolSearch');
+                if (searchBox) {
+                    searchBox.value = keyway;
+                    filterTools();
+                }
+            }, 100);
         }
 
         // VIDEO_TUTORIALS - Hardcoded fallback, but primarily fetching from API now
@@ -10220,6 +10242,19 @@
                 if (['fcc', 'chip', 'freq', 'codeseries'].includes(type)) {
                     fccDatabaseBtn.classList.remove('hidden');
                     fccDatabaseBtn.classList.add('inline-flex');
+                    fccDatabaseBtn.textContent = 'View in FCC Database';
+                    fccDatabaseBtn.onclick = () => {
+                        closeReverseSearchModal();
+                        openFccDatabaseWithId(value);
+                    };
+                } else if (['tool', 'keyway', 'keyblank'].includes(type)) {
+                    fccDatabaseBtn.classList.remove('hidden');
+                    fccDatabaseBtn.classList.add('inline-flex');
+                    fccDatabaseBtn.textContent = 'View in Tools Lookup';
+                    fccDatabaseBtn.onclick = () => {
+                        closeReverseSearchModal();
+                        openToolsLookupWithKeyway(value);
+                    };
                 } else {
                     fccDatabaseBtn.classList.add('hidden');
                     fccDatabaseBtn.classList.remove('inline-flex');
@@ -10848,7 +10883,98 @@
                 }
             };
         }
+        // === UNIFIED DATA LOADING ===
+        async function loadUnifiedVehicleData(vehicleId) {
+            if (!vehicleId) return;
+
+            console.log('Loading unified data for vehicle ID:', vehicleId);
+            const guidesContainer = document.getElementById('programmingGuidesContainer');
+            const videoContainer = document.getElementById('vehicleVideoContainer');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/vehicle/${vehicleId}`);
+                if (!response.ok) throw new Error('Failed to load unified data');
+
+                const data = await response.json();
+                console.log('Unified data received:', data);
+
+                // 1. Render Guides
+                if (data.guides && data.guides.length > 0) {
+                    // Clear existing guides (except the header if any)
+                    // We'll append to the existing container which might have some default links
+
+                    // Create a specific container for unified guides if not exists
+                    let unifiedGuidesDiv = document.getElementById('unifiedGuidesList');
+                    if (!unifiedGuidesDiv) {
+                        unifiedGuidesDiv = document.createElement('div');
+                        unifiedGuidesDiv.id = 'unifiedGuidesList';
+                        unifiedGuidesDiv.className = 'space-y-3 mt-4 pt-4 border-t border-brand-500/20';
+                        guidesContainer.appendChild(unifiedGuidesDiv);
+                    }
+                    unifiedGuidesDiv.innerHTML = '<div class="text-xs text-brand-400 uppercase tracking-wider mb-2 font-semibold">Unified Guides</div>';
+
+                    data.guides.forEach(guide => {
+                        const guideEl = document.createElement('div');
+                        guideEl.className = 'bg-navy-900/50 rounded-xl border border-brand-500/30 overflow-hidden';
+
+                        // Header
+                        const header = document.createElement('div');
+                        header.className = 'p-4 bg-navy-900/80 cursor-pointer flex justify-between items-center';
+                        header.innerHTML = `
+                            <div class="font-bold text-white">📘 Guide: ${guide.make} ${guide.model} (${guide.year_start}-${guide.year_end})</div>
+                            <svg class="w-5 h-5 text-brand-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        `;
+
+                        // Content (Markdown)
+                        const content = document.createElement('div');
+                        content.className = 'hidden p-6 prose prose-invert max-w-none text-sm';
+                        // Use marked if available, otherwise simple text
+                        content.innerHTML = typeof marked !== 'undefined' ? marked.parse(guide.content) : guide.content.replace(/\n/g, '<br>');
+
+                        // Toggle logic
+                        header.onclick = () => {
+                            content.classList.toggle('hidden');
+                            header.querySelector('svg').classList.toggle('rotate-180');
+                        };
+
+                        guideEl.appendChild(header);
+                        guideEl.appendChild(content);
+                        unifiedGuidesDiv.appendChild(guideEl);
+                    });
+
+                    // Show the guides panel if it was hidden
+                    const panelBody = document.getElementById('programmingPanelBody');
+                    if (panelBody) panelBody.classList.remove('hidden');
+                }
+
+                // 2. Render Videos (from locksmith_data or separate table if we had one)
+                // Currently we check locksmith_data rows for video_id
+                const videoIds = new Set();
+                if (data.locksmith_data) {
+                    data.locksmith_data.forEach(row => {
+                        if (row.video_id) videoIds.add(row.video_id);
+                    });
+                }
+
+                if (videoIds.size > 0) {
+                    videoContainer.innerHTML = '';
+                    videoIds.forEach(vid => {
+                        const vEl = document.createElement('div');
+                        vEl.className = 'aspect-video rounded-lg overflow-hidden border border-brand-500/30 relative group';
+                        vEl.innerHTML = `
+                            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        `;
+                        videoContainer.appendChild(vEl);
+                    });
+                    document.getElementById('vehicleVideoSection').classList.remove('hidden');
+                }
+
+            } catch (err) {
+                console.error('Error loading unified data:', err);
+            }
+        }
     </script>
 </body>
 
 </html>
+```

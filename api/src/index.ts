@@ -445,6 +445,168 @@ export default {
       }
     }
 
+    // ==============================================
+    // NEW ENDPOINTS FOR CROSS-TAB NAVIGATION
+    // ==============================================
+
+    // Get a specific vehicle by ID (for cross-linking)
+    if (path.startsWith("/api/vehicle/")) {
+      try {
+        const vehicleId = parseInt(path.split("/").pop() || "", 10);
+        if (isNaN(vehicleId)) {
+          return textResponse(JSON.stringify({ error: "Invalid vehicle ID" }), 400);
+        }
+
+        // Get vehicle info from lookup table
+        const vehicle = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM vehicles WHERE id = ?"
+        ).bind(vehicleId).first();
+
+        if (!vehicle) {
+          return textResponse(JSON.stringify({ error: "Vehicle not found" }), 404);
+        }
+
+        // Get all locksmith data for this vehicle
+        const locksmithData = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM locksmith_data WHERE vehicle_id = ? ORDER BY year"
+        ).bind(vehicleId).all();
+
+        // Get any guides for this vehicle
+        const guides = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM vehicle_guides WHERE vehicle_id = ?"
+        ).bind(vehicleId).all();
+
+        return new Response(JSON.stringify({
+          vehicle,
+          locksmith_data: locksmithData.results || [],
+          guides: guides.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Get all vehicles that use a specific FCC ID (for FCC -> Browse linking)
+    if (path.startsWith("/api/vehicles-by-fcc/")) {
+      try {
+        const fccId = decodeURIComponent(path.split("/").pop() || "");
+        if (!fccId) {
+          return textResponse(JSON.stringify({ error: "FCC ID required" }), 400);
+        }
+
+        // Get FCC ID info from lookup table
+        const fccInfo = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM fcc_ids WHERE fcc_id = ?"
+        ).bind(fccId).first();
+
+        // Get all vehicles using this FCC ID
+        const vehicleData = await env.LOCKSMITH_DB.prepare(`
+          SELECT DISTINCT
+            ld.vehicle_id,
+            v.make,
+            v.make_norm,
+            v.model,
+            ld.year,
+            ld.keyway,
+            ld.keyway_id,
+            ld.immobilizer_system
+          FROM locksmith_data ld
+          LEFT JOIN vehicles v ON ld.vehicle_id = v.id
+          WHERE UPPER(ld.fcc_id) = UPPER(?)
+          ORDER BY v.make, v.model, ld.year
+        `).bind(fccId).all();
+
+        return new Response(JSON.stringify({
+          fcc_id: fccId,
+          fcc_info: fccInfo,
+          vehicles: vehicleData.results || [],
+          count: vehicleData.results?.length || 0
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Get Lishi tools compatible with a specific keyway (for Browse -> Tools linking)
+    if (path.startsWith("/api/tools-by-keyway/")) {
+      try {
+        const keywayParam = decodeURIComponent(path.split("/").pop() || "");
+        if (!keywayParam) {
+          return textResponse(JSON.stringify({ error: "Keyway required" }), 400);
+        }
+
+        // Get keyway info
+        const keyway = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM keyways WHERE keyway = ? OR keyway_norm = ?"
+        ).bind(keywayParam, keywayParam.toLowerCase()).first();
+
+        // Get compatible Lishi tools
+        const tools = await env.LOCKSMITH_DB.prepare(`
+          SELECT lt.* 
+          FROM lishi_tools lt
+          WHERE lt.keyway = ? OR lt.keyway LIKE ?
+        `).bind(keywayParam, `%${keywayParam}%`).all();
+
+        return new Response(JSON.stringify({
+          keyway: keywayParam,
+          keyway_info: keyway,
+          tools: tools.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Get all unique vehicles for dropdown population
+    if (path === "/api/vehicles") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+
+        let sql = "SELECT * FROM vehicles";
+        const params: string[] = [];
+
+        if (make) {
+          sql += " WHERE LOWER(make) = ? OR LOWER(make_norm) = ?";
+          params.push(make, make);
+        }
+
+        sql += " ORDER BY make, model";
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          vehicles: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
