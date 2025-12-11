@@ -3525,6 +3525,9 @@
         const BROWSE_API_URL = API_BASE + '/api/browse';
         const IMMO_API_URL = API_BASE + '/api/immo';
         const FCC_API_URL = API_BASE + '/api/fcc';
+        // FCC state
+        let FCC_DB = [];
+        let FCC_MASTER_MAP = null;
         const LISHI_API_URL = API_BASE + '/api/lishi';
         const MASTER_API_URL = API_BASE + '/api/master';
 
@@ -5850,12 +5853,12 @@
 
             const guides = [];
 
-            // Check for AI Guide
+            // Check for AI Guide - link to Tutorials tab if available
             const aiGuideKey = findGuide(data.make, data.model, data.year);
             if (aiGuideKey) {
                 guides.push({
                     name: 'Step-by-Step Guide',
-                    url: `javascript:showGuide('${aiGuideKey}')`,
+                    onClick: () => openTutorialsFor(data.make, data.model),
                     color: 'purple',
                     icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>'
                 });
@@ -5877,8 +5880,14 @@
 
             guides.forEach(guide => {
                 const link = document.createElement('a');
-                link.href = guide.url;
-                link.target = '_blank';
+                link.href = guide.url || '#';
+                link.target = guide.url ? '_blank' : '_self';
+                if (guide.onClick) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        guide.onClick();
+                    });
+                }
                 link.className = `flex items-center justify-between p-4 bg-${guide.color}-500/10 border border-${guide.color}-500/30 rounded-xl hover:bg-${guide.color}-500/20 transition-colors`;
                 link.innerHTML = `
                     <div class="flex items-center gap-3">
@@ -6525,6 +6534,43 @@
         // loadCuratedDb removed - now using /api/curated directly
         // loadFccDb removed - now using /api/fcc and /api/browse directly
 
+        // New loader for FCC data from the worker API
+        async function loadFccDb() {
+            if (FCC_DB && FCC_DB.length) return FCC_DB;
+            try {
+                const resp = await fetch(`${FCC_API_URL}?limit=500`);
+                if (!resp.ok) throw new Error(`FCC API failed ${resp.status}`);
+                const json = await resp.json();
+                const rows = json.rows || [];
+                FCC_DB = rows.map(r => {
+                    const vehicles = [];
+                    const vehicleStr = r.vehicles || '';
+                    vehicleStr.split(',').map(s => s.trim()).filter(Boolean).forEach(seg => {
+                        const m = seg.match(/^(.*)\((.*)\)$/);
+                        if (m) {
+                            const name = m[1].trim();
+                            const years = m[2].trim();
+                            const parts = name.split(' ');
+                            const make = (parts.shift() || '').toUpperCase();
+                            const model = parts.join(' ').trim();
+                            vehicles.push({ make, model, years });
+                        }
+                    });
+                    return {
+                        fcc_id: r.fcc_id,
+                        frequency_mhz: r.frequency_mhz || r.frequency || 'N/A',
+                        modulation: r.modulation || 'N/A',
+                        transponder_family: r.chip || r.transponder_family || r.transponder || 'N/A',
+                        vehicles
+                    };
+                });
+            } catch (err) {
+                console.error('Failed to load FCC DB:', err);
+                FCC_DB = [];
+            }
+            return FCC_DB;
+        }
+
         function getMakeVariants(make) {
             const makeU = (make || '').toUpperCase();
             const variants = new Set([makeU]);
@@ -7103,6 +7149,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchVideoTutorials();
         });
+
+        // Open Tutorials tab and filter to make/model (used by Programming Guides)
+        function openTutorialsFor(make, model) {
+            switchTab('tutorials', true);
+            filterTutorials(make || 'all', model || 'all');
+            const tutorialsSection = document.getElementById('tutorials-section');
+            if (tutorialsSection) {
+                tutorialsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
 
         // Color mappings for each make
         const makeColors = {
@@ -7732,7 +7788,6 @@
                 let totalVehicles = 0;
                 // Build master-derived FCC map once
                 if (!FCC_MASTER_MAP) {
-                    // Reuse FCC_DB (built from master.csv) to avoid size limits on JSON API
                     await loadFccDb();
                     FCC_MASTER_MAP = new Map();
                     (FCC_DB || []).forEach(r => {
@@ -7749,11 +7804,16 @@
                             });
                         }
                         const rec = FCC_MASTER_MAP.get(key);
-                        rec.vehicles.push({
-                            make: r.make || r.Make || '',
-                            model: r.model || r.Model || '',
-                            years: r.year || r.Year || r.compat_years_list || r.compat_year_min || ''
-                        });
+                        // Use vehicles array if provided; otherwise fallback to make/model/year fields
+                        if (Array.isArray(r.vehicles) && r.vehicles.length) {
+                            r.vehicles.forEach(v => rec.vehicles.push(v));
+                        } else {
+                            rec.vehicles.push({
+                                make: r.make || r.Make || '',
+                                model: r.model || r.Model || '',
+                                years: r.year || r.Year || r.compat_years_list || r.compat_year_min || ''
+                            });
+                        }
                     });
                 }
 
