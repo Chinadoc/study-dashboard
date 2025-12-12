@@ -651,6 +651,97 @@ export default {
       }
     }
 
+    // Get vehicle variants from the unified definitive schema
+    if (path === "/api/variants" || path.startsWith("/api/variants?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = url.searchParams.get("year") || "";
+        const keyType = url.searchParams.get("key_type") || "";
+
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        // Always join with vehicles_master
+        let sql = `
+          SELECT vv.*, vm.make, vm.model
+          FROM vehicle_variants vv
+          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
+        `;
+
+        if (make) {
+          conditions.push("LOWER(vm.make) = ?");
+          params.push(make);
+        }
+        if (model) {
+          conditions.push("LOWER(vm.model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          const yearNum = parseInt(year, 10);
+          conditions.push("vv.year_start <= ? AND vv.year_end >= ?");
+          params.push(yearNum, yearNum);
+        }
+        if (keyType) {
+          conditions.push("LOWER(vv.key_type) LIKE ?");
+          params.push(`%${keyType}%`);
+        }
+
+        if (conditions.length > 0) {
+          sql += ` WHERE ${conditions.join(" AND ")}`;
+        }
+
+        sql += " ORDER BY vm.make, vm.model, vv.year_start, vv.key_type";
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          variants: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Get all vehicles from the master registry
+    if (path === "/api/vehicles-master" || path.startsWith("/api/vehicles-master?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+
+        let sql = "SELECT * FROM vehicles_master";
+        const params: string[] = [];
+
+        if (make) {
+          sql += " WHERE LOWER(make) = ?";
+          params.push(make);
+        }
+
+        sql += " ORDER BY make, model";
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          vehicles: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
