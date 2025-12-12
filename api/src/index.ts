@@ -87,15 +87,19 @@ export default {
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Data query
+        // Data query with full fields and chip_registry JOIN
         const dataSql = `
           SELECT 
             vm.id, vm.make, vm.model,
             vv.year_start, vv.year_end, vv.key_type, vv.keyway, vv.fcc_id, vv.chip,
             vv.frequency, vv.cloning_possible, vv.obd_program, vv.immobilizer_system,
-            vv.lishi_tool
+            vv.lishi_tool, vv.code_series, vv.oem_part_number, vv.aftermarket_part,
+            vv.buttons, vv.battery, vv.emergency_key, vv.programmer, vv.programming_method,
+            vv.pin_required, vv.notes,
+            cr.technology as chip_technology, cr.bits as chip_bits, cr.description as chip_description
           FROM vehicles_master vm
           LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          LEFT JOIN chip_registry cr ON LOWER(vv.chip) = LOWER(cr.chip_type)
           ${whereClause}
           ORDER BY vm.make, vm.model, vv.year_start
           LIMIT ? OFFSET ?
@@ -232,7 +236,7 @@ export default {
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Data query - join master and variants
+        // Data query - join master, variants, and chip_registry for complete data
         const dataSql = `
           SELECT 
             vm.id,
@@ -248,9 +252,23 @@ export default {
             vv.cloning_possible,
             vv.obd_program,
             vv.immobilizer_system,
-            vv.lishi_tool
+            vv.lishi_tool,
+            vv.code_series,
+            vv.oem_part_number,
+            vv.aftermarket_part,
+            vv.buttons,
+            vv.battery,
+            vv.emergency_key,
+            vv.programmer,
+            vv.programming_method,
+            vv.pin_required,
+            vv.notes,
+            cr.technology as chip_technology,
+            cr.bits as chip_bits,
+            cr.description as chip_description
           FROM vehicles_master vm
           LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          LEFT JOIN chip_registry cr ON LOWER(vv.chip) = LOWER(cr.chip_type)
           ${whereClause}
           ORDER BY vm.make, vm.model, vv.year_start
           LIMIT ? OFFSET ?
