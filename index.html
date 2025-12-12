@@ -760,6 +760,9 @@
                 </div>
             </div>
 
+            <!-- Official Resources Container (Infographics & PDFs) -->
+            <div id="officialResourcesContainer"></div>
+
             <!-- Keycutter Quick Facts -->
             <div class="glass-panel rounded-3xl p-5 border border-brand-500/20 bg-navy-950/40">
                 <div class="flex items-center justify-between mb-4">
@@ -6044,6 +6047,11 @@
             displayAffiliateProducts(data.make, data.model);
             displayInlineProducts(data.make, data.model);
 
+            // Display official resources (infographics & PDFs) for this make
+            if (typeof renderOfficialResources === 'function') {
+                renderOfficialResources(data.make);
+            }
+
             // Display vehicle-specific video tutorial
             displayVehicleVideo(data.make, data.model, data.year);
 
@@ -11023,6 +11031,101 @@
 
         // Call on load
         loadAssetManifest();
+
+        // Render official infographics and PDF guides for a make
+        function renderOfficialResources(make, containerId = 'officialResourcesContainer') {
+            const container = document.getElementById(containerId);
+            if (!container || !ASSET_MANIFEST || !make) {
+                if (container) container.innerHTML = '';
+                return;
+            }
+
+            const makeKey = make.toLowerCase().replace('-benz', '').replace(' ', '-');
+            const assets = ASSET_MANIFEST[makeKey];
+
+            if (!assets || (assets.infographics.length === 0 && assets.guides.length === 0)) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <div class="glass-panel rounded-2xl p-6 mb-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span class="text-2xl">📚</span> Official ${make} Resources
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            `;
+
+            // Infographics - show as large clickable images
+            assets.infographics.forEach(info => {
+                html += `
+                    <div class="group relative rounded-xl overflow-hidden border border-brand-500/40 bg-navy-900/50 cursor-pointer hover:border-brand-400 transition-all" 
+                         onclick="openAssetViewer('${info.path}', 'image')">
+                        <div class="aspect-video bg-navy-800 relative">
+                            <img src="${info.path}" class="object-contain w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" alt="${info.name}">
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                                <span class="bg-brand-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg">🔍 View Full Size</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gradient-to-t from-navy-900 to-transparent">
+                            <div class="text-white font-bold text-sm flex items-center gap-2">
+                                📊 ${info.name.replace('.png', '').replace(/_/g, ' ')}
+                            </div>
+                            <div class="text-xs text-slate-400 mt-1">Click to view full infographic</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // PDF Guides - show as prominent download cards
+            assets.guides.forEach(guide => {
+                const displayName = guide.name.replace(/_/g, ' ').replace('.pdf', '');
+                html += `
+                    <a href="${guide.path}" target="_blank" 
+                       class="flex items-start p-4 rounded-xl border border-red-500/40 bg-navy-900/50 hover:bg-red-900/20 hover:border-red-400 transition-all group">
+                        <div class="p-3 bg-red-500/20 rounded-xl mr-4 text-red-400 group-hover:text-red-300 group-hover:bg-red-500/30 transition-colors">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-lg font-bold text-white group-hover:text-red-200 transition-colors">${displayName}</div>
+                            <div class="text-sm text-slate-400 mt-1">Comprehensive PDF Field Guide</div>
+                            <div class="text-xs text-red-400 mt-2 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Click to open PDF
+                            </div>
+                        </div>
+                    </a>
+                `;
+            });
+
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        // Full-screen asset viewer for infographics
+        function openAssetViewer(path, type) {
+            const overlay = document.createElement('div');
+            overlay.id = 'assetViewerOverlay';
+            overlay.className = 'fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            if (type === 'image') {
+                overlay.innerHTML = `
+                    <div class="max-w-7xl max-h-[90vh] relative">
+                        <button onclick="this.parentElement.parentElement.remove()" 
+                                class="absolute -top-12 right-0 text-white text-xl bg-red-500/80 hover:bg-red-500 px-4 py-2 rounded-lg">
+                            ✕ Close
+                        </button>
+                        <img src="${path}" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl" alt="Infographic">
+                    </div>
+                `;
+            }
+            document.body.appendChild(overlay);
+        }
 
         function renderUnifiedFlashCard(data) {
             // Helper to safely get value
