@@ -576,8 +576,9 @@
                         <button onclick="loadLocksmithCatalog(true)"
                             class="px-4 py-2 rounded-lg bg-brand-500 text-navy-950 font-semibold hover:bg-brand-400 transition-colors">🔄
                             Refresh Database</button>
-                        <a href="./data/oem_locksmith_catalog.csv" target="_blank"
-                            class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">Open
+                        <a href="https://euro-keys.jeremy-samuels17.workers.dev/api/browse?limit=500&format=csv"
+                            target="_blank"
+                            class="px-4 py-2 rounded-lg bg-navy-800 text-slate-200 font-semibold border border-brand-500/30 hover:border-brand-400 transition-colors">Export
                             CSV</a>
 
                     </div>
@@ -9037,12 +9038,12 @@
             },
             {
                 id: 'oem-locksmith',
-                name: 'OEMCarKeyMall locksmith catalog (CSV)',
-                type: 'CSV',
-                url: './data/oem_locksmith_catalog.csv',
-                docs: './api/scrape_oem_locksmith.py',
-                description: 'Scraped locksmith-facing fields (FCC ID, chip, keyway, buttons, battery, price) from oemcarkeymall.com.',
-                details: 'Regenerate with api/scrape_oem_locksmith.py; respects sitemap and polite rate limits.'
+                name: 'Master Locksmith Catalog (Cloudflare D1)',
+                type: 'API',
+                url: 'https://euro-keys.jeremy-samuels17.workers.dev/api/browse?limit=500',
+                docs: 'https://euro-keys.jeremy-samuels17.workers.dev/api/master',
+                description: 'Live database with FCC ID, chip, keyway, buttons, battery, transponder data from D1.',
+                details: 'Powered by Cloudflare D1. Use /api/browse or /api/master endpoints with make/model/year params.'
             },
             {
                 id: 'fccid-io',
