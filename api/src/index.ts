@@ -997,6 +997,55 @@ export default {
       }
     }
 
+    // Cross-Reference Endpoint - part_crossref table with ILCO/Strattec/JMA/KEYDIY
+    if (path === "/api/crossref" || path.startsWith("/api/crossref?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const fcc_id = url.searchParams.get("fcc_id") || "";
+        const oem_part = url.searchParams.get("oem_part") || "";
+
+        let sql = "SELECT * FROM part_crossref";
+        const conditions: string[] = [];
+        const params: string[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (fcc_id) {
+          conditions.push("LOWER(fcc_id) = ?");
+          params.push(fcc_id.toLowerCase());
+        }
+        if (oem_part) {
+          conditions.push("oem_part = ?");
+          params.push(oem_part);
+        }
+
+        if (conditions.length > 0) {
+          sql += ` WHERE ${conditions.join(" AND ")}`;
+        }
+
+        sql += " ORDER BY make, oem_part LIMIT 100";
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          rows: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
 };
