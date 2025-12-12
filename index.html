@@ -5,21 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>Euro Keys</title>
+    <title>Euro Keys - Locksmith Database</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
+            --bg-primary: #0a1628;
+            --bg-secondary: #111d32;
+            --bg-tertiary: #1a2942;
             --brand-primary: #fbbf24;
             --brand-secondary: #f59e0b;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
             --success: #22c55e;
-            --border: rgba(251, 191, 36, 0.2);
+            --border: rgba(251, 191, 36, 0.15);
             --radius: 12px;
         }
 
@@ -32,9 +32,19 @@
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-primary);
+            background: linear-gradient(180deg, var(--bg-primary) 0%, #0d1829 100%);
             color: var(--text-primary);
             min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
         /* Header */
@@ -43,86 +53,217 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
             color: var(--brand-primary);
-        }
-
-        .back-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .back-btn.visible {
-            display: block;
         }
 
         /* Container */
         .container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Page Title */
-        .page-title {
-            font-size: 0.8rem;
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .hero-title span {
+            color: var(--brand-primary);
+        }
+
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        /* VIN Input */
+        .vin-section {
+            display: flex;
+            gap: 8px;
+            max-width: 500px;
+            margin: 0 auto 40px;
+        }
+
+        .vin-input {
+            flex: 1;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .vin-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .vin-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+        }
+
+        .vin-btn {
+            padding: 16px 24px;
+            background: var(--brand-primary);
+            border: none;
+            border-radius: var(--radius);
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 16px;
-        }
-
-        /* Make/Model List */
-        .list {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 8px;
         }
 
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Browse Section */
+        .browse-section {
+            margin-bottom: 40px;
+        }
+
+        .browse-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .browse-select {
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .browse-select:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            border: none;
+            border-radius: var(--radius);
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Make List */
+        .make-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+        }
+
+        .make-card {
+            padding: 16px;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             cursor: pointer;
+            text-align: center;
             transition: all 0.2s;
         }
 
-        .list-item:hover {
+        .make-card:hover {
+            border-color: var(--brand-primary);
             background: var(--bg-tertiary);
+        }
+
+        .make-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .make-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Model List */
+        .model-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .model-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .model-item:hover {
             border-color: var(--brand-primary);
         }
 
-        .list-item-name {
+        .model-name {
             font-weight: 600;
-            font-size: 1.1rem;
         }
 
-        .list-item-count {
+        .model-years {
             font-size: 0.85rem;
             color: var(--text-muted);
         }
 
-        .list-item-arrow {
-            color: var(--text-muted);
-        }
-
-        /* Vehicle Data View */
+        /* Vehicle View */
         .vehicle-view {
             display: none;
         }
@@ -133,47 +274,75 @@
 
         .vehicle-header {
             text-align: center;
-            padding: 24px 0;
+            padding: 30px 0;
             border-bottom: 1px solid var(--border);
             margin-bottom: 24px;
         }
 
         .vehicle-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
             margin-bottom: 8px;
         }
 
-        .vehicle-subtitle {
-            color: var(--text-secondary);
+        .vehicle-badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        /* Data Cards */
-        .data-section {
-            margin-bottom: 24px;
-        }
-
-        .data-label {
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
         }
 
-        .data-value {
+        .badge-primary {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+        }
+
+        .badge-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .data-card {
             padding: 16px;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            font-size: 1.1rem;
+        }
+
+        .data-card.full-width {
+            grid-column: span 2;
+        }
+
+        .data-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .data-value {
+            font-size: 1rem;
             font-weight: 600;
         }
 
         .data-value.highlight {
             color: var(--brand-primary);
-            font-size: 1.3rem;
         }
 
         .data-value a {
@@ -181,34 +350,35 @@
             text-decoration: none;
         }
 
-        /* Status Badge */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: rgba(34, 197, 94, 0.2);
-            color: var(--success);
+        /* Back Button */
+        .back-bar {
+            display: none;
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
         }
 
-        /* Loading */
-        .loading {
+        .back-bar.visible {
+            display: flex;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Footer */
+        .footer {
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
             color: var(--text-muted);
-        }
-
-        /* Empty State */
-        .empty {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
+            font-size: 0.85rem;
         }
 
         /* Views */
@@ -219,133 +389,253 @@
         .view.active {
             display: block;
         }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 480px) {
+            .browse-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .make-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-card.full-width {
+                grid-column: span 1;
+            }
+        }
     </style>
 </head>
 
 <body>
 
+    <div class="top-bar">📞 Call (804) 506-0709</div>
+
     <header class="header">
-        <div class="logo">🔑 EURO KEYS</div>
-        <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+        <div class="logo">🔑 EURO <span>KEYS</span></div>
     </header>
 
-    <div class="container">
+    <div class="back-bar" id="backBar">
+        <button class="back-btn" onclick="goBack()">← Back</button>
+    </div>
 
-        <!-- VIEW 1: Select Make -->
-        <div class="view active" id="viewMake">
-            <div class="page-title">Select Make</div>
-            <div class="list" id="makeList">
-                <div class="loading">Loading makes...</div>
+    <!-- VIEW 1: Home -->
+    <div class="view active" id="viewHome">
+        <div class="hero">
+            <h1 class="hero-title">Vehicle Intelligence <span>Decoded</span></h1>
+            <p class="hero-subtitle">Instant access to key codes, transponder data, and locksmith specs</p>
+
+            <div class="vin-section">
+                <input type="text" class="vin-input" id="vinInput" placeholder="🔍 Enter VIN (17 characters)"
+                    maxlength="17" oninput="handleVinInput(this.value)">
+                <button class="vin-btn" onclick="decodeVIN()">Decode</button>
             </div>
         </div>
 
-        <!-- VIEW 2: Select Model -->
-        <div class="view" id="viewModel">
-            <div class="page-title">Select Model</div>
-            <div class="list" id="modelList"></div>
-        </div>
+        <div class="container">
+            <div class="browse-section">
+                <div class="section-title">Or Browse by Vehicle</div>
+                <div class="browse-grid">
+                    <select class="browse-select" id="yearSelect" onchange="loadMakesForYear()">
+                        <option value="">Year</option>
+                    </select>
+                    <select class="browse-select" id="makeSelect" onchange="loadModelsForMake()">
+                        <option value="">Make</option>
+                    </select>
+                    <select class="browse-select" id="modelSelect">
+                        <option value="">Model</option>
+                    </select>
+                </div>
+                <button class="search-btn" onclick="searchVehicle()">🔍 Search Database</button>
+            </div>
 
-        <!-- VIEW 3: Vehicle Data -->
-        <div class="view" id="viewVehicle">
+            <div class="section-title">Popular Makes</div>
+            <div class="make-grid" id="makeGrid">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: Models -->
+    <div class="view" id="viewModels">
+        <div class="container">
+            <div class="section-title" id="modelsTitle">Select Model</div>
+            <div class="model-list" id="modelList"></div>
+        </div>
+    </div>
+
+    <!-- VIEW 3: Vehicle Data -->
+    <div class="view" id="viewVehicle">
+        <div class="container">
             <div class="vehicle-header">
                 <h1 class="vehicle-title" id="vehicleTitle">2019 Chevrolet Colorado</h1>
-                <p class="vehicle-subtitle" id="vehicleSubtitle">Locksmith Reference Data</p>
-            </div>
-
-            <div class="data-section">
-                <div class="data-label">FCC ID</div>
-                <div class="data-value highlight" id="dataFcc">
-                    <a href="#" id="fccLink" target="_blank">M3N-32337100</a>
+                <div class="vehicle-badges" id="vehicleBadges">
+                    <span class="badge badge-primary" id="badgeChip">ID46</span>
+                    <span class="badge badge-secondary" id="badgeFreq">315 MHz</span>
                 </div>
             </div>
 
-            <div class="data-section">
-                <div class="data-label">Immobilizer System</div>
-                <div class="data-value" id="dataImmo">GM PK3 / PK3+ / PEPS</div>
-            </div>
-
-            <div class="data-section">
-                <div class="data-label">Transponder Chip</div>
-                <div class="data-value" id="dataChip">ID46</div>
-            </div>
-
-            <div class="data-section">
-                <div class="data-label">Frequency</div>
-                <div class="data-value" id="dataFreq">315 MHz</div>
-            </div>
-
-            <div class="data-section">
-                <div class="data-label">Key Blank / Keyway</div>
-                <div class="data-value" id="dataKeyway">N/A</div>
+            <div class="data-grid" id="dataGrid">
+                <!-- Populated by JS -->
             </div>
         </div>
-
     </div>
+
+    <footer class="footer">
+        © 2025 Euro Keys<br>
+        Professional Automotive Locksmith - Richmond, VA
+    </footer>
 
     <script>
         const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
+        // Valid automotive makes only (filter out garbage data)
+        const VALID_MAKES = [
+            'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick',
+            'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge', 'Ferrari', 'Fiat', 'Ford',
+            'Genesis', 'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia',
+            'Lamborghini', 'Land Rover', 'Lexus', 'Lincoln', 'Maserati', 'Mazda',
+            'McLaren', 'Mercedes-Benz', 'Mercedes', 'Mini', 'Mitsubishi', 'Nissan',
+            'Porsche', 'Ram', 'Rolls-Royce', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen',
+            'Volvo'
+        ];
+
         let currentMake = null;
-        let currentModel = null;
-        let currentYear = null;
+        let currentView = 'viewHome';
 
-        // Navigation state
-        const views = ['viewMake', 'viewModel', 'viewVehicle'];
-        let currentView = 0;
-
-        function showView(index) {
-            currentView = index;
-            views.forEach((v, i) => {
-                document.getElementById(v).classList.toggle('active', i === index);
-            });
-            document.getElementById('backBtn').classList.toggle('visible', index > 0);
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById('backBar').classList.toggle('visible', viewId !== 'viewHome');
+            currentView = viewId;
         }
 
         function goBack() {
-            if (currentView > 0) {
-                showView(currentView - 1);
+            if (currentView === 'viewVehicle') {
+                showView('viewModels');
+            } else {
+                showView('viewHome');
             }
         }
 
-        // Load Makes
+        // Populate years
+        function populateYears() {
+            const select = document.getElementById('yearSelect');
+            const year = new Date().getFullYear() + 1;
+            for (let y = year; y >= 2000; y--) {
+                select.innerHTML += `<option value="${y}">${y}</option>`;
+            }
+        }
+
+        // Load makes for dropdown
+        async function loadMakesForYear() {
+            const year = document.getElementById('yearSelect').value;
+            const select = document.getElementById('makeSelect');
+            select.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+                const data = await res.json();
+                const makes = [...new Set(data.rows.map(r => r.make))]
+                    .filter(m => VALID_MAKES.some(v => v.toLowerCase() === m.toLowerCase()))
+                    .sort();
+
+                select.innerHTML = '<option value="">Make</option>';
+                makes.forEach(m => {
+                    select.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            } catch (e) {
+                select.innerHTML = '<option value="">Make</option>';
+            }
+        }
+
+        // Load models for dropdown
+        async function loadModelsForMake() {
+            const year = document.getElementById('yearSelect').value;
+            const make = document.getElementById('makeSelect').value;
+            const select = document.getElementById('modelSelect');
+
+            if (!make) return;
+            select.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+                const data = await res.json();
+                const models = [...new Set(data.rows.map(r => r.model))].sort();
+
+                select.innerHTML = '<option value="">Model</option>';
+                models.forEach(m => {
+                    select.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            } catch (e) {
+                select.innerHTML = '<option value="">Model</option>';
+            }
+        }
+
+        // Search vehicle from dropdowns
+        async function searchVehicle() {
+            const year = document.getElementById('yearSelect').value;
+            const make = document.getElementById('makeSelect').value;
+            const model = document.getElementById('modelSelect').value;
+
+            if (!year || !make || !model) {
+                alert('Please select year, make, and model');
+                return;
+            }
+
+            await loadVehicleData(make, model, year);
+        }
+
+        // Load popular makes grid
         async function loadMakes() {
             try {
                 const res = await fetch(`${API}/api/master?limit=2000`);
                 const data = await res.json();
 
-                // Group by make and count
                 const makeCounts = {};
                 data.rows.forEach(r => {
-                    makeCounts[r.make] = (makeCounts[r.make] || 0) + 1;
+                    if (VALID_MAKES.some(v => v.toLowerCase() === r.make.toLowerCase())) {
+                        makeCounts[r.make] = (makeCounts[r.make] || 0) + 1;
+                    }
                 });
 
-                const makes = Object.keys(makeCounts).sort();
+                // Sort by count, take top 12
+                const topMakes = Object.entries(makeCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 12);
 
-                document.getElementById('makeList').innerHTML = makes.map(make => `
-                <div class="list-item" onclick="selectMake('${make.replace(/'/g, "\\'")}')">
-                    <span class="list-item-name">${make}</span>
-                    <span>
-                        <span class="list-item-count">${makeCounts[make]} models</span>
-                        <span class="list-item-arrow">→</span>
-                    </span>
+                document.getElementById('makeGrid').innerHTML = topMakes.map(([make, count]) => `
+                <div class="make-card" onclick="selectMake('${make.replace(/'/g, "\\'")}')">
+                    <div class="make-name">${make}</div>
+                    <div class="make-count">${count} models</div>
                 </div>
             `).join('');
             } catch (e) {
-                document.getElementById('makeList').innerHTML = '<div class="loading">Failed to load makes</div>';
+                document.getElementById('makeGrid').innerHTML = '<div class="loading">Failed to load</div>';
             }
         }
 
-        // Select Make
+        // Select make from grid
         async function selectMake(make) {
             currentMake = make;
-            document.getElementById('modelList').innerHTML = '<div class="loading">Loading models...</div>';
-            showView(1);
+            document.getElementById('modelsTitle').textContent = `${make} Models`;
+            document.getElementById('modelList').innerHTML = '<div class="loading">Loading...</div>';
+            showView('viewModels');
 
             try {
                 const res = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&limit=500`);
                 const data = await res.json();
 
-                // Group by model and get year ranges
                 const models = {};
                 data.rows.forEach(r => {
                     if (!models[r.model]) {
@@ -359,63 +649,113 @@
                 const modelNames = Object.keys(models).sort();
 
                 document.getElementById('modelList').innerHTML = modelNames.map(model => {
-                    const yearStr = models[model].years.length > 0
-                        ? models[model].years[0]
-                        : '';
+                    const yearStr = models[model].years[0] || '';
                     return `
-                    <div class="list-item" onclick="selectModel('${model.replace(/'/g, "\\'")}')">
-                        <span class="list-item-name">${model}</span>
-                        <span>
-                            <span class="list-item-count">${yearStr}</span>
-                            <span class="list-item-arrow">→</span>
-                        </span>
+                    <div class="model-item" onclick="loadVehicleData('${currentMake.replace(/'/g, "\\'")}', '${model.replace(/'/g, "\\'")}')">
+                        <span class="model-name">${model}</span>
+                        <span class="model-years">${yearStr} →</span>
                     </div>
                 `;
                 }).join('');
             } catch (e) {
-                document.getElementById('modelList').innerHTML = '<div class="loading">Failed to load models</div>';
+                document.getElementById('modelList').innerHTML = '<div class="loading">Failed to load</div>';
             }
         }
 
-        // Select Model
-        async function selectModel(model) {
-            currentModel = model;
-            showView(2);
+        // Load vehicle data
+        async function loadVehicleData(make, model, year = null) {
+            showView('viewVehicle');
 
             try {
-                const res = await fetch(`${API}/api/browse?make=${encodeURIComponent(currentMake)}&model=${encodeURIComponent(model)}&limit=1`);
+                let url = `${API}/api/browse?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=1`;
+                if (year) url += `&year=${year}`;
+
+                const res = await fetch(url);
                 const data = await res.json();
 
                 if (data.rows && data.rows.length > 0) {
                     const v = data.rows[0];
-
-                    document.getElementById('vehicleTitle').textContent = `${v.year_start || ''} ${currentMake} ${model}`;
-
-                    // FCC ID
-                    const fccId = v.fcc_id || 'N/A';
-                    document.getElementById('dataFcc').innerHTML = fccId !== 'N/A'
-                        ? `<a href="https://fccid.io/${fccId}" target="_blank">${fccId}</a>`
-                        : 'N/A';
-
-                    // Immobilizer
-                    document.getElementById('dataImmo').textContent = v.immobilizer_system || v.immobilizer || 'N/A';
-
-                    // Chip
-                    document.getElementById('dataChip').textContent = v.chip || v.chip_technology || 'N/A';
-
-                    // Frequency
-                    document.getElementById('dataFreq').textContent = v.frequency ? `${v.frequency} MHz` : 'N/A';
-
-                    // Keyway
-                    document.getElementById('dataKeyway').textContent = v.keyway || 'N/A';
+                    displayVehicle(v, make, model);
+                } else {
+                    document.getElementById('vehicleTitle').textContent = `${make} ${model}`;
+                    document.getElementById('dataGrid').innerHTML = '<div class="data-card full-width"><div class="data-value">No data found</div></div>';
                 }
             } catch (e) {
-                console.error('Failed to load vehicle:', e);
+                console.error(e);
+            }
+        }
+
+        // Display vehicle data
+        function displayVehicle(v, make, model) {
+            const yearStr = v.year_start ? `${v.year_start}` : '';
+            document.getElementById('vehicleTitle').textContent = `${yearStr} ${make} ${model}`;
+
+            // Badges
+            const chip = v.chip || v.chip_technology || '';
+            const freq = v.frequency ? `${v.frequency} MHz` : '';
+            document.getElementById('badgeChip').textContent = chip || 'Unknown';
+            document.getElementById('badgeFreq').textContent = freq || '315 MHz';
+
+            // Data grid
+            const fields = [
+                { label: 'FCC ID', value: v.fcc_id, link: v.fcc_id ? `https://fccid.io/${v.fcc_id}` : null, highlight: true },
+                { label: 'Immobilizer', value: v.immobilizer_system || v.immobilizer },
+                { label: 'Transponder', value: v.chip || v.chip_technology },
+                { label: 'Frequency', value: v.frequency ? `${v.frequency} MHz` : null },
+                { label: 'Key Blank', value: v.keyway },
+                { label: 'Buttons', value: v.buttons },
+                { label: 'Battery', value: v.battery },
+                { label: 'OEM Part #', value: v.oem_part_number },
+            ];
+
+            document.getElementById('dataGrid').innerHTML = fields.map(f => {
+                const val = f.value || 'N/A';
+                const content = f.link
+                    ? `<a href="${f.link}" target="_blank">${val}</a>`
+                    : val;
+                return `
+                <div class="data-card">
+                    <div class="data-label">${f.label}</div>
+                    <div class="data-value${f.highlight ? ' highlight' : ''}">${content}</div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // VIN decode
+        function handleVinInput(vin) {
+            if (vin.length === 17) {
+                decodeVIN();
+            }
+        }
+
+        async function decodeVIN() {
+            const vin = document.getElementById('vinInput').value.trim();
+            if (vin.length !== 17) {
+                alert('VIN must be 17 characters');
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${vin}?format=json`);
+                const data = await res.json();
+                const r = data.Results?.[0];
+
+                if (r?.Make && r?.Model) {
+                    await loadVehicleData(r.Make, r.Model, r.ModelYear);
+                } else {
+                    alert('Could not decode VIN');
+                }
+            } catch (e) {
+                alert('VIN decode failed');
             }
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', loadMakes);
+        document.addEventListener('DOMContentLoaded', () => {
+            populateYears();
+            loadMakes();
+        });
     </script>
 </body>
 
