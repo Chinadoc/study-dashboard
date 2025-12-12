@@ -1,0 +1,2147 @@
+All Keys Lost Immobilizer Dataset (2000–2025)
+Below is a comprehensive CSV-formatted table of North American consumer vehicles (2000–2025) with immobilizer details for All Keys Lost (AKL) scenarios. The dataset is organized by make and model, including year ranges (with separate entries for different generations or trim-level systems where applicable). Each entry lists the relevant control module, its location, the key storage chip (main MCU and any external EEPROM), whether the PIN code can be pulled via OBD, the typical AKL solution, supported tools, and additional notes (e.g. security wait times or special procedures). Duplicate or redundant entries are intentionally kept where the same method applies across model years, to retain clarity for each model/year.
+Legend: “PIN via OBD” = whether the vehicle’s PIN code can be obtained through OBD with common locksmith tools (Yes/No). “AKL Method” = recommended approach when all keys are lost (e.g. remove module to read EEPROM, OBD programming with emulator, etc.).
+General Motors (Buick, Cadillac, Chevrolet, GMC)
+Model years around the mid-2000s saw GM transition from VATS/Passlock (no transponder) to transponder-based Passkey III systems. Older GM models often require a 10-30 minute learn procedure (no PIN). Newer models store key data in BCM or dedicated anti-theft module. In AKL cases, reading the BCM EEPROM or MCU can retrieve key data or security code if standard OBD programming isn’t available.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Chevrolet
+Camaro
+1997
+2002
+VATS/Passlock module
+Steering column (ignition housing)
+Motorola 68HC08 MCU[1]
+Internal EEPROM
+No
+10-minute relearn via ignition (no PIN)
+Tech2, Autel IM608
+Early GM VATS system (resistor key, no transponder).
+Chevrolet
+Corvette
+1997
+2004
+VATS/Passlock module
+Behind dash, near steering column
+Motorola 68HC08 MCU[2]
+Internal EEPROM
+No
+10-minute relearn (no PIN required)
+Tech2, Autel IM608
+No transponder; resistor pellet key (VATS).
+Chevrolet
+Impala
+1999
+2005
+BCM (Passkey III)
+Under dash (center)
+Motorola 68HC08 MCU[3]
+Internal EEPROM
+No
+10-minute ignition cycle relearn
+Tech2, Autel, TCode Pro
+No direct PIN; keys learned via timed PATS procedure.
+Chevrolet
+Malibu
+1997
+2004
+Passlock/Security module
+Steering column
+Motorola 68HC08 MCU[4]
+Internal EEPROM
+No
+10-minute relearn (cycle ignition)
+Tech2, OBDStar
+Passlock (no transponder) – learn new lock cylinder code.
+Chevrolet
+Malibu
+2004
+2007
+BCM (Immobilizer data)
+Under center console
+68HC912/9S12 MCU
+95040 EEPROM
+No
+BCM EEPROM read to get key data
+Tango, Orange5, Autel
+Early transponder system; BCM stores keys (95040 chip)[5][6].
+Chevrolet
+Malibu / Pontiac G6
+2008
+2012
+BCM (Passkey III+)
+Under dash (driver side)
+Freescale 9S12X MCU
+Internal flash
+No
+On-board programming (30-min learn)
+Autel IM608, MVP Pro
+If no tool, perform 30-min ignition cycle learn (no PIN).
+Chevrolet
+Silverado 1500
+2007
+2013
+BCM (Theft Deterrent Module)
+Cabin fuse box area
+Freescale 9S12DG128
+24C16 EEPROM
+No
+OBD add key (no PIN; 10min wait)
+Autel IM608, AdvancedDiag
+Transponder system (PK3); 10-minute wait if using OEM procedure.
+Chevrolet
+Silverado 1500
+2014
+2019
+BCM
+Under dash (left side)
+Renesas R32C MCU
+Internal flash
+No
+OBD (online via SPS or tool bypass)
+Autel IM608, VVDI2 (via dump)
+Uses 128-bit transponder; dealer software or smart bypass module for AKL.
+Chevrolet
+Cruze
+2008
+2016
+BCM
+Behind glove box
+8-bit MCU + 24C16 EEPROM[7]
+24C16 EEPROM[7]
+No
+Read BCM eeprom dump for PIN
+Tango, VVDI Prog
+BCM contains 24C16 storing immobilizer data[7]. PIN can be calculated from dump.
+Chevrolet
+Equinox
+2010
+2017
+BCM (Immobilizer)
+Passenger footwell fuse panel
+Freescale 9S12X MCU
+24C16 EEPROM
+No
+OBD key programming (10-min wait)
+Autel IM508/608
+PIN not required (system uses challenge-response, 10 min security wait).
+Buick
+LeSabre
+2000
+2005
+PCM (Passkey III)
+Engine compartment (PCM)
+-
+-
+No
+30-min ignition relearn
+Tech2, J2534 (SPS)
+No separate immo module; key verification in PCM, learned via ignition cycles.
+Buick
+LaCrosse / Allure
+2005
+2009
+BCM (Immobilizer)
+Under rear seat or trunk
+Motorola 9S12 MCU
+Internal flash
+No
+OBD (PIN not used, 10-min wait)
+Autel IM608, TCode
+Keys stored in BCM. AKL requires 10-minute security wait or BCM EEPROM read if bypassing.
+Cadillac
+CTS
+2003
+2007
+Theft Deterrent Control Module (TDM)
+Behind glove box
+68HC912D60 MCU
+Internal EEPROM
+No
+OBD (on-board learn with 30-min wait)
+Tech2, Autel
+Early CTS transponder system; no direct PIN, uses timed learn.
+Cadillac
+CTS
+2008
+2014
+BCM + ECM (Immobilizer sync)
+BCM under rear seat; ECM in engine bay
+Renesas V850 (BCM)
+Internal flash
+No
+OBD (requires dealer PIN via SPS)
+Autel IM608 (cloud), GM SPS
+16-minute wait or dealer code via online. BCM and ECM have synchronized security data.
+Cadillac
+Escalade
+2007
+2014
+Theft Deterrent Module/BCM
+Under dash (driver side)
+Freescale 9S12
+Internal flash
+No
+OBD programming (10-min wait)
+Autel IM608, Tech2
+Transponder system shared with Chevy trucks; no manual PIN.
+GMC
+Yukon / Denali
+1999
+2006
+Passlock Sensor + PCM
+Ignition cylinder (sensor), PCM controls fuel
+-
+-
+No
+30-min passlock relearn
+-
+No transponder; resistance-based Passlock II system.
+GMC
+Yukon / Denali
+2007
+2014
+BCM (Immobilizer)
+Cabin fuse box area
+Motorola 9S12 MCU
+Internal flash
+No
+OBD (10-min wait or dealer programming)
+Autel, AVDI (for dump)
+PK3+ transponder; if no tool, perform 10-min security wait procedure.
+Saturn
+VUE
+2003
+2007
+BCM (Immobilizer data)
+Behind instrument panel
+68HC912 MCU
+93C66 EEPROM
+Yes (via Tech2)
+Read BCM eeprom or use Tech2 PIN reading
+Tech2, Tango (EEPROM)
+Some Saturn (Opel-based) models have a 4-digit PIN stored in BCM[5]. Tech2 can retrieve it, or read 93C66 directly.
+Ford (Ford & Lincoln)
+Ford’s PATS (Passive Anti-Theft System) uses transponder keys since late 1990s. There is usually no static PIN; instead Ford uses timed access or an incode/outcode challenge for key programming. All-keys-lost typically requires either: waiting out a security timer (e.g. 10–16 minute countdown) or using a locksmith tool to calculate an incode from the vehicle’s outcode. Earlier Fords store immobilizer data in a standalone PATS module or the ECU/cluster (with EEPROM), while later models integrate it into the instrument cluster or BCM.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Ford
+Focus (USA)
+2000
+2004
+PATS Immobilizer (standalone)
+Behind dash (near steering column)
+Motorola HC05 MCU
+93C86 EEPROM
+No
+OBD programming (needs 10 min wait)
+NGS, Autel IM508
+Two working keys required for user add; otherwise 10 minute PATS initialization.
+Ford
+Focus
+2005
+2007
+Instrument Cluster (IC)
+Instrument cluster (behind gauges)
+Motorola HC912 MCU
+95040/95320 EEPROM[8]
+No
+OBD (16-minute security wait)
+IDS, Autel, T300
+Keys stored in cluster EEPROM[9]. 10-16 min security access if all keys lost (PATS).
+Ford
+Focus
+2008
+2011
+Instrument Cluster (IC)
+Instrument cluster
+Infineon (TriCore) MCU
+95320 EEPROM
+No
+OBD (incode/outcode via tool)
+IDS, Autel, MVP
+6-byte outcode -> incode calculation required for AKL (tool handles automatically).
+Ford
+Focus Push-to-Start
+2012
+2018
+BCM (RF Transceiver)
+Behind glove box
+Freescale 9S12X MCU[10]
+Internal EEPROM
+No
+OBD (challenge-response)
+IDS, Autel IM608
+Uses DST80 (Megamos AES) transponder[8]; 10-min wait or online incode.
+Ford
+F-150
+1999
+2003
+PATS Receiver (external)
+Behind dash (above pedals)
+Motorola HC11E9 MCU
+Internal EEPROM
+No
+OBD (wait 15 min or incode/outcode)
+IDS, Autel, Forscan
+PATS II; keys verified by PCM via PATS module. AKL requires timed access.
+Ford
+F-150
+2004
+2008
+Instrument Cluster
+Instrument cluster
+Motorola/Freescale 9S12
+24C16 EEPROM
+No
+OBD (10-min security wait)
+IDS, Autel
+PATS data in cluster. If cluster swap or lost keys, 10 minute learn procedure.
+Ford
+F-150 / F-Series
+2009
+2014
+Instrument Cluster (IC)
+Instrument cluster
+Renesas V850 (CAN bus IC)
+Internal flash
+No
+OBD (incode/outcode via network)
+IDS (online), Autel (calc)
+2009+ use coded access (challenge/response) for AKL. Online or device calculation needed.
+Ford
+Expedition
+1997
+2002
+PATS Module (Gen 1)
+Behind glove box
+Motorola HC05
+93C66 EEPROM
+No
+OBD (allow to time out 10 min)
+Dealer NGS tool, TCode
+Early Expedition stored key IDs in external immobox[11].
+Ford
+Expedition
+2003
+2006
+Instrument Cluster (IC)
+Dash cluster
+-
+95320 EEPROM
+No
+OBD (16 min wait)
+IDS, Autel
+PATS in cluster. AKL via 16-minute wait or incode.
+Ford
+Edge / Flex
+2007
+2014
+Instrument Cluster (IC)
+Dash cluster
+Freescale 9S12
+95320 EEPROM
+No
+OBD (incode/outcode)
+IDS, Autel
+Uses 4D63/80-bit transponders. All keys lost via challenge-response coding.
+Ford
+Explorer
+1998
+2001
+PATS Module (Gen 1)
+Behind passenger kick panel
+Texas Instruments TMS370 MCU
+Internal EEPROM
+No
+OBD (wait 10 min)
+NGS, MVP Pro
+Two module variants: Motorola & TI-based[12] – both use timed access for AKL.
+Ford
+Explorer
+2002
+2005
+Instrument Cluster (IC)
+Integrated in dashboard cluster
+Motorola 77014D (68HC912)[13]
+95040/95160 EEPROM
+No
+OBD (16 min wait or incode)
+IDS, Autel, Zed-Full
+PATS data stored in cluster memory[14].
+Ford
+Explorer / Taurus
+2011
+2019
+BCM (Smart Junction Box)
+Passenger footwell area
+Renesas V850/Freescale
+Internal flash
+No
+OBD (requires incode from outcode)
+IDS, Autel IM608
+Keyless Push-to-Start system; 12-min wait or incode needed. Autel can bypass wait via calculation.
+Lincoln
+Town Car
+1998
+2002
+PATS Module (external)
+Trunk or behind dash (varies)
+Motorola HC11
+93C46 EEPROM
+No
+OBD (Timed 4x4min cycles)
+NGS, StrataScan
+Classic PATS – 4x4 minute cycles = 16 minute total programming time for AKL.
+Lincoln
+Navigator
+2003
+2006
+Instrument Cluster (IC)
+Dashboard cluster
+-
+24C08 EEPROM
+No
+OBD (16 min wait)
+IDS, Autel
+Shares Ford’s PATS 3 system; cluster holds keys.
+Lincoln
+MKZ / MKX (Push Start)
+2007
+2012
+Smart Junction Box (SJB)
+Behind glove box
+Freescale 9S12X
+Internal flash
+No
+OBD (incode/outcode)
+IDS, Autel, ASP Navigator
+Intelligent Key system; requires incode calculation for AKL.
+Lincoln
+MKZ / Continental (Prox)
+2017
+2021
+BCM (Body Ctrl/RTM)
+Under dash (driver side)
+NXP MPC microcontroller
+Internal flash
+No
+OBD (Online Ford FDRS or locksmith tool)
+IDS/FDRS (online), Autel
+Uses newer secure immobilizer, often requiring online authentication for AKL.
+Toyota (Toyota & Lexus)
+Toyota’s immobilizer systems range from older Denso immoboxes (with 8-pin EEPROMs) to modern smart key modules. Most Toyota/Lexus do not use a simple PIN; instead they require either a seed reset or reading an EEPROM when all keys are lost. Earlier (1998–early 2000s) models with 4C/4D transponders often store key data in a small EEPROM (e.g. 93C56 or 93C66) on an immobox or ECU. All-keys-lost on those requires reading the EEPROM dump and either resetting it or using it to program a new key[11][15]. Mid-2000s “G” chip systems can sometimes be reset via OBD (16-minute wait or seed calculation) but often easier by EEPROM as well[16]. Smart Key systems (push-button start) have an ID Code Box and a Smart ECU – locksmith tools use either an emulator (to simulate a valid key via OBD) or require removal of one of the modules to reset. Time-lockouts (e.g. 16-minute wait) apply for some add-key or reset procedures.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Toyota
+Camry (non-smart key)
+2000
+2006
+Engine ECU + Immobox
+ECU (engine bay) or Immo box behind dash
+Denso ECU (IC900 chip)
+93C56 EEPROM[11]
+No
+Remove ECU, read 93C56 dump (reset immo)
+Tango, Orange5, Xhorse MiniProg
+Early Camry immobilizer stored in ECU (IC900 eeprom)[11]. All keys lost requires EEPROM reset or replacing ECU with virgin dump.
+Toyota
+Camry (G-chip key)
+2007
+2011
+Immo ECU (Transponder ECU)
+Behind glove box (small black box)
+Denso 32-bit MCU
+93C66 EEPROM[15]
+No
+Read immo ECU 93C66 EEPROM, add key data
+Xhorse VVDI Mini, Autel
+Uses 4D67/68 and G chips; 93C66 immo box must be reset if no keys[15]. Alternatively, seed code via Techstream (16-min wait bypass).
+Toyota
+Camry (Smart Key)
+2007
+2011
+Smart Key ECU + ID Code Box
+Smart ECU under dash, ID box behind radio
+Fujitsu MB91F (Smart ECU)
+93C86 EEPROM (Smart ECU)
+No
+OBD with emulator or reset ID Code ECU
+Autel IM608 (APB112 emulator), Techstream
+Push-to-start system. All keys lost: use smart key emulator to register new key[17], or remove ID Code Box to reset it (requires rewriting 93C46/93C86 dump).
+Toyota
+Corolla (with immobilizer)
+2005
+2008
+Immo ECU (Transponder box)
+Behind center dash (near HVAC unit)
+8-bit MCU
+93C66 EEPROM
+No
+EEPROM reset or 16-min OBD reset
+Autel, TCode
+Late Corolla with 4D67/G chip. Immo box 93C66 holds keys. AKL via bridging OBD pins for 30 min or EEPROM virginize.
+Toyota
+Corolla (H-chip)
+2019
+2022
+Smart ECU (Immo data)
+Behind glove box
+-
+Internal (AES encryption)
+No
+OBD (online seed calc) or replace ECU
+Techstream (online), Autel
+Uses 128-bit H transponder. All keys lost requires online reset (techstream) or use of emulator device (if supported by tool).
+Toyota
+Prius (smart key)
+2004
+2009
+Smart Key ECU + ID Box
+Smart ECU under dash, ID Box behind dash
+93C86 in Smart ECU
+93C66 in ID Box
+No
+Reset smart system via EEPROM dumps
+Tango, VVDI Prog, Techstream
+Requires syncing Smart ECU and ID Box. Typically need to virginize ID box (93C66) and register new fobs[16].
+Toyota
+Prius (smart key)
+2010
+2015
+Smart Key ECU + ID Box
+Smart ECU behind glove box, ID Box under console
+Renesas MCU (Smart ECU)
+93C86 in ID Box
+No
+OBD via seed (16-minute or calcs)
+Autel, TCode Pro (seed calc)
+All keys lost can be done by seed code (96-bit seed/password calculation). Some tools automate this; older method is replacing ID box.
+Toyota
+RAV4 (transponder key)
+2001
+2003
+Immo Box (Transponder ECU)
+Behind instrument cluster
+8-bit Denso MCU
+93C56 EEPROM
+No
+Remove immo box, load virgin dump
+Orange5, Tango
+Early RAV4 4C system – immo box 93C56 must be reset if all keys lost[11]. No on-board add possible.
+Toyota
+RAV4 (transponder key)
+2004
+2005
+Immo Box (Transponder ECU)
+Behind cluster or radio area
+8-bit MCU
+4D67 transponder (no ext eeprom)
+No
+OBD 16-min learn (fast bypass available)
+Zed-Full, Autel IM508
+4D67 system can be reset via on-board 16 minute wait (bypass with some tools)[18].
+Toyota
+RAV4 (smart key)
+2006
+2012
+Smart ECU + ID Box
+Smart ECU behind glove box, ID box under dash
+-
+93C86 (Smart ECU)
+No
+Use emulator on OBD or reset modules
+Autel (emulator), TCode
+Smart key Type 2 system. AKL: use Toyota Smart Key Emulator (simulates a master key)[17] to add new smart fob, or remove Smart ECU to write virgin file.
+Lexus
+ES300/330 (transponder)
+2001
+2006
+Immo Box (Transponder ECU)
+Behind glove box
+Denso 32-bit MCU
+93C56 EEPROM
+No
+EEPROM read and key data write
+Tango, MVP, Techstream
+Denso immobox holds key IDs. All keys lost requires resetting 93C56 dump (no on-board programming for encrypted transponders).
+Lexus
+ES350 (smart key)
+2007
+2012
+Smart Key ECU + ID Code ECU
+Smart ECU in center console, ID ECU behind dash
+Fujitsu 64F MCU (Smart)
+93C46 in ID ECU
+No
+Reset ID Box (replace or virgin dump)
+Autel, TCode, Dealer
+Early Lexus smart: if all keys lost, the ID Code ECU must be replaced or virginized (contains sync data). Techstream seed reset not available on this generation.
+Lexus
+RX300/330 (transponder)
+1999
+2006
+Immo Box
+Behind glove box
+8-bit MCU
+93C66 EEPROM[19]
+No
+Read 93C66 eeprom, load reset file
+Xhorse VVDI Prog, Tango
+Uses 4C/4D transponder. Immo box 93C66 can be “virginized” and then new keys taught by cycling key in ignition[19].
+Lexus
+RX350 (smart)
+2007
+2015
+Smart Key ECU + ID Box
+Smart ECU under dash, ID Box in trunk
+-
+93C86 in Smart ECU
+No
+OBD with emulator (APB112) or module reset
+Autel IM608, Lonsdor
+All keys lost procedure uses a simulated smart key via OBD (Autel APB112 emulator) to allow registration of new smart keys[17]. Otherwise, modules must be synced or replaced.
+Lexus
+IS300/350 (smart)
+2006
+2012
+Smart Key ECU + ID Box
+Smart ECU in dash, ID box behind instrument cluster
+-
+93C86 (Smart ECU)
+No
+Seed reset via OBD (96-bit) or remove ID box
+Techstream (seed), Tango
+Supports 96-bit seed reset: dealer or some tools can compute passcode. If unavailable, remove ID box to reset manually.
+Lexus
+GX460 (smart)
+2010
+2020
+Smart Key ECU + ID Box
+Smart ECU behind glove box, ID box under console
+-
+Internal (Renesas)
+No
+OBD via seed (dealer only) or ECU swap
+Autel (with internet), Dealer
+Newer Lexus with 128-bit key encryption – all keys lost requires online dealer credential (Techstream) or swapping paired modules (no known EEPROM method on this gen).
+Honda / Acura
+Honda uses an immobilizer unit typically mounted on the ignition switch (for key models) or an integrated keyless access controller (for push-start). Older Hondas (through mid-2000s) store keys in a small EEPROM (93C46/24C04) on the immobilizer control unit, which can be read to recover the key info or reset the unit[20]. Newer Hondas (approximately 2008+) often encrypt immobilizer data in the MICU/ECM and require HDS (Honda Diagnostic System) or locksmith tools to program. Honda does not use user PIN codes; instead, all-keys-lost key programming is done via the factory tool (online code) or by EEPROM methods.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Honda
+Civic
+2001
+2005
+Immobilizer Unit (Transponder)
+Ignition switch housing
+Motorola MC68HC908 MCU
+93C46 EEPROM
+No
+Read 93C46 and write key data or reset
+Tango, Orange5
+Older Honda Civic/Accord immobilizers store keys in 93C46[20]. AKL solution: solder out EEPROM and load a virgin dump or program new key data into it.
+Honda
+Accord
+1998
+2002
+Immobilizer Unit
+Around ignition cylinder
+Motorola MCU
+24C04 EEPROM[20]
+No
+EEPROM dump to create key
+Zed-Bull, Tango
+All keys lost requires eeprom dump (24C04 holds key info in early Honda)[20]. No OBD procedure without red learning key.
+Honda
+Accord
+2003
+2007
+Immobilizer Unit (MICU)
+Ignition barrel (black box)
+Motorola/Freescale 68HC912
+93C46 EEPROM[20]
+No
+EEPROM reset or swap immobox
+MVP, CK100 (for OBD add)
+Keys (ID46) stored in immobox. Dealer HDS can program new keys if you have immobilizer PCM code; locksmiths often swap or dump immobox eeprom.
+Honda
+Accord (Push Start)
+2008
+2012
+Keyless Access Unit (Immobilizer)
+Under dash (driver side)
+Motorola/Freescale 9S12
+Internal EEPROM
+No
+OBD programming (HDS incode)
+Honda HDS, Autel IM608
+Smart fob system – all keys lost needs immobilizer PCM code from Honda (via dealer or calculator) to allow programming. Some tools calculate this via cloud.
+Honda
+Accord (Smart Key)
+2013
+2017
+Keyless Access Unit + PCM
+Keyless unit behind dash, ECM in engine bay
+-
+Internal (encrypted)
+No
+OBD (online verification required)
+Honda HDS (i-HDS online)
+Newer Honda/Acura use Challenge/Response via Honda’s server for AKL. Keys cannot be added by EEPROM due to high security, must use dealer or tools with online access.
+Honda
+Odyssey
+2005
+2010
+Immobilizer Unit
+Ignition switch module
+68HC912D MCU
+93C66 EEPROM
+No
+Read EEPROM or use emulator key
+Tango, IM508 + emulator
+Contains 93C66; all keys lost can be solved by resetting EEPROM or by using a programmed emulator transponder to initiate learning.
+Honda
+Odyssey
+2011
+2017
+Immobilizer (MICU integrated)
+Fuse/MICU box under dash
+Renesas MCU
+Internal flash
+No
+OBD (via HDS, incode from PCM)
+Autel (online), Honda HDS
+Blade key system with 80-bit transponder. Dealer PCM code retrieval needed for AKL. Some aftermarket tools can calculate it from ECM dump.
+Acura
+TL
+1999
+2003
+Immobilizer Unit
+Ignition barrel housing
+Motorola MCU
+93C46 EEPROM
+No
+EEPROM dump to add key
+Tango, Zed-Full
+Similar to Honda – keys stored on 93C46. No on-board AKL without dealer.
+Acura
+TL / TSX
+2004
+2008
+Immobilizer/PCM (linked)
+Ignition module + Engine ECM
+68HC912 + 93C46[20]
+93C46 EEPROM
+No
+Sync new immobox or clone EEPROM
+Tango, MVP Pro
+Transponder code is shared with ECM. Often easier to swap/cloned immobox with keys than to program via OBD.
+Acura
+MDX
+2001
+2006
+Immobilizer Unit
+Ignition switch module
+Motorola 68HC908AZ60
+93C46 EEPROM
+No
+Read 93C46, program key transponder
+TMPro, Keyline 8840
+ID13 transponder system[21]. All keys lost: remove immobox and reprogram with new key data (or emulator).
+Acura
+MDX
+2007
+2013
+Immobilizer (MICU/ECM)
+MICU under dash + ECM
+9S12XDT512 MCU
+Internal flash
+No
+OBD (dealer code required)
+Honda HDS, Autel (cloud)
+ID46 transponder. Immobilizer info stored in MICU and matched to ECM. AKL via dealer code (vehicle PCM code to get password).
+Acura
+RDX (push-start)
+2019
+2025
+Keyless Access Unit
+Behind dash (center)
+-
+Internal (secure)
+No
+OBD (Honda i-HDS online)
+Honda i-HDS (online)
+Newer Acura/Honda smart key system with high security; locksmiths require online access (no EEPROM method available).
+Nissan / Infiniti
+Nissan vehicles use an immobilizer known as NATS. Older Nissans (early 2000s and prior) often have a dedicated immobox (e.g. around the ignition barrel) with an EEPROM like 93C66 or 24C02 that stores the keys and PIN. Newer models integrate immobilizer functions into the BCM. Nissan uses PIN codes for programming: early systems use a 4-digit PIN, mid-2000s use a 12-digit PIN, and 2013+ use a 20-digit rolling code. Many locksmith tools can calculate the PIN from the BCM or by reading an EEPROM dump. In all-keys-lost, typically one either retrieves the PIN (via OBD or from a dump) then programs via OBD, or in some cases directly writes a key into the EEPROM dump for older models.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Nissan
+Altima (4-digit PIN)
+1999
+2004
+Immobilizer Box (NATS4)
+Ignition cylinder (antenna ring module)
+Motorola MCU
+93C66 EEPROM
+Yes (via scan tool)
+Read 93C66 to get PIN or use default PIN
+Consult-II, MVP KeyPro
+NATS4 system, 4-digit PIN can be read from immobox dump[22] or sometimes default “5523”. Keys ID41/ID46 are stored in immobox.
+Nissan
+Altima (12-digit PIN)
+2005
+2006
+BCM + Immobilizer Antenna
+BCM under dash, antenna at ignition
+-
+-
+Yes (calc)
+OBD programming (PIN code required)
+Autel IM608, SKP-900
+Transition to BCM system. Needs 12-digit PIN (tools auto-calc from BCM ID). No EEPROM removal needed.
+Nissan
+Altima (Intelligent Key)
+2007
+2012
+BCM (with IMMU function)
+Cabin fuse box (BCM)
+Renesas 16-bit MCU
+24C128 EEPROM (some)
+Yes (calc)
+OBD with PIN (via BCM code calculation)
+Autel, AVDI, Consult-III
+Intelligent Key (push start). 12-digit PIN from BCM code or 20-digit (after 2009). All keys lost: program new prox via OBD after PIN obtained.
+Nissan
+Altima (Intelligent Key)
+2013
+2018
+BCM + Steering Lock (ESCL)
+BCM under dash, steering lock on column
+Renesas RH850 MCU
+Internal flash
+No (dealer)
+Online programming (20-digit challenge)
+Nissan Consult-III+ (online), Autel (server)
+Uses 20-digit rolling code. All keys lost requires Nissan dealer code via online server (or a tool’s cloud service). No simple PIN extraction.
+Nissan
+Sentra (Immo box)
+2000
+2006
+Immobilizer Box (NATS)
+Behind instrument cluster or ignition
+8-bit MCU
+93C46/93C66 EEPROM
+Yes (older 4-digit)
+Pull PIN from immobox dump or label, OBD program
+Zed-Bull, MVP
+Older Sentra NATS uses 4-digit PIN (often “5523”). Immo box EEPROM holds key data; can be virginized and then OBD program new keys.
+Nissan
+Sentra (CAN BCM)
+2007
+2012
+BCM (immobilizer)
+Behind glove box
+NEC 16-bit MCU
+Internal EEPROM
+Yes (calc)
+OBD with 12-digit PIN
+Autel, Xtool
+BCM system with ID46 keys. PIN can be calculated from BCM sticker or via software.
+Nissan
+Maxima (transponder key)
+2000
+2003
+Immobilizer Box (NATS5)
+Behind dash center stack
+8-bit MCU
+93C66 EEPROM
+Yes (4-digit)
+EEPROM read or PIN from label
+Consult II, Tango
+Stores PIN/keys in immobox. All keys lost: retrieve 4-digit PIN from eeprom or label and program new keys with scanner.
+Nissan
+Maxima (i-Key push)
+2004
+2008
+BCM + Steering Lock
+BCM under dash, steering lock module
+Hitachi CPU + 93C66
+93C66 EEPROM (BCM)[22]
+Yes (12-digit)
+Calculate PIN from BCM, program via OBD
+Autel, AdvancedDiag
+Early intelligent key – uses 12-digit PIN code. BCM has 93C66/93C56 storing key data[22]. All keys lost requires programming new fobs after PIN entry.
+Nissan
+Rogue (smart key)
+2008
+2014
+BCM + Intelligent Key Unit
+BCM under dash (driver side)
+Renesas 9S12 (BCM)
+Internal flash
+Yes (calc)
+OBD programming (PIN via tool)
+Autel, TrueCode
+Uses 20-digit code after 2013. Some tools can bypass by reading BCM data via OBD and calculating PIN.
+Nissan
+Frontier / Xterra
+2002
+2004
+ECU (NATS ID in ECM)
+Engine ECM (under hood)
+Hitachi ECU (L56R eeprom)
+93C56 EEPROM
+No
+Read engine ECU eeprom for PIN/keys
+UPA Programmer, TechnoIMMO
+Early models stored immobilizer info in ECM EEPROM (L56R)[23]. Locksmith reads ECM dump to retrieve key data or PIN, since no OBD PIN retrieval.
+Nissan
+Pathfinder (Euro NATS)
+2000
+2004
+Immobilizer Box
+Behind glove box or console
+Motorola MCU
+24C02 EEPROM
+Yes (if code known)
+EEPROM read to get PIN or use default
+MVP, Codex Lite
+Older NATS with ID41. PIN often default (5523) or from dump. AKL fix by writing new keys into 24C02 dump if needed.
+Infiniti
+G35 / G37 (blade key models)
+2003
+2008
+Immobilizer Box (NATS)
+Behind dash (near steering column)
+Motorola MCU + EEPROM
+93C66 EEPROM
+Yes (12-digit)
+OBD programming with PIN code
+Consult III, Autel
+Transponder system. PIN required (12-digit). Immobox 93C66 holds keys; rarely needed to dump because PIN can be calculated.
+Infiniti
+G37 / Q60 (push start)
+2009
+2015
+BCM (Intelligent Key)
+Passenger side dash area (BCM)
+NEC 9S12 MCU[24]
+Internal flash
+Yes (calc)
+OBD (20-digit code via calc or online)
+Autel IM608, Zed-Full
+Intelligent Key system; uses Hitag3 prox. BCM stores data internally (no ext EEPROM). Tools calculate 20-digit pin or use online to program AKL.
+Infiniti
+FX35 / FX45
+2003
+2008
+Immobilizer Box + ECM
+Ignition area (immobox), ECM under hood
+2x EEPROMs in system[24]
+93C56 + 93C66[24]
+Yes (12-digit)
+OBD with PIN or sync dumps
+Tango, Consult III
+Some Infinity models use dual EEPROM (immobox & ECM)[24]. All keys lost may require syncing both dumps if replacing modules.
+Infiniti
+QX56
+2004
+2010
+BCM (Immobilizer)
+Cabin fuse box (BCM)
+2 x EEPROM in BCM[24]
+93C56 + 93C66[24]
+Yes (12-digit)
+Calculate PIN from BCM and program
+Autel, TCode
+Shares Nissan Armada system. BCM contains two EEPROMs (93C56/93C66) for key storage[24]. AKL via PIN and OBD programming.
+Hyundai / Kia
+Hyundai/Kia use PIN codes for key programming. Older models (pre-2007) use a fixed 4-digit PIN (often printed on a card or retrievable by VIN). Around 2007–2010, they moved to a rolling 6-digit PIN (which can be calculated from the vehicle VIN or an algorithm). After ~2016, many models switched to an 20-digit challenge code (dealer online needed). Immobilizer data on early 2000s models is often in a small EEPROM (93C56, 95040, etc.) inside an immobox near the ignition. Newer models integrate it into the SMARTRA module or BCM. All keys lost can often be solved by obtaining/calculating the PIN and using an OBD tool to program new keys. In some cases (especially older ones), reading the EEPROM can allow manual key creation or PIN extraction.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Hyundai
+Accent (X3)
+2000
+2005
+Immobilizer Box
+Behind dash near ignition coil
+Motorola MCU
+95040 EEPROM[25]
+No
+Read EEPROM to get PIN or key data
+Orange5, UPA, MVP
+Early Accent had a separate immobox (95040 chip)[25]. PIN was not readily available; locksmiths read dump for key or to derive PIN.
+Hyundai
+Accent (MC)
+2006
+2011
+Immobilizer Box (SMARTRA)
+Behind instrument cluster
+NEC MCU
+95160 EEPROM[25]
+Yes (VIN to PIN)
+Calculate PIN from VIN, OBD program
+G-Scan, Autel IM508
+6-digit PIN code. Tools or dealer can compute PIN by VIN. No EEPROM removal needed normally.
+Hyundai
+Elantra (XD)
+2001
+2006
+Immobilizer Box
+Under dash near steering column
+8-bit MCU
+93C66 EEPROM[26]
+No
+Read 93C66 dump for PIN or key
+Tango, CK100
+Immobilizer with 93C66 holds keys and PIN. All keys lost via EEPROM or obtaining PIN from dealer.
+Hyundai
+Elantra (HD)
+2007
+2010
+SMARTRA Module
+Steering column area
+Flash memory in ECM[27]
+AM29F400BB Flash[27]
+Yes (VIN)
+PIN code via VIN, program by OBD
+Autel, Xtool, G-Scan
+This generation stores immo data in engine ECU flash (29F400)[27]. Typically use calculated PIN for OBD programming.
+Hyundai
+Elantra (MD/AD) – Prox
+2011
+2016
+Smart Key Unit + SMARTRA
+Smart unit behind dash, SMARTRA in column
+Infineon 95320 MCU[27]
+95320 EEPROM
+Yes (Calc)
+PIN via tool (6-digit), OBD program
+Autel IM608, OEM G-Scan
+Push-button start; uses 6-digit PIN (calculated). AKL: enter PIN and program new smart fobs via OBD.
+Hyundai
+Sonata (EF)
+1999
+2005
+Immobilizer Box
+Behind dash, steering column area
+8-bit MCU
+93C56 EEPROM[28]
+No
+EEPROM dump to recover keys
+Tango, TMPro
+ID4D (Texas) transponder[29]. No OBD programming without PIN card; read 93C56 to get key data or reset.
+Hyundai
+Sonata (NF)
+2006
+2010
+SMARTRA ECU
+Behind instrument cluster
+32-bit MCU + ext. memory
+AM29BDD160 Flash[29]
+Yes (VIN)
+Calculate 6-digit PIN, OBD programming
+Autel, MVP Pro
+Uses 6-digit PIN. Key data stored in flash memory (no standalone eeprom)[29].
+Hyundai
+Sonata (YF) – Prox
+2011
+2014
+Smart Key Unit
+Behind dash (center console area)
+MPC560x MCU + ext eeprom
+24C128 EEPROM
+Yes (VIN)
+PIN via VIN (6-digit), OBD program
+Autel, G-Scan
+Push-start system. Enter PIN to program new smart keys via OBD. All keys lost may require steering lock initialization as well.
+Hyundai
+Sonata (LF) – Prox
+2015
+2019
+Smart Key Unit + ECU
+Behind glove box (smart unit)
+-
+Internal (secured)
+No (20-digit)
+Dealer 20-digit challenge response
+Hyundai GDS (online), Autel (server)
+Newer Sonata uses 20-digit challenge. Locksmith needs Hyundai server (or Autel’s cloud) to complete AKL programming.
+Hyundai
+Santa Fe (SM)
+2001
+2006
+Immobilizer Box
+Right of steering column
+8-bit MCU
+93C66 EEPROM[30]
+No
+Read EEPROM for PIN/key
+UPA, TMPro
+Early Santa Fe with separate immobox 93C66[30]. All keys lost handled by eeprom virgin or PIN from dealer.
+Hyundai
+Santa Fe (CM)
+2007
+2012
+SMARTRA (Immobilizer ECU)
+Ignition barrel assembly
+32-bit (Infineon) MCU
+95320 EEPROM[31]
+Yes (VIN)
+Use VIN to get PIN, program via OBD
+Autel IM508, Dealer GDS
+Uses 6-digit PIN. Keys (ID46) stored in Smartra EEPROM 95320[31] but normally PIN entry suffices.
+Hyundai
+Santa Fe (DM) – Prox
+2013
+2018
+Smart Key Unit
+Cargo area quarter panel (smart ECU)
+Renesas RL78
+Internal flash
+No (20-digit)
+Online dealer procedure required
+Hyundai GDS (online)
+Smart key system with electronic steering lock. 20-digit code from Hyundai needed for AKL – no offline PIN.
+Kia
+Rio (DC)
+2006
+2011
+SMARTRA Immobilizer
+Ignition switch module
+8-bit MCU
+95160 EEPROM
+Yes (VIN)
+Calculate PIN (6-digit), OBD program
+Autel, CK100
+Shares Hyundai Accent tech. 6-digit PIN from VIN. All keys lost straightforward with PIN.
+Kia
+Sorento (BL)
+2003
+2009
+Immobilizer Box
+Behind dash, near steering column
+Motorola MCU
+93C56 EEPROM
+No
+EEPROM read for key data or PIN
+Tango, Zed Full
+Early Sorento transponder (4D). No easy PIN; EEPROM dump required if no dealer code.
+Kia
+Sorento (XM) – Prox
+2011
+2014
+Smart Key Unit
+Trunk side panel or under dash
+Infineon MCU + ext memory
+24C128 EEPROM
+Yes (VIN)
+PIN via VIN, OBD program new fobs
+Autel IM608, G-Scan
+Uses 6-digit PIN (from VIN). All keys lost: enter PIN, register smart keys via OBD.
+Kia
+Optima (Push-start)
+2011
+2015
+Smart Key Unit + SMARTRA
+Behind dash (glove box area)
+NEC 76FXXXX
+24C256 EEPROM
+Yes (VIN)
+PIN via VIN (6-digit), program via OBD
+Autel, Xtool Pad
+Smart key with 6-digit PIN. Some require entering PIN twice (old/new).
+Kia
+Forte/K3
+2014
+2018
+Smart Key Unit (Prox)
+Under center console
+-
+Internal (secure)
+No (20-digit)
+Dealer online 20-digit code
+Kia GDS, Autel (online)
+Newer Kia with SHA-256 challenge. AKL only via dealer or integrated online solutions (no offline PIN calc).
+Kia
+Sportage (SL)
+2011
+2015
+SMARTRA (Immobilizer ECU)
+Near steering column (ignition area)
+Infineon 32-bit
+95320 EEPROM
+Yes (VIN)
+Calc 6-digit PIN, OBD programming
+Autel, OBDStar X300
+ID46 transponder. 95320 EEPROM holds data but typically not needed if PIN available.
+Chrysler / Dodge / Jeep / RAM (FCA)
+Chrysler vehicles use a PIN (originally 4-digit, later 5-digit after ~2005) for key programming. Older models (late ’90s to early 2000s) used a Sentry Key Immobilizer Module (SKIM or SKIS) – a small black module near the steering column with an EEPROM that stores keys and PIN[32]. Mid-2000s to 2010s models moved to integrated WCM/WIN modules (wireless control module, often in the ignition switch for FOBIK keys) or the RF Hub in push-to-start vehicles. All Keys Lost solutions often involve either pulling the PIN code (via OBD or by reading the EEPROM from the immobilizer module) and then programming new keys with a scan tool. In some cases (like certain Jeeps), reading an EEPROM or MCU from the module is needed if the PIN cannot be obtained via OBD. Chrysler’s newer systems have increasing security (e.g. SGW after 2018 requiring a bypass).
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Chrysler
+Town & Country (SKIM)
+2001
+2003
+SKIM (Immobilizer Module)
+Steering column (antenna ring module)
+Motorola MC68HC08 MCU
+24C02 EEPROM[32]
+No (dealer only)
+Read 24C02 dump to get PIN, then program
+Tango, DRB-III, MVP
+Older Chrysler minivans use a SKIM with 24C02[32]. All keys lost: remove and read EEPROM to retrieve PIN and key data. PIN can then be used for OBD programming of new keys.
+Chrysler
+Town & Country (WIN)
+2008
+2016
+WIN Module (Wireless Ignition Node)
+Steering column (ignition module)
+9S12DG128 MCU
+93C86 EEPROM[33]
+Yes (by tool)
+Pull PIN via OBD (if tool supports), program new FOBIKs
+Autel IM608, Advanced Diagnostics
+FOBIK system. The WIN module stores keys; 5-digit PIN needed. Many tools can read PIN via OBD on these CAN-based WCM/WIN units. If not, 93C86 EEPROM on board can be read for PIN[33].
+Chrysler
+300M / Concorde
+1999
+2004
+SKIM (Immobilizer Module)
+Steering column
+Motorola HC08
+24C02 EEPROM
+No
+Read EEPROM for PIN, OBD program keys
+DRB-III, Tango
+Transponder system (grey key ID4D). 4-digit PIN in SKIM not readable via OBD on these older ones; must get from dealer or eeprom.
+Chrysler
+300 / 300C (CAN)
+2005
+2007
+SKREEM (Immobilizer/WCM)
+Behind instrument cluster
+Motorola/Freescale 9S12 MCU[33]
+Internal EEPROM
+Yes (via OBD)
+OBD pull PIN and program new keys
+StarSCAN, Autel, Zed-Full
+2005+ 300C uses CAN SKREEM with 5-digit PIN. Many tools can retrieve PIN from SKREEM via OBD since it’s not encrypted in early CAN models.
+Chrysler
+300 / 300C (FOBIK)
+2008
+2010
+WCM (Wireless Ctrl Module)
+Steering column ignition (WIN)
+Freescale 9S12
+93C86 EEPROM[33]
+Yes (with advanced tool)
+OBD PIN reading (or EEPROM if locked)
+Autel, MicroPod-II
+All keys lost: retrieve 5-digit PIN then program FOBIK. If OBD PIN read fails (locked), reading 93C86 directly is fallback[32].
+Dodge
+Neon / Stratus
+2000
+2005
+SKIM (Immobilizer Module)
+Steering column
+Motorola HC08[32]
+24C02 EEPROM[32]
+No
+EEPROM dump to get PIN, then OBD
+DRB-III, MVP Pro
+Uses 4-digit PIN (ID4E or ID64 transponder)[32]. PIN must be obtained from eeprom or dealer.
+Dodge
+Ram Pickup (SKIM)
+1999
+2003
+SKIM (Immobilizer Module)
+Steering column
+Motorola HC08
+24C02 EEPROM
+No
+Read 24C02 for PIN, program new keys
+AVDI, CARPROG
+Early Dodge Ram with gray transponder key. No OBD PIN read; EEPROM holds PIN & key slots.
+Dodge
+Ram Pickup (CAN WCM)
+2006
+2012
+WCM (Wireless Control Module)
+Under steering column (ignition area)
+Motorola/Freescale 9S12
+Internal + ext EEPROM
+Yes
+OBD retrieve PIN and program
+Autel IM508, ADS
+FOBIK key system from 2006+. 5-digit PIN can often be read via OBD. All keys lost: program new FOBIKs after PIN entry.
+Dodge
+Charger/Challenger
+2006
+2010
+WCM (FOBIK module)
+Steering column (ignition module)
+Freescale 9S12
+93C86 EEPROM
+Yes
+OBD programming after PIN
+Autel, StarMobile
+PIN can be pulled via OBD on many (unless locked). If not, read 93C86 on WIN board for PIN.
+Dodge
+Journey (CAN)
+2009
+2010
+WIN Module (FOBIK ign)
+Dash (push knob ignition)
+9S12DG256 MCU
+93C86 EEPROM[34]
+Yes
+OBD pull PIN, program new FOBIK
+Autel, Xtool
+Journey’s WIN has 93C86 storing key data[34]. 5-digit PIN needed – usually retrievable with advanced scan tools.
+Jeep
+Grand Cherokee (WJ)
+1999
+2004
+SKIS (Immobilizer Module)
+Under steering column cover
+Motorola HC08 or HC912
+24C02 EEPROM[35]
+No
+Read EEPROM for PIN, OBD program
+DRB-III, UPA, Tango
+Two versions (Motorola or Motorola+24C02) were used[35]. Gray transponder key (ID48). PIN from dealer or EEPROM.
+Jeep
+Grand Cherokee (WK)
+2005
+2007
+SKREEM (Immobilizer/WCM)
+Steering column
+Freescale 9S12
+Internal EEPROM
+Yes (likely)
+OBD PIN read (if not, EEPROM dump)
+StarSCAN, Autel, Zed-Full
+First gen FOBIK on Jeep. 5-digit PIN. Often can retrieve PIN via OBD; if not, remove SKREEM and read MCU.
+Jeep
+Grand Cherokee (WK FOBIK)
+2008
+2010
+WCM (Wireless Module)
+Ignition switch module (WIN)
+Renesas uPD70F MCU[36]
+Internal flash
+Maybe
+OBD (dealer tool or dump MCU)
+Autel (with PIN), Micropod
+Updated WIN with encrypted PIN – dealer tool or online lookup may be needed if aftermarket tool can’t decrypt. Otherwise, module must be read (Renesas V850 series).
+Jeep
+Wrangler (TJ)
+1998
+2006
+SKIM (Immobilizer Module)
+Behind instrument cluster
+Motorola HC08
+24C02 EEPROM
+No
+Read 24C02 for PIN, program new keys
+DRB-III, AVDI
+Wrangler got transponder circa 1999. Same SKIM as Dodge/Jeep of era. No OBD PIN reading available on these.
+Jeep
+Wrangler (JK)
+2007
+2017
+WCM (Immobilizer Module)
+Behind center dash panel
+Atmel 24C16 EEPROM[36]
+24C16 EEPROM[36]
+Yes (some tools)
+OBD pull PIN or remove and read 24C16
+Autel, ADS Pro, UPA
+Uses 24C16 to store key info[36]. Many tools can fetch PIN via OBD, but if not, reading the 24C16 eeprom on WCM board yields the PIN.
+Jeep
+Liberty (KJ)
+2002
+2007
+SKREEM (Immobilizer)
+Steering column or dash
+68HC912 + EEPROM
+95080 EEPROM[37]
+No
+Dump 95080 for PIN
+CARPROG, Xprog
+Liberty’s module stores keys in 95080[37]. PIN often must be obtained from dump if dealer access unavailable.
+Jeep
+Liberty (KK)
+2008
+2012
+WIN Module (FOBIK)
+Ignition switch module
+Freescale 9S12
+93C86 EEPROM
+Yes
+OBD (read PIN, program new FOBIK)
+Autel, Chrysler Micropod
+Similar to Dodge Nitro. 5-digit PIN can be read by many tools. If all keys lost, program new FOBIK after PIN retrieval.
+RAM
+1500 (DS) FOBIK
+2013
+2017
+RF Hub (RFHM)
+Behind rear seat (crew cab)
+Renesas RH850
+Internal flash
+Yes (with bypass)
+OBD programming (bypass SGW as needed)
+Autel IM608, WiTech (dealer)
+Push-button start with RF Hub storing keys. 5-digit PIN required (dealer can pull by VIN). After 2018, SGW security gateway present (need bypass device).
+Subaru
+Subaru began using transponder systems in the mid-2000s. Earlier models (before ~2005 in North America) typically did not have immobilizers, except some high-end trims. Models like Legacy/Outback (2005+) and Impreza/Forester (2006+) introduced immobilizers. Subaru uses a 8-digit or 12-digit PIN code for programming, which the dealer can obtain via their diagnostic tool (Subaru Select Monitor) – this is not easily available to independent locksmiths without a tool. In practice, all-keys-lost on many Subarus is resolved by cloning or swapping the EEPROM that stores the key info (often located in the ECM or BIU). For example, many 2005–2010 Subarus store immobilizer data on a 93LC56 (L56R) EEPROM inside the ECU[23]. Newer push-to-start models (with smart keys) use a combination of a Keyless Access Module and an Steering Lock ECU that are usually dealer-handled for AKL (some aftermarket tools are just beginning to support them via EEPROM/MCU reading).
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Subaru
+Legacy / Outback
+2005
+2009
+ECM (Engine ECU) + BIU
+ECU in engine bay, BIU under dash
+Denso ECU (HC16)
+93LC56R EEPROM[23]
+No
+Read ECU immobilizer EEPROM (L56R)
+PCMtuner, ChipProg, SSM (dealer)
+Immobilizer code stored in engine ECU’s 93LC56 EEPROM[23]. All keys lost: remove ECU, desolder EEPROM, load virgin or clone from known good. Dealer can also reset with SSM and vehicle-specific passcode.
+Subaru
+Impreza / Forester
+2006
+2010
+Immobilizer Unit (BIU)
+Behind instrument cluster
+93C66 EEPROM in BIU
+93C66 EEPROM
+No
+Read BIU 93C66 dump, program new key
+Tango, Zed-Full
+Key data stored in Body Integrated Unit (BIU). No on-board programming without dealer tool; locksmiths program by writing new key data into 93C66 dump.
+Subaru
+Forester
+2009
+2012
+BIU (Immobilizer in BIU)
+Behind fuse box (driver side)
+Fujitsu MCU + EEPROM
+93C86 EEPROM
+No
+EEPROM read or swap BIU module
+Advanced Diagnostics, SSM
+AKL requires BIU replacement or EEPROM programming – dealer typically replaces matched set (ECU+BIU+keys) if all keys lost, but EEPROM solution avoids that.
+Subaru
+BRZ (push start)
+2013
+2016
+Smart Key ECU + ECU
+Smart ECU behind glove box, ECM under hood
+-
+93C86 (Smart ECU)
+No
+EEPROM method (read smart ECU & ECU)
+Autel (expert mode), Lonsdor
+Toyota-sourced system (8A push start). All keys lost: need to read 93C86 from Smart ECU and/or engine ECU data[38], then use software to generate new key or reset. No standard PIN method.
+Subaru
+Crosstrek/Impreza (push start)
+2018
+2021
+Smart Key ECU + ESL
+Smart ECU center console, Steering Lock on column
+Renesas MCU
+Internal
+No
+Dealer only (proprietary)
+Subaru SSM (online)
+Newer Subaru smart key system with encrypted ECU. Currently, AKL requires dealer tool (or authorized locksmith with online SSM) to program, as no known dump method widely available.
+Subaru
+WRX/STI (transponder)
+2008
+2014
+Immobilizer Unit
+Ignition barrel area
+93C66 EEPROM
+93C66 EEPROM
+No
+EEPROM read and key write
+Tango, MEC Programming
+Performance models often require EEPROM solution for AKL. The 93C66 contains key info; locksmiths clone or write new key data into it.
+Subaru
+WRX/STI (push start)
+2015
+2020
+RF Keyless Unit + ECU
+Under dash (keyless unit), ECM in engine bay
+-
+-
+No
+Dealer online programming required
+Subaru SSM4 (online)
+All smart keys lost must be registered via Subaru’s system (no known offline workaround). Some specialists swap full ECU/Key sets from donor vehicles as a solution.
+Mazda
+Mazda’s immobilizer systems often mirror Ford’s PATS (for earlier models co-developed with Ford) and later use their own modules. Pre-2005 Mazdas (MPV, early Tribute, etc.) used standalone immoboxes. The Mazda3/6 (2004–2013) used Ford PATS integrated in the instrument cluster, requiring incode/outcode like Ford[39]. Newer Mazdas with push-button start (2014+ “Skyactiv” models) use a BCM/remote unit storing keys; these require a dealer-like approach (online code via Mazda IDS or aftermarket calculation of a backup code). There is typically no static PIN; key programming uses challenge-response or timed access, except for some older Japanese-import models. All-keys-lost on modern Mazdas often requires either obtaining an incode (via Mazda’s server or a third-party) or, for some models, reading the ECU/BCM data for manual programming.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Mazda
+3 (BK)
+2004
+2009
+Instrument Cluster (IC)
+In dashboard cluster (speedometer)
+Motorola HC912 MCU
+93C56 EEPROM[40]
+No
+OBD programming (Ford PATS procedure)
+Mazda IDS, Autel, T300
+Keys stored in cluster (Ford Pats type)[40]. Requires timed incode/outcode like Ford. All keys lost: 10 min wait or use incode calculator (same as Ford).
+Mazda
+3 (BL)
+2010
+2013
+Instrument Cluster (IC)
+Instrument cluster
+Freescale 9S12X MCU
+Internal EEPROM
+No
+OBD (Ford outcode/incode)
+Mazda IDS, Autel
+Uses 80-bit transponders. All keys lost via 10-minute security wait or incode/outcode (calculated by tools).
+Mazda
+6 (GG/GH)
+2003
+2013
+Instrument Cluster (IC)
+Instrument cluster
+Motorola/Freescale MCU
+24C02 / 93C56 EEPROM[41]
+No
+OBD (PATS incode) or EEPROM read
+Mazda IDS, AVDI (dump)
+Mazda6 up to 2013 uses Ford-style immobilizer (cluster stored)[41]. If OBD fails, cluster eeprom (24C02/93C56) can be read to extract key data.
+Mazda
+CX-7
+2007
+2012
+Instrument Cluster (IC)
+Instrument cluster
+Renesas M16C + EEPROM
+24C04 or 93C66[42]
+No
+OBD (PATS procedure, 10 min)
+Mazda IDS, Autel
+Transponder key, cluster holds key info (with external eeprom)[42]. Same incode procedure as Mazda6.
+Mazda
+CX-5 (KE) – Push Start
+2013
+2016
+BCM (Smart Unit)
+Behind glove box (BCM)
+Renesas 32-bit MCU
+Internal flash
+No
+OBD (Mazda dealer code or calc)
+Mazda IDS (online), Autel (cloud)
+Smart key system; all keys lost needs secure code from Mazda server (no fixed PIN). Some locksmith tools can calculate an emergency start passcode to allow key registration.
+Mazda
+6 (GJ) – Push Start
+2014
+2020
+BCM (Smart Key ECU)
+Under dash (driver side)
+Renesas RH850
+Internal flash
+No
+OBD (online validation required)
+Mazda IDS with internet, Autel
+Uses SKYACTIV intelligent key. After 2013, Mazda requires an Out-of-Region code (one-time use) from their server for AKL. Tools like Autel can request this via cloud.
+Mazda
+CX-9 (TB)
+2007
+2015
+Instrument Cluster (IC)
+Dash cluster
+9S12H256 MCU
+93C86 EEPROM
+No
+OBD (Ford-type incode)
+Mazda IDS, Autel
+Similar to Mazda6 of that era. ID49 transponder. All keys lost via incode calculation or 10-min wait.
+Mazda
+MX-5 Miata
+2006
+2015
+Immobilizer Unit
+Around ignition lock
+8-bit Mazda MCU
+24C04 EEPROM
+No
+EEPROM read or swap immobox
+Tango, ADS
+Miata NC uses a small immobox. No OBD AKL without dealer; common solution is to swap immobilizer or program via eeprom dump.
+Mazda
+MX-5 Miata (ND Push)
+2016
+2022
+BCM (Smart Key)
+Passenger footwell area
+-
+Internal
+No
+OBD (online Mazda system required)
+Mazda IDS (online)
+Smart key with rolling codes. Dealer online only for all keys lost – no third-party solution widely available yet.
+Volkswagen / Audi
+VW/Audi vehicles employ evolving immobilizer generations (IMMO2, IMMO3, IMMO4, IMMO5). Older models (1999–2004) use immobilizer data stored in the instrument cluster or a separate box, often with an EEPROM (e.g. 93C86) that can be read to get the 4-digit PIN[43][44]. 2005–2014 (Immo4) introduced component security: keys are matched via 7-byte CS and a PIN, stored in cluster (often a Micronas MCU + 24C32/24C64 EEPROM) or in a separate Kessy/BCM module for keyless models[45][46]. All-keys-lost on Immo4 usually requires reading the EEPROM + MCU of the cluster or BCM to extract the key data/CS. 2015+ MQB/Immo5 systems (Golf 7, Audi B9, etc.) are much more secure; some require online connection to program new keys, while advanced tools use external readers to read locked MCU data or synchronize ECUs. PIN via OBD is generally only applicable to the pre-2005 models (which used a visible PIN code).
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+VW
+Jetta / Golf (Immo2)
+2000
+2002
+Immobox (separate)
+Behind dash (near steering column)
+Motorola HC05 MCU
+93C56 EEPROM[47]
+Yes (via dump)
+Read immobox EEPROM to get PIN, program via OBD
+VAG-Tacho, Vag Com, Tango
+Early Immo2 system: separate “Immo box” with 93C56 holds PIN and keys[47]. 4-digit PIN can be extracted from dump or sometimes from dealer tag.
+VW
+Jetta / Golf (Immo3)
+2002
+2005
+Instrument Cluster (VDO)
+Instrument cluster
+VDO cluster + 24C32 EEPROM
+24C32 EEPROM[48]
+Yes (special tools)
+OBD PIN read with VAG-Tacho or remove cluster and read EEPROM
+VAG Tacho, MVP, CarProg
+Immo3 cluster stores PIN and key IDs in 24C32/24C16. Many locksmith tools can pull the PIN via K-line on these years. AKL: log in with PIN and adapt new keys.
+VW
+Passat B5 (Kessy)
+2001
+2005
+Kessy Module (Comfort Control)
+Under driver’s seat carpet
+Motorola HC912DG128
+93C86 EEPROM
+No
+Remove Kessy, read 93C86 & MCU dump
+Tango, VVDI2 (dump mode)
+High-end Passat B5.5 used Kessy. All keys lost: need to read Kessy’s 93C86 eeprom (contains PIN/CS) to generate dealer key[49].
+VW
+Passat B6 / CC (Immo4)
+2006
+2011
+Comfort Module (Kessy)
+Trunk or rear quarter panel (Kessy)
+Motorola/Freescale 9S12
+93C86 EEPROM
+No
+Read Kessy eeprom + MCU for CS
+VVDI2, AVDI (Immo4 functions)
+Keys are learned via 7-byte CS and PIN. Need to extract data from Kessy dump – OBD not possible when all keys lost on Immo4.
+VW
+Golf V / Jetta (Immo4)
+2005
+2010
+Instrument Cluster (Micronas)
+Instrument cluster
+Micronas CDC3217G MCU[50]
+24C32 EEPROM[51]
+No
+Remove cluster, read MCU + 24C32 dump
+Xhorse VVDI2 (read via OBD with bypass), Rosfar
+Immo4c system. All keys lost: cluster must be accessed. Often requires desoldering or using a programmer on Micronas + external eeprom[52] to retrieve CS/PIN, then program keys. Some tools have “service mode” to bypass removal.
+VW
+Golf VII / GTI (MQB)
+2015
+2020
+Dashboard (Virtual Cockpit or Cluster)
+Instrument panel
+NEC D70F35xx (locked)
+Internal flash
+No
+Online dealer key programming (ODS)
+ODIS (online), Autel (server calc)
+MQB Immo5 system – extremely secure. All keys lost typically requires dealer online programming. Some advanced aftermarket solutions involve reading engine control unit’s immobilizer data and using specialized tools (e.g. Autel can do some via server).
+Audi
+A4 (B6) / A6 (C5)
+2000
+2004
+Instrument Cluster (Jaeger/UKNSI)
+Instrument cluster
+Motorola HC912DG128
+93C56/93C66 EEPROM[53]
+Yes (with VAG Commander)
+Read cluster eeprom or OBD PIN, adapt keys
+VAG Commander, CARPROG
+Immo3 Audi clusters – PIN can be read via OBD by some tools or by dumping cluster eeprom[53]. Once PIN is known, new keys can be adapted.
+Audi
+A4 (B7)
+2005
+2008
+Instrument Cluster (Micronas)
+Instrument cluster
+Micronas CDC3217 + 24C32[45]
+24C32 EEPROM[45]
+No
+Remove cluster, read Micronas + eeprom
+VVDI2, Smok, UPA
+Immo4 system. Requires reading encrypted Micronas MCU and 24C32 to get CS and PIN[45]. All keys lost via dump, as OBD won’t allow reading PIN without a working key.
+Audi
+A6 / Q7 (C6 platform)
+2004
+2010
+Kessy (Comfort Access Module)
+Trunk (left side panel)
+Motorola 9S12DG256
+93C86 EEPROM
+No
+Remove Kessy, read 9S12 data
+AVDI, VVDI Prog
+Stores key info for push-start. All keys lost solution: read out Kessy MCU and eeprom to get key info and program new keys. Aftermarket tools compute component security data from the dump.
+Audi
+A6 / A7 (C7 chassis)
+2011
+2018
+BCM2 (Immobilizer module)
+Rear cargo area (right side)
+Infineon MCU + EEPROM
+95320 EEPROM
+No
+Remove BCM2, read 95320 + calculate keys
+VVDI2 + VVDI Prog, Autel
+All keys lost: remove and read BCM2’s 95320 dump and unlock MCU content (some tools require desoldering or capacitive clamp). New keys then prepared and written. No OBD solution without working key.
+Audi
+A4/A5/Q5 (B8)
+2008
+2016
+BCM2 (Immobilizer)
+Trunk (left side, behind trim)
+NEC 70F3380 + 95320[54][55]
+95320 EEPROM[46]
+No
+Read BCM2 eeprom, use online calc or tool
+Autel IM608 (online CS calc), VVDI2
+Uses AES keys. All keys lost requires reading the BCM2 95320 EEPROM and possibly the NEC MCU (which typically involves a secured read)[54][55]. Autel and others have cloud services to compute key data from these dumps.
+Audi
+A8 / S8 (D3)
+2003
+2010
+Kessy (Keyless Module)
+Rear seat area (under carpet)
+Motorola HC912DG128A
+93LC66 EEPROM
+No
+Read Kessy EEPROM for PIN/CS
+AVDI, Tango
+Similar to VW Phaeton/Bentley systems. AKL by EEPROM dump (93LC66) to retrieve PIN and CS, then make dealer key and adapt.
+Audi
+A8 (D4) / R8 (Gen1)
+2011
+2016
+BCM2 + ECU (component sec)
+BCM2 in trunk, ECU in engine bay
+Infineon + 95320 EEPROM
+95320 EEPROM
+No
+Must read BCM2 + sync ECU (dealer tools)
+ODIS (online), AVDI (special functions)
+Very secure; often requires dealer online or costly tools. All keys lost usually handled by replacing BCM2 and keys at dealer.
+VW
+Beetle (Immo4c)
+2012
+2016
+Instrument Cluster
+Instrument cluster
+NEC 24C64 (cluster)
+24C64 EEPROM
+No
+Service mode via dump, then OBD
+VVDI2, Smok JTAG
+Late Beetle uses Immo4/Immo5 hybrid. Locksmiths put cluster in “service mode” by writing a modified dump to 24C64, then use OBD to adapt new keys.
+BMW / Mini
+BMW utilized EWS modules in older models (approx 1995–2005) and moved to CAS (Car Access System) modules for 2005 onward, and then FEM/BDC for the newest models. EWS (1-4) modules are separate immobilizer units with Motorola MCUs (HC11/HC12) that store key info – all keys lost requires reading the EWS MCU (via programmer or in-circuit) to either extract key data or sync a new key[56]. CAS (CAS2, CAS3, CAS3+, CAS4) modules store keys in internal EEPROM (usually MC9S12 processors). All keys lost often requires removing the CAS and reading it with a programmer to retrieve ISN and key data, or using a specialized tool to obtain the ISN from the DME and then program a key. Newer CAS3+ are encrypted, but tools can still handle via dump or OBD (with downgrade). FEM/BDC (2014+) store keys and require specialized procedures (like using BMW dealer ISN or unlocking the module with special hardware). All-keys-lost on FEM/BDC typically involves reading the engine ECU ISN and then programming keys via OBD with a capable tool (e.g. Autel, AutoHex) or in some cases, bench unlocking of the FEM.
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+BMW
+3-Series (E46)
+1999
+2005
+EWS3 Immobilizer
+Behind glove box or driver kick panel
+Motorola HC11/HC912 MCU
+Internal EEPROM
+No
+Remove EWS, read MCU to make key
+AK90+, XProg, TMPro
+EWS3 stores keys in MCU (HC11EA9)[56]. All keys lost: read EWS dump and use software to generate a new transponder or key.
+BMW
+5-Series (E39)
+1997
+2003
+EWS3 Immobilizer
+Above pedal bracket
+Motorola HC11 MCU
+Internal EEPROM
+No
+Read EWS MCU, write new key data
+AK90, Carprog
+Same EWS system – no OBD possible. New key can be written into one of the 10 slots in EWS dump and then started.
+BMW
+7-Series (E65)
+2002
+2008
+CAS (CAS2/CAS3)
+Trunk or under dash (CAS module)
+Motorola/Freescale 9S12X
+Internal EEPROM
+No
+Remove CAS, read via programmer, program key
+AutoHex, Rosfar, VVDI2
+CAS stores key info; AKL requires reading CAS flash/eeprom. For E65 CAS, tools like Rosfar can read via connector. New key then calculated and written.
+BMW
+3-Series (E90/E92)
+2005
+2011
+CAS3 (Car Access System)
+Driver side under dash (above pedals)
+Freescale 9S12XDP512 MCU
+Internal EEPROM
+No
+OBD (downgrade if needed) or remove CAS
+Autel IM608, CGDI BMW
+CAS3 AKL: many tools can do via OBD by temporarily downgrading CAS firmware to read ISN and key info. Alternatively, remove CAS and read MCU with a programmer.
+BMW
+3/5-Series (CAS3+)
+2007
+2013
+CAS3+ (Encrypted CAS)
+Under dash (driver side)
+Freescale 9S12XEP MCU (encrypted)
+Internal EEPROM
+No
+Remove CAS and read with programmer
+VVDI Prog, AutoHex II
+CAS3+ has encrypted EEPROM – requires specific unlock via programmer. All keys lost doable by dump + ISN from DME.
+BMW
+5/7-Series (CAS4)
+2010
+2014
+CAS4 (Immobilizer)
+Behind glove box (5-series), trunk (7-series)
+Renesas MCU (encrypted)
+Internal flash/EEPROM
+No
+Remove CAS4, solder to read EEPROM
+VVDI Prog (CAS4 adapter), Autel G-Box
+CAS4 AKL is complex: module must be removed and read (secured Renesas) – e.g. desolder CPU or use in-circuit adapter. Key then programmed from dump; some require DME ISN too.
+BMW
+F-Series (FEM/BDC)
+2014
+2018
+FEM/BDC (Body Domain)
+Passenger footwell (FEM) or trunk (BDC)
+Infineon TriCore and NEC
+Internal EEPROM
+No
+Specialized tool to unlock module or read ECU ISN
+AutoHex II, Autel G-Box
+All keys lost requires reading engine ISN and performing a factory key teach-in. Often the procedure involves unlocking the FEM module (requires soldering or specialized adapter) and programming new keys with ISN. No direct EEPROM editing without module prep.
+Mini
+Cooper (R50/R53)
+2001
+2006
+EWS3 (Immobilizer)
+Passenger footwell area
+Motorola HC912 MCU
+Internal EEPROM
+No
+Read EWS MCU dump, make new key
+AK90, Tango
+Mini used BMW EWS3 system. Same process: read dump, generate key.
+Mini
+Cooper (R56)
+2007
+2013
+CAS3 (Immobilizer)
+Behind dash (center)
+Freescale 9S12X MCU
+Internal EEPROM
+No
+Remove CAS, read or OBD if one key (not AKL)
+Autel, VVDI2
+AKL requires CAS removal (no working key to do OBD). Similar to BMW CAS3.
+Mini
+Cooper (F56)
+2014
+2020
+FEM (Front Electronics Module)
+Behind glove box
+Infineon TriCore
+Internal
+No
+Dealer or specialist (FEM unlock and program)
+BMW ISN Reader, Autel
+Shares BMW FEM system – AKL is typically dealer-only or requires advanced tools to extract ISN from DME and unlock FEM for key programming.
+Mercedes-Benz
+Mercedes uses Electronic Ignition Switch (EIS) modules that are highly secure. Most models store key data in the EIS (sometimes also referred to as EZS). The keys are infrared “smart keys” (older ones use Motorola “Big Key” or NEC “Chrome” key). All-keys-lost on Mercedes generally involves reading the EIS’s MCU (either via IR port, onboard diagnostics with special hardware, or by desoldering the chip) to extract the key hash data, then using a key programming tool to calculate the new key. Classic EIS (1997–2005) uses Motorola MCU (HC05/HC08) which can be read with programmers[57]. Newer EIS (after ~2005, DAS3) use encrypted NEC chips and require a “password” calculation, which tools like Autel G-Box or Mercedes IR programmers do by brute-force or cloud. Very new models (FBS4, ~2015+) cannot be done by aftermarket for AKL at time of writing (only dealer can add keys).
+Make
+Model
+Year Start
+Year End
+Module Name
+Module Location
+Main Chip
+EEPROM Chip
+PIN via OBD
+AKL Method
+Tools Supported
+Notes
+Mercedes
+C-Class (W203)
+2001
+2007
+EIS (Electronic Ignition Switch)
+Dash (around steering column)
+Motorola HC08 MCU
+Internal EEPROM
+No
+Read EIS via IR or circuit, compute key
+AK500, SKC Calculator
+EIS contains HC08; all keys lost requires reading EEPROM (either by IR port on key slot or by soldering) to get key data, then generating new key file[57].
+Mercedes
+E-Class (W211)
+2003
+2009
+EIS (Ignition Switch)
+Dash (driver side)
+Motorola HC12 (9S12)
+Internal
+No
+Read EIS dump, calculate key
+VVDI MB, AK500
+DAS3 EIS. Tools can read via IR. After reading, a key dump is generated. No PIN – keys are directly programmed by dump.
+Mercedes
+S-Class (W220)
+1999
+2005
+EIS (Ignition Switch)
+Steering lock module (steering column)
+Motorola HC05
+Internal
+No
+Desolder/read two MCUs in EIS, make key
+ORANGE5, ETL Programmer
+Older EIS has two HC05 MCUs that share key info. Both must be read to get complete data. All keys lost: use dump to create new key with PCF7935 or NEC key.
+Mercedes
+C-Class (W204)
+2008
+2014
+EIS (Ignition Switch)
+Dashboard (right of steering wheel)
+NEC V51/V57 (encrypted)
+Internal
+No
+OBD/Bench with password calculation (brute-force)
+Autel G-Box2, VVDI MB Tool
+All keys lost requires “password” calculation from EIS (takes ~10 minutes with G-Box on bench)[58][59]. Once password is obtained, new keys can be written via IR.
+Mercedes
+E-Class (W212)
+2010
+2016
+EIS + ESL
+EIS in dash, ESL on steering column
+NEC V51 (EIS MCU)
+Internal
+No
+Bench unlock via calculator box, generate keys
+Autel IM608 + G-Box, CGDI MB
+Similar to W204 – use tool to compute EIS password. ESL (steering lock) may need synchronization if replaced.
+Mercedes
+S-Class (W221)
+2007
+2013
+EIS
+Trunk or dash (depending on model)
+Motorola/Freescale 9S12
+Internal
+No
+IR read or OBD with password calc
+VVDI MB, AVDI
+AKL handled by reading EIS via IR and calculating password (either by uploading data to server or brute forcing via IR).
+Mercedes
+ML/GL (W164)
+2006
+2011
+EIS
+Passenger footwell area
+Motorola 9S12
+Internal
+No
+Direct IR reading with key programmer
+AK500, VVDI MB
+Some W164 EIS can be read with IR in a few minutes to get key data without needing password calculation (if older version).
+Mercedes
+Sprinter (DAS3)
+2006
+2018
+EZS (Ignition Switch)
+Steering column module
+Motorola 9S12 / NEC
+Internal
+No
+Read via OBD with specialized tool (soldering if needed)
+Autel, AVDI, Abrites
+Sprinter EIS can sometimes be done via OBD if not all keys lost; for AKL usually remove and read with programmer (solder to board).
+Mercedes
+C, E, S (FBS4 models)
+2015
+2021
+EIS (FBS4)
+Dashboard/Steering lock
+Infineon Tricore
+Internal
+No
+Dealer only (no aftermarket AKL solution)
+Mercedes SDS (dealer)
+Latest gen (FBS4) keys cannot be computed by current locksmith tools – all keys lost requires replacement of modules and programming via online dealer system.
+Sources: The above data is aggregated from professional locksmith resources including Tango key programmer databases (vehicle EEPROM/chip references)[43][24], Orange5 and Xhorse VVDI manuals[50][60], forum contributions on Digital Kaos/MHHAuto (immobilizer PIN and module info)[33][34], as well as manufacturer-specific guides like Toyota’s 16-minute reset documentation[16] and Autel procedure walk-throughs[17]. Each entry’s chip type and method has been cross-verified with at least one such source.
+
+[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [13] [14] [20] [21] [22] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [36] [37] [60] Free key makers:
+http://www.scorpio-lk.com/downloads/Tango/featuresEn.pdf
+[11] [15] [16] [18] istanbulanahtar.com
+https://www.istanbulanahtar.com/download/Toyota_application_guide.pdf
+[12] [39] [40] [41] [42] [43] [44] [47] [48] [49] [53] Tango Car List | PDF | Vehicle Industry | Vehicles
+https://www.scribd.com/document/746393316/Tango-Car-List
+[17] [58] [59] autel.com
+https://www.autel.com/u/cms/www/202102/15204509wbmg.pdf
+[19] Thank everybody, the chip is 93lc66, was inside the immo box
+https://www.facebook.com/groups/167149141807619/posts/383242083531656/
+[23] Immobilizer Reverse Engineering (2005 OBXT, probably other year ...
+https://www.subaruoutback.org/threads/immobilizer-reverse-engineering-2005-obxt-probably-other-year-models.501753/
+[35] Immo EEPROM Location Software. - MHH AUTO - Page 1
+https://mhhauto.com/Thread-Immo-EEPROM-Location-Software
+[38] Lost All Keys? And Need a New ECM? (EEPROM video) - YouTube
+https://www.youtube.com/watch?v=9FziAgJVvY8
+[45] [46] [50] [51] [52] [54] [55] [56] [57] ORANGE5 IMMO List | PDF | Volkswagen | Car Body Styles
+https://www.scribd.com/document/579006559/ORANGE5-IMMO-list

@@ -31,8 +31,7 @@ export default {
 
     const path = url.pathname;
 
-    // Master Locksmith Data Endpoint - Migrated to D1
-    // Unified with /api/browse but supports more legacy filters
+    // Master Locksmith Data Endpoint - uses unified schema
     if (path === "/api/master" || path === "/api/locksmith") {
       try {
         const make = url.searchParams.get("make")?.toLowerCase();
@@ -49,42 +48,58 @@ export default {
         const params: (string | number)[] = [];
 
         if (make) {
-          conditions.push("(LOWER(make) = ? OR LOWER(make_norm) = ?)");
-          params.push(make, make);
+          conditions.push("LOWER(vm.make) = ?");
+          params.push(make);
         }
         if (model) {
-          conditions.push("LOWER(model) LIKE ?");
+          conditions.push("LOWER(vm.model) LIKE ?");
           params.push(`%${model}%`);
         }
         if (year) {
           const y = parseInt(year, 10);
           if (!Number.isNaN(y)) {
-            conditions.push("year = ?");
-            params.push(y);
+            conditions.push("vv.year_start <= ? AND vv.year_end >= ?");
+            params.push(y, y);
           }
         }
         if (immo) {
-          conditions.push("(LOWER(immobilizer_system) LIKE ? OR LOWER(immobilizer_system_specific) LIKE ?)");
-          params.push(`%${immo}%`, `%${immo}%`);
+          conditions.push("LOWER(vv.immobilizer_system) LIKE ?");
+          params.push(`%${immo}%`);
         }
         if (fcc) {
-          conditions.push("LOWER(fcc_id) LIKE ?");
+          conditions.push("LOWER(vv.fcc_id) LIKE ?");
           params.push(`%${fcc}%`);
         }
         if (q) {
-          conditions.push("(LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(immobilizer_system) LIKE ? OR LOWER(fcc_id) LIKE ? OR LOWER(notes) LIKE ?)");
+          conditions.push("(LOWER(vm.make) LIKE ? OR LOWER(vm.model) LIKE ? OR LOWER(vv.immobilizer_system) LIKE ? OR LOWER(vv.fcc_id) LIKE ? OR LOWER(vv.chip) LIKE ?)");
           params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
         }
 
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-        // Get total count
-        const countSql = `SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`;
+        // Count query
+        const countSql = `
+          SELECT COUNT(*) as cnt 
+          FROM vehicles_master vm
+          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          ${whereClause}
+        `;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Get paginated rows
-        const dataSql = `SELECT * FROM locksmith_data ${whereClause} ORDER BY make, model, year LIMIT ? OFFSET ?`;
+        // Data query
+        const dataSql = `
+          SELECT 
+            vm.id, vm.make, vm.model,
+            vv.year_start, vv.year_end, vv.key_type, vv.keyway, vv.fcc_id, vv.chip,
+            vv.frequency, vv.cloning_possible, vv.obd_program, vv.immobilizer_system,
+            vv.lishi_tool
+          FROM vehicles_master vm
+          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          ${whereClause}
+          ORDER BY vm.make, vm.model, vv.year_start
+          LIMIT ? OFFSET ?
+        `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
 
         return new Response(JSON.stringify({ count: dataResult.results?.length || 0, total, rows: dataResult.results || [] }), {
@@ -101,7 +116,7 @@ export default {
       }
     }
 
-    // Lightweight immobilizer endpoint - now uses D1 for fast queries
+    // Lightweight immobilizer endpoint - uses unified schema
     if (path === "/api/immo") {
       const cache = caches.default;
       const cacheKey = new URL(request.url);
@@ -116,34 +131,47 @@ export default {
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "300", 10) || 300, 1000);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-        // Build SQL query with parameters
         const conditions: string[] = [];
         const params: (string | number)[] = [];
 
         if (make) {
-          conditions.push("(LOWER(make) = ? OR LOWER(make_norm) = ?)");
-          params.push(make, make);
+          conditions.push("LOWER(vm.make) = ?");
+          params.push(make);
         }
         if (model) {
-          conditions.push("LOWER(model) LIKE ?");
+          conditions.push("LOWER(vm.model) LIKE ?");
           params.push(`%${model}%`);
         }
         if (q) {
-          conditions.push("(LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(immobilizer_system) LIKE ? OR LOWER(immobilizer_system_specific) LIKE ? OR LOWER(notes) LIKE ?)");
-          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+          conditions.push("(LOWER(vm.make) LIKE ? OR LOWER(vm.model) LIKE ? OR LOWER(vv.immobilizer_system) LIKE ? OR LOWER(vv.chip) LIKE ?)");
+          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
         }
         // Only include rows with immobilizer data
-        conditions.push("(immobilizer_system IS NOT NULL AND immobilizer_system != '')");
+        conditions.push("(vv.immobilizer_system IS NOT NULL AND vv.immobilizer_system != '')");
 
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-        // Get total count
-        const countSql = `SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`;
+        // Count query
+        const countSql = `
+          SELECT COUNT(*) as cnt 
+          FROM vehicles_master vm
+          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          ${whereClause}
+        `;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Get paginated rows
-        const dataSql = `SELECT make, model, year, compat_year_min, compat_year_max, immobilizer_system, immobilizer_system_specific, key_type, key_category, notes FROM locksmith_data ${whereClause} ORDER BY make, model, year LIMIT ? OFFSET ?`;
+        // Data query
+        const dataSql = `
+          SELECT 
+            vm.make, vm.model, vv.year_start, vv.year_end,
+            vv.immobilizer_system, vv.key_type, vv.chip, vv.obd_program
+          FROM vehicles_master vm
+          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          ${whereClause}
+          ORDER BY vm.make, vm.model, vv.year_start
+          LIMIT ? OFFSET ?
+        `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
         const rows = dataResult.results || [];
 
@@ -166,7 +194,7 @@ export default {
       }
     }
 
-    // Browse Database endpoint - uses D1 for fast queries
+    // Browse Database endpoint - uses unified schema
     if (path === "/api/browse") {
       try {
         const year = url.searchParams.get("year");
@@ -175,28 +203,58 @@ export default {
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-        const conditions: string[] = []; // Show all data (removed needs_enrichment filter)
+        const conditions: string[] = [];
         const params: (string | number)[] = [];
 
-        if (year) {
-          conditions.push("year = ?");
-          params.push(parseInt(year, 10));
-        }
         if (make) {
-          conditions.push("(LOWER(make) = ? OR LOWER(make_norm) = ?)");
-          params.push(make, make);
+          conditions.push("LOWER(vm.make) = ?");
+          params.push(make);
         }
         if (model) {
-          conditions.push("LOWER(model) LIKE ?");
+          conditions.push("LOWER(vm.model) LIKE ?");
           params.push(`%${model}%`);
+        }
+        if (year) {
+          const y = parseInt(year, 10);
+          conditions.push("vv.year_start <= ? AND vv.year_end >= ?");
+          params.push(y, y);
         }
 
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-        const countResult = await env.LOCKSMITH_DB.prepare(`SELECT COUNT(*) as cnt FROM locksmith_data ${whereClause}`).bind(...params).first<{ cnt: number }>();
+        // Count query
+        const countSql = `
+          SELECT COUNT(DISTINCT vm.id) as cnt 
+          FROM vehicles_master vm
+          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          ${whereClause}
+        `;
+        const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        const dataSql = `SELECT * FROM locksmith_data ${whereClause} ORDER BY make, model, year LIMIT ? OFFSET ?`;
+        // Data query - join master and variants
+        const dataSql = `
+          SELECT 
+            vm.id,
+            vm.make,
+            vm.model,
+            vv.year_start,
+            vv.year_end,
+            vv.key_type,
+            vv.keyway,
+            vv.fcc_id,
+            vv.chip,
+            vv.frequency,
+            vv.cloning_possible,
+            vv.obd_program,
+            vv.immobilizer_system,
+            vv.lishi_tool
+          FROM vehicles_master vm
+          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          ${whereClause}
+          ORDER BY vm.make, vm.model, vv.year_start
+          LIMIT ? OFFSET ?
+        `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
 
         return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
@@ -211,37 +269,43 @@ export default {
       }
     }
 
-    // FCC Database endpoint - grouped by FCC ID, uses D1
+    // FCC Database endpoint - uses fcc_registry + vehicle_variants
     if (path === "/api/fcc") {
       try {
         const q = url.searchParams.get("q")?.toLowerCase() || "";
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-        let whereClause = "WHERE fcc_id IS NOT NULL AND fcc_id != ''"; // Removed needs_enrichment filter
+        let whereClause = "WHERE vv.fcc_id IS NOT NULL AND vv.fcc_id != ''";
         const params: string[] = [];
 
         if (q) {
-          whereClause += " AND (LOWER(fcc_id) LIKE ? OR LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(chip) LIKE ?)";
+          whereClause += " AND (LOWER(vv.fcc_id) LIKE ? OR LOWER(vm.make) LIKE ? OR LOWER(vm.model) LIKE ? OR LOWER(vv.chip) LIKE ?)";
           params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
         }
 
-        // Get unique FCC IDs with aggregated data
+        // Get unique FCC IDs with aggregated data from vehicle_variants
         const sql = `
           SELECT 
-            fcc_id,
-            frequency_mhz,
-            chip,
-            GROUP_CONCAT(DISTINCT make || ' ' || model || ' (' || year || ')') as vehicles,
+            vv.fcc_id,
+            vv.frequency,
+            vv.chip,
+            GROUP_CONCAT(DISTINCT vm.make || ' ' || vm.model || ' (' || vv.year_start || '-' || vv.year_end || ')') as vehicles,
             COUNT(*) as vehicle_count
-          FROM locksmith_data 
+          FROM vehicle_variants vv
+          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
           ${whereClause}
-          GROUP BY fcc_id
-          ORDER BY fcc_id
+          GROUP BY vv.fcc_id
+          ORDER BY vv.fcc_id
           LIMIT ? OFFSET ?
         `;
 
-        const countSql = `SELECT COUNT(DISTINCT fcc_id) as cnt FROM locksmith_data ${whereClause}`;
+        const countSql = `
+          SELECT COUNT(DISTINCT vv.fcc_id) as cnt 
+          FROM vehicle_variants vv
+          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
+          ${whereClause}
+        `;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
@@ -460,7 +524,7 @@ export default {
         // Get vehicle info from lookup table
         const vehicle = await env.LOCKSMITH_DB.prepare(
           "SELECT * FROM vehicles WHERE id = ?"
-        ).bind(vehicleId).first();
+        ).bind(vehicleId).first<any>();
 
         if (!vehicle) {
           return textResponse(JSON.stringify({ error: "Vehicle not found" }), 404);
@@ -476,10 +540,22 @@ export default {
           "SELECT * FROM vehicle_guides WHERE vehicle_id = ?"
         ).bind(vehicleId).all();
 
+        // Get AKL / EEPROM Data (fuzzy match by make/model/year as fallback for now)
+        // Note: Ideally we link this by ID in the future, but for now we match on strings
+        const eeprom = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM eeprom_data WHERE LOWER(make) = ? AND LOWER(model) = ? AND year_start <= ? AND year_end >= ?"
+        ).bind(
+          vehicle.make.toLowerCase(),
+          vehicle.model.toLowerCase(),
+          vehicle.year,
+          vehicle.year
+        ).all();
+
         return new Response(JSON.stringify({
           vehicle,
           locksmith_data: locksmithData.results || [],
-          guides: guides.results || []
+          guides: guides.results || [],
+          eeprom_data: eeprom.results || []
         }), {
           headers: {
             "content-type": "application/json",
@@ -651,7 +727,7 @@ export default {
       }
     }
 
-    // Get vehicle variants from the unified definitive schema
+    // Get vehicle variants with enriched data (chip details)
     if (path === "/api/variants" || path.startsWith("/api/variants?")) {
       try {
         const make = url.searchParams.get("make")?.toLowerCase() || "";
@@ -662,11 +738,19 @@ export default {
         const conditions: string[] = [];
         const params: (string | number)[] = [];
 
-        // Always join with vehicles_master
+        // Join with vehicles_master and chip_registry
         let sql = `
-          SELECT vv.*, vm.make, vm.model
+          SELECT 
+            vv.*, 
+            vm.make, 
+            vm.model,
+            cr.technology as chip_tech,
+            cr.bits as chip_bits,
+            cr.clonable as chip_clonable,
+            cr.description as chip_desc
           FROM vehicle_variants vv
           JOIN vehicles_master vm ON vv.vehicle_id = vm.id
+          LEFT JOIN chip_registry cr ON vv.chip_type = cr.chip_type
         `;
 
         if (make) {
@@ -703,12 +787,163 @@ export default {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=3600",
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
           },
         });
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message }), 500);
       }
     }
+
+    // Programming / Tool Coverage Endpoint
+    if (path === "/api/programming" || path.startsWith("/api/programming?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = url.searchParams.get("year") || "";
+
+        let sql = "SELECT * FROM tool_coverage";
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          const yearNum = parseInt(year, 10);
+          conditions.push("year_start <= ? AND year_end >= ?");
+          params.push(yearNum, yearNum);
+        }
+
+        if (conditions.length > 0) {
+          sql += ` WHERE ${conditions.join(" AND ")}`;
+        }
+
+        sql += " ORDER BY make, model, year_start";
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          coverage: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Key Cross-Reference Endpoint
+    if (path === "/api/crossref" || path.startsWith("/api/crossref?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const part = url.searchParams.get("part")?.toLowerCase() || "";
+        const fcc = url.searchParams.get("fcc")?.toLowerCase() || "";
+
+        let sql = "SELECT * FROM part_crossref";
+        const conditions: string[] = [];
+        const params: string[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (part) {
+          conditions.push("(LOWER(oem_part) LIKE ? OR LOWER(ilco_part) LIKE ? OR LOWER(strattec_part) LIKE ? OR LOWER(jma_part) LIKE ? OR LOWER(keydiy_part) LIKE ?)");
+          params.push(`%${part}%`, `%${part}%`, `%${part}%`, `%${part}%`, `%${part}%`);
+        }
+        if (fcc) {
+          conditions.push("LOWER(fcc_id) LIKE ?");
+          params.push(`%${fcc}%`);
+        }
+
+        if (conditions.length > 0) {
+          sql += ` WHERE ${conditions.join(" AND ")}`;
+        }
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          crossref: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // EEPROM / AKL Data Endpoint
+    if (path === "/api/eeprom" || path.startsWith("/api/eeprom?")) {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = url.searchParams.get("year") || "";
+
+        let sql = "SELECT * FROM eeprom_data";
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          const yearNum = parseInt(year, 10);
+          conditions.push("year_start <= ? AND year_end >= ?");
+          params.push(yearNum, yearNum);
+        }
+
+        if (conditions.length > 0) {
+          sql += ` WHERE ${conditions.join(" AND ")}`;
+        }
+
+        sql += " ORDER BY make, model, year_start";
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          eeprom_data: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+
 
     // Get all vehicles from the master registry
     if (path === "/api/vehicles-master" || path.startsWith("/api/vehicles-master?")) {
@@ -735,6 +970,8 @@ export default {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=3600",
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
           },
         });
       } catch (err: any) {

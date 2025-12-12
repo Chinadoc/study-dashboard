@@ -3381,6 +3381,8 @@
         const MASTER_API_URL = API_BASE + '/api/master';
         const VARIANTS_API_URL = API_BASE + '/api/variants';  // New unified schema
         const VEHICLES_MASTER_URL = API_BASE + '/api/vehicles-master';
+        const PROGRAMMING_API_URL = API_BASE + '/api/programming';
+        const CROSSREF_API_URL = API_BASE + '/api/crossref';
 
         // ============================================================================
         // TROUBLESHOOTING DATABASE
@@ -5367,6 +5369,86 @@
             return null;
         }
 
+        async function loadProgrammingData(make, model, year) {
+            const container = document.getElementById('programmingGuidesContainer');
+            if (!container) return;
+
+            try {
+                const url = `${PROGRAMMING_API_URL}?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
+                const resp = await fetch(url);
+                if (!resp.ok) return;
+                const data = await resp.json();
+
+                if (data.programming && data.programming.length > 0) {
+                    const prog = data.programming[0];
+
+                    const div = document.createElement('div');
+                    div.className = 'col-span-1 md:col-span-2 p-4 bg-slate-800/50 rounded-xl border border-slate-700 mt-4';
+                    div.innerHTML = `
+                       <h4 class="text-brand-300 font-bold mb-3">Tool Coverage & Methods</h4>
+                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                           <div>
+                               <span class="text-slate-400 block">Add Key Method:</span>
+                               <span class="text-white">${prog.add_key_method || 'N/A'}</span>
+                           </div>
+                           <div>
+                               <span class="text-slate-400 block">All Keys Lost:</span>
+                               <span class="text-white">${prog.akl_method || 'N/A'}</span>
+                           </div>
+                           <div>
+                               <span class="text-slate-400 block">Autel:</span>
+                               <span class="${(prog.autel_status || '').includes('Supported') ? 'text-green-400' : 'text-slate-300'}">${prog.autel_status || 'Unknown'}</span>
+                           </div>
+                           <div>
+                               <span class="text-slate-400 block">Smart Pro:</span>
+                               <span class="${(prog.smart_pro_status || '').includes('Supported') ? 'text-blue-400' : 'text-slate-300'}">${prog.smart_pro_status || 'Unknown'}</span>
+                           </div>
+                       </div>
+                       ${prog.pin_required ? `<div class="mt-2 text-xs text-slate-400">PIN: ${prog.pin_required}</div>` : ''}
+                       ${prog.special_requirements ? `<div class="mt-2 text-xs text-amber-300 bg-amber-900/20 p-2 rounded">⚠️ ${prog.special_requirements}</div>` : ''}
+                   `;
+                    container.appendChild(div);
+                }
+            } catch (e) {
+                console.error('Failed to load programming data', e);
+            }
+        }
+
+        async function loadCrossRefData(make, fccId) {
+            const container = document.getElementById('crossRefContainer');
+            if (!container || !fccId) return;
+
+            try {
+                const url = `${CROSSREF_API_URL}?make=${encodeURIComponent(make)}&fcc=${encodeURIComponent(fccId)}`;
+                const resp = await fetch(url);
+                if (!resp.ok) return;
+                const json = await resp.json();
+
+                if (json.crossrefs && json.crossrefs.length > 0) {
+                    // Clear fallback/static data if dynamic data found? Maybe just append.
+                    if (container.children.length > 0 && container.textContent.includes('Loading')) {
+                        container.innerHTML = '';
+                    }
+
+                    json.crossrefs.forEach(ref => {
+                        const div = document.createElement('div');
+                        div.className = 'p-3 bg-navy-900/60 border border-slate-700 rounded-lg hover:border-brand-500/30 transition-colors';
+                        div.innerHTML = `
+                             <div class="flex justify-between items-start">
+                                 <span class="text-xs text-brand-400 font-bold">${ref.vendor || 'Aftermarket'}</span>
+                                 <span class="text-[10px] text-slate-500 bg-slate-800 px-1 rounded">${ref.part_type || 'Part'}</span>
+                             </div>
+                             <div class="text-white text-sm font-mono mt-1">${ref.part_number}</div>
+                             ${ref.compatible_part ? `<div class="text-xs text-slate-500 mt-0.5">Ref: ${ref.compatible_part}</div>` : ''}
+                         `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load crossref data', e);
+            }
+        }
+
         async function displayResults(data) {
             document.getElementById('vehicleTitle').textContent = `${data.year} ${data.make} ${data.model}`;
             document.getElementById('vehicleTrim').textContent = data.trim;
@@ -5964,6 +6046,10 @@
 
             // Display vehicle-specific video tutorial
             displayVehicleVideo(data.make, data.model, data.year);
+
+            // Load Programming and Cross-Ref Data asynchronously
+            loadProgrammingData(data.make, data.model, data.year);
+            loadCrossRefData(data.make, currentFccId || lockData.fccId);
 
             hideLoading();
             document.getElementById('resultsArea').classList.remove('hidden');
