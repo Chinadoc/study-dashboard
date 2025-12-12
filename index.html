@@ -3379,6 +3379,8 @@
         let FCC_MASTER_MAP = null;
         const LISHI_API_URL = API_BASE + '/api/lishi';
         const MASTER_API_URL = API_BASE + '/api/master';
+        const VARIANTS_API_URL = API_BASE + '/api/variants';  // New unified schema
+        const VEHICLES_MASTER_URL = API_BASE + '/api/vehicles-master';
 
         // ============================================================================
         // TROUBLESHOOTING DATABASE
@@ -4954,7 +4956,42 @@
 
                 const rows = json.rows || [];
 
-                if (rows.length === 0) {
+                // Also fetch from the new unified variants API
+                let variantsData = [];
+                try {
+                    const variantsUrl = `${VARIANTS_API_URL}?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
+                    const variantsResponse = await fetch(variantsUrl);
+                    if (variantsResponse.ok) {
+                        const variantsJson = await variantsResponse.json();
+                        variantsData = variantsJson.variants || [];
+                        console.log('Unified variants found:', variantsData.length);
+                    }
+                } catch (varErr) {
+                    console.log('Variants API fallback:', varErr.message);
+                }
+
+                // Prefer unified variants if available (has verified data)
+                if (variantsData.length > 0) {
+                    const primaryVariant = variantsData[0];
+                    const vehicleData = {
+                        year: year,
+                        make: primaryVariant.make || make,
+                        model: primaryVariant.model || model,
+                        trim: primaryVariant.key_type || 'Standard',
+                        vin: 'N/A (Database Lookup)',
+                        engine: primaryVariant.chip || 'See transponder info',
+                        drive: primaryVariant.frequency || 'N/A',
+                        manuf: primaryVariant.make + ' Corporation',
+                        country: 'International',
+                        body: primaryVariant.key_type || 'Sedan/SUV',
+                        // Pass unified variant data for rich display
+                        variantData: primaryVariant,
+                        allVariants: variantsData,  // All key type variants
+                        d1Data: rows[0] || null,    // Legacy data as fallback
+                        allMatches: rows
+                    };
+                    displayResults(vehicleData);
+                } else if (rows.length === 0) {
                     console.log('No D1 data for this vehicle, using fallback');
                     // No D1 data found - use fallback from LOCKSMITH_DB
 
