@@ -581,8 +581,30 @@
             <div class="container">
                 <div class="result-header">
                     <h2 class="result-title" id="resultTitle">Vehicle Results</h2>
-                    <button class="back-btn" onclick="goBack()">← Back to Search</button>
+                    <div class="result-actions">
+                        <button class="back-btn" onclick="goBack()">🔍 New Search</button>
+                    </div>
                 </div>
+
+                <!-- Quick vehicle switcher -->
+                <div class="quick-search" style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <select class="browse-select" id="quickYear" onchange="quickLoadMakes()"
+                        style="padding: 10px 14px; font-size: 0.9rem; flex: 1; min-width: 100px;">
+                        <option value="">Year</option>
+                    </select>
+                    <select class="browse-select" id="quickMake" onchange="quickLoadModels()"
+                        style="padding: 10px 14px; font-size: 0.9rem; flex: 1; min-width: 120px;">
+                        <option value="">Make</option>
+                    </select>
+                    <select class="browse-select" id="quickModel"
+                        style="padding: 10px 14px; font-size: 0.9rem; flex: 1; min-width: 120px;">
+                        <option value="">Model</option>
+                    </select>
+                    <button onclick="quickSearch()"
+                        style="padding: 10px 16px; background: var(--brand-primary); border: none; border-radius: 8px; color: var(--bg-primary); font-weight: 600; cursor: pointer; white-space: nowrap;">Go
+                        →</button>
+                </div>
+
                 <div id="resultsContainer"></div>
             </div>
         </div>
@@ -747,6 +769,7 @@
 
             document.getElementById('browseSection').style.display = 'none';
             document.getElementById('resultsSection').classList.add('active');
+            initQuickSearch();
 
             try {
                 const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
@@ -765,9 +788,9 @@
         function displayResults(rows, year, make, model) {
             const container = document.getElementById('resultsContainer');
 
-            container.innerHTML = rows.map(v => {
+            container.innerHTML = rows.map((v, idx) => {
                 const fccId = v.fcc_id || 'N/A';
-                const fccLink = fccId !== 'N/A' ? `<a href="https://fccid.io/${fccId}" target="_blank">${fccId}</a>` : 'N/A';
+                const oem = v.oem_part_number || 'N/A';
                 const amazonLink = fccId !== 'N/A' ? getAmazonLink(fccId) : null;
                 const immo = v.immobilizer_system || v.immobilizer || 'N/A';
                 const chip = v.chip || v.chip_technology || 'N/A';
@@ -775,12 +798,28 @@
                 const keyway = v.keyway || 'N/A';
                 const buttons = v.buttons || 'N/A';
                 const battery = v.battery || 'N/A';
-                const oem = v.oem_part_number || 'N/A';
+
+                // Create card label based on what differentiates it
+                let cardLabel = `${year} ${make} ${model}`;
+                if (rows.length > 1) {
+                    if (fccId !== 'N/A') {
+                        cardLabel += ` • FCC: ${fccId}`;
+                    } else if (oem !== 'N/A') {
+                        cardLabel += ` • Part: ${oem}`;
+                    } else {
+                        cardLabel += ` • Variant ${idx + 1}`;
+                    }
+                }
+
+                // FCC ID links to internal FCC Database
+                const fccDisplay = fccId !== 'N/A'
+                    ? `<a href="#" class="fcc-link" onclick="searchFccById('${fccId}'); return false;">${fccId}</a>`
+                    : 'N/A';
 
                 return `
                 <div class="vehicle-card">
                     <div class="vehicle-card-header">
-                        <div class="vehicle-name">${year} ${make} ${model}</div>
+                        <div class="vehicle-name">${cardLabel}</div>
                         <div class="vehicle-badges">
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
                             ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Buy on Amazon</a>` : ''}
@@ -789,7 +828,7 @@
                     <div class="data-grid">
                         <div class="data-item">
                             <div class="data-label">FCC ID</div>
-                            <div class="data-value highlight">${fccLink}</div>
+                            <div class="data-value highlight">${fccDisplay}</div>
                         </div>
                         <div class="data-item">
                             <div class="data-label">Immobilizer</div>
@@ -828,6 +867,87 @@
         function goBack() {
             document.getElementById('browseSection').style.display = 'block';
             document.getElementById('resultsSection').classList.remove('active');
+        }
+
+        // Quick search from results page
+        async function quickLoadMakes() {
+            const year = document.getElementById('quickYear').value;
+            const select = document.getElementById('quickMake');
+
+            if (!year) {
+                select.innerHTML = '<option value="">Make</option>';
+                return;
+            }
+            select.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+                const data = await res.json();
+                const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
+                select.innerHTML = '<option value="">Make</option>';
+                makes.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+            } catch (e) {
+                select.innerHTML = '<option value="">Make</option>';
+            }
+        }
+
+        async function quickLoadModels() {
+            const year = document.getElementById('quickYear').value;
+            const make = document.getElementById('quickMake').value;
+            const select = document.getElementById('quickModel');
+
+            if (!make) {
+                select.innerHTML = '<option value="">Model</option>';
+                return;
+            }
+            select.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+                const data = await res.json();
+                const models = [...new Set(data.rows.map(r => r.model))].sort();
+                select.innerHTML = '<option value="">Model</option>';
+                models.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+            } catch (e) {
+                select.innerHTML = '<option value="">Model</option>';
+            }
+        }
+
+        async function quickSearch() {
+            const year = document.getElementById('quickYear').value;
+            const make = document.getElementById('quickMake').value;
+            const model = document.getElementById('quickModel').value;
+
+            if (!year || !make || !model) {
+                alert('Please select year, make, and model');
+                return;
+            }
+
+            document.getElementById('resultTitle').textContent = `${year} ${make} ${model}`;
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+                const data = await res.json();
+                if (data.rows && data.rows.length > 0) {
+                    displayResults(data.rows, year, make, model);
+                } else {
+                    document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
+                }
+            } catch (e) {
+                document.getElementById('resultsContainer').innerHTML = '<div class="loading">Failed to load</div>';
+            }
+        }
+
+        // Populate quick search years when results are shown
+        function initQuickSearch() {
+            const select = document.getElementById('quickYear');
+            if (select.options.length <= 1) {
+                const year = new Date().getFullYear() + 1;
+                for (let y = year; y >= 2000; y--) {
+                    select.innerHTML += `<option value="${y}">${y}</option>`;
+                }
+            }
         }
 
         // ================== FCC DATABASE ==================
@@ -955,6 +1075,18 @@
         }
 
         // ================== AMAZON AFFILIATE LINK ==================
+
+        // Navigate to FCC Database and search for specific FCC ID
+        function searchFccById(fccId) {
+            showTab('fcc');
+            document.getElementById('fccSearch').value = fccId;
+            fccPage = 1;
+            if (fccDataLoaded) {
+                renderFccTable();
+            } else {
+                loadFccData();
+            }
+        }
 
         function getAmazonLink(fccId) {
             // Create Amazon search URL with affiliate tag
