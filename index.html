@@ -623,10 +623,23 @@
                 <button class="fcc-filter" data-type="push" onclick="setFccFilter('push')">🚗 Push-to-Start</button>
                 <button class="fcc-filter" data-type="non-push" onclick="setFccFilter('non-push')">🔑 Traditional
                     Key</button>
+
+                <div style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Year:</span>
+                    <select id="fccYearFrom" class="browse-select"
+                        style="padding: 8px 12px; font-size: 0.85rem; width: 90px;" onchange="filterFccTable()">
+                        <option value="">From</option>
+                    </select>
+                    <span style="color: var(--text-muted);">-</span>
+                    <select id="fccYearTo" class="browse-select"
+                        style="padding: 8px 12px; font-size: 0.85rem; width: 90px;" onchange="filterFccTable()">
+                        <option value="">To</option>
+                    </select>
+                </div>
             </div>
 
             <div class="fcc-search">
-                <input type="text" id="fccSearch" placeholder="🔍 Search by FCC ID or vehicle..."
+                <input type="text" id="fccSearch" placeholder="🔍 Search by FCC ID or vehicle (e.g. Jeep, Honda)..."
                     oninput="filterFccTable()">
             </div>
 
@@ -994,9 +1007,22 @@
                 const data = await res.json();
                 fccData = data.rows || [];
                 fccDataLoaded = true;
+                populateFccYears();
                 renderFccTable();
             } catch (e) {
                 document.getElementById('fccTableBody').innerHTML = '<tr><td colspan="5" class="loading">Failed to load FCC data</td></tr>';
+            }
+        }
+
+        function populateFccYears() {
+            const fromSelect = document.getElementById('fccYearFrom');
+            const toSelect = document.getElementById('fccYearTo');
+            if (!fromSelect || !toSelect) return;
+
+            const currentYear = new Date().getFullYear() + 1;
+            for (let y = currentYear; y >= 1998; y--) {
+                fromSelect.innerHTML += `<option value="${y}">${y}</option>`;
+                toSelect.innerHTML += `<option value="${y}">${y}</option>`;
             }
         }
 
@@ -1007,11 +1033,35 @@
 
         function renderFccTable() {
             const search = document.getElementById('fccSearch').value.toLowerCase();
+            const yearFrom = parseInt(document.getElementById('fccYearFrom')?.value) || 0;
+            const yearTo = parseInt(document.getElementById('fccYearTo')?.value) || 9999;
 
-            let filtered = fccData.filter(r =>
-                (r.fcc_id || '').toLowerCase().includes(search) ||
-                (r.vehicles || '').toLowerCase().includes(search)
-            );
+            // Filter by search and exclude garbage FCC IDs (< 5 chars)
+            let filtered = fccData.filter(r => {
+                const fccId = r.fcc_id || '';
+                if (fccId.length < 5) return false; // Filter garbage like "ID"
+
+                const matchesSearch = fccId.toLowerCase().includes(search) ||
+                    (r.vehicles || '').toLowerCase().includes(search);
+
+                return matchesSearch;
+            });
+
+            // Apply year range filter (extract years from vehicles string)
+            if (yearFrom || yearTo !== 9999) {
+                filtered = filtered.filter(r => {
+                    const vehicles = r.vehicles || '';
+                    // Extract years from format like "(2014-2021)"
+                    const yearMatches = vehicles.match(/\((\d{4})-(\d{4})\)/g) || [];
+                    if (yearMatches.length === 0) return true; // Show if no year data
+
+                    // Check if any year range overlaps with filter
+                    return yearMatches.some(match => {
+                        const [_, start, end] = match.match(/\((\d{4})-(\d{4})\)/);
+                        return parseInt(end) >= yearFrom && parseInt(start) <= yearTo;
+                    });
+                });
+            }
 
             // Apply key type filter
             if (fccKeyType === 'push') {
