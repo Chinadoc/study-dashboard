@@ -574,9 +574,9 @@
                     <thead>
                         <tr>
                             <th>FCC ID</th>
+                            <th>Vehicles</th>
                             <th>Frequency</th>
-                            <th>Buttons</th>
-                            <th>Battery</th>
+                            <th>Chip</th>
                             <th>Amazon</th>
                         </tr>
                     </thead>
@@ -834,17 +834,22 @@
 
             tbody.innerHTML = pageData.map(r => {
                 const fccId = r.fcc_id || 'N/A';
-                const freq = r.frequency || r.frequency_mhz || 'N/A';
-                const buttons = r.buttons || 'N/A';
-                const battery = r.battery || 'N/A';
+                const vehicles = r.vehicles || 'N/A';
+                const freq = r.frequency || 'N/A';
+                const chip = r.chip || 'N/A';
                 const amazonLink = getAmazonLink(fccId);
+
+                // Format vehicles list - show first 2, then count
+                const vehicleList = vehicles !== 'N/A' ? vehicles.split(',').slice(0, 2).join(', ') : 'N/A';
+                const vehicleCount = vehicles !== 'N/A' ? vehicles.split(',').length : 0;
+                const vehicleDisplay = vehicleCount > 2 ? `${vehicleList} +${vehicleCount - 2} more` : vehicleList;
 
                 return `
                 <tr>
                     <td><a href="https://fccid.io/${fccId}" target="_blank" class="fcc-link">${fccId}</a></td>
+                    <td style="max-width: 300px; font-size: 0.85rem;">${vehicleDisplay}</td>
                     <td>${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
-                    <td>${buttons}</td>
-                    <td>${battery}</td>
+                    <td>${chip}</td>
                     <td><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Amazon</a></td>
                 </tr>
             `;
