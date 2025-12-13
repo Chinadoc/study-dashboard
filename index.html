@@ -222,6 +222,37 @@
             margin-bottom: 24px;
         }
 
+        /* FCC Filters */
+        .fcc-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .fcc-filter {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fcc-filter:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .fcc-filter.active {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
+        }
+
         .fcc-search input {
             flex: 1;
             padding: 14px 20px;
@@ -565,8 +596,16 @@
             </div>
             <p class="page-subtitle">Browse FCC IDs for key fobs and remotes with direct Amazon links.</p>
 
+            <div class="fcc-filters">
+                <button class="fcc-filter active" data-type="all" onclick="setFccFilter('all')">All Keys</button>
+                <button class="fcc-filter" data-type="push" onclick="setFccFilter('push')">🚗 Push-to-Start</button>
+                <button class="fcc-filter" data-type="non-push" onclick="setFccFilter('non-push')">🔑 Traditional
+                    Key</button>
+            </div>
+
             <div class="fcc-search">
-                <input type="text" id="fccSearch" placeholder="🔍 Search by FCC ID..." oninput="filterFccTable()">
+                <input type="text" id="fccSearch" placeholder="🔍 Search by FCC ID or vehicle..."
+                    oninput="filterFccTable()">
             </div>
 
             <div class="fcc-table-wrapper">
@@ -796,7 +835,38 @@
         let fccData = [];
         let fccDataLoaded = false;
         let fccPage = 1;
+        let fccKeyType = 'all'; // 'all', 'push', 'non-push'
         const FCC_PER_PAGE = 20;
+
+        // Determine if FCC ID is for a push-to-start key
+        function isPushKey(row) {
+            const vehicles = (row.vehicles || '').toLowerCase();
+            const chip = (row.chip || '').toLowerCase();
+            const freq = parseFloat(row.frequency) || 0;
+
+            // Push keys typically: 433 MHz, prox/PEPS systems, modern chips
+            const pushIndicators = ['peps', 'prox', 'smart key', 'push', 'intelligent key', 'keyless'];
+            const pushChips = ['id47', 'id49', 'id4a', 'hitag pro', 'hitag-aes', 'hitag 3'];
+
+            // Check for push indicators in vehicle/chip names
+            const hasPushKeyword = pushIndicators.some(kw => vehicles.includes(kw) || chip.includes(kw));
+            const hasPushChip = pushChips.some(c => chip.includes(c));
+
+            // 433 MHz is commonly used for proximity keys
+            const is433MHz = freq >= 433;
+
+            return hasPushKeyword || hasPushChip || is433MHz;
+        }
+
+        function setFccFilter(type) {
+            fccKeyType = type;
+            fccPage = 1;
+            // Update active button
+            document.querySelectorAll('.fcc-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+            renderFccTable();
+        }
 
         async function loadFccData() {
             try {
@@ -817,9 +887,18 @@
 
         function renderFccTable() {
             const search = document.getElementById('fccSearch').value.toLowerCase();
-            const filtered = fccData.filter(r =>
-                (r.fcc_id || '').toLowerCase().includes(search)
+
+            let filtered = fccData.filter(r =>
+                (r.fcc_id || '').toLowerCase().includes(search) ||
+                (r.vehicles || '').toLowerCase().includes(search)
             );
+
+            // Apply key type filter
+            if (fccKeyType === 'push') {
+                filtered = filtered.filter(isPushKey);
+            } else if (fccKeyType === 'non-push') {
+                filtered = filtered.filter(r => !isPushKey(r));
+            }
 
             const totalPages = Math.ceil(filtered.length / FCC_PER_PAGE);
             const start = (fccPage - 1) * FCC_PER_PAGE;
