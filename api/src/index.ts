@@ -236,7 +236,7 @@ export default {
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Data query - join master, variants, and chip_registry for complete data
+        // Data query - join master, variants, chip_registry, and part_crossref for complete data
         const dataSql = `
           SELECT 
             vm.id,
@@ -265,10 +265,20 @@ export default {
             vv.notes,
             cr.technology as chip_technology,
             cr.bits as chip_bits,
-            cr.description as chip_description
+            cr.description as chip_description,
+            pc.ilco_part,
+            pc.strattec_part,
+            pc.jma_part,
+            pc.keydiy_part,
+            pc.key_type as crossref_key_type,
+            pc.notes as crossref_notes
           FROM vehicles_master vm
           LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
           LEFT JOIN chip_registry cr ON LOWER(vv.chip) = LOWER(cr.chip_type)
+          LEFT JOIN part_crossref pc ON (
+            LOWER(vm.make) = LOWER(pc.make) AND 
+            (vv.fcc_id = pc.fcc_id OR vv.oem_part_number = pc.oem_part)
+          )
           ${whereClause}
           ORDER BY vm.make, vm.model, vv.year_start
           LIMIT ? OFFSET ?

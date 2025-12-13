@@ -812,6 +812,17 @@
                 const buttons = v.buttons || 'N/A';
                 const battery = v.battery || 'N/A';
 
+                // Key type from API or crossref
+                const keyType = v.key_type || v.crossref_key_type || 'N/A';
+                const keyTypeIcon = getKeyTypeIcon(keyType);
+
+                // Aftermarket parts from part_crossref
+                const ilco = v.ilco_part || 'N/A';
+                const strattec = v.strattec_part || 'N/A';
+                const jma = v.jma_part || 'N/A';
+                const keydiy = v.keydiy_part || 'N/A';
+                const hasAftermarket = ilco !== 'N/A' || strattec !== 'N/A' || jma !== 'N/A' || keydiy !== 'N/A';
+
                 // Create card label based on what differentiates it
                 let cardLabel = `${year} ${make} ${model}`;
                 if (rows.length > 1) {
@@ -829,11 +840,15 @@
                     ? `<a href="#" class="fcc-link" onclick="searchFccById('${fccId}'); return false;">${fccId}</a>`
                     : 'N/A';
 
+                // YouTube search link
+                const youtubeLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${year} ${make} ${model} key programming Autel`)}`;
+
                 return `
                 <div class="vehicle-card">
                     <div class="vehicle-card-header">
                         <div class="vehicle-name">${cardLabel}</div>
                         <div class="vehicle-badges">
+                            ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
                             ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Buy on Amazon</a>` : ''}
                         </div>
@@ -842,10 +857,6 @@
                         <div class="data-item">
                             <div class="data-label">FCC ID</div>
                             <div class="data-value highlight">${fccDisplay}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Immobilizer</div>
-                            <div class="data-value">${immo}</div>
                         </div>
                         <div class="data-item">
                             <div class="data-label">Chip</div>
@@ -871,10 +882,39 @@
                             <div class="data-label">OEM Part #</div>
                             <div class="data-value">${oem}</div>
                         </div>
+                        <div class="data-item">
+                            <div class="data-label">Lishi Tool</div>
+                            <div class="data-value">${v.lishi_tool || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    ${hasAftermarket ? `
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Aftermarket Parts</div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.9rem;">
+                            ${ilco !== 'N/A' ? `<span><strong>ILCO:</strong> ${ilco}</span>` : ''}
+                            ${strattec !== 'N/A' ? `<span><strong>Strattec:</strong> ${strattec}</span>` : ''}
+                            ${jma !== 'N/A' ? `<span><strong>JMA:</strong> ${jma}</span>` : ''}
+                            ${keydiy !== 'N/A' ? `<span><strong>KEYDIY:</strong> ${keydiy}</span>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
                     </div>
                 </div>
             `;
             }).join('');
+        }
+
+        function getKeyTypeIcon(keyType) {
+            const lower = (keyType || '').toLowerCase();
+            if (lower.includes('smart') || lower.includes('prox')) return '🚗';
+            if (lower.includes('flip')) return '🔄';
+            if (lower.includes('fobik')) return '📟';
+            if (lower.includes('remote')) return '📡';
+            return '🔑';
         }
 
         function goBack() {
