@@ -545,6 +545,137 @@
 
 <body>
 
+    <!-- FCC Detail Modal -->
+    <div id="fccModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeFccModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeFccModal()">×</button>
+            <div id="fccModalBody"></div>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-vehicle-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .modal-vehicle-list li {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .modal-vehicle-list li:last-child {
+            border-bottom: none;
+        }
+
+        .modal-amazon {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .modal-amazon:hover {
+            opacity: 0.9;
+        }
+
+        .modal-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-info-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .modal-info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .modal-info-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    </style>
+
     <div class="top-bar">📞 Call (804) 506-0709</div>
 
     <header class="header">
@@ -1101,17 +1232,34 @@
         }
 
         function renderFccTable() {
-            const search = document.getElementById('fccSearch').value.toLowerCase();
+            const rawSearch = document.getElementById('fccSearch').value;
             const yearFrom = parseInt(document.getElementById('fccYearFrom')?.value) || 0;
             const yearTo = parseInt(document.getElementById('fccYearTo')?.value) || 9999;
+
+            // Parse year from search string (e.g. "jeep 2012")
+            const yearMatch = rawSearch.match(/\b(19\d{2}|20\d{2})\b/);
+            const searchYear = yearMatch ? parseInt(yearMatch[1]) : null;
+            const searchText = rawSearch.replace(/\b(19\d{2}|20\d{2})\b/g, '').trim().toLowerCase();
 
             // Filter by search and exclude garbage FCC IDs (< 5 chars)
             let filtered = fccData.filter(r => {
                 const fccId = r.fcc_id || '';
                 if (fccId.length < 5) return false; // Filter garbage like "ID"
 
-                const matchesSearch = fccId.toLowerCase().includes(search) ||
-                    (r.vehicles || '').toLowerCase().includes(search);
+                const matchesSearch = !searchText ||
+                    fccId.toLowerCase().includes(searchText) ||
+                    (r.vehicles || '').toLowerCase().includes(searchText);
+
+                // Check if vehicle years match searched year
+                if (matchesSearch && searchYear) {
+                    const vehicles = r.vehicles || '';
+                    const yearRanges = vehicles.match(/\((\d{4})-(\d{4})\)/g) || [];
+                    const matchesYear = yearRanges.some(match => {
+                        const [_, start, end] = match.match(/\((\d{4})-(\d{4})\)/);
+                        return searchYear >= parseInt(start) && searchYear <= parseInt(end);
+                    });
+                    return matchesYear;
+                }
 
                 return matchesSearch;
             });
@@ -1160,15 +1308,25 @@
                 // Format vehicles list - show first 2, then count
                 const vehicleList = vehicles !== 'N/A' ? vehicles.split(',').slice(0, 2).join(', ') : 'N/A';
                 const vehicleCount = vehicles !== 'N/A' ? vehicles.split(',').length : 0;
-                const vehicleDisplay = vehicleCount > 2 ? `${vehicleList} <br><span style="color: var(--text-muted); font-size: 0.8rem;">+${vehicleCount - 2} more vehicles</span>` : vehicleList;
+
+                // Highlight search term in vehicles
+                let highlightedVehicles = vehicleList;
+                if (searchText && vehicleList !== 'N/A') {
+                    const regex = new RegExp(`(${searchText})`, 'gi');
+                    highlightedVehicles = vehicleList.replace(regex, '<mark style="background: var(--brand-primary); color: var(--bg-primary); padding: 0 2px; border-radius: 2px;">$1</mark>');
+                }
+
+                const moreLink = vehicleCount > 2
+                    ? `<br><a href="#" onclick="showFccModal('${fccId}'); return false;" style="color: var(--brand-primary); font-size: 0.8rem;">+${vehicleCount - 2} more vehicles</a>`
+                    : '';
 
                 return `
                 <tr>
                     <td>
-                        <a href="#" class="fcc-link" onclick="searchFccById('${fccId}'); return false;">${fccId}</a>
+                        <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
                         <a href="${amazonLink}" target="_blank" class="amazon-btn" style="margin-left: 8px; padding: 4px 10px; font-size: 0.75rem;">🛒</a>
                     </td>
-                    <td style="max-width: 350px; font-size: 0.85rem; line-height: 1.4;">${vehicleDisplay}</td>
+                    <td style="max-width: 350px; font-size: 0.85rem; line-height: 1.4;">${highlightedVehicles}${moreLink}</td>
                     <td>${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
                     <td>${chip}</td>
                     <td class="hide-mobile"><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Amazon</a></td>
@@ -1208,6 +1366,52 @@
             } else {
                 loadFccData();
             }
+        }
+
+        // Show FCC ID detail modal with all vehicles
+        function showFccModal(fccId) {
+            const record = fccData.find(r => r.fcc_id === fccId);
+            if (!record) return;
+
+            const vehicles = record.vehicles || 'N/A';
+            const vehicleArray = vehicles !== 'N/A' ? vehicles.split(',').map(v => v.trim()) : [];
+            const freq = record.frequency || 'N/A';
+            const chip = record.chip || 'N/A';
+            const amazonLink = getAmazonLink(fccId);
+
+            const vehicleListHtml = vehicleArray.length > 0
+                ? `<ul class="modal-vehicle-list">${vehicleArray.map(v => `<li>🚗 ${v}</li>`).join('')}</ul>`
+                : '<p style="color: var(--text-muted);">No vehicle data available</p>';
+
+            document.getElementById('fccModalBody').innerHTML = `
+                <div class="modal-title">FCC ID: ${fccId}</div>
+                <div class="modal-subtitle">${vehicleArray.length} compatible vehicle(s)</div>
+                
+                <div class="modal-info">
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Frequency</div>
+                        <div class="modal-info-value">${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</div>
+                    </div>
+                    <div class="modal-info-item">
+                        <div class="modal-info-label">Chip</div>
+                        <div class="modal-info-value">${chip}</div>
+                    </div>
+                </div>
+                
+                ${vehicleListHtml}
+                
+                <a href="${amazonLink}" target="_blank" class="modal-amazon">
+                    🛒 Buy on Amazon
+                </a>
+            `;
+
+            document.getElementById('fccModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFccModal() {
+            document.getElementById('fccModal').style.display = 'none';
+            document.body.style.overflow = '';
         }
 
         function getAmazonLink(fccId) {
