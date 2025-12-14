@@ -519,6 +519,26 @@
                 font-size: 0.85rem;
                 padding: 10px 16px;
             }
+
+            .hide-mobile {
+                display: none !important;
+            }
+
+            .fcc-table th:nth-child(3),
+            .fcc-table td:nth-child(3),
+            .fcc-table th:nth-child(4),
+            .fcc-table td:nth-child(4) {
+                display: none;
+            }
+
+            .fcc-filters {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .fcc-filters>div {
+                margin-left: 0 !important;
+            }
         }
     </style>
 </head>
@@ -801,7 +821,16 @@
         function displayResults(rows, year, make, model) {
             const container = document.getElementById('resultsContainer');
 
-            container.innerHTML = rows.map((v, idx) => {
+            // Deduplicate rows by unique combination of FCC ID + OEM Part + key type
+            const seen = new Set();
+            const uniqueRows = rows.filter(v => {
+                const key = `${v.fcc_id || ''}-${v.oem_part_number || ''}-${v.key_type || ''}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            container.innerHTML = uniqueRows.map((v, idx) => {
                 const fccId = v.fcc_id || 'N/A';
                 const oem = v.oem_part_number || 'N/A';
                 const amazonLink = fccId !== 'N/A' ? getAmazonLink(fccId) : null;
@@ -825,7 +854,7 @@
 
                 // Create card label based on what differentiates it
                 let cardLabel = `${year} ${make} ${model}`;
-                if (rows.length > 1) {
+                if (uniqueRows.length > 1) {
                     if (fccId !== 'N/A') {
                         cardLabel += ` • FCC: ${fccId}`;
                     } else if (oem !== 'N/A') {
@@ -1131,15 +1160,18 @@
                 // Format vehicles list - show first 2, then count
                 const vehicleList = vehicles !== 'N/A' ? vehicles.split(',').slice(0, 2).join(', ') : 'N/A';
                 const vehicleCount = vehicles !== 'N/A' ? vehicles.split(',').length : 0;
-                const vehicleDisplay = vehicleCount > 2 ? `${vehicleList} +${vehicleCount - 2} more` : vehicleList;
+                const vehicleDisplay = vehicleCount > 2 ? `${vehicleList} <br><span style="color: var(--text-muted); font-size: 0.8rem;">+${vehicleCount - 2} more vehicles</span>` : vehicleList;
 
                 return `
                 <tr>
-                    <td><a href="https://fccid.io/${fccId}" target="_blank" class="fcc-link">${fccId}</a></td>
-                    <td style="max-width: 300px; font-size: 0.85rem;">${vehicleDisplay}</td>
+                    <td>
+                        <a href="#" class="fcc-link" onclick="searchFccById('${fccId}'); return false;">${fccId}</a>
+                        <a href="${amazonLink}" target="_blank" class="amazon-btn" style="margin-left: 8px; padding: 4px 10px; font-size: 0.75rem;">🛒</a>
+                    </td>
+                    <td style="max-width: 350px; font-size: 0.85rem; line-height: 1.4;">${vehicleDisplay}</td>
                     <td>${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
                     <td>${chip}</td>
-                    <td><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Amazon</a></td>
+                    <td class="hide-mobile"><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Amazon</a></td>
                 </tr>
             `;
             }).join('');
