@@ -319,6 +319,9 @@ export default {
             vv.frequency,
             vv.chip,
             GROUP_CONCAT(DISTINCT vm.make || ' ' || vm.model || ' (' || vv.year_start || '-' || vv.year_end || ')') as vehicles,
+            GROUP_CONCAT(DISTINCT vv.oem_part_number) as oem_parts,
+            MIN(vv.oem_part_number) as primary_oem_part,
+            MIN(vm.make) as primary_make,
             COUNT(*) as vehicle_count
           FROM vehicle_variants vv
           JOIN vehicles_master vm ON vv.vehicle_id = vm.id

@@ -1592,10 +1592,12 @@
                 const vehicles = r.vehicles || 'N/A';
                 const freq = r.frequency || 'N/A';
                 const chip = r.chip || 'N/A';
+                const oemPart = r.primary_oem_part || null;
+                const primaryMake = r.primary_make || null;
 
-                // Get first vehicle for Amazon search (for better matching)
+                // Get first vehicle for Amazon search (fallback if no OEM part)
                 const firstVehicle = vehicles !== 'N/A' ? vehicles.split(',')[0].trim() : null;
-                const amazonLink = getAmazonLink(fccId, firstVehicle);
+                const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
 
                 // Format vehicles list - show first 2, then count
                 const vehicleList = vehicles !== 'N/A' ? vehicles.split(',').slice(0, 2).join(', ') : 'N/A';
@@ -1848,17 +1850,25 @@
             document.getElementById('photoLightbox').style.display = 'none';
         }
 
-        function getAmazonLink(fccId, vehicleInfo = null) {
+        function getAmazonLink(fccId, vehicleInfo = null, oemPart = null, make = null) {
             // Create Amazon search URL with affiliate tag
-            // Include vehicle make/model for more accurate results
+            // Priority: OEM part number > make + key terms (sellers use OEM parts, not FCC IDs)
             let searchTerm;
-            if (vehicleInfo) {
-                // Extract make from vehicle info (e.g., "Jeep Grand Cherokee (2024-2024)" -> "Jeep")
+
+            if (oemPart && oemPart !== 'null') {
+                // Best match: OEM part number (e.g., "68577124AB key fob")
+                const vehicleMake = make || (vehicleInfo ? vehicleInfo.match(/^([A-Za-z]+)/)?.[1] : '') || '';
+                searchTerm = `${vehicleMake} ${oemPart} key fob remote`.trim();
+            } else if (vehicleInfo) {
+                // Fallback: Extract make and model from vehicle info
                 const makeMatch = vehicleInfo.match(/^([A-Za-z]+)/);
-                const make = makeMatch ? makeMatch[1] : '';
-                searchTerm = `${make} ${fccId} key fob`;
+                const vehicleMake = makeMatch ? makeMatch[1] : '';
+                const modelMatch = vehicleInfo.match(/^[A-Za-z]+\s+([A-Za-z0-9\s]+)\s*\(/);
+                const vehicleModel = modelMatch ? modelMatch[1].trim() : '';
+                searchTerm = `${vehicleMake} ${vehicleModel} key fob remote`.trim();
             } else {
-                searchTerm = `${fccId} key fob`;
+                // Last resort: FCC ID (often doesn't match well)
+                searchTerm = `${fccId} key fob remote`;
             }
             return `https://www.amazon.com/s?k=${encodeURIComponent(searchTerm)}&tag=${AFFILIATE_TAG}`;
         }
