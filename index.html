@@ -1194,6 +1194,48 @@
             return VALID_MAKES.some(v => v.toLowerCase() === make.toLowerCase());
         }
 
+        // Make logos mapping using logo.dev CDN
+        function getMakeLogo(make) {
+            const normalizedMake = make.toLowerCase().replace(/[^a-z]/g, '');
+            const logoMappings = {
+                'acura': 'https://logo.clearbit.com/acura.com',
+                'alfaromeo': 'https://logo.clearbit.com/alfaromeo.com',
+                'audi': 'https://logo.clearbit.com/audi.com',
+                'bmw': 'https://logo.clearbit.com/bmw.com',
+                'buick': 'https://logo.clearbit.com/buick.com',
+                'cadillac': 'https://logo.clearbit.com/cadillac.com',
+                'chevrolet': 'https://logo.clearbit.com/chevrolet.com',
+                'chrysler': 'https://logo.clearbit.com/chrysler.com',
+                'dodge': 'https://logo.clearbit.com/dodge.com',
+                'ford': 'https://logo.clearbit.com/ford.com',
+                'genesis': 'https://logo.clearbit.com/genesis.com',
+                'gmc': 'https://logo.clearbit.com/gmc.com',
+                'honda': 'https://logo.clearbit.com/honda.com',
+                'hyundai': 'https://logo.clearbit.com/hyundai.com',
+                'infiniti': 'https://logo.clearbit.com/infinitiusa.com',
+                'jaguar': 'https://logo.clearbit.com/jaguar.com',
+                'jeep': 'https://logo.clearbit.com/jeep.com',
+                'kia': 'https://logo.clearbit.com/kia.com',
+                'landrover': 'https://logo.clearbit.com/landrover.com',
+                'lexus': 'https://logo.clearbit.com/lexus.com',
+                'lincoln': 'https://logo.clearbit.com/lincoln.com',
+                'mazda': 'https://logo.clearbit.com/mazda.com',
+                'mercedesbenz': 'https://logo.clearbit.com/mercedes-benz.com',
+                'mercedes': 'https://logo.clearbit.com/mercedes-benz.com',
+                'mini': 'https://logo.clearbit.com/mini.com',
+                'mitsubishi': 'https://logo.clearbit.com/mitsubishi.com',
+                'nissan': 'https://logo.clearbit.com/nissan.com',
+                'porsche': 'https://logo.clearbit.com/porsche.com',
+                'ram': 'https://logo.clearbit.com/ramtrucks.com',
+                'subaru': 'https://logo.clearbit.com/subaru.com',
+                'tesla': 'https://logo.clearbit.com/tesla.com',
+                'toyota': 'https://logo.clearbit.com/toyota.com',
+                'volkswagen': 'https://logo.clearbit.com/volkswagen.com',
+                'volvo': 'https://logo.clearbit.com/volvo.com',
+            };
+            return logoMappings[normalizedMake] || null;
+        }
+
         // Tab switching
         function showTab(tabName) {
             document.querySelectorAll('.tab').forEach((t, i) => {
@@ -1273,14 +1315,19 @@
             container.classList.add('expanded');
 
             try {
-                const res = await fetch(`${API}/api/guides?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+                const guideUrl = `${API}/api/guides?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+                console.log('Fetching guide:', guideUrl);
+                const res = await fetch(guideUrl);
                 const data = await res.json();
+                console.log('Guide API response:', data);
 
                 if (data.rows && data.rows.length > 0) {
+                    console.log('Found guide, rendering content...');
                     const html = renderGuideContent(data.rows[0].content);
                     guideCache[cacheKey] = html;
                     container.innerHTML = html;
                 } else {
+                    console.log('No guide found in response');
                     container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">📚 No detailed programming guide available yet for this vehicle.</div>';
                 }
             } catch (e) {
@@ -1482,10 +1529,19 @@
                 // YouTube search link
                 const youtubeLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${year} ${make} ${model} key programming Autel`)}`;
 
+                // Get make logo
+                const makeLogo = getMakeLogo(make);
+                const logoHtml = makeLogo ? `<img src="${makeLogo}" alt="${make}" class="make-logo" onerror="this.style.display='none'" style="width: 28px; height: 28px; object-fit: contain; margin-right: 10px; border-radius: 4px;">` : '';
+
                 return `
                 <div class="vehicle-card">
                     <div class="vehicle-card-header">
-                        <div class="vehicle-name">${cardLabel}</div>
+                        <div class="vehicle-name" style="display: flex; align-items: center;">
+                            ${logoHtml}
+                            <span class="make-link" onclick="quickSwitchMake('${make}')" style="cursor: pointer; color: var(--brand-primary);" title="View all ${make} models">${make}</span>
+                            <span style="margin: 0 6px; color: var(--text-muted);">${model}</span>
+                            ${uniqueRows.length > 1 ? `<span style="color: var(--text-muted); font-size: 0.85rem;">• ${fccId !== 'N/A' ? 'FCC: ' + fccId : oem !== 'N/A' ? 'Part: ' + oem : 'Variant ' + (idx + 1)}</span>` : ''}
+                        </div>
                         <div class="vehicle-badges">
                             ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
@@ -1562,6 +1618,32 @@
         function goBack() {
             document.getElementById('browseSection').style.display = 'block';
             document.getElementById('resultsSection').classList.remove('active');
+        }
+
+        // Quick switch to a different make (pre-populate dropdowns)
+        async function quickSwitchMake(make) {
+            // Go back to browse section
+            document.getElementById('browseSection').style.display = 'block';
+            document.getElementById('resultsSection').classList.remove('active');
+
+            // Set the make in dropdown
+            const makeSelect = document.getElementById('makeSelect');
+            makeSelect.value = make;
+
+            // Trigger model load
+            await loadModels();
+
+            // Focus on model select for quick selection
+            document.getElementById('modelSelect').focus();
+        }
+
+        // Quick switch to a different model (same year/make)
+        async function quickSwitchModel(year, make, model) {
+            document.getElementById('yearSelect').value = year;
+            document.getElementById('makeSelect').value = make;
+            await loadModels();
+            document.getElementById('modelSelect').value = model;
+            await searchVehicle();
         }
 
         // Quick search from results page
@@ -1868,7 +1950,7 @@
                 // Fetch detailed OEM parts from API
                 const response = await fetch(`${API_BASE}/fcc-detail/${encodeURIComponent(fccId)}`);
                 const data = await response.json();
-                
+
                 if (data.error) throw new Error(data.error);
 
                 const fccInfo = data.fcc_info || {};
@@ -1880,19 +1962,19 @@
                     const asin = part.amazon_asin;
                     const oem = part.oem_part_number || 'Unknown';
                     const vehicles = part.vehicles || [];
-                    
+
                     // Amazon image URL - uses ASIN if available
-                    const imageUrl = asin 
+                    const imageUrl = asin
                         ? `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`
                         : null;
-                    
+
                     // Amazon link with affiliate tag
                     const amazonLink = asin
                         ? `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`
                         : getAmazonLink(fccId, null, oem, vehicles[0]?.make);
 
                     // Vehicle list for this OEM part
-                    const vehicleList = vehicles.slice(0, 3).map(v => 
+                    const vehicleList = vehicles.slice(0, 3).map(v =>
                         `${v.make} ${v.model} (${v.year_start}-${v.year_end})`
                     ).join(', ');
                     const moreCount = vehicles.length > 3 ? ` +${vehicles.length - 3} more` : '';
@@ -1901,10 +1983,10 @@
                         <div class="oem-product-card" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px;">
                             <a href="${amazonLink}" target="_blank" style="flex-shrink: 0;">
                                 <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                    ${imageUrl 
-                                        ? `<img src="${imageUrl}" alt="${oem}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size: 2rem;\\'>🔑</span>';"/>`
-                                        : '<span style="font-size: 2rem;">🔑</span>'
-                                    }
+                                    ${imageUrl
+                            ? `<img src="${imageUrl}" alt="${oem}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size: 2rem;\\'>🔑</span>';"/>`
+                            : '<span style="font-size: 2rem;">🔑</span>'
+                        }
                                 </div>
                             </a>
                             <div style="flex: 1; min-width: 0;">
@@ -1954,7 +2036,7 @@
                     const vehicles = record.vehicles || 'N/A';
                     const firstVehicle = vehicles !== 'N/A' ? vehicles.split(',')[0].trim() : null;
                     const amazonLink = getAmazonLink(fccId, firstVehicle, record.primary_oem_part, record.primary_make);
-                    
+
                     modalBody.innerHTML = `
                         <div class="modal-title">FCC ID: ${fccId}</div>
                         <div class="modal-subtitle">Could not load detailed data</div>

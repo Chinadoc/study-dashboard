@@ -47,6 +47,13 @@ export default {
         const conditions: string[] = [];
         const params: (string | number)[] = [];
 
+        // Filter out product descriptions stored as models
+        conditions.push("vm.model NOT LIKE '%Key Blank%'");
+        conditions.push("vm.model NOT LIKE '%Mechanical Key%'");
+        conditions.push("vm.model NOT LIKE '%Transponder Key%'");
+        conditions.push("vm.model NOT LIKE '%Fob Key%'");
+        conditions.push("vm.model NOT LIKE '%Smart Remote%'");
+
         if (make) {
           conditions.push("LOWER(vm.make) = ?");
           params.push(make);
@@ -209,6 +216,13 @@ export default {
 
         const conditions: string[] = [];
         const params: (string | number)[] = [];
+
+        // Filter out product descriptions stored as models
+        conditions.push("vm.model NOT LIKE '%Key Blank%'");
+        conditions.push("vm.model NOT LIKE '%Mechanical Key%'");
+        conditions.push("vm.model NOT LIKE '%Transponder Key%'");
+        conditions.push("vm.model NOT LIKE '%Fob Key%'");
+        conditions.push("vm.model NOT LIKE '%Smart Remote%'");
 
         if (make) {
           conditions.push("LOWER(vm.make) = ?");
