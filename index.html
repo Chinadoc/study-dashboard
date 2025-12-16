@@ -1592,7 +1592,10 @@
                 const vehicles = r.vehicles || 'N/A';
                 const freq = r.frequency || 'N/A';
                 const chip = r.chip || 'N/A';
-                const amazonLink = getAmazonLink(fccId);
+
+                // Get first vehicle for Amazon search (for better matching)
+                const firstVehicle = vehicles !== 'N/A' ? vehicles.split(',')[0].trim() : null;
+                const amazonLink = getAmazonLink(fccId, firstVehicle);
 
                 // Format vehicles list - show first 2, then count
                 const vehicleList = vehicles !== 'N/A' ? vehicles.split(',').slice(0, 2).join(', ') : 'N/A';
@@ -1611,18 +1614,8 @@
 
                 return `
                 <tr>
-                    <td style="display: flex; align-items: center; gap: 10px;">
-                        <a href="${amazonLink}" target="_blank" style="display: block; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: 6px; overflow: hidden; flex-shrink: 0;">
-                            <img 
-                                src="https://m.media-amazon.com/images/I/51ZvgJ8XBQL._SL50_.jpg" 
-                                alt="Key" 
-                                style="width: 100%; height: 100%; object-fit: contain;"
-                                onerror="this.style.display='none'; this.parentElement.innerHTML='🔑';"
-                            >
-                        </a>
-                        <div>
-                            <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
-                        </div>
+                    <td>
+                        <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
                     </td>
                     <td style="max-width: 350px; font-size: 0.85rem; line-height: 1.4;">${highlightedVehicles}${moreLink}</td>
                     <td>${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
@@ -1675,7 +1668,10 @@
             const vehicleArray = vehicles !== 'N/A' ? vehicles.split(',').map(v => v.trim()) : [];
             const freq = record.frequency || 'N/A';
             const chip = record.chip || 'N/A';
-            const amazonLink = getAmazonLink(fccId);
+
+            // Get first vehicle for Amazon search (for better matching)
+            const firstVehicle = vehicleArray.length > 0 ? vehicleArray[0] : null;
+            const amazonLink = getAmazonLink(fccId, firstVehicle);
 
             // Combine consecutive year ranges for same vehicle
             const combinedVehicles = combineVehicleYears(vehicleArray);
@@ -1684,27 +1680,9 @@
                 ? `<ul class="modal-vehicle-list">${combinedVehicles.map(v => `<li>🚗 ${v}</li>`).join('')}</ul>`
                 : '<p style="color: var(--text-muted);">No vehicle data available</p>';
 
-            // Amazon product image URL (uses Amazon's search API)
-            const amazonImageUrl = `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=&Format=_SL250_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=${AFFILIATE_TAG}`;
-
             document.getElementById('fccModalBody').innerHTML = `
         <div class="modal-title">FCC ID: ${fccId}</div>
         <div class="modal-subtitle">${combinedVehicles.length} compatible vehicle(s)</div>
-        
-        <!-- Key Fob Image from Amazon -->
-        <div class="modal-key-image" style="text-align: center; margin: 16px 0;">
-            <a href="${amazonLink}" target="_blank" style="display: inline-block;">
-                <div style="width: 150px; height: 150px; margin: 0 auto; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--border);">
-                    <img 
-                        src="https://m.media-amazon.com/images/I/51ZvgJ8XBQL._SL160_.jpg" 
-                        alt="${fccId} Key Fob"
-                        style="max-width: 100%; max-height: 100%; object-fit: contain;"
-                        onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\\'font-size: 3rem;\\'>🔑</div><div style=\\'font-size: 0.8rem; color: var(--text-muted);\\'>View on Amazon</div>';"
-                    >
-                </div>
-                <div style="font-size: 0.8rem; color: var(--brand-primary); margin-top: 8px;">Click to view product →</div>
-            </a>
-        </div>
         
         <div class="modal-info">
             <div class="modal-info-item">
@@ -1870,10 +1848,19 @@
             document.getElementById('photoLightbox').style.display = 'none';
         }
 
-        function getAmazonLink(fccId) {
+        function getAmazonLink(fccId, vehicleInfo = null) {
             // Create Amazon search URL with affiliate tag
-            const searchTerm = encodeURIComponent(`${fccId} key fob remote`);
-            return `https://www.amazon.com/s?k=${searchTerm}&tag=${AFFILIATE_TAG}`;
+            // Include vehicle make/model for more accurate results
+            let searchTerm;
+            if (vehicleInfo) {
+                // Extract make from vehicle info (e.g., "Jeep Grand Cherokee (2024-2024)" -> "Jeep")
+                const makeMatch = vehicleInfo.match(/^([A-Za-z]+)/);
+                const make = makeMatch ? makeMatch[1] : '';
+                searchTerm = `${make} ${fccId} key fob`;
+            } else {
+                searchTerm = `${fccId} key fob`;
+            }
+            return `https://www.amazon.com/s?k=${encodeURIComponent(searchTerm)}&tag=${AFFILIATE_TAG}`;
         }
 
         // ================== GOOGLE OAUTH ==================
