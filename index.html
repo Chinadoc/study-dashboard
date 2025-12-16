@@ -1857,51 +1857,114 @@
             }
         }
 
-        // Show FCC ID detail modal with all vehicles
-        function showFccModal(fccId) {
-            const record = fccData.find(r => r.fcc_id === fccId);
-            if (!record) return;
-
-            const vehicles = record.vehicles || 'N/A';
-            const vehicleArray = vehicles !== 'N/A' ? vehicles.split(',').map(v => v.trim()) : [];
-            const freq = record.frequency || 'N/A';
-            const chip = record.chip || 'N/A';
-
-            // Get first vehicle for Amazon search (for better matching)
-            const firstVehicle = vehicleArray.length > 0 ? vehicleArray[0] : null;
-            const amazonLink = getAmazonLink(fccId, firstVehicle);
-
-            // Combine consecutive year ranges for same vehicle
-            const combinedVehicles = combineVehicleYears(vehicleArray);
-
-            const vehicleListHtml = combinedVehicles.length > 0
-                ? `<ul class="modal-vehicle-list">${combinedVehicles.map(v => `<li>🚗 ${v}</li>`).join('')}</ul>`
-                : '<p style="color: var(--text-muted);">No vehicle data available</p>';
-
-            document.getElementById('fccModalBody').innerHTML = `
-        <div class="modal-title">FCC ID: ${fccId}</div>
-        <div class="modal-subtitle">${combinedVehicles.length} compatible vehicle(s)</div>
-        
-        <div class="modal-info">
-            <div class="modal-info-item">
-                <div class="modal-info-label">Frequency</div>
-                <div class="modal-info-value">${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</div>
-            </div>
-            <div class="modal-info-item">
-                <div class="modal-info-label">Chip</div>
-                <div class="modal-info-value">${chip}</div>
-            </div>
-        </div>
-        
-        ${vehicleListHtml}
-        
-        <a href="${amazonLink}" target="_blank" class="modal-amazon">
-            🛒 Buy on Amazon
-        </a>
-    `;
-
+        // Show FCC ID detail modal with all OEM parts and product images
+        async function showFccModal(fccId) {
+            const modalBody = document.getElementById('fccModalBody');
+            modalBody.innerHTML = '<div class="loading">Loading FCC details...</div>';
             document.getElementById('fccModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
+
+            try {
+                // Fetch detailed OEM parts from API
+                const response = await fetch(`${API_BASE}/fcc-detail/${encodeURIComponent(fccId)}`);
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                const fccInfo = data.fcc_info || {};
+                const oemParts = data.oem_parts || [];
+                const totalVehicles = data.total_vehicles || 0;
+
+                // Build OEM parts cards with product images
+                const oemCardsHtml = oemParts.length > 0 ? oemParts.map(part => {
+                    const asin = part.amazon_asin;
+                    const oem = part.oem_part_number || 'Unknown';
+                    const vehicles = part.vehicles || [];
+                    
+                    // Amazon image URL - uses ASIN if available
+                    const imageUrl = asin 
+                        ? `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`
+                        : null;
+                    
+                    // Amazon link with affiliate tag
+                    const amazonLink = asin
+                        ? `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`
+                        : getAmazonLink(fccId, null, oem, vehicles[0]?.make);
+
+                    // Vehicle list for this OEM part
+                    const vehicleList = vehicles.slice(0, 3).map(v => 
+                        `${v.make} ${v.model} (${v.year_start}-${v.year_end})`
+                    ).join(', ');
+                    const moreCount = vehicles.length > 3 ? ` +${vehicles.length - 3} more` : '';
+
+                    return `
+                        <div class="oem-product-card" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px;">
+                            <a href="${amazonLink}" target="_blank" style="flex-shrink: 0;">
+                                <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    ${imageUrl 
+                                        ? `<img src="${imageUrl}" alt="${oem}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size: 2rem;\\'>🔑</span>';"/>`
+                                        : '<span style="font-size: 2rem;">🔑</span>'
+                                    }
+                                </div>
+                            </a>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-weight: 600; color: var(--brand-primary); margin-bottom: 4px;">
+                                    <a href="${amazonLink}" target="_blank" style="color: inherit; text-decoration: none;">${oem}</a>
+                                    ${asin ? '<span style="font-size: 0.7rem; background: #28a745; color: white; padding: 1px 5px; border-radius: 3px; margin-left: 6px;">ASIN</span>' : ''}
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
+                                    ${vehicleList}${moreCount ? `<span style="color: var(--text-muted);">${moreCount}</span>` : ''}
+                                </div>
+                                <a href="${amazonLink}" target="_blank" class="amazon-btn" style="font-size: 0.75rem; padding: 4px 10px;">
+                                    🛒 ${asin ? 'Buy on Amazon' : 'Search Amazon'}
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('') : '<p style="color: var(--text-muted);">No OEM parts found</p>';
+
+                modalBody.innerHTML = `
+                    <div class="modal-title">FCC ID: ${fccId}</div>
+                    <div class="modal-subtitle">${oemParts.length} OEM part(s) • ${totalVehicles} vehicle(s)</div>
+                    
+                    <div class="modal-info" style="margin-bottom: 16px;">
+                        <div class="modal-info-item">
+                            <div class="modal-info-label">Frequency</div>
+                            <div class="modal-info-value">${fccInfo.frequency || 'N/A'}</div>
+                        </div>
+                        <div class="modal-info-item">
+                            <div class="modal-info-label">Battery</div>
+                            <div class="modal-info-value">${fccInfo.battery || 'N/A'}</div>
+                        </div>
+                        <div class="modal-info-item">
+                            <div class="modal-info-label">Buttons</div>
+                            <div class="modal-info-value">${fccInfo.buttons || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <div style="font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">OEM Parts & Products</div>
+                    ${oemCardsHtml}
+                `;
+
+            } catch (err) {
+                console.error('Error loading FCC detail:', err);
+                // Fallback to basic display from cached data
+                const record = fccData.find(r => r.fcc_id === fccId);
+                if (record) {
+                    const vehicles = record.vehicles || 'N/A';
+                    const firstVehicle = vehicles !== 'N/A' ? vehicles.split(',')[0].trim() : null;
+                    const amazonLink = getAmazonLink(fccId, firstVehicle, record.primary_oem_part, record.primary_make);
+                    
+                    modalBody.innerHTML = `
+                        <div class="modal-title">FCC ID: ${fccId}</div>
+                        <div class="modal-subtitle">Could not load detailed data</div>
+                        <p style="color: var(--text-muted);">${vehicles}</p>
+                        <a href="${amazonLink}" target="_blank" class="modal-amazon">🛒 Search on Amazon</a>
+                    `;
+                } else {
+                    modalBody.innerHTML = '<p style="color: var(--text-muted);">Error loading FCC details</p>';
+                }
+            }
         }
 
         // Combine vehicle entries with consecutive years into ranges

@@ -356,6 +356,82 @@ export default {
       }
     }
 
+    // FCC Detail endpoint - returns all OEM parts with ASINs for a specific FCC ID
+    if (path.startsWith("/api/fcc-detail/")) {
+      try {
+        const fccId = decodeURIComponent(path.split("/").pop() || "");
+        if (!fccId) {
+          return textResponse(JSON.stringify({ error: "FCC ID required" }), 400);
+        }
+
+        // Get FCC info from registry
+        const fccInfo = await env.LOCKSMITH_DB.prepare(
+          "SELECT * FROM fcc_registry WHERE fcc_id = ?"
+        ).bind(fccId).first();
+
+        // Get all OEM parts with their ASINs for this FCC ID
+        const oemParts = await env.LOCKSMITH_DB.prepare(`
+          SELECT DISTINCT
+            vv.oem_part_number,
+            vv.amazon_asin,
+            vm.make,
+            vm.model,
+            vv.year_start,
+            vv.year_end,
+            vv.key_type,
+            vv.frequency,
+            vv.chip,
+            vv.buttons,
+            vv.battery
+          FROM vehicle_variants vv
+          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
+          WHERE UPPER(vv.fcc_id) = UPPER(?)
+          ORDER BY vm.make, vm.model, vv.year_start
+        `).bind(fccId).all();
+
+        // Group by OEM part number for cleaner output
+        const oemMap = new Map<string, any>();
+        for (const row of (oemParts.results || []) as any[]) {
+          const oem = row.oem_part_number || 'unknown';
+          if (!oemMap.has(oem)) {
+            oemMap.set(oem, {
+              oem_part_number: oem,
+              amazon_asin: row.amazon_asin,
+              vehicles: [],
+              frequency: row.frequency,
+              chip: row.chip,
+              buttons: row.buttons,
+              battery: row.battery
+            });
+          }
+          oemMap.get(oem).vehicles.push({
+            make: row.make,
+            model: row.model,
+            year_start: row.year_start,
+            year_end: row.year_end,
+            key_type: row.key_type
+          });
+        }
+
+        return new Response(JSON.stringify({
+          fcc_id: fccId,
+          fcc_info: fccInfo,
+          oem_parts: Array.from(oemMap.values()),
+          total_vehicles: oemParts.results?.length || 0
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // Lishi Tools endpoint - decoder/pick tool compatibility data
     if (path === "/api/lishi") {
       try {
