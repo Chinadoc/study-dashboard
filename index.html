@@ -478,6 +478,192 @@
             transform: translateY(-1px);
         }
 
+        /* Mobile-First FCC Cards */
+        .fcc-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .fcc-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .fcc-card:hover {
+            border-color: var(--brand-primary);
+            box-shadow: 0 8px 32px rgba(251, 191, 36, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .fcc-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .fcc-id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            color: #000;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fcc-id-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
+        }
+
+        .fcc-oem {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .fcc-vehicles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .vehicle-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .vehicle-chip:hover {
+            background: var(--bg-primary);
+            border-color: var(--brand-primary);
+        }
+
+        .vehicle-chip .make-icon {
+            font-size: 1rem;
+        }
+
+        .vehicle-chip-more {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
+            cursor: pointer;
+        }
+
+        .fcc-card-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .fcc-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .fcc-meta-item span:last-child {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .fcc-card-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .fcc-action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .fcc-action-primary {
+            background: linear-gradient(135deg, #ff9900, #ff6600);
+            color: #000;
+        }
+
+        .fcc-action-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(255, 153, 0, 0.4);
+        }
+
+        .fcc-action-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .fcc-action-secondary:hover {
+            border-color: var(--brand-primary);
+        }
+
+        /* Hide table on mobile, show cards */
+        @media (max-width: 768px) {
+            .fcc-table-wrapper {
+                display: none;
+            }
+
+            .fcc-cards {
+                display: flex;
+            }
+        }
+
+        /* Show table on desktop, hide cards */
+        @media (min-width: 769px) {
+            .fcc-cards {
+                display: none;
+            }
+
+            .fcc-table-wrapper {
+                display: block;
+            }
+        }
+
+        /* Beautiful modal vehicle list */
+        .modal-vehicles-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
         /* Vehicle Card */
         .vehicle-card {
             background: var(--bg-secondary);
@@ -1257,6 +1443,12 @@
                 </table>
             </div>
 
+            <!-- Mobile-first cards view -->
+            <div class="fcc-cards" id="fccCards">
+                <div class="loading" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading FCC
+                    data...</div>
+            </div>
+
             <div class="pagination" id="fccPagination"></div>
         </div>
     </div>
@@ -2003,6 +2195,78 @@
                 </tr>
             `;
             }).join('');
+
+            // Also render mobile cards
+            const cardsContainer = document.getElementById('fccCards');
+            if (pageData.length === 0) {
+                cardsContainer.innerHTML = '<div class="loading" style="text-align: center; padding: 40px; color: var(--text-muted);">No FCC IDs found</div>';
+            } else {
+                cardsContainer.innerHTML = pageData.map(r => {
+                    const fccId = r.fcc_id || 'N/A';
+                    const vehicles = r.vehicles || '';
+                    const freq = r.frequency || 'N/A';
+                    const chip = r.chip || 'N/A';
+                    const oemPart = r.primary_oem_part || null;
+                    const primaryMake = r.primary_make || null;
+
+                    // Parse vehicles into array of chips
+                    const vehicleItems = vehicles ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
+                    const displayVehicles = vehicleItems.slice(0, 3);
+                    const moreCount = vehicleItems.length - 3;
+
+                    // Get make icon
+                    const getMakeIcon = (vehicle) => {
+                        const v = vehicle.toLowerCase();
+                        if (v.includes('jeep')) return '🚙';
+                        if (v.includes('ford') || v.includes('f-150') || v.includes('f-250')) return '🚗';
+                        if (v.includes('toyota')) return '🚗';
+                        if (v.includes('honda')) return '🚗';
+                        if (v.includes('bmw')) return '🏎️';
+                        if (v.includes('mercedes')) return '🏎️';
+                        if (v.includes('lexus')) return '🚙';
+                        if (v.includes('chevrolet') || v.includes('chevy')) return '🚗';
+                        if (v.includes('nissan')) return '🚗';
+                        if (v.includes('dodge') || v.includes('ram')) return '🚗';
+                        return '🚗';
+                    };
+
+                    const firstVehicle = vehicleItems[0] || null;
+                    const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
+
+                    return `
+                    <div class="fcc-card">
+                        <div class="fcc-card-header">
+                            <span class="fcc-id-badge" onclick="showFccModal('${fccId}')">🔑 ${fccId}</span>
+                            ${oemPart ? `<span class="fcc-oem">${oemPart}</span>` : ''}
+                        </div>
+                        
+                        <div class="fcc-vehicles">
+                            ${displayVehicles.map(v => `
+                                <span class="vehicle-chip">
+                                    <span class="make-icon">${getMakeIcon(v)}</span>
+                                    ${v.split('(')[0].trim()}
+                                </span>
+                            `).join('')}
+                            ${moreCount > 0 ? `
+                                <span class="vehicle-chip vehicle-chip-more" onclick="showFccModal('${fccId}')">
+                                    +${moreCount} more
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <div class="fcc-card-meta">
+                            ${freq !== 'N/A' ? `<div class="fcc-meta-item"><span>📡</span><span>${freq}${!String(freq).includes('Hz') ? ' MHz' : ''}</span></div>` : ''}
+                            ${chip !== 'N/A' ? `<div class="fcc-meta-item"><span>🔐</span><span>${chip}</span></div>` : ''}
+                        </div>
+
+                        <div class="fcc-card-actions">
+                            <a href="${amazonLink}" target="_blank" class="fcc-action-btn fcc-action-primary">🛒 Buy on Amazon</a>
+                            <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary">📋 View Details</button>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
 
             // Pagination
             document.getElementById('fccPagination').innerHTML = `
