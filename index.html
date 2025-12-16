@@ -1596,7 +1596,7 @@
                     ` : ''}
                     
                     <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                        ${fccId !== 'N/A' ? `<button onclick="showKeyPhotos('${fccId}')" class="key-photos-btn">📷 Key Photos</button>` : ''}
+                        ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
                         <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
                         ${currentUser ? `<button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>` : `<span class="auth-required-badge">🔐 Sign in for guide</span>`}
                     </div>
