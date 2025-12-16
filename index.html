@@ -1687,6 +1687,13 @@
                     </div>
                     ` : ''}
                     
+                    ${currentUser && (fccId !== 'N/A' || oem !== 'N/A') ? `
+                    <div style="margin-top: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">📦 My Inventory</div>
+                        ${getInventoryControlsHtml(oem !== 'N/A' ? oem : fccId)}
+                    </div>
+                    ` : ''}
+                    
                     <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                         ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
                         <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
@@ -2389,18 +2396,21 @@
                 return;
             }
 
+            // Detect mobile to use redirect mode (popups are blocked on mobile)
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleGoogleSignIn,
                 auto_select: false,
-                ux_mode: 'popup'
+                ux_mode: isMobile ? 'redirect' : 'popup'
             });
 
             // Show the One Tap UI or popup
             google.accounts.id.prompt((notification) => {
                 if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    // If One Tap is not displayed, use the button approach
-                    google.accounts.oauth2.initTokenClient({
+                    // If One Tap is not displayed, use the button approach with appropriate mode
+                    const tokenClient = google.accounts.oauth2.initTokenClient({
                         client_id: GOOGLE_CLIENT_ID,
                         scope: 'email profile',
                         callback: (response) => {
@@ -2408,7 +2418,15 @@
                                 fetchUserProfile(response.access_token);
                             }
                         }
-                    }).requestAccessToken();
+                    });
+
+                    // Use popup on desktop, redirect on mobile
+                    if (isMobile) {
+                        // For mobile, use redirect flow
+                        tokenClient.requestAccessToken({ prompt: 'consent' });
+                    } else {
+                        tokenClient.requestAccessToken();
+                    }
                 }
             });
         }
