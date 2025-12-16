@@ -48,67 +48,66 @@ export default {
         const params: (string | number)[] = [];
 
         // Filter out product descriptions stored as models
-        conditions.push("vm.model NOT LIKE '%Key Blank%'");
-        conditions.push("vm.model NOT LIKE '%Mechanical Key%'");
-        conditions.push("vm.model NOT LIKE '%Transponder Key%'");
-        conditions.push("vm.model NOT LIKE '%Fob Key%'");
-        conditions.push("vm.model NOT LIKE '%Smart Remote%'");
+        conditions.push("v.model NOT LIKE '%Key Blank%'");
+        conditions.push("v.model NOT LIKE '%Mechanical Key%'");
+        conditions.push("v.model NOT LIKE '%Transponder Key%'");
+        conditions.push("v.model NOT LIKE '%Fob Key%'");
+        conditions.push("v.model NOT LIKE '%Smart Remote%'");
 
         if (make) {
-          conditions.push("LOWER(vm.make) = ?");
+          conditions.push("LOWER(v.make) = ?");
           params.push(make);
         }
         if (model) {
-          conditions.push("LOWER(vm.model) LIKE ?");
+          conditions.push("LOWER(v.model) LIKE ?");
           params.push(`%${model}%`);
         }
         if (year) {
           const y = parseInt(year, 10);
           if (!Number.isNaN(y)) {
-            conditions.push("vv.year_start <= ? AND vv.year_end >= ?");
+            conditions.push("v.year_start <= ? AND v.year_end >= ?");
             params.push(y, y);
           }
         }
         if (immo) {
-          conditions.push("LOWER(vv.immobilizer_system) LIKE ?");
+          conditions.push("LOWER(v.immobilizer_system) LIKE ?");
           params.push(`%${immo}%`);
         }
         if (fcc) {
-          conditions.push("LOWER(vv.fcc_id) LIKE ?");
+          conditions.push("LOWER(v.fcc_id) LIKE ?");
           params.push(`%${fcc}%`);
         }
         if (q) {
-          conditions.push("(LOWER(vm.make) LIKE ? OR LOWER(vm.model) LIKE ? OR LOWER(vv.immobilizer_system) LIKE ? OR LOWER(vv.fcc_id) LIKE ? OR LOWER(vv.chip) LIKE ?)");
+          conditions.push("(LOWER(v.make) LIKE ? OR LOWER(v.model) LIKE ? OR LOWER(v.immobilizer_system) LIKE ? OR LOWER(v.fcc_id) LIKE ? OR LOWER(v.chip) LIKE ?)");
           params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
         }
 
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-        // Count query
+        // Count query - using unified vehicles table
         const countSql = `
           SELECT COUNT(*) as cnt 
-          FROM vehicles_master vm
-          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          FROM vehicles v
           ${whereClause}
         `;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Data query with full fields and chip_registry JOIN
+        // Data query with full fields from unified vehicles table
         const dataSql = `
           SELECT 
-            vm.id, vm.make, vm.model,
-            vv.year_start, vv.year_end, vv.key_type, vv.keyway, vv.fcc_id, vv.chip,
-            vv.frequency, vv.cloning_possible, vv.obd_program, vv.immobilizer_system,
-            vv.lishi_tool, vv.code_series, vv.oem_part_number, vv.aftermarket_part,
-            vv.buttons, vv.battery, vv.emergency_key, vv.programmer, vv.programming_method,
-            vv.pin_required, vv.notes,
+            v.id, v.make, v.model,
+            v.year_start, v.year_end, v.key_type, v.keyway, v.fcc_id, v.chip,
+            v.frequency, v.immobilizer_system,
+            v.lishi_tool, v.oem_part_number, v.aftermarket_part,
+            v.buttons, v.battery, v.programming_method,
+            v.pin_required, v.notes,
+            v.confidence_score, v.source_name, v.source_url,
             cr.technology as chip_technology, cr.bits as chip_bits, cr.description as chip_description
-          FROM vehicles_master vm
-          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
-          LEFT JOIN chip_registry cr ON LOWER(vv.chip) = LOWER(cr.chip_type)
+          FROM vehicles v
+          LEFT JOIN chip_registry cr ON LOWER(v.chip) = LOWER(cr.chip_type)
           ${whereClause}
-          ORDER BY vm.make, vm.model, vv.year_start
+          ORDER BY v.make, v.model, v.year_start
           LIMIT ? OFFSET ?
         `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
@@ -218,65 +217,61 @@ export default {
         const params: (string | number)[] = [];
 
         // Filter out product descriptions stored as models
-        conditions.push("vm.model NOT LIKE '%Key Blank%'");
-        conditions.push("vm.model NOT LIKE '%Mechanical Key%'");
-        conditions.push("vm.model NOT LIKE '%Transponder Key%'");
-        conditions.push("vm.model NOT LIKE '%Fob Key%'");
-        conditions.push("vm.model NOT LIKE '%Smart Remote%'");
+        conditions.push("v.model NOT LIKE '%Key Blank%'");
+        conditions.push("v.model NOT LIKE '%Mechanical Key%'");
+        conditions.push("v.model NOT LIKE '%Transponder Key%'");
+        conditions.push("v.model NOT LIKE '%Fob Key%'");
+        conditions.push("v.model NOT LIKE '%Smart Remote%'");
 
         if (make) {
-          conditions.push("LOWER(vm.make) = ?");
+          conditions.push("LOWER(v.make) = ?");
           params.push(make);
         }
         if (model) {
-          conditions.push("LOWER(vm.model) LIKE ?");
+          conditions.push("LOWER(v.model) LIKE ?");
           params.push(`%${model}%`);
         }
         if (year) {
           const y = parseInt(year, 10);
-          conditions.push("vv.year_start <= ? AND vv.year_end >= ?");
+          conditions.push("v.year_start <= ? AND v.year_end >= ?");
           params.push(y, y);
         }
 
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-        // Count query
+        // Count query using unified vehicles table
         const countSql = `
-          SELECT COUNT(DISTINCT vm.id) as cnt 
-          FROM vehicles_master vm
-          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
+          SELECT COUNT(*) as cnt 
+          FROM vehicles v
           ${whereClause}
         `;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Data query - join master, variants, chip_registry, and part_crossref for complete data
+        // Data query using unified vehicles table
         const dataSql = `
           SELECT 
-            vm.id,
-            vm.make,
-            vm.model,
-            vv.year_start,
-            vv.year_end,
-            vv.key_type,
-            vv.keyway,
-            vv.fcc_id,
-            vv.chip,
-            vv.frequency,
-            vv.cloning_possible,
-            vv.obd_program,
-            vv.immobilizer_system,
-            vv.lishi_tool,
-            vv.code_series,
-            vv.oem_part_number,
-            vv.aftermarket_part,
-            vv.buttons,
-            vv.battery,
-            vv.emergency_key,
-            vv.programmer,
-            vv.programming_method,
-            vv.pin_required,
-            vv.notes,
+            v.id,
+            v.make,
+            v.model,
+            v.year_start,
+            v.year_end,
+            v.key_type,
+            v.keyway,
+            v.fcc_id,
+            v.chip,
+            v.frequency,
+            v.immobilizer_system,
+            v.lishi_tool,
+            v.oem_part_number,
+            v.aftermarket_part,
+            v.buttons,
+            v.battery,
+            v.programming_method,
+            v.pin_required,
+            v.notes,
+            v.confidence_score,
+            v.source_name,
             cr.technology as chip_technology,
             cr.bits as chip_bits,
             cr.description as chip_description,
@@ -286,15 +281,14 @@ export default {
             pc.keydiy_part,
             pc.key_type as crossref_key_type,
             pc.notes as crossref_notes
-          FROM vehicles_master vm
-          LEFT JOIN vehicle_variants vv ON vm.id = vv.vehicle_id
-          LEFT JOIN chip_registry cr ON LOWER(vv.chip) = LOWER(cr.chip_type)
+          FROM vehicles v
+          LEFT JOIN chip_registry cr ON LOWER(v.chip) = LOWER(cr.chip_type)
           LEFT JOIN part_crossref pc ON (
-            LOWER(vm.make) = LOWER(pc.make) AND 
-            (vv.fcc_id = pc.fcc_id OR vv.oem_part_number = pc.oem_part)
+            LOWER(v.make) = LOWER(pc.make) AND 
+            (v.fcc_id = pc.fcc_id OR v.oem_part_number = pc.oem_part)
           )
           ${whereClause}
-          ORDER BY vm.make, vm.model, vv.year_start
+          ORDER BY v.make, v.model, v.year_start
           LIMIT ? OFFSET ?
         `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
