@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Euro Keys">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
     <title>Euro Keys - Locksmith Database</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2105,7 +2110,6 @@
                     
                     <div class="modal-info" style="margin-bottom: 16px; margin-top: 16px;">
                         <div class="modal-info-item">
-                        <div class="modal-info-item">
                             <div class="modal-info-label">Frequency</div>
                             <div class="modal-info-value">${fccInfo.frequency || 'N/A'}</div>
                         </div>
@@ -2135,7 +2139,8 @@
                     modalBody.innerHTML = `
                         <div class="modal-title">FCC ID: ${fccId}</div>
                         <div class="modal-subtitle">Could not load detailed data</div>
-                        <p style="color: var(--text-muted);">${vehicles}</p>
+                        ${getInventoryControlsHtml(fccId)}
+                        <p style="color: var(--text-muted); margin-top: 12px;">${vehicles}</p>
                         <a href="${amazonLink}" target="_blank" class="modal-amazon">🛒 Search on Amazon</a>
                     `;
                 } else {
@@ -2591,6 +2596,17 @@
                     <button class="btn-used" onclick="inventoryMarkUsed('${escapedKey}')" id="inv-used-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''}>✓ Mark as Used</button>
                 </div>
             `;
+        }
+    </script>
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
         }
     </script>
 </body>
