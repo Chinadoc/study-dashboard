@@ -745,6 +745,105 @@
             background: var(--brand-primary);
             color: var(--bg-primary);
         }
+
+        /* Walkthrough Guide Styles */
+        .walkthrough-toggle {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--brand-primary);
+            color: var(--brand-primary);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .walkthrough-toggle:hover {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+        }
+
+        .walkthrough-content {
+            display: none;
+            margin-top: 16px;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .walkthrough-content.expanded {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .walkthrough-content h2 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .walkthrough-content h3 {
+            color: var(--brand-primary);
+            font-size: 1rem;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .walkthrough-content h4 {
+            color: var(--brand-secondary);
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .walkthrough-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+
+        .walkthrough-content th,
+        .walkthrough-content td {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .walkthrough-content th {
+            background: var(--bg-secondary);
+            color: var(--brand-primary);
+            font-weight: 600;
+        }
+
+        .walkthrough-content blockquote {
+            margin: 12px 0;
+            padding: 10px 14px;
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid var(--brand-primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .walkthrough-content hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0;
+        }
+
+        .auth-required-badge {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
     </style>
 </head>
 
@@ -1051,15 +1150,16 @@
                     <thead>
                         <tr>
                             <th>FCC ID</th>
+                            <th>OEM Part #</th>
                             <th>Vehicles</th>
-                            <th>Frequency</th>
-                            <th>Chip</th>
+                            <th class="hide-mobile">Frequency</th>
+                            <th class="hide-mobile">Chip</th>
                             <th>Amazon</th>
                         </tr>
                     </thead>
                     <tbody id="fccTableBody">
                         <tr>
-                            <td colspan="5" class="loading">Loading FCC data...</td>
+                            <td colspan="6" class="loading">Loading FCC data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1142,6 +1242,97 @@
                 searchBox.style.display = 'none';
             }
         });
+
+        // ================== WALKTHROUGH GUIDES ==================
+
+        // Cache for loaded guides
+        const guideCache = {};
+
+        async function toggleGuide(make, model, idx) {
+            const containerId = `guide-${idx}`;
+            const container = document.getElementById(containerId);
+
+            if (!container) return;
+
+            // Toggle off if already expanded
+            if (container.classList.contains('expanded')) {
+                container.classList.remove('expanded');
+                return;
+            }
+
+            // Check cache first
+            const cacheKey = `${make.toLowerCase()}-${model.toLowerCase()}`;
+            if (guideCache[cacheKey]) {
+                container.innerHTML = guideCache[cacheKey];
+                container.classList.add('expanded');
+                return;
+            }
+
+            // Fetch guide from API
+            container.innerHTML = '<div class="loading">Loading programming guide...</div>';
+            container.classList.add('expanded');
+
+            try {
+                const res = await fetch(`${API}/api/guides?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
+                const data = await res.json();
+
+                if (data.rows && data.rows.length > 0) {
+                    const html = renderGuideContent(data.rows[0].content);
+                    guideCache[cacheKey] = html;
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">📚 No detailed programming guide available yet for this vehicle.</div>';
+                }
+            } catch (e) {
+                console.error('Failed to load guide:', e);
+                container.innerHTML = '<div style="color: #f87171; text-align: center;">Failed to load guide. Please try again.</div>';
+            }
+        }
+
+        function renderGuideContent(markdown) {
+            if (!markdown) return '';
+
+            // Convert markdown tables to HTML
+            let html = markdown;
+
+            // Process tables (simple conversion)
+            html = html.replace(/\|(.+)\|\n\|[-:| ]+\|\n((?:\|.+\|\n?)+)/g, (match, header, body) => {
+                const headerCells = header.split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+                const rows = body.trim().split('\n').map(row => {
+                    const cells = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+                    return `<tr>${cells}</tr>`;
+                }).join('');
+                return `<table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table>`;
+            });
+
+            // Headers
+            html = html.replace(/^### (.*)$/gm, '<h4>$1</h4>');
+            html = html.replace(/^## (.*)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^# (.*)$/gm, '<h2>$1</h2>');
+
+            // Bold
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+            // Blockquotes (pro tips)
+            html = html.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
+
+            // Horizontal rules
+            html = html.replace(/^---$/gm, '<hr>');
+
+            // Lists
+            html = html.replace(/^\d+\. (.*)$/gm, '<li>$1</li>');
+            html = html.replace(/^- (.*)$/gm, '<li>$1</li>');
+
+            // Line breaks (but not for elements that handle their own spacing)
+            html = html.replace(/\n\n/g, '<br><br>');
+            html = html.replace(/\n/g, ' ');
+
+            // Clean up extra spaces
+            html = html.replace(/<br><br>\s*<(h[234]|table|blockquote|hr)/g, '<$1');
+            html = html.replace(/<\/(h[234]|table|blockquote)>\s*<br><br>/g, '</$1>');
+
+            return html;
+        }
 
         // ================== BROWSE DATABASE ==================
 
@@ -1348,10 +1539,12 @@
                     </div>
                     ` : ''}
                     
-                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                         ${fccId !== 'N/A' ? `<button onclick="showKeyPhotos('${fccId}')" class="key-photos-btn">📷 Key Photos</button>` : ''}
                         <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
+                        ${currentUser ? `<button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>` : `<span class="auth-required-badge">🔐 Sign in for guide</span>`}
                     </div>
+                    <div id="guide-${idx}" class="walkthrough-content"></div>
                 </div>
             `;
             }).join('');
@@ -1619,10 +1812,13 @@
                     <td>
                         <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
                     </td>
-                    <td style="max-width: 350px; font-size: 0.85rem; line-height: 1.4;">${highlightedVehicles}${moreLink}</td>
-                    <td>${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
-                    <td>${chip}</td>
-                    <td class="hide-mobile"><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Amazon</a></td>
+                    <td style="font-size: 0.85rem;">
+                        ${oemPart ? `<a href="${amazonLink}" target="_blank" style="color: var(--brand-primary);">${oemPart}</a>` : '<span style="color: var(--text-muted);">-</span>'}
+                    </td>
+                    <td style="max-width: 300px; font-size: 0.85rem; line-height: 1.4;">${highlightedVehicles}${moreLink}</td>
+                    <td class="hide-mobile">${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
+                    <td class="hide-mobile">${chip}</td>
+                    <td><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒</a></td>
                 </tr>
             `;
             }).join('');
@@ -1769,6 +1965,30 @@
         }
 
         // Show key photos from FCC external photos
+        // FCC External Photos Lookup Cache
+        let fccPhotosLookup = null;
+
+        async function loadFccPhotosLookup() {
+            if (fccPhotosLookup) return fccPhotosLookup;
+            try {
+                const response = await fetch('data/fcc_external_photos.csv');
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                fccPhotosLookup = {};
+                for (let i = 1; i < lines.length; i++) {
+                    const [fccId, docId, url] = lines[i].split(',');
+                    if (fccId && url) {
+                        fccPhotosLookup[fccId] = url;
+                    }
+                }
+                console.log(`Loaded ${Object.keys(fccPhotosLookup).length} FCC photo URLs`);
+                return fccPhotosLookup;
+            } catch (e) {
+                console.log('Could not load FCC photos lookup:', e);
+                return {};
+            }
+        }
+
         async function showKeyPhotos(fccId) {
             const modalBody = document.getElementById('keyPhotosModalBody');
             modalBody.innerHTML = '<div class="loading">Loading key photos...</div>';
@@ -1777,35 +1997,34 @@
 
             // FCC report URLs
             const fccReportUrl = `https://fcc.report/FCC-ID/${fccId}`;
-
-            // Try to fetch the FCC page to find the external photos document ID
-            let externalPhotosUrl = fccReportUrl; // Fallback to main page
             let externalPhotosPdfUrl = null;
 
-            try {
-                // Use a CORS proxy or direct fetch (may work for some browsers)
-                const corsProxy = 'https://corsproxy.io/?';
-                const response = await fetch(corsProxy + encodeURIComponent(fccReportUrl));
-                const html = await response.text();
-
-                // Parse the HTML to find external photos link
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // Find the link containing "external photos"
-                const links = doc.querySelectorAll('a');
-                for (const link of links) {
-                    if (link.textContent.toLowerCase().includes('external photos')) {
-                        const href = link.getAttribute('href');
-                        if (href) {
-                            externalPhotosUrl = 'https://fcc.report' + href;
-                            externalPhotosPdfUrl = externalPhotosUrl + '.pdf';
-                            break;
+            // First, try the pre-scraped lookup table (fast!)
+            const lookup = await loadFccPhotosLookup();
+            if (lookup[fccId]) {
+                externalPhotosPdfUrl = lookup[fccId];
+                console.log(`Found FCC photos in lookup: ${externalPhotosPdfUrl}`);
+            } else {
+                // Fallback to dynamic fetching via CORS proxy
+                console.log(`FCC ID ${fccId} not in lookup, trying dynamic fetch...`);
+                try {
+                    const corsProxy = 'https://corsproxy.io/?';
+                    const response = await fetch(corsProxy + encodeURIComponent(fccReportUrl));
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    for (const link of doc.querySelectorAll('a')) {
+                        if (link.textContent.toLowerCase().includes('external photo')) {
+                            const href = link.getAttribute('href');
+                            if (href) {
+                                externalPhotosPdfUrl = 'https://fcc.report' + href + '.pdf';
+                                break;
+                            }
                         }
                     }
+                } catch (e) {
+                    console.log('Dynamic fetch failed:', e);
                 }
-            } catch (e) {
-                console.log('Could not fetch FCC page directly, using fallback:', e);
             }
 
             modalBody.innerHTML = `
@@ -1824,7 +2043,14 @@
                         <br>
                         <span style="color: var(--text-muted); font-size: 0.85rem;">Opens PDF with key fob images</span>
                     </a>
-                    ` : ''}
+                    ` : `
+                    <div class="fcc-link-card" style="margin-bottom: 12px; opacity: 0.7;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 8px;">⚠️</span>
+                        <span style="color: var(--text-muted); font-weight: 600;">No external photos found</span>
+                        <br>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Check the FCC report page below</span>
+                    </div>
+                    `}
                     
                     <a href="${fccReportUrl}" target="_blank" class="fcc-link-card">
                         <span style="font-size: 2rem; display: block; margin-bottom: 8px;">🔍</span>
