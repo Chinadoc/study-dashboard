@@ -993,6 +993,93 @@
             font-weight: 600;
             color: var(--text-primary);
         }
+
+        /* Inventory Tracker Styles */
+        .inventory-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .inventory-badge.in-stock {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .inventory-badge.out-of-stock {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .inventory-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 8px;
+        }
+
+        .inventory-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inventory-btn:hover {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
+        }
+
+        .inventory-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-used {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-used:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .btn-used:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .inventory-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 8px;
+        }
     </style>
 
     <div class="top-bar">📞 Call (804) 506-0709</div>
@@ -2005,11 +2092,19 @@
                     `;
                 }).join('') : '<p style="color: var(--text-muted);">No OEM parts found</p>';
 
+                // Get primary item key for inventory (prefer OEM part, fallback to FCC ID)
+                const primaryItemKey = oemParts.length > 0 && oemParts[0].oem_part_number !== 'unknown'
+                    ? oemParts[0].oem_part_number
+                    : fccId;
+
                 modalBody.innerHTML = `
                     <div class="modal-title">FCC ID: ${fccId}</div>
                     <div class="modal-subtitle">${oemParts.length} OEM part(s) • ${totalVehicles} vehicle(s)</div>
                     
-                    <div class="modal-info" style="margin-bottom: 16px;">
+                    ${getInventoryControlsHtml(primaryItemKey)}
+                    
+                    <div class="modal-info" style="margin-bottom: 16px; margin-top: 16px;">
+                        <div class="modal-info-item">
                         <div class="modal-info-item">
                             <div class="modal-info-label">Frequency</div>
                             <div class="modal-info-value">${fccInfo.frequency || 'N/A'}</div>
@@ -2393,6 +2488,110 @@
             populateYears();
             initGoogleAuth();
         });
+
+        // ================== INVENTORY MANAGER ==================
+
+        const InventoryManager = {
+            STORAGE_KEY: 'eurokeys_inventory',
+
+            getInventory() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    return data ? JSON.parse(data) : {};
+                } catch (e) {
+                    console.error('Error reading inventory:', e);
+                    return {};
+                }
+            },
+
+            setInventory(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving inventory:', e);
+                }
+            },
+
+            getStock(itemKey) {
+                const inv = this.getInventory();
+                return inv[itemKey] || 0;
+            },
+
+            addStock(itemKey, qty = 1) {
+                const inv = this.getInventory();
+                inv[itemKey] = (inv[itemKey] || 0) + qty;
+                this.setInventory(inv);
+                return inv[itemKey];
+            },
+
+            useStock(itemKey, qty = 1) {
+                const inv = this.getInventory();
+                inv[itemKey] = Math.max(0, (inv[itemKey] || 0) - qty);
+                this.setInventory(inv);
+                return inv[itemKey];
+            }
+        };
+
+        // Update inventory display in modal
+        function updateInventoryDisplay(itemKey) {
+            const stock = InventoryManager.getStock(itemKey);
+            const badge = document.getElementById(`inv-badge-${CSS.escape(itemKey)}`);
+            const minusBtn = document.getElementById(`inv-minus-${CSS.escape(itemKey)}`);
+            const usedBtn = document.getElementById(`inv-used-${CSS.escape(itemKey)}`);
+
+            if (badge) {
+                if (stock > 0) {
+                    badge.textContent = `📦 ${stock} in stock`;
+                    badge.className = 'inventory-badge in-stock';
+                } else {
+                    badge.textContent = '⚠️ Out of stock';
+                    badge.className = 'inventory-badge out-of-stock';
+                }
+            }
+            if (minusBtn) minusBtn.disabled = stock === 0;
+            if (usedBtn) usedBtn.disabled = stock === 0;
+        }
+
+        function inventoryAdd(itemKey) {
+            InventoryManager.addStock(itemKey);
+            updateInventoryDisplay(itemKey);
+        }
+
+        function inventoryMinus(itemKey) {
+            InventoryManager.useStock(itemKey);
+            updateInventoryDisplay(itemKey);
+        }
+
+        function inventoryMarkUsed(itemKey) {
+            if (InventoryManager.getStock(itemKey) > 0) {
+                InventoryManager.useStock(itemKey);
+                updateInventoryDisplay(itemKey);
+            }
+        }
+
+        // Generate inventory control HTML for an item
+        function getInventoryControlsHtml(itemKey) {
+            if (!currentUser) return ''; // Only show for logged-in users
+
+            const stock = InventoryManager.getStock(itemKey);
+            const escapedKey = itemKey.replace(/'/g, "\\'");
+            const cssEscapedKey = CSS.escape(itemKey);
+
+            return `
+                <div class="inventory-row">
+                    <div>
+                        <span id="inv-badge-${cssEscapedKey}" class="inventory-badge ${stock > 0 ? 'in-stock' : 'out-of-stock'}">
+                            ${stock > 0 ? `📦 ${stock} in stock` : '⚠️ Out of stock'}
+                        </span>
+                        <div class="inventory-controls">
+                            <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}')" id="inv-minus-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''}>−</button>
+                            <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}')">+</button>
+                        </div>
+                    </div>
+                    <button class="btn-used" onclick="inventoryMarkUsed('${escapedKey}')" id="inv-used-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''}>✓ Mark as Used</button>
+                </div>
+            `;
+        }
     </script>
 </body>
 

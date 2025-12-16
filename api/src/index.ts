@@ -305,44 +305,42 @@ export default {
       }
     }
 
-    // FCC Database endpoint - uses fcc_registry + vehicle_variants
+    // FCC Database endpoint - uses unified vehicles table
     if (path === "/api/fcc") {
       try {
         const q = url.searchParams.get("q")?.toLowerCase() || "";
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
         const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-        let whereClause = "WHERE vv.fcc_id IS NOT NULL AND vv.fcc_id != ''";
+        let whereClause = "WHERE fcc_id IS NOT NULL AND fcc_id != ''";
         const params: string[] = [];
 
         if (q) {
-          whereClause += " AND (LOWER(vv.fcc_id) LIKE ? OR LOWER(vm.make) LIKE ? OR LOWER(vm.model) LIKE ? OR LOWER(vv.chip) LIKE ?)";
+          whereClause += " AND (LOWER(fcc_id) LIKE ? OR LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(chip) LIKE ?)";
           params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
         }
 
-        // Get unique FCC IDs with aggregated data from vehicle_variants
+        // Get unique FCC IDs with aggregated data from unified vehicles table
         const sql = `
           SELECT 
-            vv.fcc_id,
-            vv.frequency,
-            vv.chip,
-            GROUP_CONCAT(DISTINCT vm.make || ' ' || vm.model || ' (' || vv.year_start || '-' || vv.year_end || ')') as vehicles,
-            GROUP_CONCAT(DISTINCT vv.oem_part_number) as oem_parts,
-            MIN(vv.oem_part_number) as primary_oem_part,
-            MIN(vm.make) as primary_make,
+            fcc_id,
+            MIN(frequency) as frequency,
+            MIN(chip) as chip,
+            GROUP_CONCAT(DISTINCT make || ' ' || model || ' (' || year_start || '-' || year_end || ')') as vehicles,
+            GROUP_CONCAT(DISTINCT oem_part_number) as oem_parts,
+            MIN(oem_part_number) as primary_oem_part,
+            MIN(make) as primary_make,
             COUNT(*) as vehicle_count
-          FROM vehicle_variants vv
-          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
+          FROM vehicles
           ${whereClause}
-          GROUP BY vv.fcc_id
-          ORDER BY vv.fcc_id
+          GROUP BY fcc_id
+          ORDER BY fcc_id
           LIMIT ? OFFSET ?
         `;
 
         const countSql = `
-          SELECT COUNT(DISTINCT vv.fcc_id) as cnt 
-          FROM vehicle_variants vv
-          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
+          SELECT COUNT(DISTINCT fcc_id) as cnt 
+          FROM vehicles
           ${whereClause}
         `;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
@@ -377,24 +375,23 @@ export default {
           "SELECT * FROM fcc_registry WHERE fcc_id = ?"
         ).bind(fccId).first();
 
-        // Get all OEM parts with their ASINs for this FCC ID
+        // Get all OEM parts with their ASINs for this FCC ID from unified vehicles table
         const oemParts = await env.LOCKSMITH_DB.prepare(`
           SELECT DISTINCT
-            vv.oem_part_number,
-            vv.amazon_asin,
-            vm.make,
-            vm.model,
-            vv.year_start,
-            vv.year_end,
-            vv.key_type,
-            vv.frequency,
-            vv.chip,
-            vv.buttons,
-            vv.battery
-          FROM vehicle_variants vv
-          JOIN vehicles_master vm ON vv.vehicle_id = vm.id
-          WHERE UPPER(vv.fcc_id) = UPPER(?)
-          ORDER BY vm.make, vm.model, vv.year_start
+            oem_part_number,
+            amazon_asin,
+            make,
+            model,
+            year_start,
+            year_end,
+            key_type,
+            frequency,
+            chip,
+            buttons,
+            battery
+          FROM vehicles
+          WHERE UPPER(fcc_id) = UPPER(?)
+          ORDER BY make, model, year_start
         `).bind(fccId).all();
 
         // Group by OEM part number for cleaner output
