@@ -1912,7 +1912,13 @@
                     ${currentUser && (fccId !== 'N/A' || oem !== 'N/A' || keyway !== 'N/A') ? `
                     <div style="margin-top: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
                         <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">📦 My Inventory</div>
-                        ${getVehicleInventoryHtml(oem !== 'N/A' ? oem : (fccId !== 'N/A' ? fccId : null), keyway)}
+                        ${getVehicleInventoryHtml(
+                    oem !== 'N/A' ? oem : (fccId !== 'N/A' ? fccId : null),
+                    keyway,
+                    year + ' ' + make + ' ' + model,
+                    oem !== 'N/A' ? 'https://www.amazon.com/s?k=' + encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem) + '&tag=eurokeys-20' : (fccId !== 'N/A' ? 'https://www.amazon.com/s?k=' + encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId) + '&tag=eurokeys-20' : null),
+                    keyway !== 'N/A' ? 'https://www.amazon.com/s?k=' + encodeURIComponent(keyway + ' key blank') + '&tag=eurokeys-20' : null
+                )}
                     </div>
                     ` : ''}
                     
@@ -2822,14 +2828,27 @@
         // ================== INVENTORY MANAGER ==================
 
         const InventoryManager = {
-            KEYS_STORAGE_KEY: 'eurokeys_inventory_keys',
-            BLANKS_STORAGE_KEY: 'eurokeys_inventory_blanks',
+            KEYS_STORAGE_KEY: 'eurokeys_inventory_keys_v2',
+            BLANKS_STORAGE_KEY: 'eurokeys_inventory_blanks_v2',
 
-            // Get all keys inventory
+            // Get all keys inventory (format: { itemKey: { qty, vehicle, amazonLink } })
             getKeysInventory() {
                 try {
                     const data = localStorage.getItem(this.KEYS_STORAGE_KEY);
-                    return data ? JSON.parse(data) : {};
+                    if (data) return JSON.parse(data);
+
+                    // Migrate from old format if exists
+                    const oldData = localStorage.getItem('eurokeys_inventory_keys');
+                    if (oldData) {
+                        const old = JSON.parse(oldData);
+                        const migrated = {};
+                        Object.entries(old).forEach(([key, qty]) => {
+                            migrated[key] = { qty, vehicle: null, amazonLink: null };
+                        });
+                        this.setKeysInventory(migrated);
+                        return migrated;
+                    }
+                    return {};
                 } catch (e) {
                     console.error('Error reading keys inventory:', e);
                     return {};
@@ -2840,7 +2859,20 @@
             getBlanksInventory() {
                 try {
                     const data = localStorage.getItem(this.BLANKS_STORAGE_KEY);
-                    return data ? JSON.parse(data) : {};
+                    if (data) return JSON.parse(data);
+
+                    // Migrate from old format
+                    const oldData = localStorage.getItem('eurokeys_inventory_blanks');
+                    if (oldData) {
+                        const old = JSON.parse(oldData);
+                        const migrated = {};
+                        Object.entries(old).forEach(([key, qty]) => {
+                            migrated[key] = { qty, vehicle: null, amazonLink: null };
+                        });
+                        this.setBlanksInventory(migrated);
+                        return migrated;
+                    }
+                    return {};
                 } catch (e) {
                     console.error('Error reading blanks inventory:', e);
                     return {};
@@ -2866,13 +2898,24 @@
             // Get stock for a key (remote/fob)
             getKeyStock(itemKey) {
                 const inv = this.getKeysInventory();
-                return inv[itemKey] || 0;
+                return inv[itemKey]?.qty || 0;
             },
 
             // Get stock for a blank (keyway)
             getBlankStock(keyway) {
                 const inv = this.getBlanksInventory();
-                return inv[keyway] || 0;
+                return inv[keyway]?.qty || 0;
+            },
+
+            // Get full item data
+            getKeyItem(itemKey) {
+                const inv = this.getKeysInventory();
+                return inv[itemKey] || null;
+            },
+
+            getBlankItem(keyway) {
+                const inv = this.getBlanksInventory();
+                return inv[keyway] || null;
             },
 
             // Legacy method for backwards compatibility
@@ -2880,37 +2923,55 @@
                 return this.getKeyStock(itemKey);
             },
 
-            addKeyStock(itemKey, qty = 1) {
+            // Add stock with metadata
+            addKeyStock(itemKey, qty = 1, vehicle = null, amazonLink = null) {
                 const inv = this.getKeysInventory();
-                inv[itemKey] = (inv[itemKey] || 0) + qty;
+                if (!inv[itemKey]) {
+                    inv[itemKey] = { qty: 0, vehicle: null, amazonLink: null };
+                }
+                inv[itemKey].qty += qty;
+                // Update metadata if provided (keeps latest)
+                if (vehicle) inv[itemKey].vehicle = vehicle;
+                if (amazonLink) inv[itemKey].amazonLink = amazonLink;
                 this.setKeysInventory(inv);
-                return inv[itemKey];
+                return inv[itemKey].qty;
             },
 
-            addBlankStock(keyway, qty = 1) {
+            addBlankStock(keyway, qty = 1, vehicle = null, amazonLink = null) {
                 const inv = this.getBlanksInventory();
-                inv[keyway] = (inv[keyway] || 0) + qty;
+                if (!inv[keyway]) {
+                    inv[keyway] = { qty: 0, vehicle: null, amazonLink: null };
+                }
+                inv[keyway].qty += qty;
+                if (vehicle) inv[keyway].vehicle = vehicle;
+                if (amazonLink) inv[keyway].amazonLink = amazonLink;
                 this.setBlanksInventory(inv);
-                return inv[keyway];
+                return inv[keyway].qty;
             },
 
             // Legacy method
-            addStock(itemKey, qty = 1) {
-                return this.addKeyStock(itemKey, qty);
+            addStock(itemKey, qty = 1, vehicle = null, amazonLink = null) {
+                return this.addKeyStock(itemKey, qty, vehicle, amazonLink);
             },
 
             useKeyStock(itemKey, qty = 1) {
                 const inv = this.getKeysInventory();
-                inv[itemKey] = Math.max(0, (inv[itemKey] || 0) - qty);
-                this.setKeysInventory(inv);
-                return inv[itemKey];
+                if (inv[itemKey]) {
+                    inv[itemKey].qty = Math.max(0, inv[itemKey].qty - qty);
+                    this.setKeysInventory(inv);
+                    return inv[itemKey].qty;
+                }
+                return 0;
             },
 
             useBlankStock(keyway, qty = 1) {
                 const inv = this.getBlanksInventory();
-                inv[keyway] = Math.max(0, (inv[keyway] || 0) - qty);
-                this.setBlanksInventory(inv);
-                return inv[keyway];
+                if (inv[keyway]) {
+                    inv[keyway].qty = Math.max(0, inv[keyway].qty - qty);
+                    this.setBlanksInventory(inv);
+                    return inv[keyway].qty;
+                }
+                return 0;
             },
 
             // Legacy method
@@ -2921,12 +2982,12 @@
             // Get total counts
             getTotalKeys() {
                 const inv = this.getKeysInventory();
-                return Object.values(inv).reduce((sum, qty) => sum + qty, 0);
+                return Object.values(inv).reduce((sum, item) => sum + (item?.qty || 0), 0);
             },
 
             getTotalBlanks() {
                 const inv = this.getBlanksInventory();
-                return Object.values(inv).reduce((sum, qty) => sum + qty, 0);
+                return Object.values(inv).reduce((sum, item) => sum + (item?.qty || 0), 0);
             },
 
             // Get all items for display
@@ -2960,11 +3021,11 @@
             if (usedBtn) usedBtn.disabled = stock === 0;
         }
 
-        function inventoryAdd(itemKey, type = 'key') {
+        function inventoryAdd(itemKey, type = 'key', vehicle = null, amazonLink = null) {
             if (type === 'blank') {
-                InventoryManager.addBlankStock(itemKey);
+                InventoryManager.addBlankStock(itemKey, 1, vehicle, amazonLink);
             } else {
-                InventoryManager.addKeyStock(itemKey);
+                InventoryManager.addKeyStock(itemKey, 1, vehicle, amazonLink);
             }
             updateInventoryDisplay(itemKey, type);
             updateInventoryTabBadge();
@@ -3007,7 +3068,7 @@
         }
 
         // Generate inventory control HTML for a vehicle card (shows both key and blank)
-        function getVehicleInventoryHtml(keyIdentifier, blankKeyway) {
+        function getVehicleInventoryHtml(keyIdentifier, blankKeyway, vehicleInfo = null, keyAmazonLink = null, blankAmazonLink = null) {
             if (!currentUser) return ''; // Only show for logged-in users
 
             const keyStock = keyIdentifier ? InventoryManager.getKeyStock(keyIdentifier) : 0;
@@ -3015,6 +3076,9 @@
 
             const escapedKey = keyIdentifier ? keyIdentifier.replace(/'/g, "\\'") : '';
             const escapedBlank = blankKeyway && blankKeyway !== 'N/A' ? blankKeyway.replace(/'/g, "\\'") : '';
+            const escapedVehicle = vehicleInfo ? vehicleInfo.replace(/'/g, "\\'") : '';
+            const escapedKeyAmazon = keyAmazonLink ? keyAmazonLink.replace(/'/g, "\\'") : '';
+            const escapedBlankAmazon = blankAmazonLink ? blankAmazonLink.replace(/'/g, "\\'") : '';
 
             let html = '';
 
@@ -3029,7 +3093,7 @@
                             </span>
                             <div class="inventory-controls">
                                 <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key')" id="inv-minus-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>−</button>
-                                <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key')">+</button>
+                                <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key', '${escapedVehicle}', '${escapedKeyAmazon}')">+</button>
                             </div>
                         </div>
                         <button class="btn-used" onclick="inventoryMarkUsed('${escapedKey}', 'key')" id="inv-used-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>✓ Used</button>
@@ -3048,7 +3112,7 @@
                             </span>
                             <div class="inventory-controls">
                                 <button class="inventory-btn" onclick="inventoryMinus('${escapedBlank}', 'blank')" id="blank-minus-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>−</button>
-                                <button class="inventory-btn" onclick="inventoryAdd('${escapedBlank}', 'blank')">+</button>
+                                <button class="inventory-btn" onclick="inventoryAdd('${escapedBlank}', 'blank', '${escapedVehicle}', '${escapedBlankAmazon}')">+</button>
                             </div>
                         </div>
                         <button class="btn-used" onclick="inventoryMarkUsed('${escapedBlank}', 'blank')" id="blank-used-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>✓ Used</button>
@@ -3090,8 +3154,9 @@
 
             const keys = InventoryManager.getAllKeys();
             const blanks = InventoryManager.getAllBlanks();
-            const keyEntries = Object.entries(keys).filter(([k, v]) => v > 0);
-            const blankEntries = Object.entries(blanks).filter(([k, v]) => v > 0);
+            // Filter items with qty > 0 (new format: {qty, vehicle, amazonLink})
+            const keyEntries = Object.entries(keys).filter(([k, item]) => (item?.qty || 0) > 0);
+            const blankEntries = Object.entries(blanks).filter(([k, item]) => (item?.qty || 0) > 0);
 
             if (keyEntries.length === 0 && blankEntries.length === 0) {
                 container.innerHTML = `
@@ -3108,22 +3173,31 @@
 
             // Keys section
             if (keyEntries.length > 0) {
+                const totalKeys = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                 html += `
                     <div>
-                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔐 Key Fobs & Remotes (${keyEntries.reduce((s, [k, v]) => s + v, 0)} total)</h3>
+                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔐 Key Fobs & Remotes (${totalKeys} total)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
-                keyEntries.forEach(([key, qty]) => {
+                keyEntries.forEach(([key, item]) => {
+                    const qty = item?.qty || 0;
+                    const vehicle = item?.vehicle || null;
+                    const amazonLink = item?.amazonLink || null;
                     const escapedKey = key.replace(/'/g, "\\'");
+
                     html += `
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 200px;">
                                 <span style="font-weight: 600; color: var(--text-primary);">${key}</span>
-                                <span class="inventory-badge in-stock">📦 ${qty}</span>
+                                ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
                             </div>
-                            <div class="inventory-controls">
-                                <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key'); renderInventoryPage();">−</button>
-                                <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key'); renderInventoryPage();">+</button>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="inventory-badge in-stock">📦 ${qty}</span>
+                                <div class="inventory-controls">
+                                    <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key'); renderInventoryPage();">−</button>
+                                    <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key'); renderInventoryPage();">+</button>
+                                </div>
+                                ${amazonLink ? `<a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy More</a>` : ''}
                             </div>
                         </div>
                     `;
@@ -3133,22 +3207,31 @@
 
             // Blanks section
             if (blankEntries.length > 0) {
+                const totalBlanks = blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                 html += `
                     <div>
-                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔑 Key Blanks (${blankEntries.reduce((s, [k, v]) => s + v, 0)} total)</h3>
+                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔑 Key Blanks (${totalBlanks} total)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
-                blankEntries.forEach(([keyway, qty]) => {
+                blankEntries.forEach(([keyway, item]) => {
+                    const qty = item?.qty || 0;
+                    const vehicle = item?.vehicle || null;
+                    const amazonLink = item?.amazonLink || `https://www.amazon.com/s?k=${encodeURIComponent(keyway + ' key blank')}&tag=eurokeys-20`;
                     const escapedKey = keyway.replace(/'/g, "\\'");
+
                     html += `
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 200px;">
                                 <span style="font-weight: 600; color: var(--text-primary);">${keyway}</span>
-                                <span class="inventory-badge in-stock">🔑 ${qty}</span>
+                                ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
                             </div>
-                            <div class="inventory-controls">
-                                <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'blank'); renderInventoryPage();">−</button>
-                                <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'blank'); renderInventoryPage();">+</button>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="inventory-badge in-stock">🔑 ${qty}</span>
+                                <div class="inventory-controls">
+                                    <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'blank'); renderInventoryPage();">−</button>
+                                    <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'blank'); renderInventoryPage();">+</button>
+                                </div>
+                                <a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy More</a>
                             </div>
                         </div>
                     `;
