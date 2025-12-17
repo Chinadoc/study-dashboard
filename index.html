@@ -3881,19 +3881,14 @@
 
     </script>
 
-    <!-- TEMPORARY: Force clear SW and caches -->
+    <!-- Service Worker Registration for PWA -->
     <script>
         if ('serviceWorker' in navigator) {
-            // Unregister all service workers
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                regs.forEach(reg => reg.unregister());
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
             });
-            // Clear all caches
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    names.forEach(name => caches.delete(name));
-                });
-            }
         }
     </script>
 </body>
