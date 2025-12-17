@@ -2879,11 +2879,18 @@
         }
 
         function openUpgradeModal() {
-            document.getElementById('upgradeModal').style.display = 'block';
+            const modal = document.getElementById('upgradeModal');
+            if (modal) {
+                modal.style.display = 'block';
+            } else {
+                // Fallback if modal doesn't exist
+                alert('Upgrade to Pro for inventory features! Contact support@eurokeys.app');
+            }
         }
 
         function closeUpgradeModal() {
-            document.getElementById('upgradeModal').style.display = 'none';
+            const modal = document.getElementById('upgradeModal');
+            if (modal) modal.style.display = 'none';
         }
 
         async function startCheckout(plan) {
