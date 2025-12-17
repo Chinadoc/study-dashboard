@@ -1792,12 +1792,16 @@
         function displayResults(rows, year, make, model) {
             const container = document.getElementById('resultsContainer');
 
-            // Deduplicate rows by unique combination of FCC ID + OEM Part + key type
+            // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
             const seen = new Set();
             const uniqueRows = rows.filter(v => {
-                const key = `${v.fcc_id || ''}-${v.oem_part_number || ''}-${v.key_type || ''}`;
-                if (seen.has(key)) return false;
-                seen.add(key);
+                const fccId = v.fcc_id || '';
+                const oem = v.oem_part_number || '';
+                // If FCC ID exists, use it as primary key (ignore OEM differences)
+                // If no FCC ID, use OEM + key_type as key
+                const key = fccId ? `FCC:${fccId}` : `OEM:${oem}-${v.key_type || ''}`;
+                if (key && seen.has(key)) return false;
+                if (key) seen.add(key);
                 return true;
             });
 
@@ -2957,7 +2961,9 @@
             useKeyStock(itemKey, qty = 1) {
                 const inv = this.getKeysInventory();
                 if (inv[itemKey]) {
+                    const actualUsed = Math.min(qty, inv[itemKey].qty);
                     inv[itemKey].qty = Math.max(0, inv[itemKey].qty - qty);
+                    inv[itemKey].used = (inv[itemKey].used || 0) + actualUsed;
                     this.setKeysInventory(inv);
                     return inv[itemKey].qty;
                 }
@@ -2967,7 +2973,9 @@
             useBlankStock(keyway, qty = 1) {
                 const inv = this.getBlanksInventory();
                 if (inv[keyway]) {
+                    const actualUsed = Math.min(qty, inv[keyway].qty);
                     inv[keyway].qty = Math.max(0, inv[keyway].qty - qty);
+                    inv[keyway].used = (inv[keyway].used || 0) + actualUsed;
                     this.setBlanksInventory(inv);
                     return inv[keyway].qty;
                 }
@@ -2988,6 +2996,17 @@
             getTotalBlanks() {
                 const inv = this.getBlanksInventory();
                 return Object.values(inv).reduce((sum, item) => sum + (item?.qty || 0), 0);
+            },
+
+            // Get total used counts
+            getTotalUsedKeys() {
+                const inv = this.getKeysInventory();
+                return Object.values(inv).reduce((sum, item) => sum + (item?.used || 0), 0);
+            },
+
+            getTotalUsedBlanks() {
+                const inv = this.getBlanksInventory();
+                return Object.values(inv).reduce((sum, item) => sum + (item?.used || 0), 0);
             },
 
             // Get all items for display
@@ -3154,11 +3173,18 @@
 
             const keys = InventoryManager.getAllKeys();
             const blanks = InventoryManager.getAllBlanks();
-            // Filter items with qty > 0 (new format: {qty, vehicle, amazonLink})
+            // Filter items with qty > 0 OR used > 0 (show items with history)
             const keyEntries = Object.entries(keys).filter(([k, item]) => (item?.qty || 0) > 0);
             const blankEntries = Object.entries(blanks).filter(([k, item]) => (item?.qty || 0) > 0);
 
-            if (keyEntries.length === 0 && blankEntries.length === 0) {
+            // Get items that have been fully used (qty = 0 but used > 0)
+            const usedKeyEntries = Object.entries(keys).filter(([k, item]) => (item?.qty || 0) === 0 && (item?.used || 0) > 0);
+            const usedBlankEntries = Object.entries(blanks).filter(([k, item]) => (item?.qty || 0) === 0 && (item?.used || 0) > 0);
+
+            const totalUsedKeys = InventoryManager.getTotalUsedKeys();
+            const totalUsedBlanks = InventoryManager.getTotalUsedBlanks();
+
+            if (keyEntries.length === 0 && blankEntries.length === 0 && usedKeyEntries.length === 0 && usedBlankEntries.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
                         <div style="font-size: 4rem; margin-bottom: 16px;">📦</div>
@@ -3171,19 +3197,35 @@
 
             let html = '<div style="display: grid; gap: 24px;">';
 
-            // Keys section
+            // Stats summary
+            const totalInStock = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0) + blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
+            html += `
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 120px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--brand-primary);">${totalInStock}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">In Stock</div>
+                    </div>
+                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 120px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">${totalUsedKeys + totalUsedBlanks}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Used (All Time)</div>
+                    </div>
+                </div>
+            `;
+
+            // Keys in stock section
             if (keyEntries.length > 0) {
                 const totalKeys = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                 html += `
                     <div>
-                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔐 Key Fobs & Remotes (${totalKeys} total)</h3>
+                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔐 Key Fobs & Remotes (${totalKeys} in stock)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
                 keyEntries.forEach(([key, item]) => {
                     const qty = item?.qty || 0;
+                    const used = item?.used || 0;
                     const vehicle = item?.vehicle || null;
                     const amazonLink = item?.amazonLink || null;
-                    const escapedKey = key.replace(/'/g, "\\'");
+                    const escapedKey = key.replace(/'/g, "\\\\'");
 
                     html += `
                         <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; flex-wrap: wrap; gap: 8px;">
@@ -3191,8 +3233,9 @@
                                 <span style="font-weight: 600; color: var(--text-primary);">${key}</span>
                                 ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
                             </div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <span class="inventory-badge in-stock">📦 ${qty}</span>
+                                ${used > 0 ? `<span style="padding: 4px 8px; background: rgba(34, 197, 94, 0.2); color: #22c55e; border-radius: 4px; font-size: 0.75rem;">✓ ${used} used</span>` : ''}
                                 <div class="inventory-controls">
                                     <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key'); renderInventoryPage();">−</button>
                                     <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key'); renderInventoryPage();">+</button>
@@ -3205,19 +3248,20 @@
                 html += '</div></div>';
             }
 
-            // Blanks section
+            // Blanks in stock section
             if (blankEntries.length > 0) {
                 const totalBlanks = blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                 html += `
                     <div>
-                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔑 Key Blanks (${totalBlanks} total)</h3>
+                        <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔑 Key Blanks (${totalBlanks} in stock)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
                 blankEntries.forEach(([keyway, item]) => {
                     const qty = item?.qty || 0;
+                    const used = item?.used || 0;
                     const vehicle = item?.vehicle || null;
                     const amazonLink = item?.amazonLink || `https://www.amazon.com/s?k=${encodeURIComponent(keyway + ' key blank')}&tag=eurokeys-20`;
-                    const escapedKey = keyway.replace(/'/g, "\\'");
+                    const escapedKey = keyway.replace(/'/g, "\\\\'");
 
                     html += `
                         <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; flex-wrap: wrap; gap: 8px;">
@@ -3225,8 +3269,9 @@
                                 <span style="font-weight: 600; color: var(--text-primary);">${keyway}</span>
                                 ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
                             </div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <span class="inventory-badge in-stock">🔑 ${qty}</span>
+                                ${used > 0 ? `<span style="padding: 4px 8px; background: rgba(34, 197, 94, 0.2); color: #22c55e; border-radius: 4px; font-size: 0.75rem;">✓ ${used} used</span>` : ''}
                                 <div class="inventory-controls">
                                     <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'blank'); renderInventoryPage();">−</button>
                                     <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'blank'); renderInventoryPage();">+</button>
@@ -3236,6 +3281,53 @@
                         </div>
                     `;
                 });
+                html += '</div></div>';
+            }
+
+            // Usage History section (items that have been fully used)
+            if (usedKeyEntries.length > 0 || usedBlankEntries.length > 0) {
+                html += `
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                        <h3 style="color: #22c55e; margin-bottom: 12px;">✓ Usage History (Out of Stock)</h3>
+                        <div style="display: grid; gap: 8px;">
+                `;
+
+                usedKeyEntries.forEach(([key, item]) => {
+                    const used = item?.used || 0;
+                    const vehicle = item?.vehicle || null;
+                    const amazonLink = item?.amazonLink || null;
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; flex-wrap: wrap; gap: 8px; opacity: 0.8;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 200px;">
+                                <span style="font-weight: 600; color: var(--text-primary);">🔐 ${key}</span>
+                                ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="padding: 4px 8px; background: rgba(34, 197, 94, 0.3); color: #22c55e; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">✓ ${used} used</span>
+                                ${amazonLink ? `<a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Restock</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                usedBlankEntries.forEach(([keyway, item]) => {
+                    const used = item?.used || 0;
+                    const vehicle = item?.vehicle || null;
+                    const amazonLink = item?.amazonLink || `https://www.amazon.com/s?k=${encodeURIComponent(keyway + ' key blank')}&tag=eurokeys-20`;
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; flex-wrap: wrap; gap: 8px; opacity: 0.8;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 200px;">
+                                <span style="font-weight: 600; color: var(--text-primary);">🔑 ${keyway}</span>
+                                ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="padding: 4px 8px; background: rgba(34, 197, 94, 0.3); color: #22c55e; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">✓ ${used} used</span>
+                                <a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Restock</a>
+                            </div>
+                        </div>
+                    `;
+                });
+
                 html += '</div></div>';
             }
 
