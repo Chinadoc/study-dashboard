@@ -3703,6 +3703,60 @@
             }
         }
 
+        // Log a completed job - marks item as used and logs the job
+        function openJobLogModal(itemKey, type = 'key', vehicle = '', amazonLink = '') {
+            if (!isPro) {
+                openUpgradeModal();
+                return;
+            }
+
+            const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
+
+            if (stock <= 0) {
+                alert('No stock available to log a job for this item.');
+                return;
+            }
+
+            // Decrement stock
+            if (type === 'blank') {
+                InventoryManager.useBlankStock(itemKey);
+            } else {
+                InventoryManager.useKeyStock(itemKey);
+            }
+
+            // Log the job
+            const jobLog = {
+                itemKey,
+                type,
+                vehicle: vehicle || 'Unknown',
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+
+            // Get existing logs or create new array
+            const logsKey = 'eurokeys_job_logs';
+            let logs = [];
+            try {
+                const existing = localStorage.getItem(logsKey);
+                if (existing) logs = JSON.parse(existing);
+            } catch (e) { }
+
+            logs.push(jobLog);
+            localStorage.setItem(logsKey, JSON.stringify(logs));
+
+            // Update UI
+            updateInventoryDisplay(itemKey, type);
+            updateInventoryTabBadge();
+
+            // If on inventory page, refresh it
+            if (document.getElementById('tabInventory')?.classList.contains('active')) {
+                renderInventoryPage();
+            }
+
+            // Show success feedback
+            alert(`✓ Job logged! Used 1 ${type === 'blank' ? 'key blank' : 'key fob'} (${itemKey})`);
+        }
+
         // Update inventory tab badge with total count
         function updateInventoryTabBadge() {
             const tab = document.getElementById('inventoryTab');
