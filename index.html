@@ -2937,7 +2937,7 @@
         }
 
         // Subscription Management
-        let isPro = false;
+        let isPro = true; // TEMP: Set to true for testing - TODO: restore to false when Stripe is configured
 
         async function checkSubscription() {
             if (!currentUser) return;
