@@ -1688,12 +1688,13 @@
                             <th>Vehicles</th>
                             <th class="hide-mobile">Frequency</th>
                             <th class="hide-mobile">Chip</th>
+                            <th>Stock</th>
                             <th>Amazon</th>
                         </tr>
                     </thead>
                     <tbody id="fccTableBody">
                         <tr>
-                            <td colspan="6" class="loading">Loading FCC data...</td>
+                            <td colspan="7" class="loading">Loading FCC data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2513,6 +2514,13 @@
                     <td style="max-width: 300px; font-size: 0.85rem; line-height: 1.4;">${highlightedVehicles}${moreLink}</td>
                     <td class="hide-mobile">${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
                     <td class="hide-mobile">${chip}</td>
+                    <td>
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <button onclick="inventoryMinus('${fccId}', 'key')" class="inv-btn" title="Remove 1" style="width: 24px; height: 24px; border-radius: 4px; border: none; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">−</button>
+                            <span id="fcc-stock-${fccId}" style="min-width: 20px; text-align: center; font-size: 0.85rem;">${InventoryManager.getKeyStock(fccId)}</span>
+                            <button onclick="fccInventoryAdd('${fccId}', '${(vehicles || '').replace(/'/g, "\\'")}', '${amazonLink.replace(/'/g, "\\'")}')" class="inv-btn" title="Add 1" style="width: 24px; height: 24px; border-radius: 4px; border: none; background: var(--brand-primary); color: var(--bg-primary); cursor: pointer; font-weight: bold;">+</button>
+                        </div>
+                    </td>
                     <td><a href="${amazonLink}" target="_blank" class="amazon-btn">🛒</a></td>
                 </tr>
             `;
@@ -3493,6 +3501,22 @@
             }
             updateInventoryDisplay(itemKey, type);
             updateInventoryTabBadge();
+            // Also update FCC table if visible
+            updateFccStockDisplay(itemKey);
+        }
+
+        // Helper for FCC table inventory add
+        function fccInventoryAdd(fccId, vehicle, amazonLink) {
+            inventoryAdd(fccId, 'key', vehicle, amazonLink);
+            updateFccStockDisplay(fccId);
+        }
+
+        // Update stock display in FCC table
+        function updateFccStockDisplay(fccId) {
+            const stockEl = document.getElementById(`fcc-stock-${fccId}`);
+            if (stockEl) {
+                stockEl.textContent = InventoryManager.getKeyStock(fccId);
+            }
         }
 
         function inventoryMarkUsed(itemKey, type = 'key') {
