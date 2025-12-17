@@ -1064,94 +1064,7 @@
         <img id="lightboxImage" style="max-width: 95%; max-height: 95%; object-fit: contain;">
     </div>
 
-    <!-- Job Log Modal -->
-    <div id="jobLogModal" class="modal" style="display: none;">
-        <div class="modal-overlay" onclick="closeJobLogModal()"></div>
-        <div class="modal-content" style="max-width: 450px;">
-            <button class="modal-close" onclick="closeJobLogModal()">×</button>
-            <h2 style="color: var(--brand-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                🔧 Log This Job
-            </h2>
-            <div id="jobLogVehicle" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;"></div>
 
-            <form id="jobLogForm" onsubmit="submitJobLog(event)">
-                <input type="hidden" id="jobLogItemKey">
-                <input type="hidden" id="jobLogItemType">
-
-                <!-- Service Type -->
-                <div style="margin-bottom: 16px;">
-                    <label
-                        style="display: block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 6px;">Service
-                        Type</label>
-                    <select id="jobServiceType"
-                        style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1rem;">
-                        <option value="duplicate">🔑 Key Duplicate</option>
-                        <option value="all-keys-lost">🚨 All Keys Lost</option>
-                        <option value="add-key">➕ Add Key / Spare</option>
-                        <option value="programming">💻 Programming Only</option>
-                        <option value="remote-only">📡 Remote/Fob Only</option>
-                        <option value="lockout">🔐 Lockout (no key used)</option>
-                        <option value="other">📋 Other</option>
-                    </select>
-                </div>
-
-                <!-- Price -->
-                <div style="margin-bottom: 16px;">
-                    <label
-                        style="display: block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 6px;">💵
-                        Job Price</label>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <button type="button" class="price-preset" onclick="setJobPrice(150)">$150</button>
-                        <button type="button" class="price-preset" onclick="setJobPrice(200)">$200</button>
-                        <button type="button" class="price-preset" onclick="setJobPrice(250)">$250</button>
-                        <button type="button" class="price-preset" onclick="setJobPrice(300)">$300</button>
-                    </div>
-                    <input type="number" id="jobPrice" placeholder="Enter amount" min="0" step="1"
-                        style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1rem;">
-                </div>
-
-                <!-- Notes -->
-                <div style="margin-bottom: 16px;">
-                    <label
-                        style="display: block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 6px;">📝
-                        Notes (optional)</label>
-                    <textarea id="jobNotes" rows="2" placeholder="Any special notes about this job..."
-                        style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 0.95rem; resize: vertical;"></textarea>
-                </div>
-
-                <!-- Buttons -->
-                <div style="display: flex; gap: 8px; margin-top: 20px;">
-                    <button type="submit"
-                        style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                        ✓ Log Job
-                    </button>
-                    <button type="button" onclick="skipJobLog()"
-                        style="padding: 12px 20px; background: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; cursor: pointer;">
-                        Skip
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <style>
-        .price-preset {
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .price-preset:hover {
-            background: var(--brand-primary);
-            color: var(--bg-primary);
-            border-color: var(--brand-primary);
-        }
-    </style>
 
     <style>
         .modal {
@@ -1956,6 +1869,15 @@
                 const makeLogo = getMakeLogo(make);
                 const logoHtml = makeLogo ? `<img src="${makeLogo}" alt="${make}" class="make-logo" onerror="this.style.display='none'" style="width: 28px; height: 28px; object-fit: contain; margin-right: 10px; border-radius: 4px;">` : '';
 
+                // Check inventory stock for this key (if signed in)
+                const keyInStock = currentUser && fccId !== 'N/A' ? InventoryManager.getKeyStock(fccId) : 0;
+                const blankInStock = currentUser && keyway !== 'N/A' ? InventoryManager.getBlankStock(keyway) : 0;
+                const inventoryBadge = keyInStock > 0
+                    ? `<span class="badge" style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span>`
+                    : blankInStock > 0
+                        ? `<span class="badge" style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span>`
+                        : '';
+
                 return `
                 <div class="vehicle-card">
                     <div class="vehicle-card-header">
@@ -1966,6 +1888,7 @@
                             ${uniqueRows.length > 1 ? `<span style="color: var(--text-muted); font-size: 0.85rem;">• ${fccId !== 'N/A' ? 'FCC: ' + fccId : oem !== 'N/A' ? 'Part: ' + oem : 'Variant ' + (idx + 1)}</span>` : ''}
                         </div>
                         <div class="vehicle-badges">
+                            ${inventoryBadge}
                             ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
                             ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Buy on Amazon</a>` : ''}
@@ -3114,65 +3037,6 @@
                 return Object.values(inv).reduce((sum, item) => sum + (item?.used || 0), 0);
             },
 
-            // Get total revenue
-            getTotalKeyRevenue() {
-                const inv = this.getKeysInventory();
-                return Object.values(inv).reduce((sum, item) => {
-                    const jobs = item?.jobs || [];
-                    return sum + jobs.reduce((s, j) => s + (j.price || 0), 0);
-                }, 0);
-            },
-
-            getTotalBlankRevenue() {
-                const inv = this.getBlanksInventory();
-                return Object.values(inv).reduce((sum, item) => {
-                    const jobs = item?.jobs || [];
-                    return sum + jobs.reduce((s, j) => s + (j.price || 0), 0);
-                }, 0);
-            },
-
-            // Add a job to an inventory item
-            addKeyJob(itemKey, job) {
-                const inv = this.getKeysInventory();
-                if (!inv[itemKey]) {
-                    inv[itemKey] = { qty: 0, vehicle: null, amazonLink: null, used: 0, jobs: [] };
-                }
-                if (!inv[itemKey].jobs) inv[itemKey].jobs = [];
-                inv[itemKey].jobs.unshift(job); // Add to front (most recent first)
-                this.setKeysInventory(inv);
-            },
-
-            addBlankJob(keyway, job) {
-                const inv = this.getBlanksInventory();
-                if (!inv[keyway]) {
-                    inv[keyway] = { qty: 0, vehicle: null, amazonLink: null, used: 0, jobs: [] };
-                }
-                if (!inv[keyway].jobs) inv[keyway].jobs = [];
-                inv[keyway].jobs.unshift(job);
-                this.setBlanksInventory(inv);
-            },
-
-            // Get jobs for an item
-            getKeyJobs(itemKey) {
-                const item = this.getKeyItem(itemKey);
-                return item?.jobs || [];
-            },
-
-            getBlankJobs(keyway) {
-                const item = this.getBlankItem(keyway);
-                return item?.jobs || [];
-            },
-
-            // Get total jobs count
-            getTotalJobs() {
-                const keys = this.getKeysInventory();
-                const blanks = this.getBlanksInventory();
-                let total = 0;
-                Object.values(keys).forEach(item => { total += (item?.jobs?.length || 0); });
-                Object.values(blanks).forEach(item => { total += (item?.jobs?.length || 0); });
-                return total;
-            },
-
             // Get all items for display
             getAllKeys() {
                 return this.getKeysInventory();
@@ -3227,92 +3091,18 @@
         function inventoryMarkUsed(itemKey, type = 'key') {
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
             if (stock > 0) {
-                // Show job log modal instead of directly decrementing
-                openJobLogModal(itemKey, type);
-            }
-        }
+                if (type === 'blank') {
+                    InventoryManager.useBlankStock(itemKey);
+                } else {
+                    InventoryManager.useKeyStock(itemKey);
+                }
+                updateInventoryDisplay(itemKey, type);
+                updateInventoryTabBadge();
 
-        // Job Log Modal Functions
-        function openJobLogModal(itemKey, type) {
-            const item = type === 'blank' ? InventoryManager.getBlankItem(itemKey) : InventoryManager.getKeyItem(itemKey);
-            const vehicle = item?.vehicle || 'Unknown vehicle';
-
-            document.getElementById('jobLogItemKey').value = itemKey;
-            document.getElementById('jobLogItemType').value = type;
-            document.getElementById('jobLogVehicle').innerHTML = `
-                <span style="color: var(--text-primary); font-weight: 500;">${type === 'blank' ? '🔑' : '🔐'} ${itemKey}</span>
-                ${vehicle !== 'Unknown vehicle' ? `<br>🚗 ${vehicle}` : ''}
-            `;
-
-            // Reset form
-            document.getElementById('jobPrice').value = '';
-            document.getElementById('jobNotes').value = '';
-            document.getElementById('jobServiceType').value = 'duplicate';
-
-            document.getElementById('jobLogModal').style.display = 'flex';
-        }
-
-        function closeJobLogModal() {
-            document.getElementById('jobLogModal').style.display = 'none';
-        }
-
-        function setJobPrice(amount) {
-            document.getElementById('jobPrice').value = amount;
-        }
-
-        function submitJobLog(event) {
-            event.preventDefault();
-
-            const itemKey = document.getElementById('jobLogItemKey').value;
-            const type = document.getElementById('jobLogItemType').value;
-            const price = parseFloat(document.getElementById('jobPrice').value) || 0;
-            const notes = document.getElementById('jobNotes').value.trim();
-            const serviceType = document.getElementById('jobServiceType').value;
-
-            // Create job record
-            const job = {
-                date: new Date().toISOString(),
-                price: price,
-                notes: notes,
-                serviceType: serviceType
-            };
-
-            // Add job and decrement stock
-            if (type === 'blank') {
-                InventoryManager.addBlankJob(itemKey, job);
-                InventoryManager.useBlankStock(itemKey);
-            } else {
-                InventoryManager.addKeyJob(itemKey, job);
-                InventoryManager.useKeyStock(itemKey);
-            }
-
-            updateInventoryDisplay(itemKey, type);
-            updateInventoryTabBadge();
-            closeJobLogModal();
-
-            // If on inventory page, refresh it
-            if (document.getElementById('tabInventory')?.classList.contains('active')) {
-                renderInventoryPage();
-            }
-        }
-
-        function skipJobLog() {
-            const itemKey = document.getElementById('jobLogItemKey').value;
-            const type = document.getElementById('jobLogItemType').value;
-
-            // Just decrement stock without logging job
-            if (type === 'blank') {
-                InventoryManager.useBlankStock(itemKey);
-            } else {
-                InventoryManager.useKeyStock(itemKey);
-            }
-
-            updateInventoryDisplay(itemKey, type);
-            updateInventoryTabBadge();
-            closeJobLogModal();
-
-            if (document.getElementById('tabInventory')?.classList.contains('active')) {
-                renderInventoryPage();
+                // If on inventory page, refresh it
+                if (document.getElementById('tabInventory')?.classList.contains('active')) {
+                    renderInventoryPage();
+                }
             }
         }
 
@@ -3442,21 +3232,15 @@
 
             // Stats summary
             const totalInStock = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0) + blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
-            const totalRevenue = InventoryManager.getTotalKeyRevenue() + InventoryManager.getTotalBlankRevenue();
-            const totalJobs = InventoryManager.getTotalJobs();
             html += `
                 <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 100px;">
+                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 120px;">
                         <div style="font-size: 1.5rem; font-weight: 700; color: var(--brand-primary);">${totalInStock}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">In Stock</div>
                     </div>
-                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 100px;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">${totalJobs}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Jobs</div>
-                    </div>
-                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 100px;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">$${totalRevenue.toLocaleString()}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Revenue</div>
+                    <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 120px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">${totalUsedKeys + totalUsedBlanks}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Used</div>
                     </div>
                 </div>
             `;
