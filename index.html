@@ -1156,6 +1156,121 @@
         </div>
     </div>
 
+    <!-- Upgrade to Pro Modal -->
+    <div id="upgradeModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeUpgradeModal()"></div>
+        <div class="modal-content" style="max-width: 900px; padding: 0;">
+            <button class="modal-close" onclick="closeUpgradeModal()" style="z-index: 10;">×</button>
+
+            <div class="upgrade-modal-layout">
+                <!-- Header / Value Prop -->
+                <div
+                    style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+                    <h2
+                        style="font-size: 2rem; margin-bottom: 12px; background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                        Upgrade to Euro Keys Pro
+                    </h2>
+                    <p style="color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                        Stop guessing on the job. Get full inventory control, offline access features, and priority
+                        updates.
+                    </p>
+                </div>
+
+                <!-- Pricing Cards -->
+                <div style="padding: 40px; background: var(--bg-secondary);">
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+
+                        <!-- Monthly -->
+                        <div class="price-card"
+                            style="background: var(--bg-tertiary); padding: 24px; border-radius: 12px; border: 1px solid var(--border); position: relative;">
+                            <h3 style="color: var(--text-primary); margin-bottom: 8px;">Monthly</h3>
+                            <div
+                                style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">
+                                $9.99<span
+                                    style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/mo</span>
+                            </div>
+                            <ul
+                                style="list-style: none; padding: 0; margin-bottom: 24px; color: var(--text-secondary);">
+                                <li style="margin-bottom: 8px;">✓ Full Inventory Management</li>
+                                <li style="margin-bottom: 8px;">✓ Stock Alerts</li>
+                                <li style="margin-bottom: 8px;">✓ Priority Support</li>
+                            </ul>
+                            <button onclick="startCheckout('monthly')"
+                                style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--brand-primary); color: var(--brand-primary); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                Start Monthly
+                            </button>
+                        </div>
+
+                        <!-- Annual (Best Value) -->
+                        <div class="price-card"
+                            style="background: #1e293b; padding: 24px; border-radius: 12px; border: 2px solid #fbbf24; position: relative; transform: scale(1.05); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);">
+                            <div
+                                style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #fbbf24; color: #000; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                                MOST POPULAR
+                            </div>
+                            <h3 style="color: white; margin-bottom: 8px;">Annual</h3>
+                            <div style="font-size: 2rem; font-weight: 700; color: white; margin-bottom: 4px;">
+                                $99<span style="font-size: 1rem; color: #94a3b8; font-weight: 400;">/yr</span>
+                            </div>
+                            <div style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 16px;">Save ~17% vs
+                                Monthly</div>
+                            <ul style="list-style: none; padding: 0; margin-bottom: 24px; color: #e2e8f0;">
+                                <li style="margin-bottom: 8px;">✓ Full Inventory Management</li>
+                                <li style="margin-bottom: 8px;">✓ Stock Alerts</li>
+                                <li style="margin-bottom: 8px;">✓ Priority Support</li>
+                                <li style="margin-bottom: 8px;">✓ 2 Months Free</li>
+                            </ul>
+                            <button onclick="startCheckout('annual')"
+                                style="width: 100%; padding: 12px; background: #fbbf24; border: none; color: #000; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                                Get Annual Plan
+                            </button>
+                        </div>
+
+                        <!-- Lifetime -->
+                        <div class="price-card"
+                            style="background: var(--bg-tertiary); padding: 24px; border-radius: 12px; border: 1px solid var(--border);">
+                            <h3 style="color: var(--text-primary); margin-bottom: 8px;">Lifetime</h3>
+                            <div
+                                style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">
+                                $249
+                            </div>
+                            <ul
+                                style="list-style: none; padding: 0; margin-bottom: 24px; color: var(--text-secondary);">
+                                <li style="margin-bottom: 8px;">✓ One-time payment</li>
+                                <li style="margin-bottom: 8px;">✓ All Pro Features Forever</li>
+                                <li style="margin-bottom: 8px;">✓ No Recurring Fees</li>
+                            </ul>
+                            <button onclick="startCheckout('lifetime')"
+                                style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--text-muted); color: var(--text-primary); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                Buy Lifetime
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div style="text-align: center; margin-top: 24px; color: var(--text-muted); font-size: 0.9rem;">
+                        Secure payment processing via Stripe.
+                        <a href="#" onclick="restorePurchases(); return false;"
+                            style="color: var(--text-secondary); text-decoration: underline;">Restore Purchases</a>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .upgrade-modal-layout {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                @media (min-width: 768px) {
+                    .upgrade-modal-layout {
+                        flex-direction: column;
+                    }
+                }
+            </style>
+        </div>
+    </div>
+
     <style>
         .modal {
             position: fixed;
@@ -2936,6 +3051,37 @@
                 alert('Connection failed. Please try again.');
                 btn.innerText = originalText;
                 btn.disabled = false;
+            }
+        }
+
+        // Restore purchases - re-check subscription status
+        async function restorePurchases() {
+            if (!currentUser) {
+                alert('Please sign in first to restore purchases.');
+                return;
+            }
+
+            try {
+                // Force refresh subscription status from server
+                localStorage.removeItem('eurokeys_subscription');
+                const res = await fetch(`${API}/subscription-status?userId=${currentUser.sub}`);
+                const data = await res.json();
+
+                if (data.isPro) {
+                    isPro = true;
+                    localStorage.setItem('eurokeys_subscription', JSON.stringify({
+                        userId: currentUser.sub,
+                        expiresAt: data.expiresAt
+                    }));
+                    updateProUI();
+                    closeUpgradeModal();
+                    alert('✅ Subscription restored successfully! You now have Pro access.');
+                } else {
+                    alert('No active subscription found. If you recently purchased, please wait a few moments and try again.');
+                }
+            } catch (err) {
+                console.error('Restore failed:', err);
+                alert('Failed to restore purchases. Please try again or contact support@eurokeys.app');
             }
         }
 
