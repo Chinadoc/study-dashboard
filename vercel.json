@@ -1,21 +1,14 @@
 {
   "version": 2,
   "public": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/amazon-product",
-      "dest": "/api/amazon-product.js"
+      "source": "/api/amazon-product",
+      "destination": "/api/amazon-product.js"
     },
     {
-      "src": "/api/amazon-search",
-      "dest": "/api/amazon-search.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/amazon-search",
+      "destination": "/api/amazon-search.js"
     }
   ]
 }
