@@ -620,13 +620,16 @@
         }
 
         .fcc-action-secondary {
-            background: var(--bg-tertiary);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-primary);
             border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
         }
 
         .fcc-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
             border-color: var(--brand-primary);
+            transform: translateY(-2px);
         }
 
         /* Hide table on mobile, show cards */
@@ -1038,23 +1041,31 @@
 
         /* Job Logging Button */
         .btn-log-job {
-            background: linear-gradient(135deg, var(--brand-primary), #45a049);
+            background: var(--brand-primary);
+            background: linear-gradient(135deg, var(--brand-primary), #f59e0b);
             color: #000;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s;
+            font-size: 0.9rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
         }
 
         .btn-log-job:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.3);
+            filter: brightness(1.05);
+        }
+
+        .btn-log-job:active {
+            transform: translateY(0);
         }
 
         .btn-log-job:disabled {
@@ -1063,6 +1074,7 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.7;
         }
     </style>
     <script>
@@ -2722,7 +2734,7 @@
 
                         <div class="fcc-card-actions">
                             <a href="${amazonLink}" target="_blank" class="fcc-action-btn fcc-action-primary">🛒 Buy on Amazon</a>
-                            <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary">📋 View Details</button>
+                            <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary">🔍 View Details</button>
                         </div>
                     </div>
                 `;
@@ -2835,10 +2847,18 @@
                     : fccId;
 
                 modalBody.innerHTML = `
-                    <div class="modal-title">FCC ID: ${fccId}</div>
-                    <div class="modal-subtitle">${oemParts.length} OEM part(s) • ${totalVehicles} vehicle(s)</div>
+                    <div class="modal-header-premium" style="margin-bottom: 24px;">
+                        <div class="modal-title" style="font-size: 1.75rem; font-weight: 800; background: linear-gradient(135deg, var(--brand-primary), #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">FCC ID: ${fccId}</div>
+                        <div class="modal-subtitle" style="font-size: 1rem; color: var(--text-secondary); font-weight: 500;">
+                            <span style="display: inline-flex; align-items: center; gap: 4px;">📦 ${oemParts.length} OEM Parts</span> 
+                            <span style="color: var(--text-muted); margin: 0 8px;">•</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px;">🚗 ${totalVehicles} Vehicles</span>
+                        </div>
+                    </div>
                     
-                    ${getInventoryControlsHtml(primaryItemKey)}
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; backdrop-filter: blur(10px);">
+                        ${getInventoryControlsHtml(primaryItemKey)}
+                    </div>
                     
                     <div class="modal-info" style="margin-bottom: 16px; margin-top: 16px;">
                         <div class="modal-info-item">
@@ -3730,7 +3750,10 @@
                 type,
                 vehicle: vehicle || 'Unknown',
                 date: new Date().toISOString(),
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                cost: 0,
+                customer: 'Manual Job',
+                description: vehicle || `Used 1 ${type === 'blank' ? 'key blank' : 'key fob'}`
             };
 
             // Get existing logs or create new array
@@ -3835,17 +3858,29 @@
             const cssEscapedKey = CSS.escape(itemKey);
 
             return `
-                <div class="inventory-row">
-                    <div>
-                        <span id="inv-badge-${cssEscapedKey}" class="inventory-badge ${stock > 0 ? 'in-stock' : 'out-of-stock'}">
+                <div class="inventory-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                        <span id="inv-badge-${cssEscapedKey}" class="inventory-badge ${stock > 0 ? 'in-stock' : 'out-of-stock'}" style="
+                            padding: 6px 12px; 
+                            border-radius: 20px; 
+                            font-size: 0.85rem; 
+                            font-weight: 700;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            background: ${stock > 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'};
+                            color: ${stock > 0 ? '#4ade80' : '#f87171'};
+                            border: 1px solid ${stock > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'};
+                        ">
                             ${stock > 0 ? `📦 ${stock} in stock` : '⚠️ Out of stock'}
                         </span>
-                        <div class="inventory-controls">
-                            <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key')" id="inv-minus-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''}>−</button>
-                            <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key')">+</button>
+                        <div class="inventory-controls" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                            <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key')" id="inv-minus-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''} style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">−</button>
+                            <span style="font-weight: 700; font-size: 1rem; min-width: 20px; text-align: center;">${stock}</span>
+                            <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key')" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">+</button>
                         </div>
                     </div>
-                    <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key')" id="inv-used-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''}>✓ Log Job</button>
+                    <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key')" id="inv-used-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''} style="flex: 1; min-width: 140px;">✓ Log Job</button>
                 </div>
             `;
         }
@@ -4074,19 +4109,23 @@
 
                 logs.forEach(log => {
                     const date = new Date(log.date).toLocaleString();
+                    const cost = typeof log.cost === 'number' ? log.cost : 0;
+                    const customer = log.customer || 'Unknown Customer';
+                    const description = log.description || log.vehicle || '';
+
                     html += `
                             <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px; border-left: 4px solid var(--brand-primary);">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <div>
-                                        <div style="font-weight: 700; color: var(--text-primary); font-size: 1.1rem;">${log.customer || 'Unknown Customer'}</div>
+                                        <div style="font-weight: 700; color: var(--text-primary); font-size: 1.1rem;">${customer}</div>
                                         <div style="font-size: 0.85rem; color: var(--text-muted);">${date}</div>
                                     </div>
-                                    <div style="font-weight: 700; color: #22c55e;">$${log.cost.toFixed(2)}</div>
+                                    <div style="font-weight: 700; color: #22c55e;">$${cost.toFixed(2)}</div>
                                 </div>
                                 <div style="margin-bottom: 8px;">
                                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                                         <span style="font-size: 0.85rem; padding: 2px 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px;">${log.type === 'blank' ? '🔑' : '🔐'} ${log.itemKey}</span>
-                                        ${log.description ? `<span style="font-size: 0.9rem; color: var(--text-primary);">${log.description}</span>` : ''}
+                                        ${description ? `<span style="font-size: 0.9rem; color: var(--text-primary);">${description}</span>` : ''}
                                     </div>
                                     ${log.notes ? `<div style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">"${log.notes}"</div>` : ''}
                                 </div>
@@ -4109,14 +4148,14 @@
                 headers.join(','),
                 ...logs.map(log => [
                     new Date(log.date).toISOString(),
-                    `"${(log.customer || '').replace(/"/g, '""')}"`,
+                    `"${(log.customer || 'Manual Job').replace(/"/g, '""')}"`,
                     `"${(log.itemKey || '').replace(/"/g, '""')}"`,
                     log.type,
-                    `"${(log.description || '').replace(/"/g, '""')}"`,
-                    log.cost,
+                    `"${(log.description || log.vehicle || '').replace(/"/g, '""')}"`,
+                    typeof log.cost === 'number' ? log.cost.toFixed(2) : '0.00',
                     `"${(log.notes || '').replace(/"/g, '""')}"`
                 ].join(','))
-            ].join('\\n');
+            ].join('\n');
 
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);

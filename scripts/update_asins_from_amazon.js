@@ -165,9 +165,9 @@ function extractProductFromSearch(html, asin, fccId) {
 
     // Check for Prime
     product.prime = chunk.includes('a]prime') ||
-                    chunk.includes('prime-icon') ||
-                    chunk.includes('Prime FREE') ||
-                    chunk.includes('aria-label="Prime"');
+        chunk.includes('prime-icon') ||
+        chunk.includes('Prime FREE') ||
+        chunk.includes('aria-label="Prime"');
 
     // Extract image
     const imageMatch = chunk.match(/src="(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+)"/);
@@ -227,8 +227,18 @@ async function updateAsinsFromAmazon() {
         return;
     }
 
-    const fccIds = Object.keys(asinData.products_by_fcc);
-    console.log(`Found ${fccIds.length} FCC IDs to process`);
+    let fccIds = [];
+    const missingFccPath = path.join(__dirname, '..', 'missing_fcc_ids.json');
+
+    if (fs.existsSync(missingFccPath)) {
+        console.log('Using missing FCC IDs from missing_fcc_ids.json');
+        fccIds = JSON.parse(fs.readFileSync(missingFccPath, 'utf8'));
+    } else {
+        fccIds = Object.keys(asinData.products_by_fcc);
+        console.log(`Using ${fccIds.length} FCC IDs from existing JSON mapping`);
+    }
+
+    console.log(`Processing ${fccIds.length} FCC IDs`);
 
     let processed = 0;
     let updated = 0;

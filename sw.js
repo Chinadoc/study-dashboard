@@ -1,5 +1,5 @@
 // Euro Keys Service Worker - Enables offline support and app-like experience
-const CACHE_NAME = 'euro-keys-v8';
+const CACHE_NAME = 'euro-keys-v9';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
