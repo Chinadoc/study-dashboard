@@ -3,14 +3,59 @@
   "name": "study-dashboard",
   "public": true,
   "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "gunnaiza.html", "use": "@vercel/static" },
-    { "src": "dashboard.html", "use": "@vercel/static" },
-    { "src": "api/*.js", "use": "@vercel/node" }
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "gunnaiza.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "dashboard.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "sw.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "manifest.webmanifest",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "assets/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "data/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
   ],
   "routes": [
-    { "src": "/api/amazon-product", "dest": "/api/amazon-product.js" },
-    { "src": "/api/amazon-search", "dest": "/api/amazon-search.js" },
-    { "src": "/", "dest": "/index.html" }
+    {
+      "src": "/api/amazon-product",
+      "dest": "/api/amazon-product.js"
+    },
+    {
+      "src": "/api/amazon-search",
+      "dest": "/api/amazon-search.js"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "/sw.js"
+    },
+    {
+      "src": "/manifest.webmanifest",
+      "dest": "/manifest.webmanifest"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    }
   ]
 }
