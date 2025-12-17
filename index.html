@@ -1732,6 +1732,19 @@
             }
         }
 
+        // Check if model name looks like a product description rather than a vehicle model
+        function isValidModelName(model) {
+            if (!model) return false;
+            const badPatterns = [
+                /keyless entry/i, /remote key/i, /key fob/i, /flip key/i,
+                /smart key/i, /transponder/i, /key blank/i, /mechanical key/i,
+                /\d+b\s*w/i,  // "5B w" truncated entries
+                /\d+ button/i, /peps/i, /fobik/i, /80 bit/i, /high security/i,
+                /proximity/i, /smart remote/i
+            ];
+            return !badPatterns.some(p => p.test(model));
+        }
+
         async function loadModels() {
             const year = document.getElementById('yearSelect').value;
             const make = document.getElementById('makeSelect').value;
@@ -1747,7 +1760,10 @@
             try {
                 const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
                 const data = await res.json();
-                const models = [...new Set(data.rows.map(r => r.model))].sort();
+                // Filter out product descriptions and dedupe
+                const models = [...new Set(data.rows.map(r => r.model))]
+                    .filter(m => isValidModelName(m))
+                    .sort();
 
                 select.innerHTML = '<option value="">Select Model</option>';
                 models.forEach(m => {

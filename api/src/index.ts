@@ -53,6 +53,16 @@ export default {
         conditions.push("v.model NOT LIKE '%Transponder Key%'");
         conditions.push("v.model NOT LIKE '%Fob Key%'");
         conditions.push("v.model NOT LIKE '%Smart Remote%'");
+        conditions.push("v.model NOT LIKE '%Keyless Entry%'");
+        conditions.push("v.model NOT LIKE '%Remote Key Fob%'");
+        conditions.push("v.model NOT LIKE '%Flip Key%'");
+        conditions.push("v.model NOT LIKE '%Key Remote%'");
+        conditions.push("v.model NOT LIKE '% Button %'");  // Catches "5 Button Key" etc
+        conditions.push("v.model NOT LIKE '%B w%'");  // Catches "5B w" truncated entries
+        conditions.push("v.model NOT LIKE '%High Security%'");
+        conditions.push("v.model NOT LIKE '%80 Bit%'");
+        conditions.push("v.model NOT LIKE '%PEPS%'");
+        conditions.push("v.model NOT LIKE '%Fobik%'");
 
         if (make) {
           conditions.push("LOWER(v.make) = ?");
