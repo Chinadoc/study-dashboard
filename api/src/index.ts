@@ -8,6 +8,8 @@
 export interface Env {
   LOCKSMITH_KV: KVNamespace;
   LOCKSMITH_DB: D1Database;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
 }
 
 function textResponse(body: string, status = 200, contentType = "application/json") {
@@ -16,7 +18,7 @@ function textResponse(body: string, status = 200, contentType = "application/jso
     headers: {
       "Content-Type": contentType,
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "*",
     },
   });
@@ -1145,6 +1147,163 @@ export default {
             "Access-Control-Allow-Headers": "*",
           },
         });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // ============ STRIPE SUBSCRIPTION ENDPOINTS ============
+
+    // Create Stripe Checkout Session
+    if (path === "/api/create-checkout-session" && request.method === "POST") {
+      try {
+        const body = await request.json() as { userId: string; email: string; plan: string };
+        const { userId, email, plan } = body;
+
+        if (!userId || !email || !plan) {
+          return textResponse(JSON.stringify({ error: "Missing userId, email, or plan" }), 400);
+        }
+
+        // Price IDs - you'll need to create these in Stripe Dashboard and replace
+        const priceIds: Record<string, string> = {
+          monthly: "price_monthly_placeholder",  // Replace with real Stripe price ID
+          annual: "price_annual_placeholder",    // Replace with real Stripe price ID
+          lifetime: "price_lifetime_placeholder" // Replace with real Stripe price ID
+        };
+
+        const priceId = priceIds[plan];
+        if (!priceId) {
+          return textResponse(JSON.stringify({ error: "Invalid plan" }), 400);
+        }
+
+        // Create Stripe Checkout Session via API
+        const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            "mode": plan === "lifetime" ? "payment" : "subscription",
+            "success_url": "https://eurokeys.app/?subscription=success",
+            "cancel_url": "https://eurokeys.app/?subscription=canceled",
+            "customer_email": email,
+            "client_reference_id": userId,
+            "line_items[0][price]": priceId,
+            "line_items[0][quantity]": "1",
+            "metadata[userId]": userId,
+            "metadata[plan]": plan,
+          }),
+        });
+
+        const session = await stripeResponse.json() as { url?: string; error?: { message: string } };
+
+        if (!stripeResponse.ok || session.error) {
+          return textResponse(JSON.stringify({ error: session.error?.message || "Stripe error" }), 500);
+        }
+
+        return textResponse(JSON.stringify({ url: session.url }));
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Stripe Webhook Handler
+    if (path === "/api/webhook" && request.method === "POST") {
+      try {
+        const payload = await request.text();
+        // In production, verify webhook signature using STRIPE_WEBHOOK_SECRET
+        // For now, we trust the payload (add signature verification for production)
+
+        const event = JSON.parse(payload) as {
+          type: string;
+          data: {
+            object: {
+              client_reference_id?: string;
+              customer?: string;
+              subscription?: string;
+              metadata?: { userId?: string; plan?: string };
+              current_period_end?: number;
+              status?: string;
+            }
+          }
+        };
+
+        if (event.type === "checkout.session.completed") {
+          const session = event.data.object;
+          const userId = session.client_reference_id || session.metadata?.userId;
+          const plan = session.metadata?.plan || "monthly";
+          const stripeCustomerId = session.customer;
+          const stripeSubscriptionId = session.subscription;
+
+          if (userId) {
+            // Calculate expiry (lifetime = far future, subscription = current_period_end)
+            const expiry = plan === "lifetime"
+              ? Math.floor(Date.now() / 1000) + (100 * 365 * 24 * 60 * 60) // 100 years
+              : session.current_period_end || Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
+
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO subscriptions (user_id, stripe_customer_id, stripe_subscription_id, plan, status, current_period_end, updated_at)
+              VALUES (?, ?, ?, ?, 'active', ?, datetime('now'))
+              ON CONFLICT(user_id) DO UPDATE SET
+                stripe_customer_id = excluded.stripe_customer_id,
+                stripe_subscription_id = excluded.stripe_subscription_id,
+                plan = excluded.plan,
+                status = 'active',
+                current_period_end = excluded.current_period_end,
+                updated_at = datetime('now')
+            `).bind(userId, stripeCustomerId, stripeSubscriptionId, plan, expiry).run();
+          }
+        }
+
+        if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+          const subscription = event.data.object;
+          const stripeSubscriptionId = subscription.subscription || event.data.object as any;
+          const status = subscription.status === "active" ? "active" : "canceled";
+          const periodEnd = subscription.current_period_end;
+
+          if (stripeSubscriptionId) {
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE subscriptions 
+              SET status = ?, current_period_end = ?, updated_at = datetime('now')
+              WHERE stripe_subscription_id = ?
+            `).bind(status, periodEnd, stripeSubscriptionId).run();
+          }
+        }
+
+        return textResponse(JSON.stringify({ received: true }));
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 400);
+      }
+    }
+
+    // Get Subscription Status
+    if (path === "/api/subscription-status") {
+      try {
+        const userId = url.searchParams.get("userId");
+
+        if (!userId) {
+          return textResponse(JSON.stringify({ error: "Missing userId" }), 400);
+        }
+
+        const result = await env.LOCKSMITH_DB.prepare(`
+          SELECT plan, status, current_period_end 
+          FROM subscriptions 
+          WHERE user_id = ?
+        `).bind(userId).first() as { plan: string; status: string; current_period_end: number } | null;
+
+        if (!result) {
+          return textResponse(JSON.stringify({ isPro: false, plan: null }));
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const isActive = result.status === "active" && result.current_period_end > now;
+
+        return textResponse(JSON.stringify({
+          isPro: isActive,
+          plan: isActive ? result.plan : null,
+          expiresAt: isActive ? result.current_period_end : null
+        }));
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message }), 500);
       }
