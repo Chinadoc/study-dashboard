@@ -1,5 +1,5 @@
 // Euro Keys Service Worker - Enables offline support and app-like experience
-const CACHE_NAME = 'euro-keys-v2';
+const CACHE_NAME = 'euro-keys-v3';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -39,6 +39,9 @@ self.addEventListener('fetch', (event) => {
 
     // Skip non-GET requests
     if (request.method !== 'GET') return;
+
+    // Skip non-HTTP(S) requests (e.g., chrome-extension://)
+    if (!url.protocol.startsWith('http')) return;
 
     // API requests: Network only (always fresh data)
     if (url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev')) {
