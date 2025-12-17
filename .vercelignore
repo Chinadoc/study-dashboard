@@ -1,0 +1,20 @@
+# Don't deploy large data directories - data is in D1 database
+data/transcripts/
+data/migrations/
+data/*.sql
+
+# Dev files
+scripts/
+*.py
+*.log
+venv/
+__pycache__/
+
+# Docs and notes
+*.rtf
+*.txt
+*.pdf
+guides/
+
+# Not used in production
+notebooklm_source.txt
