@@ -2840,145 +2840,6 @@
                 const vehicleGroups = new Map();
 
                 vehicleArray.forEach(vehicle => {
-
-                    // Subscription Management
-                    let isPro = false;
-
-                    async function checkSubscription() {
-                        if (!currentUser) return;
-
-                        try {
-                            // Check local cache first to avoid delay
-                            const localStatus = localStorage.getItem('eurokeys_subscription');
-                            if (localStatus) {
-                                const data = JSON.parse(localStatus);
-                                if (data.userId === currentUser.sub && data.expiresAt > Date.now() / 1000) {
-                                    isPro = true;
-                                    updateProUI();
-                                    // Don't return, verify with server in background
-                                }
-                            }
-
-                            const res = await fetch(`${API_BASE_URL}/subscription-status?userId=${currentUser.sub}`);
-                            const data = await res.json();
-
-                            isPro = data.isPro;
-
-                            // Cache status
-                            if (isPro) {
-                                localStorage.setItem('eurokeys_subscription', JSON.stringify({
-                                    userId: currentUser.sub,
-                                    expiresAt: data.expiresAt
-                                }));
-                            } else {
-                                localStorage.removeItem('eurokeys_subscription');
-                            }
-
-                            updateProUI();
-                        } catch (err) {
-                            console.error('Subscription check failed:', err);
-                        }
-                    }
-
-                    function updateProUI() {
-                        const userMenu = document.getElementById('userMenu');
-                        if (!userMenu) return;
-
-                        // Remove existing elements to prevent duplicates
-                        const existingBtn = document.getElementById('headerUpgradeBtn');
-                        if (existingBtn) existingBtn.remove();
-                        const existingBadge = document.querySelector('.pro-badge');
-                        if (existingBadge) existingBadge.remove();
-
-                        if (isPro) {
-                            const userName = document.getElementById('userName');
-                            if (userName) {
-                                const badge = document.createElement('span');
-                                badge.className = 'pro-badge';
-                                badge.innerHTML = 'PRO';
-                                badge.style.cssText = 'background: #fbbf24; color: #000; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 8px; vertical-align: middle; box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);';
-                                userName.appendChild(badge);
-                            }
-                        } else {
-                            const btn = document.createElement('button');
-                            btn.id = 'headerUpgradeBtn';
-                            btn.innerText = 'Upgrade';
-                            btn.style.cssText = 'background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-right: 12px; transition: transform 0.2s;';
-                            btn.onmouseover = () => btn.style.transform = 'scale(1.05)';
-                            btn.onmouseout = () => btn.style.transform = 'scale(1)';
-                            btn.onclick = openUpgradeModal;
-
-                            const avatar = document.getElementById('userAvatar');
-                            if (avatar) {
-                                userMenu.insertBefore(btn, avatar);
-                            } else {
-                                userMenu.appendChild(btn);
-                            }
-                        }
-
-                        // Refresh inventory view if open
-                        if (document.getElementById('tabInventory')?.classList.contains('active')) {
-                            renderInventoryPage();
-                        }
-                    }
-
-
-                    function openUpgradeModal() {
-                        document.getElementById('upgradeModal').style.display = 'block';
-                    }
-
-                    function closeUpgradeModal() {
-                        document.getElementById('upgradeModal').style.display = 'none';
-                    }
-
-                    async function startCheckout(plan) {
-                        if (!currentUser) {
-                            google.accounts.id.prompt(); // Ask to sign in first
-                            return;
-                        }
-
-                        const btn = event.target;
-                        const originalText = btn.innerText;
-                        btn.innerText = 'Redirecting...';
-                        btn.disabled = true;
-
-                        try {
-                            const res = await fetch(`${API_BASE_URL}/create-checkout-session`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    userId: currentUser.sub,
-                                    email: currentUser.email, // Assuming email is in user payload or we request it
-                                    plan: plan
-                                })
-                            });
-
-                            const data = await res.json();
-                            if (data.url) {
-                                window.location.href = data.url;
-                            } else {
-                                alert('Checkout failed: ' + (data.error || 'Unknown error'));
-                                btn.innerText = originalText;
-                                btn.disabled = false;
-                            }
-                        } catch (err) {
-                            console.error('Checkout error:', err);
-                            alert('Connection failed. Please try again.');
-                            btn.innerText = originalText;
-                            btn.disabled = false;
-                        }
-                    }
-
-                    // Check for success param on load
-                    window.addEventListener('load', () => {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        if (urlParams.get('subscription') === 'success') {
-                            // Clear URL
-                            window.history.replaceState({}, document.title, window.location.pathname);
-                            alert('🎉 Upgrade Successful! You now have Pro access.');
-                            if (currentUser) checkSubscription();
-                        }
-                    });
                     // Parse format like "Hyundai Genesis G80 (2017-2017)"
                     const match = vehicle.match(/^(.+?)\s*\((\d{4})-(\d{4})\)$/);
                     if (match) {
@@ -3027,6 +2888,144 @@
 
                 return result;
             }
+
+            // Subscription Management
+            let isPro = false;
+
+            async function checkSubscription() {
+                if (!currentUser) return;
+
+                try {
+                    // Check local cache first to avoid delay
+                    const localStatus = localStorage.getItem('eurokeys_subscription');
+                    if (localStatus) {
+                        const data = JSON.parse(localStatus);
+                        if (data.userId === currentUser.sub && data.expiresAt > Date.now() / 1000) {
+                            isPro = true;
+                            updateProUI();
+                            // Don't return, verify with server in background
+                        }
+                    }
+
+                    const res = await fetch(`${API_BASE_URL}/subscription-status?userId=${currentUser.sub}`);
+                    const data = await res.json();
+
+                    isPro = data.isPro;
+
+                    // Cache status
+                    if (isPro) {
+                        localStorage.setItem('eurokeys_subscription', JSON.stringify({
+                            userId: currentUser.sub,
+                            expiresAt: data.expiresAt
+                        }));
+                    } else {
+                        localStorage.removeItem('eurokeys_subscription');
+                    }
+
+                    updateProUI();
+                } catch (err) {
+                    console.error('Subscription check failed:', err);
+                }
+            }
+
+            function updateProUI() {
+                const userMenu = document.getElementById('userMenu');
+                if (!userMenu) return;
+
+                // Remove existing elements to prevent duplicates
+                const existingBtn = document.getElementById('headerUpgradeBtn');
+                if (existingBtn) existingBtn.remove();
+                const existingBadge = document.querySelector('.pro-badge');
+                if (existingBadge) existingBadge.remove();
+
+                if (isPro) {
+                    const userName = document.getElementById('userName');
+                    if (userName) {
+                        const badge = document.createElement('span');
+                        badge.className = 'pro-badge';
+                        badge.innerHTML = 'PRO';
+                        badge.style.cssText = 'background: #fbbf24; color: #000; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 8px; vertical-align: middle; box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);';
+                        userName.appendChild(badge);
+                    }
+                } else {
+                    const btn = document.createElement('button');
+                    btn.id = 'headerUpgradeBtn';
+                    btn.innerText = 'Upgrade';
+                    btn.style.cssText = 'background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-right: 12px; transition: transform 0.2s;';
+                    btn.onmouseover = () => btn.style.transform = 'scale(1.05)';
+                    btn.onmouseout = () => btn.style.transform = 'scale(1)';
+                    btn.onclick = openUpgradeModal;
+
+                    const avatar = document.getElementById('userAvatar');
+                    if (avatar) {
+                        userMenu.insertBefore(btn, avatar);
+                    } else {
+                        userMenu.appendChild(btn);
+                    }
+                }
+
+                // Refresh inventory view if open
+                if (document.getElementById('tabInventory')?.classList.contains('active')) {
+                    renderInventoryPage();
+                }
+            }
+
+            function openUpgradeModal() {
+                document.getElementById('upgradeModal').style.display = 'block';
+            }
+
+            function closeUpgradeModal() {
+                document.getElementById('upgradeModal').style.display = 'none';
+            }
+
+            async function startCheckout(plan) {
+                if (!currentUser) {
+                    google.accounts.id.prompt(); // Ask to sign in first
+                    return;
+                }
+
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = 'Redirecting...';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/create-checkout-session`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: currentUser.sub,
+                            email: currentUser.email,
+                            plan: plan
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (data.url) {
+                        window.location.href = data.url;
+                    } else {
+                        alert('Checkout failed: ' + (data.error || 'Unknown error'));
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error('Checkout error:', err);
+                    alert('Connection failed. Please try again.');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            // Check for success param on load
+            window.addEventListener('load', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('subscription') === 'success') {
+                    // Clear URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    alert('🎉 Upgrade Successful! You now have Pro access.');
+                    if (currentUser) checkSubscription();
+                }
+            });
 
             function closeFccModal() {
                 document.getElementById('fccModal').style.display = 'none';
