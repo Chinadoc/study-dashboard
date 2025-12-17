@@ -1040,7 +1040,7 @@ export default {
 
         const whereClause = `WHERE ${conditions.join(" AND ")}`;
         const sql = `
-          SELECT DISTINCT clean_model, key_variant 
+          SELECT DISTINCT clean_model 
           FROM locksmith_data 
           ${whereClause}
           ORDER BY clean_model
