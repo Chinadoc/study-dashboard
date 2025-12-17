@@ -2130,17 +2130,33 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
-                const data = await res.json();
-                // Filter out product descriptions and dedupe
-                const models = [...new Set(data.rows.map(r => r.model))]
-                    .filter(m => isValidModelName(m))
-                    .sort();
+                // Try new clean models endpoint first
+                let res = await fetch(`${API}/api/models?year=${year}&make=${encodeURIComponent(make)}`);
+                let data = await res.json();
 
-                select.innerHTML = '<option value="">Select Model</option>';
-                models.forEach(m => {
-                    select.innerHTML += `<option value="${m}">${m}</option>`;
-                });
+                if (data.models && data.models.length > 0) {
+                    // Use clean model names
+                    const models = [...new Set(data.models.map(r => r.clean_model))]
+                        .filter(m => m && m.length > 0)
+                        .sort();
+
+                    select.innerHTML = '<option value="">Select Model</option>';
+                    models.forEach(m => {
+                        select.innerHTML += `<option value="${m}">${m}</option>`;
+                    });
+                } else {
+                    // Fallback to legacy endpoint if no clean models
+                    res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+                    data = await res.json();
+                    const models = [...new Set(data.rows.map(r => r.model))]
+                        .filter(m => isValidModelName(m))
+                        .sort();
+
+                    select.innerHTML = '<option value="">Select Model</option>';
+                    models.forEach(m => {
+                        select.innerHTML += `<option value="${m}">${m}</option>`;
+                    });
+                }
             } catch (e) {
                 select.innerHTML = '<option value="">Select Model</option>';
             }

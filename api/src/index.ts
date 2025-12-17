@@ -1017,6 +1017,54 @@ export default {
       }
     }
 
+    // Clean Models endpoint - returns deduplicated clean model names for dropdowns
+    if (path === "/api/models") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const year = url.searchParams.get("year") || "";
+
+        const conditions: string[] = ["clean_model IS NOT NULL", "clean_model != ''"];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (year) {
+          const yearNum = parseInt(year, 10);
+          if (!isNaN(yearNum)) {
+            conditions.push("year = ?");
+            params.push(yearNum);
+          }
+        }
+
+        const whereClause = `WHERE ${conditions.join(" AND ")}`;
+        const sql = `
+          SELECT DISTINCT clean_model, key_variant 
+          FROM locksmith_data 
+          ${whereClause}
+          ORDER BY clean_model
+        `;
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+        return new Response(JSON.stringify({
+          count: result.results?.length || 0,
+          models: result.results || []
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // EEPROM / AKL Data Endpoint
     if (path === "/api/eeprom" || path.startsWith("/api/eeprom?")) {
       try {
