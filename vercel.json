@@ -1,41 +1,6 @@
 {
   "version": 2,
-  "name": "study-dashboard",
   "public": true,
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "gunnaiza.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "dashboard.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "sw.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "manifest.webmanifest",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "assets/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "data/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/*.js",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/api/amazon-product",
@@ -46,16 +11,16 @@
       "dest": "/api/amazon-search.js"
     },
     {
-      "src": "/sw.js",
-      "dest": "/sw.js"
+      "handle": "filesystem"
     },
     {
-      "src": "/manifest.webmanifest",
-      "dest": "/manifest.webmanifest"
-    },
-    {
-      "src": "/",
+      "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/*.js": {
+      "runtime": "@vercel/node@3"
+    }
+  }
 }
