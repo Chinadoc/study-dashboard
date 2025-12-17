@@ -1,5 +1,5 @@
 // Euro Keys Service Worker - Enables offline support and app-like experience
-const CACHE_NAME = 'euro-keys-v7';
+const CACHE_NAME = 'euro-keys-v8';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -32,7 +32,7 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch: Network-first strategy for API, cache-first for static assets
+// Fetch: Network-first for main pages & API, cache-first for other assets
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -40,17 +40,37 @@ self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
     if (request.method !== 'GET') return;
 
-    // Skip non-HTTP(S) requests (e.g., chrome-extension://)
+    // Skip non-HTTP(S) requests
     if (!url.protocol.startsWith('http')) return;
 
-    // API requests: Network only (always fresh data)
-    if (url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev')) {
+    // Main Page & API: Network-first
+    const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
+    const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
+
+    if (isMainPage || isApi) {
         event.respondWith(
-            fetch(request).catch(() => {
-                return new Response(JSON.stringify({ error: 'Offline - Please check your connection' }), {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            })
+            fetch(request)
+                .then((response) => {
+                    // Update cache for main page
+                    if (isMainPage && response.ok) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(request, clone);
+                        });
+                    }
+                    return response;
+                })
+                .catch(() => {
+                    // Fallback to cache if offline
+                    return caches.match(request).then((cached) => {
+                        if (cached) return cached;
+                        if (isApi) {
+                            return new Response(JSON.stringify({ error: 'Offline - Data unavailable' }), {
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                        }
+                    });
+                })
         );
         return;
     }

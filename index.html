@@ -3704,7 +3704,7 @@
         }
 
         // Log a completed job - marks item as used and logs the job
-        function openJobLogModal(itemKey, type = 'key', vehicle = '', amazonLink = '') {
+        window.openJobLogModal = function (itemKey, type = 'key', vehicle = '', amazonLink = '') {
             if (!isPro) {
                 openUpgradeModal();
                 return;
