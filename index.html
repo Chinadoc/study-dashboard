@@ -4866,6 +4866,145 @@
             a.click();
         }
 
+
+        // ==========================================
+        // AUTHENTICATION & SYNC & STRIPE (Restored)
+        // ==========================================
+
+        // const API = window.location.origin; // REMOVED: Using global definition
+
+        /* AUTH MANAGER */
+        const AuthManager = {
+            async init() {
+                try {
+                    const res = await fetch(`${API}/api/user`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        currentUser = data;
+                        isPro = data.isPro || false;
+                    } else {
+                        currentUser = null;
+                        isPro = false;
+                    }
+                    this.updateUI();
+                } catch (e) {
+                    console.error("Auth check failed", e);
+                }
+            },
+
+            updateUI() {
+                const startBtn = document.getElementById('getStartedBtn');
+                const userMenu = document.getElementById('userMenu');
+                const userEmail = document.getElementById('userEmail');
+                const proBadge = document.getElementById('proBadge');
+                const upgradeBtn = document.getElementById('headerUpgradeBtn');
+
+                if (currentUser) {
+                    if (startBtn) startBtn.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
+                    if (userEmail) userEmail.textContent = currentUser.email;
+
+                    if (currentUser.isPro) {
+                        if (proBadge) proBadge.style.display = 'inline-block';
+                        if (upgradeBtn) upgradeBtn.style.display = 'none'; // Hide upgrade if already pro
+                    } else {
+                        if (proBadge) proBadge.style.display = 'none';
+                        if (upgradeBtn) upgradeBtn.style.display = 'flex';
+                    }
+                } else {
+                    if (startBtn) startBtn.style.display = 'block';
+                    if (userMenu) userMenu.style.display = 'none';
+                    if (upgradeBtn) upgradeBtn.style.display = 'none'; // Hide upgrade if not logged in (or show logic to sign in first)
+                }
+            }
+        };
+
+        function signInWithGoogle() {
+            window.location.href = `${API}/api/auth/google`;
+        }
+
+        async function signOut() {
+            await fetch(`${API}/api/auth/logout`, { method: 'POST' });
+            window.location.reload();
+        }
+
+        /* SYNC MANAGER */
+        const SyncManager = {
+            async init() {
+                if (!currentUser) return;
+
+                // 1. Initial Pull (Cloud -> Local)
+                // In a real app, you'd merge. Simplified: Cloud overwrites local if newer? 
+                // For now, we just push local changes to cloud periodically.
+
+                setInterval(this.syncToCloud, 60000); // Sync every minute
+                this.syncToCloud(); // And immediately
+            },
+
+            async syncToCloud() {
+                if (!currentUser) return;
+
+                const inventory = {
+                    keys: JSON.parse(localStorage.getItem('eurokeys_inventory_keys') || '{}'),
+                    blanks: JSON.parse(localStorage.getItem('eurokeys_inventory_blanks') || '{}')
+                };
+                const logs = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
+
+                try {
+                    await fetch(`${API}/api/sync`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ inventory, logs })
+                    });
+                    console.log('☁️ Data synced to cloud');
+                } catch (e) {
+                    console.error('Sync failed', e);
+                }
+            }
+        };
+
+        /* STRIPE CHECKOUT */
+        async function startStripeCheckout(plan) {
+            if (!currentUser) {
+                alert("Please sign in first!");
+                signInWithGoogle();
+                return;
+            }
+
+            const btn = document.getElementById('upgradeBtn-' + plan);
+            if (btn) btn.textContent = 'Loading...';
+
+            try {
+                const res = await fetch(`${API}/api/create-checkout-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        email: currentUser.email,
+                        plan: plan // 'monthly' or 'lifetime'
+                    })
+                });
+
+                const data = await res.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Checkout failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error("Stripe error", e);
+                alert("Failed to start checkout");
+            } finally {
+                if (btn) btn.textContent = plan === 'monthly' ? 'Subscribe' : 'Buy Lifetime';
+            }
+        }
+
+        // Initialize Everything
+        window.addEventListener('DOMContentLoaded', async () => {
+            await AuthManager.init();
+            SyncManager.init();
+        });
+
     </script>
 
     <!-- Service Worker Registration for PWA -->
