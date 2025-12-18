@@ -1,3 +1,6 @@
+import { SignJWT, jwtVerify } from 'jose';
+import Stripe from 'stripe';
+
 // Cloudflare Worker to serve master locksmith data from D1
 // Exposes:
 //   GET /api/master               -> full list (JSON)
@@ -11,6 +14,10 @@ export interface Env {
   ASSETS_BUCKET: R2Bucket;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
+  STRIPE_PRICE_ID: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  JWT_SECRET: string;
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -43,6 +50,55 @@ function textResponse(body: string, status = 200, contentType = "application/jso
   });
 }
 
+async function createInternalToken(user: any, secret: string) {
+  const secretKey = new TextEncoder().encode(secret);
+  return await new SignJWT({
+    sub: user.id,
+    email: user.email,
+    name: user.name,
+    is_pro: !!user.is_pro,
+    picture: user.picture
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('30d') // Long session for simplicity
+    .sign(secretKey);
+}
+
+async function verifyInternalToken(token: string, secret: string) {
+  try {
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, secretKey);
+    return payload;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function getGoogleToken(code: string, clientId: string, clientSecret: string, redirectUri: string) {
+  const tokenUrl = 'https://oauth2.googleapis.com/token';
+  const res = await fetch(tokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      code,
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code'
+    })
+  });
+  return await res.json();
+}
+
+async function getGoogleUser(accessToken: string) {
+  const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  return await res.json();
+}
+
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -51,6 +107,179 @@ export default {
     }
 
     const path = url.pathname;
+
+    // ==============================================
+    // AUTHENTICATION
+    // ==============================================
+
+    // 1. Google Login Redirect
+    if (path === "/api/auth/google") {
+      const redirectUri = `${url.origin}/api/auth/callback`;
+      const scope = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+      return Response.redirect(authUrl, 302);
+    }
+
+    // 2. Google Callback
+    if (path === "/api/auth/callback") {
+      try {
+        const code = url.searchParams.get("code");
+        if (!code) return textResponse("Missing code", 400);
+
+        const redirectUri = `${url.origin}/api/auth/callback`;
+        const tokenData: any = await getGoogleToken(code, env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET, redirectUri);
+
+        if (!tokenData.access_token) {
+          return textResponse(JSON.stringify(tokenData), 400); // Debug error
+        }
+
+        const googleUser: any = await getGoogleUser(tokenData.access_token);
+
+        // Upsert User in D1
+        const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(googleUser.id).first<any>();
+
+        if (!existingUser) {
+          await env.LOCKSMITH_DB.prepare(
+            "INSERT INTO users (id, email, name, picture, created_at) VALUES (?, ?, ?, ?, ?)"
+          ).bind(googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now()).run();
+        } else {
+          // Update details just in case
+          await env.LOCKSMITH_DB.prepare(
+            "UPDATE users SET email = ?, name = ?, picture = ? WHERE id = ?"
+          ).bind(googleUser.email, googleUser.name, googleUser.picture, googleUser.id).run();
+        }
+
+        // Get final user state (checking is_pro)
+        const user = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(googleUser.id).first<any>();
+
+        // Create Session Cookie
+        const sessionToken = await createInternalToken(user, env.JWT_SECRET || 'dev-secret');
+
+        // Redirect to Frontend with Cookie
+        const headers = new Headers();
+        headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure`);
+        headers.set("Location", "/"); // Go back to home
+
+        return new Response(null, { status: 302, headers });
+
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // 3. Get Current User
+    if (path === "/api/user") {
+      const cookieHeader = request.headers.get("Cookie");
+      const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+
+      if (!sessionToken) {
+        return textResponse(JSON.stringify({ user: null }), 200);
+      }
+
+      const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+      if (!payload) {
+        return textResponse(JSON.stringify({ user: null }), 200);
+      }
+
+      // Refresh data from DB to get latest is_pro status
+      const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro FROM users WHERE id = ?").bind(payload.sub).first();
+
+      return textResponse(JSON.stringify({ user }), 200);
+    }
+
+    // 4. Logout
+    if (path === "/api/auth/logout") {
+      const headers = new Headers();
+      headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure`);
+      return textResponse(JSON.stringify({ success: true }), 200, "application/json");
+    }
+
+    // 5. Sync Data (Frontend -> Cloud)
+    if (path === "/api/sync" && request.method === "POST") {
+      try {
+        // Authenticate
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse("Unauthorized", 401);
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse("Unauthorized", 401);
+        const userId = payload.sub as string;
+
+        const body: any = await request.json();
+        const { inventory, logs } = body;
+
+        // Sync Inventory
+        if (Array.isArray(inventory)) {
+          const stmt = env.LOCKSMITH_DB.prepare(`
+            INSERT INTO inventory (user_id, item_key, type, qty, vehicle, amazon_link, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id, item_key, type) DO UPDATE SET
+            qty = excluded.qty,
+            updated_at = excluded.updated_at
+          `);
+          const batch = inventory.map((item: any) => stmt.bind(
+            userId, item.name, item.type, item.qty, item.vehicle, item.link, Date.now()
+          ));
+          if (batch.length > 0) await env.LOCKSMITH_DB.batch(batch);
+        }
+
+        // Sync Logs
+        if (Array.isArray(logs)) {
+          const stmt = env.LOCKSMITH_DB.prepare(`
+            INSERT INTO job_logs (id, user_id, data, created_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(id) DO NOTHING
+          `);
+          // Generate an ID if needed, or use timestamp + random
+          const batch = logs.map((log: any) => {
+            const logId = log.id || `${log.timestamp}-${Math.random().toString(36).substr(2, 9)}`;
+            return stmt.bind(logId, userId, JSON.stringify(log), log.created_at || Date.now());
+          });
+          if (batch.length > 0) await env.LOCKSMITH_DB.batch(batch);
+        }
+
+        return textResponse(JSON.stringify({ success: true, synced_at: Date.now() }), 200);
+
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // 6. Stripe Checkout
+    if (path === "/api/stripe/checkout" && request.method === "POST") {
+      try {
+        // Authenticate
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse("Unauthorized", 401);
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse("Unauthorized", 401);
+
+        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27.acacia' as any });
+
+        const session = await stripe.checkout.sessions.create({
+          line_items: [
+            {
+              price: env.STRIPE_PRICE_ID,
+              quantity: 1,
+            },
+          ],
+          mode: 'payment',
+          success_url: `${url.origin}/?upgrade=success`,
+          cancel_url: `${url.origin}/?upgrade=cancel`,
+          customer_email: payload.email as string,
+          metadata: {
+            user_id: payload.sub as string
+          }
+        });
+
+        return textResponse(JSON.stringify({ url: session.url }), 200);
+
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
 
     // Master Locksmith Data Endpoint - uses unified schema
     if (path === "/api/master" || path === "/api/locksmith") {

@@ -2621,6 +2621,7 @@
                     document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
                 }
             } catch (e) {
+                console.error('Search failed:', e);
                 document.getElementById('resultsContainer').innerHTML = '<div class="loading">Failed to load</div>';
             }
         }
