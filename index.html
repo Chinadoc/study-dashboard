@@ -2799,7 +2799,7 @@
                     </div>
                     ` : ''}
                     
-                    ${currentUser && (fccId !== 'N/A' || oem !== 'N/A' || keyway !== 'N/A') ? `
+                    ${(fccId !== 'N/A' || oem !== 'N/A' || keyway !== 'N/A') ? `
                     <div style="margin-top: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
                         <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">📦 My Inventory</div>
                         ${getVehicleInventoryHtml(
@@ -2815,7 +2815,7 @@
                     <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                         ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
                         <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
-                        ${currentUser ? `<button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>` : `<span class="auth-required-badge">🔐 Sign in for guide</span>`}
+                        <button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>
                     </div>
                     <div id="guide-${idx}" class="walkthrough-content"></div>
                 </div>
@@ -3124,9 +3124,12 @@
                     ? `https://www.amazon.com/dp/${primaryAsin}?tag=${AFFILIATE_TAG}`
                     : getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
 
-                const imageUrl = primaryAsin
-                    ? `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${primaryAsin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`
-                    : null;
+                let imageUrl = null;
+                if (r.has_image) {
+                    imageUrl = `${API}/api/assets/${fccId}.png`;
+                } else if (primaryAsin) {
+                    imageUrl = `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${primaryAsin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`;
+                }
 
                 let highlightedVehiclesHtml = displayGroups.map(g => {
                     let name = g.name;
@@ -3149,9 +3152,9 @@
                     <td style="min-width: 100px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             ${imageUrl ? `
-                                <div style="width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0; cursor: pointer;" onclick="showFccModal('${fccId}')">
-                                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'">
-                                </div>
+                                <a href="${amazonLink}" target="_blank" style="display: block; width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; flex-shrink: 0;">
+                                    <img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'">
+                                </a>
                             ` : ''}
                             <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
                         </div>
@@ -4433,7 +4436,7 @@
         // Update inventory tab badge with total count
         function updateInventoryTabBadge() {
             const tab = document.getElementById('inventoryTab');
-            if (tab && currentUser) {
+            if (tab) { // UNLOCKED: if (tab && currentUser)
                 const totalKeys = InventoryManager.getTotalKeys();
                 const totalBlanks = InventoryManager.getTotalBlanks();
                 const total = totalKeys + totalBlanks;
@@ -4445,7 +4448,7 @@
 
         // Generate inventory control HTML for a vehicle card (shows both key and blank)
         function getVehicleInventoryHtml(keyIdentifier, blankKeyway, vehicleInfo = null, keyAmazonLink = null, blankAmazonLink = null) {
-            if (!currentUser) return ''; // Only show for logged-in users
+            // UNLOCKED: if (!currentUser) return ''; 
 
             const keyStock = keyIdentifier ? InventoryManager.getKeyStock(keyIdentifier) : 0;
             const blankStock = blankKeyway && blankKeyway !== 'N/A' ? InventoryManager.getBlankStock(blankKeyway) : 0;
@@ -4501,7 +4504,7 @@
 
         // Generate inventory control HTML for an item (legacy for FCC modal)
         function getInventoryControlsHtml(itemKey) {
-            if (!currentUser) return ''; // Only show for logged-in users
+            // UNLOCKED: if (!currentUser) return ''; 
 
             const stock = InventoryManager.getKeyStock(itemKey);
             const escapedKey = itemKey.replace(/'/g, "\\'");
@@ -4597,6 +4600,15 @@
                             font-weight: 600; 
                             cursor: pointer;
                         ">📋 Job Logs</button>
+                        <button onclick="renderInventoryPage('stats')" style="
+                            padding: 8px 16px; 
+                            border-radius: 20px; 
+                            border: none; 
+                            background: ${view === 'stats' ? 'var(--brand-primary)' : 'var(--bg-tertiary)'}; 
+                            color: ${view === 'stats' ? '#000' : 'var(--text-primary)'}; 
+                            font-weight: 600; 
+                            cursor: pointer;
+                        ">📊 Statistics</button>
                     </div>
                 `;
 
@@ -4919,7 +4931,7 @@
                         isPro = true; // data.isPro || false; // UNLOCKED: Force Pro for all users
                     } else {
                         currentUser = null;
-                        isPro = false;
+                        isPro = true; // UNLOCKED: Force Pro for guests too
                     }
                     this.updateUI();
                 } catch (e) {

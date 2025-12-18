@@ -282,15 +282,20 @@ export default {
     }
 
 
-    // 7. Get AI Insights
+    // 7. Get AI Insights (Publicly accessible now)
     if (path === "/api/insights") {
       try {
+        let userId = 'global'; // Default to global/guest
+
+        // Try to get user context if logged in, but don't fail if not
         const cookieHeader = request.headers.get("Cookie");
         const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse("Unauthorized", 401);
-        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse("Unauthorized", 401);
-        const userId = payload.sub as string;
+        if (sessionToken) {
+          try {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload && payload.sub) userId = payload.sub as string;
+          } catch (e) { /* ignore invalid token */ }
+        }
 
         const latest = await env.LOCKSMITH_DB.prepare("SELECT * FROM insights WHERE user_id = ? OR user_id = 'global' ORDER BY created_at DESC LIMIT 1").bind(userId).first();
         return textResponse(JSON.stringify({ insight: latest }), 200);
@@ -613,9 +618,9 @@ export default {
             MIN(frequency) as frequency,
             MIN(chip) as chip,
             GROUP_CONCAT(DISTINCT make || ' ' || model || ' (' || year_start || '-' || year_end || ')') as vehicles,
-            GROUP_CONCAT(DISTINCT oem_part_number) as oem_parts,
             MIN(oem_part_number) as primary_oem_part,
             MIN(make) as primary_make,
+            MAX(has_image) as has_image,
             COUNT(*) as vehicle_count
           FROM vehicles
           ${whereClause}
