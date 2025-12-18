@@ -1596,6 +1596,73 @@
             opacity: 0.9;
         }
 
+        /* Mechanical Codex Styles */
+        .pro-data-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pro-data-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--brand-primary);
+        }
+
+        .pro-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .mec-codex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .mec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mec-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .mec-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .pro-note {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-top: 12px;
+            border-top: 1px solid rgba(251, 191, 36, 0.1);
+            margin-top: 8px;
+        }
+
         .modal-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -2811,14 +2878,35 @@
                 )}
                     </div>
                     ` : ''}
-                    
-                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                        ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
+
+                    ${v.mechanical_spec || v.code_series || v.service_notes_pro ? `
+                    <div class="pro-data-section">
+                        <div class="pro-header">
+                            <span style="font-size: 1.1rem;">🛠️</span> Mechanical Codex
+                        </div>
+                        <div class="mec-codex-grid">
+                            ${v.mechanical_spec ? `<div class="mec-item"><div class="mec-label">Key Spec</div><div class="mec-value">${v.mechanical_spec}</div></div>` : ''}
+                            ${v.spaces ? `<div class="mec-item"><div class="mec-label">Spaces</div><div class="mec-value">${v.spaces}</div></div>` : ''}
+                            ${v.depths ? `<div class="mec-item"><div class="mec-label">Depths</div><div class="mec-value">${v.depths}</div></div>` : ''}
+                            ${v.code_series ? `<div class="mec-item"><div class="mec-label">Code Series</div><div class="mec-value">${v.code_series}</div></div>` : ''}
+                            ${v.ignition_retainer ? `<div class="mec-item"><div class="mec-label">Ignition Retainer</div><div class="mec-value">${v.ignition_retainer}</div></div>` : ''}
+                        </div>
+                        ${v.service_notes_pro ? `
+                        <div class="pro-note">
+                            <strong>Service Note:</strong> ${v.service_notes_pro}
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''
+                    }
+
+            < div style = "margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;" >
+            ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
                         <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
                         <button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>
-                    </div>
-                    <div id="guide-${idx}" class="walkthrough-content"></div>
-                </div>
+                    </div >
+            <div id="guide-${idx}" class="walkthrough-content"></div>
+                </div >
             `;
             }).join('');
         }
@@ -2875,11 +2963,11 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+                const res = await fetch(`${API} /api/master ? year = ${year}& limit=1000`);
                 const data = await res.json();
                 const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
                 select.innerHTML = '<option value="">Make</option>';
-                makes.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+                makes.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
             } catch (e) {
                 select.innerHTML = '<option value="">Make</option>';
             }
@@ -2897,11 +2985,11 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+                const res = await fetch(`${API} /api/master ? year = ${year}& make=${encodeURIComponent(make)}& limit=500`);
                 const data = await res.json();
                 const models = [...new Set(data.rows.map(r => r.model))].sort();
                 select.innerHTML = '<option value="">Model</option>';
-                models.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+                models.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
             } catch (e) {
                 select.innerHTML = '<option value="">Model</option>';
             }
@@ -2917,11 +3005,11 @@
                 return;
             }
 
-            document.getElementById('resultTitle').textContent = `${year} ${make} ${model}`;
+            document.getElementById('resultTitle').textContent = `${year} ${make} ${model} `;
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
             try {
-                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+                const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
                 const data = await res.json();
                 if (data.rows && data.rows.length > 0) {
                     displayResults(data.rows, year, make, model);
@@ -2939,7 +3027,7 @@
             if (select.options.length <= 1) {
                 const year = new Date().getFullYear() + 1;
                 for (let y = year; y >= 2000; y--) {
-                    select.innerHTML += `<option value="${y}">${y}</option>`;
+                    select.innerHTML += `< option value = "${y}" > ${y}</option > `;
                 }
             }
         }
@@ -2984,7 +3072,7 @@
 
         async function loadFccData() {
             try {
-                const res = await fetch(`${API}/api/fcc?limit=500`);
+                const res = await fetch(`${API} /api/fcc ? limit = 500`);
                 const data = await res.json();
                 fccData = data.rows || [];
                 fccDataLoaded = true;
@@ -3002,8 +3090,8 @@
 
             const currentYear = new Date().getFullYear() + 1;
             for (let y = currentYear; y >= 1998; y--) {
-                fromSelect.innerHTML += `<option value="${y}">${y}</option>`;
-                toSelect.innerHTML += `<option value="${y}">${y}</option>`;
+                fromSelect.innerHTML += `< option value = "${y}" > ${y}</option > `;
+                toSelect.innerHTML += `< option value = "${y}" > ${y}</option > `;
             }
         }
 
@@ -3108,7 +3196,7 @@
                 });
                 const grouped = Object.entries(groups).map(([name, range]) => ({
                     name,
-                    years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
+                    years: range.start ? (range.start === range.end ? `${range.start} ` : `${range.start} -${range.end} `) : ''
                 }));
 
                 const displayGroups = grouped.slice(0, 2);

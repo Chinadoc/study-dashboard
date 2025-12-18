@@ -392,6 +392,7 @@ export default {
             v.buttons, v.battery, v.programming_method,
             v.pin_required, v.notes,
             v.confidence_score, v.source_name, v.source_url,
+            v.mechanical_spec, v.spaces, v.depths, v.code_series, v.ignition_retainer, v.service_notes_pro,
             cr.technology as chip_technology, cr.bits as chip_bits, cr.description as chip_description
           FROM vehicles v
           LEFT JOIN chip_registry cr ON LOWER(v.chip) = LOWER(cr.chip_type)
@@ -505,12 +506,16 @@ export default {
         const conditions: string[] = [];
         const params: (string | number)[] = [];
 
-        // Filter out product descriptions stored as models
+        // Allow all models to be returned, including descriptive ones from locksmith_data
+        // Filter out only extremely generic or irrelevant entries if necessary
+        // (Commented out legacy restrictive filters)
+        /*
         conditions.push("v.model NOT LIKE '%Key Blank%'");
         conditions.push("v.model NOT LIKE '%Mechanical Key%'");
         conditions.push("v.model NOT LIKE '%Transponder Key%'");
         conditions.push("v.model NOT LIKE '%Fob Key%'");
         conditions.push("v.model NOT LIKE '%Smart Remote%'");
+        */
 
         if (make) {
           conditions.push("LOWER(v.make) = ?");
@@ -560,9 +565,14 @@ export default {
             v.pin_required,
             v.notes,
             v.confidence_score,
-            v.confidence_score,
             v.source_name,
             v.has_image,
+            v.mechanical_spec,
+            v.spaces,
+            v.depths,
+            v.code_series,
+            v.ignition_retainer,
+            v.service_notes_pro,
             cr.technology as chip_technology,
             cr.bits as chip_bits,
             cr.description as chip_description,
