@@ -2680,6 +2680,9 @@
                 const keyType = v.key_type || v.crossref_key_type || 'N/A';
                 const keyTypeIcon = getKeyTypeIcon(keyType);
 
+                // Get image URL
+                const imageUrl = v.image_url || v.remote_image || (fccId !== 'N/A' && v.has_image ? `${API}/api/assets/${fccId}.png` : null);
+
                 // Aftermarket parts from part_crossref
                 const ilco = v.ilco_part || 'N/A';
                 const strattec = v.strattec_part || 'N/A';
