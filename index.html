@@ -1941,9 +1941,25 @@
             </div>
 
             <!-- User menu shows when signed in -->
-            <div id="userMenu" class="user-menu" style="display: none;">
-                <span class="user-name" id="userName"></span>
-                <div class="header-avatar" id="userAvatar" onclick="signOut()"></div>
+            <div id="userMenu" class="user-menu" style="display: none; align-items: center; gap: 12px;">
+                <button id="headerUpgradeBtn" onclick="startStripeCheckout()" style="
+                    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                    border: none;
+                    color: #000;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-weight: 700;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+                ">
+                    <span style="font-size: 1rem;">👑</span> Upgrade
+                </button>
+                <span class="user-name" id="userName" style="font-weight: 600; color: var(--text-primary);"></span>
+                <div class="header-avatar" id="userAvatar" onclick="signOut()" style="cursor: pointer;"></div>
             </div>
             <!-- Google Sign In button shows when signed out -->
             <button id="googleSignInBtn" class="google-signin-btn" onclick="signInWithGoogle()">
@@ -2544,12 +2560,11 @@
                     });
                 }
             } catch (e) {
-            });
+                console.error('Error loading models:', e);
+                select.innerHTML = '<option value="">Select Model</option>';
+            }
         }
-            } catch (e) {
-            select.innerHTML = '<option value="">Select Model</option>';
-        }
-        }
+
 
         // Open the job logging modal (UI)
         window.openJobLogModal = function (itemKey, type, vehicle, amazonLink) {
