@@ -1356,13 +1356,18 @@
 
                     <div class="job-form-group">
                         <label for="jobDescription">Job Description</label>
-                        <input type="text" id="jobDescription"
-                            placeholder="e.g., Key replacement, Remote programming" />
+                        <input type="text" id="jobDescription" placeholder="e.g., 2018 Camry Key Programming" />
                     </div>
 
-                    <div class="job-form-group">
-                        <label for="jobCost">Amount Charged ($)</label>
-                        <input type="number" id="jobCost" step="0.01" min="0" placeholder="e.g., 150.00" />
+                    <div style="display: flex; gap: 12px;">
+                        <div class="job-form-group" style="flex: 1;">
+                            <label for="jobRevenue">Job Revenue ($)</label>
+                            <input type="number" id="jobRevenue" placeholder="150.00" step="0.01" />
+                        </div>
+                        <div class="job-form-group" style="flex: 1;">
+                            <label for="itemCost">Item Cost ($)</label>
+                            <input type="number" id="itemCost" placeholder="35.00" step="0.01" />
+                        </div>
                     </div>
 
                     <div class="job-form-group">
@@ -2487,8 +2492,39 @@
                     });
                 }
             } catch (e) {
-                select.innerHTML = '<option value="">Select Model</option>';
+            });
+        }
+            } catch (e) {
+            select.innerHTML = '<option value="">Select Model</option>';
+        }
+        }
+
+        // Open the job logging modal (UI)
+        window.openJobLogModal = function (itemKey, type, vehicle, amazonLink) {
+            document.getElementById('jobItemKey').value = itemKey;
+            document.getElementById('jobItemType').value = type;
+            document.getElementById('jobCustomer').value = '';
+            document.getElementById('jobDescription').value = vehicle ? `${vehicle} Key Programming` : 'Key Programming';
+            document.getElementById('jobRevenue').value = '';
+
+            // Try to find estimated cost from ASIN data
+            let estimatedCost = '';
+            if (typeof asinData !== 'undefined' && asinData.products_by_fcc) {
+                const productEntry = asinData.products_by_fcc[itemKey];
+                if (productEntry && productEntry.length > 0 && productEntry[0].price) {
+                    // Price usually comes as "$34.95"
+                    estimatedCost = productEntry[0].price.replace(/[$,]/g, '');
+                }
             }
+            document.getElementById('itemCost').value = estimatedCost;
+
+            document.getElementById('jobNotes').value = amazonLink ? `Amazon Link: ${amazonLink}` : '';
+
+            document.getElementById('jobItemName').textContent = type === 'blank' ? `Key Blank: ${itemKey}` : `FCC ID: ${itemKey}`;
+            document.getElementById('jobItemVehicle').textContent = vehicle || 'Unknown Vehicle';
+
+            document.querySelector('.job-modal').classList.add('active');
+            document.querySelector('.job-modal-overlay').classList.add('active');
         }
 
         async function searchVehicle() {
@@ -4184,12 +4220,31 @@
             }
         }
 
-        // Log a completed job - marks item as used and logs the job
-        window.openJobLogModal = function (itemKey, type = 'key', vehicle = '', amazonLink = '') {
+        // Close the job logging modal
+        function closeJobModal() {
+            document.querySelector('.job-modal').classList.remove('active');
+            document.querySelector('.job-modal-overlay').classList.remove('active');
+        }
+
+        // Submit the job log form
+        function submitJobLog(event) {
+            event.preventDefault();
+
             if (!isPro) {
+                closeJobModal();
                 openUpgradeModal();
                 return;
             }
+
+            const itemKey = document.getElementById('jobItemKey').value;
+            const type = document.getElementById('jobItemType').value;
+            const customer = document.getElementById('jobCustomer').value.trim();
+            const description = document.getElementById('jobDescription').value.trim();
+            const notes = document.getElementById('jobNotes').value.trim();
+
+            // Financials
+            const revenue = parseFloat(document.getElementById('jobRevenue').value) || 0;
+            const cost = parseFloat(document.getElementById('itemCost').value) || 0;
 
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
 
@@ -4209,12 +4264,14 @@
             const jobLog = {
                 itemKey,
                 type,
-                vehicle: vehicle || 'Unknown',
+                vehicle: description, // Use description as primary label
                 date: new Date().toISOString(),
                 timestamp: Date.now(),
-                cost: 0,
-                customer: 'Manual Job',
-                description: vehicle || `Used 1 ${type === 'blank' ? 'key blank' : 'key fob'}`
+                revenue: revenue, // New field
+                cost: cost,       // New field (profit = revenue - cost)
+                customer: customer || 'Manual Job',
+                description: description || `Used 1 ${type === 'blank' ? 'key blank' : 'key fob'}`,
+                notes: notes
             };
 
             // Get existing logs or create new array
@@ -4237,8 +4294,9 @@
                 renderInventoryPage();
             }
 
-            // Show success feedback
-            alert(`✓ Job logged! Used 1 ${type === 'blank' ? 'key blank' : 'key fob'} (${itemKey})`);
+            // Close modal and show success
+            closeJobModal();
+            alert(`✓ Job logged! Profit: $${(revenue - cost).toFixed(2)}`);
         }
 
         // Update inventory tab badge with total count
@@ -4571,6 +4629,8 @@
                 logs.forEach(log => {
                     const date = new Date(log.date).toLocaleString();
                     const cost = typeof log.cost === 'number' ? log.cost : 0;
+                    const revenue = typeof log.revenue === 'number' ? log.revenue : 0;
+                    const profit = revenue - cost;
                     const customer = log.customer || 'Unknown Customer';
                     const description = log.description || log.vehicle || '';
 
@@ -4581,7 +4641,10 @@
                                         <div style="font-weight: 700; color: var(--text-primary); font-size: 1.1rem;">${customer}</div>
                                         <div style="font-size: 0.85rem; color: var(--text-muted);">${date}</div>
                                     </div>
-                                    <div style="font-weight: 700; color: #22c55e;">$${cost.toFixed(2)}</div>
+                                    <div style="text-align: right;">
+                                        <div style="font-weight: 700; color: #22c55e;">+ $${profit.toFixed(2)}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">Rev: $${revenue.toFixed(2)}</div>
+                                    </div>
                                 </div>
                                 <div style="margin-bottom: 8px;">
                                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
