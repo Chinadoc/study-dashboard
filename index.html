@@ -4456,6 +4456,42 @@
             `;
         }
 
+        function calculateInventoryStats() {
+            // Financials from Job Logs
+            const logs = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
+            const totalRevenue = logs.reduce((sum, log) => sum + (log.revenue || 0), 0);
+            const totalCost = logs.reduce((sum, log) => sum + (log.cost || 0), 0);
+            const totalProfit = totalRevenue - totalCost;
+            const avgProfit = logs.length > 0 ? (totalProfit / logs.length) : 0;
+
+            // Stock Alerts from Inventory
+            const keys = InventoryManager.getKeysInventory();
+            const blanks = InventoryManager.getBlanksInventory();
+            const lowStock = [];
+
+            // Check Keys
+            Object.entries(keys).forEach(([key, item]) => {
+                if (item.qty <= 2) { // Alert threshold
+                    lowStock.push({ name: key, type: 'key', qty: item.qty, vehicle: item.vehicle, link: item.amazonLink });
+                }
+            });
+
+            // Check Blanks
+            Object.entries(blanks).forEach(([key, item]) => {
+                if (item.qty <= 3) { // Slightly higher threshold for blanks
+                    lowStock.push({ name: key, type: 'blank', qty: item.qty, vehicle: item.vehicle, link: item.amazonLink });
+                }
+            });
+
+            return {
+                totalRevenue,
+                totalProfit,
+                totalJobs: logs.length,
+                avgProfit,
+                lowStock
+            };
+        }
+
         // Render full inventory page
         function renderInventoryPage(view = 'inventory') {
             const container = document.getElementById('inventoryContent');
