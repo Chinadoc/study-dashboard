@@ -571,6 +571,67 @@
             cursor: pointer;
         }
 
+        /* Grouped Vehicle Styles */
+        .fcc-card-image {
+            width: 100%;
+            height: 140px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            padding: 8px;
+        }
+
+        .fcc-card-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .vehicle-group-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            margin: 0 4px 4px 0;
+            transition: all 0.2s;
+        }
+
+        .vehicle-group-chip:hover {
+            border-color: var(--brand-primary);
+            background: var(--bg-secondary);
+        }
+
+        .vehicle-group-make {
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+
+        .vehicle-group-years {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 600px) {
+            .fcc-card-image {
+                height: 120px;
+            }
+
+            .vehicle-group-chip {
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+        }
+
         .fcc-card-meta {
             display: flex;
             gap: 16px;
@@ -950,85 +1011,235 @@
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .walkthrough-toggle:hover {
             background: var(--brand-primary);
             color: var(--bg-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
         }
 
         .walkthrough-content {
             display: none;
             margin-top: 16px;
-            padding: 20px;
-            background: var(--bg-tertiary);
+            padding: 24px;
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            max-height: 500px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            max-height: 600px;
             overflow-y: auto;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-primary) var(--bg-secondary);
+        }
+
+        .walkthrough-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .walkthrough-content::-webkit-scrollbar-thumb {
+            background-color: var(--brand-primary);
+            border-radius: 20px;
         }
 
         .walkthrough-content.expanded {
             display: block;
-            animation: slideDown 0.3s ease;
+            animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .walkthrough-content h2 {
             color: var(--text-primary);
-            font-size: 1.2rem;
-            margin-bottom: 12px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, var(--brand-primary), var(--brand-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .walkthrough-content h3 {
             color: var(--brand-primary);
-            font-size: 1rem;
-            margin-top: 16px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 6px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .walkthrough-content h3::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: var(--brand-primary);
+            border-radius: 2px;
         }
 
         .walkthrough-content h4 {
-            color: var(--brand-secondary);
-            margin-top: 12px;
-            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 8px;
         }
 
         .walkthrough-content table {
             width: 100%;
-            border-collapse: collapse;
-            margin: 12px 0;
-            font-size: 0.85rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
         }
 
         .walkthrough-content th,
         .walkthrough-content td {
-            padding: 8px 10px;
-            border: 1px solid var(--border);
+            padding: 12px 16px;
             text-align: left;
+            border-bottom: 1px solid var(--border);
         }
 
         .walkthrough-content th {
-            background: var(--bg-secondary);
-            color: var(--brand-primary);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
             font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .walkthrough-content tr:last-child td {
+            border-bottom: none;
+        }
+
+        .walkthrough-content td {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
         }
 
         .walkthrough-content blockquote {
-            margin: 12px 0;
-            padding: 10px 14px;
-            background: rgba(251, 191, 36, 0.1);
-            border-left: 3px solid var(--brand-primary);
-            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            padding: 16px 20px;
+            background: rgba(251, 191, 36, 0.05);
+            border-left: 4px solid var(--brand-primary);
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            color: var(--text-primary);
+        }
+
+        .walkthrough-content blockquote.alert-tip {
+            background: rgba(16, 185, 129, 0.05);
+            border-left-color: #10b981;
+        }
+
+        .walkthrough-content blockquote.alert-warning {
+            background: rgba(245, 158, 11, 0.05);
+            border-left-color: #f59e0b;
+        }
+
+        .walkthrough-content blockquote.alert-important {
+            background: rgba(239, 68, 68, 0.05);
+            border-left-color: #ef4444;
+        }
+
+        .walkthrough-content ul,
+        .walkthrough-content ol {
+            padding-left: 20px;
+            margin: 16px 0;
+        }
+
+        .walkthrough-content li {
+            margin-bottom: 8px;
+        }
+
+        .walkthrough-content strong {
+            color: var(--brand-primary);
         }
 
         .walkthrough-content hr {
             border: none;
             border-top: 1px solid var(--border);
-            margin: 16px 0;
+            margin: 24px 0;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Programming Guide Styles */
+        .programming-guide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .programming-guide-header h3 {
+            margin: 0 !important;
+            font-size: 1.25rem !important;
+            background: linear-gradient(135deg, var(--brand-primary), #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .programming-guide-body {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .guide-asset-block {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .guide-infographic {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        .guide-asset-link {
+            margin-bottom: 24px;
+        }
+
+        .pdf-download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pdf-download-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-1px);
         }
 
         .auth-required-badge {
@@ -1924,6 +2135,44 @@
             return logoMappings[normalizedMake] || null;
         }
 
+        let asinData = { products_by_fcc: {} };
+
+        async function loadAsinData() {
+            try {
+                const res = await fetch('asin_based_affiliate_products.json');
+                const data = await res.json();
+                asinData = data;
+            } catch (e) {
+                console.error('Failed to load ASIN data local mapping');
+            }
+        }
+
+        // Helper to group vehicles into chips
+        function groupVehicles(vehicles) {
+            const vehicleItems = vehicles ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
+            const groups = {};
+            vehicleItems.forEach(vi => {
+                const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                if (match) {
+                    const makeModel = match[1].trim();
+                    const startYear = parseInt(match[2]);
+                    const endYear = match[3] ? parseInt(match[3]) : startYear;
+                    if (!groups[makeModel]) {
+                        groups[makeModel] = { start: startYear, end: endYear };
+                    } else {
+                        groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
+                        groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
+                    }
+                } else {
+                    if (!groups[vi]) groups[vi] = { start: null, end: null };
+                }
+            });
+            return Object.entries(groups).map(([name, range]) => ({
+                name,
+                years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
+            }));
+        }
+
         // Tab switching
         function showTab(tabName) {
             document.querySelectorAll('.tab').forEach((t, i) => {
@@ -2013,7 +2262,8 @@
             container.classList.add('expanded');
 
             try {
-                const guideUrl = `${API}/api/guides?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+                // Determine category based on context (default to AKL_PROCEDURE for now)
+                const guideUrl = `${API}/api/guides?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&category=AKL_PROCEDURE`;
                 console.log('Fetching guide:', guideUrl);
                 const res = await fetch(guideUrl);
                 const data = await res.json();
@@ -2021,7 +2271,40 @@
 
                 if (data.rows && data.rows.length > 0) {
                     console.log('Found guide, rendering content...');
-                    const html = renderGuideContent(data.rows[0].content);
+                    const guide = data.rows[0];
+                    const contentHtml = renderGuideContent(guide.content);
+
+                    let assetsHtml = '';
+                    if (guide.assets) {
+                        if (guide.assets.infographic) {
+                            assetsHtml += `
+                                <div class="guide-asset-block">
+                                    <img src="/api/assets/${guide.assets.infographic}" alt="${guide.make} Infographic" class="guide-infographic" loading="lazy">
+                                </div>
+                            `;
+                        }
+                        if (guide.assets.pdf) {
+                            assetsHtml += `
+                                <div class="guide-asset-link">
+                                    <a href="/api/assets/${guide.assets.pdf}" target="_blank" class="pdf-download-btn">
+                                        📄 Download ${guide.assets.pdf_title || 'Technical Guide'} (PDF)
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    const html = `
+                        <div class="programming-guide-header">
+                            <h3>${guide.title || (make + ' ' + model)}</h3>
+                            <button onclick="this.closest('.walkthrough-container').innerHTML=''" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕ Close</button>
+                        </div>
+                        ${assetsHtml}
+                        <div class="programming-guide-body">
+                            ${contentHtml}
+                        </div>
+                    `;
+
                     guideCache[cacheKey] = html;
                     container.innerHTML = html;
                 } else {
@@ -2030,14 +2313,13 @@
                 }
             } catch (e) {
                 console.error('Failed to load guide:', e);
-                container.innerHTML = '<div style="color: #f87171; text-align: center;">Failed to load guide. Please try again.</div>';
+                container.innerHTML = '<div style="color: #f87171; text-align: center;">Failed to load programming guide. Please try again.</div>';
             }
         }
 
         function renderGuideContent(markdown) {
             if (!markdown) return '';
 
-            // Convert markdown tables to HTML
             let html = markdown;
 
             // Process tables (simple conversion)
@@ -2047,34 +2329,69 @@
                     const cells = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
                     return `<tr>${cells}</tr>`;
                 }).join('');
-                return `<table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table>`;
+                return `<div class="table-container"><table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table></div>`;
             });
+
+            // Alerts / Callouts (Custom Syntax Support)
+            // Support > [!TIP] etc
+            html = html.replace(/^> \[!TIP\] (.*)$/gm, '<blockquote class="alert-tip"><strong>💡 Tip:</strong> $1</blockquote>');
+            html = html.replace(/^> \[!WARNING\] (.*)$/gm, '<blockquote class="alert-warning"><strong>⚠️ Warning:</strong> $1</blockquote>');
+            html = html.replace(/^> \[!IMPORTANT\] (.*)$/gm, '<blockquote class="alert-important"><strong>🚨 Important:</strong> $1</blockquote>');
+            html = html.replace(/^> 💡 (.*)$/gm, '<blockquote class="alert-tip"><strong>💡 Tip:</strong> $1</blockquote>');
+            html = html.replace(/^> ⚠️ (.*)$/gm, '<blockquote class="alert-warning"><strong>⚠️ Warning:</strong> $1</blockquote>');
+            html = html.replace(/^> 🚨 (.*)$/gm, '<blockquote class="alert-important"><strong>🚨 Important:</strong> $1</blockquote>');
 
             // Headers
             html = html.replace(/^### (.*)$/gm, '<h4>$1</h4>');
             html = html.replace(/^## (.*)$/gm, '<h3>$1</h3>');
             html = html.replace(/^# (.*)$/gm, '<h2>$1</h2>');
 
-            // Bold
+            // Bold & Italic
+            html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
             html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
-            // Blockquotes (pro tips)
+            // Blockquotes (standard fallback)
             html = html.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
 
             // Horizontal rules
             html = html.replace(/^---$/gm, '<hr>');
 
-            // Lists
-            html = html.replace(/^\d+\. (.*)$/gm, '<li>$1</li>');
-            html = html.replace(/^- (.*)$/gm, '<li>$1</li>');
+            // Lists (Improved)
+            html = html.replace(/^(\d+\.|-)\s+(.*)$/gm, (match, prefix, content) => {
+                const type = prefix.includes('.') ? 'ol' : 'ul';
+                return `<li data-type="${type}">${content}</li>`;
+            });
 
-            // Line breaks (but not for elements that handle their own spacing)
-            html = html.replace(/\n\n/g, '<br><br>');
+            // Wrap contiguous <li> in <ul> or <ol>
+            html = html.replace(/(?:<li data-type="(ul|ol)">.*?<\/li>\s*)+/g, (match, type) => {
+                const tag = type === 'ol' ? 'ol' : 'ul';
+                const items = match.replace(/ data-type="(ul|ol)"/g, '');
+                return `<${tag}>${items}</${tag}>`;
+            });
+
+            // Line breaks
+            // Preserve paragraphs but avoid double-spacing block elements
+            html = html.replace(/\n\n/g, '</p><p>');
             html = html.replace(/\n/g, ' ');
 
-            // Clean up extra spaces
-            html = html.replace(/<br><br>\s*<(h[234]|table|blockquote|hr)/g, '<$1');
-            html = html.replace(/<\/(h[234]|table|blockquote)>\s*<br><br>/g, '</$1>');
+            // R2 Asset Support (r2://bucket-path -> /api/assets/bucket-path)
+            html = html.replace(/src="r2:\/\/([^"]+)"/g, 'src="/api/assets/$1"');
+            html = html.replace(/href="r2:\/\/([^"]+)"/g, 'href="/api/assets/$1"');
+
+            // Also support markdown syntax ![alt](r2://...) and [text](r2://...)
+            html = html.replace(/!\[(.*?)\]\(r2:\/\/(.*?)\)/g, '<img src="/api/assets/$2" alt="$1" class="guide-image">');
+            html = html.replace(/\[(.*?)\]\(r2:\/\/(.*?)\)/g, '<a href="/api/assets/$2" target="_blank">$1</a>');
+
+            // Final wrap
+            if (!html.startsWith('<p>') && !html.startsWith('<div') && !html.startsWith('<table') && !html.startsWith('<blockquote')) {
+                html = '<p>' + html + '</p>';
+            }
+
+            // Clean up empty paragraphs and mis-wrapped block elements
+            html = html.replace(/<p>\s*<(h[234]|table|blockquote|hr|ul|ol|div|img)/g, '<$1');
+            html = html.replace(/<\/(h[234]|table|blockquote|hr|ul|ol|div|img)>\s*<\/p>/g, '</$1>');
+            html = html.replace(/<p>\s*<\/p>/g, '');
 
             return html;
         }
@@ -2224,7 +2541,10 @@
             container.innerHTML = uniqueRows.map((v, idx) => {
                 const fccId = v.fcc_id || 'N/A';
                 const oem = v.oem_part_number || 'N/A';
-                const amazonLink = fccId !== 'N/A' ? getAmazonLink(fccId) : null;
+                // Prefer direct ASIN link if available, otherwise search
+                const amazonLink = v.primary_asin
+                    ? `https://www.amazon.com/dp/${v.primary_asin}?tag=${AFFILIATE_TAG}`
+                    : (fccId !== 'N/A' ? getAmazonLink(fccId) : null);
                 const immo = v.immobilizer_system || v.immobilizer || 'N/A';
                 const chip = v.chip || v.chip_technology || 'N/A';
                 const freq = v.frequency ? `${v.frequency} MHz` : 'N/A';
@@ -2277,8 +2597,8 @@
                         : '';
 
                 return `
-                <div class="vehicle-card">
-                    <div class="vehicle-card-header">
+                <div class="vehicle-card" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="vehicle-card-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 0;">
                         <div class="vehicle-name" style="display: flex; align-items: center;">
                             ${logoHtml}
                             <span class="make-link" onclick="quickSwitchMake('${make}')" style="cursor: pointer; color: var(--brand-primary);" title="View all ${make} models">${make}</span>
@@ -2289,52 +2609,65 @@
                             ${inventoryBadge}
                             ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
-                            ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="amazon-btn">🛒 Buy on Amazon</a>` : ''}
                         </div>
                     </div>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <div class="data-label">FCC ID</div>
-                            <div class="data-value highlight">${fccDisplay}</div>
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                        ${imageUrl ? `
+                            <div class="fcc-card-image" style="width: 140px; height: 140px; margin-bottom: 0; flex-shrink: 0;" onclick="showFccModal('${fccId}')">
+                                <img src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'">
+                            </div>
+                        ` : ''}
+                        
+                        <div class="data-grid" style="flex: 1; min-width: 250px; margin-top: 0;">
+                            <div class="data-item">
+                                <div class="data-label">FCC ID</div>
+                                <div class="data-value highlight">${fccDisplay}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Chip</div>
+                                <div class="data-value">${chip}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Frequency</div>
+                                <div class="data-value">${freq}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Key Blank</div>
+                                <div class="data-value">${keyway}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Buttons</div>
+                                <div class="data-value">${buttons}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Battery</div>
+                                <div class="data-value">${battery}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">OEM Part #</div>
+                                <div class="data-value">${oem}</div>
+                            </div>
+                            <div class="data-item">
+                                <div class="data-label">Lishi Tool</div>
+                                <div class="data-value">${v.lishi_tool || 'N/A'}</div>
+                            </div>
                         </div>
-                        <div class="data-item">
-                            <div class="data-label">Chip</div>
-                            <div class="data-value">${chip}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Frequency</div>
-                            <div class="data-value">${freq}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Key Blank</div>
-                            <div class="data-value">${keyway}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Buttons</div>
-                            <div class="data-value">${buttons}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Battery</div>
-                            <div class="data-value">${battery}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">OEM Part #</div>
-                            <div class="data-value">${oem}</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">Lishi Tool</div>
-                            <div class="data-value">${v.lishi_tool || 'N/A'}</div>
-                        </div>
+                    </div>
+
+                    <div class="vehicle-card-actions" style="display: flex; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 12px;">
+                         ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="fcc-action-btn fcc-action-primary" style="flex: 1; text-decoration: none; text-align: center;">🛒 Buy on Amazon</a>` : ''}
+                         <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary" style="flex: 1;">🔍 View Details</button>
                     </div>
                     
                     ${hasAftermarket ? `
-                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Aftermarket Parts</div>
+                    <div style="margin-top: 4px; padding-top: 12px; border-top: 1px dashed var(--border);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Aftermarket Parts</div>
                         <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.9rem;">
-                            ${ilco !== 'N/A' ? `<span><strong>ILCO:</strong> ${ilco}</span>` : ''}
-                            ${strattec !== 'N/A' ? `<span><strong>Strattec:</strong> ${strattec}</span>` : ''}
-                            ${jma !== 'N/A' ? `<span><strong>JMA:</strong> ${jma}</span>` : ''}
-                            ${keydiy !== 'N/A' ? `<span><strong>KEYDIY:</strong> ${keydiy}</span>` : ''}
+                            ${ilco !== 'N/A' ? `<span style="background: var(--bg-tertiary); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);"><strong>ILCO:</strong> ${ilco}</span>` : ''}
+                            ${strattec !== 'N/A' ? `<span style="background: var(--bg-tertiary); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);"><strong>Strattec:</strong> ${strattec}</span>` : ''}
+                            ${jma !== 'N/A' ? `<span style="background: var(--bg-tertiary); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);"><strong>JMA:</strong> ${jma}</span>` : ''}
+                            ${keydiy !== 'N/A' ? `<span style="background: var(--bg-tertiary); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);"><strong>KEYDIY:</strong> ${keydiy}</span>` : ''}
                         </div>
                     </div>
                     ` : ''}
@@ -2627,34 +2960,84 @@
                 const oemPart = r.primary_oem_part || null;
                 const primaryMake = r.primary_make || null;
 
-                // Get first vehicle for Amazon search (fallback if no OEM part)
-                const firstVehicle = vehicles !== 'N/A' ? vehicles.split(',')[0].trim() : null;
-                const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
+                // Parse and group vehicles to avoid long lists
+                const vehicleItems = vehicles !== 'N/A' ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
+                const groups = {};
+                vehicleItems.forEach(vi => {
+                    const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                    if (match) {
+                        const makeModel = match[1].trim();
+                        const startYear = parseInt(match[2]);
+                        const endYear = match[3] ? parseInt(match[3]) : startYear;
+                        if (!groups[makeModel]) {
+                            groups[makeModel] = { start: startYear, end: endYear };
+                        } else {
+                            groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
+                            groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
+                        }
+                    } else {
+                        if (!groups[vi]) groups[vi] = { start: null, end: null };
+                    }
+                });
+                const grouped = Object.entries(groups).map(([name, range]) => ({
+                    name,
+                    years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
+                }));
 
-                // Format vehicles list - show first 2, then count
-                const vehicleList = vehicles !== 'N/A' ? vehicles.split(',').slice(0, 2).join(', ') : 'N/A';
-                const vehicleCount = vehicles !== 'N/A' ? vehicles.split(',').length : 0;
+                const displayGroups = grouped.slice(0, 2);
+                const moreCount = grouped.length - 2;
 
-                // Highlight search term in vehicles
-                let highlightedVehicles = vehicleList;
-                if (searchText && vehicleList !== 'N/A') {
-                    const regex = new RegExp(`(${searchText})`, 'gi');
-                    highlightedVehicles = vehicleList.replace(regex, '<mark style="background: var(--brand-primary); color: var(--bg-primary); padding: 0 2px; border-radius: 2px;">$1</mark>');
-                }
+                const firstVehicle = vehicleItems[0] || null;
 
-                const moreLink = vehicleCount > 2
-                    ? `<br><a href="#" onclick="showFccModal('${fccId}'); return false;" style="color: var(--brand-primary); font-size: 0.8rem;">+${vehicleCount - 2} more vehicles</a>`
+                // Get ASIN and Image URL
+                const asinEntry = typeof asinData !== 'undefined' && asinData.products_by_fcc ? asinData.products_by_fcc[fccId] : null;
+                const primaryAsin = asinEntry ? asinEntry.primary_asin : null;
+
+                const amazonLink = primaryAsin
+                    ? `https://www.amazon.com/dp/${primaryAsin}?tag=${AFFILIATE_TAG}`
+                    : getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
+
+                const imageUrl = primaryAsin
+                    ? `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${primaryAsin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`
+                    : null;
+
+                let highlightedVehiclesHtml = displayGroups.map(g => {
+                    let name = g.name;
+                    if (searchText) {
+                        const regex = new RegExp(`(${searchText})`, 'gi');
+                        name = name.replace(regex, '<mark style="background: var(--brand-primary); color: #000; padding: 0 2px; border-radius: 2px;">$1</mark>');
+                    }
+                    return `<span class="vehicle-group-chip" style="font-size: 0.75rem; padding: 3px 8px; margin: 0 2px 2px 0;">
+                        <span class="vehicle-group-make">${name}</span>
+                        ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
+                    </span>`;
+                }).join('');
+
+                const moreLink = moreCount > 0
+                    ? `<br><a href="#" onclick="showFccModal('${fccId}'); return false;" style="color: var(--brand-primary); font-size: 0.75rem;">+${moreCount} more groups</a>`
                     : '';
 
                 return `
                 <tr>
-                    <td>
-                        <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
+                    <td style="min-width: 100px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            ${imageUrl ? `
+                                <div style="width: 40px; height: 40px; background: var(--bg-tertiary); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0; cursor: pointer;" onclick="showFccModal('${fccId}')">
+                                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'">
+                                </div>
+                            ` : ''}
+                            <a href="#" class="fcc-link" onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
+                        </div>
                     </td>
                     <td style="font-size: 0.85rem;">
                         ${oemPart ? `<a href="${amazonLink}" target="_blank" style="color: var(--brand-primary);">${oemPart}</a>` : '<span style="color: var(--text-muted);">-</span>'}
+                        <div style="margin-top: 4px;">
+                            ${isPushKey(r)
+                        ? '<span style="font-size: 0.7rem; background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(34, 197, 94, 0.2);">Push Start</span>'
+                        : '<span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2);">Remote Head</span>'}
+                        </div>
                     </td>
-                    <td style="max-width: 300px; font-size: 0.85rem; line-height: 1.4;">${highlightedVehicles}${moreLink}</td>
+                    <td style="max-width: 350px; line-height: 1.4;">${highlightedVehiclesHtml}${moreLink}</td>
                     <td class="hide-mobile">${freq}${freq !== 'N/A' && !String(freq).includes('Hz') ? ' MHz' : ''}</td>
                     <td class="hide-mobile">${chip}</td>
                     <td>
@@ -2682,42 +3065,63 @@
                     const oemPart = r.primary_oem_part || null;
                     const primaryMake = r.primary_make || null;
 
-                    // Parse vehicles into array of chips
+                    // Parse and group vehicles to avoid long lists
                     const vehicleItems = vehicles ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
-                    const displayVehicles = vehicleItems.slice(0, 3);
-                    const moreCount = vehicleItems.length - 3;
+                    const groups = {};
+                    vehicleItems.forEach(vi => {
+                        const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                        if (match) {
+                            const makeModel = match[1].trim();
+                            const startYear = parseInt(match[2]);
+                            const endYear = match[3] ? parseInt(match[3]) : startYear;
+                            if (!groups[makeModel]) {
+                                groups[makeModel] = { start: startYear, end: endYear };
+                            } else {
+                                groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
+                                groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
+                            }
+                        } else {
+                            if (!groups[vi]) groups[vi] = { start: null, end: null };
+                        }
+                    });
+                    const grouped = Object.entries(groups).map(([name, range]) => ({
+                        name,
+                        years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
+                    }));
 
-                    // Get make icon
-                    const getMakeIcon = (vehicle) => {
-                        const v = vehicle.toLowerCase();
-                        if (v.includes('jeep')) return '🚙';
-                        if (v.includes('ford') || v.includes('f-150') || v.includes('f-250')) return '🚗';
-                        if (v.includes('toyota')) return '🚗';
-                        if (v.includes('honda')) return '🚗';
-                        if (v.includes('bmw')) return '🏎️';
-                        if (v.includes('mercedes')) return '🏎️';
-                        if (v.includes('lexus')) return '🚙';
-                        if (v.includes('chevrolet') || v.includes('chevy')) return '🚗';
-                        if (v.includes('nissan')) return '🚗';
-                        if (v.includes('dodge') || v.includes('ram')) return '🚗';
-                        return '🚗';
-                    };
-
+                    const displayGroups = grouped.slice(0, 5);
+                    const moreCount = grouped.length - 5;
                     const firstVehicle = vehicleItems[0] || null;
                     const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
+
+                    // Get ASIN and Image URL
+                    const asinEntry = typeof asinData !== 'undefined' && asinData.products_by_fcc ? asinData.products_by_fcc[fccId] : null;
+                    const primaryAsin = asinEntry ? asinEntry.primary_asin : null;
+                    const imageUrl = primaryAsin
+                        ? `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${primaryAsin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`
+                        : null;
 
                     return `
                     <div class="fcc-card">
                         <div class="fcc-card-header">
                             <span class="fcc-id-badge" onclick="showFccModal('${fccId}')">🔑 ${fccId}</span>
                             ${oemPart ? `<span class="fcc-oem">${oemPart}</span>` : ''}
+                            ${isPushKey(r)
+                            ? '<span style="font-size: 0.7rem; background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(34, 197, 94, 0.2); margin-left: 8px;">Push Start</span>'
+                            : '<span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2); margin-left: 8px;">Remote Head</span>'}
                         </div>
+
+                        ${imageUrl ? `
+                        <div class="fcc-card-image" onclick="showFccModal('${fccId}')">
+                            <img src="${imageUrl}" alt="${fccId}" onerror="this.parentElement.style.display='none'">
+                        </div>
+                        ` : ''}
                         
                         <div class="fcc-vehicles">
-                            ${displayVehicles.map(v => `
-                                <span class="vehicle-chip">
-                                    <span class="make-icon">${getMakeIcon(v)}</span>
-                                    ${v.split('(')[0].trim()}
+                            ${displayGroups.map(g => `
+                                <span class="vehicle-group-chip" onclick="showFccModal('${fccId}')">
+                                    <span class="vehicle-group-make">${g.name}</span>
+                                    ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
                                 </span>
                             `).join('')}
                             ${moreCount > 0 ? `
@@ -2799,43 +3203,78 @@
                     const oem = part.oem_part_number || 'Unknown';
                     const vehicles = part.vehicles || [];
 
+                    // Generate specific link for this part
+                    // If ASIN exists, link directly. Else search by OEM.
+                    const partLink = asin
+                        ? `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`
+                        : getAmazonLink(fccId, null, oem, null);
+
                     // Amazon image URL - uses ASIN if available
                     const imageUrl = asin
                         ? `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`
                         : null;
 
-                    // Amazon link with affiliate tag
-                    const amazonLink = asin
-                        ? `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`
-                        : getAmazonLink(fccId, null, oem, vehicles[0]?.make);
+                    // Group vehicles for this OEM part
+                    const vehicleItems = vehicles.map(v => `${v.make} ${v.model} (${v.year_start}-${v.year_end})`);
 
-                    // Vehicle list for this OEM part
-                    const vehicleList = vehicles.slice(0, 3).map(v =>
-                        `${v.make} ${v.model} (${v.year_start}-${v.year_end})`
-                    ).join(', ');
-                    const moreCount = vehicles.length > 3 ? ` +${vehicles.length - 3} more` : '';
+                    const groups = {};
+                    vehicleItems.forEach(vi => {
+                        const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                        if (match) {
+                            const makeModel = match[1].trim();
+                            const startYear = parseInt(match[2]);
+                            const endYear = match[3] ? parseInt(match[3]) : startYear;
+                            if (!groups[makeModel]) {
+                                groups[makeModel] = { start: startYear, end: endYear };
+                            } else {
+                                groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
+                                groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
+                            }
+                        } else {
+                            if (!groups[vi]) groups[vi] = { start: null, end: null };
+                        }
+                    });
+
+                    const grouped = Object.entries(groups).map(([name, range]) => ({
+                        name,
+                        years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
+                    }));
+
+                    const vehicleListHtml = grouped.map(g => `
+                        <span class="vehicle-group-chip" style="background: var(--bg-primary); border-color: var(--border);">
+                            <span class="vehicle-group-make">${g.name}</span>
+                            ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
+                        </span>
+                    `).join('');
 
                     return `
-                        <div class="oem-product-card" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px;">
-                            <a href="${amazonLink}" target="_blank" style="flex-shrink: 0;">
-                                <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                    ${imageUrl
+                        <div class="oem-product-card" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px; flex-direction: column;">
+                            <div style="display: flex; gap: 12px;">
+                                <a href="${partLink}" target="_blank" style="flex-shrink: 0;">
+                                    <div style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border);">
+                                        ${imageUrl
                             ? `<img src="${imageUrl}" alt="${oem}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size: 2rem;\\'>🔑</span>';"/>`
                             : '<span style="font-size: 2rem;">🔑</span>'
                         }
-                                </div>
-                            </a>
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: 600; color: var(--brand-primary); margin-bottom: 4px;">
-                                    <a href="${amazonLink}" target="_blank" style="color: inherit; text-decoration: none;">${oem}</a>
-                                    ${asin ? '<span style="font-size: 0.7rem; background: #28a745; color: white; padding: 1px 5px; border-radius: 3px; margin-left: 6px;">ASIN</span>' : ''}
-                                </div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
-                                    ${vehicleList}${moreCount ? `<span style="color: var(--text-muted);">${moreCount}</span>` : ''}
-                                </div>
-                                <a href="${amazonLink}" target="_blank" class="amazon-btn" style="font-size: 0.75rem; padding: 4px 10px;">
-                                    🛒 ${asin ? 'Buy on Amazon' : 'Search Amazon'}
+                                    </div>
                                 </a>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-weight: 600; color: var(--brand-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                                        <a href="${partLink}" target="_blank" style="color: inherit; text-decoration: none;">${oem}</a>
+                                        ${asin ? '<span style="font-size: 0.65rem; background: #28a745; color: white; padding: 2px 6px; border-radius: 4px;">BEST MATCH</span>' : ''}
+                                    </div>
+                                    <div style="margin-top: 8px;">
+                                        <a href="${partLink}" target="_blank" class="amazon-btn" style="font-size: 0.75rem; padding: 6px 12px; display: inline-flex;">
+                                            🛒 ${asin ? 'Buy on Amazon' : 'Search Amazon'}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 10px;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Compatible Vehicles</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                    ${vehicleListHtml}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2885,14 +3324,35 @@
                 const record = fccData.find(r => r.fcc_id === fccId);
                 if (record) {
                     const vehicles = record.vehicles || 'N/A';
-                    const firstVehicle = vehicles !== 'N/A' ? vehicles.split(',')[0].trim() : null;
-                    const amazonLink = getAmazonLink(fccId, firstVehicle, record.primary_oem_part, record.primary_make);
+                    const oemPart = record.primary_oem_part || null;
+                    const primaryMake = record.primary_make || null;
+
+                    const grouped = groupVehicles(vehicles);
+                    const vehicleListHtml = grouped.map(g => `
+                        <span class="vehicle-group-chip" style="background: var(--bg-primary); border-color: var(--border);">
+                            <span class="vehicle-group-make">${g.name}</span>
+                            ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
+                        </span>
+                    `).join('');
+
+                    const firstVehicle = grouped.length > 0 ? grouped[0].name : null;
+                    const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
 
                     modalBody.innerHTML = `
-                        <div class="modal-title">FCC ID: ${fccId}</div>
-                        <div class="modal-subtitle">Could not load detailed data</div>
-                        ${getInventoryControlsHtml(fccId)}
-                        <p style="color: var(--text-muted); margin-top: 12px;">${vehicles}</p>
+                        <div class="modal-header-premium" style="margin-bottom: 24px;">
+                            <div class="modal-title" style="font-size: 1.75rem; font-weight: 800; background: linear-gradient(135deg, var(--brand-primary), #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">FCC ID: ${fccId}</div>
+                            <div class="modal-subtitle" style="font-size: 1rem; color: var(--text-secondary);">Limited details available</div>
+                        </div>
+                        
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                            ${getInventoryControlsHtml(fccId)}
+                        </div>
+                        
+                        <div style="font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">Compatible Vehicles</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
+                            ${vehicleListHtml}
+                        </div>
+                        
                         <a href="${amazonLink}" target="_blank" class="modal-amazon">🛒 Search on Amazon</a>
                     `;
                 } else {
@@ -3123,6 +3583,7 @@
 
         // Check for success param on load
         window.addEventListener('load', () => {
+            loadAsinData(); // Load local ASIN mapping
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('subscription') === 'success') {
                 // Clear URL
