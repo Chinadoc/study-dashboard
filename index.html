@@ -1334,9 +1334,9 @@
     <!-- Job Logging Modal -->
     <div id="jobLogModal" class="job-modal-overlay" style="display: none;"
         onclick="if(event.target === this) closeJobModal()">
-        <div class="job-modal">
+        <div class="job-modal" style="max-width: 520px;">
             <div class="job-modal-header">
-                <h3>📋 Log Job</h3>
+                <h3>📋 Log Job & Calculate Profit</h3>
                 <button class="job-modal-close" onclick="closeJobModal()">×</button>
             </div>
             <div class="job-modal-body">
@@ -1348,31 +1348,107 @@
                 <form id="jobLogForm" onsubmit="submitJobLog(event)">
                     <input type="hidden" id="jobItemKey" />
                     <input type="hidden" id="jobItemType" />
+                    <input type="hidden" id="jobDisplayTitle" />
 
-                    <div class="job-form-group">
-                        <label for="jobCustomer">Customer Name</label>
-                        <input type="text" id="jobCustomer" placeholder="e.g., John Smith" />
-                    </div>
-
-                    <div class="job-form-group">
-                        <label for="jobDescription">Job Description</label>
-                        <input type="text" id="jobDescription" placeholder="e.g., 2018 Camry Key Programming" />
-                    </div>
-
-                    <div style="display: flex; gap: 12px;">
-                        <div class="job-form-group" style="flex: 1;">
-                            <label for="jobRevenue">Job Revenue ($)</label>
-                            <input type="number" id="jobRevenue" placeholder="150.00" step="0.01" />
+                    <!-- Customer & Description -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="job-form-group">
+                            <label for="jobCustomer">Customer</label>
+                            <input type="text" id="jobCustomer" placeholder="John Smith" />
                         </div>
-                        <div class="job-form-group" style="flex: 1;">
-                            <label for="itemCost">Item Cost ($)</label>
-                            <input type="number" id="itemCost" placeholder="35.00" step="0.01" />
+                        <div class="job-form-group">
+                            <label for="jobDescription">Vehicle/Job</label>
+                            <input type="text" id="jobDescription" placeholder="2018 Camry" />
                         </div>
                     </div>
 
+                    <!-- Revenue Section -->
+                    <div
+                        style="background: rgba(34, 197, 94, 0.1); padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid rgba(34, 197, 94, 0.2);">
+                        <div
+                            style="font-size: 0.75rem; color: #4ade80; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
+                            💵 Revenue</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="job-form-group" style="margin: 0;">
+                                <label for="jobRevenue">Service Charged ($)</label>
+                                <input type="number" id="jobRevenue" placeholder="150.00" step="0.01"
+                                    oninput="calculateJobProfit()" />
+                            </div>
+                            <div class="job-form-group" style="margin: 0;">
+                                <label for="jobTip">Tip ($)</label>
+                                <input type="number" id="jobTip" placeholder="0.00" step="0.01" value="0"
+                                    oninput="calculateJobProfit()" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Costs Section -->
+                    <div
+                        style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <div
+                            style="font-size: 0.75rem; color: #f87171; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
+                            📉 Costs</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                            <div class="job-form-group" style="margin: 0;">
+                                <label for="itemCost">Key Cost ($)</label>
+                                <input type="number" id="itemCost" placeholder="35.00" step="0.01"
+                                    oninput="calculateJobProfit()" />
+                            </div>
+                            <div class="job-form-group" style="margin: 0;">
+                                <label for="jobMiles">Miles Driven</label>
+                                <input type="number" id="jobMiles" placeholder="15" step="0.1"
+                                    oninput="calculateJobProfit()" />
+                            </div>
+                            <div class="job-form-group" style="margin: 0;">
+                                <label for="jobTimeMinutes">Time (min)</label>
+                                <input type="number" id="jobTimeMinutes" placeholder="45" step="1"
+                                    oninput="calculateJobProfit()" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profit Summary (Live Calculation) -->
+                    <div id="profitSummary"
+                        style="background: linear-gradient(135deg, #1e1e1e, #252525); padding: 16px; border-radius: 8px; margin: 12px 0; border: 1px solid #333;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center;">
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">
+                                    Gross</div>
+                                <div id="calcGross" style="font-size: 1.1rem; font-weight: 700; color: #4ade80;">$0.00
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">
+                                    Expenses</div>
+                                <div id="calcExpenses" style="font-size: 1.1rem; font-weight: 700; color: #f87171;">
+                                    $0.00</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">
+                                    Net Profit</div>
+                                <div id="calcProfit"
+                                    style="font-size: 1.1rem; font-weight: 700; color: var(--brand-primary);">$0.00
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">
+                                    $/Hour</div>
+                                <div id="calcHourly" style="font-size: 1.1rem; font-weight: 700; color: #60a5fa;">$0.00
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                            <span>Est. Tax (30%): <span id="calcTax" style="color: #fbbf24;">$0.00</span></span>
+                            <span>Mileage: <span id="calcMileage" style="color: #a78bfa;">$0.00</span> @ $0.67/mi</span>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
                     <div class="job-form-group">
                         <label for="jobNotes">Notes (Optional)</label>
-                        <textarea id="jobNotes" placeholder="Any additional details about the job..."></textarea>
+                        <textarea id="jobNotes" placeholder="Any details..." style="height: 50px;"></textarea>
                     </div>
 
                     <div class="job-modal-actions">
@@ -2900,13 +2976,13 @@
                     ` : ''
                     }
 
-            < div style = "margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;" >
-            ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
+                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        ${oem !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + oem)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : (fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(year + ' ' + make + ' ' + model + ' key fob ' + fccId)}&tag=eurokeys-20" target="_blank" class="key-photos-btn" style="text-decoration: none;">🛒 Buy Key on Amazon</a>` : '')}
                         <a href="${youtubeLink}" target="_blank" style="padding: 8px 16px; background: #ff0000; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">📺 Watch Tutorial</a>
                         <button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>
-                    </div >
-            <div id="guide-${idx}" class="walkthrough-content"></div>
-                </div >
+                    </div>
+                    <div id="guide-${idx}" class="walkthrough-content"></div>
+                </div>
             `;
             }).join('');
         }
@@ -2963,11 +3039,11 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API} /api/master ? year = ${year}& limit=1000`);
+                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
                 const data = await res.json();
                 const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
                 select.innerHTML = '<option value="">Make</option>';
-                makes.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
+                makes.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
             } catch (e) {
                 select.innerHTML = '<option value="">Make</option>';
             }
@@ -2985,11 +3061,11 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API} /api/master ? year = ${year}& make=${encodeURIComponent(make)}& limit=500`);
+                const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
                 const data = await res.json();
                 const models = [...new Set(data.rows.map(r => r.model))].sort();
                 select.innerHTML = '<option value="">Model</option>';
-                models.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
+                models.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
             } catch (e) {
                 select.innerHTML = '<option value="">Model</option>';
             }
@@ -3005,11 +3081,11 @@
                 return;
             }
 
-            document.getElementById('resultTitle').textContent = `${year} ${make} ${model} `;
+            document.getElementById('resultTitle').textContent = `${year} ${make} ${model}`;
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
             try {
-                const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
+                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
                 const data = await res.json();
                 if (data.rows && data.rows.length > 0) {
                     displayResults(data.rows, year, make, model);
@@ -3027,7 +3103,7 @@
             if (select.options.length <= 1) {
                 const year = new Date().getFullYear() + 1;
                 for (let y = year; y >= 2000; y--) {
-                    select.innerHTML += `< option value = "${y}" > ${y}</option > `;
+                    select.innerHTML += `<option value="${y}">${y}</option>`;
                 }
             }
         }
@@ -3072,7 +3148,7 @@
 
         async function loadFccData() {
             try {
-                const res = await fetch(`${API} /api/fcc ? limit = 500`);
+                const res = await fetch(`${API}/api/fcc?limit=500`);
                 const data = await res.json();
                 fccData = data.rows || [];
                 fccDataLoaded = true;
@@ -3090,8 +3166,8 @@
 
             const currentYear = new Date().getFullYear() + 1;
             for (let y = currentYear; y >= 1998; y--) {
-                fromSelect.innerHTML += `< option value = "${y}" > ${y}</option > `;
-                toSelect.innerHTML += `< option value = "${y}" > ${y}</option > `;
+                fromSelect.innerHTML += `<option value="${y}">${y}</option>`;
+                toSelect.innerHTML += `<option value="${y}">${y}</option>`;
             }
         }
 
@@ -3196,7 +3272,7 @@
                 });
                 const grouped = Object.entries(groups).map(([name, range]) => ({
                     name,
-                    years: range.start ? (range.start === range.end ? `${range.start} ` : `${range.start} -${range.end} `) : ''
+                    years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
                 }));
 
                 const displayGroups = grouped.slice(0, 2);
@@ -4387,15 +4463,10 @@
 
         // Open the job logging modal
         function openJobLogModal(itemKey, type = 'key', vehicle = null, amazonLink = null) {
-            if (!isPro) {
-                openUpgradeModal();
-                return;
-            }
-
             // Get current stock
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
             if (stock <= 0) {
-                if (!itemKey) return; // Should not happen
+                if (!itemKey) return;
                 alert("Cannot log job: Item is out of stock.");
                 return;
             }
@@ -4403,26 +4474,59 @@
             // Get saved metadata from inventory for defaults
             const invItem = type === 'blank' ? InventoryManager.getBlanksInventory()[itemKey] : InventoryManager.getKeysInventory()[itemKey];
             const savedVehicle = invItem?.vehicle || vehicle || '';
-            const savedAmazon = invItem?.amazonLink || amazonLink || '';
 
             // Populate Modal
             document.getElementById('jobItemKey').value = itemKey;
             document.getElementById('jobItemType').value = type;
-            document.getElementById('jobDisplayTitle').textContent = `${type === 'blank' ? '🔑' : '🔐'} ${itemKey}`;
+            document.getElementById('jobItemName').textContent = `${type === 'blank' ? '🔑' : '🔐'} ${itemKey}`;
+            document.getElementById('jobItemVehicle').textContent = savedVehicle || '';
 
-            // Pre-fill Description with saved vehicle info
+            // Reset all fields
             document.getElementById('jobDescription').value = savedVehicle;
-            document.getElementById('jobCustomer').value = ''; // Reset
-            document.getElementById('jobNotes').value = '';    // Reset
-            document.getElementById('jobRevenue').value = '';  // Reset
-
-            // Try to pre-fill cost? (Simplified: hardcode or use dummy logic, or fetch from amazon price if we had it)
-            // For now, leave cost empty or 0.
+            document.getElementById('jobCustomer').value = '';
+            document.getElementById('jobNotes').value = '';
+            document.getElementById('jobRevenue').value = '';
+            document.getElementById('jobTip').value = '0';
             document.getElementById('itemCost').value = '';
+            document.getElementById('jobMiles').value = '';
+            document.getElementById('jobTimeMinutes').value = '';
+
+            // Reset calculations display
+            calculateJobProfit();
 
             // Show modal
-            document.querySelector('.job-modal').classList.add('active');
-            document.querySelector('.job-modal-overlay').classList.add('active');
+            document.getElementById('jobLogModal').style.display = 'flex';
+        }
+
+        // Live profit calculation for job modal
+        function calculateJobProfit() {
+            const MILEAGE_RATE = 0.67; // IRS 2024 standard mileage rate
+            const TAX_RATE = 0.30;     // 30% estimated tax
+
+            const revenue = parseFloat(document.getElementById('jobRevenue')?.value) || 0;
+            const tip = parseFloat(document.getElementById('jobTip')?.value) || 0;
+            const keyCost = parseFloat(document.getElementById('itemCost')?.value) || 0;
+            const miles = parseFloat(document.getElementById('jobMiles')?.value) || 0;
+            const minutes = parseFloat(document.getElementById('jobTimeMinutes')?.value) || 0;
+
+            const gross = revenue + tip;
+            const mileageCost = miles * MILEAGE_RATE;
+            const totalExpenses = keyCost + mileageCost;
+            const netProfit = gross - totalExpenses;
+            const taxEstimate = Math.max(0, netProfit * TAX_RATE);
+            const hours = minutes / 60;
+            const hourlyRate = hours > 0 ? netProfit / hours : 0;
+
+            // Update display
+            if (document.getElementById('calcGross')) {
+                document.getElementById('calcGross').textContent = `$${gross.toFixed(2)}`;
+                document.getElementById('calcExpenses').textContent = `$${totalExpenses.toFixed(2)}`;
+                document.getElementById('calcProfit').textContent = `$${netProfit.toFixed(2)}`;
+                document.getElementById('calcProfit').style.color = netProfit >= 0 ? 'var(--brand-primary)' : '#f87171';
+                document.getElementById('calcHourly').textContent = hours > 0 ? `$${hourlyRate.toFixed(2)}` : '--';
+                document.getElementById('calcTax').textContent = `$${taxEstimate.toFixed(2)}`;
+                document.getElementById('calcMileage').textContent = `$${mileageCost.toFixed(2)}`;
+            }
         }
 
         function inventoryMarkUsed(itemKey, type = 'key') {
@@ -4431,29 +4535,37 @@
 
         // Close the job logging modal
         function closeJobModal() {
-            document.querySelector('.job-modal').classList.remove('active');
-            document.querySelector('.job-modal-overlay').classList.remove('active');
+            document.getElementById('jobLogModal').style.display = 'none';
         }
 
         // Submit the job log form
         function submitJobLog(event) {
             event.preventDefault();
 
-            if (!isPro) {
-                closeJobModal();
-                openUpgradeModal();
-                return;
-            }
+            const MILEAGE_RATE = 0.67; // IRS 2024 standard mileage rate
+            const TAX_RATE = 0.30;     // 30% estimated tax
 
             const itemKey = document.getElementById('jobItemKey').value;
             const type = document.getElementById('jobItemType').value;
             const customer = document.getElementById('jobCustomer').value.trim();
-            const description = document.getElementById('jobDescription').value.trim(); // This is the "Vehicle" usually
+            const description = document.getElementById('jobDescription').value.trim();
             const notes = document.getElementById('jobNotes').value.trim();
 
-            // Financials
+            // Financials - NEW EBITDA FIELDS
             const revenue = parseFloat(document.getElementById('jobRevenue').value) || 0;
-            const cost = parseFloat(document.getElementById('itemCost').value) || 0;
+            const tip = parseFloat(document.getElementById('jobTip').value) || 0;
+            const keyCost = parseFloat(document.getElementById('itemCost').value) || 0;
+            const miles = parseFloat(document.getElementById('jobMiles').value) || 0;
+            const minutes = parseFloat(document.getElementById('jobTimeMinutes').value) || 0;
+
+            // Calculated values
+            const gross = revenue + tip;
+            const mileageCost = miles * MILEAGE_RATE;
+            const totalExpenses = keyCost + mileageCost;
+            const netProfit = gross - totalExpenses;
+            const hours = minutes / 60;
+            const hourlyRate = hours > 0 ? netProfit / hours : 0;
+            const taxEstimate = Math.max(0, netProfit * TAX_RATE);
 
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
 
@@ -4465,7 +4577,6 @@
             // Decrement stock
             if (type === 'blank') {
                 InventoryManager.useBlankStock(itemKey);
-                // Metadata Persistence Fix: Update inventory vehicle string if missing
                 const inv = InventoryManager.getBlanksInventory();
                 if (inv[itemKey] && !inv[itemKey].vehicle && description) {
                     inv[itemKey].vehicle = description;
@@ -4473,7 +4584,6 @@
                 }
             } else {
                 InventoryManager.useKeyStock(itemKey);
-                // Metadata Persistence Fix: Update inventory vehicle string if missing
                 const inv = InventoryManager.getKeysInventory();
                 if (inv[itemKey] && !inv[itemKey].vehicle && description) {
                     inv[itemKey].vehicle = description;
@@ -4481,16 +4591,31 @@
                 }
             }
 
-            // Log the job
+            // Log the job with full EBITDA data
             const jobLog = {
                 itemKey,
                 type,
-                vehicle: description, // Use description as primary label/vehicle
+                vehicle: description,
                 date: new Date().toISOString(),
                 timestamp: Date.now(),
+                // Revenue
                 revenue: revenue,
-                cost: cost,
-                customer: customer || 'Manual Job',
+                tip: tip,
+                gross: gross,
+                // Costs
+                cost: keyCost,
+                miles: miles,
+                mileageCost: mileageCost,
+                totalExpenses: totalExpenses,
+                // Time
+                minutes: minutes,
+                hours: hours,
+                // Profit metrics
+                netProfit: netProfit,
+                hourlyRate: hourlyRate,
+                taxEstimate: taxEstimate,
+                // Metadata
+                customer: customer || 'Walk-in',
                 description: description || `Used 1 ${type === 'blank' ? 'key blank' : 'key fob'}`,
                 notes: notes
             };
@@ -4510,15 +4635,13 @@
             updateInventoryDisplay(itemKey, type);
             updateInventoryTabBadge();
 
-            // If on inventory page, refresh it to show potentially updated metadata/vehicle
+            // Refresh inventory page if active
             if (document.getElementById('tabInventory')?.classList.contains('active')) {
                 renderInventoryPage();
             }
 
-            // Close modal and show success (Toast)
+            // Close modal
             closeJobModal();
-            // Optional: nice toast instead of alert? Alert is fine for now as per user request
-            // alert(`✓ Job logged! Profit: $${(revenue - cost).toFixed(2)}`);
         }
 
         // Update inventory tab badge with total count
