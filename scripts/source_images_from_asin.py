@@ -53,12 +53,14 @@ def upload_to_r2(filepath, fcc_id):
         cmd = [
             "wrangler", "r2", "object", "put",
             f"{R2_BUCKET}/{filename}",
-            f"--file={filepath}"
+            f"--file={os.path.abspath(filepath)}",
+            "--remote"
         ]
-        # Run blindly
-        subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # Run and show errors if it fails
+        subprocess.check_call(cmd, stdout=subprocess.DEVNULL, cwd="api")
         return True
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        print(f"R2 Error: {e}")
         return False
 
 def update_database(fcc_ids):
@@ -134,11 +136,21 @@ def main():
         print(f"[{count+1}] Processing {fcc_id}...", end=" ")
         
         if download_image(high_res_url, temp_path):
-            if upload_to_r2(temp_path, fcc_id):
+            # Retry logic for upload
+            uploaded = False
+            for attempt in range(3):
+                if upload_to_r2(temp_path, fcc_id):
+                    uploaded = True
+                    break
+                else:
+                    print(f"  Retry {attempt+1}/3...")
+                    time.sleep(1)
+
+            if uploaded:
                 successful_uploads.append(fcc_id)
                 print("Uploaded.")
             else:
-                print("Upload failed.")
+                print("Upload failed after 3 attempts.")
             
             # Clean up immediately
             if os.path.exists(temp_path):
@@ -147,19 +159,22 @@ def main():
             print("Download failed.")
             
         count += 1
-        # Optional: break early for validation?
-        # if count >= 5: break 
+        
+        # Incremental DB update every 10 items
+        if len(successful_uploads) >= 10:
+            update_database(successful_uploads)
+            successful_uploads = [] # Clear list after update
 
     # Clean up dir
     if os.path.exists(TEMP_DIR):
         os.rmdir(TEMP_DIR)
 
-    # Update DB
+    # Update DB for remaining items
     if successful_uploads:
         update_database(successful_uploads)
-        print(f"\nSuccess! Processed {len(successful_uploads)} images.")
+        print(f"\nSuccess! Final batch processed.")
     else:
-        print("\nNo updates made.")
+        print("\nDone.")
 
 if __name__ == "__main__":
     main()
