@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Toyota Prius 2016-2022 Programming Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #0056b3;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffca28;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border-left: 5px solid #0dcaf0;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        code {
+            background: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Toyota Prius 2016-2022 AKL Programming Guide</h1>
+
+    <p>This guide covers All Keys Lost (AKL) procedures for the 4th Generation Toyota Prius (2016-2022).</p>
+
+    <div class="warning">
+        <strong>2021-2022 Model Alert:</strong> Newer Prius models may use the <strong>8A-BA</strong> platform. These
+        often require a specialized <strong>8A AKL Cable</strong> to connect directly to the Smart Key ECU (behind the
+        dash) to bypass the security gateway.
+    </div>
+
+    <h2>Key Specifications (Smart Key)</h2>
+    <table>
+        <tr>
+            <th>System Type</th>
+            <td>8A Smart Key (DST-AES)</td>
+        </tr>
+        <tr>
+            <th>FCC ID</th>
+            <td><code>HYQ14FBE</code> or <code>HYQ14FBC</code></td>
+        </tr>
+        <tr>
+            <th>Frequency</th>
+            <td>315 MHz</td>
+        </tr>
+        <tr>
+            <th>Technical Value</th>
+            <td>Page 1: <strong>A8</strong></td>
+        </tr>
+        <tr>
+            <th>Emergency Blade</th>
+            <td>TR47 / SIP22 (8-cut)</td>
+        </tr>
+    </table>
+
+    <h2>Required Equipment</h2>
+    <ul>
+        <li><strong>Autel IM608 Pro / IM508</strong></li>
+        <li><strong>Autel APB112 Smart Key Simulator</strong></li>
+        <li><strong>Toyota 8A AKL Cable</strong> (Commonly required for 2019+)</li>
+        <li>New Toyota Smart Key (FCC: HYQ14FBE)</li>
+    </ul>
+
+    <h2>AKL Procedure (Standard 8A)</h2>
+    <ol>
+        <li><strong>Backup:</strong> Connect to the OBD-II port. Select "Backup IMMO Data". If the tool fails via OBD,
+            you must use the 8A AKL cable to connect directly to the Smart Key box.</li>
+        <li><strong>Generate Simulator:</strong> Use the backed-up data to generate a simulator key on the
+            <strong>APB112</strong>.</li>
+        <li><strong>Ignition:</strong> Use the APB112 as a "Master Key" to turn the ignition ON. The Prius "Ready" light
+            may not come on, but the dash should illuminate.</li>
+        <li><strong>Add Key:</strong> Select "Add Smart Key". Follow the tool's instructions to touch the APB112 to the
+            Start button, then the new key.</li>
+        <li><strong>Verify:</strong> Ensure the car enters "READY" mode with the new key and all remote functions work.
+        </li>
+    </ol>
+
+    <div class="tip">
+        <strong>Expert Tip:</strong> If the vehicle is a 2021+ model and use of the APB112 fails, check if your tool
+        supports the <strong>"PIN-Free"</strong> function via the specialized 8A-BA cable.
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Toyota Avalon 2007-2012 Programming Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #0056b3;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffca28;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border-left: 5px solid #0dcaf0;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        code {
+            background: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Toyota Avalon 2007-2012 AKL Programming Guide</h1>
+
+    <p>This guide covers All Keys Lost (AKL) procedures for the Toyota Avalon (2007-2012) equipped with Push-Button
+        Start.</p>
+
+    <div class="tip">
+        <strong>Time Saver:</strong> Using a <strong>Smart Key Simulator</strong> (like Autel APB112 or Xhorse Lonsdor)
+        allows you to bypass the standard 16-minute security reset.
+    </div>
+
+    <h2>Key Specifications (Smart Key)</h2>
+    <table>
+        <tr>
+            <th>System Type</th>
+            <td>Gen 1 Smart Key (Push-to-Start)</td>
+        </tr>
+        <tr>
+            <th>FCC ID</th>
+            <td><code>HYQ14AAB</code> or <code>HYQ14AEM</code></td>
+        </tr>
+        <tr>
+            <th>IC</th>
+            <td>1551A-14AAB</td>
+        </tr>
+        <tr>
+            <th>Frequency</th>
+            <td>315 MHz</td>
+        </tr>
+        <tr>
+            <th>Technical Value</th>
+            <td>Page 1: <strong>94</strong></td>
+        </tr>
+        <tr>
+            <th>Emergency Blade</th>
+            <td>TR47 (8-cut)</td>
+        </tr>
+    </table>
+
+    <div class="warning">
+        <strong>Note:</strong> Some lower trims may use a Remote Head Key (FCC: GQ4-29T) with a 4D-67 chip. This guide
+        focuses on the more common Smart Key system.
+    </div>
+
+    <h2>Required Equipment</h2>
+    <ul>
+        <li><strong>Autel IM608 / IM508</strong> or <strong>Xhorse VVDI Key Tool Plus</strong></li>
+        <li><strong>Autel APB112</strong> (Optional: to bypass 16-min wait)</li>
+        <li>New or Unlocked (Virgin) Smart Key (FCC: HYQ14AAB)</li>
+    </ul>
+
+    <h2>AKL Procedure (Using Autel APB112 Simulator)</h2>
+    <ol>
+        <li><strong>Connect Tool:</strong> Plug your Autel into the OBD-II port.</li>
+        <li><strong>Select Vehicle:</strong> Toyota -> Avalon -> 2007-2012 -> Smart Key.</li>
+        <li><strong>Backup Immobilizer:</strong> Select "Back up IMMO Data". This copies the data from the Smart Key
+            box.</li>
+        <li><strong>Generate Simulator:</strong> Select "Generate Simulator Key" (using the backup file). Plug the
+            APB112 into the USB port of the tool.</li>
+        <li><strong>Verify Simulator:</strong> Once generated, the APB112 acts as a working key. Tap the Start button
+            with the APB112 to verify the ignition turns on.</li>
+        <li><strong>Add Key:</strong> Select "Add Smart Key". Follow the prompts to touch the APB112 to the Start
+            button, then touch the new key to the button.</li>
+    </ol>
+
+    <h2>AKL Procedure (Standard 16-Minute Reset)</h2>
+    <p>If you do NOT have a simulator, you must perform a full reset:</p>
+    <ol>
+        <li>Select "Immobilizer Reset" or "Smart Box Reset".</li>
+        <li>The tool will begin a timer (usually 16 minutes). Do NOT turn off the tool or disconnect the cable.</li>
+        <li>Once the reset is complete, the Smart Box is in "Auto-Learn" mode. Touch the new key to the Start button to
+            register it.</li>
+    </ol>
+
+    <div class="warning">
+        <strong>Battery Stability:</strong> Always connect a battery maintainer during the 16-minute reset. If the
+        voltage drops too low, the reset will fail and could potentially lock the Smart Box.
+    </div>
+
+</body>
+
+</html>

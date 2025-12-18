@@ -8,9 +8,28 @@
 export interface Env {
   LOCKSMITH_KV: KVNamespace;
   LOCKSMITH_DB: D1Database;
+  ASSETS_BUCKET: R2Bucket;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
 }
+
+const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
+  'bmw': { infographic: 'BMW infographic.png', pdf: 'BMW_Security_Mastery_The_Professional_Ladder.pdf', pdf_title: 'Security Mastery Guide' },
+  'chrysler': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'dodge': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'jeep': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'ram': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'ford': { infographic: 'Ford key programming infographic.png', pdf: 'Ford_Key_Programming_Deep_Dive.pdf', pdf_title: 'Key Programming Deep Dive' },
+  'lincoln': { infographic: 'Ford key programming infographic.png', pdf: 'Ford_Key_Programming_Deep_Dive.pdf', pdf_title: 'Key Programming Deep Dive' },
+  'honda': { infographic: 'Honda 1998-2024 infographic.png', pdf: 'Honda_Immobilizer_Master_Guide.pdf', pdf_title: 'Immobilizer Master Guide' },
+  'acura': { infographic: 'Honda 1998-2024 infographic.png', pdf: 'Honda_Immobilizer_Master_Guide.pdf', pdf_title: 'Immobilizer Master Guide' },
+  'hyundai': { infographic: 'Hyundai infographic.png', pdf: 'Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
+  'kia': { infographic: 'Hyundai infographic.png', pdf: 'Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
+  'mazda': { infographic: 'Mazda Infographic.png' },
+  'mercedes': { pdf: 'Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
+  'nissan': { infographic: 'Nissan infographic.png', pdf: 'Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
+  'infiniti': { infographic: 'Nissan infographic.png', pdf: 'Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' }
+};
 
 function textResponse(body: string, status = 200, contentType = "application/json") {
   return new Response(body, {
@@ -619,7 +638,19 @@ export default {
 
         const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
 
-        return new Response(JSON.stringify({ rows: result.results || [] }), {
+        // Enrich with Make Assets
+        // Note: For ID-based lookups we might need to query the vehicle to get the make first if it's not in the guide?
+        // But vehicle_guides table has 'make' column.
+        const rows = (result.results || []).map((row: any) => {
+          const makeKey = (row.make || "").toLowerCase();
+          const assets = MAKE_ASSETS[makeKey];
+          if (assets) {
+            return { ...row, assets };
+          }
+          return row;
+        });
+
+        return new Response(JSON.stringify({ rows }), {
           headers: {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=3600",
@@ -630,6 +661,37 @@ export default {
         });
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+
+    // ==============================================
+    // R2 ASSET SERVING
+    // ==============================================
+
+    // Serve assets from R2 bucket
+    if (path.startsWith("/api/assets/")) {
+      try {
+        const key = decodeURIComponent(path.replace("/api/assets/", ""));
+        if (!key) {
+          return textResponse(JSON.stringify({ error: "Asset key required" }), 400);
+        }
+
+        const object = await env.ASSETS_BUCKET.get(key);
+
+        if (!object) {
+          return textResponse("Asset not found", 404);
+        }
+
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set("etag", object.httpEtag);
+        headers.set("Cache-Control", "public, max-age=31536000"); // Cache for 1 year
+        headers.set("Access-Control-Allow-Origin", "*");
+
+        return new Response(object.body, { headers });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message || "Failed to fetch asset" }), 500);
       }
     }
 

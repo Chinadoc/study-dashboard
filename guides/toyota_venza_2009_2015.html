@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Toyota Venza 2009-2015 Programming Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #0056b3;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffca28;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border-left: 5px solid #0dcaf0;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        code {
+            background: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Toyota Venza 2009-2015 AKL Programming Guide</h1>
+
+    <p>This guide covers All Keys Lost (AKL) procedures for the 1st Generation Toyota Venza (2009-2015) equipped with
+        Push-Button Start.</p>
+
+    <div class="tip">
+        <strong>Compatibility:</strong> The Venza 2009-2015 shares its Smart Key architecture with the 2007-2011 Camry
+        and 2008-2013 Highlander.
+    </div>
+
+    <h2>Key Specifications (Smart Key)</h2>
+    <table>
+        <tr>
+            <th>System Type</th>
+            <td>Gen 1 Smart Key (Push-to-Start)</td>
+        </tr>
+        <tr>
+            <th>FCC ID</th>
+            <td><code>HYQ14AAB</code></td>
+        </tr>
+        <tr>
+            <th>IC</th>
+            <td>1551A-14AAB</td>
+        </tr>
+        <tr>
+            <th>Frequency</th>
+            <td>315 MHz</td>
+        </tr>
+        <tr>
+            <th>Technical Value</th>
+            <td>Page 1: <strong>98</strong></td>
+        </tr>
+        <tr>
+            <th>Emergency Blade</th>
+            <td>TR47 (8-cut)</td>
+        </tr>
+    </table>
+
+    <div class="warning">
+        <strong>Important:</strong> While the FCC ID is the same as the Avalon/Land Cruiser, the <strong>Page 1</strong>
+        value (98) must match for the key to program.
+    </div>
+
+    <h2>Required Equipment</h2>
+    <ul>
+        <li><strong>Autel IM608 / IM508</strong> or <strong>Xhorse VVDI Key Tool Plus</strong></li>
+        <li><strong>Autel APB112 Simulator</strong> (Highly recommended for AKL)</li>
+        <li>New Toyota Smart Key (FCC: HYQ14AAB, Page 1: 98)</li>
+    </ul>
+
+    <h2>AKL Procedure (Using APB112 Simulator)</h2>
+    <ol>
+        <li><strong>Connect Tool:</strong> Plug the scanner into the OBD-II port.</li>
+        <li><strong>Select Vehicle:</strong> Toyota -> Venza -> 2009-2015 -> Smart Key.</li>
+        <li><strong>Backup IMMO:</strong> Select "Back up IMMO Data". This reads the security data from the Smart Box.
+        </li>
+        <li><strong>Generate Simulator:</strong> Select "Generate Simulator Key". Follow prompts to plug in the
+            <strong>APB112</strong>.</li>
+        <li><strong>Ignition:</strong> Use the APB112 to turn the ignition ON by touching it to the Start button.</li>
+        <li><strong>Add Key:</strong> With the ignition ON (via simulator), select "Add Smart Key". Follow the prompts
+            to touch the APB112 to the button, then the new key to the button.</li>
+        <li><strong>Sync:</strong> Once registered, test the remote functions immediately.</li>
+    </ol>
+
+    <h2>Alternative 16-Minute Reset</h2>
+    <p>If you lack a simulator, perform a "Smart Box Reset":</p>
+    <ol>
+        <li>Select "Immobilizer Reset" / "Smart Box Reset".</li>
+        <li>Wait for the 16-minute security timer to finish.</li>
+        <li>Once the timer expires and the security light turns solid, touch the new key to the Start button to
+            register.</li>
+    </ol>
+
+    <div class="warning">
+        <strong>Battery Stability:</strong> Keep a battery maintainer connected during the 16-minute reset to prevent
+        voltage drops.
+    </div>
+
+</body>
+
+</html>

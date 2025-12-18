@@ -23,27 +23,19 @@ def normalize(s):
 
 covered_vehicles = [] # List of {make, model, ys, ye}
 
-# Helper to add covered
-def add_covered(make, model, years_str):
-    if not make or not years_str: return
-    # Parse years
-    ys, ye = 0, 0
-    m_years = re.search(r'(\d{4})-(\d{4})|(\d{4})', years_str)
-    if m_years:
-        if m_years.group(1):
-            ys, ye = int(m_years.group(1)), int(m_years.group(2))
-        else:
-            ys = ye = int(m_years.group(3))
-    covered_vehicles.append({'make': normalize(make), 'model': normalize(model), 'ys': ys, 'ye': ye})
-
 # 1. Parse JSON videos
 try:
     with open('video_data.json', 'r') as f:
         videos = json.load(f)
         for v in videos:
-            add_covered(v['make'], v['model'], v['year_range'])
-except Exception:
-    pass
+            ys, ye = 0, 0
+            if '-' in v['year_range']:
+                parts = v['year_range'].split('-')
+                ys, ye = int(parts[0]), int(parts[1])
+            else:
+                ys = ye = int(v['year_range'])
+            covered_vehicles.append({'make': normalize(v['make']), 'model': normalize(v['model']), 'ys': ys, 'ye': ye})
+except: pass
 
 # 2. Parse JS guides
 try:
@@ -55,34 +47,31 @@ try:
                 name, years = m.group(1), m.group(2)
                 make = name.split(' ')[0]
                 model = ' '.join(name.split(' ')[1:])
-                add_covered(make, model, years)
-except Exception:
-    pass
+                ys, ye = (int(years.split('-')[0]), int(years.split('-')[1])) if '-' in years else (int(years), int(years))
+                covered_vehicles.append({'make': normalize(make), 'model': normalize(model), 'ys': ys, 'ye': ye})
+except: pass
 
-# 3. Parse ALL SQL files
+# 3. Parse SQL files for walkthrough tables only
+# Tables: video_tutorials, vehicle_guides
 for root, dirs, files in os.walk('.'):
     if any(x in root for x in ['node_modules', '.git', '.gemini', 'tmp']): continue
     for file in files:
         if file.endswith('.sql'):
-            try:
-                with open(os.path.join(root, file), 'r') as f:
-                    content = f.read()
-                    entries = re.findall(r"VALUES\s*\((.*?)\);", content, re.DOTALL)
-                    for entry in entries:
-                        years_match = re.search(r'(\d{4})-(\d{4})|(\d{4})', entry)
-                        if years_match:
-                            if years_match.group(1):
-                                ys, ye = int(years_match.group(1)), int(years_match.group(2))
-                            else:
-                                ys = ye = int(years_match.group(3))
-                            
-                            for make in set(t['make'] for t in targets):
-                                if normalize(make) in normalize(entry):
-                                    for model in set(t['model'] for t in targets if t['make'] == make):
-                                        if normalize(model) in normalize(entry):
-                                            covered_vehicles.append({'make': normalize(make), 'model': normalize(model), 'ys': ys, 'ye': ye})
-            except Exception:
-                pass
+            # ONLY search migration and seed files, or small files
+            if 'migration' in file.lower() or 'seed' in file.lower() or os.path.getsize(os.path.join(root, file)) < 1000000:
+                try:
+                    with open(os.path.join(root, file), 'r') as f:
+                        content = f.read()
+                        matches = re.finditer(r"INSERT.*?INTO\s+(video_tutorials|vehicle_guides).*?VALUES\s*\((.*?)\);", content, re.DOTALL | re.IGNORECASE)
+                        for m in matches:
+                            entry = m.group(2)
+                            years_match = re.search(r'(\d{4})-(\d{4})|(\d{4})', entry)
+                            if years_match:
+                                ys, ye = (int(years_match.group(1)), int(years_match.group(2))) if years_match.group(1) else (int(years_match.group(3)), int(years_match.group(3)))
+                                for t in targets:
+                                    if normalize(t['make']) in normalize(entry) and normalize(t['model']) in normalize(entry):
+                                        covered_vehicles.append({'make': normalize(t['make']), 'model': normalize(t['model']), 'ys': ys, 'ye': ye})
+                except: pass
 
 # 4. Parse files in guides/ directory
 if os.path.exists('guides'):
@@ -101,11 +90,10 @@ for t in targets:
     
     found = False
     for c in covered_vehicles:
-        if c['make'] == t_make:
-            if c['model'] == "" or (c['model'] in t_model or t_model in c['model']):
-                if max(t_ys, c['ys']) <= min(t_ye, c['ye']):
-                    found = True
-                    break
+        if c['make'] == t_make and (c['model'] in t_model or t_model in c['model']):
+            if max(t_ys, c['ys']) <= min(t_ye, c['ye']):
+                found = True
+                break
     if not found:
         missing.append(t)
 
