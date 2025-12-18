@@ -2389,8 +2389,13 @@
             }));
         }
 
-        // Tab switching
-        function showTab(tabName) {
+        // Tab switching with URL routing
+        function showTab(tabName, updateHash = true) {
+            // Update URL hash for deep linking (e.g., /#database, /#fcc, /#inventory)
+            if (updateHash && window.location.hash !== `#${tabName}`) {
+                history.pushState(null, '', `#${tabName}`);
+            }
+
             document.querySelectorAll('.tab').forEach((t, i) => {
                 if (tabName === 'browse' && i === 0) t.classList.add('active');
                 else if (tabName === 'fcc' && i === 1) t.classList.add('active');
@@ -2409,6 +2414,27 @@
 
             if (tabName === 'fcc' && !fccDataLoaded) {
                 loadFccData();
+            }
+        }
+
+        // Handle URL hash changes (back/forward buttons)
+        window.addEventListener('hashchange', function () {
+            const hash = window.location.hash.slice(1) || 'browse';
+            const validTabs = ['browse', 'database', 'fcc', 'inventory'];
+            const tabName = hash === 'database' ? 'browse' : hash;
+            if (validTabs.includes(hash) || hash === 'database') {
+                showTab(tabName, false);
+            }
+        });
+
+        // Handle initial URL hash on page load
+        function handleInitialRoute() {
+            const hash = window.location.hash.slice(1);
+            const validTabs = ['browse', 'database', 'fcc', 'inventory'];
+            if (hash === 'database') {
+                showTab('browse', false);
+            } else if (validTabs.includes(hash)) {
+                showTab(hash, false);
             }
         }
 
@@ -5261,6 +5287,7 @@
         window.addEventListener('DOMContentLoaded', async () => {
             await AuthManager.init();
             SyncManager.init();
+            handleInitialRoute(); // Handle URL hash routing on page load
         });
 
     </script>
