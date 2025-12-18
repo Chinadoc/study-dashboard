@@ -1,0 +1,36 @@
+<div class="p-6 bg-navy-800 rounded-xl shadow-lg border border-navy-700">
+    <h2 class="text-2xl font-bold text-white mb-4">Toyota Prado 2010-2024</h2>
+    <div class="space-y-6">
+        <div class="bg-navy-900/50 p-4 rounded-lg border border-navy-600">
+            <h3 class="text-brand-400 font-semibold mb-2">Required Tools</h3>
+            <p class="text-slate-300">Autel IM508/IM608, Xhorse Key Tool Plus, or similar. For AKL: APB112 Emulator /
+                G-Box may be required.</p>
+        </div>
+        <div>
+            <h3 class="text-brand-400 font-semibold mb-2">Procedure</h3>
+            <ol class="list-decimal list-inside space-y-2 text-slate-300">
+                <li><b>Add Key (with working key):</b><br>Connect programmer to OBD-II. Navigate to: Toyota -> Prado ->
+                    Smart Key system.</li>
+                <li>Select "Add Smart Key". Turn ignition ON.</li>
+                <li>Follow prompts: Hold working key to Start button (hear 1 beep).</li>
+                <li>Immediately hold NEW key to Start button (hear 2 beeps).</li>
+                <li>Wait for "Learning Succeeded" message.</li>
+                <br>
+                <li><b>All Keys Lost (AKL):</b><br><b>Method A (2010-2017 "G" or early Smart):</b> often requires a
+                    16-minute Immo Reset.</li>
+                <li><b>Method B (2018+ "8A" Smart):</b> Requires "Back up IMMO Data" via OBD.</li>
+                <li>Connect programmer to OBD. Select "Back up IMMO Data" (Internet required).</li>
+                <li>Save the file. Go to "Generate Simulator Key".</li>
+                <li>Load the file and place APB112 Emulator in the programmer coil.</li>
+                <li>The Emulator now acts as a working Master Key. Use it to turn ignition ON.</li>
+                <li>Proceed to "Add Smart Key" using the Emulator as the working key.</li>
+            </ol>
+        </div>
+        <div class="bg-red-500/10 border border-red-500/30 p-4 rounded-lg">
+            <h3 class="text-red-400 font-semibold mb-2">Important Notes</h3>
+            <p class="text-red-200/80 text-sm">Most 2018+ models use the <b>14FCF</b> FCC ID (433MHz). Ensure you have
+                the correct frequency. 8A chip systems generally do NOT support a simple "Reset" without an emulator or
+                seed code.</p>
+        </div>
+    </div>
+</div>

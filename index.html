@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-version="1.0.5">
 
 <head>
+    <!-- v1.0.4 - Restored InventoryManager.getAllKeys functionality -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
@@ -1303,6 +1304,118 @@
             document.body.appendChild(div);
         });
     </script>
+    <style>
+        /* Guide Specific Styles - Tailwind Polyfill */
+        .bg-navy-800 {
+            background-color: var(--bg-secondary) !important;
+        }
+
+        .bg-navy-900\/50 {
+            background-color: rgba(10, 22, 40, 0.5) !important;
+        }
+
+        .bg-navy-700 {
+            background-color: var(--bg-tertiary) !important;
+        }
+
+        .border-navy-700 {
+            border-color: var(--bg-tertiary) !important;
+        }
+
+        .border-navy-600 {
+            border-color: #334155 !important;
+        }
+
+        .text-brand-400 {
+            color: var(--brand-primary) !important;
+        }
+
+        .text-slate-300 {
+            color: var(--text-secondary) !important;
+        }
+
+        .text-white {
+            color: #ffffff !important;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem !important;
+            line-height: 2rem !important;
+        }
+
+        .font-bold {
+            font-weight: 700 !important;
+        }
+
+        .font-semibold {
+            font-weight: 600 !important;
+        }
+
+        .p-4 {
+            padding: 1rem !important;
+        }
+
+        .p-6 {
+            padding: 1.5rem !important;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+
+        .rounded-xl {
+            border-radius: 0.75rem !important;
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem !important;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .space-y-6>*+* {
+            margin-top: 1.5rem !important;
+        }
+
+        .space-y-2>*+* {
+            margin-top: 0.5rem !important;
+        }
+
+        .list-decimal {
+            list-style-type: decimal !important;
+        }
+
+        .list-inside {
+            list-style-position: inside !important;
+        }
+
+        /* Alerts */
+        .bg-red-500\/10 {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .border-red-500\/30 {
+            border-color: rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .text-red-400 {
+            color: #f87171 !important;
+        }
+
+        .text-red-200\/80 {
+            color: rgba(254, 202, 202, 0.8) !important;
+        }
+
+        .text-sm {
+            font-size: 0.875rem !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -1332,8 +1445,7 @@
     </div>
 
     <!-- Job Logging Modal -->
-    <div id="jobLogModal" class="job-modal-overlay" style="display: none;"
-        onclick="if(event.target === this) closeJobModal()">
+    <div id="jobLogModal" class="job-modal-overlay" onclick="if(event.target === this) closeJobModal()">
         <div class="job-modal" style="max-width: 520px;">
             <div class="job-modal-header">
                 <h3>📋 Log Job & Calculate Profit</h3>
@@ -1915,11 +2027,16 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            display: flex;
+            display: none;
+            /* Hidden by default */
             align-items: center;
             justify-content: center;
             z-index: 10000;
             padding: 20px;
+        }
+
+        .job-modal-overlay.active {
+            display: flex !important;
         }
 
         .job-modal {
@@ -4422,6 +4539,229 @@
             }
         };
 
+        // ================== TOOL LIBRARY (EXPANDED) ==================
+        const ToolLibrary = {
+            // CATEGORY: KEY PROGRAMMERS (TABLET)
+            "Autel IM608 Pro": {
+                name: "Autel IM608 Pro",
+                type: "Programmer",
+                price: 3500,
+                capabilities: [
+                    { make: "Toyota", years: "2000-2023", note: "Excellent OBD coverage, G/H Chip" },
+                    { make: "Lexus", years: "2000-2023", note: "Smart Key programming" },
+                    { make: "BMW", years: "2005-2018", note: "CAS1-4, FEM/BDC" },
+                    { make: "Mercedes", years: "2005-2014", note: "FBS3 IR Key (needs XP400)" },
+                    { make: "Ford", years: "2010-2024", note: "PATS, Smart Keys" },
+                    { make: "Honda", years: "2005-2023", note: "All Keys Lost OBD" },
+                    { make: "Nissan", years: "2008-2023", note: "BCM Code Reading" },
+                    { make: "Hyundai/Kia", years: "2010-2023", note: "Pincode Reading, Smart Key" },
+                    { make: "Dodge", years: "2010-2022", note: "RF Hub, Fobik, Smart Key" },
+                    { make: "Jeep", years: "2010-2022", note: "Wrangler/Grand Cherokee" }
+                ]
+            },
+            "Autel IM508": {
+                name: "Autel IM508",
+                type: "Programmer",
+                price: 1500,
+                capabilities: [
+                    { make: "Toyota", years: "2000-2023", note: "Excellent OBD coverage" },
+                    { make: "Honda", years: "2005-2023", note: "All Keys Lost OBD" },
+                    { make: "Ford", years: "2010-2024", note: "Basic PATS" },
+                    { make: "Hyundai/Kia", years: "2010-2020", note: "Basic Key Programming" }
+                ]
+            },
+            "Lonsdor K518": {
+                name: "Lonsdor K518",
+                type: "Programmer",
+                price: 1200,
+                capabilities: [
+                    { make: "Toyota", years: "2019-2024", note: "Best for New Smart Keys (0410/BA)" },
+                    { make: "Volvo", years: "2010-2022", note: "Solder-free Smart Key" },
+                    { make: "Land Rover", years: "2015-2023", note: "JLR OBD Programming" },
+                    { make: "Nissan", years: "2019-2023", note: "New Sentra/Versa Rolling Code" }
+                ]
+            },
+            "Xhorse Key Tool Max": {
+                name: "Xhorse Key Tool Max",
+                type: "Generators",
+                price: 450,
+                capabilities: [
+                    { make: "Toyota", years: "2018-2024", note: "8A Smart Key (with adapter)" },
+                    { make: "Volkswagen", years: "2000-2015", note: "MQB (Limited), ID48 Cloning" },
+                    { make: "Honda", years: "2000-2020", note: "General OBD" },
+                    { make: "Universal", years: "All", note: "Chip Generation & Cloning" }
+                ]
+            },
+            "Smart Pro": {
+                name: "Advanced Diagnostics Smart Pro",
+                type: "Programmer",
+                price: 4500,
+                capabilities: [
+                    { make: "Ford", years: "2015-2024", note: "Active Alarm Bypass" },
+                    { make: "GM", years: "2017-2024", note: "CAN FD (with adapter)" },
+                    { make: "Jeep", years: "2018-2024", note: "RF Hub Bypass" }
+                ]
+            },
+            "Autel MaxiSYS Ultra": {
+                name: "Autel MaxiSYS Ultra",
+                type: "Diagnostic",
+                price: 4995,
+                capabilities: [
+                    { make: "Mercedes", years: "2005-2022", note: "SCN Coding, Topology Mapping" },
+                    { make: "BMW", years: "2005-2022", note: "Coding/Programming, ECU Flashing" },
+                    { make: "Land Rover", years: "2010-2023", note: "Module Programming, Pathfinding" },
+                    { make: "Universal", years: "All", note: "Full System Diagnostics, ADAS Calib." }
+                ]
+            },
+            "TOPDON Phoenix Max": {
+                name: "TOPDON Phoenix Max",
+                type: "Diagnostic",
+                price: 3600,
+                capabilities: [
+                    { make: "Universal", years: "All", note: "Topology Mapping, Online Coding" },
+                    { make: "GM", years: "2020-2024", note: "CAN FD Built-in" }
+                ]
+            }
+        };
+
+        const ToolCoverageManager = {
+            getAllTools() {
+                return Object.values(ToolLibrary);
+            },
+
+            isToolOwned(toolName) {
+                const assets = AssetManager.getAssets();
+                // Normalize for comparison (remove spaces/case)
+                const norm = str => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const target = norm(toolName);
+                return assets.equipment.some(e => norm(e.name).includes(target));
+            },
+
+            getMyCoverage() {
+                const assets = AssetManager.getAssets();
+                const coverage = {}; // { Make: { Year: { tool, note } } }
+
+                // Check all known tools against owned assets
+                Object.values(ToolLibrary).forEach(tool => {
+                    if (this.isToolOwned(tool.name)) {
+                        tool.capabilities.forEach(cap => {
+                            if (!coverage[cap.make]) coverage[cap.make] = {};
+
+                            // Parse years "2010-2022" or "All"
+                            let start = 2000, end = 2025;
+                            if (cap.years !== "All") {
+                                const parts = cap.years.split('-');
+                                start = parseInt(parts[0]);
+                                end = parts[1] === 'Present' ? 2025 : parseInt(parts[1]);
+                            }
+
+                            for (let y = start; y <= end; y++) {
+                                // Only overwrite if we don't have coverage or if this tool is "better" (logic simplified: first match wins for now)
+                                if (!coverage[cap.make][y]) {
+                                    coverage[cap.make][y] = { tool: tool.name, note: cap.note };
+                                }
+                            }
+                        });
+                    }
+                });
+                return coverage;
+            },
+
+            getSimulatedCoverage(toolName) {
+                const tool = ToolLibrary[toolName];
+                if (!tool) return {};
+
+                const existing = this.getMyCoverage();
+                const gained = {};
+
+                tool.capabilities.forEach(cap => {
+                    // Parse years
+                    let start = 2000, end = 2025;
+                    if (cap.years !== "All") {
+                        const parts = cap.years.split('-');
+                        start = parseInt(parts[0]);
+                        end = parts[1] === 'Present' ? 2025 : parseInt(parts[1]);
+                    }
+
+                    for (let y = start; y <= end; y++) {
+                        // If I DON'T have coverage for this slot, it's a GAIN
+                        if (!existing[cap.make] || !existing[cap.make][y]) {
+                            if (!gained[cap.make]) gained[cap.make] = {};
+                            gained[cap.make][y] = { tool: tool.name, note: cap.note };
+                        }
+                    }
+                });
+                return gained;
+            }
+        };
+
+        // ================== ASSET MANAGER ==================
+        const AssetManager = {
+            ASSETS_STORAGE_KEY: 'eurokeys_assets_v1',
+
+            getAssets() {
+                try {
+                    const data = localStorage.getItem(this.ASSETS_STORAGE_KEY);
+                    return data ? JSON.parse(data) : { equipment: [], vehicles: [] };
+                } catch (e) {
+                    console.error('Error reading assets:', e);
+                    return { equipment: [], vehicles: [] };
+                }
+            },
+
+            saveAssets(assets) {
+                localStorage.setItem(this.ASSETS_STORAGE_KEY, JSON.stringify(assets));
+            },
+
+            addEquipment(name, cost, purchaseDate) {
+                const assets = this.getAssets();
+                assets.equipment.push({
+                    id: 'eq_' + Date.now(),
+                    name,
+                    cost: parseFloat(cost) || 0,
+                    purchaseDate: purchaseDate || new Date().toISOString().split('T')[0]
+                });
+                this.saveAssets(assets);
+            },
+
+            addVehicle(name, price, purchaseDate) {
+                const assets = this.getAssets();
+                assets.vehicles.push({
+                    id: 'vh_' + Date.now(),
+                    name,
+                    price: parseFloat(price) || 0,
+                    purchaseDate: purchaseDate || new Date().toISOString().split('T')[0]
+                });
+                this.saveAssets(assets);
+            },
+
+            removeAsset(type, id) {
+                const assets = this.getAssets();
+                assets[type] = assets[type].filter(a => a.id !== id);
+                this.saveAssets(assets);
+            },
+
+            calculateDepreciation() {
+                const assets = this.getAssets();
+                const now = new Date();
+                let totalDepreciation = 0;
+
+                // Simple 5-year straight-line depreciation for vehicles
+                assets.vehicles.forEach(v => {
+                    const purchaseDate = new Date(v.purchaseDate);
+                    const ageInYears = (now - purchaseDate) / (1000 * 60 * 60 * 24 * 365);
+                    if (ageInYears > 0) {
+                        const annualDepreciation = v.price / 5;
+                        totalDepreciation += annualDepreciation * Math.min(ageInYears, 5);
+                    }
+                });
+
+                return totalDepreciation;
+            }
+        };
+
+        // ================== TOOL COVERAGE & INTELLIGENCE ==================
+
         // Update inventory display in modal
         function updateInventoryDisplay(itemKey, type = 'key') {
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
@@ -4520,17 +4860,10 @@
             // Reset calculations display
             calculateJobProfit();
 
-            // Show modal - remove inline style first, then force display
+            // Show modal
             const modal = document.getElementById('jobLogModal');
             if (modal) {
-                modal.removeAttribute('style'); // Clear any inline display:none
-                modal.style.display = 'flex';
-                modal.style.position = 'fixed';
-                modal.style.top = '0';
-                modal.style.left = '0';
-                modal.style.right = '0';
-                modal.style.bottom = '0';
-                modal.style.zIndex = '10000';
+                modal.classList.add('active');
             }
         }
 
@@ -4571,7 +4904,10 @@
 
         // Close the job logging modal
         function closeJobModal() {
-            document.getElementById('jobLogModal').style.display = 'none';
+            const modal = document.getElementById('jobLogModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
         }
 
         // Submit the job log form
@@ -4785,38 +5121,53 @@
             `;
         }
 
-        function calculateInventoryStats() {
-            // Financials from Job Logs
+        function calculateInventoryStats(period = 'year') {
             const logs = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
-            const totalRevenue = logs.reduce((sum, log) => sum + (log.revenue || 0), 0);
-            const totalCost = logs.reduce((sum, log) => sum + (log.cost || 0), 0);
-            const totalProfit = totalRevenue - totalCost;
-            const avgProfit = logs.length > 0 ? (totalProfit / logs.length) : 0;
+            const now = new Date();
+            let filteredLogs = logs;
 
-            // Stock Alerts from Inventory
+            if (period === 'week') {
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                filteredLogs = logs.filter(l => new Date(l.date) >= weekAgo);
+            } else if (period === 'month') {
+                const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                filteredLogs = logs.filter(l => new Date(l.date) >= monthAgo);
+            }
+
+            const totalRevenue = filteredLogs.reduce((sum, log) => sum + (log.revenue || 0), 0);
+            const totalTips = filteredLogs.reduce((sum, log) => sum + (log.tip || 0), 0);
+            const totalCost = filteredLogs.reduce((sum, log) => sum + (log.cost || 0), 0);
+            const totalMiles = filteredLogs.reduce((sum, log) => sum + (log.miles || 0), 0);
+            const totalMinutes = filteredLogs.reduce((sum, log) => sum + (log.minutes || 0), 0);
+
+            const MILEAGE_RATE = 0.67;
+            const mileageCost = totalMiles * MILEAGE_RATE;
+            const gross = totalRevenue + totalTips;
+            const ebitda = gross - (totalCost + mileageCost);
+            const taxEstimate = Math.max(0, ebitda * 0.30);
+
             const keys = InventoryManager.getKeysInventory();
             const blanks = InventoryManager.getBlanksInventory();
             const lowStock = [];
 
-            // Check Keys
             Object.entries(keys).forEach(([key, item]) => {
-                if (item.qty <= 2) { // Alert threshold
-                    lowStock.push({ name: key, type: 'key', qty: item.qty, vehicle: item.vehicle, link: item.amazonLink });
-                }
+                if (item.qty <= 2) lowStock.push({ name: key, type: 'key', qty: item.qty });
             });
-
-            // Check Blanks
             Object.entries(blanks).forEach(([key, item]) => {
-                if (item.qty <= 3) { // Slightly higher threshold for blanks
-                    lowStock.push({ name: key, type: 'blank', qty: item.qty, vehicle: item.vehicle, link: item.amazonLink });
-                }
+                if (item.qty <= 3) lowStock.push({ name: key, type: 'blank', qty: item.qty });
             });
 
             return {
+                gross,
+                ebitda,
+                totalJobs: filteredLogs.length,
                 totalRevenue,
-                totalProfit,
-                totalJobs: logs.length,
-                avgProfit,
+                totalTips,
+                totalCost,
+                mileageCost,
+                taxEstimate,
+                totalHours: totalMinutes / 60,
+                hourlyRate: (totalMinutes > 0) ? (ebitda / (totalMinutes / 60)) : 0,
                 lowStock
             };
         }
@@ -4856,11 +5207,30 @@
                             font-weight: 600; 
                             cursor: pointer;
                         ">📊 Statistics</button>
+                        <button onclick="renderInventoryPage('coverage')" style="
+                            padding: 8px 16px; 
+                            border-radius: 20px; 
+                            border: none; 
+                            background: ${view === 'coverage' ? 'var(--brand-primary)' : 'var(--bg-tertiary)'}; 
+                            color: ${view === 'coverage' ? '#000' : 'var(--text-primary)'}; 
+                            font-weight: 600; 
+                            cursor: pointer;
+                        ">🗺️ Coverage Map</button>
                     </div>
                 `;
 
             if (view === 'logs') {
                 renderJobLogsPage(container, headerHtml);
+                return;
+            }
+
+            if (view === 'stats') {
+                renderBusinessDashboard(container, headerHtml);
+                return;
+            }
+
+            if (view === 'coverage') {
+                renderToolCoveragePage(container, headerHtml);
                 return;
             }
 
@@ -5161,13 +5531,327 @@
         }
 
 
+        async function renderBusinessDashboard(container, headerHtml) {
+            const period = localStorage.getItem('eurokeys_dashboard_period') || 'year';
+            const stats = calculateInventoryStats(period);
+            const assets = AssetManager.getAssets();
+            const depreciation = AssetManager.calculateDepreciation();
+
+            let html = headerHtml + `
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
+                        <h2 style="margin: 0; color: var(--text-primary);">💼 Business Dashboard</h2>
+                        <div style="display: flex; gap: 8px; background: var(--bg-tertiary); padding: 4px; border-radius: 8px;">
+                            ${['week', 'month', 'year'].map(p => `
+                                <button onclick="localStorage.setItem('eurokeys_dashboard_period', '${p}'); renderInventoryPage('stats')" style="
+                                    padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600;
+                                    background: ${period === p ? 'var(--brand-primary)' : 'transparent'};
+                                    color: ${period === p ? '#000' : 'var(--text-muted)'};
+                                ">${p.toUpperCase()}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- KPI Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+                        <div style="padding: 20px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;">Gross EBITDA</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: #fff;">$${stats.ebitda.toFixed(2)}</div>
+                            <div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">from ${stats.totalJobs} jobs</div>
+                        </div>
+                        <div style="padding: 20px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border);">
+                            <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;">Hourly Efficiency</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: var(--brand-primary);">$${stats.hourlyRate.toFixed(2)}<span style="font-size: 0.9rem; font-weight: 400; color: var(--text-muted);">/hr</span></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Net after expenses</div>
+                        </div>
+                        <div style="padding: 20px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border);">
+                            <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;">Estimated Taxes</div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: #f87171;">$${stats.taxEstimate.toFixed(2)}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Based on 30% rate</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Metrics Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                        <!-- Financial Breakdown -->
+                        <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 24px;">
+                            <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                                <span>📊</span> Financial Breakdown
+                            </h3>
+                            <div style="display: grid; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <span style="color: var(--text-muted);">Service Revenue</span>
+                                    <span style="font-weight: 600;">$${stats.totalRevenue.toFixed(2)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <span style="color: var(--text-muted);">Tips Earned</span>
+                                    <span style="font-weight: 600; color: #22c55e;">+$${stats.totalTips.toFixed(2)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <span style="color: var(--text-muted);">Inventory COGS</span>
+                                    <span style="font-weight: 600; color: #f87171;">-$${stats.totalCost.toFixed(2)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <span style="color: var(--text-muted);">Mileage Write-off</span>
+                                    <span style="font-weight: 600; color: #f87171;">-$${stats.mileageCost.toFixed(2)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding-top: 8px; font-weight: 800; color: var(--brand-primary);">
+                                    <span>Net EBITDA</span>
+                                    <span>$${stats.ebitda.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asset Manager -->
+                        <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <span>🛠️</span> Asset Manager
+                                </h3>
+                                <button onclick="toggleAssetForm()" style="padding: 4px 8px; background: var(--brand-primary); border: none; border-radius: 4px; color: #000; font-size: 0.7rem; font-weight: 700; cursor: pointer;">+ ADD</button>
+                            </div>
+                            
+                            <div id="assetForm" style="display: none; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <select id="assetType" onchange="handleAssetTypeChange()" style="width: 100%; padding: 8px; margin-bottom: 8px; background: #1a1a1a; color: #fff; border: 1px solid #333;">
+                                    <option value="equipment">Equipment (Tool/Programmer)</option>
+                                    <option value="vehicle">Service Vehicle</option>
+                                </select>
+                                
+                                <!-- Dynamic Tool Selector -->
+                                <div id="toolSelectContainer">
+                                    <select id="knownToolSelect" onchange="handleToolSelection()" style="width: 100%; padding: 8px; margin-bottom: 8px; background: #1a1a1a; color: #fff; border: 1px solid #333;">
+                                        <option value="">-- Select Tool --</option>
+                                        ${Object.keys(ToolLibrary).map(tool => `<option value="${tool}">${tool}</option>`).join('')}
+                                        <option value="custom">+ Custom / Other</option>
+                                    </select>
+                                </div>
+
+                                <input type="text" id="assetName" placeholder="Asset Name" style="width: 100%; padding: 8px; margin-bottom: 8px; background: #1a1a1a; color: #fff; border: 1px solid #333; display: none;">
+                                <input type="number" id="assetCost" placeholder="Price/Value ($)" style="width: 100%; padding: 8px; margin-bottom: 8px; background: #1a1a1a; color: #fff; border: 1px solid #333;">
+                                
+                                <button onclick="saveNewAsset()" style="width: 100%; padding: 8px; background: var(--brand-primary); border: none; color: #000; font-weight: 700; cursor: pointer;">Save Asset</button>
+                            </div>
+
+                            <div style="display: grid; gap: 12px;">
+                                ${assets.vehicles.map(v => `
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-primary);">🚐 ${v.name}</span>
+                                        <div style="text-align: right;">
+                                            <div style="font-weight: 600;">$${v.price.toLocaleString()}</div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted);">Depr: -$${(v.price / 5).toFixed(0)}/yr</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${assets.equipment.map(e => `
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-primary);">🔧 ${e.name}</span>
+                                        <span style="font-weight: 600;">$${e.cost.toLocaleString()}</span>
+                                    </div>
+                                `).join('')}
+                                ${assets.vehicles.length === 0 && assets.equipment.length === 0 ? '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No assets tracked yet</div>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function toggleAssetForm() {
+            const form = document.getElementById('assetForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function handleAssetTypeChange() {
+            const type = document.getElementById('assetType').value;
+            const toolContainer = document.getElementById('toolSelectContainer');
+            const nameInput = document.getElementById('assetName');
+
+            if (type === 'vehicle') {
+                toolContainer.style.display = 'none';
+                nameInput.style.display = 'block';
+                nameInput.placeholder = "Vehicle Name (e.g. 2018 Ford Transit)";
+                nameInput.value = '';
+                document.getElementById('assetCost').value = '';
+            } else {
+                toolContainer.style.display = 'block';
+                document.getElementById('knownToolSelect').value = '';
+                nameInput.style.display = 'none'; // Hide manual input initially
+                document.getElementById('assetCost').value = '';
+            }
+        }
+
+        function handleToolSelection() {
+            const select = document.getElementById('knownToolSelect');
+            const nameInput = document.getElementById('assetName');
+            const costInput = document.getElementById('assetCost');
+            const val = select.value;
+
+            if (val === 'custom') {
+                nameInput.style.display = 'block';
+                nameInput.value = '';
+                nameInput.placeholder = "Enter Tool Name";
+                costInput.value = '';
+            } else if (val) {
+                nameInput.style.display = 'none';
+                nameInput.value = val; // Set hidden value for submission
+                // Auto-fill price
+                if (ToolLibrary[val]) {
+                    costInput.value = ToolLibrary[val].price;
+                }
+            } else {
+                nameInput.style.display = 'none';
+                costInput.value = '';
+            }
+        }
+
+        function saveNewAsset() {
+            const type = document.getElementById('assetType').value;
+            let name = document.getElementById('assetName').value;
+
+            // If using dropdown logic for equipment
+            if (type === 'equipment') {
+                const selectVal = document.getElementById('knownToolSelect').value;
+                if (selectVal && selectVal !== 'custom') {
+                    name = selectVal;
+                }
+            }
+
+            const cost = document.getElementById('assetCost').value;
+            if (!name || !cost) return alert('Please enter name and cost');
+
+            if (type === 'equipment') AssetManager.addEquipment(name, cost);
+            else AssetManager.addVehicle(name, cost);
+
+            renderInventoryPage('stats');
+        }
+
+        async function renderToolCoveragePage(container, headerHtml) {
+            const simulatedTool = localStorage.getItem('eurokeys_simulated_tool') || null;
+            const myCoverage = ToolCoverageManager.getMyCoverage();
+            const simCoverage = simulatedTool ? ToolCoverageManager.getSimulatedCoverage(simulatedTool) : {};
+            const allTools = ToolCoverageManager.getAllTools();
+
+            const makes = ["Toyota", "Lexus", "Honda", "Nissan", "Ford", "Dodge", "Jeep", "BMW", "Mercedes", "Volkswagen", "Hyundai/Kia", "Volvo", "Land Rover", "GM"];
+            const years = Array.from({ length: 26 }, (_, i) => 2000 + i); // 2000-2025
+
+            let html = headerHtml + `
+                <div style="display: grid; grid-template-columns: 300px 1fr; gap: 24px; min-height: 600px;">
+                    <!-- Left Panel: Tool Selector -->
+                    <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                        <h3 style="margin-top: 0; margin-bottom: 16px;">🛠️ Tool Simulator</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+                            See what your tools cover (Green) and simulate buying new ones (Blue).
+                        </p>
+
+                        <div style="display: grid; gap: 12px;">
+                            ${allTools.map(tool => {
+                const isOwned = ToolCoverageManager.isToolOwned(tool.name);
+                const isSimulated = simulatedTool === tool.name;
+
+                return `
+                                    <div style="
+                                        padding: 12px; border-radius: 8px; border: 1px solid ${isOwned ? '#22c55e' : (isSimulated ? '#60a5fa' : 'var(--border)')};
+                                        background: ${isOwned ? 'rgba(34, 197, 94, 0.1)' : (isSimulated ? 'rgba(96, 165, 250, 0.1)' : 'rgba(255,255,255,0.02)')};
+                                        cursor: ${isOwned ? 'default' : 'pointer'};
+                                        transition: all 0.2s;
+                                    " onclick="${isOwned ? '' : `simulateTool('${tool.name}')`}">
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">${tool.name}</span>
+                                            ${isOwned
+                        ? '<span style="font-size: 0.75rem; color: #22c55e; font-weight: 700;">OWNED</span>'
+                        : `<span style="font-size: 0.75rem; color: var(--text-muted);">$${tool.price}</span>`
+                    }
+                                        </div>
+                                        ${!isOwned ? `
+                                            <div style="font-size: 0.75rem; color: ${isSimulated ? '#60a5fa' : 'var(--text-muted)'}; margin-top: 4px;">
+                                                ${isSimulated ? '🔵 Currently Simulating' : 'Click to Simulate'}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `;
+            }).join('')}
+                            
+                            ${simulatedTool ? `
+                                <button onclick="simulateTool(null)" style="margin-top: 12px; width: 100%; padding: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; cursor: pointer;">
+                                    Clear Simulation
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Right Panel: Coverage Matrix -->
+                    <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
+                        <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                            <span>🗺️ Coverage Map</span>
+                            <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 400;">
+                                <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> Owned</span>
+                                <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #60a5fa; border-radius: 2px;"></span> Gain (Simulated)</span>
+                                <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(255,255,255,0.05); border-radius: 2px;"></span> No Coverage</span>
+                            </div>
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, 1fr); gap: 2px; min-width: 800px;">
+                            <!-- Header Row -->
+                            <div></div> <!-- Empty top-left -->
+                            ${years.map(y => `
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">
+                                    ${y % 5 === 0 ? y : "'" + (y % 100)}
+                                </div>
+                            `).join('')}
+
+                            <!-- Matrix Body -->
+                            ${makes.map(make => {
+                const makeRow = `
+                                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end;">${make}</div>
+                                    ${years.map(year => {
+                    const owned = myCoverage[make] && myCoverage[make][year];
+                    const simulated = simCoverage[make] && simCoverage[make][year];
+
+                    let bg = 'rgba(255,255,255,0.03)';
+                    let title = 'No Coverage';
+
+                    if (owned) {
+                        bg = '#22c55e';
+                        title = `Owned: ${owned.tool} (${owned.note})`;
+                    } else if (simulated) {
+                        bg = '#60a5fa';
+                        title = `Gain: ${simulated.tool} (${simulated.note})`;
+                    }
+
+                    return `
+                                            <div title="${make} ${year}: ${title}" style="
+                                                height: 24px; 
+                                                background: ${bg}; 
+                                                border-radius: 2px;
+                                                opacity: ${owned || simulated ? 0.9 : 1};
+                                                transition: all 0.1s;
+                                            " onmouseover="this.style.opacity=1; this.style.transform='scale(1.2)';" onmouseout="this.style.opacity=0.9; this.style.transform='scale(1)';"></div>
+                                        `;
+                }).join('')}
+                                `;
+                return makeRow;
+            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function simulateTool(toolName) {
+            if (toolName) {
+                localStorage.setItem('eurokeys_simulated_tool', toolName);
+            } else {
+                localStorage.removeItem('eurokeys_simulated_tool');
+            }
+            renderInventoryPage('coverage');
+        }
+
         // ==========================================
-        // AUTHENTICATION & SYNC & STRIPE (Restored)
+        // AUTHENTICATION & SYNC (Restored)
         // ==========================================
 
-        // const API = window.location.origin; // REMOVED: Using global definition
-
-        /* AUTH MANAGER */
         const AuthManager = {
             async init() {
                 try {
@@ -5175,10 +5859,10 @@
                     if (res.ok) {
                         const data = await res.json();
                         currentUser = data;
-                        isPro = true; // data.isPro || false; // UNLOCKED: Force Pro for all users
+                        isPro = true;
                     } else {
                         currentUser = null;
-                        isPro = true; // UNLOCKED: Force Pro for guests too
+                        isPro = true;
                     }
                     this.updateUI();
                 } catch (e) {
@@ -5187,7 +5871,7 @@
             },
 
             updateUI() {
-                const startBtn = document.getElementById('getStartedBtn');
+                const startBtn = document.getElementById('googleSignInBtn');
                 const userMenu = document.getElementById('userMenu');
                 const userEmail = document.getElementById('userEmail');
                 const proBadge = document.getElementById('proBadge');
@@ -5198,29 +5882,21 @@
                     if (userMenu) userMenu.style.display = 'flex';
                     if (userEmail) userEmail.textContent = currentUser.email;
 
-                    if (currentUser.isPro) {
+                    if (isPro) {
                         if (proBadge) proBadge.style.display = 'inline-block';
-                        if (upgradeBtn) upgradeBtn.style.display = 'none'; // Hide upgrade if already pro
+                        if (upgradeBtn) upgradeBtn.style.display = 'none';
                     } else {
                         if (proBadge) proBadge.style.display = 'none';
                         if (upgradeBtn) upgradeBtn.style.display = 'flex';
                     }
                 } else {
-                    if (startBtn) startBtn.style.display = 'block';
+                    if (startBtn) startBtn.style.display = 'flex';
                     if (userMenu) userMenu.style.display = 'none';
-                    if (upgradeBtn) upgradeBtn.style.display = 'none'; // Hide upgrade if not logged in (or show logic to sign in first)
                 }
             }
         };
 
-        function signInWithGoogle() {
-            window.location.href = `${API}/api/auth/google`;
-        }
 
-        async function signOut() {
-            await fetch(`${API}/api/auth/logout`, { method: 'POST' });
-            window.location.reload();
-        }
 
         /* SYNC MANAGER */
         const SyncManager = {
