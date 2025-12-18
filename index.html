@@ -4520,8 +4520,18 @@
             // Reset calculations display
             calculateJobProfit();
 
-            // Show modal
-            document.getElementById('jobLogModal').style.display = 'flex';
+            // Show modal - remove inline style first, then force display
+            const modal = document.getElementById('jobLogModal');
+            if (modal) {
+                modal.removeAttribute('style'); // Clear any inline display:none
+                modal.style.display = 'flex';
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.right = '0';
+                modal.style.bottom = '0';
+                modal.style.zIndex = '10000';
+            }
         }
 
         // Live profit calculation for job modal
