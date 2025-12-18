@@ -28,3 +28,4 @@ yarn-error.log*
 .env*.local
 api/node_modules/
 api/.wrangler/
+temp_images/

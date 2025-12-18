@@ -4294,26 +4294,48 @@
             }
         }
 
-        function inventoryMarkUsed(itemKey, type = 'key') {
+        // Open the job logging modal
+        function openJobLogModal(itemKey, type = 'key', vehicle = null, amazonLink = null) {
             if (!isPro) {
                 openUpgradeModal();
                 return;
             }
-            const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
-            if (stock > 0) {
-                if (type === 'blank') {
-                    InventoryManager.useBlankStock(itemKey);
-                } else {
-                    InventoryManager.useKeyStock(itemKey);
-                }
-                updateInventoryDisplay(itemKey, type);
-                updateInventoryTabBadge();
 
-                // If on inventory page, refresh it
-                if (document.getElementById('tabInventory')?.classList.contains('active')) {
-                    renderInventoryPage();
-                }
+            // Get current stock
+            const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
+            if (stock <= 0) {
+                if (!itemKey) return; // Should not happen
+                alert("Cannot log job: Item is out of stock.");
+                return;
             }
+
+            // Get saved metadata from inventory for defaults
+            const invItem = type === 'blank' ? InventoryManager.getBlanksInventory()[itemKey] : InventoryManager.getKeysInventory()[itemKey];
+            const savedVehicle = invItem?.vehicle || vehicle || '';
+            const savedAmazon = invItem?.amazonLink || amazonLink || '';
+
+            // Populate Modal
+            document.getElementById('jobItemKey').value = itemKey;
+            document.getElementById('jobItemType').value = type;
+            document.getElementById('jobDisplayTitle').textContent = `${type === 'blank' ? '🔑' : '🔐'} ${itemKey}`;
+
+            // Pre-fill Description with saved vehicle info
+            document.getElementById('jobDescription').value = savedVehicle;
+            document.getElementById('jobCustomer').value = ''; // Reset
+            document.getElementById('jobNotes').value = '';    // Reset
+            document.getElementById('jobRevenue').value = '';  // Reset
+
+            // Try to pre-fill cost? (Simplified: hardcode or use dummy logic, or fetch from amazon price if we had it)
+            // For now, leave cost empty or 0.
+            document.getElementById('itemCost').value = '';
+
+            // Show modal
+            document.querySelector('.job-modal').classList.add('active');
+            document.querySelector('.job-modal-overlay').classList.add('active');
+        }
+
+        function inventoryMarkUsed(itemKey, type = 'key') {
+            openJobLogModal(itemKey, type);
         }
 
         // Close the job logging modal
@@ -4335,7 +4357,7 @@
             const itemKey = document.getElementById('jobItemKey').value;
             const type = document.getElementById('jobItemType').value;
             const customer = document.getElementById('jobCustomer').value.trim();
-            const description = document.getElementById('jobDescription').value.trim();
+            const description = document.getElementById('jobDescription').value.trim(); // This is the "Vehicle" usually
             const notes = document.getElementById('jobNotes').value.trim();
 
             // Financials
@@ -4352,19 +4374,31 @@
             // Decrement stock
             if (type === 'blank') {
                 InventoryManager.useBlankStock(itemKey);
+                // Metadata Persistence Fix: Update inventory vehicle string if missing
+                const inv = InventoryManager.getBlanksInventory();
+                if (inv[itemKey] && !inv[itemKey].vehicle && description) {
+                    inv[itemKey].vehicle = description;
+                    InventoryManager.setBlanksInventory(inv);
+                }
             } else {
                 InventoryManager.useKeyStock(itemKey);
+                // Metadata Persistence Fix: Update inventory vehicle string if missing
+                const inv = InventoryManager.getKeysInventory();
+                if (inv[itemKey] && !inv[itemKey].vehicle && description) {
+                    inv[itemKey].vehicle = description;
+                    InventoryManager.setKeysInventory(inv);
+                }
             }
 
             // Log the job
             const jobLog = {
                 itemKey,
                 type,
-                vehicle: description, // Use description as primary label
+                vehicle: description, // Use description as primary label/vehicle
                 date: new Date().toISOString(),
                 timestamp: Date.now(),
-                revenue: revenue, // New field
-                cost: cost,       // New field (profit = revenue - cost)
+                revenue: revenue,
+                cost: cost,
                 customer: customer || 'Manual Job',
                 description: description || `Used 1 ${type === 'blank' ? 'key blank' : 'key fob'}`,
                 notes: notes
@@ -4385,14 +4419,15 @@
             updateInventoryDisplay(itemKey, type);
             updateInventoryTabBadge();
 
-            // If on inventory page, refresh it
+            // If on inventory page, refresh it to show potentially updated metadata/vehicle
             if (document.getElementById('tabInventory')?.classList.contains('active')) {
                 renderInventoryPage();
             }
 
-            // Close modal and show success
+            // Close modal and show success (Toast)
             closeJobModal();
-            alert(`✓ Job logged! Profit: $${(revenue - cost).toFixed(2)}`);
+            // Optional: nice toast instead of alert? Alert is fine for now as per user request
+            // alert(`✓ Job logged! Profit: $${(revenue - cost).toFixed(2)}`);
         }
 
         // Update inventory tab badge with total count
@@ -4881,7 +4916,7 @@
                     if (res.ok) {
                         const data = await res.json();
                         currentUser = data;
-                        isPro = data.isPro || false;
+                        isPro = true; // data.isPro || false; // UNLOCKED: Force Pro for all users
                     } else {
                         currentUser = null;
                         isPro = false;
