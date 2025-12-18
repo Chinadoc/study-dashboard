@@ -555,7 +555,9 @@ export default {
             v.pin_required,
             v.notes,
             v.confidence_score,
+            v.confidence_score,
             v.source_name,
+            v.has_image,
             cr.technology as chip_technology,
             cr.bits as chip_bits,
             cr.description as chip_description,
@@ -672,7 +674,8 @@ export default {
             frequency,
             chip,
             buttons,
-            battery
+            battery,
+            has_image
           FROM vehicles
           WHERE UPPER(fcc_id) = UPPER(?)
           ORDER BY make, model, year_start
@@ -687,10 +690,12 @@ export default {
               oem_part_number: oem,
               amazon_asin: row.amazon_asin,
               vehicles: [],
+              // chip and buttons are already set above if needed, but here we are constructing the map value
               frequency: row.frequency,
               chip: row.chip,
               buttons: row.buttons,
-              battery: row.battery
+              battery: row.battery,
+              has_image: row.has_image
             });
           }
           oemMap.get(oem).vehicles.push({
@@ -1682,24 +1687,76 @@ export default {
 
 async function runAIAnalysis(env: Env) {
   try {
-    // 1. Gather Data (Mock for global analysis or query real low stock)
-    // Querying real low items
+    // 1. Gather Data
+    // A. Low Stock Inventory
     const inventoryResult: any = await env.LOCKSMITH_DB.prepare(
       "SELECT item_key, type, qty, vehicle FROM inventory WHERE qty <= 2 LIMIT 10"
     ).all();
     const inventory = inventoryResult.results || [];
 
+    // B. Job Logs (Financials)
+    // Get last 50 jobs to analyze trends
+    const logsResult: any = await env.LOCKSMITH_DB.prepare(
+      "SELECT data, created_at FROM job_logs ORDER BY created_at DESC LIMIT 50"
+    ).all();
+
+    // Process Logs for Analytics
+    let totalRevenue = 0;
+    let totalCost = 0;
+    const clientRevenue: Record<string, number> = {};
+    const jobTypes: Record<string, number> = {};
+
+    (logsResult.results || []).forEach((log: any) => {
+      try {
+        const data = JSON.parse(log.data);
+        const r = parseFloat(data.revenue) || 0;
+        const c = parseFloat(data.cost) || 0;
+        totalRevenue += r;
+        totalCost += c;
+
+        // Client ranking
+        const client = data.customer || 'Unknown';
+        if (client !== 'Manual Job') {
+          clientRevenue[client] = (clientRevenue[client] || 0) + r;
+        }
+
+        // Job type trending
+        const type = data.type || 'unknown';
+        jobTypes[type] = (jobTypes[type] || 0) + 1;
+      } catch (e) { }
+    });
+
+    const ebitda = totalRevenue - totalCost; // Simplified: Revenue - COGS
+    const taxEstimate = ebitda * 0.30; // 30% estimation
+
+    // Top Clients
+    const topClients = Object.entries(clientRevenue)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([name, rev]) => ({ name, revenue: rev }));
+
     // 2. Build Prompt
     const prompt = `
-      You are an expert locksmith business analyst. 
-      Here is a list of low-stock items in my inventory:
-      ${JSON.stringify(inventory)}
-
-      Analyze this list. 
-      1. Identify the 3 most critical items to restock based on common vehicle popularity.
-      2. Provide a short, motivational business tip for a locksmith.
+      You are an expert locksmith business consultant (Analyst).
       
-      Format your response as valid JSON with keys: "restock_recommendations" (array of item names), "message" (string).
+      Here is my current business snapshot (Based on last 50 jobs):
+      - Total Revenue: $${totalRevenue.toFixed(2)}
+      - Total Cost (COGS): $${totalCost.toFixed(2)}
+      - Est. EBITDA (Profit): $${ebitda.toFixed(2)}
+      - Est. Taxes (30%): $${taxEstimate.toFixed(2)}
+      - Top Clients: ${JSON.stringify(topClients)}
+      - Low Stock Items: ${JSON.stringify(inventory)}
+
+      Act as my 'Best Friend' & Business Partner. 
+      1. Analyze my "Productive Clients": Who should I focus on?
+      2. Analyze my Financials: Am I profitable? Any advice on taxes or EBITDA?
+      3. Recommend 3 items to restock from Amazon.
+
+      Format your response as valid JSON with keys: 
+      - "message" (A encouraging summary of my business health),
+      - "financial_tip" (Specific advice on the figures),
+      - "client_strategy" (How to handle my top clients),
+      - "restock_recommendations" (Array of 3 item names).
     `;
 
     // 3. Call AI
@@ -1719,10 +1776,12 @@ async function runAIAnalysis(env: Env) {
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         content = parsed.message;
+        if (parsed.client_strategy) content += "\n\n**Client Strategy:** " + parsed.client_strategy;
+        if (parsed.financial_tip) content += "\n\n**Financial Insight:** " + parsed.financial_tip;
         recommendations = parsed.restock_recommendations;
       }
     } catch (e) {
-      content = "Inventory analysis complete. Check low stock items.";
+      content = "Analysis complete. Revenue: $" + totalRevenue.toFixed(2);
     }
 
     // 4. Save to DB

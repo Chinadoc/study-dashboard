@@ -1,0 +1,1 @@
+ALTER TABLE vehicles ADD COLUMN has_image INTEGER DEFAULT 0;
