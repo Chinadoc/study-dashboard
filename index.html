@@ -2594,6 +2594,26 @@
             document.querySelector('.job-modal-overlay').classList.add('active');
         }
 
+        // Helper functions for displayResults
+        function getAmazonLink(term) {
+            return `https://www.amazon.com/s?k=${encodeURIComponent(term)}&tag=${AFFILIATE_TAG}`;
+        }
+
+        function getKeyTypeIcon(type) {
+            const lower = (type || '').toLowerCase();
+            if (lower.includes('smart') || lower.includes('prox')) return '📡';
+            if (lower.includes('flip')) return '🔑';
+            if (lower.includes('remote') || lower.includes('fob')) return '🎛️';
+            if (lower.includes('transponder')) return '🏷️';
+            return '🔑';
+        }
+
+        function getMakeLogo(make) {
+            // Simple mapping or return null to hide
+            // In a real app, this might point to /assets/logos/...
+            return null;
+        }
+
         async function searchVehicle() {
             const year = document.getElementById('yearSelect').value;
             const make = document.getElementById('makeSelect').value;
@@ -4567,6 +4587,51 @@
             }
 
             let html = headerHtml + '<div style="display: grid; gap: 24px;">';
+
+            // AI Insight Card (Dynamic)
+            const insightContainerId = 'ai-insight-' + Math.random().toString(36).substr(2, 9);
+            html += `
+                <div id="${insightContainerId}" style="display: none; padding: 20px; background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%); border: 1px solid #333; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: start; gap: 16px;">
+                        <div style="font-size: 2rem; background: rgba(59, 130, 246, 0.1); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">💡</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #60a5fa; margin-bottom: 4px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">AI Analyst Tip</div>
+                            <div class="insight-content" style="color: #e5e5e5; line-height: 1.5; font-size: 0.95rem;">Loading insight...</div>
+                            <div class="insight-products" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Fetch insight asynchronously
+            setTimeout(async () => {
+                const card = document.getElementById(insightContainerId);
+                if (!card) return;
+                try {
+                    const res = await fetch(`${API}/api/insights`);
+                    const data = await res.json();
+                    if (data.insight && data.insight.content) {
+                        card.style.display = 'block';
+                        card.querySelector('.insight-content').textContent = data.insight.content;
+
+                        // Render recommendations if any
+                        if (data.insight.recommendations) {
+                            const products = JSON.parse(data.insight.recommendations);
+                            const prodContainer = card.querySelector('.insight-products');
+                            products.forEach(prod => {
+                                const btn = document.createElement('a');
+                                btn.href = `https://www.amazon.com/s?k=${encodeURIComponent(prod)}&tag=jeremysamuels-20`;
+                                btn.target = '_blank';
+                                btn.style.cssText = 'padding: 6px 12px; background: #333; color: #fff; text-decoration: none; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; border: 1px solid #444; transition: all 0.2s ease;';
+                                btn.innerHTML = `<span>🛒</span> ${prod}`;
+                                btn.onmouseover = () => { btn.style.background = '#444'; btn.style.borderColor = '#666'; };
+                                btn.onmouseout = () => { btn.style.background = '#333'; btn.style.borderColor = '#444'; };
+                                prodContainer.appendChild(btn);
+                            });
+                        }
+                    }
+                } catch (e) { console.warn('Failed to load AI insight', e); }
+            }, 100);
 
             // Stats summary
             const totalInStock = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0) + blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);

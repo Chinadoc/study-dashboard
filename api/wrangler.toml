@@ -15,3 +15,9 @@ database_id = "216a2c05-31ad-4c86-9100-9d355da0336d"
 binding = "ASSETS_BUCKET"
 bucket_name = "euro-keys-assets"
 preview_bucket_name = "euro-keys-assets-preview"
+
+[ai]
+binding = "AI"
+
+[triggers]
+crons = ["0 0 * * *"] # Run daily at midnight UTC

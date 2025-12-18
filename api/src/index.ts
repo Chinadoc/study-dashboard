@@ -18,6 +18,7 @@ export interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   JWT_SECRET: string;
+  AI: any;
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -280,6 +281,29 @@ export default {
       }
     }
 
+
+    // 7. Get AI Insights
+    if (path === "/api/insights") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse("Unauthorized", 401);
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse("Unauthorized", 401);
+        const userId = payload.sub as string;
+
+        const latest = await env.LOCKSMITH_DB.prepare("SELECT * FROM insights WHERE user_id = ? OR user_id = 'global' ORDER BY created_at DESC LIMIT 1").bind(userId).first();
+        return textResponse(JSON.stringify({ insight: latest }), 200);
+      } catch (e: any) {
+        return textResponse(JSON.stringify({ error: e.message }), 500);
+      }
+    }
+
+    // 8. Test AI (Manual Trigger)
+    if (path === "/api/test-ai") {
+      const result = await runAIAnalysis(env);
+      return textResponse(JSON.stringify(result), 200);
+    }
 
     // Master Locksmith Data Endpoint - uses unified schema
     if (path === "/api/master" || path === "/api/locksmith") {
@@ -1650,4 +1674,67 @@ export default {
 
     return textResponse(JSON.stringify({ error: "Not found" }), 404);
   },
+
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(runAIAnalysis(env));
+  }
 };
+
+async function runAIAnalysis(env: Env) {
+  try {
+    // 1. Gather Data (Mock for global analysis or query real low stock)
+    // Querying real low items
+    const inventoryResult: any = await env.LOCKSMITH_DB.prepare(
+      "SELECT item_key, type, qty, vehicle FROM inventory WHERE qty <= 2 LIMIT 10"
+    ).all();
+    const inventory = inventoryResult.results || [];
+
+    // 2. Build Prompt
+    const prompt = `
+      You are an expert locksmith business analyst. 
+      Here is a list of low-stock items in my inventory:
+      ${JSON.stringify(inventory)}
+
+      Analyze this list. 
+      1. Identify the 3 most critical items to restock based on common vehicle popularity.
+      2. Provide a short, motivational business tip for a locksmith.
+      
+      Format your response as valid JSON with keys: "restock_recommendations" (array of item names), "message" (string).
+    `;
+
+    // 3. Call AI
+    const response: any = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant that outputs JSON only.' },
+        { role: 'user', content: prompt }
+      ]
+    });
+
+    // Parse response
+    let content = response.response || JSON.stringify(response);
+    let recommendations: any[] = [];
+
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        content = parsed.message;
+        recommendations = parsed.restock_recommendations;
+      }
+    } catch (e) {
+      content = "Inventory analysis complete. Check low stock items.";
+    }
+
+    // 4. Save to DB
+    const id = crypto.randomUUID();
+    await env.LOCKSMITH_DB.prepare(
+      "INSERT INTO insights (id, user_id, content, recommendations, created_at) VALUES (?, ?, ?, ?, ?)"
+    ).bind(id, 'global', content, JSON.stringify(recommendations), Date.now()).run();
+
+    return { success: true, id, insight: content };
+
+  } catch (e: any) {
+    console.error("AI Error:", e);
+    return { error: e.message };
+  }
+}
