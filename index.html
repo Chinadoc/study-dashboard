@@ -2318,7 +2318,7 @@
     <div class="tab-content" id="tabFcc">
         <div class="container">
             <div class="page-title">
-                <h1>FCC <span>Database</span></h1>
+                <h1>Key <span>Database</span> & Coverage</h1>
             </div>
             <p class="page-subtitle">Browse FCC IDs for key fobs and remotes with direct Amazon links.</p>
 
@@ -2331,22 +2331,16 @@
                     Traditional
                     Key</button>
 
-                <div style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">Year:</span>
-                    <select id="fccYearFrom" class="browse-select"
-                        style="padding: 8px 12px; font-size: 0.85rem; width: 90px;" onchange="filterFccTable()">
-                        <option value="">From</option>
-                    </select>
-                    <span style="color: var(--text-muted);">-</span>
-                    <select id="fccYearTo" class="browse-select"
-                        style="padding: 8px 12px; font-size: 0.85rem; width: 90px;" onchange="filterFccTable()">
-                        <option value="">To</option>
-                    </select>
-                </div>
+                <!-- Year filters hidden/moved if desired, or kept here -->
             </div>
 
-            <div class="fcc-search">
-                <input type="text" id="fccSearch" placeholder="🔍 Search by FCC ID or vehicle (e.g. Jeep, Honda)..."
+            <!-- KEY DATABASE HEADER & HEATMAP CONTAINER -->
+            <div id="keyCoverageContainer" style="margin-bottom: 24px;">
+                <!-- Heatmap injected by renderKeyCoverageMap() -->
+            </div>
+
+            <div class="fcc-search" style="margin-top: 20px;">
+                <input type="text" id="fccSearch" placeholder="🔍 Search keys... (e.g. 'Honda Civic 2018', 'HYQ12BDM')"
                     oninput="filterFccTable()">
             </div>
 
@@ -2529,8 +2523,10 @@
                 }
             }
 
-            if (tabName === 'fcc' && !fccDataLoaded) {
-                loadFccData();
+            if (tabName === 'fcc') {
+                if (!fccDataLoaded) loadFccData();
+                // Render/Refresh the Key Coverage Heatmap
+                renderKeyCoverageMap();
             }
         }
 
@@ -5726,6 +5722,128 @@
             renderInventoryPage('stats');
         }
 
+
+
+        // ================== KEY COVERAGE HEATMAP ==================
+        function renderKeyCoverageMap() {
+            const container = document.getElementById('keyCoverageContainer');
+            if (!container) return;
+
+            // 1. Gather Data (Make vs Year)
+            if (typeof fccData === 'undefined' || !fccData || fccData.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Loading coverage data...</div>';
+                return;
+            }
+
+            const coverage = {};
+            const makes = ["Toyota", "Lexus", "Honda", "Nissan", "Ford", "Chevrolet", "Dodge", "Jeep", "BMW", "Mercedes", "Volkswagen", "Hyundai", "Kia", "Subaru", "Mazda"];
+            const years = Array.from({ length: 26 }, (_, i) => 2000 + i);
+
+            fccData.forEach(entry => {
+                const vehicleStr = entry.vehicles || '';
+                if (!vehicleStr || vehicleStr === 'N/A') return;
+
+                const parts = vehicleStr.split(',').map(v => v.trim()).filter(v => v);
+
+                parts.forEach(part => {
+                    const match = part.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                    if (match) {
+                        const makeModel = match[1].trim();
+                        // Simple heuristic: First word is Make
+                        const makeMatch = makeModel.match(/^([A-Za-z]+)/);
+                        const make = makeMatch ? makeMatch[1] : null;
+
+                        if (make && makes.includes(make)) {
+                            const start = parseInt(match[2]);
+                            const end = match[3] ? parseInt(match[3]) : start;
+
+                            // Check stock
+                            const hasStock = (entry.fcc_id && InventoryManager.getKeyStock(entry.fcc_id) > 0) ||
+                                (entry.primary_oem_part && InventoryManager.getBlankStock(entry.primary_oem_part) > 0);
+
+                            for (let y = start; y <= end; y++) {
+                                if (y >= 2000 && y <= 2025) {
+                                    if (!coverage[make]) coverage[make] = {};
+                                    if (!coverage[make][y]) coverage[make][y] = { totalKeys: 0, inStock: 0 };
+
+                                    coverage[make][y].totalKeys++;
+                                    if (hasStock) coverage[make][y].inStock++;
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            // 2. Render Heatmap
+            const html = `
+                <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
+                    <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <span>🗺️ Key Coverage Map (Inventory vs. Market)</span>
+                        <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 400;">
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> In Stock</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Known Data (Gap)</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(255,255,255,0.05); border-radius: 2px;"></span> No Data</span>
+                        </div>
+                    </h3>
+
+                    <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, 1fr); gap: 2px; min-width: 800px;">
+                         <!-- Headers -->
+                        <div></div>
+                        ${years.map(y => `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">${y % 100}</div>`).join('')}
+
+                        <!-- Body -->
+                        ${makes.map(make => {
+                return `
+                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end;">${make}</div>
+                                ${years.map(year => {
+                    const data = coverage[make] && coverage[make][year];
+                    let bg = 'rgba(255,255,255,0.03)';
+                    let title = 'No Data';
+                    let opacity = 1;
+                    let hasData = false;
+
+                    if (data && data.inStock > 0) {
+                        bg = '#22c55e'; // Green
+                        title = `In Stock: ${data.inStock} keys known`;
+                        hasData = true;
+                    } else if (data && data.totalKeys > 0) {
+                        bg = '#3b82f6'; // Blue
+                        title = `Gap: ${data.totalKeys} keys known (0 in stock)`;
+                        opacity = 0.6;
+                        hasData = true;
+                    }
+
+                    return `
+                                        <div title="${make} ${year}: ${title}" 
+                                             onclick="${hasData ? `filterKeyDb('${make}', ${year})` : ''}"
+                                             style="
+                                            height: 24px; 
+                                            background: ${bg}; 
+                                            border-radius: 2px;
+                                            opacity: ${opacity};
+                                            cursor: ${hasData ? 'pointer' : 'default'};
+                                            transition: all 0.1s;
+                                        " onmouseover="this.style.opacity=1; this.style.transform='scale(1.2)';" onmouseout="this.style.opacity=${opacity}; this.style.transform='scale(1)';"></div>
+                                    `;
+                }).join('')}
+                            `;
+            }).join('')}
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // Helper to filter from chart click
+        function filterKeyDb(make, year) {
+            const searchBox = document.getElementById('fccSearch');
+            searchBox.value = `${make} ${year}`;
+            searchBox.dispatchEvent(new Event('input')); // Trigger search
+
+            // Scroll to search results
+            searchBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         async function renderToolCoveragePage(container, headerHtml) {
             const simulatedTool = localStorage.getItem('eurokeys_simulated_tool') || null;
             const myCoverage = ToolCoverageManager.getMyCoverage();
