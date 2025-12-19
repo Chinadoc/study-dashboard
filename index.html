@@ -2361,14 +2361,16 @@
             </div>
             <p class="page-subtitle">Browse FCC IDs for key fobs and remotes with direct Amazon links.</p>
 
-            <div class="fcc-filters">
-                <button class="fcc-filter active" data-type="all" onclick="setFccFilter('all')">All
-                    Keys</button>
-                <button class="fcc-filter" data-type="push" onclick="setFccFilter('push')">🚗
-                    Push-to-Start</button>
-                <button class="fcc-filter" data-type="non-push" onclick="setFccFilter('non-push')">🔑
-                    Traditional
-                    Key</button>
+            <div class="fcc-filters" style="flex-wrap: wrap;">
+                <button class="fcc-filter active" data-type="all" onclick="setFccFilter('all')">All Keys</button>
+                <button class="fcc-filter" data-type="smart" onclick="setFccFilter('smart')">🚗 Smart/Prox</button>
+                <button class="fcc-filter" data-type="transponder" onclick="setFccFilter('transponder')">🏷️
+                    Transponder</button>
+                <button class="fcc-filter" data-type="remote-head" onclick="setFccFilter('remote-head')">🔑 Remote
+                    Head</button>
+                <button class="fcc-filter" data-type="flip" onclick="setFccFilter('flip')">🔄 Flip Key</button>
+                <button class="fcc-filter" data-type="mechanical" onclick="setFccFilter('mechanical')">🗝️
+                    Mechanical</button>
 
                 <!-- Year filters hidden/moved if desired, or kept here -->
             </div>
@@ -3432,10 +3434,45 @@
             }
 
             // Apply key type filter
-            if (fccKeyType === 'push') {
-                filtered = filtered.filter(isPushKey);
-            } else if (fccKeyType === 'non-push') {
-                filtered = filtered.filter(r => !isPushKey(r));
+            if (fccKeyType !== 'all') {
+                filtered = filtered.filter(r => {
+                    const vehicles = (r.vehicles || '').toLowerCase();
+                    const chip = (r.chip || '').toLowerCase();
+                    const freq = parseFloat(r.frequency) || 0;
+                    const keyTypeDisplay = (r.key_type_display || '').toLowerCase();
+
+                    switch (fccKeyType) {
+                        case 'smart':
+                            // Smart/Prox keys: PEPS, proximity, push-to-start
+                            return chip.includes('hitag') || chip.includes('id47') || chip.includes('id49') ||
+                                chip.includes('id4a') || vehicles.includes('prox') ||
+                                vehicles.includes('smart') || vehicles.includes('peps') ||
+                                keyTypeDisplay.includes('smart') || freq >= 433;
+                        case 'transponder':
+                            // Transponder keys: chip-based but not smart
+                            return (chip.includes('id') || chip.includes('philips') || chip.includes('texas') ||
+                                chip.includes('megamos') || chip.includes('pcf') || chip.includes('tpx') ||
+                                keyTypeDisplay.includes('transponder') || keyTypeDisplay.includes('ews')) &&
+                                !vehicles.includes('prox') && !vehicles.includes('smart') && freq < 433;
+                        case 'remote-head':
+                            // Remote head keys: combined key blade + remote
+                            return vehicles.includes('remote head') || chip.includes('remote head') ||
+                                keyTypeDisplay.includes('remote head') ||
+                                (vehicles.includes('rhk') || vehicles.includes('remote key'));
+                        case 'flip':
+                            // Flip/switchblade keys
+                            return vehicles.includes('flip') || vehicles.includes('switchblade') ||
+                                keyTypeDisplay.includes('flip');
+                        case 'mechanical':
+                            // Mechanical/traditional keys: no chip
+                            return r.is_synthetic || chip.includes('non-transponder') ||
+                                chip.includes('traditional') || chip === 'na' || chip === 'n/a' ||
+                                chip === '' || keyTypeDisplay.includes('mechanical') ||
+                                keyTypeDisplay.includes('high security');
+                        default:
+                            return true;
+                    }
+                });
             }
 
             const totalPages = Math.ceil(filtered.length / FCC_PER_PAGE);
