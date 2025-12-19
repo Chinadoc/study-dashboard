@@ -775,6 +775,45 @@
             color: var(--text-primary);
         }
 
+        /* Key Type Badges */
+        .badge-transponder {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+
+        .badge-smartkey {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+        }
+
+        .badge-mechanical {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .badge-remotehead {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+        }
+
+        .key-blank-refs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .key-ref-chip {
+            padding: 4px 8px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid var(--brand-primary);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: monospace;
+            color: var(--brand-primary);
+        }
+
         /* Data Grid */
         .data-grid {
             display: grid;
@@ -2962,15 +3001,36 @@
                 const keyType = v.key_type || v.crossref_key_type || 'N/A';
                 const keyTypeIcon = getKeyTypeIcon(keyType);
 
+                // Key type display with color coding
+                const keyTypeDisplay = v.key_type_display || '';
+                const getKeyTypeBadgeClass = (type) => {
+                    if (!type) return '';
+                    const t = type.toLowerCase();
+                    if (t.includes('transponder')) return 'badge-transponder';
+                    if (t.includes('smart')) return 'badge-smartkey';
+                    if (t.includes('remote head')) return 'badge-remotehead';
+                    if (t.includes('mechanical')) return 'badge-mechanical';
+                    return 'badge-dark';
+                };
+                const keyTypeBadgeClass = getKeyTypeBadgeClass(keyTypeDisplay);
+
+                // Parse key_blank_refs JSON
+                let keyBlankRefs = null;
+                try {
+                    if (v.key_blank_refs) {
+                        keyBlankRefs = typeof v.key_blank_refs === 'string' ? JSON.parse(v.key_blank_refs) : v.key_blank_refs;
+                    }
+                } catch (e) { /* ignore parse errors */ }
+
                 // Get image URL
                 const imageUrl = v.image_url || v.remote_image || (fccId !== 'N/A' && v.has_image ? `${API}/api/assets/${fccId}.png` : null);
 
                 // Aftermarket parts from part_crossref
-                const ilco = v.ilco_part || 'N/A';
-                const strattec = v.strattec_part || 'N/A';
+                const ilco = v.ilco_part || (keyBlankRefs?.ilco?.[0]) || 'N/A';
+                const strattec = v.strattec_part || (keyBlankRefs?.strattec?.[0]) || 'N/A';
                 const jma = v.jma_part || 'N/A';
                 const keydiy = v.keydiy_part || 'N/A';
-                const hasAftermarket = ilco !== 'N/A' || strattec !== 'N/A' || jma !== 'N/A' || keydiy !== 'N/A';
+                const hasAftermarket = ilco !== 'N/A' || strattec !== 'N/A' || jma !== 'N/A' || keydiy !== 'N/A' || (keyBlankRefs?.ilco?.length > 0);
 
                 // Create card label based on what differentiates it
                 let cardLabel = `${year} ${make} ${model}`;
@@ -3016,6 +3076,7 @@
                         </div>
                         <div class="vehicle-badges">
                             ${inventoryBadge}
+                            ${keyTypeDisplay ? `<span class="badge ${keyTypeBadgeClass}">${keyTypeDisplay}</span>` : ''}
                             ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
                         </div>

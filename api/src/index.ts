@@ -393,6 +393,7 @@ export default {
             v.pin_required, v.notes,
             v.confidence_score, v.source_name, v.source_url,
             v.mechanical_spec, v.spaces, v.depths, v.code_series, v.ignition_retainer, v.service_notes_pro,
+            v.key_blank_refs, v.key_type_display, v.key_image_url, v.has_image,
             cr.technology as chip_technology, cr.bits as chip_bits, cr.description as chip_description
           FROM vehicles v
           LEFT JOIN chip_registry cr ON LOWER(v.chip) = LOWER(cr.chip_type)
@@ -573,6 +574,9 @@ export default {
             v.code_series,
             v.ignition_retainer,
             v.service_notes_pro,
+            v.key_blank_refs,
+            v.key_type_display,
+            v.key_image_url,
             cr.technology as chip_technology,
             cr.bits as chip_bits,
             cr.description as chip_description,
