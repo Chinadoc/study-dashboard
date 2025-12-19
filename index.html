@@ -4698,6 +4698,8 @@
                 try {
                     currentUser = JSON.parse(savedUser);
                     updateAuthUI(true);
+                    // Check developer status on page load
+                    checkDeveloperStatus();
                 } catch (e) {
                     localStorage.removeItem('eurokeys_user');
                 }
@@ -6454,8 +6456,12 @@
                 return;
             }
 
-            const makes = ["Toyota", "Lexus", "Honda", "Nissan", "Ford", "Chevrolet", "Dodge", "Jeep", "BMW", "Mercedes", "Volkswagen", "Hyundai", "Kia", "Subaru", "Mazda"];
-            const years = Array.from({ length: 26 }, (_, i) => 2000 + i);
+            // Use expanded makes list from hardcoded coverage
+            const makes = Object.keys(HARDCODED_COVERAGE);
+            const years = Array.from({ length: 41 }, (_, i) => 1985 + i); // 1985-2025
+
+            // Get current filter for highlighting
+            const activeFilter = typeof fccKeyType !== 'undefined' ? fccKeyType : 'all';
 
             // Build coverage from hardcoded data + user inventory
             const coverage = {};
@@ -6493,7 +6499,7 @@
                                     (entry.primary_oem_part && InventoryManager.getBlankStock(entry.primary_oem_part) > 0);
 
                                 for (let y = start; y <= end; y++) {
-                                    if (y >= 2000 && y <= 2025 && coverage[make] && coverage[make][y]) {
+                                    if (y >= 1985 && y <= 2025 && coverage[make] && coverage[make][y]) {
                                         if (hasStock) coverage[make][y].inStock++;
                                     }
                                 }
@@ -6507,7 +6513,7 @@
             const html = `
                 <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
                     <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <span>🗺️ Key Coverage Map</span>
+                        <span>🗺️ Key Coverage Map${activeFilter !== 'all' ? ' - ' + (KEY_TYPE_COLORS[{ smart: 'S', flip: 'F', 'remote-head': 'R', transponder: 'T', mechanical: 'M' }[activeFilter]]?.label || activeFilter) : ''}</span>
                         <div style="display: flex; gap: 8px; font-size: 0.75rem; font-weight: 400; flex-wrap: wrap;">
                             <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> Smart/Prox</span>
                             <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #a855f7; border-radius: 2px;"></span> Flip Key</span>
@@ -6517,26 +6523,30 @@
                         </div>
                     </h3>
 
-                    <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, 1fr); gap: 2px; min-width: 800px;">
+                    <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, 1fr); gap: 2px; min-width: 1200px;">
                          <!-- Headers -->
                         <div></div>
-                        ${years.map(y => `<div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">${y % 100}</div>`).join('')}
+                        ${years.map(y => `<div style="font-size: 0.55rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">'${String(y).slice(-2)}</div>`).join('')}
 
                         <!-- Body -->
                         ${makes.map(make => {
                 return `
-                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end;">${make}</div>
+                                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end; white-space: nowrap;">${make}</div>
                                 ${years.map(year => {
                     const data = coverage[make] && coverage[make][year];
                     const typeCode = data?.keyType || 'M';
                     const typeInfo = KEY_TYPE_COLORS[typeCode] || KEY_TYPE_COLORS['M'];
 
-                    // If in stock, show bright green with ring
+                    // Determine if this cell matches the active filter
+                    const matchesFilter = activeFilter === 'all' || typeInfo.filter === activeFilter;
+
+                    // Base styling
                     let bg = typeInfo.bg;
-                    let opacity = typeInfo.opacity;
+                    let opacity = matchesFilter ? typeInfo.opacity : 0.15; // Dim non-matching cells
                     let title = typeInfo.label;
                     let border = 'none';
 
+                    // Highlight in-stock items
                     if (data && data.inStock > 0) {
                         border = '2px solid #fff';
                         opacity = 1;
