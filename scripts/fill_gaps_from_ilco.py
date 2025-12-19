@@ -17,22 +17,37 @@ def fill_gaps():
         ilco = json.load(f)
         
     new_entries = []
-    seen_inserts = set() # To avoid duplicates in the same migration
+    seen_inserts = set() 
     
     for gap in gaps:
         make = gap['make']
         year = gap['year']
         
+        # Mapping for naming variations
+        make_map = {
+            'Mercedes': 'Mercedes-Benz',
+            'Mercedes-Benz': 'Mercedes',
+            'VW': 'Volkswagen',
+            'Volkswagen': 'VW'
+        }
+        
+        target_makes = [make.lower()]
+        if make in make_map:
+            target_makes.append(make_map[make].lower())
+        
         # Find matching ilco entries
-        matches = [e for e in ilco if e['make'].lower() == make.lower() and e['year_start'] <= year <= e['year_end']]
+        matches = [
+            e for e in ilco 
+            if (e['make'].lower() in target_makes or 
+                e['make'].lower().startswith(make.lower()) or 
+                make.lower().startswith(e['make'].lower())) 
+            and e['year_start'] <= year <= e['year_end']
+        ]
         
         for match in matches:
-            # Use ilco_ref if available, otherwise synthetic
-            # Clean up ilco_ref (remove spaces/brackets)
             clean_ref = str(match['ilco_ref']).split('[')[0].strip() if match['ilco_ref'] else None
             fcc_id = f"ILCO-{clean_ref}" if clean_ref else f"MECH-{make.upper()[:4]}-{year}"
             
-            # Key for deduplication
             insert_key = (make, match['model'], year, fcc_id)
             if insert_key in seen_inserts:
                 continue
@@ -56,7 +71,6 @@ def fill_gaps():
     sql_lines = [
         "-- Filling Gaps from Ilco 2023 Reference",
         "-- This increases database coverage for mechanical and transponder keys",
-        "BEGIN TRANSACTION;",
         ""
     ]
     
@@ -73,8 +87,7 @@ def fill_gaps():
             f"VALUES ('{m}', '{model}', {e['year_start']}, {e['year_end']}, '{kt}', '{fcc}', '{c}', '{n}', 'Ilco 2023', 0.8);"
         )
         
-    sql_lines.append("");
-    sql_lines.append("COMMIT;");
+    sql_lines.append("")
         
     output_path = Path('data/migrations/fill_gaps_ilco.sql')
     output_path.parent.mkdir(parents=True, exist_ok=True)
