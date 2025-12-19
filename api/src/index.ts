@@ -315,25 +315,32 @@ export default {
     // ACTIVITY TRACKING & ADMIN PANEL
     // ==============================================
 
-    // Log user activity from frontend
+    // Log user activity from frontend (Allows anonymous visitors)
     if (path === "/api/activity/log" && request.method === "POST") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
-
-        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
-
         const body: any = await request.json();
-        const { action, details } = body;
+        const { action, details, visitorId } = body;
 
         if (!action) return textResponse(JSON.stringify({ error: "Missing action" }), 400);
+
+        let userId = visitorId ? `guest:${visitorId}` : "anonymous";
+
+        // Try to get authenticated user if session exists
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (sessionToken) {
+          try {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload && payload.sub) {
+              userId = payload.sub as string;
+            }
+          } catch (e) { /* ignore invalid token, keep visitorId */ }
+        }
 
         await env.LOCKSMITH_DB.prepare(
           "INSERT INTO user_activity (user_id, action, details, user_agent, created_at) VALUES (?, ?, ?, ?, ?)"
         ).bind(
-          payload.sub,
+          userId,
           action,
           details ? JSON.stringify(details) : null,
           request.headers.get("User-Agent"),
@@ -427,6 +434,58 @@ export default {
         `).bind(...params, limit).all();
 
         return textResponse(JSON.stringify({ activity: activity.results || [] }));
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Admin: Get analytics stats (developer only)
+    if (path === "/api/admin/stats") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+        if (!userIsDev) return textResponse(JSON.stringify({ error: "Forbidden" }), 403);
+
+        // 1. Top Searches
+        const topSearches = await env.LOCKSMITH_DB.prepare(`
+          SELECT json_extract(details, '$.query') as query, COUNT(*) as count
+          FROM user_activity
+          WHERE action = 'search' AND details LIKE '%"query"%'
+          GROUP BY query
+          ORDER BY count DESC
+          LIMIT 10
+        `).all();
+
+        // 2. Top Clicked Links
+        const topClicks = await env.LOCKSMITH_DB.prepare(`
+          SELECT json_extract(details, '$.url') as url, COUNT(*) as count
+          FROM user_activity
+          WHERE action = 'click_affiliate' AND details LIKE '%"url"%'
+          GROUP BY url
+          ORDER BY count DESC
+          LIMIT 10
+        `).all();
+
+        // 3. Visitor Stats (Last 30 days)
+        const visitorStats = await env.LOCKSMITH_DB.prepare(`
+          SELECT 
+            COUNT(DISTINCT CASE WHEN user_id LIKE 'guest:%' THEN user_id END) as guest_count,
+            COUNT(DISTINCT CASE WHEN user_id NOT LIKE 'guest:%' AND user_id != 'anonymous' THEN user_id END) as registered_count
+          FROM user_activity
+          WHERE created_at > ?
+        `).bind(Date.now() - (30 * 24 * 60 * 60 * 1000)).first<any>();
+
+        return textResponse(JSON.stringify({
+          topSearches: topSearches.results || [],
+          topClicks: topClicks.results || [],
+          visitorStats: visitorStats || { guest_count: 0, registered_count: 0 }
+        }));
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message }), 500);
       }

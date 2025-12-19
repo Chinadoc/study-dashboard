@@ -2,8 +2,8 @@ const fs = require('fs');
 const https = require('https');
 
 const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
-const TARGET_MAKES = ["Toyota", "Lexus", "Honda", "Nissan", "Ford", "Chevrolet", "Dodge", "Jeep", "BMW", "Mercedes", "Volkswagen", "Hyundai", "Kia", "Subaru", "Mazda"];
-const YEARS = Array.from({ length: 26 }, (_, i) => 2000 + i);
+const TARGET_MAKES = ["Acura", "Audi", "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge", "Ford", "GMC", "Honda", "Hyundai", "Infiniti", "Jaguar", "Jeep", "Kia", "Land Rover", "Lexus", "Lincoln", "Mazda", "Mercedes", "Mercury", "Mitsubishi", "Nissan", "Porsche", "Subaru", "Toyota", "Volkswagen", "Volvo"];
+const YEARS = Array.from({ length: 41 }, (_, i) => 1985 + i);
 
 async function fetchData() {
     return new Promise((resolve, reject) => {

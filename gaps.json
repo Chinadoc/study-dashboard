@@ -1,39 +1,1355 @@
 [
   {
-    "make": "Lexus",
+    "make": "Acura",
+    "year": 1985
+  },
+  {
+    "make": "Acura",
+    "year": 1986
+  },
+  {
+    "make": "Acura",
+    "year": 1987
+  },
+  {
+    "make": "Acura",
+    "year": 1988
+  },
+  {
+    "make": "Acura",
+    "year": 1989
+  },
+  {
+    "make": "Acura",
+    "year": 1990
+  },
+  {
+    "make": "Acura",
+    "year": 1991
+  },
+  {
+    "make": "Acura",
+    "year": 1992
+  },
+  {
+    "make": "Acura",
+    "year": 1993
+  },
+  {
+    "make": "Acura",
+    "year": 1994
+  },
+  {
+    "make": "Acura",
+    "year": 1995
+  },
+  {
+    "make": "Acura",
     "year": 2025
+  },
+  {
+    "make": "Audi",
+    "year": 1985
+  },
+  {
+    "make": "Audi",
+    "year": 1986
+  },
+  {
+    "make": "Audi",
+    "year": 1987
+  },
+  {
+    "make": "Audi",
+    "year": 1988
+  },
+  {
+    "make": "Audi",
+    "year": 1989
+  },
+  {
+    "make": "Audi",
+    "year": 1990
+  },
+  {
+    "make": "Audi",
+    "year": 1991
+  },
+  {
+    "make": "Audi",
+    "year": 1992
+  },
+  {
+    "make": "Audi",
+    "year": 1993
+  },
+  {
+    "make": "Audi",
+    "year": 1994
+  },
+  {
+    "make": "Audi",
+    "year": 1995
+  },
+  {
+    "make": "Audi",
+    "year": 1996
+  },
+  {
+    "make": "Audi",
+    "year": 1997
+  },
+  {
+    "make": "Audi",
+    "year": 1998
+  },
+  {
+    "make": "Audi",
+    "year": 1999
+  },
+  {
+    "make": "Audi",
+    "year": 2000
+  },
+  {
+    "make": "Audi",
+    "year": 2001
+  },
+  {
+    "make": "Audi",
+    "year": 2002
+  },
+  {
+    "make": "Audi",
+    "year": 2003
+  },
+  {
+    "make": "Audi",
+    "year": 2004
+  },
+  {
+    "make": "Audi",
+    "year": 2005
+  },
+  {
+    "make": "Audi",
+    "year": 2006
+  },
+  {
+    "make": "Audi",
+    "year": 2007
+  },
+  {
+    "make": "Audi",
+    "year": 2008
+  },
+  {
+    "make": "Audi",
+    "year": 2009
+  },
+  {
+    "make": "Audi",
+    "year": 2010
+  },
+  {
+    "make": "Audi",
+    "year": 2011
+  },
+  {
+    "make": "Audi",
+    "year": 2012
+  },
+  {
+    "make": "Audi",
+    "year": 2013
+  },
+  {
+    "make": "Audi",
+    "year": 2014
+  },
+  {
+    "make": "Audi",
+    "year": 2015
+  },
+  {
+    "make": "Audi",
+    "year": 2016
+  },
+  {
+    "make": "Audi",
+    "year": 2017
+  },
+  {
+    "make": "Audi",
+    "year": 2018
+  },
+  {
+    "make": "Audi",
+    "year": 2019
+  },
+  {
+    "make": "Audi",
+    "year": 2020
+  },
+  {
+    "make": "Audi",
+    "year": 2021
+  },
+  {
+    "make": "Audi",
+    "year": 2022
+  },
+  {
+    "make": "Audi",
+    "year": 2023
+  },
+  {
+    "make": "Audi",
+    "year": 2024
+  },
+  {
+    "make": "Audi",
+    "year": 2025
+  },
+  {
+    "make": "BMW",
+    "year": 1985
+  },
+  {
+    "make": "BMW",
+    "year": 1986
+  },
+  {
+    "make": "BMW",
+    "year": 1987
+  },
+  {
+    "make": "BMW",
+    "year": 1988
+  },
+  {
+    "make": "BMW",
+    "year": 1989
+  },
+  {
+    "make": "BMW",
+    "year": 1990
+  },
+  {
+    "make": "BMW",
+    "year": 1991
+  },
+  {
+    "make": "BMW",
+    "year": 1992
+  },
+  {
+    "make": "BMW",
+    "year": 1993
+  },
+  {
+    "make": "BMW",
+    "year": 1994
+  },
+  {
+    "make": "BMW",
+    "year": 1995
+  },
+  {
+    "make": "BMW",
+    "year": 1996
+  },
+  {
+    "make": "BMW",
+    "year": 1997
+  },
+  {
+    "make": "BMW",
+    "year": 1998
+  },
+  {
+    "make": "BMW",
+    "year": 1999
+  },
+  {
+    "make": "BMW",
+    "year": 2000
+  },
+  {
+    "make": "BMW",
+    "year": 2001
+  },
+  {
+    "make": "BMW",
+    "year": 2002
+  },
+  {
+    "make": "BMW",
+    "year": 2003
+  },
+  {
+    "make": "BMW",
+    "year": 2004
+  },
+  {
+    "make": "BMW",
+    "year": 2005
+  },
+  {
+    "make": "BMW",
+    "year": 2025
+  },
+  {
+    "make": "Buick",
+    "year": 1985
+  },
+  {
+    "make": "Buick",
+    "year": 1986
+  },
+  {
+    "make": "Buick",
+    "year": 1987
+  },
+  {
+    "make": "Buick",
+    "year": 1988
+  },
+  {
+    "make": "Buick",
+    "year": 1989
+  },
+  {
+    "make": "Buick",
+    "year": 1990
+  },
+  {
+    "make": "Buick",
+    "year": 1991
+  },
+  {
+    "make": "Buick",
+    "year": 1992
+  },
+  {
+    "make": "Buick",
+    "year": 1993
+  },
+  {
+    "make": "Buick",
+    "year": 1994
+  },
+  {
+    "make": "Buick",
+    "year": 1995
+  },
+  {
+    "make": "Cadillac",
+    "year": 1985
+  },
+  {
+    "make": "Cadillac",
+    "year": 1986
+  },
+  {
+    "make": "Cadillac",
+    "year": 1987
+  },
+  {
+    "make": "Cadillac",
+    "year": 1988
+  },
+  {
+    "make": "Cadillac",
+    "year": 1989
+  },
+  {
+    "make": "Cadillac",
+    "year": 1990
+  },
+  {
+    "make": "Cadillac",
+    "year": 1991
+  },
+  {
+    "make": "Cadillac",
+    "year": 1992
+  },
+  {
+    "make": "Cadillac",
+    "year": 1993
+  },
+  {
+    "make": "Cadillac",
+    "year": 1994
+  },
+  {
+    "make": "Cadillac",
+    "year": 1995
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1985
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1986
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1987
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1988
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1989
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1990
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1991
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1992
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1993
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1994
+  },
+  {
+    "make": "Chevrolet",
+    "year": 1995
+  },
+  {
+    "make": "Chrysler",
+    "year": 1985
+  },
+  {
+    "make": "Chrysler",
+    "year": 1986
+  },
+  {
+    "make": "Chrysler",
+    "year": 1987
+  },
+  {
+    "make": "Chrysler",
+    "year": 1988
+  },
+  {
+    "make": "Chrysler",
+    "year": 1989
+  },
+  {
+    "make": "Chrysler",
+    "year": 1990
+  },
+  {
+    "make": "Chrysler",
+    "year": 1991
+  },
+  {
+    "make": "Chrysler",
+    "year": 1992
+  },
+  {
+    "make": "Chrysler",
+    "year": 1993
+  },
+  {
+    "make": "Chrysler",
+    "year": 1994
+  },
+  {
+    "make": "Chrysler",
+    "year": 1995
+  },
+  {
+    "make": "Chrysler",
+    "year": 1996
+  },
+  {
+    "make": "Chrysler",
+    "year": 1997
+  },
+  {
+    "make": "Chrysler",
+    "year": 1998
+  },
+  {
+    "make": "Dodge",
+    "year": 1985
+  },
+  {
+    "make": "Dodge",
+    "year": 1986
+  },
+  {
+    "make": "Dodge",
+    "year": 1987
+  },
+  {
+    "make": "Dodge",
+    "year": 1988
+  },
+  {
+    "make": "Dodge",
+    "year": 1989
+  },
+  {
+    "make": "Dodge",
+    "year": 1990
+  },
+  {
+    "make": "Dodge",
+    "year": 1991
+  },
+  {
+    "make": "Dodge",
+    "year": 1992
+  },
+  {
+    "make": "Dodge",
+    "year": 1993
+  },
+  {
+    "make": "Dodge",
+    "year": 1994
+  },
+  {
+    "make": "Dodge",
+    "year": 1995
+  },
+  {
+    "make": "Ford",
+    "year": 1985
+  },
+  {
+    "make": "Ford",
+    "year": 1986
+  },
+  {
+    "make": "Ford",
+    "year": 1987
+  },
+  {
+    "make": "Ford",
+    "year": 1988
+  },
+  {
+    "make": "Ford",
+    "year": 1989
+  },
+  {
+    "make": "Ford",
+    "year": 1990
+  },
+  {
+    "make": "Ford",
+    "year": 1991
+  },
+  {
+    "make": "Ford",
+    "year": 1992
+  },
+  {
+    "make": "Ford",
+    "year": 1993
+  },
+  {
+    "make": "Ford",
+    "year": 1994
+  },
+  {
+    "make": "GMC",
+    "year": 1985
+  },
+  {
+    "make": "GMC",
+    "year": 1986
+  },
+  {
+    "make": "GMC",
+    "year": 1987
+  },
+  {
+    "make": "GMC",
+    "year": 1988
+  },
+  {
+    "make": "GMC",
+    "year": 1989
+  },
+  {
+    "make": "GMC",
+    "year": 1990
+  },
+  {
+    "make": "GMC",
+    "year": 1991
+  },
+  {
+    "make": "GMC",
+    "year": 1992
+  },
+  {
+    "make": "GMC",
+    "year": 1993
+  },
+  {
+    "make": "GMC",
+    "year": 1994
+  },
+  {
+    "make": "GMC",
+    "year": 1995
+  },
+  {
+    "make": "Honda",
+    "year": 1985
+  },
+  {
+    "make": "Honda",
+    "year": 1986
+  },
+  {
+    "make": "Honda",
+    "year": 1987
+  },
+  {
+    "make": "Honda",
+    "year": 1988
+  },
+  {
+    "make": "Honda",
+    "year": 1989
+  },
+  {
+    "make": "Honda",
+    "year": 1990
+  },
+  {
+    "make": "Honda",
+    "year": 1991
+  },
+  {
+    "make": "Honda",
+    "year": 1992
+  },
+  {
+    "make": "Honda",
+    "year": 1993
+  },
+  {
+    "make": "Honda",
+    "year": 1994
+  },
+  {
+    "make": "Honda",
+    "year": 1995
+  },
+  {
+    "make": "Honda",
+    "year": 1996
+  },
+  {
+    "make": "Honda",
+    "year": 1997
   },
   {
     "make": "Honda",
     "year": 2025
   },
   {
-    "make": "BMW",
+    "make": "Hyundai",
+    "year": 1985
+  },
+  {
+    "make": "Hyundai",
+    "year": 1986
+  },
+  {
+    "make": "Hyundai",
+    "year": 1987
+  },
+  {
+    "make": "Hyundai",
+    "year": 1988
+  },
+  {
+    "make": "Hyundai",
+    "year": 1989
+  },
+  {
+    "make": "Hyundai",
+    "year": 1990
+  },
+  {
+    "make": "Hyundai",
+    "year": 1991
+  },
+  {
+    "make": "Hyundai",
+    "year": 1992
+  },
+  {
+    "make": "Hyundai",
+    "year": 1993
+  },
+  {
+    "make": "Hyundai",
+    "year": 1994
+  },
+  {
+    "make": "Hyundai",
+    "year": 1995
+  },
+  {
+    "make": "Hyundai",
+    "year": 1996
+  },
+  {
+    "make": "Hyundai",
+    "year": 1997
+  },
+  {
+    "make": "Hyundai",
+    "year": 1998
+  },
+  {
+    "make": "Hyundai",
+    "year": 1999
+  },
+  {
+    "make": "Hyundai",
     "year": 2000
   },
   {
-    "make": "BMW",
+    "make": "Hyundai",
     "year": 2001
   },
   {
-    "make": "BMW",
+    "make": "Hyundai",
     "year": 2002
   },
   {
-    "make": "BMW",
+    "make": "Infiniti",
+    "year": 1985
+  },
+  {
+    "make": "Infiniti",
+    "year": 1986
+  },
+  {
+    "make": "Infiniti",
+    "year": 1987
+  },
+  {
+    "make": "Infiniti",
+    "year": 1988
+  },
+  {
+    "make": "Infiniti",
+    "year": 1989
+  },
+  {
+    "make": "Infiniti",
+    "year": 1990
+  },
+  {
+    "make": "Infiniti",
+    "year": 1991
+  },
+  {
+    "make": "Infiniti",
+    "year": 1992
+  },
+  {
+    "make": "Infiniti",
+    "year": 1993
+  },
+  {
+    "make": "Infiniti",
+    "year": 1994
+  },
+  {
+    "make": "Infiniti",
+    "year": 1995
+  },
+  {
+    "make": "Infiniti",
+    "year": 1996
+  },
+  {
+    "make": "Infiniti",
+    "year": 1998
+  },
+  {
+    "make": "Infiniti",
+    "year": 2023
+  },
+  {
+    "make": "Infiniti",
+    "year": 2024
+  },
+  {
+    "make": "Infiniti",
+    "year": 2025
+  },
+  {
+    "make": "Jaguar",
+    "year": 1985
+  },
+  {
+    "make": "Jaguar",
+    "year": 1986
+  },
+  {
+    "make": "Jaguar",
+    "year": 1987
+  },
+  {
+    "make": "Jaguar",
+    "year": 1988
+  },
+  {
+    "make": "Jaguar",
+    "year": 1989
+  },
+  {
+    "make": "Jaguar",
+    "year": 1990
+  },
+  {
+    "make": "Jaguar",
+    "year": 1991
+  },
+  {
+    "make": "Jaguar",
+    "year": 1992
+  },
+  {
+    "make": "Jaguar",
+    "year": 1993
+  },
+  {
+    "make": "Jaguar",
+    "year": 1994
+  },
+  {
+    "make": "Jaguar",
+    "year": 1995
+  },
+  {
+    "make": "Jaguar",
+    "year": 1996
+  },
+  {
+    "make": "Jaguar",
+    "year": 1997
+  },
+  {
+    "make": "Jaguar",
+    "year": 1998
+  },
+  {
+    "make": "Jaguar",
+    "year": 1999
+  },
+  {
+    "make": "Jaguar",
+    "year": 2025
+  },
+  {
+    "make": "Jeep",
+    "year": 1985
+  },
+  {
+    "make": "Jeep",
+    "year": 1986
+  },
+  {
+    "make": "Jeep",
+    "year": 1987
+  },
+  {
+    "make": "Jeep",
+    "year": 1988
+  },
+  {
+    "make": "Jeep",
+    "year": 1989
+  },
+  {
+    "make": "Jeep",
+    "year": 1990
+  },
+  {
+    "make": "Jeep",
+    "year": 1991
+  },
+  {
+    "make": "Jeep",
+    "year": 1992
+  },
+  {
+    "make": "Jeep",
+    "year": 1993
+  },
+  {
+    "make": "Jeep",
+    "year": 1994
+  },
+  {
+    "make": "Jeep",
+    "year": 1995
+  },
+  {
+    "make": "Jeep",
+    "year": 1996
+  },
+  {
+    "make": "Jeep",
+    "year": 1997
+  },
+  {
+    "make": "Jeep",
+    "year": 1998
+  },
+  {
+    "make": "Kia",
+    "year": 1985
+  },
+  {
+    "make": "Kia",
+    "year": 1986
+  },
+  {
+    "make": "Kia",
+    "year": 1987
+  },
+  {
+    "make": "Kia",
+    "year": 1988
+  },
+  {
+    "make": "Kia",
+    "year": 1989
+  },
+  {
+    "make": "Kia",
+    "year": 1990
+  },
+  {
+    "make": "Kia",
+    "year": 1991
+  },
+  {
+    "make": "Kia",
+    "year": 1992
+  },
+  {
+    "make": "Kia",
+    "year": 1993
+  },
+  {
+    "make": "Kia",
+    "year": 1994
+  },
+  {
+    "make": "Kia",
+    "year": 1995
+  },
+  {
+    "make": "Kia",
+    "year": 1996
+  },
+  {
+    "make": "Kia",
+    "year": 1997
+  },
+  {
+    "make": "Kia",
+    "year": 1998
+  },
+  {
+    "make": "Kia",
+    "year": 1999
+  },
+  {
+    "make": "Kia",
+    "year": 2000
+  },
+  {
+    "make": "Kia",
+    "year": 2001
+  },
+  {
+    "make": "Kia",
+    "year": 2002
+  },
+  {
+    "make": "Kia",
     "year": 2003
   },
   {
-    "make": "BMW",
+    "make": "Kia",
     "year": 2004
   },
   {
-    "make": "BMW",
+    "make": "Land Rover",
+    "year": 1985
+  },
+  {
+    "make": "Land Rover",
+    "year": 1986
+  },
+  {
+    "make": "Land Rover",
+    "year": 1987
+  },
+  {
+    "make": "Land Rover",
+    "year": 1988
+  },
+  {
+    "make": "Land Rover",
+    "year": 1989
+  },
+  {
+    "make": "Land Rover",
+    "year": 1990
+  },
+  {
+    "make": "Land Rover",
+    "year": 1991
+  },
+  {
+    "make": "Land Rover",
+    "year": 1992
+  },
+  {
+    "make": "Land Rover",
+    "year": 1993
+  },
+  {
+    "make": "Land Rover",
+    "year": 1994
+  },
+  {
+    "make": "Land Rover",
+    "year": 1995
+  },
+  {
+    "make": "Land Rover",
+    "year": 1996
+  },
+  {
+    "make": "Land Rover",
+    "year": 1997
+  },
+  {
+    "make": "Land Rover",
+    "year": 1998
+  },
+  {
+    "make": "Land Rover",
+    "year": 1999
+  },
+  {
+    "make": "Land Rover",
+    "year": 2000
+  },
+  {
+    "make": "Land Rover",
+    "year": 2001
+  },
+  {
+    "make": "Land Rover",
+    "year": 2002
+  },
+  {
+    "make": "Land Rover",
+    "year": 2003
+  },
+  {
+    "make": "Land Rover",
+    "year": 2004
+  },
+  {
+    "make": "Land Rover",
     "year": 2005
   },
   {
-    "make": "BMW",
+    "make": "Land Rover",
+    "year": 2006
+  },
+  {
+    "make": "Land Rover",
+    "year": 2007
+  },
+  {
+    "make": "Land Rover",
+    "year": 2008
+  },
+  {
+    "make": "Land Rover",
+    "year": 2009
+  },
+  {
+    "make": "Land Rover",
+    "year": 2010
+  },
+  {
+    "make": "Lexus",
+    "year": 1985
+  },
+  {
+    "make": "Lexus",
+    "year": 1986
+  },
+  {
+    "make": "Lexus",
+    "year": 1987
+  },
+  {
+    "make": "Lexus",
+    "year": 1988
+  },
+  {
+    "make": "Lexus",
+    "year": 1989
+  },
+  {
+    "make": "Lexus",
+    "year": 1990
+  },
+  {
+    "make": "Lexus",
+    "year": 1991
+  },
+  {
+    "make": "Lexus",
+    "year": 1992
+  },
+  {
+    "make": "Lexus",
+    "year": 1993
+  },
+  {
+    "make": "Lexus",
+    "year": 1994
+  },
+  {
+    "make": "Lexus",
+    "year": 1995
+  },
+  {
+    "make": "Lexus",
+    "year": 1996
+  },
+  {
+    "make": "Lexus",
+    "year": 1997
+  },
+  {
+    "make": "Lexus",
     "year": 2025
+  },
+  {
+    "make": "Lincoln",
+    "year": 1985
+  },
+  {
+    "make": "Lincoln",
+    "year": 1986
+  },
+  {
+    "make": "Lincoln",
+    "year": 1987
+  },
+  {
+    "make": "Lincoln",
+    "year": 1988
+  },
+  {
+    "make": "Lincoln",
+    "year": 1989
+  },
+  {
+    "make": "Lincoln",
+    "year": 1990
+  },
+  {
+    "make": "Lincoln",
+    "year": 1991
+  },
+  {
+    "make": "Lincoln",
+    "year": 1992
+  },
+  {
+    "make": "Lincoln",
+    "year": 1993
+  },
+  {
+    "make": "Lincoln",
+    "year": 1994
+  },
+  {
+    "make": "Lincoln",
+    "year": 2003
+  },
+  {
+    "make": "Lincoln",
+    "year": 2004
+  },
+  {
+    "make": "Lincoln",
+    "year": 2024
+  },
+  {
+    "make": "Lincoln",
+    "year": 2025
+  },
+  {
+    "make": "Mazda",
+    "year": 1985
+  },
+  {
+    "make": "Mazda",
+    "year": 1986
+  },
+  {
+    "make": "Mazda",
+    "year": 1987
+  },
+  {
+    "make": "Mazda",
+    "year": 1988
+  },
+  {
+    "make": "Mazda",
+    "year": 1989
+  },
+  {
+    "make": "Mazda",
+    "year": 1990
+  },
+  {
+    "make": "Mazda",
+    "year": 1991
+  },
+  {
+    "make": "Mazda",
+    "year": 1992
+  },
+  {
+    "make": "Mazda",
+    "year": 1993
+  },
+  {
+    "make": "Mazda",
+    "year": 1994
+  },
+  {
+    "make": "Mazda",
+    "year": 1995
+  },
+  {
+    "make": "Mazda",
+    "year": 1996
+  },
+  {
+    "make": "Mazda",
+    "year": 1997
+  },
+  {
+    "make": "Mazda",
+    "year": 1998
+  },
+  {
+    "make": "Mazda",
+    "year": 2023
+  },
+  {
+    "make": "Mazda",
+    "year": 2024
+  },
+  {
+    "make": "Mazda",
+    "year": 2025
+  },
+  {
+    "make": "Mercedes",
+    "year": 1985
+  },
+  {
+    "make": "Mercedes",
+    "year": 1986
+  },
+  {
+    "make": "Mercedes",
+    "year": 1987
+  },
+  {
+    "make": "Mercedes",
+    "year": 1988
+  },
+  {
+    "make": "Mercedes",
+    "year": 1989
+  },
+  {
+    "make": "Mercedes",
+    "year": 1990
+  },
+  {
+    "make": "Mercedes",
+    "year": 1991
+  },
+  {
+    "make": "Mercedes",
+    "year": 1992
+  },
+  {
+    "make": "Mercedes",
+    "year": 1993
+  },
+  {
+    "make": "Mercedes",
+    "year": 1994
+  },
+  {
+    "make": "Mercedes",
+    "year": 1995
+  },
+  {
+    "make": "Mercedes",
+    "year": 1996
+  },
+  {
+    "make": "Mercedes",
+    "year": 1997
+  },
+  {
+    "make": "Mercedes",
+    "year": 1998
+  },
+  {
+    "make": "Mercedes",
+    "year": 1999
   },
   {
     "make": "Mercedes",
@@ -140,155 +1456,899 @@
     "year": 2025
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
+    "year": 1985
+  },
+  {
+    "make": "Mercury",
+    "year": 1986
+  },
+  {
+    "make": "Mercury",
+    "year": 1987
+  },
+  {
+    "make": "Mercury",
+    "year": 1988
+  },
+  {
+    "make": "Mercury",
+    "year": 1989
+  },
+  {
+    "make": "Mercury",
+    "year": 1990
+  },
+  {
+    "make": "Mercury",
+    "year": 1991
+  },
+  {
+    "make": "Mercury",
+    "year": 1992
+  },
+  {
+    "make": "Mercury",
+    "year": 1993
+  },
+  {
+    "make": "Mercury",
+    "year": 1994
+  },
+  {
+    "make": "Mercury",
+    "year": 1995
+  },
+  {
+    "make": "Mercury",
+    "year": 1996
+  },
+  {
+    "make": "Mercury",
+    "year": 1997
+  },
+  {
+    "make": "Mercury",
+    "year": 1998
+  },
+  {
+    "make": "Mercury",
+    "year": 1999
+  },
+  {
+    "make": "Mercury",
     "year": 2000
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2001
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2002
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2003
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2004
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2005
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2006
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2007
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2008
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2009
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2010
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2011
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2012
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2013
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2014
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2015
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2016
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2017
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2018
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2019
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2020
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2021
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2022
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2023
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2024
   },
   {
-    "make": "Volkswagen",
+    "make": "Mercury",
     "year": 2025
   },
   {
-    "make": "Hyundai",
+    "make": "Mitsubishi",
+    "year": 1985
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1986
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1987
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1988
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1989
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1990
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1991
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1992
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1993
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1994
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1995
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1996
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1997
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1998
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 1999
+  },
+  {
+    "make": "Mitsubishi",
     "year": 2000
   },
   {
-    "make": "Hyundai",
+    "make": "Mitsubishi",
     "year": 2001
   },
   {
-    "make": "Hyundai",
+    "make": "Mitsubishi",
     "year": 2002
   },
   {
-    "make": "Kia",
-    "year": 2000
-  },
-  {
-    "make": "Kia",
-    "year": 2001
-  },
-  {
-    "make": "Kia",
-    "year": 2002
-  },
-  {
-    "make": "Kia",
+    "make": "Mitsubishi",
     "year": 2003
   },
   {
-    "make": "Kia",
+    "make": "Mitsubishi",
     "year": 2004
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 2005
+  },
+  {
+    "make": "Mitsubishi",
+    "year": 2025
+  },
+  {
+    "make": "Nissan",
+    "year": 1985
+  },
+  {
+    "make": "Nissan",
+    "year": 1986
+  },
+  {
+    "make": "Nissan",
+    "year": 1987
+  },
+  {
+    "make": "Nissan",
+    "year": 1988
+  },
+  {
+    "make": "Nissan",
+    "year": 1989
+  },
+  {
+    "make": "Nissan",
+    "year": 1990
+  },
+  {
+    "make": "Nissan",
+    "year": 1991
+  },
+  {
+    "make": "Nissan",
+    "year": 1992
+  },
+  {
+    "make": "Nissan",
+    "year": 1993
+  },
+  {
+    "make": "Nissan",
+    "year": 1994
+  },
+  {
+    "make": "Porsche",
+    "year": 1985
+  },
+  {
+    "make": "Porsche",
+    "year": 1986
+  },
+  {
+    "make": "Porsche",
+    "year": 1987
+  },
+  {
+    "make": "Porsche",
+    "year": 1988
+  },
+  {
+    "make": "Porsche",
+    "year": 1989
+  },
+  {
+    "make": "Porsche",
+    "year": 1990
+  },
+  {
+    "make": "Porsche",
+    "year": 1991
+  },
+  {
+    "make": "Porsche",
+    "year": 1992
+  },
+  {
+    "make": "Porsche",
+    "year": 1993
+  },
+  {
+    "make": "Porsche",
+    "year": 1994
+  },
+  {
+    "make": "Porsche",
+    "year": 1995
+  },
+  {
+    "make": "Porsche",
+    "year": 1996
+  },
+  {
+    "make": "Porsche",
+    "year": 1997
+  },
+  {
+    "make": "Porsche",
+    "year": 1998
+  },
+  {
+    "make": "Porsche",
+    "year": 1999
+  },
+  {
+    "make": "Porsche",
+    "year": 2000
+  },
+  {
+    "make": "Porsche",
+    "year": 2001
+  },
+  {
+    "make": "Porsche",
+    "year": 2002
+  },
+  {
+    "make": "Porsche",
+    "year": 2003
+  },
+  {
+    "make": "Porsche",
+    "year": 2004
+  },
+  {
+    "make": "Porsche",
+    "year": 2005
+  },
+  {
+    "make": "Porsche",
+    "year": 2006
+  },
+  {
+    "make": "Porsche",
+    "year": 2007
+  },
+  {
+    "make": "Porsche",
+    "year": 2008
+  },
+  {
+    "make": "Porsche",
+    "year": 2009
+  },
+  {
+    "make": "Porsche",
+    "year": 2010
+  },
+  {
+    "make": "Porsche",
+    "year": 2011
+  },
+  {
+    "make": "Porsche",
+    "year": 2012
+  },
+  {
+    "make": "Porsche",
+    "year": 2013
+  },
+  {
+    "make": "Porsche",
+    "year": 2014
+  },
+  {
+    "make": "Porsche",
+    "year": 2015
+  },
+  {
+    "make": "Porsche",
+    "year": 2016
+  },
+  {
+    "make": "Porsche",
+    "year": 2017
+  },
+  {
+    "make": "Porsche",
+    "year": 2018
+  },
+  {
+    "make": "Porsche",
+    "year": 2019
+  },
+  {
+    "make": "Porsche",
+    "year": 2020
+  },
+  {
+    "make": "Porsche",
+    "year": 2021
+  },
+  {
+    "make": "Porsche",
+    "year": 2022
+  },
+  {
+    "make": "Porsche",
+    "year": 2023
+  },
+  {
+    "make": "Porsche",
+    "year": 2024
+  },
+  {
+    "make": "Porsche",
+    "year": 2025
+  },
+  {
+    "make": "Subaru",
+    "year": 1985
+  },
+  {
+    "make": "Subaru",
+    "year": 1986
+  },
+  {
+    "make": "Subaru",
+    "year": 1987
+  },
+  {
+    "make": "Subaru",
+    "year": 1988
+  },
+  {
+    "make": "Subaru",
+    "year": 1989
+  },
+  {
+    "make": "Subaru",
+    "year": 1990
+  },
+  {
+    "make": "Subaru",
+    "year": 1991
+  },
+  {
+    "make": "Subaru",
+    "year": 1992
+  },
+  {
+    "make": "Subaru",
+    "year": 1993
+  },
+  {
+    "make": "Subaru",
+    "year": 1994
+  },
+  {
+    "make": "Subaru",
+    "year": 1995
+  },
+  {
+    "make": "Subaru",
+    "year": 1996
+  },
+  {
+    "make": "Subaru",
+    "year": 1997
+  },
+  {
+    "make": "Subaru",
+    "year": 1998
+  },
+  {
+    "make": "Subaru",
+    "year": 1999
   },
   {
     "make": "Subaru",
     "year": 2025
   },
   {
-    "make": "Mazda",
+    "make": "Toyota",
+    "year": 1985
+  },
+  {
+    "make": "Toyota",
+    "year": 1986
+  },
+  {
+    "make": "Toyota",
+    "year": 1987
+  },
+  {
+    "make": "Toyota",
+    "year": 1988
+  },
+  {
+    "make": "Toyota",
+    "year": 1989
+  },
+  {
+    "make": "Toyota",
+    "year": 1990
+  },
+  {
+    "make": "Toyota",
+    "year": 1991
+  },
+  {
+    "make": "Toyota",
+    "year": 1992
+  },
+  {
+    "make": "Toyota",
+    "year": 1993
+  },
+  {
+    "make": "Toyota",
+    "year": 1994
+  },
+  {
+    "make": "Toyota",
+    "year": 1995
+  },
+  {
+    "make": "Toyota",
+    "year": 1996
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1985
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1986
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1987
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1988
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1989
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1990
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1991
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1992
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1993
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1994
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1995
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1996
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1997
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1998
+  },
+  {
+    "make": "Volkswagen",
+    "year": 1999
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2000
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2001
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2002
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2003
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2004
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2005
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2006
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2007
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2008
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2009
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2010
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2011
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2012
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2013
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2014
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2015
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2016
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2017
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2018
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2019
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2020
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2021
+  },
+  {
+    "make": "Volkswagen",
+    "year": 2022
+  },
+  {
+    "make": "Volkswagen",
     "year": 2023
   },
   {
-    "make": "Mazda",
+    "make": "Volkswagen",
     "year": 2024
   },
   {
-    "make": "Mazda",
+    "make": "Volkswagen",
+    "year": 2025
+  },
+  {
+    "make": "Volvo",
+    "year": 1985
+  },
+  {
+    "make": "Volvo",
+    "year": 1986
+  },
+  {
+    "make": "Volvo",
+    "year": 1987
+  },
+  {
+    "make": "Volvo",
+    "year": 1988
+  },
+  {
+    "make": "Volvo",
+    "year": 1989
+  },
+  {
+    "make": "Volvo",
+    "year": 1990
+  },
+  {
+    "make": "Volvo",
+    "year": 1991
+  },
+  {
+    "make": "Volvo",
+    "year": 1992
+  },
+  {
+    "make": "Volvo",
+    "year": 1993
+  },
+  {
+    "make": "Volvo",
+    "year": 1994
+  },
+  {
+    "make": "Volvo",
+    "year": 1995
+  },
+  {
+    "make": "Volvo",
+    "year": 1996
+  },
+  {
+    "make": "Volvo",
+    "year": 1997
+  },
+  {
+    "make": "Volvo",
+    "year": 1998
+  },
+  {
+    "make": "Volvo",
+    "year": 1999
+  },
+  {
+    "make": "Volvo",
+    "year": 2000
+  },
+  {
+    "make": "Volvo",
+    "year": 2001
+  },
+  {
+    "make": "Volvo",
+    "year": 2002
+  },
+  {
+    "make": "Volvo",
+    "year": 2003
+  },
+  {
+    "make": "Volvo",
+    "year": 2004
+  },
+  {
+    "make": "Volvo",
+    "year": 2005
+  },
+  {
+    "make": "Volvo",
+    "year": 2006
+  },
+  {
+    "make": "Volvo",
+    "year": 2007
+  },
+  {
+    "make": "Volvo",
+    "year": 2008
+  },
+  {
+    "make": "Volvo",
+    "year": 2009
+  },
+  {
+    "make": "Volvo",
+    "year": 2010
+  },
+  {
+    "make": "Volvo",
+    "year": 2011
+  },
+  {
+    "make": "Volvo",
+    "year": 2012
+  },
+  {
+    "make": "Volvo",
+    "year": 2013
+  },
+  {
+    "make": "Volvo",
+    "year": 2014
+  },
+  {
+    "make": "Volvo",
+    "year": 2015
+  },
+  {
+    "make": "Volvo",
+    "year": 2016
+  },
+  {
+    "make": "Volvo",
+    "year": 2017
+  },
+  {
+    "make": "Volvo",
+    "year": 2018
+  },
+  {
+    "make": "Volvo",
+    "year": 2019
+  },
+  {
+    "make": "Volvo",
+    "year": 2020
+  },
+  {
+    "make": "Volvo",
+    "year": 2021
+  },
+  {
+    "make": "Volvo",
+    "year": 2022
+  },
+  {
+    "make": "Volvo",
+    "year": 2023
+  },
+  {
+    "make": "Volvo",
+    "year": 2024
+  },
+  {
+    "make": "Volvo",
     "year": 2025
   }
 ]

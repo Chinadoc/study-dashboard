@@ -2746,6 +2746,42 @@
                     </div>
                     <div style="color: var(--text-muted); font-size: 0.9rem;">Activities Today</div>
                 </div>
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                    <div style="font-size: 2rem; font-weight: 800; color: #f59e0b;" id="devGuestVisitors">-
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Guest Visitors (30d)</div>
+                </div>
+            </div>
+
+            <!-- Analytics Widgets -->
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px;">
+                <!-- Top Searches -->
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 20px;">
+                    <h3
+                        style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span>🔍</span> Top Search Terms
+                    </h3>
+                    <div id="devTopSearches" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">No searches tracked
+                            yet</div>
+                    </div>
+                </div>
+
+                <!-- Top Affiliate Clicks -->
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 20px;">
+                    <h3
+                        style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span>🛒</span> Popular Affiliate Links
+                    </h3>
+                    <div id="devTopClicks" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">No clicks tracked yet
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Users Table -->
@@ -2931,9 +2967,7 @@
             }
 
             // Log tab view activity
-            if (currentUser) {
-                logActivity('view_tab', { tab: tabName });
-            }
+            logActivity('view_tab', { tab: tabName });
 
             document.querySelectorAll('.tab').forEach((t, i) => {
                 if (tabName === 'browse' && i === 0) t.classList.add('active');
@@ -3823,6 +3857,8 @@
 
         function filterFccTable() {
             fccPage = 1;
+            const query = document.getElementById('fccSearch').value;
+            logSearch(query);
             renderFccTable();
         }
 
@@ -4692,6 +4728,9 @@
 
         // Initialize Google Sign-In
         function initGoogleAuth() {
+            // Initialize visitor ID for anonymous tracking
+            getVisitorId();
+
             // Check if user is already signed in (from localStorage)
             const savedUser = localStorage.getItem('eurokeys_user');
             if (savedUser) {
@@ -4891,135 +4930,188 @@
 
         // ================== ACTIVITY TRACKING ==================
 
-        // Log user activity to the server
+        // Generate or retrieve a visitor ID for anonymous tracking
+        function getVisitorId() {
+            let vid = localStorage.getItem('eurokeys_visitor_id');
+            if (!vid) {
+                vid = 'v_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('eurokeys_visitor_id', vid);
+            }
+            return vid;
+        }
+
+        // Log user activity to the server (supports anonymous tracking)
         async function logActivity(action, details = null) {
-            if (!currentUser) return;
             try {
+                const visitorId = getVisitorId();
                 await fetch(`${API}/activity/log`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ action, details })
+                    body: JSON.stringify({
+                        action,
+                        details,
+                        visitorId,
+                        user_email: currentUser?.email || null
+                    })
                 });
             } catch (e) {
-                console.log('Activity log failed:', e);
+                // Silently fail for analytics
             }
+        }
+
+        // Track clicks on affiliate links
+        document.addEventListener('click', (e) => {
+            const affiliateLink = e.target.closest('a[href*="amazon.com"]');
+            if (affiliateLink) {
+                const url = affiliateLink.href;
+                logActivity('click_affiliate', { url });
+            }
+        });
+
+        // Search tracking with debounce
+        let searchLogTimeout;
+        function logSearch(query) {
+            clearTimeout(searchLogTimeout);
+            if (!query || query.length < 3) return;
+            searchLogTimeout = setTimeout(() => {
+                logActivity('search', { query });
+            }, 2000); // 2 second delay to avoid logging every keystroke
         }
 
         // ================== DEVELOPER PANEL ==================
 
         let devPanelLoaded = false;
 
+        // Helper for relative time (e.g. "5m ago")
+        function formatRelativeDate(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            return new Date(timestamp).toLocaleDateString();
+        }
+
         // Load developer panel data
         async function loadDevPanel() {
-            if (devPanelLoaded) return; // Only load once per session
-
             try {
-                const [usersRes, activityRes] = await Promise.all([
-                    fetch(`${API}/admin/users`, { credentials: 'include' }),
-                    fetch(`${API}/admin/activity`, { credentials: 'include' })
+                // Fetch stats and user list
+                const [statsRes, userRes, activityRes] = await Promise.all([
+                    fetch(`${API}/api/admin/stats`, { credentials: 'include' }),
+                    fetch(`${API}/api/admin/users`, { credentials: 'include' }),
+                    fetch(`${API}/api/admin/activity?limit=100`, { credentials: 'include' })
                 ]);
 
-                if (!usersRes.ok || !activityRes.ok) {
-                    console.error('Failed to load dev panel data');
-                    return;
-                }
+                if (!statsRes.ok || !userRes.ok || !activityRes.ok) return;
 
-                const usersData = await usersRes.json();
+                const statsData = await statsRes.json();
+                const userData = await userRes.json();
                 const activityData = await activityRes.json();
 
-                // Update stats
-                const users = usersData.users || [];
-                const activities = activityData.activity || [];
-
+                // 1. Update Stats Cards
+                const users = userData.users || [];
+                const guestCount = statsData.visitorStats?.guest_count || 0;
                 document.getElementById('devTotalUsers').textContent = users.length;
                 document.getElementById('devProUsers').textContent = users.filter(u => u.is_pro).length;
+                document.getElementById('devActivities').textContent = activityData.activity.length > 0 ? activityData.activity.length + '+' : '0';
+                document.getElementById('devGuestVisitors').textContent = guestCount;
 
-                // Count today's activities
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const todayTimestamp = today.getTime();
-                const todayActivities = activities.filter(a => a.created_at >= todayTimestamp).length;
-                document.getElementById('devActivities').textContent = todayActivities;
+                // 2. Update Top Searches
+                const searchContainer = document.getElementById('devTopSearches');
+                if (statsData.topSearches && statsData.topSearches.length > 0) {
+                    searchContainer.innerHTML = statsData.topSearches.map(s => `
+                        <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
+                            <span style="color: var(--text-primary); font-family: monospace; font-size: 0.85rem;">"${s.query}"</span>
+                            <span style="color: var(--brand-primary); font-weight: bold; font-size: 0.85rem;">${s.count}x</span>
+                        </div>
+                    `).join('');
+                }
 
-                // Render users table
-                const usersTable = document.getElementById('devUsersTable');
-                if (users.length === 0) {
-                    usersTable.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">No users yet</td></tr>';
-                } else {
-                    usersTable.innerHTML = users.map(user => {
-                        const signupDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown';
-                        const lastActive = user.last_activity ? new Date(user.last_activity).toLocaleString() : 'Never';
-                        const statusBadge = user.is_pro
-                            ? '<span style="background: #fbbf24; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">PRO</span>'
-                            : (user.is_developer ? '<span style="background: #8b5cf6; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">DEV</span>' : '<span style="background: var(--glass-border); color: var(--text-muted); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Free</span>');
-
+                // 3. Update Top Clicks
+                const clickContainer = document.getElementById('devTopClicks');
+                if (statsData.topClicks && statsData.topClicks.length > 0) {
+                    clickContainer.innerHTML = statsData.topClicks.map(c => {
+                        const asinMatch = c.url.match(/\/dp\/([A-Z0-9]+)/);
+                        const label = asinMatch ? asinMatch[1] : 'External Link';
                         return `
-                            <tr style="border-top: 1px solid var(--glass-border);">
-                                <td style="padding: 12px 16px;">
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        ${user.picture ? `<img src="${user.picture}" style="width: 32px; height: 32px; border-radius: 50%;">` : '<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">' + (user.name?.[0] || '?') + '</div>'}
-                                        <span style="color: var(--text-primary);">${user.name || 'Unknown'}</span>
-                                    </div>
-                                </td>
-                                <td style="padding: 12px 16px; color: var(--text-muted);">${user.email || '-'}</td>
-                                <td style="padding: 12px 16px; text-align: center;">${statusBadge}</td>
-                                <td style="padding: 12px 16px; text-align: center; color: var(--text-secondary);">${user.activity_count || 0}</td>
-                                <td style="padding: 12px 16px; color: var(--text-muted);">${signupDate}</td>
-                                <td style="padding: 12px 16px; color: var(--text-muted);">${lastActive}</td>
-                            </tr>
-                        `;
+                        <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
+                            <a href="${c.url}" target="_blank" style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; font-size: 0.85rem;">${label}</a>
+                            <span style="color: var(--brand-primary); font-weight: bold; font-size: 0.85rem;">${c.count} clicks</span>
+                        </div>
+                    `;
                     }).join('');
                 }
 
-                // Render activity log
-                const activityLog = document.getElementById('devActivityLog');
-                if (activities.length === 0) {
-                    activityLog.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No activity yet</div>';
+                // 4. Update Users Table
+                const tbody = document.getElementById('devUsersTable');
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">No registered users yet</td></tr>';
                 } else {
-                    activityLog.innerHTML = activities.slice(0, 100).map(activity => {
-                        const time = new Date(activity.created_at).toLocaleString();
-                        const actionIcon = {
-                            'sign_in': '🔑',
-                            'sign_out': '👋',
-                            'view_tab': '👁️',
-                            'search': '🔍',
-                            'inventory_add': '➕',
-                            'inventory_use': '➖'
-                        }[activity.action] || '📊';
+                    tbody.innerHTML = users.map(u => {
+                        const lastActive = u.last_activity ? formatRelativeDate(u.last_activity) : 'Never';
+                        return `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 12px 16px; display: flex; align-items: center; gap: 10px;">
+                                <img src="${u.picture || 'https://www.gravatar.com/avatar/0?d=mp'}" style="width: 24px; height: 24px; border-radius: 50%;">
+                                <div style="color: var(--text-primary); font-weight: 500; font-size: 0.85rem;">${u.name || 'User'}</div>
+                            </td>
+                            <td style="padding: 12px 16px; font-size: 0.8rem; color: var(--text-muted);">${u.email || '-'}</td>
+                            <td style="padding: 12px 16px; text-align: center;">
+                                <span style="background: ${u.is_pro ? 'rgba(74, 222, 128, 0.1)' : 'rgba(156, 163, 175, 0.1)'}; color: ${u.is_pro ? '#4ade80' : '#9ca3af'}; padding: 4px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: bold;">
+                                    ${u.is_pro ? 'PRO' : 'FREE'}
+                                </span>
+                            </td>
+                            <td style="padding: 12px 16px; text-align: center; font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">${u.activity_count || 0}</td>
+                            <td style="padding: 12px 16px; font-size: 0.8rem; color: var(--text-muted);">${new Date(u.created_at).toLocaleDateString()}</td>
+                            <td style="padding: 12px 16px; font-size: 0.8rem; color: var(--text-muted);">${lastActive}</td>
+                        </tr>
+                    `;
+                    }).join('');
+                }
 
-                        let detailsStr = '';
-                        if (activity.details) {
+                // 5. Update Activity Log
+                const logContainer = document.getElementById('devActivityLog');
+                const activity = activityData.activity || [];
+                if (activity.length === 0) {
+                    logContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">No activity recorded yet</div>';
+                } else {
+                    logContainer.innerHTML = activity.map(a => {
+                        const isGuest = String(a.user_id).startsWith('guest:');
+                        const displayName = a.user_name || (isGuest ? `Guest (${a.user_id.substring(6, 12)})` : 'Anonymous');
+                        const time = formatRelativeDate(a.created_at);
+                        const icon = {
+                            'sign_in': '🔑', 'sign_out': '👋', 'view_tab': '👁️', 'search': '🔍',
+                            'inventory_add': '➕', 'inventory_use': '➖', 'click_affiliate': '🛒'
+                        }[a.action] || '📊';
+
+                        let detailsText = '';
+                        if (a.details) {
                             try {
-                                const details = typeof activity.details === 'string' ? JSON.parse(activity.details) : activity.details;
-                                detailsStr = Object.entries(details).map(([k, v]) => `${k}: ${v}`).join(', ');
-                            } catch (e) {
-                                detailsStr = activity.details;
-                            }
+                                const d = JSON.parse(a.details);
+                                if (a.action === 'search') detailsText = `: <span style="color: var(--brand-primary);">${d.query}</span>`;
+                                else if (a.action === 'view_tab') detailsText = `: <span style="color: #a855f7;">${d.tab}</span>`;
+                                else if (a.action === 'click_affiliate') detailsText = `: <span style="color: #3b82f6;">Amazon Link</span>`;
+                            } catch (e) { }
                         }
 
                         return `
-                            <div style="padding: 10px 0; border-bottom: 1px solid var(--glass-border); display: flex; gap: 12px; align-items: flex-start;">
-                                <span style="font-size: 1.2rem;">${actionIcon}</span>
-                                <div style="flex: 1;">
-                                    <div style="color: var(--text-primary);">
-                                        <strong>${activity.user_name || activity.user_email || 'User'}</strong>
-                                        <span style="color: var(--text-muted);"> - ${activity.action}</span>
-                                    </div>
-                                    ${detailsStr ? `<div style="color: var(--text-muted); font-size: 0.85rem;">${detailsStr}</div>` : ''}
-                                    <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">${time}</div>
-                                </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: flex-start; font-size: 0.85rem;">
+                            <div>
+                                <span style="margin-right: 8px;">${icon}</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${displayName}</span>
+                                <span style="color: var(--text-muted); margin-left: 6px;">${a.action.replace(/_/g, ' ')}${detailsText}</span>
                             </div>
-                        `;
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">${time}</span>
+                        </div>
+                    `;
                     }).join('');
                 }
-
-                devPanelLoaded = true;
-
-            } catch (e) {
-                console.error('Error loading dev panel:', e);
+            } catch (err) {
+                console.error("Dev Panel Load Failed", err);
                 document.getElementById('devUsersTable').innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #ef4444;">Failed to load data</td></tr>';
             }
+            devPanelLoaded = true;
         }
 
         // Initialize

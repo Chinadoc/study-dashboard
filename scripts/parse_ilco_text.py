@@ -50,103 +50,48 @@ def extract_year(text):
     return int(match.group(1)) if match else None
 
 
-def parse_key_entry(line, current_make, source):
-    """Parse a single key entry line."""
-    # Skip header lines
-    if 'Model' in line and 'Start' in line and 'End' in line:
-        return None
-    if 'Lock' in line and 'Apps' in line:
-        return None
-    if 'Ilco/Ilco EZ' in line or 'Transponder' in line:
-        return None
-    if 'Equipment Required' in line or 'Substitues' in line:
-        return None
-    if line.strip().startswith('(LAL)'):
-        return None
-    if line.strip().startswith('Page '):
-        return None
+def parse_year_range_strict(text):
+    """Try to find a year range at the start of a string or within it."""
+    # Pattern: 2000 2005 or 1985-1991
+    # Many Ilco entries use space-separated years
+    match = re.search(r'\b(19\d{2}|20\d{2})\s+(19\d{2}|20\d{2})\b', text)
+    if match:
+        return int(match.group(1)), int(match.group(2)), match.end()
     
-    # Pattern: MODEL YEAR_START YEAR_END ...rest
-    # Example: "TL 2007 2014 All K001-N718..."
-    pattern = r'^([A-Z][A-Z0-9\s\-,\/\.]+?)\s+(19\d{2}|20\d{2})\s+(19\d{2}|20\d{2})\s+(.+)$'
-    match = re.match(pattern, line.strip())
-    
-    if not match:
-        # Try pattern without model (continuation line with years)
-        pattern2 = r'^(19\d{2}|20\d{2})\s+(19\d{2}|20\d{2})\s+(.+)$'
-        match2 = re.match(pattern2, line.strip())
-        if match2:
-            return None  # Skip continuation lines for now
-        return None
-    
-    model = match.group(1).strip()
-    year_start = int(match.group(2))
-    year_end = int(match.group(3))
-    rest = match.group(4)
-    
-    # Skip if model looks like a header or note
-    if len(model) < 2 or model in ['ALL', 'VALET', 'DOOR', 'TRUNK', 'IGNITION']:
-        return None
-    
-    # Extract Ilco reference - look for patterns like HD106-PT, X214/HD103, HO03-PT(V), etc.
-    ilco_pattern = r'([A-Z]{1,4}\d{2,4}[-/]?[A-Z0-9\-]*(?:\(V\))?(?:\s*\[-P(?:C)?\])?)'
-    ilco_matches = re.findall(ilco_pattern, rest)
-    ilco_ref = ilco_matches[0] if ilco_matches else None
-    
-    # Extract key type from content
-    key_type = 'Mechanical'
-    if 'Transponder' in rest or '-PT' in (ilco_ref or '') or 'Smart Pro' in rest:
-        key_type = 'Transponder'
-    if 'Smart Key' in rest or 'Prox' in rest or 'PROX' in line:
-        key_type = 'Smart Key'
-    if 'OEM#' in rest:
-        key_type = 'Smart Key'
-    
-    # Extract chip type
-    chip_type = None
-    chip_patterns = [
-        r'Megamos\s*\((\d+)\)',
-        r'Philips\s*\((\d+)\)',
-        r'Texas Instruments\s*\((\w+)\)',
-        r'\(ID(\d+)\)',
-    ]
-    for chip_pat in chip_patterns:
-        chip_match = re.search(chip_pat, rest, re.IGNORECASE)
-        if chip_match:
-            chip_type = f"ID{chip_match.group(1)}"
-            break
-    
-    # Check for High Security
-    blade_style = None
-    if 'High Security' in rest:
-        blade_style = 'High Security'
-    
-    # Extract notes
-    notes = None
-    if 'Encrypted' in rest:
-        notes = 'Encrypted System'
-    if 'Fixed Code' in rest:
-        notes = 'Fixed Code System'
-    
-    return {
-        'make': current_make,
-        'model': model,
-        'year_start': year_start,
-        'year_end': year_end,
-        'ilco_ref': ilco_ref,
-        'blade_style': blade_style,
-        'key_type': key_type,
-        'chip_type': chip_type,
-        'cloneable': 'Clone' in rest,
-        'oem_ref': None,
-        'notes': notes,
-        'source': source
-    }
+    # Try dash-separated
+    match = re.search(r'\b(19\d{2}|20\d{2})\s*-\s*(19\d{2}|20\d{2})\b', text)
+    if match:
+        return int(match.group(1)), int(match.group(2)), match.end()
 
+    # Try 2000-05 style
+    match = re.search(r'\b(19\d{2}|20\d{2})\s*-\s*(\d{2})\b', text)
+    if match:
+        start = int(match.group(1))
+        prefix = str(start)[:2]
+        end = int(prefix + match.group(2))
+        return start, end, match.end()
+        
+    return None, None, 0
 
-def parse_text_file(text_path, output_path, source='ilco_2025'):
-    """Parse Ilco text file and output JSON."""
+def infer_key_type(text, ilco_ref):
+    """Determine key type from text and part number."""
+    t = (text + ' ' + (ilco_ref or '')).lower()
     
+    if 'smart' in t or 'prox' in t or 'push' in t:
+        return 'Smart Key'
+    if 'flip' in t or 'switchblade' in t or 'folding' in t:
+        return 'Flip Key'
+    if 'remote head' in t or 'rem head' in t:
+        return 'Remote Head'
+    if 'transponder' in t or '-pt' in (ilco_ref or '').lower() or 'chip' in t:
+        return 'Transponder'
+    if 'dealer' in t and ('key' in t or 'fob' in t):
+        return 'Smart Key'
+        
+    return 'Mechanical'
+
+def parse_text_file(text_path, output_path, source='ilco_2023'):
+    """Parse Ilco text file using state machine."""
     text_path = Path(text_path)
     output_path = Path(output_path)
     
@@ -159,82 +104,107 @@ def parse_text_file(text_path, output_path, source='ilco_2025'):
     with open(text_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     
-    print(f"Total lines: {len(lines)}")
-    
     entries = []
     current_make = None
+    current_model = None
+    pending_text = ""
     
     for i, line in enumerate(lines):
         line = line.strip()
+        if not line or line.startswith('--- PAGE'): continue
         
-        # Skip empty lines and page markers
-        if not line or line.startswith('--- PAGE'):
+        # 1. Check for Make Header
+        if line.upper() in MAKE_NAMES:
+            current_make = MAKE_NAMES[line.upper()]
+            current_model = None
             continue
+            
+        if not current_make: continue
+            
+        # 2. Check for Years
+        y_start, y_end, y_end_pos = parse_year_range_strict(line)
         
-        # Check for make headers
-        upper_line = line.upper()
-        if upper_line in MAKE_NAMES:
-            current_make = MAKE_NAMES[upper_line]
-            continue
-        
-        # Also check for make headers in page footers like "ACURA - ALFA ROMEO"
-        footer_match = re.match(r'^([A-Z][A-Z\s]+)\s*-\s*([A-Z][A-Z\s]+)$', line.upper())
-        if footer_match:
-            make1 = footer_match.group(1).strip()
-            make2 = footer_match.group(2).strip()
-            if make1 in MAKE_NAMES:
-                current_make = MAKE_NAMES[make1]
-            elif make2 in MAKE_NAMES:
-                current_make = MAKE_NAMES[make2]
-            continue
-        
-        # Skip if no make context yet
-        if not current_make:
-            continue
-        
-        # Try to parse as key entry
-        entry = parse_key_entry(line, current_make, source)
-        if entry:
-            entries.append(entry)
-        
-        # Progress
-        if (i + 1) % 2000 == 0:
-            print(f"  Processed {i + 1} / {len(lines)} lines, {len(entries)} entries")
+        if y_start and y_start >= 1970:
+            # We found a row with years!
+            # The model is either before the years or on previous lines
+            model_part = line[:y_start - 10 if y_start > 10 else 0].strip() # Rough guess
+            # Actually, regex is better
+            model_match = re.match(r'^([A-Z0-9\s\-,\/\.\&]+?)\s+\d{4}', line)
+            
+            line_model = ""
+            if model_match:
+                line_model = model_match.group(1).strip()
+                
+            # If line_model is empty, use current_model (continuation)
+            effective_model = line_model or current_model
+            if not effective_model:
+                # Look at previous lines if no model on this line
+                effective_model = pending_text.strip() or "Unknown"
+            
+            # Post-process model: remove header-like words
+            for skip in ['MODEL', 'START', 'END', 'LOCK', 'APPS']:
+                effective_model = effective_model.replace(skip, "").strip()
+            
+            # Extract rest of line
+            rest = line[y_end_pos:].strip()
+            
+            # Extract Ilco Ref
+            ilco_pattern = r'([A-Z]{1,3}\d{1,4}(?:[-/][A-Z0-9\-]+)?(?:-PT)?(?:\(V\))?(?:\s*\[-P(?:C)?\])?)'
+            ilco_match = re.search(ilco_pattern, rest)
+            ilco_ref = ilco_match.group(1) if ilco_match else None
+            
+            key_type = infer_key_type(rest + " " + pending_text, ilco_ref)
+            
+            # Add entry
+            entries.append({
+                'make': current_make,
+                'model': effective_model,
+                'year_start': y_start,
+                'year_end': y_end,
+                'ilco_ref': ilco_ref,
+                'key_type': key_type,
+                'source': source,
+                'raw_line': line
+            })
+            
+            # Update current model for next entries
+            if line_model:
+                current_model = line_model
+            pending_text = ""
+        else:
+            # No years on this line - could be a model name or notes
+            if len(line) > 3 and not any(h in line for h in ['Model', 'Start', 'End', 'Lock']):
+                pending_text += " " + line
+                # If it looks like a model (uppercase), update current_model
+                if line.isupper() and len(line) < 30:
+                    current_model = line
     
-    # Deduplicate
+    # Post-process: deduplicate and clean
     seen = set()
-    unique_entries = []
-    for entry in entries:
-        key = (
-            entry['make'],
-            entry['model'],
-            entry['year_start'],
-            entry['year_end'],
-            entry['ilco_ref']
-        )
+    unique = []
+    for e in entries:
+        key = (e['make'], e['model'], e['year_start'], e['year_end'], e['ilco_ref'])
         if key not in seen:
             seen.add(key)
-            unique_entries.append(entry)
+            unique.append(e)
+            
+    print(f"Extracted {len(unique)} entries.")
     
-    print(f"\nTotal entries extracted: {len(entries)}")
-    print(f"Unique entries: {len(unique_entries)}")
-    
-    # Save output
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(unique_entries, f, indent=2)
+        json.dump(unique, f, indent=2)
     
-    print(f"Saved to: {output_path}")
-    
-    # Summary by make
+    # Summary
     print("\n=== Summary by Make ===")
     make_counts = {}
-    for entry in unique_entries:
+    for entry in unique:
         make = entry.get('make', 'Unknown')
         make_counts[make] = make_counts.get(make, 0) + 1
     
     for make, count in sorted(make_counts.items(), key=lambda x: -x[1])[:25]:
         print(f"  {make}: {count}")
+    
+    print(f"\nSaved to: {output_path}")
 
 
 def main():
