@@ -5792,14 +5792,29 @@
 
 
         // ================== KEY COVERAGE HEATMAP ==================
-        function renderKeyCoverageMap() {
+        let heatmapCached = false;
+        let cachedCoverage = null;
+        let cachedHeatmapHtml = null;
+
+        function renderKeyCoverageMap(forceRefresh = false) {
             const container = document.getElementById('keyCoverageContainer');
             if (!container) return;
+
+            // Use cached HTML if available (performance optimization)
+            if (!forceRefresh && cachedHeatmapHtml && heatmapCached) {
+                container.innerHTML = cachedHeatmapHtml;
+                return;
+            }
 
             // 1. Gather Data (Make vs Year)
             if (typeof fccData === 'undefined' || !fccData || fccData.length === 0) {
                 container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Loading coverage data...</div>';
                 return;
+            }
+
+            // Show loading indicator for first computation
+            if (!heatmapCached) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Computing coverage map...</div>';
             }
 
             // AUTO-ENRICHMENT: Fill gaps with "Traditional Key"
@@ -5960,6 +5975,10 @@
                 </div>
             `;
             container.innerHTML = html;
+
+            // Cache the result for performance
+            cachedHeatmapHtml = html;
+            heatmapCached = true;
         }
 
         // Helper to filter from chart click
