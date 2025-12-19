@@ -3792,6 +3792,8 @@
                 btn.classList.toggle('active', btn.dataset.type === type);
             });
             renderFccTable();
+            // Re-render coverage map to highlight filtered key type
+            renderKeyCoverageMap(true);
         }
 
         async function loadFccData() {
@@ -4773,6 +4775,8 @@
                 };
                 localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
                 updateAuthUI(true);
+                // Check developer status from server
+                checkDeveloperStatus();
             }
         }
 
@@ -4791,8 +4795,30 @@
                 };
                 localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
                 updateAuthUI(true);
+                // Check developer status from server
+                checkDeveloperStatus();
             } catch (e) {
                 console.error('Failed to fetch user profile:', e);
+            }
+        }
+
+        // Check if current user is a developer by calling the server API
+        async function checkDeveloperStatus() {
+            if (!currentUser || !currentUser.email) return;
+
+            try {
+                // Call admin endpoint - if it returns 200, user is a developer
+                const response = await fetch(`${API}/admin/users`, { credentials: 'include' });
+                if (response.ok) {
+                    currentUser.is_developer = true;
+                    localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
+                    // Show dev tab
+                    const devTab = document.getElementById('devTab');
+                    if (devTab) devTab.style.display = 'inline-flex';
+                }
+            } catch (e) {
+                // Not a developer or network error - that's fine
+                console.log('Developer check:', e.message);
             }
         }
 
@@ -6556,6 +6582,74 @@
 
         // ================== VIN DECODER ==================
 
+        // ILCO Key Parts Database (loaded from ilco_2023.json)
+        let ilcoData = [];
+        let ilcoDataLoaded = false;
+
+        // Load ILCO key parts data
+        async function loadIlcoData() {
+            if (ilcoDataLoaded) return;
+            try {
+                const res = await fetch('data/ilco_2023.json');
+                ilcoData = await res.json();
+                ilcoDataLoaded = true;
+                console.log(`Loaded ${ilcoData.length} ILCO key references`);
+            } catch (e) {
+                console.error('Failed to load ILCO data:', e);
+            }
+        }
+
+        // Lookup ILCO parts by year/make/model
+        function lookupIlcoParts(year, make, model) {
+            if (!ilcoData || ilcoData.length === 0) return null;
+
+            const yearNum = parseInt(year);
+            const makeLower = (make || '').toLowerCase().trim();
+            const modelLower = (model || '').toLowerCase().trim();
+
+            // Find all matching entries
+            const matches = ilcoData.filter(entry => {
+                const entryMake = (entry.make || '').toLowerCase().trim();
+                const entryModel = (entry.model || '').toLowerCase().trim();
+                const startYear = entry.year_start || 0;
+                const endYear = entry.year_end || 9999;
+
+                // Check year range
+                if (yearNum < startYear || yearNum > endYear) return false;
+
+                // Check make (exact match or contains)
+                if (entryMake !== makeLower && !entryMake.includes(makeLower) && !makeLower.includes(entryMake)) return false;
+
+                // Check model (partial match - model names vary)
+                if (modelLower && entryModel && !entryModel.includes(modelLower) && !modelLower.includes(entryModel)) {
+                    // Try without trim/variant suffixes
+                    const baseModel = modelLower.split(' ')[0];
+                    const entryBaseModel = entryModel.split(' ')[0];
+                    if (baseModel !== entryBaseModel && !entryBaseModel.includes(baseModel)) return false;
+                }
+
+                return true;
+            });
+
+            if (matches.length === 0) return null;
+
+            // Collect unique ILCO refs, chip types, and key types
+            const ilcoRefs = [...new Set(matches.map(m => m.ilco_ref).filter(r => r && !r.includes('OEM#')))];
+            const chipTypes = [...new Set(matches.map(m => m.chip_type).filter(Boolean))];
+            const keyTypes = [...new Set(matches.map(m => m.key_type).filter(Boolean))];
+            const codeSeries = [...new Set(matches.map(m => m.code_series).filter(Boolean))];
+            const notes = matches.find(m => m.notes)?.notes || null;
+
+            return {
+                ilco: ilcoRefs.slice(0, 3), // Top 3 ILCO refs
+                chip_types: chipTypes,
+                key_types: keyTypes,
+                code_series: codeSeries.slice(0, 2),
+                notes: notes,
+                total_matches: matches.length
+            };
+        }
+
         // Camera scanner state
         let vinCameraStream = null;
 
@@ -6708,36 +6802,53 @@
                     </div>
                 `;
 
-                // 3. Query our database for key info
-                const dbRes = await fetch(`${API}/api/browse?make=${encodeURIComponent(make)}&year=${year}&limit=10`);
+                // 3. Load ILCO data and query our database for key info
+                await loadIlcoData();
+                const [dbRes] = await Promise.all([
+                    fetch(`${API}/api/browse?make=${encodeURIComponent(make)}&year=${year}&limit=10`)
+                ]);
                 const dbData = await dbRes.json();
                 const vehicles = dbData.rows || [];
 
                 // Find the best match by model
                 const exactMatch = vehicles.find(v => v.model?.toLowerCase().includes(model?.toLowerCase())) || vehicles[0];
 
-                // 4. Populate the sections
-                const keyBlankHtml = exactMatch ? `
+                // Lookup ILCO parts from local database
+                const ilcoLookup = lookupIlcoParts(year, make, model);
+
+                // 4. Populate the sections - prefer ILCO lookup, fallback to DB
+                const ilcoDisplay = ilcoLookup?.ilco?.join(', ') || parseKeyRefs(exactMatch?.key_blank_refs, 'ilco') || 'N/A';
+                const strattecDisplay = parseKeyRefs(exactMatch?.key_blank_refs, 'strattec') || 'N/A';
+                const keywayDisplay = exactMatch?.keyway || 'N/A';
+                const chipFromIlco = ilcoLookup?.chip_types?.join(', ') || null;
+                const keyTypeFromIlco = ilcoLookup?.key_types?.join(', ') || null;
+
+                const keyBlankHtml = `
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div style="color: var(--text-muted);">ILCO:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${parseKeyRefs(exactMatch.key_blank_refs, 'ilco') || 'N/A'}</div>
+                        <div style="font-weight: 600; color: ${ilcoLookup?.ilco?.length ? '#22c55e' : 'var(--text-primary)'};">${ilcoDisplay}</div>
                         <div style="color: var(--text-muted);">Strattec:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${parseKeyRefs(exactMatch.key_blank_refs, 'strattec') || 'N/A'}</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${strattecDisplay}</div>
                         <div style="color: var(--text-muted);">Keyway:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.keyway || 'N/A'}</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${keywayDisplay}</div>
+                        ${ilcoLookup?.code_series?.length ? `
+                        <div style="color: var(--text-muted);">Code Series:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${ilcoLookup.code_series.join(', ')}</div>
+                        ` : ''}
                     </div>
-                ` : '<div style="color: var(--text-muted);">No key blank data found for this vehicle.</div>';
+                    ${ilcoLookup?.notes ? `<div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); font-style: italic;">📝 ${ilcoLookup.notes}</div>` : ''}
+                `;
 
-                const transponderHtml = exactMatch ? `
+                const transponderHtml = `
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div style="color: var(--text-muted);">Chip Type:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.transponder_type || exactMatch.chip || 'N/A'}</div>
+                        <div style="font-weight: 600; color: ${chipFromIlco ? '#22c55e' : 'var(--text-primary)'};">${chipFromIlco || exactMatch?.transponder_type || exactMatch?.chip || 'N/A'}</div>
                         <div style="color: var(--text-muted);">Key Type:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.key_type_display || exactMatch.key_type || 'N/A'}</div>
+                        <div style="font-weight: 600; color: ${keyTypeFromIlco ? '#22c55e' : 'var(--text-primary)'};">${keyTypeFromIlco || exactMatch?.key_type_display || exactMatch?.key_type || 'N/A'}</div>
                         <div style="color: var(--text-muted);">Immobilizer:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.immobilizer_system || 'N/A'}</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch?.immobilizer_system || 'N/A'}</div>
                     </div>
-                ` : '<div style="color: var(--text-muted);">No transponder data found for this vehicle.</div>';
+                `;
 
                 const remoteHtml = exactMatch ? `
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -6764,9 +6875,9 @@
                 document.getElementById('vinRemote').innerHTML = remoteHtml;
                 document.getElementById('vinProgramming').innerHTML = programmingHtml;
 
-                // 5. Build Amazon buy links
+                // 5. Build Amazon buy links using ILCO lookup
                 const searchTerm = `${year} ${make} ${model} key fob`;
-                const ilco = parseKeyRefs(exactMatch?.key_blank_refs, 'ilco');
+                const ilcoParts = ilcoLookup?.ilco || [];
                 const strattec = parseKeyRefs(exactMatch?.key_blank_refs, 'strattec');
                 const fccId = exactMatch?.fcc_id;
                 const oem = exactMatch?.oem_part_number || exactMatch?.primary_oem_part;
@@ -6777,14 +6888,16 @@
                         🔑 Key Fob for ${make}
                     </a>
                 `;
-                if (ilco && ilco !== 'N/A') {
+
+                // Add buttons for each ILCO part found
+                ilcoParts.slice(0, 2).forEach(ilco => {
                     amazonLinks += `
                         <a href="https://www.amazon.com/s?k=${encodeURIComponent('ILCO ' + ilco + ' key blank')}&tag=eurokeys-20" target="_blank"
                            style="background: #1a472a; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #3d7a5a;">
                             ILCO ${ilco}
                         </a>
                     `;
-                }
+                });
                 if (strattec && strattec !== 'N/A') {
                     amazonLinks += `
                         <a href="https://www.amazon.com/s?k=${encodeURIComponent('Strattec ' + strattec + ' key')}&tag=eurokeys-20" target="_blank"
