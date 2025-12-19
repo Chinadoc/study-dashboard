@@ -5003,7 +5003,15 @@
                     fetch(`${API}/api/admin/activity?limit=100`, { credentials: 'include' })
                 ]);
 
-                if (!statsRes.ok || !userRes.ok || !activityRes.ok) return;
+                if (statsRes.status === 401 || userRes.status === 401) {
+                    throw new Error("Session expired. Please sign out and sign in again.");
+                }
+                if (statsRes.status === 403 || userRes.status === 403) {
+                    throw new Error("Access denied. You must be a designated developer.");
+                }
+                if (!statsRes.ok || !userRes.ok || !activityRes.ok) {
+                    throw new Error(`Server error (${statsRes.status})`);
+                }
 
                 const statsData = await statsRes.json();
                 const userData = await userRes.json();
@@ -5109,7 +5117,7 @@
                 }
             } catch (err) {
                 console.error("Dev Panel Load Failed", err);
-                document.getElementById('devUsersTable').innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #ef4444;">Failed to load data</td></tr>';
+                document.getElementById('devUsersTable').innerHTML = `<tr><td colspan="6" style="padding: 40px; text-align: center; color: #ef4444;">${err.message || 'Failed to load data'}</td></tr>`;
             }
             devPanelLoaded = true;
         }
@@ -6509,33 +6517,47 @@
         // This data reflects typical key technology adoption by manufacturer
         const HARDCODED_COVERAGE = {
             // Japanese - Early smart key adopters
-            "Toyota": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Lexus": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Honda": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Nissan": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Mazda": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'F', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Subaru": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'T', 2008: 'T', 2009: 'T', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'R', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Toyota": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'T', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Lexus": { 1995: 'M', 1996: 'M', 1997: 'T', 1998: 'T', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Honda": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Nissan": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Mazda": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'M', 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'F', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Subaru": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'M', 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'T', 2008: 'T', 2009: 'T', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'R', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
             // American - Remote head key era
-            "Ford": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'R', 2006: 'R', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Chevrolet": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'F', 2011: 'F', 2012: 'F', 2013: 'F', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Dodge": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Jeep": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Ford": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'M', 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'R', 2006: 'R', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Chevrolet": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'M', 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'F', 2011: 'F', 2012: 'F', 2013: 'F', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Dodge": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'M', 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Jeep": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'M', 1999: 'M', 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
             // German - Early transponder adopters
-            "BMW": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Mercedes": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Volkswagen": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'F', 2006: 'F', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "BMW": { 1995: 'M', 1996: 'T', 1997: 'T', 1998: 'T', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Mercedes": { 1995: 'M', 1996: 'T', 1997: 'T', 1998: 'T', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Volkswagen": { 1995: 'M', 1996: 'M', 1997: 'M', 1998: 'T', 1999: 'T', 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'F', 2006: 'F', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
             // Korean - Flip key era
             "Hyundai": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
-            "Kia": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' }
+            "Kia": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Acura": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Audi": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'F', 2006: 'F', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Buick": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Cadillac": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'T', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Chrysler": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "GMC": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Infiniti": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'S', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Jaguar": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Land Rover": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Lincoln": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'T', 2004: 'T', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Mercury": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'R', 2006: 'R', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R' },
+            "Mitsubishi": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Porsche": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Volvo": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' }
         };
 
         // Key type colors matching badge colors
         const KEY_TYPE_COLORS = {
-            'S': { bg: '#22c55e', label: 'Smart/Prox', opacity: 1 },      // Green
-            'F': { bg: '#a855f7', label: 'Flip Key', opacity: 0.9 },      // Purple
-            'R': { bg: '#3b82f6', label: 'Remote Head', opacity: 0.85 },  // Blue
-            'T': { bg: '#fbbf24', label: 'Transponder', opacity: 0.8 },   // Yellow
-            'M': { bg: '#9ca3af', label: 'Mechanical', opacity: 0.6 }     // Grey
+            'S': { bg: '#22c55e', label: 'Smart/Prox', opacity: 1, filter: 'smart' },      // Green
+            'F': { bg: '#a855f7', label: 'Flip Key', opacity: 0.9, filter: 'flip' },      // Purple
+            'R': { bg: '#3b82f6', label: 'Remote Head', opacity: 0.85, filter: 'remote-head' },  // Blue
+            'T': { bg: '#fbbf24', label: 'Transponder', opacity: 0.8, filter: 'transponder' },   // Yellow
+            'M': { bg: '#9ca3af', label: 'Mechanical', opacity: 0.6, filter: 'mechanical' }     // Grey
         };
 
         function renderKeyCoverageMap(forceRefresh = false) {
@@ -6550,7 +6572,7 @@
 
             // Use expanded makes list from hardcoded coverage
             const makes = Object.keys(HARDCODED_COVERAGE);
-            const years = Array.from({ length: 41 }, (_, i) => 1985 + i); // 1985-2025
+            const years = Array.from({ length: 31 }, (_, i) => 1995 + i); // 1995-2025
 
             // Get current filter for highlighting
             const activeFilter = typeof fccKeyType !== 'undefined' ? fccKeyType : 'all';
@@ -6603,7 +6625,7 @@
 
             // Render Heatmap with all 5 key type colors
             const html = `
-                <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
+                <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
                     <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <span>🗺️ Key Coverage Map${activeFilter !== 'all' ? ' - ' + (KEY_TYPE_COLORS[{ smart: 'S', flip: 'F', 'remote-head': 'R', transponder: 'T', mechanical: 'M' }[activeFilter]]?.label || activeFilter) : ''}</span>
                         <div style="display: flex; gap: 8px; font-size: 0.75rem; font-weight: 400; flex-wrap: wrap;">
@@ -6615,15 +6637,16 @@
                         </div>
                     </h3>
 
-                    <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, 1fr); gap: 2px; min-width: 1200px;">
-                         <!-- Headers -->
-                        <div></div>
-                        ${years.map(y => `<div style="font-size: 0.55rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">'${String(y).slice(-2)}</div>`).join('')}
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                        <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, minmax(20px, 1fr)); gap: 2px; min-width: min(1000px, 100%);">
+                             <!-- Headers -->
+                            <div style="position: sticky; left: 0; background: var(--bg-tertiary); z-index: 2;"></div>
+                            ${years.map(y => `<div style="font-size: 0.55rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">'${String(y).slice(-2)}</div>`).join('')}
 
-                        <!-- Body -->
-                        ${makes.map(make => {
+                            <!-- Body -->
+                            ${makes.map(make => {
                 return `
-                                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end; white-space: nowrap;">${make}</div>
+                                    <div style="position: sticky; left: 0; background: var(--bg-tertiary); z-index: 1; font-size: 0.75rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end; white-space: nowrap;">${make}</div>
                                 ${years.map(year => {
                     const data = coverage[make] && coverage[make][year];
                     const typeCode = data?.keyType || 'M';
@@ -6662,6 +6685,7 @@
                 }).join('')}
                             `;
             }).join('')}
+                        </div>
                     </div>
                 </div>
             `;
@@ -6749,6 +6773,90 @@
                 code_series: codeSeries.slice(0, 2),
                 notes: notes,
                 total_matches: matches.length
+            };
+        }
+
+        // Strattec Key Parts Database (loaded from strattec_2008_clean.json)
+        let strattecData = [];
+        let strattecDataLoaded = false;
+
+        // Load Strattec key parts data
+        async function loadStrattecData() {
+            if (strattecDataLoaded) return;
+            try {
+                const res = await fetch('data/strattec_2008_clean.json');
+                strattecData = await res.json();
+                strattecDataLoaded = true;
+                console.log(`Loaded ${strattecData.length} Strattec key references`);
+            } catch (e) {
+                console.error('Failed to load Strattec data:', e);
+            }
+        }
+
+        // Lookup Strattec parts by year/make/model
+        function lookupStrattecParts(year, make, model) {
+            // Modern Cross-Reference (2010-2025)
+            const modernMappings = [
+                { make: 'Chevrolet', model: 'Cruze', year_start: 2011, year_end: 2016, strattec: '5912545' },
+                { make: 'Chevrolet', model: 'Equinox', year_start: 2010, year_end: 2017, strattec: '5912543' },
+                { make: 'Chevrolet', model: 'Silverado 1500', year_start: 2014, year_end: 2018, strattec: '5922534' },
+                { make: 'Chevrolet', model: 'Silverado 1500', year_start: 2007, year_end: 2013, strattec: '5903089' },
+                { make: 'GMC', model: 'Sierra', year_start: 2014, year_end: 2019, strattec: '5912545' },
+                { make: 'Ford', model: 'F-150', year_start: 2011, year_end: 2014, strattec: '5912560' },
+                { make: 'Ford', model: 'F-150', year_start: 2015, year_end: 2020, strattec: '5925315' },
+                { make: 'Ford', model: 'Fusion', year_start: 2013, year_end: 2016, strattec: '5923667' },
+                { make: 'Ford', model: 'Explorer', year_start: 2011, year_end: 2015, strattec: '5921287' },
+                { make: 'Jeep', model: 'Grand Cherokee', year_start: 2014, year_end: 2021, strattec: '5926058' },
+                { make: 'Honda', model: 'Accord', year_start: 2008, year_end: 2012, strattec: '5907553' }
+            ];
+
+            const yearNum = parseInt(year);
+            const makeLower = (make || '').toLowerCase().trim();
+            const modelLower = (model || '').toLowerCase().trim();
+
+            // Check modern mappings first (higher confidence)
+            const modernMatch = modernMappings.find(m => {
+                const mMake = m.make.toLowerCase();
+                const mModel = m.model.toLowerCase();
+                return (makeLower.includes(mMake) || mMake.includes(makeLower)) &&
+                    (modelLower.includes(mModel) || mModel.includes(modelLower)) &&
+                    yearNum >= m.year_start && yearNum <= m.year_end;
+            });
+
+            if (modernMatch) {
+                return {
+                    strattec: [modernMatch.strattec],
+                    source: 'cross-reference'
+                };
+            }
+
+            if (!strattecData || strattecData.length === 0) return null;
+
+            // Find all matching entries in historical data
+            const matches = strattecData.filter(entry => {
+                const entryMake = (entry.make || '').toLowerCase().trim();
+                const entryModel = (entry.model || '').toLowerCase().trim();
+                const startYear = entry.year_start || 0;
+                const endYear = entry.year_end || 9999;
+
+                if (yearNum < startYear || yearNum > endYear) return false;
+                if (entryMake !== makeLower && !entryMake.includes(makeLower) && !makeLower.includes(entryMake)) return false;
+
+                if (modelLower && entryModel && !entryModel.includes(modelLower) && !modelLower.includes(entryModel)) {
+                    const baseModel = modelLower.split(' ')[0];
+                    const entryBaseModel = entryModel.split(' ')[0];
+                    if (baseModel !== entryBaseModel && !entryBaseModel.includes(baseModel)) return false;
+                }
+                return true;
+            });
+
+            if (matches.length === 0) return null;
+
+            const strattecRefs = [...new Set(matches.map(m => m.strattec_ref).filter(Boolean))];
+
+            return {
+                strattec: strattecRefs.slice(0, 3),
+                source: 'strattec_2008'
             };
         }
 
@@ -6904,8 +7012,8 @@
                     </div>
                 `;
 
-                // 3. Load ILCO data and query our database for key info
-                await loadIlcoData();
+                // 3. Load lookup data and query our database for key info
+                await Promise.all([loadIlcoData(), loadStrattecData()]);
                 const [dbRes] = await Promise.all([
                     fetch(`${API}/api/browse?make=${encodeURIComponent(make)}&year=${year}&limit=10`)
                 ]);
@@ -6915,12 +7023,13 @@
                 // Find the best match by model
                 const exactMatch = vehicles.find(v => v.model?.toLowerCase().includes(model?.toLowerCase())) || vehicles[0];
 
-                // Lookup ILCO parts from local database
+                // Lookup parts from local databases
                 const ilcoLookup = lookupIlcoParts(year, make, model);
+                const strattecLookup = lookupStrattecParts(year, make, model);
 
-                // 4. Populate the sections - prefer ILCO lookup, fallback to DB
+                // 4. Populate the sections - prefer lookups, fallback to DB
                 const ilcoDisplay = ilcoLookup?.ilco?.join(', ') || parseKeyRefs(exactMatch?.key_blank_refs, 'ilco') || 'N/A';
-                const strattecDisplay = parseKeyRefs(exactMatch?.key_blank_refs, 'strattec') || 'N/A';
+                const strattecDisplay = strattecLookup?.strattec?.join(', ') || parseKeyRefs(exactMatch?.key_blank_refs, 'strattec') || 'N/A';
                 const keywayDisplay = exactMatch?.keyway || 'N/A';
                 const chipFromIlco = ilcoLookup?.chip_types?.join(', ') || null;
                 const keyTypeFromIlco = ilcoLookup?.key_types?.join(', ') || null;
@@ -6930,7 +7039,7 @@
                         <div style="color: var(--text-muted);">ILCO:</div>
                         <div style="font-weight: 600; color: ${ilcoLookup?.ilco?.length ? '#22c55e' : 'var(--text-primary)'};">${ilcoDisplay}</div>
                         <div style="color: var(--text-muted);">Strattec:</div>
-                        <div style="font-weight: 600; color: var(--text-primary);">${strattecDisplay}</div>
+                        <div style="font-weight: 600; color: ${strattecLookup?.strattec?.length ? '#22c55e' : 'var(--text-primary)'};">${strattecDisplay}</div>
                         <div style="color: var(--text-muted);">Keyway:</div>
                         <div style="font-weight: 600; color: var(--text-primary);">${keywayDisplay}</div>
                         ${ilcoLookup?.code_series?.length ? `
@@ -6977,41 +7086,47 @@
                 document.getElementById('vinRemote').innerHTML = remoteHtml;
                 document.getElementById('vinProgramming').innerHTML = programmingHtml;
 
-                // 5. Build Amazon buy links using ILCO lookup
+                // 5. Build Amazon buy links using lookup results
                 const searchTerm = `${year} ${make} ${model} key fob`;
                 const ilcoParts = ilcoLookup?.ilco || [];
-                const strattec = parseKeyRefs(exactMatch?.key_blank_refs, 'strattec');
+                const strattecParts = strattecLookup?.strattec || [];
                 const fccId = exactMatch?.fcc_id;
-                const oem = exactMatch?.oem_part_number || exactMatch?.primary_oem_part;
 
                 let amazonLinks = `
                     <a href="https://www.amazon.com/s?k=${encodeURIComponent(searchTerm)}&tag=eurokeys-20" target="_blank" 
+                       onclick="logActivity('click_affiliate', { term: '${searchTerm}', origin: 'vin_lookup' })"
                        style="background: #22c55e; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        🔑 Key Fob for ${make}
+                        🛒 Buy Link for ${make}
                     </a>
                 `;
 
-                // Add buttons for each ILCO part found
-                ilcoParts.slice(0, 2).forEach(ilco => {
+                // ILCO Buttons
+                ilcoParts.slice(0, 2).forEach(part => {
                     amazonLinks += `
-                        <a href="https://www.amazon.com/s?k=${encodeURIComponent('ILCO ' + ilco + ' key blank')}&tag=eurokeys-20" target="_blank"
-                           style="background: #1a472a; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #3d7a5a;">
-                            ILCO ${ilco}
+                        <a href="https://www.amazon.com/s?k=${encodeURIComponent('ILCO ' + part + ' key')}&tag=eurokeys-20" target="_blank"
+                           onclick="logActivity('click_affiliate', { part: '${part}', brand: 'ILCO', origin: 'vin_lookup' })"
+                           style="background: #1e3a8a; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            ILCO ${part}
                         </a>
                     `;
                 });
-                if (strattec && strattec !== 'N/A') {
+
+                // Strattec Buttons
+                strattecParts.slice(0, 2).forEach(part => {
                     amazonLinks += `
-                        <a href="https://www.amazon.com/s?k=${encodeURIComponent('Strattec ' + strattec + ' key')}&tag=eurokeys-20" target="_blank"
-                           style="background: #1a365d; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #3d5a80;">
-                            Strattec ${strattec}
+                        <a href="https://www.amazon.com/s?k=${encodeURIComponent('Strattec ' + part + ' key')}&tag=eurokeys-20" target="_blank"
+                           onclick="logActivity('click_affiliate', { part: '${part}', brand: 'Strattec', origin: 'vin_lookup' })"
+                           style="background: #1a1a1a; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            Strattec ${part}
                         </a>
                     `;
-                }
+                });
+
                 if (fccId && fccId !== 'N/A') {
                     amazonLinks += `
                         <a href="https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20" target="_blank"
-                           style="background: #4a1a5d; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #7a3b8a;">
+                           onclick="logActivity('click_affiliate', { fcc: '${fccId}', origin: 'vin_lookup' })"
+                           style="background: #4a1a5d; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1);">
                             FCC: ${fccId}
                         </a>
                     `;

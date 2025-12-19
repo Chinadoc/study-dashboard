@@ -40,14 +40,38 @@ const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_titl
   'infiniti': { infographic: 'Nissan infographic.png', pdf: 'Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' }
 };
 
+// Helper for CORS-compliant responses
+function corsResponse(request: Request, body: string, status = 200, contentType = "application/json") {
+  const origin = request.headers.get("Origin") || "*";
+  // Allow production domain and local development
+  const isAllowedOrigin = origin === "https://eurokeys.app" ||
+    origin.startsWith("http://localhost:") ||
+    origin.startsWith("http://127.0.0.1:");
+
+  const headers: Record<string, string> = {
+    "Content-Type": contentType,
+    "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://eurokeys.app",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Cookie",
+  };
+
+  if (isAllowedOrigin) {
+    headers["Access-Control-Allow-Credentials"] = "true";
+  }
+
+  return new Response(body, { status, headers });
+}
+
+// Legacy helper (only for cases where request isn't available, but we should minimize this)
 function textResponse(body: string, status = 200, contentType = "application/json") {
   return new Response(body, {
     status,
     headers: {
       "Content-Type": contentType,
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": "https://eurokeys.app",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Credentials": "true"
     },
   });
 }
@@ -112,7 +136,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") {
-      return textResponse("", 204);
+      return corsResponse(request, "", 204);
     }
 
     const path = url.pathname;
@@ -133,13 +157,13 @@ export default {
     if (path === "/api/auth/callback") {
       try {
         const code = url.searchParams.get("code");
-        if (!code) return textResponse("Missing code", 400);
+        if (!code) return corsResponse(request, "Missing code", 400);
 
         const redirectUri = `${url.origin}/api/auth/callback`;
         const tokenData: any = await getGoogleToken(code, env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET, redirectUri);
 
         if (!tokenData.access_token) {
-          return textResponse(JSON.stringify(tokenData), 400); // Debug error
+          return corsResponse(request, JSON.stringify(tokenData), 400); // Debug error
         }
 
         const googleUser: any = await getGoogleUser(tokenData.access_token);
@@ -189,7 +213,7 @@ export default {
         return new Response(null, { status: 302, headers });
 
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -199,12 +223,12 @@ export default {
       const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
 
       if (!sessionToken) {
-        return textResponse(JSON.stringify({ user: null }), 200);
+        return corsResponse(request, JSON.stringify({ user: null }), 200);
       }
 
       const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
       if (!payload) {
-        return textResponse(JSON.stringify({ user: null }), 200);
+        return corsResponse(request, JSON.stringify({ user: null }), 200);
       }
 
       // Refresh data from DB to get latest status and also check developer email
@@ -215,14 +239,14 @@ export default {
         user.is_developer = true;
       }
 
-      return textResponse(JSON.stringify({ user }), 200);
+      return corsResponse(request, JSON.stringify({ user }), 200);
     }
 
     // 4. Logout
     if (path === "/api/auth/logout") {
       const headers = new Headers();
       headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure`);
-      return textResponse(JSON.stringify({ success: true }), 200, "application/json");
+      return corsResponse(request, JSON.stringify({ success: true }), 200, "application/json");
     }
 
     // 5. Sync Data (Frontend -> Cloud)
@@ -231,9 +255,9 @@ export default {
         // Authenticate
         const cookieHeader = request.headers.get("Cookie");
         const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse("Unauthorized", 401);
+        if (!sessionToken) return corsResponse(request, "Unauthorized", 401);
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse("Unauthorized", 401);
+        if (!payload || !payload.sub) return corsResponse(request, "Unauthorized", 401);
         const userId = payload.sub as string;
 
         const body: any = await request.json();
@@ -269,10 +293,10 @@ export default {
           if (batch.length > 0) await env.LOCKSMITH_DB.batch(batch);
         }
 
-        return textResponse(JSON.stringify({ success: true, synced_at: Date.now() }), 200);
+        return corsResponse(request, JSON.stringify({ success: true, synced_at: Date.now() }), 200);
 
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -282,9 +306,9 @@ export default {
         // Authenticate
         const cookieHeader = request.headers.get("Cookie");
         const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse("Unauthorized", 401);
+        if (!sessionToken) return corsResponse(request, "Unauthorized", 401);
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse("Unauthorized", 401);
+        if (!payload || !payload.sub) return corsResponse(request, "Unauthorized", 401);
 
         const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27.acacia' as any });
 
@@ -304,10 +328,10 @@ export default {
           }
         });
 
-        return textResponse(JSON.stringify({ url: session.url }), 200);
+        return corsResponse(request, JSON.stringify({ url: session.url }), 200);
 
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -321,7 +345,7 @@ export default {
         const body: any = await request.json();
         const { action, details, visitorId } = body;
 
-        if (!action) return textResponse(JSON.stringify({ error: "Missing action" }), 400);
+        if (!action) return corsResponse(request, JSON.stringify({ error: "Missing action" }), 400);
 
         let userId = visitorId ? `guest:${visitorId}` : "anonymous";
 
@@ -347,9 +371,9 @@ export default {
           Date.now()
         ).run();
 
-        return textResponse(JSON.stringify({ success: true }));
+        return corsResponse(request, JSON.stringify({ success: true }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -358,14 +382,14 @@ export default {
       try {
         const cookieHeader = request.headers.get("Cookie");
         const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         // Check developer access
         const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-        if (!userIsDev) return textResponse(JSON.stringify({ error: "Forbidden" }), 403);
+        if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
         // Get all users with activity count and last activity
         const users = await env.LOCKSMITH_DB.prepare(`
@@ -385,9 +409,9 @@ export default {
           ORDER BY u.created_at DESC
         `).all();
 
-        return textResponse(JSON.stringify({ users: users.results || [] }));
+        return corsResponse(request, JSON.stringify({ users: users.results || [] }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -396,14 +420,14 @@ export default {
       try {
         const cookieHeader = request.headers.get("Cookie");
         const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         // Check developer access
         const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-        if (!userIsDev) return textResponse(JSON.stringify({ error: "Forbidden" }), 403);
+        if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10), 500);
         const userId = url.searchParams.get("userId"); // Optional filter
@@ -433,9 +457,9 @@ export default {
           LIMIT ?
         `).bind(...params, limit).all();
 
-        return textResponse(JSON.stringify({ activity: activity.results || [] }));
+        return corsResponse(request, JSON.stringify({ activity: activity.results || [] }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -444,13 +468,13 @@ export default {
       try {
         const cookieHeader = request.headers.get("Cookie");
         const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
-        if (!userIsDev) return textResponse(JSON.stringify({ error: "Forbidden" }), 403);
+        if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
         // 1. Top Searches
         const topSearches = await env.LOCKSMITH_DB.prepare(`
@@ -481,13 +505,13 @@ export default {
           WHERE created_at > ?
         `).bind(Date.now() - (30 * 24 * 60 * 60 * 1000)).first<any>();
 
-        return textResponse(JSON.stringify({
+        return corsResponse(request, JSON.stringify({
           topSearches: topSearches.results || [],
           topClicks: topClicks.results || [],
           visitorStats: visitorStats || { guest_count: 0, registered_count: 0 }
         }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -507,16 +531,16 @@ export default {
         }
 
         const latest = await env.LOCKSMITH_DB.prepare("SELECT * FROM insights WHERE user_id = ? OR user_id = 'global' ORDER BY created_at DESC LIMIT 1").bind(userId).first();
-        return textResponse(JSON.stringify({ insight: latest }), 200);
+        return corsResponse(request, JSON.stringify({ insight: latest }), 200);
       } catch (e: any) {
-        return textResponse(JSON.stringify({ error: e.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: e.message }), 500);
       }
     }
 
     // 8. Test AI (Manual Trigger)
     if (path === "/api/test-ai") {
       const result = await runAIAnalysis(env);
-      return textResponse(JSON.stringify(result), 200);
+      return corsResponse(request, JSON.stringify(result), 200);
     }
 
     // Master Locksmith Data Endpoint - uses unified schema
@@ -622,7 +646,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message || "failed to load data" }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message || "failed to load data" }), 500);
       }
     }
 
@@ -697,7 +721,7 @@ export default {
         await cache.put(cacheKey.toString(), resp.clone());
         return resp;
       } catch (err: any) {
-        return textResponse(
+        return corsResponse(request, 
           JSON.stringify({ error: err.message || "failed to load immobilizers" }),
           500
         );
@@ -815,7 +839,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -872,7 +896,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -881,7 +905,7 @@ export default {
       try {
         const fccId = decodeURIComponent(path.split("/").pop() || "");
         if (!fccId) {
-          return textResponse(JSON.stringify({ error: "FCC ID required" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "FCC ID required" }), 400);
         }
 
         // Get FCC info from registry
@@ -950,7 +974,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -996,7 +1020,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1074,7 +1098,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1087,7 +1111,7 @@ export default {
         const fcc = url.searchParams.get("fcc")?.toLowerCase() || "";
 
         if (!make && !fcc) {
-          return textResponse(JSON.stringify({ error: "make or fcc required" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "make or fcc required" }), 400);
         }
 
         let sql = `SELECT * FROM curated_overrides WHERE 1=1`;
@@ -1126,7 +1150,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1169,7 +1193,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1195,9 +1219,9 @@ export default {
         }
 
         const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
-        return textResponse(JSON.stringify({ rows: result.results || [] }), 200);
+        return corsResponse(request, JSON.stringify({ rows: result.results || [] }), 200);
       } catch (e: any) {
-        return textResponse(JSON.stringify({ error: e.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: e.message }), 500);
       }
     }
 
@@ -1223,9 +1247,9 @@ export default {
         }
 
         const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
-        return textResponse(JSON.stringify({ rows: result.results || [] }), 200);
+        return corsResponse(request, JSON.stringify({ rows: result.results || [] }), 200);
       } catch (e: any) {
-        return textResponse(JSON.stringify({ error: e.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: e.message }), 500);
       }
     }
 
@@ -1280,7 +1304,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1294,13 +1318,13 @@ export default {
       try {
         const key = decodeURIComponent(path.replace("/api/assets/", ""));
         if (!key) {
-          return textResponse(JSON.stringify({ error: "Asset key required" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "Asset key required" }), 400);
         }
 
         const object = await env.ASSETS_BUCKET.get(key);
 
         if (!object) {
-          return textResponse("Asset not found", 404);
+          return corsResponse(request, "Asset not found", 404);
         }
 
         const headers = new Headers();
@@ -1311,7 +1335,7 @@ export default {
 
         return new Response(object.body, { headers });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message || "Failed to fetch asset" }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message || "Failed to fetch asset" }), 500);
       }
     }
 
@@ -1324,7 +1348,7 @@ export default {
       try {
         const vehicleId = parseInt(path.split("/").pop() || "", 10);
         if (isNaN(vehicleId)) {
-          return textResponse(JSON.stringify({ error: "Invalid vehicle ID" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "Invalid vehicle ID" }), 400);
         }
 
         // Get vehicle info from lookup table
@@ -1333,7 +1357,7 @@ export default {
         ).bind(vehicleId).first<any>();
 
         if (!vehicle) {
-          return textResponse(JSON.stringify({ error: "Vehicle not found" }), 404);
+          return corsResponse(request, JSON.stringify({ error: "Vehicle not found" }), 404);
         }
 
         // Get all locksmith data for this vehicle
@@ -1370,7 +1394,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1379,7 +1403,7 @@ export default {
       try {
         const fccId = decodeURIComponent(path.split("/").pop() || "");
         if (!fccId) {
-          return textResponse(JSON.stringify({ error: "FCC ID required" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "FCC ID required" }), 400);
         }
 
         // Get FCC ID info from lookup table
@@ -1417,7 +1441,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1426,7 +1450,7 @@ export default {
       try {
         const keywayParam = decodeURIComponent(path.split("/").pop() || "");
         if (!keywayParam) {
-          return textResponse(JSON.stringify({ error: "Keyway required" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "Keyway required" }), 400);
         }
 
         // Get keyway info
@@ -1453,7 +1477,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1485,7 +1509,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1529,7 +1553,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1598,7 +1622,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1648,7 +1672,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1695,7 +1719,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1743,7 +1767,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1793,7 +1817,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1829,7 +1853,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1878,7 +1902,7 @@ export default {
           },
         });
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -1891,7 +1915,7 @@ export default {
         const { userId, email, plan } = body;
 
         if (!userId || !email || !plan) {
-          return textResponse(JSON.stringify({ error: "Missing userId, email, or plan" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "Missing userId, email, or plan" }), 400);
         }
 
         // Price IDs - you'll need to create these in Stripe Dashboard and replace
@@ -1903,7 +1927,7 @@ export default {
 
         const priceId = priceIds[plan];
         if (!priceId) {
-          return textResponse(JSON.stringify({ error: "Invalid plan" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "Invalid plan" }), 400);
         }
 
         // Create Stripe Checkout Session via API
@@ -1929,12 +1953,12 @@ export default {
         const session = await stripeResponse.json() as { url?: string; error?: { message: string } };
 
         if (!stripeResponse.ok || session.error) {
-          return textResponse(JSON.stringify({ error: session.error?.message || "Stripe error" }), 500);
+          return corsResponse(request, JSON.stringify({ error: session.error?.message || "Stripe error" }), 500);
         }
 
-        return textResponse(JSON.stringify({ url: session.url }));
+        return corsResponse(request, JSON.stringify({ url: session.url }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
@@ -2001,9 +2025,9 @@ export default {
           }
         }
 
-        return textResponse(JSON.stringify({ received: true }));
+        return corsResponse(request, JSON.stringify({ received: true }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 400);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 400);
       }
     }
 
@@ -2013,7 +2037,7 @@ export default {
         const userId = url.searchParams.get("userId");
 
         if (!userId) {
-          return textResponse(JSON.stringify({ error: "Missing userId" }), 400);
+          return corsResponse(request, JSON.stringify({ error: "Missing userId" }), 400);
         }
 
         const result = await env.LOCKSMITH_DB.prepare(`
@@ -2023,23 +2047,23 @@ export default {
         `).bind(userId).first() as { plan: string; status: string; current_period_end: number } | null;
 
         if (!result) {
-          return textResponse(JSON.stringify({ isPro: false, plan: null }));
+          return corsResponse(request, JSON.stringify({ isPro: false, plan: null }));
         }
 
         const now = Math.floor(Date.now() / 1000);
         const isActive = result.status === "active" && result.current_period_end > now;
 
-        return textResponse(JSON.stringify({
+        return corsResponse(request, JSON.stringify({
           isPro: isActive,
           plan: isActive ? result.plan : null,
           expiresAt: isActive ? result.current_period_end : null
         }));
       } catch (err: any) {
-        return textResponse(JSON.stringify({ error: err.message }), 500);
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }
 
-    return textResponse(JSON.stringify({ error: "Not found" }), 404);
+    return corsResponse(request, JSON.stringify({ error: "Not found" }), 404);
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
