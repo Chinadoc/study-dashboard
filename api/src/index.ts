@@ -18,6 +18,7 @@ export interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   JWT_SECRET: string;
+  DEV_EMAILS: string;  // Comma-separated developer email addresses
   AI: any;
 }
 
@@ -99,6 +100,12 @@ async function getGoogleUser(accessToken: string) {
   return await res.json();
 }
 
+// Check if email is in developer allow-list
+function isDeveloper(email: string, devEmails: string): boolean {
+  const allowed = (devEmails || '').split(',').map(e => e.trim().toLowerCase());
+  return allowed.includes((email || '').toLowerCase());
+}
+
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -153,8 +160,25 @@ export default {
         // Get final user state (checking is_pro)
         const user = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(googleUser.id).first<any>();
 
-        // Create Session Cookie
-        const sessionToken = await createInternalToken(user, env.JWT_SECRET || 'dev-secret');
+        // Check if user is a developer based on email allow-list
+        const userIsDeveloper = isDeveloper(googleUser.email, env.DEV_EMAILS);
+
+        // Update developer status in DB if needed
+        if (userIsDeveloper && !user.is_developer) {
+          await env.LOCKSMITH_DB.prepare("UPDATE users SET is_developer = TRUE WHERE id = ?").bind(googleUser.id).run();
+          user.is_developer = true;
+        }
+
+        // Log sign-in activity
+        try {
+          await env.LOCKSMITH_DB.prepare(
+            "INSERT INTO user_activity (user_id, action, details, created_at) VALUES (?, ?, ?, ?)"
+          ).bind(googleUser.id, 'sign_in', JSON.stringify({ email: googleUser.email }), Date.now()).run();
+        } catch (e) { /* activity logging is non-critical */ }
+
+        // Create Session Cookie (include is_developer in token)
+        const userWithDev = { ...user, is_developer: userIsDeveloper || user.is_developer };
+        const sessionToken = await createInternalToken(userWithDev, env.JWT_SECRET || 'dev-secret');
 
         // Redirect to Frontend with Cookie
         const headers = new Headers();

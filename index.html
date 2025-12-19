@@ -2281,6 +2281,7 @@
     <div class="tabs" id="mainTabs">
         <button class="tab active" onclick="showTab('browse')">📂 Browse Database</button>
         <button class="tab" onclick="showTab('fcc')">📡 FCC Database</button>
+        <button class="tab" onclick="showTab('vin')">🔍 VIN Lookup</button>
         <button class="tab" id="inventoryTab" onclick="showTab('inventory')" style="display: none;">📦 My
             Inventory</button>
     </div>
@@ -2418,6 +2419,106 @@
         </div>
     </div>
 
+    <!-- VIN Lookup Tab -->
+    <div class="tab-content" id="tabVin">
+        <div class="container">
+            <div class="page-title">
+                <h1>🔍 VIN <span>Lookup</span></h1>
+            </div>
+            <p class="page-subtitle">Enter a 17-digit VIN to instantly get key part numbers, transponder info, and buy
+                links.</p>
+
+            <!-- VIN Input Section -->
+            <div class="browse-box" style="margin-bottom: 24px;">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <label class="browse-label" style="margin-bottom: 8px; display: block;">Vehicle Identification
+                            Number</label>
+                        <input type="text" id="vinInput" placeholder="Enter 17-digit VIN (e.g., 1HGBH41JXMN109186)"
+                            style="width: 100%; padding: 14px 18px; font-size: 1.1rem; letter-spacing: 2px; font-family: monospace; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); text-transform: uppercase;"
+                            maxlength="17" onkeypress="if(event.key==='Enter') decodeVin()">
+                    </div>
+                    <button onclick="decodeVin()" class="search-btn" style="padding: 14px 28px; white-space: nowrap;">
+                        Decode VIN 🚗
+                    </button>
+                </div>
+                <div id="vinError" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
+            </div>
+
+            <!-- VIN Results Section -->
+            <div id="vinResults" style="display: none;">
+                <!-- Vehicle Info Banner -->
+                <div id="vinVehicleInfo"
+                    style="background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary)); padding: 20px 24px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px;">
+                </div>
+
+                <!-- Key Parts Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+                    <!-- Key Blank Section -->
+                    <div class="vin-result-card"
+                        style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; border: 1px solid var(--border);">
+                        <div
+                            style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 1.5rem;">🔑</span>
+                            <h3 style="margin: 0; color: var(--brand-primary);">Key Blank</h3>
+                        </div>
+                        <div id="vinKeyBlank" class="vin-data-grid"></div>
+                    </div>
+
+                    <!-- Transponder Section -->
+                    <div class="vin-result-card"
+                        style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; border: 1px solid var(--border);">
+                        <div
+                            style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 1.5rem;">🏷️</span>
+                            <h3 style="margin: 0; color: var(--brand-primary);">Transponder / Chip</h3>
+                        </div>
+                        <div id="vinTransponder" class="vin-data-grid"></div>
+                    </div>
+
+                    <!-- Remote / FOB Section -->
+                    <div class="vin-result-card"
+                        style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; border: 1px solid var(--border);">
+                        <div
+                            style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 1.5rem;">📡</span>
+                            <h3 style="margin: 0; color: var(--brand-primary);">Remote / Key Fob</h3>
+                        </div>
+                        <div id="vinRemote" class="vin-data-grid"></div>
+                    </div>
+
+                    <!-- Programming Section -->
+                    <div class="vin-result-card"
+                        style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; border: 1px solid var(--border);">
+                        <div
+                            style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                            <span style="font-size: 1.5rem;">🛠️</span>
+                            <h3 style="margin: 0; color: var(--brand-primary);">Programming Info</h3>
+                        </div>
+                        <div id="vinProgramming" class="vin-data-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Buy Links Section -->
+                <div id="vinBuyLinks"
+                    style="margin-top: 24px; background: linear-gradient(135deg, #1a472a, #2d5a3f); border-radius: 12px; padding: 20px; border: 1px solid #3d7a5a;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                        <span style="font-size: 1.5rem;">🛒</span>
+                        <h3 style="margin: 0; color: #4ade80;">Buy Parts on Amazon</h3>
+                    </div>
+                    <div id="vinAmazonLinks" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="vinLoading" style="display: none; text-align: center; padding: 60px; color: var(--text-muted);">
+                <div style="font-size: 2rem; margin-bottom: 12px;">🔄</div>
+                <div>Decoding VIN...</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Inventory Tab (only visible when signed in) -->
     <div class="tab-content" id="tabInventory" style="display: none;">
         <div class="container">
@@ -2543,7 +2644,7 @@
 
         // Tab switching with URL routing
         function showTab(tabName, updateHash = true) {
-            // Update URL hash for deep linking (e.g., /#database, /#fcc, /#inventory)
+            // Update URL hash for deep linking (e.g., /#database, /#fcc, /#vin, /#inventory)
             if (updateHash && window.location.hash !== `#${tabName}`) {
                 history.pushState(null, '', `#${tabName}`);
             }
@@ -2551,11 +2652,16 @@
             document.querySelectorAll('.tab').forEach((t, i) => {
                 if (tabName === 'browse' && i === 0) t.classList.add('active');
                 else if (tabName === 'fcc' && i === 1) t.classList.add('active');
-                else if (tabName === 'inventory' && i === 2) t.classList.add('active');
+                else if (tabName === 'vin' && i === 2) t.classList.add('active');
+                else if (tabName === 'inventory' && i === 3) t.classList.add('active');
                 else t.classList.remove('active');
             });
             document.getElementById('tabBrowse').classList.toggle('active', tabName === 'browse');
             document.getElementById('tabFcc').classList.toggle('active', tabName === 'fcc');
+            const tabVin = document.getElementById('tabVin');
+            if (tabVin) {
+                tabVin.classList.toggle('active', tabName === 'vin');
+            }
             const tabInventory = document.getElementById('tabInventory');
             if (tabInventory) {
                 tabInventory.style.display = tabName === 'inventory' ? 'block' : 'none';
@@ -2574,7 +2680,7 @@
         // Handle URL hash changes (back/forward buttons)
         window.addEventListener('hashchange', function () {
             const hash = window.location.hash.slice(1) || 'browse';
-            const validTabs = ['browse', 'database', 'fcc', 'inventory'];
+            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory'];
             const tabName = hash === 'database' ? 'browse' : hash;
             if (validTabs.includes(hash) || hash === 'database') {
                 showTab(tabName, false);
@@ -2584,7 +2690,7 @@
         // Handle initial URL hash on page load
         function handleInitialRoute() {
             const hash = window.location.hash.slice(1);
-            const validTabs = ['browse', 'database', 'fcc', 'inventory'];
+            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory'];
             if (hash === 'database') {
                 showTab('browse', false);
             } else if (validTabs.includes(hash)) {
@@ -6027,6 +6133,184 @@
             // Scroll to search results
             searchBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
+        // ================== VIN DECODER ==================
+        async function decodeVin() {
+            const vinInput = document.getElementById('vinInput');
+            const vin = vinInput.value.trim().toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+            const errorEl = document.getElementById('vinError');
+            const resultsEl = document.getElementById('vinResults');
+            const loadingEl = document.getElementById('vinLoading');
+
+            // Validate VIN (17 chars, no I, O, Q)
+            if (vin.length !== 17) {
+                errorEl.textContent = 'VIN must be exactly 17 characters. Currently: ' + vin.length;
+                errorEl.style.display = 'block';
+                resultsEl.style.display = 'none';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+            loadingEl.style.display = 'block';
+            resultsEl.style.display = 'none';
+
+            try {
+                // 1. Call NHTSA VIN Decoder API
+                const nhtsaRes = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`);
+                const nhtsaData = await nhtsaRes.json();
+
+                // Extract key vehicle info
+                const getVal = (varId) => {
+                    const item = nhtsaData.Results?.find(r => r.VariableId === varId);
+                    return item?.Value || null;
+                };
+
+                const year = getVal(29) || getVal(0); // Model Year
+                const make = getVal(26); // Make
+                const model = getVal(28); // Model
+                const series = getVal(34); // Series
+                const bodyClass = getVal(5); // Body Class
+                const engineConfig = getVal(13); // Engine Configuration
+                const fuelType = getVal(24); // Fuel Type
+                const doors = getVal(14); // Doors
+
+                if (!make || !year) {
+                    throw new Error('Could not decode VIN. Please check and try again.');
+                }
+
+                // 2. Display vehicle info
+                document.getElementById('vinVehicleInfo').innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <div style="font-size: 2.5rem;">🚗</div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--brand-primary);">${year} ${make} ${model}${series ? ' ' + series : ''}</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                                ${bodyClass ? bodyClass + ' • ' : ''}${doors ? doors + ' Door • ' : ''}${fuelType || ''}
+                            </div>
+                            <div style="font-family: monospace; font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; letter-spacing: 1px;">VIN: ${vin}</div>
+                        </div>
+                    </div>
+                `;
+
+                // 3. Query our database for key info
+                const dbRes = await fetch(`${API}/api/browse?make=${encodeURIComponent(make)}&year=${year}&limit=10`);
+                const dbData = await dbRes.json();
+                const vehicles = dbData.rows || [];
+
+                // Find the best match by model
+                const exactMatch = vehicles.find(v => v.model?.toLowerCase().includes(model?.toLowerCase())) || vehicles[0];
+
+                // 4. Populate the sections
+                const keyBlankHtml = exactMatch ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="color: var(--text-muted);">ILCO:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${parseKeyRefs(exactMatch.key_blank_refs, 'ilco') || 'N/A'}</div>
+                        <div style="color: var(--text-muted);">Strattec:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${parseKeyRefs(exactMatch.key_blank_refs, 'strattec') || 'N/A'}</div>
+                        <div style="color: var(--text-muted);">Keyway:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.keyway || 'N/A'}</div>
+                    </div>
+                ` : '<div style="color: var(--text-muted);">No key blank data found for this vehicle.</div>';
+
+                const transponderHtml = exactMatch ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="color: var(--text-muted);">Chip Type:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.transponder_type || exactMatch.chip || 'N/A'}</div>
+                        <div style="color: var(--text-muted);">Key Type:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.key_type_display || exactMatch.key_type || 'N/A'}</div>
+                        <div style="color: var(--text-muted);">Immobilizer:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.immobilizer_system || 'N/A'}</div>
+                    </div>
+                ` : '<div style="color: var(--text-muted);">No transponder data found for this vehicle.</div>';
+
+                const remoteHtml = exactMatch ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="color: var(--text-muted);">FCC ID:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.fcc_id || 'N/A'}</div>
+                        <div style="color: var(--text-muted);">Frequency:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.frequency ? exactMatch.frequency + ' MHz' : 'N/A'}</div>
+                        <div style="color: var(--text-muted);">OEM Part:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.oem_part_number || exactMatch.primary_oem_part || 'N/A'}</div>
+                    </div>
+                ` : '<div style="color: var(--text-muted);">No remote/fob data found for this vehicle.</div>';
+
+                const programmingHtml = exactMatch ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="color: var(--text-muted);">Equipment:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.programming_tool || exactMatch.equipment_required || 'Professional Tool Required'}</div>
+                        <div style="color: var(--text-muted);">Procedure:</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${exactMatch.programming_notes || 'Requires OBDII programming'}</div>
+                    </div>
+                ` : '<div style="color: var(--text-muted);">No programming info found for this vehicle.</div>';
+
+                document.getElementById('vinKeyBlank').innerHTML = keyBlankHtml;
+                document.getElementById('vinTransponder').innerHTML = transponderHtml;
+                document.getElementById('vinRemote').innerHTML = remoteHtml;
+                document.getElementById('vinProgramming').innerHTML = programmingHtml;
+
+                // 5. Build Amazon buy links
+                const searchTerm = `${year} ${make} ${model} key fob`;
+                const ilco = parseKeyRefs(exactMatch?.key_blank_refs, 'ilco');
+                const strattec = parseKeyRefs(exactMatch?.key_blank_refs, 'strattec');
+                const fccId = exactMatch?.fcc_id;
+                const oem = exactMatch?.oem_part_number || exactMatch?.primary_oem_part;
+
+                let amazonLinks = `
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(searchTerm)}&tag=eurokeys-20" target="_blank" 
+                       style="background: #22c55e; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                        🔑 Key Fob for ${make}
+                    </a>
+                `;
+                if (ilco && ilco !== 'N/A') {
+                    amazonLinks += `
+                        <a href="https://www.amazon.com/s?k=${encodeURIComponent('ILCO ' + ilco + ' key blank')}&tag=eurokeys-20" target="_blank"
+                           style="background: #1a472a; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #3d7a5a;">
+                            ILCO ${ilco}
+                        </a>
+                    `;
+                }
+                if (strattec && strattec !== 'N/A') {
+                    amazonLinks += `
+                        <a href="https://www.amazon.com/s?k=${encodeURIComponent('Strattec ' + strattec + ' key')}&tag=eurokeys-20" target="_blank"
+                           style="background: #1a365d; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #3d5a80;">
+                            Strattec ${strattec}
+                        </a>
+                    `;
+                }
+                if (fccId && fccId !== 'N/A') {
+                    amazonLinks += `
+                        <a href="https://www.amazon.com/s?k=${encodeURIComponent(fccId + ' key fob')}&tag=eurokeys-20" target="_blank"
+                           style="background: #4a1a5d; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #7a3b8a;">
+                            FCC: ${fccId}
+                        </a>
+                    `;
+                }
+
+                document.getElementById('vinAmazonLinks').innerHTML = amazonLinks;
+
+                loadingEl.style.display = 'none';
+                resultsEl.style.display = 'block';
+
+            } catch (err) {
+                loadingEl.style.display = 'none';
+                errorEl.textContent = err.message || 'Failed to decode VIN. Please try again.';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Helper to parse key_blank_refs JSON
+        function parseKeyRefs(refs, type) {
+            if (!refs) return null;
+            try {
+                const parsed = typeof refs === 'string' ? JSON.parse(refs) : refs;
+                const val = parsed[type];
+                if (Array.isArray(val)) return val.join(', ');
+                return val || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         async function renderToolCoveragePage(container, headerHtml) {
             const simulatedTool = localStorage.getItem('eurokeys_simulated_tool') || null;
             const myCoverage = ToolCoverageManager.getMyCoverage();
