@@ -2284,6 +2284,7 @@
         <button class="tab" onclick="showTab('vin')">🔍 VIN Lookup</button>
         <button class="tab" id="inventoryTab" onclick="showTab('inventory')" style="display: none;">📦 My
             Inventory</button>
+        <button class="tab" id="devTab" onclick="showTab('dev')" style="display: none;">🛠️ Dev Panel</button>
     </div>
 
     <!-- Browse Database Tab -->
@@ -2441,8 +2442,205 @@
                     <button onclick="decodeVin()" class="search-btn" style="padding: 14px 28px; white-space: nowrap;">
                         Decode VIN 🚗
                     </button>
+                    <button onclick="startVinCamera()" class="search-btn"
+                        style="padding: 14px 20px; white-space: nowrap; background: linear-gradient(135deg, #4a1a5d, #6a2b7a);"
+                        title="Scan VIN with camera">
+                        📷 Scan
+                    </button>
                 </div>
                 <div id="vinError" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
+
+                <!-- Camera Scanner Modal -->
+                <div id="vinCameraModal"
+                    style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-weight: 600; color: var(--text-primary);">📷 VIN Camera Scanner</span>
+                        <button onclick="stopVinCamera()"
+                            style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Close
+                            ✕</button>
+                    </div>
+                    <video id="vinCameraVideo"
+                        style="width: 100%; max-height: 300px; border-radius: 8px; background: #000;" autoplay
+                        playsinline></video>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <button onclick="captureVinFrame()" class="search-btn" style="padding: 10px 24px;">📸 Capture &
+                            Scan</button>
+                    </div>
+                    <canvas id="vinCameraCanvas" style="display: none;"></canvas>
+                    <div id="vinScanResult"
+                        style="margin-top: 12px; display: none; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border: 1px solid #22c55e;">
+                        <span style="color: #22c55e; font-weight: 600;">Detected VIN: </span>
+                        <span id="vinDetectedText"
+                            style="font-family: monospace; letter-spacing: 2px; color: var(--text-primary);"></span>
+                        <button onclick="useDetectedVin()"
+                            style="margin-left: 12px; background: #22c55e; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;">Use
+                            This</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular VINs by Make/Model -->
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <h3 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">🔥 Popular Vehicle VINs (Click
+                        to Lookup)</h3>
+                    <button onclick="toggleVinList()" id="vinListToggle"
+                        style="background: none; border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Show
+                        All ▼</button>
+                </div>
+                <div id="popularVinGrid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                    <!-- Toyota -->
+                    <div onclick="lookupVin('JTDKN3DU5A0000001')" class="vin-quick-card"
+                        style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor='var(--brand-primary)'"
+                        onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="font-weight: 700; color: var(--brand-primary);">Toyota Camry</div>
+                        <div
+                            style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                            JTDKN3DU5A0...</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2010+ • Smart
+                            Key</div>
+                    </div>
+                    <!-- Honda -->
+                    <div onclick="lookupVin('1HGBH41JXMN109186')" class="vin-quick-card"
+                        style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor='var(--brand-primary)'"
+                        onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="font-weight: 700; color: var(--brand-primary);">Honda Accord</div>
+                        <div
+                            style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                            1HGBH41JXMN...</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2008+ • ILCO
+                            HD106-PT</div>
+                    </div>
+                    <!-- Ford -->
+                    <div onclick="lookupVin('1FAHP3F29CL000001')" class="vin-quick-card"
+                        style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor='var(--brand-primary)'"
+                        onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="font-weight: 700; color: var(--brand-primary);">Ford Focus</div>
+                        <div
+                            style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                            1FAHP3F29CL...</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2012+ • Strattec
+                            5921285</div>
+                    </div>
+                    <!-- Chevrolet -->
+                    <div onclick="lookupVin('1G1YY22G965000001')" class="vin-quick-card"
+                        style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.borderColor='var(--brand-primary)'"
+                        onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="font-weight: 700; color: var(--brand-primary);">Chevrolet Malibu</div>
+                        <div
+                            style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                            1G1YY22G965...</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2016+ • B111-PT
+                        </div>
+                    </div>
+                </div>
+                <!-- Hidden additional VINs -->
+                <div id="moreVins" style="display: none; margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                        <!-- Nissan -->
+                        <div onclick="lookupVin('1N4AA5AP9DC000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Nissan Altima</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                1N4AA5AP9DC...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2013+ •
+                                Intelligent Key</div>
+                        </div>
+                        <!-- BMW -->
+                        <div onclick="lookupVin('WBAPH5C55BA000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">BMW 3 Series</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                WBAPH5C55BA...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2011+ •
+                                HU92RP</div>
+                        </div>
+                        <!-- Mercedes -->
+                        <div onclick="lookupVin('WDDGF81X79F000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Mercedes C-Class</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                WDDGF81X79F...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2009+ •
+                                Smart Key</div>
+                        </div>
+                        <!-- VW -->
+                        <div onclick="lookupVin('3VW2K7AJ5DM000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Volkswagen Jetta</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                3VW2K7AJ5DM...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2013+ • HU66
+                                Keyway</div>
+                        </div>
+                        <!-- Jeep -->
+                        <div onclick="lookupVin('1C4RJFBG3EC000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Jeep Grand Cherokee</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                1C4RJFBG3EC...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2014+ •
+                                FOBIK</div>
+                        </div>
+                        <!-- Hyundai -->
+                        <div onclick="lookupVin('5NPE24AF8FH000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Hyundai Sonata</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                5NPE24AF8FH...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2015+ •
+                                Smart Key</div>
+                        </div>
+                        <!-- Kia -->
+                        <div onclick="lookupVin('5XYZU3LB7DG000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Kia Sorento</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                5XYZU3LB7DG...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2013+ •
+                                SY5HMFNA04</div>
+                        </div>
+                        <!-- Subaru -->
+                        <div onclick="lookupVin('JF2SJAHC5FH000001')" class="vin-quick-card"
+                            style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.borderColor='var(--brand-primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-weight: 700; color: var(--brand-primary);">Subaru Forester</div>
+                            <div
+                                style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
+                                JF2SJAHC5FH...</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2015+ •
+                                Smart Key</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- VIN Results Section -->
@@ -2515,6 +2713,89 @@
             <div id="vinLoading" style="display: none; text-align: center; padding: 60px; color: var(--text-muted);">
                 <div style="font-size: 2rem; margin-bottom: 12px;">🔄</div>
                 <div>Decoding VIN...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Panel Tab (only visible to developers) -->
+    <div class="tab-content" id="tabDev" style="display: none;">
+        <div class="container">
+            <div class="page-title">
+                <h1>🛠️ Developer <span>Panel</span></h1>
+            </div>
+            <p class="page-subtitle">User analytics and activity tracking dashboard.</p>
+
+            <!-- Stats Cards -->
+            <div id="devStats"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--text-primary);" id="devTotalUsers">-
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Total Users</div>
+                </div>
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--brand-primary);" id="devProUsers">-
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Pro Subscribers</div>
+                </div>
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--text-secondary);" id="devActivities">-
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Activities Today</div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div style="margin-top: 32px;">
+                <h3 style="color: var(--text-primary); margin-bottom: 16px;">👥 Registered Users</h3>
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); overflow: hidden;">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.03);">
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">
+                                        User</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">
+                                        Email</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: center; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">
+                                        Status</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: center; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">
+                                        Activities</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">
+                                        Signed Up</th>
+                                    <th
+                                        style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;">
+                                        Last Active</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devUsersTable">
+                                <tr>
+                                    <td colspan="6"
+                                        style="padding: 40px; text-align: center; color: var(--text-muted);">Loading
+                                        users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div style="margin-top: 32px;">
+                <h3 style="color: var(--text-primary); margin-bottom: 16px;">📊 Recent Activity</h3>
+                <div id="devActivityLog"
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 16px; max-height: 400px; overflow-y: auto;">
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">Loading activity...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -2644,9 +2925,14 @@
 
         // Tab switching with URL routing
         function showTab(tabName, updateHash = true) {
-            // Update URL hash for deep linking (e.g., /#database, /#fcc, /#vin, /#inventory)
+            // Update URL hash for deep linking (e.g., /#database, /#fcc, /#vin, /#inventory, /#dev)
             if (updateHash && window.location.hash !== `#${tabName}`) {
                 history.pushState(null, '', `#${tabName}`);
+            }
+
+            // Log tab view activity
+            if (currentUser) {
+                logActivity('view_tab', { tab: tabName });
             }
 
             document.querySelectorAll('.tab').forEach((t, i) => {
@@ -2654,6 +2940,7 @@
                 else if (tabName === 'fcc' && i === 1) t.classList.add('active');
                 else if (tabName === 'vin' && i === 2) t.classList.add('active');
                 else if (tabName === 'inventory' && i === 3) t.classList.add('active');
+                else if (tabName === 'dev' && i === 4) t.classList.add('active');
                 else t.classList.remove('active');
             });
             document.getElementById('tabBrowse').classList.toggle('active', tabName === 'browse');
@@ -2669,6 +2956,13 @@
                     renderInventoryPage();
                 }
             }
+            const tabDev = document.getElementById('tabDev');
+            if (tabDev) {
+                tabDev.style.display = tabName === 'dev' ? 'block' : 'none';
+                if (tabName === 'dev') {
+                    loadDevPanel();
+                }
+            }
 
             if (tabName === 'fcc') {
                 if (!fccDataLoaded) loadFccData();
@@ -2680,7 +2974,7 @@
         // Handle URL hash changes (back/forward buttons)
         window.addEventListener('hashchange', function () {
             const hash = window.location.hash.slice(1) || 'browse';
-            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory'];
+            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory', 'dev'];
             const tabName = hash === 'database' ? 'browse' : hash;
             if (validTabs.includes(hash) || hash === 'database') {
                 showTab(tabName, false);
@@ -2690,7 +2984,7 @@
         // Handle initial URL hash on page load
         function handleInitialRoute() {
             const hash = window.location.hash.slice(1);
-            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory'];
+            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory', 'dev'];
             if (hash === 'database') {
                 showTab('browse', false);
             } else if (validTabs.includes(hash)) {
@@ -3424,24 +3718,70 @@
         let fccKeyType = 'all'; // 'all', 'push', 'non-push'
         const FCC_PER_PAGE = 20;
 
-        // Determine if FCC ID is for a push-to-start key
-        function isPushKey(row) {
+        // Determine key type matching filter categories
+        function getKeyType(row) {
             const vehicles = (row.vehicles || '').toLowerCase();
             const chip = (row.chip || '').toLowerCase();
             const freq = parseFloat(row.frequency) || 0;
+            const keyTypeDisplay = (row.key_type_display || '').toLowerCase();
 
-            // Push keys typically: 433 MHz, prox/PEPS systems, modern chips
-            const pushIndicators = ['peps', 'prox', 'smart key', 'push', 'intelligent key', 'keyless'];
-            const pushChips = ['id47', 'id49', 'id4a', 'hitag pro', 'hitag-aes', 'hitag 3'];
+            // Smart/Prox keys: PEPS, proximity, push-to-start
+            if (chip.includes('hitag') || chip.includes('id47') || chip.includes('id49') ||
+                chip.includes('id4a') || vehicles.includes('prox') ||
+                vehicles.includes('smart') || vehicles.includes('peps') ||
+                keyTypeDisplay.includes('smart') || freq >= 433) {
+                return 'smart';
+            }
 
-            // Check for push indicators in vehicle/chip names
-            const hasPushKeyword = pushIndicators.some(kw => vehicles.includes(kw) || chip.includes(kw));
-            const hasPushChip = pushChips.some(c => chip.includes(c));
+            // Flip/switchblade keys
+            if (vehicles.includes('flip') || vehicles.includes('switchblade') ||
+                keyTypeDisplay.includes('flip')) {
+                return 'flip';
+            }
 
-            // 433 MHz is commonly used for proximity keys
-            const is433MHz = freq >= 433;
+            // Remote head keys
+            if (vehicles.includes('remote head') || chip.includes('remote head') ||
+                keyTypeDisplay.includes('remote head') ||
+                vehicles.includes('rhk') || vehicles.includes('remote key')) {
+                return 'remote-head';
+            }
 
-            return hasPushKeyword || hasPushChip || is433MHz;
+            // Mechanical/traditional keys: no chip
+            if (row.is_synthetic || chip.includes('non-transponder') ||
+                chip.includes('traditional') || chip === 'na' || chip === 'n/a' ||
+                chip === '' || keyTypeDisplay.includes('mechanical') ||
+                keyTypeDisplay.includes('high security')) {
+                return 'mechanical';
+            }
+
+            // Transponder keys: chip-based but not smart
+            if (chip.includes('id') || chip.includes('philips') || chip.includes('texas') ||
+                chip.includes('megamos') || chip.includes('pcf') || chip.includes('tpx') ||
+                keyTypeDisplay.includes('transponder') || keyTypeDisplay.includes('ews')) {
+                return 'transponder';
+            }
+
+            return 'transponder'; // Default fallback
+        }
+
+        // Generate key type badge HTML with appropriate colors
+        function getKeyTypeBadge(row, includeMarginLeft = false) {
+            const keyType = getKeyType(row);
+            const badges = {
+                'smart': { label: 'Smart/Prox', bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: 'rgba(34, 197, 94, 0.2)' },
+                'flip': { label: 'Flip Key', bg: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: 'rgba(168, 85, 247, 0.2)' },
+                'remote-head': { label: 'Remote Head', bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: 'rgba(59, 130, 246, 0.2)' },
+                'mechanical': { label: 'Mechanical', bg: 'rgba(156, 163, 175, 0.1)', color: '#9ca3af', border: 'rgba(156, 163, 175, 0.2)' },
+                'transponder': { label: 'Transponder', bg: 'rgba(251, 191, 36, 0.1)', color: '#fbbf24', border: 'rgba(251, 191, 36, 0.2)' }
+            };
+            const badge = badges[keyType] || badges['transponder'];
+            const marginStyle = includeMarginLeft ? ' margin-left: 8px;' : '';
+            return `<span style="font-size: 0.7rem; background: ${badge.bg}; color: ${badge.color}; padding: 2px 6px; border-radius: 4px; border: 1px solid ${badge.border};${marginStyle}">${badge.label}</span>`;
+        }
+
+        // Legacy compatibility - keep isPushKey for any other usages
+        function isPushKey(row) {
+            return getKeyType(row) === 'smart';
         }
 
         function setFccFilter(type) {
@@ -3675,9 +4015,7 @@
                     <td style="font-size: 0.85rem;">
                         ${oemPart ? `<a href="${amazonLink}" target="_blank" style="color: var(--brand-primary);">${oemPart}</a>` : '<span style="color: var(--text-muted);">-</span>'}
                         <div style="margin-top: 4px;">
-                            ${isPushKey(r)
-                        ? '<span style="font-size: 0.7rem; background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(34, 197, 94, 0.2);">Push Start</span>'
-                        : '<span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2);">Remote Head</span>'}
+                            ${getKeyTypeBadge(r)}
                         </div>
                     </td>
                     <td style="max-width: 350px; line-height: 1.4;">${highlightedVehiclesHtml}${moreLink}</td>
@@ -3749,9 +4087,7 @@
                         <div class="fcc-card-header">
                             <span class="fcc-id-badge" onclick="showFccModal('${fccId}')">🔑 ${fccId}</span>
                             ${oemPart ? `<span class="fcc-oem">${oemPart}</span>` : ''}
-                            ${isPushKey(r)
-                            ? '<span style="font-size: 0.7rem; background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(34, 197, 94, 0.2); margin-left: 8px;">Push Start</span>'
-                            : '<span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2); margin-left: 8px;">Remote Head</span>'}
+                            ${getKeyTypeBadge(r, true)}
                         </div>
 
                         ${imageUrl ? `
@@ -4523,6 +4859,12 @@
                     inventoryTab.style.display = 'inline-flex';
                     updateInventoryTabBadge();
                 }
+
+                // Show developer tab if user is a developer
+                const devTab = document.getElementById('devTab');
+                if (devTab) {
+                    devTab.style.display = currentUser.is_developer ? 'inline-flex' : 'none';
+                }
             } else {
                 signInBtn.style.display = 'flex';
                 userMenu.style.display = 'none';
@@ -4532,12 +4874,19 @@
                 if (inventoryTab) {
                     inventoryTab.style.display = 'none';
                 }
+
+                // Hide developer tab
+                const devTab = document.getElementById('devTab');
+                if (devTab) {
+                    devTab.style.display = 'none';
+                }
             }
         }
 
         // Sign out
         function signOut() {
             if (confirm('Sign out of Euro Keys?')) {
+                logActivity('sign_out');
                 currentUser = null;
                 localStorage.removeItem('eurokeys_user');
                 updateAuthUI(false);
@@ -4546,6 +4895,139 @@
                 if (typeof google !== 'undefined' && google.accounts) {
                     google.accounts.id.disableAutoSelect();
                 }
+            }
+        }
+
+        // ================== ACTIVITY TRACKING ==================
+
+        // Log user activity to the server
+        async function logActivity(action, details = null) {
+            if (!currentUser) return;
+            try {
+                await fetch(`${API}/activity/log`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ action, details })
+                });
+            } catch (e) {
+                console.log('Activity log failed:', e);
+            }
+        }
+
+        // ================== DEVELOPER PANEL ==================
+
+        let devPanelLoaded = false;
+
+        // Load developer panel data
+        async function loadDevPanel() {
+            if (devPanelLoaded) return; // Only load once per session
+
+            try {
+                const [usersRes, activityRes] = await Promise.all([
+                    fetch(`${API}/admin/users`, { credentials: 'include' }),
+                    fetch(`${API}/admin/activity`, { credentials: 'include' })
+                ]);
+
+                if (!usersRes.ok || !activityRes.ok) {
+                    console.error('Failed to load dev panel data');
+                    return;
+                }
+
+                const usersData = await usersRes.json();
+                const activityData = await activityRes.json();
+
+                // Update stats
+                const users = usersData.users || [];
+                const activities = activityData.activity || [];
+
+                document.getElementById('devTotalUsers').textContent = users.length;
+                document.getElementById('devProUsers').textContent = users.filter(u => u.is_pro).length;
+
+                // Count today's activities
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayTimestamp = today.getTime();
+                const todayActivities = activities.filter(a => a.created_at >= todayTimestamp).length;
+                document.getElementById('devActivities').textContent = todayActivities;
+
+                // Render users table
+                const usersTable = document.getElementById('devUsersTable');
+                if (users.length === 0) {
+                    usersTable.innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">No users yet</td></tr>';
+                } else {
+                    usersTable.innerHTML = users.map(user => {
+                        const signupDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown';
+                        const lastActive = user.last_activity ? new Date(user.last_activity).toLocaleString() : 'Never';
+                        const statusBadge = user.is_pro
+                            ? '<span style="background: #fbbf24; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">PRO</span>'
+                            : (user.is_developer ? '<span style="background: #8b5cf6; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">DEV</span>' : '<span style="background: var(--glass-border); color: var(--text-muted); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Free</span>');
+
+                        return `
+                            <tr style="border-top: 1px solid var(--glass-border);">
+                                <td style="padding: 12px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        ${user.picture ? `<img src="${user.picture}" style="width: 32px; height: 32px; border-radius: 50%;">` : '<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">' + (user.name?.[0] || '?') + '</div>'}
+                                        <span style="color: var(--text-primary);">${user.name || 'Unknown'}</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 12px 16px; color: var(--text-muted);">${user.email || '-'}</td>
+                                <td style="padding: 12px 16px; text-align: center;">${statusBadge}</td>
+                                <td style="padding: 12px 16px; text-align: center; color: var(--text-secondary);">${user.activity_count || 0}</td>
+                                <td style="padding: 12px 16px; color: var(--text-muted);">${signupDate}</td>
+                                <td style="padding: 12px 16px; color: var(--text-muted);">${lastActive}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                // Render activity log
+                const activityLog = document.getElementById('devActivityLog');
+                if (activities.length === 0) {
+                    activityLog.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No activity yet</div>';
+                } else {
+                    activityLog.innerHTML = activities.slice(0, 100).map(activity => {
+                        const time = new Date(activity.created_at).toLocaleString();
+                        const actionIcon = {
+                            'sign_in': '🔑',
+                            'sign_out': '👋',
+                            'view_tab': '👁️',
+                            'search': '🔍',
+                            'inventory_add': '➕',
+                            'inventory_use': '➖'
+                        }[activity.action] || '📊';
+
+                        let detailsStr = '';
+                        if (activity.details) {
+                            try {
+                                const details = typeof activity.details === 'string' ? JSON.parse(activity.details) : activity.details;
+                                detailsStr = Object.entries(details).map(([k, v]) => `${k}: ${v}`).join(', ');
+                            } catch (e) {
+                                detailsStr = activity.details;
+                            }
+                        }
+
+                        return `
+                            <div style="padding: 10px 0; border-bottom: 1px solid var(--glass-border); display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="font-size: 1.2rem;">${actionIcon}</span>
+                                <div style="flex: 1;">
+                                    <div style="color: var(--text-primary);">
+                                        <strong>${activity.user_name || activity.user_email || 'User'}</strong>
+                                        <span style="color: var(--text-muted);"> - ${activity.action}</span>
+                                    </div>
+                                    ${detailsStr ? `<div style="color: var(--text-muted); font-size: 0.85rem;">${detailsStr}</div>` : ''}
+                                    <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">${time}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                devPanelLoaded = true;
+
+            } catch (e) {
+                console.error('Error loading dev panel:', e);
+                document.getElementById('devUsersTable').innerHTML = '<tr><td colspan="6" style="padding: 40px; text-align: center; color: #ef4444;">Failed to load data</td></tr>';
             }
         }
 
@@ -6135,6 +6617,102 @@
         }
 
         // ================== VIN DECODER ==================
+
+        // Camera scanner state
+        let vinCameraStream = null;
+
+        // Start camera for VIN scanning
+        async function startVinCamera() {
+            const modal = document.getElementById('vinCameraModal');
+            const video = document.getElementById('vinCameraVideo');
+            const errorEl = document.getElementById('vinError');
+
+            try {
+                // Request camera access (prefer back camera on mobile)
+                vinCameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                video.srcObject = vinCameraStream;
+                modal.style.display = 'block';
+                document.getElementById('vinScanResult').style.display = 'none';
+            } catch (err) {
+                errorEl.textContent = 'Camera access denied or not available. Please enter VIN manually.';
+                errorEl.style.display = 'block';
+                console.error('Camera error:', err);
+            }
+        }
+
+        // Stop camera
+        function stopVinCamera() {
+            const modal = document.getElementById('vinCameraModal');
+            const video = document.getElementById('vinCameraVideo');
+
+            if (vinCameraStream) {
+                vinCameraStream.getTracks().forEach(track => track.stop());
+                vinCameraStream = null;
+            }
+            video.srcObject = null;
+            modal.style.display = 'none';
+        }
+
+        // Capture frame and extract VIN
+        async function captureVinFrame() {
+            const video = document.getElementById('vinCameraVideo');
+            const canvas = document.getElementById('vinCameraCanvas');
+            const resultEl = document.getElementById('vinScanResult');
+            const detectedText = document.getElementById('vinDetectedText');
+
+            // Draw current frame to canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            // For now, use a simple approach - prompt for manual entry with camera context
+            // Full OCR would require Tesseract.js or cloud API
+            const vinPattern = /[A-HJ-NPR-Z0-9]{17}/gi;
+
+            // Simulated OCR - in production, integrate Tesseract.js or Google Cloud Vision
+            // For now, show instruction to user
+            const manualVin = prompt('📷 Camera captured!\n\nLook at the VIN plate in the image and enter the 17 characters you see:\n\n(Tip: VIN is usually on the dashboard near windshield, or on driver door jamb)');
+
+            if (manualVin) {
+                const cleanVin = manualVin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+                if (cleanVin.length === 17) {
+                    detectedText.textContent = cleanVin;
+                    resultEl.style.display = 'block';
+                } else {
+                    alert('VIN must be exactly 17 characters. Found: ' + cleanVin.length);
+                }
+            }
+        }
+
+        // Use detected VIN
+        function useDetectedVin() {
+            const vin = document.getElementById('vinDetectedText').textContent;
+            document.getElementById('vinInput').value = vin;
+            stopVinCamera();
+            decodeVin();
+        }
+
+        // Quick lookup from popular VIN cards
+        function lookupVin(vin) {
+            document.getElementById('vinInput').value = vin;
+            decodeVin();
+            // Scroll to input
+            document.getElementById('vinInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Toggle show more VINs
+        function toggleVinList() {
+            const moreVins = document.getElementById('moreVins');
+            const toggleBtn = document.getElementById('vinListToggle');
+            const isHidden = moreVins.style.display === 'none';
+
+            moreVins.style.display = isHidden ? 'block' : 'none';
+            toggleBtn.textContent = isHidden ? 'Show Less ▲' : 'Show All ▼';
+        }
+
         async function decodeVin() {
             const vinInput = document.getElementById('vinInput');
             const vin = vinInput.value.trim().toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
