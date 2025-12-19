@@ -1,0 +1,75 @@
+JAGUAR
+S-TYPE
+2003 2008 All T111111-T444444 FO21T7 (LAL) Smart Pro/TCP/MVP Tibbe Key. Texas Instruments (4D60) Encrypted System 2240
+2000 2002 All T111111-T444444 FO21T7 OBP Program C, Smart Pro/TCP/MVPP/TKO/
+SDD - Tibbe Key. Texas Instruments (4D60) Encrypted System 2240
+2000 2008 All T111111-T444444 FO21MH# RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box - Tibbe Key. Texas Instruments (4D60) Encrypted System 2240
+XF 2008 2014 All 4000-9000 OEM # C2P-17155 Smart Pro/TCP/MVP HU101 N/A
+XJ 2010 2014 All 4000-9000 OEM # C2P-17155 Smart Pro/TCP/MVP HU101 N/A
+XJ, XK , XK8, XKR
+2000 2008 All T111111-T444444 OEM # XR8-1611 Smart Pro/TCP/MVP - High Security Key. Texas Instruments Encrypted 
+System 2240
+1998 1999 All T11111111-T33333333TBE1T5 RW5, SA+, RW4 Plus, RW4, RW3, RW2,EZ 
+Clone Plus, EZ Clone - Tibbe Key. Megamos Fixed Code System 386
+XJ6, XJ12, 
+SOVERIEGN, VANDEN 
+PLAS, XJR
+1992 1996 All T11111111-T33333333S32FJ-P - High Security Key 386
+- High Security Key 386
+1990 1997 All T11111111-T33333333S32FJ-P - High Security Key 386
+Valet T11111111-T33333333S33FJ-P - High Security Key 386
+1990 1991
+Door/
+Trunk/
+GB
+WR1001-
+WR2999 X86/FC7 [-P] X20/FC2 213
+Ignition T11111111-T33333333S32FJ-P - High Security Key 386
+1988 1989
+Ignition/
+Door K0000-K1005 X177/JA2 - 217
+Trunk AK1-AK1000 X86/FC7 [-P] X20/FC2 13
+ IVECO TRUCK - JAGUAR
+--- PAGE 72 ---
+Page 72 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+XJ6, XJ12, 
+SOVERIEGN, VANDEN 
+PLAS, XJR
+1986 1989
+Door/
+Trunk AK1-AK1000 X86/FC7 [-P] X20/FC2 13
+Ignition FR1-FR6000 FT6R X1/MZ12 5
+1981 1987
+Door/
+Trunk JC1-JC854 BL6 - 13
+Ignition FR1-FR6000 FT6R X1/MZ12 5
+1981 1985
+Door WR1001-
+WR2999 WB2 - 213
+Ignition FR1-FR6000 FT6R X1/MZ12 5
+Trunk AK1-AK1000 X86/FC7 [-P] X20/FC2 13
+XJ8, XJR, VANDEN 
+PLAS 2004 2009 All T111111-T444444
+FO21T7 (LAL) Dealer Tool - Tibbe Key. Texas Instruments (4D60) Encrypted System 2240
+FO21MH# RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box - Tibbe Key. Texas Instruments (4D60) Encrypted System 2240
+XJ8, XJR
+2000 2003 All T11111111-T33333333OEM # HJD-7230AA1 High Security Key. Megamos Fixed Code System 386
+1998 1999 All T11111111-T33333333TBE1T5 RW5, SA+, RW4 Plus, RW4, RW3, RW2,EZ 
+Clone Plus, EZ Clone - Tibbe Key. Megamos Fixed Code System 386
+XK8, XKR 2007 2014 All 4000-9000 OEM # C2P-17152 HU101 N/A
+X-TYPE 2002 2008 All T111111-T444444
+FO21T7 (LAL) Smart Pro/TCP/MVP - Tibbe Key. Texas Instruments (4D60) Encrypted System 2240
+FO21MH# RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box - Tibbe Key. Texas Instruments (4D60) Encrypted System 2240

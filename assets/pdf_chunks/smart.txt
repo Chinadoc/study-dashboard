@@ -1,0 +1,17 @@
+SMART
+FORTWO 2008 2016 All 93000-95999
+OEM# A4518203797 Smart Pro/TCP/MVPP Philips (46) Encrypted System 2552
+VA6MH# RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Philips (46) Encrypted System 2552
+SCION - SMART
+--- PAGE 115 ---
+Page 115 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.

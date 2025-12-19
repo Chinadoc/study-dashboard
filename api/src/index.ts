@@ -787,6 +787,84 @@ export default {
       }
     }
 
+    // Key Blanks Cross-Reference endpoint - Ilco, Strattec, Silca data
+    if (path === "/api/key-blanks") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase() || "";
+        const model = url.searchParams.get("model")?.toLowerCase() || "";
+        const year = parseInt(url.searchParams.get("year") || "0", 10);
+        const ilco = url.searchParams.get("ilco")?.toLowerCase() || "";
+        const strattec = url.searchParams.get("strattec")?.toLowerCase() || "";
+        const q = url.searchParams.get("q")?.toLowerCase() || "";
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
+        const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
+
+        const conditions: string[] = [];
+        const params: (string | number)[] = [];
+
+        if (make) {
+          conditions.push("LOWER(make) = ?");
+          params.push(make);
+        }
+        if (model) {
+          conditions.push("LOWER(model) LIKE ?");
+          params.push(`%${model}%`);
+        }
+        if (year) {
+          conditions.push("(year_start IS NULL OR year_start <= ?)");
+          conditions.push("(year_end IS NULL OR year_end >= ?)");
+          params.push(year, year);
+        }
+        if (ilco) {
+          conditions.push("LOWER(ilco_ref) LIKE ?");
+          params.push(`%${ilco}%`);
+        }
+        if (strattec) {
+          conditions.push("LOWER(strattec_ref) LIKE ?");
+          params.push(`%${strattec}%`);
+        }
+        if (q) {
+          conditions.push("(LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(ilco_ref) LIKE ? OR LOWER(strattec_ref) LIKE ? OR LOWER(blade_profile) LIKE ?)");
+          params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+        // Count query
+        const countResult = await env.LOCKSMITH_DB.prepare(
+          `SELECT COUNT(*) as cnt FROM key_blanks ${whereClause}`
+        ).bind(...params).first<{ cnt: number }>();
+        const total = countResult?.cnt || 0;
+
+        // Data query
+        const dataSql = `
+          SELECT 
+            id, make, model, year_start, year_end,
+            ilco_ref, silca_ref, strattec_ref, oem_ref,
+            key_type, blade_profile, blade_style, spaces, depths,
+            chip_type, cloneable, prog_tool, dealer_only,
+            source, notes
+          FROM key_blanks
+          ${whereClause}
+          ORDER BY make, model, year_start
+          LIMIT ? OFFSET ?
+        `;
+        const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
+
+        return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+          },
+        });
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // Curated Data endpoint - manually verified data takes precedence
     if (path === "/api/curated") {
       try {
@@ -879,6 +957,62 @@ export default {
         });
       } catch (err: any) {
         return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // 9. Sourced Key Products (from keylessentryremotefob.com)
+    if (path === "/api/sourced") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase();
+        const year = url.searchParams.get("year");
+
+        let sql = `SELECT * FROM sourced_keys`;
+        const params: (string | number)[] = [];
+
+        if (make || year) {
+          sql += ` WHERE 1=1`;
+          if (make) {
+            sql += ` AND LOWER(primary_make) = ?`;
+            params.push(make);
+          }
+          if (year) {
+            sql += ` AND vehicles LIKE ?`;
+            params.push(`%(${year})%`);
+          }
+        }
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+        return textResponse(JSON.stringify({ rows: result.results || [] }), 200);
+      } catch (e: any) {
+        return textResponse(JSON.stringify({ error: e.message }), 500);
+      }
+    }
+
+    // 10. Ilco PDF Reference Data
+    if (path === "/api/reference") {
+      try {
+        const make = url.searchParams.get("make")?.toLowerCase();
+        const q = url.searchParams.get("q")?.toLowerCase();
+
+        let sql = `SELECT * FROM key_blank_reference`;
+        const params: string[] = [];
+
+        if (make || q) {
+          sql += ` WHERE 1=1`;
+          if (make) {
+            sql += ` AND LOWER(make) = ?`;
+            params.push(make);
+          }
+          if (q) {
+            sql += ` AND (LOWER(model) LIKE ? OR LOWER(key_blank) LIKE ? OR LOWER(notes) LIKE ?)`;
+            params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+          }
+        }
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+        return textResponse(JSON.stringify({ rows: result.results || [] }), 200);
+      } catch (e: any) {
+        return textResponse(JSON.stringify({ error: e.message }), 500);
       }
     }
 

@@ -3337,10 +3337,13 @@
                 // Check if vehicle years match searched year
                 if (matchesSearch && searchYear) {
                     const vehicles = r.vehicles || '';
-                    const yearRanges = vehicles.match(/\((\d{4})-(\d{4})\)/g) || [];
+                    const yearRanges = vehicles.match(/\((\d{4})(?:-(\d{4}))?\)/g) || [];
                     const matchesYear = yearRanges.some(match => {
-                        const [_, start, end] = match.match(/\((\d{4})-(\d{4})\)/);
-                        return searchYear >= parseInt(start) && searchYear <= parseInt(end);
+                        const m = match.match(/\((\d{4})(?:-(\d{4}))?\)/);
+                        if (!m) return false;
+                        const start = parseInt(m[1]);
+                        const end = m[2] ? parseInt(m[2]) : start;
+                        return searchYear >= start && searchYear <= end;
                     });
                     return matchesYear;
                 }
@@ -3353,13 +3356,16 @@
                 filtered = filtered.filter(r => {
                     const vehicles = r.vehicles || '';
                     // Extract years from format like "(2014-2021)"
-                    const yearMatches = vehicles.match(/\((\d{4})-(\d{4})\)/g) || [];
+                    const yearMatches = vehicles.match(/\((\d{4})(?:-(\d{4}))?\)/g) || [];
                     if (yearMatches.length === 0) return true; // Show if no year data
 
                     // Check if any year range overlaps with filter
                     return yearMatches.some(match => {
-                        const [_, start, end] = match.match(/\((\d{4})-(\d{4})\)/);
-                        return parseInt(end) >= yearFrom && parseInt(start) <= yearTo;
+                        const m = match.match(/\((\d{4})(?:-(\d{4}))?\)/);
+                        if (!m) return false;
+                        const start = parseInt(m[1]);
+                        const end = m[2] ? parseInt(m[2]) : start;
+                        return end >= yearFrom && start <= yearTo;
                     });
                 });
             }
@@ -5735,9 +5741,54 @@
                 return;
             }
 
-            const coverage = {};
+            // AUTO-ENRICHMENT: Fill gaps with "Traditional Key"
+            // We do this dynamically here so it reflects in the chart
+            // Note: This modifies the visual representation, effectively "assuming" non-transponder if no data.
             const makes = ["Toyota", "Lexus", "Honda", "Nissan", "Ford", "Chevrolet", "Dodge", "Jeep", "BMW", "Mercedes", "Volkswagen", "Hyundai", "Kia", "Subaru", "Mazda"];
             const years = Array.from({ length: 26 }, (_, i) => 2000 + i);
+
+            // Build a quick lookup of what we HAVE
+            const existingCoverage = new Set();
+            fccData.forEach(entry => {
+                const vehicleStr = entry.vehicles || '';
+                if (!vehicleStr || vehicleStr === 'N/A') return;
+                const parts = vehicleStr.split(',').map(v => v.trim()).filter(v => v);
+                parts.forEach(part => {
+                    const match = part.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                    if (match) {
+                        const makeModel = match[1].trim();
+                        const makeMatch = makeModel.match(/^([A-Za-z]+)/);
+                        const make = makeMatch ? makeMatch[1] : null;
+                        if (make && makes.includes(make)) {
+                            const start = parseInt(match[2]);
+                            const end = match[3] ? parseInt(match[3]) : start;
+                            for (let y = start; y <= end; y++) {
+                                existingCoverage.add(`${make}|${y}`);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Inject "Traditional Keys" for gaps
+            makes.forEach(make => {
+                years.forEach(y => {
+                    if (!existingCoverage.has(`${make}|${y}`)) {
+                        // Create a synthetic entry
+                        fccData.push({
+                            fcc_id: 'NON-TRANSPONDER',
+                            vehicles: `${make} (${y})`,
+                            chip: 'Non-Transponder (Traditional)',
+                            frequency: 'N/A',
+                            primary_make: make,
+                            is_synthetic: true // Flag for UI logic
+                        });
+                    }
+                });
+            });
+
+
+            const coverage = {};
 
             fccData.forEach(entry => {
                 const vehicleStr = entry.vehicles || '';
@@ -5761,13 +5812,16 @@
                             const hasStock = (entry.fcc_id && InventoryManager.getKeyStock(entry.fcc_id) > 0) ||
                                 (entry.primary_oem_part && InventoryManager.getBlankStock(entry.primary_oem_part) > 0);
 
+                            const is传统 = entry.is_synthetic === true; // Traditional Key
+
                             for (let y = start; y <= end; y++) {
                                 if (y >= 2000 && y <= 2025) {
                                     if (!coverage[make]) coverage[make] = {};
-                                    if (!coverage[make][y]) coverage[make][y] = { totalKeys: 0, inStock: 0 };
+                                    if (!coverage[make][y]) coverage[make][y] = { totalKeys: 0, inStock: 0, traditional: 0 };
 
                                     coverage[make][y].totalKeys++;
                                     if (hasStock) coverage[make][y].inStock++;
+                                    if (is传统) coverage[make][y].traditional++;
                                 }
                             }
                         }
@@ -5782,8 +5836,8 @@
                         <span>🗺️ Key Coverage Map (Inventory vs. Market)</span>
                         <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 400;">
                             <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> In Stock</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Known Data (Gap)</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(255,255,255,0.05); border-radius: 2px;"></span> No Data</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Transponder (Gap)</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #a855f7; border-radius: 2px;"></span> Traditional</span>
                         </div>
                     </h3>
 
@@ -5798,20 +5852,32 @@
                                 <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end;">${make}</div>
                                 ${years.map(year => {
                     const data = coverage[make] && coverage[make][year];
-                    let bg = 'rgba(255,255,255,0.03)';
-                    let title = 'No Data';
-                    let opacity = 1;
+                    let bg = '#a855f7'; // Purple (Default to Traditional if it exists, since we backfill gaps)
+                    let title = 'Traditional Key (Assumed)';
+                    let opacity = 0.5; // Dimmer for assumptions
                     let hasData = false;
 
-                    if (data && data.inStock > 0) {
-                        bg = '#22c55e'; // Green
-                        title = `In Stock: ${data.inStock} keys known`;
-                        hasData = true;
-                    } else if (data && data.totalKeys > 0) {
-                        bg = '#3b82f6'; // Blue
-                        title = `Gap: ${data.totalKeys} keys known (0 in stock)`;
-                        opacity = 0.6;
-                        hasData = true;
+                    if (data) {
+                        if (data.inStock > 0) {
+                            bg = '#22c55e'; // Green
+                            title = `In Stock: ${data.inStock} keys`;
+                            opacity = 1;
+                            hasData = true;
+                        } else if (data.totalKeys > data.traditional) {
+                            // Ensure we have REAL keys, not just synthetic ones
+                            bg = '#3b82f6'; // Blue
+                            title = `Gap: Transponder Required`;
+                            opacity = 0.8;
+                            hasData = true;
+                        } else {
+                            // Only synthetic/traditional
+                            hasData = true; // It IS data now
+                        }
+                    } else {
+                        // Should be unreachable if we fill ALL gaps, but fallback
+                        bg = 'rgba(255,255,255,0.03)';
+                        title = 'No Data';
+                        opacity = 1;
                     }
 
                     return `

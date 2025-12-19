@@ -1,0 +1,7 @@
+MG
+ALL 1981 1981
+Door/
+Trunk
+FS, FK 62FS - 73
+FT, FV 62FT - 72
+Ignition BL7001-BL9000 X29/VO73 - 68

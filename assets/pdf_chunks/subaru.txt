@@ -1,0 +1,214 @@
+SUBARU
+ASCENT W/ REGULAR 
+IGNITION 2019 2022 All 70000-79999 TOY43RH-PT Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] "H" Chip 3645
+ASCENT W/PROX 2019 2022 All 90000-99,999 OEM# 88835-FL03A or 
+88835-FL03C (LAL) Smart Pro/TCP/MVPP 3964
+B9 TRIBECA 2006 2013 All 30001-37850
+EK3-SUB4/EK3LB-SUB4*/
+SUB4-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+SUB4-PT (LAL) Smart Pro/TCP/MVPP   TKO/SDD 2006-2009 X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+BAJA 2003 2006 All 30001-37850 X251/SUB1 [-P] (LAL) - 607
+BRAT 1985 1987 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+BRZ W/ PROX
+2022 2023 All 90,000-99,999 OEM# 88835-FL032 Smart Pro (thru 2022) 3964
+2015 2020 All 90,000-99,999 OEM# 88835-CA310 (LAL) Smart Pro/TCP/MVPP 3964
+2012 2014 All 40000-49999 OEM# 882264-CA060 Smart Pro/TCP/MVPP Emergency Key 
+TOY51-P 950
+STERLING - SUBARU
+--- PAGE 116 ---
+Page 116 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+BRZ W/ REGULAR 
+IGNITION 2012 2018 All 40000-49999 OEM# 57497-CA110 or 57497-
+CA310 Smart Pro/TCP/MVPP Service Key TR47 950
+DL, GL, STD 1985 1990 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+FORESTER W/ PROX
+2019 2022 All 90,000-99,999 OEM# 88835-FL030/88835-
+FL031/88835-FL032 (LAL) Smart Pro/TCP/MVPP 3964
+2016 2018 All 90,000-99,999 OEM# 88835-CA310 (LAL) Smart Pro/TCP/MVPP (thru 2017) 3964
+2014 2015 All 40000-49999 OEM# 882264-SG040 Smart Pro/TCP/MVPP Emergency Key 
+TOY51-P 950
+FORESTER W/ 
+REGULAR IGNITION
+2019 2022 All 70000-79999 TOY43RH-PT Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] "H" Chip 3645
+2016 2018 All 32000-39999 OEM# 184297-SG000 Smart Pro/TCP/MVPP 3646
+2014 2015 All 32000-39999 TOY43RT45 (LAL) Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+FORESTER
+2011 2013 All T001-3000
+DAT17T42 (LAL) Smart Pro/TCP/MVPP Service Key LXP90-P 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+2009 2010 All T001-3000
+DAT17T13 (LAL) Smart Pro/TCP/MVPP Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+2005 2008 All 30001-37850
+EK3-SUB4/EK3LB-SUB4*/
+SUB4-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+SUB4-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+1998 2004 All 30001-37850 X251/SUB1 [-P] - 607
+IMPREZA W/ PROX 2017 2023 All 90,000-99,999 OEM# 88835-FL03A or 
+88835-FL03C (LAL) Smart Pro/TCP/MVPP 3964
+2015 2016 All 90,000-99999 OEM# 88835-CA310 (LAL) Smart Pro/TCP/MVPP 3964
+IMPREZA
+2019 2023 All 32000-39999 TOY43RH-PT Smart Pro Service Key P1114/
+B110[-P] 3646
+2017 2019 All 32000-39999 OEM# 57497-FL08A Smart Pro/TCP/MVPP (thru 2018) Texas Instruments (H) 128 Bit System 3646
+2012 2016 All 32000-39999 TOY43RT45 (LAL) Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+2011 2011 All T001-3000 DAT17T42 (LAL) Smart Pro/TCP/MVPP Service Key LXP90-P 702
+2011 2011 All T001-3000 EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+2008 2010 All T001-3000
+DAT17T13 Smart Pro/TCP/MVPP   TKO/SDD 2008-2009 Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+2005 2007 All 30001-37850
+EK3-SUB4/EK3LB-SUB4*/
+SUB4-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+SUB4-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+1993 2004 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+IMPREZA WRX
+2015 2015 All 32000-39999 OEM# 184297-FJ021 Service Key P1114/
+B110[-P] 3646
+2008 2014 All T001-3000
+DAT17T13 Smart Pro/TCP/MVPP   TKO/SDD 2008-2009 Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+LEGACY (CANADA) 2015 2015 All 32000-39999 OEM# 57497-FJ030 Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+LEGACY W/ PROX
+2020 2023 All 90,000-99,999 OEM# 88835-AN00C 3964
+2018 2019 All 90,000-99,999 OEM# 88835-FL03A (LAL) Smart Pro/TCP/MVPP 3964
+2015 2017 All 90,000-99,999 OEM# 882264-AL04A (LAL) Smart Pro/TCP/MVPP 3964
+LEGACY
+2020 2022 All 32000-39999 TOY43RH-PT (LAL) 3646
+2015 2019 All 32000-39999 OEM# 57497-AL01A Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+SUBARU
+--- PAGE 117 ---
+Page 117 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+LEGACY
+2010 2014 All T001-3000
+DAT17T42 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+2005 2009 All 30001-37850 SUB4-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+2005 2008 All 30001-37850 EK3-SUB4/EK3LB-SUB4*/
+SUB4-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+1991 1999 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+LEGACY, OUTBACK  
+2005 2009 All 30001-37850
+SUB4-PT Smart Pro/TCP/MVPP/TKO/SDD X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+EK3-SUB4/EK3LB-SUB4*/
+SUB4-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box X251/SUB1[-P] Texas instruments (4D62) Encrypted System 607
+2000 2004 All 30001-37850 X251/SUB1 [-P] - 607
+1995 1999 All X8001-X9000 X123/DA25  [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+LOYALE & JUSTY 1991 1994 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+OUTBACK W/ PROX
+2018 2023 All 90,000-99,999 OEM# 88835-FL03A or 
+88835-FL03C (LAL) Smart Pro/TCP/MVPP (Thru 2019) 3964
+2015 2017 All 90,000-99,999 OEM# 882264-AL04A (LAL) Smart Pro/TCP/MVPP 3964
+2013 2014 All T001-3000 OEM# 882264-AJ00A Smart Pro/TCP/MVPP 702
+OUTBACK (CANADA) 2015 2015 All 32000-39999 OEM# 57497-FJ030 Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+OUTBACK
+2020 2022 All 32000-39999 TOY43RH-PT 3646
+2015 2019 All 32000-39999 OEM# 57497-AL01A (LAL) Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+2010 2014 All T001-3000
+DAT17T42 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key LXP90-P High Security Key, Texas (4D60) Encrypted System 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D60) Encrypted System 702
+SVX 1992 1997 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+WRX W/ PROX 2019 2021 All 90,000-99,999 OEM# 88835-FL030/88835-
+FL031/88835-FL032 (LAL) Smart Pro (Thru 2020) 3964
+2016 2018 All 90,000-99,999 OEM# 88835-CA310 (LAL) 3964
+WRX 2011 2014 All T001-3000
+DAT17T42 (LAL) Smart Pro/TCP/MVPP Service Key LXP90-P 702
+EK3-SUB1/EK3LB-SUB1*/
+SUB1-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key LXP90-P High Security Key, Texas (4D62) Encrypted System 702
+2002 2003 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+XT-6 1991 1991 All X8001-X9000 X123/DA25 [-P, -PC] X210/DA31 145
+Valet Y8001-Y9000 X124/DA28 - 145
+XV CROSSTREK 
+(CANADA) 2013 2015 All 32000-39999 OEM# 57497-FJ030 Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+XV CROSSTREK W/ 
+PROX
+2018 2023 All 90,000-99,999 OEM# 88835-FL032 Smart Pro (thru 2022) 3964
+2015 2017 All 90,000-99,999 OEM# 882264-CA310 Smart Pro/TCP/MVPP 3964
+XV CROSSTREK
+2019 2023 All 32000-39999 TOY43RH-PT Smart Pro Service Key P1114/
+B110[-P] 3646
+2018 2019 All 32000-39999 OEM# 57497-FL080 3646
+2015 2017 All 32000-39999 OEM# 184297-FJ021 (LAL) Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] Texas Instruments (82) Encrypted System 3646
+2013 2014 All 32000-39999 TOY43RT45 (LAL) Smart Pro/TCP/MVPP Service Key P1114/
+B110[-P] 3646
+SUBARU
+--- PAGE 118 ---
+Page 118 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.

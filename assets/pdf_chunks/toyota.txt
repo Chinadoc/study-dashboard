@@ -1,0 +1,640 @@
+TOYOTA
+AVALON W/ PROX
+2019 2022 All 80000-89999 OEM# 8990H-07070 (LAL) Smart Pro 3102
+2013 2018 All 80000-89999 OEM# 89904-06140 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+2005 2012 All 40000-49999 Optional Prox FOB (LAL) Smart Pro/TCP/MVPP Emerg. Key TOY51-P 950
+AVALON W/ REGULAR 
+IGNITION
+2012 2012 All 50000-69999
+TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2005 2011 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service key LXP90-P Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+AVALON XLS, XL 2002 2005 All 10001-15000
+TOY43AT4 (LAL) OBP Program E Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+AVALON XLS, XL 1998 2004 All 10001-15000
+TOY43AT4 (LAL) OBP Program E Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+X217/TR47 [-P, -PC] (LAL) X225/B80 514
+1995 1997 All 10001-15000 X217/TR47 [-P, -PC] (LAL) X225/B80 514
+C-HR W/ REGULAR 
+IGNITION 2018 2022 All 40000-49999
+TOY48H-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 950
+TOY40B-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 950
+C-HR W/ PROX 2018 2022 All 80000-89999 OEM# 89904-F4020/89904-
+10050/89904-10051 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+CAMRY CE & LE 2003 2009 All 50000-69999 EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+CAMRY CE & LE 
+(TYPE 1 SYSTEM) 2003 2006 All 50000-69999 TOY43AT4 OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+CAMRY CE & LE 
+(TYPE 2 SYSTEM) 2003 2006 All 50000-69999 TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Texas Instruments (4D67) Encrypted System 514
+CAMRY HYBRID 2007 2007 All 40000-49999 TOY44D-PT Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+CAMRY W/ PROX
+2018 2022 All 80000-89999 OEM# 89904-06220/89904-
+06240/89904-33550 (LAL) Smart Pro/TCP/MVPP (Thru 2018) 3102
+2012 2017 All 80000-89999 OEM# 89904-06140 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Emerg. Key TOY48EMER 3102
+2007 2011 All 40000-49999 OEM# 89904-06041 or 89904-
+33181 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Emerg. Key TOY51-P 950
+TOYOTA
+TOY44H-PT TOY48H-PT
+--- PAGE 120 ---
+Page 120 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+CAMRY W/ REGULAR 
+IGNITION
+2018 2023 All 40000-49999
+TOY48H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD (Thru 2019) Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+TOY40B-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+2015 2017 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2015 2017 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2012 2014 All 50000-69999 TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2012 2014 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2007 2011 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+CAMRY XLE
+2002 2003 All 50000-69999
+TOY43AT4 (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+1998 2001 All 10001-15000
+TOY43AT4 (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+CAMRY, CAMRY LE
+1998 2002 All 10001-15000
+TOY43AT4 OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+X217/TR47 [-P, -PC] X225/B80 514
+1992 1997 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+Valet 10001-15000 X220/TR50 - 514
+1983 1991 All F5951-F9710 X159/TR37 [-P] - 89
+Valet F5951-F9710 X218/TR49 - 89
+CELICA 
+CONVERTIBLE
+1994 1999 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+Valet 10001-15000 X220/TR50 - 514
+1990 1993 All P1-P2000 X211/TR44 [-P] X174/TR40 264
+Valet P1-P2000 X219/TR48 - 264
+1984 1989 All R5001-R6924 X137/TR33 [-P, -PC] - 89
+1981 1983 All K1-K4570 T61C/T61C [-P] X137/TR33 89
+Valet K1-K4570 T61D/T61D - 89
+CELICA COUPE 1994 2005 All 10001-15000 X217/TR47 [-P, -PC] (LAL) - 514
+1990 1994 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+CELICA LIFTBACK
+1991 1993 All S1-S2878 X212/TR46 [-P, -PC] X151/TR39 197
+1987 1990 All S1-S2878 X151/TR39 X212/TR46 197
+1984 1986 All R5001-R6924 X137/TR33 [-P, -PC] - 89
+1981 1983 All K1-K4570 T61C/T61C [-P] X137/TR33 89
+COROLLA W/ PROX
+2019 2022 All 80000-89999 OEM# 8990H-12180 or 
+8990H-02030 Smart Pro 3102
+2014 2020 All 80000-89999 OEM# 89904-06140 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+2009 2011 All 40000-49999 OEM# 89904-33181 Smart Pro/TCP/MVPP Service Key TR47 950
+COROLLA
+2020 2022 All 40000-49999
+TOY48H-PT (LAL) Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+TOY40B-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+2014 2019 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2014 2019 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+MID-
+2010 2013 All 50000-69999
+TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2005 mid-
+2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2002 2004 All 50000-69999 X217/TR47 [-P, -PC] (LAL) - 1420
+TOYOTA
+--- PAGE 121 ---
+Page 121 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+COROLLA 1993 2001 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+Valet 10001-15000 X220/TR50 - 514
+COROLLA CROSS W/ 
+REGULAR PROX 2022 2022 All 80000-89999 OEM# 8990H-0A010 or 
+8990H-0A020 Service key LXP90-P 3102
+COROLLA CROSS W/ 
+REGULAR IGNITION
+2022 2022 All 50000-69999 TOY44H-PT Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2022 2022 All 50000-69999 TOY43-GTS w/ GTI-Pro RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+COROLLA iM
+2017 2019 All 40000-49999 TOY48H-PT Smart Pro/TCP/MVPP Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+2017 2019 All 40000-49999 TOY40B-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+COROLLA LIFTBACK 1984 1989 All K1-K4570 X137/TR33 [-P, -PC] - 89
+COROLLA SEDAN, 
+COUPE, HARDTOP
+1991 1992 All G1-G2377 X211/TR44 [-P] X174/TR40 264
+Valet G1-G2377 X219/TR48 - 264
+1988 1990 All G1-G2377 X174/TR40 [-P, -PC] X211/TR44 264
+Valet G1-G2377 X219/TR48 - 264
+1983 1987 All K1-K4570 X137/TR33 [-P, -PC] - 89
+1981 1982 All K1-K4570 T61C/T61C [-P] X137/TR33 89
+COROLLA WAGON, 
+COROLLA STATION 
+WAGON 2WD
+1993 1995 All N1-N2000 X223/TR53 [-P] - 551
+1988 1992 All S1-S2878 X151/TR39 X212/TR46 197
+1981 1987 All 1001-2500 TR25/TR25 - 196
+G1-G2377 X174/TR40 [-P, -PC] X211/TR44 264
+COROLLA, FX, FX16 1987 1988 All S1-S699 X146/B56 X137/TR33 532
+CORONA 1981 1982 All P7001-P8500 X37/TR28 [-P] X159/TR37 89
+CRESSIDA 1981 1987 All 5001-6500 TR25/TR25 TR26 196
+CRESSIDA SEDAN 1989 1992 All X1-X2248 X174/TR40 [-P, -PC] X211/TR44 264
+Valet X1-X2248 X219/TR48 - 264
+1981 1988 All F5951-F9710 X159/TR37 [-P] TR28 89
+ECHO 2003 2005 All 50000-69999 X217-TR47 (LAL) Service Key TR47 1420
+2000 2002 All P1-P2390 X174/TR40 [-P, -PC] (LAL) - 264
+FJ CRUSIER
+2011 2015 All 50000-69999
+TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2006 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+MATRIX
+2011 2014 All 50000-69999
+TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2005 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2003 2004 All 50000-69999 X217/TR47 [-P, -PC] (LAL) 1420
+MODELS AND YEARS 
+NOT REFERENCED 
+ELSEWHERE 
+1981 1982 All
+3001-4500 TR25/TR25 TR26 196
+5001-6500 TR25/TR25 TR26 196
+K1-K4570 X137/TR33 [-P, -PC] - 89
+R5001-R6924 X137/TR33 [-P, -PC] - 89
+S1-S699 X146/B56 X137/TR33 532
+F5951-F9710 X159/TR37 [-P] X159/TR37 89
+P7001-P8500 X159/TR37 [-P] X159/TR37 89
+MR2 1991 1995 All P1-P2390 X174/TR40 [-P, -PC] X211/TR44 264
+1985 1990 All K1-K4570 X137/TR33 [-P, -PC] - 89
+MR2 SPYDER 2001 2005 All P1-P2390 TOY57-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR44 Texas Instruments (4C) Encrypted System 264
+PASEO 1992 1998 All S1-S2878 X212/TR46 [-P, -PC] X151/TR39 197
+PRIUS
+2021 2022 All 80000-89999 OEM# 89904-47710 Smart Pro Service key LXP90-P 3102
+2016 2021 All 80000-89999 OEM# 89904-47530 Smart Pro/TCP/MVPP 3102
+2009 2011 All 40000-49999 OEM# 89904-47230 or 89904-
+47150 (LAL) Smart Pro Emerg. Key TOY51-P 950
+TOYOTA
+--- PAGE 122 ---
+Page 122 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+PRIUS
+2004 2008 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2001 2003 All 10001-15000
+TOY43AT4 (LAL) OBP Program E or I Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+PRIUS C W/ PROX 2012 2018 All 80000-89999 OEM# 89904-52290 (LAL) Smart Pro/TCP/MVPP 3102
+PRIUS C W/ 
+REGULAR IGNITION
+2015 2019 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP Service Key TR47 Texas Instruments (4D74) 128 Bit Encrypted System 1420
+2015 2019 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2012 2014 All 50000-69999
+TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+SOLARA 2004 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+SOLARA SE 2002 2003 All 50000-69999
+TOY43AT4 OBP Program E, Smart Pro/TCP/MVPP/TKO/
+SDD Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+1999 2001 All 10001-15000 X217/TR47 [-P, -PC] - 514
+SOLARA SLE
+2004 2008 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program I, Smart Pro/TCP/MVPP/TKO/
+SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+1999 2003 All 10001-15000
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+TOY43AT4 OBP Program E, Smart Pro/TCP/MVPP/TKO/
+SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+SUPRA
+1993 1999 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+Valet 10001-15000 X220/TR50 - 514
+1990 1992 All X1-X2248 X211/TR44 [-P] X174/TR40 264
+Valet X1-X2248 X219/TR48 - 264
+1985 1989 All R5001-R6924 X137/TR33 [-P, -PC] - 89
+TERCEL LIFTBACK
+1988 1990 All S1-S2878 X151/TR39 X212/TR46 197
+1983 1987 All R5001-R6924 X137/TR33 [-P, -PC] - 89
+1981 1982 All R5001-R6924 T61C/T61C [-P] X137/TR33 89
+TERCEL, TERCEL 
+SEDAN, STATION 
+WAGON
+1991 1998 All S1-S2878 X212/TR46 [-P, -PC] X151/TR39 264
+1983 1990 All R5001-R6924 X137/TR33 [-P, -PC] - 89
+1981 1982 All R5001-R6924 T61C/T61C [-P] X137/TR33 89
+VENZA W/ PROX
+2021 2022 All 80000-89999 OEM# 8990H-48050 3102
+MID-
+2010 2015 All 40000-49999 OEM# 89904-0T050 or 89904-
+0T060 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Emerg. Key TOY51-P 950
+2009 2010 All 40000-49999 OEM# 89904-0T010 or 89904-
+0T020 Emerg. Key TOY51-P 950
+VENZA W/ REGULAR 
+IGNITION
+MID-
+2010 2015 All 50000-69999 TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+MID-
+2010 2015 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2009 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+YARIS W/ PROX 2017 2020 All 10100-12283 OEM# 89904-WB001 Smart Pro/TCP/MVPP Service Key X249/MZ31 288
+TOYOTA
+--- PAGE 123 ---
+Page 123 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+YARIS
+2015 2018 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2015 2018 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2012 2014 All 50000-69999 TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2012 2014 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2007 2011 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (Optional) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2007 2018 All 50000-69999 X217/TR47 [-P, -PC] - 1420
+YARIS IA 2017 2018 All 10100-12283 OEM# DD1B-67-5RY or 
+89904-WB003 Smart Pro/TCP/MVPP 288
+TOYOTA TRUCKS, VANS, SUVS
+4 RUNNER
+1999 2002 All 10001-15000
+TOY43AT4 (LAL) OBP Program E, Smart Pro/TCP/MVPP/TKO/
+SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+1996 1998 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+Valet 10001-15000 X220/TR50 - 514
+1990 1995 All W1-W2409 X211/TR44 [-P] X174/TR40 264
+1984 1989 All K1-K4570 X137/TR33 [-P, -PC] - 89
+4 RUNNER LTD. 1999 2002 All 10001-15000 EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+4 RUNNER W/ PROX
+2020 2021 All 80000-89999 OEM# 89904-0E091 (LAL) Smart Pro/TCP/MVPP 3102
+2010 2019 All 40000-49999 OEM# 89904-35010 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Emerg. Key TOY51-P 950
+4 RUNNER W/ 
+REGULAR IGNITION
+2020 2022 All 50000-69999
+TOY44H-PT Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2011 2019 All 50000-69999
+TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2003 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+HIGHLANDER 2001 2003 All 50000-69999
+TOY43AT4 (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 1420
+X217/TR47 [-P. -PC] X225/B80 1420
+HIGHLANDER W/ 
+PROX
+2020 2022 All 80000-89999 OEM# 8990H-0E020 Smart Pro 3102
+2014 2019 All 80000-89999 OEM# 89904-0E120 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+2008 2013 All 40000-49999 OEM# 89904-48100 or 89904-
+48110 (LAL) Smart Pro/TCP/MVPP/TKO/SDD Emerg. Key TOY51-P 950
+HIGHLANDER W/ 
+REGULAR IGNITION
+2014 2019 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2014 2019 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2011 2013 All 50000-69999 TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2013 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2004 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOYOTA - TOYOTA TRUCKS
+--- PAGE 124 ---
+Page 124 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+LAND CRUISER
+2020 2021 All 80000-89999 OEM# 89904-60X20 or 89904-
+60X40 Smart Pro Emerg. Key TOY51-P 3102
+2016 2019 All 80000-89999 OEM# 89904-60J70 (LAL) Smart Pro Emergency Key 
+TOY51-P 3102
+2013 2015 All 40000-49999 OEM# 89904-60770 (LAL) Smart Pro Emergency Key LX40 950
+2009 2012 All 40000-49999 Dealer FOB Smart Pro/TCP/MVP Emerg. Key TOY51-P 950
+2003 2008 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 514
+TOY44D-PT (LAL) Smart Pro/TCP/MVPP   SDD/TKO (2002-07) Service Key TR47 Texas Instruments (4D67) Encrypted System 514
+1998 2002 All 10001-15000
+TOY43AT4 (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+1991 1998 All W1-W2409 X211/TR44 [-P] X174/TR40 264
+1983 1990 All K1-K4570 X137/TR33 [-P, -PC] - 89
+1981 1982 All K1-K4570 T61C/T61C [-P] X137/TR33 89
+PREVIA VAN 1991 1998 All S1-S2878 X212/TR46 [-P, -PC] X151/TR39 197
+RAV 4 W/ PROX
+2019 2022 All 80000-89999 OEM# 8990H-0R010 or 
+8990H-0R030 (LAL) Smart Pro 3102
+2013 2018 All 80000-89999 OEM# 89904-0R080 or 89904-
+0R140 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+RAV 4 W/ REGULAR 
+IGNITION
+2019 2023 All 40000-49999
+TOY48H-PT Smart Pro Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+TOY40B-GTS w/ GTI-Pro RW5, SA+, RW4 Plus, EZ Clone Plus Service key LXP90-P Texas Instruments (4D74) 128 bit System 950
+2013 2019 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2013 2019 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+RAV 4
+2011 2012 All 50000-69999 TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2012 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2006 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT (LAL) OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2001 2005 All 10001-15000 X217/TR47 [-P, -PC] (LAL) Service Key TR47 514
+Valet 10001-15000 X220/TR50 Service Key TR47 514
+1994 2000 All 10001-15000 X217/TR47 [-P, -PC] (LAL) X225/B80 514
+SEQUOIA W/ PROX 2019 2022 All 80000-89999 OEM# 89904-0E092 or 89904-
+0E121 (LAL) Smart Pro Service key LXP90-P Texas Instruments (4D74) 128 bit System 3102
+SEQUOIA
+2015 2020 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2015 2020 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2011 2014 All 50000-69999 TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2014 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2003 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2001 2002 All 10001-15000
+TOY43AT4 (LAL) OBP Program E, Smart Pro/TCP/MVPP/TKO/
+SDD Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+SIENNA W/ PROX 2021 2022 All 80000-89999 OEM# 8990H-08020 Service key LXP90-P 3102
+2011 2020 All 80000-89999 OEM# 89904-08010 Smart Pro/TCP/MVPP/TKO/SDD 3102
+TOYOTA TRUCKS
+--- PAGE 125 ---
+Page 125 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+SIENNA W/ REGULAR 
+IGNITION
+2015 2020 All 50000-69999 TOY44H-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2015 2020 All 50000-69999 TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2011 2014 All 50000-69999 TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2014 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+SIENNA VAN, CE 2004 2010 All 50000-69999 X217/TR47 [-P, -PC] Service Key TR47 1420
+SIENNA VAN, XLE-LE
+1998 2003 All 10001-15000
+TOY43AT4 (LAL) OBP Program E or I Service Key TR47 Texas Instruments (4C) Encrypted System 514
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4C) Encrypted System 514
+X217/TR47 [-P, -PC] (LAL) X225/B80 514
+1998 1998 All 10001-15000 X217/TR47 [-P, -PC] (LAL) X225/B80 514
+Valet 10001-15000 X220/TR50 - 514
+SIENNA VAN, XLE-LE-
+LIMITED 2004 2010 All 50000-69999
+TOY44D-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+SMALL PICKUP 1989 1995 All W1-W2409 X174/TR40 [-P, -PC] X211/TR44 264
+1981 1988 All K1-K4570 X137/TR33 [-P, -PC] - 89
+T100 PICKUP 1993 1998 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+TACOMA W/ PROX 2016 2022 All 80000-89999 OEM# 89904-0E091 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+TACOMA
+2016 2022 All 50000-69999 TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+TOY43-GTS w/ GTI-Pro RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2011 2015 All 50000-69999 TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2015 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2005 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+1995 2004 All 10001-15000 X217/TR47 [-P, -PC] (LAL) X225/B80 2006-Present Transponder is Buyer option 514
+TUNDRA W/ PROX 2019 2021 All 80000-89999 OEM# 89904-0E091 or 89904-
+0E092 (LAL) Smart Pro/TCP/MVPP Emerg. Key 
+TOY48EMER 3102
+TUNDRA
+2016 2022 All 50000-69999
+TOY44H-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+TOY43-GTS w/ T128C 
+Transponder (GTHT128C) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments (4D74) 128 bit System 1420
+2016 2017 All 50000-69999 TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2016 2017 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2015 All 50000-69999 TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2011 2015 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2007 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+TOY44D-PT OBP Program E or I, Smart Pro/TCP/MVPP/
+TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted System 1420
+2004 2005 All 50000-69999 X217/TR47 [-P, -PC] (LAL) 1420
+2000 2003 All 10001-15000 X217/TR47 [-P, -PC] X225/B80 514
+TOYOTA TRUCKS
+--- PAGE 126 ---
+Page 126 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.

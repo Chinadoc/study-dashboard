@@ -1,0 +1,17 @@
+KENWORTH
+ALL US MODELS 1994 2004 All G101-G598 K1994 P1108/B88 636
+ALL US MODELS 1978 1993 All C250-C2200 1098DB/B5 H1098DB/B16 142
+MIDRANGER 1988 1990 Door FB001-FB210 X53/V32 - 59
+Ignition E2001-E3000 X170/NE48 - 68
+JEEP - KENWORTH
+--- PAGE 75 ---
+Page 75 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
