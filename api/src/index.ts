@@ -59,6 +59,7 @@ async function createInternalToken(user: any, secret: string) {
     email: user.email,
     name: user.name,
     is_pro: !!user.is_pro,
+    is_developer: !!user.is_developer,
     picture: user.picture
   })
     .setProtectedHeader({ alg: 'HS256' })
@@ -206,8 +207,13 @@ export default {
         return textResponse(JSON.stringify({ user: null }), 200);
       }
 
-      // Refresh data from DB to get latest is_pro status
-      const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro FROM users WHERE id = ?").bind(payload.sub).first();
+      // Refresh data from DB to get latest status and also check developer email
+      const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer FROM users WHERE id = ?").bind(payload.sub).first<any>();
+
+      // Also check email allow-list for developer access
+      if (user && !user.is_developer && isDeveloper(user.email, env.DEV_EMAILS)) {
+        user.is_developer = true;
+      }
 
       return textResponse(JSON.stringify({ user }), 200);
     }
@@ -305,6 +311,126 @@ export default {
       }
     }
 
+    // ==============================================
+    // ACTIVITY TRACKING & ADMIN PANEL
+    // ==============================================
+
+    // Log user activity from frontend
+    if (path === "/api/activity/log" && request.method === "POST") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const body: any = await request.json();
+        const { action, details } = body;
+
+        if (!action) return textResponse(JSON.stringify({ error: "Missing action" }), 400);
+
+        await env.LOCKSMITH_DB.prepare(
+          "INSERT INTO user_activity (user_id, action, details, user_agent, created_at) VALUES (?, ?, ?, ?, ?)"
+        ).bind(
+          payload.sub,
+          action,
+          details ? JSON.stringify(details) : null,
+          request.headers.get("User-Agent"),
+          Date.now()
+        ).run();
+
+        return textResponse(JSON.stringify({ success: true }));
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Admin: Get all users (developer only)
+    if (path === "/api/admin/users") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        // Check developer access
+        const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+        if (!userIsDev) return textResponse(JSON.stringify({ error: "Forbidden" }), 403);
+
+        // Get all users with activity count and last activity
+        const users = await env.LOCKSMITH_DB.prepare(`
+          SELECT 
+            u.id,
+            u.email,
+            u.name,
+            u.picture,
+            u.is_pro,
+            u.is_developer,
+            u.created_at,
+            COUNT(a.id) as activity_count,
+            MAX(a.created_at) as last_activity
+          FROM users u
+          LEFT JOIN user_activity a ON u.id = a.user_id
+          GROUP BY u.id
+          ORDER BY u.created_at DESC
+        `).all();
+
+        return textResponse(JSON.stringify({ users: users.results || [] }));
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Admin: Get activity log (developer only)
+    if (path === "/api/admin/activity") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return textResponse(JSON.stringify({ error: "Unauthorized" }), 401);
+
+        // Check developer access
+        const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+        if (!userIsDev) return textResponse(JSON.stringify({ error: "Forbidden" }), 403);
+
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10), 500);
+        const userId = url.searchParams.get("userId"); // Optional filter
+
+        let whereClause = "";
+        const params: (string | number)[] = [];
+
+        if (userId) {
+          whereClause = "WHERE a.user_id = ?";
+          params.push(userId);
+        }
+
+        const activity = await env.LOCKSMITH_DB.prepare(`
+          SELECT 
+            a.id,
+            a.user_id,
+            a.action,
+            a.details,
+            a.user_agent,
+            a.created_at,
+            u.name as user_name,
+            u.email as user_email
+          FROM user_activity a
+          LEFT JOIN users u ON a.user_id = u.id
+          ${whereClause}
+          ORDER BY a.created_at DESC
+          LIMIT ?
+        `).bind(...params, limit).all();
+
+        return textResponse(JSON.stringify({ activity: activity.results || [] }));
+      } catch (err: any) {
+        return textResponse(JSON.stringify({ error: err.message }), 500);
+      }
+    }
 
     // 7. Get AI Insights (Publicly accessible now)
     if (path === "/api/insights") {

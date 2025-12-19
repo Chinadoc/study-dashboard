@@ -21,3 +21,6 @@ binding = "AI"
 
 [triggers]
 crons = ["0 0 * * *"] # Run daily at midnight UTC
+
+[vars]
+DEV_EMAILS = "jeremysamuels17@gmail.com,jeremyandenmei@gmail.com,ben.samuels20@gmail.com"

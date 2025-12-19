@@ -3879,46 +3879,9 @@
                 });
             }
 
-            // Apply key type filter
+            // Apply key type filter - uses getKeyType() to match badge display logic
             if (fccKeyType !== 'all') {
-                filtered = filtered.filter(r => {
-                    const vehicles = (r.vehicles || '').toLowerCase();
-                    const chip = (r.chip || '').toLowerCase();
-                    const freq = parseFloat(r.frequency) || 0;
-                    const keyTypeDisplay = (r.key_type_display || '').toLowerCase();
-
-                    switch (fccKeyType) {
-                        case 'smart':
-                            // Smart/Prox keys: PEPS, proximity, push-to-start
-                            return chip.includes('hitag') || chip.includes('id47') || chip.includes('id49') ||
-                                chip.includes('id4a') || vehicles.includes('prox') ||
-                                vehicles.includes('smart') || vehicles.includes('peps') ||
-                                keyTypeDisplay.includes('smart') || freq >= 433;
-                        case 'transponder':
-                            // Transponder keys: chip-based but not smart
-                            return (chip.includes('id') || chip.includes('philips') || chip.includes('texas') ||
-                                chip.includes('megamos') || chip.includes('pcf') || chip.includes('tpx') ||
-                                keyTypeDisplay.includes('transponder') || keyTypeDisplay.includes('ews')) &&
-                                !vehicles.includes('prox') && !vehicles.includes('smart') && freq < 433;
-                        case 'remote-head':
-                            // Remote head keys: combined key blade + remote
-                            return vehicles.includes('remote head') || chip.includes('remote head') ||
-                                keyTypeDisplay.includes('remote head') ||
-                                (vehicles.includes('rhk') || vehicles.includes('remote key'));
-                        case 'flip':
-                            // Flip/switchblade keys
-                            return vehicles.includes('flip') || vehicles.includes('switchblade') ||
-                                keyTypeDisplay.includes('flip');
-                        case 'mechanical':
-                            // Mechanical/traditional keys: no chip
-                            return r.is_synthetic || chip.includes('non-transponder') ||
-                                chip.includes('traditional') || chip === 'na' || chip === 'n/a' ||
-                                chip === '' || keyTypeDisplay.includes('mechanical') ||
-                                keyTypeDisplay.includes('high security');
-                        default:
-                            return true;
-                    }
-                });
+                filtered = filtered.filter(r => getKeyType(r) === fccKeyType);
             }
 
             const totalPages = Math.ceil(filtered.length / FCC_PER_PAGE);
@@ -6421,6 +6384,40 @@
         let cachedCoverage = null;
         let cachedHeatmapHtml = null;
 
+        // Hardcoded coverage data: key type by make and year
+        // 'S' = Smart/Prox, 'F' = Flip Key, 'R' = Remote Head, 'T' = Transponder, 'M' = Mechanical
+        // This data reflects typical key technology adoption by manufacturer
+        const HARDCODED_COVERAGE = {
+            // Japanese - Early smart key adopters
+            "Toyota": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Lexus": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'S', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Honda": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Nissan": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'T', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Mazda": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'F', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Subaru": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'T', 2008: 'T', 2009: 'T', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'R', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            // American - Remote head key era
+            "Ford": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'R', 2006: 'R', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Chevrolet": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'F', 2011: 'F', 2012: 'F', 2013: 'F', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Dodge": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'T', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Jeep": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'M', 2006: 'T', 2007: 'R', 2008: 'R', 2009: 'R', 2010: 'R', 2011: 'R', 2012: 'R', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            // German - Early transponder adopters
+            "BMW": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'T', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Mercedes": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'S', 2006: 'S', 2007: 'S', 2008: 'S', 2009: 'S', 2010: 'S', 2011: 'S', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Volkswagen": { 2000: 'T', 2001: 'T', 2002: 'T', 2003: 'T', 2004: 'T', 2005: 'F', 2006: 'F', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            // Korean - Flip key era
+            "Hyundai": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' },
+            "Kia": { 2000: 'M', 2001: 'M', 2002: 'M', 2003: 'M', 2004: 'M', 2005: 'T', 2006: 'T', 2007: 'F', 2008: 'F', 2009: 'F', 2010: 'F', 2011: 'F', 2012: 'S', 2013: 'S', 2014: 'S', 2015: 'S', 2016: 'S', 2017: 'S', 2018: 'S', 2019: 'S', 2020: 'S', 2021: 'S', 2022: 'S', 2023: 'S', 2024: 'S', 2025: 'S' }
+        };
+
+        // Key type colors matching badge colors
+        const KEY_TYPE_COLORS = {
+            'S': { bg: '#22c55e', label: 'Smart/Prox', opacity: 1 },      // Green
+            'F': { bg: '#a855f7', label: 'Flip Key', opacity: 0.9 },      // Purple
+            'R': { bg: '#3b82f6', label: 'Remote Head', opacity: 0.85 },  // Blue
+            'T': { bg: '#fbbf24', label: 'Transponder', opacity: 0.8 },   // Yellow
+            'M': { bg: '#9ca3af', label: 'Mechanical', opacity: 0.6 }     // Grey
+        };
+
         function renderKeyCoverageMap(forceRefresh = false) {
             const container = document.getElementById('keyCoverageContainer');
             if (!container) return;
@@ -6431,114 +6428,66 @@
                 return;
             }
 
-            // 1. Gather Data (Make vs Year)
-            if (typeof fccData === 'undefined' || !fccData || fccData.length === 0) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Loading coverage data...</div>';
-                return;
-            }
-
-            // Show loading indicator for first computation
-            if (!heatmapCached) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Computing coverage map...</div>';
-            }
-
-            // AUTO-ENRICHMENT: Fill gaps with "Traditional Key"
-            // We do this dynamically here so it reflects in the chart
-            // Note: This modifies the visual representation, effectively "assuming" non-transponder if no data.
             const makes = ["Toyota", "Lexus", "Honda", "Nissan", "Ford", "Chevrolet", "Dodge", "Jeep", "BMW", "Mercedes", "Volkswagen", "Hyundai", "Kia", "Subaru", "Mazda"];
             const years = Array.from({ length: 26 }, (_, i) => 2000 + i);
 
-            // Build a quick lookup of what we HAVE
-            const existingCoverage = new Set();
-            fccData.forEach(entry => {
-                const vehicleStr = entry.vehicles || '';
-                if (!vehicleStr || vehicleStr === 'N/A') return;
-                const parts = vehicleStr.split(',').map(v => v.trim()).filter(v => v);
-                parts.forEach(part => {
-                    const match = part.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
-                    if (match) {
-                        const makeModel = match[1].trim();
-                        const makeMatch = makeModel.match(/^([A-Za-z]+)/);
-                        const make = makeMatch ? makeMatch[1] : null;
-                        if (make && makes.includes(make)) {
-                            const start = parseInt(match[2]);
-                            const end = match[3] ? parseInt(match[3]) : start;
-                            for (let y = start; y <= end; y++) {
-                                existingCoverage.add(`${make}|${y}`);
-                            }
-                        }
-                    }
-                });
-            });
-
-            // Inject "Traditional Keys" for gaps
-            makes.forEach(make => {
-                years.forEach(y => {
-                    if (!existingCoverage.has(`${make}|${y}`)) {
-                        // Create a synthetic entry
-                        fccData.push({
-                            fcc_id: 'NON-TRANSPONDER',
-                            vehicles: `${make} (${y})`,
-                            chip: 'Non-Transponder (Traditional)',
-                            frequency: 'N/A',
-                            primary_make: make,
-                            is_synthetic: true // Flag for UI logic
-                        });
-                    }
-                });
-            });
-
-
+            // Build coverage from hardcoded data + user inventory
             const coverage = {};
+            makes.forEach(make => {
+                coverage[make] = {};
+                years.forEach(year => {
+                    const type = HARDCODED_COVERAGE[make]?.[year] || 'M';
+                    coverage[make][year] = {
+                        keyType: type,
+                        inStock: 0 // Will be updated from inventory
+                    };
+                });
+            });
 
-            fccData.forEach(entry => {
-                const vehicleStr = entry.vehicles || '';
-                if (!vehicleStr || vehicleStr === 'N/A') return;
+            // Overlay inventory data if fccData is available
+            if (typeof fccData !== 'undefined' && fccData && fccData.length > 0) {
+                fccData.forEach(entry => {
+                    const vehicleStr = entry.vehicles || '';
+                    if (!vehicleStr || vehicleStr === 'N/A') return;
 
-                const parts = vehicleStr.split(',').map(v => v.trim()).filter(v => v);
+                    const parts = vehicleStr.split(',').map(v => v.trim()).filter(v => v);
+                    parts.forEach(part => {
+                        const match = part.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+                        if (match) {
+                            const makeModel = match[1].trim();
+                            const makeMatch = makeModel.match(/^([A-Za-z]+)/);
+                            const make = makeMatch ? makeMatch[1] : null;
 
-                parts.forEach(part => {
-                    const match = part.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
-                    if (match) {
-                        const makeModel = match[1].trim();
-                        // Simple heuristic: First word is Make
-                        const makeMatch = makeModel.match(/^([A-Za-z]+)/);
-                        const make = makeMatch ? makeMatch[1] : null;
+                            if (make && makes.includes(make)) {
+                                const start = parseInt(match[2]);
+                                const end = match[3] ? parseInt(match[3]) : start;
 
-                        if (make && makes.includes(make)) {
-                            const start = parseInt(match[2]);
-                            const end = match[3] ? parseInt(match[3]) : start;
+                                // Check stock
+                                const hasStock = (entry.fcc_id && InventoryManager.getKeyStock(entry.fcc_id) > 0) ||
+                                    (entry.primary_oem_part && InventoryManager.getBlankStock(entry.primary_oem_part) > 0);
 
-                            // Check stock
-                            const hasStock = (entry.fcc_id && InventoryManager.getKeyStock(entry.fcc_id) > 0) ||
-                                (entry.primary_oem_part && InventoryManager.getBlankStock(entry.primary_oem_part) > 0);
-
-                            const is传统 = entry.is_synthetic === true; // Traditional Key
-
-                            for (let y = start; y <= end; y++) {
-                                if (y >= 2000 && y <= 2025) {
-                                    if (!coverage[make]) coverage[make] = {};
-                                    if (!coverage[make][y]) coverage[make][y] = { totalKeys: 0, inStock: 0, traditional: 0 };
-
-                                    coverage[make][y].totalKeys++;
-                                    if (hasStock) coverage[make][y].inStock++;
-                                    if (is传统) coverage[make][y].traditional++;
+                                for (let y = start; y <= end; y++) {
+                                    if (y >= 2000 && y <= 2025 && coverage[make] && coverage[make][y]) {
+                                        if (hasStock) coverage[make][y].inStock++;
+                                    }
                                 }
                             }
                         }
-                    }
+                    });
                 });
-            });
+            }
 
-            // 2. Render Heatmap
+            // Render Heatmap with all 5 key type colors
             const html = `
                 <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
-                    <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-                        <span>🗺️ Key Coverage Map (Inventory vs. Market)</span>
-                        <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 400;">
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> In Stock</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Transponder (Gap)</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #a855f7; border-radius: 2px;"></span> Traditional</span>
+                    <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span>🗺️ Key Coverage Map</span>
+                        <div style="display: flex; gap: 8px; font-size: 0.75rem; font-weight: 400; flex-wrap: wrap;">
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> Smart/Prox</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #a855f7; border-radius: 2px;"></span> Flip Key</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Remote Head</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #fbbf24; border-radius: 2px;"></span> Transponder</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #9ca3af; border-radius: 2px;"></span> Mechanical</span>
                         </div>
                     </h3>
 
@@ -6553,44 +6502,33 @@
                                 <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end;">${make}</div>
                                 ${years.map(year => {
                     const data = coverage[make] && coverage[make][year];
-                    let bg = '#a855f7'; // Purple (Default to Traditional if it exists, since we backfill gaps)
-                    let title = 'Traditional Key (Assumed)';
-                    let opacity = 0.5; // Dimmer for assumptions
-                    let hasData = false;
+                    const typeCode = data?.keyType || 'M';
+                    const typeInfo = KEY_TYPE_COLORS[typeCode] || KEY_TYPE_COLORS['M'];
 
-                    if (data) {
-                        if (data.inStock > 0) {
-                            bg = '#22c55e'; // Green
-                            title = `In Stock: ${data.inStock} keys`;
-                            opacity = 1;
-                            hasData = true;
-                        } else if (data.totalKeys > data.traditional) {
-                            // Ensure we have REAL keys, not just synthetic ones
-                            bg = '#3b82f6'; // Blue
-                            title = `Gap: Transponder Required`;
-                            opacity = 0.8;
-                            hasData = true;
-                        } else {
-                            // Only synthetic/traditional
-                            hasData = true; // It IS data now
-                        }
-                    } else {
-                        // Should be unreachable if we fill ALL gaps, but fallback
-                        bg = 'rgba(255,255,255,0.03)';
-                        title = 'No Data';
+                    // If in stock, show bright green with ring
+                    let bg = typeInfo.bg;
+                    let opacity = typeInfo.opacity;
+                    let title = typeInfo.label;
+                    let border = 'none';
+
+                    if (data && data.inStock > 0) {
+                        border = '2px solid #fff';
                         opacity = 1;
+                        title = `${typeInfo.label} - In Stock: ${data.inStock}`;
                     }
 
                     return `
                                         <div title="${make} ${year}: ${title}" 
-                                             onclick="${hasData ? `filterKeyDb('${make}', ${year})` : ''}"
+                                             onclick="filterKeyDb('${make}', ${year})"
                                              style="
                                             height: 24px; 
                                             background: ${bg}; 
                                             border-radius: 2px;
                                             opacity: ${opacity};
-                                            cursor: ${hasData ? 'pointer' : 'default'};
+                                            cursor: pointer;
                                             transition: all 0.1s;
+                                            border: ${border};
+                                            box-sizing: border-box;
                                         " onmouseover="this.style.opacity=1; this.style.transform='scale(1.2)';" onmouseout="this.style.opacity=${opacity}; this.style.transform='scale(1)';"></div>
                                     `;
                 }).join('')}
