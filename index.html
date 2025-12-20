@@ -4017,7 +4017,7 @@
             modelSelect.disabled = false;
 
             // Trigger Search
-            searchDatabase();
+            searchVehicle();
         }
 
         function resetBrowse() {
@@ -7814,31 +7814,35 @@
                 });
             }
 
-            // Render Heatmap with all 5 key type colors
+            // Render Heatmap with all 5 key type colors - Mobile optimized with sticky make column
             const html = `
-                <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
-                    <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1rem;">
                         <span>🗺️ Key Coverage Map${activeFilter !== 'all' ? ' - ' + (KEY_TYPE_COLORS[{ smart: 'S', flip: 'F', 'remote-head': 'R', transponder: 'T', mechanical: 'M' }[activeFilter]]?.label || activeFilter) : ''}</span>
-                        <div style="display: flex; gap: 8px; font-size: 0.75rem; font-weight: 400; flex-wrap: wrap;">
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> Smart/Prox</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #a855f7; border-radius: 2px;"></span> Flip Key</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Remote Head</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #fbbf24; border-radius: 2px;"></span> Transponder</span>
-                            <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #9ca3af; border-radius: 2px;"></span> Mechanical</span>
-                        </div>
                     </h3>
+                    <!-- Legend - compact for mobile -->
+                    <div style="display: flex; gap: 6px; font-size: 0.65rem; font-weight: 400; flex-wrap: wrap; margin-bottom: 12px;">
+                        <span style="display: flex; align-items: center; gap: 3px;"><span style="width: 8px; height: 8px; background: #22c55e; border-radius: 2px;"></span>Smart</span>
+                        <span style="display: flex; align-items: center; gap: 3px;"><span style="width: 8px; height: 8px; background: #a855f7; border-radius: 2px;"></span>Flip</span>
+                        <span style="display: flex; align-items: center; gap: 3px;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span>Remote</span>
+                        <span style="display: flex; align-items: center; gap: 3px;"><span style="width: 8px; height: 8px; background: #fbbf24; border-radius: 2px;"></span>Transp</span>
+                        <span style="display: flex; align-items: center; gap: 3px;"><span style="width: 8px; height: 8px; background: #9ca3af; border-radius: 2px;"></span>Mech</span>
+                    </div>
 
-                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                        <div style="display: grid; grid-template-columns: 100px repeat(${years.length}, minmax(20px, 1fr)); gap: 2px; min-width: min(1000px, 100%);">
-                             <!-- Headers -->
-                            <div style="position: sticky; left: 0; background: var(--bg-tertiary); z-index: 2;"></div>
-                            ${years.map(y => `<div style="font-size: 0.55rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">'${String(y).slice(-2)}</div>`).join('')}
-
-                            <!-- Body -->
-                            ${makes.map(make => {
-                return `
-                                    <div style="position: sticky; left: 0; background: var(--bg-tertiary); z-index: 1; font-size: 0.75rem; font-weight: 600; color: var(--text-primary); padding-right: 8px; display: flex; align-items: center; justify-content: flex-end; white-space: nowrap;">${make}</div>
-                                ${years.map(year => {
+                    <!-- Table-based layout for proper sticky column support -->
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative;">
+                        <table style="border-collapse: separate; border-spacing: 2px; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th style="position: sticky; left: 0; z-index: 10; background: var(--bg-tertiary); min-width: 70px; width: 70px;"></th>
+                                    ${years.map(y => `<th style="font-size: 0.5rem; color: var(--text-muted); text-align: center; padding: 0; width: 18px; min-width: 18px; font-weight: 400;"><div style="transform: rotate(-45deg); white-space: nowrap;">'${String(y).slice(-2)}</div></th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${makes.map(make => {
+                return `<tr>
+                                        <td style="position: sticky; left: 0; z-index: 5; background: var(--bg-tertiary); font-size: 0.7rem; font-weight: 600; color: var(--text-primary); padding-right: 6px; text-align: right; white-space: nowrap; min-width: 70px; width: 70px;">${make}</td>
+                                        ${years.map(year => {
                     const data = coverage[make] && coverage[make][year];
                     const typeCode = data?.keyType || 'M';
                     const typeInfo = KEY_TYPE_COLORS[typeCode] || KEY_TYPE_COLORS['M'];
@@ -7848,7 +7852,7 @@
 
                     // Base styling
                     let bg = typeInfo.bg;
-                    let opacity = matchesFilter ? typeInfo.opacity : 0.15; // Dim non-matching cells
+                    let opacity = matchesFilter ? typeInfo.opacity : 0.15;
                     let title = typeInfo.label;
                     let border = 'none';
 
@@ -7859,11 +7863,11 @@
                         title = `${typeInfo.label} - In Stock: ${data.inStock}`;
                     }
 
-                    return `
-                                        <div title="${make} ${year}: ${title}" 
+                    return `<td style="padding: 0;"><div title="${make} ${year}: ${title}" 
                                              onclick="filterKeyDb('${make}', ${year})"
                                              style="
-                                            height: 24px; 
+                                            height: 20px; 
+                                            width: 16px;
                                             background: ${bg}; 
                                             border-radius: 2px;
                                             opacity: ${opacity};
@@ -7871,12 +7875,12 @@
                                             transition: all 0.1s;
                                             border: ${border};
                                             box-sizing: border-box;
-                                        " onmouseover="this.style.opacity=1; this.style.transform='scale(1.2)';" onmouseout="this.style.opacity=${opacity}; this.style.transform='scale(1)';"></div>
-                                    `;
+                                        " onmouseover="this.style.opacity=1; this.style.transform='scale(1.2)';" onmouseout="this.style.opacity=${opacity}; this.style.transform='scale(1)';"></div></td>`;
                 }).join('')}
-                            `;
+                                    </tr>`;
             }).join('')}
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `;
