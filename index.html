@@ -3915,7 +3915,7 @@
 
             grid.innerHTML = POPULAR_MAKES.map(make => {
                 const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
-                const logoUrl = `https://logo.clearbit.com/${domain}`; // Back to clearbit, simpler
+                const logoUrl = `https://cdn.brandfetch.io/${domain}/w/128/h/128`; // Brandfetch CDN
                 const initials = make.substring(0, 2).toUpperCase();
                 const brandColor = BRAND_COLORS[make] || 'var(--brand-primary)';
 
@@ -3958,7 +3958,7 @@
             logoImg.style.borderRadius = '50%';
             logoImg.style.padding = '4px';
 
-            logoImg.src = `https://logo.clearbit.com/${domain}`;
+            logoImg.src = `https://cdn.brandfetch.io/${domain}/w/128/h/128`;
             logoImg.onerror = function () {
                 this.style.display = 'none';
                 logoAvatar.style.display = 'flex';
@@ -4218,8 +4218,10 @@
             document.getElementById('resultTitle').textContent = `${year} ${make} ${model}`;
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
-            document.getElementById('browseSection').style.display = 'none';
-            document.getElementById('resultsSection').classList.add('active');
+            const browseSection = document.getElementById('legacySearchCard');
+            if (browseSection) browseSection.style.display = 'none';
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.add('active');
             initQuickSearch();
 
             try {
