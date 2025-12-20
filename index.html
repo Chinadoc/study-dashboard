@@ -4419,7 +4419,7 @@
                     }
                 }
 
-                const res = await fetch(`${API}/subscription-status?userId=${currentUser.sub}`);
+                const res = await fetch(`${API}/api/subscription-status?userId=${currentUser.sub}`);
                 const data = await res.json();
 
                 isPro = data.isPro;
@@ -4509,7 +4509,7 @@
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${API}/create-checkout-session`, {
+                const res = await fetch(`${API}/api/create-checkout-session`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -4545,7 +4545,7 @@
             try {
                 // Force refresh subscription status from server
                 localStorage.removeItem('eurokeys_subscription');
-                const res = await fetch(`${API}/subscription-status?userId=${currentUser.sub}`);
+                const res = await fetch(`${API}/api/subscription-status?userId=${currentUser.sub}`);
                 const data = await res.json();
 
                 if (data.isPro) {
@@ -4863,7 +4863,7 @@
 
             try {
                 // Call admin endpoint - if it returns 200, user is a developer
-                const response = await fetch(`${API}/admin/users`, { credentials: 'include' });
+                const response = await fetch(`${API}/api/admin/users`, { credentials: 'include' });
                 if (response.ok) {
                     currentUser.is_developer = true;
                     localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
@@ -4967,7 +4967,7 @@
             try {
                 sessionData.interactions++;
                 const visitorId = getVisitorId();
-                await fetch(`${API}/activity/log`, {
+                await fetch(`${API}/api/activity/log`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -5106,7 +5106,7 @@
             const sessionDuration = Math.floor((Date.now() - sessionData.startTime) / 1000);
             // Use sendBeacon for reliable delivery
             if (navigator.sendBeacon) {
-                navigator.sendBeacon(`${API}/activity/log`, JSON.stringify({
+                navigator.sendBeacon(`${API}/api/activity/log`, JSON.stringify({
                     action: 'session_end',
                     details: {
                         duration: sessionDuration,
