@@ -7331,22 +7331,54 @@
                         return false;
                     }
                     const data = await response.json();
-                    if (data.keys) {
-                        // Convert cloud format to localStorage format
+                    const cloudKeyCount = Object.keys(data.keys || {}).length;
+                    const cloudBlankCount = Object.keys(data.blanks || {}).length;
+
+                    // Get local data
+                    const localKeys = this.getKeysInventory();
+                    const localBlanks = this.getBlanksInventory();
+                    const localKeyCount = Object.keys(localKeys).length;
+                    const localBlankCount = Object.keys(localBlanks).length;
+
+                    console.log('📦 Inventory: Cloud has', cloudKeyCount, 'keys,', cloudBlankCount, 'blanks');
+                    console.log('📦 Inventory: Local has', localKeyCount, 'keys,', localBlankCount, 'blanks');
+
+                    // If cloud is empty but local has data, upload local to cloud
+                    if (cloudKeyCount === 0 && cloudBlankCount === 0 && (localKeyCount > 0 || localBlankCount > 0)) {
+                        console.log('📦 Inventory: Cloud is empty, uploading local data...');
+                        // Upload all local keys
+                        for (const [key, item] of Object.entries(localKeys)) {
+                            if (item && item.qty > 0) {
+                                await this.syncToCloud(key, 'key', item.qty, item.vehicle, item.amazonLink);
+                            }
+                        }
+                        // Upload all local blanks
+                        for (const [key, item] of Object.entries(localBlanks)) {
+                            if (item && item.qty > 0) {
+                                await this.syncToCloud(key, 'blank', item.qty, item.vehicle, item.amazonLink);
+                            }
+                        }
+                        console.log('📦 Inventory: Uploaded local data to cloud');
+                        return true;
+                    }
+
+                    // If cloud has data, use it (cloud is source of truth)
+                    if (cloudKeyCount > 0) {
                         const keysData = {};
                         Object.entries(data.keys).forEach(([key, item]) => {
                             keysData[key] = { qty: item.qty, vehicle: item.vehicle, amazonLink: item.amazonLink };
                         });
                         this.setKeysInventory(keysData);
                     }
-                    if (data.blanks) {
+                    if (cloudBlankCount > 0) {
                         const blanksData = {};
                         Object.entries(data.blanks).forEach(([key, item]) => {
                             blanksData[key] = { qty: item.qty, vehicle: item.vehicle, amazonLink: item.amazonLink };
                         });
                         this.setBlanksInventory(blanksData);
                     }
-                    console.log('📦 Inventory: Loaded from cloud', Object.keys(data.keys || {}).length, 'keys,', Object.keys(data.blanks || {}).length, 'blanks');
+
+                    console.log('📦 Inventory: Loaded from cloud');
                     updateInventoryTabBadge();
                     return true;
                 } catch (e) {
