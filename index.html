@@ -1501,16 +1501,25 @@
                     <input type="hidden" id="jobItemType" />
                     <input type="hidden" id="jobDisplayTitle" />
 
-                    <!-- Customer & Description -->
+                    <!-- Customer & Vehicle Selection -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="job-form-group">
-                            <label for="jobCustomer">Customer</label>
+                            <label for="jobCustomer">Customer (Optional)</label>
                             <input type="text" id="jobCustomer" placeholder="John Smith" />
                         </div>
                         <div class="job-form-group">
-                            <label for="jobDescription">Vehicle/Job</label>
-                            <input type="text" id="jobDescription" placeholder="2018 Camry" />
+                            <label for="jobVehicleSelect">Select Vehicle</label>
+                            <select id="jobVehicleSelect"
+                                onchange="document.getElementById('jobDescription').value = this.value; calculateJobProfit();"
+                                style="width: 100%; border-radius: 8px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px; font-size: 0.85rem;">
+                                <option value="">-- Choose Car --</option>
+                            </select>
                         </div>
+                    </div>
+
+                    <div class="job-form-group" style="margin-top: 8px;">
+                        <label for="jobDescription">Job Description / Custom Vehicle</label>
+                        <input type="text" id="jobDescription" placeholder="e.g. 2018 Toyota Camry" />
                     </div>
 
                     <!-- Revenue Section -->
@@ -5898,10 +5907,35 @@
             document.getElementById('jobItemKey').value = itemKey;
             document.getElementById('jobItemType').value = type;
             document.getElementById('jobItemName').textContent = `${type === 'blank' ? '🔑' : '🔐'} ${itemKey}`;
-            document.getElementById('jobItemVehicle').textContent = savedVehicle || '';
+
+            // Truncate preview if too long
+            const previewEl = document.getElementById('jobItemVehicle');
+            if (savedVehicle.length > 200) {
+                previewEl.textContent = savedVehicle.substring(0, 200) + '...';
+                previewEl.title = savedVehicle; // Tooltip for full list
+            } else {
+                previewEl.textContent = savedVehicle || '';
+            }
+
+            // Populate Vehicle Select Dropdown
+            const select = document.getElementById('jobVehicleSelect');
+            select.innerHTML = '<option value="">-- Choose Car --</option>';
+
+            if (savedVehicle) {
+                // Parse comma-separated vehicle list
+                const cars = savedVehicle.split(',').map(s => s.trim()).filter(s => s);
+                // Filter duplicates and populate
+                [...new Set(cars)].forEach(car => {
+                    const opt = document.createElement('option');
+                    opt.value = car;
+                    opt.textContent = car;
+                    select.appendChild(opt);
+                });
+            }
 
             // Reset all fields
-            document.getElementById('jobDescription').value = savedVehicle;
+            document.getElementById('jobDescription').value = vehicle || (savedVehicle.includes(',') ? '' : savedVehicle);
+            document.getElementById('jobVehicleSelect').value = vehicle || (savedVehicle.includes(',') ? '' : savedVehicle);
             document.getElementById('jobCustomer').value = '';
             document.getElementById('jobNotes').value = '';
             document.getElementById('jobRevenue').value = '';
