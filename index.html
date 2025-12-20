@@ -3897,22 +3897,34 @@
             'Volkswagen': 'vw.com', 'Volvo': 'volvocars.com'
         };
 
+        // Pre-defined Brand Colors for nicer text avatars
+        const BRAND_COLORS = {
+            'Acura': '#E82C2A', 'Audi': '#BB0A30', 'BMW': '#0066B1', 'Buick': '#FF6600',
+            'Cadillac': '#A63328', 'Chevrolet': '#CD9834', 'Chrysler': '#003DA5', 'Dodge': '#D61F26',
+            'Fiat': '#8E0C3A', 'Ford': '#003478', 'GMC': '#D71920', 'Honda': '#D80027',
+            'Hyundai': '#002C5F', 'Infiniti': '#000000', 'Jaguar': '#005A31', 'Jeep': '#FFBA00',
+            'Kia': '#BB162B', 'Land Rover': '#005A2C', 'Lexus': '#5A5A5A', 'Lincoln': '#003058',
+            'Mazda': '#101010', 'Mercedes-Benz': '#000000', 'Mini': '#000000', 'Mitsubishi': '#E60012',
+            'Nissan': '#C3002F', 'Porsche': '#B12B28', 'Ram': '#111111', 'Subaru': '#0047BB',
+            'Toyota': '#EB0A1E', 'Volkswagen': '#001E50', 'Volvo': '#003057'
+        };
+
         function renderMakeGrid() {
             const grid = document.getElementById('makeGrid');
             if (grid.children.length > 0) return; // Already rendered
 
             grid.innerHTML = POPULAR_MAKES.map(make => {
                 const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
-                // Switch to Brandfetch for better coverage
-                const logoUrl = `https://cdn.brandfetch.io/${domain}?c=1idKM2-8-5&t=1699960098486`;
+                const logoUrl = `https://logo.clearbit.com/${domain}`; // Back to clearbit, simpler
                 const initials = make.substring(0, 2).toUpperCase();
+                const brandColor = BRAND_COLORS[make] || 'var(--brand-primary)';
 
                 return `
                     <div class="make-card" onclick="selectVisualMake('${make}')">
                         <img src="${logoUrl}" alt="${make}" class="make-logo" 
-                             style="background: white; padding: 4px; border-radius: 50%;"
+                             style="background: white; padding: 4px; border-radius: 50%; object-fit: contain;"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="text-avatar" style="display: none;">${initials}</div>
+                        <div class="text-avatar" style="display: none; background: ${brandColor}; color: white; border: 2px solid rgba(255,255,255,0.2);">${initials}</div>
                         <span class="make-name">${make}</span>
                     </div>
                 `;
@@ -3933,14 +3945,20 @@
             const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
             const logoImg = document.getElementById('selectedMakeLogo');
             const logoAvatar = document.getElementById('selectedMakeAvatar');
+            const brandColor = BRAND_COLORS[make] || 'var(--brand-primary)';
 
             logoImg.style.display = 'block';
+
             logoAvatar.style.display = 'none';
+            logoAvatar.style.background = brandColor;
+            logoAvatar.style.color = 'white';
+            logoAvatar.style.border = '2px solid rgba(255,255,255,0.2)';
+
             logoImg.style.background = 'white'; // Ensure contrast
             logoImg.style.borderRadius = '50%';
             logoImg.style.padding = '4px';
 
-            logoImg.src = `https://cdn.brandfetch.io/${domain}?c=1idKM2-8-5&t=1699960098486`;
+            logoImg.src = `https://logo.clearbit.com/${domain}`;
             logoImg.onerror = function () {
                 this.style.display = 'none';
                 logoAvatar.style.display = 'flex';
@@ -4016,20 +4034,21 @@
         }
 
         function handleOmniSearch(e) {
-            // Existing Logic...
-            if (e.key === 'Enter') {
-                const query = e.target.value.trim();
-                // Filter Grid
-                const cards = document.querySelectorAll('.make-card');
-                cards.forEach(card => {
-                    const name = card.querySelector('.make-name').textContent.toLowerCase();
-                    if (name.includes(query.toLowerCase())) {
-                        card.style.display = 'flex';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
+            // Live filtering (on keyup/input)
+            const query = e.target.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.make-card');
+
+            // If user types a VIN (17 chars), show VIN hint or button?
+            // For now, just filter brands
+
+            cards.forEach(card => {
+                const name = card.querySelector('.make-name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         // ================== EXISTING LOGIC MODIFIED ==================
@@ -4086,46 +4105,64 @@
         async function loadModels() {
             const year = document.getElementById('yearSelect').value;
             const make = document.getElementById('makeSelect').value;
-            const select = document.getElementById('modelSelect');
 
-            if (!make) {
-                select.innerHTML = '<option value="">Select Model</option>';
-                return;
+            // Visual elements
+            const chipContainer = document.getElementById('modelChips');
+            const containerWrapper = document.getElementById('modelChipsContainer');
+            const loader = document.getElementById('modelLoading');
+
+            if (!make) return;
+
+            // Show container if it exists
+            if (containerWrapper) {
+                containerWrapper.style.display = 'block';
+                if (chipContainer) chipContainer.innerHTML = '';
+                if (loader) loader.style.display = 'block';
             }
 
-            select.innerHTML = '<option value="">Loading...</option>';
-
             try {
-                // Try new clean models endpoint first
-                let res = await fetch(`${API}/api/models?year=${year}&make=${encodeURIComponent(make)}`);
-                let data = await res.json();
+                // Fetch data
+                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+                const data = await res.json();
 
-                if (data.models && data.models.length > 0) {
-                    // Use clean model names
-                    const models = [...new Set(data.models.map(r => r.clean_model))]
-                        .filter(m => m && m.length > 0)
-                        .sort();
+                // Filter models for this make (CASE INSENSITIVE)
+                const models = [...new Set(
+                    data.rows
+                        .filter(r => r.make.toLowerCase() === make.toLowerCase())
+                        .map(r => r.model)
+                )]
+                    .filter(isValidModelName)
+                    .sort();
 
-                    select.innerHTML = '<option value="">Select Model</option>';
-                    models.forEach(m => {
-                        select.innerHTML += `<option value="${m}">${m}</option>`;
-                    });
-                } else {
-                    // Fallback to legacy endpoint if no clean models
-                    res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
-                    data = await res.json();
-                    const models = [...new Set(data.rows.map(r => r.model))]
-                        .filter(m => isValidModelName(m))
-                        .sort();
+                // Populate Visual Grid
+                if (chipContainer && loader) {
+                    loader.style.display = 'none';
+                    if (models.length === 0) {
+                        chipContainer.innerHTML = `
+                            <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 20px;">
+                                No models found for <strong style="color:white">${make} ${year}</strong>.<br>
+                                <button onclick="selectVisualYear('${year}')" style="margin-top:10px; padding: 5px 10px; cursor: pointer;">Retry</button>
+                            </div>`;
+                    } else {
+                        chipContainer.innerHTML = models.map(m => `
+                            <div class="model-chip" onclick="selectVisualModel('${m}')">${m}</div>
+                        `).join('');
+                    }
+                }
 
+                // Populate Legacy Select
+                const select = document.getElementById('modelSelect');
+                if (select) {
+                    select.disabled = false;
                     select.innerHTML = '<option value="">Select Model</option>';
                     models.forEach(m => {
                         select.innerHTML += `<option value="${m}">${m}</option>`;
                     });
                 }
+
             } catch (e) {
-                console.error('Error loading models:', e);
-                select.innerHTML = '<option value="">Select Model</option>';
+                console.error("Failed to load models", e);
+                if (loader) loader.textContent = 'Error loading models. Check connection.';
             }
         }
 
