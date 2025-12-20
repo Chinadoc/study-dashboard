@@ -3456,33 +3456,7 @@
         }
 
 
-        // Open the job logging modal (UI)
-        window.openJobLogModal = function (itemKey, type, vehicle, amazonLink) {
-            document.getElementById('jobItemKey').value = itemKey;
-            document.getElementById('jobItemType').value = type;
-            document.getElementById('jobCustomer').value = '';
-            document.getElementById('jobDescription').value = vehicle ? `${vehicle} Key Programming` : 'Key Programming';
-            document.getElementById('jobRevenue').value = '';
 
-            // Try to find estimated cost from ASIN data
-            let estimatedCost = '';
-            if (typeof asinData !== 'undefined' && asinData.products_by_fcc) {
-                const productEntry = asinData.products_by_fcc[itemKey];
-                if (productEntry && productEntry.length > 0 && productEntry[0].price) {
-                    // Price usually comes as "$34.95"
-                    estimatedCost = productEntry[0].price.replace(/[$,]/g, '');
-                }
-            }
-            document.getElementById('itemCost').value = estimatedCost;
-
-            document.getElementById('jobNotes').value = amazonLink ? `Amazon Link: ${amazonLink}` : '';
-
-            document.getElementById('jobItemName').textContent = type === 'blank' ? `Key Blank: ${itemKey}` : `FCC ID: ${itemKey}`;
-            document.getElementById('jobItemVehicle').textContent = vehicle || 'Unknown Vehicle';
-
-            document.querySelector('.job-modal').classList.add('active');
-            document.querySelector('.job-modal-overlay').classList.add('active');
-        }
 
         // Helper functions for displayResults
         function getAmazonLink(term) {
@@ -5899,7 +5873,7 @@
         }
 
         // Open the job logging modal
-        function openJobLogModal(itemKey, type = 'key', vehicle = null, amazonLink = null) {
+        window.openJobLogModal = function (itemKey, type = 'key', vehicle = null, amazonLink = null) {
             // Get current stock
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
             if (stock <= 0) {
@@ -5919,22 +5893,20 @@
 
             // Truncate preview if too long
             const previewEl = document.getElementById('jobItemVehicle');
-            if (savedVehicle.length > 200) {
-                previewEl.textContent = savedVehicle.substring(0, 200) + '...';
-                previewEl.title = savedVehicle; // Tooltip for full list
+            if (savedVehicle.length > 150) {
+                previewEl.textContent = savedVehicle.substring(0, 150) + '...';
+                previewEl.title = savedVehicle;
             } else {
                 previewEl.textContent = savedVehicle || '';
             }
 
-            // Populate Vehicle Select Dropdown
+            // Populate Vehicle Select Dropdown (The primary source)
             const select = document.getElementById('jobVehicleSelect');
             select.innerHTML = '<option value="">-- Choose Car --</option>';
 
             if (savedVehicle) {
-                // Parse comma-separated vehicle list
-                const cars = savedVehicle.split(',').map(s => s.trim()).filter(s => s);
-                // Filter duplicates and populate
-                [...new Set(cars)].forEach(car => {
+                const cars = [...new Set(savedVehicle.split(',').map(s => s.trim()).filter(s => s))];
+                cars.forEach(car => {
                     const opt = document.createElement('option');
                     opt.value = car;
                     opt.textContent = car;
@@ -5942,31 +5914,33 @@
                 });
             }
 
-            // Decide default description & dropdown selection
-            let defaultV = '';
-            if (vehicle && !vehicle.includes(',') && vehicle.length < 50) {
-                defaultV = vehicle;
-            } else if (savedVehicle && !savedVehicle.includes(',') && savedVehicle.length < 50) {
-                defaultV = savedVehicle;
+            // Decide default selection
+            // Priority: If 'vehicle' argument is a single car, use it.
+            let selectedV = '';
+            if (vehicle && !vehicle.includes(',') && vehicle.length < 60) {
+                selectedV = vehicle;
+            } else if (savedVehicle && !savedVehicle.includes(',') && savedVehicle.length < 60) {
+                selectedV = savedVehicle;
             }
 
-            document.getElementById('jobDescription').value = defaultV;
-
-            // Try to set dropdown value if we have a single match
-            const selectEl = document.getElementById('jobVehicleSelect');
-            if (defaultV) {
-                // Check if this value exists in options
-                const exists = Array.from(selectEl.options).some(opt => opt.value === defaultV);
-                if (exists) selectEl.value = defaultV;
-            }
+            document.getElementById('jobDescription').value = selectedV;
+            if (selectedV) select.value = selectedV;
 
             document.getElementById('jobCustomer').value = '';
-            document.getElementById('jobNotes').value = '';
+            document.getElementById('jobNotes').value = amazonLink ? `Amazon Link: ${amazonLink}` : '';
 
-            // Try to pull default costs from item if available
+            // Pricing Logic (ASIN + Manual override)
+            let estimatedCost = invItem?.cost || '';
+            if (!estimatedCost && typeof asinData !== 'undefined' && asinData.products_by_fcc) {
+                const productEntry = asinData.products_by_fcc[itemKey];
+                if (productEntry && productEntry.length > 0 && productEntry[0].price) {
+                    estimatedCost = productEntry[0].price.replace(/[$,]/g, '');
+                }
+            }
+
             document.getElementById('jobRevenue').value = '';
             document.getElementById('jobTip').value = '0';
-            document.getElementById('itemCost').value = invItem?.cost || '';
+            document.getElementById('itemCost').value = estimatedCost;
             document.getElementById('jobMiles').value = '';
             document.getElementById('jobTimeMinutes').value = '';
 
