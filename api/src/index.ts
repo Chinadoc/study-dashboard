@@ -54,7 +54,7 @@ function corsResponse(request: Request, body: string, status = 200, contentType 
   const headers: Record<string, string> = {
     "Content-Type": contentType,
     "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://eurokeys.app",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Cookie",
   };
 
@@ -363,7 +363,126 @@ export default {
       }
     }
 
+    // ==============================================
+    // USER INVENTORY ENDPOINTS (Cloud Sync)
+    // ==============================================
+
+    // GET /api/user/inventory - Fetch user's inventory
+    if (path === "/api/user/inventory" && request.method === "GET") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+
+        const result = await env.LOCKSMITH_DB.prepare(`
+          SELECT item_key, type, qty, vehicle, amazon_link, updated_at
+          FROM inventory WHERE user_id = ?
+        `).bind(userId).all();
+
+        const keys: Record<string, any> = {};
+        const blanks: Record<string, any> = {};
+
+        for (const row of (result.results || []) as any[]) {
+          const item = { qty: row.qty, vehicle: row.vehicle, amazonLink: row.amazon_link, updatedAt: row.updated_at };
+          if (row.type === 'key') keys[row.item_key] = item;
+          else blanks[row.item_key] = item;
+        }
+
+        return corsResponse(request, JSON.stringify({ keys, blanks }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // POST /api/user/inventory - Add/Update single inventory item
+    if (path === "/api/user/inventory" && request.method === "POST") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const body: any = await request.json();
+        const { item_key, type, qty, vehicle, amazon_link } = body;
+
+        if (!item_key || !type) return corsResponse(request, JSON.stringify({ error: "Missing item_key or type" }), 400);
+
+        await env.LOCKSMITH_DB.prepare(`
+          INSERT INTO inventory (user_id, item_key, type, qty, vehicle, amazon_link, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(user_id, item_key, type) DO UPDATE SET
+            qty = excluded.qty, vehicle = COALESCE(excluded.vehicle, vehicle),
+            amazon_link = COALESCE(excluded.amazon_link, amazon_link), updated_at = excluded.updated_at
+        `).bind(userId, item_key, type, qty || 0, vehicle || null, amazon_link || null, Date.now()).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, item_key, type, qty }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // DELETE /api/user/inventory - Remove inventory item
+    if (path === "/api/user/inventory" && request.method === "DELETE") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const body: any = await request.json();
+        const { item_key, type } = body;
+
+        if (!item_key || !type) return corsResponse(request, JSON.stringify({ error: "Missing item_key or type" }), 400);
+
+        await env.LOCKSMITH_DB.prepare(`DELETE FROM inventory WHERE user_id = ? AND item_key = ? AND type = ?`).bind(userId, item_key, type).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, deleted: { item_key, type } }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // GET /api/admin/users-inventory - Admin view of all users with inventory counts
+    if (path === "/api/admin/users-inventory") {
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+        if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+        const users = await env.LOCKSMITH_DB.prepare(`
+          SELECT u.id, u.email, u.name, u.picture, u.created_at,
+            COALESCE(SUM(CASE WHEN i.type = 'key' THEN i.qty ELSE 0 END), 0) as keys_count,
+            COALESCE(SUM(CASE WHEN i.type = 'blank' THEN i.qty ELSE 0 END), 0) as blanks_count,
+            MAX(i.updated_at) as last_inventory_update
+          FROM users u LEFT JOIN inventory i ON u.id = i.user_id
+          GROUP BY u.id ORDER BY u.created_at DESC
+        `).all();
+
+        return corsResponse(request, JSON.stringify({ users: users.results || [] }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // 6. Stripe Checkout
+
     if (path === "/api/stripe/checkout" && request.method === "POST") {
       try {
         // Authenticate

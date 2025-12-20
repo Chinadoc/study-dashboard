@@ -6377,6 +6377,11 @@
 
             // 2. ALWAYS verify with backend
             await checkDeveloperStatus();
+
+            // 3. Load inventory from cloud if logged in
+            if (currentUser) {
+                InventoryManager.loadFromCloud();
+            }
         }
 
         // Sign in with Google
@@ -6460,6 +6465,8 @@
                             const devTab = document.getElementById('devTab');
                             if (devTab) devTab.style.display = 'inline-flex';
                         }
+                        // Load inventory from cloud
+                        InventoryManager.loadFromCloud();
                     } else {
                         console.error('Backend authentication failed:', data.error);
                         alert('Authentication failed. Please try again.');
@@ -7219,6 +7226,8 @@
                 if (vehicle) inv[itemKey].vehicle = vehicle;
                 if (amazonLink) inv[itemKey].amazonLink = amazonLink;
                 this.setKeysInventory(inv);
+                // Sync to cloud for logged-in users
+                this.syncToCloud(itemKey, 'key', inv[itemKey].qty, inv[itemKey].vehicle, inv[itemKey].amazonLink);
                 return inv[itemKey].qty;
             },
 
@@ -7231,6 +7240,8 @@
                 if (vehicle) inv[keyway].vehicle = vehicle;
                 if (amazonLink) inv[keyway].amazonLink = amazonLink;
                 this.setBlanksInventory(inv);
+                // Sync to cloud for logged-in users
+                this.syncToCloud(keyway, 'blank', inv[keyway].qty, inv[keyway].vehicle, inv[keyway].amazonLink);
                 return inv[keyway].qty;
             },
 
@@ -7246,6 +7257,8 @@
                     inv[itemKey].qty = Math.max(0, inv[itemKey].qty - qty);
                     inv[itemKey].used = (inv[itemKey].used || 0) + actualUsed;
                     this.setKeysInventory(inv);
+                    // Sync to cloud
+                    this.syncToCloud(itemKey, 'key', inv[itemKey].qty, inv[itemKey].vehicle, inv[itemKey].amazonLink);
                     return inv[itemKey].qty;
                 }
                 return 0;
@@ -7258,6 +7271,8 @@
                     inv[keyway].qty = Math.max(0, inv[keyway].qty - qty);
                     inv[keyway].used = (inv[keyway].used || 0) + actualUsed;
                     this.setBlanksInventory(inv);
+                    // Sync to cloud
+                    this.syncToCloud(keyway, 'blank', inv[keyway].qty, inv[keyway].vehicle, inv[keyway].amazonLink);
                     return inv[keyway].qty;
                 }
                 return 0;
@@ -7297,6 +7312,99 @@
 
             getAllBlanks() {
                 return this.getBlanksInventory();
+            },
+
+            // ========== CLOUD SYNC METHODS ==========
+
+            // Load inventory from cloud on login
+            async loadFromCloud() {
+                if (!currentUser) {
+                    console.log('📦 Inventory: Not logged in, using localStorage only');
+                    return false;
+                }
+                try {
+                    const response = await fetch(`${API}/api/user/inventory`, {
+                        credentials: 'include'
+                    });
+                    if (!response.ok) {
+                        console.warn('📦 Inventory: Cloud sync unavailable', response.status);
+                        return false;
+                    }
+                    const data = await response.json();
+                    if (data.keys) {
+                        // Convert cloud format to localStorage format
+                        const keysData = {};
+                        Object.entries(data.keys).forEach(([key, item]) => {
+                            keysData[key] = { qty: item.qty, vehicle: item.vehicle, amazonLink: item.amazonLink };
+                        });
+                        this.setKeysInventory(keysData);
+                    }
+                    if (data.blanks) {
+                        const blanksData = {};
+                        Object.entries(data.blanks).forEach(([key, item]) => {
+                            blanksData[key] = { qty: item.qty, vehicle: item.vehicle, amazonLink: item.amazonLink };
+                        });
+                        this.setBlanksInventory(blanksData);
+                    }
+                    console.log('📦 Inventory: Loaded from cloud', Object.keys(data.keys || {}).length, 'keys,', Object.keys(data.blanks || {}).length, 'blanks');
+                    updateInventoryTabBadge();
+                    return true;
+                } catch (e) {
+                    console.error('📦 Inventory: Cloud load failed', e);
+                    return false;
+                }
+            },
+
+            // Sync single item to cloud
+            async syncToCloud(item_key, type, qty, vehicle = null, amazon_link = null) {
+                if (!currentUser) return false;
+                try {
+                    await fetch(`${API}/api/user/inventory`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ item_key, type, qty, vehicle, amazon_link })
+                    });
+                    console.log('☁️ Synced to cloud:', item_key, type, qty);
+                    return true;
+                } catch (e) {
+                    console.error('☁️ Cloud sync failed:', e);
+                    return false;
+                }
+            },
+
+            // Delete item from cloud
+            async deleteFromCloud(item_key, type) {
+                if (!currentUser) return false;
+                try {
+                    await fetch(`${API}/api/user/inventory`, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ item_key, type })
+                    });
+                    console.log('🗑️ Deleted from cloud:', item_key, type);
+                    return true;
+                } catch (e) {
+                    console.error('🗑️ Cloud delete failed:', e);
+                    return false;
+                }
+            },
+
+            // Delete item completely (for X button)
+            deleteItem(itemKey, type = 'key') {
+                if (type === 'key') {
+                    const inv = this.getKeysInventory();
+                    delete inv[itemKey];
+                    this.setKeysInventory(inv);
+                } else {
+                    const inv = this.getBlanksInventory();
+                    delete inv[itemKey];
+                    this.setBlanksInventory(inv);
+                }
+                // Sync deletion to cloud
+                this.deleteFromCloud(itemKey, type);
+                updateInventoryTabBadge();
             }
         };
 
@@ -8209,6 +8317,7 @@
                                 </div>
                                 <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key', '${vehicle ? vehicle.replace(/'/g, "\\\\'") : ''}', '${amazonLink ? amazonLink.replace(/'/g, "\\\\'") : ''}')" style="padding: 6px 12px; font-size: 0.8rem;">✓ Log Job</button>
                                 ${amazonLink ? `<a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy</a>` : ''}
+                                <button onclick="if(confirm('Delete this item from inventory?')) { InventoryManager.deleteItem('${escapedKey}', 'key'); renderInventoryPage(); }" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from inventory">✕</button>
                             </div>
                         </div>
                     `;
@@ -8246,6 +8355,7 @@
                                 </div>
                                 <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'blank', '${vehicle ? vehicle.replace(/'/g, "\\\\'") : ''}', '${amazonLink ? amazonLink.replace(/'/g, "\\\\'") : ''}')" style="padding: 6px 12px; font-size: 0.8rem;">✓ Log Job</button>
                                 <a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy</a>
+                                <button onclick="if(confirm('Delete this item from inventory?')) { InventoryManager.deleteItem('${escapedKey}', 'blank'); renderInventoryPage(); }" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from inventory">✕</button>
                             </div>
                         </div>
                     `;
