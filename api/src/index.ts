@@ -20,6 +20,7 @@ export interface Env {
   JWT_SECRET: string;
   DEV_EMAILS: string;  // Comma-separated developer email addresses
   AI: any;
+  OPENROUTER_API_KEY: string;
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -209,7 +210,7 @@ export default {
 
         // Redirect to Frontend with Cookie
         const headers = new Headers();
-        headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure`);
+        headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Max-Age=2592000; Secure`);
         headers.set("Location", "/"); // Go back to home
 
         return new Response(null, { status: 302, headers });
@@ -271,7 +272,7 @@ export default {
         const sessionToken = await createInternalToken(userWithDev, env.JWT_SECRET || 'dev-secret');
 
         const response = corsResponse(request, JSON.stringify({ success: true, user: userWithDev }));
-        response.headers.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure`);
+        response.headers.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Max-Age=2592000; Secure`);
 
         return response;
       } catch (err: any) {
@@ -307,7 +308,7 @@ export default {
     // 4. Logout
     if (path === "/api/auth/logout") {
       const headers = new Headers();
-      headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure`);
+      headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=None; Max-Age=0; Secure`);
       return corsResponse(request, JSON.stringify({ success: true }), 200, "application/json");
     }
 
@@ -538,7 +539,7 @@ export default {
         const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
         if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
-        // 1. Top Searches
+        // 1. Top Searches (Detailed breakdown)
         const topSearches = await env.LOCKSMITH_DB.prepare(`
           SELECT json_extract(details, '$.query') as query, COUNT(*) as count
           FROM user_activity
@@ -548,7 +549,7 @@ export default {
           LIMIT 10
         `).all();
 
-        // 2. Top Clicked Links
+        // 2. Top Clicked Links (Detailed breakdown)
         const topClicks = await env.LOCKSMITH_DB.prepare(`
           SELECT json_extract(details, '$.url') as url, COUNT(*) as count
           FROM user_activity
@@ -558,7 +559,24 @@ export default {
           LIMIT 10
         `).all();
 
-        // 3. Visitor Stats (Last 30 days)
+        // 3. Global Totals (The Source of Truth)
+        const globalTotals = await env.LOCKSMITH_DB.prepare(`
+          SELECT 
+            SUM(CASE WHEN action = 'search' THEN 1 ELSE 0 END) as searches,
+            SUM(CASE WHEN action = 'click_affiliate' THEN 1 ELSE 0 END) as clicks,
+            SUM(CASE WHEN action = 'vin_lookup' THEN 1 ELSE 0 END) as vin_lookups
+          FROM user_activity
+        `).first<any>();
+
+        // 4. User Growth (New users in last 7 days)
+        const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        const growthStats = await env.LOCKSMITH_DB.prepare(`
+          SELECT COUNT(*) as new_users
+          FROM users
+          WHERE created_at > ?
+        `).bind(sevenDaysAgo).first<any>();
+
+        // 5. Visitor Stats (Last 30 days)
         const visitorStats = await env.LOCKSMITH_DB.prepare(`
           SELECT 
             COUNT(DISTINCT CASE WHEN user_id LIKE 'guest:%' THEN user_id END) as guest_count,
@@ -570,6 +588,8 @@ export default {
         return corsResponse(request, JSON.stringify({
           topSearches: topSearches.results || [],
           topClicks: topClicks.results || [],
+          globalTotals: globalTotals || { searches: 0, clicks: 0, vin_lookups: 0 },
+          growth: growthStats?.new_users || 0,
           visitorStats: visitorStats || { guest_count: 0, registered_count: 0 }
         }));
       } catch (err: any) {
@@ -2207,29 +2227,42 @@ async function runAIAnalysis(env: Env) {
       - "restock_recommendations" (Array of 3 item names).
     `;
 
-    // 3. Call AI
-    const response: any = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant that outputs JSON only.' },
-        { role: 'user', content: prompt }
-      ]
+    // 3. Call OpenRouter (DeepSeek-V3)
+    const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://eurokeys.app",
+        "X-Title": "Euro Keys Business Analyst",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "deepseek/deepseek-v3.2-speciale",
+        "messages": [
+          { "role": "system", "content": "You are a high-performance business growth consultant for a professional automotive locksmith. Your goal is to maximize revenue, identify high-margin opportunities, and push sales. Output JSON only." },
+          { "role": "user", "content": prompt }
+        ],
+        "response_format": { "type": "json_object" }
+      })
     });
 
-    // Parse response
-    let content = response.response || JSON.stringify(response);
+    if (!aiResponse.ok) {
+      throw new Error(`OpenRouter API error: ${aiResponse.status}`);
+    }
+
+    const aiData: any = await aiResponse.json();
+    const responseContent = aiData.choices[0].message.content;
+    let content = "Analysis complete.";
     let recommendations: any[] = [];
 
     try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        content = parsed.message;
-        if (parsed.client_strategy) content += "\n\n**Client Strategy:** " + parsed.client_strategy;
-        if (parsed.financial_tip) content += "\n\n**Financial Insight:** " + parsed.financial_tip;
-        recommendations = parsed.restock_recommendations;
-      }
+      const parsed = JSON.parse(responseContent);
+      content = parsed.message || "Business analysis updated.";
+      if (parsed.client_strategy) content += "\n\n**Sales Strategy:** " + parsed.client_strategy;
+      if (parsed.financial_tip) content += "\n\n**Revenue Maximization:** " + parsed.financial_tip;
+      recommendations = parsed.restock_recommendations || [];
     } catch (e) {
-      content = "Analysis complete. Revenue: $" + totalRevenue.toFixed(2);
+      content = responseContent;
     }
 
     // 4. Save to DB

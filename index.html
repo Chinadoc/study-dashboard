@@ -5243,17 +5243,18 @@
                 const users = userData.users || [];
                 const activity = activityData.activity || [];
 
-                // 1. Calculate Core KPIs
+                // 1. Core KPIs from Global Totals
+                const global = statsData.globalTotals || { searches: 0, clicks: 0, vin_lookups: 0 };
                 const visitorStats = statsData.visitorStats || {};
                 const totalUsers = users.length;
                 const guestCount = visitorStats.guest_count || 0;
 
-                // Business Metrics
+                // Business Metrics (Using Global Totals)
                 const revenuePerClick = 1.50; // Estimated 
-                const totalClicks = statsData.topClicks ? statsData.topClicks.reduce((sum, c) => sum + (c.count || 0), 0) : 0;
+                const totalClicks = global.clicks || 0;
                 const estRevenue = totalClicks * revenuePerClick;
 
-                const totalSearches = statsData.topSearches ? statsData.topSearches.reduce((sum, s) => sum + (s.count || 0), 0) : 0;
+                const totalSearches = global.searches || 0;
                 const conversionRate = totalSearches > 0 ? ((totalClicks / totalSearches) * 100).toFixed(1) : '0.0';
 
                 // Engagement: interactions per guest
@@ -5262,17 +5263,17 @@
 
                 // Update UI KPI Bar
                 document.getElementById('devTotalUsers').textContent = totalUsers.toLocaleString();
-                document.getElementById('devUserGrowth').textContent = Math.floor(Math.random() * 15) + 5; // Simulating growth
+                document.getElementById('devUserGrowth').textContent = statsData.growth || 0;
                 document.getElementById('devEstRevenue').textContent = `$${estRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
                 document.getElementById('devConversionRate').textContent = `${conversionRate}%`;
                 document.getElementById('devAvgEngagement').textContent = avgEngagement;
 
-                // 2. Update Conversion Funnel
-                const vinLookupCount = activity.filter(a => a.action === 'vin_lookup').length;
+                // 2. Update Conversion Funnel (Using Global Totals)
+                const vinLookupCount = global.vin_lookups || 0;
 
-                document.getElementById('funnelSearchCount').textContent = totalSearches;
-                document.getElementById('funnelVinCount').textContent = vinLookupCount;
-                document.getElementById('funnelClickCount').textContent = totalClicks;
+                document.getElementById('funnelSearchCount').textContent = totalSearches.toLocaleString();
+                document.getElementById('funnelVinCount').textContent = vinLookupCount.toLocaleString();
+                document.getElementById('funnelClickCount').textContent = totalClicks.toLocaleString();
 
                 const vinPct = totalSearches > 0 ? (vinLookupCount / totalSearches) * 100 : 0;
                 const clickPct = totalSearches > 0 ? (totalClicks / totalSearches) * 100 : 0;
@@ -5306,14 +5307,14 @@
                     `;
                 }
 
-                // 4. Update Detailed Tables (Searches, Lookups, Tabs)
-                // Searches
+                // 4. Update Detailed Tables
+                // Top Searches (Direct from backend top-10)
                 const searchContainer = document.getElementById('devTopSearches');
                 if (statsData.topSearches && statsData.topSearches.length > 0) {
-                    searchContainer.innerHTML = statsData.topSearches.slice(0, 5).map(s => `
+                    searchContainer.innerHTML = statsData.topSearches.map(s => `
                         <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 12px;">
                             <span style="color: var(--text-primary); font-size: 0.9rem;">"${s.query}"</span>
-                            <span style="background: rgba(96, 165, 250, 0.1); color: #60a5fa; padding: 2px 8px; border-radius: 6px; font-weight: bold; font-size: 0.8rem;">${s.count}x</span>
+                            <span style="background: rgba(96, 165, 250, 0.1); color: #60a5fa; padding: 2px 8px; border-radius: 6px; font-weight: bold; font-size: 0.8rem;">${s.count.toLocaleString()}x</span>
                         </div>
                     `).join('');
                 }
