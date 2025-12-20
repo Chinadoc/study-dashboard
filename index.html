@@ -5926,7 +5926,9 @@
 
                     const vehicleListHtml = renderVehicleChips(vehicles, null, 15);
 
-                    const firstVehicle = grouped.length > 0 ? grouped[0].name : null;
+                    // Extract first vehicle from the vehicles string
+                    const vehicleParts = vehicles !== 'N/A' ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
+                    const firstVehicle = vehicleParts.length > 0 ? vehicleParts[0].replace(/\s*\(\d{4}(-\d{4})?\)$/, '') : null;
                     const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
 
                     modalBody.innerHTML = `
