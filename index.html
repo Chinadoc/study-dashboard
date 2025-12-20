@@ -2532,6 +2532,554 @@
             background: linear-gradient(135deg, #16a34a, #15803d);
             box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
+
+        /* ========================================
+           SUBSCRIPTION TRACKER STYLES
+           ======================================== */
+
+        /* Alert Banner for Expiring Subscriptions */
+        .sub-alert-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .sub-alert-banner.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1));
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .sub-alert-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .sub-alert-content {
+            flex: 1;
+        }
+
+        .sub-alert-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #f87171;
+            margin-bottom: 4px;
+        }
+
+        .sub-alert-banner.warning .sub-alert-title {
+            color: #fbbf24;
+        }
+
+        .sub-alert-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Quick Stats Row */
+        .sub-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .sub-stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .sub-stat-card:hover {
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+        }
+
+        .sub-stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .sub-stat-number.active {
+            color: #22c55e;
+        }
+
+        .sub-stat-number.warning {
+            color: #f59e0b;
+        }
+
+        .sub-stat-number.expired {
+            color: #ef4444;
+        }
+
+        .sub-stat-number.lifetime {
+            color: #a855f7;
+        }
+
+        .sub-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Subscription Cards Grid */
+        .sub-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .sub-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sub-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sub-card:hover {
+            border-color: var(--brand-primary);
+            box-shadow: 0 8px 32px rgba(251, 191, 36, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .sub-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+
+        .sub-card.status-warning::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .sub-card.status-critical::before {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            animation: pulse-danger 2s infinite;
+        }
+
+        .sub-card.status-expired::before {
+            background: linear-gradient(90deg, #6b7280, #4b5563);
+        }
+
+        .sub-card.status-lifetime::before {
+            background: linear-gradient(90deg, #a855f7, #9333ea);
+        }
+
+        @keyframes pulse-danger {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .sub-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .sub-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .sub-card-vendor {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .sub-card-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sub-card-badge.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .sub-card-badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .sub-card-badge.critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .sub-card-badge.expired {
+            background: rgba(107, 114, 128, 0.15);
+            color: #9ca3af;
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        .sub-card-badge.lifetime {
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .sub-card-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .sub-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sub-meta-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .sub-meta-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .sub-countdown {
+            text-align: center;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .sub-countdown-days {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #22c55e;
+        }
+
+        .sub-card.status-warning .sub-countdown-days {
+            color: #f59e0b;
+        }
+
+        .sub-card.status-critical .sub-countdown-days {
+            color: #ef4444;
+        }
+
+        .sub-card.status-expired .sub-countdown-days {
+            color: #6b7280;
+        }
+
+        .sub-card.status-lifetime .sub-countdown-days {
+            color: #a855f7;
+        }
+
+        .sub-countdown-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .sub-card-notes {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 12px;
+            background: rgba(251, 191, 36, 0.05);
+            border-left: 3px solid var(--brand-primary);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+        }
+
+        .sub-card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sub-card-actions button,
+        .sub-card-actions a {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .sub-card-actions button:hover,
+        .sub-card-actions a:hover {
+            background: var(--bg-primary);
+            border-color: var(--brand-primary);
+            color: var(--text-primary);
+        }
+
+        .sub-card-actions .btn-renew {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            color: white;
+        }
+
+        .sub-card-actions .btn-renew:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        /* Add Subscription Button */
+        .sub-add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 32px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sub-add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Subscription Modal */
+        .sub-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .sub-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .sub-modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .sub-modal-close {
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-modal-close:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .sub-modal-body {
+            padding: 24px;
+        }
+
+        .sub-form-group {
+            margin-bottom: 20px;
+        }
+
+        .sub-form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .sub-form-input,
+        .sub-form-select,
+        .sub-form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .sub-form-input:focus,
+        .sub-form-select:focus,
+        .sub-form-textarea:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+        }
+
+        .sub-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .sub-modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .sub-modal-footer button {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-btn-cancel {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .sub-btn-cancel:hover {
+            background: var(--bg-primary);
+        }
+
+        .sub-btn-save {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            border: none;
+            color: var(--bg-primary);
+        }
+
+        .sub-btn-save:hover {
+            box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Category Tabs */
+        .sub-category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .sub-category-tab {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-category-tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .sub-category-tab.active {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
+        }
+
+        /* License Section */
+        .license-section {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+
+        .license-section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 
     <div class="top-bar">📞 Call (804) 506-0709</div>
@@ -2628,6 +3176,8 @@
         <button class="tab" id="inventoryTab" onclick="showTab('inventory')" style="display: none;">📦 My
             Inventory</button>
         <button class="tab" id="devTab" onclick="showTab('dev')" style="display: none;">🛠️ Dev Panel</button>
+        <button class="tab" id="subscriptionsTab" onclick="showTab('subscriptions')" style="display: none;">📅
+            Subscriptions</button>
     </div>
 
     <!-- BROWSE DATABASE TAB -->
@@ -3373,6 +3923,228 @@
         </div>
     </div>
 
+    <!-- Subscriptions Tab (only visible when signed in) -->
+    <div class="tab-content" id="tabSubscriptions" style="display: none;">
+        <div class="container">
+            <div class="page-title">
+                <h1>📅 Subscription <span>Tracker</span></h1>
+            </div>
+            <p class="page-subtitle">Track your tool subscriptions, licenses, and renewal dates in one place.</p>
+
+            <!-- Alert Banner (populated by JS) -->
+            <div id="subAlertBanner" style="display: none;"></div>
+
+            <!-- Quick Stats -->
+            <div class="sub-stats-row" id="subStatsRow">
+                <div class="sub-stat-card">
+                    <div class="sub-stat-number active" id="subActiveCount">0</div>
+                    <div class="sub-stat-label">Active</div>
+                </div>
+                <div class="sub-stat-card">
+                    <div class="sub-stat-number warning" id="subWarningCount">0</div>
+                    <div class="sub-stat-label">Expiring Soon</div>
+                </div>
+                <div class="sub-stat-card">
+                    <div class="sub-stat-number expired" id="subExpiredCount">0</div>
+                    <div class="sub-stat-label">Expired</div>
+                </div>
+                <div class="sub-stat-card">
+                    <div class="sub-stat-number lifetime" id="subLifetimeCount">0</div>
+                    <div class="sub-stat-label">Lifetime</div>
+                </div>
+            </div>
+
+            <!-- Add Subscription Button -->
+            <button class="sub-add-btn" onclick="openAddSubscriptionModal()">
+                ➕ Add Subscription or License
+            </button>
+
+            <!-- Category Tabs -->
+            <div class="sub-category-tabs" id="subCategoryTabs">
+                <button class="sub-category-tab active" onclick="filterSubscriptions('all')">All</button>
+                <button class="sub-category-tab" onclick="filterSubscriptions('key_programmer')">Key
+                    Programmers</button>
+                <button class="sub-category-tab" onclick="filterSubscriptions('diagnostic')">Diagnostics</button>
+                <button class="sub-category-tab" onclick="filterSubscriptions('oem_dealer')">OEM Access</button>
+                <button class="sub-category-tab" onclick="filterSubscriptions('software')">Software</button>
+                <button class="sub-category-tab" onclick="filterSubscriptions('license')">Licenses</button>
+                <button class="sub-category-tab" onclick="filterSubscriptions('insurance')">Insurance</button>
+            </div>
+
+            <!-- Subscription Cards Grid (populated by JS) -->
+            <div class="sub-cards-grid" id="subCardsGrid">
+                <!-- Empty state -->
+                <div id="subEmptyState"
+                    style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                    <div style="font-size: 4rem; margin-bottom: 16px;">📋</div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 8px;">No subscriptions tracked yet</h3>
+                    <p>Add your first subscription to start tracking renewal dates and costs.</p>
+                </div>
+            </div>
+
+            <!-- License Section -->
+            <div class="license-section" id="licenseSection">
+                <h2 class="license-section-title">📜 Licenses & Certifications</h2>
+                <div class="sub-cards-grid" id="licenseCardsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Subscription Modal -->
+    <div class="sub-modal-overlay" id="subModalOverlay" style="display: none;" onclick="closeSubscriptionModal(event)">
+        <div class="sub-modal" onclick="event.stopPropagation()">
+            <div class="sub-modal-header">
+                <h2 class="sub-modal-title" id="subModalTitle">Add Subscription</h2>
+                <button class="sub-modal-close" onclick="closeSubscriptionModal()">×</button>
+            </div>
+            <div class="sub-modal-body">
+                <div class="sub-form-group">
+                    <label class="sub-form-label">Select from Catalog</label>
+                    <select class="sub-form-select" id="subCatalogSelect" onchange="populateFromCatalog()">
+                        <option value="">-- Choose a subscription --</option>
+                        <optgroup label="Key Programmers">
+                            <option value="autel_tcp">Autel TCP Subscription ($895/yr)</option>
+                            <option value="lonsdor_update">Lonsdor K518 Update ($200/yr)</option>
+                            <option value="xhorse_vvdi">Xhorse VVDI Subscription ($199/yr)</option>
+                            <option value="obdstar_update">OBDStar Annual Update ($299/yr)</option>
+                            <option value="xtool_x100">Xtool X100 PAD ($199/yr)</option>
+                            <option value="advanced_diag">Advanced Diagnostics MVP Pro ($400/yr)</option>
+                            <option value="key_tool_max">Xhorse Key Tool Max ($150/yr)</option>
+                            <option value="keydiy_kd">KeyDIY KD-X2/KD-MAX ($99/yr)</option>
+                        </optgroup>
+                        <optgroup label="Diagnostic Tools">
+                            <option value="autel_maxisys">Autel MaxiSys Update ($800/yr)</option>
+                            <option value="launch_x431">Launch X431 Update ($299/yr)</option>
+                            <option value="topdon_phoenix">TOPDON Phoenix Update ($399/yr)</option>
+                            <option value="thinkdiag">ThinkDiag Pro ($99/yr)</option>
+                            <option value="foxwell_gt90">Foxwell GT90 ($199/yr)</option>
+                            <option value="autel_im508">Autel IM508 Update ($395/yr)</option>
+                        </optgroup>
+                        <optgroup label="OEM Dealer Access">
+                            <option value="toyota_techstream">Toyota Techstream ($55/2-day)</option>
+                            <option value="honda_hds">Honda HDS ($55/day)</option>
+                            <option value="ford_fdrs">Ford FDRS ($40/day)</option>
+                            <option value="fca_witech">FCA WiTech 2.0 ($100/day)</option>
+                            <option value="gm_gds2">GM GDS2/Tech2Win ($50/day)</option>
+                            <option value="nissan_consult">Nissan Consult III+ ($65/day)</option>
+                            <option value="bmw_ista">BMW ISTA/D ($100/day)</option>
+                            <option value="mb_xentry">Mercedes Xentry ($150/day)</option>
+                            <option value="vw_odis">VW/Audi ODIS ($100/day)</option>
+                            <option value="subaru_ssmiv">Subaru SSM IV ($65/day)</option>
+                        </optgroup>
+                        <optgroup label="Access Subscriptions">
+                            <option value="nastf">NASTF Registration ($30/yr)</option>
+                            <option value="autoauth">AutoAuth Access ($250/yr)</option>
+                            <option value="key_comm">KEY-Comm ($150/yr)</option>
+                            <option value="autel_immo">Autel MaxiIM Update ($895/yr)</option>
+                        </optgroup>
+                        <optgroup label="Software">
+                            <option value="instacode">Instacode ($199/yr)</option>
+                            <option value="keypro">Key-Pro ($249/yr)</option>
+                            <option value="truecode">True-Code ($149/yr)</option>
+                            <option value="jetlock">Jet Lock Tools ($99/yr)</option>
+                            <option value="keyless_api">Keyless Entry API ($120/yr)</option>
+                            <option value="lishi_decoder">Lishi Decoder App ($79/yr)</option>
+                        </optgroup>
+                        <optgroup label="Tokens (Per-Use)">
+                            <option value="xhorse_mb_tokens">Xhorse MB Tokens</option>
+                            <option value="autel_tokens">Autel Calculation Tokens</option>
+                            <option value="lonsdor_jlr">Lonsdor JLR License ($180 one-time)</option>
+                            <option value="yanhua_tokens">Yanhua ACDP Tokens</option>
+                        </optgroup>
+                        <optgroup label="Licenses & Certifications">
+                            <option value="locksmith_license">Locksmith License (State)</option>
+                            <option value="contractor_bond">Contractor Bond</option>
+                            <option value="aloa_cert">ALOA Certification ($250/yr)</option>
+                            <option value="cml_cert">CML Certification ($195/yr)</option>
+                            <option value="savta_cert">SAVTA Certification ($150/yr)</option>
+                        </optgroup>
+                        <optgroup label="Insurance">
+                            <option value="liability_insurance">General Liability Insurance</option>
+                            <option value="eo_insurance">E&O Insurance</option>
+                            <option value="auto_insurance">Commercial Auto Insurance</option>
+                            <option value="workers_comp">Workers Compensation</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="custom">Custom / Other</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="sub-form-group">
+                    <label class="sub-form-label">Name</label>
+                    <input type="text" class="sub-form-input" id="subName" placeholder="e.g., Autel TCP Subscription">
+                </div>
+
+                <div class="sub-form-group">
+                    <label class="sub-form-label">Vendor</label>
+                    <input type="text" class="sub-form-input" id="subVendor" placeholder="e.g., Autel">
+                </div>
+
+                <div class="sub-form-row">
+                    <div class="sub-form-group">
+                        <label class="sub-form-label">Cost</label>
+                        <input type="number" class="sub-form-input" id="subCost" placeholder="895" min="0" step="0.01">
+                    </div>
+                    <div class="sub-form-group">
+                        <label class="sub-form-label">Billing Cycle</label>
+                        <select class="sub-form-select" id="subBillingCycle">
+                            <option value="annual">Annual</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="per_use">Per Use</option>
+                            <option value="2day">2-Day Pass</option>
+                            <option value="daily">Daily</option>
+                            <option value="lifetime">Lifetime</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sub-form-row">
+                    <div class="sub-form-group">
+                        <label class="sub-form-label">Purchase Date</label>
+                        <input type="date" class="sub-form-input" id="subPurchaseDate">
+                    </div>
+                    <div class="sub-form-group">
+                        <label class="sub-form-label">Expiration Date</label>
+                        <input type="date" class="sub-form-input" id="subExpirationDate">
+                    </div>
+                </div>
+
+                <div class="sub-form-group">
+                    <label class="sub-form-label">Category</label>
+                    <select class="sub-form-select" id="subCategory">
+                        <option value="key_programmer">Key Programmer</option>
+                        <option value="diagnostic">Diagnostic Tool</option>
+                        <option value="oem_dealer">OEM Dealer Access</option>
+                        <option value="access">Access Subscription</option>
+                        <option value="software">Software</option>
+                        <option value="tokens">Tokens</option>
+                        <option value="license">License / Certification</option>
+                        <option value="insurance">Insurance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="sub-form-group">
+                    <label class="sub-form-label">Notes (Optional)</label>
+                    <textarea class="sub-form-textarea" id="subNotes" rows="2"
+                        placeholder="e.g., Required for Toyota 8A-BA server calculations"></textarea>
+                </div>
+
+                <div class="sub-form-group">
+                    <label class="sub-form-label">Renewal URL (Optional)</label>
+                    <input type="url" class="sub-form-input" id="subRenewalUrl" placeholder="https://...">
+                </div>
+            </div>
+            <div class="sub-modal-footer">
+                <button class="sub-btn-cancel" onclick="closeSubscriptionModal()">Cancel</button>
+                <button class="sub-btn-save" onclick="saveSubscription()">Save Subscription</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         © 2025 Euro Keys<br>
         Professional Automotive Locksmith - Richmond, VA
@@ -3526,7 +4298,7 @@
 
             // 2. Update Content Visibility
             // Hide all known content areas
-            const contentIds = ['browse', 'tabFcc', 'tabVin', 'tabInventory', 'tabDev'];
+            const contentIds = ['browse', 'tabFcc', 'tabVin', 'tabInventory', 'tabDev', 'tabSubscriptions'];
             contentIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
@@ -5791,6 +6563,13 @@
                 if (devTab) {
                     devTab.style.display = currentUser.is_developer ? 'inline-flex' : 'none';
                 }
+
+                // Show subscriptions tab
+                const subscriptionsTab = document.getElementById('subscriptionsTab');
+                if (subscriptionsTab) {
+                    subscriptionsTab.style.display = 'inline-flex';
+                    renderSubscriptionsDashboard();
+                }
             } else {
                 signInBtn.style.display = 'flex';
                 userMenu.style.display = 'none';
@@ -5805,6 +6584,12 @@
                 const devTab = document.getElementById('devTab');
                 if (devTab) {
                     devTab.style.display = 'none';
+                }
+
+                // Hide subscriptions tab
+                const subscriptionsTab = document.getElementById('subscriptionsTab');
+                if (subscriptionsTab) {
+                    subscriptionsTab.style.display = 'none';
                 }
             }
         }
@@ -7274,6 +8059,15 @@
 
             const keys = InventoryManager.getAllKeys();
             const blanks = InventoryManager.getAllBlanks();
+
+            // Debug logging - remove after fixing
+            console.log('🔧 Inventory Debug:', {
+                keys,
+                blanks,
+                totalKeys: InventoryManager.getTotalKeys(),
+                totalBlanks: InventoryManager.getTotalBlanks()
+            });
+
             // Filter items with qty > 0 OR used > 0 (show items with history)
             const keyEntries = Object.entries(keys).filter(([k, item]) => (item?.qty || 0) > 0);
             const blankEntries = Object.entries(blanks).filter(([k, item]) => (item?.qty || 0) > 0);
@@ -8775,6 +9569,452 @@
             } finally {
                 if (btn) btn.textContent = plan === 'monthly' ? 'Subscribe' : 'Buy Lifetime';
             }
+        }
+
+        // ==========================================
+        // SUBSCRIPTION TRACKER
+        // ==========================================
+
+        // Subscription Catalog - Preloaded with 50+ common locksmith subscriptions
+        const SUBSCRIPTION_CATALOG = {
+            // Key Programmers
+            autel_tcp: { name: 'Autel TCP Subscription', vendor: 'Autel', cost: 895, billingCycle: 'annual', category: 'key_programmer', notes: 'Required for Toyota 8A-BA, Mercedes FBS3 server calculations. TCP = Total Care Program.' },
+            lonsdor_update: { name: 'Lonsdor K518 Update', vendor: 'Lonsdor', cost: 200, billingCycle: 'annual', category: 'key_programmer', notes: 'Optional. Toyota 8A-BA works OFFLINE with FP30 adapter.' },
+            xhorse_vvdi: { name: 'Xhorse VVDI Subscription', vendor: 'Xhorse', cost: 199, billingCycle: 'annual', category: 'key_programmer', notes: 'Required for VAG MQB/MQB48 and Mercedes token calculations.' },
+            obdstar_update: { name: 'OBDStar Annual Update', vendor: 'OBDStar', cost: 299, billingCycle: 'annual', category: 'key_programmer', notes: 'Nissan Blacklist detection and Toyota-30 cable support.' },
+            xtool_x100: { name: 'Xtool X100 PAD Update', vendor: 'Xtool', cost: 199, billingCycle: 'annual', category: 'key_programmer', notes: 'General key programming coverage.' },
+            advanced_diag: { name: 'Advanced Diagnostics MVP Pro', vendor: 'Advanced Diagnostics', cost: 400, billingCycle: 'annual', category: 'key_programmer', notes: 'Token-based calculations for Euro vehicles.' },
+            key_tool_max: { name: 'Xhorse Key Tool Max', vendor: 'Xhorse', cost: 150, billingCycle: 'annual', category: 'key_programmer', notes: 'Chip cloning and remote generation.' },
+            keydiy_kd: { name: 'KeyDIY KD-X2/KD-MAX', vendor: 'KeyDIY', cost: 99, billingCycle: 'annual', category: 'key_programmer', notes: 'Budget chip cloning and remote maker.' },
+
+            // Diagnostic Tools
+            autel_maxisys: { name: 'Autel MaxiSys Update', vendor: 'Autel', cost: 800, billingCycle: 'annual', category: 'diagnostic', notes: 'Comprehensive diagnostics with ADAS, coding, and DoIP support.' },
+            launch_x431: { name: 'Launch X431 Update', vendor: 'Launch', cost: 299, billingCycle: 'annual', category: 'diagnostic', notes: 'Wide vehicle coverage diagnostics.' },
+            topdon_phoenix: { name: 'TOPDON Phoenix Update', vendor: 'TOPDON', cost: 399, billingCycle: 'annual', category: 'diagnostic', notes: 'Affordable MaxiSys alternative.' },
+            thinkdiag: { name: 'ThinkDiag Pro', vendor: 'ThinkCar', cost: 99, billingCycle: 'annual', category: 'diagnostic', notes: 'Bluetooth OBD scanner with app-based diagnostics.' },
+            foxwell_gt90: { name: 'Foxwell GT90', vendor: 'Foxwell', cost: 199, billingCycle: 'annual', category: 'diagnostic', notes: 'Full system diagnostics.' },
+            autel_im508: { name: 'Autel IM508 Update', vendor: 'Autel', cost: 395, billingCycle: 'annual', category: 'key_programmer', notes: 'Entry-level IMMO programmer.' },
+
+            // OEM Dealer Access
+            toyota_techstream: { name: 'Toyota Techstream', vendor: 'Toyota', cost: 55, billingCycle: '2day', category: 'oem_dealer', notes: '$55 for 2-day access. Required for factory key add.' },
+            honda_hds: { name: 'Honda HDS', vendor: 'Honda', cost: 55, billingCycle: 'daily', category: 'oem_dealer', notes: 'OEM diagnostics and immobilizer reset.' },
+            ford_fdrs: { name: 'Ford FDRS', vendor: 'Ford', cost: 40, billingCycle: 'daily', category: 'oem_dealer', notes: 'Required for 2021+ AKL with CAN-FD.' },
+            fca_witech: { name: 'FCA WiTech 2.0', vendor: 'Stellantis', cost: 100, billingCycle: 'daily', category: 'oem_dealer', notes: 'Chrysler/Dodge/Jeep/Ram dealer diagnostics.' },
+            gm_gds2: { name: 'GM GDS2/Tech2Win', vendor: 'GM', cost: 50, billingCycle: 'daily', category: 'oem_dealer', notes: 'GM dealer diagnostics and programming.' },
+            nissan_consult: { name: 'Nissan Consult III+', vendor: 'Nissan', cost: 65, billingCycle: 'daily', category: 'oem_dealer', notes: 'Factory immobilizer programming.' },
+            bmw_ista: { name: 'BMW ISTA/D', vendor: 'BMW', cost: 100, billingCycle: 'daily', category: 'oem_dealer', notes: 'OEM coding and programming. Requires PassThru.' },
+            mb_xentry: { name: 'Mercedes Xentry', vendor: 'Mercedes-Benz', cost: 150, billingCycle: 'daily', category: 'oem_dealer', notes: 'Only option for FBS4 (2019+) vehicles.' },
+            vw_odis: { name: 'VW/Audi ODIS', vendor: 'VAG', cost: 100, billingCycle: 'daily', category: 'oem_dealer', notes: 'Required for online component protection.' },
+            subaru_ssmiv: { name: 'Subaru SSM IV', vendor: 'Subaru', cost: 65, billingCycle: 'daily', category: 'oem_dealer', notes: 'OEM immobilizer registration.' },
+
+            // Access Subscriptions
+            nastf: { name: 'NASTF Registration', vendor: 'NASTF', cost: 30, billingCycle: 'annual', category: 'access', notes: 'Required for OEM security access (SBCA, SGW bypass).' },
+            autoauth: { name: 'AutoAuth Access', vendor: 'AutoAuth', cost: 250, billingCycle: 'annual', category: 'access', notes: 'FCA SGW cloud unlock integration.' },
+            key_comm: { name: 'KEY-Comm', vendor: 'ALOA', cost: 150, billingCycle: 'annual', category: 'access', notes: 'Locksmith verification and key code lookup network.' },
+            autel_immo: { name: 'Autel MaxiIM Update', vendor: 'Autel', cost: 895, billingCycle: 'annual', category: 'key_programmer', notes: 'Same as TCP for IM608 series.' },
+
+            // Software
+            instacode: { name: 'Instacode', vendor: 'Instacode', cost: 199, billingCycle: 'annual', category: 'software', notes: 'Key code lookup and transponder reference database.' },
+            keypro: { name: 'Key-Pro', vendor: 'Key-Pro', cost: 249, billingCycle: 'annual', category: 'software', notes: 'Comprehensive key and remote database.' },
+            truecode: { name: 'True-Code', vendor: 'True Mileage', cost: 149, billingCycle: 'annual', category: 'software', notes: 'Vehicle key code lookup.' },
+            jetlock: { name: 'Jet Lock Tools', vendor: 'Jet Lock', cost: 99, billingCycle: 'annual', category: 'software', notes: 'Locksmith software suite.' },
+            keyless_api: { name: 'Keyless Entry API', vendor: 'Various', cost: 120, billingCycle: 'annual', category: 'software', notes: 'Remote frequency lookup API.' },
+            lishi_decoder: { name: 'Lishi Decoder App', vendor: 'Lishi', cost: 79, billingCycle: 'annual', category: 'software', notes: 'Digital Lishi picking reference.' },
+
+            // Tokens (Per-Use)
+            xhorse_mb_tokens: { name: 'Xhorse MB Tokens', vendor: 'Xhorse', cost: 0, billingCycle: 'per_use', category: 'tokens', notes: '$5-20 per calculation. FBS3/FBS4 password.' },
+            autel_tokens: { name: 'Autel Calculation Tokens', vendor: 'Autel', cost: 0, billingCycle: 'per_use', category: 'tokens', notes: 'Included with TCP subscription.' },
+            lonsdor_jlr: { name: 'Lonsdor JLR License', vendor: 'Lonsdor', cost: 180, billingCycle: 'lifetime', category: 'tokens', notes: 'One-time purchase. JLR OBD with active alarm.' },
+            yanhua_tokens: { name: 'Yanhua ACDP Tokens', vendor: 'Yanhua', cost: 0, billingCycle: 'per_use', category: 'tokens', notes: 'Module-specific lifetime licenses.' },
+
+            // Licenses & Certifications
+            locksmith_license: { name: 'Locksmith License (State)', vendor: 'State Government', cost: 0, billingCycle: 'annual', category: 'license', notes: 'Varies by state. Required in TX, CA, NC, etc.' },
+            contractor_bond: { name: 'Contractor Bond', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'license', notes: 'Required in some states for licensing.' },
+            aloa_cert: { name: 'ALOA Certification', vendor: 'ALOA', cost: 250, billingCycle: 'annual', category: 'license', notes: 'Associated Locksmiths of America membership.' },
+            cml_cert: { name: 'CML Certification', vendor: 'ALOA', cost: 195, billingCycle: 'annual', category: 'license', notes: 'Certified Master Locksmith designation.' },
+            savta_cert: { name: 'SAVTA Certification', vendor: 'SAVTA', cost: 150, billingCycle: 'annual', category: 'license', notes: 'Safe & Vault Technicians Association.' },
+
+            // Insurance
+            liability_insurance: { name: 'General Liability Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Typically $500-2000/yr. Protects against claims.' },
+            eo_insurance: { name: 'E&O Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Errors & Omissions coverage for professionals.' },
+            auto_insurance: { name: 'Commercial Auto Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Coverage for service vehicles.' },
+            workers_comp: { name: 'Workers Compensation', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Required if you have employees.' },
+
+            // Custom placeholder
+            custom: { name: '', vendor: '', cost: 0, billingCycle: 'annual', category: 'other', notes: '' }
+        };
+
+        // SubscriptionManager Class
+        const SubscriptionManager = {
+            STORAGE_KEY: 'eurokeys_subscriptions',
+
+            getAll() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    return data ? JSON.parse(data) : [];
+                } catch (e) {
+                    console.error('Error loading subscriptions:', e);
+                    return [];
+                }
+            },
+
+            save(subscriptions) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(subscriptions));
+            },
+
+            add(subscription) {
+                const subs = this.getAll();
+                subscription.id = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                subscription.createdAt = new Date().toISOString();
+                subs.push(subscription);
+                this.save(subs);
+                return subscription;
+            },
+
+            update(id, updates) {
+                const subs = this.getAll();
+                const index = subs.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    subs[index] = { ...subs[index], ...updates, updatedAt: new Date().toISOString() };
+                    this.save(subs);
+                    return subs[index];
+                }
+                return null;
+            },
+
+            delete(id) {
+                const subs = this.getAll();
+                const filtered = subs.filter(s => s.id !== id);
+                this.save(filtered);
+            },
+
+            getDaysRemaining(expirationDate) {
+                if (!expirationDate) return Infinity;
+                const exp = new Date(expirationDate);
+                const now = new Date();
+                const diff = exp - now;
+                return Math.ceil(diff / (1000 * 60 * 60 * 24));
+            },
+
+            getStatus(subscription) {
+                if (subscription.billingCycle === 'lifetime') return 'lifetime';
+                if (subscription.billingCycle === 'per_use') return 'active';
+
+                const days = this.getDaysRemaining(subscription.expirationDate);
+                if (days < 0) return 'expired';
+                if (days <= 7) return 'critical';
+                if (days <= 30) return 'warning';
+                return 'active';
+            },
+
+            getStats() {
+                const subs = this.getAll();
+                return {
+                    active: subs.filter(s => this.getStatus(s) === 'active').length,
+                    warning: subs.filter(s => ['warning', 'critical'].includes(this.getStatus(s))).length,
+                    expired: subs.filter(s => this.getStatus(s) === 'expired').length,
+                    lifetime: subs.filter(s => this.getStatus(s) === 'lifetime').length
+                };
+            },
+
+            getExpiringSoon(days = 30) {
+                return this.getAll().filter(s => {
+                    const remaining = this.getDaysRemaining(s.expirationDate);
+                    return remaining >= 0 && remaining <= days && s.billingCycle !== 'lifetime';
+                }).sort((a, b) => this.getDaysRemaining(a.expirationDate) - this.getDaysRemaining(b.expirationDate));
+            }
+        };
+
+        // Current editing subscription ID
+        let editingSubscriptionId = null;
+        let currentSubFilter = 'all';
+
+        // Open Add Subscription Modal
+        function openAddSubscriptionModal() {
+            editingSubscriptionId = null;
+            document.getElementById('subModalTitle').textContent = 'Add Subscription';
+            document.getElementById('subCatalogSelect').value = '';
+            document.getElementById('subName').value = '';
+            document.getElementById('subVendor').value = '';
+            document.getElementById('subCost').value = '';
+            document.getElementById('subBillingCycle').value = 'annual';
+            document.getElementById('subPurchaseDate').value = '';
+            document.getElementById('subExpirationDate').value = '';
+            document.getElementById('subCategory').value = 'key_programmer';
+            document.getElementById('subNotes').value = '';
+            document.getElementById('subRenewalUrl').value = '';
+            document.getElementById('subModalOverlay').style.display = 'flex';
+        }
+
+        // Populate form from catalog selection
+        function populateFromCatalog() {
+            const select = document.getElementById('subCatalogSelect');
+            const key = select.value;
+            if (key && SUBSCRIPTION_CATALOG[key]) {
+                const item = SUBSCRIPTION_CATALOG[key];
+                document.getElementById('subName').value = item.name;
+                document.getElementById('subVendor').value = item.vendor;
+                document.getElementById('subCost').value = item.cost || '';
+                document.getElementById('subBillingCycle').value = item.billingCycle;
+                document.getElementById('subCategory').value = item.category;
+                document.getElementById('subNotes').value = item.notes || '';
+            }
+        }
+
+        // Close modal
+        function closeSubscriptionModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('subModalOverlay').style.display = 'none';
+        }
+
+        // Save subscription
+        function saveSubscription() {
+            const name = document.getElementById('subName').value.trim();
+            const vendor = document.getElementById('subVendor').value.trim();
+            const cost = parseFloat(document.getElementById('subCost').value) || 0;
+            const billingCycle = document.getElementById('subBillingCycle').value;
+            const purchaseDate = document.getElementById('subPurchaseDate').value;
+            const expirationDate = document.getElementById('subExpirationDate').value;
+            const category = document.getElementById('subCategory').value;
+            const notes = document.getElementById('subNotes').value.trim();
+            const renewalUrl = document.getElementById('subRenewalUrl').value.trim();
+
+            if (!name) {
+                alert('Please enter a subscription name.');
+                return;
+            }
+
+            const subscription = {
+                name,
+                vendor,
+                cost,
+                billingCycle,
+                purchaseDate,
+                expirationDate,
+                category,
+                notes,
+                renewalUrl
+            };
+
+            if (editingSubscriptionId) {
+                SubscriptionManager.update(editingSubscriptionId, subscription);
+            } else {
+                SubscriptionManager.add(subscription);
+            }
+
+            closeSubscriptionModal();
+            renderSubscriptionsDashboard();
+        }
+
+        // Edit subscription
+        function editSubscription(id) {
+            const subs = SubscriptionManager.getAll();
+            const sub = subs.find(s => s.id === id);
+            if (!sub) return;
+
+            editingSubscriptionId = id;
+            document.getElementById('subModalTitle').textContent = 'Edit Subscription';
+            document.getElementById('subCatalogSelect').value = '';
+            document.getElementById('subName').value = sub.name;
+            document.getElementById('subVendor').value = sub.vendor;
+            document.getElementById('subCost').value = sub.cost || '';
+            document.getElementById('subBillingCycle').value = sub.billingCycle;
+            document.getElementById('subPurchaseDate').value = sub.purchaseDate || '';
+            document.getElementById('subExpirationDate').value = sub.expirationDate || '';
+            document.getElementById('subCategory').value = sub.category;
+            document.getElementById('subNotes').value = sub.notes || '';
+            document.getElementById('subRenewalUrl').value = sub.renewalUrl || '';
+            document.getElementById('subModalOverlay').style.display = 'flex';
+        }
+
+        // Delete subscription
+        function deleteSubscription(id) {
+            if (confirm('Delete this subscription? This cannot be undone.')) {
+                SubscriptionManager.delete(id);
+                renderSubscriptionsDashboard();
+            }
+        }
+
+        // Filter subscriptions by category
+        function filterSubscriptions(category) {
+            currentSubFilter = category;
+            document.querySelectorAll('.sub-category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent.toLowerCase().includes(category === 'all' ? 'all' : category.replace('_', ' ')));
+            });
+            renderSubscriptionCards();
+        }
+
+        // Format billing cycle
+        function formatBillingCycle(cycle) {
+            const labels = {
+                'annual': '/year',
+                'monthly': '/month',
+                'per_use': 'per use',
+                '2day': '/2-day pass',
+                'daily': '/day',
+                'lifetime': 'one-time'
+            };
+            return labels[cycle] || cycle;
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Not set';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Render subscription card
+        function renderSubCard(sub) {
+            const status = SubscriptionManager.getStatus(sub);
+            const days = SubscriptionManager.getDaysRemaining(sub.expirationDate);
+
+            let badgeClass = status;
+            let badgeText = status.charAt(0).toUpperCase() + status.slice(1);
+            let countdownText = '';
+
+            if (status === 'lifetime') {
+                countdownText = '∞';
+            } else if (status === 'expired') {
+                countdownText = Math.abs(days);
+                badgeText = 'Expired';
+            } else if (days === Infinity) {
+                countdownText = '—';
+            } else {
+                countdownText = days;
+            }
+
+            const countdownLabel = status === 'expired' ? 'days overdue' :
+                status === 'lifetime' ? 'Never expires' :
+                    'days remaining';
+
+            return `
+                <div class="sub-card status-${status}">
+                    <div class="sub-card-header">
+                        <div>
+                            <div class="sub-card-title">${sub.name}</div>
+                            <div class="sub-card-vendor">${sub.vendor || 'Unknown vendor'}</div>
+                        </div>
+                        <span class="sub-card-badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    
+                    <div class="sub-card-meta">
+                        <div class="sub-meta-item">
+                            <span class="sub-meta-label">Cost</span>
+                            <span class="sub-meta-value">${sub.cost ? '$' + sub.cost.toLocaleString() : 'Varies'}${sub.cost ? formatBillingCycle(sub.billingCycle) : ''}</span>
+                        </div>
+                        <div class="sub-meta-item">
+                            <span class="sub-meta-label">Expires</span>
+                            <span class="sub-meta-value">${sub.billingCycle === 'lifetime' ? 'Never' : formatDate(sub.expirationDate)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sub-countdown">
+                        <div class="sub-countdown-days">${countdownText}</div>
+                        <div class="sub-countdown-label">${countdownLabel}</div>
+                    </div>
+                    
+                    ${sub.notes ? `<div class="sub-card-notes">${sub.notes}</div>` : ''}
+                    
+                    <div class="sub-card-actions">
+                        <button onclick="editSubscription('${sub.id}')">✏️ Edit</button>
+                        ${sub.renewalUrl ? `<a href="${sub.renewalUrl}" target="_blank" class="btn-renew">🔄 Renew</a>` : ''}
+                        <button onclick="deleteSubscription('${sub.id}')" style="color: #ef4444;">🗑️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render subscription cards
+        function renderSubscriptionCards() {
+            const grid = document.getElementById('subCardsGrid');
+            const emptyState = document.getElementById('subEmptyState');
+            const licenseGrid = document.getElementById('licenseCardsGrid');
+
+            let subs = SubscriptionManager.getAll();
+
+            // Separate licenses from other subscriptions
+            const licenses = subs.filter(s => ['license', 'insurance'].includes(s.category));
+            const otherSubs = subs.filter(s => !['license', 'insurance'].includes(s.category));
+
+            // Apply filter
+            let filteredSubs = otherSubs;
+            if (currentSubFilter !== 'all') {
+                filteredSubs = otherSubs.filter(s => s.category === currentSubFilter);
+            }
+
+            // Sort by expiration (soonest first)
+            filteredSubs.sort((a, b) => {
+                const daysA = SubscriptionManager.getDaysRemaining(a.expirationDate);
+                const daysB = SubscriptionManager.getDaysRemaining(b.expirationDate);
+                if (daysA === Infinity) return 1;
+                if (daysB === Infinity) return -1;
+                return daysA - daysB;
+            });
+
+            if (filteredSubs.length === 0) {
+                emptyState.style.display = 'block';
+                grid.innerHTML = emptyState.outerHTML;
+            } else {
+                emptyState.style.display = 'none';
+                grid.innerHTML = filteredSubs.map(renderSubCard).join('');
+            }
+
+            // Render licenses
+            if (licenses.length > 0) {
+                licenseGrid.innerHTML = licenses.map(renderSubCard).join('');
+                document.getElementById('licenseSection').style.display = 'block';
+            } else {
+                document.getElementById('licenseSection').style.display = 'none';
+            }
+        }
+
+        // Render alert banner
+        function renderAlertBanner() {
+            const banner = document.getElementById('subAlertBanner');
+            const expiringSoon = SubscriptionManager.getExpiringSoon(30);
+
+            if (expiringSoon.length === 0) {
+                banner.style.display = 'none';
+                return;
+            }
+
+            const critical = expiringSoon.filter(s => SubscriptionManager.getDaysRemaining(s.expirationDate) <= 7);
+            const isCritical = critical.length > 0;
+
+            const items = expiringSoon.slice(0, 3).map(s => {
+                const days = SubscriptionManager.getDaysRemaining(s.expirationDate);
+                return `<strong>${s.name}</strong> (${days} day${days !== 1 ? 's' : ''})`;
+            }).join(', ');
+
+            const moreCount = expiringSoon.length - 3;
+            const moreText = moreCount > 0 ? `, and ${moreCount} more` : '';
+
+            banner.className = isCritical ? 'sub-alert-banner' : 'sub-alert-banner warning';
+            banner.innerHTML = `
+                <span class="sub-alert-icon">${isCritical ? '🚨' : '⚠️'}</span>
+                <div class="sub-alert-content">
+                    <div class="sub-alert-title">${isCritical ? 'Urgent: Subscriptions Expiring!' : 'Upcoming Renewals'}</div>
+                    <div class="sub-alert-desc">${items}${moreText}</div>
+                </div>
+            `;
+            banner.style.display = 'flex';
+        }
+
+        // Update stats
+        function updateSubStats() {
+            const stats = SubscriptionManager.getStats();
+            document.getElementById('subActiveCount').textContent = stats.active;
+            document.getElementById('subWarningCount').textContent = stats.warning;
+            document.getElementById('subExpiredCount').textContent = stats.expired;
+            document.getElementById('subLifetimeCount').textContent = stats.lifetime;
+        }
+
+        // Main render function
+        function renderSubscriptionsDashboard() {
+            updateSubStats();
+            renderAlertBanner();
+            renderSubscriptionCards();
         }
 
         // Initialize Everything
