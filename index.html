@@ -4117,12 +4117,18 @@
             if (containerWrapper) {
                 containerWrapper.style.display = 'block';
                 if (chipContainer) chipContainer.innerHTML = '';
-                if (loader) loader.style.display = 'block';
+                if (loader) {
+                    loader.style.display = 'block';
+                    loader.innerHTML = 'Loading models... <small>(Checking database)</small>';
+                }
             }
 
+            const fetchUrl = `${API}/api/master?year=${year}&limit=1000`;
             try {
                 // Fetch data
-                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+                const res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error(`Status: ${res.status}`);
+
                 const data = await res.json();
 
                 // Filter models for this make (CASE INSENSITIVE)
@@ -4162,7 +4168,17 @@
 
             } catch (e) {
                 console.error("Failed to load models", e);
-                if (loader) loader.textContent = 'Error loading models. Check connection.';
+                if (loader) {
+                    loader.innerHTML = `
+                        <div style="color: #ff6b6b; padding: 10px;">
+                            <strong>Error loading models.</strong><br>
+                            <span style="font-size:0.8rem; opacity:0.8;">${e.message}</span><br>
+                            <span style="font-size:0.75rem; opacity:0.6; word-break:break-all;">${fetchUrl}</span>
+                            <br>
+                            <button onclick="selectVisualYear('${year}')" style="margin-top:10px; padding: 5px 12px; cursor: pointer;">Retry Connection</button>
+                        </div>
+                    `;
+                }
             }
         }
 
