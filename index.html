@@ -2178,15 +2178,24 @@
         }
 
         .job-item-preview .item-name {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 1rem;
+            margin-bottom: 4px;
         }
 
         .job-item-preview .item-vehicle {
-            font-size: 0.8rem;
+            max-height: 40px;
+            overflow-y: auto;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            line-height: 1.4;
+            scrollbar-width: none;
+            cursor: help;
+        }
+
+        .job-item-preview .item-vehicle::-webkit-scrollbar {
+            display: none;
         }
 
         .job-modal-actions {
@@ -5933,19 +5942,36 @@
                 });
             }
 
-            // Reset all fields
-            document.getElementById('jobDescription').value = vehicle || (savedVehicle.includes(',') ? '' : savedVehicle);
-            document.getElementById('jobVehicleSelect').value = vehicle || (savedVehicle.includes(',') ? '' : savedVehicle);
+            // Decide default description & dropdown selection
+            let defaultV = '';
+            if (vehicle && !vehicle.includes(',') && vehicle.length < 50) {
+                defaultV = vehicle;
+            } else if (savedVehicle && !savedVehicle.includes(',') && savedVehicle.length < 50) {
+                defaultV = savedVehicle;
+            }
+
+            document.getElementById('jobDescription').value = defaultV;
+
+            // Try to set dropdown value if we have a single match
+            const selectEl = document.getElementById('jobVehicleSelect');
+            if (defaultV) {
+                // Check if this value exists in options
+                const exists = Array.from(selectEl.options).some(opt => opt.value === defaultV);
+                if (exists) selectEl.value = defaultV;
+            }
+
             document.getElementById('jobCustomer').value = '';
             document.getElementById('jobNotes').value = '';
+
+            // Try to pull default costs from item if available
             document.getElementById('jobRevenue').value = '';
             document.getElementById('jobTip').value = '0';
-            document.getElementById('itemCost').value = '';
+            document.getElementById('itemCost').value = invItem?.cost || '';
             document.getElementById('jobMiles').value = '';
             document.getElementById('jobTimeMinutes').value = '';
 
             // Reset calculations display
-            calculateJobProfit();
+            setTimeout(() => calculateJobProfit(), 50);
 
             // Show modal
             const modal = document.getElementById('jobLogModal');
