@@ -3078,7 +3078,11 @@
     </footer>
 
     <script>
-        const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
+        // Use relative path for production (proxied via _redirects) to solve cookie/CORS issues
+        // Fallback to direct worker URL for local development
+        const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'https://euro-keys.jeremy-samuels17.workers.dev'
+            : '';
         const AFFILIATE_TAG = 'eurokeys-20';
 
         // Valid makes only
