@@ -5180,11 +5180,11 @@
                     fetch(`${API}/api/admin/activity?limit=1000`, { credentials: 'include' })
                 ]);
 
-                if (statsRes.status === 401 || userRes.status === 401) {
-                    throw new Error("Session expired. Please sign out and sign in again.");
+                if (statsRes.status === 401 || userRes.status === 401 || activityRes.status === 401) {
+                    throw new Error("SESSION_EXPIRED");
                 }
-                if (statsRes.status === 403 || userRes.status === 403) {
-                    throw new Error("Access denied. You must be a designated developer.");
+                if (statsRes.status === 403 || userRes.status === 403 || activityRes.status === 403) {
+                    throw new Error("ACCESS_DENIED");
                 }
                 if (!statsRes.ok || !userRes.ok || !activityRes.ok) {
                     throw new Error(`Server error (${statsRes.status})`);
@@ -5383,7 +5383,37 @@
                 }
             } catch (err) {
                 console.error("Dev Panel Load Failed", err);
-                document.getElementById('devUsersTable').innerHTML = `<tr><td colspan="6" style="padding: 40px; text-align: center; color: #ef4444; font-weight: bold;">⚠️ ${err.message || 'Data stream interrupted'}</td></tr>`;
+                let message = err.message || 'Data stream interrupted';
+                let subMessage = 'Please check your connection and try again.';
+                let showSignIn = false;
+
+                if (err.message === "SESSION_EXPIRED") {
+                    message = "Session Expired";
+                    subMessage = "Your security token has timed out. Please sign out and sign in again to restore access.";
+                    showSignIn = true;
+                } else if (err.message === "ACCESS_DENIED") {
+                    message = "Developer Access Required";
+                    subMessage = "This panel is restricted to authorized platform maintainers.";
+                }
+
+                const errorHtml = `
+                    <div style="padding: 60px 20px; text-align: center; color: var(--text-muted);">
+                        <div style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;">🔒</div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 8px;">${message}</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 24px;">${subMessage}</p>
+                        ${showSignIn ? `<button onclick="signOut()" style="padding: 10px 24px; border-radius: 12px; background: var(--brand-primary); color: white; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);">🔄 Refresh Session (Sign Out)</button>` : ''}
+                    </div>
+                `;
+
+                // Clear all loading states
+                if (document.getElementById('devUsersTable')) document.getElementById('devUsersTable').innerHTML = `<tr><td colspan="6">${errorHtml}</td></tr>`;
+                if (document.getElementById('devActivityLogs')) document.getElementById('devActivityLogs').innerHTML = errorHtml;
+
+                // Clear KPIs
+                ['devTotalUsers', 'devEstRevenue', 'devConversionRate', 'devAvgEngagement'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '--';
+                });
             }
             devPanelLoaded = true;
         }
