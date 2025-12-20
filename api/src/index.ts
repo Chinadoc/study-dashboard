@@ -45,6 +45,8 @@ function corsResponse(request: Request, body: string, status = 200, contentType 
   const origin = request.headers.get("Origin") || "*";
   // Allow production domain and local development
   const isAllowedOrigin = origin === "https://eurokeys.app" ||
+    origin === "https://study-dashboard-8a9.pages.dev" ||
+    origin.endsWith(".study-dashboard-8a9.pages.dev") ||
     origin.startsWith("http://localhost:") ||
     origin.startsWith("http://127.0.0.1:");
 
@@ -153,7 +155,7 @@ export default {
       return Response.redirect(authUrl, 302);
     }
 
-    // 2. Google Callback
+    // 2. Google Callback (Redirect Flow)
     if (path === "/api/auth/callback") {
       try {
         const code = url.searchParams.get("code");
@@ -212,6 +214,66 @@ export default {
 
         return new Response(null, { status: 302, headers });
 
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // 2.5 Google Token Verification (Popup/One-Tap Flow)
+    if (path === "/api/auth/verify" && request.method === "POST") {
+      try {
+        const { credential } = await request.json() as { credential?: string };
+        if (!credential) return corsResponse(request, "Missing credential", 400);
+
+        // Verify with Google
+        const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+        const googleUser: any = await googleRes.json();
+
+        if (googleUser.error || googleUser.aud !== env.GOOGLE_CLIENT_ID) {
+          return corsResponse(request, JSON.stringify({ error: "Invalid token" }), 401);
+        }
+
+        // Upsert User in D1 (using sub as the ID)
+        const userId = googleUser.sub;
+        const email = googleUser.email;
+        const name = googleUser.name;
+        const picture = googleUser.picture;
+
+        const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<any>();
+
+        if (!existingUser) {
+          await env.LOCKSMITH_DB.prepare(
+            "INSERT INTO users (id, email, name, picture, created_at) VALUES (?, ?, ?, ?, ?)"
+          ).bind(userId, email, name, picture, Date.now()).run();
+        } else {
+          await env.LOCKSMITH_DB.prepare(
+            "UPDATE users SET email = ?, name = ?, picture = ? WHERE id = ?"
+          ).bind(email, name, picture, userId).run();
+        }
+
+        const user = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<any>();
+        const userIsDeveloper = isDeveloper(email, env.DEV_EMAILS);
+
+        if (userIsDeveloper && !user.is_developer) {
+          await env.LOCKSMITH_DB.prepare("UPDATE users SET is_developer = TRUE WHERE id = ?").bind(userId).run();
+          user.is_developer = true;
+        }
+
+        // Log activity
+        try {
+          await env.LOCKSMITH_DB.prepare(
+            "INSERT INTO user_activity (user_id, action, details, created_at) VALUES (?, ?, ?, ?)"
+          ).bind(userId, 'sign_in_popup', JSON.stringify({ email }), Date.now()).run();
+        } catch (e) { }
+
+        // Create Session Cookie
+        const userWithDev = { ...user, is_developer: userIsDeveloper || user.is_developer };
+        const sessionToken = await createInternalToken(userWithDev, env.JWT_SECRET || 'dev-secret');
+
+        const response = corsResponse(request, JSON.stringify({ success: true, user: userWithDev }));
+        response.headers.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure`);
+
+        return response;
       } catch (err: any) {
         return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
@@ -721,7 +783,7 @@ export default {
         await cache.put(cacheKey.toString(), resp.clone());
         return resp;
       } catch (err: any) {
-        return corsResponse(request, 
+        return corsResponse(request,
           JSON.stringify({ error: err.message || "failed to load immobilizers" }),
           500
         );

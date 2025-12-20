@@ -2782,6 +2782,58 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- VIN Lookups -->
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 20px;">
+                    <h3
+                        style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span>🚗</span> VIN Lookups
+                    </h3>
+                    <div id="devVinLookups" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">No VIN lookups yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Button Clicks -->
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 20px;">
+                    <h3
+                        style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span>👆</span> Top Button Clicks
+                    </h3>
+                    <div id="devButtonClicks" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">No button clicks yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Usage -->
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 20px;">
+                    <h3
+                        style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span>📊</span> Tab Views
+                    </h3>
+                    <div id="devTabUsage" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">No tab data yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Stats -->
+                <div
+                    style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 20px;">
+                    <h3
+                        style="color: var(--text-primary); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        <span>⏱️</span> Session Stats
+                    </h3>
+                    <div id="devSessionStats" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">No session data yet
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Users Table -->
@@ -2860,7 +2912,7 @@
     </footer>
 
     <script>
-        const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
+        const API = '/api';
         const AFFILIATE_TAG = 'eurokeys-20';
 
         // Valid makes only
@@ -2935,28 +2987,39 @@
 
         // Helper to group vehicles into chips
         function groupVehicles(vehicles) {
-            const vehicleItems = vehicles ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
-            const groups = {};
-            vehicleItems.forEach(vi => {
-                const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
+            if (!vehicles) return [];
+            const vehicleArray = vehicles.split(',').map(v => v.trim()).filter(v => v);
+            const combined = combineVehicleYears(vehicleArray);
+
+            return combined.map(v => {
+                const match = v.match(/^(.+?)\s*\((.+?)\)$/);
                 if (match) {
-                    const makeModel = match[1].trim();
-                    const startYear = parseInt(match[2]);
-                    const endYear = match[3] ? parseInt(match[3]) : startYear;
-                    if (!groups[makeModel]) {
-                        groups[makeModel] = { start: startYear, end: endYear };
-                    } else {
-                        groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
-                        groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
-                    }
-                } else {
-                    if (!groups[vi]) groups[vi] = { start: null, end: null };
+                    return { name: match[1].trim(), years: match[2] };
                 }
+                return { name: v, years: '' };
             });
-            return Object.entries(groups).map(([name, range]) => ({
-                name,
-                years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
-            }));
+        }
+
+        // Standardized function to render compact vehicle chips
+        function renderVehicleChips(vehicles, fccId, limit = 5) {
+            const grouped = groupVehicles(vehicles);
+            const displayGroups = grouped.slice(0, limit);
+            const moreCount = grouped.length - limit;
+
+            const chipsHtml = displayGroups.map(g => `
+                <span class="vehicle-group-chip" onclick="${fccId ? `showFccModal('${fccId}')` : ''}" style="${!fccId ? 'cursor: default;' : ''}">
+                    <span class="vehicle-group-make">${g.name}</span>
+                    ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
+                </span>
+            `).join('');
+
+            const moreHtml = moreCount > 0 ? `
+                <span class="vehicle-chip vehicle-chip-more" onclick="${fccId ? `showFccModal('${fccId}')` : ''}">
+                    +${moreCount} more
+                </span>
+            ` : '';
+
+            return chipsHtml + moreHtml;
         }
 
         // Tab switching with URL routing
@@ -2964,6 +3027,11 @@
             // Update URL hash for deep linking (e.g., /#database, /#fcc, /#vin, /#inventory, /#dev)
             if (updateHash && window.location.hash !== `#${tabName}`) {
                 history.pushState(null, '', `#${tabName}`);
+            }
+
+            // Update session tracking
+            if (typeof sessionData !== 'undefined') {
+                sessionData.currentTab = tabName;
             }
 
             // Log tab view activity
@@ -4048,32 +4116,8 @@
                     const primaryMake = r.primary_make || null;
 
                     // Parse and group vehicles to avoid long lists
-                    const vehicleItems = vehicles ? vehicles.split(',').map(v => v.trim()).filter(v => v) : [];
-                    const groups = {};
-                    vehicleItems.forEach(vi => {
-                        const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
-                        if (match) {
-                            const makeModel = match[1].trim();
-                            const startYear = parseInt(match[2]);
-                            const endYear = match[3] ? parseInt(match[3]) : startYear;
-                            if (!groups[makeModel]) {
-                                groups[makeModel] = { start: startYear, end: endYear };
-                            } else {
-                                groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
-                                groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
-                            }
-                        } else {
-                            if (!groups[vi]) groups[vi] = { start: null, end: null };
-                        }
-                    });
-                    const grouped = Object.entries(groups).map(([name, range]) => ({
-                        name,
-                        years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
-                    }));
-
-                    const displayGroups = grouped.slice(0, 5);
-                    const moreCount = grouped.length - 5;
-                    const firstVehicle = vehicleItems[0] || null;
+                    const vehicleListHtml = renderVehicleChips(vehicles, fccId, 5);
+                    const firstVehicle = vehicles ? vehicles.split(',')[0].split('(')[0].trim() : null;
                     const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
 
                     // Get ASIN and Image URL
@@ -4098,17 +4142,7 @@
                         ` : ''}
                         
                         <div class="fcc-vehicles">
-                            ${displayGroups.map(g => `
-                                <span class="vehicle-group-chip" onclick="showFccModal('${fccId}')">
-                                    <span class="vehicle-group-make">${g.name}</span>
-                                    ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
-                                </span>
-                            `).join('')}
-                            ${moreCount > 0 ? `
-                                <span class="vehicle-chip vehicle-chip-more" onclick="showFccModal('${fccId}')">
-                                    +${moreCount} more
-                                </span>
-                            ` : ''}
+                            ${vehicleListHtml}
                         </div>
 
                         <div class="fcc-card-meta">
@@ -4202,35 +4236,7 @@
                     // Group vehicles for this OEM part
                     const vehicleItems = vehicles.map(v => `${v.make} ${v.model} (${v.year_start}-${v.year_end})`);
 
-                    const groups = {};
-                    vehicleItems.forEach(vi => {
-                        const match = vi.match(/^([^(]+)\s+\((\d{4})(?:-(\d{4}))?\)$/);
-                        if (match) {
-                            const makeModel = match[1].trim();
-                            const startYear = parseInt(match[2]);
-                            const endYear = match[3] ? parseInt(match[3]) : startYear;
-                            if (!groups[makeModel]) {
-                                groups[makeModel] = { start: startYear, end: endYear };
-                            } else {
-                                groups[makeModel].start = Math.min(groups[makeModel].start, startYear);
-                                groups[makeModel].end = Math.max(groups[makeModel].end, endYear);
-                            }
-                        } else {
-                            if (!groups[vi]) groups[vi] = { start: null, end: null };
-                        }
-                    });
-
-                    const grouped = Object.entries(groups).map(([name, range]) => ({
-                        name,
-                        years: range.start ? (range.start === range.end ? `${range.start}` : `${range.start}-${range.end}`) : ''
-                    }));
-
-                    const vehicleListHtml = grouped.map(g => `
-                        <span class="vehicle-group-chip" style="background: var(--bg-primary); border-color: var(--border);">
-                            <span class="vehicle-group-make">${g.name}</span>
-                            ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
-                        </span>
-                    `).join('');
+                    const vehicleListHtml = renderVehicleChips(vehicleItems.join(', '), null, 8);
 
                     return `
                         <div class="oem-product-card" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px; flex-direction: column;">
@@ -4312,13 +4318,7 @@
                     const oemPart = record.primary_oem_part || null;
                     const primaryMake = record.primary_make || null;
 
-                    const grouped = groupVehicles(vehicles);
-                    const vehicleListHtml = grouped.map(g => `
-                        <span class="vehicle-group-chip" style="background: var(--bg-primary); border-color: var(--border);">
-                            <span class="vehicle-group-make">${g.name}</span>
-                            ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
-                        </span>
-                    `).join('');
+                    const vehicleListHtml = renderVehicleChips(vehicles, null, 15);
 
                     const firstVehicle = grouped.length > 0 ? grouped[0].name : null;
                     const amazonLink = getAmazonLink(fccId, firstVehicle, oemPart, primaryMake);
@@ -4804,20 +4804,34 @@
         }
 
         // Handle Google Sign-In callback (for ID token flow)
-        function handleGoogleSignIn(response) {
+        async function handleGoogleSignIn(response) {
             if (response.credential) {
-                // Decode the JWT token to get user info
-                const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                currentUser = {
-                    name: payload.name,
-                    email: payload.email,
-                    picture: payload.picture,
-                    sub: payload.sub
-                };
-                localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
-                updateAuthUI(true);
-                // Check developer status from server
-                checkDeveloperStatus();
+                try {
+                    // Send the token to the backend to establish a session cookie
+                    const verifyRes = await fetch(`${API}/api/auth/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ credential: response.credential })
+                    });
+
+                    const data = await verifyRes.json();
+                    if (data.success && data.user) {
+                        currentUser = data.user;
+                        localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
+                        updateAuthUI(true);
+                        // Check developer status again to show the tab if eligible
+                        if (currentUser.is_developer) {
+                            const devTab = document.getElementById('devTab');
+                            if (devTab) devTab.style.display = 'inline-flex';
+                        }
+                    } else {
+                        console.error('Backend authentication failed:', data.error);
+                        alert('Authentication failed. Please try again.');
+                    }
+                } catch (e) {
+                    console.error('Sign-in error:', e);
+                    alert('Sign-in service is currently unavailable.');
+                }
             }
         }
 
@@ -4940,9 +4954,18 @@
             return vid;
         }
 
+        // Session tracking for time spent
+        const sessionData = {
+            startTime: Date.now(),
+            currentTab: 'browse',
+            tabStartTime: Date.now(),
+            interactions: 0
+        };
+
         // Log user activity to the server (supports anonymous tracking)
         async function logActivity(action, details = null) {
             try {
+                sessionData.interactions++;
                 const visitorId = getVisitorId();
                 await fetch(`${API}/activity/log`, {
                     method: 'POST',
@@ -4950,7 +4973,11 @@
                     credentials: 'include',
                     body: JSON.stringify({
                         action,
-                        details,
+                        details: {
+                            ...details,
+                            sessionDuration: Math.floor((Date.now() - sessionData.startTime) / 1000),
+                            interactions: sessionData.interactions
+                        },
                         visitorId,
                         user_email: currentUser?.email || null
                     })
@@ -4960,14 +4987,95 @@
             }
         }
 
-        // Track clicks on affiliate links
+        // Track all button and link clicks with context
         document.addEventListener('click', (e) => {
-            const affiliateLink = e.target.closest('a[href*="amazon.com"]');
+            const target = e.target.closest('button, a, .tab, .card, [onclick]');
+            if (!target) return;
+
+            // Track affiliate links (Amazon)
+            const affiliateLink = target.closest('a[href*="amazon.com"]');
             if (affiliateLink) {
                 const url = affiliateLink.href;
-                logActivity('click_affiliate', { url });
+                const searchMatch = url.match(/[?&]k=([^&]+)/);
+                const searchTerm = searchMatch ? decodeURIComponent(searchMatch[1]) : null;
+                logActivity('click_affiliate', {
+                    url,
+                    searchTerm,
+                    linkText: affiliateLink.textContent?.substring(0, 50)
+                });
+                return;
+            }
+
+            // Track tab clicks
+            if (target.classList.contains('tab')) {
+                // Log time spent on previous tab
+                const timeOnTab = Math.floor((Date.now() - sessionData.tabStartTime) / 1000);
+                if (timeOnTab > 2) {
+                    logActivity('tab_time', {
+                        tab: sessionData.currentTab,
+                        seconds: timeOnTab
+                    });
+                }
+                sessionData.tabStartTime = Date.now();
+                return; // Tab already logged in showTab()
+            }
+
+            // Track specific button actions
+            const buttonText = target.textContent?.trim().substring(0, 30);
+            const buttonId = target.id || target.className?.split(' ')[0];
+
+            // Don't log every single click, focus on meaningful ones
+            if (target.tagName === 'BUTTON' || target.hasAttribute('onclick')) {
+                // Filter out noise
+                if (buttonText && !['×', 'X', ''].includes(buttonText)) {
+                    logActivity('click_button', {
+                        button: buttonText,
+                        id: buttonId,
+                        section: sessionData.currentTab
+                    });
+                }
+            }
+
+            // Track external links
+            if (target.tagName === 'A' && target.href && !target.href.includes(window.location.host)) {
+                logActivity('click_external', {
+                    url: target.href,
+                    linkText: target.textContent?.substring(0, 50)
+                });
+            }
+
+            // Track FCC ID clicks
+            if (target.closest('[onclick*="openFccModal"]')) {
+                const fccMatch = target.textContent?.match(/[A-Z0-9]{5,}/);
+                if (fccMatch) {
+                    logActivity('view_fcc', { fccId: fccMatch[0] });
+                }
             }
         });
+
+        // Track VIN lookups
+        function trackVinLookup(vin, result) {
+            const make = result?.make || 'Unknown';
+            const model = result?.model || 'Unknown';
+            const year = result?.year || 'Unknown';
+            logActivity('vin_lookup', {
+                vin: vin.substring(0, 8) + '***', // Partial VIN for privacy
+                make,
+                model,
+                year,
+                success: !!result?.make
+            });
+        }
+
+        // Track modal opens
+        function trackModalOpen(modalName, context = {}) {
+            logActivity('modal_open', { modal: modalName, ...context });
+        }
+
+        // Track feature usage
+        function trackFeature(feature, details = {}) {
+            logActivity('feature_use', { feature, ...details });
+        }
 
         // Search tracking with debounce
         let searchLogTimeout;
@@ -4975,9 +5083,40 @@
             clearTimeout(searchLogTimeout);
             if (!query || query.length < 3) return;
             searchLogTimeout = setTimeout(() => {
-                logActivity('search', { query });
+                logActivity('search', {
+                    query,
+                    tab: sessionData.currentTab
+                });
             }, 2000); // 2 second delay to avoid logging every keystroke
         }
+
+        // Track page visibility changes (user leaving/returning)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                logActivity('page_hidden', {
+                    timeOnPage: Math.floor((Date.now() - sessionData.startTime) / 1000)
+                });
+            } else {
+                logActivity('page_visible');
+            }
+        });
+
+        // Track session end when user leaves
+        window.addEventListener('beforeunload', () => {
+            const sessionDuration = Math.floor((Date.now() - sessionData.startTime) / 1000);
+            // Use sendBeacon for reliable delivery
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(`${API}/activity/log`, JSON.stringify({
+                    action: 'session_end',
+                    details: {
+                        duration: sessionDuration,
+                        interactions: sessionData.interactions,
+                        lastTab: sessionData.currentTab
+                    },
+                    visitorId: getVisitorId()
+                }));
+            }
+        });
 
         // ================== DEVELOPER PANEL ==================
 
@@ -5078,19 +5217,118 @@
                     }).join('');
                 }
 
-                // 5. Update Activity Log
-                const logContainer = document.getElementById('devActivityLog');
+                // 5. Process activity data for new analytics widgets
                 const activity = activityData.activity || [];
+
+                // Aggregate VIN lookups
+                const vinLookups = {};
+                const buttonClicks = {};
+                const tabViews = {};
+                let totalSessionTime = 0;
+                let sessionCount = 0;
+
+                activity.forEach(a => {
+                    try {
+                        const d = a.details ? JSON.parse(a.details) : {};
+
+                        if (a.action === 'vin_lookup' && d.make) {
+                            const key = `${d.year || ''} ${d.make} ${d.model || ''}`.trim();
+                            vinLookups[key] = (vinLookups[key] || 0) + 1;
+                        }
+
+                        if (a.action === 'click_button' && d.button) {
+                            buttonClicks[d.button] = (buttonClicks[d.button] || 0) + 1;
+                        }
+
+                        if (a.action === 'view_tab' && d.tab) {
+                            tabViews[d.tab] = (tabViews[d.tab] || 0) + 1;
+                        }
+
+                        if (a.action === 'session_end' && d.duration) {
+                            totalSessionTime += d.duration;
+                            sessionCount++;
+                        }
+                    } catch (e) { /* ignore parse errors */ }
+                });
+
+                // 6. Update VIN Lookups widget
+                const vinContainer = document.getElementById('devVinLookups');
+                const vinItems = Object.entries(vinLookups).sort((a, b) => b[1] - a[1]).slice(0, 8);
+                if (vinItems.length > 0) {
+                    vinContainer.innerHTML = vinItems.map(([vehicle, count]) => `
+                        <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
+                            <span style="color: var(--text-primary); font-size: 0.85rem;">${vehicle}</span>
+                            <span style="color: #22d3ee; font-weight: bold; font-size: 0.85rem;">${count}x</span>
+                        </div>
+                    `).join('');
+                }
+
+                // 7. Update Button Clicks widget
+                const buttonContainer = document.getElementById('devButtonClicks');
+                const buttonItems = Object.entries(buttonClicks).sort((a, b) => b[1] - a[1]).slice(0, 8);
+                if (buttonItems.length > 0) {
+                    buttonContainer.innerHTML = buttonItems.map(([btn, count]) => `
+                        <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
+                            <span style="color: var(--text-primary); font-size: 0.85rem;">${btn}</span>
+                            <span style="color: #a855f7; font-weight: bold; font-size: 0.85rem;">${count}x</span>
+                        </div>
+                    `).join('');
+                }
+
+                // 8. Update Tab Views widget  
+                const tabContainer = document.getElementById('devTabUsage');
+                const tabItems = Object.entries(tabViews).sort((a, b) => b[1] - a[1]);
+                if (tabItems.length > 0) {
+                    const totalViews = tabItems.reduce((sum, [, c]) => sum + c, 0);
+                    tabContainer.innerHTML = tabItems.map(([tab, count]) => {
+                        const pct = Math.round((count / totalViews) * 100);
+                        return `
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--text-primary); font-size: 0.85rem; text-transform: capitalize;">${tab}</span>
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">${count} views (${pct}%)</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; overflow: hidden;">
+                                <div style="background: var(--brand-primary); height: 100%; width: ${pct}%; border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+                }
+
+                // 9. Update Session Stats widget
+                const sessionContainer = document.getElementById('devSessionStats');
+                const avgSessionTime = sessionCount > 0 ? Math.round(totalSessionTime / sessionCount) : 0;
+                const mins = Math.floor(avgSessionTime / 60);
+                const secs = avgSessionTime % 60;
+                sessionContainer.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: 800; color: var(--brand-primary);">${sessionCount}</div>
+                            <div style="color: var(--text-muted); font-size: 0.75rem;">Total Sessions</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: 800; color: #f59e0b;">${mins}m ${secs}s</div>
+                            <div style="color: var(--text-muted); font-size: 0.75rem;">Avg Duration</div>
+                        </div>
+                    </div>
+                `;
+
+                // 10. Update Activity Log with extended icons
+                const logContainer = document.getElementById('devActivityLog');
                 if (activity.length === 0) {
                     logContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">No activity recorded yet</div>';
                 } else {
-                    logContainer.innerHTML = activity.map(a => {
+                    logContainer.innerHTML = activity.slice(0, 50).map(a => {
                         const isGuest = String(a.user_id).startsWith('guest:');
                         const displayName = a.user_name || (isGuest ? `Guest (${a.user_id.substring(6, 12)})` : 'Anonymous');
                         const time = formatRelativeDate(a.created_at);
                         const icon = {
                             'sign_in': '🔑', 'sign_out': '👋', 'view_tab': '👁️', 'search': '🔍',
-                            'inventory_add': '➕', 'inventory_use': '➖', 'click_affiliate': '🛒'
+                            'inventory_add': '➕', 'inventory_use': '➖', 'click_affiliate': '🛒',
+                            'vin_lookup': '🚗', 'click_button': '👆', 'click_external': '🔗',
+                            'modal_open': '📋', 'tab_time': '⏱️', 'session_end': '🚪',
+                            'page_hidden': '💤', 'page_visible': '👀', 'view_fcc': '📡'
                         }[a.action] || '📊';
 
                         let detailsText = '';
@@ -5099,7 +5337,10 @@
                                 const d = JSON.parse(a.details);
                                 if (a.action === 'search') detailsText = `: <span style="color: var(--brand-primary);">${d.query}</span>`;
                                 else if (a.action === 'view_tab') detailsText = `: <span style="color: #a855f7;">${d.tab}</span>`;
-                                else if (a.action === 'click_affiliate') detailsText = `: <span style="color: #3b82f6;">Amazon Link</span>`;
+                                else if (a.action === 'click_affiliate') detailsText = `: <span style="color: #3b82f6;">${d.searchTerm || 'Amazon'}</span>`;
+                                else if (a.action === 'vin_lookup') detailsText = `: <span style="color: #22d3ee;">${d.make} ${d.model || ''}</span>`;
+                                else if (a.action === 'click_button') detailsText = `: <span style="color: #f59e0b;">${d.button}</span>`;
+                                else if (a.action === 'session_end') detailsText = `: <span style="color: var(--text-muted);">${Math.floor(d.duration / 60)}m</span>`;
                             } catch (e) { }
                         }
 
@@ -6118,7 +6359,7 @@
                         <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; flex-direction: column; gap: 4px; min-width: 200px;">
                                 <span style="font-weight: 600; color: var(--text-primary);">${key}</span>
-                                ${vehicle ? `<span style="font-size: 0.75rem; color: var(--text-muted);">🚗 ${vehicle}</span>` : ''}
+                                ${vehicle ? `<div style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">${renderVehicleChips(vehicle, null, 10)}</div>` : ''}
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <span class="inventory-badge in-stock">📦 ${qty}</span>
@@ -7011,6 +7252,9 @@
                         </div>
                     </div>
                 `;
+
+                // Track VIN lookup for analytics
+                trackVinLookup(vin, { make, model, year });
 
                 // 3. Load lookup data and query our database for key info
                 await Promise.all([loadIlcoData(), loadStrattecData()]);

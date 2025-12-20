@@ -1,0 +1,32 @@
+# Backend API (deployed separately as Cloudflare Worker)
+api/
+
+# Python virtual environments
+.venv/
+venv/
+
+# Large data files not needed for frontend
+data/suppliers_products.csv
+data/locksmithkeyless_products.csv
+data/locksmithkeyless_products.json
+
+# Large PDF assets (hosted on R2 or linked externally)
+assets/*.pdf
+
+# Development and migration files
+scripts/
+*.sql
+*.py
+
+# Node modules (if any)
+node_modules/
+
+# Git internals
+.git/
+
+# Editor and OS files
+.DS_Store
+*.log
+
+# Vercel files (obsolete)
+.vercel/

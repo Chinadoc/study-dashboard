@@ -1,0 +1,2 @@
+# Proxy API calls to Cloudflare Workers
+/api/*  https://euro-keys.jeremy-samuels17.workers.dev/api/:splat  200
