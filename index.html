@@ -4517,25 +4517,43 @@
         }
 
         function goBack() {
-            document.getElementById('browseSection').style.display = 'block';
-            document.getElementById('resultsSection').classList.remove('active');
+            // Hide results
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.remove('active');
+
+            // Show the legacy search card (we're already in a search flow)
+            const legacyCard = document.getElementById('legacySearchCard');
+            if (legacyCard) legacyCard.style.display = 'block';
+
+            // Show year chips again for current make
+            const yearChipsContainer = document.getElementById('yearChipsContainer');
+            if (yearChipsContainer) yearChipsContainer.style.display = 'block';
+
+            // Hide model chips
+            const modelChipsContainer = document.getElementById('modelChipsContainer');
+            if (modelChipsContainer) modelChipsContainer.style.display = 'none';
+
+            // Clear selected year badge
+            const yearBadge = document.getElementById('selectedYearBadge');
+            if (yearBadge) yearBadge.style.display = 'none';
         }
 
         // Quick switch to a different make (pre-populate dropdowns)
         async function quickSwitchMake(make) {
-            // Go back to browse section
-            document.getElementById('browseSection').style.display = 'block';
-            document.getElementById('resultsSection').classList.remove('active');
+            // Hide results
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.remove('active');
+
+            // Clear results container
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (resultsContainer) resultsContainer.innerHTML = '';
 
             // Set the make in dropdown
             const makeSelect = document.getElementById('makeSelect');
             makeSelect.value = make;
 
-            // Trigger model load
-            await loadModels();
-
-            // Focus on model select for quick selection
-            document.getElementById('modelSelect').focus();
+            // Trigger visual make selection
+            await selectVisualMake(make);
         }
 
         // Quick switch to a different model (same year/make)
