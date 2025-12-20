@@ -6567,7 +6567,10 @@
             const dEmail = document.getElementById('dropdownUserEmail');
             const dDevOption = document.getElementById('devMenuOption');
 
-            if (isSignedIn && currentUser) {
+            // Validate currentUser has required properties
+            const hasValidUser = isSignedIn && currentUser && currentUser.name && currentUser.email;
+
+            if (hasValidUser) {
                 signInBtn.style.display = 'none';
                 userMenu.style.display = 'flex';
                 userName.textContent = currentUser.name.split(' ')[0]; // First name only
@@ -6605,6 +6608,13 @@
                     renderSubscriptionsDashboard();
                 }
             } else {
+                // Clear invalid user data from localStorage if present
+                if (isSignedIn && currentUser && (!currentUser.name || !currentUser.email)) {
+                    console.warn('Invalid user data in localStorage, clearing...');
+                    localStorage.removeItem('eurokeys_user');
+                    currentUser = null;
+                }
+
                 signInBtn.style.display = 'flex';
                 userMenu.style.display = 'none';
 
