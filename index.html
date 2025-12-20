@@ -2829,7 +2829,22 @@
             background: rgba(251, 191, 36, 0.05);
             border-left: 3px solid var(--brand-primary);
             border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+        }
+
+        .sub-card-benefit {
+            font-size: 0.85rem;
+            color: #10b981;
+            padding: 12px;
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 3px solid #10b981;
+            border-radius: 0 8px 8px 0;
             margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .sub-card-benefit strong {
+            color: #34d399;
         }
 
         .sub-card-actions {
@@ -3955,9 +3970,19 @@
             </div>
 
             <!-- Add Subscription Button -->
-            <button class="sub-add-btn" onclick="openAddSubscriptionModal()">
-                ➕ Add Subscription or License
-            </button>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px;">
+                <button class="sub-add-btn" onclick="openAddSubscriptionModal()">
+                    ➕ Add Subscription or License
+                </button>
+                <button class="sub-add-btn" style="background: linear-gradient(135deg, #10b981, #059669);"
+                    onclick="manualAIAnalysis()">
+                    🤖 AI Analysis
+                </button>
+                <button class="sub-add-btn" style="background: var(--bg-tertiary); padding: 12px 16px;"
+                    onclick="openAISettings()" title="Configure OpenRouter API Key">
+                    ⚙️
+                </button>
+            </div>
 
             <!-- Category Tabs -->
             <div class="sub-category-tabs" id="subCategoryTabs">
@@ -9580,70 +9605,258 @@
         // Subscription Catalog - Preloaded with 50+ common locksmith subscriptions
         const SUBSCRIPTION_CATALOG = {
             // Key Programmers
-            autel_tcp: { name: 'Autel TCP Subscription', vendor: 'Autel', cost: 895, billingCycle: 'annual', category: 'key_programmer', notes: 'Required for Toyota 8A-BA, Mercedes FBS3 server calculations. TCP = Total Care Program.' },
-            lonsdor_update: { name: 'Lonsdor K518 Update', vendor: 'Lonsdor', cost: 200, billingCycle: 'annual', category: 'key_programmer', notes: 'Optional. Toyota 8A-BA works OFFLINE with FP30 adapter.' },
-            xhorse_vvdi: { name: 'Xhorse VVDI Subscription', vendor: 'Xhorse', cost: 199, billingCycle: 'annual', category: 'key_programmer', notes: 'Required for VAG MQB/MQB48 and Mercedes token calculations.' },
-            obdstar_update: { name: 'OBDStar Annual Update', vendor: 'OBDStar', cost: 299, billingCycle: 'annual', category: 'key_programmer', notes: 'Nissan Blacklist detection and Toyota-30 cable support.' },
-            xtool_x100: { name: 'Xtool X100 PAD Update', vendor: 'Xtool', cost: 199, billingCycle: 'annual', category: 'key_programmer', notes: 'General key programming coverage.' },
-            advanced_diag: { name: 'Advanced Diagnostics MVP Pro', vendor: 'Advanced Diagnostics', cost: 400, billingCycle: 'annual', category: 'key_programmer', notes: 'Token-based calculations for Euro vehicles.' },
-            key_tool_max: { name: 'Xhorse Key Tool Max', vendor: 'Xhorse', cost: 150, billingCycle: 'annual', category: 'key_programmer', notes: 'Chip cloning and remote generation.' },
-            keydiy_kd: { name: 'KeyDIY KD-X2/KD-MAX', vendor: 'KeyDIY', cost: 99, billingCycle: 'annual', category: 'key_programmer', notes: 'Budget chip cloning and remote maker.' },
+            autel_tcp: {
+                name: 'Autel TCP Subscription', vendor: 'Autel', cost: 895, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Required for Toyota 8A-BA, Mercedes FBS3 server calculations. TCP = Total Care Program.',
+                benefit: 'Essential for high-profit Toyota 8A-BA jobs ($450-600 each). Also unlocks Mercedes FBS3 calculations worth $200-350 per key. ROI: 2-3 jobs pay for annual cost.'
+            },
+            lonsdor_update: {
+                name: 'Lonsdor K518 Update', vendor: 'Lonsdor', cost: 200, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Optional. Toyota 8A-BA works OFFLINE with FP30 adapter.',
+                benefit: 'Best value for Toyota 8A-BA if you have FP30 adapter - no server needed! Lower annual cost vs Autel TCP while covering same vehicles.'
+            },
+            xhorse_vvdi: {
+                name: 'Xhorse VVDI Subscription', vendor: 'Xhorse', cost: 199, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Required for VAG MQB/MQB48 and Mercedes token calculations.',
+                benefit: 'Dominates VAG market (VW, Audi, Porsche). MQB coverage opens lucrative $300-500 VW/Audi key jobs. Token calculations keep costs predictable.'
+            },
+            obdstar_update: {
+                name: 'OBDStar Annual Update', vendor: 'OBDStar', cost: 299, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Nissan Blacklist detection and Toyota-30 cable support.',
+                benefit: 'Only tool with Nissan Blacklist detection—essential for avoiding failed $300+ Altima/Rogue jobs. Toyota-30 cable unlocks older Toyota AKL.'
+            },
+            xtool_x100: {
+                name: 'Xtool X100 PAD Update', vendor: 'Xtool', cost: 199, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'General key programming coverage.',
+                benefit: 'Budget-friendly backup tool with broad domestic coverage. Great for vans, trucks, and older vehicles where premium tools are overkill.'
+            },
+            advanced_diag: {
+                name: 'Advanced Diagnostics MVP Pro', vendor: 'Advanced Diagnostics', cost: 400, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Token-based calculations for Euro vehicles.',
+                benefit: 'Gold standard for BMW, Mercedes, and Jaguar. Token model means you only pay when you work—good for shops with occasional Euro customers.'
+            },
+            key_tool_max: {
+                name: 'Xhorse Key Tool Max', vendor: 'Xhorse', cost: 150, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Chip cloning and remote generation.',
+                benefit: 'Generates super chips and universal remotes on-the-fly. Cloning capability means no server dependency—work anywhere, even without internet.'
+            },
+            keydiy_kd: {
+                name: 'KeyDIY KD-X2/KD-MAX', vendor: 'KeyDIY', cost: 99, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Budget chip cloning and remote maker.',
+                benefit: 'Lowest-cost chip cloner that actually works. Great for high-volume shops where per-remote cost matters. Easy to train employees on.'
+            },
 
             // Diagnostic Tools
-            autel_maxisys: { name: 'Autel MaxiSys Update', vendor: 'Autel', cost: 800, billingCycle: 'annual', category: 'diagnostic', notes: 'Comprehensive diagnostics with ADAS, coding, and DoIP support.' },
-            launch_x431: { name: 'Launch X431 Update', vendor: 'Launch', cost: 299, billingCycle: 'annual', category: 'diagnostic', notes: 'Wide vehicle coverage diagnostics.' },
-            topdon_phoenix: { name: 'TOPDON Phoenix Update', vendor: 'TOPDON', cost: 399, billingCycle: 'annual', category: 'diagnostic', notes: 'Affordable MaxiSys alternative.' },
-            thinkdiag: { name: 'ThinkDiag Pro', vendor: 'ThinkCar', cost: 99, billingCycle: 'annual', category: 'diagnostic', notes: 'Bluetooth OBD scanner with app-based diagnostics.' },
-            foxwell_gt90: { name: 'Foxwell GT90', vendor: 'Foxwell', cost: 199, billingCycle: 'annual', category: 'diagnostic', notes: 'Full system diagnostics.' },
-            autel_im508: { name: 'Autel IM508 Update', vendor: 'Autel', cost: 395, billingCycle: 'annual', category: 'key_programmer', notes: 'Entry-level IMMO programmer.' },
+            autel_maxisys: {
+                name: 'Autel MaxiSys Update', vendor: 'Autel', cost: 800, billingCycle: 'annual', category: 'diagnostic',
+                notes: 'Comprehensive diagnostics with ADAS, coding, and DoIP support.',
+                benefit: 'One tool for everything: diagnose check engine lights while doing keys. ADAS calibration opens new $200+ revenue per job. DoIP covers 2021+ vehicles.'
+            },
+            launch_x431: {
+                name: 'Launch X431 Update', vendor: 'Launch', cost: 299, billingCycle: 'annual', category: 'diagnostic',
+                notes: 'Wide vehicle coverage diagnostics.',
+                benefit: 'Excellent Asian vehicle coverage at half the Autel price. Great dedicated diagnostic tool if you have separate key programming equipment.'
+            },
+            topdon_phoenix: {
+                name: 'TOPDON Phoenix Update', vendor: 'TOPDON', cost: 399, billingCycle: 'annual', category: 'diagnostic',
+                notes: 'Affordable MaxiSys alternative.',
+                benefit: 'Same J2534 capabilities as MaxiSys for OEM programming pass-thru at lower cost. Good choice for new shops building their toolkit.'
+            },
+            thinkdiag: {
+                name: 'ThinkDiag Pro', vendor: 'ThinkCar', cost: 99, billingCycle: 'annual', category: 'diagnostic',
+                notes: 'Bluetooth OBD scanner with app-based diagnostics.',
+                benefit: 'Ultra-portable backup scanner. Keep in your van for quick diagnostic checks when main tool is at the shop. Great customer demo tool.'
+            },
+            foxwell_gt90: {
+                name: 'Foxwell GT90', vendor: 'Foxwell', cost: 199, billingCycle: 'annual', category: 'diagnostic',
+                notes: 'Full system diagnostics.',
+                benefit: 'Reliable mid-range scanner for European vehicles. Good for shops that specialize in BMW, Mercedes, or VW and need dedicated Euro coverage.'
+            },
+            autel_im508: {
+                name: 'Autel IM508 Update', vendor: 'Autel', cost: 395, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Entry-level IMMO programmer.',
+                benefit: 'Best entry point into professional IMMO programming. XP400 Pro unlocks read/write capabilities. TCP not included but add-key works for most jobs.'
+            },
 
             // OEM Dealer Access
-            toyota_techstream: { name: 'Toyota Techstream', vendor: 'Toyota', cost: 55, billingCycle: '2day', category: 'oem_dealer', notes: '$55 for 2-day access. Required for factory key add.' },
-            honda_hds: { name: 'Honda HDS', vendor: 'Honda', cost: 55, billingCycle: 'daily', category: 'oem_dealer', notes: 'OEM diagnostics and immobilizer reset.' },
-            ford_fdrs: { name: 'Ford FDRS', vendor: 'Ford', cost: 40, billingCycle: 'daily', category: 'oem_dealer', notes: 'Required for 2021+ AKL with CAN-FD.' },
-            fca_witech: { name: 'FCA WiTech 2.0', vendor: 'Stellantis', cost: 100, billingCycle: 'daily', category: 'oem_dealer', notes: 'Chrysler/Dodge/Jeep/Ram dealer diagnostics.' },
-            gm_gds2: { name: 'GM GDS2/Tech2Win', vendor: 'GM', cost: 50, billingCycle: 'daily', category: 'oem_dealer', notes: 'GM dealer diagnostics and programming.' },
-            nissan_consult: { name: 'Nissan Consult III+', vendor: 'Nissan', cost: 65, billingCycle: 'daily', category: 'oem_dealer', notes: 'Factory immobilizer programming.' },
-            bmw_ista: { name: 'BMW ISTA/D', vendor: 'BMW', cost: 100, billingCycle: 'daily', category: 'oem_dealer', notes: 'OEM coding and programming. Requires PassThru.' },
-            mb_xentry: { name: 'Mercedes Xentry', vendor: 'Mercedes-Benz', cost: 150, billingCycle: 'daily', category: 'oem_dealer', notes: 'Only option for FBS4 (2019+) vehicles.' },
-            vw_odis: { name: 'VW/Audi ODIS', vendor: 'VAG', cost: 100, billingCycle: 'daily', category: 'oem_dealer', notes: 'Required for online component protection.' },
-            subaru_ssmiv: { name: 'Subaru SSM IV', vendor: 'Subaru', cost: 65, billingCycle: 'daily', category: 'oem_dealer', notes: 'OEM immobilizer registration.' },
+            toyota_techstream: {
+                name: 'Toyota Techstream', vendor: 'Toyota', cost: 55, billingCycle: '2day', category: 'oem_dealer',
+                notes: '$55 for 2-day access. Required for factory key add.',
+                benefit: '100% success rate on Toyota key registration. Alternative to aftermarket when time is critical or customer wants OEM solution. Bill to customer.'
+            },
+            honda_hds: {
+                name: 'Honda HDS', vendor: 'Honda', cost: 55, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'OEM diagnostics and immobilizer reset.',
+                benefit: 'Resets immobilizer after ECU replacement. Required for some newer Honda/Acura models where aftermarket fails. Add $100 to job for access.'
+            },
+            ford_fdrs: {
+                name: 'Ford FDRS', vendor: 'Ford', cost: 40, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'Required for 2021+ AKL with CAN-FD.',
+                benefit: 'Only option for 2021+ Ford/Lincoln all-keys-lost. CAN-FD vehicles will NOT program with aftermarket until FDRS is used first. Essential for modern Ford.'
+            },
+            fca_witech: {
+                name: 'FCA WiTech 2.0', vendor: 'Stellantis', cost: 100, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'Chrysler/Dodge/Jeep/Ram dealer diagnostics.',
+                benefit: 'Bypass SGW security gateway on 2018+ Chrysler vehicles. AutoAuth integration makes it seamless. Required for most modern CDJR AKL jobs.'
+            },
+            gm_gds2: {
+                name: 'GM GDS2/Tech2Win', vendor: 'GM', cost: 50, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'GM dealer diagnostics and programming.',
+                benefit: 'Factory security reset for GM vehicles. Required for some 2019+ Silverado and Sierra AKL. Pass through for module programming.'
+            },
+            nissan_consult: {
+                name: 'Nissan Consult III+', vendor: 'Nissan', cost: 65, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'Factory immobilizer programming.',
+                benefit: 'Dealer-level key registration for when aftermarket gets blacklisted. Infiniti coverage included. Good fallback for difficult Altima jobs.'
+            },
+            bmw_ista: {
+                name: 'BMW ISTA/D', vendor: 'BMW', cost: 100, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'OEM coding and programming. Requires PassThru.',
+                benefit: 'Factory programming for BMW modules. Required for FEM/BDC key sync on newer models. Professional image with customers who want OEM.'
+            },
+            mb_xentry: {
+                name: 'Mercedes Xentry', vendor: 'Mercedes-Benz', cost: 150, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'Only option for FBS4 (2019+) vehicles.',
+                benefit: 'ONLY way to do 2019+ Mercedes. No aftermarket solution exists for FBS4. $500+ per key job easily covers daily access cost.'
+            },
+            vw_odis: {
+                name: 'VW/Audi ODIS', vendor: 'VAG', cost: 100, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'Required for online component protection.',
+                benefit: 'Component protection unlock for newer VAG. Some 2020+ Audi require ODIS for key learning. Dealer-level coding and adaptation.'
+            },
+            subaru_ssmiv: {
+                name: 'Subaru SSM IV', vendor: 'Subaru', cost: 65, billingCycle: 'daily', category: 'oem_dealer',
+                notes: 'OEM immobilizer registration.',
+                benefit: 'Factory key registration for Subaru. Great for mobile locksmiths in areas with many Subaru owners. Reliable alternative to aftermarket.'
+            },
 
             // Access Subscriptions
-            nastf: { name: 'NASTF Registration', vendor: 'NASTF', cost: 30, billingCycle: 'annual', category: 'access', notes: 'Required for OEM security access (SBCA, SGW bypass).' },
-            autoauth: { name: 'AutoAuth Access', vendor: 'AutoAuth', cost: 250, billingCycle: 'annual', category: 'access', notes: 'FCA SGW cloud unlock integration.' },
-            key_comm: { name: 'KEY-Comm', vendor: 'ALOA', cost: 150, billingCycle: 'annual', category: 'access', notes: 'Locksmith verification and key code lookup network.' },
-            autel_immo: { name: 'Autel MaxiIM Update', vendor: 'Autel', cost: 895, billingCycle: 'annual', category: 'key_programmer', notes: 'Same as TCP for IM608 series.' },
+            nastf: {
+                name: 'NASTF Registration', vendor: 'NASTF', cost: 30, billingCycle: 'annual', category: 'access',
+                notes: 'Required for OEM security access (SBCA, SGW bypass).',
+                benefit: 'Mandatory for OEM tool access! Only $30/year unlocks ability to buy Techstream, FDRS, WiTech subscriptions. No NASTF = no OEM tools.'
+            },
+            autoauth: {
+                name: 'AutoAuth Access', vendor: 'AutoAuth', cost: 250, billingCycle: 'annual', category: 'access',
+                notes: 'FCA SGW cloud unlock integration.',
+                benefit: 'One-click SGW bypass for all your tools (Autel, Launch, etc.). Works with WiTech too. Essential if you do any 2018+ CDJR vehicles.'
+            },
+            key_comm: {
+                name: 'KEY-Comm', vendor: 'ALOA', cost: 150, billingCycle: 'annual', category: 'access',
+                notes: 'Locksmith verification and key code lookup network.',
+                benefit: 'Access to key codes for thousands of vehicles. Locksmith verification improves credibility. Network to source rare key blanks and parts.'
+            },
+            autel_immo: {
+                name: 'Autel MaxiIM Update', vendor: 'Autel', cost: 895, billingCycle: 'annual', category: 'key_programmer',
+                notes: 'Same as TCP for IM608 series.',
+                benefit: 'Identical benefits to TCP—if you have IM608 instead of IM508+XP400, this is your subscription. Same server calculations, same coverage.'
+            },
 
             // Software
-            instacode: { name: 'Instacode', vendor: 'Instacode', cost: 199, billingCycle: 'annual', category: 'software', notes: 'Key code lookup and transponder reference database.' },
-            keypro: { name: 'Key-Pro', vendor: 'Key-Pro', cost: 249, billingCycle: 'annual', category: 'software', notes: 'Comprehensive key and remote database.' },
-            truecode: { name: 'True-Code', vendor: 'True Mileage', cost: 149, billingCycle: 'annual', category: 'software', notes: 'Vehicle key code lookup.' },
-            jetlock: { name: 'Jet Lock Tools', vendor: 'Jet Lock', cost: 99, billingCycle: 'annual', category: 'software', notes: 'Locksmith software suite.' },
-            keyless_api: { name: 'Keyless Entry API', vendor: 'Various', cost: 120, billingCycle: 'annual', category: 'software', notes: 'Remote frequency lookup API.' },
-            lishi_decoder: { name: 'Lishi Decoder App', vendor: 'Lishi', cost: 79, billingCycle: 'annual', category: 'software', notes: 'Digital Lishi picking reference.' },
+            instacode: {
+                name: 'Instacode', vendor: 'Instacode', cost: 199, billingCycle: 'annual', category: 'software',
+                notes: 'Key code lookup and transponder reference database.',
+                benefit: 'Industry-standard key code database. Look up cuts by VIN, decode existing keys, identify transponder types. Saves hours of research per week.'
+            },
+            keypro: {
+                name: 'Key-Pro', vendor: 'Key-Pro', cost: 249, billingCycle: 'annual', category: 'software',
+                notes: 'Comprehensive key and remote database.',
+                benefit: 'Combines key codes, transponder data, and remote programming in one app. Cross-references FCC IDs to OEM part numbers. Mobile-friendly.'
+            },
+            truecode: {
+                name: 'True-Code', vendor: 'True Mileage', cost: 149, billingCycle: 'annual', category: 'software',
+                notes: 'Vehicle key code lookup.',
+                benefit: 'Budget alternative to Instacode. Good domestic vehicle coverage. Includes some pin code data for older imports.'
+            },
+            jetlock: {
+                name: 'Jet Lock Tools', vendor: 'Jet Lock', cost: 99, billingCycle: 'annual', category: 'software',
+                notes: 'Locksmith software suite.',
+                benefit: 'All-in-one locksmith reference. Key blanks, transponders, remotes, and lock information. Great for training new technicians.'
+            },
+            keyless_api: {
+                name: 'Keyless Entry API', vendor: 'Various', cost: 120, billingCycle: 'annual', category: 'software',
+                notes: 'Remote frequency lookup API.',
+                benefit: 'Quick FCC ID lookups when customers call with remote questions. Helps quote jobs accurately without visiting vehicle first.'
+            },
+            lishi_decoder: {
+                name: 'Lishi Decoder App', vendor: 'Lishi', cost: 79, billingCycle: 'annual', category: 'software',
+                notes: 'Digital Lishi picking reference.',
+                benefit: 'Pocket reference for Lishi tool selection and decoding. No more fumbling with paper charts. Works offline in the field.'
+            },
 
             // Tokens (Per-Use)
-            xhorse_mb_tokens: { name: 'Xhorse MB Tokens', vendor: 'Xhorse', cost: 0, billingCycle: 'per_use', category: 'tokens', notes: '$5-20 per calculation. FBS3/FBS4 password.' },
-            autel_tokens: { name: 'Autel Calculation Tokens', vendor: 'Autel', cost: 0, billingCycle: 'per_use', category: 'tokens', notes: 'Included with TCP subscription.' },
-            lonsdor_jlr: { name: 'Lonsdor JLR License', vendor: 'Lonsdor', cost: 180, billingCycle: 'lifetime', category: 'tokens', notes: 'One-time purchase. JLR OBD with active alarm.' },
-            yanhua_tokens: { name: 'Yanhua ACDP Tokens', vendor: 'Yanhua', cost: 0, billingCycle: 'per_use', category: 'tokens', notes: 'Module-specific lifetime licenses.' },
+            xhorse_mb_tokens: {
+                name: 'Xhorse MB Tokens', vendor: 'Xhorse', cost: 0, billingCycle: 'per_use', category: 'tokens',
+                notes: '$5-20 per calculation. FBS3/FBS4 password.',
+                benefit: 'Pay only when you work Mercedes. No subscription waste. Buy tokens when you have a job lined up—predictable per-job cost.'
+            },
+            autel_tokens: {
+                name: 'Autel Calculation Tokens', vendor: 'Autel', cost: 0, billingCycle: 'per_use', category: 'tokens',
+                notes: 'Included with TCP subscription.',
+                benefit: 'Already included with TCP! No extra cost for server calculations. This is why TCP is valuable—unlimited calculations for flat $895/year.'
+            },
+            lonsdor_jlr: {
+                name: 'Lonsdor JLR License', vendor: 'Lonsdor', cost: 180, billingCycle: 'lifetime', category: 'tokens',
+                notes: 'One-time purchase. JLR OBD with active alarm.',
+                benefit: 'ONLY tool that does Jaguar/Land Rover OBD with active alarm (no key present). One-time purchase, no recurring cost. $400-600 per JLR job.'
+            },
+            yanhua_tokens: {
+                name: 'Yanhua ACDP Tokens', vendor: 'Yanhua', cost: 0, billingCycle: 'per_use', category: 'tokens',
+                notes: 'Module-specific lifetime licenses.',
+                benefit: 'Buy individual module licenses as you need them. BMW CAS3/CAS4, Mercedes EIS, JLR KVM. Only pay for what your market demands.'
+            },
 
             // Licenses & Certifications
-            locksmith_license: { name: 'Locksmith License (State)', vendor: 'State Government', cost: 0, billingCycle: 'annual', category: 'license', notes: 'Varies by state. Required in TX, CA, NC, etc.' },
-            contractor_bond: { name: 'Contractor Bond', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'license', notes: 'Required in some states for licensing.' },
-            aloa_cert: { name: 'ALOA Certification', vendor: 'ALOA', cost: 250, billingCycle: 'annual', category: 'license', notes: 'Associated Locksmiths of America membership.' },
-            cml_cert: { name: 'CML Certification', vendor: 'ALOA', cost: 195, billingCycle: 'annual', category: 'license', notes: 'Certified Master Locksmith designation.' },
-            savta_cert: { name: 'SAVTA Certification', vendor: 'SAVTA', cost: 150, billingCycle: 'annual', category: 'license', notes: 'Safe & Vault Technicians Association.' },
+            locksmith_license: {
+                name: 'Locksmith License (State)', vendor: 'State Government', cost: 0, billingCycle: 'annual', category: 'license',
+                notes: 'Varies by state. Required in TX, CA, NC, etc.',
+                benefit: 'Legal requirement in 15 states. Shows customers you are legitimate. Required for business insurance and NASTF registration.'
+            },
+            contractor_bond: {
+                name: 'Contractor Bond', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'license',
+                notes: 'Required in some states for licensing.',
+                benefit: 'Protects customers if you fail to complete work. Required for CA, TX, NV licenses. Typically $500-1000 for $10,000-25,000 bond.'
+            },
+            aloa_cert: {
+                name: 'ALOA Certification', vendor: 'ALOA', cost: 250, billingCycle: 'annual', category: 'license',
+                notes: 'Associated Locksmiths of America membership.',
+                benefit: 'Professional credibility and networking. Access to ALOA training and certification programs. Discounts on insurance and tools.'
+            },
+            cml_cert: {
+                name: 'CML Certification', vendor: 'ALOA', cost: 195, billingCycle: 'annual', category: 'license',
+                notes: 'Certified Master Locksmith designation.',
+                benefit: 'Highest ALOA certification. Demonstrates mastery to customers. Command premium pricing. Required for some commercial contracts.'
+            },
+            savta_cert: {
+                name: 'SAVTA Certification', vendor: 'SAVTA', cost: 150, billingCycle: 'annual', category: 'license',
+                notes: 'Safe & Vault Technicians Association.',
+                benefit: 'Essential if you service safes. Training and certification in safe opening. Access to safe manufacturer technical support.'
+            },
 
             // Insurance
-            liability_insurance: { name: 'General Liability Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Typically $500-2000/yr. Protects against claims.' },
-            eo_insurance: { name: 'E&O Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Errors & Omissions coverage for professionals.' },
-            auto_insurance: { name: 'Commercial Auto Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Coverage for service vehicles.' },
-            workers_comp: { name: 'Workers Compensation', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance', notes: 'Required if you have employees.' },
+            liability_insurance: {
+                name: 'General Liability Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance',
+                notes: 'Typically $500-2000/yr. Protects against claims.',
+                benefit: 'Protects if you damage customer property. Required by many commercial clients. Peace of mind on every $50,000 Mercedes job.'
+            },
+            eo_insurance: {
+                name: 'E&O Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance',
+                notes: 'Errors & Omissions coverage for professionals.',
+                benefit: 'Covers professional mistakes. Program wrong key? Customer claims you "messed up their car"? E&O has your back.'
+            },
+            auto_insurance: {
+                name: 'Commercial Auto Insurance', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance',
+                notes: 'Coverage for service vehicles.',
+                benefit: 'Personal auto policy WON\'T cover accidents during business use. Commercial policy protects your van and all your tools inside.'
+            },
+            workers_comp: {
+                name: 'Workers Compensation', vendor: 'Insurance Provider', cost: 0, billingCycle: 'annual', category: 'insurance',
+                notes: 'Required if you have employees.',
+                benefit: 'Legally required in most states if you have employees. Covers employee injuries on the job. Protects you from lawsuits.'
+            },
 
             // Custom placeholder
-            custom: { name: '', vendor: '', cost: 0, billingCycle: 'annual', category: 'other', notes: '' }
+            custom: { name: '', vendor: '', cost: 0, billingCycle: 'annual', category: 'other', notes: '', benefit: '' }
         };
 
         // SubscriptionManager Class
@@ -9760,6 +9973,8 @@
                 document.getElementById('subBillingCycle').value = item.billingCycle;
                 document.getElementById('subCategory').value = item.category;
                 document.getElementById('subNotes').value = item.notes || '';
+                // Store benefit for saving later
+                document.getElementById('subModalOverlay').dataset.catalogBenefit = item.benefit || '';
             }
         }
 
@@ -9770,6 +9985,9 @@
         }
 
         // Save subscription
+        // Debounce timer for AI analysis
+        let subscriptionAIAnalysisTimer = null;
+
         function saveSubscription() {
             const name = document.getElementById('subName').value.trim();
             const vendor = document.getElementById('subVendor').value.trim();
@@ -9780,6 +9998,9 @@
             const category = document.getElementById('subCategory').value;
             const notes = document.getElementById('subNotes').value.trim();
             const renewalUrl = document.getElementById('subRenewalUrl').value.trim();
+
+            // Get benefit from catalog selection if available
+            const catalogBenefit = document.getElementById('subModalOverlay').dataset.catalogBenefit || '';
 
             if (!name) {
                 alert('Please enter a subscription name.');
@@ -9795,8 +10016,11 @@
                 expirationDate,
                 category,
                 notes,
-                renewalUrl
+                renewalUrl,
+                benefit: catalogBenefit
             };
+
+            const isNewSubscription = !editingSubscriptionId;
 
             if (editingSubscriptionId) {
                 SubscriptionManager.update(editingSubscriptionId, subscription);
@@ -9806,9 +10030,217 @@
 
             closeSubscriptionModal();
             renderSubscriptionsDashboard();
+
+            // Clear the stored catalog benefit
+            delete document.getElementById('subModalOverlay').dataset.catalogBenefit;
+
+            // Trigger debounced AI analysis for new subscriptions (5-minute delay for bulk adds)
+            if (isNewSubscription) {
+                triggerDebouncedAIAnalysis();
+            }
         }
 
-        // Edit subscription
+        // Trigger AI analysis with 5-minute debounce for bulk subscription adds
+        function triggerDebouncedAIAnalysis() {
+            // Clear any existing timer
+            if (subscriptionAIAnalysisTimer) {
+                clearTimeout(subscriptionAIAnalysisTimer);
+            }
+
+            // Set new timer for 5 minutes (300000ms)
+            subscriptionAIAnalysisTimer = setTimeout(() => {
+                analyzeSubscriptionsWithAI();
+            }, 300000); // 5 minutes
+
+            console.log('📊 AI analysis scheduled for 5 minutes from now');
+        }
+
+        // Analyze subscriptions with OpenRouter AI
+        async function analyzeSubscriptionsWithAI() {
+            const subs = SubscriptionManager.getAll();
+            if (subs.length === 0) return;
+
+            // Check if user has OpenRouter API key configured
+            const apiKey = localStorage.getItem('eurokeys_openrouter_key');
+            if (!apiKey) {
+                console.log('🤖 AI analysis skipped - no OpenRouter API key configured');
+                return;
+            }
+
+            try {
+                const subscriptionSummary = subs.map(s => ({
+                    name: s.name,
+                    vendor: s.vendor,
+                    cost: s.cost,
+                    billingCycle: s.billingCycle,
+                    daysRemaining: SubscriptionManager.getDaysRemaining(s.expirationDate),
+                    status: SubscriptionManager.getStatus(s),
+                    category: s.category
+                }));
+
+                const prompt = `You are a locksmith business consultant analyzing subscription costs. Here are the current subscriptions:
+
+${JSON.stringify(subscriptionSummary, null, 2)}
+
+Provide a brief analysis (3-4 paragraphs max) covering:
+1. Total monthly burn rate and ROI opportunities
+2. Any overlapping subscriptions that could be consolidated
+3. Upcoming renewals requiring attention
+4. Recommendations for optimizing the toolkit
+
+Be specific about dollar amounts and which subscriptions to focus on.`;
+
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': 'https://eurokeys.app',
+                        'X-Title': 'Euro Keys Subscription Analyzer'
+                    },
+                    body: JSON.stringify({
+                        model: 'anthropic/claude-3-haiku',
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 500
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const analysis = data.choices?.[0]?.message?.content;
+
+                    if (analysis) {
+                        // Store the analysis
+                        localStorage.setItem('eurokeys_sub_analysis', JSON.stringify({
+                            timestamp: Date.now(),
+                            analysis: analysis
+                        }));
+                        console.log('🤖 AI subscription analysis complete');
+
+                        // Show notification if on subscriptions tab
+                        const subTab = document.getElementById('tabSubscriptions');
+                        if (subTab && subTab.style.display !== 'none') {
+                            showAIAnalysisResult(analysis);
+                        }
+                    }
+                } else {
+                    console.error('AI analysis failed:', response.status);
+                }
+            } catch (error) {
+                console.error('AI analysis error:', error);
+            }
+        }
+
+        // Display AI analysis result
+        function showAIAnalysisResult(analysis) {
+            const existingModal = document.getElementById('aiAnalysisModal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'aiAnalysisModal';
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                    <div style="background: var(--bg-secondary); border-radius: 16px; max-width: 600px; width: 90%; max-height: 80vh; overflow: auto; padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3 style="margin: 0; color: var(--brand-primary);">🤖 AI Subscription Analysis</h3>
+                            <button onclick="this.closest('#aiAnalysisModal').remove()" style="background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer;">&times;</button>
+                        </div>
+                        <div style="color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">${analysis}</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Weekly AI analysis check (runs on page load)
+        function checkWeeklyAIAnalysis() {
+            const lastAnalysis = localStorage.getItem('eurokeys_sub_analysis');
+            if (lastAnalysis) {
+                const { timestamp } = JSON.parse(lastAnalysis);
+                const weekInMs = 7 * 24 * 60 * 60 * 1000;
+
+                if (Date.now() - timestamp > weekInMs) {
+                    // More than a week since last analysis
+                    analyzeSubscriptionsWithAI();
+                }
+            } else if (SubscriptionManager.getAll().length > 0) {
+                // First time analysis if subscriptions exist
+                analyzeSubscriptionsWithAI();
+            }
+        }
+
+        // Manual AI analysis trigger
+        function manualAIAnalysis() {
+            const apiKey = localStorage.getItem('eurokeys_openrouter_key');
+            if (!apiKey) {
+                openAISettings();
+                return;
+            }
+
+            // Check for cached analysis
+            const cached = localStorage.getItem('eurokeys_sub_analysis');
+            if (cached) {
+                const { timestamp, analysis } = JSON.parse(cached);
+                const ageHours = Math.round((Date.now() - timestamp) / (1000 * 60 * 60));
+
+                if (confirm(`Last analysis was ${ageHours}h ago. Run a fresh analysis? (Cancel to view cached)`)) {
+                    analyzeSubscriptionsWithAI();
+                } else {
+                    showAIAnalysisResult(analysis);
+                }
+            } else {
+                analyzeSubscriptionsWithAI();
+            }
+        }
+
+        // Open AI settings modal
+        function openAISettings() {
+            const existingModal = document.getElementById('aiSettingsModal');
+            if (existingModal) existingModal.remove();
+
+            const currentKey = localStorage.getItem('eurokeys_openrouter_key') || '';
+            const maskedKey = currentKey ? '••••' + currentKey.slice(-8) : '';
+
+            const modal = document.createElement('div');
+            modal.id = 'aiSettingsModal';
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;" onclick="if(event.target===this)this.remove()">
+                    <div style="background: var(--bg-secondary); border-radius: 16px; max-width: 500px; width: 90%; padding: 24px;">
+                        <h3 style="margin: 0 0 16px 0; color: var(--brand-primary);">🤖 AI Analysis Settings</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                            Enter your <a href="https://openrouter.ai/keys" target="_blank" style="color: #10b981;">OpenRouter API key</a> to enable AI-powered subscription analysis.
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+                            The AI analyzes your subscriptions weekly and after bulk adds. It identifies cost savings, overlapping tools, and upcoming renewals.
+                        </p>
+                        <input type="password" id="aiApiKeyInput" placeholder="${maskedKey || 'Enter OpenRouter API key...'}" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); margin-bottom: 16px;">
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="saveAISettings()" style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--brand-primary); color: #000; font-weight: bold; cursor: pointer;">Save</button>
+                            <button onclick="this.closest('#aiSettingsModal').remove()" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: none; color: var(--text-primary); cursor: pointer;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Save AI settings
+        function saveAISettings() {
+            const input = document.getElementById('aiApiKeyInput');
+            const key = input.value.trim();
+
+            if (key && key.startsWith('sk-')) {
+                localStorage.setItem('eurokeys_openrouter_key', key);
+                document.getElementById('aiSettingsModal').remove();
+                alert('✅ API key saved! AI analysis is now enabled.');
+            } else if (key) {
+                alert('⚠️ Invalid key format. OpenRouter keys start with "sk-"');
+            } else {
+                // Keep existing key if input is empty
+                document.getElementById('aiSettingsModal').remove();
+            }
+        }
+
         function editSubscription(id) {
             const subs = SubscriptionManager.getAll();
             const sub = subs.find(s => s.id === id);
@@ -9917,6 +10349,7 @@
                     </div>
                     
                     ${sub.notes ? `<div class="sub-card-notes">${sub.notes}</div>` : ''}
+                    ${sub.benefit ? `<div class="sub-card-benefit">💡 <strong>Why:</strong> ${sub.benefit}</div>` : ''}
                     
                     <div class="sub-card-actions">
                         <button onclick="editSubscription('${sub.id}')">✏️ Edit</button>
