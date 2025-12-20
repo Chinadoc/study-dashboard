@@ -2668,9 +2668,14 @@
                         <div id="selectedMakeAvatar" class="text-avatar" style="display: none; margin: 0;"></div>
                         <div>
                             <h2 id="selectedMakeName" style="margin: 0; font-size: 1.5rem; line-height: 1.2;"></h2>
-                            <button onclick="resetBrowse()"
+                            <button onclick="showMakeDropdown()"
                                 style="background: none; border: none; padding: 0; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; text-decoration: underline;">Change
                                 Make</button>
+                            <!-- Quick Make Dropdown (inline) -->
+                            <select id="quickMakeDropdown" onchange="quickChangeMake(this.value)"
+                                style="display: none; margin-left: 10px; padding: 4px 8px; border-radius: 4px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border);">
+                                <option value="">Select Make...</option>
+                            </select>
                         </div>
                     </div>
                     <!-- Optional: Selected Year Badge -->
@@ -4026,11 +4031,54 @@
             document.getElementById('legacySearchCard').style.display = 'none';
             document.getElementById('results').innerHTML = '';
 
+            // Also hide and clear results
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) {
+                resultsSection.classList.remove('active');
+            }
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '';
+            }
+
+            // Hide quick dropdown if visible
+            const quickDropdown = document.getElementById('quickMakeDropdown');
+            if (quickDropdown) quickDropdown.style.display = 'none';
+
             // Reset selects
             document.getElementById('yearSelect').value = '';
             document.getElementById('makeSelect').value = '';
             document.getElementById('modelSelect').innerHTML = '<option value="">Select Model</option>';
             document.getElementById('modelSelect').disabled = true;
+        }
+
+        function showMakeDropdown() {
+            const dropdown = document.getElementById('quickMakeDropdown');
+            if (dropdown.style.display === 'none') {
+                // Populate with all makes
+                dropdown.innerHTML = '<option value="">Select Make...</option>';
+                POPULAR_MAKES.forEach(make => {
+                    dropdown.innerHTML += `<option value="${make}">${make}</option>`;
+                });
+                dropdown.style.display = 'inline-block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function quickChangeMake(make) {
+            if (!make) return;
+            const dropdown = document.getElementById('quickMakeDropdown');
+            dropdown.style.display = 'none';
+
+            // Clear old results
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.remove('active');
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (resultsContainer) resultsContainer.innerHTML = '';
+
+            // Change to the new make
+            selectVisualMake(make);
         }
 
         function handleOmniSearch(e) {
