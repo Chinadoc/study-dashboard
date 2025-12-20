@@ -3903,12 +3903,14 @@
 
             grid.innerHTML = POPULAR_MAKES.map(make => {
                 const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
-                const logoUrl = `https://logo.clearbit.com/${domain}?size=128`;
+                // Switch to Brandfetch for better coverage
+                const logoUrl = `https://cdn.brandfetch.io/${domain}?c=1idKM2-8-5&t=1699960098486`;
                 const initials = make.substring(0, 2).toUpperCase();
 
                 return `
                     <div class="make-card" onclick="selectVisualMake('${make}')">
                         <img src="${logoUrl}" alt="${make}" class="make-logo" 
+                             style="background: white; padding: 4px; border-radius: 50%;"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="text-avatar" style="display: none;">${initials}</div>
                         <span class="make-name">${make}</span>
@@ -3934,7 +3936,11 @@
 
             logoImg.style.display = 'block';
             logoAvatar.style.display = 'none';
-            logoImg.src = `https://logo.clearbit.com/${domain}?size=128`;
+            logoImg.style.background = 'white'; // Ensure contrast
+            logoImg.style.borderRadius = '50%';
+            logoImg.style.padding = '4px';
+
+            logoImg.src = `https://cdn.brandfetch.io/${domain}?c=1idKM2-8-5&t=1699960098486`;
             logoImg.onerror = function () {
                 this.style.display = 'none';
                 logoAvatar.style.display = 'flex';
@@ -3958,13 +3964,19 @@
             const currentYear = new Date().getFullYear() + 1;
             let html = '';
             for (let y = currentYear; y >= 2000; y--) {
-                html += `<button class="inventory-btn" style="padding: 10px 20px; font-weight: 600;" onclick="selectVisualYear(${y})">${y}</button>`;
+                html += `<button class="inventory-btn" style="padding: 10px 20px; font-weight: 600;" onclick="selectVisualYear('${y}')">${y}</button>`;
             }
             yearContainer.innerHTML = html;
         }
 
         function selectVisualYear(year) {
-            document.getElementById('yearSelect').value = year;
+            // Force Update legacy select
+            const yrSelect = document.getElementById('yearSelect');
+            // Ensure option exists (Fix for broken model loading)
+            if (![...yrSelect.options].some(o => o.value == year)) {
+                yrSelect.innerHTML += `<option value="${year}">${year}</option>`;
+            }
+            yrSelect.value = year;
 
             // UI Updates
             document.getElementById('yearChipsContainer').style.display = 'none';
@@ -3973,6 +3985,7 @@
             badge.style.display = 'block';
 
             // Load Models Visually
+            console.log("Visual Year Selected:", year, "Triggering loadModels...");
             loadModels();
         }
 
