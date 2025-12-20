@@ -4764,6 +4764,7 @@
 
         let googleAuth = null;
         let currentUser = null;
+        window.isAuthExpired = false; // Global lock to stop console spam on 401
 
         async function initGoogleAuth() {
             // Initialize visitor ID for anonymous tracking
@@ -4856,6 +4857,7 @@
                     const data = await verifyRes.json();
                     if (data.success && data.user) {
                         currentUser = data.user;
+                        window.isAuthExpired = false; // Reset lock on successful sign-in
                         localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
                         updateAuthUI(true);
                         // Check developer status again to show the tab if eligible
@@ -4898,6 +4900,7 @@
 
         // Check if current user is a developer by calling the server API
         async function checkDeveloperStatus() {
+            if (window.isAuthExpired) return;
             try {
                 const response = await fetch(`${API}/api/user`, { credentials: 'include' });
                 if (response.ok) {
@@ -4923,6 +4926,7 @@
                         if (devTab) devTab.style.display = 'none';
                     }
                 } else if (response.status === 401) {
+                    window.isAuthExpired = true;
                     currentUser = null;
                     localStorage.removeItem('eurokeys_user');
                     updateAuthUI(false);
@@ -5034,10 +5038,14 @@
 
         // Log user activity to the server (supports anonymous tracking)
         async function logActivity(action, details = null) {
+            if (window.isAuthExpired && ['sign_in', 'sign_in_popup'].indexOf(action) === -1) {
+                return; // Suppress noise if auth is dead
+            }
+
             try {
                 sessionData.interactions++;
                 const visitorId = getVisitorId();
-                await fetch(`${API}/api/activity/log`, {
+                const response = await fetch(`${API}/api/activity/log`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -5052,6 +5060,12 @@
                         user_email: currentUser?.email || null
                     })
                 });
+
+                if (response.status === 401) {
+                    window.isAuthExpired = true;
+                    localStorage.removeItem('eurokeys_user');
+                    updateAuthUI(false);
+                }
             } catch (e) {
                 // Silently fail for analytics
             }
@@ -5212,6 +5226,7 @@
                 ]);
 
                 if (statsRes.status === 401 || userRes.status === 401 || activityRes.status === 401) {
+                    window.isAuthExpired = true; // Stop background noise
                     throw new Error("SESSION_EXPIRED");
                 }
                 if (statsRes.status === 403 || userRes.status === 403 || activityRes.status === 403) {
@@ -6426,7 +6441,7 @@
             // Fetch insight asynchronously
             setTimeout(async () => {
                 const card = document.getElementById(insightContainerId);
-                if (!card) return;
+                if (!card || window.isAuthExpired) return;
                 try {
                     const res = await fetch(`${API}/api/insights`);
                     const data = await res.json();
@@ -7657,6 +7672,7 @@
 
         const AuthManager = {
             async init() {
+                if (window.isAuthExpired) return;
                 try {
                     const res = await fetch(`${API}/api/user`);
                     if (res.ok) {
@@ -7715,6 +7731,7 @@
             },
 
             async syncToCloud() {
+                if (window.isAuthExpired) return; // Don't sync if unauthorized
                 if (!currentUser) return;
 
                 const inventory = {
@@ -7724,13 +7741,16 @@
                 const logs = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
 
                 try {
-                    await fetch(`${API}/api/sync`, {
+                    const res = await fetch(`${API}/api/sync`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ inventory, logs })
                     });
                     console.log('☁️ Data synced to cloud');
                 } catch (e) {
+                    if (e.message.includes('401') || (e.status === 401)) {
+                        window.isAuthExpired = true;
+                    }
                     console.error('Sync failed', e);
                 }
             }

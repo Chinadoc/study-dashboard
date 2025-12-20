@@ -43,9 +43,19 @@ self.addEventListener('fetch', (event) => {
     // Skip non-HTTP(S) requests
     if (!url.protocol.startsWith('http')) return;
 
+    // Sensitive APIs: NEVER cache /api/user, /api/auth, or /api/admin
+    const isSensitiveApi = url.pathname.includes('/api/user') ||
+        url.pathname.includes('/api/auth/') ||
+        url.pathname.includes('/api/admin/');
+
     // Main Page & API: Network-first
     const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
     const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
+
+    if (isSensitiveApi) {
+        event.respondWith(fetch(request)); // Pure network, no cache
+        return;
+    }
 
     if (isMainPage || isApi) {
         event.respondWith(
