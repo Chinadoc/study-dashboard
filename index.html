@@ -1327,6 +1327,67 @@
             box-shadow: none;
             opacity: 0.7;
         }
+
+        /* User Menu Dropdown */
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            min-width: 200px;
+            z-index: 2000;
+            display: none;
+            overflow: hidden;
+            animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .user-dropdown-item {
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .user-dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .user-dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 4px 0;
+        }
+
+        .user-dropdown-item.logout {
+            color: #f87171;
+        }
+
+        .user-dropdown-item.logout:hover {
+            background: rgba(248, 113, 113, 0.1);
+        }
     </style>
     <script>
         window.onerror = function (msg, url, line, col, error) {
@@ -2258,7 +2319,7 @@
             </div>
 
             <!-- User menu shows when signed in -->
-            <div id="userMenu" class="user-menu" style="display: none; align-items: center; gap: 12px;">
+            <div id="userMenu" style="display: none; align-items: center; gap: 12px;">
                 <button id="headerUpgradeBtn" onclick="startStripeCheckout()" style="
                     background: linear-gradient(135deg, #fbbf24, #f59e0b);
                     border: none;
@@ -2275,8 +2336,35 @@
                 ">
                     <span style="font-size: 1rem;">👑</span> Upgrade
                 </button>
-                <span class="user-name" id="userName" style="font-weight: 600; color: var(--text-primary);"></span>
-                <div class="header-avatar" id="userAvatar" onclick="signOut()" style="cursor: pointer;"></div>
+                <div class="user-menu-container">
+                    <span class="user-name" id="userName"
+                        style="font-weight: 600; color: var(--text-primary); cursor: pointer;"
+                        onclick="toggleUserMenu()"></span>
+                    <div class="header-avatar" id="userAvatar" onclick="toggleUserMenu()" style="cursor: pointer;">
+                    </div>
+
+                    <div id="userDropdown" class="user-dropdown">
+                        <div style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <div id="dropdownUserName"
+                                style="font-weight: 700; color: var(--text-primary); font-size: 0.85rem;">User</div>
+                            <div id="dropdownUserEmail"
+                                style="font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis;">
+                                email@example.com</div>
+                        </div>
+                        <button class="user-dropdown-item" onclick="showTab('inventory')">
+                            <span>📦</span> My Inventory
+                        </button>
+                        <div id="devMenuOption" style="display: none;">
+                            <button class="user-dropdown-item" onclick="showTab('dev')">
+                                <span>🛠️</span> Dev Panel
+                            </button>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <button class="user-dropdown-item logout" onclick="signOut()">
+                            <span>🚪</span> Sign Out
+                        </button>
+                    </div>
+                </div>
             </div>
             <!-- Google Sign In button shows when signed out -->
             <button id="googleSignInBtn" class="google-signin-btn" onclick="signInWithGoogle()">
@@ -2742,6 +2830,19 @@
                 <h1>🛠️ Developer <span>Panel</span></h1>
             </div>
             <p class="page-subtitle">User analytics and activity tracking dashboard.</p>
+
+            <!-- Global Error Banner (Hidden by default) -->
+            <div id="devGlobalError"
+                style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 16px; margin-top: 24px; align-items: center; gap: 12px; color: #f87171;">
+                <span style="font-size: 1.2rem;">⚠️</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 0.9rem;">Data Stream Interrupted</div>
+                    <div id="devGlobalErrorMsg" style="font-size: 0.8rem; opacity: 0.9;">Unable to reach the analytics
+                        engine. Please ensure you are logged in.</div>
+                </div>
+                <button onclick="loadDevPanel()"
+                    style="background: rgba(239, 68, 68, 0.2); border: none; color: white; padding: 6px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Retry</button>
+            </div>
 
             <!-- High-Impact KPIs (1 Million Dollar Business Analytics) -->
             <div id="devKpis"
@@ -4851,7 +4952,8 @@
                     const verifyRes = await fetch(`${API}/api/auth/verify`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ credential: response.credential })
+                        body: JSON.stringify({ credential: response.credential }),
+                        credentials: 'include' // CRITICAL: Securely set HttpOnly session cookie
                     });
 
                     const data = await verifyRes.json();
@@ -4938,17 +5040,42 @@
             }
         }
 
+        // Toggle User Menu Dropdown
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', (e) => {
+            const container = document.querySelector('.user-menu-container');
+            const dropdown = document.getElementById('userDropdown');
+            if (container && !container.contains(e.target) && dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        });
+
         // Update the UI based on auth state
         function updateAuthUI(isSignedIn) {
             const signInBtn = document.getElementById('googleSignInBtn');
             const userMenu = document.getElementById('userMenu');
             const userName = document.getElementById('userName');
             const userAvatar = document.getElementById('userAvatar');
+            const dName = document.getElementById('dropdownUserName');
+            const dEmail = document.getElementById('dropdownUserEmail');
+            const dDevOption = document.getElementById('devMenuOption');
 
             if (isSignedIn && currentUser) {
                 signInBtn.style.display = 'none';
                 userMenu.style.display = 'flex';
                 userName.textContent = currentUser.name.split(' ')[0]; // First name only
+
+                // Update Dropdown Details
+                if (dName) dName.textContent = currentUser.name;
+                if (dEmail) dEmail.textContent = currentUser.email;
+                if (dDevOption) dDevOption.style.display = currentUser.is_developer ? 'block' : 'none';
 
                 // Show initials or profile picture
                 if (currentUser.picture) {
@@ -5217,6 +5344,10 @@
         }
 
         async function loadDevPanel() {
+            // Reset error states
+            const errorBanner = document.getElementById('devGlobalError');
+            if (errorBanner) errorBanner.style.display = 'none';
+
             try {
                 // Fetch stats, users, and activity
                 const [statsRes, userRes, activityRes] = await Promise.all([
@@ -5235,6 +5366,8 @@
                 if (!statsRes.ok || !userRes.ok || !activityRes.ok) {
                     throw new Error(`Server error (${statsRes.status})`);
                 }
+
+                // ... [Existing processing logic remains same] ...
 
                 const statsData = await statsRes.json();
                 const userData = await userRes.json();
@@ -5903,6 +6036,11 @@
             }
             if (minusBtn) minusBtn.disabled = stock === 0;
             if (usedBtn) usedBtn.disabled = stock === 0;
+
+            // Also update the note display if present
+            if (typeof updateJobNoteDisplay === 'function') {
+                updateJobNoteDisplay(itemKey, type);
+            }
         }
 
         function inventoryAdd(itemKey, type = 'key', vehicle = null, amazonLink = null) {
@@ -6210,43 +6348,80 @@
 
             // Key fob/remote inventory
             if (keyIdentifier) {
+                const lastNote = getLastComment(keyIdentifier);
                 html += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">🔐 Key Fob:</span>
-                            <span id="inv-badge-${CSS.escape(keyIdentifier)}" class="inventory-badge ${keyStock > 0 ? 'in-stock' : 'out-of-stock'}">
-                                ${keyStock > 0 ? `📦 ${keyStock}` : '⚠️ 0'}
-                            </span>
-                            <div class="inventory-controls">
-                                <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key')" id="inv-minus-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>−</button>
-                                <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key', '${escapedVehicle}', '${escapedKeyAmazon}')">+</button>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">🔐 Key Fob:</span>
+                                <span id="inv-badge-${CSS.escape(keyIdentifier)}" class="inventory-badge ${keyStock > 0 ? 'in-stock' : 'out-of-stock'}">
+                                    ${keyStock > 0 ? `📦 ${keyStock}` : '⚠️ 0'}
+                                </span>
+                                <div class="inventory-controls">
+                                    <button class="inventory-btn" onclick="inventoryMinus('${escapedKey}', 'key')" id="inv-minus-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>−</button>
+                                    <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key', '${escapedVehicle}', '${escapedKeyAmazon}')">+</button>
+                                </div>
                             </div>
+                            <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key', '${escapedVehicle}', '${escapedKeyAmazon}')" id="inv-used-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>✓ Log Job</button>
                         </div>
-                        <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key', '${escapedVehicle}', '${escapedKeyAmazon}')" id="inv-used-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>✓ Log Job</button>
+                        <div id="inv-note-key-${CSS.escape(keyIdentifier)}" style="${lastNote ? 'display: block' : 'display: none'}; background: rgba(255, 255, 255, 0.05); border-left: 3px solid var(--brand-primary); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+                             ${lastNote ? `<div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;">Last Job Note:</div>"${lastNote}"` : ''}
+                        </div>
                     </div>
                 `;
             }
 
             // Key blank inventory
             if (blankKeyway && blankKeyway !== 'N/A') {
+                const lastNote = getLastComment(blankKeyway);
                 html += `
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">🔑 Blank (${blankKeyway}):</span>
-                            <span id="blank-badge-${CSS.escape(blankKeyway)}" class="inventory-badge ${blankStock > 0 ? 'in-stock' : 'out-of-stock'}">
-                                ${blankStock > 0 ? `🔑 ${blankStock}` : '⚠️ 0'}
-                            </span>
-                            <div class="inventory-controls">
-                                <button class="inventory-btn" onclick="inventoryMinus('${escapedBlank}', 'blank')" id="blank-minus-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>−</button>
-                                <button class="inventory-btn" onclick="inventoryAdd('${escapedBlank}', 'blank', '${escapedVehicle}', '${escapedBlankAmazon}')">+</button>
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">🔑 Blank (${blankKeyway}):</span>
+                                <span id="blank-badge-${CSS.escape(blankKeyway)}" class="inventory-badge ${blankStock > 0 ? 'in-stock' : 'out-of-stock'}">
+                                    ${blankStock > 0 ? `🔑 ${blankStock}` : '⚠️ 0'}
+                                </span>
+                                <div class="inventory-controls">
+                                    <button class="inventory-btn" onclick="inventoryMinus('${escapedBlank}', 'blank')" id="blank-minus-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>−</button>
+                                    <button class="inventory-btn" onclick="inventoryAdd('${escapedBlank}', 'blank', '${escapedVehicle}', '${escapedBlankAmazon}')">+</button>
+                                </div>
                             </div>
+                            <button class="btn-log-job" onclick="openJobLogModal('${escapedBlank}', 'blank', '${escapedVehicle}', '${escapedBlankAmazon}')" id="blank-used-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>✓ Log Job</button>
                         </div>
-                        <button class="btn-log-job" onclick="openJobLogModal('${escapedBlank}', 'blank', '${escapedVehicle}', '${escapedBlankAmazon}')" id="blank-used-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>✓ Log Job</button>
+                        <div id="inv-note-blank-${CSS.escape(blankKeyway)}" style="${lastNote ? 'display: block' : 'display: none'}; background: rgba(255, 255, 255, 0.05); border-left: 3px solid var(--brand-primary); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px;">
+                            ${lastNote ? `<div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;">Last Job Note:</div>"${lastNote}"` : ''}
+                        </div>
                     </div>
                 `;
             }
 
             return html ? `<div style="padding-top: 8px; border-top: 1px solid var(--border);">${html}</div>` : '';
+        }
+
+        // Helper to get last comment from localStorage
+        function getLastComment(itemKey) {
+            try {
+                const logs = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
+                const itemLogs = logs.filter(l => l.itemKey === itemKey && l.notes && l.notes.trim().length > 0);
+                itemLogs.sort((a, b) => b.timestamp - a.timestamp);
+                return itemLogs.length > 0 ? itemLogs[0].notes : null;
+            } catch (e) { return null; }
+        }
+
+        // Update Job Note Display directly
+        function updateJobNoteDisplay(itemKey, type) {
+            const noteEl = document.getElementById(`inv-note-${type}-${CSS.escape(itemKey)}`);
+            if (noteEl) {
+                const lastNote = getLastComment(itemKey);
+                if (lastNote) {
+                    noteEl.innerHTML = `<div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;">Last Job Note:</div>"${lastNote}"`;
+                    noteEl.style.display = 'block';
+                } else {
+                    noteEl.style.display = 'none';
+                    noteEl.innerHTML = '';
+                }
+            }
         }
 
         // Generate inventory control HTML for an item (legacy for FCC modal)
