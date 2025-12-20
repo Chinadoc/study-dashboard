@@ -1558,14 +1558,89 @@
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
+        /* Fallback Text Avatar */
+        .text-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            color: var(--text-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+
         .make-name {
             font-size: 0.9rem;
             font-weight: 600;
             color: var(--text-muted);
+            text-align: center;
         }
 
         .make-card:hover .make-name {
             color: var(--text-primary);
+        }
+
+        /* Model Chip Grid */
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .model-chip {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .model-chip:hover {
+            border-color: var(--brand-primary);
+            background: rgba(251, 191, 36, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .make-grid {
+                grid-template-columns: repeat(3, 1fr);
+                /* Force 3 columns on mobile */
+                gap: 10px;
+            }
+
+            .make-card {
+                padding: 10px;
+            }
+
+            .make-logo,
+            .text-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .make-name {
+                font-size: 0.8rem;
+            }
+
+            .model-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .bg-navy-800 {
@@ -2581,49 +2656,65 @@
             </div>
         </div>
 
-        <!-- Legacy Selectors (Hidden by default, shown after make selection or for drill down) -->
+        <!-- Drill Down / Selection Card -->
         <div class="card" id="legacySearchCard" style="display: none; max-width: 800px; margin: 0 auto;">
-            <div class="card-header">
-                <h2><i class="fas fa-filter"></i> Select Vehicle Details</h2>
-            </div>
-            <!-- Make/Model info displayed here when selected via grid -->
-            <div id="selectedVehicleDisplay" style="text-align: center; margin-bottom: 20px; display: none;">
-                <img id="selectedMakeLogo" src=""
-                    style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 10px;">
-                <h2 id="selectedMakeName" style="color: var(--brand-primary);"></h2>
-                <button onclick="resetBrowse()"
-                    style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 6px; cursor: pointer; margin-top: 5px;">Change
-                    Make</button>
+
+            <!-- Compact Header -->
+            <div id="selectedVehicleDisplay"
+                style="display: none; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img id="selectedMakeLogo" src="" style="width: 48px; height: 48px; object-fit: contain;">
+                        <div id="selectedMakeAvatar" class="text-avatar" style="display: none; margin: 0;"></div>
+                        <div>
+                            <h2 id="selectedMakeName" style="margin: 0; font-size: 1.5rem; line-height: 1.2;"></h2>
+                            <button onclick="resetBrowse()"
+                                style="background: none; border: none; padding: 0; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; text-decoration: underline;">Change
+                                Make</button>
+                        </div>
+                    </div>
+                    <!-- Optional: Selected Year Badge -->
+                    <div id="selectedYearBadge"
+                        style="display: none; background: var(--bg-tertiary); padding: 4px 12px; border-radius: 20px; font-weight: 700; color: var(--brand-primary); border: 1px solid var(--border);">
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group-row">
+            <!-- Step 2: Select Year -->
+            <div id="yearChipsContainer" style="display: none;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-secondary);">Select Year</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="yearChips"></div>
+            </div>
+
+            <!-- Step 3: Select Model (Visual) -->
+            <div id="modelChipsContainer" style="display: none; margin-top: 24px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-secondary);">Select Model</h3>
+                <div class="model-grid" id="modelChips"></div>
+                <div id="modelLoading"
+                    style="display: none; color: var(--text-muted); padding: 20px; text-align: center;">Loading
+                    models...</div>
+            </div>
+
+            <!-- Legacy Form (Hidden state holder) -->
+            <div class="form-group-row" style="display: none;">
                 <div class="form-group">
                     <label>YEAR</label>
                     <select id="yearSelect" onchange="loadMakes()">
                         <option value="">Select Year</option>
                     </select>
                 </div>
-                <!-- Make Select is hidden in visual flow, but kept for logic compatibility or fallback -->
-                <div class="form-group" style="display: none;">
+                <div class="form-group">
                     <label>MAKE</label>
                     <select id="makeSelect" onchange="loadModels()">
                         <option value="">Select Make</option>
                     </select>
                 </div>
-                <div class="form-group" style="flex: 2;">
+                <div class="form-group">
                     <label>MODEL</label>
                     <select id="modelSelect" disabled onchange="searchDatabase()">
                         <option value="">Select Model</option>
                     </select>
                 </div>
-            </div>
-            <button class="btn btn-primary" onclick="searchDatabase()"
-                style="width: 100%; margin-top: 10px; display: none;">Search Database 🔍</button>
-
-            <!-- Quick Year Chips for Visual Flow -->
-            <div id="yearChipsContainer" style="display: none; margin-top: 20px;">
-                <label style="display: block; margin-bottom: 10px; color: var(--text-muted);">SELECT YEAR</label>
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="yearChips"></div>
             </div>
         </div>
 
@@ -3813,10 +3904,13 @@
             grid.innerHTML = POPULAR_MAKES.map(make => {
                 const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
                 const logoUrl = `https://logo.clearbit.com/${domain}?size=128`;
+                const initials = make.substring(0, 2).toUpperCase();
 
                 return `
                     <div class="make-card" onclick="selectVisualMake('${make}')">
-                        <img src="${logoUrl}" alt="${make}" class="make-logo" onerror="this.src='/assets/euro_keys_logo.png'; this.style.opacity='0.5';">
+                        <img src="${logoUrl}" alt="${make}" class="make-logo" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="text-avatar" style="display: none;">${initials}</div>
                         <span class="make-name">${make}</span>
                     </div>
                 `;
@@ -3832,56 +3926,72 @@
             // Set Selected Make UI
             document.getElementById('selectedVehicleDisplay').style.display = 'block';
             document.getElementById('selectedMakeName').textContent = make;
-            const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
-            document.getElementById('selectedMakeLogo').src = `https://logo.clearbit.com/${domain}?size=128`;
 
-            // Set legacy select value for compatibility
+            // Handle Logo & Fallback for Header
+            const domain = MAKE_DOMAINS[make] || `${make.toLowerCase().replace(/\s/g, '')}.com`;
+            const logoImg = document.getElementById('selectedMakeLogo');
+            const logoAvatar = document.getElementById('selectedMakeAvatar');
+
+            logoImg.style.display = 'block';
+            logoAvatar.style.display = 'none';
+            logoImg.src = `https://logo.clearbit.com/${domain}?size=128`;
+            logoImg.onerror = function () {
+                this.style.display = 'none';
+                logoAvatar.style.display = 'flex';
+                logoAvatar.textContent = make.substring(0, 2).toUpperCase();
+            };
+
+            // Set legacy select value
             const mkSelect = document.getElementById('makeSelect');
-            // Ensure option exists
             if (![...mkSelect.options].some(o => o.value === make)) {
                 mkSelect.innerHTML += `<option value="${make}">${make}</option>`;
             }
             mkSelect.value = make;
 
-            // Trigger Model Load
-            // For visual flow, we pre-fill a default year to get models if needed, 
-            // OR we fetch models for "all years" if API supports it.
-            // Current API requires Year. Let's auto-select most recent valid year as a pivot?
-            // Better: Show Year selection FIRST for drill down, or change flow to Make -> Model -> Year.
-            // Implementation Plan said: Make -> Model -> Year.
-
-            // To support Make -> Model without year, we need an API change or iterative search.
-            // For now, let's stick to the existing Year -> Make -> Model logical constraint 
-            // BUT flip the UI order: User picked Make. Now pick Model.
-            // We can fetch models for a recent year (e.g. 2024) to populate the list?
-            // Actually, the current `loadModels` relies on `loadMakes` having run for a specific year.
-
-            // ADJUSTED FLOW:
-            // User picked Make. We need them to pick a Year first to be accurate (models change by year).
-            // So, show Year Chips.
-
+            // Reset Drill Down State
             document.getElementById('yearChipsContainer').style.display = 'block';
-            // Render Chips
+            document.getElementById('modelChipsContainer').style.display = 'none';
+            document.getElementById('selectedYearBadge').style.display = 'none';
+
+            // Render Year Chips
             const yearContainer = document.getElementById('yearChips');
             const currentYear = new Date().getFullYear() + 1;
             let html = '';
             for (let y = currentYear; y >= 2000; y--) {
-                html += `<button class="inventory-btn" style="padding: 8px 16px; width: auto;" onclick="selectVisualYear(${y})">${y}</button>`;
+                html += `<button class="inventory-btn" style="padding: 10px 20px; font-weight: 600;" onclick="selectVisualYear(${y})">${y}</button>`;
             }
             yearContainer.innerHTML = html;
         }
 
         function selectVisualYear(year) {
             document.getElementById('yearSelect').value = year;
-            document.getElementById('yearChipsContainer').style.display = 'none'; // Hide chips after selection
 
-            // Now load models for this Make + Year
+            // UI Updates
+            document.getElementById('yearChipsContainer').style.display = 'none';
+            const badge = document.getElementById('selectedYearBadge');
+            badge.textContent = year;
+            badge.style.display = 'block';
+
+            // Load Models Visually
             loadModels();
+        }
+
+        function selectVisualModel(model) {
+            // Update legacy select (create option if needed)
+            const modelSelect = document.getElementById('modelSelect');
+            if (![...modelSelect.options].some(o => o.value === model)) {
+                modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+            }
+            modelSelect.value = model;
+            modelSelect.disabled = false;
+
+            // Trigger Search
+            searchDatabase();
         }
 
         function resetBrowse() {
             document.querySelector('.hero-section').style.display = 'block';
-            document.getElementById('visualMakeSelector').style.display = 'block'; // Or block? Check template. Make grid wrapper has padding.
+            document.getElementById('visualMakeSelector').style.display = 'block';
             document.getElementById('legacySearchCard').style.display = 'none';
             document.getElementById('results').innerHTML = '';
 
@@ -3893,16 +4003,9 @@
         }
 
         function handleOmniSearch(e) {
+            // Existing Logic...
             if (e.key === 'Enter') {
                 const query = e.target.value.trim();
-                // If it looks like a VIN, do VIN lookup
-                if (query.match(/^[A-HJ-NPR-Z0-9]{17}$/i)) {
-                    // Switch tab? Or handle here?
-                    // Let's forward to VIN tab for now, or implement a quick lookup.
-                    // Implementation plan said "jump straight to results".
-                    // For now, simple text match on Grid
-                }
-
                 // Filter Grid
                 const cards = document.querySelectorAll('.make-card');
                 cards.forEach(card => {
@@ -3916,7 +4019,7 @@
             }
         }
 
-        // ================== EXISTING LOGIC ==================
+        // ================== EXISTING LOGIC MODIFIED ==================
 
         function populateYears() {
             const select = document.getElementById('yearSelect');
@@ -3936,6 +4039,7 @@
                 return;
             }
             // ... (keep existing logic for fetching makes as fallback)
+            // We keep this for compatibility but it's not primary flow anymore
             select.innerHTML = '<option value="">Loading...</option>';
             try {
                 const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
@@ -6286,10 +6390,10 @@
                 type: "Programmer",
                 price: 1200,
                 capabilities: [
-                    { make: "Toyota", years: "2019-2024", note: "Best for New Smart Keys (0410/BA)" },
-                    { make: "Volvo", years: "2010-2022", note: "Solder-free Smart Key" },
-                    { make: "Land Rover", years: "2015-2023", note: "JLR OBD Programming" },
-                    { make: "Nissan", years: "2019-2023", note: "New Sentra/Versa Rolling Code" }
+                    { make: "Toyota", years: "2019-2025", note: "Best for New Smart Keys (0410/BA) - No PIN" },
+                    { make: "Volvo", years: "2010-2023", note: "Solder-free Smart Key (SPA Platform Bypass)" },
+                    { make: "Land Rover", years: "2015-2024", note: "JLR OBD Active Alarm Bypass" },
+                    { make: "Nissan", years: "2019-2025", note: "B18/T33 Gateway Bypass (Sentra/Rogue)" }
                 ]
             },
             "Xhorse Key Tool Max": {
@@ -6298,8 +6402,9 @@
                 price: 450,
                 capabilities: [
                     { make: "Toyota", years: "2018-2024", note: "8A Smart Key (with adapter)" },
-                    { make: "Volkswagen", years: "2000-2015", note: "MQB (Limited), ID48 Cloning" },
-                    { make: "Honda", years: "2000-2020", note: "General OBD" },
+                    { make: "Volkswagen", years: "2000-2025", note: "MQB & MQB48 (Golf/Passat)" },
+                    { make: "Mercedes", years: "2005-2025", note: "FBS3/FBS4 Key Calculation" },
+                    { make: "BMW", years: "2010-2025", note: "CAS4/FEM/BDC Learning" },
                     { make: "Universal", years: "All", note: "Chip Generation & Cloning" }
                 ]
             },
@@ -6336,6 +6441,10 @@
         };
 
         const ToolCoverageManager = {
+            getDeepSearchData() {
+                return typeof TOOL_COVERAGE_DATA !== 'undefined' ? TOOL_COVERAGE_DATA : null;
+            },
+
             getAllTools() {
                 return Object.values(ToolLibrary);
             },
@@ -8200,12 +8309,7 @@
                 const isSimulated = simulatedTool === tool.name;
 
                 return `
-                                    <div style="
-                                        padding: 12px; border-radius: 8px; border: 1px solid ${isOwned ? '#22c55e' : (isSimulated ? '#60a5fa' : 'var(--border)')};
-                                        background: ${isOwned ? 'rgba(34, 197, 94, 0.1)' : (isSimulated ? 'rgba(96, 165, 250, 0.1)' : 'rgba(255,255,255,0.02)')};
-                                        cursor: ${isOwned ? 'default' : 'pointer'};
-                                        transition: all 0.2s;
-                                    " onclick="${isOwned ? '' : `simulateTool('${tool.name}')`}">
+                                    <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: left; position: relative; overflow: hidden;" onclick="${isOwned ? '' : `simulateTool('${tool.name}')`}">
                                         <div style="display: flex; justify-content: space-between; align-items: start;">
                                             <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">${tool.name}</span>
                                             ${isOwned
@@ -8221,23 +8325,19 @@
                                     </div>
                                 `;
             }).join('')}
-                            
-                            ${simulatedTool ? `
-                                <button onclick="simulateTool(null)" style="margin-top: 12px; width: 100%; padding: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); border-radius: 6px; cursor: pointer;">
-                                    Clear Simulation
-                                </button>
-                            ` : ''}
+                        </div>
+                        <div style="margin-top: 12px; font-size: 0.85rem; color: var(--text-muted);">
+                            <span style="display: inline-block; width: 12px; height: 12px; background: #22c55e; border-radius: 2px; margin-right: 6px;"></span> Owned Coverage
+                            <span style="display: inline-block; width: 12px; height: 12px; background: #60a5fa; border-radius: 2px; margin: 0 6px 0 16px;"></span> Simulated Gain
                         </div>
                     </div>
 
-                    <!-- Right Panel: Coverage Matrix -->
-                    <div style="background: var(--bg-tertiary); padding: 20px; border-radius: 12px; border: 1px solid var(--border); overflow-x: auto;">
-                        <h3 style="margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-                            <span>🗺️ Coverage Map</span>
-                            <div style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 400;">
-                                <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></span> Owned</span>
-                                <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #60a5fa; border-radius: 2px;"></span> Gain (Simulated)</span>
-                                <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: rgba(255,255,255,0.05); border-radius: 2px;"></span> No Coverage</span>
+                    <!-- Coverage Matrix -->
+                    <div class="matrix-container" style="overflow-x: auto; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 40px;">
+                        <h3 style="margin: 0 0 20px 0; display: flex; align-items: center; justify-content: space-between;">
+                            <span>Coverage Heatmap (2000-2025)</span>
+                            <div style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">
+                                Click cells to see tool details (Coming Soon)
                             </div>
                         </h3>
 
@@ -8245,9 +8345,7 @@
                             <!-- Header Row -->
                             <div></div> <!-- Empty top-left -->
                             ${years.map(y => `
-                                <div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">
-                                    ${y % 5 === 0 ? y : "'" + (y % 100)}
-                                </div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-align: center; transform: rotate(-45deg); height: 30px; display: flex; align-items: flex-end; justify-content: center;">${y}</div>
                             `).join('')}
 
                             <!-- Matrix Body -->
@@ -8284,6 +8382,123 @@
             }).join('')}
                         </div>
                     </div>
+
+                    ${deepData ? `
+                        <!-- Deep Dive Intelligence -->
+                        <div style="margin-bottom: 40px;">
+                            <h2 style="color: var(--brand-primary); margin-bottom: 20px; font-size: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
+                                🧠 Deep Dive Intelligence
+                            </h2>
+                            
+                            <!-- Top Tools Analysis -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                                ${deepData.topTools.map(tool => `
+                                    <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;">
+                                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: ${tool.badgeColor};"></div>
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                            <h3 style="margin: 0; font-size: 1.1rem;">${tool.name}</h3>
+                                            <span style="background: ${tool.badgeColor}20; color: ${tool.badgeColor}; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+                                                ${tool.badge}
+                                            </span>
+                                        </div>
+                                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">${tool.notes}</p>
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 6px;">Strengths</div>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                                ${tool.strengths.map(s => `
+                                                    <span style="background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--border);">${s}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- High Value Protocols -->
+                            <h3 style="margin-bottom: 16px; color: var(--text-primary);">High-Value Protocol Coverage</h3>
+                            <div style="overflow-x: auto; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: var(--bg-tertiary); border-bottom: 1px solid var(--border);">
+                                            <th style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-size: 0.85rem;">System</th>
+                                            <th style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-size: 0.85rem;">Lonsdor</th>
+                                            <th style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-size: 0.85rem;">Autel</th>
+                                            <th style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-size: 0.85rem;">OBDStar</th>
+                                            <th style="padding: 12px 16px; text-align: left; color: var(--text-muted); font-size: 0.85rem;">Xhorse</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${deepData.highValueProtocols.map(p => `
+                                            <tr style="border-bottom: 1px solid var(--border);">
+                                                <td style="padding: 16px;">
+                                                    <div style="font-weight: 700; color: var(--text-primary);">${p.make}</div>
+                                                    <div style="font-size: 0.85rem; color: var(--brand-primary);">${p.system}</div>
+                                                    <div style="font-size: 0.8rem; color: var(--text-muted);">${p.years}</div>
+                                                </td>
+                                                ${['lonsdor', 'autel', 'obdstar', 'xhorse'].map(brand => {
+                const data = p[brand];
+                const color = data.status === 'High' ? '#22c55e' : data.status === 'Medium' ? '#f59e0b' : data.status === 'Risky' ? '#ef4444' : '#64748b';
+                return `
+                                                        <td style="padding: 16px; vertical-align: top;">
+                                                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: ${color};"></span>
+                                                                <span style="font-weight: 600; font-size: 0.9rem; color: ${color};">${data.status}</span>
+                                                            </div>
+                                                            <div style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 2px;">${data.method}</div>
+                                                            <div style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">${data.note}</div>
+                                                        </td>
+                                                    `;
+            }).join('')}
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Adapter Ecosystem -->
+                            ${deepData.adapterEcosystem ? `
+                                <h3 style="margin-bottom: 16px; color: var(--text-primary);">🔌 Adapter Ecosystem (Autel vs. Lonsdor)</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 30px;">
+                                    ${deepData.adapterEcosystem.map(sys => `
+                                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                                                <h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">${sys.name}</h4>
+                                                <span style="font-size: 0.75rem; color: var(--brand-primary); background: rgba(251, 191, 36, 0.1); padding: 4px 8px; border-radius: 4px;">${sys.philosophy}</span>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                                ${sys.details.map(d => `
+                                                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                                                        <span style="color: var(--text-muted); font-size: 0.85rem;">${d.feature}</span>
+                                                        <span style="color: var(--text-primary); font-size: 0.85rem; font-weight: 600; text-align: right; max-width: 60%;">${d.desc}</span>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+
+                            <!-- Risk Analysis -->
+                            <h3 style="margin-bottom: 16px; color: #ef4444; display: flex; align-items: center; gap: 8px;">
+                                ⚠️ Critical Risk Analysis (Brick Prevention)
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px;">
+                                ${deepData.riskAnalysis.map(risk => `
+                                    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 16px; display: flex; gap: 16px;">
+                                        <div style="font-size: 2rem;">⛔</div>
+                                        <div>
+                                            <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${risk.vehicle}</div>
+                                            <div style="font-size: 0.9rem; color: #ef4444; font-weight: 600; margin-bottom: 8px;">RISK: ${risk.risk}</div>
+                                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;"><strong>Cause:</strong> ${risk.cause}</div>
+                                            <div style="font-size: 0.85rem; color: #22c55e;"><strong>Mitigation:</strong> ${risk.mitigation}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
                 </div>
             `;
             container.innerHTML = html;
@@ -8447,6 +8662,7 @@
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "55cb95cc0e174..."}'></script>
     <!-- End Cloudflare Web Analytics -->
+    <script src="scripts/tool_coverage_data.js"></script>
 </body>
 
 </html>
