@@ -42,7 +42,7 @@ const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_titl
 };
 
 // Helper for CORS-compliant responses
-function corsResponse(request: Request, body: string, status = 200, contentType = "application/json") {
+function corsResponse(request: Request, body: string, status = 200, extraHeaders?: Headers, contentType = "application/json") {
   const origin = request.headers.get("Origin") || "*";
   // Allow production domain and local development
   const isAllowedOrigin = origin === "https://eurokeys.app" ||
@@ -62,7 +62,15 @@ function corsResponse(request: Request, body: string, status = 200, contentType 
     headers["Access-Control-Allow-Credentials"] = "true";
   }
 
-  return new Response(body, { status, headers });
+  // Combine with extra headers
+  const finalHeaders = new Headers(headers);
+  if (extraHeaders) {
+    extraHeaders.forEach((value, key) => {
+      finalHeaders.set(key, value);
+    });
+  }
+
+  return new Response(body, { status, headers: finalHeaders });
 }
 
 // Legacy helper (only for cases where request isn't available, but we should minimize this)
@@ -210,7 +218,7 @@ export default {
 
         // Redirect to Frontend with Cookie
         const headers = new Headers();
-        headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Max-Age=2592000; Secure`);
+        headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=2592000`);
         headers.set("Location", "/"); // Go back to home
 
         return new Response(null, { status: 302, headers });
@@ -271,10 +279,10 @@ export default {
         const userWithDev = { ...user, is_developer: userIsDeveloper || user.is_developer };
         const sessionToken = await createInternalToken(userWithDev, env.JWT_SECRET || 'dev-secret');
 
-        const response = corsResponse(request, JSON.stringify({ success: true, user: userWithDev }));
-        response.headers.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Max-Age=2592000; Secure`);
+        const headers = new Headers();
+        headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=2592000`);
 
-        return response;
+        return corsResponse(request, JSON.stringify({ success: true, user: userWithDev }), 200, headers);
       } catch (err: any) {
         return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
@@ -308,8 +316,8 @@ export default {
     // 4. Logout
     if (path === "/api/auth/logout") {
       const headers = new Headers();
-      headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=None; Max-Age=0; Secure`);
-      return corsResponse(request, JSON.stringify({ success: true }), 200, "application/json");
+      headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0`);
+      return corsResponse(request, JSON.stringify({ success: true }), 200, headers, "application/json");
     }
 
     // 5. Sync Data (Frontend -> Cloud)
@@ -324,7 +332,7 @@ export default {
         const userId = payload.sub as string;
 
         const body: any = await request.json();
-        const { inventory, logs } = body;
+        const { inventory, logs, settings } = body;
 
         // Sync Inventory
         if (Array.isArray(inventory)) {
@@ -742,6 +750,67 @@ export default {
     if (path === "/api/test-ai") {
       const result = await runAIAnalysis(env);
       return corsResponse(request, JSON.stringify(result), 200);
+    }
+
+    // 9. Subscription AI Analysis Proxy
+    if (path === "/api/ai/analyze-subscriptions" && request.method === "POST") {
+      try {
+        // Authenticate user
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (!sessionToken) return corsResponse(request, "Unauthorized", 401);
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, "Unauthorized", 401);
+
+        const body: any = await request.json();
+        const { subscriptions } = body;
+
+        if (!subscriptions || !Array.isArray(subscriptions)) {
+          return corsResponse(request, JSON.stringify({ error: "Missing or invalid subscriptions data" }), 400);
+        }
+
+        const prompt = `You are a locksmith business consultant analyzing subscription costs. Here are the current subscriptions:
+
+${JSON.stringify(subscriptions, null, 2)}
+
+Provide a brief analysis (3-4 paragraphs max) covering:
+1. Total monthly burn rate and ROI opportunities
+2. Any overlapping subscriptions that could be consolidated
+3. Upcoming renewals requiring attention
+4. Recommendations for optimizing the toolkit
+
+Be specific about dollar amounts and which subscriptions to focus on.`;
+
+        const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer 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`,
+            "HTTP-Referer": "https://eurokeys.app",
+            "X-Title": "Euro Keys Subscription Analyzer",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "model": "deepseek/deepseek-v3.2",
+            "messages": [
+              { "role": "system", "content": "You are a professional automotive locksmith business consultant. Your goal is to optimize costs and maximize ROI for tool subscriptions." },
+              { "role": "user", "content": prompt }
+            ],
+            "max_tokens": 1000
+          })
+        });
+
+        if (!aiResponse.ok) {
+          throw new Error(`OpenRouter API error: ${aiResponse.status}`);
+        }
+
+        const aiData: any = await aiResponse.json();
+        const analysis = aiData.choices?.[0]?.message?.content;
+
+        return corsResponse(request, JSON.stringify({ analysis }), 200);
+
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
     }
 
     // Master Locksmith Data Endpoint - uses unified schema
@@ -2350,13 +2419,13 @@ async function runAIAnalysis(env: Env) {
     const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${env.OPENROUTER_API_KEY}`,
+        "Authorization": `Bearer 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`,
         "HTTP-Referer": "https://eurokeys.app",
         "X-Title": "Euro Keys Business Analyst",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        "model": "deepseek/deepseek-v3.2-speciale",
+        "model": "deepseek/deepseek-v3.2",
         "messages": [
           { "role": "system", "content": "You are a high-performance business growth consultant for a professional automotive locksmith. Your goal is to maximize revenue, identify high-margin opportunities, and push sales. Output JSON only." },
           { "role": "user", "content": prompt }

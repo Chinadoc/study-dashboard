@@ -27,6 +27,7 @@ yarn-error.log*
 .vercel
 .env*.local
 api/node_modules/
+node_modules/
 api/.wrangler/
 temp_images/
 
