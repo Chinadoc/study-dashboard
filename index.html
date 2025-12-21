@@ -10876,6 +10876,11 @@
             populateYears();
             initGoogleAuth();
 
+            // Render the make grid on initial load
+            if (typeof renderMakeGrid === 'function') {
+                renderMakeGrid();
+            }
+
             // Handle URL hash routing on page load
             handleInitialRoute();
         });
