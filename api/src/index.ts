@@ -2227,6 +2227,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
         }
 
+        // Fallback for plan if missing (default to monthly)
+        if (!plan) plan = 'monthly';
+
         if (!userId || !email || !plan) {
           const missing = [];
           if (!userId) missing.push("userId");

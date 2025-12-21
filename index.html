@@ -3223,7 +3223,7 @@
 
             <!-- User menu shows when signed in -->
             <div id="userMenu" style="display: none; align-items: center; gap: 12px;">
-                <button id="headerUpgradeBtn" onclick="startStripeCheckout()" style="
+                <button id="headerUpgradeBtn" onclick="startCheckout('monthly', event)" style="
                     background: linear-gradient(135deg, #fbbf24, #f59e0b);
                     border: none;
                     color: #000;
@@ -3298,7 +3298,7 @@
     </div>
 
     <!-- BROWSE DATABASE TAB -->
-    <div id="browse" class="tab active-tab">
+    <div id="browse" class="tab-view active">
 
         <!-- Hero Section -->
         <div class="hero-section">
@@ -4454,23 +4454,33 @@
 
             if (targetContent) {
                 targetContent.style.display = 'block';
+            } else {
+                console.warn('showTab: Target content not found:', targetId);
+            }
+
+            // 2.5 GLOBAL UI CLEANUP (Fix for bleeding Hero Section/VIN Decoder)
+            const hero = document.querySelector('.hero-section');
+            const visualSelector = document.getElementById('visualMakeSelector');
+            const legacySearch = document.getElementById('legacySearchCard');
+
+            if (tabName === 'browse') {
+                const results = document.getElementById('results');
+                const showingResults = results && results.innerHTML.trim() && results.style.display !== 'none';
+
+                if (hero) hero.style.display = showingResults ? 'none' : 'block';
+                if (visualSelector) visualSelector.style.display = showingResults ? 'none' : 'block';
+                if (legacySearch) legacySearch.style.display = 'none'; // Always hide legacy on first search
+            } else {
+                // Hide ALL browse-specific components when on other tabs
+                if (hero) hero.style.display = 'none';
+                if (visualSelector) visualSelector.style.display = 'none';
+                if (legacySearch) legacySearch.style.display = 'none';
             }
 
             // 3. Tab-Specific Initialization
             if (tabName === 'browse') {
                 if (typeof renderMakeGrid === 'function') {
                     renderMakeGrid();
-                }
-
-                // If returning to browse and no results, ensure Hero/Grid is visible
-                const results = document.getElementById('results');
-                const hero = document.querySelector('.hero-section');
-                if (hero && results && !results.innerHTML.trim()) {
-                    hero.style.display = 'block';
-                    const visualSelector = document.getElementById('visualMakeSelector');
-                    if (visualSelector) visualSelector.style.display = 'block';
-                    const legacy = document.getElementById('legacySearchCard');
-                    if (legacy) legacy.style.display = 'none';
                 }
 
                 // Legacy: populate years if needed for fallback
@@ -10213,40 +10223,6 @@
 
 
         /* STRIPE CHECKOUT */
-        async function startStripeCheckout(plan) {
-            if (!currentUser) {
-                alert("Please sign in first!");
-                signInWithGoogle();
-                return;
-            }
-
-            const btn = document.getElementById('upgradeBtn-' + plan);
-            if (btn) btn.textContent = 'Loading...';
-
-            try {
-                const res = await fetch(`${API}/api/create-checkout-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUser.id,
-                        email: currentUser.email,
-                        plan: plan // 'monthly' or 'lifetime'
-                    })
-                });
-
-                const data = await res.json();
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert('Checkout failed: ' + (data.error || 'Unknown error'));
-                }
-            } catch (e) {
-                console.error("Stripe error", e);
-                alert("Failed to start checkout");
-            } finally {
-                if (btn) btn.textContent = plan === 'monthly' ? 'Subscribe' : 'Buy Lifetime';
-            }
-        }
 
         // ==========================================
         // SUBSCRIPTION TRACKER
