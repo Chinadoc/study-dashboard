@@ -1,5 +1,5 @@
-// v12 - Added structured_guides and tool_coverage data to cache
-const CACHE_NAME = 'euro-keys-v12';
+// v13 - Removed redundant VIN UI elements, unified search bar
+const CACHE_NAME = 'euro-keys-v13';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

@@ -1597,6 +1597,7 @@
             width: 100%;
             padding: 18px 24px;
             padding-left: 50px;
+            padding-right: 50px;
             background: var(--bg-input);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -1618,8 +1619,28 @@
             left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-secondary);
+            color: var(--text-muted);
             pointer-events: none;
+        }
+
+        .omni-scan-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            border-radius: 8px;
+        }
+
+        .omni-scan-btn:hover {
+            color: var(--brand-primary);
+            background: rgba(251, 191, 36, 0.1);
         }
 
         /* Visual Make Grid */
@@ -3305,51 +3326,27 @@
             <h1 class="hero-title">Browse Database</h1>
             <p class="hero-subtitle">Access professional locksmith data, programming guides, and part numbers.</p>
 
-            <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 24px;">
-                <button onclick="setSearchMode('model')" id="modeModel" class="mode-btn active">Search by Model</button>
-                <button onclick="setSearchMode('vin')" id="modeVin" class="mode-btn">Search by VIN</button>
-            </div>
-
             <div id="modelSearchUI">
                 <div class="omni-search-container">
                     <i class="fas fa-search omni-search-icon"></i>
                     <input type="text" class="omni-search-input" id="omniSearch"
-                        placeholder="Search by Year Make Model (e.g. '2015 Honda Civic')..."
-                        onkeyup="handleOmniSearch(event)">
-                </div>
-            </div>
-
-            <div id="vinSearchUI" style="display: none;">
-                <div style="display: flex; gap: 12px; max-width: 800px; margin: 0 auto; align-items: stretch;">
-                    <div style="flex: 1; position: relative;">
-                        <input type="text" id="vinInput" placeholder="Enter 17-digit VIN..."
-                            style="width: 100%; padding: 16px 20px; font-size: 1.2rem; letter-spacing: 2px; font-family: monospace; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 12px; color: var(--text-primary); text-transform: uppercase;"
-                            maxlength="17" onkeypress="if(event.key==='Enter') decodeVin()">
-                    </div>
-                    <button onclick="decodeVin()" class="search-btn"
-                        style="padding: 0 30px; border-radius: 12px; font-weight: 700;">
-                        Decode 🚗
-                    </button>
-                    <button onclick="startVinCamera()" class="search-btn"
-                        style="padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #4a1a5d, #6a2b7a);"
-                        title="Scan VIN">
-                        📷
+                        placeholder="Search by Year/Make/Model/VIN..." onkeyup="handleOmniSearch(event)">
+                    <button class="omni-scan-btn" onclick="startVinCamera()" title="Scan VIN">
+                        <i class="fas fa-camera"></i>
                     </button>
                 </div>
                 <div id="vinError"
-                    style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; text-align: center; display: none;">
+                    style="color: #ef4444; font-size: 0.85rem; margin-top: -30px; margin-bottom: 20px; text-align: center; display: none;">
                 </div>
+            </div>
+
+            <!-- Pre-calculate results list if needed -->
+            <div id="vinLoading" style="display: none; text-align: center; padding: 40px;">
+                <div class="loader" style="margin: 0 auto;"></div>
+                <p style="margin-top: 16px; color: var(--text-secondary);">Decoding VIN...</p>
             </div>
         </div>
 
-        <!-- Visual Make Selector -->
-        <div id="visualMakeSelector" style="padding: 0 20px 40px;">
-            <h3 style="text-align: center; margin-bottom: 24px; color: var(--text-muted); font-weight: 600;">Standard
-                Selection</h3>
-            <div class="make-grid" id="makeGrid">
-                <!-- Populated by JS -->
-            </div>
-        </div>
 
         <!-- Drill Down / Selection Card -->
         <div class="card" id="legacySearchCard" style="display: none; max-width: 800px; margin: 0 auto;">
@@ -3411,7 +3408,7 @@
                 </div>
                 <div class="form-group">
                     <label>MODEL</label>
-                    <select id="modelSelect" disabled onchange="searchDatabase()">
+                    <select id="modelSelect" disabled onchange="searchVehicle()">
                         <option value="">Select Model</option>
                     </select>
                 </div>
@@ -3523,217 +3520,34 @@
     </div>
 
 
-    <!-- VIN Input Section -->
-    <div class="browse-box" style="margin-bottom: 24px;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
-            <div style="flex: 1; min-width: 250px;">
-                <label class="browse-label" style="margin-bottom: 8px; display: block;">Vehicle Identification
-                    Number</label>
-                <input type="text" id="vinInput" placeholder="Enter 17-digit VIN (e.g., 1HGBH41JXMN109186)"
-                    style="width: 100%; padding: 14px 18px; font-size: 1.1rem; letter-spacing: 2px; font-family: monospace; background: var(--bg-tertiary); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); text-transform: uppercase;"
-                    maxlength="17" onkeypress="if(event.key==='Enter') decodeVin()">
-            </div>
-            <button onclick="decodeVin()" class="search-btn" style="padding: 14px 28px; white-space: nowrap;">
-                Decode VIN 🚗
-            </button>
-            <button onclick="startVinCamera()" class="search-btn"
-                style="padding: 14px 20px; white-space: nowrap; background: linear-gradient(135deg, #4a1a5d, #6a2b7a);"
-                title="Scan VIN with camera">
-                📷 Scan
-            </button>
-        </div>
-        <div id="vinError" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none;"></div>
 
-        <!-- Camera Scanner Modal -->
-        <div id="vinCameraModal"
-            style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span style="font-weight: 600; color: var(--text-primary);">📷 VIN Camera Scanner</span>
-                <button onclick="stopVinCamera()"
-                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Close
-                    ✕</button>
-            </div>
-            <video id="vinCameraVideo" style="width: 100%; max-height: 300px; border-radius: 8px; background: #000;"
-                autoplay playsinline></video>
-            <div style="margin-top: 12px; text-align: center;">
-                <button onclick="captureVinFrame(event)" class="search-btn" style="padding: 10px 24px;">📸
-                    Capture &
-                    Scan</button>
-            </div>
-            <canvas id="vinCameraCanvas" style="display: none;"></canvas>
-            <div id="vinScanResult"
-                style="margin-top: 12px; display: none; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border: 1px solid #22c55e;">
-                <span style="color: #22c55e; font-weight: 600;">Detected VIN: </span>
-                <span id="vinDetectedText"
-                    style="font-family: monospace; letter-spacing: 2px; color: var(--text-primary);"></span>
-                <button onclick="useDetectedVin()"
-                    style="margin-left: 12px; background: #22c55e; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;">Use
-                    This</button>
-            </div>
+    <!-- Camera Scanner Modal -->
+    <div id="vinCameraModal"
+        style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-weight: 600; color: var(--text-primary);">📷 VIN Camera Scanner</span>
+            <button onclick="stopVinCamera()"
+                style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Close
+                ✕</button>
+        </div>
+        <video id="vinCameraVideo" style="width: 100%; max-height: 300px; border-radius: 8px; background: #000;"
+            autoplay playsinline></video>
+        <div style="margin-top: 12px; text-align: center;">
+            <button onclick="captureVinFrame(event)" class="search-btn" style="padding: 10px 24px;">📸
+                Capture &
+                Scan</button>
+        </div>
+        <canvas id="vinCameraCanvas" style="display: none;"></canvas>
+        <div id="vinScanResult"
+            style="margin-top: 12px; display: none; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border: 1px solid #22c55e;">
+            <span style="color: #22c55e; font-weight: 600;">Detected VIN: </span>
+            <span id="vinDetectedText"
+                style="font-family: monospace; letter-spacing: 2px; color: var(--text-primary);"></span>
+            <button onclick="useDetectedVin()"
+                style="margin-left: 12px; background: #22c55e; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer;">Use
+                This</button>
         </div>
     </div>
-
-    <!-- Popular VINs by Make/Model -->
-    <div style="margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-            <h3 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">🔥 Popular Vehicle VINs (Click
-                to Lookup)</h3>
-            <button onclick="toggleVinList()" id="vinListToggle"
-                style="background: none; border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Show
-                All ▼</button>
-        </div>
-        <div id="popularVinGrid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-            <!-- Toyota -->
-            <div onclick="lookupVin('JTDKN3DU5A0000001')" class="vin-quick-card"
-                style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.borderColor='var(--brand-primary)'"
-                onmouseout="this.style.borderColor='var(--border)'">
-                <div style="font-weight: 700; color: var(--brand-primary);">Toyota Camry</div>
-                <div
-                    style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                    JTDKN3DU5A0...</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2010+ • Smart
-                    Key</div>
-            </div>
-            <!-- Honda -->
-            <div onclick="lookupVin('1HGBH41JXMN109186')" class="vin-quick-card"
-                style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.borderColor='var(--brand-primary)'"
-                onmouseout="this.style.borderColor='var(--border)'">
-                <div style="font-weight: 700; color: var(--brand-primary);">Honda Accord</div>
-                <div
-                    style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                    1HGBH41JXMN...</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2008+ • ILCO
-                    HD106-PT</div>
-            </div>
-            <!-- Ford -->
-            <div onclick="lookupVin('1FAHP3F29CL000001')" class="vin-quick-card"
-                style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.borderColor='var(--brand-primary)'"
-                onmouseout="this.style.borderColor='var(--border)'">
-                <div style="font-weight: 700; color: var(--brand-primary);">Ford Focus</div>
-                <div
-                    style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                    1FAHP3F29CL...</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2012+ • Strattec
-                    5921285</div>
-            </div>
-            <!-- Chevrolet -->
-            <div onclick="lookupVin('1G1YY22G965000001')" class="vin-quick-card"
-                style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.borderColor='var(--brand-primary)'"
-                onmouseout="this.style.borderColor='var(--border)'">
-                <div style="font-weight: 700; color: var(--brand-primary);">Chevrolet Malibu</div>
-                <div
-                    style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                    1G1YY22G965...</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2016+ • B111-PT
-                </div>
-            </div>
-        </div>
-        <!-- Hidden additional VINs -->
-        <div id="moreVins" style="display: none; margin-top: 12px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                <!-- Nissan -->
-                <div onclick="lookupVin('1N4AA5AP9DC000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Nissan Altima</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        1N4AA5AP9DC...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2013+ •
-                        Intelligent Key</div>
-                </div>
-                <!-- BMW -->
-                <div onclick="lookupVin('WBAPH5C55BA000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">BMW 3 Series</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        WBAPH5C55BA...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2011+ •
-                        HU92RP</div>
-                </div>
-                <!-- Mercedes -->
-                <div onclick="lookupVin('WDDGF81X79F000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Mercedes C-Class</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        WDDGF81X79F...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2009+ •
-                        Smart Key</div>
-                </div>
-                <!-- VW -->
-                <div onclick="lookupVin('3VW2K7AJ5DM000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Volkswagen Jetta</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        3VW2K7AJ5DM...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2013+ • HU66
-                        Keyway</div>
-                </div>
-                <!-- Jeep -->
-                <div onclick="lookupVin('1C4RJFBG3EC000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Jeep Grand Cherokee</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        1C4RJFBG3EC...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2014+ •
-                        FOBIK</div>
-                </div>
-                <!-- Hyundai -->
-                <div onclick="lookupVin('5NPE24AF8FH000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Hyundai Sonata</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        5NPE24AF8FH...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2015+ •
-                        Smart Key</div>
-                </div>
-                <!-- Kia -->
-                <div onclick="lookupVin('5XYZU3LB7DG000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Kia Sorento</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        5XYZU3LB7DG...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2013+ •
-                        SY5HMFNA04</div>
-                </div>
-                <!-- Subaru -->
-                <div onclick="lookupVin('JF2SJAHC5FH000001')" class="vin-quick-card"
-                    style="background: var(--bg-tertiary); padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--brand-primary)'"
-                    onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-weight: 700; color: var(--brand-primary);">Subaru Forester</div>
-                    <div
-                        style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 4px;">
-                        JF2SJAHC5FH...</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">2015+ •
-                        Smart Key</div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- VIN Results Section -->
@@ -4465,7 +4279,12 @@
 
             if (tabName === 'browse') {
                 const results = document.getElementById('results');
-                const showingResults = results && results.innerHTML.trim() && results.style.display !== 'none';
+                const vinResults = document.getElementById('vinResults');
+                const resultsSection = document.getElementById('resultsSection');
+
+                const showingResults = (results && results.innerHTML.trim() && results.style.display !== 'none') ||
+                    (vinResults && vinResults.style.display !== 'none') ||
+                    (resultsSection && resultsSection.classList.contains('active'));
 
                 if (hero) hero.style.display = showingResults ? 'none' : 'block';
                 if (visualSelector) visualSelector.style.display = showingResults ? 'none' : 'block';
@@ -4475,6 +4294,8 @@
                 if (hero) hero.style.display = 'none';
                 if (visualSelector) visualSelector.style.display = 'none';
                 if (legacySearch) legacySearch.style.display = 'none';
+                const vinResults = document.getElementById('vinResults');
+                if (vinResults) vinResults.style.display = 'none';
             }
 
             // 3. Tab-Specific Initialization
@@ -4508,41 +4329,6 @@
             window.scrollTo(0, 0);
         }
 
-        function setSearchMode(mode) {
-            const modelUI = document.getElementById('modelSearchUI');
-            const vinUI = document.getElementById('vinSearchUI');
-            const modeModelBtn = document.getElementById('modeModel');
-            const modeVinBtn = document.getElementById('modeVin');
-            const results = document.getElementById('results');
-            const hero = document.querySelector('.hero-section');
-            const makeSelector = document.getElementById('visualMakeSelector');
-
-            if (mode === 'model') {
-                if (modelUI) modelUI.style.display = 'block';
-                if (vinUI) vinUI.style.display = 'none';
-                if (modeModelBtn) modeModelBtn.classList.add('active');
-                if (modeVinBtn) modeVinBtn.classList.remove('active');
-                if (hero) hero.style.display = 'block';
-                if (makeSelector) makeSelector.style.display = 'block';
-            } else {
-                if (modelUI) modelUI.style.display = 'none';
-                if (vinUI) vinUI.style.display = 'block';
-                if (modeModelBtn) modeModelBtn.classList.remove('active');
-                if (modeVinBtn) modeVinBtn.classList.add('active');
-
-                // Hide results and selection grid when switching to VIN
-                if (results) {
-                    results.innerHTML = '';
-                    results.style.display = 'none';
-                }
-                if (makeSelector) makeSelector.style.display = 'none';
-                const legacySearchCard = document.getElementById('legacySearchCard');
-                const selectedVehicleDisplay = document.getElementById('selectedVehicleDisplay');
-                if (legacySearchCard) legacySearchCard.style.display = 'none';
-                if (selectedVehicleDisplay) selectedVehicleDisplay.style.display = 'none';
-            }
-        }
-
         // Handle URL hash changes (back/forward buttons)
         window.addEventListener('hashchange', function () {
             const hash = window.location.hash.slice(1) || 'browse';
@@ -4550,7 +4336,13 @@
             const tabName = hash === 'database' || hash === 'vin' ? 'browse' : hash;
             if (validTabs.includes(tabName)) {
                 showTab(tabName, false);
-                if (hash === 'vin') setSearchMode('vin');
+                if (hash === 'vin') {
+                    const omni = document.getElementById('omniSearch');
+                    if (omni) {
+                        omni.focus();
+                        omni.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
             }
         });
 
@@ -5116,20 +4908,41 @@
 
         function handleOmniSearch(e) {
             // Live filtering (on keyup/input)
-            const query = e.target.value.trim().toLowerCase();
+            const query = e.target.value.trim();
+            const lowerQuery = query.toLowerCase();
             const cards = document.querySelectorAll('.make-card');
 
-            // If user types a VIN (17 chars), show VIN hint or button?
-            // For now, just filter brands
-
+            // 1. Filter brands visually
             cards.forEach(card => {
                 const name = card.querySelector('.make-name').textContent.toLowerCase();
-                if (name.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = name.includes(lowerQuery) ? 'flex' : 'none';
             });
+
+            // 2. Handle Enter key for "Universal Search" (VIN or Smart Search)
+            if (e.key === 'Enter' && query.length >= 3) {
+                // Determine if it's a VIN (17 alphanumeric)
+                const vinClean = query.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+                if (vinClean.length === 17) {
+                    decodeVin(vinClean);
+                    return;
+                }
+
+                // Smart Search: Check if first word is a known Make
+                let foundMake = null;
+                cards.forEach(card => {
+                    const name = card.querySelector('.make-name').textContent.toLowerCase();
+                    // Match full word make only to avoid "Fo" matching "Ford" and "Force" etc improperly
+                    if (lowerQuery === name || lowerQuery.startsWith(name + ' ')) {
+                        foundMake = card.querySelector('.make-name').textContent;
+                    }
+                });
+
+                if (foundMake) {
+                    selectVisualMake(foundMake);
+                    // Parse rest of query for year/model? 
+                    // Future enhancement: automatically select year/model if provided
+                }
+            }
         }
 
         // ================== EXISTING LOGIC MODIFIED ==================
@@ -9760,49 +9573,52 @@
         }
 
         // Use detected VIN
+        // Use detected VIN from camera
         function useDetectedVin() {
             const vin = document.getElementById('vinDetectedText').textContent;
-            document.getElementById('vinInput').value = vin;
-            stopVinCamera();
-            decodeVin();
+            const omni = document.getElementById('omniSearch');
+            if (omni) {
+                omni.value = vin;
+                stopVinCamera();
+                decodeVin(vin);
+            }
         }
 
-        // Quick lookup from popular VIN cards
+        // Quick lookup helper
         function lookupVin(vin) {
-            document.getElementById('vinInput').value = vin;
-            decodeVin();
-            // Scroll to input
-            document.getElementById('vinInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const omni = document.getElementById('omniSearch');
+            if (omni) {
+                omni.value = vin;
+                decodeVin(vin);
+                omni.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
-        // Toggle show more VINs
-        function toggleVinList() {
-            const moreVins = document.getElementById('moreVins');
-            const toggleBtn = document.getElementById('vinListToggle');
-            const isHidden = moreVins.style.display === 'none';
-
-            moreVins.style.display = isHidden ? 'block' : 'none';
-            toggleBtn.textContent = isHidden ? 'Show Less ▲' : 'Show All ▼';
-        }
-
-        async function decodeVin() {
-            const vinInput = document.getElementById('vinInput');
-            const vin = vinInput.value.trim().toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+        async function decodeVin(vinOverride) {
+            const query = vinOverride || document.getElementById('omniSearch').value.trim();
+            const vin = query.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
             const errorEl = document.getElementById('vinError');
             const resultsEl = document.getElementById('vinResults');
             const loadingEl = document.getElementById('vinLoading');
 
             // Validate VIN (17 chars, no I, O, Q)
             if (vin.length !== 17) {
-                errorEl.textContent = 'VIN must be exactly 17 characters. Currently: ' + vin.length;
-                errorEl.style.display = 'block';
-                resultsEl.style.display = 'none';
+                if (errorEl) {
+                    errorEl.textContent = 'VIN must be exactly 17 characters. Currently: ' + vin.length;
+                    errorEl.style.display = 'block';
+                    // Auto-hide error after 5s
+                    setTimeout(() => errorEl.style.display = 'none', 5000);
+                }
+                if (resultsEl) resultsEl.style.display = 'none';
                 return;
             }
 
-            errorEl.style.display = 'none';
-            loadingEl.style.display = 'block';
-            resultsEl.style.display = 'none';
+            if (errorEl) errorEl.style.display = 'none';
+            if (loadingEl) loadingEl.style.display = 'block';
+            if (resultsEl) resultsEl.style.display = 'none';
+
+            // Ensure we are on the browse tab
+            showTab('browse', false);
 
             try {
                 // 1. Call NHTSA VIN Decoder API
@@ -11121,8 +10937,14 @@
                     console.log('Service Worker registered:', registration.scope);
 
                     // Check for updates immediately and every 5 minutes
-                    registration.update();
-                    setInterval(() => registration.update(), 5 * 60 * 1000);
+                    try {
+                        registration.update();
+                        setInterval(() => {
+                            try { registration.update(); } catch (e) { console.warn('SW update failed', e); }
+                        }, 5 * 60 * 1000);
+                    } catch (e) {
+                        console.warn('SW initial update failed', e);
+                    }
 
                     // Handle updates
                     registration.addEventListener('updatefound', () => {
