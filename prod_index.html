@@ -1833,7 +1833,7 @@
         </footer>
 
         <script>
-            const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
+            const API = '/api';
             const AFFILIATE_TAG = 'eurokeys-20';
 
             // Valid makes only
@@ -2661,17 +2661,7 @@
                         </div>
                         
                         <div class="fcc-vehicles">
-                            ${displayVehicles.map(v => `
-                                <span class="vehicle-chip">
-                                    <span class="make-icon">${getMakeIcon(v)}</span>
-                                    ${v.split('(')[0].trim()}
-                                </span>
-                            `).join('')}
-                            ${moreCount > 0 ? `
-                                <span class="vehicle-chip vehicle-chip-more" onclick="showFccModal('${fccId}')">
-                                    +${moreCount} more
-                                </span>
-                            ` : ''}
+                            ${renderVehicleChips(vehicles, fccId, 3)}
                         </div>
 
                         <div class="fcc-card-meta">
@@ -2756,11 +2746,7 @@
                             ? `https://www.amazon.com/dp/${asin}?tag=${AFFILIATE_TAG}`
                             : getAmazonLink(fccId, null, oem, vehicles[0]?.make);
 
-                        // Vehicle list for this OEM part
-                        const vehicleList = vehicles.slice(0, 3).map(v =>
-                            `${v.make} ${v.model} (${v.year_start}-${v.year_end})`
-                        ).join(', ');
-                        const moreCount = vehicles.length > 3 ? ` +${vehicles.length - 3} more` : '';
+                        const vehicleListHtml = renderVehicleChips(vehicles.map(v => `${v.make} ${v.model} (${v.year_start}-${v.year_end})`).join(', '), null, 5);
 
                         return `
                         <div class="oem-product-card" style="display: flex; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px;">
@@ -2777,8 +2763,8 @@
                                     <a href="${amazonLink}" target="_blank" style="color: inherit; text-decoration: none;">${oem}</a>
                                     ${asin ? '<span style="font-size: 0.7rem; background: #28a745; color: white; padding: 1px 5px; border-radius: 3px; margin-left: 6px;">ASIN</span>' : ''}
                                 </div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px;">
-                                    ${vehicleList}${moreCount ? `<span style="color: var(--text-muted);">${moreCount}</span>` : ''}
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+                                    ${vehicleListHtml}
                                 </div>
                                 <a href="${amazonLink}" target="_blank" class="amazon-btn" style="font-size: 0.75rem; padding: 4px 10px;">
                                     🛒 ${asin ? 'Buy on Amazon' : 'Search Amazon'}
@@ -2831,7 +2817,9 @@
                         <div class="modal-title">FCC ID: ${fccId}</div>
                         <div class="modal-subtitle">Could not load detailed data</div>
                         ${getInventoryControlsHtml(fccId)}
-                        <p style="color: var(--text-muted); margin-top: 12px;">${vehicles}</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 12px;">
+                            ${renderVehicleChips(vehicles, null, 15)}
+                        </div>
                         <a href="${amazonLink}" target="_blank" class="modal-amazon">🛒 Search on Amazon</a>
                     `;
                     } else {
@@ -2841,6 +2829,43 @@
             }
 
             // Combine vehicle entries with consecutive years into ranges
+            // Helper to group vehicles into chips
+            function groupVehicles(vehicles) {
+                if (!vehicles) return [];
+                const vehicleArray = vehicles.split(',').map(v => v.trim()).filter(v => v);
+                const combined = combineVehicleYears(vehicleArray);
+
+                return combined.map(v => {
+                    const match = v.match(/^(.+?)\s*\((.+?)\)$/);
+                    if (match) {
+                        return { name: match[1].trim(), years: match[2] };
+                    }
+                    return { name: v, years: '' };
+                });
+            }
+
+            // Standardized function to render compact vehicle chips
+            function renderVehicleChips(vehicles, fccId, limit = 5) {
+                const grouped = groupVehicles(vehicles);
+                const displayGroups = grouped.slice(0, limit);
+                const moreCount = grouped.length - limit;
+
+                const chipsHtml = displayGroups.map(g => `
+                    <span class="vehicle-group-chip" onclick="${fccId ? `showFccModal('${fccId}')` : ''}" style="${!fccId ? 'cursor: default;' : ''}">
+                        <span class="vehicle-group-make">${g.name}</span>
+                        ${g.years ? `<span class="vehicle-group-years">(${g.years})</span>` : ''}
+                    </span>
+                `).join('');
+
+                const moreHtml = moreCount > 0 ? `
+                    <span class="vehicle-chip vehicle-chip-more" onclick="${fccId ? `showFccModal('${fccId}')` : ''}">
+                        +${moreCount} more
+                    </span>
+                ` : '';
+
+                return chipsHtml + moreHtml;
+            }
+
             function combineVehicleYears(vehicleArray) {
                 // Group vehicles by make/model (without year range)
                 const vehicleGroups = new Map();
@@ -3254,18 +3279,28 @@
             }
 
             // Handle Google Sign-In callback (for ID token flow)
-            function handleGoogleSignIn(response) {
+            async function handleGoogleSignIn(response) {
                 if (response.credential) {
-                    // Decode the JWT token to get user info
-                    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                    currentUser = {
-                        name: payload.name,
-                        email: payload.email,
-                        picture: payload.picture,
-                        sub: payload.sub
-                    };
-                    localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
-                    updateAuthUI(true);
+                    try {
+                        // Send the token to the backend to establish a session cookie
+                        const verifyRes = await fetch(`${API}/auth/verify`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ credential: response.credential })
+                        });
+
+                        const data = await verifyRes.json();
+                        if (data.success && data.user) {
+                            currentUser = data.user;
+                            localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
+                            updateAuthUI(true);
+                        } else {
+                            console.error('Backend authentication failed:', data.error);
+                            alert('Authentication failed. Please try again.');
+                        }
+                    } catch (e) {
+                        console.error('Sign-in error:', e);
+                    }
                 }
             }
 
@@ -3639,7 +3674,7 @@
                 // Key fob/remote inventory
                 if (keyIdentifier) {
                     html += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            < div style = "display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;" >
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="font-size: 0.75rem; color: var(--text-muted);">🔐 Key Fob:</span>
                             <span id="inv-badge-${CSS.escape(keyIdentifier)}" class="inventory-badge ${keyStock > 0 ? 'in-stock' : 'out-of-stock'}">
@@ -3651,14 +3686,14 @@
                             </div>
                         </div>
                         <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key', '${escapedVehicle}', '${escapedKeyAmazon}')" id="inv-used-${CSS.escape(keyIdentifier)}" ${keyStock === 0 ? 'disabled' : ''}>✓ Log Job</button>
-                    </div>
-                `;
+                    </div >
+                            `;
                 }
 
                 // Key blank inventory
                 if (blankKeyway && blankKeyway !== 'N/A') {
                     html += `
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                            < div style = "display: flex; align-items: center; justify-content: space-between;" >
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="font-size: 0.75rem; color: var(--text-muted);">🔑 Blank (${blankKeyway}):</span>
                             <span id="blank-badge-${CSS.escape(blankKeyway)}" class="inventory-badge ${blankStock > 0 ? 'in-stock' : 'out-of-stock'}">
@@ -3670,11 +3705,11 @@
                             </div>
                         </div>
                         <button class="btn-log-job" onclick="openJobLogModal('${escapedBlank}', 'blank', '${escapedVehicle}', '${escapedBlankAmazon}')" id="blank-used-${CSS.escape(blankKeyway)}" ${blankStock === 0 ? 'disabled' : ''}>✓ Log Job</button>
-                    </div>
-                `;
+                    </div >
+                            `;
                 }
 
-                return html ? `<div style="padding-top: 8px; border-top: 1px solid var(--border);">${html}</div>` : '';
+                return html ? `< div style = "padding-top: 8px; border-top: 1px solid var(--border);" > ${html}</div > ` : '';
             }
 
             // Generate inventory control HTML for an item (legacy for FCC modal)
@@ -3686,7 +3721,7 @@
                 const cssEscapedKey = CSS.escape(itemKey);
 
                 return `
-                <div class="inventory-row">
+                            < div class="inventory-row" >
                     <div>
                         <span id="inv-badge-${cssEscapedKey}" class="inventory-badge ${stock > 0 ? 'in-stock' : 'out-of-stock'}">
                             ${stock > 0 ? `📦 ${stock} in stock` : '⚠️ Out of stock'}
@@ -3697,8 +3732,8 @@
                         </div>
                     </div>
                     <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key')" id="inv-used-${cssEscapedKey}" ${stock === 0 ? 'disabled' : ''}>✓ Log Job</button>
-                </div>
-            `;
+                </div >
+                            `;
             }
 
             // Render full inventory page
@@ -3708,7 +3743,7 @@
 
                 // Toggle Header
                 const headerHtml = `
-                    <div style="display: flex; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                            < div style = "display: flex; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);" >
                         <button onclick="renderInventoryPage('inventory')" style="
                             padding: 8px 16px; 
                             border-radius: 20px; 
@@ -3727,8 +3762,8 @@
                             font-weight: 600; 
                             cursor: pointer;
                         ">📋 Job Logs</button>
-                    </div>
-                `;
+                    </div >
+                            `;
 
                 if (view === 'logs') {
                     renderJobLogsPage(container, headerHtml);
@@ -3750,12 +3785,12 @@
 
                 if (keyEntries.length === 0 && blankEntries.length === 0 && usedKeyEntries.length === 0 && usedBlankEntries.length === 0) {
                     container.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                            < div style = "text-align: center; padding: 60px 20px; color: var(--text-muted);" >
                         <div style="font-size: 4rem; margin-bottom: 16px;">📦</div>
                         <h3 style="color: var(--text-primary); margin-bottom: 8px;">Your inventory is empty</h3>
                         <p>Browse vehicles and add keys to your inventory to track stock.</p>
-                    </div>
-                `;
+                    </div >
+                            `;
                     return;
                 }
 
@@ -3764,7 +3799,7 @@
                 // Stats summary
                 const totalInStock = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0) + blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                 html += `
-                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            < div style = "display: flex; gap: 16px; flex-wrap: wrap;" >
                     <div style="padding: 16px 24px; background: var(--bg-tertiary); border-radius: 8px; text-align: center; flex: 1; min-width: 120px;">
                         <div style="font-size: 1.5rem; font-weight: 700; color: var(--brand-primary);">${totalInStock}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">In Stock</div>
@@ -3773,14 +3808,14 @@
                         <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">${totalUsedKeys + totalUsedBlanks}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Used</div>
                     </div>
-                </div>
-            `;
+                </div >
+                            `;
 
                 // Keys in stock section
                 if (keyEntries.length > 0) {
                     const totalKeys = keyEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                     html += `
-                    <div>
+                            < div >
                         <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔐 Key Fobs & Remotes (${totalKeys} in stock)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
@@ -3808,7 +3843,7 @@
                                 ${amazonLink ? `<a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy</a>` : ''}
                             </div>
                         </div>
-                    `;
+                        `;
                     });
                     html += '</div></div>';
                 }
@@ -3817,7 +3852,7 @@
                 if (blankEntries.length > 0) {
                     const totalBlanks = blankEntries.reduce((s, [k, item]) => s + (item?.qty || 0), 0);
                     html += `
-                    <div>
+                            < div >
                         <h3 style="color: var(--brand-primary); margin-bottom: 12px;">🔑 Key Blanks (${totalBlanks} in stock)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
@@ -3845,7 +3880,7 @@
                                 <a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy</a>
                             </div>
                         </div>
-                    `;
+                        `;
                     });
                     html += '</div></div>';
                 }
@@ -3853,7 +3888,7 @@
                 // Usage History section (items that have been fully used)
                 if (usedKeyEntries.length > 0 || usedBlankEntries.length > 0) {
                     html += `
-                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                            < div style = "margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);" >
                         <h3 style="color: #22c55e; margin-bottom: 12px;">✓ Usage History (Out of Stock)</h3>
                         <div style="display: grid; gap: 8px;">
                 `;
@@ -3894,7 +3929,7 @@
                     `;
                     });
 
-                    html += '</div></div>';
+                    html += '</div></div > ';
                 }
 
                 html += '</div>';

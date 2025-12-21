@@ -1,5 +1,4 @@
 import { SignJWT, jwtVerify } from 'jose';
-import Stripe from 'stripe';
 
 // Cloudflare Worker to serve master locksmith data from D1
 // Exposes:
@@ -95,7 +94,8 @@ async function createInternalToken(user: any, secret: string) {
     name: user.name,
     is_pro: !!user.is_pro,
     is_developer: !!user.is_developer,
-    picture: user.picture
+    picture: user.picture,
+    trial_until: user.trial_until || null
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -183,9 +183,10 @@ export default {
         const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(googleUser.id).first<any>();
 
         if (!existingUser) {
+          const trialUntil = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days trial
           await env.LOCKSMITH_DB.prepare(
-            "INSERT INTO users (id, email, name, picture, created_at) VALUES (?, ?, ?, ?, ?)"
-          ).bind(googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now()).run();
+            "INSERT INTO users (id, email, name, picture, created_at, trial_until) VALUES (?, ?, ?, ?, ?, ?)"
+          ).bind(googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now(), trialUntil).run();
         } else {
           // Update details just in case
           await env.LOCKSMITH_DB.prepare(
@@ -251,9 +252,10 @@ export default {
         const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<any>();
 
         if (!existingUser) {
+          const trialUntil = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days trial
           await env.LOCKSMITH_DB.prepare(
-            "INSERT INTO users (id, email, name, picture, created_at) VALUES (?, ?, ?, ?, ?)"
-          ).bind(userId, email, name, picture, Date.now()).run();
+            "INSERT INTO users (id, email, name, picture, created_at, trial_until) VALUES (?, ?, ?, ?, ?, ?)"
+          ).bind(userId, email, name, picture, Date.now(), trialUntil).run();
         } else {
           await env.LOCKSMITH_DB.prepare(
             "UPDATE users SET email = ?, name = ?, picture = ? WHERE id = ?"
@@ -303,7 +305,7 @@ export default {
       }
 
       // Refresh data from DB to get latest status and also check developer email
-      const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer FROM users WHERE id = ?").bind(payload.sub).first<any>();
+      const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer, trial_until FROM users WHERE id = ?").bind(payload.sub).first<any>();
 
       // Also check email allow-list for developer access
       if (user && !user.is_developer && isDeveloper(user.email, env.DEV_EMAILS)) {
@@ -489,41 +491,9 @@ export default {
       }
     }
 
-    // 6. Stripe Checkout
+    // 6. Stripe Checkout - DEPRECATED: Use /api/create-checkout-session instead
+    // This endpoint has been removed. The new endpoint uses direct HTTP calls to Stripe.
 
-    if (path === "/api/stripe/checkout" && request.method === "POST") {
-      try {
-        // Authenticate
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
-        if (!sessionToken) return corsResponse(request, "Unauthorized", 401);
-        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-        if (!payload || !payload.sub) return corsResponse(request, "Unauthorized", 401);
-
-        const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27.acacia' as any });
-
-        const session = await stripe.checkout.sessions.create({
-          line_items: [
-            {
-              price: env.STRIPE_PRICE_ID,
-              quantity: 1,
-            },
-          ],
-          mode: 'payment',
-          success_url: `${url.origin}/?upgrade=success`,
-          cancel_url: `${url.origin}/?upgrade=cancel`,
-          customer_email: payload.email as string,
-          metadata: {
-            user_id: payload.sub as string
-          }
-        });
-
-        return corsResponse(request, JSON.stringify({ url: session.url }), 200);
-
-      } catch (err: any) {
-        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
-      }
-    }
 
     // ==============================================
     // ACTIVITY TRACKING & ADMIN PANEL
@@ -885,9 +855,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
         const total = countResult?.cnt || 0;
 
-        // Data query with full fields from unified vehicles table
-        const dataSql = `
-          SELECT 
+        const fields = url.searchParams.get("fields")?.split(",").map(f => f.trim()) || [];
+        const allowedFields = [
+          "id", "make", "model", "year_start", "year_end", "key_type", "keyway", "fcc_id", "chip",
+          "frequency", "immobilizer_system", "lishi_tool", "oem_part_number", "aftermarket_part",
+          "buttons", "battery", "programming_method", "pin_required", "notes",
+          "confidence_score", "source_name", "source_url", "mechanical_spec", "spaces", "depths",
+          "code_series", "ignition_retainer", "service_notes_pro", "key_blank_refs",
+          "key_type_display", "key_image_url", "has_image"
+        ];
+
+        // Data query with optional field filtering
+        let selectClause = `
             v.id, v.make, v.model,
             v.year_start, v.year_end, v.key_type, v.keyway, v.fcc_id, v.chip,
             v.frequency, v.immobilizer_system,
@@ -898,6 +877,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             v.mechanical_spec, v.spaces, v.depths, v.code_series, v.ignition_retainer, v.service_notes_pro,
             v.key_blank_refs, v.key_type_display, v.key_image_url, v.has_image,
             cr.technology as chip_technology, cr.bits as chip_bits, cr.description as chip_description
+        `;
+
+        if (fields.length > 0) {
+          const validFields = fields.filter(f => allowedFields.includes(f));
+          if (validFields.length > 0) {
+            selectClause = validFields.map(f => `v.${f}`).join(", ");
+          }
+        }
+
+        const dataSql = `
+          SELECT 
+            ${selectClause}
           FROM vehicles v
           LEFT JOIN chip_registry cr ON LOWER(v.chip) = LOWER(cr.chip_type)
           ${whereClause}
@@ -1552,17 +1543,58 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
         const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
 
-        // Enrich with Make Assets
-        // Note: For ID-based lookups we might need to query the vehicle to get the make first if it's not in the guide?
-        // But vehicle_guides table has 'make' column.
-        const rows = (result.results || []).map((row: any) => {
+        // Enrich with Make Assets AND Vehicle Research Data
+        const enrichedRows = [];
+        for (const row of (result.results || []) as any[]) {
           const makeKey = (row.make || "").toLowerCase();
+          const modelKey = (row.model || "").toLowerCase();
+
+          // Add make assets (infographics, PDFs)
           const assets = MAKE_ASSETS[makeKey];
-          if (assets) {
-            return { ...row, assets };
+          const enrichedRow = assets ? { ...row, assets } : { ...row };
+
+          // ENRICHMENT: Fetch research intel from vehicles table
+          try {
+            const vehicleIntel = await env.LOCKSMITH_DB.prepare(`
+              SELECT 
+                rf_system,
+                vin_ordered,
+                dealer_tool_only,
+                part_number_prefix,
+                service_notes_pro,
+                chip,
+                fcc_id,
+                oem_part_number,
+                programming_method
+              FROM vehicles 
+              WHERE LOWER(make) = ? 
+                AND LOWER(model) LIKE ?
+                AND (rf_system IS NOT NULL OR vin_ordered = 1 OR dealer_tool_only IS NOT NULL)
+              ORDER BY year_end DESC
+              LIMIT 1
+            `).bind(makeKey, `%${modelKey}%`).first<any>();
+
+            if (vehicleIntel) {
+              // Merge research intel into guide
+              enrichedRow.rf_system = vehicleIntel.rf_system;
+              enrichedRow.vin_ordered = vehicleIntel.vin_ordered;
+              enrichedRow.dealer_tool_only = vehicleIntel.dealer_tool_only;
+              enrichedRow.part_number_prefix = vehicleIntel.part_number_prefix;
+              enrichedRow.vehicle_warnings = vehicleIntel.service_notes_pro;
+              enrichedRow.chip = vehicleIntel.chip;
+              enrichedRow.fcc_id = vehicleIntel.fcc_id;
+              enrichedRow.oem_part_number = vehicleIntel.oem_part_number;
+              enrichedRow.programming_method = vehicleIntel.programming_method;
+            }
+          } catch (e) {
+            // Silently continue if enrichment fails
+            console.error("Guide enrichment failed:", e);
           }
-          return row;
-        });
+
+          enrichedRows.push(enrichedRow);
+        }
+
+        const rows = enrichedRows;
 
         return new Response(JSON.stringify({ rows }), {
           headers: {
@@ -2181,23 +2213,58 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
     // Create Stripe Checkout Session
     if (path === "/api/create-checkout-session" && request.method === "POST") {
       try {
-        const body = await request.json() as { userId: string; email: string; plan: string };
-        const { userId, email, plan } = body;
+        const body = await request.json() as { userId?: string; email?: string; plan: string };
+        let { userId, email, plan } = body;
 
-        if (!userId || !email || !plan) {
-          return corsResponse(request, JSON.stringify({ error: "Missing userId, email, or plan" }), 400);
+        // Try to get authenticated user if session exists
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (sessionToken) {
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (payload) {
+            userId = userId || payload.sub as string;
+            email = email || payload.email as string;
+          }
         }
 
-        // Price IDs - you'll need to create these in Stripe Dashboard and replace
-        const priceIds: Record<string, string> = {
-          monthly: "price_monthly_placeholder",  // Replace with real Stripe price ID
-          annual: "price_annual_placeholder",    // Replace with real Stripe price ID
-          lifetime: "price_lifetime_placeholder" // Replace with real Stripe price ID
+        if (!userId || !email || !plan) {
+          const missing = [];
+          if (!userId) missing.push("userId");
+          if (!email) missing.push("email");
+          if (!plan) missing.push("plan");
+          return corsResponse(request, JSON.stringify({ error: `Missing fields: ${missing.join(", ")}` }), 400);
+        }
+
+        // Plan pricing configuration (in cents)
+        const plans: Record<string, { name: string; amount: number; mode: string; interval?: string }> = {
+          monthly: { name: "EuroKeys Pro Monthly", amount: 999, mode: "subscription", interval: "month" },
+          annual: { name: "EuroKeys Pro Annual", amount: 7999, mode: "subscription", interval: "year" },
+          lifetime: { name: "EuroKeys Pro Lifetime", amount: 14999, mode: "payment" }
         };
 
-        const priceId = priceIds[plan];
-        if (!priceId) {
+        const selectedPlan = plans[plan];
+        if (!selectedPlan) {
           return corsResponse(request, JSON.stringify({ error: "Invalid plan" }), 400);
+        }
+
+        // Build checkout session body using price_data (inline pricing)
+        const bodyParams: Record<string, string> = {
+          "mode": selectedPlan.mode,
+          "success_url": "https://eurokeys.app/?subscription=success",
+          "cancel_url": "https://eurokeys.app/?subscription=canceled",
+          "customer_email": email,
+          "client_reference_id": userId,
+          "line_items[0][quantity]": "1",
+          "line_items[0][price_data][currency]": "usd",
+          "line_items[0][price_data][product_data][name]": selectedPlan.name,
+          "line_items[0][price_data][unit_amount]": String(selectedPlan.amount),
+          "metadata[userId]": userId,
+          "metadata[plan]": plan,
+        };
+
+        // Add recurring interval for subscriptions
+        if (selectedPlan.interval) {
+          bodyParams["line_items[0][price_data][recurring][interval]"] = selectedPlan.interval;
         }
 
         // Create Stripe Checkout Session via API
@@ -2207,17 +2274,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
             "Content-Type": "application/x-www-form-urlencoded",
           },
-          body: new URLSearchParams({
-            "mode": plan === "lifetime" ? "payment" : "subscription",
-            "success_url": "https://eurokeys.app/?subscription=success",
-            "cancel_url": "https://eurokeys.app/?subscription=canceled",
-            "customer_email": email,
-            "client_reference_id": userId,
-            "line_items[0][price]": priceId,
-            "line_items[0][quantity]": "1",
-            "metadata[userId]": userId,
-            "metadata[plan]": plan,
-          }),
+          body: new URLSearchParams(bodyParams),
         });
 
         const session = await stripeResponse.json() as { url?: string; error?: { message: string } };

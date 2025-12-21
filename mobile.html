@@ -822,24 +822,44 @@
             if (!year) return;
 
             const select = document.getElementById('makeSelect');
+
+            // Check Cache
+            const cacheKey = `mobile_makes_${year}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const { data, timestamp } = JSON.parse(cached);
+                    if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+                        renderMakes(data, select);
+                        return;
+                    }
+                } catch (e) { localStorage.removeItem(cacheKey); }
+            }
+
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/master?year=${year}`);
+                const res = await fetch(`${API_BASE}/api/master?year=${year}&fields=make&limit=2000`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 const makes = [...new Set(data.rows.map(r => r.make))].sort();
 
-                select.innerHTML = '<option value="">Make</option>';
-                makes.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m;
-                    opt.textContent = m;
-                    select.appendChild(opt);
-                });
+                localStorage.setItem(cacheKey, JSON.stringify({ data: makes, timestamp: Date.now() }));
+                renderMakes(makes, select);
             } catch (e) {
                 console.error('Failed to load makes:', e);
                 select.innerHTML = '<option value="">Make</option>';
             }
+        }
+
+        function renderMakes(makes, select) {
+            select.innerHTML = '<option value="">Make</option>';
+            makes.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                select.appendChild(opt);
+            });
         }
 
         async function loadModels() {
@@ -848,24 +868,44 @@
             if (!year || !make) return;
 
             const select = document.getElementById('modelSelect');
+
+            // Check Cache
+            const cacheKey = `mobile_models_${make}_${year}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const { data, timestamp } = JSON.parse(cached);
+                    if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+                        renderModels(data, select);
+                        return;
+                    }
+                } catch (e) { localStorage.removeItem(cacheKey); }
+            }
+
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/master?year=${year}&make=${encodeURIComponent(make)}`);
+                const res = await fetch(`${API_BASE}/api/master?year=${year}&make=${encodeURIComponent(make)}&fields=model&limit=1000`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 const models = [...new Set(data.rows.map(r => r.model))].sort();
 
-                select.innerHTML = '<option value="">Model</option>';
-                models.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m;
-                    opt.textContent = m;
-                    select.appendChild(opt);
-                });
+                localStorage.setItem(cacheKey, JSON.stringify({ data: models, timestamp: Date.now() }));
+                renderModels(models, select);
             } catch (e) {
                 console.error('Failed to load models:', e);
                 select.innerHTML = '<option value="">Model</option>';
             }
+        }
+
+        function renderModels(models, select) {
+            select.innerHTML = '<option value="">Model</option>';
+            models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                select.appendChild(opt);
+            });
         }
 
         // ============================================
