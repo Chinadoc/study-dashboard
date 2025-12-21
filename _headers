@@ -3,11 +3,26 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# HTML files - always revalidate to get latest version
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+# Service Worker - must check for updates
+/sw.js
+  Cache-Control: no-cache, must-revalidate
+
+# Data files - cache for 1 day
 /data/*
   Cache-Control: public, max-age=86400
 
+# Static assets - cache for 1 week
 /assets/*
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=604800, immutable
 
+# JSON files - cache for 1 hour
 /*.json
   Cache-Control: public, max-age=3600
+
+# Scripts - cache for 1 day
+/scripts/*
+  Cache-Control: public, max-age=86400
