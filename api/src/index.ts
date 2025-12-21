@@ -292,27 +292,32 @@ export default {
 
     // 3. Get Current User
     if (path === "/api/user") {
-      const cookieHeader = request.headers.get("Cookie");
-      const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+      try {
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
 
-      if (!sessionToken) {
-        return corsResponse(request, JSON.stringify({ user: null }), 200);
+        if (!sessionToken) {
+          return corsResponse(request, JSON.stringify({ user: null }), 200);
+        }
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload) {
+          return corsResponse(request, JSON.stringify({ user: null }), 200);
+        }
+
+        // Refresh data from DB to get latest status and also check developer email
+        const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer, trial_until FROM users WHERE id = ?").bind(payload.sub).first<any>();
+
+        // Also check email allow-list for developer access
+        if (user && !user.is_developer && isDeveloper(user.email, env.DEV_EMAILS)) {
+          user.is_developer = true;
+        }
+
+        return corsResponse(request, JSON.stringify({ user }), 200);
+      } catch (err: any) {
+        console.error('/api/user error:', err);
+        return corsResponse(request, JSON.stringify({ user: null, error: err.message }), 200);
       }
-
-      const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
-      if (!payload) {
-        return corsResponse(request, JSON.stringify({ user: null }), 200);
-      }
-
-      // Refresh data from DB to get latest status and also check developer email
-      const user = await env.LOCKSMITH_DB.prepare("SELECT id, name, email, picture, is_pro, is_developer, trial_until FROM users WHERE id = ?").bind(payload.sub).first<any>();
-
-      // Also check email allow-list for developer access
-      if (user && !user.is_developer && isDeveloper(user.email, env.DEV_EMAILS)) {
-        user.is_developer = true;
-      }
-
-      return corsResponse(request, JSON.stringify({ user }), 200);
     }
 
     // 4. Logout
