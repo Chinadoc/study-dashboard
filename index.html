@@ -9308,6 +9308,12 @@
             const canvas = document.getElementById('vinCameraCanvas');
             const resultEl = document.getElementById('vinScanResult');
             const detectedText = document.getElementById('vinDetectedText');
+            const captureBtn = event.currentTarget;
+
+            // Visual feedback
+            const originalText = captureBtn.innerHTML;
+            captureBtn.disabled = true;
+            captureBtn.innerHTML = '⌛ Scanning...';
 
             // Draw current frame to canvas
             canvas.width = video.videoWidth;
@@ -9315,22 +9321,39 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0);
 
-            // For now, use a simple approach - prompt for manual entry with camera context
-            // Full OCR would require Tesseract.js or cloud API
-            const vinPattern = /[A-HJ-NPR-Z0-9]{17}/gi;
+            try {
+                // OCR with Tesseract.js
+                const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+                    logger: m => console.log('🔍 OCR:', m.status, Math.round(m.progress * 100) + '%')
+                });
 
-            // Simulated OCR - in production, integrate Tesseract.js or Google Cloud Vision
-            // For now, show instruction to user
-            const manualVin = prompt('📷 Camera captured!\n\nLook at the VIN plate in the image and enter the 17 characters you see:\n\n(Tip: VIN is usually on the dashboard near windshield, or on driver door jamb)');
+                // Extract VIN pattern (17 alphanumeric chars, excluding I, O, Q)
+                const vinPattern = /[A-HJ-NPR-Z0-9]{17}/gi;
+                const matches = text.toUpperCase().replace(/\s/g, '').match(vinPattern);
 
-            if (manualVin) {
-                const cleanVin = manualVin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
-                if (cleanVin.length === 17) {
-                    detectedText.textContent = cleanVin;
+                if (matches && matches.length > 0) {
+                    const foundVin = matches[0];
+                    detectedText.textContent = foundVin;
                     resultEl.style.display = 'block';
                 } else {
-                    alert('VIN must be exactly 17 characters. Found: ' + cleanVin.length);
+                    // Fallback to manual entry if OCR fails to find a VIN
+                    const manualVin = prompt('📷 Capture complete, but no VIN was automatically detected.\n\nPlease enter the 17-character VIN manually:\n(Looking at the image you just took)');
+                    if (manualVin) {
+                        const cleanVin = manualVin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+                        if (cleanVin.length === 17) {
+                            detectedText.textContent = cleanVin;
+                            resultEl.style.display = 'block';
+                        } else {
+                            alert('VIN must be 17 characters. Try again or enter manually.');
+                        }
+                    }
                 }
+            } catch (err) {
+                console.error('OCR Error:', err);
+                alert('OCR failed. Please enter VIN manually.');
+            } finally {
+                captureBtn.disabled = false;
+                captureBtn.innerHTML = originalText;
             }
         }
 
@@ -10734,6 +10757,7 @@
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "55cb95cc0e174..."}'></script>
     <!-- End Cloudflare Web Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="scripts/tool_coverage_data.js"></script>
     <script src="scripts/programming_guides_data.js"></script>
 </body>
