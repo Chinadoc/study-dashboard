@@ -1,11 +1,13 @@
-// Euro Keys Service Worker - Enables offline support and app-like experience
-// v10 - Added skipWaiting message, improved update handling
-const CACHE_NAME = 'euro-keys-v10';
+// v12 - Added structured_guides and tool_coverage data to cache
+const CACHE_NAME = 'euro-keys-v12';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/assets/icon-192.png',
-    '/assets/icon-512.png'
+    '/assets/icon-512.png',
+    '/structured_guides.json',
+    '/scripts/tool_coverage_data.js',
+    '/scripts/programming_guides_data.js'
 ];
 
 // Install: Cache static assets and skip waiting immediately

@@ -3436,7 +3436,8 @@
                         style="width: 100%; max-height: 300px; border-radius: 8px; background: #000;" autoplay
                         playsinline></video>
                     <div style="margin-top: 12px; text-align: center;">
-                        <button onclick="captureVinFrame()" class="search-btn" style="padding: 10px 24px;">📸 Capture &
+                        <button onclick="captureVinFrame(event)" class="search-btn" style="padding: 10px 24px;">📸
+                            Capture &
                             Scan</button>
                     </div>
                     <canvas id="vinCameraCanvas" style="display: none;"></canvas>
@@ -9303,7 +9304,7 @@
         }
 
         // Capture frame and extract VIN
-        async function captureVinFrame() {
+        async function captureVinFrame(event) {
             const video = document.getElementById('vinCameraVideo');
             const canvas = document.getElementById('vinCameraCanvas');
             const resultEl = document.getElementById('vinScanResult');
