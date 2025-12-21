@@ -4741,6 +4741,7 @@
 
         function renderMakeGrid() {
             const grid = document.getElementById('makeGrid');
+            if (!grid) return; // Element was removed
             if (grid.children.length > 0) return; // Already rendered
 
             grid.innerHTML = POPULAR_MAKES.map(make => {
@@ -4763,9 +4764,13 @@
 
         async function selectVisualMake(make) {
             // Hide landing, show selection card
-            document.querySelector('.hero-section').style.display = 'none';
-            document.getElementById('visualMakeSelector').style.display = 'none';
-            document.getElementById('legacySearchCard').style.display = 'block';
+            const hero = document.querySelector('.hero-section');
+            const visualSelector = document.getElementById('visualMakeSelector');
+            const legacyCard = document.getElementById('legacySearchCard');
+
+            if (hero) hero.style.display = 'none';
+            if (visualSelector) visualSelector.style.display = 'none';
+            if (legacyCard) legacyCard.style.display = 'block';
 
             // Set Selected Make UI
             document.getElementById('selectedVehicleDisplay').style.display = 'block';
