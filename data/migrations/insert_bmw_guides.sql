@@ -1,13 +1,8 @@
 -- BMW Locksmith Guides - X3 and Related Models
 -- Based on BMW Professional Locksmith Programming Guide (1995-2025)
 
--- First, ensure BMW exists in vehicles_master
-INSERT OR IGNORE INTO vehicles_master (make, model, make_normalized, model_normalized)
-VALUES 
-    ('BMW', 'X3', 'bmw', 'x3'),
-    ('BMW', '3 Series', 'bmw', '3 series'),
-    ('BMW', '5 Series', 'bmw', '5 series'),
-    ('BMW', 'X5', 'bmw', 'x5');
+-- Ensure BMW exists in vehicles (optional check, but safer to focus on guides)
+-- Existing vehicles table handles the master list.
 
 -- BMW X3 (G01) 2018-2025 - FEM/BDC Era Guide
 INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, content, created_at)

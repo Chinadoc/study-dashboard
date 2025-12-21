@@ -2061,7 +2061,7 @@
                                 <li style="margin-bottom: 8px;">✓ Stock Alerts</li>
                                 <li style="margin-bottom: 8px;">✓ Priority Support</li>
                             </ul>
-                            <button onclick="startCheckout('monthly')"
+                            <button onclick="startCheckout('monthly', event)"
                                 style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--brand-primary); color: var(--brand-primary); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
                                 Start Monthly
                             </button>
@@ -2086,7 +2086,7 @@
                                 <li style="margin-bottom: 8px;">✓ Priority Support</li>
                                 <li style="margin-bottom: 8px;">✓ 2 Months Free</li>
                             </ul>
-                            <button onclick="startCheckout('annual')"
+                            <button onclick="startCheckout('annual', event)"
                                 style="width: 100%; padding: 12px; background: #fbbf24; border: none; color: #000; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
                                 Get Annual Plan
                             </button>
@@ -2106,7 +2106,7 @@
                                 <li style="margin-bottom: 8px;">✓ All Pro Features Forever</li>
                                 <li style="margin-bottom: 8px;">✓ No Recurring Fees</li>
                             </ul>
-                            <button onclick="startCheckout('lifetime')"
+                            <button onclick="startCheckout('lifetime', event)"
                                 style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--text-muted); color: var(--text-primary); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
                                 Buy Lifetime
                             </button>
@@ -6545,26 +6545,38 @@
             if (modal) modal.style.display = 'none';
         }
 
-        async function startCheckout(plan) {
+        async function startCheckout(plan, event) {
             console.log('startCheckout called with plan:', plan);
-            console.log('currentUser:', currentUser);
 
+            // Use window.event if event is not passed (legacy)
+            const clickEvent = event || window.event;
+            const btn = clickEvent ? clickEvent.currentTarget || clickEvent.target : null;
+
+            // Try to reload user from localStorage if currentUser is null
             if (!currentUser) {
-                console.warn('No currentUser, prompting sign-in');
-                google.accounts.id.prompt(); // Ask to sign in first
+                const saved = localStorage.getItem('eurokeys_user');
+                if (saved) {
+                    try {
+                        currentUser = JSON.parse(saved);
+                        console.log('Restored currentUser from localStorage for checkout');
+                    } catch (e) { }
+                }
+            }
+
+            console.log('currentUser state:', currentUser);
+
+            if (!currentUser || !currentUser.email || (!currentUser.sub && !currentUser.id)) {
+                console.warn('Incomplete user session for checkout:', currentUser);
+                alert('Please sign in (or sign out and back in) to complete your purchase.');
+                if (!currentUser) google.accounts.id.prompt();
                 return;
             }
 
-            if (!currentUser.email || (!currentUser.sub && !currentUser.id)) {
-                console.error('currentUser is missing email or id:', currentUser);
-                alert('Please sign out and sign in again to complete checkout.');
-                return;
+            const originalText = btn ? btn.innerText : 'Redirecting...';
+            if (btn) {
+                btn.innerText = 'Redirecting...';
+                btn.disabled = true;
             }
-
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = 'Redirecting...';
-            btn.disabled = true;
 
             try {
                 const requestBody = {
@@ -6572,12 +6584,13 @@
                     email: currentUser.email,
                     plan: plan
                 };
-                console.log('Sending checkout request:', requestBody);
+                console.log('Sending checkout request to:', `${API}/api/create-checkout-session`);
+                console.log('Request body:', requestBody);
 
                 const res = await fetch(`${API}/api/create-checkout-session`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include', // Ensure session cookie is sent
+                    credentials: 'include',
                     body: JSON.stringify(requestBody)
                 });
 
@@ -6818,7 +6831,8 @@
                         parsed.email.includes('@') &&
                         parsed.name &&
                         parsed.name !== 'User' &&
-                        parsed.name.length > 1;
+                        parsed.name.length > 1 &&
+                        (parsed.id || parsed.sub);
                     if (hasValidData) {
                         currentUser = parsed;
                         updateAuthUI(true);

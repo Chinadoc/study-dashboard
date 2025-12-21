@@ -2232,7 +2232,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           if (!userId) missing.push("userId");
           if (!email) missing.push("email");
           if (!plan) missing.push("plan");
-          return corsResponse(request, JSON.stringify({ error: `Missing fields: ${missing.join(", ")}` }), 400);
+
+          // Return the keys present in the body to help debug
+          const bodyKeys = Object.keys(body || {}).join(", ");
+          return corsResponse(request, JSON.stringify({
+            error: `Missing fields: ${missing.join(", ")} (Found in body: ${bodyKeys || 'none'})`
+          }), 400);
         }
 
         // Plan pricing configuration (in cents)
