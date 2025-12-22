@@ -1,5 +1,5 @@
-// v14 - Fixed script paths for Cloudflare Pages deployment
-const CACHE_NAME = 'euro-keys-v14';
+// v15 - 14-day free trial for all users
+const CACHE_NAME = 'euro-keys-v15';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
