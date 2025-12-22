@@ -1,13 +1,13 @@
-// v13 - Removed redundant VIN UI elements, unified search bar
-const CACHE_NAME = 'euro-keys-v13';
+// v14 - Fixed script paths for Cloudflare Pages deployment
+const CACHE_NAME = 'euro-keys-v14';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/assets/icon-192.png',
     '/assets/icon-512.png',
     '/structured_guides.json',
-    '/scripts/tool_coverage_data.js',
-    '/scripts/programming_guides_data.js'
+    '/public/js/tool_coverage_data.js',
+    '/public/js/programming_guides_data.js'
 ];
 
 // Install: Cache static assets and skip waiting immediately

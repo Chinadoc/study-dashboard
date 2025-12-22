@@ -7009,40 +7009,70 @@
             interactions: 0
         };
 
-        // Log user activity to the server (supports anonymous tracking)
-        async function logActivity(action, details = null) {
-            if (window.isAuthExpired && ['sign_in', 'sign_in_popup'].indexOf(action) === -1) {
-                return; // Suppress noise if auth is dead
-            }
+        // Log batching for better performance
+        const logQueue = [];
+        let logFlushTimeout = null;
+
+        async function flushLogQueue() {
+            if (logQueue.length === 0) return;
+
+            const batch = [...logQueue];
+            logQueue.length = 0; // Clear queue
 
             try {
-                sessionData.interactions++;
-                const visitorId = getVisitorId();
-                const response = await fetch(`${API}/api/activity/log`, {
+                await fetch(`${API}/api/activity/batch`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify({
-                        action,
-                        details: {
-                            ...details,
-                            sessionDuration: Math.floor((Date.now() - sessionData.startTime) / 1000),
-                            interactions: sessionData.interactions
-                        },
-                        visitorId,
+                        logs: batch,
+                        visitorId: getVisitorId(),
                         user_email: currentUser?.email || null
                     })
                 });
-
-                if (response.status === 401) {
-                    window.isAuthExpired = true;
-                    localStorage.removeItem('eurokeys_user');
-                    updateAuthUI(false);
-                }
             } catch (e) {
                 // Silently fail for analytics
             }
         }
+
+        // Log user activity to the server (batched for performance)
+        function logActivity(action, details = null) {
+            if (window.isAuthExpired && ['sign_in', 'sign_in_popup'].indexOf(action) === -1) {
+                return; // Suppress noise if auth is dead
+            }
+
+            sessionData.interactions++;
+
+            logQueue.push({
+                action,
+                details: {
+                    ...details,
+                    sessionDuration: Math.floor((Date.now() - sessionData.startTime) / 1000),
+                    interactions: sessionData.interactions
+                },
+                timestamp: Date.now()
+            });
+
+            // Debounce: flush after 5 seconds of no new logs, or immediately if queue is large
+            if (logFlushTimeout) clearTimeout(logFlushTimeout);
+
+            if (logQueue.length >= 10) {
+                flushLogQueue();
+            } else {
+                logFlushTimeout = setTimeout(flushLogQueue, 5000);
+            }
+        }
+
+        // Flush logs before page unload
+        window.addEventListener('beforeunload', () => {
+            if (logQueue.length > 0) {
+                navigator.sendBeacon(`${API}/api/activity/batch`, JSON.stringify({
+                    logs: logQueue,
+                    visitorId: getVisitorId(),
+                    user_email: currentUser?.email || null
+                }));
+            }
+        });
 
         // Track all button and link clicks with context
         document.addEventListener('click', (e) => {
@@ -11024,8 +11054,8 @@
         data-cf-beacon='{"token": "55cb95cc0e174..."}'></script>
     <!-- End Cloudflare Web Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="scripts/tool_coverage_data.js"></script>
-    <script src="scripts/programming_guides_data.js"></script>
+    <script src="public/js/tool_coverage_data.js"></script>
+    <script src="public/js/programming_guides_data.js"></script>
 </body>
 
 </html>

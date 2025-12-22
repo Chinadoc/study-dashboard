@@ -542,6 +542,53 @@ export default {
       }
     }
 
+    // Batch log user activity (performance optimization)
+    if (path === "/api/activity/batch" && request.method === "POST") {
+      try {
+        const body: any = await request.json();
+        const { logs, visitorId, user_email } = body;
+
+        if (!Array.isArray(logs) || logs.length === 0) {
+          return corsResponse(request, JSON.stringify({ success: true, count: 0 }));
+        }
+
+        let userId = visitorId ? `guest:${visitorId}` : "anonymous";
+
+        // Try to get authenticated user if session exists
+        const cookieHeader = request.headers.get("Cookie");
+        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        if (sessionToken) {
+          try {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload && payload.sub) {
+              userId = payload.sub as string;
+            }
+          } catch (e) { /* ignore invalid token, keep visitorId */ }
+        }
+
+        const userAgent = request.headers.get("User-Agent");
+        const stmt = env.LOCKSMITH_DB.prepare(
+          "INSERT INTO user_activity (user_id, action, details, user_agent, created_at) VALUES (?, ?, ?, ?, ?)"
+        );
+
+        const batch = logs.slice(0, 50).map((log: any) => stmt.bind(
+          userId,
+          log.action,
+          log.details ? JSON.stringify(log.details) : null,
+          userAgent,
+          log.timestamp || Date.now()
+        ));
+
+        if (batch.length > 0) {
+          await env.LOCKSMITH_DB.batch(batch);
+        }
+
+        return corsResponse(request, JSON.stringify({ success: true, count: batch.length }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // Admin: Get all users (developer only)
     if (path === "/api/admin/users") {
       try {
