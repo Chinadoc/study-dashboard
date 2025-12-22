@@ -6698,9 +6698,10 @@
 
         // Sign in with Google
         function signInWithGoogle() {
-            // Use server-side redirect OAuth flow (works when third-party cookies are blocked)
-            // This redirects to Google, which redirects back to /api/auth/callback
-            window.location.href = `${API}/api/auth/google`;
+            // ALWAYS use direct Workers URL for OAuth - the proxy breaks Google's sign-in scripts
+            // The callback will redirect back to eurokeys.app after sign-in
+            const WORKERS_URL = 'https://euro-keys.jeremy-samuels17.workers.dev';
+            window.location.href = `${WORKERS_URL}/api/auth/google`;
         }
 
         // Initialize Google Sign-In (kept for backward compatibility with One Tap on page load)
@@ -11022,6 +11023,42 @@
 
         // Initialize Everything
         window.addEventListener('DOMContentLoaded', () => {
+            // Handle OAuth callback token in URL hash
+            const hash = window.location.hash;
+            if (hash.startsWith('#auth_token=')) {
+                const token = hash.replace('#auth_token=', '');
+                if (token) {
+                    try {
+                        // Decode the JWT to get user info (payload is base64 encoded)
+                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        currentUser = {
+                            id: payload.sub,
+                            email: payload.email,
+                            name: payload.name,
+                            picture: payload.picture,
+                            is_pro: payload.is_pro,
+                            is_developer: payload.is_developer,
+                            trial_until: payload.trial_until
+                        };
+                        localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
+                        localStorage.setItem('eurokeys_session_token', token);
+                        // Clear the hash from URL
+                        history.replaceState(null, '', window.location.pathname);
+                        console.log('Auth completed via redirect, user:', currentUser.email);
+                        // Update UI after brief delay to ensure DOM is ready
+                        setTimeout(() => {
+                            updateAuthUI(true);
+                            if (currentUser.is_developer) {
+                                const devTab = document.getElementById('devTab');
+                                if (devTab) devTab.style.display = 'inline-flex';
+                            }
+                        }, 100);
+                    } catch (e) {
+                        console.error('Failed to parse auth token:', e);
+                    }
+                }
+            }
+
             // Initialize 14-day trial for all visitors
             initAnonymousTrial();
 

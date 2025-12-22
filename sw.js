@@ -1,5 +1,5 @@
-// v17 - Redirect-based OAuth, tabs visible to all users
-const CACHE_NAME = 'euro-keys-v17';
+// v18 - Cross-domain OAuth with token in URL hash
+const CACHE_NAME = 'euro-keys-v18';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

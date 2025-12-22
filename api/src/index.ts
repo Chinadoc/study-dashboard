@@ -217,10 +217,13 @@ export default {
         const userWithDev = { ...user, is_developer: userIsDeveloper || user.is_developer };
         const sessionToken = await createInternalToken(userWithDev, env.JWT_SECRET || 'dev-secret');
 
-        // Redirect to Frontend with Cookie
+        // Redirect to Frontend with token in URL fragment
+        // Cross-domain cookies won't work, so pass the token in the URL for the frontend to store
         const headers = new Headers();
+        // Still set cookie for Workers domain (for API calls that go directly to Workers)
         headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=2592000`);
-        headers.set("Location", "/"); // Go back to home
+        // Redirect with token in hash (hash fragment is not sent to server, so it's secure)
+        headers.set("Location", `https://eurokeys.app/#auth_token=${sessionToken}`);
 
         return new Response(null, { status: 302, headers });
 
