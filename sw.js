@@ -1,5 +1,5 @@
-// v15 - 14-day free trial for all users
-const CACHE_NAME = 'euro-keys-v15';
+// v16 - Improved caching strategy with stale-while-revalidate
+const CACHE_NAME = 'euro-keys-v16';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -12,7 +12,7 @@ const STATIC_ASSETS = [
 
 // Install: Cache static assets and skip waiting immediately
 self.addEventListener('install', (event) => {
-    console.log('Service Worker: Installing v10');
+    console.log(`Service Worker: Installing ${CACHE_NAME}`);
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('Service Worker: Caching static assets');
@@ -25,7 +25,7 @@ self.addEventListener('install', (event) => {
 
 // Activate: Clean up old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
-    console.log('Service Worker: Activating v10');
+    console.log(`Service Worker: Activating ${CACHE_NAME}`);
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(

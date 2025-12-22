@@ -3,34 +3,34 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
-# HTML - Cache at edge, revalidate to catch updates
+# HTML - Always revalidate, use stale content while fetching
 /index.html
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=0, s-maxage=3600, stale-while-revalidate=86400
 
-# Service Worker - Edge cached 1 day, browser always checks
+# Service Worker - NEVER cache (browsers need to check for updates)
 /sw.js
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
 
-# Mobile HTML
-/mobile.html
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+# Manifest - Revalidate
+/manifest.webmanifest
+  Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=86400
+
+# Public JS files (data scripts) - Cache 1 hour, stale-while-revalidate
+/public/js/*
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
 
 # Data files - Edge cached 1 week
 /data/*
   Cache-Control: public, max-age=86400, s-maxage=604800
 
-# Static assets - Edge cached 1 month, immutable
+# Static assets - Long cache, immutable (icons, images)
 /assets/*
   Cache-Control: public, max-age=2592000, s-maxage=2592000, immutable
 
-# JSON data - Edge cached 1 day
+# JSON data - Cache 1 hour, stale while revalidate
 /*.json
-  Cache-Control: public, max-age=3600, s-maxage=86400
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
 
-# Scripts - Edge cached 1 week
-/scripts/*
-  Cache-Control: public, max-age=86400, s-maxage=604800
-
-# Guides HTML - Edge cached 1 week
-/guides/*
-  Cache-Control: public, max-age=86400, s-maxage=604800
+# Favicon
+/favicon.ico
+  Cache-Control: public, max-age=2592000, immutable
