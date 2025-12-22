@@ -7563,6 +7563,12 @@
 
         // ================== INVENTORY MANAGER ==================
 
+        // Helper to get auth headers for API calls (Bearer token from localStorage)
+        function getAuthHeaders() {
+            const token = localStorage.getItem('eurokeys_session_token');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
+
         const InventoryManager = {
             KEYS_STORAGE_KEY: 'eurokeys_inventory_keys_v2',
             BLANKS_STORAGE_KEY: 'eurokeys_inventory_blanks_v2',
@@ -7768,7 +7774,7 @@
                 }
                 try {
                     const response = await fetch(`${API}/api/user/inventory`, {
-                        credentials: 'include'
+                        headers: getAuthHeaders()
                     });
                     if (!response.ok) {
                         console.warn('📦 Inventory: Cloud sync unavailable', response.status);
@@ -7842,8 +7848,7 @@
                 try {
                     await fetch(`${API}/api/user/inventory`, {
                         method: 'POST',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
                         body: JSON.stringify({ item_key, type, qty, vehicle, amazon_link })
                     });
                     console.log('☁️ Synced to cloud:', item_key, type, qty);
@@ -7860,8 +7865,7 @@
                 try {
                     await fetch(`${API}/api/user/inventory`, {
                         method: 'DELETE',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
                         body: JSON.stringify({ item_key, type })
                     });
                     console.log('🗑️ Deleted from cloud:', item_key, type);

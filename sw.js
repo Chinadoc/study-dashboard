@@ -1,5 +1,5 @@
-// v18 - Cross-domain OAuth with token in URL hash
-const CACHE_NAME = 'euro-keys-v18';
+// v19 - Inventory cloud sync with Authorization header (cross-domain fix)
+const CACHE_NAME = 'euro-keys-v19';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

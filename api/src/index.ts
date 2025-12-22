@@ -142,6 +142,19 @@ function isDeveloper(email: string, devEmails: string): boolean {
   return allowed.includes((email || '').toLowerCase());
 }
 
+// Extract session token from Authorization header (Bearer) or Cookie
+// This allows cross-domain auth when cookies can't be shared
+function getSessionToken(request: Request): string | null {
+  // First try Authorization header (preferred for cross-domain)
+  const authHeader = request.headers.get("Authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.slice(7);
+  }
+  // Fall back to cookie
+  const cookieHeader = request.headers.get("Cookie");
+  return cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1] || null;
+}
+
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -388,8 +401,7 @@ export default {
     // GET /api/user/inventory - Fetch user's inventory
     if (path === "/api/user/inventory" && request.method === "GET") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        const sessionToken = getSessionToken(request);
         if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
@@ -420,8 +432,7 @@ export default {
     // POST /api/user/inventory - Add/Update single inventory item
     if (path === "/api/user/inventory" && request.method === "POST") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        const sessionToken = getSessionToken(request);
         if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
@@ -450,8 +461,7 @@ export default {
     // DELETE /api/user/inventory - Remove inventory item
     if (path === "/api/user/inventory" && request.method === "DELETE") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        const sessionToken = getSessionToken(request);
         if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
