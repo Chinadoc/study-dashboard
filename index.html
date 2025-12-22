@@ -6698,60 +6698,41 @@
 
         // Sign in with Google
         function signInWithGoogle() {
-            // Check if Google Identity Services is loaded
-            if (typeof google === 'undefined' || !google.accounts) {
-                // Load the Google Identity Services library
-                const script = document.createElement('script');
-                script.src = 'https://accounts.google.com/gsi/client';
-                script.async = true;
-                script.defer = true;
-                script.onload = () => initGoogleSignIn();
-                document.head.appendChild(script);
-            } else {
-                initGoogleSignIn();
-            }
+            // Use server-side redirect OAuth flow (works when third-party cookies are blocked)
+            // This redirects to Google, which redirects back to /api/auth/callback
+            window.location.href = `${API}/api/auth/google`;
         }
 
-        // Initialize Google Sign-In popup
+        // Initialize Google Sign-In (kept for backward compatibility with One Tap on page load)
         function initGoogleSignIn() {
-            if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
-                alert('Please configure your Google OAuth Client ID in the application code.\n\nGo to Google Cloud Console → APIs & Services → Credentials to create an OAuth 2.0 Client ID.');
-                return;
-            }
-
-            // Detect mobile to use redirect mode (popups are blocked on mobile)
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleSignIn,
-                auto_select: false,
-                ux_mode: isMobile ? 'redirect' : 'popup'
-            });
-
-            // Show the One Tap UI or popup
-            google.accounts.id.prompt((notification) => {
-                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    // If One Tap is not displayed, use the button approach with appropriate mode
-                    const tokenClient = google.accounts.oauth2.initTokenClient({
-                        client_id: GOOGLE_CLIENT_ID,
-                        scope: 'email profile',
-                        callback: (response) => {
-                            if (response.access_token) {
-                                fetchUserProfile(response.access_token);
-                            }
-                        }
-                    });
-
-                    // Use popup on desktop, redirect on mobile
-                    if (isMobile) {
-                        // For mobile, use redirect flow
-                        tokenClient.requestAccessToken({ prompt: 'consent' });
-                    } else {
-                        tokenClient.requestAccessToken();
-                    }
+            // One Tap is optional and may be blocked by cookie settings
+            // The main sign-in button uses redirect flow instead
+            try {
+                if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+                    console.log('Google Identity Services not available, using redirect flow only');
+                    return;
                 }
-            });
+
+                if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+                    return; // Not configured
+                }
+
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleSignIn,
+                    auto_select: false,
+                    use_fedcm_for_prompt: true // Use FedCM for better third-party cookie handling
+                });
+
+                // Try One Tap (may not display if cookies blocked)
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed()) {
+                        console.log('One Tap not displayed:', notification.getNotDisplayedReason());
+                    }
+                });
+            } catch (e) {
+                console.log('Google Sign-In initialization error (using redirect flow as fallback):', e);
+            }
         }
 
         // Handle Google Sign-In callback (for ID token flow)
@@ -6941,22 +6922,22 @@
                 signInBtn.style.display = 'flex';
                 userMenu.style.display = 'none';
 
-                // Hide inventory tab
+                // Keep inventory tab visible (shows sign-in prompt when clicked)
                 const inventoryTab = document.getElementById('inventoryTab');
                 if (inventoryTab) {
-                    inventoryTab.style.display = 'none';
+                    inventoryTab.style.display = 'inline-flex';
                 }
 
-                // Hide developer tab
+                // Hide developer tab (requires sign-in AND developer access)
                 const devTab = document.getElementById('devTab');
                 if (devTab) {
                     devTab.style.display = 'none';
                 }
 
-                // Hide subscriptions tab
+                // Keep subscriptions tab visible (shows sign-in prompt when clicked)
                 const subscriptionsTab = document.getElementById('subscriptionsTab');
                 if (subscriptionsTab) {
-                    subscriptionsTab.style.display = 'none';
+                    subscriptionsTab.style.display = 'inline-flex';
                 }
             }
 
@@ -8162,7 +8143,9 @@
         }
 
         function inventoryAdd(itemKey, type = 'key', vehicle = null, amazonLink = null) {
-            if (!isPro) {
+            // Allow all trial users (active trial OR pro)
+            const trialStatus = getTrialStatus();
+            if (!trialStatus.hasAccess) {
                 openUpgradeModal();
                 return;
             }
@@ -8176,7 +8159,9 @@
         }
 
         function inventoryMinus(itemKey, type = 'key') {
-            if (!isPro) {
+            // Allow all trial users (active trial OR pro)
+            const trialStatus = getTrialStatus();
+            if (!trialStatus.hasAccess) {
                 openUpgradeModal();
                 return;
             }
@@ -8633,6 +8618,47 @@
         function renderInventoryPage(view = 'inventory') {
             const container = document.getElementById('inventoryContent');
             if (!container) return;
+
+            // Show sign-in prompt for anonymous users
+            if (!currentUser) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">📦</div>
+                        <h2 style="color: var(--brand-primary); margin-bottom: 12px;">My Inventory</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                            Track your key stock, log jobs, and sync across devices. 
+                            Sign in to access your personal inventory.
+                        </p>
+                        <button onclick="signInWithGoogle()" style="
+                            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                            color: #000;
+                            border: none;
+                            padding: 14px 32px;
+                            border-radius: 30px;
+                            font-size: 1rem;
+                            font-weight: 700;
+                            cursor: pointer;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+                        ">
+                            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                            Sign in with Google
+                        </button>
+                        <div style="margin-top: 30px; padding: 20px; background: var(--bg-secondary); border-radius: 12px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                            <h4 style="color: var(--text-primary); margin-bottom: 12px;">✨ Features include:</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: left; color: var(--text-secondary); font-size: 0.9rem;">
+                                <div>📊 Stock tracking</div>
+                                <div>📋 Job logs</div>
+                                <div>🗺️ Coverage map</div>
+                                <div>☁️ Cloud sync</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
 
             // Toggle Header
             const headerHtml = `

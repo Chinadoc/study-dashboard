@@ -1,5 +1,5 @@
-// v16 - Improved caching strategy with stale-while-revalidate
-const CACHE_NAME = 'euro-keys-v16';
+// v17 - Redirect-based OAuth, tabs visible to all users
+const CACHE_NAME = 'euro-keys-v17';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
