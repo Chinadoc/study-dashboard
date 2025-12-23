@@ -2033,11 +2033,36 @@
                         <textarea id="jobNotes" placeholder="Any details..." style="height: 50px;"></textarea>
                     </div>
 
+                    <div class="job-form-group"
+                        style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                        <input type="checkbox" id="jobConsumeStock" checked
+                            style="width: 20px; height: 20px; accent-color: var(--brand-primary);">
+                        <label for="jobConsumeStock" style="margin: 0; cursor: pointer;">Consume 1 Inventory
+                            Item</label>
+                    </div>
+
                     <div class="job-modal-actions">
                         <button type="button" class="btn-cancel-job" onclick="closeJobModal()">Cancel</button>
                         <button type="submit" class="btn-save-job">✓ Log Job & Use Item</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeDeleteConfirmModal()"></div>
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 32px;">
+            <div style="font-size: 3rem; margin-bottom: 16px;">🗑️</div>
+            <h3 style="margin-bottom: 12px; color: var(--text-primary);">Delete Item?</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Are you sure you want to remove this item from
+                your inventory? This action cannot be undone.</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="closeDeleteConfirmModal()"
+                    style="padding: 10px 24px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
+                <button onclick="confirmDelete()"
+                    style="padding: 10px 24px; background: #ef4444; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Delete</button>
             </div>
         </div>
     </div>
@@ -7776,6 +7801,12 @@
                     const response = await fetch(`${API}/api/user/inventory`, {
                         headers: getAuthHeaders()
                     });
+                    if (response.status === 401) {
+                        console.warn('Session expired (401)');
+                        signOut();
+                        alert('Session expired. Please sign in again.');
+                        return false;
+                    }
                     if (!response.ok) {
                         console.warn('📦 Inventory: Cloud sync unavailable', response.status);
                         return false;
@@ -7846,11 +7877,16 @@
             async syncToCloud(item_key, type, qty, vehicle = null, amazon_link = null) {
                 if (!currentUser) return false;
                 try {
-                    await fetch(`${API}/api/user/inventory`, {
+                    const res = await fetch(`${API}/api/user/inventory`, {
                         method: 'POST',
                         headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
                         body: JSON.stringify({ item_key, type, qty, vehicle, amazon_link })
                     });
+                    if (res.status === 401) {
+                        console.warn('Session expired (401)');
+                        signOut();
+                        return false;
+                    }
                     console.log('☁️ Synced to cloud:', item_key, type, qty);
                     return true;
                 } catch (e) {
@@ -7863,11 +7899,16 @@
             async deleteFromCloud(item_key, type) {
                 if (!currentUser) return false;
                 try {
-                    await fetch(`${API}/api/user/inventory`, {
+                    const res = await fetch(`${API}/api/user/inventory`, {
                         method: 'DELETE',
                         headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
                         body: JSON.stringify({ item_key, type })
                     });
+                    if (res.status === 401) {
+                        console.warn('Session expired (401)');
+                        signOut();
+                        return false;
+                    }
                     console.log('🗑️ Deleted from cloud:', item_key, type);
                     return true;
                 } catch (e) {
@@ -8196,13 +8237,38 @@
         }
 
         // Open the job logging modal
+        // Delete Confirmation Logic
+        let deleteTargetKey = null;
+        let deleteTargetType = null;
+
+        window.openDeleteConfirmModal = function (key, type) {
+            deleteTargetKey = key;
+            deleteTargetType = type;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        window.closeDeleteConfirmModal = function () {
+            deleteTargetKey = null;
+            deleteTargetType = null;
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+        }
+
+        window.confirmDelete = function () {
+            if (deleteTargetKey && deleteTargetType) {
+                InventoryManager.deleteItem(deleteTargetKey, deleteTargetType);
+                renderInventoryPage();
+                closeDeleteConfirmModal();
+            }
+        }
+
         window.openJobLogModal = function (itemKey, type = 'key', vehicle = null, amazonLink = null) {
             // Get current stock
             const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
-            if (stock <= 0) {
-                if (!itemKey) return;
-                alert("Cannot log job: Item is out of stock.");
-                return;
+
+            // Set consume checkbox state
+            const checkbox = document.getElementById('jobConsumeStock');
+            if (checkbox) {
+                checkbox.checked = stock > 0;
             }
 
             // Get saved metadata from inventory for defaults
@@ -8349,27 +8415,31 @@
             const hourlyRate = hours > 0 ? netProfit / hours : 0;
             const taxEstimate = Math.max(0, netProfit * TAX_RATE);
 
-            const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
+            // Consuming stock logic
+            const consumeStock = document.getElementById('jobConsumeStock').checked;
 
-            if (stock <= 0) {
-                alert('No stock available to log a job for this item.');
-                return;
-            }
-
-            // Decrement stock
-            if (type === 'blank') {
-                InventoryManager.useBlankStock(itemKey);
-                const inv = InventoryManager.getBlanksInventory();
-                if (inv[itemKey] && !inv[itemKey].vehicle && description) {
-                    inv[itemKey].vehicle = description;
-                    InventoryManager.setBlanksInventory(inv);
+            if (consumeStock) {
+                const stock = type === 'blank' ? InventoryManager.getBlankStock(itemKey) : InventoryManager.getKeyStock(itemKey);
+                if (stock <= 0) {
+                    if (!confirm('Stock is 0. Log job and decrement anyway (resulting in negative/used count)?')) {
+                        return;
+                    }
                 }
-            } else {
-                InventoryManager.useKeyStock(itemKey);
-                const inv = InventoryManager.getKeysInventory();
-                if (inv[itemKey] && !inv[itemKey].vehicle && description) {
-                    inv[itemKey].vehicle = description;
-                    InventoryManager.setKeysInventory(inv);
+
+                if (type === 'blank') {
+                    InventoryManager.useBlankStock(itemKey);
+                    const inv = InventoryManager.getBlanksInventory();
+                    if (inv[itemKey] && !inv[itemKey].vehicle && description) {
+                        inv[itemKey].vehicle = description;
+                        InventoryManager.setBlanksInventory(inv);
+                    }
+                } else {
+                    InventoryManager.useKeyStock(itemKey);
+                    const inv = InventoryManager.getKeysInventory();
+                    if (inv[itemKey] && !inv[itemKey].vehicle && description) {
+                        inv[itemKey].vehicle = description;
+                        InventoryManager.setKeysInventory(inv);
+                    }
                 }
             }
 
@@ -8847,7 +8917,7 @@
                                 </div>
                                 <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'key', '${vehicle ? vehicle.replace(/'/g, "\\\\'") : ''}', '${amazonLink ? amazonLink.replace(/'/g, "\\\\'") : ''}')" style="padding: 6px 12px; font-size: 0.8rem;">✓ Log Job</button>
                                 ${amazonLink ? `<a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy</a>` : ''}
-                                <button onclick="if(confirm('Delete this item from inventory?')) { InventoryManager.deleteItem('${escapedKey}', 'key'); renderInventoryPage(); }" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from inventory">✕</button>
+                                <button onclick="openDeleteConfirmModal('${escapedKey}', 'key')" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from inventory">✕</button>
                             </div>
                         </div>
                     `;
@@ -8885,7 +8955,7 @@
                                 </div>
                                 <button class="btn-log-job" onclick="openJobLogModal('${escapedKey}', 'blank', '${vehicle ? vehicle.replace(/'/g, "\\\\'") : ''}', '${amazonLink ? amazonLink.replace(/'/g, "\\\\'") : ''}')" style="padding: 6px 12px; font-size: 0.8rem;">✓ Log Job</button>
                                 <a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Buy</a>
-                                <button onclick="if(confirm('Delete this item from inventory?')) { InventoryManager.deleteItem('${escapedKey}', 'blank'); renderInventoryPage(); }" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from inventory">✕</button>
+                                <button onclick="openDeleteConfirmModal('${escapedKey}', 'blank')" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from inventory">✕</button>
                             </div>
                         </div>
                     `;
@@ -8919,7 +8989,7 @@
                                     <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'key'); renderInventoryPage();">+</button>
                                 </div>
                                 ${amazonLink ? `<a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Restock</a>` : ''}
-                                <button onclick="if(confirm('Delete this item from history?')) { InventoryManager.deleteItem('${escapedKey}', 'key'); renderInventoryPage(); }" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from history">✕</button>
+                                <button onclick="openDeleteConfirmModal('${escapedKey}', 'key')" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from history">✕</button>
                             </div>
                         </div>
                     `;
@@ -8943,7 +9013,7 @@
                                     <button class="inventory-btn" onclick="inventoryAdd('${escapedKey}', 'blank'); renderInventoryPage();">+</button>
                                 </div>
                                 <a href="${amazonLink}" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ff9900, #ff6600); color: #000; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none;">🛒 Restock</a>
-                                <button onclick="if(confirm('Delete this item from history?')) { InventoryManager.deleteItem('${escapedKey}', 'blank'); renderInventoryPage(); }" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from history">✕</button>
+                                <button onclick="openDeleteConfirmModal('${escapedKey}', 'blank')" style="padding: 6px 10px; background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" title="Delete from history">✕</button>
                             </div>
                         </div>
                     `;
@@ -9423,6 +9493,14 @@
                     const typeLabels = keyTypes.map(t => KEY_TYPE_COLORS[t]?.label || t).join(', ');
                     let title = `${make} ${year}: ${typeLabels}`;
 
+                    // Add immobilizer metadata if available
+                    if (typeof COVERAGE_METADATA !== 'undefined' && COVERAGE_METADATA[make] && COVERAGE_METADATA[make][year]) {
+                        const meta = COVERAGE_METADATA[make][year];
+                        const methodIcon = (typeof METHOD_ICONS !== 'undefined' && METHOD_ICONS[meta.method]) || '';
+                        title += ` | ${meta.system} (${meta.chip}) | ${methodIcon} ${meta.difficulty}: ${meta.method}`;
+                        if (meta.notes) title += ` | ${meta.notes}`;
+                    }
+
                     // When filtered, only show the color for matching types
                     let bg = typeInfo.bg;
                     let opacity;
@@ -9447,7 +9525,7 @@
                     if (data && data.inStock > 0) {
                         border = '2px solid #fff';
                         opacity = 1;
-                        title = `${title} - In Stock: ${data.inStock}`;
+                        title += ` | In Stock: ${data.inStock}`;
                     }
 
                     return `<td style="padding: 0;"><div title="${title}" 
@@ -11052,9 +11130,16 @@
                         // Update UI after brief delay to ensure DOM is ready
                         setTimeout(() => {
                             updateAuthUI(true);
-                            if (currentUser.is_developer) {
+                            if (currentUser && currentUser.is_developer) {
                                 const devTab = document.getElementById('devTab');
                                 if (devTab) devTab.style.display = 'inline-flex';
+                            }
+                            // CRITICAL: Load inventory from cloud after sign-in
+                            if (currentUser) {
+                                InventoryManager.loadFromCloud().then(() => {
+                                    console.log('📦 Inventory loaded after sign-in redirect');
+                                    if (typeof renderInventoryPage === 'function') renderInventoryPage();
+                                });
                             }
                         }, 100);
                     } catch (e) {
@@ -11223,6 +11308,8 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="public/js/tool_coverage_data.js"></script>
     <script src="public/js/programming_guides_data.js"></script>
+    <script src="public/js/transponder_reference.js"></script>
+    <script src="public/js/coverage_metadata.js"></script>
 </body>
 
 </html>

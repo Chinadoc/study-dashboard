@@ -159,6 +159,106 @@ const TOOL_COVERAGE_DATA = {
             autel: { status: 'High', method: 'IM608 II (Native CAN-FD)', note: 'Built-in CAN-FD. Full coverage.' },
             obdstar: { status: 'Medium', method: 'X300 Pro4', note: 'Requires latest update.' },
             xhorse: { status: 'Low', method: 'Adapter', note: 'CAN-FD adapter needed.' }
+        },
+        // === TIER 3: LEGACY PLATFORMS (2000-2012) - FROM RESEARCH ===
+        {
+            make: 'BMW',
+            system: 'EWS3/EWS4 (E46/E39/E53)',
+            years: '1998-2005',
+            lonsdor: { status: 'Medium', method: 'RN-01 Adapter (Bench)', note: 'Bench EEPROM read required.' },
+            autel: { status: 'High', method: 'XP400 Pro + APA104/105', note: 'Motorola MCU read. Bench only.' },
+            obdstar: { status: 'Medium', method: 'P001 Programmer', note: 'EWS3 bench read.' },
+            xhorse: { status: 'High', method: 'AK90+ / VVDI Prog', note: 'Fast MCU read. E83 specialist.' }
+        },
+        {
+            make: 'Mercedes-Benz',
+            system: 'DAS3 (W203/W211)',
+            years: '2000-2012',
+            lonsdor: { status: 'Medium', method: 'Smart License (Server)', note: 'Token-based calculation.' },
+            autel: { status: 'High', method: 'G-Box2/3 + XP400', note: 'Password calc 10-50 min. Gateway bypass needed on W164/W221.' },
+            obdstar: { status: 'Low', method: 'Limited', note: 'Very limited MB support.' },
+            xhorse: { status: 'High', method: 'VVDI MB + BE Key', note: 'IR/NEC key support. Token calc.' }
+        },
+        {
+            make: 'Volvo',
+            system: 'P2 Platform CEM',
+            years: '2000-2009',
+            lonsdor: { status: 'High', method: 'OBD Direct (Pioneer!)', note: '10-15 min OBD. Best solution.' },
+            autel: { status: 'Medium', method: 'CEM EEPROM Bench', note: '93C86 read. 1.5-2.5 hrs bench.' },
+            obdstar: { status: 'Low', method: 'Limited', note: 'Legacy support only.' },
+            xhorse: { status: 'Medium', method: 'VVDI Prog Bench', note: 'CEM dump required.' }
+        },
+        {
+            make: 'Toyota / Lexus',
+            system: 'Type 1 (4C Chip)',
+            years: '1996-2002',
+            lonsdor: { status: 'High', method: 'OBD via SKE Emulation', note: 'Simulates Master Key.' },
+            autel: { status: 'Medium', method: '93C66 EEPROM (Bench)', note: 'XP400 Pro bench read.' },
+            obdstar: { status: 'Low', method: 'Limited', note: 'Some models supported.' },
+            xhorse: { status: 'Low', method: 'Limited', note: '4C clone possible.' }
+        },
+        {
+            make: 'Toyota / Lexus',
+            system: 'Type 2 (4D-67/68 Chip)',
+            years: '2002-2010',
+            lonsdor: { status: 'High', method: 'OBD Reset (16 min)', note: 'All tools support. Free.' },
+            autel: { status: 'High', method: 'OBD Reset Immobilizer', note: '16-minute reset. Full coverage.' },
+            obdstar: { status: 'High', method: 'OBD', note: 'Full coverage.' },
+            xhorse: { status: 'High', method: 'XT27 Clone + OBD', note: '4D-67/68 sniff & clone.' }
+        },
+        {
+            make: 'Honda',
+            system: 'Red Key / Megamos',
+            years: '1997-2001',
+            lonsdor: { status: 'Low', method: 'Limited', note: 'Rarely encountered.' },
+            autel: { status: 'High', method: 'XP400 + 93C46 ICU', note: 'ICU EEPROM read required.' },
+            obdstar: { status: 'Low', method: 'Limited', note: 'Legacy models.' },
+            xhorse: { status: 'Low', method: 'Limited', note: 'Basic clone only.' }
+        },
+        {
+            make: 'Honda / Acura',
+            system: 'Type 2 (ID46)',
+            years: '2002-2012',
+            lonsdor: { status: 'High', method: 'OBD', note: 'Fast and free.' },
+            autel: { status: 'High', method: 'OBD (Auto PIN)', note: 'No external PIN needed.' },
+            obdstar: { status: 'High', method: 'OBD', note: 'Full coverage.' },
+            xhorse: { status: 'High', method: 'ID46 Sniff + OBD', note: 'Clone or generate.' }
+        },
+        {
+            make: 'Nissan',
+            system: 'NATS5 (4D-60)',
+            years: '2000-2006',
+            lonsdor: { status: 'High', method: 'Built-in Calculator', note: '5-digit → 4-digit PIN.' },
+            autel: { status: 'High', method: 'NATS Calculator', note: 'BCM code → PIN. Free calc.' },
+            obdstar: { status: 'High', method: 'OBD', note: 'Full coverage.' },
+            xhorse: { status: 'High', method: '4D-60 Clone + Online', note: 'Clone or OBD calc.' }
+        },
+        {
+            make: 'GM',
+            system: 'Passlock / Hall Effect',
+            years: '1998-2007',
+            lonsdor: { status: 'Medium', method: 'OBD Relearn Assist', note: '10-min relearn x3.' },
+            autel: { status: 'Medium', method: 'OBD Relearn', note: 'No transponder. 10-min cycle.' },
+            obdstar: { status: 'Medium', method: 'OBD', note: 'Relearn procedure.' },
+            xhorse: { status: 'Low', method: 'N/A', note: 'No transponder to clone.' }
+        },
+        {
+            make: 'GM',
+            system: 'PK3 (Circle Plus)',
+            years: '2000-2007',
+            lonsdor: { status: 'High', method: 'OBD', note: '30-min AKL relearn.' },
+            autel: { status: 'High', method: 'OBD PIN Read', note: 'ID46+ chip. Auto PIN.' },
+            obdstar: { status: 'High', method: 'OBD', note: 'Full coverage.' },
+            xhorse: { status: 'Medium', method: 'Clone', note: 'Circle Plus cloning.' }
+        },
+        {
+            make: 'Chrysler / Dodge / Jeep',
+            system: 'SKIM / Sentry Key',
+            years: '1998-2007',
+            lonsdor: { status: 'Medium', method: 'OBD', note: 'Tool dependent by year.' },
+            autel: { status: 'Medium', method: 'OBD (2003+)', note: 'PIN read varies pre-2003.' },
+            obdstar: { status: 'High', method: 'OBD', note: 'Good SKIM coverage.' },
+            xhorse: { status: 'Low', method: 'Limited', note: 'Basic add key only.' }
         }
     ],
 
