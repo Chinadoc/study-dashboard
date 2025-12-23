@@ -410,7 +410,7 @@ export default {
         const userId = payload.sub as string;
 
         const result = await env.LOCKSMITH_DB.prepare(`
-          SELECT item_key, type, qty, vehicle, amazon_link, updated_at
+          SELECT item_key, type, qty, used, vehicle, amazon_link, updated_at
           FROM inventory WHERE user_id = ?
         `).bind(userId).all();
 
@@ -418,7 +418,7 @@ export default {
         const blanks: Record<string, any> = {};
 
         for (const row of (result.results || []) as any[]) {
-          const item = { qty: row.qty, vehicle: row.vehicle, amazonLink: row.amazon_link, updatedAt: row.updated_at };
+          const item = { qty: row.qty, used: row.used || 0, vehicle: row.vehicle, amazonLink: row.amazon_link, updatedAt: row.updated_at };
           if (row.type === 'key') keys[row.item_key] = item;
           else blanks[row.item_key] = item;
         }
@@ -440,17 +440,17 @@ export default {
 
         const userId = payload.sub as string;
         const body: any = await request.json();
-        const { item_key, type, qty, vehicle, amazon_link } = body;
+        const { item_key, type, qty, used, vehicle, amazon_link } = body;
 
         if (!item_key || !type) return corsResponse(request, JSON.stringify({ error: "Missing item_key or type" }), 400);
 
         await env.LOCKSMITH_DB.prepare(`
-          INSERT INTO inventory (user_id, item_key, type, qty, vehicle, amazon_link, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO inventory (user_id, item_key, type, qty, used, vehicle, amazon_link, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(user_id, item_key, type) DO UPDATE SET
-            qty = excluded.qty, vehicle = COALESCE(excluded.vehicle, vehicle),
+            qty = excluded.qty, used = excluded.used, vehicle = COALESCE(excluded.vehicle, vehicle),
             amazon_link = COALESCE(excluded.amazon_link, amazon_link), updated_at = excluded.updated_at
-        `).bind(userId, item_key, type, qty || 0, vehicle || null, amazon_link || null, Date.now()).run();
+        `).bind(userId, item_key, type, qty || 0, used || 0, vehicle || null, amazon_link || null, Date.now()).run();
 
         return corsResponse(request, JSON.stringify({ success: true, item_key, type, qty }));
       } catch (err: any) {

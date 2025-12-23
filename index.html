@@ -7713,7 +7713,7 @@
                 if (amazonLink) inv[itemKey].amazonLink = amazonLink;
                 this.setKeysInventory(inv);
                 // Sync to cloud for logged-in users
-                this.syncToCloud(itemKey, 'key', inv[itemKey].qty, inv[itemKey].vehicle, inv[itemKey].amazonLink);
+                this.syncToCloud(itemKey, 'key', inv[itemKey].qty, inv[itemKey].used || 0, inv[itemKey].vehicle, inv[itemKey].amazonLink);
                 return inv[itemKey].qty;
             },
 
@@ -7727,7 +7727,7 @@
                 if (amazonLink) inv[keyway].amazonLink = amazonLink;
                 this.setBlanksInventory(inv);
                 // Sync to cloud for logged-in users
-                this.syncToCloud(keyway, 'blank', inv[keyway].qty, inv[keyway].vehicle, inv[keyway].amazonLink);
+                this.syncToCloud(keyway, 'blank', inv[keyway].qty, inv[keyway].used || 0, inv[keyway].vehicle, inv[keyway].amazonLink);
                 return inv[keyway].qty;
             },
 
@@ -7744,7 +7744,7 @@
                     inv[itemKey].used = (inv[itemKey].used || 0) + actualUsed;
                     this.setKeysInventory(inv);
                     // Sync to cloud
-                    this.syncToCloud(itemKey, 'key', inv[itemKey].qty, inv[itemKey].vehicle, inv[itemKey].amazonLink);
+                    this.syncToCloud(itemKey, 'key', inv[itemKey].qty, inv[itemKey].used || 0, inv[itemKey].vehicle, inv[itemKey].amazonLink);
                     return inv[itemKey].qty;
                 }
                 return 0;
@@ -7758,7 +7758,7 @@
                     inv[keyway].used = (inv[keyway].used || 0) + actualUsed;
                     this.setBlanksInventory(inv);
                     // Sync to cloud
-                    this.syncToCloud(keyway, 'blank', inv[keyway].qty, inv[keyway].vehicle, inv[keyway].amazonLink);
+                    this.syncToCloud(keyway, 'blank', inv[keyway].qty, inv[keyway].used || 0, inv[keyway].vehicle, inv[keyway].amazonLink);
                     return inv[keyway].qty;
                 }
                 return 0;
@@ -7838,16 +7838,16 @@
                     // If cloud is empty but local has data, upload local to cloud
                     if (cloudKeyCount === 0 && cloudBlankCount === 0 && (localKeyCount > 0 || localBlankCount > 0)) {
                         console.log('📦 Inventory: Cloud is empty, uploading local data...');
-                        // Upload all local keys
+                        // Upload all local keys (including used history)
                         for (const [key, item] of Object.entries(localKeys)) {
-                            if (item && item.qty > 0) {
-                                await this.syncToCloud(key, 'key', item.qty, item.vehicle, item.amazonLink);
+                            if (item && (item.qty > 0 || item.used > 0)) {
+                                await this.syncToCloud(key, 'key', item.qty, item.used || 0, item.vehicle, item.amazonLink);
                             }
                         }
-                        // Upload all local blanks
+                        // Upload all local blanks (including used history)
                         for (const [key, item] of Object.entries(localBlanks)) {
-                            if (item && item.qty > 0) {
-                                await this.syncToCloud(key, 'blank', item.qty, item.vehicle, item.amazonLink);
+                            if (item && (item.qty > 0 || item.used > 0)) {
+                                await this.syncToCloud(key, 'blank', item.qty, item.used || 0, item.vehicle, item.amazonLink);
                             }
                         }
                         console.log('📦 Inventory: Uploaded local data to cloud');
@@ -7858,14 +7858,14 @@
                     if (cloudKeyCount > 0) {
                         const keysData = {};
                         Object.entries(data.keys).forEach(([key, item]) => {
-                            keysData[key] = { qty: item.qty, vehicle: item.vehicle, amazonLink: item.amazonLink };
+                            keysData[key] = { qty: item.qty, used: item.used || 0, vehicle: item.vehicle, amazonLink: item.amazonLink };
                         });
                         this.setKeysInventory(keysData);
                     }
                     if (cloudBlankCount > 0) {
                         const blanksData = {};
                         Object.entries(data.blanks).forEach(([key, item]) => {
-                            blanksData[key] = { qty: item.qty, vehicle: item.vehicle, amazonLink: item.amazonLink };
+                            blanksData[key] = { qty: item.qty, used: item.used || 0, vehicle: item.vehicle, amazonLink: item.amazonLink };
                         });
                         this.setBlanksInventory(blanksData);
                     }
@@ -7885,13 +7885,13 @@
             },
 
             // Sync single item to cloud
-            async syncToCloud(item_key, type, qty, vehicle = null, amazon_link = null) {
+            async syncToCloud(item_key, type, qty, used = 0, vehicle = null, amazon_link = null) {
                 if (!currentUser) return false;
                 try {
                     const res = await fetch(`${API}/api/user/inventory`, {
                         method: 'POST',
                         headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ item_key, type, qty, vehicle, amazon_link })
+                        body: JSON.stringify({ item_key, type, qty, used, vehicle, amazon_link })
                     });
                     if (res.status === 401) {
                         console.warn('Session expired (401)');
