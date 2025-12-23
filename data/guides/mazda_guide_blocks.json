@@ -1,0 +1,356 @@
+{
+    "id": "mazda-complete-guide",
+    "title": "Mazda Professional Locksmith Guide",
+    "make": "Mazda",
+    "year_start": 1995,
+    "year_end": 2025,
+    "difficulty": "Intermediate",
+    "estimated_time": "Varies by era",
+    "last_updated": "2025-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "mazda-dual-architecture",
+            "level": "important",
+            "content": "Mazda has a DUAL architecture: Ford PATS era (2000-2013) uses Texas Instruments 4D-63 and Incode/Outcode protocols. Post-2013 SkyActiv era uses proprietary Japanese electronics with Start Stop Unit (SSU) and 128-bit encryption."
+        },
+        {
+            "type": "reference_table",
+            "id": "mazda-era-taxonomy",
+            "title": "Mazda Platform Taxonomy",
+            "headers": [
+                "Era",
+                "Years",
+                "System",
+                "Chip",
+                "Keyway",
+                "Models"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Legacy Lucas",
+                        "1998-2000",
+                        "Standalone Immobilizer",
+                        "TI 8C",
+                        "MZ27",
+                        "626, Miata NB, MPV"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Early PATS",
+                        "2000-2004",
+                        "Ford PATS",
+                        "TI 4C (Fixed)",
+                        "MAZ24",
+                        "Tribute, B-Series"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Ford PATS",
+                        "2004-2010",
+                        "Ford PATS (40-bit)",
+                        "TI 4D-63",
+                        "MAZ24",
+                        "Mazda 3, 6, RX-8"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Ford PATS",
+                        "2010-2013",
+                        "Ford PATS (80-bit)",
+                        "TI 4D-63",
+                        "HU101",
+                        "Mazda 2, 3, CX-7"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Smart Card",
+                        "2007-2015",
+                        "Twist Knob",
+                        "ID46/4D-63",
+                        "MAZ24",
+                        "MX-5 NC, CX-9"
+                    ]
+                },
+                {
+                    "cells": [
+                        "SkyActiv Prox",
+                        "2013-2019",
+                        "SSU Architecture",
+                        "ID49 (HITAG Pro)",
+                        "MAZ24/MZ31",
+                        "Mazda 3, 6, CX-5"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Gen 7 Prox",
+                        "2019-2025",
+                        "SGW + 128-bit",
+                        "ID49/HITAG-AES",
+                        "MZ31",
+                        "Mazda 3 BP, CX-30, CX-50"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "mazda-badge-engineering",
+            "level": "tip",
+            "content": "Badge Engineering: Mazda Tribute = Ford Escape. Mazda B-Series = Ford Ranger. If tool fails under 'Mazda' menu, try 'Ford Escape' or 'Ford Ranger' for same year. Mazda 3 (BK/BL) and Mazda 6 (GG/GH) share Ford C1/CD3 platforms."
+        },
+        {
+            "type": "warning_banner",
+            "id": "mazda-two-key-rule",
+            "level": "warning",
+            "content": "Ford PATS Two-Key Rule: In All Keys Lost scenarios, the system requires TWO unique keys to close programming cycle. If only one key is programmed, engine cranks but won't fire (or starts and stalls), security light flashes code 21 (programming incomplete)."
+        },
+        {
+            "type": "info_callout",
+            "id": "mazda-80-bit-compatibility",
+            "level": "tip",
+            "content": "80-bit chips are BACKWARD COMPATIBLE. An 80-bit 4D-63 can emulate 40-bit mode. Stock 80-bit (ID83) chips to cover entire 2000-2014 era with single SKU."
+        },
+        {
+            "type": "step_group",
+            "id": "mazda-3-2008-akl",
+            "title": "Procedure: 2008 Mazda 3 All Keys Lost (Ford PATS)",
+            "estimated_time": "20-30 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Use Lishi MAZ24 to pick/decode door lock",
+                    "tip": "Door locks often lack cuts 1 and 2. Use progression chart to deduce missing ignition cuts."
+                },
+                {
+                    "number": 2,
+                    "text": "Cut TWO keys with decoded cuts"
+                },
+                {
+                    "number": 3,
+                    "text": "Connect programmer to OBD-II"
+                },
+                {
+                    "number": 4,
+                    "text": "Select Mazda → Manual Selection → Mazda 3 → 2004-2009 → Blade Key"
+                },
+                {
+                    "number": 5,
+                    "text": "Select 'All Keys Lost' - tool warns all existing keys erased. Confirm."
+                },
+                {
+                    "number": 6,
+                    "text": "Tool reads Outcode from HEC/PCM, auto-calculates and enters Incode (< 10 sec)"
+                },
+                {
+                    "number": 7,
+                    "text": "Cluster erases stored keys, security light may glow solid"
+                },
+                {
+                    "number": 8,
+                    "text": "Insert Key 1, turn ON, wait 3 sec (light turns off), turn OFF, remove"
+                },
+                {
+                    "number": 9,
+                    "text": "Within 5 seconds: Insert Key 2, turn ON, wait 3 sec, turn OFF, remove"
+                },
+                {
+                    "number": 10,
+                    "text": "Wait 30 seconds for learn mode to close"
+                },
+                {
+                    "number": 11,
+                    "text": "Test start with both keys. Remote programmed separately (door open/close cycling)"
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "mazda-active-alarm-risk",
+            "level": "critical",
+            "content": "SkyActiv Active Alarm Risk: If vehicle is locked with alarm armed and you pick entry, alarm triggers. SSU often rejects diagnostic communication in this state. Silence alarm (disconnect horn), wait for timer to expire, or use tool's 'Forced Ignition ON' with hazard lights active to keep BCM awake."
+        },
+        {
+            "type": "step_group",
+            "id": "mazda-cx5-2016-add-key",
+            "title": "Procedure: 2016 Mazda CX-5 Add Smart Key (SkyActiv)",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Validate new key: Correct button count (2/3/4 button), frequency, and FCC ID"
+                },
+                {
+                    "number": 2,
+                    "text": "Connect diagnostic tool, select Mazda → CX-5 → 2013-2016 → Smart Key"
+                },
+                {
+                    "number": 3,
+                    "text": "Select 'Read PIN' - tool communicates with SSU to extract security PIN"
+                },
+                {
+                    "number": 4,
+                    "text": "Select 'Add Smart Key'"
+                },
+                {
+                    "number": 5,
+                    "text": "Tool prompts: 'Turn Ignition ON with working key' (press Start button twice with key in range)"
+                },
+                {
+                    "number": 6,
+                    "text": "Tool confirms key count (e.g., 1)"
+                },
+                {
+                    "number": 7,
+                    "text": "Tool prompts: 'Hold New Key to Start Button'"
+                },
+                {
+                    "number": 8,
+                    "text": "Press logo end of fob against Start Button - ring flashes green, beep sounds"
+                },
+                {
+                    "number": 9,
+                    "text": "SSU registers new ID. Test proximity lock/unlock and push-to-start"
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "mazda-ssu-diagnostic-tip",
+            "level": "tip",
+            "content": "SSU Fail-Safe Test: If wireless functions fail, hold key to Start Button (Emergency Start). If car starts, transponder and SSU are valid - issue is in UHF receiver or key battery/transmitter."
+        },
+        {
+            "type": "warning_banner",
+            "id": "mazda-7th-gen-sgw",
+            "level": "warning",
+            "content": "7th Gen (2019+): Secure Gateway blocks OBD 'Write' commands. Requires server authentication (tool → server → authorization token). Programming requires stable internet connection. Offline programming is IMPOSSIBLE."
+        },
+        {
+            "type": "info_callout",
+            "id": "mazda-deep-sleep",
+            "level": "important",
+            "content": "Deep Sleep Phenomenon: 7th Gen BCMs aggressively shut down CAN traffic to preserve battery. Common cause of PIN calculation timeout. Mitigation: Connect 13.5V PSU, activate hazard lights (forces BCM awake), occasionally press brake pedal to reset sleep timer."
+        },
+        {
+            "type": "reference_table",
+            "id": "mazda-theft-light-codes",
+            "title": "Theft Light Diagnostic Codes",
+            "headers": [
+                "Pattern",
+                "Meaning",
+                "Cause/Fix"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Rapid Flashing (Ignition ON)",
+                        "Key not recognized",
+                        "Wrong chip type (40-bit in 80-bit car), unprogrammed key, or damaged transceiver"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Code 16 (1 flash, pause, 6 flashes)",
+                        "Communication failure",
+                        "CAN-bus fault, blown PCM fuse, or module ID mismatch (replaced PCM without Parameter Reset)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Code 21 (2 flashes, pause, 1 flash)",
+                        "Key count error",
+                        "System hasn't seen required 2 keys to exit Learn Mode. Cycle second valid key."
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "mazda-parameter-reset",
+            "level": "critical",
+            "content": "Parameter Reset Trap: Replacing PCM breaks cryptographic link with Cluster (Immobilizer). Car starts 2 seconds then dies. Fix: PATS Functions → Parameter Reset. WARNING: This often wipes key memory - must cycle TWO keys to reinitialize."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "mazda-lishi-tools",
+            "title": "Mazda Mechanical Lock Tools",
+            "items": [
+                {
+                    "name": "Lishi MAZ24",
+                    "required": true,
+                    "notes": "8-cut edge key, door may lack cuts 1-2"
+                },
+                {
+                    "name": "Lishi HU101 V3",
+                    "required": true,
+                    "notes": "For 2010+ SkyActiv, shared with Ford/Volvo",
+                    "warning": "Door lock has wafers 3-9/10, ignition has all 10"
+                },
+                {
+                    "name": "MZ31 Emergency Blades",
+                    "required": true,
+                    "notes": "Narrow HU101 variant for 7th Gen fobs"
+                }
+            ]
+        },
+        {
+            "type": "comparison_table",
+            "id": "mazda-tool-comparison",
+            "title": "Tool Comparison Matrix",
+            "items": [
+                "Autel IM608",
+                "Lonsdor K518",
+                "SmartPro"
+            ],
+            "features": [
+                {
+                    "name": "Ford Era Incode/Outcode",
+                    "values": [
+                        "Excellent (Free)",
+                        "Good (Free)",
+                        "Excellent (Token)"
+                    ]
+                },
+                {
+                    "name": "SkyActiv SSU PIN Read",
+                    "values": [
+                        "Excellent",
+                        "Excellent",
+                        "Excellent"
+                    ]
+                },
+                {
+                    "name": "7th Gen (2019+) Calculation",
+                    "values": [
+                        "Yes (Online)",
+                        "Yes (Online)",
+                        "Yes (Token)"
+                    ]
+                },
+                {
+                    "name": "Legacy 8C/4C Support",
+                    "values": [
+                        "Moderate (EEPROM)",
+                        "Low",
+                        "Low"
+                    ]
+                },
+                {
+                    "name": "Active Alarm Bypass",
+                    "values": [
+                        "Yes",
+                        "Yes",
+                        "Yes"
+                    ]
+                }
+            ]
+        }
+    ]
+}

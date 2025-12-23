@@ -1,0 +1,422 @@
+{
+    "id": "nissan-complete-guide",
+    "title": "Nissan NATS Professional Locksmith Guide",
+    "make": "Nissan",
+    "year_start": 2000,
+    "year_end": 2025,
+    "difficulty": "Intermediate",
+    "estimated_time": "Varies by system",
+    "last_updated": "2025-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "nissan-bcm-centric",
+            "level": "important",
+            "content": "Nissan architecture is BCM-centric. Unlike Ford (PCM-based) or Mercedes (EIS-based), the Body Control Module stores key IDs and performs cryptographic validation. The BCM authorizes the ECM via CAN-bus."
+        },
+        {
+            "type": "reference_table",
+            "id": "nissan-nats-evolution",
+            "title": "NATS System Evolution",
+            "headers": [
+                "Phase",
+                "Years",
+                "System",
+                "Chip",
+                "Frequency",
+                "PIN Type"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Phase 1",
+                        "2000-2006",
+                        "NATS 5/5.6",
+                        "TI 4D-60",
+                        "N/A",
+                        "4-digit (from BCM label)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Phase 2",
+                        "2007-2012",
+                        "Intelligent Key (Twist)",
+                        "ID46 (PCF7936)",
+                        "315 MHz",
+                        "4/5-digit"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Phase 2b",
+                        "2007-2014",
+                        "Intelligent Key (Push)",
+                        "ID46 (PCF7952)",
+                        "315 MHz",
+                        "4/5-digit"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Phase 3",
+                        "2013-2018",
+                        "NATS 6 Prox",
+                        "ID47 (HITAG 3)",
+                        "433 MHz",
+                        "20-digit rolling"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Phase 4",
+                        "2019-2025",
+                        "Modern Prox",
+                        "ID4A (HITAG-AES)",
+                        "433 MHz",
+                        "22-digit rolling"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "nissan-rolling-code-warning",
+            "level": "warning",
+            "content": "2013+ Rolling Codes: The BCM generates a random 20-digit challenge every time ignition cycles. Calculation must be performed and entered immediately. If tool disconnects or ignition cycles, BCM generates NEW challenge and old PIN is invalid."
+        },
+        {
+            "type": "warning_banner",
+            "id": "nissan-bcm-lockout",
+            "level": "critical",
+            "content": "Incorrect PIN 3-5 times = BCM Lock Mode. Recovery: Disconnect battery for 15-20 minutes. On older NATS 5: leave ignition ON for 60 minutes with charger connected to reset timer."
+        },
+        {
+            "type": "info_callout",
+            "id": "nissan-bcm-label-trap",
+            "level": "warning",
+            "content": "BCM Label Trap: If BCM was replaced with used unit, physical sticker may show donor car ID but electronic ID differs. ALWAYS prioritize Electronic Read (via OBD) over physical label."
+        },
+        {
+            "type": "reference_table",
+            "id": "nissan-transponder-reference",
+            "title": "Transponder Reference Table",
+            "headers": [
+                "Era",
+                "System",
+                "Chip",
+                "Frequency",
+                "Keyway",
+                "Models"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "2000-2006",
+                        "NATS 5 Legacy",
+                        "TI 4D-60 (40-bit)",
+                        "N/A",
+                        "DA34/NSN14",
+                        "Maxima, Altima, Frontier"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2007-2012",
+                        "Intelligent Key (Twist)",
+                        "ID46 (PCF7936)",
+                        "315 MHz",
+                        "NSN14",
+                        "Rogue, Versa, Sentra"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2007-2014",
+                        "Intelligent Key (Push)",
+                        "ID46 (PCF7952)",
+                        "315 MHz",
+                        "NSN14 Blade",
+                        "Altima, Maxima, G37, 370Z"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2013-2018",
+                        "NATS 6 Prox",
+                        "ID47 (HITAG 3)",
+                        "433 MHz",
+                        "NSN14",
+                        "Altima, Rogue, Pathfinder"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2019-2025",
+                        "Modern Prox",
+                        "ID4A (HITAG-AES)",
+                        "433 MHz",
+                        "NSN14",
+                        "Sentra, Versa, Rogue, Kicks"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2016+",
+                        "Commercial/Truck",
+                        "ID46 Extended",
+                        "315 MHz",
+                        "NSN14",
+                        "Titan, Frontier (Steel Key)"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "nissan-virgin-key-only",
+            "level": "warning",
+            "content": "ID47/ID4A keys are One-Time Programmable. Used Nissan keys are locked and cannot be reprogrammed to another vehicle without specialized 'Unlocking' hardware. Stock VIRGIN keys only."
+        },
+        {
+            "type": "step_group",
+            "id": "nissan-rogue-2011-akl",
+            "title": "Procedure: 2011 Nissan Rogue (Twist Knob) All Keys Lost",
+            "estimated_time": "30-40 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Use Lishi NSN14 to pick driver door lock and decode heights"
+                },
+                {
+                    "number": 2,
+                    "text": "Cut new emergency blade from decoded cuts"
+                },
+                {
+                    "number": 3,
+                    "text": "Insert blade into ignition knob, turn to ON",
+                    "warning": "If ignition won't turn, suspect ESCL failure"
+                },
+                {
+                    "number": 4,
+                    "text": "Connect Autel IM608 to OBD-II"
+                },
+                {
+                    "number": 5,
+                    "text": "Select IMMO → Nissan → Intelligent Key System → Remote Control Learning"
+                },
+                {
+                    "number": 6,
+                    "text": "Select 'Read BCM Code' - tool reads 5-digit ID and calculates 4-digit PIN (e.g., 5523)"
+                },
+                {
+                    "number": 7,
+                    "text": "Select 'Program Smart Key'"
+                },
+                {
+                    "number": 8,
+                    "text": "Tool prompts: 'Insert key and turn ON' - use mechanical blade"
+                },
+                {
+                    "number": 9,
+                    "text": "Security Light illuminates solid, then flashes 5 times"
+                },
+                {
+                    "number": 10,
+                    "text": "Turn OFF, remove key"
+                },
+                {
+                    "number": 11,
+                    "text": "For remote: Press UNLOCK button while holding key near ignition antenna"
+                },
+                {
+                    "number": 12,
+                    "text": "Turn ignition ON again with blade, wait for flashes, turn OFF"
+                },
+                {
+                    "number": 13,
+                    "text": "Open/close driver door to terminate programming. Test remote and Twist Knob start"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "nissan-altima-2016-add-key",
+            "title": "Procedure: 2016 Nissan Altima Add Smart Key",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Verify new key: Correct frequency (433 MHz) and chip (ID47). USED KEYS WILL NOT WORK."
+                },
+                {
+                    "number": 2,
+                    "text": "Connect Autel/SmartPro to OBD-II"
+                },
+                {
+                    "number": 3,
+                    "text": "Select Nissan → Altima → 2013-2018 → Smart Key → Add Key"
+                },
+                {
+                    "number": 4,
+                    "text": "Tool reads 20-digit Challenge from BCM"
+                },
+                {
+                    "number": 5,
+                    "text": "Autel auto-sends to server (requires internet). SmartPro consumes token."
+                },
+                {
+                    "number": 6,
+                    "text": "Tool prompts: 'Touch Start Button with first programmed key'"
+                },
+                {
+                    "number": 7,
+                    "text": "Press Start Button (Ignition ON)"
+                },
+                {
+                    "number": 8,
+                    "text": "Touch NEW key to Start Button"
+                },
+                {
+                    "number": 9,
+                    "text": "Watch for Security Light to flash 5 times"
+                },
+                {
+                    "number": 10,
+                    "text": "Turn Ignition OFF"
+                },
+                {
+                    "number": 11,
+                    "text": "Test proximity Lock/Unlock/Trunk and Proximity Start (key in pocket)"
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "nissan-escl-failure",
+            "level": "critical",
+            "content": "ESCL (Electronic Steering Column Lock) Failure: If BCM can't get 'Unlocked' signal from ESCL, start is inhibited. Common on Rogue/Versa. Symptoms: Key can't turn knob (Twist), or 'No Crank/No Start' with Yellow Key light (Push). Fix: Install $20-40 ESCL Emulator."
+        },
+        {
+            "type": "step_group",
+            "id": "nissan-escl-diagnosis",
+            "title": "Procedure: ESCL Troubleshooting",
+            "estimated_time": "10-15 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Twist Knob: Key can't turn plastic knob = physically locked"
+                },
+                {
+                    "number": 2,
+                    "text": "Push Start: Press Start button, listen for 'zzzt-clunk' of steering lock disengaging",
+                    "tip": "Silence = ESCL failure"
+                },
+                {
+                    "number": 3,
+                    "text": "Scan for DTCs B2609 (Steering Column Lock Status) or B2610 (Ignition Relay) in BCM"
+                },
+                {
+                    "number": 4,
+                    "text": "Tap Test: While pressing Start/turning knob, strike steering column housing with rubber mallet",
+                    "tip": "Vibration often frees stuck motor brushes temporarily"
+                },
+                {
+                    "number": 5,
+                    "text": "Permanent fix: Install ESCL Emulator - plugs into connector, digitally mimics 'Unlocked' signal"
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "nissan-16-32-gateway",
+            "level": "important",
+            "content": "2020+ Sentra (B18) and 2021+ Rogue (T33): OBD-II port is firewalled. Requires physical 16+32 Y-cable bypass. Locate Security Gateway Module (near BCM or glovebox), connect cable in-line to access CAN lines directly."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "nissan-key-inventory",
+            "title": "Essential Key Inventory",
+            "items": [
+                {
+                    "name": "TI 4D-60 (Generic)",
+                    "required": true,
+                    "notes": "For 2000-2006 vehicles"
+                },
+                {
+                    "name": "PCF7936 (ID46)",
+                    "required": true,
+                    "notes": "For 2007-2012 Intelligent Key"
+                },
+                {
+                    "name": "PCF7952 (ID46 Remote)",
+                    "required": true,
+                    "notes": "For Push-Button Start"
+                },
+                {
+                    "name": "Nissan 3-Button Prox (315 MHz)",
+                    "required": true
+                },
+                {
+                    "name": "Nissan 4-Button Prox (433 MHz)",
+                    "required": true,
+                    "warning": "Check FCC ID - visually identical fobs may differ"
+                },
+                {
+                    "name": "NSN14 Emergency Blades",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "nissan-nsn14-door-ignition",
+            "level": "tip",
+            "content": "NSN14 Decoding: Door lock typically has cuts in positions 3-10 only. Ignition has ALL cuts 1-10. When generating key from door lock, use progression software (InstaCode) to calculate missing cuts 1 and 2."
+        },
+        {
+            "type": "comparison_table",
+            "id": "nissan-tool-comparison",
+            "title": "Tool Comparison",
+            "items": [
+                "Autel IM508/IM608",
+                "SmartPro",
+                "Lonsdor K518"
+            ],
+            "features": [
+                {
+                    "name": "Rolling Code Calc (20-digit)",
+                    "values": [
+                        "Excellent (Free)",
+                        "Excellent (Token)",
+                        "Excellent (Free)"
+                    ]
+                },
+                {
+                    "name": "2023+ Protocol Support",
+                    "values": [
+                        "Good (needs 16+32)",
+                        "Excellent",
+                        "Excellent"
+                    ]
+                },
+                {
+                    "name": "ESCL Emulator Support",
+                    "values": [
+                        "Yes",
+                        "Yes",
+                        "Yes (+ Simulation)"
+                    ]
+                },
+                {
+                    "name": "Cost Model",
+                    "values": [
+                        "Annual Sub",
+                        "Per-Token",
+                        "Annual License"
+                    ]
+                }
+            ]
+        }
+    ]
+}

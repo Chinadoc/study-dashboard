@@ -539,6 +539,97 @@ export default {
       }
     }
 
+    // ==============================================
+    // TOOL SUBSCRIPTIONS ENDPOINTS (Cloud Sync)
+    // ==============================================
+
+    // GET /api/user/tool-subscriptions - Fetch user's tool subscriptions
+    if (path === "/api/user/tool-subscriptions" && request.method === "GET") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+
+        const result = await env.LOCKSMITH_DB.prepare(`
+          SELECT id, data, created_at FROM user_tool_subscriptions WHERE user_id = ? ORDER BY created_at DESC
+        `).bind(userId).all();
+
+        const subscriptions = (result.results || []).map((row: any) => ({
+          id: row.id,
+          ...JSON.parse(row.data || '{}'),
+          createdAt: row.created_at
+        }));
+
+        return corsResponse(request, JSON.stringify({ subscriptions }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // POST /api/user/tool-subscriptions - Add/Update a tool subscription
+    if (path === "/api/user/tool-subscriptions" && request.method === "POST") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const body: any = await request.json();
+        const { subscription } = body;
+
+        if (!subscription || !subscription.id) return corsResponse(request, JSON.stringify({ error: "Missing subscription data or ID" }), 400);
+
+        await env.LOCKSMITH_DB.prepare(`
+          INSERT INTO user_tool_subscriptions (id, user_id, data, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            data = excluded.data,
+            updated_at = excluded.updated_at
+        `).bind(
+          subscription.id,
+          userId,
+          JSON.stringify(subscription),
+          subscription.createdAt || Date.now(),
+          Date.now()
+        ).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, id: subscription.id }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // DELETE /api/user/tool-subscriptions - Delete a tool subscription
+    if (path === "/api/user/tool-subscriptions" && request.method === "DELETE") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const body: any = await request.json();
+        const { id } = body;
+
+        if (!id) return corsResponse(request, JSON.stringify({ error: "Missing ID" }), 400);
+
+        await env.LOCKSMITH_DB.prepare(`
+          DELETE FROM user_tool_subscriptions WHERE id = ? AND user_id = ?
+        `).bind(id, userId).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, id }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // GET /api/admin/users-inventory - Admin view of all users with inventory counts
     if (path === "/api/admin/users-inventory") {
       try {

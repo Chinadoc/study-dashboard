@@ -6719,6 +6719,7 @@
             if (currentUser) {
                 InventoryManager.loadFromCloud();
                 InventoryManager.loadJobLogsFromCloud();
+                SubscriptionManager.loadFromCloud();
             }
         }
 
@@ -6788,6 +6789,7 @@
                         // Load inventory and logs from cloud
                         InventoryManager.loadFromCloud();
                         InventoryManager.loadJobLogsFromCloud();
+                        SubscriptionManager.loadFromCloud();
                     } else {
                         console.error('Backend authentication failed:', data.error);
                         alert('Authentication failed. Please try again.');
@@ -10631,12 +10633,75 @@
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(subscriptions));
             },
 
+            // Cloud Sync Methods
+            async syncToCloud(subscription) {
+                if (!currentUser) return;
+                try {
+                    await fetch(`${API}/api/user/tool-subscriptions`, {
+                        method: 'POST',
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subscription })
+                    });
+                } catch (e) {
+                    console.error('☁️ Subscription sync failed:', e);
+                }
+            },
+
+            async deleteFromCloud(id) {
+                if (!currentUser) return;
+                try {
+                    await fetch(`${API}/api/user/tool-subscriptions`, {
+                        method: 'DELETE',
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                } catch (e) {
+                    console.error('🗑️ Subscription delete failed:', e);
+                }
+            },
+
+            async loadFromCloud() {
+                if (!currentUser) return;
+                try {
+                    const response = await fetch(`${API}/api/user/tool-subscriptions`, {
+                        headers: getAuthHeaders()
+                    });
+                    if (!response.ok) return;
+
+                    const data = await response.json();
+                    if (data.subscriptions && Array.isArray(data.subscriptions)) {
+                        const cloudSubs = data.subscriptions;
+                        const localSubs = this.getAll();
+
+                        // Merge strategies:
+                        // 1. If cloud has subs and local is empty -> use cloud
+                        // 2. If both exist -> merge by ID (cloud wins conflicts)
+
+                        const mergedMap = new Map();
+                        localSubs.forEach(s => mergedMap.set(s.id, s));
+                        cloudSubs.forEach(s => mergedMap.set(s.id, s));
+
+                        const merged = Array.from(mergedMap.values());
+                        // Sort by created date
+                        merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                        this.save(merged);
+                        console.log('📅 Subscriptions loaded from cloud:', merged.length);
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('📅 Subscriptions load failed:', e);
+                }
+            },
+
             add(subscription) {
                 const subs = this.getAll();
                 subscription.id = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                 subscription.createdAt = new Date().toISOString();
                 subs.push(subscription);
                 this.save(subs);
+                // Sync new sub to cloud
+                this.syncToCloud(subscription);
                 return subscription;
             },
 
@@ -10646,6 +10711,8 @@
                 if (index !== -1) {
                     subs[index] = { ...subs[index], ...updates, updatedAt: new Date().toISOString() };
                     this.save(subs);
+                    // Sync update to cloud
+                    this.syncToCloud(subs[index]);
                     return subs[index];
                 }
                 return null;
@@ -10655,6 +10722,8 @@
                 const subs = this.getAll();
                 const filtered = subs.filter(s => s.id !== id);
                 this.save(filtered);
+                // Delete from cloud
+                this.deleteFromCloud(id);
             },
 
             getDaysRemaining(expirationDate) {
@@ -11205,6 +11274,7 @@
                                 InventoryManager.loadFromCloud().then(() => {
                                     console.log('📦 Inventory loaded after sign-in redirect');
                                     InventoryManager.loadJobLogsFromCloud();
+                                    SubscriptionManager.loadFromCloud();
                                     if (typeof renderInventoryPage === 'function') renderInventoryPage();
                                 });
                             }

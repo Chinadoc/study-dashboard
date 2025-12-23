@@ -1,0 +1,484 @@
+{
+    "id": "volvo-complete-guide",
+    "title": "Volvo Professional Locksmith Guide",
+    "make": "Volvo",
+    "year_start": 1993,
+    "year_end": 2025,
+    "difficulty": "Expert",
+    "estimated_time": "Varies by platform",
+    "last_updated": "2025-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "volvo-platform-importance",
+            "level": "important",
+            "content": "In Volvo, the PLATFORM dictates everything: immobilizer location, transponder type, mechanical key profile, and diagnostic protocol. Misidentifying platform leads to failed programming attempts or module bricking."
+        },
+        {
+            "type": "reference_table",
+            "id": "volvo-platform-taxonomy",
+            "title": "Volvo Platform Taxonomy",
+            "headers": [
+                "Platform",
+                "Years",
+                "Key Profile",
+                "Chip",
+                "Freq (US/EU)",
+                "Models"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "P80",
+                        "1993-1998",
+                        "NE66",
+                        "ID44 (PCF7935)",
+                        "N/A",
+                        "850, 940, 960"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P80/P2",
+                        "1999-2004",
+                        "NE66",
+                        "ID48 (Megamos)",
+                        "315/433 MHz",
+                        "S70, V70, S80, S60"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P2",
+                        "2005-2014",
+                        "HU120/NE66",
+                        "ID48 (Megamos)",
+                        "315/433 MHz",
+                        "XC90, XC70, S60"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P1",
+                        "2004-2013",
+                        "HU101",
+                        "ID46 (PCF7945)",
+                        "315/433 MHz",
+                        "S40, V50, C30, C70"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P3",
+                        "2007-2016",
+                        "HU101",
+                        "ID46 (PCF7953)",
+                        "433/868 MHz",
+                        "S80, V70, XC60, S60"
+                    ]
+                },
+                {
+                    "cells": [
+                        "SPA",
+                        "2016-Present",
+                        "HU101",
+                        "ID47/49 (HITAG 3)",
+                        "433/902 MHz",
+                        "XC90 II, S90, XC60 II"
+                    ]
+                },
+                {
+                    "cells": [
+                        "CMA",
+                        "2019-Present",
+                        "HU101",
+                        "ID49 (HITAG AES)",
+                        "433/902 MHz",
+                        "XC40, C40"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "volvo-cem-centrality",
+            "level": "important",
+            "content": "The Central Electronic Module (CEM) is the heart of Volvo security. Unlike Ford (PCM) or Mercedes (EIS), the CEM stores transponder IDs and cryptographic keys. Key data is NOT in a single location - often split between CEM and KVM."
+        },
+        {
+            "type": "warning_banner",
+            "id": "volvo-p2-water-damage",
+            "level": "critical",
+            "content": "P2 CEM Water Damage: Design flaw directs cowl drain water onto CEM, causing corrosion. Symptoms: Random CAN errors, wipers turn on randomly, alarm goes off, 'Immobilizer See Manual'. ALWAYS inspect CEM for white/green corrosion before condemning keys."
+        },
+        {
+            "type": "warning_banner",
+            "id": "volvo-cem-removal",
+            "level": "warning",
+            "content": "P2 CEM Removal is labor-intensive: Requires removing wiper arms + exterior cowl panel (outside access for mounting bolts) while disconnecting harness (inside access). This dual-access requirement adds significant labor time."
+        },
+        {
+            "type": "warning_banner",
+            "id": "volvo-p2-remote-limitation",
+            "level": "critical",
+            "content": "P2 Remote Limitation: Aftermarket tools (Autel, SmartPro, Zed-Full) can program TRANSPONDER (start car) but CANNOT program REMOTE. Remote data stored in Upper Electronic Module (UEM) in rearview mirror. Only VIDA or VDASH (with packaging codes) can program P2 remotes."
+        },
+        {
+            "type": "reference_table",
+            "id": "volvo-transponder-evolution",
+            "title": "Transponder Evolution",
+            "headers": [
+                "Platform",
+                "Chip",
+                "Cloneable?",
+                "Notes"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "P80",
+                        "ID44 (PCF7935)",
+                        "Yes (T5/PCF7935)",
+                        "Requires desoldering EEPROM from immobilizer box"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P2",
+                        "ID48 (Megamos)",
+                        "Yes (Magic ID48)",
+                        "VVDI Super Chip XT27 can emulate virgin Volvo ID48"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P1/P3 Early",
+                        "ID46 (PCF7936/7945)",
+                        "Yes (Virgin only)",
+                        "Password mode, chip locks once programmed"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P3 Late/SPA",
+                        "ID47/49 (HITAG Pro)",
+                        "No",
+                        "128-bit AES, virgin keys only"
+                    ]
+                },
+                {
+                    "cells": [
+                        "CMA",
+                        "ID49 (HITAG AES)",
+                        "No",
+                        "Strictly one-time programmable"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "volvo-p3-akl",
+            "title": "Procedure: P3 Platform (2012 S60) All Keys Lost",
+            "estimated_time": "60-90 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Gain entry using Lishi HU101 V3. Alarm will sound."
+                },
+                {
+                    "number": 2,
+                    "text": "Silence alarm: Disconnect battery or pull horn fuse"
+                },
+                {
+                    "number": 3,
+                    "text": "Remove CEM from behind glovebox/dash area"
+                },
+                {
+                    "number": 4,
+                    "text": "Connect programmer to CEM EEPROM/MCU (Renesas chip). Read Security Data (Flash/EEPROM)",
+                    "warning": "This contains crypto keys - backup carefully"
+                },
+                {
+                    "number": 5,
+                    "text": "Tool calculates security PIN (locally or via server)"
+                },
+                {
+                    "number": 6,
+                    "text": "FOR KEYLESS VEHICLES: Remove KVM from right rear quarter panel (trunk area)",
+                    "warning": "If you skip this, proximity functions will fail"
+                },
+                {
+                    "number": 7,
+                    "text": "Read KVM 9S12 MCU"
+                },
+                {
+                    "number": 8,
+                    "text": "Reinstall CEM and KVM modules"
+                },
+                {
+                    "number": 9,
+                    "text": "Connect tool via OBD → Select 'All Keys Lost' → Tool uses backed-up data to authorize new key"
+                },
+                {
+                    "number": 10,
+                    "text": "Verify start AND proximity functions (door open, push start with key in pocket)"
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "volvo-p1-scl-failure",
+            "level": "critical",
+            "content": "P1 Steering Column Lock (SCL) Failure: Notorious on S40/V50/C30. Symptoms: Dashboard shows 'Steering Locked – Try Again', car won't crank, wheel may be stuck. Motor brushes wear out or microswitches fail. CEM checks SCL status via LIN bus before authorizing start."
+        },
+        {
+            "type": "step_group",
+            "id": "volvo-scl-emulator-install",
+            "title": "Procedure: SCL Emulator Installation (P1)",
+            "estimated_time": "30-45 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Symptoms: 'Steering Lock Service Required', no crank, wheel locked/unlocked"
+                },
+                {
+                    "number": 2,
+                    "text": "Purchase SCL Emulator ($20-40) from MK3, MagicMotorsport, or aftermarket"
+                },
+                {
+                    "number": 3,
+                    "text": "Disconnect faulty SCL from steering column"
+                },
+                {
+                    "number": 4,
+                    "text": "Plug vehicle's SCL connector into emulator"
+                },
+                {
+                    "number": 5,
+                    "text": "Emulator listens for CEM 'Unlock' command, digitally replies 'Unlocked'"
+                },
+                {
+                    "number": 6,
+                    "text": "Many emulators are Plug & Play - no programming required"
+                },
+                {
+                    "number": 7,
+                    "text": "Car starts normally. Steering will never mechanically lock again."
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "volvo-spa-add-sport-key",
+            "title": "Procedure: SPA Platform (2018 XC90) Add Sport Key",
+            "estimated_time": "1-4 hours",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect Autel IM608 Pro (Ethernet adapter) or Lonsdor K518 Pro"
+                },
+                {
+                    "number": 2,
+                    "text": "Ensure battery > 13.5V using high-quality maintainer",
+                    "warning": "SPA extremely sensitive to voltage drops - can brick modules"
+                },
+                {
+                    "number": 3,
+                    "text": "Tool attempts to read 'Key Loading' password via OBD",
+                    "tip": "Pre-2021 models often successful, can take 1-4 hours. Dashboard may flash/go dark."
+                },
+                {
+                    "number": 4,
+                    "text": "Once password acquired, place new Sport Key in cupholder (RFID antenna location)"
+                },
+                {
+                    "number": 5,
+                    "text": "CEM writes new key ID into memory"
+                },
+                {
+                    "number": 6,
+                    "text": "Used SPA keys can often be unlocked ('renewed') using VVDI Key Tool Plus",
+                    "tip": "Recycled keys are viable option for SPA"
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "volvo-sport-key-battery",
+            "level": "tip",
+            "content": "Sport Key (Tag) has sealed, non-replaceable battery (CR2032 soldered inside). Typically fails after 3-5 years. Professional service: carefully cut shell open, replace battery, reseal. Dealer charges $400+ for replacement."
+        },
+        {
+            "type": "warning_banner",
+            "id": "volvo-icup-barrier",
+            "level": "critical",
+            "content": "iCUP (2022+): Android Automotive-based vehicles have Secure Gateway that blocks unauthorized CAN injection. Requires VGM (Vehicle Gateway Module) PIN in addition to CEM PIN. Tools like Lonsdor now support 2023+ via physical bypass cables."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "volvo-essential-tools",
+            "title": "Volvo Essential Tools",
+            "items": [
+                {
+                    "name": "VDASH (D5T5)",
+                    "required": true,
+                    "notes": "Specialist's weapon - deep PIN decode, CCF management, P2 remotes (with codes)"
+                },
+                {
+                    "name": "Lonsdor K518 Pro",
+                    "required": true,
+                    "notes": "Keyless king - RN-01/FS-01 adapters for solder-free CEM/KVM read"
+                },
+                {
+                    "name": "Autel IM608 Pro II",
+                    "required": false,
+                    "notes": "Good all-rounder, P3 calculation can be slow via OBD"
+                },
+                {
+                    "name": "VIDA + J2534 DiCE",
+                    "required": false,
+                    "notes": "Dealer tool - 100% reliable, only way to officially program P2 remotes"
+                },
+                {
+                    "name": "Lishi NE66",
+                    "required": true,
+                    "notes": "P80/P2 locks - 4-track internal, prone to dirt seizing"
+                },
+                {
+                    "name": "Lishi HU101 V3",
+                    "required": true,
+                    "notes": "P1/P3/SPA - V3 version critical for Volvo tolerances"
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "volvo-battery-reference",
+            "title": "Key Battery Reference",
+            "headers": [
+                "Key Type",
+                "Battery",
+                "Difficulty",
+                "Notes"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "P2 Switchblade",
+                        "CR2032",
+                        "Easy",
+                        "Snap cover, observe polarity"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P1 Smart Key",
+                        "CR2032",
+                        "Easy",
+                        "Slide cover"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P3 5-Button",
+                        "CR2430 (x2)",
+                        "Moderate",
+                        "Slide mechanism can be stiff"
+                    ]
+                },
+                {
+                    "cells": [
+                        "P3 6-Button (PCC)",
+                        "CR2430 (x2)",
+                        "Moderate",
+                        "Often requires re-sync after change"
+                    ]
+                },
+                {
+                    "cells": [
+                        "SPA Silver/Black",
+                        "CR2032",
+                        "Easy",
+                        "Twist lock mechanism"
+                    ]
+                },
+                {
+                    "cells": [
+                        "SPA Sport (Tag)",
+                        "N/A (Sealed)",
+                        "Hard",
+                        "Cut shell to replace CR2032"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "comparison_table",
+            "id": "volvo-tool-comparison",
+            "title": "Tool Comparison Matrix",
+            "items": [
+                "VDASH",
+                "Lonsdor K518",
+                "Autel IM608",
+                "VIDA"
+            ],
+            "features": [
+                {
+                    "name": "P2 Remote Programming",
+                    "values": [
+                        "Yes (with codes)",
+                        "No",
+                        "No",
+                        "Yes (Official)"
+                    ]
+                },
+                {
+                    "name": "P3 PIN Decode (OBD)",
+                    "values": [
+                        "Yes (1-12 hrs)",
+                        "Yes (faster)",
+                        "Yes (slow)",
+                        "N/A"
+                    ]
+                },
+                {
+                    "name": "P3 PIN Decode (Bench)",
+                    "values": [
+                        "Yes",
+                        "Yes (RN-01)",
+                        "Yes",
+                        "N/A"
+                    ]
+                },
+                {
+                    "name": "SPA Key Loading",
+                    "values": [
+                        "Yes",
+                        "Yes",
+                        "Yes",
+                        "Yes"
+                    ]
+                },
+                {
+                    "name": "2022+ iCUP Support",
+                    "values": [
+                        "Limited",
+                        "Yes (updates)",
+                        "Limited",
+                        "Yes"
+                    ]
+                },
+                {
+                    "name": "Subscription Model",
+                    "values": [
+                        "Credits",
+                        "Annual License",
+                        "Annual Sub",
+                        "Per-day/month"
+                    ]
+                }
+            ]
+        }
+    ]
+}

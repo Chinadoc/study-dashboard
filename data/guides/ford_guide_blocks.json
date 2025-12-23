@@ -1,0 +1,348 @@
+{
+    "id": "ford-complete-guide",
+    "title": "Ford Professional Locksmith Programming Guide",
+    "make": "Ford",
+    "year_start": 1996,
+    "year_end": 2025,
+    "difficulty": "Intermediate",
+    "estimated_time": "Varies by PATS generation",
+    "last_updated": "2024-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "ford-pats-overview",
+            "level": "important",
+            "content": "PATS (Passive Anti-Theft System) varies by generation. PATS I (1996-98) needs 1 key. PATS II (1998+) requires 2 working keys for On-Board Programming. Validating chip type (40-bit vs 80-bit) and frequency (315/902/434 MHz) is critical."
+        },
+        {
+            "type": "reference_table",
+            "id": "ford-pats-generations",
+            "title": "PATS Generation Reference",
+            "headers": [
+                "System",
+                "Years",
+                "Min Keys",
+                "Description"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "PATS I",
+                        "1996-1998",
+                        "1",
+                        "Fixed code 4C, standalone module"
+                    ]
+                },
+                {
+                    "cells": [
+                        "PATS II",
+                        "1998+ (Most Common)",
+                        "2",
+                        "Crypto 4D63, PCM/HEC integration, Anti-Scan active"
+                    ]
+                },
+                {
+                    "cells": [
+                        "E-PATS",
+                        "2000+",
+                        "2",
+                        "Encrypted dash/PCM handshake"
+                    ]
+                },
+                {
+                    "cells": [
+                        "PATS Type F/G",
+                        "2013+",
+                        "2",
+                        "BCM-based, high security, requires Incode/Outcode or calculated access"
+                    ]
+                },
+                {
+                    "cells": [
+                        "RH850",
+                        "2021+",
+                        "2",
+                        "SGW + encrypted BCM. Requires bench reading or dealer tool."
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "ford-frequency-trap",
+            "level": "critical",
+            "content": "Frequency Trap: Keys may look identical but differ in frequency. 2017-2022 models mix 315 MHz and 902 MHz. 2024+ Explorer moved to 434 MHz. ALWAYS verify FCC ID."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "ford-essential-tools",
+            "title": "Ford Essential Tools",
+            "items": [
+                {
+                    "name": "Autel IM608 / IM508",
+                    "required": true,
+                    "notes": "Primary tool for OBD programming"
+                },
+                {
+                    "name": "XP400 Pro + APB131",
+                    "required": false,
+                    "notes": "Required for 2021+ RH850 BCM reading (F-150, Bronco)"
+                },
+                {
+                    "name": "Lishi HU101 V3",
+                    "required": true,
+                    "notes": "For 2011+ models (high security)"
+                },
+                {
+                    "name": "Lishi FO38 (H75)",
+                    "required": true,
+                    "notes": "For 1997-2011 8-cut locks"
+                },
+                {
+                    "name": "Ford FDRS/IDS",
+                    "required": false,
+                    "notes": "Dealer software for newest encrypted models"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "ford-obp-add-key",
+            "title": "Procedure: On-Board Add Key (PATS II)",
+            "estimated_time": "2 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Insert Key 1 (Working), turn to RUN (not START)",
+                    "tip": "Wait for theft light to go out (3-5 sec)"
+                },
+                {
+                    "number": 2,
+                    "text": "Turn OFF, remove key"
+                },
+                {
+                    "number": 3,
+                    "text": "Within 10 seconds: Insert Key 2 (Working), turn to RUN"
+                },
+                {
+                    "number": 4,
+                    "text": "Wait for theft light to go out, turn OFF, remove"
+                },
+                {
+                    "number": 5,
+                    "text": "Within 10 seconds: Insert NEW Key (Unprogrammed), turn to RUN"
+                },
+                {
+                    "number": 6,
+                    "text": "Security light remains OFF or glows steady for 3 sec to confirm"
+                },
+                {
+                    "number": 7,
+                    "text": "Turn OFF, wait 30 seconds, test start"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "ford-obp-smart-key",
+            "title": "Procedure: On-Board Add Smart Key (Push Button)",
+            "estimated_time": "3 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Place Key 1 in backup slot (cupholder/console)"
+                },
+                {
+                    "number": 2,
+                    "text": "Press START button (Accessory mode), wait 5 sec, press again to OFF"
+                },
+                {
+                    "number": 3,
+                    "text": "Remove Key 1. Within 5 sec, place Key 2 in slot."
+                },
+                {
+                    "number": 4,
+                    "text": "Press START, wait 5 sec, press OFF. Remove Key 2."
+                },
+                {
+                    "number": 5,
+                    "text": "Place NEW Key in slot. Press START and HOLD until door locks cycle.",
+                    "tip": "Cycling locks confirms programming."
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "ford-akl-autel",
+            "title": "Procedure: All Keys Lost (Autel IM608)",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect to OBD. Select IMMO → Ford → Model/Year."
+                },
+                {
+                    "number": 2,
+                    "text": "Select 'All Smart Keys Lost'",
+                    "warning": "This will ERASE all existing keys. You must have 2 keys ready to reprogram."
+                },
+                {
+                    "number": 3,
+                    "text": "Tool calculates security access (may require network/tokens on newer models)."
+                },
+                {
+                    "number": 4,
+                    "text": "Follow prompts to place keys in backup slot one by one."
+                },
+                {
+                    "number": 5,
+                    "text": "Verify engine start and remote functions."
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "ford-rh850-procedure",
+            "title": "Procedure: 2021+ F-150/Bronco (RH850 BCM)",
+            "estimated_time": "45-60 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Locate BCM (Passenger footwell/under dash). Remove module.",
+                    "warning": "Battery disconnect required."
+                },
+                {
+                    "number": 2,
+                    "text": "Connect BCM to XP400 Pro using APB131 adapter (solder-free)."
+                },
+                {
+                    "number": 3,
+                    "text": "On tool: Programmer → Chip Read → Remote BCM Data."
+                },
+                {
+                    "number": 4,
+                    "text": "Read D-FLASH and save file."
+                },
+                {
+                    "number": 5,
+                    "text": "Reinstall BCM. Connect tool to OBD."
+                },
+                {
+                    "number": 6,
+                    "text": "Select 'Key Learning', load the saved D-FLASH file to bypass security."
+                },
+                {
+                    "number": 7,
+                    "text": "Program keys normally."
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "ford-backup-slot-locations",
+            "title": "Backup Slot Locations",
+            "headers": [
+                "Model",
+                "Location"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "F-150 (2015+)",
+                        "Under rubber mat in front cupholder"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Explorer (2011+)",
+                        "Inside center console armrest box"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Mustang (2015+)",
+                        "Front cupholder (remove bottom liner)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Fusion (2013+)",
+                        "Center console armrest / Cupholder"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Escape (2020+)",
+                        "Center console cupholder"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "ford-fcc-reference",
+            "title": "Common FCC ID Reference",
+            "headers": [
+                "FCC ID",
+                "Freq",
+                "Models"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "M3N5WY8609",
+                        "315 MHz",
+                        "Explorer 11-15, Edge 11-15, Flex, Taurus (ID83 chip)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "M3N-A2C31243300",
+                        "902 MHz",
+                        "F-150 15-17, Mustang 15-17, Explorer 16-17"
+                    ]
+                },
+                {
+                    "cells": [
+                        "M3N-A2C93142600",
+                        "902 MHz",
+                        "F-150 18+, Edge 18+, Fusion 17+"
+                    ]
+                },
+                {
+                    "cells": [
+                        "M3N-A2C93142300",
+                        "315 MHz",
+                        "Edge 17-20, Fusion 17-20 (less common)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "N5F-A08TAA",
+                        "315 MHz",
+                        "Flip keys: F-150, Ranger, Fusion SE"
+                    ]
+                },
+                {
+                    "cells": [
+                        "M3N-A3C108397",
+                        "434 MHz",
+                        "2024+ Explorer (New Frequency!)"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "ford-theft-light-codes",
+            "level": "warning",
+            "content": "Theft Light Diagnostics: Rapid Flashing = Key not recognized. Wait 30-60 seconds for anti-scan to clear before retrying. Solid 2-3 sec then OFF = Key accepted."
+        },
+        {
+            "type": "info_callout",
+            "id": "ford-parameter-reset",
+            "level": "tip",
+            "content": "Parameter Reset: Required when replacing PCM or BCM (Type B/C/F). Resets the handshake between immobilizer and storage module. Often requires 2 keys to be cycled afterwards."
+        }
+    ]
+}
