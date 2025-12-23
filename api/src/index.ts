@@ -54,7 +54,7 @@ function corsResponse(request: Request, body: string, status = 200, extraHeaders
     "Content-Type": contentType,
     "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://eurokeys.app",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Cookie",
+    "Access-Control-Allow-Headers": "Content-Type, Cookie, Authorization",
   };
 
   if (isAllowedOrigin) {
@@ -309,8 +309,8 @@ export default {
     // 3. Get Current User
     if (path === "/api/user") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        // Use getSessionToken to support both Bearer and Cookie auth
+        const sessionToken = getSessionToken(request);
 
         if (!sessionToken) {
           return corsResponse(request, JSON.stringify({ user: null }), 200);

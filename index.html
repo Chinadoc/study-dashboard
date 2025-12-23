@@ -6823,8 +6823,19 @@
         // Check if current user is a developer by calling the server API
         async function checkDeveloperStatus() {
             if (window.isAuthExpired) return;
+
+            // Must use Bearer token for cross-domain auth
+            const authHeaders = getAuthHeaders();
+            if (!authHeaders.Authorization) {
+                // No token available, skip verification
+                console.log('checkDeveloperStatus: No session token, skipping');
+                return;
+            }
+
             try {
-                const response = await fetch(`${API}/api/user`, { credentials: 'include' });
+                const response = await fetch(`${API}/api/user`, {
+                    headers: authHeaders
+                });
                 if (response.ok) {
                     const data = await response.json();
                     // STRICT VALIDATION: User must have an email to be considered valid
