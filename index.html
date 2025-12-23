@@ -6718,6 +6718,7 @@
             // 3. Load inventory from cloud if logged in
             if (currentUser) {
                 InventoryManager.loadFromCloud();
+                InventoryManager.loadJobLogsFromCloud();
             }
         }
 
@@ -6784,8 +6785,9 @@
                             const devTab = document.getElementById('devTab');
                             if (devTab) devTab.style.display = 'inline-flex';
                         }
-                        // Load inventory from cloud
+                        // Load inventory and logs from cloud
                         InventoryManager.loadFromCloud();
+                        InventoryManager.loadJobLogsFromCloud();
                     } else {
                         console.error('Backend authentication failed:', data.error);
                         alert('Authentication failed. Please try again.');
@@ -7928,6 +7930,48 @@
                 }
             },
 
+            // Load job logs from cloud
+            async loadJobLogsFromCloud() {
+                if (!currentUser) return false;
+                try {
+                    const response = await fetch(`${API}/api/user/job_logs`, {
+                        headers: getAuthHeaders()
+                    });
+                    if (!response.ok) return false;
+
+                    const data = await response.json();
+                    if (data.logs && Array.isArray(data.logs) && data.logs.length > 0) {
+                        const cloudLogs = data.logs;
+                        const localLogs = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
+
+                        // Merge logs based on ID, preferring cloud as source of truth for same ID
+                        const mergedMap = new Map();
+
+                        // Add local first
+                        localLogs.forEach(log => {
+                            if (log.id) mergedMap.set(log.id, log);
+                        });
+
+                        // Add cloud (overwrites local)
+                        cloudLogs.forEach(log => {
+                            if (log.id) mergedMap.set(log.id, log);
+                        });
+
+                        const mergedLogs = Array.from(mergedMap.values());
+                        // Sort by created_at desc
+                        mergedLogs.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+
+                        localStorage.setItem('eurokeys_job_logs', JSON.stringify(mergedLogs));
+                        console.log('📋 Job Logs loaded from cloud:', mergedLogs.length);
+                        return true;
+                    }
+                    return false;
+                } catch (e) {
+                    console.error('📋 Job Logs load failed:', e);
+                    return false;
+                }
+            },
+
             // Delete item completely (for X button)
             deleteItem(itemKey, type = 'key') {
                 if (type === 'key') {
@@ -8493,6 +8537,17 @@
 
             logs.push(jobLog);
             localStorage.setItem(logsKey, JSON.stringify(logs));
+
+            // Sync job log to cloud if signed in
+            if (currentUser) {
+                try {
+                    fetch(`${API}/api/user/job_logs`, {
+                        method: 'POST',
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: jobLog.id, log: jobLog })
+                    }).catch(e => console.warn('Job log cloud sync failed:', e));
+                } catch (e) { console.warn('Job log cloud sync failed:', e); }
+            }
 
             // Update UI
             updateInventoryDisplay(itemKey, type);
@@ -11145,10 +11200,11 @@
                                 const devTab = document.getElementById('devTab');
                                 if (devTab) devTab.style.display = 'inline-flex';
                             }
-                            // CRITICAL: Load inventory from cloud after sign-in
+                            // CRITICAL: Load inventory and logs from cloud after sign-in
                             if (currentUser) {
                                 InventoryManager.loadFromCloud().then(() => {
                                     console.log('📦 Inventory loaded after sign-in redirect');
+                                    InventoryManager.loadJobLogsFromCloud();
                                     if (typeof renderInventoryPage === 'function') renderInventoryPage();
                                 });
                             }

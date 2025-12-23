@@ -481,6 +481,64 @@ export default {
       }
     }
 
+    // ==============================================
+    // JOB LOGS ENDPOINTS (Cloud Sync)
+    // ==============================================
+
+    // GET /api/user/job_logs - Fetch user's job logs
+    if (path === "/api/user/job_logs" && request.method === "GET") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+
+        const result = await env.LOCKSMITH_DB.prepare(`
+          SELECT id, data, created_at FROM job_logs WHERE user_id = ? ORDER BY created_at DESC
+        `).bind(userId).all();
+
+        const logs = (result.results || []).map((row: any) => ({
+          id: row.id,
+          ...JSON.parse(row.data || '{}'),
+          created_at: row.created_at
+        }));
+
+        return corsResponse(request, JSON.stringify({ logs }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // POST /api/user/job_logs - Add a job log entry
+    if (path === "/api/user/job_logs" && request.method === "POST") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const body: any = await request.json();
+        const { id, log } = body;
+
+        if (!id || !log) return corsResponse(request, JSON.stringify({ error: "Missing id or log data" }), 400);
+
+        await env.LOCKSMITH_DB.prepare(`
+          INSERT INTO job_logs (id, user_id, data, created_at)
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(id) DO NOTHING
+        `).bind(id, userId, JSON.stringify(log), log.timestamp || Date.now()).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, id }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // GET /api/admin/users-inventory - Admin view of all users with inventory counts
     if (path === "/api/admin/users-inventory") {
       try {
