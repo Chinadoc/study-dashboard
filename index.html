@@ -6720,6 +6720,7 @@
                 InventoryManager.loadFromCloud();
                 InventoryManager.loadJobLogsFromCloud();
                 SubscriptionManager.loadFromCloud();
+                AssetManager.loadFromCloud();
             }
         }
 
@@ -6790,6 +6791,7 @@
                         InventoryManager.loadFromCloud();
                         InventoryManager.loadJobLogsFromCloud();
                         SubscriptionManager.loadFromCloud();
+                        AssetManager.loadFromCloud();
                     } else {
                         console.error('Backend authentication failed:', data.error);
                         alert('Authentication failed. Please try again.');
@@ -8170,32 +8172,99 @@
                 localStorage.setItem(this.ASSETS_STORAGE_KEY, JSON.stringify(assets));
             },
 
+            // Cloud Sync Methods
+            async syncToCloud(asset) {
+                if (!currentUser) return;
+                try {
+                    await fetch(`${API}/api/user/assets`, {
+                        method: 'POST',
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ asset })
+                    });
+                } catch (e) {
+                    console.error('☁️ Asset sync failed:', e);
+                }
+            },
+
+            async deleteFromCloud(id) {
+                if (!currentUser) return;
+                try {
+                    await fetch(`${API}/api/user/assets`, {
+                        method: 'DELETE',
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id })
+                    });
+                } catch (e) {
+                    console.error('🗑️ Asset delete failed:', e);
+                }
+            },
+
+            async loadFromCloud() {
+                if (!currentUser) return;
+                try {
+                    const response = await fetch(`${API}/api/user/assets`, {
+                        headers: getAuthHeaders()
+                    });
+                    if (!response.ok) return;
+
+                    const data = await response.json();
+                    if (data.assets && Array.isArray(data.assets)) {
+                        const cloudAssets = data.assets;
+                        const localAssets = this.getAssets();
+
+                        // Convert local assets to array for merging
+                        const localAll = [...localAssets.equipment, ...localAssets.vehicles];
+                        const mergedMap = new Map();
+                        localAll.forEach(a => mergedMap.set(a.id, a));
+                        cloudAssets.forEach(a => mergedMap.set(a.id, a));
+
+                        // Rebuild structure
+                        const newAssets = { equipment: [], vehicles: [] };
+                        mergedMap.forEach(asset => {
+                            if (asset.id.startsWith('eq_')) newAssets.equipment.push(asset);
+                            if (asset.id.startsWith('vh_')) newAssets.vehicles.push(asset);
+                        });
+
+                        this.saveAssets(newAssets);
+                        console.log('🏗️ Business Assets loaded from cloud:', mergedMap.size);
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('🏗️ Business Assets load failed:', e);
+                }
+            },
+
             addEquipment(name, cost, purchaseDate) {
                 const assets = this.getAssets();
-                assets.equipment.push({
+                const newAsset = {
                     id: 'eq_' + Date.now(),
                     name,
                     cost: parseFloat(cost) || 0,
                     purchaseDate: purchaseDate || new Date().toISOString().split('T')[0]
-                });
+                };
+                assets.equipment.push(newAsset);
                 this.saveAssets(assets);
+                this.syncToCloud(newAsset);
             },
 
             addVehicle(name, price, purchaseDate) {
                 const assets = this.getAssets();
-                assets.vehicles.push({
+                const newAsset = {
                     id: 'vh_' + Date.now(),
                     name,
                     price: parseFloat(price) || 0,
                     purchaseDate: purchaseDate || new Date().toISOString().split('T')[0]
-                });
+                };
+                assets.vehicles.push(newAsset);
                 this.saveAssets(assets);
+                this.syncToCloud(newAsset);
             },
 
             removeAsset(type, id) {
                 const assets = this.getAssets();
                 assets[type] = assets[type].filter(a => a.id !== id);
                 this.saveAssets(assets);
+                this.deleteFromCloud(id);
             },
 
             calculateDepreciation() {
@@ -11275,6 +11344,7 @@
                                     console.log('📦 Inventory loaded after sign-in redirect');
                                     InventoryManager.loadJobLogsFromCloud();
                                     SubscriptionManager.loadFromCloud();
+                                    AssetManager.loadFromCloud();
                                     if (typeof renderInventoryPage === 'function') renderInventoryPage();
                                 });
                             }
@@ -11447,6 +11517,9 @@
     <script src="public/js/programming_guides_data.js"></script>
     <script src="public/js/transponder_reference.js"></script>
     <script src="public/js/coverage_metadata.js"></script>
+    <!-- Dynamic Guide Renderer -->
+    <script src="components/GuideRenderer.js"></script>
+    <script src="js/app.js"></script>
 </body>
 
 </html>
