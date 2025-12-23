@@ -1,0 +1,143 @@
+{
+    "id": "honda-complete-guide",
+    "title": "Honda/Acura Professional Locksmith Programming Guide",
+    "make": "Honda",
+    "year_start": 1998,
+    "year_end": 2025,
+    "difficulty": "Intermediate",
+    "estimated_time": "15-45 mins",
+    "last_updated": "2024-12-23",
+    "source_pdf": "/guides/Honda_Immobilizer_Master_Guide.pdf",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "honda-immo-overview",
+            "level": "important",
+            "content": "Honda immobilizer systems evolved through 6 types. Type 1-3 (1998-2010) are straightforward. Type 4-5 (2011-2022) require PIN codes. Type 6 (2023+) uses 'Locked BCM' with no public AKL solution."
+        },
+        {
+            "type": "warning_banner",
+            "id": "honda-locked-bcm-warning",
+            "level": "critical",
+            "content": "2023+ Accord, CR-V, Civic: Use 'Locked BCM' architecture. AKL requires dealer key order or specialized rolling code calculation. No public aftermarket solution exists."
+        },
+        {
+            "type": "reference_table",
+            "id": "honda-immo-types",
+            "title": "Honda Immobilizer Type Reference",
+            "headers": [
+                "Type",
+                "Years",
+                "Chip",
+                "Notes"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Type 1",
+                        "1998-2002",
+                        "ID13",
+                        "Older Accords, Civics"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Type 2",
+                        "2001-2006",
+                        "ID46",
+                        "Most 2000s models"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Type 3",
+                        "2006-2010",
+                        "ID46 Rolling",
+                        "Encrypted systems"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Type 4",
+                        "2011-2017",
+                        "ID47 HITAG3",
+                        "PIN + encrypted"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Type 5",
+                        "2018-2022",
+                        "ID47/ID49",
+                        "PIN + HITAG Pro"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Type 6",
+                        "2023+",
+                        "Locked BCM",
+                        "Dealer only AKL"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "tool_checklist",
+            "id": "honda-essential-tools",
+            "title": "Honda Essential Tools",
+            "items": [
+                {
+                    "name": "Autel IM608 / Smart Pro",
+                    "required": true,
+                    "notes": "Best for Type 3-5"
+                },
+                {
+                    "name": "Lishi HON66",
+                    "required": true,
+                    "notes": "For 2002+ high-security locks"
+                },
+                {
+                    "name": "Honda HDS/TIS",
+                    "required": false,
+                    "notes": "Dealer software for Type 6"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "honda-add-key-type4",
+            "title": "Procedure: Add Key (Type 4/5, 2011-2022)",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect to OBD. Navigate: IMMO → Honda → Model → Year."
+                },
+                {
+                    "number": 2,
+                    "text": "Read PIN code from BCM (most tools support this)."
+                },
+                {
+                    "number": 3,
+                    "text": "Select 'Add Key'. Enter PIN when prompted."
+                },
+                {
+                    "number": 4,
+                    "text": "Insert NEW key into ignition when prompted."
+                },
+                {
+                    "number": 5,
+                    "text": "Wait for confirmation. Test start."
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "honda-pdf-notice",
+            "level": "note",
+            "content": "For the full 16-page Honda Immobilizer Master Guide with detailed procedures, AKL workflows, and FCC ID references, view the source PDF linked above."
+        }
+    ]
+}

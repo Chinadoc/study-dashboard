@@ -721,6 +721,55 @@ export default {
       }
     }
 
+    // ==============================================
+    // USER PREFERENCES ENDPOINTS
+    // ==============================================
+
+    // GET /api/user/preferences - Fetch user preferences
+    if (path === "/api/user/preferences" && request.method === "GET") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const user = await env.LOCKSMITH_DB.prepare(`
+          SELECT preferences FROM users WHERE id = ?
+        `).bind(userId).first<any>();
+
+        return corsResponse(request, JSON.stringify({
+          preferences: user?.preferences ? JSON.parse(user.preferences) : {}
+        }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // POST /api/user/preferences - Save user preferences
+    if (path === "/api/user/preferences" && request.method === "POST") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const body: any = await request.json();
+        const { preferences } = body;
+
+        await env.LOCKSMITH_DB.prepare(`
+          UPDATE users SET preferences = ? WHERE id = ?
+        `).bind(JSON.stringify(preferences || {}), userId).run();
+
+        return corsResponse(request, JSON.stringify({ success: true }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
     // GET /api/admin/users-inventory - Admin view of all users with inventory counts
     if (path === "/api/admin/users-inventory") {
       try {
@@ -845,8 +894,7 @@ export default {
     // Admin: Get all users (developer only)
     if (path === "/api/admin/users") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        const sessionToken = getSessionToken(request);
         if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
@@ -883,8 +931,7 @@ export default {
     // Admin: Get activity log (developer only)
     if (path === "/api/admin/activity") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        const sessionToken = getSessionToken(request);
         if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
@@ -931,8 +978,7 @@ export default {
     // Admin: Get analytics stats (developer only)
     if (path === "/api/admin/stats") {
       try {
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        const sessionToken = getSessionToken(request);
         if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
 
         const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');

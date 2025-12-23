@@ -1,0 +1,202 @@
+{
+    "id": "subaru-complete-guide",
+    "title": "Subaru Professional Locksmith Programming Guide",
+    "make": "Subaru",
+    "year_start": 2005,
+    "year_end": 2025,
+    "difficulty": "Intermediate",
+    "estimated_time": "15-30 mins",
+    "last_updated": "2024-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "subaru-immo-overview",
+            "level": "important",
+            "content": "Subaru uses Texas Instruments chips. Evolution: 4D62 (2005-2010), 82/G chip (2011-2018), H chip (2019+). Prox systems became common in 2015+."
+        },
+        {
+            "type": "reference_table",
+            "id": "subaru-transponder-evolution",
+            "title": "Subaru Transponder Evolution",
+            "headers": [
+                "Era",
+                "Chip",
+                "Key Part",
+                "Models"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "2005-2010",
+                        "TI 4D62",
+                        "SUB4-PT",
+                        "Legacy, Outback, Forester, Impreza"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2009-2014",
+                        "TI 4D62 (DAT17)",
+                        "DAT17T13/T42",
+                        "Legacy, Outback (High Sec)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2012-2018",
+                        "TI 82 (G)",
+                        "TOY43RT45",
+                        "Impreza, XV Crosstrek, WRX"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2019+",
+                        "TI H (128-bit)",
+                        "TOY43RH-PT",
+                        "Ascent, Forester, Outback, Crosstrek"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2015+",
+                        "Prox",
+                        "OEM 88835-xx",
+                        "BRZ, Forester, Outback, Legacy, WRX"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "tool_checklist",
+            "id": "subaru-essential-tools",
+            "title": "Subaru Essential Tools",
+            "items": [
+                {
+                    "name": "Smart Pro / Autel IM608",
+                    "required": true,
+                    "notes": "Required for all encrypted systems"
+                },
+                {
+                    "name": "Lishi DAT17",
+                    "required": true,
+                    "notes": "For 2009-2014 high-security locks"
+                },
+                {
+                    "name": "Lishi SUB1/SUB4",
+                    "required": true,
+                    "notes": "For older non-high-security locks"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "subaru-add-key-4d62",
+            "title": "Procedure: Add Key (4D62 System)",
+            "estimated_time": "10-15 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect to OBD. Navigate: IMMO → Subaru → Model → Year."
+                },
+                {
+                    "number": 2,
+                    "text": "Select 'Add Transponder Key'."
+                },
+                {
+                    "number": 3,
+                    "text": "Insert working key when prompted."
+                },
+                {
+                    "number": 4,
+                    "text": "Insert NEW key when prompted. Wait for confirmation."
+                },
+                {
+                    "number": 5,
+                    "text": "Test start with new key."
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "subaru-prox-add-key",
+            "title": "Procedure: Add Proximity Key (2015+)",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Verify fob: Correct OEM# (88835-xx series)."
+                },
+                {
+                    "number": 2,
+                    "text": "Connect to OBD. Select IMMO → Subaru → Smart Key."
+                },
+                {
+                    "number": 3,
+                    "text": "Select 'Smart Key Learning'."
+                },
+                {
+                    "number": 4,
+                    "text": "Hold NEW fob near Start button when prompted."
+                },
+                {
+                    "number": 5,
+                    "text": "Test proximity unlock and push-button start."
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "subaru-high-volume-models",
+            "title": "High-Volume Models Quick Reference",
+            "headers": [
+                "Model",
+                "Years",
+                "Chip",
+                "Key Part"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Outback",
+                        "2020-2023",
+                        "H / Prox",
+                        "TOY43RH-PT / 88835-AN00C"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Forester",
+                        "2019-2023",
+                        "H / Prox",
+                        "TOY43RH-PT / 88835-FL030"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Crosstrek",
+                        "2019-2023",
+                        "H / Prox",
+                        "TOY43RH-PT / 88835-FL032"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Impreza",
+                        "2017-2023",
+                        "H / Prox",
+                        "TOY43RH-PT / 88835-FL03A"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Ascent",
+                        "2019-2022",
+                        "H / Prox",
+                        "TOY43RH-PT / 88835-FL03A"
+                    ]
+                }
+            ]
+        }
+    ]
+}

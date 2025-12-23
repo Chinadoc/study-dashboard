@@ -1,0 +1,187 @@
+{
+    "id": "audi-vw-complete-guide",
+    "title": "Audi/VW Professional Locksmith Programming Guide",
+    "make": "Audi",
+    "year_start": 1996,
+    "year_end": 2025,
+    "difficulty": "Expert",
+    "estimated_time": "Varies by system",
+    "last_updated": "2024-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "audi-vag-overview",
+            "level": "important",
+            "content": "VAG (Volkswagen Audi Group) uses Megamos transponders. Evolution: Megamos 48 (1996-2008, encrypted), MQB (2012+, 48TP/49). Modern systems (MQB Evo) require dealer-level access or ODIS for AKL."
+        },
+        {
+            "type": "warning_banner",
+            "id": "audi-dealer-keys-warning",
+            "level": "critical",
+            "content": "2006+ Audi: Many models require dealer-ordered keys by VIN (Megamos encrypted). Aftermarket solutions are limited. MQB Evo (2019+) has no public AKL solution."
+        },
+        {
+            "type": "reference_table",
+            "id": "audi-transponder-evolution",
+            "title": "Audi/VW Transponder Evolution",
+            "headers": [
+                "Era",
+                "Platform",
+                "Chip",
+                "Key Style"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "1996-2005",
+                        "Legacy",
+                        "Megamos 48",
+                        "HU66 Flip"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2006-2011",
+                        "Encrypted",
+                        "Megamos 48 Encrypted",
+                        "HU66 Flip/Smart"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2012-2018",
+                        "MQB",
+                        "Megamos 48TP/49",
+                        "HU66 High Sec"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2019+",
+                        "MQB Evo",
+                        "128-bit AES",
+                        "Dealer Only"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "tool_checklist",
+            "id": "audi-essential-tools",
+            "title": "Audi/VW Essential Tools",
+            "items": [
+                {
+                    "name": "VVDI2 / Key Tool Plus",
+                    "required": true,
+                    "notes": "Best for Megamos 48 systems"
+                },
+                {
+                    "name": "Autel IM608 + M-Box",
+                    "required": false,
+                    "notes": "For encrypted transponder cloning"
+                },
+                {
+                    "name": "ODIS / VAS 5054",
+                    "required": false,
+                    "notes": "Dealer software for MQB Evo"
+                },
+                {
+                    "name": "Lishi HU66",
+                    "required": true,
+                    "notes": "For entry and decode"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "audi-add-key-megamos48",
+            "title": "Procedure: Add Key (Megamos 48, Pre-2006)",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect VVDI2 or Autel to OBD."
+                },
+                {
+                    "number": 2,
+                    "text": "Navigate: IMMO → VAG → Audi → Model."
+                },
+                {
+                    "number": 3,
+                    "text": "Read Immobilizer Data (CS/PIN)."
+                },
+                {
+                    "number": 4,
+                    "text": "Generate new key using M-Box or VVDI Key Tool."
+                },
+                {
+                    "number": 5,
+                    "text": "Write transponder to blank HU66 key."
+                },
+                {
+                    "number": 6,
+                    "text": "Learn key via OBD. Test start."
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "audi-model-coverage",
+            "title": "Audi Model Quick Reference",
+            "headers": [
+                "Model",
+                "Years",
+                "System",
+                "Key Part"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "A4/S4",
+                        "2002-2008",
+                        "Megamos 48",
+                        "HU66AT6"
+                    ]
+                },
+                {
+                    "cells": [
+                        "A4/S4",
+                        "2009-2015",
+                        "Encrypted",
+                        "Dealer Key"
+                    ]
+                },
+                {
+                    "cells": [
+                        "A6/S6",
+                        "2001-2005",
+                        "Megamos 48",
+                        "HU66AT6"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Q5/Q7",
+                        "2007-2015",
+                        "Encrypted",
+                        "Dealer Key"
+                    ]
+                },
+                {
+                    "cells": [
+                        "TT",
+                        "2005-2015",
+                        "Encrypted",
+                        "Dealer Key"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "audi-vw-shared",
+            "level": "tip",
+            "content": "Audi shares platforms with VW, Porsche, and some Bentley. HU66 keyway and Megamos transponders are common across all VAG brands."
+        }
+    ]
+}

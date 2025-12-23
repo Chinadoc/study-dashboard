@@ -6796,6 +6796,7 @@
                         InventoryManager.loadJobLogsFromCloud();
                         SubscriptionManager.loadFromCloud();
                         AssetManager.loadFromCloud();
+                        if (typeof PreferencesManager !== 'undefined') PreferencesManager.loadFromCloud();
                     } else {
                         console.error('Backend authentication failed:', data.error);
                         alert('Authentication failed. Please try again.');
@@ -7362,11 +7363,15 @@
             if (errorBanner) errorBanner.style.display = 'none';
 
             try {
-                // Fetch stats, users, and activity
+                // Fetch stats, users, and activity with full auth headers
+                const authConfig = {
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                };
                 const [statsRes, userRes, activityRes] = await Promise.all([
-                    fetch(`${API}/api/admin/stats`, { credentials: 'include' }),
-                    fetch(`${API}/api/admin/users`, { credentials: 'include' }),
-                    fetch(`${API}/api/admin/activity?limit=1000`, { credentials: 'include' })
+                    fetch(`${API}/api/admin/stats`, authConfig),
+                    fetch(`${API}/api/admin/users`, authConfig),
+                    fetch(`${API}/api/admin/activity?limit=1000`, authConfig)
                 ]);
 
                 if (statsRes.status === 401 || userRes.status === 401 || activityRes.status === 401) {
@@ -8396,6 +8401,117 @@
             }
         };
         window.addEventListener('online', () => { console.log('🌐 Online! Syncing...'); OfflineSyncQueue.flush(); });
+
+        // ================== SYNC STATUS INDICATOR ==================
+        const SyncStatusUI = {
+            element: null,
+            timeout: null,
+
+            init() {
+                if (this.element) return;
+                this.element = document.createElement('div');
+                this.element.id = 'sync-status-badge';
+                this.element.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: var(--bg-secondary);
+                    border: 1px solid var(--border);
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    z-index: 9999;
+                    display: none;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    transition: all 0.3s ease;
+                `;
+                document.body.appendChild(this.element);
+            },
+
+            show(status = 'syncing') {
+                this.init();
+                if (status === 'syncing') {
+                    this.element.innerHTML = '🔄 Syncing...';
+                    this.element.style.color = '#fbbf24';
+                    this.element.style.display = 'block';
+                } else if (status === 'synced') {
+                    this.element.innerHTML = '✅ Synced';
+                    this.element.style.color = '#4ade80';
+                    this.element.style.display = 'block';
+                    // Auto-hide after 2 seconds
+                    clearTimeout(this.timeout);
+                    this.timeout = setTimeout(() => this.hide(), 2000);
+                } else if (status === 'error') {
+                    this.element.innerHTML = '⚠️ Sync Failed';
+                    this.element.style.color = '#f87171';
+                    this.element.style.display = 'block';
+                    clearTimeout(this.timeout);
+                    this.timeout = setTimeout(() => this.hide(), 3000);
+                }
+            },
+
+            hide() {
+                if (this.element) {
+                    this.element.style.display = 'none';
+                }
+            }
+        };
+
+        // ================== USER PREFERENCES MANAGER ==================
+        const PreferencesManager = {
+            STORAGE_KEY: 'eurokeys_preferences',
+
+            getLocal() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '{}');
+                } catch { return {}; }
+            },
+
+            saveLocal(prefs) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(prefs));
+            },
+
+            get(key) {
+                return this.getLocal()[key];
+            },
+
+            set(key, value) {
+                const prefs = this.getLocal();
+                prefs[key] = value;
+                this.saveLocal(prefs);
+                this.syncToCloud();
+            },
+
+            async syncToCloud() {
+                if (!currentUser) return;
+                try {
+                    await fetch(`${API}/api/user/preferences`, {
+                        method: 'POST',
+                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ preferences: this.getLocal() })
+                    });
+                } catch (e) { console.error('Prefs sync failed:', e); }
+            },
+
+            async loadFromCloud() {
+                if (!currentUser) return;
+                try {
+                    const res = await fetch(`${API}/api/user/preferences`, { headers: getAuthHeaders() });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.preferences) {
+                            const cloudPrefs = data.preferences;
+                            const localPrefs = this.getLocal();
+                            // Merge: cloud wins
+                            const merged = { ...localPrefs, ...cloudPrefs };
+                            this.saveLocal(merged);
+                            console.log('⚙️ Preferences loaded from cloud');
+                        }
+                    }
+                } catch (e) { console.error('Prefs load failed:', e); }
+            }
+        };
 
         // ================== TOOL COVERAGE & INTELLIGENCE ==================
 

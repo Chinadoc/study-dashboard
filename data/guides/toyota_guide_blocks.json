@@ -1,0 +1,268 @@
+{
+    "id": "toyota-complete-guide",
+    "title": "Toyota/Lexus Professional Locksmith Programming Guide",
+    "make": "Toyota",
+    "year_start": 1998,
+    "year_end": 2025,
+    "difficulty": "Intermediate",
+    "estimated_time": "Varies by system",
+    "last_updated": "2024-12-23",
+    "modules": [
+        {
+            "type": "info_callout",
+            "id": "toyota-immo-overview",
+            "level": "important",
+            "content": "Toyota immobilizer systems use Texas Instruments chips. Evolution: 4C (1998-2003, no encryption) → 4D67 (2005-2010, encrypted) → 80-bit/G (2010-2014) → 128-bit/H (2014+). Prox systems require OEM fobs."
+        },
+        {
+            "type": "reference_table",
+            "id": "toyota-transponder-evolution",
+            "title": "Toyota Transponder Evolution",
+            "headers": [
+                "Era",
+                "Chip",
+                "System",
+                "Key Style",
+                "Programming"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "1998-2003",
+                        "TI 4C",
+                        "Type 1",
+                        "TR47",
+                        "OBP Program E"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "2005-2010",
+                        "TI 4D67",
+                        "Type 2",
+                        "TR47",
+                        "Smart Pro/TCP/TKO"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "2010-2014",
+                        "TI 80-bit (G)",
+                        "Type 3",
+                        "TR47",
+                        "Smart Pro/TCP (Encrypted)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "2014-2023",
+                        "TI 128-bit (H)",
+                        "Type 4",
+                        "LXP90-P/TOY48",
+                        "Smart Pro/TCP"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "2019+",
+                        "Prox Smart Key",
+                        "Type 5/6",
+                        "Emergency Blade",
+                        "OEM Fob Required"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "toyota-prox-warning",
+            "level": "warning",
+            "content": "2019+ Toyota Smart Keys (Prox): Cannot be cloned. Original OEM fob or high-quality aftermarket required. Verify FCC ID matches vehicle region before ordering."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "toyota-essential-tools",
+            "title": "Toyota Essential Tools",
+            "items": [
+                {
+                    "name": "Autel IM608 / Smart Pro",
+                    "required": true,
+                    "notes": "Best for 4D67, 80-bit, 128-bit systems"
+                },
+                {
+                    "name": "Lishi TOY43/TOY48",
+                    "required": true,
+                    "notes": "Entry and decode for most models"
+                },
+                {
+                    "name": "Toyota TIS Techstream",
+                    "required": false,
+                    "notes": "Dealer software for newest prox systems"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "toyota-add-key-4d67",
+            "title": "Procedure: Add Key (4D67 System, 2005-2010)",
+            "estimated_time": "10-15 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect to OBD. Navigate: IMMO → Toyota → Model → Year."
+                },
+                {
+                    "number": 2,
+                    "text": "Select 'Add Transponder Key'."
+                },
+                {
+                    "number": 3,
+                    "text": "Turn ignition ON with working key when prompted."
+                },
+                {
+                    "number": 4,
+                    "text": "Insert NEW key when prompted. Wait for confirmation."
+                },
+                {
+                    "number": 5,
+                    "text": "Turn OFF, test start with new key."
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "toyota-prox-add-key",
+            "title": "Procedure: Add Proximity Key (2014+ H-Chip)",
+            "estimated_time": "15-20 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Verify fob: Correct FCC ID and chip type (H / 128-bit)."
+                },
+                {
+                    "number": 2,
+                    "text": "Connect to OBD. Select IMMO → Toyota → Smart Key."
+                },
+                {
+                    "number": 3,
+                    "text": "Select 'Smart Key Learning'. Tool communicates with BCM."
+                },
+                {
+                    "number": 4,
+                    "text": "Hold NEW fob against steering column antenna when prompted."
+                },
+                {
+                    "number": 5,
+                    "text": "Wait for 'Key Registered' message."
+                },
+                {
+                    "number": 6,
+                    "text": "Test proximity unlock, lock, and push-button start."
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "toyota-lishi-reference",
+            "title": "Toyota Lishi Tool Reference",
+            "headers": [
+                "Tool",
+                "Keyway",
+                "Years",
+                "Models"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "TOY43",
+                        "TR47",
+                        "2002-2014",
+                        "Camry, Corolla, RAV4, Highlander"
+                    ]
+                },
+                {
+                    "cells": [
+                        "TOY48",
+                        "LXP90-P",
+                        "2015-2023",
+                        "Camry, Corolla, Tacoma, Tundra"
+                    ]
+                },
+                {
+                    "cells": [
+                        "TOY51",
+                        "LXP90-P",
+                        "2010-2019",
+                        "Prox emergency blade (4Runner, Venza, Sienna)"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "toyota-high-volume-models",
+            "title": "High-Volume Models Quick Reference",
+            "headers": [
+                "Model",
+                "Years",
+                "Chip",
+                "Key Part"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Camry",
+                        "2018-2024",
+                        "128-bit H",
+                        "TOY48H-PT"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Corolla",
+                        "2019-2023",
+                        "128-bit H",
+                        "TOY48H-PT"
+                    ]
+                },
+                {
+                    "cells": [
+                        "RAV4",
+                        "2019-2023",
+                        "128-bit H",
+                        "TOY48H-PT / Prox 8990H"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Highlander",
+                        "2020-2024",
+                        "Prox",
+                        "OEM# 8990H-0E020"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Tacoma",
+                        "2016-2022",
+                        "128-bit H",
+                        "TOY44H-PT"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Tundra",
+                        "2016-2022",
+                        "128-bit H",
+                        "TOY44H-PT"
+                    ]
+                }
+            ]
+        }
+    ]
+}
