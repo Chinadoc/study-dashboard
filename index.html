@@ -6788,6 +6788,10 @@
                             if (devTab) devTab.style.display = 'inline-flex';
                         }
                         // Load inventory and logs from cloud
+                        // FIRST: Merge any local guest data to cloud (before loading)
+                        if (typeof DataPortability !== 'undefined') {
+                            await DataPortability.syncAllToCloud();
+                        }
                         InventoryManager.loadFromCloud();
                         InventoryManager.loadJobLogsFromCloud();
                         SubscriptionManager.loadFromCloud();
@@ -7048,13 +7052,27 @@
                 return { hasAccess: true, isTrialing: false, isPro: true, daysLeft: Infinity };
             }
 
-            // If signed in with active trial
+            // If signed in with explicit trial_until set
             if (currentUser?.trial_until && currentUser.trial_until > Date.now()) {
                 const daysLeft = Math.ceil((currentUser.trial_until - Date.now()) / (1000 * 60 * 60 * 24));
                 return { hasAccess: true, isTrialing: true, isPro: false, daysLeft };
             }
 
-            // Anonymous trial (localStorage based)
+            // If signed in, use server-side created_at for trial calculation (robust)
+            if (currentUser?.created_at) {
+                const createdAt = typeof currentUser.created_at === 'string'
+                    ? new Date(currentUser.created_at).getTime()
+                    : currentUser.created_at;
+                const trialEnd = createdAt + TRIAL_MS;
+                if (Date.now() < trialEnd) {
+                    const daysLeft = Math.ceil((trialEnd - Date.now()) / (1000 * 60 * 60 * 24));
+                    return { hasAccess: true, isTrialing: true, isPro: false, daysLeft };
+                }
+                // Trial expired for signed-in user
+                return { hasAccess: false, isTrialing: false, isPro: false, daysLeft: 0 };
+            }
+
+            // Anonymous trial (localStorage based - fallback for guests)
             const trialStart = parseInt(localStorage.getItem('eurokeys_trial_start') || '0');
             if (trialStart) {
                 const trialEnd = trialStart + TRIAL_MS;
@@ -8286,6 +8304,99 @@
             }
         };
 
+        // ================== DATA PORTABILITY ==================
+        const DataPortability = {
+            exportAll() {
+                const data = {
+                    exportedAt: new Date().toISOString(),
+                    version: '1.0',
+                    inventory: {
+                        keys: InventoryManager.getKeysInventory(),
+                        blanks: InventoryManager.getBlanksInventory()
+                    },
+                    jobLogs: JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]'),
+                    subscriptions: SubscriptionManager.getAll(),
+                    assets: AssetManager.getAssets()
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `eurokeys_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                console.log('📦 Data exported');
+                return true;
+            },
+
+            async importFromFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (data.inventory?.keys) Object.assign(InventoryManager.getKeysInventory(), data.inventory.keys);
+                            if (data.inventory?.blanks) Object.assign(InventoryManager.getBlanksInventory(), data.inventory.blanks);
+                            if (data.jobLogs?.length) {
+                                const local = JSON.parse(localStorage.getItem('eurokeys_job_logs') || '[]');
+                                const map = new Map(local.map(l => [l.id, l]));
+                                data.jobLogs.forEach(l => map.set(l.id, l));
+                                localStorage.setItem('eurokeys_job_logs', JSON.stringify([...map.values()]));
+                            }
+                            if (data.subscriptions?.length) {
+                                const local = SubscriptionManager.getAll();
+                                const map = new Map(local.map(s => [s.id, s]));
+                                data.subscriptions.forEach(s => map.set(s.id, s));
+                                SubscriptionManager.save([...map.values()]);
+                            }
+                            if (data.assets) AssetManager.saveAssets({ ...AssetManager.getAssets(), ...data.assets });
+                            if (currentUser) await this.syncAllToCloud();
+                            console.log('📥 Data imported');
+                            resolve(true);
+                        } catch (err) { reject(err); }
+                    };
+                    reader.readAsText(file);
+                });
+            },
+
+            async syncAllToCloud() {
+                if (!currentUser) return;
+                const keys = InventoryManager.getKeysInventory();
+                for (const [k, d] of Object.entries(keys)) await InventoryManager.syncToCloud(k, 'key', d.qty, d.used || 0);
+                const blanks = InventoryManager.getBlanksInventory();
+                for (const [k, d] of Object.entries(blanks)) await InventoryManager.syncToCloud(k, 'blank', d.qty, d.used || 0);
+                const subs = SubscriptionManager.getAll();
+                for (const s of subs) await SubscriptionManager.syncToCloud(s);
+                const assets = AssetManager.getAssets();
+                for (const e of assets.equipment) await AssetManager.syncToCloud(e);
+                for (const v of assets.vehicles) await AssetManager.syncToCloud(v);
+                console.log('☁️ All data synced to cloud');
+            }
+        };
+
+        // ================== OFFLINE SYNC QUEUE ==================
+        const OfflineSyncQueue = {
+            QUEUE_KEY: 'eurokeys_offline_queue',
+            getQueue() { try { return JSON.parse(localStorage.getItem(this.QUEUE_KEY) || '[]'); } catch { return []; } },
+            saveQueue(q) { localStorage.setItem(this.QUEUE_KEY, JSON.stringify(q)); },
+            add(op) { const q = this.getQueue(); q.push({ ...op, ts: Date.now() }); this.saveQueue(q); console.log('📴 Queued:', op.type); },
+            async flush() {
+                const q = this.getQueue();
+                if (!q.length) return;
+                console.log(`🔄 Flushing ${q.length} ops...`);
+                const failed = [];
+                for (const op of q) {
+                    try { await fetch(op.endpoint, { method: op.method || 'POST', headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(op.body) }); }
+                    catch { failed.push(op); }
+                }
+                this.saveQueue(failed);
+                console.log(`✅ Done. ${failed.length} pending.`);
+            }
+        };
+        window.addEventListener('online', () => { console.log('🌐 Online! Syncing...'); OfflineSyncQueue.flush(); });
+
         // ================== TOOL COVERAGE & INTELLIGENCE ==================
 
         // Update inventory display in modal
@@ -8911,6 +9022,8 @@
                             font-weight: 600; 
                             cursor: pointer;
                         ">🗺️ Coverage Map</button>
+                        <button onclick="DataPortability.exportAll()" style="padding: 8px 16px; border-radius: 20px; border: 1px dashed var(--border); background: transparent; color: var(--text-secondary); font-weight: 500; cursor: pointer; margin-left: 10px;" title="Download all your data">📥 Export</button>
+                        <label style="padding: 8px 16px; border-radius: 20px; border: 1px dashed var(--border); background: transparent; color: var(--text-secondary); font-weight: 500; cursor: pointer;" title="Restore from backup">📤 Import<input type="file" accept=".json" style="display:none" onchange="DataPortability.importFromFile(this.files[0]).then(() => renderInventoryPage()).catch(e => alert('Import failed: ' + e.message))"></label>
                     </div>
                 `;
 

@@ -7,12 +7,13 @@
     "difficulty": "Intermediate",
     "estimated_time": "20-45 mins",
     "last_updated": "2024-12-23",
+    "source_pdf": "/guides/Hyundai_Key_Programming_Field_Guide.pdf",
     "modules": [
         {
             "type": "info_callout",
             "id": "hyundai-immo-generations",
             "level": "important",
-            "content": "System Generations: SMARTRA-2 (2006-09) uses ID46/4D. SMARTRA-3 (2010-16) uses dealer-secured 6-digit PIN. Integrated IBU (2017+) uses dual validation. SGW (2019+) requires digital certificate authorization."
+            "content": "System Generations: SMARTRA-2 (2006-09) uses ID46. SMARTRA-3 (2010-16) uses dealer PIN. Integrated IBU (2017-18) uses ID47. SGW (2019+) requires digital signature via authorized scan tool."
         },
         {
             "type": "reference_table",
@@ -20,42 +21,41 @@
             "title": "PIN Code Access Evolution",
             "headers": [
                 "Era",
-                "Format",
-                "Source",
-                "Cost"
+                "System",
+                "Retrieval Method"
             ],
             "rows": [
                 {
                     "cells": [
-                        "Pre-2007",
-                        "4-digit (VIN derived)",
-                        "Calculators / Last 6 VIN",
-                        "FREE"
-                    ]
+                        "2006-2009",
+                        "SMARTRA-2",
+                        "K-Line Read / VIN to PIN calculation"
+                    ],
+                    "highlight": false
                 },
                 {
                     "cells": [
-                        "2007-2018",
-                        "6-digit",
-                        "OBD Read (Autel/Lonsdor) or NASTF",
-                        "FREE / $24"
-                    ]
+                        "2010-2016",
+                        "SMARTRA-3",
+                        "OBD Read (Autel/Lonsdor) or NASTF VSP"
+                    ],
+                    "highlight": false
                 },
                 {
                     "cells": [
-                        "2019-2023",
-                        "6-digit (SGW)",
-                        "OBD with Authorized Tool",
-                        "FREE"
-                    ]
+                        "2017-2018",
+                        "IBU / ID47",
+                        "OBD Read via password reading (Free on many tools)"
+                    ],
+                    "highlight": true
                 },
                 {
                     "cells": [
-                        "2024+",
-                        "6-digit",
-                        "Dealer / limited OBD support",
-                        "FREE (if supp.) / Paid"
-                    ]
+                        "2019-2024",
+                        "SGW",
+                        "Software-based Auth + Digital Certificate"
+                    ],
+                    "highlight": true
                 }
             ]
         },
@@ -63,156 +63,137 @@
             "type": "warning_banner",
             "id": "hyundai-pin-lockout",
             "level": "critical",
-            "content": "PIN Lockout: 3 incorrect PIN entries locks the system for 1 HOUR. Do not guess. If locked, disconnect battery for 15 mins, or leave ignition ON for 1 hour on older models."
+            "content": "PIN Lockout: 3 incorrect attempts = 1-HOUR LOCKOUT. Disconnect battery for 15s to reset on some models, otherwise wait with ignition ON."
         },
         {
             "type": "warning_banner",
-            "id": "hyundai-kia-boyz",
+            "id": "hyundai-kia-boyz-impact",
             "level": "warning",
-            "content": "'Kia Boyz' Patch: 2011-2021 mechanical key vehicles may have anti-theft software update. Car will NOT CRANK unless unlocked with remote fob. Always ensure remote works or unlock with fob before programming keys."
+            "content": "'Kia Boyz' Patch (2011-2021 Mechanical Keys): Patched vehicles require remote UNLOCK to crank. If car won't start after key cut, ensure it was unlocked via fob."
+        },
+        {
+            "type": "info_callout",
+            "id": "hyundai-sgw-details",
+            "level": "important",
+            "content": "SGW Models (2019+): Elantra CN7, Ioniq 5/6, Palisade, Santa Fe TM, Sonata DN8, Tucson NX4, Venue. No bypass cable needed, just active tool subscription + internet."
         },
         {
             "type": "tool_checklist",
             "id": "hyundai-essential-tools",
-            "title": "Hyundai Essential Tools",
+            "title": "Hyundai/Kia Professional Tools",
             "items": [
                 {
-                    "name": "Autel IM608 Pro II / IM508",
+                    "name": "Autel IM608 Pro II",
                     "required": true,
-                    "notes": "Reads PINs via OBD for most 2007-2023 models"
+                    "notes": "Best all-around, free PIN reading for most models"
                 },
                 {
                     "name": "Lonsdor K518 Pro",
                     "required": false,
-                    "notes": "Excellent for 2023+ and ID4A/8A systems"
+                    "notes": "First to support 2023+ and 8A systems"
                 },
                 {
-                    "name": "Lishi HY22",
-                    "required": true,
-                    "notes": "Standard 4-track pick for 2010+ models"
+                    "name": "Xhorse Key Tool Plus",
+                    "required": false,
+                    "notes": "Unique ID modification for ID47 saving key cost"
                 },
                 {
-                    "name": "Lishi HYN14",
+                    "name": "Lishi HY22 (Quad Lifter)",
                     "required": true,
-                    "notes": "For 2010 and older edge keys"
+                    "notes": "For 2010-2020 4-track locks"
+                },
+                {
+                    "name": "Lishi KK12",
+                    "required": true,
+                    "notes": "For 2021+ new Elantra/Ioniq locks"
                 }
             ]
         },
         {
             "type": "step_group",
-            "id": "hyundai-autel-pin-read",
-            "title": "Procedure: Read PIN Code via OBD (Autel)",
-            "estimated_time": "2 mins",
-            "steps": [
-                {
-                    "number": 1,
-                    "text": "Connect to OBD. Navigate: IMMO → Hyundai → Model/Year."
-                },
-                {
-                    "number": 2,
-                    "text": "Select 'Read Immobilizer Password'. Turn Ignition ON."
-                },
-                {
-                    "number": 3,
-                    "text": "Tool communicates with ECU/BCM."
-                },
-                {
-                    "number": 4,
-                    "text": "6-digit PIN is displayed. WRITE IT DOWN.",
-                    "tip": "If read fails, use NASTF VSP service ($24)."
-                }
-            ]
-        },
-        {
-            "type": "step_group",
-            "id": "hyundai-add-smart-key",
-            "title": "Procedure: Add Smart Key (Autel)",
+            "id": "hyundai-autel-add-key",
+            "title": "Procedure: Add Smart Key (Autel IM608)",
             "estimated_time": "5 mins",
             "steps": [
                 {
                     "number": 1,
-                    "text": "Select 'Smart Key Learning'. Turn Ignition OFF."
+                    "text": "Connect to OBD. Path: IMMO → Manual Selection → Region → Model → Year."
                 },
                 {
                     "number": 2,
-                    "text": "Open and close driver door."
+                    "text": "Select 'Read Immobilizer Password' first to get 6-digit PIN."
                 },
                 {
                     "number": 3,
-                    "text": "Enter the 6-digit PIN code."
+                    "text": "Select 'Smart Key Learning'. Ignition OFF, Open/Close driver door."
                 },
                 {
                     "number": 4,
-                    "text": "Within 5 seconds, hold the back of new Smart Key against START button.",
-                    "tip": "Listen for beep or watch instrument cluster lights flash."
+                    "text": "Enter PIN. Hold back of smart key against START button for 5s."
                 },
                 {
                     "number": 5,
-                    "text": "Repeat for additional keys."
-                },
-                {
-                    "number": 6,
-                    "text": "Exit programming and test functions."
+                    "text": "Repeat for next key or exit. Test all functions."
                 }
             ]
         },
         {
             "type": "step_group",
-            "id": "hyundai-akl-smart-key",
-            "title": "Procedure: All Smart Keys Lost",
-            "estimated_time": "15-20 mins",
+            "id": "hyundai-id-modification",
+            "title": "Procedure: ID Modification (Xhorse Saving Key Cost)",
+            "estimated_time": "10 mins",
             "steps": [
                 {
                     "number": 1,
-                    "text": "Select 'All Smart Keys Lost'. Tool will attempt to read PIN or ask for manual entry."
+                    "text": "Read original key ID for ID47/HITAG3 models."
                 },
                 {
                     "number": 2,
-                    "text": "Warning: 'This will erase all existing keys'. Confirm."
+                    "text": "Generate a Wireless/Super Remote for the matching car model."
                 },
                 {
                     "number": 3,
-                    "text": "Follow same learning sequence: Ignition OFF, Door Open/Close, Hold Key to Start Button."
+                    "text": "Use 'Modify ID' function to write original ID to the new remote."
                 },
                 {
                     "number": 4,
-                    "text": "Program at least 2 keys for best results."
+                    "text": "Key will often start vehicle without OBD programming."
                 }
             ]
         },
         {
             "type": "reference_table",
             "id": "hyundai-transponder-specs",
-            "title": "Transponder Chip Specifications",
+            "title": "Hyundai/Kia Transponder Matrix",
             "headers": [
                 "Era",
                 "Chip ID",
-                "Encryption",
-                "Models"
+                "Type",
+                "Battery"
             ],
             "rows": [
                 {
                     "cells": [
                         "2000-2015",
-                        "ID46 (PCF7936)",
+                        "ID46",
                         "HITAG2",
-                        "Sonata, Elantra, Santa Fe"
+                        "CR2032"
                     ]
                 },
                 {
                     "cells": [
-                        "2014-2020",
-                        "ID47 (PCF7938X)",
-                        "HITAG3 AES",
-                        "Genesis, Kona, Tucson"
+                        "2014-2022",
+                        "ID47",
+                        "HITAG3",
+                        "CR2032"
                     ]
                 },
                 {
                     "cells": [
                         "2019+",
-                        "ID4A (PCF7961M)",
+                        "ID4A",
                         "HITAG-AES",
-                        "Venue, Santa Fe (2024), Ionic"
+                        "CR2032"
                     ]
                 },
                 {
@@ -220,59 +201,9 @@
                         "2023+",
                         "ID8A",
                         "DST-AES",
-                        "Palisade, Telluride"
-                    ]
-                }
-            ]
-        },
-        {
-            "type": "info_callout",
-            "id": "hyundai-sgw-2019",
-            "level": "important",
-            "content": "2019+ SGW: Hyundai's Security Gateway uses digital certificates. No physical bypass cable needed (unlike Chrysler). Tool must have 'AutoAuth' or valid subscription to communicate with Hyundai servers for authorization."
-        },
-        {
-            "type": "reference_table",
-            "id": "hyundai-blade-reference",
-            "title": "Emergency Blade & Lishi",
-            "headers": [
-                "Keyway",
-                "Lishi Tool",
-                "Years",
-                "Models"
-            ],
-            "rows": [
-                {
-                    "cells": [
-                        "HY22 / LXP90",
-                        "Lishi HY22",
-                        "2009-2020",
-                        "Sonata, Azera, Genesis (Quad Lifter)"
-                    ]
-                },
-                {
-                    "cells": [
-                        "HYN14 / HY16",
-                        "Lishi HYN14",
-                        "2006-2011",
-                        "Accent, older Elantra"
-                    ]
-                },
-                {
-                    "cells": [
-                        "HY18 / HY20",
-                        "Lishi HY18",
-                        "2012-2018",
-                        "Accent, Veloster, Elantra GT (2-track)"
-                    ]
-                },
-                {
-                    "cells": [
-                        "KK12",
-                        "Lishi KK12",
-                        "2021+",
-                        "Ioniq 5, new Elantra/Sonata"
-                    ]
+                        "CR2450"
+                    ],
+                    "highlight": true
                 }
             ]
         },

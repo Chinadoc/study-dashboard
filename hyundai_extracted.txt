@@ -1,0 +1,300 @@
+
+HYUNDAI
+Professional Locksmith Programming Guide
+North American Market - 2002-2025
+
+Including Complete Tool Walkthroughs:
+Autel IM508/IM608 • Xhorse VVDI Key Tool Plus • Lonsdor K518 Pro • SmartPro • AVDI
+PIN Code Access Methods • Security Gateway Authorization • Lishi Tool Procedures
+
+⚠ CONFIDENTIAL DOCUMENT - FOR PROFESSIONAL LOCKSMITH USE ONLY
+Updated: December 2024
+
+TABLE OF CONTENTS
+Section 1: Immobilizer System Evolution.....................................3
+Section 2: PIN Code Access - Free vs. Paid Methods....................6
+Section 3: Transponder Chip Specifications..................................9
+Section 4: Vehicle-Specific Key Data Tables.................................12
+Section 5: Autel IM508/IM608 Complete Walkthrough...................20
+Section 6: Xhorse VVDI Key Tool Plus Procedures........................28
+Section 7: Lonsdor K518 Pro Step-by-Step...................................33
+Section 8: SmartPro & AVDI Procedures.......................................37
+Section 9: Security Gateway Authorization (2019+).......................40
+Section 10: Lishi Lock Pick & Decode Procedures.......................44
+Section 11: All Keys Lost Procedures by Year..............................48
+Section 12: Kia Boyz Anti-Theft Patch Impact................................53
+Section 13: Quick Reference Tables..............................................56
+
+SECTION 1: IMMOBILIZER SYSTEM EVOLUTION
+Hyundai's immobilizer architecture has evolved through four distinct generations since 2006, each requiring different diagnostic approaches and PIN code protocols. Understanding these generations is critical for selecting the correct programming method and tool.
+Generation 1: SMARTRA-2 (2006-2009)
+The earliest US immobilizer systems used standalone SMARTRA (Smart Key Transponder Antenna) modules mounted on the steering column near the ignition cylinder. Communication occurred via K-line serial protocol with basic HITAG2 encryption.
+Models Covered: Azera (2006), Veracruz (2007-2009), Genesis Sedan/Coupe (2008-2009), select Canadian models.
+Generation 2: SMARTRA-3 (2010-2016)
+The most common system in the field, SMARTRA-3 introduced CAN-bus communication and dealer-secured PIN codes that cannot be calculated from VIN alone. The immobilizer module migrated to behind the instrument cluster or near the BCM.
+Models Covered: Sonata, Tucson, Santa Fe, Elantra, Accent (2010-2016), Genesis Coupe/Sedan (2010-2014), Equus/Azera (2011-2016), Veloster (2012-2015).
+Generation 3: Integrated BCM/Smart Key (2017-2018)
+Immobilizer functions began integrating into the IBU (Integrated Body Unit), marking the transition to ID47 (HITAG3) transponders. Dual validation between BCM and ECM became standard.
+Generation 4: Security Gateway (2019-2024)
+Current vehicles integrate the Central Gateway (CGW) within the ICU (Integrated Control Unit), routing all diagnostic communication through security validation. Tool authorization via digital certificates is required.
+⚠ CRITICAL: Unlike FCA vehicles, Hyundai/Kia Security Gateway does NOT require hardware bypass. Authorized diagnostic tools receive digital certificates for access. Unauthorized requests return NRC code 0x33 "securityAccessDenied".
+SGW Vehicles Include: Elantra CN7, Ioniq 5/6, Nexo, Palisade, Santa Fe TM, Sonata DN8, Tucson NX4, Venue, and all Genesis models (G70, G80, G90, GV70, GV80).
+
+SECTION 2: PIN CODE ACCESS - FREE VS. PAID METHODS
+Understanding how to obtain PIN codes is essential for profitable locksmith operations. This section details all methods from free OBD reads to paid services, and when each is required.
+PIN Code Requirements by Era
+FREE PIN Code Reading via OBD
+Modern locksmith tools can read Hyundai/Kia PIN codes directly from the vehicle's ECU at no additional cost. This is the preferred method when available.
+Tools with FREE PIN Code Reading:
+Autel IM508/IM608/IM608 Pro II: Reads ID46, ID47, ID4A (2020-2023) via OBD
+Lonsdor K518 Pro: Reads ID46, ID47, 8A chips - first tool to support Hyundai/Kia PIN read
+Xhorse VVDI Key Tool Plus: Reads ID46, ID47, 8A transponders after password reading
+SmartPro (ADS2321): Reads PIN on most 2023+ models - eliminates need for NASTF codes
+AVDI/Abrites (HK011): Reads PIN from working key (HITAG2/3, HITAG-AES, DST-AES, DST80)
+PAID PIN Code Sources
+When OBD reading fails or is not supported, these paid options are available:
+NASTF Vehicle Security Professional (VSP) Registry
+Cost: $20-24 per PIN code lookup
+Requirements: LSID (Locksmith Secure ID) number, background check, insurance, fidelity bond
+Application fee: Small fee for credential processing
+Access: 24/7/365 via manufacturer websites
+Website: nastf.org
+⚠ WARNING: NASTF has suspended over 1,300 accounts for credential sharing. Never share your LSID passcode with code brokers - violations can result in permanent suspension and potential theft investigation involvement.
+Third-Party PIN Code Services
+Facebook Services: Some technicians report using services like Ameer Hasan's page for Kia/Hyundai PINs
+Cost: Varies, typically $15-40 per code
+Risk: Unverified sources may provide incorrect codes
+Dealer PIN Code Requests
+Process: Hyundai dealers will NOT give PIN codes directly to customers or locksmiths
+Exception: Some dealers may assist with fleet accounts or established relationships
+2024+ Models: Dealer may be only option for newest systems
+💡 PRO TIP: If your tool shows "Read Immobilizer Password" function, use it FIRST - it's free and works on most 2007-2023 models. Only pay for NASTF codes when OBD reading fails.
+PIN Code Lockout Warning
+⚠ CRITICAL: 3 incorrect PIN attempts triggers a 1-HOUR lockout. Never guess PIN codes. Always verify before entry. If lockout occurs, disconnect battery and wait 10-15 seconds, then reconnect - some systems will reset.
+
+SECTION 3: TRANSPONDER CHIP SPECIFICATIONS
+Philips/NXP HITAG Family
+PCF7936 (ID46) - Most Common Chip 2000-2015
+Vehicles: Accent (1999-2012), Elantra (2000-2011), Sonata (2005-2010), Tucson (2004-2009), Santa Fe (2002-2011), Azera (2005-2011), Tiburon (2001-2008), Veracruz (2006-2012).
+PCF7938X (ID47/HITAG3) - Advanced Security 2014+
+Vehicles: Genesis (2014+), Kona (2016+), Ioniq (2016+), Santa Fe (2016+), all 2017-2022 smart key models.
+PCF7961M (ID4A/HITAG-AES) - Current Generation 2019+
+Vehicles: Venue (2021-2024), Santa Fe (2024), all 2021+ models transitioning to this chip.
+⚠ CRITICAL: Used smart keys CANNOT be programmed to another vehicle - only virgin keys work. Always verify key is new/virgin before purchasing for customer.
+
+SECTION 5: AUTEL IM508/IM608 COMPLETE WALKTHROUGH
+The Autel IM508 and IM608 series are among the most popular tools for Hyundai/Kia programming. This section provides step-by-step procedures for common scenarios.
+Standard Menu Path
+IMMO → Hyundai → [Manual Selection] → [Region: USA/Canada] → [Model] → [Year Range] → Smart Key/Transponder Key → Control Unit → Key Learning
+Procedure 1: Add Smart Key (With Working Key)
+Scenario: Customer has one or more working smart keys and wants to add another key.
+Step-by-Step Instructions:
+Connect Autel IM508/IM608 to vehicle OBD2 port (below steering column)
+Select: IMMO → Hyundai → Manual Selection
+Select Region: USA or Canada
+Select Model and Year Range (e.g., Santa Fe → 2019-2023)
+Select: Smart Key → Control Unit → Keyless System → Remote Control Learning
+Select: Smart Key Learning
+Turn ignition OFF
+Open and close the driver's door once
+Within 5 seconds: Hold the back of the smart key against the START button for 5 seconds until the anti-theft lamp flashes
+Repeat step 9 for each additional key
+Exit programming mode when complete
+Test all keys for start and remote functions
+Procedure 2: Read PIN Code via OBD
+Scenario: You need the 6-digit PIN code for programming or AKL situations.
+Step-by-Step Instructions:
+Connect to OBD2 port
+Navigate to: IMMO → Hyundai → [Model] → [Year] → Smart Key
+Select: Control Unit → Keyless System
+Select: Read Immobilizer Password
+Turn ignition ON when prompted
+Wait for PIN code to display (typically 15-30 seconds)
+RECORD THE 6-DIGIT PIN CODE
+Use this PIN for subsequent key programming
+💡 PRO TIP: PIN reading on Autel is FREE - no tokens or server connection required for most 2007-2023 models.
+Procedure 3: All Keys Lost (AKL)
+Scenario: Customer has lost all keys. No working keys available.
+⚠ IMPORTANT: AKL procedure will ERASE ALL previously programmed keys. You must program at least 2 new keys.
+Step-by-Step Instructions:
+Connect to OBD2 port
+Navigate to: IMMO → Hyundai → [Model] → [Year] → Smart Key
+Select: Key Learning → All Smart Keys Lost
+Tool will read the PIN code automatically (network connection may be required)
+Confirm PIN code when displayed
+Turn ignition OFF, open/close driver door
+Hold FIRST new key against START button for 5 seconds
+Wait for confirmation beep/flash
+Hold SECOND new key against START button for 5 seconds
+Exit programming mode
+Test both keys for all functions
+Troubleshooting: "Remote System Incapable" Error
+This is a common error on 2021-2024 Hyundai models. The solution is to use the Diagnostics path instead of IMMO.
+Workaround Procedure:
+From main screen, select Diagnostics (NOT IMMO)
+Select: Hyundai → [Model] → [Year]
+Select: Smart Key Unit → Remote Control Learning
+Select: Smart Key Learning
+Follow standard key programming procedure
+💡 PRO TIP: If tool freezes during programming, power-cycle the tool OR perform a battery reset (disconnect negative terminal for 10-15 seconds, then reconnect).
+Autel Updates for 2023-2024 Models
+Autel has released updates adding PIN reading for newer models. Ensure your software is current:
+Elantra (2020-2023) - Password reading supported
+Santa Cruz (NX4A OB) (2022-2023) - Password reading supported
+STARIA (U54) (2022-2023) - Password reading supported
+2024 Tucson - Confirmed working with IM608 Pro II via Diagnostics path
+
+SECTION 6: XHORSE VVDI KEY TOOL PLUS PROCEDURES
+The Xhorse VVDI Key Tool Plus is an all-in-one tablet solution for key programming. It excels on older Hyundai systems and offers unique ID modification methods for ID47 chips.
+Menu Navigation
+Immo Programming → Asia → Hyundai → Select by Type → Key Programming
+Hyundai Type Selection Guide
+Procedure: Hyundai Venue 2020+ ID4A Key Programming
+Connect Key Tool Plus to OBD2 port
+Navigate to: Immo Programming → Asia → Hyundai → Select by Type → Key Programming
+Select: Type 9
+Select: Start Programming → Key Programming
+Turn ignition switch to ON, press "OK"
+Enter 6-digit password when prompted
+Insert original key and switch ignition ON, press "OK"
+"Matched successfully" - Press "OK" to match next key
+Insert NEW smart key and switch ignition ON
+"Matched successfully" - Press "Cancel" to finish
+For remote programming: Select Remote System after key programming
+Alternative Method: ID Modification (ID47 Keys)
+Xhorse offers a unique method to add Hyundai/Kia ID47 keys by modifying the transponder ID rather than traditional programming. This can save cost on keys.
+ID Modification Procedure:
+Generate a Wireless Remote or Super Remote key
+Navigate to: Remote Program → Asia → Hyundai → [Model with ID47]
+Select: Generate → Burn success
+Read and RECORD the original key's ID
+Use "Modify ID" function to change new key's ID to match
+Verify: Read transponder - ID should now match original
+Most ID47 keys will start vehicle directly after successful modification
+Program remote separately via OBD if needed
+💡 PRO TIP: ID modification saves money on keys but doesn't work on all vehicles. If it fails, use the standard password reading method.
+
+SECTION 7: LONSDOR K518 PRO STEP-BY-STEP PROCEDURES
+The Lonsdor K518 Pro was the first tool to offer free PIN code reading for Hyundai/Kia vehicles. It has expanded support through 2024 models.
+Procedure: 2023 Santa Fe Add Key
+Real-world example: This procedure was successfully used on a 2023 Hyundai Santa Fe.
+Step-by-Step Instructions:
+Connect K518 Pro to OBD2 port
+Select: IMMO and Remote → Hyundai
+Select: 2023 Santa Fe → Smart Key
+Tool prompts: Turn ignition ON then OFF
+Open and close driver's door
+Activate hazard lights (keeps BCM active)
+Tool reads PIN code (~25 seconds) - RECORD IT
+Confirm PIN code displayed
+IMPORTANT: Have ALL existing keys present
+Press OK to enter key programming mode
+Hold each key against START button when prompted
+Repeat for all keys including new ones
+Exit programming when complete
+⚠ CRITICAL: When programming new keys, ALL existing keys must be present. Any keys not programmed during this process will be ERASED from the vehicle's system.
+Lonsdor ID46/ID47 PIN Code Reading
+Lonsdor K518 can read PIN codes from both ID46 (HITAG2) and ID47 (HITAG3) systems.
+For ID46 Systems:
+Connect to OBD
+Select: Immobilizer → Hyundai/Kia → By System → Read PIN Code
+Select: Read PIN Code (46 chip)
+Turn ignition ON when prompted
+PIN displays as two parts: P1 and P2 lines combined
+Example: P2: 73 85 + P1: 78 = PIN 738578
+For ID47 Smart Key Systems:
+Connect to OBD
+Select: Immobilizer → Hyundai → [Model] → Smart Key
+Tool reads PIN automatically
+Enter PIN code to access key programming
+Hold key head against Start button within 5 seconds
+Wait for immobilizer indicator to illuminate
+Lonsdor 2024 Update Coverage
+Recent updates have expanded Hyundai support:
+PIN code reading for models up to 2024
+Transponder key programming via OBD
+Remote control programming
+Smart key programming for latest models
+💡 PRO TIP: Lonsdor requires strong Wi-Fi for some functions. If modules seem asleep, simply unlock/lock the car or cycle ignition to wake the CAN network before programming.
+
+SECTION 9: SECURITY GATEWAY AUTHORIZATION (2019+)
+Hyundai/Kia vehicles from 2019+ include a Security Gateway (SGW) that controls access to diagnostic functions. Unlike FCA vehicles, Hyundai SGW does NOT require hardware bypass - it uses software-based digital certificate authorization.
+How Hyundai SGW Works
+The Central Gateway (CGW) separates the vehicle network into public and private sectors. The public sector includes the diagnostic port (DLC) and telematics. All other modules (ECU, BCM, etc.) are on the private network. When an unauthorized tool attempts a special procedure, the gateway returns NRC code 0x33 "securityAccessDenied".
+SGW-Equipped Models
+Hyundai: Elantra CN7, Ioniq 5/6, Nexo, Palisade, Santa Fe TM, Sonata DN8, Tucson NX4, Venue
+Genesis: All models - G70, G80, G90, GV70, GV80
+Kia: Carnival, EV6, K5, Seltos, Sorento, Sportage, Stinger, Telluride
+Tools with SGW Authorization
+SGW Authorization Process
+The SGW authorization is handled automatically by authorized tools via secure server communication. The process is transparent to the technician.
+Tool connects to vehicle OBD2
+Tool detects SGW presence
+Tool communicates with manufacturer's server (requires internet)
+Digital certificate is validated
+SGW grants access to private network
+Normal diagnostic/programming functions available
+💡 PRO TIP: If you get "communication failed" on SGW vehicles, ensure your tool has active subscription AND internet connectivity. SGW authorization requires live server validation.
+
+SECTION 10: LISHI LOCK PICK & DECODE PROCEDURES
+Lishi 2-in-1 tools allow locksmiths to pick open Hyundai vehicles AND decode the lock to cut a key - essential for entry and key origination.
+Lishi Tool Selection Guide
+Lishi HY22 Pick & Decode Procedure
+The HY22 is a quad-lifter design for 4-track internal locks. This is the most common Hyundai Lishi tool for 2009-2015 vehicles.
+Step-by-Step Picking:
+Insert Lishi tool into lock with tension handle at 12 o'clock
+Apply LIGHT clockwise tension (turning direction)
+Starting at position 1, use lifter to feel each wafer
+Wafer that's binding will feel "stuck" - lift it until it clicks
+Move to next binding wafer (may not be in order)
+Continue until all 6 wafers are set
+Lock will turn - continue rotation to unlock
+Step-by-Step Decoding:
+After picking, return cylinder to lock position (HY22 requires back-picking)
+Look at the decode lines on each wafer position (1-6)
+Each position shows a number corresponding to cut depth
+Record cuts for both LEFT and RIGHT tracks
+HY22 uses LXP90 key blank
+Cut key on appropriate machine using decoded bitting
+💡 PRO TIP: HY22 uses quad lifter - requires practice. The tool has wafer positions 1-6 for BOTH left and right tracks (12 total wafers). Always decode both sides.
+Key Blank Cross-Reference
+
+SECTION 12: KIA BOYZ ANTI-THEFT PATCH IMPACT
+The "Kia Boyz" theft epidemic and subsequent software patches have created unique challenges for locksmiths working on 2011-2021 Hyundai/Kia vehicles.
+Background
+A massive batch of 2011-2021 Hyundai/Kia vehicles with mechanical key ignitions were built WITHOUT factory immobilizers. US regulations did not require immobilizers, and Hyundai/Kia cut costs. Thieves discovered they could simply break the ignition cylinder and start the car without any specialized tools - leading to viral "Kia Boyz" social media videos and a nationwide theft spike.
+The Software Patch
+By 2023, Hyundai and Kia rolled out free anti-theft software updates that create an electronic "ignition kill" feature.
+How the Patch Works:
+Creates electronic requirement: car will NOT crank unless locked with remote fob
+Patched vehicles display "Immobilizer Installed" decal on window
+Does NOT add a transponder chip - creates software-based security
+Patch Limitations:
+Only works if owner locks car with remote fob
+Manual handle lock does NOT arm the system
+If owner forgets to lock - car remains vulnerable
+Impact on Locksmith Work
+Potential Issues on Patched Vehicles:
+Communication anomalies with diagnostic tools
+Module sync issues after ECU/BCM work
+Programming failures if remote not functioning
+"Security" errors not seen on unpatched vehicles
+Identification:
+Look for "Immobilizer Installed" window decal
+Ask customer if they received anti-theft update
+Check for software version in diagnostic scan
+Workarounds:
+Ensure remote fob is working before any programming
+Lock vehicle with remote before key programming
+If module errors occur, try full battery disconnect for 30 seconds
+Use Diagnostics menu instead of IMMO for communication issues
+⚠ IMPORTANT: All 2022+ Hyundai/Kia models include factory immobilizers by federal requirement. The patch issues only affect 2011-2021 mechanical key vehicles that received the software update.
+
+SECTION 13: QUICK REFERENCE TABLES
+Emergency Blade Keyway Quick Reference
+Common FCC ID Quick Reference
+Battery Reference
+CR2032: Most 315 MHz remotes, older smart keys, flip keys
+CR2450: Most 2021+ smart keys, Palisade, Ioniq 5/6, newer models
+Tool Decision Matrix
+— END OF DOCUMENT —
