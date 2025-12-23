@@ -6780,7 +6780,7 @@
                         localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
                         updateAuthUI(true);
                         // Check developer status again to show the tab if eligible
-                        if (currentUser.is_developer) {
+                        if (currentUser && currentUser.is_developer) {
                             const devTab = document.getElementById('devTab');
                             if (devTab) devTab.style.display = 'inline-flex';
                         }
@@ -6838,7 +6838,7 @@
                         updateProUI();
                         updateAuthUI(true);
 
-                        if (currentUser.is_developer) {
+                        if (currentUser && currentUser.is_developer) {
                             const devTab = document.getElementById('devTab');
                             if (devTab) devTab.style.display = 'inline-flex';
                         } else {
@@ -6907,7 +6907,7 @@
                 // Update Dropdown Details
                 if (dName) dName.textContent = currentUser.name;
                 if (dEmail) dEmail.textContent = currentUser.email;
-                if (dDevOption) dDevOption.style.display = currentUser.is_developer ? 'block' : 'none';
+                if (dDevOption) dDevOption.style.display = (currentUser && currentUser.is_developer) ? 'block' : 'none';
 
                 // Show initials or profile picture
                 if (currentUser.picture) {
@@ -6927,7 +6927,7 @@
                 // Show developer tab if user is a developer
                 const devTab = document.getElementById('devTab');
                 if (devTab) {
-                    devTab.style.display = currentUser.is_developer ? 'inline-flex' : 'none';
+                    devTab.style.display = (currentUser && currentUser.is_developer) ? 'inline-flex' : 'none';
                 }
 
                 // Show subscriptions tab
