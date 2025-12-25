@@ -1,0 +1,174 @@
+﻿Legacy Systems and the Digital Transition: A Comprehensive Analysis of Autel IM508 Capabilities for GM and Chrysler Platforms (2000–2010)
+1. Introduction: The Decade of Automotive Security Transition
+The period between 2000 and 2010 represents one of the most tumultuous and technically diverse eras in the history of automotive security. As manufacturers migrated from purely mechanical locking mechanisms to sophisticated cryptographic immobilizers, the diagnostic landscape became fragmented across a multitude of proprietary communication protocols. For modern automotive technicians, locksmiths, and diagnostic specialists utilizing the Autel IM508 and similar specialized tools, this decade poses unique challenges that differ significantly from the standardized environment of post-2012 vehicles.
+This report provides an exhaustive technical evaluation of the All-Keys-Lost (AKL) programming capabilities of the Autel IM508 ecosystem for domestic vehicles from this critical era, specifically focusing on General Motors (GM) and the Chrysler/Dodge/Jeep (FCA/Stellantis) family. The analysis explores the dichotomy between the tool’s "Smart Mode" automation—highly effective on later Controller Area Network (CAN) architectures—and the "Expert Mode" interventions required for legacy platforms. These legacy systems, including GM’s Class 2 Data Bus (J1850 VPW) and Chrysler’s Programmable Communication Interface (PCI) Bus, often necessitate procedures that extend beyond simple On-Board Diagnostics (OBD) interactions, requiring manual relearn cycles, physical module manipulation, and EEPROM data extraction.
+
+
+  
+
+
+
+1.1 The Protocol Landscape: From Proprietary to Standardized
+To understand the capabilities—and limitations—of the Autel IM508 on these vehicles, one must first deconstruct the communication architectures in use. Unlike modern vehicles that uniformly utilize the ISO 15765 CAN standard, the 2000–2010 fleet is a patchwork of legacy standards.
+* J1850 VPW (GM Class 2): A single-wire, 10.4 kbps variable pulse width protocol used extensively by General Motors until roughly 2005/2006. Its low bandwidth and lack of standardized "security seed/key" exchange protocols mean that modern "instant PIN read" functions are physically impossible on many early models.1
+* PCI Bus (Chrysler/Jeep): The Programmable Communication Interface bus, running at 10.4 kbps, was the backbone of Chrysler electronics from the late 1990s through the mid-2000s. A defining characteristic of the PCI era is that the Sentry Key Immobilizer Module (SKIM) often does not broadcast the security PIN code over the diagnostic link, rendering OBD PIN extraction impossible for many tools.2
+* CAN Bus (The Future): Beginning around 2004-2006, both manufacturers transitioned to the Controller Area Network (CAN). This high-speed (500 kbps), two-wire differential bus allowed for robust bidirectional control and standardized diagnostic services, enabling the "Smart Mode" capabilities that Autel users rely on today.3
+The Autel IM508, an Android-based tablet paired with the XP200 programmer, sits at the intersection of these technologies. While marketed as an "all-in-one" solution, its efficacy is strictly governed by the underlying vehicle architecture. For CAN-based systems, it acts as a programmer; for legacy systems, it often acts merely as a guide for manual procedures or requires invasive "bench" operations.4
+2. General Motors (2000–2010): The Evolution of Anti-Theft
+General Motors' approach to vehicle security during this decade was evolutionary, moving from resistor-based systems to early transponders, and finally to robust crypto-transponder systems integrated with CAN bus architecture. The Autel IM508’s utility varies dramatically across these generations.
+2.1 Passlock I & II: The "No-Chip" Enigma
+The Passlock system, ubiquitous in high-volume models like the Chevrolet Impala (2000-2005), Malibu, and C/K trucks, is a frequent source of confusion for novice technicians. Unlike true immobilizer systems, Passlock keys do not contain a transponder chip. The security intelligence resides entirely within the lock cylinder housing and the Body Control Module (BCM).
+2.1.1 Mechanisms of Operation
+In a Passlock system, the key is purely mechanical. When the cylinder is rotated, a magnet passes a Hall effect sensor (or a resistor network in early versions), generating a specific analog voltage reference. This voltage is sent to the BCM via a dedicated signal wire. The BCM compares this voltage against a stored value. If they match, the BCM sends a "Fuel Enable" password to the Powertrain Control Module (PCM) via the Class 2 data bus.6
+2.1.2 Autel IM508 Capability Analysis
+For Passlock systems, the Autel IM508 serves primarily as a diagnostic observer rather than a key programmer.
+* No "Key Programming": Because there is no transponder chip in the key head, there is nothing for the XP200 programmer to encode. The tool cannot "add a key" in the digital sense.
+* The Relearn Necessity: When a key is lost (and the lock cylinder replaced), or when the Passlock sensor fails, the BCM must learn the new analog voltage identifier. This is achieved through a specific timing cycle, not a digital command.
+* Limitation of Tools: Technical documentation and user reports confirm that the Autel IM508 cannot bypass the mandatory wait times associated with the Passlock relearn procedure on Class 2 vehicles. The tool cannot force the BCM to accept a new voltage value instantly because the system architecture requires the 30-minute validation period to prevent brute-force theft attempts.8
+
+
+  
+
+
+
+2.1.3 The 30-Minute Relearn Procedure
+The definitive "All Keys Lost" or module replacement procedure for Passlock involves a strict manual sequence. While the Autel IM508 may offer menu options for "Immobilizer Relearn," executing them often simply triggers the on-board timer or clears post-procedure codes. The widely accepted procedure, which technicians must perform manually, is as follows:
+1. Cycle 1: Attempt to start the engine. The engine may start and stall or simply crank. Leave the key in the ON position. The "Security" light will remain solid or flash.
+2. Wait: Do not touch the vehicle for 10 minutes. The security light will eventually turn off or stop flashing.
+3. Cycle Off: Turn the ignition OFF for 5 seconds (some protocols suggest up to 30 seconds).
+4. Repeat: Repeat this process two more times for a total of three 10-minute cycles (30 minutes total).
+5. Finalization: After the third cycle, turn the key OFF, then start the vehicle. The BCM has now overwritten the old voltage value with the new one.7
+Operational Note: It is critical to maintain battery voltage during this 30-minute "Key On, Engine Off" period. A battery maintainer is essential, as voltage fluctuation can abort the learn process or corrupt the BCM memory.9
+2.2 PASS-Key III (PK3) and PK3+: The Transponder Era
+Introduced in the late 1990s and running concurrently with Passlock on higher-end platforms (e.g., Buick LeSabre, Pontiac Bonneville, Cadillac DeVille), the PASS-Key III (PK3) system utilizes a transponder chip (typically Megamos 13 or 48) embedded in the key head.
+2.2.1 Autel IM508 Functionality on PK3
+The IM508 is significantly more capable with PK3 systems than with Passlock because there is digital data to manipulate.
+* Transponder Reading: The XP200 programmer can read the key ID and chip type (e.g., ID48 or ID13) to verify compatibility.12
+* Add Key (with Working Key): If a master key is present, the IM508 can guide the user through a rapid addition process where the new key is inserted immediately after the master, utilizing the vehicle's own "Add Key" allowance.
+* All Keys Lost (AKL): On older Class 2 PK3 systems (2000–2005), the AKL procedure often reverts to a timer-based relearn similar to Passlock. The BCM must be placed into learn mode, which on these legacy platforms takes 10 to 30 minutes. The Autel tool cannot extract a PIN to bypass this wait on early models because the PIN was not implemented in the diagnostic protocol for external access.13 The tool's "All Keys Lost" function typically initiates the 30-minute timer and prompts the user through the key cycles.
+2.3 The CAN Bus Revolution (2006+): GMLAN
+The introduction of the GMLAN (CAN) protocol in vehicles like the 2006+ Chevrolet Impala, 2007+ Silverado, and 2007+ Tahoe marked a fundamental shift in programming capability.
+* Instant PIN Extraction: For GMLAN vehicles, the Autel IM508 typically supports Read PIN and Immobilizer Learn functions that operate in minutes. The tool communicates with the BCM at high speed to extract the security data and authorize new keys immediately, bypassing the 30-minute wait required by previous generations.15
+* Coverage Ambiguity: While Autel's website has undergone updates that occasionally obscure legacy coverage lists 17, field reports consistently confirm high success rates for CAN-based GM vehicles using the "By Vehicle" or "System Selection" menus. The 2006–2010 period for GM is characterized by high reliability for the IM508, provided the vehicle is on the GMLAN architecture.4
+3. Chrysler, Dodge, and Jeep (2000–2010): The SKIM/SKREEM Saga
+The Chrysler family (FCA/Stellantis) presents a more technically complex landscape for the locksmith during this decade. The security architecture centers on the Sentry Key Immobilizer Module (SKIM), which later evolved into the Sentry Key Remote Entry Module (SKREEM) and the Wireless Control Module (WCM). The critical variable determining tool success is the vehicle's communication bus: PCI (Legacy) vs. CAN (Modern).
+3.1 The PIN Code Barrier
+Accessing the Chrysler security system for key programming requires a 4-digit PIN code. Without this code, the scan tool cannot authorize new keys.
+* Pre-2005 (PCI Bus): On many models (e.g., 2002 Dodge Ram, 2004 Jeep Grand Cherokee, 2003 Chrysler Sebring), the PIN code is not broadcast over the diagnostic bus. The architecture of the PCI bus did not support a standardized "Read PIN" command accessible to aftermarket tools.2
+* 2005+ (CAN Bus): As models transitioned to CAN (e.g., 2005+ Grand Cherokee, 2006+ Ram, 2008+ Caravan), the PIN became accessible via the OBD II port. The Autel IM508 excels in this environment, capable of pulling the PIN and programming keys in under 5 minutes.2
+3.2 Deep Dive: 2000–2004 Legacy Systems (PCI/CCD)
+For the "All Keys Lost" scenario on these older vehicles, the limitations of the OBD port force the technician to employ alternative methods. This is where the Autel IM508's capabilities diverge from simple code scanners.
+3.2.1 The "Bench" Solution (EEPROM)
+When the IM508 fails to read the PIN via OBD (often resulting in a "Failed to Communicate" or "Function Not Supported" message), the definitive solution is EEPROM programming. This is a hardware-intensive process that leverages the Autel XP200 or XP400 programmer.
+The Procedure:
+1. Module Removal: The technician must physically remove the SKIM unit from the steering column. This is typically a plastic ring surrounding the ignition lock cylinder, secured by one or two Torx screws.18
+2. Chip Identification: The target data is stored on an 8-pin EEPROM chip on the SKIM's circuit board. Common chip types for this era include the 95040 (ST Microelectronics) or 24C02.
+3. Reading the Data: The technician connects the XP programmer to the chip using the APA103 clamp (SOIC-8 clip) or by soldering individual wires. The Autel tablet (in "Programmer" mode) reads the raw hexadecimal data from the chip.20
+4. PIN Extraction: The Autel software includes a "Write Key via Dump" or "Load Data" feature. When the read file is loaded, the software automatically locates and decrypts the PIN code (e.g., displaying "PIN: 7779").18
+5. Programming: With the PIN recovered, the technician can re-install the SKIM and program the key via OBD, or generate a "dealer key" directly on the bench using the dump file, which requires no further vehicle interaction.
+Critical Insight: For models like the Jeep Liberty (KJ) and Grand Cherokee (WJ), this bench method is often the only way to bypass the dealer, as the OBD port is functionally silent regarding security data.19
+3.2.2 The Dodge Ram VIN Anomaly (2002–2006)
+A specific diagnostic trap identified in 2002–2006 Dodge Rams involves data corruption or misinterpretation by diagnostic tools.
+* The Symptom: When connected via OBD, the Autel tool (and others) may display a corrupted, truncated, or "weird" VIN. The SKIM module may also fail to register valid Diagnostic Trouble Codes (DTCs), even when the vehicle is immobilized (Security light flashing).21
+* The Root Cause: This is often a software decoding error on the scanner's side regarding the older J1850/PCI protocol, or a bus conflict, rather than a failure of the SKIM itself.
+* The Solution: Reading the EEPROM directly (often a L16/24C16 chip on these Rams) reveals that the VIN and security data are intact on the chip. This confirms that for these transition-year vehicles, bench reading is superior to OBD scanning for diagnostic verification. The Autel tool's ability to read the EEPROM allows the technician to verify the module's health and extract the PIN even when the OBD port reports garbage data.21
+3.3 The "Skim Off" / PCM Swap
+In scenarios where the SKIM module has failed catastrophically—a common issue on 1999–2004 Jeeps where the module simply ceases to function—technicians often resort to a PCM swap or "SKIM Off" file.
+* VIN Writing: The Autel IM508 supports writing the VIN to a replacement PCM. If a "Skim-Off" (immobilizer deleted) PCM is installed, the tool can be used to synchronize the VIN, ensuring no check engine lights or mismatch errors occur.22
+* WCM/WIN Replacement: On later models (2008+), the Wireless Control Module (WIN)—the node that replaced the SKIM and ignition switch—is a high-failure item. The IM508 supports the "Replace Module" routine for the WIN, which involves reading the original configuration data (if possible) or pulling the PIN from the new module and programming it to the vehicle.23
+3.4 Decision Logic: OBD vs. Bench
+Technicians operating on 2000–2010 Chrysler products must adhere to a strict decision hierarchy to maximize efficiency.
+* Step 1: Identify the Bus. Is it CAN (typically 2005+)? If yes, attempt OBD PIN Read.
+* Step 2: If PCI (2000–2004), verify if "Type 2" or "Old Menu" options exist in the Autel software.
+* Step 3: If OBD fails (Communication Error/Function Not Supported), immediately proceed to removal of the SKIM for EEPROM reading. Wasting time attempting multiple OBD protocols on a 2002 PCI system is generally futile.19
+4. Technical Analysis: The Autel IM508 Ecosystem
+The capabilities described above are not inherent to the vehicle but are enabled—or limited—by the specific hardware and software configuration of the Autel IM508 ecosystem.
+4.1 Hardware: XP200 vs. XP400
+The standard IM508 kit includes the XP200 programmer. While capable, it has distinct limitations compared to the XP400 Pro (standard with the IM608 but compatible with the IM508).
+* XP200 Limitations: The XP200 is primarily designed for transponder reading/writing and basic EEPROM functions. It can handle standard 8-pin chips (24C series, 93C series) but lacks the advanced adapters and stability for complex MCU reading (e.g., Freescale 9S12 found in some Mercedes/Chrysler cross-over modules like the Crossfire or Sprinter).1
+* XP400 Necessity: For advanced "Bench" work on encrypted Chrysler SKIMs or when reliable in-circuit reading is required without desoldering, the XP400 is the superior tool. Its "Pro" version includes more robust voltage protection and pin detection, reducing the risk of data corruption during the read process.20
+4.2 Software Modes: Smart vs. Expert
+* Smart Mode: This guided function is designed for newer CAN vehicles. It automates the sequence: Scan System -> Read PIN -> Add Key. It is the default for 2006+ GM and Chrysler vehicles and boasts a high success rate.25
+* Expert Mode: This mode is essential for the 2000–2005 era. It allows the technician to select specific functions individually. For example, on a 2004 Dodge, the technician might use "Read PIN" in Expert Mode. If that fails, they can switch to the "Programmer" app to read the EEPROM, get the PIN, and then return to "Expert Mode" to select "Key Learning" and manually input the PIN. This modularity is crucial when one part of the automated chain fails.4
+5. Case Studies in Legacy Programming
+The following specific model scenarios synthesize the technical constraints and procedural realities for high-volume vehicles from this period.
+5.1 Chevrolet Impala (2000–2005) - The W-Body Problem
+The 2000–2005 W-body Impala (and Monte Carlo) represents a significant blind spot for many purely digital tools.
+* Architecture: Class 2 Data Bus with Passlock II security.
+* Autel Performance: Reports indicate frequent failure when attempting "Smart Mode" AKL. The tool may time out or fail to communicate with the immobilizer partition of the BCM because the BCM expects a voltage change from the cylinder, not a digital command.26
+* Resolution: The reliable method remains the 30-minute manual relearn. The IM508 is best utilized here to clear the resulting "Theft Attempt" DTCs after the manual cycles are complete. Users expecting a "10-minute bypass" (available on 2006+ Impalas) will be disappointed.14
+5.2 Jeep Grand Cherokee (1999–2004) - The WJ Interface
+* Architecture: PCI Bus with SKIM.
+* Challenge: Loss of keys triggers the SKIM to shut down the engine after 2 seconds.
+* Autel Performance: Direct OBD PIN reading fails on the majority of these units due to bus architecture limits.28
+* Resolution: The "Bench" method is primary. The technician pulls the SKIM, reads the EEPROM (typically a ST95040), and uses the Autel's "Write Key via Dump" feature. This generates a dealer key that starts the car immediately without further OBD interaction.18
+5.3 Dodge Ram (2006–2010) - The CAN Success Story
+* Architecture: CAN Bus with SKREEM/WCM.
+* Challenge: High theft rates and need for rapid key replacement.
+* Autel Performance: This represents the "Sweet Spot" for the IM508. The tool reliably pulls the 4-digit PIN code via the CAN bus and programs Fobiks (Frequency Operated Button Ignition Keys) in under 5 minutes.3
+* Note: For 2008+ models, the system transitioned to the WIN (Wireless Ignition Node). The IM508 supports WIN replacement, requiring a PIN read (often successful via OBD) and a "Replace Module" routine.23
+6. Advanced Techniques: EEPROM "In-Circuit" Reading
+A recurring theme in the successful programming of 2000–2004 Chrysler and Jeep vehicles is the necessity of EEPROM work. Understanding this process is vital for maximizing the IM508's utility.
+When the OBD port fails to yield a PIN, the technician must interface directly with the memory chip. The Autel ecosystem facilitates this via the Programmer menu. The specific target is usually an 8-pin SOIC chip (e.g., 24C02, 95040, 95080) located on the SKIM PCB.
+
+
+  
+
+
+
+* Signal Integrity: The "in-circuit" reading (using a clip like the APA103) is prone to noise. The snippets highlight that the connection can be "finicky".18 A common point of failure is leaving the quartz crystal oscillator active on the board, which can interfere with the read clock. Advanced users often short the crystal or lift a pin to ensure a clean read.30
+* Data Decryption: Once the raw hexadecimal data is read, the Autel software's "Write Key via Dump" function automatically locates the PIN and Secret Key data structures. This automated decryption is a significant value-add, replacing the need for separate "calculator" software or "PIN Puller" devices often required by lesser tools.19
+7. Troubleshooting & Common Anomalies
+Even with the correct procedures, the 2000–2010 era vehicles can exhibit anomalies that confuse standard diagnostic logic.
+7.1 "Invalid SKIM Key" (P0513)
+This code is common on Jeeps (Liberty/Grand Cherokee). It indicates the PCM recognizes the key transponder ID but does not match it to the stored valid list.
+* Autel Solution: This often requires clearing the SKIM memory (reset) and reprogramming all keys from scratch. If this fails, it indicates a corrupted EEPROM header, necessitating the bench fix described in Section 6.29
+7.2 Battery Voltage Criticality
+During the 30-minute GM relearn or the Chrysler programming sequence, voltage stability is paramount.
+* Risk: If voltage drops below 12.0V during a write event, the BCM or SKIM can enter a "locked" state or corrupt its memory.
+* Mitigation: The use of a high-quality battery maintainer (not just a trickle charger) is mandatory for these prolonged "Key On" procedures.9
+7.3 The "Universal Key" Mismatch
+Using aftermarket "universal" keys (e.g., Autel IKEY or generic remotes) on these older platforms can be hit-or-miss.
+* Issue: Some legacy systems require specific transponder modulation (e.g., Hitag2 vs. Megamos) that universal fobs may not perfectly emulate without specific "Pre-Coding" via the XP200/XP400.
+* Autel Solution: The "Generate Remote" function on the IM508 (often utilizing the separate KM100 database) can prepare a universal key to mimic the specific OEM parameters before the programming attempt begins.31
+8. Conclusion and Strategic Outlook
+For the automotive locksmith or technician servicing 2000–2010 GM, Chrysler, Dodge, and Jeep vehicles, the Autel IM508 is a powerful instrument, but it is not a "magic wand" for the pre-2006 era. Its capabilities are strictly demarcated by the vehicle's bus architecture.
+Summary of Capabilities:
+1. GM Passlock (2000–2005): The IM508 is a diagnostic aid. It cannot program keys digitally. The technician must perform the manual 30-minute relearn.
+2. GM PK3 (2000–2005): The tool is a transponder programmer. It can add keys, but AKL scenarios often still require the 30-minute wait.
+3. GM CAN (2006+): The tool is a comprehensive solution, offering instant PIN reading and bypass programming.
+4. Chrysler PCI (2000–2004): The tool is a bench programmer. OBD success is low; EEPROM reading via XP200/XP400 is the primary path to success.
+5. Chrysler CAN (2005+): The tool is a fast programmer, with reliable OBD PIN extraction.
+The future of support for these legacy platforms relies on the "Expert Mode" functionality. As Autel optimizes its software for modern protocols like CAN-FD and DoIP, technicians must retain the foundational knowledge of EEPROM reading and manual relearn procedures to effectively service the aging fleet of the early 2000s.
+Works cited
+1. MaxiIM IM508 - Autel, accessed December 22, 2025, https://autel.com/u/cms/www/202207/27080546qf5c.pdf
+2. IM508 Immobilizer PIN code retrieval on old Chrysler - Autel Support Communities, accessed December 22, 2025, https://bbs.autel.com/autelsupport/Diagnostics/29595.jhtml?createrId=10944&view=1
+3. Chrysler Pin Code retrieval with the new Autel IM608 - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=1kEJFvXad8w
+4. Autel MaxiIM IM508S XP400 PRO IMMO Key FOB Programming Full Bidirection Scanner | eBay, accessed December 22, 2025, https://www.ebay.com/itm/256697582824
+5. The Hidden Limitations of 'Key Programming' in Scan Tools _ Dave's Story and What You Need to Know Before You Buy - Premium Diagnostic Equipment, accessed December 22, 2025, https://premium-diagnostics.com.au/blogs/news/the-hidden-limitations-of-key-programming-in-scan-tools-dave-s-story-and-what-you-need-to-know-before-you-buy
+6. How to Override Bypass GM VATS Passlock 1 2 Passkey Anti Theft System - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=y9QQrrRxrxI
+7. GM Vehicle Theft Deterrent Relearn Procedures - Jet Performance Products, accessed December 22, 2025, https://jetchip.com/wp-content/uploads/2019/02/VATS-Relearn-Procedures.pdf
+8. How to: Perform GM VATS Relearn - Calibrated Power, accessed December 22, 2025, https://blog.duramaxtuner.com/blog/how-to-perform-gm-vats-relearn
+9. GM Vehicle Theft Deterrent (VTD) Relearn Procedures - CARDONE Industries, accessed December 22, 2025, https://www.cardone.com/content/Products/PT77-0011.pdf
+10. CARDONE TECH - GM Passlock | Passkey | VTD Relearn Procedure - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=oVIkjubBKpo
+11. GM All Key Relearn Instructions | PDF | Manufactured Goods | Vehicle Technology - Scribd, accessed December 22, 2025, https://www.scribd.com/document/726057459/Gm-All-Key-Relearn-Instructions
+12. Read and Write key information with Autel IM508 - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=xkSkk3uNQ_8
+13. How To Program A Pontiac Ignition Key 2002+ up - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=L-GDMbNnFrc
+14. HOW TO PROGRAM KEY FOR GM/CHEVY PK3 or Passkey Anti-theft - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=pmtFD_y4EY0
+15. How To Program A Chevy Impala Key 2006 - 2016 DIY Chevrolet Transponder Ignition, accessed December 22, 2025, https://www.youtube.com/watch?v=1pw_aGLmVI8
+16. Autel IM608 II/IM508S Update: 2025 GM,GMC & Cadillac Added - AutelShop.de Official Blog, accessed December 22, 2025, http://blog.autelshop.de/autel-im608-ii-im508s-update-2025-gmgmc-cadillac-added/
+17. Autel Website Removed KM100 IM508 IM608 Vehicle Coverage List?, accessed December 22, 2025, https://www.auteltool.us/blogs/autel-tech-solutions/autel-website-removed-km100-im508-im608-vehicle-coverage-list
+18. Read Pincode from Chrysler Pacifica 2004-2006 using Autel IM608 - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=iSJ7V7ALvbk
+19. Chrysler PIN Read, Programming, and Duplicating Keys w/ Autel IM508 and Defu 368a, accessed December 22, 2025, https://www.youtube.com/watch?v=3yr60l5-rzk
+20. HOW TO PERFORM EEPROM Programming Read & Write With Autel XP400 Pro - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=Bipd3sbP27w
+21. Dodge Ram SKIM Mystery: VIN Looks Wrong in Autel, EEPROM Tells the Real Story, accessed December 22, 2025, https://www.youtube.com/watch?v=EDHE1HtBD5w
+22. Autel Maxisys Elite | Chrysler Town and Country PCM Programming and Pin Code | Case Study 2019 - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=H5olkX-QOmI
+23. Im508 - Search - Autel Support Communities, accessed December 22, 2025, https://bbs.autel.com/autelsupport/topic/search.jhtml?keywords=IM508
+24. 2007 Jeep Liberty All Keys Lost Pin Read IM608 Programming - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=ByUCkPecY2I
+25. Autel USA IM508 MaxiIM Auto Key Programmer and Diagnostic Tool, accessed December 22, 2025, https://www.jbtools.com/autel-usa-maxiim-auto-key-programmer-and-diagnostic-tool-im508/
+26. Autel Key Programmer Failures: Causes and Solutions - obdprice, accessed December 22, 2025, https://www.obdprice.com/blogs/news/autel-key-programmer-troubleshooting-guide
+27. Autel, FIX PIN CODE READ OF GM CARS!!!!, accessed December 22, 2025, https://bbs.autel.com/autelsupport/Diagnostics/27354.jhtml
+28. IM608 PRO Training - How To Do An All Keys Lost On A 2010 Jeep Grand Cherokee, accessed December 22, 2025, https://www.youtube.com/watch?v=fpeZd2ghxvE
+29. 2002 Jeep Grand Cherokee Key Programming & Pin Reading - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=-tqxo1c2j3c
+30. Autel IM608 XP400 PRO All Keys Lost Jeep Liberty P0513 invalid skim key! - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=aOsIr862RYA
+31. Key Programming For Technicians With #Autel - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=aonsO5mJleo

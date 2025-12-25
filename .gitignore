@@ -37,3 +37,4 @@ api/.wrangler/
 *.sqlite-shm
 assets/*.pdf
 
+gdrive_token.json

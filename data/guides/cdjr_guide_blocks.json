@@ -93,10 +93,211 @@
             "content": "2018+ Security Gateway (SGW) blocks all write commands from OBD port. You MUST either: (1) Use 12+8 physical bypass cable, (2) Use AutoAuth subscription, or (3) Connect via Star Connector bank. There is NO software-only bypass."
         },
         {
+            "type": "warning_banner",
+            "id": "cdjr-italian-vin-trap",
+            "level": "critical",
+            "content": "ITALIAN VIN TRAP (2022+): If VIN starts with 'Z' (Italy), the vehicle uses Giobert hardware (FCC ID: 2ADPX) with HITAG-AES encryption, NOT the standard M3N Continental keys. This affects ALL Dodge Hornets (Pomigliano d'Arco) and 2022+ Jeep Renegades (Melfi). These keys REQUIRE VIN-specific pre-coding before OBD programming will work."
+        },
+        {
+            "type": "reference_table",
+            "id": "cdjr-vin-origin-matrix",
+            "title": "Stellantis VIN Origin → Key Architecture Matrix",
+            "headers": [
+                "VIN Digit 1",
+                "Origin",
+                "Key Architecture",
+                "FCC ID",
+                "Pre-Coding Required?"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "1/2/3",
+                        "USA/Canada/Mexico",
+                        "Continental (M3N)",
+                        "M3N-40821302",
+                        "NO (Standard OBD)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Z",
+                        "Italy",
+                        "Giobert (2ADPX)",
+                        "2ADPXFI7PE",
+                        "YES (HITAG-AES pre-code)"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
             "type": "info_callout",
-            "id": "cdjr-sgw-locations",
-            "level": "note",
-            "content": "SGW Module Locations: Dodge Charger/Challenger = under dash, driver side near steering column. Jeep Wrangler JL = behind radio (requires dash disassembly) or via Star Connector behind glovebox. RAM 1500 (2019+) = behind speedometer cluster or above gas pedal (very difficult access)."
+            "id": "cdjr-hornet-renegade-warning",
+            "level": "important",
+            "content": "Dodge Hornet ≠ Standard Dodge: The Hornet is electronically an Alfa Romeo Tonale built in Italy. It shares NOTHING with Charger/Durango. The Renegade split from M3N to 2ADPX in mid-2022. For both: 1) Read BCM/RFHub Immo Data via bypass, 2) Pre-code blank to HITAG-AES, 3) THEN run OBD key learning."
+        },
+        {
+            "type": "reference_table",
+            "id": "cdjr-sgw-location-table",
+            "title": "SGW Module Locations by Platform",
+            "headers": [
+                "Model",
+                "Years",
+                "Platform",
+                "SGW Location",
+                "Access Method"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Ram 1500 Classic",
+                        "2018-2024",
+                        "DS",
+                        "Behind Radio Head Unit",
+                        "Radio removal required (labor-intensive)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Ram 1500 (New)",
+                        "2019-2025",
+                        "DT",
+                        "Driver Knee Bolster / Left of Column",
+                        "Remove 2 screws, pull panel (easy)"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "Ram 2500/3500 HD",
+                        "2019-2025",
+                        "DJ/D2",
+                        "Behind Speedometer Cluster",
+                        "Cluster removal required"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Jeep Wrangler",
+                        "2018-2025",
+                        "JL",
+                        "Driver Dash (Above OBD Port)",
+                        "Remove under-dash panel, 90° pick for tabs"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "Jeep Gladiator",
+                        "2020-2025",
+                        "JT",
+                        "Driver Dash (Above OBD Port)",
+                        "Same as Wrangler JL"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "Jeep Grand Cherokee",
+                        "2018-2021",
+                        "WK2",
+                        "Behind Glovebox",
+                        "Drop glovebox door, release dampener"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "Jeep Grand Cherokee L",
+                        "2021-2025",
+                        "WL",
+                        "Driver Kick Panel / Use Star Connector",
+                        "Star Connector preferred (pass kick panel)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Jeep Wagoneer",
+                        "2022-2025",
+                        "WS",
+                        "Rear Quarter / Headliner (RFHub)",
+                        "Bench unlock preferred"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Dodge Charger/Challenger",
+                        "2018-2023",
+                        "LD/LA",
+                        "Behind Glovebox",
+                        "Star Connector faster (passenger kick)"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "Chrysler Pacifica",
+                        "2018-2025",
+                        "RU",
+                        "Behind Climate Controls / Center Stack",
+                        "12+8 cable required"
+                    ],
+                    "highlight": false
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "cdjr-rfhub-brick-warning",
+            "level": "critical",
+            "content": "2021+ RFHUB BRICK RISK: Grand Cherokee L (WL) and Wagoneer (WS) have sensitive RFHub bootloaders. OBD PIN reading can CORRUPT the module, causing 'Service Passive Entry' and complete immobilization. Use BENCH UNLOCK method for these vehicles."
+        },
+        {
+            "type": "step_group",
+            "id": "cdjr-rfhub-bench-unlock",
+            "title": "Procedure: RFHub Bench Unlock (WL/WS 2021+)",
+            "estimated_time": "45-60 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "LOCATE: RFHub in rear quarter panel (WL) or rear headliner (WS). Remove interior trim."
+                },
+                {
+                    "number": 2,
+                    "text": "REMOVE: Disconnect battery. Unbolt and unplug RFHub module."
+                },
+                {
+                    "number": 3,
+                    "text": "CONNECT: Use bench programmer (OBDStar DC706 or Autel XP400 + G-Box3) with FCA RFHub harness."
+                },
+                {
+                    "number": 4,
+                    "text": "READ: Perform 'Read EEPROM' and 'Read Flash' to backup current data."
+                },
+                {
+                    "number": 5,
+                    "text": "UNLOCK: Select 'Unlock' or 'Virginize'. Modifies bootloader to accept new keys or reveals PIN."
+                },
+                {
+                    "number": 6,
+                    "text": "REINSTALL: Mount module back in vehicle."
+                },
+                {
+                    "number": 7,
+                    "text": "PROGRAM: Now use standard OBD key programming (with SGW bypassed). Module accepts keys."
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "cdjr-voltage-support",
+            "level": "warning",
+            "content": "VOLTAGE CRITICAL: When using Star Connector / CAN Direct method on WL/WS, connect a battery maintainer providing stable 13.5V+. Voltage drops are the PRIMARY cause of RFHub failure during direct programming."
         },
         {
             "type": "step_group",

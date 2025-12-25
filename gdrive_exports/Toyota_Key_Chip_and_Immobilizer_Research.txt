@@ -1,0 +1,219 @@
+﻿The Evolution of Toyota/Lexus Security Architectures (2018–2024): A Comprehensive Technical Analysis of Transponder Transitions, Gateway Protocols, and Locksmithing Methodologies
+Executive Summary
+The automotive security landscape for Toyota and Lexus vehicles underwent a radical and systemic transformation between 2018 and 2024, driven primarily by the universal adoption of the Toyota New Global Architecture (TNGA) and the concurrent escalation of cryptographic standards. This period marks a decisive shift from legacy immobilizer systems—characterized by simple challenge-response protocols—to highly encrypted, gateway-protected networks that fundamentally challenge traditional diagnostic capabilities. For the automotive locksmith, security researcher, and fleet manager, the transition involves navigating a complex matrix of transponder technologies—specifically the migration from the 40/80-bit G-chip to the 128-bit H-chip (ID8A)—and mastering the bypass methodologies required to circumvent the Toyota Security System (TSS) 2.0 and 3.0 gateways.1
+This report provides an exhaustive technical evaluation of these systems, focusing on the high-volume TNGA platforms: the Camry (XV70/XV80), RAV4 (XA50), and Highlander (XU70). It dissects the nuanced "split-year" transitions that create inventory hazards, provides definitive logic for differentiating Smart Key Box (SKB) architectures from traditional immobilizers via VIN analysis, and investigates the limitations imposed by newer "Page 1" encryption protocols (often colloquially referred to as "Slot" restrictions). Furthermore, it offers a granular cross-reference of Denso and Tokai Rika key hardware, mapping FCC IDs and Board IDs to specific vehicle production runs to mitigate inventory errors.4
+By synthesizing data from technical service bulletins, aftermarket tool capabilities (Autel, Advanced Diagnostics), and hardware schematics, this document serves as a definitive operational guide for navigating the complexities of modern Toyota security. The analysis reveals that the industry has moved past the era of static cloning and simple OBDII programming into an era of direct-connection manipulation and server-side calculation, necessitating a complete re-evaluation of standard operating procedures.7
+Chapter 1: The Transponder Paradigm Shift — From G-Chip to H-Chip
+The migration from the "G-chip" to the "H-chip" represents Toyota's strategic move from Texas Instruments' 4D (40/80-bit) encryption to the more robust 8A (128-bit) AES encryption standard for mechanical (bladed) keys. Understanding this transition is fundamental for inventory management and programming success, as the two systems are mutually exclusive despite using identical keyway profiles (TR47/TOY44).2
+1.1 Technical Architecture of the "G" and "H" Systems
+The terminology "G" and "H" refers to the stamped identifier on the key blade, which corresponds to the transponder's internal logic and encryption depth. This simple stamping belies a complex shift in the underlying immobilization logic.
+1.1.1 The Legacy G-Chip (ID67/ID72) Architecture
+Introduced extensively around 2010, the G-chip system utilizes a Texas Instruments 4D-72 (80-bit) proprietary encryption protocol. It operates on a legacy challenge-response mechanism. When the key is inserted into the ignition cylinder, the coil amplifier energizes the transponder. The Immobilizer ECU sends a fixed challenge to the key. The transponder processes this challenge using its pre-programmed 80-bit secret key and returns a calculated signature. If the signature matches the ECU's calculation, the "Security" light extinguishes, and the immobilizer sends a release signal to the Engine Control Module (ECM).1
+While secure for its time, the 4D encryption eventually became susceptible to advanced cloning attacks. The "G" stamp on the blade serves as the primary visual identifier for this generation. It is crucial to note that while some earlier systems used the "Dot" chip (4D-67), the G-chip represented the final iteration of the Texas 4D logic before the AES transition. The programming protocol for G-chips typically allowed for onboard adding of keys if a master key was present, or a relatively straightforward immobilizer reset (often requiring a seed code calculator) if all keys were lost.11
+1.1.2 The Modern H-Chip (ID8A) Architecture
+Introduced in select models as early as 2013 but becoming standard on TNGA platforms (2018+), the H-chip utilizes an AES-128 bit encryption scheme, often referred to within the industry as "Hitag AES" or "Toyota 8A". This system employs a much more sophisticated mutual authentication process. The key does not simply respond to a challenge; it engages in a multi-stage handshake with the Immobilizer ECU to verify the "Page 1" configuration and subsequent encryption pages.13
+The "H" stamp on the key blade signifies this 128-bit architecture. Unlike the G-chip, the H-chip system is far more resistant to cloning. Early attempts to clone H-chips required sniffing data from the ignition coil during a live start event to capture the calculation data. For programming, the H-chip system typically demands a verified connection to the Toyota server (via Techstream) or the use of a specialized bypass tool to perform an "Immobilizer Reset" which forces the ECU into a learning mode after a mandatory 16-minute security delay.15
+1.2 Chronological Analysis of Transponder Migration
+The transition from G to H was not instantaneous across the Toyota lineup. It occurred in a staggered implementation plan, often coinciding with mid-cycle refreshes or the introduction of new chassis codes. This created "split years" where a specific model year could theoretically have either system depending on the build date or manufacturing plant. For the target vehicles—Camry, RAV4, and Highlander—the 2018–2024 period is almost exclusively dominated by the H-chip for bladed keys, but the historical context of the split is vital for dealing with older inventory that often appears in service bays.2
+1.2.1 Toyota Camry (XV70 and Predecessors)
+The Camry's transition is one of the distinct markers in the industry. The shift began in the late XV50 generation and solidified with the XV70.
+* The Transition Era (2014.5 – 2017): Late 2014 models began introducing the H-chip, moving away from the G-chip. By 2015, the vast majority of Camrys with bladed keys were equipped with H-chip systems. This makes the 2014-2015 window a critical check point where visual verification of the blade stamp is mandatory.2
+* The TNGA Era (2018 – 2024): With the launch of the XV70 platform in 2018, all mechanical key variants utilized the H-Chip (ID8A). There are effectively no G-chip applications for the 2018+ Camry. If a 2018 Camry presents with a bladed key, it is invariably an H-chip system. The user must verify the "H" stamp on the blade. If the blade is aftermarket and unstamped, an electronic read (using a tool like the VVDI Key Tool or Autel XP400) will reveal "Toyota 8A" or "H-chip".17
+1.2.2 Toyota RAV4 (XA40 to XA50)
+The RAV4 presents a slightly different timeline due to its platform lifecycle.
+* The Split Era (2013 – 2018): The XA40 generation spans this entire transition.
+   * 2013–2015: These model years are primarily G-chip vehicles. Inventory for these years should focus on the TOY44G-PT.
+   * 2016–2018: A mid-cycle refresh introduced the H-chip. 2016 is the definitive pivot year for the RAV4. A 2016 RAV4 LE will almost certainly require an H-chip key.2
+* The TNGA Era (2019 – 2024): The XA50 platform launched in 2019. All bladed key models (typically LE trims or fleet vehicles) utilize the H-Chip (ID8A). The "G" chip is obsolete for this generation. It is critical to note that while the transponder is an H-chip, the remote head key FCC IDs may vary based on the manufacturer (Denso vs. Tokai Rika), a nuance discussed in Chapter 5.4
+1.2.3 Toyota Highlander (XU50 to XU70)
+The Highlander follows a trajectory similar to the RAV4 but with specific variations based on trim levels which heavily favor smart keys in later years.
+* Legacy Systems (2014 – 2016): The early XU50 models utilized the G-Chip (ID67/72).
+* Transitional Phase (2017 – 2019): The 2017 refresh brought the H-Chip (ID8A) to the Highlander lineup. This aligns with the broader Toyota move to increase security across their mid-size SUV segment.2
+* Modern Era (2020 – 2024): The new XU70 platform exclusively uses the H-Chip for its mechanical key variants (L/LE trims). However, the prevalence of mechanical keys in the XU70 generation is significantly lower compared to the RAV4, as the Highlander standard equipment list pushes most trims to Smart Key systems.21
+1.3 Programming Implications and Inventory Strategy
+The operational consequence of this transition is that locksmiths and technicians must maintain distinct inventory silos. A G-chip key (TOY44G) cannot be programmed to an H-chip vehicle, and vice versa. The frequency of the remote (usually 315 MHz for US models) remains constant across both generations, which can lead to false confidence. The transponder is the determining factor.
+For programming, the H-chip requires a more robust toolset. While G-chips could often be added via generic OBDII "Toyota" protocols or cloned using simple 4D cloners, the H-chip system typically demands an "All Keys Lost" procedure that involves an Immobilizer Reset. This reset clears all registered keys and requires the 16-minute wait time enforced by the ECU to prevent rapid brute-force attacks. Tools like the Autel IM508/608 and Smart Pro have dedicated "Toyota H-Chip" menus that automate this process, but the time penalty is unavoidable without specific bypass emulators.7
+Chapter 2: Differentiating Architectures — Smart Key Box vs. Immobilizer
+One of the most persistent challenges in modern Toyota locksmithing is the visual ambiguity between "Smart Key" vehicles (Push-to-Start) and "Mechanical Key" vehicles (Turn-to-Start) when solely analyzing data remotely, such as via a VIN provided by a customer or fleet manager. Both systems utilize an "Immobilizer" in the broad sense of preventing unauthorized starting, but the hardware topology is fundamentally different, and identifying which system is present is a prerequisite for selecting the correct service path.24
+2.1 Hardware Topology Definitions
+To understand why the programming procedures differ so radically, one must understand the distinct hardware that governs each system.
+2.1.1 Traditional Immobilizer System (Bladed Key)
+The traditional system is centralized around the Immobilizer ECU (often referred to as the ID Code Box or Transponder Key ECU).
+* Component Location: This ECU is typically integrated directly around the ignition cylinder (forming the coil reader assembly) or located directly behind the dashboard near the steering column.
+* Operational Mechanism: When the mechanical key blade inserts into the cylinder, the physical action closes a "Key In" switch. The coil energizes the H-chip. The signal is sent to the Immobilizer ECU, which checks its EEPROM for the registered ID. If verified, it sends a "Release" signal (often a specific voltage or data packet) to the Engine Control Module (ECM) to allow fuel injection and spark.26
+* VIN Indication: This system is almost exclusively associated with lower trim levels (L, LE, and occasionally SE) in the 2018–2024 range.
+2.1.2 Smart Key System (Proximity)
+The Smart Key system is a distributed network governed by the Certification ECU (also known as the Smart Key Box or Smart ECU).
+* Component Location:
+   * Camry (XV70): Often located behind the glove box or passenger kick panel, requiring significant disassembly to access for direct programming.
+   * RAV4 (XA50): Frequently found near the driver side kick panel or behind the instrument cluster/radio assembly.
+   * Highlander (XU70): Typically positioned behind the glove box assembly.
+* Operational Mechanism: The Certification ECU acts as the master controller. It constantly polls the vehicle's interior using Low-Frequency (LF) oscillators located in the center console, door handles, and trunk. When a fob is detected, it responds via Radio Frequency (RF) to the door control receiver. Upon pressing the Start button, the Certification ECU authenticates the fob, then sends an encrypted handshake code (often referred to as the G-Code) to the Steering Lock ECU (to unlock the column) and the ID Code Box (a separate synchronization module), which finally authorizes the ECM.28
+* VIN Indication: This architecture is standard on higher trim levels (XLE, Limited, Platinum) and all Hybrid models.
+2.2 VIN Decoding Logic for Architecture Identification
+While Toyota does not explicitly encode "Key Type" in a single, universal digit (e.g., "Digit 5 = Smart Key"), the 5th, 6th, and 7th digits of the VIN, combined with the Model Year and WMI (World Manufacturer Identifier), provide a high-probability fingerprint of the security architecture. Analyzing these patterns allows a technician to predict the required key and tool before arriving at the vehicle.25
+2.2.1 The "Trim/Engine" Correlation (Digits 4-8)
+In the TNGA era, the key type is inextricably linked to the Trim Level and Engine Configuration. The VIN descriptors for engine and series allow us to infer the trim.
+* Camry (2018+ XV70/XV80):
+   * 5th Digit (Body/Trim):
+      * Codes like B and C are statistically correlated with lower trims (LE/SE). While many SE models now come with Smart Keys (especially with convenience packages), an LE (often indicated by specific 5th digit patterns varying by year) built for fleet use is the primary candidate for the H-Chip mechanical key.
+      * Codes like K and Z often denote higher trims (XLE/XSE) which are universally Smart Key.
+   * Hybrid Indicator: If the VIN indicates a Hybrid powertrain (often identified by specific engine codes in digits 5-6, such as A25A-FXS), the vehicle is 100% Smart Key. Toyota Hybrids do not use mechanical ignitions due to the necessary "Ready" state logic which differs from a traditional crank. Therefore, any VIN decoding to a Hybrid engine confirms a Smart Key system.18
+* RAV4 (2019+ XA50):
+   * 5th Digit Analysis:
+      * J and L are common indicators for XLE and Limited trims, effectively guaranteeing a Smart Key system.
+      * F or H are frequently seen on LE trims. However, the "Convenience Package" on an LE can upgrade it to a Smart Key. This makes the RAV4 one of the harder vehicles to decode solely by VIN.
+   * Powertrain Check: Similar to the Camry, the RAV4 Hybrid and RAV4 Prime are strictly Smart Key platforms. A mechanical key is only possible on a 2.5L Gas (Dynamic Force) engine model.19
+* Highlander (2020+ XU70):
+   * 5th Digit Analysis:
+      * A and B typically indicate L/LE trims which are the sole holdouts for the mechanical H-key in this lineage.
+      * D, E, J indicate XLE, Limited, and Platinum trims, which are Smart Key equipped.
+   * Production Context: The 2020+ Highlander saw a rapid standardization of Smart Keys. Finding a 2023 or 2024 Highlander with a mechanical key is increasingly rare and usually limited to base-model fleet purchases.33
+2.2.2 The "WMI" Factor (Digit 1)
+The country of origin plays a subtle role in equipment packages.
+* J (Japan): Vehicles built in Japan often have higher standard equipment levels for export markets, making them more likely to be Smart Key equipped even in mid-trims.
+* 2 (Canada) / 4 or 5 (USA): North American production includes significant fleet production runs (rental specs). A 2020 RAV4 LE built in Canada (VIN starting with 2) is the highest probability candidate for a mechanical H-key system compared to a Japanese counterpart.35
+Chapter 3: The "Slot" and "Page" Encryption Constraints — Deciphering TSS Protocols
+The user query references a "Slot A/B" key programming limitation. In the context of professional Toyota locksmithing and security research, this terminology is often a colloquial simplification of two distinct but related technical realities: Key Memory Slots and, more critically, the Page 1 Encryption Partitioning (AA vs. BA) which dictates programming compatibility on TSS Gateway systems.37
+3.1 The "Slot" Misnomer: Memory vs. Page
+Technically, Toyota ECUs typically offer a finite number of "Slots" for key registration—usually 7 slots, where Slot 1 is reserved for the Master Key. When a technician adds a key, they are populating Slot 2, 3, etc. However, the "Slot A/B" restriction mentioned in the research query is likely a reference to the Page 1 identifier in the transponder data structure, which effectively segments keys into incompatible "slots" or types based on their cryptographic behavior.39
+3.2 The Critical Restriction: Page 1 AA vs. BA (TSS 3.0/4.0)
+Starting around late 2022 and solidifying in 2023–2024 models—specifically seen in the Corolla Cross, Grand Highlander, and the latest Sienna—Toyota introduced a new variation of the 8A-AES smart key. This new system is often described in locksmith forums and tool manuals as the "BA" system, referring to the hexadecimal value found on Page 1 of the transponder configuration.39
+* Page 1 "AA" (Legacy TNGA): This standard was used in the 2018–2022 Camry, RAV4, and Highlander. These keys use the standard 8A encryption. Aftermarket tools like Autel and Smart Pro have matured capabilities to bypass the gateway, emulate a master key (using APB112 or Lonsdor emulator), and add a key. The "AA" page is supported by most "Toyota 8A" software packages.
+* Page 1 "BA" (New TGG Architecture): Found in 2023+ models (and some late 2022 production), this represents the current frontier of Toyota security.
+   * The Limitation: The "BA" type keys use a modified encryption logic and handshake protocol. Standard bypass cables and emulators that worked for "AA" keys will fail on "BA" systems. The emulator cannot effectively mimic the "BA" master key signature using the old algorithms.
+   * The "Slot" Connection: Locksmiths often refer to the "BA" keys as occupying a different "logic slot" or requiring a specific "BA-capable" emulator slot in their tools. For instance, the Autel KM100 or IM608 Pro II has specific menus separating "8A (AA)" from "8A (BA)".
+   * Implication: If a locksmith attempts to program a 2024 Highlander key using a 2021-era "AA" emulator procedure, the system will reject the handshake, often timing out or failing to communicate with the certification ECU. The tool must specifically support 8A-BA detection and calculation.41
+3.3 Gateway (TGG) Restrictions & The "All Keys Lost" Scenario
+The Toyota Security Gateway (TGG) is the gatekeeper that enforces these restrictions. It blocks OBD2 communication for sensitive Immobilizer commands (Reset/Add Key) unless a secure "handshake" is performed using a specialized Dealer ID or LSID.
+* Slot A (Primary OBD): Can be conceptualized as the standard OBD2 port access. On 2018+ vehicles, this "Slot" is read-only for most Immobilizer data without a NASTF LSID credential. It allows diagnostics (reading codes) but blocks writing (adding keys).
+* Slot B (Bypass/Direct): This refers to the Direct Connection method. To bypass the TGG, the technician must physically disconnect the connector at the Smart Key ECU (Certification ECU) and insert a "Bypass Cable" (e.g., Autel 8A Adapter, ADC2021). This cable creates a local loop (Slot B), effectively ignoring the Gateway's blockage. It injects the tool's signal directly into the K-Line or CAN bus of the Certification ECU, permitting the programming commands to execute as if the Gateway did not exist.42
+Chapter 4: The Bypass Battlefield — TSS 2.0 vs. TSS 3.0 Tool Capabilities
+The continuous cat-and-mouse game between Toyota's security engineers and the aftermarket tool manufacturers has spawned a diverse ecosystem of bypass methodologies. The primary contenders in this space, Autel and Advanced Diagnostics (Smart Pro), employ distinct strategies to circumvent the TSS 2.0 (2018–2021) and TSS 3.0 (2022+) barriers.7
+4.1 The Autel Ecosystem (IM508/IM608/KM100)
+Autel utilizes a hardware-heavy approach involving sophisticated emulators and physical breakout boxes to manipulate the data flow.
+* TSS 2.0 (2018–2021):
+   * Methodology: APB112 Emulator.
+   * Process: The tool connects via OBD (sometimes with a gateway adapter). It pulls immobilizer data from the vehicle. It then calculates the key data—often requiring a Wi-Fi connection to the Autel server—and writes a temporary file to the APB112 Smart Key Emulator. The APB112 then acts as a working "Master Key". The technician holds the APB112 to the start button to authorize the "Add Key" function, allowing the permanent new key to be registered.
+   * Pros: High success rate for "AA" page keys; relatively non-intrusive (often done via OBD).
+   * Cons: Requires the APB112 hardware; server calculation can be slow or dependent on internet stability.45
+* TSS 3.0/4.0 (2022–2024 & "BA" Keys):
+   * Methodology: G-Box3 + 30-Pin Cable (Splitter).
+   * Process: The OBD port is insufficient due to the stronger Gateway (TGG). The user must locate the Smart Key ECU, unplug the specific 30-pin connector (or 24-pin depending on the model), and insert the G-Box/Cable harness. This hardware injects power and data directly.
+   * New Limitation: For 2023+ "BA" keys, Autel recently released software updates (specifically for the IM608 Pro II) to handle the calculation. Older units (IM608 Gen 1) may struggle with the "BA" calculation speeds or protocols without the G-Box3 upgrade. The G-Box3 is specifically designed to handle the faster processing required for the newer engine control unit handshakes.9
+4.2 The Advanced Diagnostics (Smart Pro) Ecosystem
+Advanced Diagnostics (AD) focuses on streamlined, cable-based solutions that integrate with their "Smart Pro" tablet.
+* The ADC2021 Cable (The "Game Changer"):
+   * This is the dedicated 30-pin bypass cable designed for the Smart Pro.
+   * Function: It connects directly to the Smart ECU (Certification Unit) and the Smart Pro unit, bypassing the vehicle's OBD2 port entirely for the immobilizer function.
+   * Advantage: It allows the Smart Pro to bypass the PIN code requirement and the 16-minute wait time. It creates a direct "backdoor" into the ECU. AD's software then manages the key registration process.42
+* TSS 3.0 Capability:
+   * Smart Pro, paired with the ADC2021 and the ADC2015 Emulator, is highly effective on 2022–2024 models.
+   * Differentiation: Unlike Autel, which often requires "server calculation" for the emulator, AD's process is often faster locally if the bypass cable is used. The ADC2021 cable essentially turns a "complex calculation" job into a "direct programming" job by physically removing the Gateway from the equation. For All Keys Lost on newer "BA" systems, AD has been rolling out updates that utilize the ADC2015 emulator to mimic the new encryption signatures.7
+Chapter 5: Hardware Convergence and Divergence — Denso vs. Tokai Rika
+A critical source of failure in key programming is the misidentification of the OEM manufacturer of the smart key. Toyota sources keys from both Denso and Tokai Rika. While they may look identical externally (same button configuration, same shell), their internal RF boards are incompatible and operate on different sub-frequencies or data protocols. Using a Denso key on a Tokai Rika system will result in a failure to program.47
+5.1 Identification via FCC ID and Board Numbers
+The definitive method for identification is opening the key shell and reading the Board ID printed on the Printed Circuit Board (PCB). The FCC ID is useful but can sometimes be shared across compatible board revisions, whereas the Board ID is absolute.
+5.1.1 Denso Architectures (The Dominant Standard)
+Denso supplies the majority of keys for the US-built Camry, RAV4, and Highlander.
+* Common FCC IDs: HYQ14FBC, HYQ14FBA, HYQ14FBB.
+* Signature Board Numbers:
+   * 231451-0351: The "Golden Standard" for TNGA. Found in 2018–2024 Camry, 2019–2024 RAV4, and 2020–2023 Highlander. It is a reliable 315 MHz board.
+   * 231451-0010: Found in earlier TNGA implementations or specific Prius Prime models.
+   * 281451-2110: A distinct board often found in the Land Cruiser and some high-spec Highlander (Platinum/Limited) configurations. Crucial Distinction: A 281451 board will NOT program to a vehicle expecting 231451, even if the FCC ID (HYQ14FBA) matches. The internal logic differs.49
+5.1.2 Tokai Rika Architectures (The Outliers)
+Tokai Rika is typically found on Japan-built VINs (J-VINs) or specific models like the Venza or older RAV4s.
+* Common FCC IDs: HYQ14FBN, HYQ14FBX.
+* Signature Board Numbers:
+   * B74EA / B51TH: Older encryption standards (Page 1 88).
+   * BA-type Boards: The new 2024+ Grand Highlander and 2025 Camry (XV80) are shifting towards newer Tokai Rika or Denso "BA" type boards with updated FCC IDs like HYQ14FBW. These operate on different encryption pages.21
+5.2 Comprehensive Inventory List (2018–2024)
+The following reference table provides a master inventory cross-reference. This data allows fleet managers and locksmiths to verify stock against the specific vehicle entering service, preventing the "wrong key" scenario that accounts for a significant percentage of failed service calls.
+
+
+  
+
+
+
+Chapter 6: Model-Specific Technical Dossiers
+This section synthesizes the transponder, architecture, and hardware data into vehicle-specific profiles for the Camry, RAV4, and Highlander.
+6.1 Toyota Camry (2018–2024 XV70 / 2025 XV80)
+* Platform: TNGA-K.
+* The "0351" Dominance: The 231451-0351 board is the ubiquitous standard for the XV70 generation (2018-2024). It is robust and widely available.
+* Trunk Button Logic: A critical nuance is the trunk button count. The board logic (231451-0351) typically supports 4 buttons (Lock, Unlock, Trunk, Panic). However, 3-button fobs (without trunk) are used on lower trims. A 4-button 0351 board can often be programmed to a 3-button car (where the trunk button simply does nothing), but a 3-button board physically lacks the switch for the trunk, making it unsuitable for a 4-button car.
+* 2025 Outlook (XV80): The introduction of the XV80 Camry brings the HYQ14FBW key. Initial technical reports indicate this utilizes the BA-type encryption system. This signifies that for 2025 models, the standard "0351" inventory will be obsolete, and locksmiths must invest in the new FBW stock and update their programming tools to support the BA protocol.52
+6.2 Toyota RAV4 (2019–2024 XA50)
+* Platform: TNGA-K.
+* The "J-VIN" Curveball: The RAV4 represents the most significant inventory trap.
+   * North American Build (VIN starts with 2 or 4): These vehicles use the Denso system with 315 MHz (HYQ14FBC).
+   * Japan Build (VIN starts with J): These vehicles often use the Tokai Rika system with 314.3 MHz (HYQ14FBN).
+   * Consequence: A 315 MHz key will not program to a 314.3 MHz car. The locksmith must verify the VIN WMI or the frequency of the existing key before attempting service.
+* Hybrid Logic: All RAV4 Hybrids are Smart Keys. Mechanical keys are strictly found on the gas-only LE trims.54
+6.3 Toyota Highlander (2020–2024 XU70)
+* Platform: TNGA-K.
+* Grand Highlander Deviation: The 2024 Grand Highlander is not just a larger Highlander; it introduces a new electrical architecture. It uses the HYQ14FBX (Board 0040/0E330). This is a significant departure from the standard Highlander's 0351 board. It utilizes the new "BA" encryption protocol, requiring the latest bypass cables for programming.
+* Key Oscillator Locations: For emergency starts (dead fob), the LF oscillator is located directly behind the Push-to-Start button. However, for key programming (All Keys Lost), the Certification ECU is often buried behind the glovebox assembly, requiring partial dash disassembly to access the 30-pin connector for the bypass cable. This physical labor adds significant time to the service call compared to previous generations where the ECU was more accessible.21
+Conclusions and Recommendations
+The 2018–2024 era for Toyota and Lexus represents a maturation of the TNGA security architecture, transitioning from a fragmented landscape of G and H chips to a unified but highly encrypted 8A-AES ecosystem. The days of simple OBD2 cloning are effectively over for these models. The professional locksmith must adapt by implementing the following strategic changes:
+1. Standardizing Hardware Inventory: Stocking 231451-0351 boards covers approximately 80% of the TNGA volume (Camry/RAV4/Highlander). However, a dedicated stock of Tokai Rika (314.3 MHz) keys is essential for servicing Japan-built RAV4s.
+2. Identifying "BA" Systems: Recognizing 2023+ models (Sienna, Grand Highlander, Corolla Cross, 2025 Camry) as "BA" encryption targets prevents wasted tokens and time. These require the latest tool firmware and cannot be serviced with older "AA" emulators.
+3. Embracing Direct Connection: The 30-pin bypass cable (ADC2021 or Autel G-Box harness) is no longer an optional accessory; it is a mandatory tool for "All Keys Lost" scenarios on TSS 3.0 vehicles. The ability to quickly disassemble a dashboard to access the Smart ECU is now a required skill.
+4. Verifying VIN Origins: Checking the WMI (J vs. 2/4) is the single most effective administrative step to prevent frequency mismatch on the RAV4 platform.
+By mastering these architectural distinctions—Page 1 AA vs. BA, Smart Box vs. Immobilizer, and Denso vs. Tokai Rika—technicians can navigate the complexity of the H-Chip and Smart Key transition with the precision required by modern automotive security standards.
+Works cited
+1. Blank 4D67 ID67 Key Chip Fit for Toyota CAMERY COROLLA REIZ RAV4 PREVIA CROWN, accessed December 20, 2025, https://www.ebay.com/itm/185659042689
+2. How to Program Toyota Transponder Chip Key: 4Runner, Camry, Corolla, Highlander, Sienna, Rav4, etc. - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=MRg8til2TVk
+3. Smart Key Immobilizer Reset and Add/Remove Key - nhtsa, accessed December 20, 2025, https://static.nhtsa.gov/odi/tsbs/2024/MC-10253225-9999.pdf
+4. Toyota RAV4 3 Button Smart Key 2019-2024 For HYQ14FBC + HYQ14FLA (8990H-0R010) Board 0351 | Aftermarket (4 Pack), accessed December 20, 2025, https://www.bestkeysupply.com/products/toyota-rav4-3button-hyq14fbc-0351-4pack-bks1610
+5. 2018-2023 Toyota Camry / 4-Button Smart Key / HYQ14FBC / 0351 (AFTERMARKET), accessed December 20, 2025, https://www.uhs-hardware.com/products/2018-2023-toyota-camry-4-button-smart-key-hyq14fbc-0351-aftermarket
+6. Genuine Toyota Highlander 2024-2025 Smart Key, 4Buttons 8990H-0E600 315MHz, HYQ14FBX P1 BA - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/toyota-highlander-2024-2025-smart-key-8990h-0e600-315mhz-hyq14fbx-5499
+7. Intro to 2023 Toyota Smart Pro bypass software ADS-2328 #AdvancedDiagnostics #programming - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=lpseS5Pag3g
+8. Toyota Tacoma 2024 - New Smart Key with Autel 508 and SmartPro (30 pin cable and ADC 2021) - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=NlBFe0tLIj4
+9. Autel Toyota 8A Cable For Toyota All Keys Lost AKL Kit - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/autel-toyota-8a-cable-for-toyota-all-keys-lost-akl-kit-1388
+10. Toyota Transponder Key Does the H Matter? TOY44H - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=WYBlhFZob20
+11. Diagnostic Transponder | PDF | Toyota | Ford Motor Company - Scribd, accessed December 20, 2025, https://www.scribd.com/document/706231948/DIAGNOSTIC-TRANSPONDER
+12. All you need to know about Toyota Keys Mechanical and Smart keys - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=vYtU5-OLv-k
+13. 2013-2018 Toyota Camry Smart Key | ID8A | 4-Buttons | TOY2 | 315MHz (Aftermarket), accessed December 20, 2025, https://keyshop-online.com/products/aft-toyota-camry-2013-2018-smart-key-4b-315mhz-toy2-id8a
+14. Xhorse 8A Smart Key Cable for VVDI Plus - Motokey, accessed December 20, 2025, https://motokey.co.za/programmers/1257-xhorse-8a-smart-key-cable-for-vvdi-plus.html
+15. Toyota G & H key systems what to look for when someone else fails to complete the job!, accessed December 20, 2025, https://www.youtube.com/watch?v=CZgIbWtQ4kw
+16. Toyota Transponder Key | Does the "H" Matter- TOY44H - CLK Supplies, accessed December 20, 2025, https://www.clksupplies.com/blogs/news/toyota-transponder-key-does-the-h-matter-toy44h
+17. Owner Programmable G Chip Transponder Key for Select Toyota Vehicles, accessed December 20, 2025, https://tomskey.com/products/toyota-key-g-chip
+18. New OEM 2018-2024 TOYOTA CAMRY Proxy smart keyless entry remote key fob HYQ14FBC | eBay, accessed December 20, 2025, https://www.ebay.com/itm/304854222481
+19. 2024 Toyota RAV4 Smart Key 4B W/ Hatch Fob FCC# HYQ14FLA - 8990H-0R220, accessed December 20, 2025, https://www.locksmithkeyless.com/products/2024-toyota-rav4-smart-key-4b-w-hatch-fob-fcc-hyq14fla-8990h-0r220-north-america-production-aftermarket
+20. TOYOTA RAV4 19 - 21 OEM SMART KEY REMOTE FOB FCC: HYQ14FBC GOOD! | eBay, accessed December 20, 2025, https://www.ebay.com/itm/175562390047
+21. Toyota Grand Highlander 2024-2025 4 Button Smart Key Fob with Hatch | FCC ID: HYQ14FBX and P/N: 8990H-0E330, 04002-99392, 315 MHz | New OEM, accessed December 20, 2025, https://www.bestkeysolution.com/products/toyota-grand-highlander-2024-2025-4-button-smart-key-fob-with-hatch-fcc-id-hyq14fbx-8990h-0e330-04002-99392-315-mhz-new-oem
+22. AC Compressor VIN Z 5th Digit Fits 14-19 HIGHLANDER 518907 | eBay, accessed December 20, 2025, https://www.ebay.com/itm/357568660162
+23. Good programmers for Toyota akl? : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1m5tyn0/good_programmers_for_toyota_akl/
+24. I lost my keys. How do I obtain the key code number? - Toyota Support, accessed December 20, 2025, https://support.toyota.com/s/article/I-lost-my-keys-How-do-7648
+25. How To Easily Decode Your Toyota's VIN Number | Toyota Parts Center Blog, accessed December 20, 2025, https://parts.olathetoyota.com/blog/4585/how-to-decode-toyota-vin
+26. Toyota Transponder Key DST-AES ID8A P1 39 TOY43 - ABK-4002 - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/toyota-corolla-camry-rav4-transponder-key-toyota-h-p39-toy43-4002
+27. REGISTRATION - PriusChat, accessed December 20, 2025, https://attachments.priuschat.com/attachment-files/2015/12/98144_2010_Toyota_Prius_Repair_Manual_-_smart_key.pdf
+28. How to Use Toyota Smart Key | Toyota of Naperville, accessed December 20, 2025, https://www.toyotaofnaperville.com/how-to-use-toyota-smart-key/
+29. Know Your Toyota | Smart Key System - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=pWPFbDWwmtA
+30. Toyota Smart Key Systems | Automotive Key Programming Tech Tip - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=PEyOOfqlCeI
+31. Find Vehicle Specifications By VIN | My Toyota, accessed December 20, 2025, https://www.toyota.com/owners/vehicle-specification/
+32. Toyota Camry 2025 Price in UAE, Images, Reviews & Specs - ArabWheels, accessed December 20, 2025, https://www.arabwheels.ae/new-cars/toyota/camry/2018-2024/
+33. 2021-2022 TOYOTA HIGHLANDER 3.5L (VIN Z 5TH DIGIT) ABS ACTUATOR & PUMP *44K, accessed December 20, 2025, https://www.ebay.com/itm/157173061656
+34. 2001-2007 Toyota Highlander 2.4L 2AZ-FE 4-Cylinder Engine Motor, accessed December 20, 2025, https://powerengines.com/products/2001-2007-toyota-highlander-2-4l-2az-fe-4-cylinder-engine-motor
+35. BaoJiangDa Key For Toyota VIOS VITZ YARIS WISH SUCCEED Corolla AQUA FCC ID MDL B51TE B71TH B74TH B51TH B52TH Remote key - AliExpress, accessed December 20, 2025, https://www.aliexpress.com/item/1005004707294937.html
+36. Find your Toyota VIN (Vehicle Identification Number), accessed December 20, 2025, https://mag.toyota.co.uk/toyota-vin-vehicle-identification-number/
+37. IISc Annual Report 2017-18, accessed December 20, 2025, https://iisc.ac.in/wp-content/uploads/2019/01/IISc-Annual-Report-2017-18-FINAL-SOFT-COPY.pdf
+38. OWNER'S MANUAL - Electronic Mobility Controls, accessed December 20, 2025, https://electronicmobilitycontrols.com/wp-content/uploads/2022/04/AEVIT-2.0-OWNERS-MANUAL-042216-REV14.pdf
+39. Tango Update! New Version 1.128 - Remkeys, accessed December 20, 2025, https://remkeys.com/tango-update-new-version-1-128/
+40. Ecm Reprogramming For Nissan Vehicles: Classification: Reference: Date | PDF - Scribd, accessed December 20, 2025, https://www.scribd.com/document/52462211/NTB00-006b
+41. For Toyota-30 Cable for 8A-BA 4A Smart Key Cable for OBDSTAR Autel IM508 IM608 | eBay, accessed December 20, 2025, https://www.ebay.com/itm/356384546505
+42. Advanced Diagnostics - ADC2021 - Toyota - Security Bypass Cable - UHS Hardware, accessed December 20, 2025, https://www.uhs-hardware.com/products/advanced-diagnostics-adc2021-toyota-security-bypass-cable
+43. ADC2021 Toyota Bypass Cable for SMART PRO (AD) - American Key Supply, accessed December 20, 2025, https://www.americankeysupply.com/product/advanced-diagnostics-adc2021-toyota-bypass-cable-for-smart-pro-21776
+44. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed December 20, 2025, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide
+45. Autel MaxiIM IM608 PRO II with 2-Year Update, Bypass Cable, GBOX3, APB - Locksmith Keyless, accessed December 20, 2025, https://www.locksmithkeyless.com/products/autel-maxiim-im608-pro-ii-with-2-year-update-bypass-cable-gbox3-apb112-and-imkpa-no-area-restriction
+46. Autel IM608 Pro II + G-BOX3 Adapter + APB112 Emulator + Toyota Lexus New System Bypass Cable (Autel USA) - UHS Hardware, accessed December 20, 2025, https://www.uhs-hardware.com/products/autel-im608-pro-ii-g-box3-adapter-apb112-emulator-toyota-lexus-new-system-bypass-cable-autel-usa
+47. Using the Denso Cross Reference - DensoProducts.com, accessed December 20, 2025, https://www.densoproducts.com/using-the-denso-cross-reference
+48. Results - TOKAI RIKA Connectors, accessed December 20, 2025, https://connector.tokai-rika.co.jp/en/result.html
+49. 2014-2022 Toyota 4btn Smart Key (HYQ14FBA/281451-2110 AG) OEM REFURBISHED w/LOGO, accessed December 20, 2025, https://www.intelligentkeysolutions.com/product/2014-2022-toyota-4btn-smart-key-hyq14fba-281451-2110-ag-oem-refurbished-w-logo/
+50. 2016-2021 Toyota Land Cruiser 3-Button Smart Key Fob (HYQ14FBA, 89904-0E090, 89904-60J70, Board: 281451-2110) - NorthCoast Keyless, accessed December 20, 2025, https://northcoastkeyless.com/product/2016-2021-toyota-land-cruiser-3-button-smart-key-fob-fcc-hyq14fba-p-n-89904-0e090-89904-60j70-board-281451-2110/
+51. Toyota Hilux 2015 onward 3 button smart key 61A965-0182 Tokai Rika BM1ET, accessed December 20, 2025, https://www.reidsremotes.com.au/home/1669-toyota-hilux-2015-onward-3-button-smart-key-61a965-0182-tokai-rika-bm1et.html
+52. 2025 Toyota Camry / 4-Button Smart Key / PN: 8990H-AQ010 / HYQ14FBW (OEM), accessed December 20, 2025, https://www.uhs-hardware.com/products/2025-toyota-camry-4-button-smart-key-8990h-aq010-hyq14fbw-oem
+53. Genuine Toyota 2025 Camry Smart Key Fob Remote Keyless 8990H-AQ010 - eBay, accessed December 20, 2025, https://www.ebay.com/itm/286280100895
+54. KEYECU for Toyota Corolla 2019 2020 2021 Smart Remote Key , Fob 314.3MHz 4A Chip FCC ID - AliExpress, accessed December 20, 2025, https://www.aliexpress.com/item/1005004561082667.html
+55. Confused about which additional Smart Key System features are in the XSE Grade Advanced Technology package. : r/rav4club - Reddit, accessed December 20, 2025, https://www.reddit.com/r/rav4club/comments/1iik34y/confused_about_which_additional_smart_key_system/
+56. 2024 Toyota Grand Highlander all keys lost key programming! - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=jupqjDXyng0

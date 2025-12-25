@@ -1,0 +1,298 @@
+﻿The Evolution of VAG Immobilizer Systems: A Technical Compendium (1998–2011)
+Executive Summary
+The transition of the automotive industry from mechanical security to digital cryptography represents one of the most significant engineering evolutions of the late 20th and early 21st centuries. Within this broader context, the Volkswagen Group (VAG) stands as a distinct case study in iterative, often overlapping, security architecture. For the automotive security professional, forensic analyst, or specialized technician, the era spanning 1998 to 2011—covering the Volkswagen Beetle, Golf, Jetta, and Passat—is not merely a historical footnote but a complex landscape of technological bifurcation. It is in this specific period that the industry moved from simple, fixed-code authentication to distributed, Controller Area Network (CAN) based authorization protocols involving advanced Component Security (CS) bytes.
+This report serves as an exhaustive technical reference and forensic analysis of the pre-2011 Volkswagen immobilizer ecosystem. It is designed to bridge the gap between abstract engineering documentation and practical field application. By synthesizing data from vendor-specific engineering notes—including Xhorse VVDI protocols, Silca transponder taxonomies, Ilco legacy references, and Ross-Tech diagnostic procedures—this document deconstructs the proprietary security layers that define the Immo 2, Immo 3, and Immo 4 generations.
+Crucially, this analysis challenges the simplistic notion that "generation" is tied strictly to model year. Instead, it posits that security architecture is a function of platform lifecycle. A 2004 Volkswagen Golf Mk5, built on the advanced PQ35 platform, operates on a fully integrated CAN-bus Immobilizer IV system requiring pre-coded dealer keys. In stark contrast, a 2004 New Beetle, still residing on the legacy PQ34 architecture, retains the simpler K-Line based Immobilizer III system despite sharing the same showroom floor. Understanding these platform-specific divergences is the singular determinant of successful diagnostic intervention or key synthesis. Furthermore, the report provides a granular examination of the mechanical interface—the HU66 lock profile—detailing the microscopic evolution from "Generation 1" wafer configurations to the late-model "sunken" face locks that confound standard tooling.
+1. Theoretical Foundations of VAG Security Architectures
+To navigate the operational complexities of the pre-2011 landscape, one must first possess a nuanced understanding of the fundamental architectural shifts that define the VAG "Immobilizer" generations. These designations—Immo 1 through Immo 4—are not merely marketing terms or software version numbers; they represent profound changes in hardware topology, communication protocols, and cryptographic dependencies that dictate every aspect of the technician's approach.
+1.1 The Genesis of Electronic Theft Prevention (Immo 1)
+Historical Context and Topology (Circa 1993–1997)
+The early 1990s witnessed a surge in vehicle theft across Europe, prompting legislative action that mandated electronic immobilizers in new vehicles. Volkswagen’s initial response, retroactively termed Immobilizer Generation 1, was a discrete, modular solution designed for rapid integration into existing electrical architectures. In this genesis period, the security logic was not embedded deep within the vehicle's primary computing structures but was housed in a standalone Immobilizer Control Module (ICM), physically separate from the Instrument Cluster. This "Immo Box" was typically concealed behind the headlight switch or buried deep within the dashboard substructure, communicating with the Engine Control Unit (ECU) via a single, dedicated data line known as the W-line.
+The operational logic of Immo 1 was rudimentary by modern standards but effective for its time. Upon key insertion, the Immo Box would energize the reader coil, interrogating the fixed-code transponder (typically a Megamos ID13 or Philips ID33). If the unique identifier of the key matched the whitelist stored in the Immo Box, a "start authorized" signal was sent down the W-line to the ECU. The ECU itself was not "matched" to the immobilizer in a mutual cryptographic sense; rather, it was in a state of listening for a specific authorization bit. If the bit was received, fuel injection and ignition were enabled. If not, the engine might start briefly—utilizing residual fuel pressure or initial startup logic—but would be cut within one to two seconds.1
+This architecture presented a significant vulnerability: the lack of mutual authentication. Because the ECU simply waited for a "go" signal, it was theoretically possible to bypass the security by swapping in a generic, unlocked Immo Box or by using a simple emulator that flooded the W-line with the authorization code. There was no cryptographic handshake between the engine controller and the security module, a flaw that would be addressed in subsequent generations.
+1.2 The Integration of Security Logic (Immo 2)
+The Shift to the Instrument Cluster (Circa 1998–2001)
+As vehicle electronics became more integrated, the standalone Immo Box was deemed redundant and costly. Immobilizer Generation 2 (Immo 2) marked a pivotal shift in topology: the migration of the immobilizer logic directly into the Instrument Cluster (Address 17). This integration meant that the dashboard itself became the gatekeeper of the vehicle.
+In the Immo 2 architecture, the Instrument Cluster performs the interrogation of the key. Upon verifying the transponder—now typically a Megamos Crypto ID48—the Cluster initiates communication with the ECU. However, unlike the passive listening of Immo 1, Immo 2 introduced a pairing process. The ECU and the Cluster had to be "adapted" to one another. Despite this advancement, the relationship remained largely unidirectional. A technician could take a used ECU from a salvage yard, install it in an Immo 2 vehicle, and perform a standard adaptation procedure. During this process, the used ECU would simply overwrite its stored Immobilizer ID (Immo-ID) with the ID broadcast by the Cluster. The ECU was subservient to the Cluster.1
+This generation also formalized the concept of the Secret Key Code (SKC). Originally a 4-digit PIN (and later expanded to a 7-digit format with date and workshop code data), the SKC was the password required to access the security adaptation channels. Without the SKC, new keys could not be programmed. Diagnostic tools like VCDS (VAG-COM Diagnostic System) provided a window into this system. A defining characteristic of Immo 2 in VCDS is the data populated in the "Extra" field of the Cluster or Immobilizer module. If the field displays a 14-digit Immo-ID (e.g., VWZ7Z0W0648696) but does not display the vehicle's VIN, the system is almost certainly Immo 2.1 This absence of the VIN in the immobilization data structure is a key forensic marker, distinguishing it from the later, more secure iterations.
+1.3 The Era of Cryptographic Marriage (Immo 3)
+VIN Binding and Mutual Authentication (Circa 2002–2005/6)
+The turn of the millennium brought with it a sophisticated organized theft ring capability, necessitating a harder security stance. Immobilizer Generation 3 (Immo 3) was the industry's response, introducing the concept of a "cryptographic marriage" between the control modules. No longer could components be swapped with impunity.
+In an Immo 3 system, the Instrument Cluster and the ECU are mutually dependent. They do not just share a simple authorization signal; they share the Vehicle Identification Number (VIN) and the specific Secret Key Code (SKC). When the ignition is turned on, the Cluster verifies the key, but simultaneously, the ECU verifies the Cluster. The ECU asks, "Are you the Cluster I was originally paired with?" If the VINs do not match, or if the SKC handshake fails, the engine is disabled. This effectively ended the practice of swapping used ECUs without significant intervention. To install a used ECU in an Immo 3 car, one must effectively "virginize" the donor unit or possess the SKC of both the donor vehicle and the recipient vehicle to authorize the transfer.1
+Forensically, Immo 3 is easily identifiable via diagnostic scan. When accessing Address 17 (Instruments), the "Extra" field will display both the 17-digit VIN and the 14-digit Immo-ID (e.g., WVZKB58001H231169 VWZ7Z0W0648696). This dual display is the hallmark of Immo 3.3 Furthermore, the transponder adaptation process became more stringent. While still utilizing the Megamos Crypto ID48 chip, the system began to enforce "lock times" more aggressively and utilized a rolling code algorithm that was tighter than in Immo 2. Technicians could monitor the status of the key in real-time using Measuring Blocks 022 and 023, observing flags for "Engine Start Permitted," "Key Condition OK," and "Transponder Status".4
+1.4 The CAN-Bus Revolution and Pre-Coding (Immo 4)
+Distributed Security and the "Dealer Key" (Circa 2005/6–2010+)
+The transition to Immobilizer Generation 4 (Immo 4) was driven by the wholesale shift of vehicle architecture from K-Line diagnostics to the Controller Area Network (CAN). This was not merely a change in wires; it was a change in language. Immo 4 introduced Component Security (CS), a 6-to-12 byte cryptographic key that serves as a unique fingerprint for the vehicle's security modules.
+In Immo 4, the security topology became distributed. While the Instrument Cluster (or Comfort Module in the Passat B6) remained the primary master, the authentication data was spread across the network. The most critical innovation for the locksmith was the requirement for Pre-Coded Transponders, often referred to as "Dealer Keys." In previous generations, a technician could take a generic, off-the-shelf ID48 chip and adapt it to the car using the SKC. In Immo 4, this is impossible. The generic chip must first be "prepared" or "pre-coded" using a specialized programmer (such as the VVDI2, AVDI, or Tango). This process involves reading the Component Security bytes from the vehicle's cluster and writing them onto the transponder's protected memory pages before the diagnostic adaptation can even be attempted.5
+This era introduced the "TP" (Transponder Profile) designations—TP22, TP23, TP24, TP25—to distinguish the brand-specific pre-coding data required for SEAT, Volkswagen, Skoda, and Audi, respectively. For the standard VW lineup (Golf Mk5, Jetta Mk5), the TP23 profile is the mandatory standard.6 It is also critical to distinguish Immo 4 from the later Immo 5. While they share the CAN architecture, Immo 4 (typically ID48 based) allows for OBD extraction of CS bytes in many cases. Immo 5, introduced in the very late stages of this report's scope (e.g., late 2011 models, Golf Mk7), typically utilizes BCM2 modules or MQB platforms with far more complex encryption that resists simple OBD manipulation.5
+
+
+  
+
+
+
+2. The Transponder Ecosystem: Physics and Forensics
+The heart of the VAG anti-theft system is the transponder—a passive RFID tag embedded in the head of the key. For the pre-2011 VW vehicle parc, the transponder landscape is dominated by the Megamos Crypto family, but the specific variant of the chip often constitutes the difference between a successful engine start and a persistent "Safe" mode lockout on the dashboard.
+2.1 The Physics of Authorization
+The system operates on Low Frequency (LF) RFID principles, typically at 125 kHz. When the key is turned in the ignition, the reader coil (mounted around the ignition lock cylinder) emits an electromagnetic field. This field inductively couples with the antenna coil inside the transponder chip, powering the microchip. Once powered, the chip modulates the field to transmit its data back to the reader coil. This data stream is not static; in the case of Megamos Crypto, it involves a complex challenge-response exchange where the immobilizer sends a random number (nonce) to the key, and the key must encrypt that number using its internal secret key and transmit the result back. This ensures that a simple recording of the signal (replay attack) cannot be used to start the car.
+2.2 The Megamos ID48 (Magic II) Standard
+From approximately 1998 through 2011, the vast majority of VW models utilized the Megamos Crypto ID48 glass capsule. This chip is chemically and electrically robust, designed to survive the harsh environment of a key head.
+* Immo 2/3 Implementation (The Generic ID48): In the K-Line systems of Immo 2 and 3 (e.g., Golf Mk4, Passat B5), the transponder is treated as a generic ID48 container. The system reads the chip's unique serial number and authorizes it. The "secret key" used for encryption is generated during the adaptation process. Critically, because the car writes the necessary logic to the chip during programming, a technician can typically use a standard, "virgin" unlocked ID48 chip (often sold as "T6" by aftermarket suppliers like Silca or JMA).9 The chip does not need to be pre-loaded with data before it touches the car.
+* Immo 4 Implementation (The TP Series): With the advent of the Mk5 Golf and Passat B6, the generic ID48 was no longer sufficient. The CAN-bus architecture required the chip to be pre-coded. This involves writing specific Component Security (CS) bytes and configuration flags onto the chip's protected memory pages before introducing it to the vehicle via OBD. Once pre-coded, the chip is "locked" to the brand. A generic ID48 will be rejected by an Immo 4 cluster because it lacks the specific "brand identifier" headers that the cluster expects to see in the initial handshake.5
+2.3 The "TP" Protocol: A Taxonomy of CAN Chips
+To manage the pre-coding requirements for the various brands under the VAG umbrella, the industry adopted the "TP" (Transponder Profile) designation. These are physically identical ID48 chips but contain different pre-coded data structures (Dealer Keys) in their EEPROM.
+* TP23 (Volkswagen): This is the standard for the Golf Mk5, Jetta (2005+), Eos, and Tiguan. It corresponds to the Megamos Crypto VW-CAN (A1) protocol.
+* TP22 (SEAT): Used for CAN-based SEAT models like the Leon, Ibiza, and Altea. Corresponds to Megamos Crypto SEAT-CAN (A3).
+* TP24 (Skoda): The standard for the Octavia II and Superb. Corresponds to Megamos Crypto Skoda-CAN (A4).
+* TP25 (Audi): Found in the A3 (8P), A4 (B7), and TT (8J). Corresponds to Megamos Crypto Audi-CAN (A2).
+Operational Consequence: If a technician attempts to program a generic (blank) ID48 chip into a 2008 VW Jetta (Immo 4), the adaptation will fail invariably. The cluster will refuse to write the CS bytes to a chip that does not already identify itself as a "VW" chip. The technician must use a pre-manufactured TP23 chip OR use a programming tool like the VVDI2 to "generate" a VW Dealer Key onto a blank ID48 using the CS data read from the cluster. This generation process effectively turns a generic ID48 into a TP23.6
+2.4 Legacy Architectures (Pre-1999)
+For the earliest models in this report's scope—specifically the Mk3 Golf and early production Passat B5s—older transponder technologies may be encountered:
+* ID33 (Philips PCF7930/31): A read/write transponder found in very early Immo 1 systems (e.g., 1995-1997 Passat). These use a simpler rolling code algorithm.10
+* ID42/44 (Philips Crypto): Found in transitional models like the Caddy, Lupo, and notably the VW Sharan. The Sharan is a forensic outlier because it was built on a joint venture platform with the Ford Galaxy. Consequently, its immobilizer logic often mirrors Ford's security architecture rather than the standard VW logic, necessitating ID42/44 chips rather than the expected ID48.10
+* ID13 (Megamos Fixed): The oldest technology, used in early Immo 1 configurations. These are fixed-code chips with no cryptographic capability.10
+2.5 The Passat B6 Anomaly (2006–2010)
+The Passat B6 (and its coupe variant, the CC) represents a radical departure from the standard Golf/Jetta architecture. It uses a slot key (a fob that is inserted fully into the dash) rather than a bladed key. Crucially, the immobilizer logic is hosted in the Comfort Control Module (CCM - Address 46) rather than the Instrument Cluster.
+* Chip Type: While the majority of B6 Passats use ID48, certain high-specification models with "Keyless Entry" or "Kessy" (Push Button Start) utilize ID46 (Philips Crypto II) technology. In these fobs, the transponder is often integrated directly onto the Printed Circuit Board (PCB) of the remote, rather than existing as a separate glass ampoule. This integration makes chip replacement difficult without microsoldering.14
+* Key Fob Frequency: The user query specifically references ilco.us, implying a North American context. For the US market (NAR), Passat B6 remotes almost exclusively use 315 MHz. European models use 433 MHz (specifically 433.92 MHz). The FCC ID on the casing is the definitive identifier; for example, NBG009066T is a common identifier for the US 315 MHz version.17
+
+
+  
+
+
+
+3. Mechanical Security: The HU66 Lock Profile
+While the digital handshake prevents the engine from starting, the mechanical lock cylinder remains the primary interface for vehicle entry. The Volkswagen "HU66" keyway is ubiquitous across the pre-2011 range. However, the internal wafer configuration and the external lock face evolved significantly over the decade, creating a trap for the unprepared technician. The HU66 is a "2-Track Internal" (or "Laser Cut") keyway, featuring two parallel tracks milled into the inner face of the key blade. The corresponding lock cylinder uses wafers (tumblers) that ride in these tracks.
+3.1 Generation 1 & 2: The "HAA" Standard (1998–2010 approx.)
+For the vast majority of the models covered in this report, the locks are mechanically classified as either Generation 1 or Generation 2. Visually, these locks are often identical from the exterior—presenting a flush or slightly recessed plug—but their internal wafer pairing differs fundamentally.
+* Generation 1 (1-up / 1-down): Used in earlier models (approx. pre-2000/2001). In this configuration, the wafers are arranged such that a "pair" of wafers consists of one lifting up and one lifting down. This alternating pattern was the original design for the HU66 system.20
+* Generation 2 (2-up / 2-down): Introduced to increase pick resistance and key security. In this configuration, paired wafers are located on the same side of the plug (e.g., two lifting up, followed by two lifting down).
+* Tooling Implication: The difference is subtle but critical for Lishi users.
+   * Single Lifter Lishi: This tool uses a single picking arm. It can pick both Gen 1 and Gen 2 locks, but it decodes them differently. For Gen 1, it reads effectively because the wafers are isolated. For Gen 2, the "2-up" configuration can confuse the tool's decoding grid because the single arm may disturb the adjacent wafer in the pair. Furthermore, single lifters generally decode in the opposite direction to the picking direction.20
+   * Twin Lifter Lishi: Specifically designed to address the Gen 2 configuration. It features a split picking arm that can lift both wafers in a pair simultaneously if needed, or isolate them more effectively. Crucially, it decodes in the same direction as picking, providing a more intuitive user experience.20
+3.2 Generation 3: The "Sunken" Lock (Late 2009/2010+)
+Towards the very end of the reporting period—coinciding with the transition to the Golf Mk6, Jetta Mk6, and late-model New Beetle—Volkswagen introduced a new lock housing that created significant difficulties for existing tools.
+* Visual Identification: The definitive identifier for this generation is the "Sunken" face. The lock plug is recessed significantly deeper into the door handle or housing compared to the Gen 1/2 locks. The lock face sits flush with the body of the lock cylinder, which itself sits deeper inside the housing.21
+* Mechanical Change: Beyond the physical depth, the clutch mechanism and wafer sizes underwent slight revisions to improve durability and theft resistance.
+* Tooling Crisis: Standard Lishi HU66 V.2 tools often cannot reach deep enough to engage the wafers correctly due to the recessed face. The shoulder of the tool hits the lock housing before the pick tip reaches the rear wafers.
+* The Solution (Lishi HU66 V.3): This tool was released specifically to address Gen 3 locks. It features longer lifting arms and a modified geometry to navigate the sunken face. It is fully backward compatible with Gen 1 and Gen 2 locks, making it the universal choice for the modern technician.23
+3.3 Diagnostic Protocol: The Lishi "Feeling" Test
+For a technician facing a lock where the visual "Sunken" test is inconclusive, the "Feeling" test can differentiate between Gen 1 and Gen 2 internal configurations:
+1. Fully insert the Lishi pick into the lock.
+2. Move the picking arm to Position 1 (Wafer 1). Feel for the spring tension.
+3. If the spring tension is felt on the Top Grid -> Gen 1 (1-up/1-down logic).
+4. If the spring tension is felt on the Bottom Grid (and Wafer 2 is also Bottom) -> Gen 2 (2-up/2-down logic).21
+4. Comprehensive Platform Analysis: A Model-by-Model Deep Dive
+The complexity of the VAG ecosystem lies in the fact that Immobilizer generations are tied to platforms, not calendar years. A "2004 Volkswagen" could be an Immo 3 or an Immo 4 car depending on whether it is a Beetle or a Golf. This section dissects the specific trajectories of the four core models.
+4.1 Volkswagen Beetle (New Beetle)
+Production: 1998–2010 (PQ34 Platform)
+The New Beetle is a unique case study because it remained on the older PQ34 (Mk4) platform architecture for its entire production run, even as the Golf and Jetta moved to the newer PQ35 (CAN) platform. This created a "zombie" scenario where the car looked the same but the electronics were quietly updated.
+* 1998–2000 (Early): Immo 2.
+   * Keys: Standard "Banjo" style or early switchblade.
+   * Chip: ID48 (Generic).
+   * Lock: HU66 Gen 1.
+   * Note: Early models often have the separate Immo Box logic or early cluster integration.
+* 2001–2004 (Mid): Transition to Immo 3.
+   * Keys: Switchblade keys become standard.
+   * Chip: ID48 (Generic, but VIN married).
+   * Diagnostic: VCDS shows VIN + Immo ID in the Extra field.
+* 2005–2010 (Late): The Trap.
+   * While the chassis remained Mk4-based, the electronics received significant updates, particularly in the Convertible models. Later models migrated to Immo 4 logic requiring TP23 chips in the key, despite the car looking largely the same as a 2002 model.
+   * Forensic Insight: This is a common failure point. A technician sees a "Mk4 style" car and attempts to program a standard ID48. The adaptation fails repeatedly. The solution is to check the cluster ID; if it communicates via CAN protocols or rejects the standard ID48, a pre-coded TP23 is required.9
+4.2 Volkswagen Golf
+Generations: Mk3 (End), Mk4 (1999-2006), Mk5 (2006-2009), Mk6 (2010-2011)
+The Golf serves as the bellwether for VAG technology; it is typically the first platform to receive the new security updates.
+* Mk3 (1998/1999): The end of an era.
+   * Immo: Immo 1 (Separate Box) or very early Immo 2.
+   * Chip: ID33 (Fixed) or ID48 (early Crypto).
+* Mk4 (1999.5–2006): The quintessential Immo 2/3 platform.
+   * Split Year: The 2001/2002 model year is the hard split between Immo 2 and Immo 3. This is where the VIN marriage was introduced.3
+   * Keys: High-quality switchblade keys (Part number prefix 1J0) became the standard.
+* Mk5 (2006–2009): The CAN-Bus Era (Immo 4).
+   * Requirement: TP23 Chips are mandatory.
+   * Security: 7 bytes of Component Security (CS).
+   * Remote: 315 MHz (US). Part numbers often start with 1K0.28
+* Mk6 (2010–2011): The Immo 4+ / Immo 5 Transition.
+   * Architecture: Early Mk6 models (2010) often used Immo 4 logic (TP23/ID48) that was accessible via OBD reading.
+   * The 2011 Shift: Later Mk6 models (2011+) moved to newer UDS protocols and NEC instrument clusters (e.g., NEC+24C64). This hardware change made EEPROM reading significantly harder, often requiring the removal of the cluster or the use of specialized "service mode" tools to extract the Immo data.8
+4.3 Volkswagen Jetta
+Generations: A3 (Mk3), A4 (Mk4), A5 (Mk5), A6 (Mk6)
+The Jetta largely mirrors the Golf but with specific production timing differences due to its manufacturing base (often Mexico for NAR).
+* Jetta 1999 (The Split): A confused year. The "Old" body style (Mk3) uses Immo 1/2. The "New" body style (Mk4) uses Immo 2.
+* Jetta 2000–2001: Pure Immo 2.
+* Jetta 2002–2005: Pure Immo 3.
+* Jetta 2005.5–2010 (Mk5): Immo 4 (TP23).
+* Jetta 2011 (Mk6): Critical Split. The 2011 Jetta introduced the NCS (New Compact Sedan) platform. While often grouped with Immo 4 in casual conversation, the 2011+ Jetta typically uses NEC+24C64 or NEC+24C32 clusters. These are advanced Immo 4/5 systems. Programming a key for a 2011 Jetta is exponentially more difficult than for a 2010 Jetta, often requiring the "Prepare Dealer Key" function on high-end tools like the Autel IM608 or VVDI2.29
+4.4 Volkswagen Passat
+Generations: B5 (1998-2001), B5.5 (2001-2005), B6 (2006-2010)
+The Passat B6 is the outlier of the group, utilizing a unique security architecture derived from the Audi A6/A8 lineage rather than the Golf/Jetta compact platform.
+* Passat B5 (1998–2001): Immo 2. Cluster based. ID48.
+* Passat B5.5 (2001–2005): Immo 3. Cluster based. ID48.
+* Passat B6 (2006–2010): Radical Departure.
+   * System: "Comfort Access" Immobilizer. The dashboard (Cluster) is a display only; it does not hold the master security keys. The security master is the Comfort Control Module (CCM) located behind the glovebox.
+   * Key: Slot Fob (Push-to-start).
+   * Chip: ID48 (Standard) or ID46 (Keyless/Kessy). The transponder is often integrated into the PCB.
+   * Programming: Programming keys for a B6 Passat requires extracting 7 bytes of CS from the CCM. This often requires removing the CCM and reading the 95320 EEPROM on the bench if OBD extraction fails. It is distinct from the Golf/Jetta OBD process.30
+5. Frequency & Remote Specifications: The NAR Context
+The user query cites ilco.us, implying a focus on the North American Region (NAR). This distinction is vital for remote frequencies, as European and American models operate on incompatible bands.
+* USA / Canada (NAR): The standard frequency is 315 MHz.
+   * FCC IDs: Look for prefixes like NBG... or HLO 1J0...AM / HLO 1J0...DC. These are valid for almost all pre-2011 VWs in the US market.17
+* Europe / ROW: The standard is 433.92 MHz.
+   * Part Numbers: Often end in AG, DA, or similar.
+   * Caution: Many aftermarket tools (like VVDI) often default to "433MHz" in their product descriptions or menus. A US technician must explicitly verify they are generating or ordering 315 MHz remotes, or the key will start the car but the buttons will not work.18
+Passat B6 Specifics:
+The US Passat B6 remote is unique. It operates at 315 MHz. The common Key Part Number is 3C0 959 752, but the suffix (BG, AM, N) determines the frequency and Keyless Go capability. NBG009066T is a common FCC ID for the US 315 MHz version.19
+
+
+  
+
+
+
+6. Forensic Identification & Diagnostic Procedures
+Before attempting to program keys or pick locks, the system must be positively identified. Visual cues can be misleading; electronic interrogation is definitive.
+6.1 Identifying Immo Generation via VCDS
+Using a diagnostic tool like VCDS (Ross-Tech), access Address 17 (Instruments) or Address 25 (Immobilizer).
+* Step 1: Look at the "Extra" field in the component identification screen.
+* Result A (Immo 2): The field displays only a 14-digit Immobilizer ID, such as Immo-ID VWZ7Z0.... There is no VIN visible in this specific field.
+* Result B (Immo 3): The field displays both a 17-digit VIN and the 14-digit Immo-ID, such as VIN WVW... Immo-ID VWZ.... This confirms the VIN marriage logic is active.1
+* Result C (Immo 4): The system may present Challenge/Response prompts or advanced measuring blocks in the 080+ range. Reading the EEPROM often requires Security Access (Login) codes that are not statically available.
+6.2 Measuring Blocks for Key Status
+For Immo 3 and Immo 4 systems, Group 022 and Group 023 in the Instrument Cluster provide critical real-time data:
+* Group 022, Field 3 (Key Condition): Should read 1 or OK. If it reads 0 or Not OK, the transponder is either damaged, the wrong type (e.g., generic ID48 in a TP23 car), or the reader coil is failing.
+* Group 023 (Status): Indicates if the ECU and Cluster are paired (matched) and if the key is authorized.4
+7. Operational Conclusions and Recommendations
+The pre-2011 Volkswagen immobilizer landscape is defined by the migration from Immo 2 (Simple Crypto) to Immo 4 (Component Security). This evolution was not linear but staggered across platforms, creating a mosaic of compatibility requirements.
+* The Critical Pivot: The introduction of the CAN-bus (Mk5 Golf/Jetta, B6 Passat) forced the industry to move from generic ID48 chips to pre-coded TP23 chips. Failure to pre-code is the leading cause of programming failure in these models.
+* The Passat Exception: The B6 Passat requires a completely different workflow (CCM focused) compared to the Jetta/Golf of the same year. Technicians must be prepared to extract CS data from the Comfort Module.
+* Tooling: The Lishi HU66 V.3 Twin Lifter is the universal mechanical tool for this era, capable of handling all lock generations. For programming, a tool capable of CS extraction (like VVDI2, AVDI, or Autel IM508/608) is mandatory for post-2006 vehicles; simple PIN code readers (VagTacho) are sufficient only for the pre-2005 Immo 2/3 systems.
+8. Detailed Reference Data Tables
+8.1 Transponder & Immo Mapping Table
+Model
+	Year Range
+	Platform
+	Immo Gen
+	Chip Type
+	Lishi Tool
+	Beetle
+	1998–2000
+	Mk4 (PQ34)
+	Immo 2
+	ID48 (Generic)
+	HU66 (Gen 1)
+	Beetle
+	2001–2004
+	Mk4 (PQ34)
+	Immo 3
+	ID48 (Generic)
+	HU66 (Gen 1/2)
+	Beetle
+	2005–2010
+	Mk4 (PQ34)
+	Immo 4 (CAN)
+	ID48 (TP23)
+	HU66 (Gen 2)
+	Golf
+	1999–2001
+	Mk4 (PQ34)
+	Immo 2
+	ID48 (Generic)
+	HU66 (Gen 1)
+	Golf
+	2002–2006
+	Mk4 (PQ34)
+	Immo 3
+	ID48 (Generic)
+	HU66 (Gen 1/2)
+	Golf
+	2006–2009
+	Mk5 (PQ35)
+	Immo 4
+	ID48 (TP23)
+	HU66 (Gen 2)
+	Golf
+	2010–2011
+	Mk6 (PQ35)
+	Immo 4/4c
+	ID48 (TP23)
+	HU66 V.3 (Gen 3)
+	Jetta
+	1999–2001
+	Mk4 (PQ34)
+	Immo 2
+	ID48 (Generic)
+	HU66 (Gen 1)
+	Jetta
+	2002–2005
+	Mk4 (PQ34)
+	Immo 3
+	ID48 (Generic)
+	HU66 (Gen 1/2)
+	Jetta
+	2005.5–2010
+	Mk5 (PQ35)
+	Immo 4
+	ID48 (TP23)
+	HU66 (Gen 2)
+	Jetta
+	2011
+	Mk6 (NCS)
+	Immo 4/5
+	ID48 (TP23)*
+	HU66 V.3 (Gen 3)
+	Passat
+	1998–2000
+	B5 (PL45)
+	Immo 2
+	ID48 (Generic)
+	HU66 (Gen 1)
+	Passat
+	2001–2005
+	B5.5 (PL45)
+	Immo 3
+	ID48 (Generic)
+	HU66 (Gen 1/2)
+	Passat
+	2006–2010
+	B6 (PQ46)
+	Immo 4 (CCM)
+	ID48 / ID46
+	HU66 (Gen 2)
+	*Note: 2011 Jetta requires advanced UDS protocol tools.
+8.2 Tooling Dictionary
+* VCDS: Diagnostics, Immo ID verification, Key Adaptation (if PIN known).
+* VagTacho: PIN extraction (K-Line only, Pre-2005).
+* VVDI2 / AVDI: CS extraction, Dealer Key generation (CAN/Immo 4).
+* Lishi HU66 V.3: Mechanical picking/decoding for all generations.
+This report synthesizes the fragmented documentation from VVDI, Silca, and Ross-Tech into a cohesive operational guide. By adhering to these specifications, the success rate in servicing pre-2011 VW immobilizer systems can be maximized while minimizing the risk of module lockout or data corruption.
+Works cited
+1. Immobilizer - Ross-Tech Wiki, accessed December 23, 2025, https://wiki.ross-tech.com/wiki/index.php/Immobilizer
+2. VCDS: Immobilizer 2 Instrument Cluster Swapping - Ross-Tech, accessed December 23, 2025, https://www.ross-tech.com/vag-com/cars/Immo2-cluster-swapping.html
+3. Immobilizer 3 Key Matching - VAG-COM - Ross-Tech, accessed December 23, 2025, https://www.ross-tech.com/vag-com/cars/Immo3-key-matching.html
+4. VAG-COM: Immobilizer 3 Measuring Blocks - Ross-Tech, accessed December 23, 2025, https://www.ross-tech.com/vag-com/cars/Immo3-measuring-blocks.html
+5. VOLKSWAGEN AG – A HISTORY OF VAG ELECTRONICS IN (I HOPE) LESS THAN 10 ½ CHAPTERS. PART 2 Abrites, accessed December 23, 2025, https://abrites.com/blog/volkswagen-ag-a-history-of-vag-electronics-in-i-hope-less-than-10-1-2-chapters-part-2
+6. CHIP CONVERSION CHART - Shoe Repairer Forum, accessed December 23, 2025, https://shoerepairer.info/applications/core/interface/file/attachment.php?id=12873
+7. CODECARD Transponder Conversion Table | PDF | Volkswagen - Scribd, accessed December 23, 2025, https://www.scribd.com/document/354514538/CODECARD-Transponder-Conversion-Table
+8. VVDI2 VAG 4th and 5th Immobilizer Function Activation Software - Key4, accessed December 23, 2025, https://www.key4.com/vvdi2-vag-4th-5th-immobilizer-software
+9. Volkswagen Transponder Key 48 MEGAMOS HU66 ABK-358 - ABKEYS, accessed December 23, 2025, https://abkeys.com/products/volkswagen-transponder-key-48-megamos-id48-chip-hu66-vw-key-358
+10. Transponder Catalogue VW - SOS Autokeys, accessed December 23, 2025, https://auto-keys.eu/Transpoder-Catalogue_VW
+11. Transponder and Key Programmer Guide, accessed December 23, 2025, https://maltchev.com/kiti/tr_guide.htm
+12. New Transponder Chip VW ID48 CAN A1 TP23 - 5 Pack - Key Innovations, accessed December 23, 2025, https://keyinnovations.com/products/new-transponder-chip-vw-48-can
+13. Volkswagen sleutel transponder chip - HM-Electronics.nl, accessed December 23, 2025, https://hm-electronics.nl/nl/news/42,volkswagen-sleutel-transponder-chip
+14. Transponder ID48 Chip Immobilizer Key for VW: The Complete Guide to Replacement and Compatibility - AliExpress, accessed December 23, 2025, https://www.aliexpress.com/p/wiki/article.html?keywords=vw-key-immobilizer-chip_1005008066030282
+15. HE 3C0959752BA ID48/ID46 3C0959752BG 433MHz Half Smart/Keyless Go Car Remote Key For VW Volkswagen Passat B6 CC 3C B7 Magotan - AliExpress, accessed December 23, 2025, https://www.aliexpress.com/item/1005007476919374.html
+16. Keyless Remote Key Fob 434MHz ID46 for Volkswagen Passat B6 B7 CC 3C0 959 752 BG, accessed December 23, 2025, https://www.ebay.com/itm/155604296400
+17. Determining the transmit frequency of a key fob - Electrical Engineering Stack Exchange, accessed December 23, 2025, https://electronics.stackexchange.com/questions/545674/determining-the-transmit-frequency-of-a-key-fob
+18. Remote Keyless Entry Systems Overview - Analog Devices, accessed December 23, 2025, https://www.analog.com/en/resources/app-notes/remote-keyless-entry-systems-overview.html
+19. KEYECU 315MHz ID48 Chip For Volkswagen VW Passat 2006-2013 CC 2009 2010 2011 2012 2013 2014 2015 NBG009066T Smart Remote Key Fob - AliExpress, accessed December 23, 2025, https://www.aliexpress.com/item/1005009842400739.html
+20. Knowledge On Vag Hu66 | PDF | Volkswagen Group | Chevrolet Silverado - Scribd, accessed December 23, 2025, https://www.scribd.com/document/541187331/Knowledge-on-Vag-Hu66
+21. How to Identify HU66 Gen 1, 2 and 3 Locks, accessed December 23, 2025, https://www.locksmithmag.com/news/identify-hu66-gen-1-2-3-locks/
+22. ORIGINAL LISHI HU66 VAG VW AUDI PORSCHE TWIN LIFTER 2-IN-1 PICK DECODER IGNITION, DOOR, TRUNK – CarandTruckRemotes, accessed December 23, 2025, https://www.carandtruckremotes.com/products/original-lishi-hu66-vw-audi-porsche-twin-lifter-2-in-1-pick-decoder-ignition-door-trunk
+23. Lishi Tools Versions: Differences Among V.1, V.2, V.3, accessed December 23, 2025, https://www.classiclishi.com/lishi-tools-versions
+24. Lishi lock Pick car key Decoder 2-in-1 HU66 V3, accessed December 23, 2025, https://www.tlkeys.com/products/Lishi-lock-Pick-car-key-Decoder-2-in-1-HU66-V3-34479
+25. ID48 T6 Key Transponder Chip Immobilizer For VW Beetle Bora/Fox Golf Passat Polo | eBay, accessed December 23, 2025, https://www.ebay.com/itm/175875363064
+26. Volkswagen Transponder Key for 2001 Volkswagen Beetle - Car Keys Express, accessed December 23, 2025, https://store.carkeysexpress.com/keys-and-remotes/Volkswagen/Beetle/2001/1000402-volkswagen-transponder-key
+27. Immobilizer Systems: Self-Study Program 890293 | PDF | Ignition System | Switch - Scribd, accessed December 23, 2025, https://www.scribd.com/document/116035374/vag-immo
+28. Instrument Cluster Upgrade, WILL IT WORK? | VW Golf/Jetta Mk5 - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=qcQ3hw5nLmQ
+29. Immobilizer System Adaptation - Immo / WFS Version 4-1033 - SpeedoSolutions, accessed December 23, 2025, https://www.speedosolutions.com/Immobilizer-System-Adaptation--Immo-WFS-Version-4_p_45.html
+30. Volkswagen Passat B6 ADD KEY using XHORSE KEYTOOL PLUS - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=HClzQ-u4yeU
+31. 2 For 2011 2012 2013 2014 2015 2016 VW Jetta Passat Beetle Remote Key Fob 315Mhz, accessed December 23, 2025, https://www.ebay.com/itm/205739551132

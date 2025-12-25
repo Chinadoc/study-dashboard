@@ -1,0 +1,625 @@
+{
+  "total_docs_processed": 36,
+  "docs_with_images": 32,
+  "total_images_uploaded": 103,
+  "images": [
+    {
+      "source_doc": "VIN-Coded_Key_Requirements_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VIN_Coded_Key_Requirements_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VIN_Coded_Key_Requirements_Research_image1.png"
+    },
+    {
+      "source_doc": "VIN-Coded_Key_Requirements_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VIN_Coded_Key_Requirements_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VIN_Coded_Key_Requirements_Research_image2.png"
+    },
+    {
+      "source_doc": "VIN-Coded_Key_Requirements_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VIN_Coded_Key_Requirements_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VIN_Coded_Key_Requirements_Research_image3.png"
+    },
+    {
+      "source_doc": "Subaru_Security_Gateway___Key_Programming",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Subaru_Security_Gateway___Key_Programming_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Subaru_Security_Gateway___Key_Programming_image1.png"
+    },
+    {
+      "source_doc": "Subaru_Security_Gateway___Key_Programming",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Subaru_Security_Gateway___Key_Programming_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Subaru_Security_Gateway___Key_Programming_image2.png"
+    },
+    {
+      "source_doc": "Porsche_Security___Immobilizer_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Porsche_Security___Immobilizer_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Porsche_Security___Immobilizer_Research_image1.png"
+    },
+    {
+      "source_doc": "Porsche_Security___Immobilizer_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Porsche_Security___Immobilizer_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Porsche_Security___Immobilizer_Research_image2.png"
+    },
+    {
+      "source_doc": "Porsche_Security___Immobilizer_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Porsche_Security___Immobilizer_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Porsche_Security___Immobilizer_Research_image3.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image1.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image2.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image3.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image1.png"
+    },
+    {
+      "source_doc": "Asian_Pre-2005_Key_Support",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Asian_Pre_2005_Key_Support_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Asian_Pre_2005_Key_Support_image1.png"
+    },
+    {
+      "source_doc": "Asian_Pre-2005_Key_Support",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Asian_Pre_2005_Key_Support_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Asian_Pre_2005_Key_Support_image2.png"
+    },
+    {
+      "source_doc": "Asian_Pre-2005_Key_Support",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Asian_Pre_2005_Key_Support_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Asian_Pre_2005_Key_Support_image3.png"
+    },
+    {
+      "source_doc": "Early_GM_Chrysler_AKL_Coverage",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Early_GM_Chrysler_AKL_Coverage_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Early_GM_Chrysler_AKL_Coverage_image1.png"
+    },
+    {
+      "source_doc": "Early_GM_Chrysler_AKL_Coverage",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Early_GM_Chrysler_AKL_Coverage_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Early_GM_Chrysler_AKL_Coverage_image2.png"
+    },
+    {
+      "source_doc": "Early_GM_Chrysler_AKL_Coverage",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Early_GM_Chrysler_AKL_Coverage_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Early_GM_Chrysler_AKL_Coverage_image3.png"
+    },
+    {
+      "source_doc": "European_Luxury_Key_Programming_Gap",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/European_Luxury_Key_Programming_Gap_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/European_Luxury_Key_Programming_Gap_image1.png"
+    },
+    {
+      "source_doc": "European_Luxury_Key_Programming_Gap",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/European_Luxury_Key_Programming_Gap_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/European_Luxury_Key_Programming_Gap_image2.png"
+    },
+    {
+      "source_doc": "Mercedes_FBS4_Forensic_Identification_Research",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image4.png"
+    },
+    {
+      "source_doc": "Mercedes_FBS4_Forensic_Identification_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image1.png"
+    },
+    {
+      "source_doc": "Mercedes_FBS4_Forensic_Identification_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image2.png"
+    },
+    {
+      "source_doc": "Mercedes_FBS4_Forensic_Identification_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Mercedes_FBS4_Forensic_Identification_Research_image3.png"
+    },
+    {
+      "source_doc": "Honda_BSI_Key_Programming_Challenges",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Honda_BSI_Key_Programming_Challenges_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Honda_BSI_Key_Programming_Challenges_image4.png"
+    },
+    {
+      "source_doc": "Honda_BSI_Key_Programming_Challenges",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Honda_BSI_Key_Programming_Challenges_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Honda_BSI_Key_Programming_Challenges_image1.png"
+    },
+    {
+      "source_doc": "Honda_BSI_Key_Programming_Challenges",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Honda_BSI_Key_Programming_Challenges_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Honda_BSI_Key_Programming_Challenges_image2.png"
+    },
+    {
+      "source_doc": "Honda_BSI_Key_Programming_Challenges",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Honda_BSI_Key_Programming_Challenges_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Honda_BSI_Key_Programming_Challenges_image3.png"
+    },
+    {
+      "source_doc": "Nissan_Gateway_Bypass_Research_Goals",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image4.png"
+    },
+    {
+      "source_doc": "Nissan_Gateway_Bypass_Research_Goals",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image1.png"
+    },
+    {
+      "source_doc": "Nissan_Gateway_Bypass_Research_Goals",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image2.png"
+    },
+    {
+      "source_doc": "Nissan_Gateway_Bypass_Research_Goals",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Nissan_Gateway_Bypass_Research_Goals_image3.png"
+    },
+    {
+      "source_doc": "VAG_MQB_vs__MQB-Evo_Key_Programming",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image4.png"
+    },
+    {
+      "source_doc": "VAG_MQB_vs__MQB-Evo_Key_Programming",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image1.png"
+    },
+    {
+      "source_doc": "VAG_MQB_vs__MQB-Evo_Key_Programming",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image2.png"
+    },
+    {
+      "source_doc": "VAG_MQB_vs__MQB-Evo_Key_Programming",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VAG_MQB_vs__MQB_Evo_Key_Programming_image3.png"
+    },
+    {
+      "source_doc": "GM_Global_B_Key_Programming_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/GM_Global_B_Key_Programming_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/GM_Global_B_Key_Programming_Research_image1.png"
+    },
+    {
+      "source_doc": "GM_Global_B_Key_Programming_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/GM_Global_B_Key_Programming_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/GM_Global_B_Key_Programming_Research_image2.png"
+    },
+    {
+      "source_doc": "GM_Global_B_Key_Programming_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/GM_Global_B_Key_Programming_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/GM_Global_B_Key_Programming_Research_image3.png"
+    },
+    {
+      "source_doc": "Ford_BCM_Security_Bypass_Research",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Ford_BCM_Security_Bypass_Research_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Ford_BCM_Security_Bypass_Research_image4.png"
+    },
+    {
+      "source_doc": "Ford_BCM_Security_Bypass_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Ford_BCM_Security_Bypass_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Ford_BCM_Security_Bypass_Research_image1.png"
+    },
+    {
+      "source_doc": "Ford_BCM_Security_Bypass_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Ford_BCM_Security_Bypass_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Ford_BCM_Security_Bypass_Research_image2.png"
+    },
+    {
+      "source_doc": "Ford_BCM_Security_Bypass_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Ford_BCM_Security_Bypass_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Ford_BCM_Security_Bypass_Research_image3.png"
+    },
+    {
+      "source_doc": "Toyota_Key_Chip_and_Immobilizer_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Toyota_Key_Chip_and_Immobilizer_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Toyota_Key_Chip_and_Immobilizer_Research_image1.png"
+    },
+    {
+      "source_doc": "Kia_Hyundai_Security_Update_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Kia_Hyundai_Security_Update_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Kia_Hyundai_Security_Update_Research_image1.png"
+    },
+    {
+      "source_doc": "Kia_Hyundai_Security_Update_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Kia_Hyundai_Security_Update_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Kia_Hyundai_Security_Update_Research_image2.png"
+    },
+    {
+      "source_doc": "Kia_Hyundai_Security_Update_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Kia_Hyundai_Security_Update_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Kia_Hyundai_Security_Update_Research_image3.png"
+    },
+    {
+      "source_doc": "BMW_CAS_vs_FEM_BDC_Architecture_Research",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image4.png"
+    },
+    {
+      "source_doc": "BMW_CAS_vs_FEM_BDC_Architecture_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image1.png"
+    },
+    {
+      "source_doc": "BMW_CAS_vs_FEM_BDC_Architecture_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image2.png"
+    },
+    {
+      "source_doc": "BMW_CAS_vs_FEM_BDC_Architecture_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/BMW_CAS_vs_FEM_BDC_Architecture_Research_image3.png"
+    },
+    {
+      "source_doc": "Stellantis_FCC_ID_VIN_Pre-coding_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Stellantis_FCC_ID_VIN_Pre_coding_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_FCC_ID_VIN_Pre_coding_Research_image1.png"
+    },
+    {
+      "source_doc": "Stellantis_FCC_ID_VIN_Pre-coding_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Stellantis_FCC_ID_VIN_Pre_coding_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_FCC_ID_VIN_Pre_coding_Research_image2.png"
+    },
+    {
+      "source_doc": "Stellantis_FCC_ID_VIN_Pre-coding_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Stellantis_FCC_ID_VIN_Pre_coding_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_FCC_ID_VIN_Pre_coding_Research_image3.png"
+    },
+    {
+      "source_doc": "Verifying_Jeep_Compass_Smart_Keys_by_VIN",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image4.png"
+    },
+    {
+      "source_doc": "Verifying_Jeep_Compass_Smart_Keys_by_VIN",
+      "original_file": "image5.png",
+      "r2_key": "gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image5.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image5.png"
+    },
+    {
+      "source_doc": "Verifying_Jeep_Compass_Smart_Keys_by_VIN",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image1.png"
+    },
+    {
+      "source_doc": "Verifying_Jeep_Compass_Smart_Keys_by_VIN",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image2.png"
+    },
+    {
+      "source_doc": "Verifying_Jeep_Compass_Smart_Keys_by_VIN",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Verifying_Jeep_Compass_Smart_Keys_by_VIN_image3.png"
+    },
+    {
+      "source_doc": "Jeep_Renegade_Hornet_Key_Programming_Issue",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Jeep_Renegade_Hornet_Key_Programming_Issue_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Jeep_Renegade_Hornet_Key_Programming_Issue_image1.png"
+    },
+    {
+      "source_doc": "Jeep_Renegade_Hornet_Key_Programming_Issue",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Jeep_Renegade_Hornet_Key_Programming_Issue_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Jeep_Renegade_Hornet_Key_Programming_Issue_image2.png"
+    },
+    {
+      "source_doc": "Jeep_Renegade_Hornet_Key_Programming_Issue",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Jeep_Renegade_Hornet_Key_Programming_Issue_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Jeep_Renegade_Hornet_Key_Programming_Issue_image3.png"
+    },
+    {
+      "source_doc": "Stellantis_Key_FCC_ID_VIN_Mapping",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image4.png"
+    },
+    {
+      "source_doc": "Stellantis_Key_FCC_ID_VIN_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image1.png"
+    },
+    {
+      "source_doc": "Stellantis_Key_FCC_ID_VIN_Mapping",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image2.png"
+    },
+    {
+      "source_doc": "Stellantis_Key_FCC_ID_VIN_Mapping",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Stellantis_Key_FCC_ID_VIN_Mapping_image3.png"
+    },
+    {
+      "source_doc": "Automotive_Key_Programming_Database_Research",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Automotive_Key_Programming_Database_Research_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Automotive_Key_Programming_Database_Research_image1.png"
+    },
+    {
+      "source_doc": "Automotive_Key_Programming_Database_Research",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Automotive_Key_Programming_Database_Research_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Automotive_Key_Programming_Database_Research_image2.png"
+    },
+    {
+      "source_doc": "Automotive_Key_Programming_Database_Research",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Automotive_Key_Programming_Database_Research_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Automotive_Key_Programming_Database_Research_image3.png"
+    },
+    {
+      "source_doc": "Aftermarket_Access__VAG_SFD2__BMW_iDrive",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image4.png"
+    },
+    {
+      "source_doc": "Aftermarket_Access__VAG_SFD2__BMW_iDrive",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image1.png"
+    },
+    {
+      "source_doc": "Aftermarket_Access__VAG_SFD2__BMW_iDrive",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image2.png"
+    },
+    {
+      "source_doc": "Aftermarket_Access__VAG_SFD2__BMW_iDrive",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Aftermarket_Access__VAG_SFD2__BMW_iDrive_image3.png"
+    },
+    {
+      "source_doc": "Universal_Remote_Key_Cross-Reference",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Universal_Remote_Key_Cross_Reference_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Universal_Remote_Key_Cross_Reference_image4.png"
+    },
+    {
+      "source_doc": "Universal_Remote_Key_Cross-Reference",
+      "original_file": "image5.png",
+      "r2_key": "gdrive_images/Universal_Remote_Key_Cross_Reference_image5.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Universal_Remote_Key_Cross_Reference_image5.png"
+    },
+    {
+      "source_doc": "Universal_Remote_Key_Cross-Reference",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Universal_Remote_Key_Cross_Reference_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Universal_Remote_Key_Cross_Reference_image1.png"
+    },
+    {
+      "source_doc": "Universal_Remote_Key_Cross-Reference",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Universal_Remote_Key_Cross_Reference_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Universal_Remote_Key_Cross_Reference_image2.png"
+    },
+    {
+      "source_doc": "Universal_Remote_Key_Cross-Reference",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Universal_Remote_Key_Cross_Reference_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Universal_Remote_Key_Cross_Reference_image3.png"
+    },
+    {
+      "source_doc": "Automotive_Key_System_Specifications_Database",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Automotive_Key_System_Specifications_Database_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Automotive_Key_System_Specifications_Database_image1.png"
+    },
+    {
+      "source_doc": "Automotive_Key_System_Specifications_Database",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Automotive_Key_System_Specifications_Database_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Automotive_Key_System_Specifications_Database_image2.png"
+    },
+    {
+      "source_doc": "Automotive_Key_System_Specifications_Database",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Automotive_Key_System_Specifications_Database_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Automotive_Key_System_Specifications_Database_image3.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image1.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image2.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image3.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image1.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image2.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image3.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image1.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image2.png"
+    },
+    {
+      "source_doc": "VW_Jetta_Passat_FCC_ID_Mapping",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Jetta_Passat_FCC_ID_Mapping_image3.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image1.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image2.png"
+    },
+    {
+      "source_doc": "VW_Immobilizer_Specs_and_Lishi_Mapping",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/VW_Immobilizer_Specs_and_Lishi_Mapping_image3.png"
+    },
+    {
+      "source_doc": "Vehicle_SGW_Access_and_Key_Programming",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Vehicle_SGW_Access_and_Key_Programming_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Vehicle_SGW_Access_and_Key_Programming_image1.png"
+    },
+    {
+      "source_doc": "Vehicle_SGW_Access_and_Key_Programming",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Vehicle_SGW_Access_and_Key_Programming_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Vehicle_SGW_Access_and_Key_Programming_image2.png"
+    },
+    {
+      "source_doc": "Vehicle_SGW_Access_and_Key_Programming",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Vehicle_SGW_Access_and_Key_Programming_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Vehicle_SGW_Access_and_Key_Programming_image3.png"
+    },
+    {
+      "source_doc": "Toyota_Lexus_Smart_Key_Reset_Procedures",
+      "original_file": "image4.png",
+      "r2_key": "gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image4.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image4.png"
+    },
+    {
+      "source_doc": "Toyota_Lexus_Smart_Key_Reset_Procedures",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image1.png"
+    },
+    {
+      "source_doc": "Toyota_Lexus_Smart_Key_Reset_Procedures",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image2.png"
+    },
+    {
+      "source_doc": "Toyota_Lexus_Smart_Key_Reset_Procedures",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Toyota_Lexus_Smart_Key_Reset_Procedures_image3.png"
+    },
+    {
+      "source_doc": "Key_Fob_Research_Mapping_Project",
+      "original_file": "image1.png",
+      "r2_key": "gdrive_images/Key_Fob_Research_Mapping_Project_image1.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Key_Fob_Research_Mapping_Project_image1.png"
+    },
+    {
+      "source_doc": "Key_Fob_Research_Mapping_Project",
+      "original_file": "image2.png",
+      "r2_key": "gdrive_images/Key_Fob_Research_Mapping_Project_image2.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Key_Fob_Research_Mapping_Project_image2.png"
+    },
+    {
+      "source_doc": "Key_Fob_Research_Mapping_Project",
+      "original_file": "image3.png",
+      "r2_key": "gdrive_images/Key_Fob_Research_Mapping_Project_image3.png",
+      "r2_url": "https://pub-e3b3f79a74de46a0b29e9c50e11e8a4b.r2.dev/gdrive_images/Key_Fob_Research_Mapping_Project_image3.png"
+    }
+  ]
+}

@@ -1,0 +1,532 @@
+{
+    "id": "porsche-complete-guide",
+    "title": "Porsche PIWIS & Immobilizer Architecture Guide",
+    "make": "Porsche",
+    "year_start": 2005,
+    "year_end": 2025,
+    "difficulty": "Expert",
+    "estimated_time": "Varies by era (30 min to Dealer-Only)",
+    "last_updated": "2025-12-23",
+    "modules": [
+        {
+            "type": "warning_banner",
+            "id": "porsche-vag-divergence",
+            "level": "critical",
+            "content": "PORSCHE ≠ STANDARD VAG: Despite sharing Volkswagen Group hardware (BCM2, KESSY modules), Porsche firmware creates a 'walled garden' that rejects standard VAG diagnostic procedures. A Macan BCM2 may physically have Audi part numbers but ONLY works with PIWIS. ODIS/VCDS will be rejected at the Gateway."
+        },
+        {
+            "type": "reference_table",
+            "id": "porsche-security-eras",
+            "title": "Porsche Security Architecture Timeline",
+            "headers": [
+                "Era",
+                "Years",
+                "System",
+                "Transponder",
+                "PIWIS Required?",
+                "Aftermarket AKL?"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "PAS Era",
+                        "2005-2010",
+                        "Porsche Access System",
+                        "ID48 (Megamos)",
+                        "PIWIS II",
+                        "Bench possible (EEPROM)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "BCM2 Era",
+                        "2010-2017",
+                        "BCM2 + Component Protection",
+                        "ID49 (Hitag Pro)",
+                        "PIWIS II/III + PPN",
+                        "Bench with voltage glitch"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "MLB Evo Era",
+                        "2018-2025",
+                        "Connect Gateway + AES-128",
+                        "NCF29A1 (Hitag AES)",
+                        "PIWIS III/4 + PPN Online",
+                        "DEALER ONLY"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "porsche-dual-platform",
+            "level": "important",
+            "content": "DUAL PLATFORM LEGACY (2005-2010): Sports cars (911/997, Boxster/Cayman 987) used proprietary PAS (Porsche Access System). SUVs (Cayenne 9PA) used VAG-derived KESSY from Touareg/Q7. These platforms have COMPLETELY different security architectures and repair procedures."
+        },
+        {
+            "type": "reference_table",
+            "id": "porsche-model-platform",
+            "title": "Model-Platform-Architecture Mapping",
+            "headers": [
+                "Model",
+                "Type",
+                "Years",
+                "Platform Base",
+                "Security System"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "911 (996/997)",
+                        "Sports",
+                        "1999-2011",
+                        "Porsche Native",
+                        "PAS (ID48)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "911 (991)",
+                        "Sports",
+                        "2012-2019",
+                        "BCM2",
+                        "BCM2 + ID49"
+                    ]
+                },
+                {
+                    "cells": [
+                        "911 (992)",
+                        "Sports",
+                        "2019-2025",
+                        "MLB Evo",
+                        "AES-128 (LOCKED)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Boxster/Cayman (986/987)",
+                        "Sports",
+                        "1997-2012",
+                        "Porsche Native",
+                        "PAS (ID48)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "718 Boxster/Cayman (982)",
+                        "Sports",
+                        "2016-2025",
+                        "BCM2 / MLB Evo",
+                        "ID49 → AES-128"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cayenne (9PA)",
+                        "SUV",
+                        "2003-2010",
+                        "VW Touareg (7L)",
+                        "KESSY + ID46"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cayenne (958/92A)",
+                        "SUV",
+                        "2011-2017",
+                        "Audi Q7 (4L)",
+                        "BCM2 + ID49"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cayenne (9YA)",
+                        "SUV",
+                        "2018-2025",
+                        "MLB Evo",
+                        "AES-128 (LOCKED)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Macan (95B)",
+                        "SUV",
+                        "2014-2024",
+                        "Audi Q5 (MLB)",
+                        "BCM2 + ID49 (ELV!)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Panamera (970)",
+                        "Sedan",
+                        "2010-2016",
+                        "BCM2",
+                        "BCM2 + ID49"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Panamera (971)",
+                        "Sedan",
+                        "2017-2025",
+                        "MLB Evo",
+                        "AES-128 (LOCKED)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Taycan",
+                        "EV",
+                        "2020-2025",
+                        "J1 Platform",
+                        "AES-128 + UWB (LOCKED)"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "porsche-macan-trap",
+            "level": "critical",
+            "content": "MACAN (95B) TRAP: The Macan BCM2 often has AUDI part numbers (8K0 907 064 series) on the PCB but uses Porsche firmware. You CANNOT use an Audi Q5 BCM2 or authorize via ODIS. The 'Power Class' bytes differ between Audi and Porsche - wrong mapping = 'Power Class Mismatch' error and no start."
+        },
+        {
+            "type": "warning_banner",
+            "id": "porsche-elv-nightmare",
+            "level": "critical",
+            "content": "MACAN ELV DESYNC NIGHTMARE: The BCM2 and ELV (Electronic Steering Lock) maintain rolling code counters. If BCM2 data is read incorrectly or an old dump file is written back, counters MISMATCH. Result: 'Steering Lock Defective' - car will NOT crank. Recovery requires virgin ELV + PIWIS PPN online adaptation."
+        },
+        {
+            "type": "reference_table",
+            "id": "porsche-transponder-evolution",
+            "title": "Porsche Transponder Evolution",
+            "headers": [
+                "Era",
+                "Chip ID",
+                "Full Name",
+                "Encryption",
+                "Cloneable?"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "2005-2010",
+                        "ID48",
+                        "Megamos Crypto",
+                        "96-bit proprietary",
+                        "YES (sniff-calculate)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2003-2010 (Cayenne)",
+                        "ID46",
+                        "PCF7936 (Hitag 2)",
+                        "Hitag 2",
+                        "YES (shadow memory)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "2010-2017",
+                        "ID49",
+                        "PCF7953/PCF7945 (Hitag Pro)",
+                        "Hitag 3 / 128-bit",
+                        "Dealer Key only (CS bytes)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "2018-2025",
+                        "NCF29A1",
+                        "Hitag AES (SiP)",
+                        "AES-128",
+                        "NO (no public exploit)"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "porsche-dealer-key-concept",
+            "level": "important",
+            "content": "BCM2 ERA 'DEALER KEY' REQUIREMENT: Unlike older ID48 chips that could be cloned generically, ID49 keys MUST be prepared as 'Dealer Keys' using Component Security (CS) bytes extracted from the BCM2. A blank virgin key CANNOT be learned via OBD without pre-coding with vehicle-specific data."
+        },
+        {
+            "type": "reference_table",
+            "id": "porsche-piwis-versions",
+            "title": "PIWIS Tool Versions & Capabilities",
+            "headers": [
+                "Version",
+                "Era",
+                "OS",
+                "Coverage",
+                "Key Feature"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "PIWIS II",
+                        "2005-2017",
+                        "Windows XP",
+                        "996/997, 987, 9PA, early 991",
+                        "Largely offline, Samtec HSX"
+                    ]
+                },
+                {
+                    "cells": [
+                        "PIWIS III",
+                        "2017-2023",
+                        "Windows 8/10",
+                        "971, 9YA, 992, Taycan",
+                        "DoIP support, Actia PT3G VCI"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "PIWIS 4",
+                        "2024+",
+                        "Cloud-centric",
+                        "Macan EV, late 992",
+                        "Always-Online, cloud diagnostics"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "porsche-ppn-wall",
+            "level": "critical",
+            "content": "PPN (PORSCHE PARTNER NETWORK) WALL: All key teaching on 2010+ models requires online PPN authentication. The server validates module serial numbers against stolen vehicle databases. If serial is flagged (salvage, theft), adaptation is REJECTED and account may be flagged. Even 'E-Mode' (Engineering Mode) CANNOT bypass key teaching."
+        },
+        {
+            "type": "info_callout",
+            "id": "porsche-sfd-barrier",
+            "level": "warning",
+            "content": "SFD (Schutz Fahrzeug Diagnose) Layer: On MLB Evo models (2018+), coding and adaptations are locked by SFD. Unlocking requires a time-limited token (90 minutes) generated by PPN server. This kills offline coding for 992, Taycan, and 9YA Cayenne."
+        },
+        {
+            "type": "reference_table",
+            "id": "porsche-akl-feasibility",
+            "title": "All Keys Lost (AKL) Aftermarket Feasibility",
+            "headers": [
+                "Model/Era",
+                "OBD Possible?",
+                "Bench Possible?",
+                "Recommended Approach"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "997/987 (PAS)",
+                        "Dealer (IPAS codes)",
+                        "YES (EEPROM read)",
+                        "Bench: Read PAS EEPROM, extract CS, write ID48"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cayenne 9PA (KESSY)",
+                        "Dealer (Ford-era procedure)",
+                        "YES",
+                        "Similar to Touareg - bench KESSY"
+                    ]
+                },
+                {
+                    "cells": [
+                        "991/958/970 (BCM2 Early)",
+                        "NO (locked MCU)",
+                        "YES (voltage glitch)",
+                        "Yanhua ACDP / Xhorse: Glitch 1N35H MCU"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Macan 95B (BCM2)",
+                        "NO",
+                        "YES (high risk ELV)",
+                        "ACDP Module 10 + DME ISN extraction"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "992/9YA/971/Taycan (MLB Evo)",
+                        "NO",
+                        "NO (AES-128 encrypted)",
+                        "DEALER ONLY - Order pre-authorized key"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "porsche-bcm2-bench",
+            "title": "BCM2 Bench Procedure (2010-2018 Models)",
+            "estimated_time": "60-90 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "EXTRACTION: Physically remove BCM2 from vehicle (right rear luggage compartment on Cayenne/Panamera, under dash on Macan)."
+                },
+                {
+                    "number": 2,
+                    "text": "CONNECTION: Use solder-free adapter (Yanhua/Xhorse pogo pins) to connect to BCM2 debug ports. Avoid soldering if possible."
+                },
+                {
+                    "number": 3,
+                    "text": "EXPLOITATION: Tool performs voltage glitch attack to bypass MCU security bit (1N35H, 2N35H, 5M48H masks)."
+                },
+                {
+                    "number": 4,
+                    "text": "DATA DUMP: Read D-Flash (EEPROM) and P-Flash. Parse D-Flash for Component Security (CS) bytes."
+                },
+                {
+                    "number": 5,
+                    "text": "DEALER KEY GENERATION: Place blank ID49 key in tool coil. Write CS data to key transponder."
+                },
+                {
+                    "number": 6,
+                    "text": "OPTIONAL - P-Flash: May need to modify P-Flash to unlock OBD port for final learning step."
+                },
+                {
+                    "number": 7,
+                    "text": "REINSTALL: Reinstall BCM2. Connect via OBD. Command BCM2 to learn new key."
+                },
+                {
+                    "number": 8,
+                    "text": "MACAN ONLY: Verify ELV counter sync. If 'Steering Lock Defective' appears, ELV recovery required."
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "porsche-mg1-complication",
+            "level": "warning",
+            "content": "MG1/MD1 ISN COMPLICATION (Post-2019): BCM2 backup data may be incomplete. Must ALSO extract ISN (Individual Serial Number) from Bosch MG1 (Gasoline) or MD1 (Diesel) ECU via bench mode. ISN + BCM2 partial data = complete immobilizer block for dealer key generation."
+        },
+        {
+            "type": "reference_table",
+            "id": "porsche-fcc-mapping",
+            "title": "Porsche FCC ID / Frequency Reference",
+            "headers": [
+                "Model",
+                "Years",
+                "FCC ID",
+                "Frequency",
+                "Notes"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "997/987 (PAS)",
+                        "2005-2012",
+                        "KR55WK45022",
+                        "315 MHz (NA) / 433 MHz (ROW)",
+                        "Switchblade remote head key"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cayenne 9PA",
+                        "2003-2010",
+                        "KR55WK45022",
+                        "315 MHz / 433 MHz",
+                        "Similar to Touareg"
+                    ]
+                },
+                {
+                    "cells": [
+                        "991/958/970/95B (BCM2)",
+                        "2010-2017",
+                        "KR55WK50138",
+                        "315 MHz / 433 MHz",
+                        "4-button smart key"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "992/9YA/971 (MLB Evo)",
+                        "2018-2025",
+                        "IYZ-PK3",
+                        "315 MHz / 433 MHz",
+                        "AES-128 encrypted"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Taycan",
+                        "2020-2025",
+                        "IYZ-PK3 / UWB",
+                        "315/433 MHz + UWB",
+                        "Ultra-Wideband anti-relay"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "porsche-uwb-anti-relay",
+            "level": "important",
+            "content": "UWB (Ultra-Wideband) on Taycan/Late 992: Uses 'Time of Flight' distance measurement - car knows key is within centimeters of door handle. This defeats 'Relay Attacks' where thieves extend key signal range from inside house. Digital key via iPhone/Apple Watch also supported."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "porsche-aftermarket-tools",
+            "title": "Aftermarket Tool Capabilities",
+            "items": [
+                {
+                    "name": "Autel IM608 Pro + G-Box3",
+                    "required": false,
+                    "notes": "Add Key on older PAS/KESSY. Struggles with locked BCM2."
+                },
+                {
+                    "name": "Xhorse VVDI Key Tool Plus",
+                    "required": true,
+                    "notes": "BCM2 solder-free adapter set - safest for 1N35H reads. BCM2 data repair."
+                },
+                {
+                    "name": "Yanhua ACDP Mini + Module 10",
+                    "required": true,
+                    "notes": "Interface board approach for Porsche BCM. Voltage glitching. Best for Macan."
+                },
+                {
+                    "name": "MagicMotorSport Flex",
+                    "required": false,
+                    "notes": "MG1/MD1 ECU ISN extraction for post-2019 models"
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "porsche-2020-reality",
+            "level": "critical",
+            "content": "2020+ REALITY CHECK: For 992, Taycan, and 2018+ Cayenne/Panamera, aftermarket AKL is effectively DEAD. BCM2 encryption is uncracked, AES-128 has no public exploits. Only solution is dealer: order pre-authorized key from Germany (VIN-based), perform PIWIS Online 'handover' with PPN. Budget $1,000+ and multi-day wait."
+        },
+        {
+            "type": "info_callout",
+            "id": "porsche-water-damage",
+            "level": "warning",
+            "content": "987/997 WATER DAMAGE: The PAS module location under the seat makes it highly susceptible to water damage from clogged sunroof/convertible drains. If EEPROM data is corrupted, car is 'bricked' - DME is married to that specific PAS. Repair requires specialized transplant services (ECU Doctors)."
+        }
+    ]
+}

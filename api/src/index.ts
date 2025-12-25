@@ -251,7 +251,7 @@ export default {
     // 2.5 Google Token Verification (Popup/One-Tap Flow)
     if (path === "/api/auth/verify" && request.method === "POST") {
       try {
-        const { credential } = await request.json() as { credential?: string };
+        const { credential, visitor_id } = await request.json() as { credential?: string, visitor_id?: string };
         if (!credential) return corsResponse(request, "Missing credential", 400);
 
         // Verify with Google
@@ -273,12 +273,19 @@ export default {
         if (!existingUser) {
           const trialUntil = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days trial
           await env.LOCKSMITH_DB.prepare(
-            "INSERT INTO users (id, email, name, picture, created_at, trial_until) VALUES (?, ?, ?, ?, ?, ?)"
-          ).bind(userId, email, name, picture, Date.now(), trialUntil).run();
+            "INSERT INTO users (id, email, name, picture, created_at, trial_until, visitor_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
+          ).bind(userId, email, name, picture, Date.now(), trialUntil, visitor_id || null).run();
         } else {
-          await env.LOCKSMITH_DB.prepare(
-            "UPDATE users SET email = ?, name = ?, picture = ? WHERE id = ?"
-          ).bind(email, name, picture, userId).run();
+          // Update details + visitor_id if provided and not already set
+          if (visitor_id && !existingUser.visitor_id) {
+            await env.LOCKSMITH_DB.prepare(
+              "UPDATE users SET email = ?, name = ?, picture = ?, visitor_id = ? WHERE id = ?"
+            ).bind(email, name, picture, visitor_id, userId).run();
+          } else {
+            await env.LOCKSMITH_DB.prepare(
+              "UPDATE users SET email = ?, name = ?, picture = ? WHERE id = ?"
+            ).bind(email, name, picture, userId).run();
+          }
         }
 
         const user = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<any>();

@@ -102,6 +102,77 @@
             ]
         },
         {
+            "type": "warning_banner",
+            "id": "bmw-f25-exception",
+            "level": "critical",
+            "content": "F25 X3 EXCEPTION: The F25 X3 (2011-2017) uses CAS4, NOT FEM. The X5 (F15) uses BDC. They look the same, share the showroom, but have COMPLETELY DIFFERENT architectures. The F25 is electrically closer to the F10 5-Series (L6 platform), while the F15 X5 shares architecture with the G-Series."
+        },
+        {
+            "type": "reference_table",
+            "id": "bmw-architecture-matrix",
+            "title": "Architecture Identification Matrix (VIN Digits 4-7)",
+            "headers": [
+                "Chassis Code",
+                "Model",
+                "Years",
+                "Module Type",
+                "Location (LHD)"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "F10/F11",
+                        "5-Series",
+                        "2010-2016",
+                        "CAS4/CAS4+",
+                        "Under Dash (Driver)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "F25",
+                        "X3",
+                        "2011-2017",
+                        "CAS4/CAS4+",
+                        "Under Dash (Driver)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "F30/F31",
+                        "3-Series",
+                        "2012-2019",
+                        "FEM",
+                        "Kick Panel (Passenger)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "F15",
+                        "X5",
+                        "2014-2018",
+                        "BDC",
+                        "Kick Panel (Passenger)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "G20/G30/G01",
+                        "3/5/X3 Series",
+                        "2017-Present",
+                        "BDC2/BDC3",
+                        "Kick Panel (Passenger)"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "bmw-fcc-frequency-split",
+            "level": "important",
+            "content": "FCC ID Frequency Split (2014): YGOHUF5662 = 315 MHz (Legacy CAS4/early FEM). YGOHUF5767 = 434 MHz (Modern FEM/BDC). A 2014 F30 could be EITHER frequency depending on build date. Physical verification of the key or RF counter is required."
+        },
+        {
             "type": "reference_table",
             "id": "bmw-fcc-cross-reference",
             "title": "BMW FCC ID & Transponder Cross-Reference",

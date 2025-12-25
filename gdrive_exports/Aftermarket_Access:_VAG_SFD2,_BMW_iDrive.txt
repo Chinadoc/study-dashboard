@@ -1,0 +1,169 @@
+﻿The "Hard Stop" Frontier: Cybersecurity, Regulatory Compliance, and the End of Aftermarket Autonomy in 2025
+1. Introduction: The Paradigm Shift in Automotive Architecture
+The automotive industry is currently undergoing a structural transformation that is fundamentally altering the relationship between the vehicle, its owner, and the independent service ecosystem. For nearly three decades, the On-Board Diagnostics (OBD-II) port served as a standardized gateway, a digital handshake that allowed for a democratization of vehicle repair and customization. However, as the industry transitions into the 2025 model year, this era of open access is encountering a "Hard Stop." The introduction of advanced cryptographic security measures—specifically Volkswagen Group’s (VAG) SFD2 and BMW’s Secure Coding 2.0—marks the end of the "Wild West" of aftermarket coding.
+This report provides an exhaustive, granular analysis of this new frontier. It examines the technical mechanisms of these security layers, the regulatory pressures driving their adoption, and the specific operational status of aftermarket tools as of early 2025. The analysis reveals a bifurcated landscape where professional entities willing to engage in high-cost subscription models retain access, while the traditional "prosumer" and enthusiast markets face a near-total blackout on critical vehicle customization. The implications of this shift extend beyond mere inconvenience; they represent a fundamental reordering of the automotive economy, effectively converting vehicle configuration from a product attribute into a licensed service.
+1.1 The Regulatory Genesis: UNECE R155 and R156
+To understand the severity of the 2025 "Hard Stop," one must look beyond the immediate technical frustrations to the regulatory framework that necessitated these changes. The restrictions observed in 2024+ VAG and BMW models are not arbitrary anti-competitive measures but are, in fact, compliance strategies mandated by the United Nations Economic Commission for Europe (UNECE).
+
+
+  
+
+
+
+The core driver is UNECE Regulation No. 155 (Cybersecurity), which requires vehicle manufacturers to implement a certified Cybersecurity Management System (CSMS). This regulation posits that modern vehicles, which are essentially connected nodes in a larger digital network, must be protected from unauthorized access. Crucially, the regulation does not distinguish between a malicious hacker attempting to seize control of a steering rack and an enthusiast attempting to change the turn signal blink count. Both actions represent "unauthorized software modification".1 Consequently, manufacturers have adopted a "Zero Trust" architecture. Access is no longer granted based on possession of the physical vehicle or knowledge of a static protocol; it is granted based on digital identity verification against a central server.3
+Complementing this is UNECE Regulation No. 156 (Software Updates), which governs the Software Update Management System (SUMS). This regulation mandates that the vehicle's software configuration must remain consistent with its certified type approval. To ensure this, systems like BMW's Secure Coding 2.0 utilize real-time checksum validation. When a diagnostic tool attempts to modify a coding file, the vehicle verifies the file's digital signature against the OEM's backend records. If the signature is invalid—as it invariably is when created by an unauthorized third-party tool—the vehicle rejects the write request.5 This regulatory environment has created a scenario where the "Right to Repair" creates tension with the "Obligation to Secure," leaving the aftermarket in a precarious position.
+________________
+2. Deep Dive: Volkswagen Group (VAG) SFD2 Status (2024+)
+The Volkswagen Group has been at the forefront of this security transition. The introduction of the MQB Evo platform brought the first iteration of Vehicle Diagnostic Protection, known as SFD (Schutz Fahrzeug Diagnose). However, the 2024 and 2025 model years have introduced a significantly hardened iteration: SFD2. This system has severely disrupted the enthusiast tool market, rendering many previously capable devices obsolete for newer models.
+2.1 Technical Distinction: SFD vs. SFD2
+It is imperative to distinguish between the first and second generations of this protection, as confusion regarding compatibility remains rampant in enthusiast forums.3
+SFD (Generation 1) was introduced around 2020 on the initial MQB Evo vehicles (e.g., Mk8 Golf, Octavia IV, Audi A3 8Y). It replaced the traditional 5-digit security access login code with a token-based system.
+* Mechanism: To unlock a control unit, the diagnostic tool reads a challenge string from the module, sends it to a server (or uses an offline calculation if the algorithm is cracked), and receives a response token.
+* Current Status: This system has been effectively integrated into the aftermarket. Tools like OBDeleven, VCDS (via experimental or manual methods), and VCP can handle SFD1. OBDeleven, for instance, auto-unlocks SFD1 transparently for users, allowing for long coding and adaptations.7
+SFD2 (Generation 2), however, represents a quantum leap in restriction. It appeared in late 2023 and became standard on 2024+ builds, including the new Tiguan Mk3, Passat B9, ID.7, and the updated "B9.5" Audi models.
+* Mechanism: SFD2 employs "granular" locking mechanisms. It does not simply lock the module; it validates specific write operations against a "User Role." Furthermore, it reportedly utilizes a more aggressive "time-out" protocol and requires a rolling authentication key that links the specific diagnostic tool's serial number to a live VAG server session. This "online-only" requirement effectively breaks the functionality of offline tools or those relying on static database cracks.8
+* Current Status: As of early 2025, consumer-grade dongles are largely unable to bypass SFD2 for write operations. While they can still read diagnostic trouble codes (DTCs) and live data, they are blocked from performing adaptations, basic settings, or long coding.1
+2.2 Granular Tool Status for VAG SFD2
+The following analysis details the specific capabilities and limitations of major aftermarket tools when interacting with VAG SFD2-equipped vehicles.
+2.2.1 OBDeleven: The Licensed Limitations
+OBDeleven has long been the favored tool for VAG enthusiasts due to its "One-Click Apps" and mobile interface. However, its status as an officially licensed VAG partner has placed it in a difficult position regarding SFD2.
+* Status: Severely Restricted.
+* Technical Reality: On 2024+ models, OBDeleven can communicate with the main Gateway (J533) but is blocked from interacting with other critical control units for coding purposes.1 Users attempting to use "One-Click Apps" for popular modifications—such as enabling video in motion or adjusting lighting behavior—are met with failure messages because the app cannot authenticate the necessary write requests with the VAG server.10
+* The "Official" Stance: Support documentation explicitly states, "Under these new security measures, OBDeleven can only fully communicate with the car's main diagnostic part... we can't fully scan or interact with other control units".1 This admission highlights that being an "official" partner does not grant unlimited access; it merely grants the access VAG deems appropriate, which currently excludes customization.
+2.2.2 VCDS (Ross-Tech): The Offline Giant's Struggle
+VCDS remains the gold standard for deep diagnostics, but its offline-first architecture is a liability in the SFD2 era.
+* Status: Read-Only / Legacy Support.
+* Technical Reality: VCDS lacks a native, integrated link to the VAG GEKO/ODIS servers required to generate live SFD2 tokens. While it is technically possible to obtain a token from a third-party service and manually input it, this process is cumbersome, prone to error, and not officially supported by Ross-Tech for SFD2 contexts.6
+* Implication: For 2024+ vehicle owners, VCDS acts primarily as a high-quality code reader. Critical service functions, such as resetting the oil service interval or retracting electronic parking brakes, are increasingly failing if the Instrument Cluster (Module 17) or ABS modules are SFD2 protected.13
+2.2.3 Autel (MaxiSys / IM608): The Pay-to-Play Solution
+Autel has emerged as the pragmatic, albeit expensive, solution for independent workshops.
+* Status: Functional (Subscription Required).
+* Technical Reality: Through its "Total Care Program" (TCP) and specific licensing agreements, Autel tablets can unlock SFD and SFD2 contexts by connecting directly to VAG servers. The user must link their Autel account to the device and enable Two-Factor Authentication (Google Authenticator).15
+* Cost Structure: This capability is monetized. Access is sold either as a "Token Subscription" (approximately $120/year for unlimited access) or on a per-unlock basis ($15).17 This shift represents a major economic change for the industry: access is no longer a product feature but a recurring service.
+* Capabilities: Reports confirm that Autel tools can perform critical maintenance tasks like battery registration and electronic parking brake service on 2024+ models, capabilities that are currently blocked for DIY users with less sophisticated tools.19
+2.2.4 Thinkcar / Launch: The Gray Market Hybrid
+* Status: Partially Functional.
+* Technical Reality: Thinkcar and Launch utilize a similar model to Autel, offering an "SFD Gateway Access" license. However, user reports are mixed. While they claim broad support, specific 2025 models (e.g., Cupra Formentor, Audi Q8 e-tron GT) frequently present "Function Not Available" errors.8 This suggests that while they have a mechanism for token generation, their implementation may lag behind the newest encryption keys or server-side validation protocols used by VAG.
+
+
+  
+
+
+
+2.3 The Service Crisis: Electronic Parking Brakes (EPB)
+A tangible example of the "Hard Stop" impacting routine maintenance is the rear brake service on the 2024/2025 VW Tiguan and Golf 8.5. This scenario illustrates how security protocols designed to prevent hacking are inadvertently blocking basic mechanical repairs.
+To replace rear brake pads, the Electronic Parking Brake (EPB) pistons must be retracted via a software command sent to the ABS/Brake control module. On previous generations, this was a trivial task for any basic scan tool. However, on 2024+ models, the ABS module is often protected by SFD2.
+* The Failure Mode: When a user with a standard tool (like OBDeleven or an older VCDS interface) attempts to initiate the "Start Lining Change Mode" basic setting, the vehicle rejects the command.22
+* The DIY Consequence: Owners and independent mechanics without access to high-end, authenticated tools are forced to resort to risky physical workarounds. This involves removing the EPB motor from the caliper and manually winding the piston back—a procedure that carries a high risk of damaging the caliper or the motor mechanism.24
+* The Professional Solution: Workshops equipped with Autel or ODIS tools can authenticate with the VAG server, obtain the necessary token, and perform the retraction legally and safely. This dichotomy creates a significant barrier to entry for DIY maintenance and forces owners back to the dealership or specialized shops.
+________________
+3. Deep Dive: BMW iDrive 8/9 & Secure Coding 2.0
+While VAG's SFD2 acts as a gatekeeper, BMW’s Secure Coding 2.0 acts as a strict validator of data integrity. This system, applied primarily to vehicles running iDrive 8.5 (MGU 22) and iDrive 9 (Android Automotive based), creates a more profound block on customization by fundamentally changing the format of the coding data.
+3.1 The Architecture of Silence: Signed NCD Files
+In the "F" and "G" chassis eras (running iDrive 6 and 7), vehicle coding involved reading a configuration file (NCD), modifying parameters locally on a laptop (e.g., changing 3_TIMES_BLINK to 5_TIMES_BLINK), and uploading the modified file back to the car.
+* The New Mechanism: Secure Coding 2.0 introduces a requirement for digital signatures. The vehicle's ECU now demands that any NCD file written to it must be cryptographically signed by a BMW server.
+* The Validation Loop: When a diagnostic tool requests a coding change, the vehicle generates a request token. This token must be transmitted to BMW's backend, which calculates the valid NCD file based on the specific Vehicle Order (FA) and signs it. The signed file is then returned to the car.
+* The "Hard Stop": If an aftermarket tool attempts to modify a parameter locally—effectively injecting a custom coding string—the signature becomes invalid. The vehicle's Gateway performs a real-time checksum validation and rejects the file because it does not match the OEM’s server-side record. Since aftermarket tools do not possess BMW's private encryption key, they cannot generate a valid signature for a modified file.5
+3.2 Granular Module Status: The "Big 5" Lockdown
+The lockdown is not uniform across the entire vehicle network; it is module-specific. However, BMW has strategically secured the modules most coveted by enthusiasts for customization.
+
+
+  
+
+
+
+3.2.1 The Locked Modules (Secure Coding 2.0 Active)
+* HU_MGU (Head Unit): This module controls the infotainment experience and is the primary target for coding features like Video in Motion, startup animations, and legal disclaimer removal. Status: LOCKED. No aftermarket tool—including BimmerCode, BimmerUtility, or E-Sys—can currently FDL code the iDrive 8.5/9 Head Unit. The "signature check" prevents any modification to the display parameters.27
+* DKOMBI8 (Instrument Cluster): Customization of the digital gauge cluster, such as enabling the "M-Sport" layout on non-M cars or changing the speedometer scale, is blocked.
+* DME/DDE (Engine Electronics): While ECU tuning (flashing) faces its own encryption battles requiring bench unlocks, coding features within the DME are also secured. For example, "Auto Start/Stop Memory"—a highly requested feature that remembers the driver's last preference—is often disabled in the coding data and cannot be reactivated via simple FDL coding on the newest firmware versions.30
+3.2.2 The Partially Accessible Modules
+* BDC (Body Domain Controller): As of early 2025, the BDC in many "LCI" (Life Cycle Impulse) models is not yet fully under the Secure Coding 2.0 umbrella, or it utilizes a signing version that tools can still manage. Consequently, users can still access features like ambient lighting color customization, seat belt reminder deactivation, and window roll-up behavior.27
+* RAM (Receiver Audio Module): Access to audio settings is inconsistent. While some users report success in coding off Active Sound Design (ASD) on iDrive 8.5, others find the module inaccessible or the changes reverted upon restart.31
+3.3 The "VO Coding" Workaround
+Despite the lockdown on FDL Coding (Function Data Library coding, which changes individual parameters), VO Coding (Vehicle Order coding) remains a viable, albeit risky, backdoor for specific features.
+The mechanism relies on the fact that dealers must be able to retrofit equipment or re-flash a car's software. This process depends on the FA (Fahrzeugauftrag - Vehicle Order). If a user modifies the FA—for example, by adding the option code 8TN (Daytime Running Lights Menu)—and then instructs the car to "Code" the module to match this new FA, the BMW server may sign the resulting file because it recognizes a valid (though modified) Vehicle Order.28
+However, this method is fraught with risk. It essentially involves modifying the vehicle's "DNA." If the vehicle is later connected to ISTA (BMW's official dealer diagnostic software), the system may flag a mismatch between the car's local FA and the FA stored on BMW's central server. This "Vehicle Order Mismatch" can lead to warranty inquiries or "red flags" in the vehicle's history file.33 Furthermore, VO Coding is a "nuclear" option—it resets all custom FDL settings in that module to the factory default associated with the new Vehicle Order. Despite these risks, users have successfully employed this method to enable "Anti-Dazzle" headlights (by removing the US-restriction code 5AP) on iDrive 8.5 vehicles where FDL coding failed.28
+3.4 Tool Status for BMW
+* BimmerCode:
+   * Status: Crippled on iDrive 8.5/9.
+   * Capabilities: The app explicitly lists "Headunit" modules as inaccessible for these platforms. Its functionality is largely restricted to BDC functions, leaving the vast majority of popular coding options unavailable.27
+* BimmerUtility:
+   * Status: Pivot to VO Coding.
+   * Capabilities: Recognizing the FDL lockdown, BimmerUtility has pivoted its marketing towards its ability to edit the FA (Vehicle Order) on mobile devices. This allows users to attempt the VO coding workaround. However, the company includes a prominent disclaimer stating that "secure coding 2.0 control units are not accessible for FDL... coding from any tool".34
+* E-Sys / E-Sys Ultra:
+   * Status: Backend Access Required.
+   * Capabilities: Standard E-Sys is incapable of signing NCD 2.0 files. Advanced launcher developers are attempting to find exploits, but as of 2025, no public "keygen" for NCD 2.0 exists. Solutions often rely on "online" services that likely piggyback on legitimate dealer credentials to sign files—a precarious and legally gray method.26
+________________
+4. The Aftermarket Tool Landscape: Economic & Operational Shifts
+The "Hard Stop" has precipitated a fundamental reshaping of the aftermarket tool hierarchy. The traditional low-cost, high-volume business model—selling a $50 hardware dongle paired with a free or cheap app—is collapsing. The recurring costs associated with maintaining server access, purchasing SFD tokens, and developing cloud-based authentication bridges cannot be sustained without a subscription-based revenue stream.
+4.1 The Shift to Subscription Economics
+Independent repair shops and serious enthusiasts can no longer expect a one-time purchase tool to function indefinitely. The industry is moving rapidly toward a "Software as a Service" (SaaS) model.
+* Autel's Hegemony: Autel has effectively cornered the independent shop market by seamlessly integrating the "Token" purchase system directly into their tablet interface. The cost is significant—approximately $120 per year for unlimited access or $50 per brand per year for gateway access—but it is a necessary operational expense that shops simply pass on to the customer.17
+* The "Prosumer" Squeeze: Enthusiasts who previously invested in tools like OBDeleven ($100 hardware) are finding themselves in a value trap. They often require a "Pro" or "Ultimate" subscription to access advanced features, yet on 2025 models, the functionality of these subscriptions is lower than it was on 2020 models due to SFD2 blocks. This eroding value proposition is causing significant friction in the enthusiast community.37
+
+
+  
+
+
+
+4.2 The Rise of the "Remote Coding" Gray Market
+As direct tool access becomes more difficult, a secondary market for "Remote Coding" is expanding. In this model, the vehicle owner connects a laptop and an ENET cable to the car, and a remote technician—often located in a region with looser IP regulations or possessing "leased" dealer credentials—connects via a bridge application. The technician performs the coding using their verified access, effectively bypassing the local tool limitations. This shifts vehicle coding from being a "product" (an app the user buys) to a "service" (a remote session the user pays for).26
+________________
+5. Practical "Real World" Scenarios (2025 Status)
+To fully appreciate the impact of these changes, it is useful to examine specific, common scenarios that vehicle owners are encountering today.
+5.1 Case Study: 2025 VW Tiguan Rear Brake Job
+* The Scenario: A vehicle owner wishes to replace the rear brake pads on their 2025 VW Tiguan.
+* Legacy Method: The owner would plug in a VCDS cable, open Module 03 (ABS), and select the "Start Lining Change Mode" basic setting. The electric parking brake pistons would retract, allowing for the pad swap.
+* 2025 Reality: The VCDS tool connects but displays "Function Not Available" or demands an SFD2 token that the tool cannot generate. The piston remains extended, and the physical pad replacement is impossible.
+* The Resolution: The owner is faced with three choices:
+   1. Invest over $500 in an Autel tool and a subscription.
+   2. Visit a professional shop and pay for labor.
+   3. Attempt to physically dismantle the EPB motor housing and wind the mechanism back manually—a risky procedure that voids warranties and risks caliper failure.
+* Takeaway: The "Right to Repair" for simple mechanical wear items is effectively being blocked by software encryption, forcing a reliance on professional services.12
+5.2 Case Study: 2025 BMW M3 LCI Anti-Dazzle Coding
+* The Scenario: An owner of a US-spec 2025 BMW M3 wants to enable the European "Anti-Dazzle" high beam functionality, which allows high beams to stay on while masking out oncoming traffic.
+* Legacy Method: The owner would use BimmerCode "Expert Mode," access the Headunit and Body Controller, and FDL code specific parameters to aktiv.
+* 2025 Reality: BimmerCode cannot access the Headunit or the relevant lighting modules due to Secure Coding 2.0. The "Expert Mode" button is grayed out or returns an error.
+* The Resolution: The owner must obtain BimmerUtility or E-Sys, connect a laptop, and perform a VO Code. They must modify the vehicle's FA to remove the US restriction code (5AP) and then code the BDC and FLM modules to default to this new configuration. This achieves the goal but carries the risk of the "VO Mismatch" described earlier.34
+6. Conclusion and Forecast
+The "Hard Stop" of 2025 is a definitive turning point in the history of the automotive aftermarket. The era of casual, inexpensive, and easy vehicle modification for VAG and BMW platforms has largely closed. While legislative "Right to Repair" frameworks ensure that diagnostic capabilities (reading codes, viewing live data) remain accessible—albeit often requiring Two-Factor Authentication and identity verification—the realm of modification and customization is being aggressively reclaimed by OEMs.
+This reclamation is driven not necessarily by malice, but by the rigorous demands of global cybersecurity compliance (UNECE R155/R156). In a world where a car is a software-defined node, unauthorized modification is indistinguishable from a security breach. The aftermarket is adapting, but the cost of entry has risen dramatically. Power is shifting away from the individual owner and back toward professional entities capable of sustaining the high costs of authenticated access. For the enthusiast community, the future lies not in simple app-based toggles, but in complex, risky, and expensive workarounds that exploit the very fabric of the vehicle's digital identity.
+Works cited
+1. Does OBDeleven work with VAG and BMW vehicles manufactured from 2024?, accessed December 20, 2025, https://support.obdeleven.com/en/articles/9187989-does-obdeleven-work-with-vag-and-bmw-vehicles-manufactured-from-2024
+2. Automotive IoT Cybersecurity in 2025: WP.29 and the Global Shift to Secure Connected Vehicles - Device Authority, accessed December 20, 2025, https://deviceauthority.com/automotive-iot-cybersecurity-in-2025-wp-29-and-the-global-shift-to-secure-connected-vehicles/
+3. How-to SFD? - diagstore.ie, accessed December 20, 2025, https://www.diagstore.ie/blog/how-to-sfd-/
+4. Trends and challenges shaping the automotive industry in 2025 - Dentons, accessed December 20, 2025, https://www.dentons.com/en/insights/articles/2025/january/23/trends-and-challenges-shaping-the-automotive-industry-in-2025
+5. How to Bypass BMW's NCD Secure Coding 2.0 System for Custom Coding, accessed December 20, 2025, https://oemnavigations.com/blogs/news/ncd-secure-coding-2-0
+6. SFD - Ross-Tech Wiki, accessed December 20, 2025, https://wiki.ross-tech.com/wiki/index.php/SFD
+7. How to unlock SFD-protected control units? - OBDeleven, accessed December 20, 2025, https://support.obdeleven.com/en/articles/5685824-how-to-unlock-sfd-protected-control-units
+8. VAG SFD Security Gateway Access | Thinkcar UK Official Diagnostics, accessed December 20, 2025, https://www.thinkcar.uk/vag-sfd-unlock.html
+9. How-to SFD? - diagmarket.eu, accessed December 20, 2025, https://www.diagmarket.eu/blog/how-to-sfd-/
+10. r/Golf_R on Reddit: Does OBDeleven work with VAG vehicles manufactured from 2024?, accessed December 20, 2025, https://www.reddit.com/r/Golf_R/comments/1eid51e/does_obdeleven_work_with_vag_vehicles/
+11. Update on SFD 2? : r/OBDeleven - Reddit, accessed December 20, 2025, https://www.reddit.com/r/OBDeleven/comments/1nmnwbc/update_on_sfd_2/
+12. Guess I'm rolling this one right back out : r/Justrolledintotheshop - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Justrolledintotheshop/comments/1lkkq1e/guess_im_rolling_this_one_right_back_out/
+13. VCDS Tour - SRI Reset - Ross-Tech, accessed December 20, 2025, https://www.ross-tech.com/vcds/tour/sri-reset.html
+14. VW Golf 8 mk8 service reset. Oil and inspection - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=K6upEoJw7c0
+15. Token Service for Autel VAG SFD Online Unlock Function ( Customized Service, No shipping ) - AliExpress, accessed December 20, 2025, https://www.aliexpress.com/item/1005007981774634.html
+16. Autel VAG SFD Security Gateway Unlock Guide & Instruction, accessed December 20, 2025, http://www.autelscanner.org/autel-vag-sfd-security-gateway-unlock-guide-instruction/
+17. Security Gateways | Autel, accessed December 20, 2025, https://autel.us/security-gateways/
+18. AUTEL VAG SFD Authorization 1 Time - AutelShop.us, accessed December 20, 2025, https://www.autelshop.us/products/autel-vag-sfd-authorization
+19. Access VW & Audi Security Gateway on Autel Tablets - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=g5OrkVzBUYI
+20. Autel VAG SFD Access Package | Schutz Fahrzeug Diagnose - balticdiag, accessed December 20, 2025, https://www.balticdiag.com/vag-sgw-connection-package-autel
+21. SFD/SFD2 unlock 2024+ B9.5 : r/Audi - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Audi/comments/1iehdof/sfdsfd2_unlock_2024_b95/
+22. Most cost effective OBD tool that can perform parking brake release for rear brake job, accessed December 20, 2025, https://www.reddit.com/r/Golf_R/comments/1h3mpfa/most_cost_effective_obd_tool_that_can_perform/
+23. Volkswagen Tiguan - HOW TO ENGAGE / DISENGAGE ELECTRONIC PARKING BRAKE (2007 - 2018) - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=mTQV6NlYC7E
+24. Volkswagen Tiguan parking brake release Your Complete Guide, accessed December 20, 2025, https://www.icartea.com/en/wiki/how-to-turn-off-parking-brake-volkswagen-tiguan-your-complete-guide
+25. No Scanner Required - How to Replace VW Tiguan Rear Brake with Electric Parking Brake, accessed December 20, 2025, https://www.youtube.com/watch?v=o11MROKQEOI
+26. Secure Coding NCD 2.0 - BeamerFlash, accessed December 20, 2025, https://beamerflash.com/product/secure-coding-ncd-2-0/
+27. Bimmercode in 8.5 vs 8.0, what still works? : r/BMWI4 - Reddit, accessed December 20, 2025, https://www.reddit.com/r/BMWI4/comments/1pkxwuq/bimmercode_in_85_vs_80_what_still_works/
+28. Yes! OK to Coding Features on iDrive 8.5 with Secure Coding - G20 BMW 3-Series Forum, accessed December 20, 2025, https://g20.bimmerpost.com/forums/showthread.php?t=2170402
+29. Coding Options for iDrive 8.5? - BMW M3 G80 G82 - Bimmerpost, accessed December 20, 2025, https://g80.bimmerpost.com/forums/showthread.php?t=2153512
+30. Yes! Bimmercode works partially with 2025 G20 LCI 2 (with iDrive 8.5) - G20 BMW 3-Series Forum - Bimmerpost, accessed December 20, 2025, https://g20.bimmerpost.com/forums/showthread.php?t=2153295
+31. Can I turn off Active Sound? - Page 6 - BMW M3 G80 G82 - Bimmerpost, accessed December 20, 2025, https://g80.bimmerpost.com/forums/showthread.php?p=30287011
+32. BMW IX Coding Thread - Page 9 - BMW i Forums - Bimmerpost, accessed December 20, 2025, https://bmwi.bimmerpost.com/forums/showthread.php?t=1965217&page=9
+33. "Coding" success - 7Post - 7 Series Forum - Bimmerpost, accessed December 20, 2025, https://www.7post.com/forums/showthread.php?t=2060473
+34. BimmerCode + iDrive 8 || Confirmed Working - Page 10 - G87 BMW M2 and 2Series Forum, accessed December 20, 2025, https://g87.bimmerpost.com/forums/showthread.php?p=32222303
+35. BIMMERUTILITY LICENSE | Bimmer Utility, accessed December 20, 2025, https://www.bimmerutility.com/product-page/license
+36. AUTEL VAG SFD Authorization 1 Year: Serial Number Required - AutelTool.us, accessed December 20, 2025, https://www.auteltool.us/products/new-arrivals-autel-vag-sfd-authorization-1-year
+37. Has anyone gotten OBDEleven to work on a '24? : r/JettaGLI - Reddit, accessed December 20, 2025, https://www.reddit.com/r/JettaGLI/comments/1dc383y/has_anyone_gotten_obdeleven_to_work_on_a_24/
+38. Bimmercode with LCI iDrive 8.5? - BMW M3 G80 G82, accessed December 20, 2025, https://g80.bimmerpost.com/forums/showthread.php?t=2115458

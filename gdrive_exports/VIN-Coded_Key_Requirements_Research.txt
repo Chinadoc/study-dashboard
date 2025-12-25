@@ -1,0 +1,241 @@
+﻿The Federated Fortress: A Comprehensive Analysis of Vehicle-Level VIN-Coded Key Requirements, Security Architectures, and Supply Chain Constraints in the 2025 Automotive Ecosystem
+Executive Summary
+The automotive security landscape has undergone a radical transformation over the last decade, shifting from localized, mechanical access control to cloud-dependent, cryptographic identity management. The concept of a "car key" has evolved into a sophisticated digital credential, inextricably linked to the vehicle's specific electronic topology through the Vehicle Identification Number (VIN). This report provides an exhaustive technical analysis of the VIN-coded key requirements for seven major automotive groups: BMW, Mercedes-Benz, Audi (VAG), Porsche, Stellantis, Lexus (Toyota), and Land Rover (JLR).
+The analysis reveals a bifurcated market structure driven by distinct engineering philosophies and regional supply chain realities. On one side, European manufacturers—specifically Mercedes-Benz, BMW, and Porsche—have aggressively migrated toward a "pre-coded" hardware model. in this paradigm, key fobs must be ordered directly from the factory with immutable security data pre-written to the transponder, effectively eliminating the possibility of using virgin aftermarket blanks for modern chassis platforms. This shift represents a fundamental closure of the ecosystem, centralizing control within the OEM's logistical network.
+Conversely, manufacturers like Stellantis and Lexus continue to utilize a "gateway" model, where blank keys can theoretically be used, but the programming process is heavily gated by proprietary software subscriptions (WiTech), Secure Gateways (SGW), and severe supply chain shortages. Here, the restriction is not necessarily in the hardware's pre-coding, but in the cryptographic handshake required to introduce that hardware to the vehicle's network.
+This report further examines the collision between increasing security sophistication—driven by high-tech theft methods like relay attacks—and the operational realities of the aftermarket. With 2025 lead times for certain VIN-coded keys stretching into months due to semiconductor backlogs and strict "Theft Relevant Parts" (TRP) protocols 1, the dependency on OEM supply chains has created a critical bottleneck for fleet managers, locksmiths, and vehicle owners. The data indicates that the era of the "universal key programmer" is ending, replaced by a fragmented ecosystem requiring brand-specific credentials (NASTF, LSID), expensive proprietary interfaces (PIWIS, ODIS), and direct factory authorization.
+The investigation classifies the target manufacturers into distinct operational quadrants based on their provisioning architecture and ecosystem closure. Mercedes-Benz and Land Rover currently occupy the "High Severity" quadrant, characterized by strict dealer-only hardware requirements and extensive lead times. BMW and Porsche follow closely, enforcing factory pre-coding for their latest G-Series and 992 platforms, respectively. Stellantis and Audi represent a "Restricted Gateway" model where aftermarket access is possible but fraught with software barriers and risk of module corruption. Lexus stands apart as a unique case of "Logistical Lockout," where technical barriers are lower, but raw hardware availability has forced a global rationing of keys.
+1. Introduction: The Paradigm Shift in Automotive Access Control
+To understand the specific VIN-coded requirements of 2025, one must first appreciate the architectural shift that precipitated them. For decades, the automotive key was a mechanical device with a static electronic transponder. If lost, a locksmith could mechanically cut a new blade and "clone" the static code, or use a diagnostic tool to instruct the car to accept a new random code from a blank transponder.
+This "open enrollment" model has been systematically dismantled by the industry's move toward Federated Identity Management. In modern architectures—such as Mercedes' FBS4 or BMW's BDC2—the vehicle does not merely accept a key; it authenticates a pre-existing relationship. The key is no longer a blank slate; it is a "sibling" to the car, born with shared cryptographic secrets (Vehicle Master Keys) that are generated at the time of the vehicle's assembly and stored in a secure central database (e.g., Daimler's StarDRT or VAG's FAZIT).
+This transition has profound implications for repair and recovery. It means that "programming" a key is often a misnomer for modern European vehicles. The technician is not programming the key to the car; they are activating a key that was already programmed to the car before it ever left the parts distribution center. This distinction—between Teaching-in a blank and Activating a pre-coded token—is the central theme of this report and the primary differentiator between the brands analyzed herein.
+2. Mercedes-Benz: The Fortress of FBS4
+The Mercedes-Benz drive authorization system represents the most stringent application of the pre-coded philosophy. The transition from FBS3 to FBS4 marks the definitive boundary where aftermarket capability effectively ceases and total dealer dependency begins.
+2.1 The Architecture of Exclusion: FBS3 vs. FBS4
+The Fahrberechtigungssystem (Drive Authorization System) is the backbone of Mercedes-Benz security. Understanding the difference between generation 3 and 4 is critical for any service provider or fleet manager.
+FBS3 (Legacy, up to MY2014/2015): This system utilized a 128-bit hash but allowed for the calculation of the "Password" via the Electronic Ignition Switch (EIS) or Electronic Steering Lock (ESL) using widely available aftermarket tools. Once the password was calculated, a locksmith could write it to a "virgin" aftermarket key, effectively creating a clone of the original or a new dealer key. This ecosystem was relatively open, allowing for rapid, on-site replacement of lost keys.2
+FBS4 (Current, MY2016+): Introduced around 2015/2016 and ubiquitous by 2024, FBS4 fundamentally altered the math. The system uses a higher-bit encryption standard and a rolling code algorithm that has, to date, resisted public reverse-engineering.3 Crucially, the password calculation loophole was closed. The passwords are no longer retrievable from the vehicle modules via OBDII or bench reading.
+The implication for VIN-coded requirements is absolute: An FBS4 key cannot be generated in the field. It must be ordered from the factory. The key arrives with the specific hash for one of the vehicle's 8 available "key tracks" already written to its secure element. The vehicle does not "learn" the key; the key already knows the car.2
+2.2 The Theft-Relevant Parts (TRP) Policy and Logistics
+Because the hardware itself carries the vehicle's security identity, Mercedes-Benz treats the key as a "Theft-Relevant Part" (TRP). The acquisition process is governed by a rigorous policy designed to maintain a strict chain of custody, detailed in documents such as the TRP Policy.5
+2.2.1 The Ordering Protocol
+When a customer or independent shop needs a key, they cannot simply buy a part number. The process involves multiple layers of verification:
+1. Identity Verification: The requestor must present government-issued photo ID and proof of ownership (registration or title) matching the ID.
+2. Dealer Vetting: The authorized dealer acts as the gatekeeper, physically inspecting the documents. They are prohibited from shipping TRP parts to unverified addresses; the vehicle or owner must typically be present.7
+3. The "Blue Key" vs. "Orange Key":
+   * The User Key: Often referred to in workshop slang or older documentation, the standard remote is ordered by VIN. It is produced at a central coding facility (e.g., the PDC in Fort Worth, Texas for the US market). The facility pulls the vehicle's data record, burns the data for the next available key track (e.g., Key Track 3), and ships the "Pre-Coded" unit.
+   * The Workshop Key (Orange Key): For deep diagnostic work, such as replacing a faulty EIS, a special "Workshop Key" is sometimes required to authorize the initialization of the new module. This, too, is a strictly controlled TRP item.9
+2.2.2 Lead Times and Supply Chain Friction
+The centralization of key production creates a single point of failure. Unlike a blank key which might be stocked on a shelf, an FBS4 key is "just-in-time" manufactured in terms of its data.
+* Standard Lead Time: In a functioning supply chain, the turnaround is 2-4 days.
+* 2025 Reality: Reports indicate that backorders on the specific transponder hardware have caused delays stretching to 5-6 business days or even weeks in specific regions.10 The user cannot simply "go to another dealer" because all dealers pull from the same central source.
+* Locksmith Limitation: Even the most advanced locksmiths with NASTF credentials can effectively only act as couriers in this process. They can facilitate the order if they are a registered Vehicle Security Professional (VSP) with a valid LSID, but they cannot make the key. They are ordering a pre-coded unit just like the dealer.3
+2.3 Operational Workflows: The "Teach-In" Myth
+For FBS4, there is no "programming" in the traditional sense. The procedure is better described as "Enablement" or "Teach-in" of a pre-authorized device.
+* Process: The new key is inserted into the ignition (or placed in the emergency start coil). The vehicle's EIS reads the key's pre-written hash. It checks its internal "Key Track" registry. If the key matches the data for "Track 3" and "Track 3" is currently marked as "unused/enabled," the EIS allows the engine to start.
+* Xentry Requirement: In some cases, particularly if tracks need to be disabled (e.g., a stolen key) or if the rail status is desynchronized, the Xentry diagnostic tool is required to "Register Vehicle as Present" and manage the track enablement.7 This requires an online connection to the Daimler backend to verify the technician's credentials.
+3. BMW: The Evolution of the Ultimate Driving Machine's Security
+BMW's trajectory mirrors Mercedes-Benz but with distinct architectural waypoints—from CAS to FEM/BDC, and now to the locked-down G-Series platforms.
+3.1 Legacy Systems: EWS and CAS
+The early E-Series (E46, E39) utilized EWS (Elektronische Wegfahrsperre), followed by the Car Access System (CAS1, CAS2, CAS3, CAS4) in the E90/E60/F10 eras.
+* Aftermarket Status: These systems are widely "cracked." A locksmith can read the ISN (Individual Serial Number) from the DME (Digital Motor Electronics) or the CAS module itself and write it to a generic blank key. While BMW dealers still sell pre-coded keys for these models, the aftermarket offers a faster, cheaper alternative.12
+3.2 The Turning Point: FEM and BDC (F-Series)
+With the introduction of the F-Series (F30 3-Series, F15 X5), BMW moved to the Front Electronic Module (FEM) and Body Domain Controller (BDC).
+* Architecture: The immobilizer data became integrated into the body control computer.
+* Aftermarket Adaptation: Initially secure, these modules eventually succumbed to "bench mode" attacks. Tools like the Autel IM608 or Yanhua ACDP can now "unlock" an FEM/BDC by reading and modifying its EEPROM data. This allows for the generation of a dealer key from a blank. However, this process carries significant risk of data corruption.13
+3.3 The G-Series Lockout: BDC2 and Pre-Coding
+The current generation of BMWs (G-Series, e.g., G05 X5, G20 3-Series) utilizes the BDC2 platform. This represents a return to the "Factory Order" mandates seen in Mercedes.
+* Pre-Coded Mandate: For most G-Series vehicles, especially post-2020 production, the aftermarket cannot easily read the ISN from the DME (Bosch MG1/MD1) without invasive bench unlocking or expensive proprietary licenses. Consequently, the primary path for key replacement is ordering a VIN-coded key from the BMW Parts Distribution Center.15
+* Ordering Logic: Similar to Mercedes, BMW keys are pre-burned with the vehicle's ISN and next available Key ID. The dealer cannot stock blanks. The key must come from the mothership.
+* Activation: The activation process for a G-Series key is notably user-friendly compared to the complex OBD coding of the past. The user holds the new remote against the "key coil" icon on the steering column and holds the Start/Stop button. This physical proximity triggers the induction handshake that finalizes the rolling code synchronization.16
+
+
+  
+
+
+
+3.4 The Risk of Aftermarket Intervention
+While some locksmiths claim G-Series capability, the risks are nontrivial.
+* BDC Corruption: "Bricking" a BDC module during an attempted unlock results in a dead vehicle that requires a replacement BDC—a part that is often on backorder and requires dealer coding to restore.14
+* Cost Analysis: With the risk of ruining a $1,000+ module to save $100 on a key, many professionals now refuse to attempt aftermarket programming on G-Series cars, defaulting to the dealer-order method.18
+4. Audi (VAG): The MQB-Evo Challenge
+Audi's security architecture is built on the Volkswagen Group's "Component Security" (CS) framework. The evolution from the standard MQB platform to the newer MQB-Evo has severely restricted independent access.
+4.1 Component Security and the "Dealer Key"
+In the VAG ecosystem, a key is not simply "programmed." It must first be prepared as a "Dealer Key."
+* The Concept: A blank transponder (typically Megamos AES) is locked with a specific CS code (12+ bytes) derived from the vehicle's BCM and Cluster. Only after it is locked with this specific CS does it become a "Dealer Key" that can be taught to the car via OBD.
+* MQB (Legacy): On older MQB vehicles (Golf Mk7, Audi A3 8V), aftermarket tools could extract the CS bytes from the instrument cluster (often via direct connection or service mode) and use them to prepare a generic blank into a Dealer Key.20
+4.2 MQB-Evo: The FAZIT Wall
+With the 2020+ MQB-Evo platform (Audi A3 8Y, Q4 e-tron, etc.), VAG moved the CS calculation online. The immobilizer data is no longer easily readable from the cluster or BCM.
+* ODIS Requirement: To program a key for an MQB-Evo vehicle, the technician must typically use ODIS (Offboard Diagnostic Information System) with a live connection to the FAZIT database (VAG's central immobilizer server).
+* Dealer-Only Logistics: The dealer orders a key that is pre-cut and pre-coded with the VIN's CS data. When the key arrives, ODIS connects to FAZIT, verifies the key's ID, and authorizes the vehicle to start. This process bypasses the need for the technician to "know" the CS bytes; the server handles the handshake directly.22
+* Aftermarket Blackout: As of late 2025, robust aftermarket solutions for All Keys Lost on MQB-Evo are virtually non-existent without access to ODIS and a valid GEKO user account. Independent shops attempting this often find themselves unable to retrieve the necessary Immo V data.20
+5. Porsche: The PIWIS Dominion and PPN
+Porsche, while sharing the VAG lineage, operates a distinct and even more restrictive environment. The transition to the 992 (911) and Taycan platforms has cemented a "Dealer Only" reality for key provisioning.
+5.1 The PIWIS Ecosystem
+The Porsche Integrated Workshop Information System (PIWIS III or IV) is the sole official tool for communicating with modern Porsche architectures.
+* PPN (Porsche Partner Network): Key programming is an online function. The PIWIS tester must authenticate with the Porsche Partner Network (PPN) to retrieve the "IPAS" (Integrated Porsche Access System) codes. This login is strictly controlled and typically unavailable to independent repair facilities without official sponsorship or expensive "grey market" remote support.24
+* 992/Taycan Security: These vehicles utilize a backend-dependent authorization. When a key is ordered, it is generated as a "Dealer Key" based on the VIN's record in Stuttgart. The local teach-in process is merely a verification step. The car queries the PPN: "Is this key ID authorized for my VIN?" If the PPN confirms, the key is added.26
+5.2 Aftermarket Workarounds and Risks
+The aftermarket response to Porsche's lockout involves invasive hardware modification.
+* BCM Bench Flashing: High-level specialized locksmiths can remove the Body Control Module (BCM) from the vehicle (often located in difficult-to-access areas like the front kick panel) and read its encrypted memory (D-Flash/P-Flash) on a workbench. By decrypting this data, they can manually write the vehicle's security bytes to a virgin key.
+* The "Dealer Key" Simulation: This process effectively creates a "Dealer Key" in the field. However, it is fraught with risk. It voids the warranty, risks damaging sensitive electronics, and is becoming increasingly difficult as Porsche moves to higher-bit encryption in the latest Taycan updates.25
+* Used Keys: Contrary to popular belief, used Porsche keys are generally "hard-locked." Once programmed to a car, the transponder is locked and cannot be unlocked for reuse without specialized tools that replace the chip or wipe the firmware—a process often more expensive than buying a new key.27
+6. Land Rover / Jaguar (JLR): The KVM Arms Race
+Land Rover's requirements are driven by a specific external pressure: theft. The brand has been a primary target for "relay attacks," leading to a defensive arms race that has culminated in the restrictive 2024+ architecture.
+6.1 The KVM/RFA Vulnerability
+Historically, the Keyless Vehicle Module (KVM), also known as the Remote Function Actuator (RFA), was the weak point. Thieves could use a device to wake up the KVM and force it to accept a new key in seconds. JLR responded by constantly updating the KVM hardware and firmware.
+6.2 The 2024+ "Write-Once" Strategy
+For 2024-2026 models (New Range Rover L460, Range Rover Sport L461), JLR has implemented a "factory locked" architecture.
+* Module Replacement: In an "All Keys Lost" situation, or even sometimes when adding a key if the system status is compromised, the official procedure is to replace the KVM and often the BCM (Body Control Module).
+* Why Replacement? The new modules are configured to be "Write Once" regarding their security relationship. Once paired with the initial set of keys at the factory, they cannot be put back into a "learning mode" to accept new keys in the field. This prevents thieves from overwriting the key list, but it also means a lost key incident requires $4,000–$6,000 in hardware replacement.28
+* Ultra-Wideband (UWB): The new keys utilize UWB technology to prevent relay attacks (by measuring the time-of-flight of the signal). This specialized hardware is currently proprietary and not available in generic aftermarket forms, forcing reliance on dealer supply chains.29
+7. Stellantis: The Gateway and the Hub
+Stellantis (Chrysler, Dodge, Jeep, Ram) employs a different philosophy. The restriction is not usually in the key hardware itself—which often uses standard Hitag-AES or similar protocols—but in the access to the vehicle's network.
+7.1 WiTech 2.0 and the Per-VIN Cost
+Stellantis vehicles use the WiTech 2.0 diagnostic system. Unlike a one-time software purchase, WiTech operates on a subscription model that monetizes access at the VIN level.
+* Vehicle Reprogramming Subscription (VRS): To flash a module or program a key using the official tool, an independent shop must purchase a "VRS" for approximately $35-$40 per VIN. This subscription lasts for a year for that specific car. This effectively acts as a "VIN-coding" tax on the service, even if the key blank is generic.30
+7.2 The Secure Gateway (SGW)
+Since 2018, Stellantis vehicles have been equipped with a Secure Gateway Module (SGW) that acts as a firewall, blocking unauthorized diagnostic commands (like "Program Key") from the OBDII port.
+* The "12+8" Bypass: Early workarounds involved physically removing the radio or cluster to plug a special "12+8" connector directly into the STAR connector, bypassing the SGW.
+* AutoAuth: The official solution is "AutoAuth," a third-party service that verifies the user's identity and allows their aftermarket tool (e.g., Autel, Snap-On) to digitally "shake hands" with the SGW. This requires an annual subscription and internet access during the programming process.32
+7.3 The RF Hub Lockdown (Ram/Jeep)
+A specific pain point for late-model Ram and Jeep owners is the Radio Frequency (RF) Hub.
+* The Locked Hub: Once an RF Hub is programmed to a vehicle, it is permanently locked to that VIN. It cannot be reused.
+* AKL Failure Mode: In "All Keys Lost" scenarios on newer Rams (2019+ DT body), the RF Hub often enters a lockdown state that prevents any new keys from being added, even with the correct PIN code. The official fix is to replace the RF Hub with a virgin unit, adding hundreds of dollars and parts wait times to the job.33
+8. Lexus & Toyota: The Supply Chain "Coding"
+Lexus and Toyota represent a unique deviation from the European model. Their restriction is driven less by cryptographic lockout and more by physical scarcity managed through VIN-based rationing.
+8.1 The Smart Key Shortage
+Following the global semiconductor crisis, Toyota/Lexus faced a critical shortage of the specific smart chips used in their proximity fobs.
+* The Single Key Delivery: For many 2023-2025 models (Lexus RX, NX, LX), vehicles were delivered to customers with only one smart key and one mechanical emergency key. The "second key" was owed to the customer at a later date.35
+* VIN-Based Rationing: This created a "VIN-Coded" allocation system. A dealer cannot simply order a key for stock. They must input the customer's VIN into the "Second Key Delivery Program" system. If that specific VIN's production batch has been cleared for release (based on a rolling schedule), the key is shipped. If not, the order is blocked. This is a logistical lock, not a digital one.35
+
+
+  
+
+
+
+8.2 Technical Requirements: Techstream and Seeds
+Technically, Lexus keys are typically generic blanks (verified by Board ID/FCC ID).
+* Techstream: The programming is done via the Techstream diagnostic software.
+* Seed Codes: For newer systems (BA/AA chip types), the process requires a "Seed Number" from the vehicle. This seed must be converted into a passcode. While Techstream does this automatically for dealers with online credentials, aftermarket tools like the Autel KM100 rely on third-party calculators or "bypass" cables that connect directly to the CAN bus to inject the key data.38
+* Universal Keys: Unlike Mercedes, it is possible to use "Universal" smart keys (e.g., Autel IKEY) on many Lexus models, provided the tool can emulate the correct transponder ID. This makes Lexus one of the few remaining "Open" ecosystems, technically speaking, despite the supply chain closures.39
+9. Comparative Analysis of Requirements
+The following table summarizes the specific VIN-coded requirements, identifying which brands mandate hardware pre-coding versus those that rely on software gating.
+9.1 Data Table: Vehicle-Level Requirements Matrix
+Manufacturer
+	System Generation
+	VIN-Ordered (Pre-Coded)?
+	Dealer Tool Only?
+	Aftermarket Viability?
+	OEM Lead Time (Est. 2025)
+	Primary Barrier
+	Mercedes-Benz
+	FBS4 (2016+)
+	Yes (Strict TRP)
+	Yes (Xentry/DAS)
+	None (Read-only)
+	1-4 Weeks
+	Server-side Encryption & Hardware Logistics
+	BMW
+	BDC2 / G-Series
+	Yes (Factory Burn)
+	Yes (ISTAP/AIR)
+	High Risk (Bench)
+	1-2 Weeks
+	ISN/BDC Lockout & Data Corruption Risk
+	Audi
+	MQB-Evo
+	Yes (Dealer Key)
+	Yes (ODIS Online)
+	Limited (Unstable)
+	3-10 Days
+	FAZIT Database & Component Security
+	Porsche
+	992 / Taycan
+	Yes (PPN Required)
+	Yes (PIWIS III/IV)
+	Low (Complex Bench)
+	2-5 Weeks
+	PPN Online Auth & High-Bit Encryption
+	Land Rover
+	2024+ KVM
+	Yes (Module Replace)
+	Yes (Pathfinder)
+	Limited (JLR Doctor)
+	1-3 Months
+	Module "Write Once" Logic & Shortages
+	Stellantis
+	WiTech / RF Hub
+	No (Blank w/ VIN Sub)
+	Yes* (SGW Gated)
+	High (w/ AutoAuth)
+	3-7 Days
+	RF Hub Lock / SGW / PIN Codes
+	Lexus
+	Smart Key
+	No (Allocation)
+	No (Techstream)
+	High (Universal)
+	6-12 Months (Backlog)
+	Hardware Supply Chain & Allocation Rules
+	10. Regulatory & Aftermarket Context
+10.1 NASTF and the VSP Credential
+The National Automotive Service Task Force (NASTF) has become the central clearinghouse for automotive security access in North America. The Vehicle Security Professional (VSP) credential is now a de facto requirement for any independent locksmith or shop attempting to work on these vehicles.41
+* The VSP Registry: To order a Mercedes TRP part or access Stellantis key codes, the technician must be listed in the NASTF registry. This creates a digital paper trail for every transaction, linking the locksmith's ID (LSID) to the vehicle's VIN.
+* The End of Anonymity: The days of "no questions asked" key duplication are over. Every interaction with a modern immobilizer system generates a log entry on an OEM server or the NASTF Secure Data Release Model (SDRM).42
+10.2 Right to Repair Implications
+The shift to VIN-coded keys is a primary flashpoint in the "Right to Repair" debate.
+* OEM Argument: Manufacturers argue that pre-coded keys and restricted tools are necessary to protect customer property. By controlling the supply chain, they prevent the circulation of unauthorized key-programming tools that facilitate theft.2
+* Aftermarket Counter: Independent repairers argue that these measures constitute a monopoly. When a Mercedes owner must wait 3 weeks for a key because only one factory in the country can produce it, and no local option exists, the car is effectively "bricked" by bureaucracy. The requirement to buy a $6,000 module (Land Rover) to replace a lost key is cited as egregious anti-consumer design.19
+11. Conclusion
+The research conclusively demonstrates that the automotive industry has largely abandoned the "blank key" model for its premium and secure platforms. For Mercedes-Benz (FBS4), BMW (G-Series), and Porsche (992/Taycan), the key is no longer a spare part; it is a unique, factory-issued identity token that must be ordered by VIN. This architectural decision creates a near-total dependency on the OEM supply chain, significantly increasing lead times and costs while effectively locking out the general aftermarket.
+For Stellantis and Lexus, while the hardware remains more generic, the process is increasingly VIN-locked through software subscriptions (WiTech VRS), Secure Gateways, and massive supply chain controls. The 2025 landscape is one of Federated Identity, where the car, the key, and the cloud server must all agree before the engine will start.
+
+
+  
+
+
+
+Works cited
+1. New Car Delivery Times - Marsh Finance, accessed December 23, 2025, https://www.marshfinance.com/blog/new-car-delivery-times-2025
+2. FBS4 Mercedes Key Programming: What You Need to Know - Monty Locksmith, accessed December 23, 2025, https://www.montyslocksmith.ca/blog/fbs4-mercedes-key-programming-what-you-need-to-know-and-what-we-can-do/
+3. fsb4 : r/Locksmith - Reddit, accessed December 23, 2025, https://www.reddit.com/r/Locksmith/comments/xs07gz/fsb4/
+4. Mercedes FBS4 blank keys verses Pre-programmed keys from the dealer - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=eBLNeQLcB74
+5. MBUSA Theft Parts Policy | PDF | Lock (Security Device) | Identity Document - Scribd, accessed December 23, 2025, https://www.scribd.com/document/49208051/Mbusa-Policy
+6. MBUSA DVUSA Theft-Relevant Parts Policy - Mercedes-Benz & Smart - OEMDTC, accessed December 23, 2025, https://mb.oemdtc.com/860/mbusa-dvusa-theft-relevant-parts-policy
+7. Mercedes-Benz - nhtsa, accessed December 23, 2025, https://static.nhtsa.gov/odi/tsbs/2014/SB-10059838-2280.pdf
+8. June 22, 2015 S-B-80.57/62e S-B-80.57/62d; May 2015 80 - nhtsa, accessed December 23, 2025, https://static.nhtsa.gov/odi/tsbs/2015/MC-10135903-9999.pdf
+9. Ordering Mercedes‐Benz Theft‐Relevant Parts, accessed December 23, 2025, https://mb.oemdtc.com/862/ordering-mercedes%E2%80%90benz-theft%E2%80%90relevant-parts
+10. 2014-2021 MERCEDES BRAND NEW DSM FBS4 PROGRAMMED VIN Module - eBay, accessed December 23, 2025, https://www.ebay.com/itm/155625516288
+11. Service and Warranty Information 2025 - Mercedes-Benz USA, accessed December 23, 2025, https://www.mbusa.com/content/dam/mb-nafta/us/owners/manuals/2025/2025-warranty-booklet.pdf
+12. BMW Key Programming: CAS vs FEM Systems Explained | Mario Auto Keys Blog, accessed December 23, 2025, https://www.marioautokeys.co.uk/blog/bmw-key-programming-cas-vs-fem/
+13. BMW FEM BDC Unlocking for Replacement and Programming Keys - Microtronik, accessed December 23, 2025, https://www.microtronik.com/technical-info/autohex/fem-and-bdc-unlocking
+14. Revealed: How to Program Keys for BMW F Series FEM or BDC - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=fxOajRVtwDE
+15. Replacing and Programming BMW Key Fob in 3 steps. Read more - BimmerTech, accessed December 23, 2025, https://www.bimmer-tech.net/blog/item/24-replacing-your-bmw-remote-key-fob
+16. How To Program & Replace BMW Key Fob Battery | Bloomington, accessed December 23, 2025, https://www.bmwofbloomington.com/service/service-and-parts-tips/program-bmw-key-fob/
+17. How to Program a BMW Key Fob | BMW Digital Key - Rallye BMW, accessed December 23, 2025, https://www.rallyebmw.com/how-to-program-the-bmw-key/
+18. Autel just enabled add key on G body BMWs but there's a huge catch. : r/Locksmith - Reddit, accessed December 23, 2025, https://www.reddit.com/r/Locksmith/comments/1iuzz1g/autel_just_enabled_add_key_on_g_body_bmws_but/
+19. Question about keys and programming... : r/BmwTech - Reddit, accessed December 23, 2025, https://www.reddit.com/r/BmwTech/comments/1j0ggwr/question_about_keys_and_programming/
+20. MQB Key Learning NOW AVAILABLE - Simon Touch, accessed December 23, 2025, https://www.keyprogtools.com/759q6379nnc5e16311R/
+21. VN009 - Key Programming for MQB Vehicles (ABRITES), accessed December 23, 2025, https://www.americankeysupply.com/product/vn009-key-programming-for-mqb-vehicles-abrites-10321
+22. Audi Key Replacement and Programming: Your Complete Guide - DML Locksmith Services, accessed December 23, 2025, https://dmllocksmith.com/post/audi-key-replacement-and-programming-your-complete-guide/
+23. Looking for some direction with MQB /ODIS and EPROM : r/Locksmith - Reddit, accessed December 23, 2025, https://www.reddit.com/r/Locksmith/comments/1krnvqs/looking_for_some_direction_with_mqb_odis_and_eprom/
+24. Technical Information - nhtsa, accessed December 23, 2025, https://static.nhtsa.gov/odi/tsbs/2020/MC-10171005-0001.pdf
+25. Dealer-Level Porsche Diagnostics - Carhack, accessed December 23, 2025, https://carhack.net/piwis-en
+26. The process behind programming a Porsche Smart Key - Autohaus Lake Norman, accessed December 23, 2025, https://www.autohausnc.com/the-process-behind-programming-a-porsche-smart-key/
+27. Porsche Smart Key Programming - Unlocking (Renew) - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=gAjn3auWFDs
+28. BCM/ KVM Module Unlock in DFW | Land/ Range Rover/ Jaguar, accessed December 23, 2025, https://www.meyerslocallocksmith.com/range-rover-land-rover-jaguar-key-programming-dfw/
+29. JLR ALL Keys Lost 315Mhz Essential Package - SX-Tool, accessed December 23, 2025, https://sx-tool.com/en/product/jlr-all-keys-lost-315mhz/
+30. Vehicle Reprogramming Subscription - wiTECH 2.0 Knowledge Base, accessed December 23, 2025, https://kb.fcawitech.com/article/vehicle-reprogramming-subscription-964.html
+31. How-To Purchase and Use a VIN Based wiTECH 2.0 Subscription – Aftermarket, accessed December 23, 2025, https://kb.fcawitech.com/article/how-to-purchase-and-use-a-vin-based-witech-2-0-subscription-aftermarket-1026.html
+32. Battery Message - Discussion: The key programming procedure starting on MY19 new Ram 1500 (DT) is different - nhtsa, accessed December 23, 2025, https://static.nhtsa.gov/odi/tsbs/2022/MC-10221430-9999.pdf
+33. Resetting your RF Hub after a Push Button Conversion (or you just had to replace the hub), accessed December 23, 2025, https://www.youtube.com/watch?v=CNwWHbK4bJk
+34. 2014 Dodge Ram rfh not programmed - Autel Support Communities, accessed December 23, 2025, https://bbs.autel.com/autelsupport/Diagnostics/32849.jhtml
+35. SECOND KEY DELIVERY PROGRAM 23LJ01 - nhtsa, accessed December 23, 2025, https://static.nhtsa.gov/odi/tsbs/2024/MC-11010364-0001.pdf
+36. Audi Dealership Promised 2 Keys and only Delivered One. Two Months Later after a dozen calls and emails. What should I do? - Reddit, accessed December 23, 2025, https://www.reddit.com/r/Audi/comments/1auvqgv/audi_dealership_promised_2_keys_and_only/
+37. SECOND KEY DELIVERY PROGRAM 23LJ01 - nhtsa, accessed December 23, 2025, https://static.nhtsa.gov/odi/tsbs/2023/MC-10240059-9999.pdf
+38. How to program a smart key on any Toyota, Lexus or Scion car. - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=SmCN-YDkqwo
+39. DIY Lexus/Toyota Key Programming — Spare Key for $28 | Full Guide - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=58zPL3VsGY8
+40. How To Program Key To Any Lexus - 2013 Gs350 - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=J5BSxjPwE6w
+41. What documentation do I need to provide? - NASTF Support Center, accessed December 23, 2025, https://support.nastf.org/support/solutions/articles/43000755451-what-documentation-do-i-need-to-provide-
+42. Getting Started On WiTech 2.0 & Stellantis (FKA Tech Authority) - AE Tools & Computers, accessed December 23, 2025, https://www.aetools.us/blogs/aet-updates/witech-20-process-2025

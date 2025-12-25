@@ -1,0 +1,482 @@
+{
+    "id": "gm-complete-guide",
+    "title": "GM Professional Locksmith Guide (Global A & Global B)",
+    "make": "General Motors",
+    "year_start": 2010,
+    "year_end": 2025,
+    "difficulty": "Expert",
+    "estimated_time": "45-90 mins",
+    "last_updated": "2025-12-23",
+    "modules": [
+        {
+            "type": "warning_banner",
+            "id": "gm-architecture-split",
+            "level": "important",
+            "content": "GM ARCHITECTURE SPLIT: Vehicles from 2010-2025 are divided into Global A (2010-2019, Legacy) and Global B (2020+, VIP). Global A uses standard CAN and is generally locksmith-friendly. Global B uses high-speed Ethernet/CAN FD and requires server-side authentication for ALL programming."
+        },
+        {
+            "type": "info_callout",
+            "id": "gm-2012-2013-continuity",
+            "level": "tip",
+            "content": "2012 vs 2013 Continuity: Most GM models (Silverado, Cruze, Malibu, Equinox) are IDENTICAL for 2012 and 2013. They utilize the same Global A BCM architecture, PEPS (Passive Entry Passive Start) logic, and FCC IDs (e.g., OHT01060512). If a procedure works on a 2012, it works on a 2013."
+        },
+        {
+            "type": "reference_table",
+            "id": "gm-era-taxonomy",
+            "title": "GM Security Era Taxonomy",
+            "headers": [
+                "Era",
+                "Years",
+                "Architecture",
+                "Protocols",
+                "Key Type"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Global A (Standard)",
+                        "2010-2019",
+                        "Modular CAN",
+                        "SWCAN / DWCAN",
+                        "Flip Key (OHT/V2T) or Smart Key"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Global B (VIP)",
+                        "2020-Present",
+                        "Ethernet Backplane",
+                        "CAN FD / Ethernet",
+                        "Encrypted Smart Key"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "gm-global-b-blockade",
+            "level": "critical",
+            "content": "GLOBAL B (VIP) ARCHITECTURE: Complete reimagining of vehicle electronics for 2020+ models (Corvette, Tahoe, etc.). High-speed Ethernet backbone, encrypted CAN FD protocol. Traditional aftermarket key programming is BLOCKED without server-side tokens."
+        },
+        {
+            "type": "info_callout",
+            "id": "gm-global-a-vs-b",
+            "level": "important",
+            "content": "Global A = Legacy (Standard CAN, static challenge-response, offline programming possible). Global B = VIP (CAN FD, Ethernet, 24-digit token, server-side authentication MANDATORY, offline programming IMPOSSIBLE)."
+        },
+        {
+            "type": "reference_table",
+            "id": "gm-global-b-vehicles",
+            "title": "Global B (VIP) Vehicle Master List - DEALER/SERVER REQUIRED",
+            "headers": [
+                "Make",
+                "Model",
+                "Global B Start",
+                "Notes"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Corvette (C8)",
+                        "2020",
+                        "Pioneer of Global B. E99 ECM heavily encrypted."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cadillac",
+                        "CT5/CT5-V",
+                        "2020",
+                        "Early adopter. CAN FD + server token required."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cadillac",
+                        "CT4/CT4-V",
+                        "2020",
+                        "Parallel to CT5."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Tahoe",
+                        "2021",
+                        "New body style = full VIP."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Suburban",
+                        "2021",
+                        "Identical to Tahoe."
+                    ]
+                },
+                {
+                    "cells": [
+                        "GMC",
+                        "Yukon/Yukon XL",
+                        "2021",
+                        "Identical to Tahoe/Suburban."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Cadillac",
+                        "Escalade",
+                        "2021",
+                        "Same as Tahoe with added encryption."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Silverado 1500",
+                        "2022.5 (Refresh)",
+                        "VIN 12th digit ≥5 ONLY. Limited = Global A."
+                    ]
+                },
+                {
+                    "cells": [
+                        "GMC",
+                        "Sierra 1500",
+                        "2022.5 (Refresh)",
+                        "Same as Silverado. 12th digit rule applies."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Colorado",
+                        "2023",
+                        "New generation = native Global B."
+                    ]
+                },
+                {
+                    "cells": [
+                        "GMC",
+                        "Canyon",
+                        "2023",
+                        "Parallel to Colorado."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Silverado 2500/3500 HD",
+                        "2024",
+                        "CRITICAL: 2023 HDs were Global A. 2024 = Global B."
+                    ]
+                },
+                {
+                    "cells": [
+                        "GMC",
+                        "Sierra 2500/3500 HD",
+                        "2024",
+                        "Same as Silverado HD."
+                    ]
+                },
+                {
+                    "cells": [
+                        "GMC",
+                        "Acadia",
+                        "2024",
+                        "Redesign = Global B."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Trax",
+                        "2024",
+                        "Redesign moved to Global B."
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "gm-12th-digit-rule",
+            "level": "critical",
+            "content": "2022 SILVERADO/SIERRA 12TH DIGIT RULE: Both '2022 Limited' (Global A) and '2022 Refresh' (Global B) exist. 12th VIN digit determines architecture: Digit 0-4 = Pre-Refresh (Global A, standard tools work). Digit 5-9 = Refresh (Global B, requires CAN FD + 24-digit token). 10th digit (year) is NOT sufficient."
+        },
+        {
+            "type": "reference_table",
+            "id": "gm-global-a-vehicles",
+            "title": "Global A Vehicles - LOCKSMITH FRIENDLY",
+            "headers": [
+                "Make",
+                "Model",
+                "Global A Years",
+                "Transition Note"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Silverado 2500/3500 HD",
+                        "2020-2023",
+                        "2024 = Global B. Major trap for locksmiths."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Equinox",
+                        "2018-2024",
+                        "2025 redesign expected Global B."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Traverse",
+                        "2018-2023",
+                        "2024 'All-New' = Global B."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Express Van",
+                        "2018-2025",
+                        "Legacy architecture remains."
+                    ]
+                },
+                {
+                    "cells": [
+                        "GMC",
+                        "Savana Van",
+                        "2018-2025",
+                        "Twin to Express."
+                    ]
+                },
+                {
+                    "cells": [
+                        "Chevrolet",
+                        "Camaro",
+                        "2016-2024",
+                        "Alpha platform avoided full Global B."
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "gm-can-fd-barrier",
+            "level": "important",
+            "content": "CAN FD Physical Layer Barrier: Standard CAN = 500 kbps, 8 bytes/frame. CAN FD = up to 5 Mbps, 64 bytes/frame. Legacy tools physically cannot interpret these frequencies. They hear 'static noise' when connected to Global B vehicles."
+        },
+        {
+            "type": "warning_banner",
+            "id": "gm-24-digit-token",
+            "level": "critical",
+            "content": "24-DIGIT SECURITY TOKEN MECHANISM: Tool requests security access → Gateway generates encrypted session-specific seed → Seed MUST be transmitted to central server (GM's or aftermarket like Autel) → Server validates VIN, calculates 24-digit response → Token sent back to BCM. Without server connection = LOCKED. No offline bypass possible."
+        },
+        {
+            "type": "step_group",
+            "id": "gm-global-b-akl",
+            "title": "Procedure: Global B All Keys Lost (Autel IM608)",
+            "estimated_time": "45-60 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Verify vehicle is Global B (check VIN 12th digit, visual cues, RPO J22 code)"
+                },
+                {
+                    "number": 2,
+                    "text": "Connect CAN FD Adapter between VCI and OBD port",
+                    "warning": "Without adapter = communication error"
+                },
+                {
+                    "number": 3,
+                    "text": "Ensure stable internet connection for server calculation"
+                },
+                {
+                    "number": 4,
+                    "text": "Select 'CANFD Smart Key' menu in Autel software"
+                },
+                {
+                    "number": 5,
+                    "text": "Tool reads BCM data and sends request to Autel cloud"
+                },
+                {
+                    "number": 6,
+                    "text": "Wait 5-10 minutes for 24-digit token calculation"
+                },
+                {
+                    "number": 7,
+                    "text": "Follow prompts to program keys"
+                },
+                {
+                    "number": 8,
+                    "text": "If alarm active, silence it first - Gateway may block OBD port during alarm"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "gm-official-sps2",
+            "title": "Procedure: Official SPS2 Method (Guaranteed)",
+            "estimated_time": "30-45 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "Connect GM MDI2 (or J2534 passthrough like DrewTech Cardaq Plus 3) to vehicle"
+                },
+                {
+                    "number": 2,
+                    "text": "Launch Techline Connect with SPS2 application on Windows PC"
+                },
+                {
+                    "number": 3,
+                    "text": "Log in with GM Dealer credentials or NASTF VSP ID"
+                },
+                {
+                    "number": 4,
+                    "text": "Software reads VIN, verifies VSP credentials"
+                },
+                {
+                    "number": 5,
+                    "text": "24-digit token exchange handled automatically in background"
+                },
+                {
+                    "number": 6,
+                    "text": "Follow on-screen prompts for 'Add Key' or 'Program IMMO'"
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "gm-refresh-indicators",
+            "title": "2022 Silverado/Sierra Refresh Identification",
+            "headers": [
+                "Indicator",
+                "Limited (Global A)",
+                "Refresh (Global B)"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "VIN 12th Digit",
+                        "0, 1, 2, 3, 4",
+                        "5, 6, 7, 8, 9"
+                    ]
+                },
+                {
+                    "cells": [
+                        "RPO Code",
+                        "No J22",
+                        "J22 present"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Gauge Cluster",
+                        "Analog gauges",
+                        "Full digital display"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Gear Selector (Higher Trims)",
+                        "Column-mounted lever",
+                        "Console-mounted electronic"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Diesel Engine (if equipped)",
+                        "LM2 Duramax",
+                        "LZ0 Duramax"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "gm-2024-hd-trap",
+            "level": "critical",
+            "content": "2024 HD TRUCK SURPRISE: 2020-2023 Silverado/Sierra 2500/3500 HD were Global A. Tools worked perfectly. 2024 HD = Global B. Same refresh visual cues (new C-shaped LED DRLs, digital dash). Tools that worked on 2023 HD will FAIL on 2024 HD. Diagnose first - do not assume."
+        },
+        {
+            "type": "info_callout",
+            "id": "gm-corvette-warning",
+            "level": "warning",
+            "content": "Corvette C8 - Unbreakable Fortress: The E99 ECM is so hardened that even tuners cannot flash via OBD. AKL via aftermarket tools has lower success rate and higher bricking risk than trucks. Preferred method = Dealer SPS2. If process fails midway, vehicle may require tow to dealership."
+        },
+        {
+            "type": "comparison_table",
+            "id": "gm-tool-comparison",
+            "title": "Global B Tool Compatibility",
+            "items": [
+                "Autel IM608 Pro II",
+                "OBDSTAR KeyMaster DP Plus",
+                "AutoProPad G2 Turbo",
+                "GM SPS2 (Official)"
+            ],
+            "features": [
+                {
+                    "name": "CAN FD Adapter",
+                    "values": [
+                        "Required",
+                        "Required",
+                        "Required",
+                        "MDI2 native"
+                    ]
+                },
+                {
+                    "name": "24-Digit Calculation",
+                    "values": [
+                        "Yes (Autel server)",
+                        "Yes (OBDSTAR server)",
+                        "Yes (partial)",
+                        "Yes (GM server)"
+                    ]
+                },
+                {
+                    "name": "Corvette C8 AKL",
+                    "values": [
+                        "Yes (high risk)",
+                        "Limited",
+                        "Limited",
+                        "Yes (100% reliable)"
+                    ]
+                },
+                {
+                    "name": "2024 HD Support",
+                    "values": [
+                        "Yes with updates",
+                        "Yes (V33.xx+)",
+                        "Limited",
+                        "Yes"
+                    ]
+                },
+                {
+                    "name": "Server Dependency",
+                    "values": [
+                        "100% (if down = fail)",
+                        "100%",
+                        "100%",
+                        "100%"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "gm-chronology",
+            "level": "important",
+            "content": "Global B Rollout: 2020 (Corvette C8, CT4/CT5) → 2021 (Tahoe, Suburban, Yukon, Escalade) → 2022.5 (Silverado/Sierra 1500 Refresh) → 2023 (Colorado/Canyon) → 2024 (HD trucks, Trax, Acadia, Traverse). By 2024, majority of GM showroom is locked."
+        },
+        {
+            "type": "info_callout",
+            "id": "gm-future-outlook",
+            "level": "warning",
+            "content": "Future: The era of offline, low-barrier GM locksmithing is OVER. The 'Gap' is permanent. Success requires: 1) CAN FD hardware investment, 2) NASTF VSP credentials for official path, 3) Education on VIN identification. This filter separates modernized professionals from legacy operators."
+        }
+    ]
+}

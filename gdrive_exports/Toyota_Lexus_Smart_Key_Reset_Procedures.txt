@@ -1,0 +1,299 @@
+﻿The Evolution of Toyota and Lexus Smart Key Security: A Comprehensive Analysis of 'All Keys Lost' Procedures (2004–2024)
+1. Introduction: The High-Stakes Architecture of Automotive Access
+The automotive security landscape has undergone a profound metamorphosis over the last two decades, driven by an escalating arms race between manufacturers seeking to prevent theft and automotive locksmiths or technicians striving to service legitimate owners. Nowhere is this dynamic more evident than in the ecosystem of Toyota and Lexus smart key systems. From the relatively permeable architectures of the early 2000s to the server-authenticated, encrypted strongholds of the 2020s, the "All Keys Lost" (AKL) procedure serves as a litmus test for the sophistication of vehicle immobilization technology.
+For the professional automotive locksmith, diagnostic technician, or security researcher, the distinction between a "16-minute reset" and a "Seed Code" intervention is not merely procedural; it represents a fundamental shift in the philosophy of access control. The legacy systems, prevalent from approximately 2004 to 2016, operated on a principle of "security through delay"—a localized, onboard logic that permitted a full system reset if the technician could simply wait out a timer. In stark contrast, the modern epoch, ushered in by the Toyota New Global Architecture (TNGA) and reinforced by Technical Service Bulletins such as T-SB-0064-18, operates on "security through authority." These systems demand cryptographic handshakes with central servers, effectively removing the vehicle's autonomy to authorize its own keys.
+This report provides an exhaustive, forensic analysis of this twenty-year evolution. It dissects the cryptographic underpinnings of the 4D, G, H (8A), and 4A transponder families, mapping them against the procedural realities of the service bay. By synthesizing technical documentation, hardware specifications, and procedural workflows, we establish a definitive operational framework for identifying, diagnosing, and resolving AKL scenarios across the Toyota and Lexus lineups. The analysis reveals that successful intervention relies less on rote memorization of procedures and more on a granular understanding of hardware compatibility—specifically the often-overlooked distinctions between circuit board identifiers like 271451-0140, 271451-3370, and 281451-0020—which can mean the difference between a successful reset and a catastrophic module failure.
+
+
+  
+
+
+
+2. The Theoretical Framework: Cryptography in Motion
+To understand the procedural divergence in AKL scenarios, one must first grasp the underlying technological shifts in the transponder systems. Toyota’s nomenclature—often referenced colloquially by locksmiths as "Dot," "G," or "H" keys—corresponds to specific cryptographic protocols and bit-strengths developed largely by Texas Instruments and NXP Semiconductors. These designations are not arbitrary; they dictate the available attack vectors and the ECU's response mechanisms.
+2.1 The Legacy Foundation: 4C and 4D Systems
+The early 2000s were dominated by the Texas Instruments Digital Signature Transponder (DST) technology. The 4C system, a fixed-code transponder, was the standard for early master/valet key configurations. It lacked mutual authentication, meaning the key simply broadcasted its ID, and if the ECU recognized it, the car started. This simplicity made it highly susceptible to cloning but also easy to reset.
+This evolved into the 4D system, which introduced 40-bit encryption.1 In the context of Smart Keys (proximity systems), these are frequently identified by their Page 1 data—specifically "94," "98," or "D4." The 4D system represented a significant leap, requiring the vehicle and key to exchange encrypted challenges. However, the encryption strength was low enough that the system relied heavily on the "16-minute reset" logic as its primary defense against unauthorized programming. The logic was simple: if a thief had the diagnostic tools to command a reset, they likely wouldn't have the time to sit exposed for 16 minutes in a vehicle.
+2.2 The Transitional Epoch: G-Chip and H-Chip (128-bit)
+As computational power increased, 40-bit encryption became vulnerable to brute-force attacks. Toyota responded with the G-Chip (80-bit DST-40/80) around 2010.1 While physically similar to 4D keys, the G-chip required updated logic in the Immobilizer Code Box. Crucially, early G-chip systems largely retained the 16-minute reset capability, making them a transitional technology that offered better encryption without fundamentally changing the service procedure.
+The true watershed moment came with the H-Chip (128-bit AES/DST-AES), introduced roughly around 2013-2014.2 The "H" stamp on a keyed ignition blade, or the specific board ID on a smart key, indicates this 128-bit architecture. This era bridges the gap between legacy and modern protocols. Early H-chip vehicles (e.g., 2014-2016 Camrys) typically function within the 16-minute reset paradigm or allow for emulator-based bypasses. However, late-model H-chip vehicles (2017-2018+) were the first to enforce the Seed Code requirement, signaling the end of the onboard reset era.
+2.3 The Modern Fortress: TNGA, 8A-BA, and 4A
+With the rollout of the Toyota New Global Architecture (TNGA), security became integrated into the vehicle's Central Gateway (CGW). The 8A designation became standard, but recent iterations like 8A-BA (found in the 2022+ Sienna and Tundra) and 4A (found in the 2022+ Corolla Cross) represent a departure from Texas Instruments to NXP Hitag AES standards.3 These systems often integrate the smart key module data into the main ECU or utilize a new "TMLF19D" smart box type. In these architectures, the OBDII port is firewalled; the gateway module filters diagnostic traffic, preventing the traditional reset commands from reaching the immobilizer. This necessitates strictly server-based authorization (NASTF) or invasive "bench" connection methods using 30-pin cables to physically bypass the gateway.
+3. The Legacy Era (2004–2016): The Golden Age of Onboard Resets
+The "Legacy Era" is defined by the autonomy of the vehicle's onboard computers. During this period, the decision to erase known keys and accept new ones was made entirely by the vehicle's Smart Key ECU, contingent only on a security delay. This "16-minute reset" (Smart Code Reset) became the industry standard for AKL situations, allowing technicians to resolve lost key scenarios using basic diagnostic tools without internet access or third-party authorization.
+3.1 Mechanism of the 16-Minute Reset
+The reset command, accessible via tools like Techstream, Autel, or Smart Pro, triggers a re-initialization sequence in the Certification ECU (Smart Key Module) and the ID Code Box.2 When the command is sent, the vehicle enters a "wait state." The security indicator on the dashboard typically remains solid or flashes in a specific pattern. This delay is a hard-coded security feature designed to deter "smash and grab" thefts involving key programming tools.
+Upon the expiration of the 16-minute timer, the ECU executes a "communication complete" handshake.4 At this precise moment, all previously registered key IDs are wiped from the memory. The system effectively reverts to a "virgin" or auto-learn state, ready to accept the first valid transponder presented to the Start Button. It is critical to note that this procedure is destructive; any old keys found later will no longer function until they are re-registered.
+3.2 Detailed Model Analysis: The 4D and Early G Era
+The application of this procedure is vast, covering millions of vehicles on the road today.
+The Camry and Avalon Lineage (2007–2011)
+The 2007–2011 Toyota Camry and 2005–2012 Toyota Avalon represent the archetypal "Legacy" systems. These vehicles utilize the HYQ14AAB or HYQ14AEM FCC IDs.5 The internal circuit board for these remotes is typically 271451-0140. In an AKL scenario, the technician connects via OBDII, selects "Smart Code Reset," waits 16 minutes, and then presents a virgin or unlocked aftermarket key. The reliability of this procedure on these models is near 100%, provided the replacement key has the correct Board ID. A common pitfall here is attempting to use a board from a RAV4 (Board 3370), which shares the same FCC ID but is incompatible with the Camry's sedan-specific ECU logic.6
+The RAV4 and Highlander "E" Board Nuance (2008–2012)
+While sharing the same era as the Camry, the RAV4 (2006–2012) and Highlander (2008–2013) introduced a hardware fragmentation that continues to plague technicians. These SUVs often utilize the 271451-3370 board, distinguishable by a small "E" stamped on the PCB.7 The 16-minute reset procedure remains identical, but the hardware requirement is strict. If a technician performs a reset on a 2010 RAV4 and attempts to program a non-"E" board (0140), the vehicle will complete the reset but refuse to accept the key, leaving the car immobilized with zero keys programmed. This underscores the necessity of verifying Board IDs before initiating any destructive reset.
+The Prius Gen 3 and Venza (2010–2015)
+The Prius Gen 3 (2010–2015) and Venza (2009–2016) utilize a distinct board architecture, typically 271451-5290, housed within the HYQ14ACX remote.8 Despite the unique form factor of the Prius fob, the underlying architecture remains 4D-based (Page 1: 98). The 16-minute reset is fully supported on these models. Interestingly, the Prius V (wagon) extended this legacy architecture well into 2016, arguably one of the last models to support the onboard reset natively without complications.
+3.3 Lexus Specifics: The Luxury Implementation
+Lexus models from this era generally mirror their Toyota counterparts but often adopted the "G" and "H" standards slightly earlier.
+The LS 460 and LX 570 (2007–2012)
+The flagship LS 460 (2007–2012) and LX 570 (2008–2015) utilize the HYQ14AEM or HYQ14AAB fobs, specifically with Board 271451-6601.9 The AKL procedure is the standard 16-minute reset. However, the LS 460 is notorious for communication errors if the battery voltage drops even slightly below 12.5V during the long wait time. The immense number of ECUs on the CAN bus in these luxury vehicles creates a significant parasitic draw, making a robust power supply mandatory during the 16-minute window.4
+The RX 350 (2010–2015)
+The RX 350 (2010–2015) is a workhorse of the Lexus lineup, utilizing the HYQ14ACX remote (Board 271451-5290 or similar). It is robustly supported by the 16-minute reset.10 A unique characteristic of the RX series is the availability of the "Smart Card" key (FCC ID: HYQ14AEB), which functions identically to the fob regarding programming but requires specific slot positioning (or holding against the button) during the registration phase.11
+3.4 Definitive List of Supported Legacy Models
+The following table aggregates the models confirmed to support the 16-minute onboard reset. This list assumes the use of standard diagnostic tools (Techstream, Autel, Smart Pro) and excludes models that may require seed codes in their final production months.
+Table 1: Toyota Models Supporting 16-Minute Onboard Reset (Legacy)
+Model
+	Years Supported
+	FCC ID / Hardware ID
+	Transponder / Chip Type
+	Avalon
+	2005 – 2012
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	Camry
+	2007 – 2011
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	Corolla
+	2009 – 2013
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	Highlander
+	2008 – 2013
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	Land Cruiser
+	2008 – 2015
+	HYQ14AEM
+	4D (Page 1: 94/98)
+	Prius (Gen 3)
+	2010 – 2015
+	HYQ14ACX
+	4D (Page 1: 98)
+	Prius V
+	2012 – 2016
+	HYQ14ACX
+	4D (Page 1: 98)
+	RAV4
+	2006 – 2012
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	Sienna
+	2011 – 2016
+	HYQ14AEM
+	4D (Page 1: 98)
+	Tundra
+	2007 – 2017
+	Keyed (Dot/G) / HYQ14FBA
+	4D / G / H
+	Venza
+	2009 – 2016
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	Table 2: Lexus Models Supporting 16-Minute Onboard Reset (Legacy)
+Model
+	Years Supported
+	FCC ID / Hardware ID
+	Transponder / Chip Type
+	ES 350
+	2007 – 2012
+	HYQ14AEM, HYQ14AAB
+	4D (Page 1: 94/98)
+	GS 350/430
+	2006 – 2011
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	IS 250/350
+	2006 – 2013
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	LS 460
+	2007 – 2012
+	HYQ14AAB, HYQ14AEM
+	4D (Page 1: 94/98)
+	RX 350/450h
+	2010 – 2015
+	HYQ14ACX
+	4D (Page 1: 98)
+	GX 460
+	2010 – 2016
+	HYQ14ACX
+	4D (Page 1: 98)
+	LX 570
+	2008 – 2015
+	HYQ14AEM
+	4D (Page 1: 94/98)
+	
+
+  
+
+
+
+4. The Transitional Era (2012–2017): H-Chips and the Hardware Split
+The transition from the 4D era to the modern security state was not immediate. Between 2012 and 2017, Toyota introduced 128-bit encryption (H-Chip) while largely retaining the older procedural framework. This period is characterized by significant hardware fragmentation, where visual identification of keys became unreliable, and internal Board IDs became the primary method of distinguishing compatible remotes.
+4.1 The Rise of the HYQ14FBA (G and AG Boards)
+The defining hardware of this era is the HYQ14FBA remote. This fob looks distinct from the older "blob" style keys, often featuring a sleeker, angular design. However, the FCC ID alone is insufficient for programming.
+* Board 281451-0020 (The "G" Board): This board became the standard for passenger sedans. Found in the Camry (2012–2017), Avalon (2013–2018), and Corolla (2014–2019).12 These systems generally support the 16-minute reset or the early "emulator bypass" methods.
+* Board 281451-2110 (The "AG" Board): This board was deployed in trucks and SUVs, such as the Highlander (2014–2019), Tacoma (2016–2021), and Tundra (2018–2021).13 Despite sharing the HYQ14FBA FCC ID with the sedan key, the AG board uses a different transponder protocol. A technician attempting to program a 0020 board to a Tacoma requiring a 2110 board will face a programming failure, often after the reset has completed, leaving the vehicle in a "no keys" state.
+4.2 Procedural Ambiguity: Reset or Seed Code?
+The 2016–2018 model years represent a "grey zone" where the AKL procedure varies by specific build date and factory. For example, a 2017 Camry will almost certainly accept a 16-minute reset or an APB112 emulator bypass. However, a 2018 Camry (built on the TNGA platform) will require a Seed Code.14 This unpredictability necessitates a "try and verify" workflow:
+1. Attempt Reset: Connect the diagnostic tool and attempt the "Smart Code Reset."
+2. Observe Tool Prompt:
+   * If the tool starts a 16-minute timer, the vehicle is on the Legacy protocol.
+   * If the tool immediately requests a "Seed Number" or displays a "Communication Error," the vehicle is on the Modern protocol requiring TIS authorization or a specific bypass adapter.
+5. The Modern Era (2018–2024): TNGA, Seed Codes, and NASTF
+The introduction of the Toyota New Global Architecture (TNGA) marked the end of the 16-minute reset. With TSB T-SB-0064-18 (and L-SB-0023-18 for Lexus), Toyota implemented a robust challenge-response system designed to eliminate unauthorized key programming.15
+5.1 The TSB-0064-18 Mandate
+Technical Service Bulletin T-SB-0064-18 explicitly states that the "Immobilizer and Smart Key Reset" function in Techstream now requires a secondary approval. The vehicle generates a random "Seed Number" (typically 96 bytes) during the reset request. This seed must be transmitted to the Toyota TIS (Technical Information System) server. A locksmith or technician must possess a valid LSID (Locksmith Security ID) registered with NASTF to generate the corresponding Pass-Code. Without this Pass-Code, the vehicle's gateway denies the reset request.
+5.2 The 8A and 8A-BA Chip Architecture
+The physical keys for this era utilize the HYQ14FBC and HYQ14FBE FCC IDs.
+* 8A (H-Chip): Continued use in the Camry (2018+), RAV4 (2019+), and Prius (2016+). While the chip physics are similar to the previous era, the authorization protocol is entirely server-dependent.
+* 8A-BA: The latest evolution, found in the 2022+ Sienna, Venza, and Tundra. This utilizes the TMLF19D smart ECU.17 The "BA" designation refers to the specific Page 4 data of the transponder (P4=BA). These systems are significantly more hardened; the OBDII port is restricted, preventing even standard Seed Code extraction in some cases without specialized "bench" cables.
+5.3 4A: The Hitag AES Divergence
+A distinct subset of Toyota's modern fleet, specifically the 2022+ Corolla Cross and Yaris Cross, abandoned the Texas Instruments architecture entirely for the NXP Hitag AES (4A) system.18 This system is fundamentally different from the 8A architecture.
+* AKL Implication: Standard Toyota emulators (like the APB112) designed for 4D/8A chips will not work on 4A systems.
+* Procedure: These vehicles require a dedicated "Smart Key Emulator" capable of 4A simulation (e.g., the Autel APB112 with specific 4A software update or Lonsdor LKE) and often require reading the D-Flash from the Smart Box directly to generate the emergency key.
+Table 3: Toyota Models Requiring Seed Code / Bypass (Modern Era)
+Model
+	Years
+	FCC ID / Hardware
+	Chip Type
+	Camry
+	2018 – 2024
+	HYQ14FBC, HYQ14FBE
+	8A (H) / 8A-BA
+	C-HR
+	2018 – 2022
+	HYQ14FBA / HYQ14FBC
+	8A (H)
+	Corolla
+	2020 – 2024
+	HYQ14FBC, HYQ14FBE
+	8A (H) / 4A (Cross)
+	Highlander
+	2020 – 2024
+	HYQ14FBC, HYQ14FBE
+	8A (H) / 8A-BA
+	RAV4
+	2019 – 2024
+	HYQ14FBC, HYQ14FBE
+	8A (H) / 8A-BA
+	Sienna
+	2021 – 2024
+	HYQ14FBC
+	8A-BA (TMLF19D)
+	Tundra
+	2022 – 2024
+	HYQ14FBE
+	8A-BA
+	Venza
+	2021 – 2024
+	HYQ14FBC
+	8A-BA
+	Prius
+	2016 – 2024
+	HYQ14FBC
+	8A (H)
+	Table 4: Lexus Models Requiring Seed Code / Bypass (Modern Era)
+Model
+	Years
+	FCC ID / Hardware
+	Chip Type
+	ES 350/300h
+	2019 – 2024
+	HYQ14FBC
+	8A (H)
+	LS 500
+	2018 – 2024
+	HYQ14FBC
+	8A (H)
+	UX 200/250h
+	2019 – 2024
+	HYQ14FBC
+	8A (H)
+	NX 250/350
+	2022 – 2024
+	HYQ14FBC / FLB
+	8A-BA
+	RX 350
+	2016 – 2022
+	HYQ14FBB
+	8A (H)
+	RX 350 (New)
+	2023 – 2024
+	HYQ14FLB
+	8A-BA
+	IS 300/350
+	2014 – 2024*
+	HYQ14FBA / FBC
+	8A (H)
+	Note on IS Series: The Lexus IS series is an outlier. It adopted the 8A (H-chip) architecture very early (2014) but maintained the older body control style, creating a mix of procedures. Late-model IS (2021+) vehicles are firmly in the Seed Code era.
+
+
+  
+
+
+
+6. The Counter-Measures: Bypass Technologies and Emulation
+While the official Toyota TIS/NASTF path is the only "authorized" method for modern vehicles, the aftermarket tool industry (Autel, Xhorse, Lonsdor) has developed alternative "Bypass" methodologies. These methods are essential for locksmiths who may not have immediate NASTF access or for vehicles where the TIS server is unavailable.
+6.1 The Emulator Evolution (Autel APB112 / Xhorse Key Tool Max)
+For many H-Chip (8A) vehicles in the 2013–2018 range, and even some up to 2021, the AKL situation can be resolved by creating a "Simulated Master Key".19
+* Data Harvesting: Instead of asking the ECU to reset, the scan tool (e.g., Autel IM608) queries the Smart Key ECU for its public data. In older H-chip systems, this data could be read via OBDII.
+* Key Generation: The tool uses this harvested data to program a specialized emulator dongle (Autel APB112 or Xhorse XM38).20 The emulator is then energized and mimics the cryptographic signature of a valid master key.
+* The "Add Key" Loophole: Once the vehicle recognizes the emulator as a valid key, the technician can perform a standard "Add Key" procedure rather than a destructive "All Keys Lost" reset. This bypasses the need for a Seed Code entirely because the vehicle believes a valid key is present.
+6.2 The CAN Injection Era: 30-Pin Cables (2022+)
+With the introduction of the 8A-BA and 4A systems (e.g., 2022 Tundra, 2022 Corolla Cross), Toyota patched the OBDII vulnerability. The Gateway Module now filters the data traffic needed to generate an emulator.
+* Direct Connection: To circumvent this, technicians must now use 30-pin splitter cables (e.g., Autel G-Box3, Xhorse XD8ABAGL).17 These cables connect directly to the Smart Key ECU (usually located behind the glove box or driver's dash), physically bypassing the Gateway Module.
+* Bench Mode on the Car: This method essentially performs a "bench" read of the ECU while it is still in the vehicle. By injecting data directly into the Smart ECU's CAN lines, the tool can read the necessary EEPROM data to generate an emergency start key, which is then used to program a permanent fob.
+
+
+  
+
+
+
+7. Procedural Guidelines for Success
+7.1 Diagnostic Triage
+Before connecting a tool, the technician must perform a triage to determine the vehicle's era:
+1. Check the VIN: Determine the exact Model Year. A 2017 Camry is likely Reset/Emulator; a 2018 Camry is Seed Code.
+2. Inspect the Door Lock: (For keyed ignitions) An "H" stamp on the blade confirms 128-bit encryption. A "G" stamp confirms 80-bit.
+3. Scan for ECUs: Use a diagnostic tool to identify the "Smart Key" or "Immobilizer" ECU part number.
+   * TMLF12: Indicates older 4D/G systems.
+   * TMLF15: Indicates H-Chip (8A) systems.
+   * TMLF19: Indicates the latest 8A-BA systems requiring 30-pin cables.
+7.2 The 16-Minute Reset Workflow
+1. Voltage Stabilization: Connect a battery maintainer. Voltage drops below 12V can cause the reset to hang or fail.4
+2. Tool Setup: Select "Smart Code Reset."
+3. The Wait: Do not touch the brake pedal, start button, or door locks during the 16-minute countdown.
+4. Re-Registration: Once the reset is complete, the tool will usually beep.
+   * Hold the Emblem Side of the new key to the Start Button.
+   * Listen for the "Bip" (key detected) and then "Bip-Bip" (key registered).
+   * Crucial Step: Once all keys are added, place the last key on the passenger seat and cycle the driver's door (Open/Close) to exit learning mode. Failing to do this can leave the system in a "learning" loop, draining the battery.
+7.3 The Seed Code Workflow
+1. Data Extraction: Select "Immobilizer Reset" (Online). The tool will provide a Seed Number.
+2. Authorization: Log into the TIS portal or NASTF VSP registry. Enter the VIN and Seed.
+3. Pass-Code Entry: Receive the 6-character Pass-Code. Enter it into the tool immediately.
+4. Instant Reset: The system will reset instantly. Proceed to "Add Key" as above.
+8. Conclusion and Future Outlook
+The trajectory of Toyota and Lexus security is clear: the era of the autonomous, onboard reset is over. The "16-minute reset," once the bread and butter of the automotive locksmith, is now relegated to the "Legacy" fleet of 2004–2016 vehicles. As these vehicles age out of the primary service market, the industry must pivot entirely to server-authorized (Seed Code) or advanced hardware-bypass (CAN Injection) methodologies.
+For the professional, the key to navigating this fragmented landscape lies not in a single "magic bullet" tool, but in the ability to accurately identify the specific architecture of the vehicle in the bay. Recognizing the subtle difference between a 2017 Camry (H-Chip, Emulator-friendly) and a 2018 Camry (TNGA, Seed Code mandatory), or distinguishing a RAV4 "E" board from a standard one, is the defining skill of the modern automotive security specialist. As 8A-BA and 4A systems become the standard, the reliance on deep diagnostic access and professional credentialing will only intensify, solidifying the role of the automotive locksmith as a specialized IT professional for the vehicle network.
+Works cited
+1. Abrites Diagnostics for Toyota_Lexus_Scion User Manual HTML, accessed December 17, 2025, https://abrites.com/media/user_manuals/html/abrites-diagnostics-for-toyota-lexus-scion-user-manual/index.html?v=1687950727
+2. Toyota Transponder List | PDF | Manufactured Goods | Vehicles - Scribd, accessed December 17, 2025, https://www.scribd.com/document/706231542/TOYOTA-TRANSPONDER-LIST
+3. Lonsdor K518 Program 2023 Toyota Corolla Cross 4A BA All Smart Keys Lost with FP30 Cable-OBDII365 - YouTube, accessed December 17, 2025, https://www.youtube.com/watch?v=Jka5B5vqj5o
+4. Advanced Diagnostics MVP Pro T Code PRO Manual VER 2017 - device.report, accessed December 17, 2025, https://device.report/m/49da9e0c7308d64662f483567ff07d34d0e436b0d0f75cc78f344161ed4d086c
+5. 2009-2010 Toyota Corolla 4-Button Smart Key Fob (HYQ14AAB, 89904-06040, 89904-06041, 89904-33181, Board: 271451-0140) - NorthCoast Keyless, accessed December 17, 2025, https://northcoastkeyless.com/product/2009-2010-toyota-corolla-smart-key-fob-remote-fcc-hyq14aab-p-n-89904-06040-89904-06041/
+6. Toyota RAV4 Smart Key FOB/ 3 Button (E-Board 3370, HYQ14AAB / HYQ14AEM, accessed December 17, 2025, https://tomskey.com/products/toyota-rav4-smart-key-fob-3-button-e-board-3370-hyq14aab-3b-3370board-fob
+7. 2009 - 2012 Toyota Smart Key 4B Fob FCC# HYQ14AAB / HYQ14AEM - Locksmith Keyless, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2009-2012-toyota-smart-key-fcc-hyq14aab-hyq14aem
+8. Toyota Prius 2010-2015 4-Btn Smart Key (HYQ14ACX-5290)—OEM NEW, accessed December 17, 2025, https://www.americankeysupply.com/product/toyota-prius-2010-2015-4-btn-smart-key-hyq14acx-5290-oem-new-2039
+9. 2015 Lexus Smart Key 4B W/ Trunk Fob FCC# HYQ14AEM - 6601 - 899 - Locksmith Keyless, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2011-2013-lexus-smart-key-4b-fcc-hyq14aem-6601-board
+10. How To Easily Program Your 2010-2015 Lexus RX 350 Key Fob - YouTube, accessed December 17, 2025, https://www.youtube.com/watch?v=0sE6ynhVnmI
+11. 2009-2016 Lexus Smart Key Wallet Card HYQ14AEB - Your Car Key Guys, accessed December 17, 2025, https://yourcarkeyguys.com/products/2009-2016-lexus-smart-key-wallet-card-hyq14aeb
+12. 2014 Toyota Camry Smart Key 4 Buttons FCC# HYQ14FBA - 0020 - Locksmith Keyless, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2014-toyota-camry-smart-key-4-buttons-fcc-hyq14fba-0020-315-mhz
+13. Toyota Tacoma, Land Cruiser, Highlander & Prius C Smart Proximity Key, Push Button Start Keyless Remote FOB with Emergency Key - Tom's Key Company, accessed December 17, 2025, https://tomskey.com/products/toyota-tacoma-land-cruiser-highlander-prius-c-smart-proximity-key-push-button-start-keyless-remote-fob-with-emergency-key-hyq14fba-3b-ag2110-fob-logo
+14. Immobilizer and Smart Key Reset - nhtsa, accessed December 17, 2025, https://static.nhtsa.gov/odi/tsbs/2018/MC-10143927-9999.pdf
+15. Smart Key Immobilizer Reset and Add/Remove Key - nhtsa, accessed December 17, 2025, https://static.nhtsa.gov/odi/tsbs/2024/MC-10253225-9999.pdf
+16. Smart Key Immobilizer Reset and Add/Remove Key - nhtsa, accessed December 17, 2025, https://static.nhtsa.gov/odi/tsbs/2018/MC-10143937-9999.pdf
+17. Xhorse XD8ABAGL Toyota BA All Keys Lost Adapter ABK-1765 - ABKEYS, accessed December 17, 2025, https://abkeys.com/products/xhorse-xd8abagl-toyota-ba-all-keys-lost-adapter-xd8abagl-1765
+18. 2023 Toyota Corolla Cross bladed key programming via Smart Pro - YouTube, accessed December 17, 2025, https://www.youtube.com/watch?v=AdYuhzG6F4k
+19. Autel APB112 Smart Key Simulator for Autel Key Programmer - UHS Hardware, accessed December 17, 2025, https://www.uhs-hardware.com/products/autel-apb112-smart-key-simulator
+20. UNIVERSAL LEXUS/TOYOTA SMART KEY BY XHORSE - YouTube, accessed December 17, 2025, https://www.youtube.com/watch?v=w9hI9U7Z6Uw
+21. 2022-2025 Toyota Tundra All keys lost programming and PIN code bypass. - YouTube, accessed December 17, 2025, https://www.youtube.com/watch?v=EDR79QIqQqo

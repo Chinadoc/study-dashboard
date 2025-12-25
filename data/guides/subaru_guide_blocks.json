@@ -1,200 +1,542 @@
 {
     "id": "subaru-complete-guide",
-    "title": "Subaru Professional Locksmith Programming Guide",
+    "title": "Subaru SGP Security Architecture & Key Programming Guide",
     "make": "Subaru",
     "year_start": 2005,
     "year_end": 2025,
-    "difficulty": "Intermediate",
-    "estimated_time": "15-30 mins",
-    "last_updated": "2024-12-23",
+    "difficulty": "Expert",
+    "estimated_time": "30-60 mins (2019+)",
+    "last_updated": "2025-12-23",
     "modules": [
         {
+            "type": "warning_banner",
+            "id": "subaru-sgp-paradigm-shift",
+            "level": "critical",
+            "content": "2019+ SUBARU GLOBAL PLATFORM (SGP) PARADIGM SHIFT: Modern Subaru security uses THREE overlapping layers: (1) Security Gateway (SGW) network isolation, (2) SLOA (Subaru Locking On Attempt) algorithmic defense, and (3) 128-bit DST-AES (H-Chip) encryption. All three must be addressed for successful programming."
+        },
+        {
+            "type": "reference_table",
+            "id": "subaru-security-evolution",
+            "title": "Subaru Security Architecture Timeline",
+            "headers": [
+                "Era",
+                "Years",
+                "Platform",
+                "Encryption",
+                "SGW Required?",
+                "SLOA Active?"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Legacy",
+                        "2005-2010",
+                        "Pre-SGP",
+                        "40/80-bit G-Chip",
+                        "NO",
+                        "NO"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Transition",
+                        "2011-2018",
+                        "Pre-SGP",
+                        "80-bit G-Chip",
+                        "NO",
+                        "NO"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Early SGP",
+                        "2018-2019",
+                        "SGP",
+                        "128-bit H-Chip",
+                        "PARTIAL (permissive)",
+                        "YES"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Modern SGP",
+                        "2020-2025",
+                        "SGP",
+                        "128-bit DST-AES",
+                        "MANDATORY",
+                        "ACTIVE"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "subaru-sgw-mandatory",
+            "level": "critical",
+            "content": "SGW BYPASS MANDATORY (2020+): The OBD-II port connects to the 'Public' side of the Security Gateway ONLY. Any write command to BIU/ECM is BLOCKED unless: (1) You use a 12+8 physical bypass cable, OR (2) You connect via Star Connector at the DCM. AutoAuth is NOT viable for Subaru immobilizer programming - the latency triggers SLOA lockout."
+        },
+        {
+            "type": "reference_table",
+            "id": "subaru-sgw-locations",
+            "title": "SGW/DCM Access Points by Model",
+            "headers": [
+                "Model",
+                "Years",
+                "SGW Location",
+                "DCM Location",
+                "Recommended Bypass"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Outback/Legacy",
+                        "2020-2025",
+                        "Driver dash (near BIU/fuse block)",
+                        "Behind infotainment",
+                        "12+8 Cable or Star Connector"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Forester",
+                        "2019-2025",
+                        "Behind glovebox or near head unit",
+                        "Accessible via radio cavity",
+                        "Starlink Bypass (radio access)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Ascent",
+                        "2019-2025",
+                        "Deep in central dashboard",
+                        "Via head unit cavity",
+                        "Starlink Bypass (DCM preferred)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Crosstrek",
+                        "2018-2020",
+                        "Variable (EyeSight dependent)",
+                        "Near steering column",
+                        "May allow OBD (check trim)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Crosstrek",
+                        "2021-2025",
+                        "Near steering column/BCM",
+                        "Integrated",
+                        "12+8 Cable required"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "subaru-dcm-jammer",
+            "level": "warning",
+            "content": "STARLINK DCM = THE PRIMARY OBSTACLE: The Data Communication Module (DCM) actively monitors for 'abnormal' bus traffic (high-frequency polling from key programmers) and FLOODS THE BUS WITH NOISE. In 2019-2021 models, the DCM is often MORE problematic than the SGW. You MUST isolate the DCM via: (1) Starlink Bypass Plug (e.g., AHH-7747), OR (2) Pull DCM Fuse (Telematics)."
+        },
+        {
+            "type": "warning_banner",
+            "id": "subaru-sloa-protocol",
+            "level": "critical",
+            "content": "SLOA LOCKOUT WARNING: 3 failed PIN/Security ID attempts = SOFT LOCKOUT (15-30 min timer, ignition must stay ON). Repeated failures OR EEPROM manipulation = HARD LOCKOUT (no timer - requires capacitive discharge or SSM4 reset). The SLOA counter also increments from 'abnormal CAN traffic' (sniffing attempts) and low voltage during writes."
+        },
+        {
+            "type": "step_group",
+            "id": "subaru-sloa-recovery",
+            "title": "SLOA Lockout Recovery Procedure",
+            "estimated_time": "15-30 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "SOFT LOCKOUT: Leave ignition in ON position (engine OFF) for 15-30 minutes. Do NOT turn ignition off - this pauses the timer."
+                },
+                {
+                    "number": 2,
+                    "text": "Watch for security indicator light pattern change (solid → flashing → off = reset complete)."
+                },
+                {
+                    "number": 3,
+                    "text": "HARD LOCKOUT: Disconnect battery negative AND positive terminals."
+                },
+                {
+                    "number": 4,
+                    "text": "Touch both disconnected terminals together for 30 seconds (capacitive discharge)."
+                },
+                {
+                    "number": 5,
+                    "text": "Wait 5 minutes. Reconnect battery. Retry programming sequence from beginning."
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "subaru-eyesight-risk",
+            "level": "critical",
+            "content": "EYESIGHT BRICKING RISK: The stereo camera system is a 'chatty' CAN node. If Eyesight broadcasts a high-priority safety message during EEPROM Read/Write, data packets COLLIDE causing potential BIU/Smart ECU corruption ('bricking'). ALWAYS pull the Eyesight fuse ('ES', 'Safety', or 'Camera' in interior fuse box) before any immobilizer work on 2019+ models."
+        },
+        {
             "type": "info_callout",
-            "id": "subaru-immo-overview",
+            "id": "subaru-eyesight-post-programming",
             "level": "important",
-            "content": "Subaru uses Texas Instruments chips. Evolution: 4D62 (2005-2010), 82/G chip (2011-2018), H chip (2019+). Prox systems became common in 2015+."
+            "content": "After Eyesight Reconnection: Expect 'Eyesight Disabled' warning and U-codes (Communication Errors). Drive vehicle >20 mph for several minutes to allow self-check. If warning persists, static calibration via SSM4 may be required."
         },
         {
             "type": "reference_table",
             "id": "subaru-transponder-evolution",
-            "title": "Subaru Transponder Evolution",
+            "title": "Subaru Transponder/Chip Evolution",
             "headers": [
                 "Era",
-                "Chip",
+                "Chip Type",
+                "Encryption",
                 "Key Part",
-                "Models"
+                "AKL Method"
             ],
             "rows": [
                 {
                     "cells": [
                         "2005-2010",
                         "TI 4D62",
+                        "40/80-bit",
                         "SUB4-PT",
-                        "Legacy, Outback, Forester, Impreza"
+                        "Standard OBD"
                     ]
                 },
                 {
                     "cells": [
                         "2009-2014",
                         "TI 4D62 (DAT17)",
+                        "80-bit",
                         "DAT17T13/T42",
-                        "Legacy, Outback (High Sec)"
+                        "Standard OBD"
                     ]
                 },
                 {
                     "cells": [
                         "2012-2018",
-                        "TI 82 (G)",
+                        "TI 82 (G-Chip)",
+                        "80-bit",
                         "TOY43RT45",
-                        "Impreza, XV Crosstrek, WRX"
+                        "Standard OBD"
                     ]
                 },
                 {
                     "cells": [
-                        "2019+",
-                        "TI H (128-bit)",
+                        "2019-2025",
+                        "TI H-Chip (8A)",
+                        "128-bit DST-AES",
                         "TOY43RH-PT",
-                        "Ascent, Forester, Outback, Crosstrek"
-                    ]
-                },
-                {
-                    "cells": [
-                        "2015+",
-                        "Prox",
-                        "OEM 88835-xx",
-                        "BRZ, Forester, Outback, Legacy, WRX"
-                    ]
-                }
-            ]
-        },
-        {
-            "type": "tool_checklist",
-            "id": "subaru-essential-tools",
-            "title": "Subaru Essential Tools",
-            "items": [
-                {
-                    "name": "Smart Pro / Autel IM608",
-                    "required": true,
-                    "notes": "Required for all encrypted systems"
-                },
-                {
-                    "name": "Lishi DAT17",
-                    "required": true,
-                    "notes": "For 2009-2014 high-security locks"
-                },
-                {
-                    "name": "Lishi SUB1/SUB4",
-                    "required": true,
-                    "notes": "For older non-high-security locks"
+                        "Sniff-Calculate-Emulate (APB112/LKP-04)"
+                    ],
+                    "highlight": true
                 }
             ]
         },
         {
             "type": "step_group",
-            "id": "subaru-add-key-4d62",
-            "title": "Procedure: Add Key (4D62 System)",
-            "estimated_time": "10-15 mins",
+            "id": "subaru-h-chip-akl",
+            "title": "H-Chip (128-bit) All Keys Lost Procedure",
+            "estimated_time": "45-60 mins",
             "steps": [
                 {
                     "number": 1,
-                    "text": "Connect to OBD. Navigate: IMMO → Subaru → Model → Year."
+                    "text": "PREPARATION: Install SGW bypass (12+8 cable). Pull Eyesight fuse AND DCM fuse if applicable."
                 },
                 {
                     "number": 2,
-                    "text": "Select 'Add Transponder Key'."
+                    "text": "Connect IM608/Smart Pro to vehicle. Connect APB112 emulator to diagnostic tool via USB."
                 },
                 {
                     "number": 3,
-                    "text": "Insert working key when prompted."
+                    "text": "DATA COLLECTION: Select 'All Keys Lost (via OBD)'. Insert blank blade into ignition, turn ON."
                 },
                 {
                     "number": 4,
-                    "text": "Insert NEW key when prompted. Wait for confirmation."
+                    "text": "Place APB112 coil near ignition coil. The tool cycles the data stream, APB112 captures encrypted query."
                 },
                 {
                     "number": 5,
-                    "text": "Test start with new key."
+                    "text": "CALCULATION: Tool uploads captured trace to server. Server calculates 'Page 94/98' data (1-2 min)."
+                },
+                {
+                    "number": 6,
+                    "text": "SIMULATION: Calculated data written to APB112. APB112 now functions as 'virtual master key'."
+                },
+                {
+                    "number": 7,
+                    "text": "REGISTRATION: Initiate 'Add Key' sequence. When prompted for Master Key, hold APB112 to ignition."
+                },
+                {
+                    "number": 8,
+                    "text": "When prompted for New Key, insert new H-Chip key. System registers new key."
+                },
+                {
+                    "number": 9,
+                    "text": "Disconnect APB112. Restore all fuses. Clear U-codes from Eyesight/BCM. Test start."
                 }
             ]
         },
         {
-            "type": "step_group",
-            "id": "subaru-prox-add-key",
-            "title": "Procedure: Add Proximity Key (2015+)",
-            "estimated_time": "15-20 mins",
-            "steps": [
-                {
-                    "number": 1,
-                    "text": "Verify fob: Correct OEM# (88835-xx series)."
-                },
-                {
-                    "number": 2,
-                    "text": "Connect to OBD. Select IMMO → Subaru → Smart Key."
-                },
-                {
-                    "number": 3,
-                    "text": "Select 'Smart Key Learning'."
-                },
-                {
-                    "number": 4,
-                    "text": "Hold NEW fob near Start button when prompted."
-                },
-                {
-                    "number": 5,
-                    "text": "Test proximity unlock and push-button start."
-                }
-            ]
+            "type": "info_callout",
+            "id": "subaru-smart-key-akl",
+            "level": "warning",
+            "content": "Smart Key (Prox) AKL (2020+): Requires 'Smart Box Reset' - wipes all keys from Smart ECU to virgin state. HIGH RISK: If interrupted by DCM or Eyesight, module may be corrupted. Used smart keys are 'locked' to original vehicle - must be 'renewed' via PCB flasher (Xhorse Key Tool Max) before reprogramming."
+        },
+        {
+            "type": "warning_banner",
+            "id": "subaru-alarm-barrier",
+            "level": "warning",
+            "content": "THE 'ALARM' BARRIER: Mechanically opening a locked 2020+ Subaru triggers the alarm. Active alarm state creates a logical block in BIU - it will NOT accept Reset commands. You MUST wait for alarm timeout OR disconnect horn/battery to reset alarm logic BEFORE attempting programming."
         },
         {
             "type": "reference_table",
-            "id": "subaru-high-volume-models",
-            "title": "High-Volume Models Quick Reference",
+            "id": "subaru-fcc-mapping",
+            "title": "Subaru FCC ID / Frequency Reference (2015-2025)",
             "headers": [
                 "Model",
                 "Years",
-                "Chip",
-                "Key Part"
+                "System",
+                "Frequency",
+                "FCC ID",
+                "Chip"
             ],
             "rows": [
                 {
                     "cells": [
-                        "Outback",
-                        "2020-2023",
-                        "H / Prox",
-                        "TOY43RH-PT / 88835-AN00C"
+                        "Ascent",
+                        "2019-2025",
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AKB (or HYQ14AHK early models)",
+                        "128-bit 8A"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Outback/Legacy",
+                        "2015-2017",
+                        "Smart Prox",
+                        "315 MHz",
+                        "HYQ14AHC",
+                        "G-Chip (80-bit)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Outback/Legacy",
+                        "2018-2019",
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AHK",
+                        "128-bit 8A"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Outback/Legacy",
+                        "2020-2025",
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AKB",
+                        "128-bit 8A"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Forester",
+                        "2014-2018",
+                        "Smart Prox",
+                        "315 MHz",
+                        "HYQ14AHC",
+                        "G-Chip"
                     ]
                 },
                 {
                     "cells": [
                         "Forester",
-                        "2019-2023",
-                        "H / Prox",
-                        "TOY43RH-PT / 88835-FL030"
-                    ]
+                        "2019-2025",
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AHK",
+                        "128-bit 8A"
+                    ],
+                    "highlight": true
                 },
                 {
                     "cells": [
-                        "Crosstrek",
-                        "2019-2023",
-                        "H / Prox",
-                        "TOY43RH-PT / 88835-FL032"
-                    ]
-                },
-                {
-                    "cells": [
-                        "Impreza",
+                        "Impreza/Crosstrek",
                         "2017-2023",
-                        "H / Prox",
-                        "TOY43RH-PT / 88835-FL03A"
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AHK",
+                        "128-bit 8A"
                     ]
                 },
                 {
                     "cells": [
-                        "Ascent",
-                        "2019-2022",
-                        "H / Prox",
-                        "TOY43RH-PT / 88835-FL03A"
+                        "WRX/STI",
+                        "2016-2018",
+                        "Smart Prox",
+                        "315 MHz",
+                        "HYQ14AHC",
+                        "G-Chip"
                     ]
+                },
+                {
+                    "cells": [
+                        "WRX/STI",
+                        "2019-2021",
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AHK",
+                        "128-bit 8A"
+                    ]
+                },
+                {
+                    "cells": [
+                        "BRZ",
+                        "2014-2020",
+                        "Smart Prox",
+                        "315 MHz",
+                        "HYQ14AHC",
+                        "G-Chip"
+                    ]
+                },
+                {
+                    "cells": [
+                        "BRZ",
+                        "2022-2025",
+                        "Smart Prox",
+                        "433 MHz",
+                        "HYQ14AKB",
+                        "128-bit 8A"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Solterra",
+                        "2023-2025",
+                        "Smart Prox",
+                        "315 MHz",
+                        "HYQ14FBX (TOYOTA PLATFORM!)",
+                        "Toyota 8A"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Standard Key (Legacy)",
+                        "2012-2019",
+                        "Bladed RHK",
+                        "315 MHz",
+                        "CWTWB1U811",
+                        "G-Chip (4D-60/62)"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Standard Key (New)",
+                        "2019-2024",
+                        "Bladed RHK",
+                        "433 MHz",
+                        "CWTB1G077",
+                        "H-Chip (128-bit)"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "warning_banner",
+            "id": "subaru-ahk-akb-trap",
+            "level": "critical",
+            "content": "HYQ14AHK vs HYQ14AKB TRAP: These fobs are EXTERNALLY IDENTICAL but INTERNALLY INCOMPATIBLE. Using wrong one = programming failure AND may trigger SLOA lockout (system detects wrong frequency response as 'spoofing attack'). ALWAYS verify FCC ID before ordering."
+        },
+        {
+            "type": "info_callout",
+            "id": "subaru-solterra-exception",
+            "level": "important",
+            "content": "SOLTERRA EXCEPTION: The 2023+ Solterra is built on Toyota e-TNGA platform. Uses Toyota-specific hardware (FCC ID: HYQ14FBX) and 315 MHz frequency, NOT standard Subaru 433 MHz architecture. Use Toyota procedures, not Subaru."
+        },
+        {
+            "type": "tool_checklist",
+            "id": "subaru-2020-akl-tools",
+            "title": "Required Tools: 2020+ Subaru AKL",
+            "items": [
+                {
+                    "name": "12+8 SGW Bypass Cable",
+                    "required": true,
+                    "notes": "Physical gateway bypass - NO software alternative for immobilizer"
+                },
+                {
+                    "name": "Starlink/DCM Bypass Plug (AHH-7747)",
+                    "required": true,
+                    "notes": "Isolates telematics to stop bus jamming"
+                },
+                {
+                    "name": "APB112 Smart Key Emulator",
+                    "required": true,
+                    "notes": "Captures encrypted query, simulates master key"
+                },
+                {
+                    "name": "LKP-04 Transponder Chip",
+                    "required": false,
+                    "notes": "Alternative to APB112 for permanent cloned key"
+                },
+                {
+                    "name": "Autel IM608 / Smart Pro",
+                    "required": true,
+                    "notes": "With SLOA timer management and server access"
+                },
+                {
+                    "name": "Lishi DAT17 (2009-2014) / TOY43R (2015+)",
+                    "required": true,
+                    "notes": "For mechanical key cutting"
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "subaru-2020-workflow",
+            "title": "Recommended Workflow: 2020+ Subaru AKL",
+            "estimated_time": "60 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "IDENTIFY: Confirm FCC ID and Key Type (H-Chip vs Smart) using reference table. Check VIN for Solterra exception."
+                },
+                {
+                    "number": 2,
+                    "text": "ISOLATE: Install SGW Bypass Cable (12+8). Pull DCM Fuse if applicable."
+                },
+                {
+                    "number": 3,
+                    "text": "SILENCE: Pull Eyesight fuse to prevent data corruption during EEPROM operations."
+                },
+                {
+                    "number": 4,
+                    "text": "EXECUTE: Perform emulation (H-Chip) or Smart Box Reset (Smart Key) using tool with SLOA management."
+                },
+                {
+                    "number": 5,
+                    "text": "RESTORE: Reconnect all fuses/cables. Clear U-codes from Eyesight and BCM modules."
+                },
+                {
+                    "number": 6,
+                    "text": "TEST: Verify push-button start, proximity unlock, and remote functions before returning vehicle."
                 }
             ]
         }

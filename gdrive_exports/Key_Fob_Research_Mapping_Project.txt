@@ -1,0 +1,532 @@
+﻿The Automotive Signal & Security Atlas: A Comprehensive Mapping of OEM Transponder Protocols, FCC IDs, and Mechanical Keyways (2010–2025)
+Executive Summary: The Decade of Encryption and Frequency Diversification
+The automotive security landscape between 2010 and 2025 represents one of the most volatile and innovative periods in the history of vehicle access control. For the professional locksmith, automotive technician, and security analyst, this era marks a decisive and irreversible shift from static, low-security transponder systems to high-frequency, bi-directional, and heavily encrypted smart key architectures. This report provides an exhaustive technical analysis and mapping of access control systems for the "Big Four" mass-market manufacturers: Toyota, Honda, Nissan, and Ford. The primary objective of this research is to decode the opaque and often counterintuitive relationships between regulatory identifiers (FCC IDs), proprietary Manufacturer Part Numbers (OEM P/N), semiconductor architectures (Transponder Chips), and physical access mechanisms (Lishi Tools).
+By synthesizing thousands of data points from technical manuals, regulatory filings, and aftermarket compatibility charts, we reveal that a Vehicle Identification Number (VIN) alone is often insufficient for identifying the correct service parts. Instead, a nuanced understanding of platform migrations—such as Toyota’s transition from "G" to "H" chips, or Ford’s mechanical migration from HU101 to HU198—is required. Our analysis highlights three critical macro-trends that define this fifteen-year period.
+First, the Frequency Migration involves a complex global realignment of radio spectrum usage. While 315 MHz was the de facto standard for North American vehicles in 2010, the period sees a decisive shift toward 433/434 MHz to achieve global harmonization and improved signal penetration. Simultaneously, Ford engaged in a divergent strategy, adopting the 902 MHz band for its high-security platforms to combat urban RF interference—a move that isolated its hardware ecosystem from the rest of the industry.
+Second, the Encryption Hardening trend reflects an arms race between theft deterrents and unauthorized duplication. The industry moved from 40-bit and 80-bit encryption protocols, which were susceptible to brute-force cloning, to 128-bit AES (Advanced Encryption Standard) architectures. This shift has fundamentally altered the service landscape, rendering cloning tools obsolete for newer models and necessitating advanced diagnostic programming that interacts directly with the vehicle's Controller Area Network (CAN).
+Third, the Component Specificity Crisis has emerged as a significant operational challenge. We observe a fragmentation where a single FCC ID (e.g., Toyota’s HYQ14FBA) can host multiple mutually incompatible circuit board revisions (0020, 2110, AG), forcing technicians to physically inspect printed circuit boards (PCBs) rather than relying solely on case markings or regulatory stamps.
+This document serves as the definitive reference for navigating these complexities, ensuring precise part identification and successful service execution.
+
+
+  
+
+
+
+Section 1: The Technical Architecture of Modern Automotive Entry
+To interpret the granular data presented in this report, one must first understand the fundamental components that comprise a modern automotive key system. The interaction between the key fob and the vehicle is not a singular event but a choreographed exchange governed by three distinct layers: the Regulatory Layer (FCC ID), the Proprietary Layer (OEM Part Number & IC), and the Cryptographic Layer (Transponder Chip).
+1.1 The Regulatory Layer: FCC ID and Its Limitations
+The Federal Communications Commission (FCC) Identifier is often the first data point a locksmith or technician checks, yet it is frequently the most misleading indicator of compatibility. The FCC ID certifies that the device complies with radio frequency emission standards. It strictly defines the frequency (e.g., 315 MHz) and the power output limits to prevent interference with other wireless infrastructure.1 However, it does not define the data protocol or the encryption method used to communicate with the vehicle.
+For example, Toyota's HYQ14FBA is a ubiquitous FCC ID found on Smart Keys from 2012 to 2020. However, this single FCC ID covers vehicles that use completely different encryption keys and circuit board architectures. A 2014 RAV4 and a 2018 Camry might both use a remote stamped with HYQ14FBA, but one requires a board with ID "0020" and the other requires "2110".2 They are electronically incompatible despite sharing the regulatory stamp. This phenomenon renders the FCC ID a "necessary but not sufficient" condition for compatibility; it functions as a broad family grouping rather than a precise unique identifier.
+1.2 The Cryptographic Layer: Transponder Evolution
+The transponder chip is a passive RFID tag embedded in the key head or the smart fob circuit. It communicates with the immobilizer ring around the ignition (or the PEPS antenna in push-to-start cars) via Low Frequency (LF) induction. This component is the heart of the vehicle's anti-theft system.
+* Texas Instruments (TI) 4D/G/H (Toyota/Ford): Toyota utilized the "G" chip (80-bit encryption) extensively in the early 2010s before migrating to the "H" chip (128-bit) around 2014–2015. This shift was invisible to the naked eye but rendered "G" chip cloning tools useless for "H" chip vehicles, forcing a change in service equipment.4
+* NXP Hitag Series (Honda/Nissan/Ford): The Hitag 2 (ID46) was the industry standard for a decade, used heavily by Nissan and Honda. However, cryptographic vulnerabilities led to the adoption of Hitag 3 (ID47) and eventually Hitag AES (4A/8A), which uses 128-bit encryption keys comparable to banking security standards.5
+* Ford's ID49 (Hitag Pro): Ford introduced the ID49 chip for its high-security systems. This chip is often paired with the 902 MHz radio band to punch through the RF noise of urban environments, a unique strategy among the Big Four that prioritizes signal robustness alongside encryption strength.7
+1.3 The Mechanical Layer: Lishi Tooling
+The "Lishi" tool is a 2-in-1 pick and decoder that revolutionized automotive locksmithing. It allows a technician to pick a lock to the open position and then "read" the wafer depths to cut a new key.
+The period 2010–2025 saw significant mechanical fragmentation:
+* Internal vs. External Tracks: Ford moved from the external track HU101 to the internal track HU198 (internally called the "Fiesta" or "2017+" profile). While the key blade looks identical from a distance, the milling is inverted, requiring a completely different pick.8
+* High-Security Standardization: Honda (HON66) and Toyota (TOY48) have remained relatively stable with high-security laser-cut keys, whereas Nissan has maintained the NSN14 profile across most models, even as they upgraded the electronic security significantly.10
+Section 2: Toyota & Lexus – The Complexity of "Board IDs"
+Toyota represents the highest complexity in part selection due to their use of "Board IDs." Unlike other manufacturers where the part number is usually printed on the case, Toyota hides the critical differentiator—the Board ID—on the PCB itself.
+2.1 The "G" to "H" Transition (2010–2015)
+Between 2010 and 2015, Toyota migrated its mechanical key fleet from "Dot" (4D) chips to "G" chips and finally to "H" chips.
+* G-Chip (Transponder ID 4D-72): Identified by a "G" stamped on the blade. Common on 2010–2014 Camry, RAV4, and Corolla.4
+* H-Chip (Transponder ID 8A): Identified by an "H" stamped on the blade. Introduced around 2013–2014. These use 128-bit AES encryption and cannot be cloned by older equipment.11
+* FCC ID Continuity: Often, the remote head key FCC ID (e.g., HYQ12BDM) remained the same during the transition, but the internal transponder chip changed. A "G" key will not start an "H" car, even if the remote buttons program successfully.4
+2.2 The HYQ14FBA Smart Key Fragmentation
+The HYQ14FBA is the most common Toyota smart key FCC ID, but it is a "trap" for the uninitiated. It contains at least three distinct board generations that are not interchangeable.
+Vehicle Model & Year
+	FCC ID
+	Board ID (PCB)
+	OEM Part Number
+	Chip ID
+	Freq
+	Prius C (2012–2020)
+	HYQ14FBA
+	0020 ("G" Board)
+	89904-52290
+	Texas ID 4D-G
+	315 MHz
+	RAV4 (2013–2018)
+	HYQ14FBA
+	0020 ("G" Board)
+	89904-0R080
+	Texas ID 4D-G
+	315 MHz
+	Highlander (2014–2019)
+	HYQ14FBA
+	2110 ("AG" Board)
+	89904-0E120
+	Texas ID H-8A
+	315 MHz
+	Tacoma (2016–2020)
+	HYQ14FBA
+	2110 ("AG" Board)
+	89904-04140
+	Texas ID H-8A
+	315 MHz
+	Land Cruiser (2016–2019)
+	HYQ14FBA
+	2110 ("AG" Board)
+	89904-60J70
+	Texas ID H-8A
+	315 MHz
+	Mirai (2016–2020)
+	HYQ14FBA
+	2110 ("AG" Board)
+	89904-62020
+	Texas ID H-8A
+	315 MHz
+	Source Data: 2
+Insight: The shift from Board 0020 to 2110 corresponds to the transition from G-chip architecture to H-chip architecture within the Smart Key system. Visual inspection of the PCB is mandatory; looking for the tiny numbers "2110" or the letter "AG" printed on the board is the only way to confirm compatibility.14
+2.3 The 2020+ Evolution: HYQ14FBX and HYQ14FBW
+Newer platforms (TNGA) utilize updated FCC IDs. The 2022+ Tundra and Tacoma utilize HYQ14FBX, while the 2025 Camry has adopted HYQ14FBW. These keys typically use Hitag AES (4A) or advanced 8A chips, representing a move away from purely Texas Instruments protocols toward NXP-based architectures in some global platforms.
+* 2024 Tacoma / Tundra: FCC HYQ14FBX | Part 8990H-0C010 | Freq 314.3 MHz | Chip 8A.17
+* 2025 Camry: FCC HYQ14FBW | Part 8990H-AQ010 | Freq 315 MHz | Chip Hitag AES (4A).19
+2.4 Lishi Tool Application: Toyota
+Despite the electronic churn, Toyota's mechanical locks have remained remarkably stable.
+* TOY43 (Old): Used on older, non-transponder models (pre-2010 mostly).
+* TOY48 (New): Also known as the "Lexus High Security" or "Toyota 4-Track." This 2-in-1 tool covers 90% of the 2010–2025 Toyota/Lexus fleet, including Camry, RAV4, Highlander, and nearly all Lexus models.21
+* TOY44G: Specific to the 2010+ mechanical keys for trucks like the Tacoma (before they went smart).23
+Section 3: Honda & Acura – The "Driver Memory" System
+Honda's key fob ecosystem is defined by a unique feature: the Driver 1 / Driver 2 distinction. Unlike other manufacturers where any compatible key works, Honda vehicles with memory seat functions require specific part numbers for "Driver 1" and "Driver 2" to recall seat positions, mirrors, and radio presets.
+3.1 The "Driver" Dilemma (FCC ID KR5V2X)
+The FCC ID KR5V2X is ubiquitous across the Honda lineup (Accord, Civic, Pilot, CR-V, Odyssey) from 2013 to 2020. However, fitting a "Driver 1" remote to a slot meant for "Driver 2" (or vice versa) can result in limited functionality or programming failure for the memory features.
+Model & Year
+	FCC ID
+	Driver Position
+	OEM Part Number
+	Chip
+	Freq
+	Pilot (2016–2020)
+	KR5V2X / KR5V41
+	Driver 1
+	72147-TG7-A41
+	ID47
+	433 MHz
+	Pilot (2016–2020)
+	KR5V2X / KR5V41
+	Driver 2
+	72147-TG7-A91
+	ID47
+	433 MHz
+	Civic (2016–2020)
+	KR5V2X
+	Driver 1
+	72147-TBA-A11
+	ID47
+	433 MHz
+	Civic (2016–2020)
+	KR5V2X
+	Driver 2
+	72147-TBA-A21
+	ID47
+	433 MHz
+	Accord (2016–2017)
+	KR5V1X
+	Driver 1
+	72147-T2A-A11
+	ID47
+	313.8 MHz
+	Source Data: 24
+Technical Insight: Note the frequency difference. KR5V1X (older) typically operates at 313.8 MHz (legacy Honda freq), while KR5V2X (newer) operates at 433.92 MHz.24 This 433 MHz shift aligns Honda with European standards, improving signal penetration and range.
+
+
+  
+
+
+
+3.2 The Next Generation: 2021+ Systems
+For the 2021–2025 era, Honda introduced FCC ID KR5TP-4 for the Accord and Civic.
+* FCC ID: KR5TP-4
+* Chip: 4A (Hitag AES)
+* Frequency: 433 MHz
+* Part Number: 72147-T20-A11 (Accord)
+* Insight: This system requires a new generation of programming tools capable of handling the 4A AES encryption. Standard tools that worked on KR5V2X (ID47) may fail on KR5TP-4 without a software update.29
+3.3 Lishi Tool Application: Honda
+Honda is the most consistent manufacturer regarding lock profiles.
+* HON66: This single tool covers virtually every Honda and Acura model from 2003 to 2025. It is a "High Security" laser-cut keyway. Whether it is a 2010 Civic or a 2025 Pilot, the HON66 Lishi is the correct tool.31
+* Warning: While the tool is the same, the mechanical code series has evolved, and the cuts must be precise due to the sensitive nature of Honda ignition wafers (which are prone to wear and jamming).
+Section 4: Nissan & Infiniti – The 433 MHz Revolution
+Nissan's security evolution is characterized by a fragmented mid-2010s period followed by a consolidation around high-frequency 433 MHz systems in the 2020s.
+4.1 The Legacy Systems (2010–2019)
+The dominant FCC ID for this era was CWTWB1U840 (often used for the Sentra, Versa, and Leaf).
+* FCC ID: CWTWB1U840
+* Chip: ID46 (PCF7952)
+* Frequency: 315 MHz
+* Part Number: 285E3-3SG0D (Sentra)
+* Insight: These keys are robust but rely on older ID46 technology. They are widely interchangeable across the lower-tier models (Versa/Sentra) but distinct from the high-tier models (Altima/Maxima) which used KR55WK48903 or KR55WK49622.34
+4.2 The "Hitag 3" Era (2013–2020)
+For models like the Pathfinder (2013+) and Altima (2013+), Nissan moved to the KR5S180144 family.
+* FCC ID: KR5S180144014 (often shortened to KR5S180144)
+* Chip: ID47 (Hitag 3)
+* Frequency: 433 MHz
+* Part Number: 285E3-9PB3A
+* Insight: This was Nissan's first major move to 433 MHz in the US market, breaking from the 315 MHz standard. The ID47 chip offers significantly higher security than the ID46.5
+4.3 The Modern Era: Rogue & Ariya (2021–2025)
+The 2021+ Nissan Rogue and the all-electric Ariya introduced a new, complex ecosystem utilizing Hitag AES (4A) chips.
+Vehicle Model & Year
+	FCC ID
+	OEM Part Number
+	Chip ID
+	Freq
+	Rogue (2021–2023)
+	KR5TXN1
+	285E3-6TA1A
+	4A (Hitag AES)
+	434 MHz
+	Rogue (2021–2023)
+	KR5TXN3
+	285E3-6TA5B
+	4A (Hitag AES)
+	434 MHz
+	Sentra (2022–2025)
+	KR5TXN1
+	285E3-6CA1A
+	4A (Hitag AES)
+	433 MHz
+	Ariya (2023–2024)
+	KR5TXPZ1
+	285E3-5MR1B
+	4A (Hitag AES)
+	434 MHz
+	Source Data: 6
+Critical Alert: There is frequent confusion between KR5TXN1 and KR5TXN3. They look identical. The "N1" is typically 3-button, while "N3" may support different remote start functions or trim levels. The Ariya's KR5TXPZ1 introduces a new form factor entirely. These 4A keys require specific programming software (e.g., Smart Pro with Nissan 2020+ software) and often require a server connection (bypassing the pincode by reading the BCM data).44
+4.4 Lishi Tool Application: Nissan
+* NSN14: The workhorse tool. It covers 2010–2025 for almost all Nissan models, including the Altima, Rogue, Sentra, and Pathfinder. It is a 10-cut system.
+* DA34: An older keyway less common in the smart key era but covered by the same NSN14 Lishi architecture.10
+Section 5: Ford & Lincoln – The High-Frequency Fortress
+Ford distinguishes itself with the use of the 902 MHz frequency band and a bifurcated mechanical keyway strategy.
+5.1 The 902 MHz Strategy (FCC ID M3N-A2C31243300)
+Starting around 2015 with the F-150 and Fusion, Ford moved its high-security Smart Keys to 902 MHz.
+* Reasoning: The 315 MHz and 433 MHz bands are crowded with consumer electronics (garage openers, tire pressure sensors). 902 MHz offers a cleaner spectrum, allowing for the extreme range required by Ford's remote start features on large trucks.
+* Chip: ID49 (Hitag Pro). This chip is 128-bit encrypted.
+Model & Year
+	FCC ID
+	Frequency
+	OEM Part Number
+	Chip
+	F-150 (2015–2020)
+	M3N-A2C31243300
+	902 MHz
+	164-R8117 / FL3T-15K601
+	ID49
+	Explorer (2016–2017)
+	M3N-A2C31243300
+	902 MHz
+	164-R8140
+	ID49
+	Fusion (2013–2016)
+	M3N-A2C31243300
+	902 MHz
+	164-R7989
+	ID49
+	Edge (2015–2017)
+	M3N-A2C31243300
+	902 MHz
+	164-R7989
+	ID49
+	Transit (2020–2024)
+	N5F-A08TAA
+	315 MHz
+	164-R8236
+	ID49
+	Source Data: 7
+Anomaly: Note the Transit Connect (2020+) uses FCC N5F-A08TAA at 315 MHz.49 Unlike the F-Series, the commercial vans stayed on the lower frequency, likely due to global platform constraints (the Transit is a European-derived platform where 902 MHz is not standard).
+5.2 The Mechanical Schism: HU101 vs. HU198
+Perhaps the most frustrating development for locksmiths is the silent introduction of the HU198 keyway in 2017.
+* HU101 (Standard): Used on Focus, Fiesta, Escape, F-150 up to ~2016/2017. It is an External 2-Track laser key.
+* HU198 (New): Introduced on the 2017+ Fiesta and later the Focus/Escape. It uses the exact same key blade blank size but is an Internal 2-Track system. The milling is inverted.
+* The Trap: An HU101 Lishi pick will enter an HU198 lock, but it will not pick it, and it may get stuck. You must use the HU198 Lishi for these newer "European" Ford models.8
+
+
+  
+
+
+
+Section 6: Comprehensive Data Mapping (2010–2025)
+The following tables synthesize the specific data points requested, mapping FCC IDs to Part Numbers, Chips, Frequencies, and Tools.
+6.1 Toyota & Lexus Master Chart
+Year Range
+	Model(s)
+	FCC ID
+	Board / Note
+	OEM Part #
+	Chip
+	Freq
+	Lishi Tool
+	2010–2014
+	Camry, Corolla
+	HYQ12BDM
+	"G" Key (Dot)
+	89070-02620
+	4D-G (80-bit)
+	315
+	TOY43 / TOY44G
+	2014–2017
+	Camry, RAV4
+	HYQ12BDM
+	"H" Key (Blade)
+	89070-06500
+	8A "H" (128-bit)
+	315
+	TOY44G-PT
+	2012–2020
+	Prius C, RAV4
+	HYQ14FBA
+	Board 0020
+	89904-52290
+	4D-G
+	315
+	TOY48
+	2014–2019
+	Highlander, Tacoma
+	HYQ14FBA
+	Board 2110
+	89904-0E120
+	8A "H"
+	315
+	TOY48
+	2016–2019
+	Land Cruiser
+	HYQ14FBA
+	Board 2110
+	89904-60J70
+	8A "H"
+	315
+	TOY48
+	2019–2025
+	Camry (Smart)
+	HYQ14FBW
+	-
+	8990H-AQ010
+	Hitag AES (4A)
+	315
+	TOY48
+	2022–2024
+	Tacoma, Tundra
+	HYQ14FBX
+	-
+	8990H-0C010
+	8A
+	314.3
+	TOY48
+	2023–2025
+	Lexus NX, RX
+	HYQ14FLD
+	-
+	8990H-0E490
+	8A
+	434
+	TOY48
+	6.2 Honda & Acura Master Chart
+Year Range
+	Model(s)
+	FCC ID
+	Note
+	OEM Part #
+	Chip
+	Freq
+	Lishi Tool
+	2010–2013
+	Civic
+	N5F-S0084A
+	-
+	35111-SVA-305
+	ID46
+	314
+	HON66
+	2013–2015
+	Accord
+	KR5V1X
+	Driver 1
+	72147-T2A-A11
+	ID47
+	313.8
+	HON66
+	2016–2020
+	Pilot, Civic, CR-V
+	KR5V2X
+	Driver 1
+	72147-TG7-A41
+	ID47
+	433
+	HON66
+	2016–2020
+	Pilot, Civic, CR-V
+	KR5V2X
+	Driver 2
+	72147-TG7-A91
+	ID47
+	433
+	HON66
+	2021–2025
+	Accord, Civic
+	KR5TP-4
+	-
+	72147-T20-A11
+	4A (AES)
+	433
+	HON66
+	2019–2025
+	Passport, Pilot
+	KR5V44
+	-
+	72147-TG7-A92
+	ID47
+	433
+	HON66
+	6.3 Nissan & Infiniti Master Chart
+Year Range
+	Model(s)
+	FCC ID
+	OEM Part #
+	Chip
+	Freq
+	Lishi Tool
+	2010–2014
+	Murano
+	KR55WK49622
+	285E3-1AA0A
+	ID46
+	315
+	NSN14
+	2013–2019
+	Sentra, Versa
+	CWTWB1U840
+	285E3-3SG0D
+	ID46
+	315
+	NSN14
+	2013–2018
+	Pathfinder, Altima
+	KR5S180144
+	285E3-9PB3A
+	ID47 (Hitag 3)
+	433
+	NSN14
+	2021–2023
+	Rogue
+	KR5TXN1
+	285E3-6TA1A
+	4A (AES)
+	434
+	NSN14
+	2021–2023
+	Rogue (High Trim)
+	KR5TXN3
+	285E3-6TA5B
+	4A (AES)
+	434
+	NSN14
+	2023–2025
+	Ariya
+	KR5TXPZ1
+	285E3-5MR1B
+	4A (AES)
+	434
+	NSN14
+	6.4 Ford & Lincoln Master Chart
+Year Range
+	Model(s)
+	FCC ID
+	OEM Part #
+	Chip
+	Freq
+	Lishi Tool
+	2010–2014
+	Edge, Explorer
+	CWTWB1U793
+	164-R8070
+	4D-63 (80-bit)
+	315
+	HU101
+	2011–2019
+	Focus, Escape
+	M3N5WY8609
+	164-R8092
+	ID46
+	315
+	HU101
+	2015–2020
+	F-150, Fusion
+	M3N-A2C31243300
+	164-R8117
+	ID49 (902 MHz)
+	902
+	HU101
+	2020–2024
+	Transit Connect
+	N5F-A08TAA
+	164-R8236
+	ID49
+	315
+	HU101
+	2018–2024
+	Fiesta, Focus (Euro)
+	-
+	-
+	ID49
+	-
+	HU198
+	Section 7: Future Outlook and Strategic Implications
+The trajectory of automotive access control is clear: fragmentation is ending in favor of highly secure, standardized protocols, even if the "Standard" varies by OEM.
+1. Phone-as-a-Key (PaaK) & UWB: The introduction of the Nissan Ariya and Ford F-150 Lightning signals the beginning of Ultra-Wideband (UWB) technology. While key fobs remain, they are becoming backup devices. Future "FCC IDs" may essentially be Bluetooth Low Energy (BLE) MAC addresses.
+2. The End of Cloning: The 128-bit AES chips (Toyota H, Nissan 4A, Honda 4A) have effectively killed the "cloning" business model for vehicles post-2018. Service providers must invest in OBD-II programming diagnostics (e.g., Autel IM608, Smart Pro) rather than cloning devices.
+3. Refurbished vs. New: With part shortages (chip crisis), the market for "Refurbished" OEM keys has exploded. However, because modern chips (like the Hitag AES) often "lock" to the vehicle's VIN upon programming, "unlocking" services—which flash the chip back to a virgin state—will become a critical sub-industry for locksmiths.15
+Conclusion: The era of "universal" keys is over. Success in the 2025 landscape requires a database-driven approach to inventory, where the Board ID, IC, and Frequency are treated with equal weight to the car model itself.
+Works cited
+1. FCC ID Search | Federal Communications Commission, accessed December 17, 2025, https://www.fcc.gov/oet/ea/fccid
+2. Toyota 4 Button Proximity Remote Smart Key HYQ14FBA / G-Board 0020 / 89904-06140 - New Original OEM Hidden, accessed December 17, 2025, https://keyinnovations.com/toyota-4-button-proximity-remote-smart-key-hyq14fba-g-board-0020-89904-06140-new/
+3. Toyota Prius / RAV4 2012-2020 3-Btn G (HYQ14FBA-0020)—OEM REFURB NO LOGO, accessed December 17, 2025, https://www.americankeysupply.com/product/toyota-prius-rav4-2012-2020-3-btn-g-hyq14fba-0020-oem-refurb-no-logo-14068
+4. Remote Key List (2025-05-04 21 - 17 - 44) | PDF | Industries | Chevrolet - Scribd, accessed December 17, 2025, https://www.scribd.com/document/861769296/remote-key-list-2025-05-04-21-17-44
+5. For Nissan Murano 2013 2014 Smart Prox Remote Car Key Fob KR5S180144014 47 Chip, accessed December 17, 2025, https://www.ebay.com/itm/275450431497
+6. 2022 Nissan Sentra Smart Key Fob FCC ID: KR5TXN1, PN: 285E3-6CA1A, 285, accessed December 17, 2025, https://remotesandkeys.com/products/2022-nissan-sentra-smart-key-remote-4074
+7. Strattec (5928963) Ford 4 Button Proximity Smart Key M3N-A2C31243300, 164-R8140, 902 MHz - New, OEM, accessed December 17, 2025, https://keyinnovations.com/strattec-ford-4-button-smart-key-m3n-a2c31243300-5928963-164-r8140-902-mhz-new-oem/
+8. Ford Jaguar HU198 Picking and Decoding Guide - TradeLocks Blog, accessed December 17, 2025, https://blog.tradelocks.co.uk/picking-decoding-ford-hu198-genuine-lishi/
+9. Mr. Li's Original Lishi HU198 Ford2017 2in1 Decoder and Pick for Ford - Lockpickable, accessed December 17, 2025, https://lockpickable.com/products/mr-li-original-lishi-ford2017
+10. Mr. Li's Original Lishi NSN14 2in1 Decoder and Pick for Nissan, Ford, Subaru - Lockpickable, accessed December 17, 2025, https://lockpickable.com/products/mr-li-original-lishi-nsn14
+11. Characteristics of Toyota Brand Transponder Keys | PDF - Scribd, accessed December 17, 2025, https://www.scribd.com/document/921749914/Characteristics-of-Toyota-Brand-Transponder-Keys
+12. Genuine Toyota Land Cruiser, Tacoma 2012+ Smart Key, 3Buttons 89904-0E091 315MHz, HYQ14FBA P1 A8 - ABKEYS, accessed December 17, 2025, https://abkeys.com/products/toyota-land-cruiser-tacoma-prius-smart-key-315mhz-hyq14fba-89904-60j70-4156
+13. Toyota New OEM 2016-2020 Mirai Smart Key 4B Trunk - Royal Key Supply, accessed December 17, 2025, https://royalkeysupply.com/products/toyota-new-oem-2016-2020-mirai-smart-key-4b-trunk-fccid-hyq14fba-pn-89904-62020
+14. For Toyota Smart Key Keyless 3 Btn Remote HYQ14FBA 281451-2110 SKU: KR-T3RG, accessed December 17, 2025, https://www.autokeymax.com/products/for-toyota-smart-key-keyless-3-btn-remote-hyq14fba-281451-2110-sku-kr-t3rg
+15. I want to make sure I am buying the correct FOB and Board (2021 Toyota Tundra Smart Key 3B FCC# HYQ14FBA - 2110 AG) - Locksmith Keyless Q&A, accessed December 17, 2025, https://locksmithkeyless.answerbase.com/4472177/I-want-to-make-sure-I-am-buying-the-correct-FOB-and-Board
+16. 2016-2021 Toyota Land Cruiser 3-Button Smart Key Fob (FCC: HYQ14FBA, P/N: 89904-0E090, 89904-60J70, Board: 281451-2110) - NorthCoast Keyless, accessed December 17, 2025, https://northcoastkeyless.com/product/toyota-land-cruiser-3-button-smart-key-fob-fcc-hyq14fba-p-n-89904-0e090-89904-60j70-board-281451-2110/
+17. 2022-2024 Toyota Tacoma 4-Button Smart Key Fob Remote (HYQ14FBX, 8990H-0C010), accessed December 17, 2025, https://northcoastkeyless.com/product/toyota-tacoma-4-button-smart-key-fob-remote-fcc-hyq14fbx-pn-8990h-0c010/
+18. 2024 Toyota Tacoma Smart Key 3B Fob FCC# HYQ14FBX - 8990H-0C030 - Afte, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2024-toyota-tacoma-smart-key-3b-fob-fcc-hyq14fbx-8990h-0c030-aftermarket
+19. 2025 Toyota Camry Smart Key Remote PN: 8990H-AQ010, accessed December 17, 2025, https://remotesandkeys.com/products/2025-toyota-camry-smart-key-remote-pn-8990h-aq010
+20. 2025 Toyota Camry / 4-Button Smart Key / PN: 8990H-AQ010 / HYQ14FBW (OEM), accessed December 17, 2025, https://www.uhs-hardware.com/products/2025-toyota-camry-4-button-smart-key-8990h-aq010-hyq14fbw-oem
+21. Original Lishi for Toyota Lexus TOY48 Pick Decoder Door Trunk Ignition - Key4, accessed December 17, 2025, https://www.key4.com/original-lishi-toy48-toyota-lexus-2-in-1-pick-decoder-quad-lifter-anti-glare
+22. ORIGINAL LISHI - TOY48 Toyota Lexus / 2-in-1 Pick & Decoder / Quad Lifter / AG, accessed December 17, 2025, https://www.uhs-hardware.com/products/original-lishi-toyota-lexus-toy48-2-in-1-pick-decoder-quad-ag
+23. 2010 Toyota Tacoma Transponder Key Blank, G Chip (P/N: TOY44G-PT, 89785-08040), accessed December 17, 2025, https://oemcarkeymall.com/products/2010-toyota-tacoma-transponder-key-blank-g-chip-toy44g-pt
+24. Honda KR5V2X key fob sub-variants? - Inside EVs Forum, accessed December 17, 2025, https://www.insideevsforum.com/community/threads/honda-kr5v2x-key-fob-sub-variants.12066/
+25. Genuine Honda Pilot Car Key, accessed December 17, 2025, https://www.hondapartsnow.com/oem-honda-pilot-car_key.html
+26. 2019-2025 Honda - Fob Assembly Entry Key (Driver 2) - Honda (72147-TG7-AB1), accessed December 17, 2025, https://www.hondapartsconnection.com/oem-parts/honda-2019-2025-honda-fob-assembly-entry-key-driver-2-72147tg7ab1
+27. 2021 Honda Pilot Smart Remote Key Fob Driver 2 - CarandTruckRemotes, accessed December 17, 2025, https://www.carandtruckremotes.com/products/2021-honda-pilot-smart-remote-key-fob-driver-2
+28. Smart Key_V1.60 Function List - Autel, accessed December 17, 2025, https://www.autel.com/u/cms/www/202210/24020108tdxp.pdf
+29. OEM 2022-2025 HONDA CIVIC proximity smart keyless entry remote key fob KR5TP-4, accessed December 17, 2025, https://www.ebay.com/itm/125908267753
+30. Honda Accord Civic Proximity Key KR5TP-4 72147-T20-A11 - Key4, accessed December 17, 2025, https://www.key4.com/honda-accord-smart-remote-key-kr5tp4-72147t20a11
+31. Lishi 2-in-1 Pick/Decoder for Honda HO01/HON66 - American Key Supply, accessed December 17, 2025, https://www.americankeysupply.com/product/lishi-2-in-1-pick-decoder-for-honda-ho01-hon66-9390
+32. LISHI-HON66 - Noble Key Supply, accessed December 17, 2025, https://noblekeysupply.com/products/lishi-hon66
+33. Classic Lishi HON66 2in1 Decoder and Pick for Honda, accessed December 17, 2025, https://www.classiclishi.com/product/classic-lishi-hon66
+34. 2010 Nissan Altima Keyless Entry Remote 285E3-JA05A KR55WK49622 – CarandTruckRemotes, accessed December 17, 2025, https://www.carandtruckremotes.com/products/2010-nissan-altima-smart-remote-key-fob
+35. 2010 Nissan Murano Smart Key 3B Fob FCC# KR55WK49622 - Locksmith Keyless, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2010-nissan-murano-smart-key-3-buttons-fob-fcc-kr55wk49622-aftermarket
+36. Nissan 2013-2019 4-Btn SK w/Trunk (CWTWB1U840)—OEM REFURB NO LOGO, accessed December 17, 2025, https://www.americankeysupply.com/product/nissan-2013-2019-4-btn-sk-w-trunk-cwtwb1u840-oem-refurb-no-logo-11968
+37. Nissan Refurbished 2013-2016 Pathfinder Smart Key 3B FCCID: KR5S180144, accessed December 17, 2025, https://royalkeysupply.com/products/nissan-refurbished-2013-2016-pathfinder-smart-key-3b-fccid-kr5s180144014-pn-285e3-9pb3a
+38. Nissan Altima 2013-2015 Smart Proximity Key Fob 4-Button FCC ID: KR5S1, accessed December 17, 2025, https://www.bestkeysolution.com/products/nissan-altima-2013-2015-smart-proximity-key-fob-4-button-fcc-id-kr5s180144014-continental-44018
+39. 2021-2023 Nissan Rogue 3-Button Smart Key Fob Remote (KR5TXN1, 285E3-6TA1A), accessed December 17, 2025, https://northcoastkeyless.com/product/nissan-rogue-3-button-smart-key-fob-remote-fcc-kr5txn1-p-n-285e3-6ta1a/
+40. 2021 Nissan Rogue Smart Key 3 Buttons Fob FCC# KR5TXN1 - Locksmith Keyless, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2021-nissan-rogue-smart-key-3-buttons-fob-fcc-kr5txn1-aftermarket
+41. Nissan NEW OEM 2022-2024 Sentra Versa Smart Key 5B Remote Start FCCID, accessed December 17, 2025, https://royalkeysupply.com/products/nissan-new-oem-2022-2024-sentra-versa-smart-key-4b-trunk-fccid-kr5txpz3-pn-285e3-6ly5a
+42. 2023 Nissan Ariya Smart Key Remote PN: 285E3-5MR3B, accessed December 17, 2025, https://remotesandkeys.com/products/2023-nissan-ariya-smart-key-remote-pn-285e3-5mr3b
+43. 2023 Nissan Ariya Smart Remote Key Fob 3B (FCC: KR5TXPZ1, P/N: 285E3-5MR1B), accessed December 17, 2025, https://oemcarkeymall.com/products/2023-nissan-ariya-smart-remote-key-fob-3b-fcc-kr5txpz1-pn-285e3-5mr1b
+44. 2023 Nissan Ariya Smart Key 4 Buttons Fob FCC# KR5TXPZ1 - Aftermarket, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2023-nissan-ariya-smart-key-4-buttons-fob-fcc-kr5txpz1-aftermarket
+45. Lishi Lock Picks | Lishi Tool Set for Sale - UHS Hardware, accessed December 17, 2025, https://www.uhs-hardware.com/collections/original-lishi
+46. Original Lishi 2-1 Pick/Decoder for Nissan NSN14, DA34 DR/TK - CLK Supplies, accessed December 17, 2025, https://www.clksupplies.com/products/original-lishi-2-1-pick-decoder-for-nissan-nsn14-dr-tk
+47. Ford New OEM 2016-2017 Explorer Smart Key 4B Remote Start FCCID: M3N-A, accessed December 17, 2025, https://royalkeysupply.com/products/ford-new-oem-2016-2017-explorer-smart-key-4b-remote-start-fccid-m3n-a2c31243300-pn-164-r8140-5928963
+48. Ford F-150/250 Smart Key Fob, 5-Button (M3N-A2C31243300) - OEM Refurb, accessed December 17, 2025, https://www.americankeysupply.com/product/ford-f-series-2015-17-5-b-sk-w-rs-tg-m3n-a2c31243300-oem-refurb-no-logo-11687
+49. 2022 Ford Transit Connect Flip Key Fob 4B FCC# N5F-A08TAA - Locksmith Keyless, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2022-ford-transit-connect-flip-key-fob-4b-fcc-n5f-a08taa
+50. 2022 Ford Transit Van Remote Key Fob w/ Side Door - CarandTruckRemotes, accessed December 17, 2025, https://www.carandtruckremotes.com/products/2022-ford-transit-van-remote-key-fob-w-side-door
+51. How To Pick And Decode The New Ford HU198 Lock Using An Original Mr Li Pick & Decoder - Keyprint Security Ltd, accessed December 17, 2025, https://www.keyprint.co.uk/news/how-to-pick-and-decode-the-new-ford-hu198-lock-using-an-original-mr-li-pick-decoder
+52. HU101 HU198 Test Key Blade for Ford - 10 PACK Aftermarket - Car and Truck Remotes, accessed December 17, 2025, https://www.carandtruckremotes.com/products/hu101-hu198-test-key-blade-for-ford-10-pack-aftermarket
+53. 2023 - 2025 Lexus Smart Key 4B W/ Hatch Fob FCC# HYQ14FLD - 8990H-0E49, accessed December 17, 2025, https://www.locksmithkeyless.com/products/2023-2025-lexus-smart-key-4b-w-hatch-fob-fcc-hyq14fld-8990h-0e490

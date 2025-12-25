@@ -1,0 +1,227 @@
+﻿The "Hard Wall" of European Locksmithing: A Comprehensive Forensic Analysis of the Mercedes-Benz FBS4 Transition (2014–2024)
+1. Executive Summary: The Paradigm Shift in Automotive Authorization
+The European automotive security landscape underwent a seismic and irreversible shift in the mid-2010s with the introduction of the Mercedes-Benz FBS4 (Fahrberechtigungssystem 4), also known as the Drive Authorization System 4 (DAS4). For nearly a decade prior to this implementation, the industry operated within the FBS3 ecosystem—a balanced environment where high security coexisted with aftermarket repairability. Skilled technicians equipped with EEPROM programmers, infrared (IR) key tools, and calculation servers could legitimately calculate passwords, virginize control modules, and generate operational keys for the vast majority of the fleet.
+The deployment of FBS4 dismantled this equilibrium, erecting what the locksmithing and independent repair industry now colloquially refers to as the "Hard Wall." This transition was not merely an incremental update; it was a fundamental architectural overhaul designed to eliminate the "backdoor" methods of password calculation that had become standard practice in the aftermarket. By shifting from a localized, static-secret architecture to a dynamic, server-dependent challenge-response system, Daimler effectively married vehicle components—keys, Electronic Ignition Switches (EIS), Engine Control Units (ECU), Transmission Control Units (TCU), and Intelligent Servo Modules (ISM)—to the vehicle’s specific Vehicle Identification Number (VIN) and a central, cloud-based status for life.
+The implications of this shift are profound. The "Hard Wall" has rendered traditional calculation attacks obsolete. The key programming procedures that took minutes on a W204 C-Class are mathematically impossible on a W205 C-Class without authorized dealer credentials. Consequently, the independent market has been forced to pivot from key generation to Forensic Module Adaptation—the complex art of "virginizing" used components to allow them to be re-authorized by the vehicle's security system.
+This report serves as a definitive, expert-level forensic guide for the professional locksmith, diagnostic technician, and security analyst. It rejects the simplistic and often erroneous "2015 cutoff" rule, which has led to countless misdiagnoses, "bricked" modules, and financial losses. Instead, we provide a granular, model-by-model timeline, a forensic visual guide to identifying hardware generations without power, and a state-of-the-industry assessment of the aftermarket’s ability to breach the FBS4 wall. We analyze the evolution of the "Green Key" authorization from a physical tool to a digital certificate and define the current, rigid boundaries of module virginization.
+
+
+  
+
+
+
+________________
+2. The Architecture of Exclusion: Understanding the FBS4 Mechanism
+To successfully navigate the treacherous waters of modern Mercedes-Benz security, the technician must first possess a nuanced understanding of the lock mechanism itself. The transition from FBS3 to FBS4 was not simply an increase in key bit length; it was a philosophical change in how trust is established between vehicle components.
+2.1 The Legacy Architecture: FBS3 and Static Secrets
+The Drive Authorization System 3 (FBS3) relied on a system of "static" secrets stored within the vehicle's modules. The security model was predicated on the secrecy of the SSID (System Serial ID) and the Password (a 16-byte hexadecimal string).
+* The Calculation Vulnerability: If a technician could extract these two pieces of data, they could mathematically calculate the keys required to operate the vehicle. Tools like the VVDI MB, CGDI MB, or Abrites AVDI exploited weaknesses in the NEC chips or Motorola processors housed within the EIS to derive these secrets via localized calculation servers.
+* The "Green Key" Role: In the FBS3 era, the "Green Key" (or Workshop Key) was a physical tool—or an emulated file on a programmer—used to authorize a new EIS or virginize a steering lock (ESL). It acted as a master key for the bench authorization process, allowing the technician to simulate the dealer's handshake locally.1 This decentralized authority meant that as long as the hardware could be manipulated, the security could be managed independently of Daimler.
+2.2 The Cryptographic "Hard Wall": FBS4
+FBS4 fundamentally alters this architecture by moving from static password verification to a dynamic, server-verified challenge-response system.
+* Encryption and Key Length: Unlike its predecessor, which relied on 64-bit encryption, FBS4 utilizes 128-bit encryption. While bit length alone does not guarantee security, the implementation of FBS4 involves rolling codes and a complete elimination of the "backdoor" password calculation via the EIS. The computational power required to brute-force this 128-bit+ encryption is astronomically higher than that for FBS3, rendering current "calculation servers" useless for key generation.2
+* The "Married" Component Doctrine: In the FBS3 world, a used 7G-Tronic transmission could be "renewed" (virginized) and adapted to a new car using the SSID and Drive Authorization data derived from the EIS. In the FBS4 era, components were initially designed as One-Time Programmable (OTP). Once a module—be it an ECU, TCU, or ISM—is authorized to a specific VIN, it becomes electronically "married" to that vehicle. Removing it creates an electronic paperweight. While advanced aftermarket techniques are slowly eroding this barrier (discussed in Section 6), the fundamental architecture remains hostile to component swapping.
+* Digitalization of the "Green Key": The physical "Green Key" or "Orange Key" of the past has been deprecated. In FBS4, the authorization previously provided by these physical tokens is now granted via a secure, encrypted digital handshake between the Xentry diagnostic tool and Daimler's central servers (the VeDoc and StarKey systems).3 This "online-only" requirement is the single most significant hurdle for independent technicians, creating a dependency on "Pass-Thru" credentials and continuous server access.
+2.3 The Three Pillars of FBS4 Security
+Understanding the three distinct layers of the FBS4 system clarifies why "bypassing" it is so difficult:
+1. The Transport Layer: Keys are broadcast across the CAN network using transport encryption. Unlike FBS3, where some data could be sniffed on the CAN bus, FBS4 encrypts the communication between the EIS, the ECU, and the TCU individually. Each module has a unique encryption key relative to the EIS.2
+2. The Server Layer (VeDoc): Authorization for critical tasks (like adding a key or replacing an EIS) requires a "ticket" from the backend server. The diagnostic tool sends a request, and the server validates the workshop credentials and the vehicle's status before releasing the necessary data blocks.
+3. The Hardware Layer (BGA/Infineon): The physical keys and control chips utilize advanced Ball Grid Array (BGA) packaging and proprietary Infineon security controllers that resist physical probing and side-channel attacks much more effectively than the older NEC chips found in FBS3 keys.
+________________
+3. Forensic Timeline: The Model-by-Model Adoption (2013–2016)
+A recurring failure mode in European locksmithing is reliance on the "2015 Rule"—the mistaken belief that all Mercedes-Benz vehicles prior to 2015 are FBS3 and all after are FBS4. This heuristic is dangerously simplistic and financially hazardous. Mercedes-Benz rolled out FBS4 progressively, often mid-cycle during "facelifts" or specific Model Year (MY) updates.
+The definitive internal indicator of FBS status is the SA Code (Sales Code) found in the vehicle's data card (accessible via VIN decoder).
+* Code 803 (MY 2013): Typically FBS3.
+* Code 804 (MY 2014): The "Danger Zone." Mixed FBS3/FBS4 depending on chassis.
+* Code 805 (MY 2015): Predominantly FBS4.
+* Code 806 (MY 2016): Exclusively FBS4.
+Technicians must memorize the specific chassis transitions to avoid purchasing non-returnable parts or quoting impossible jobs.
+
+
+  
+
+
+
+3.1 The Early Adopters (The "Trap" Models)
+These vehicles introduced FBS4 technology well before the presumed 2015 cutoff, often catching technicians off guard.
+W212 E-Class (Facelift)
+The W212 E-Class is the most common point of failure for locksmiths due to its mid-cycle adoption of FBS4.
+* The Split: The transition occurred almost precisely with the W212 Facelift launch in March/April 2013.4
+* Visual Identification:
+   * Pre-Facelift (2009–Early 2013): Characterized by separate, "quad" headlight lenses. These are universally FBS3.
+   * Facelift (Late 2013–2016): Characterized by integrated single-lens headlights with flowing LED Daytime Running Lights (DRLs). These are predominantly FBS4.
+* Forensic Note: While some very early facelift models (April–June 2013) might retain FBS3 architecture, any W212 manufactured after July 2013 must be treated as FBS4.4 A VIN check is mandatory for any W212 Facelift.
+W207 E-Class Coupe/Cabriolet
+The W207 (based on the W204 C-Class platform but styled like the E-Class) follows the W212 timeline closely.
+* The Danger: Late 2013 production (MY2014) is often FBS4. The visual cues mimic the W212 facelift—smoother lines, updated headlights. Do not assume FBS3 status based on the W204 underpinnings.
+W222 S-Class
+* Status: Launched as FBS4 only in 2013/2014. There is no such thing as an FBS3 W222. If a customer presents an S-Class from 2014, it is securely locked behind the FBS4 wall.
+C218 CLS-Class
+* The Split: The CLS updated to FBS4 in September 2014.4 This creates a very specific window where a 2014 CLS could be either system. September is the hard cutoff.
+3.2 The Clean Breaks (New Chassis Launches)
+These models represented a completely new platform architecture where FBS4 was integrated from "Job #1." There is no ambiguity here; these cars were born with the new security system.
+W205 C-Class (2015+)
+* Context: The W205 replaced the W204. The W204 (C-Class 2008–2014) is the quintessential FBS3 vehicle, widely supported by almost every aftermarket tool. The W205 is the quintessential FBS4 vehicle.
+* Visual Split:
+   * W204: Boxy, sharp-edged design.
+   * W205: "Mini S-Class" rounded aesthetic, floating infotainment screen.
+* Verdict: Any W205 is FBS4.5 No exceptions.
+W447 V-Class / Metris
+* Context: The successor to the Viano/Vito (W639).
+* Verdict: Launched with FBS4. Do not attempt FBS3 key programming on these vans, even early 2015 models.
+3.3 The "Hybrid" Laggards (The Long-Tail FBS3)
+These chassis retained older electronic architectures longer than the sedans, creating "Zombie" FBS3 vehicles well into 2015 and 2016. These represent the highest-value opportunities for locksmiths who know how to identify them.
+W463 G-Class
+The G-Class is a unique anomaly due to its exceptionally long production cycle and piecemeal updates.
+* The Anomaly: While the C-Class moved to FBS4 in 2015, the G-Class retained its legacy architecture.
+* The 2013–2015 Window: These vehicles often feature the interior of a modern Mercedes (Command NTG 4.5/5.0) but retained the FBS3 EIS. This is why a 2015 G63 AMG might still be programmable with a VVDI MB tool, whereas a 2015 C300 is impossible.
+* The Cutoff: The definitive switch aligns with the 2016 Facelift (identifiable by the introduction of the 4.0L V8 Biturbo engine in the G500/G550). Vehicles built up to September 2015 are often manageable with FBS3 tools. However, MY2016 (Code 806) and newer are strictly FBS4.6
+W166 ML / GLE Class
+The W166 chassis is perhaps the most notorious "trap" in the lineup.
+* The Split: The ML (pre-facelift) ran from 2012–2015. The GLE (facelift) started in 2016.
+* Forensic Note: While the GLE is solidly FBS4, the late-run 2014/2015 MLs are highly inconsistent. July 2013 is the official technical bulletin date for FBS4 availability on the 166 chassis.4 This means a 2014 ML350 could be FBS4. You cannot assume a W166 ML is FBS3 without a VIN check or a diagnostic key scan.
+________________
+4. Forensic Identification Methodology: Visual Cues for the Technician
+When a vehicle arrives at the workshop—often towed in a "no start" condition—the technician may not have immediate access to power or advanced diagnostic tools. In such scenarios, physical forensic identification of the key and ignition system is critical to determining the feasibility of the job and managing customer expectations.
+4.1 The Key Fob: Shells, Buttons, and Frequencies
+While the external shell of a key can be swapped, original keys often bear tell-tale signs of their generation.
+FBS3 Keys (The "Legacy" Generation)
+* Shell Design: Often the "NEC" chrome key with a distinct, slightly wider profile, or the older black plastic "peanut" key.
+* Battery Configuration: Typically utilizes two CR2025 batteries (older SmartKeys) or one CR2032 (newer BGA style).
+* Frequency: Universally 315MHz (US) or 433MHz (EU). Importantly, aftermarket FBS3 boards (like the VVDI BE Key) allow frequency switching via the removal of a specific resistor or through software configuration.8
+FBS4 Keys (The "New Encryption" Generation)
+* Shell Design: Almost exclusively the newer, slimmer "Chrome" design or the "Gloss Black" smart key (W213 style).
+* Visual "Tells":
+   * Panic Button: Newer FBS4 keys often feature a triangular panic button, whereas the older FBS3 Chrome keys predominantly featured a circular one.10
+   * FCC ID: This is the most reliable external identifier (discussed below).
+* Battery Compartment:
+   * FBS4 keys typically use a single CR2032 battery. The internal contact layout is distinct from the FBS3 BGA keys. The battery contact on FBS4 boards (such as the 285904500R series) is integrated differently than the "BE" or "BGA" FBS3 boards, often featuring a specific sprung contact arm that differs in shape.11
+4.2 The Circuit Board (PCB) Forensics
+If the technician has access to the key internals (e.g., if the customer has a spare or broken key), opening the fob provides definitive proof.
+
+
+Feature
+	FBS3 (BGA/NEC)
+	FBS4 (Keyless/Non-Keyless)
+	Board Number
+	Commonly A2C... or unmarked clones.
+	285904500R, 285904500Q 11, A2C81231800
+	Microcontrollers
+	NEC chips (programmable/erasable).
+	Proprietary Mercedes/Infineon Encrypted Chips.
+	Frequency
+	Switchable (Resistor/Software) on clones.
+	Fixed Frequency (Hardware locked).
+	FCC ID
+	IYZ 3312 (Common FBS3)
+	IYZDC12K (Common FBS4) 12, NBGDM3 14, IYZDC12B 15
+	Forensic Insight - The FCC ID Lookup:
+* IYZDC12K: This ID is a confirmed FBS4 identifier for W205, W222, and late W212 models.12 If a technician sees this code on the back of a key, they must STOP. This key cannot be programmed with standard aftermarket tools.
+* NBGDM3: Another definitive FBS4 identifier, typically found on W177 A-Class and newer architectures.14
+* IYZDC12B: Found on 4-button smart keys (315MHz), this is also an FBS4 indicator.15
+
+
+  
+
+
+
+4.3 VIN Decoding: The SA Code Check
+When physical inspection is inconclusive, the Vehicle Identification Number (VIN) provides the data card—the "DNA" of the car. The critical data point is the SA Code (Option Code) related to the model year modification.
+* Decoding Process: Use a reliable VIN decoder (e.g., LastVIN, Datamb) to pull the vehicle's datacard.
+* The Codes:
+   * 803: 2013 Model Year. Safe (FBS3).
+   * 804: 2014 Model Year. Mixed/Transition. Requires EIS scan.
+   * 805: 2015 Model Year. High Risk (mostly FBS4).
+   * 806: 2016 Model Year. FBS4 Confirmed.16
+This VIN-based triage allows a shop to filter out impossible jobs over the phone before the vehicle is even towed to the facility.
+________________
+5. The "Green Key" Phenomenon: From Hardware to Cloud
+In the FBS3 era, the term "Green Key" referred to a physical Workshop Key (often literally green or orange in color) that was used to initialize blank components. It was the physical token of authority. If a technician replaced an EIS, they would insert the Green Key to "marry" the EIS to the car's existing authorization track.1
+5.1 The Virtualization of Authority
+With the advent of FBS4, the "Green Key" was deprecated as a physical object. It has been replaced by a digital certificate system managed by the Daimler backend.
+* StarKey and Xentry Certificates: Modern authorization is handled via the "StarKey" system within the Xentry Diagnosis software. When a technician initiates a module personalization, the software generates a hardware fingerprint of the laptop and the connected vehicle module. This fingerprint is sent to the central Daimler server.3
+* The Handshake: The server verifies the technician's credentials (which must be valid and active) and the module's status (checking against a database of stolen or blacklisted parts). If approved, the server sends back a personalized data block to "unlock" and "marry" the module.
+* Implication for Aftermarket: This effectively kills the offline repair market for keys. Without a valid, online Xentry account and the appropriate "Release" authority for Theft-Relevant Parts (TRP), a standard technician cannot perform the handshake. This has pushed the aftermarket toward "emulation" and "bypass" solutions rather than direct participation in the OEM protocol.
+________________
+6. Advanced Module Virginization: Breaching the Wall
+While Key Programming (All Keys Lost) remains largely impenetrable for FBS4 without dealer access, the wall for Module Virginization—the ability to reuse second-hand ECUs, TCUs, and shifters—has crumbled significantly between 2022 and 2024. This represents the primary revenue stream for modern Mercedes specialized locksmiths.
+6.1 The Hierarchy of Virginization
+Not all FBS4 modules are equally secure. The aftermarket has successfully reverse-engineered the memory structures of several components, allowing them to be reset to a "factory virgin" state. Once virginized, these modules can be personalized to a new vehicle using specific aftermarket tools that emulate the server's personalization data block.
+
+
+  
+
+
+
+6.2 Transmission Control Units (TCU): 7G & 9G
+The transmission is often the first component to fail or require replacement, making its repairability critical.
+* 7G-Tronic (VGS4-NAG2): This unit is now considered Highly Repairable.
+   * Technique: Tools like Abrites MN035 and Autel G-Box can connect to the TCU (often requiring a direct connection to the pins, bypassing the OBD port) to erase the existing VIN and authorization data.18
+   * Personalization: The "Personalization" phase—where the virgin module is married to the car—can be done without online access if the tool can extract the necessary FBS data from the vehicle's EIS or the old (broken) TCU.20
+   * Variants: Technicians must distinguish between the standard VGS4-0 and the AMG-specific VGS4-500. Support for the VGS4-500 is more limited and often requires specific cable sets (e.g., Abrites CB088).20
+* 9G-Tronic (VGS-NAG3): Once considered impossible, this frontier has opened in 2024/2025.
+   * Status: Moderate/High Difficulty.
+   * Solution: Abrites (MN034) and specialized "mail-in" tuning shops 21 have developed methods to read the original configuration data from a failing unit and inject it into a virginized donor. This often requires the EP003 license or similar advanced permissions.
+   * Constraint: Unlike the 7G-Tronic, the 9G-Tronic is highly integrated. If the original module is completely dead (no communication), creating a "from scratch" personalization file is significantly harder and may still require online dealer intervention.
+6.3 Intelligent Servo Modules (ISM / DSM)
+The shift-by-wire modules are frequent points of failure.
+* Evolution: The older ISM (Intelligent Servo Module) found in W164/W221 has been succeeded by the DSM (Direct Select Module) in W212/W205/W222.
+* Virginization: Tools like the CGDI MB and Autel IM608 have robust "Renew" functions for these modules. The process typically involves connecting to the module on the bench (using a breakout cable like the G-Box or dedicated DSM cable) to wipe the memory.23
+* Re-adaptation: Once virginized, the module can be re-taught to the vehicle using the "Teach-In" process in a diagnostic scanner. This is one of the most reliable FBS4 repairs available to independents.24
+6.4 Engine Control Units (ECU): The Bosch/Delphi Challenge
+* Supported Units: Bosch MED17 and EDC17 families are widely supported. Tools like Abrites MN034 allow for the "Personalization" of virgin ECUs via OBDII, even when no previous personalization data is available.18 This is a massive breakthrough, effectively emulating the "Green Key" server handshake locally.
+* Unsupported Units: Newer MD1/MG1 ECUs (found in 2018+ vehicles) are significantly harder to crack. While reading/writing is possible with tools like Autel and MagicMotorsport, the FBS4 virginization of these specific newer generations is still in its infancy and often requires specific bench protocols.26
+6.5 The Unbreakable Anchor: The Electronic Ignition Switch (EIS)
+Despite progress elsewhere, the EIS (EZS) remains the fortress of the FBS4 system.
+* The Restriction: You cannot simply "virginize" a used FBS4 EIS and install it in another car to generate keys. The EIS contains the master encryption keys for the entire vehicle.
+* The Consequence: If an FBS4 EIS fails, the only reliable solution is a brand new unit from the dealer, authorized via the official online StarKey process. "Cloning" an FBS4 EIS is technically possible only if the processor is identical and the tool supports the specific hardware version, but this is rare and fraught with risk.27
+________________
+7. The Tooling Ecosystem: A Comparative Analysis
+The market for FBS4 interventions is dominated by three primary players, each with distinct strengths.
+7.1 Abrites (Bulgaria)
+* Strengths: The undisputed leader in R&D. Their MN032/MN034/MN035 licenses offer the deepest capability, including the ability to personalize modules without original data.25
+* Best For: High-end shops specializing in module repair (ECU/TCU replacement). The "Personalization Expert" (MN034) is the closest the aftermarket has come to emulating the dealer server.
+7.2 Autel (China)
+* Strengths: The IM608 Pro combined with the G-Box 3 is the "Swiss Army Knife." It offers excellent coverage for standard virginization (ISM, 7G) and has a very user-friendly interface for identifying FBS status.28
+* Best For: General automotive locksmiths and diagnostic shops. It excels at "All Keys Lost" for FBS3 and "Module Renewal" for FBS4.
+7.3 CGDI (China)
+* Strengths: The CGDI MB is a cost-effective powerhouse. It was one of the first to offer reliable ISM/DSM virginization and often receives updates faster than its competitors for specific niche functions.23
+* Best For: Budget-conscious shops focusing on specific high-volume repairs like shifter replacements.
+________________
+8. Conclusions and Technician's Protocol
+The transition from FBS3 to FBS4 was not a clean break but a fragmented, multi-year rollout that created a complex minefield for the repair industry. The "Hard Wall" for key generation remains intact—without a dealer license, you cannot create a key for an FBS4 vehicle. However, the wall for module repair has crumbled significantly, transforming the business model from "key maker" to "module integrator."
+The Golden Rules for the Technician:
+1. Trust No Year: A 2013 S-Class is FBS4. A 2015 G-Class is FBS3. A 2014 ML350 is a coin toss. The year of manufacture is a hint, not a diagnosis.
+2. Verify, Don't Guess: Use a diagnostic tool to read the EIS Status before quoting any key job. Look for "FBS4" or "DAS4" in the authorization menu.
+3. The FCC ID Check: If the key says IYZDC12K or NBGDM3, it is FBS4. Do not attempt to program it with FBS3 tools; you will fail.
+4. Embrace the Module Market: While lost keys on FBS4 cars are lost revenue for the independent, the ability to virginize 7G/9G transmissions and ISMs is a massive, high-margin opportunity. This "Forensic Module Adaptation" is the future of the European locksmithing trade.
+The era of "EEPROMing a key in 10 minutes" is over for modern Mercedes-Benz. The era of the forensic security integrator has begun.
+Works cited
+1. WIS 80.57 Drive Authorization System - W220 S-Class Encyclopedia, accessed December 20, 2025, https://w220.wiki/WIS_80.57_Drive_Authorization_System
+2. Mercedes FSB4. : r/CarHacking - Reddit, accessed December 20, 2025, https://www.reddit.com/r/CarHacking/comments/w0yyr8/mercedes_fsb4/
+3. Manual for XENTRY Pass Thru - Service Info Portal, accessed December 20, 2025, https://service-info-int.mercedes-benz-trucks.com/media/wysiwyg/XPTEU/Manual_XPTEU_EN.pdf
+4. June 22, 2015 S-B-80.57/62e S-B-80.57/62d; May 2015 80 - nhtsa, accessed December 20, 2025, https://static.nhtsa.gov/odi/tsbs/2015/MC-10135903-9999.pdf
+5. 2015 Mercedes-Benz C 200 W205 Versus 2014 C 200 W204 - autoevolution, accessed December 20, 2025, https://www.autoevolution.com/news/2015-mercedes-benz-c-200-w205-versus-2014-c-200-w204-72589.html
+6. FBS4 Mercedes Key Programming: What You Need to Know - Monty Locksmith, accessed December 20, 2025, https://www.montyslocksmith.ca/blog/fbs4-mercedes-key-programming-what-you-need-to-know-and-what-we-can-do/
+7. CHOOSING TO GO TO THE MOON: DAS MANAGER FOR FBS3/FBS4 Abrites, accessed December 20, 2025, https://abrites.com/blog/choosing-to-go-to-the-moon-das-manager-for-fbs3-fbs4
+8. Change Frequency on Mercedes BE Key - Quick and easy job 315 to 433 mhz - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=kWqGy3neYso
+9. Xhorse VVDI MB FBS3 Smart Key - PCB Frequency Change with Key Shell Assembly & Disassembly - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=jKNdpfSztV0
+10. Mercedes Key Fob Problems Solved: Battery & Costs - Mercedes-Benz of Daytona Beach, accessed December 20, 2025, https://daytonamercedesservice.com/mercedes-key-fob-secrets-your-ultimate-fix-it-playbook/
+11. Discover 3 Different Types of Mercedes-Benz Key FOB Batteries & How To Change Them, accessed December 20, 2025, https://m.youtube.com/watch?v=ZFBGeHITgZc&pp=0gcJCa0JAYcqIYzv
+12. Genuine Mercedes Benz FBS4 2014-2023 Smart Key, 3Buttons, 315MHz, IYZDC12K Keyless Go - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/genuine-mercedes-fbs4-smart-key-315mhz-iyzdc12k-keyless-go-4800-2b
+13. Genuine FBS4 Mercedes Benz GLS FCC ID: IYZDC12K 3 Buttons IR, accessed December 20, 2025, https://www.tlkeys.com/products/Mercedes-Benz-FBS4-2015-Smart-Remote-Key-PCB-33321
+14. 2013-2020 Mercedes FBS4 / 4-Button Smart Key / PN: A-177-905-22-01 / NBGDM3 (OEM), accessed December 20, 2025, https://www.uhs-hardware.com/products/2013-2020-mercedes-fbs4-4-button-smart-key-pn-a-177-905-22-01-nbgdm3-oem
+15. Genuine Mercedes Benz FBS4 Smart Key Board, 4Buttons, 315MHz, IYZDC12B - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/mercedes-fbs4-smart-key-315mhz-iyzdc12b-4466-iyzdc12b
+16. Clockspring For MERCEDES Cls E-Class T-Model G-Class 97-18 1714640118 | eBay, accessed December 20, 2025, https://www.ebay.com/itm/326462432389
+17. EIS/key problems - PeachParts Mercedes-Benz Forum, accessed December 20, 2025, http://www.peachparts.com/shopforum/tech-help/209805-eis-key-problems.html
+18. MN034 - FBS4 Personalization Expert - Abrites USA, accessed December 20, 2025, https://www.abritesusa.com/product/MN034-FBS4-Personalization-Expert
+19. VGS4-NAG2 FBS4 TCU Setting to Virgin State and Personalization Using AVDI and ABPROG! - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=EjBJcfCuTzM
+20. VGS4- NAG2 What is all the fuss about? - ABRITES.com, accessed December 20, 2025, https://abrites.com/blog/vgs4-nag2-what-is-all-the-fuss-about
+21. Mercedes-Benz 9G-tronic 9 speed automatic transmission control module - ECU Maverick, accessed December 20, 2025, https://ecumaverick.com/products/mercedes-benz-9g-tronic-9-speed-automatic-transmission-control-module-725-0-vgs-nag3-programming
+22. Mercedes 9G Tronic VGS-NAG3 - VF2 Flasher - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=vGJf1WFljh4
+23. New CGDI MB Update Unlocks Mercedes FBS4 Virgin Function — The Ultimate Game Changer! - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=-amYZmJ3eXo
+24. Mercedes Benz FBS4 System Detection using Autel IM608 Pro2 - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=zL-tp8r2mvk
+25. DAS4/FBS4 Personalization Expert - ABRITES.com, accessed December 20, 2025, https://abrites.com/products/mn034
+26. Abrites Diagnostics for Mercedes FBS4 Manager HTML, accessed December 20, 2025, https://abrites.com/media/user_manuals/html/mercedes-fbs4-manager/index.html?v=1756708104
+27. Mercedes TCU and ECU virginizing : r/CarHacking - Reddit, accessed December 20, 2025, https://www.reddit.com/r/CarHacking/comments/1ppdk5v/mercedes_tcu_and_ecu_virginizing/
+28. Benz FBS4 ECU Cloning by Autel IM608 and Gbox3 | by obdii365 - Medium, accessed December 20, 2025, https://medium.com/@obd365com/benz-fbs4-ecu-cloning-by-autel-im608-and-gbox3-f18239cc28e7

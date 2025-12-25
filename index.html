@@ -6938,10 +6938,14 @@
             if (response.credential) {
                 try {
                     // Send the token to the backend to establish a session cookie
+                    // Include visitor_id to link pre-registration guest activity
                     const verifyRes = await fetch(`${API}/api/auth/verify`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ credential: response.credential }),
+                        body: JSON.stringify({
+                            credential: response.credential,
+                            visitor_id: getVisitorId()
+                        }),
                         credentials: 'include' // CRITICAL: Securely set HttpOnly session cookie
                     });
 
@@ -7808,6 +7812,14 @@
                 if (activity.length === 0) {
                     activityContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No activity logged yet</div>';
                 } else {
+                    // Build visitor_id -> user name lookup for resolving guests to registered users
+                    const visitorToUser = {};
+                    users.forEach(u => {
+                        if (u.visitor_id) {
+                            visitorToUser[u.visitor_id] = u.name || u.email;
+                        }
+                    });
+
                     // Count activities by category
                     const categoryCounts = { all: 0, job_logging: 0, search: 0, monetization: 0, browsing: 0, session: 0, other: 0 };
 
@@ -7819,11 +7831,18 @@
                         categoryCounts.all++;
                         categoryCounts[category] = (categoryCounts[category] || 0) + 1;
 
-                        // Improve Guest User display with short ID
+                        // Improve Guest User display - resolve to registered user if possible
                         let displayName = a.user_name || 'Guest User';
+                        let isResolvedGuest = false;
                         if (!a.user_name && a.user_id && a.user_id.startsWith('guest:')) {
                             const visitorId = a.user_id.replace('guest:', '');
-                            displayName = `Guest (${visitorId.substring(0, 5)})`;
+                            // Check if this guest later registered
+                            if (visitorToUser[visitorId]) {
+                                displayName = `${visitorToUser[visitorId]} 👤`;
+                                isResolvedGuest = true;
+                            } else {
+                                displayName = `Guest (${visitorId.substring(0, 5)})`;
+                            }
                         }
 
                         let icon = '📝';

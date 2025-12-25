@@ -1,0 +1,269 @@
+﻿The Evolution of Automotive Access Control: A Technical Analysis of Asian Markets (1995–2005)
+1. Introduction: The Geopolitics of Automotive Security and the Digital Transition
+The decade spanning 1995 to 2005 represents the most significant paradigm shift in the history of automotive security, particularly for Asian manufacturers such as Toyota, Honda, and Nissan. Prior to this era, vehicle security was almost exclusively mechanical, relying on the physical complexity of tumblers, wafers, and bitting configurations to deter theft. However, rising vehicle crime rates in the early 1990s, particularly in Europe and North America, precipitated a regulatory and technological revolution that fundamentally altered the architecture of vehicle access.1
+The impetus for this change was largely driven by the European Union’s mandate (95/56/EC), effective from October 1995 (and mandatory for all new registrations by 1998), which required all new passenger vehicles to be equipped with an electronic engine immobilizer. While this was a European regulation, the global nature of automotive manufacturing meant that Asian OEMs (Original Equipment Manufacturers) began integrating these systems into their global platforms, including those destined for the North American and domestic Japanese markets. This period, therefore, is characterized by a "hybrid" security landscape where purely mechanical locks coexisted with, and were eventually superseded by, first-generation transponder technologies.3
+For the automotive locksmith and security researcher, the 1995–2005 window presents a unique set of challenges. Unlike modern systems which are largely standardized around ISO protocols and CAN-bus architectures, this decade was a "wild west" of proprietary protocols, varying transponder modulation frequencies, and diverse programming logic. Manufacturers like Toyota adopted Texas Instruments' fixed and later cryptographic solutions, Honda leveraged Megamos and Philips technologies, while Nissan developed its proprietary NATS (Nissan Anti-Theft System) in conjunction with Siemens.5
+This report provides an exhaustive technical analysis of the mechanical key cutting data, transponder cloning capabilities, and immobilizer programming protocols for these core Asian manufacturers. It explores the transition from the "Type 1" fixed code systems to the "Type 2/3" crypto systems, the specific mechanical profiles (TOY43, HO01, NSN14), and the modern tooling ecosystem—led by Xhorse and Autel—that has evolved to support these legacy architectures.8
+
+
+  
+
+
+
+2. Mechanical Access Control: Profiles, Geometry, and Cutting Data
+Before examining the electronic layer, one must understand the physical layer. During the 1995–2005 era, Asian manufacturers utilized a variety of wafer-based lock systems. Unlike the pin-tumbler systems used in residential security, automotive locks of this period relied on split-tumbler or solid-wafer configurations, often with double-sided bitting for user convenience (the ability to insert the key either way up).
+2.1 Toyota and Lexus: The TOY43/TR47 Standard
+The dominant mechanical standard for Toyota and Lexus during this period was the TR47 (aftermarket designation) or TOY43 (Silca designation) profile. This keyway is characterized by its durability and the use of a 10-cut system, although 8-cut variants existed on earlier models (pre-1998 Camry).
+2.1.1 Bitting Geometry and Code Series
+The TOY43 system utilizes a split-wafer design. The key blade is double-sided, meaning cuts are mirrored on both the top and bottom edges. The bitting depths are typically numbered 1 through 4, with 1 being the shallowest cut and 4 being the deepest. The lock cylinder contains wafers that interact with these cuts to align with the shear line.
+The "Key Code" is a critical data point for locksmiths. In the event of a lost key, the code allows for the generation of a key without the original. For Toyota vehicles of this era, the code is almost invariably stamped on the passenger door lock cylinder, requiring the dismantling of the door panel to access.
+* Code Series: The code series for the 10-cut system typically ranges from 10000 to 15000 or 50000 to 69999.11
+* Cutting Data Availability: The Xhorse Dolphin XP-005 automated key cutting machine contains a proprietary database of these codes. By entering the code (e.g., "12345"), the machine calculates the bitting depths (e.g., 1123411234) and executes the cut using a 1.5mm or 2.5mm tracer/cutter probe.1
+2.1.2 High Security Exceptions (Lexus)
+While Toyota stuck to the edge-cut TOY43, Lexus models (specifically the LS400, GS300) began experimenting with high-security "laser" or "track" keys earlier. The TOY40 and TOY48 profiles (long and short blade variants) feature a central milled groove rather than edge cuts. This required a 4-axis cutting machine or a vertical mill, a technology that was rare in the 1990s but is now standard in machines like the Dolphin XP-005 and Condor XC-Mini.5
+2.2 Honda: From Standard to Laser (HO01 to HON66)
+Honda's mechanical evolution is starkly divided by the year 2002.
+2.2.1 The HO01 / HON58 Era (1995–2002)
+The standard Honda key for this period was the HO01 (or HON58). It is a flat, double-sided key with edge cuts. The bitting system is notoriously complex due to the "split" nature of the tumblers, often requiring very precise duplication to avoid "jiggling" or sticking in the ignition.
+* Cutting by Code: Similar to Toyota, Honda codes could technically be derived from the VIN in some dealer databases, but physically they were often stamped on the lock cylinders. The Dolphin XP-005 supports the HO01 profile comprehensively, allowing for "Cut by Code" operations.14
+* Calibration: The Dolphin XP-005 specifically requires a HON66 (the later key) for calibration, but it cuts the HO01 using the standard M1 jaw.14
+2.2.2 The HON66 Laser Era (2002–2005)
+Starting with the 2003 Accord, Honda introduced the HON66 "High Security" key. This is a laser-cut key (sidewinder) utilizing a sophisticated "web" design where the cut depth varies along the face of the blade.
+* Security Implications: This moved Honda into the "High Security" bracket. The lock cylinders for HON66 are known for their fragility; the split wafers often wear down, causing key failures.
+* Cutting Support: The Xhorse Dolphin XP-005 is heavily marketed for its ability to originate HON66 keys. It can decode a worn key and, using built-in algorithms, infer the original factory depths to cut a "virgin" key, correcting for wear.16
+2.3 Nissan: The NSN Series (NSN11 / NSN14)
+Nissan used the NSN11 (older 8/10 cut) and NSN14 (newer 10 cut) profiles.
+* NSN11 (1995–2000): Found on Pathfinders, Altimas, and older Maximas. These are standard edge-cut keys.
+* NSN14 (2000–2005): The standard for the NATS 5 era. The key blade is slightly wider and the bitting is more aggressive.
+* Data Availability: The key codes for Nissan are often found on the BCM (Body Control Module) label or the glovebox lock. The Dolphin XP-005 database supports the full range of NSN profiles, including the ability to decode the bitting from a photograph of the key using the Xhorse app's optical recognition feature.10
+2.4 Summary of Mechanical Support by Xhorse Dolphin XP-005
+The following table summarizes the mechanical key cutting support for the target vehicles using the Xhorse Dolphin ecosystem:
+Manufacturer
+	Years (Approx)
+	Profile ID (Silca)
+	Type
+	Dolphin Support
+	Cut by Code Series
+	Toyota
+	1995–2005
+	TOY43 (TR47)
+	Edge Cut
+	Yes (M1 Jaw)
+	10000-15000, 50000-69999
+	Lexus
+	1995–2005
+	TOY40 / TOY48
+	Laser (Track)
+	Yes (M2 Jaw)
+	40000-49999
+	Honda
+	1995–2002
+	HO01 (HON58)
+	Edge Cut
+	Yes (M1 Jaw)
+	Various
+	Honda
+	2002–2005
+	HON66
+	Laser (Track)
+	Yes (M2 Jaw)
+	K/L/M/N Series
+	Nissan
+	1995–2000
+	NSN11
+	Edge Cut
+	Yes (M1 Jaw)
+	Various
+	Nissan
+	2000–2005
+	NSN14
+	Edge Cut
+	Yes (M1 Jaw)
+	Various
+	1
+3. Transponder Technology: The Physics of Immobilization
+To understand the programming procedures, one must understand the underlying physics. The immobilizer systems of 1995–2005 operate on Low Frequency (LF) RFID, typically at 125 kHz or 134.2 kHz. The system consists of three components: the Transponder (Chip) in the key head, the Antenna Coil (around the ignition lock), and the Immobilizer Unit (ECU or separate box).
+3.1 Texas Instruments (TI) Fixed and Crypto
+Toyota and Nissan (in some regions) heavily utilized TI technology.
+* 4C (Fixed Code): Used in Toyota Type 1 systems. This chip is "Read Only." When energized, it emits a static hexadecimal signature. It has no encryption. The security lies solely in the ECU's "whitelist" of authorized signatures. Because the code never changes, these keys can be cloned easily if the cloner knows the format, but they cannot be "reprogrammed" to a different ID.3
+* 4D (Crypto): Used in Toyota Type 2 and Nissan NATS. This chip uses a 40-bit encryption key (DST40). The immobilizer sends a "Challenge" (random number) to the key; the key encrypts it using its internal secret key and sends back a "Response." The ECU verifies the response. This "Challenge-Response" mechanism makes simple sniffing attacks impossible compared to the static 4C.3
+3.2 Philips and Megamos
+Honda utilized different architectures.
+* Megamos 13: A fixed code magnetic coupled system used in early Hondas.
+* Philips ID46 (Hitag 2): Introduced around 2002/2003. This is a robust crypto chip that uses mutual authentication. The key authenticates the car, and the car authenticates the key. This typically requires "sniffing" data from the ignition coil to clone, a capability that modern tools like the Key Tool Max have mastered.8
+4. Toyota and Lexus: The Texas Instruments Architecture
+Toyota's implementation of TI transponders created a robust but rigid security environment. The 1995–2005 period is bifurcated into two eras: the 4C (Type 1) and the 4D (Type 2).
+4.1 Immobilizer Type 1: The 4C Fixed Code System (1996–2002)
+The Type 1 system is widely regarded as one of the most difficult legacy systems for "All Keys Lost" (AKL) programming due to its lack of an OBD programming pathway for lost keys.
+4.1.1 The "Master Key" Logic and OBD Limitations
+Toyota designed the Type 1 system with a strict hierarchy. The ECU memory designates keys as either "Master" or "Valet" (Sub).
+* Master Key: Required to open the programming window. It is usually black.
+* Valet Key: Usually gray. It can start the car but cannot authorize the addition of new keys.
+* The AKL Trap: If all Master keys are lost, the ECU enters a "locked" state. The standard Toyota diagnostic protocol (used by the dealer Techstream tool) does not support a "Reset" command via OBD for these older 4C systems. The dealer solution was to replace the entire ECU, a procedure costing thousands of dollars.21
+4.1.2 The EEPROM Solution (The Traditional Method)
+For years, the only way to bypass the ECU replacement was "EEPROM work." This involves physically removing the ECU from the vehicle (often located behind the glovebox or in the engine bay).
+1. Chip Identification: The technician locates the specific EEPROM chip on the circuit board, typically a 93C66 or 93LC66 (8-pin DIP or SOIC).
+2. Data Extraction: Using a programmer like the Autel XP400 or Xtool KC100, the technician reads the binary data (dump) from the chip.
+3. Data Manipulation: The data reveals the 4C hex strings. The technician has two options:
+   * Virginize: Overwrite the data with a "virgin" file (all FFs or specific pattern). When the ECU is reinstalled, it will automatically register the first key inserted as the new Master (Auto-Registration Mode).23
+   * Add Key to Dump: Use software (like Tango or Autel's "Write Key via Dump") to manually inject the ID of a new 4C chip into the file, then write the modified file back to the 93C66 chip.24
+4.1.3 The OBD Emulation Breakthrough (Lonsdor)
+In recent years, tools like the Lonsdor K518ISE/Pro have introduced a method to perform AKL via OBD, bypassing the need for soldering.
+* Mechanism: The tool uses a "Smart Key Emulator" (SKE) or specific cable (FP30) to force the ECU into a programming state. It effectively brute-forces or exploits a backdoor in the legacy communication protocol to simulate the presence of a Master key, allowing the registration of a new chip.26
+* Earliest Support: The earliest Toyota AKL support via this method covers the 1997–1998 models (e.g., Crown, Corolla) utilizing the 4C chip. This was a significant market differentiator for Lonsdor compared to Autel, which historically relied on the EEPROM method for these years.28
+4.2 Immobilizer Type 2: The 4D Crypto System (2002–2005)
+Around 2002, Toyota transitioned to the 4D67 (Toyota) and 4D68 (Lexus) chips. These are distinguished physically by a "Dot" stamped on the key blade (hence "Dot Key").
+* OBD Reset Capability: Unlike the 4C system, the 4D architecture was designed with a "Reset Immobilizer" function accessible via OBD. If all keys are lost, a locksmith can use the Autel IM508 or Xtool IK618 to send a reset command.
+* Process: The reset takes approximately 16 minutes (a security delay). Once completed, the ECU is wiped, and it enters "Auto-Learn" mode, accepting the next keys inserted as Masters.30
+* Xhorse Support: For 4D systems, the Xhorse Key Tool Max can clone existing 4D67/68 keys onto an XT27 Super Chip. This serves as a critical preventive measure. If a user has one key, cloning it avoids the 16-minute reset procedure entirely.8
+
+
+  
+
+
+
+5. Honda and Acura: The Red Key and the Crypto Shift
+Honda's security trajectory from 1995 to 2005 is marked by a dramatic shift from the cumbersome "Red Key" system to the standardized Philips ID46 architecture.
+5.1 Type 1: The "Red Key" System (1997–2001)
+Used primarily on the Prelude (1997–2001), NSX, and some early CR-Vs/Odysseys, this system is distinct in the industry.
+* The Learning Key: Vehicles were delivered with a special Red Key (Master) and two Black Keys (Slave). The Red Key was only for programming; it would not start the car. Inserting the Red Key put the immobilizer unit into learning mode.
+* AKL Nightmare: If the Red Key was lost, the official Honda procedure was to replace the Immobilizer Control Unit (ICU) and the Engine Control Module (ECM), a prohibitively expensive repair.
+* Modern Solutions:
+   * EEPROM: The Autel IM508/608 with the XP400 programmer can read the 93C46 EEPROM located inside the separate Immobilizer Box (usually found under the steering column or behind the dash). The tool can then generate a transponder that the car recognizes as the Red Key, or directly write a starting key into the dump.25
+   * Bypass: For the 1997 Prelude, a known hardware bypass involves locating the immobilizer coupler and physically bridging the "enable" wires (often grey and blue) to bypass the starter cut, though this leaves the immobilizer light flashing.34
+5.2 Type 2 & 3: The Philips ID46 Standard (2002–2005)
+Starting with the 2003 Accord and Civic, Honda adopted the Philips ID46 (Hitag 2) system.
+* OBD Programming: Unlike Toyota's 4C, the Honda ID46 system is highly amenable to OBD programming. The vehicle does not require a pre-calculated PIN code in the same way Nissan does; the "PCM Code" or "Immo Code" is typically calculated automatically by the programming tool (Autel, Xtool, or Xhorse) during the handshake process.
+* Process: The tool communicates with the PCM to release the immobilizer lock. This process is fast and reliable. The Xtool IK618 and Autel IM508 are widely cited as the most stable tools for this generation.35
+* Cloning: The Xhorse Key Tool Max is particularly effective here. It can "sniff" the data from the ignition coil (data collection) to crack the ID46 encryption. Once cracked, the key data is written to an XT27 Super Chip. This allows for a duplicate key to be made in minutes without plugging into the OBD port.8
+6. Nissan and Infiniti: The NATS Ecosystem
+Nissan's approach, the Nissan Anti-Theft System (NATS), relies heavily on BCM-based authentication.
+6.1 NATS 2.0 (1995–1999)
+This early system, often using ID33 or early 4D chips, predates the standardized OBDII immobilizer protocols.
+* Interface: Many of these vehicles utilize a 14-pin Consult port rather than the standard 16-pin OBDII. Programming requires a specialized adapter (Autel and Xtool provide these in their full kits).
+* Programming Logic: The system is slow and often requires "initialization" of the ECU. The Autel IM508 supports this via "Expert Mode," guiding the user to use the 14-pin adapter.4
+6.2 NATS 5.0 (2000–2005)
+This is the most prevalent system for the target era (Maxima, Sentra, Altima). It utilizes the Texas Instruments 4D60 chip.
+* PIN Code Security: To program a key, the technician must enter a 4-digit PIN code. This PIN is cryptographically derived from the 5-digit alphanumeric code printed on the BCM (Body Control Module) label.
+* BCM Location: The BCM is typically located under the steering column or behind the driver's kick panel. The technician must physically access this module to read the label.
+* Calculator Integration: Modern tools like the Autel IM508 and Xhorse Key Tool Max have built-in "NATS Calculators." The user types in the 5-digit BCM code (e.g., "24921"), and the tool calculates the 4-digit PIN (e.g., "5523"), allowing access to the "Add Key" function.7
+
+
+  
+
+
+
+6.3 Xhorse Support for Nissan (4D60)
+The Xhorse Key Tool Max is a powerhouse for Nissan NATS 5.
+* Cloning: The tool can clone the 4D60 chip directly. Because the 4D60 (40-bit) encryption is relatively weak by modern standards, the Key Tool Max can decipher it quickly. This is often preferred over OBD programming because it avoids the need to pull the BCM PIN code.
+* Generation: If all keys are lost, the Key Tool Max can generate a "Nissan 4D60" profile onto a blank XT27 Super Chip. This chip is then ready to be programmed into the car using the PIN method described above.39
+7. The Xhorse Ecosystem: Deep Dive into Key Tool Max and Super Chips
+The user query specifically asks about the capabilities of the Xhorse Key Tool Max regarding 4D60 and 4D63 chips. This tool has revolutionized the handling of 1995–2005 vehicles by decoupling the transponder from the physical key blank.
+7.1 The XT27 Super Chip Technology
+The core enabler is the XT27 Super Chip. This is a rewriteable transponder that can emulate the physical characteristics (modulation, bit-length, challenge-response logic) of hundreds of legacy chips.
+* 4D60 (Nissan/Toyota): The Key Tool Max can write a 4D60 profile to the XT27. This includes both the 40-bit (Legacy) and 80-bit (Newer) variants. For the 1995–2005 era, the 40-bit variant is standard.
+* 4D63 (Ford/Mazda): While 4D63 is associated with Ford and Mazda, it is technically a Texas Crypto chip sharing the same architecture as the 4D60. The Key Tool Max supports "Online Calculation" for 4D63, allowing it to clone these chips even if they use higher-bit encryption. This is relevant for "Asian" imports like the Mazda 3 or Mazda 6 (often grouped with Ford systems) which utilized the 4D63 chip during this period.8
+7.2 Cloning vs. Generating
+* Cloning (Add Key): If the customer has one working key, the Key Tool Max reads the ID and encryption key, then writes an exact copy to the XT27. The car cannot distinguish between the original and the clone. This works seamlessly for Nissan 4D60 and Toyota 4D67.
+* Generating (All Keys Lost): If no key exists, the tool cannot clone. Instead, the user selects "Generate Transponder" -> "Toyota" -> "Corolla 2004". The tool configures the XT27 to behave like a virgin dealer key (4D67). This generated key must then be programmed to the car via OBD using the PIN or Reset method.8
+8. Comparative Tool Analysis: Autel vs. Xhorse vs. Lonsdor vs. Xtool
+To effectively service Asian vehicles from 1995 to 2005, a locksmith typically requires a "stack" of tools. No single tool covers every edge case perfectly.
+Feature / Scenario
+	Autel IM508/608
+	Xhorse (Key Tool Max + Dolphin)
+	Lonsdor K518ISE/Pro
+	Xtool IK618
+	Mechanical Cutting
+	No (Requires separate machine)
+	Excellent (Dolphin integrated)
+	No
+	No
+	Toyota 4C AKL (1996-2002)
+	Limited (Mostly via EEPROM/XP400)
+	Limited
+	Superior (OBD Emulation via SKE)
+	Moderate (Requires KS-1 Emulator)
+	Toyota 4D AKL (2002-2005)
+	Excellent (Reset Immobilizer via OBD)
+	Moderate (Requires Adapter)
+	Excellent
+	Good (Reset supported)
+	Honda Type 1 (Red Key)
+	High (via EEPROM/XP400)
+	Low
+	Low
+	Moderate
+	Honda Type 2/3 (ID46)
+	Excellent (Fast OBD)
+	Good (Cloning preferred)
+	Good
+	Excellent (Fast OBD)
+	Nissan NATS 5 (PIN)
+	Built-in Calculator
+	Online Calculation
+	Built-in Calculator
+	Built-in Calculator
+	Chip Cloning (4D60/63)
+	Basic (XP200/400)
+	Superior (XT27 Super Chip)
+	Moderate
+	Moderate
+	EEPROM Capabilities
+	Superior (XP400 is industry standard)
+	Basic (Mini Prog)
+	Basic
+	Moderate (KC100/KC501)
+	21
+9. Conclusion
+The 1995–2005 era stands as the foundational period of modern automotive security for Asian manufacturers. It was a time of rapid experimentation, transitioning from the purely mechanical TOY43 and NSN11 profiles to the complex digital handshakes of Texas Crypto and Philips ID46.
+For the technician, the implications are clear:
+1. Toyota 4C remains the most significant hurdle, with Lonsdor offering the best OBD bypass and Autel providing the most reliable EEPROM backup.
+2. Nissan NATS 5 requires a robust PIN calculation workflow, easily handled by modern tablets but dependent on physical BCM access.
+3. Honda's "Red Key" legacy demands respect (and often EEPROM work), while its later ID46 systems are remarkably open to OBD programming.
+4. Xhorse has democratized the cloning of 4D60/63 and 4D67 chips, making the "Add Key" process trivial and effectively removing the dealer from the loop for simple duplications.
+Maintaining these vehicles today requires a hybrid toolkit: a precision cutter like the Dolphin XP-005 for the worn locks of the 90s, and a versatile programmer stack that can switch between OBD emulation (for speed) and EEPROM re-flashing (for absolute authority) when the legacy code refuses to yield.
+Works cited
+1. Top Electronic Code Machines for Locksmiths - CLK Supplies, accessed December 22, 2025, https://www.clksupplies.com/collections/electronic-code-machines
+2. Replacement Honda Keys — The Keyless Shop - Car Keys, Car Remotes, Car Key Programming, accessed December 22, 2025, https://www.keylessshop.com/hondacarkeys
+3. Toyota Transponder Key Catalog | PDF | Vehicles | Car Manufacturers Of Japan - Scribd, accessed December 22, 2025, https://www.scribd.com/document/663232961/TOYOTA-Transponder-Catalog
+4. Nuts about NATS2-- NISSAN NATS 2 bypass - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=oYTPH_43Yzc
+5. Remote Key Transponder Chip For Toyota ID4C 4C Blank Immobilizer Chip - eBay, accessed December 22, 2025, https://www.ebay.com/itm/303248647097
+6. Immobilizer System - honda tech info, accessed December 22, 2025, https://techinfo.honda.com/rjanisis/pubs/om/rs0606/RS0606O00065A.pdf
+7. Overview of the Nissan Anti-Theft System (NATS) - Locksmithsdrm.com, accessed December 22, 2025, https://nissan-techinfo.locksmithsdrm.com/sdrm/ni_02_4218/Overview%20of%20the%20SDRM%20process.pdf
+8. Xhorse VVDI Key Tool MAX PRO and Universal Remote Key with Super Chips - Locksmith Keyless, accessed December 22, 2025, https://www.locksmithkeyless.com/products/xhorse-vvdi-key-tool-max-pro-and-universal-remote-key-w-super-chips-blades-starter-pack-2
+9. Autel IM508 & APB112 | How to do an All Keys Lost on a 2017 Toyota Camry | Training 2020, accessed December 22, 2025, https://www.youtube.com/watch?v=dGYFPBZJ21k
+10. Xhorse Condor Dolphin XP005 Key Cutting Machine and VVDI Key Tool Plus PAD, accessed December 22, 2025, https://www.locksmithkeyless.com/products/xhorse-condor-dolphin-xp005-key-cutting-machine-xhorse-vvdi-key-tool-plus-pad
+11. Everything You Need To Know About The TOY44D Transponder Key - CLK Supplies, accessed December 22, 2025, https://www.clksupplies.com/blogs/news/locksmithing-101-everything-you-need-to-know-about-the-toy44d-transponder-key
+12. Xhorse Dolphin XP-005 XP005 Key Cutting Machine for All Key Lost support IOS Android, accessed December 22, 2025, https://www.obd2gate.com/products/xhorse-condor-dolphin-key-cutting-machine.html
+13. DOLPHIN - Automatic Key Cutting Machine XP-005 - FCC Report, accessed December 22, 2025, https://fcc.report/FCC-ID/2atsvxp0501/4477540.pdf
+14. Xhorse - Condor XC Dolphin XP-005 - High Sec Portable Key Cutting Machine - Built-in Battery for Sale | UHS Hardware, accessed December 22, 2025, https://www.uhs-hardware.com/products/xhorse-condor-xc-dolphin-xp-005-high-sec-portable-key-cutting-machine-w-battery
+15. Cut & Cloning a Honda key chip using key tool max / Xhorse Dolphin XP-005 no obd programming needed - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=MKNyvyKDWM4
+16. Triton PLUS - Automatic Key Cutting Machine (Automotive Edition) + Autel KM100 Universal Key Generator Kit for Sale | UHS Hardware, accessed December 22, 2025, https://www.uhs-hardware.com/products/triton-plus-automatic-key-cutting-machine-one-machine-does-it-all-automotive-edition-autel-km100-universal-key-generator-kit
+17. LIVE Q&A KEY TOOL MAX /DOLPHIN XP-005 (FOR BEGINNERS) - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=6TbX48uPIt4
+18. How To Duplicate Car Key with Condor XC Dolphin XP-005 Portable Key Cutting Machine, accessed December 22, 2025, https://www.youtube.com/watch?v=Cb8vKOPafio
+19. 4C Carbon Transponder Chip for Toyota Lexus Suzuki Ford - ABKEYS, accessed December 22, 2025, https://abkeys.com/products/4c-transponder-chip-id4c-chip-4c-texas-chip-transponder-339
+20. How to clone Transponder (car key chip) Xhorse Key Tool Max - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=MXBoq8lSIk0
+21. program early Toyota key Im508 - Autel Support Communities, accessed December 22, 2025, https://bbs.autel.com/autelsupport/Diagnostics/29575.jhtml?createrId=548782&view=1
+22. All you need to know about Toyota Keys Mechanical and Smart keys - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=vYtU5-OLv-k
+23. Adding 4C Keys to Toyota ECU Immo | PDF | Computers - Scribd, accessed December 22, 2025, https://www.scribd.com/document/666753308/Adding-4C-Into-93C66-Dump
+24. Toyota camry 2004 Chip 4C All keys lost Read eeprom and write chip with Autel IM508S + XP400Pro - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=AqTw9a0LBxs
+25. 96-01 Honda Prelude All keys lost programming Keytool plus, KC501, VVDI superchip 93C46 Programming - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=7vhGdPtV_YQ
+26. Lonsdor K518 PRO FCV - All Keys Lost Bundle For Toyota And Lexus, accessed December 22, 2025, https://www.bestkeysupply.com/products/lonsdor-k518-pro-fcv-programmer-toyota-package-keys-shells-bundle-p444
+27. All Keys Lost Via OBD on 2009-2014 Toyota Prius - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=2xIFXdu1Yak
+28. XTOOL X100 PAD3 For TOYOTA Key Programming, accessed December 22, 2025, http://blog.xtool.co.uk/xtool-x100-pad3-for-toyota-key-programming/
+29. Lonsdor - All Keys Lost Bundle For Toyota And Lexus for Sale - UHS Hardware, accessed December 22, 2025, https://www.uhs-hardware.com/products/lonsdor-all-keys-lost-bundle-for-toyota-and-lexus
+30. Autel KM100 Program Toyota Corolla 2016 All Keys Lost Success, accessed December 22, 2025, http://www.autelscanner.org/autel-km100-program-toyota-corolla-2016-all-keys-lost-success/
+31. Autel USA IM508 MaxiIM Auto Key Programmer and Diagnostic Tool, accessed December 22, 2025, https://www.jbtools.com/autel-usa-maxiim-auto-key-programmer-and-diagnostic-tool-im508/
+32. TOYOTA 4D-67 CLONE (TOY44D-PT) (VVDI TOOL) - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=i1ZgxcQZRIg
+33. (3/6) Autel IM608 Pro | Make A Car Key Without The Original | Key Programming - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=WTyA6Ejg1v8
+34. 97-01 Honda Prelude Starter Bypass Information - HA Motorsports, accessed December 22, 2025, https://www.hamotorsports.com/pages/97-01-honda-prelude-starter-bypass-information
+35. Adding Acura/Honda Keys - using Autel IM608 - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=U0gJP658aWg
+36. InPlus IK618 - XTool, accessed December 22, 2025, https://www.xtooltech.com/english/ProductsView/IK618.html
+37. NDS II – Windows PC - Nisscan, accessed December 22, 2025, https://nisscan.com/product/nds-ii-windows-pc/
+38. Infiniti NATS key programming - Autel Support Communities, accessed December 22, 2025, https://bbs.autel.com/autelsupport/Diagnostics/31148.jhtml
+39. “Toyota 8A Key Cloning Like a Pro! Using Xhorse Pro Max—Step-by-Step Guide!” In Seconds “Meta Ai - YouTube, accessed December 22, 2025, https://www.youtube.com/shorts/OWW0KpSMfKE
+40. Add a Bladed Key to a Nissan | Cut + Clone ID46 with Xhorse XP-005L + Pro Max (XT27A) superchip - YouTube, accessed December 22, 2025, https://www.youtube.com/watch?v=eaHQ4_AfqnU
+41. Xhorse VVDI Key Tool Max Pro + 10 Xhorse Super Chips Bundle - Best Key Supply, accessed December 22, 2025, https://www.bestkeysupply.com/products/xhorse-vvdi-superchip-bundle-xhop3810
+42. Is the Xhorse VVDI Key Tool MAX with the OBD tool worth it for key programing? - Reddit, accessed December 22, 2025, https://www.reddit.com/r/Locksmith/comments/qk4rvm/is_the_xhorse_vvdi_key_tool_max_with_the_obd_tool/
+43. Autel MaxiIM IM508S and Xhorse Key Tool Max Pro Bundle, accessed December 22, 2025, https://www.bestkeysupply.com/products/autel-maxiim-im508s-xhorse-key-tool-max-pro-bundle-p1040
+44. XTOOL - IK618 - IMMO & Key Programming Tool with Bi-Directional Contro, accessed December 22, 2025, https://www.locksmithkeyless.com/products/xtool-ik618-immo-key-programming-tool-with-bi-directional-control-and32-service-functions

@@ -19,7 +19,72 @@
             "type": "warning_banner",
             "id": "mercedes-fbs4-warning",
             "level": "critical",
-            "content": "FBS4 (2015+): NO PUBLIC SOLUTION exists for calculating passwords or generating keys for DAS 4 / FBS4 vehicles. Must use dealer keys via Mercedes-Benz TRP program (requires NASTF VSP credentials)."
+            "content": "FBS4 (2014+): NO PUBLIC SOLUTION for calculating passwords or generating keys. The '2015 Rule' is DANGEROUSLY WRONG. FBS4 was adopted progressively: W212 E-Class FACELIFT (Mar 2013+), W222 S-Class (2013+), W205 C-Class (2015+). A 2013 S-Class IS FBS4. A 2015 G-Class may still be FBS3."
+        },
+        {
+            "type": "reference_table",
+            "id": "mercedes-fbs4-transition-matrix",
+            "title": "FBS4 Transition Matrix (The 'Trap' Models)",
+            "headers": [
+                "Chassis",
+                "Model",
+                "FBS3 Cutoff",
+                "FBS4 Start",
+                "Visual Marker"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "W212",
+                        "E-Class",
+                        "Early 2013",
+                        "Apr 2013 (Facelift)",
+                        "Integrated single-lens LED DRL headlights"
+                    ]
+                },
+                {
+                    "cells": [
+                        "W222",
+                        "S-Class",
+                        "N/A",
+                        "2013 (Launch)",
+                        "ALL W222 are FBS4"
+                    ]
+                },
+                {
+                    "cells": [
+                        "W205",
+                        "C-Class",
+                        "N/A",
+                        "2015 (Launch)",
+                        "'Mini S-Class' rounded aesthetic, floating screen"
+                    ]
+                },
+                {
+                    "cells": [
+                        "W463",
+                        "G-Class",
+                        "Sep 2015",
+                        "MY2016 (Facelift)",
+                        "4.0L V8 Biturbo engine visible"
+                    ]
+                },
+                {
+                    "cells": [
+                        "W166",
+                        "ML/GLE",
+                        "Jun 2013",
+                        "Jul 2013",
+                        "VIN check MANDATORY for ML"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "mercedes-fcc-id-forensics",
+            "level": "tip",
+            "content": "FCC ID Forensics: Check the back of the key. IYZDC12K = FBS4. NBGDM3 = FBS4 (A-Class, newer). IYZ3312 = FBS3. If you see IYZDC12K, STOP. Standard aftermarket tools WILL NOT program this key."
         },
         {
             "type": "reference_table",

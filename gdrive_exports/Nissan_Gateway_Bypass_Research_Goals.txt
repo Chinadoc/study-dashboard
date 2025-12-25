@@ -1,0 +1,202 @@
+﻿Technical Assessment: Nissan/Infiniti Next-Generation Security Architecture (2020–2025)
+1. Introduction: The Paradigm Shift in Automotive Cybersecurity
+The automotive industry is currently navigating a profound transformation in vehicle electronic architecture, driven largely by the convergence of connected vehicle technologies and stringent cybersecurity regulations. For Nissan and Infiniti, the model years 2020 through 2025 represent a definitive departure from legacy communication protocols. The introduction of the Security Gateway (SGW) and the migration to "read-protected" Body Control Modules (BCMs) have fundamentally altered the landscape for diagnostic technicians, automotive locksmiths, and security researchers.
+This report provides an exhaustive technical analysis of the "Gateway" architecture deployed in the 2021+ Nissan Rogue (T33), 2022+ Nissan Pathfinder (R53), 2022+ Nissan Frontier (D41), and the 2020+ Nissan Sentra (B18). It addresses the critical operational challenges introduced by these platforms, specifically the blocking of "write" access via the OBD-II port, the necessity for physical bypass solutions ranging from 16+32 connectors to direct BCM interfaces, and the cryptographic evolution of the Immobilizer system from static PINs to 22-digit and 28-digit rolling codes. Furthermore, it establishes a definitive reference for the hardware ecosystem, mapping the transition from legacy 315MHz radio frequency (RF) protocols to the global 433MHz standard.
+1.1 The Operational Problem: "Write" Protection and the OBD Wall
+Historically, the On-Board Diagnostics (OBD-II) port served as an open interface to the vehicle's Controller Area Network (CAN). Technicians could attach diagnostic tools to Pins 6 (CAN High) and 14 (CAN Low) to not only read diagnostic trouble codes (DTCs) but also to issue commands, such as actuating solenoids, resetting adaptations, and, crucially, programming new transponder keys.1
+Starting with the 2020 Nissan Sentra and expanding rapidly to the Rogue and Pathfinder, Nissan implemented a Secure Gateway Module (SGW) architecture.2 This architecture inserts a firewall between the OBD-II port (Public CAN) and the vehicle's internal networks (Private CAN). The SGW is programmed to accept standard "Read" requests (legislated OBD-II modes $01, $03, $0A) but strictly filters "Write" requests, "Routine Controls" (Mode $31), and "Security Access" (Mode $27) unless the tool provides a cryptographically signed certificate via an authorized server (e.g., AutoAuth).1
+For the automotive locksmith, this presents a catastrophic barrier. Key programming is inherently a "write" operation involving the alteration of EEPROM data within the BCM. Without a mechanism to bypass the SGW or authenticate through it, standard key programming tools fail to communicate with the BCM, resulting in "Communication Error" or "Security Access Denied" messages.4
+1.2 The Evolution of Bypass Methodologies
+The industry's response to the SGW blockade has been an arms race of hardware solutions. The initial countermeasure was the 16+32 Gateway Bypass Cable, which physically routes traffic around the SGW, effectively deleting the firewall from the network topology during the service session.6 However, as Nissan's security deepened with the introduction of the T33 Rogue and updated B18 Sentra, the 16+32 solution proved insufficient for "All Keys Lost" (AKL) scenarios. This necessitated the development of the 40-Pin BCM Direct Connect Cable, a more invasive solution that interfaces directly with the microcontroller of the BCM to facilitate high-speed memory dumping for rolling code calculation.8
+Understanding the distinction between these two bypass methods—and mapping them to the correct vehicle platforms—is now the primary knowledge requirement for modern Nissan diagnostics.
+2. The Architecture of Exclusion: Security Gateway (SGW) Implementation
+The Nissan Security Gateway is not merely a filter; it is a sophisticated network traffic manager designed to prevent unauthorized access to critical vehicle control systems. Its implementation varies slightly across platforms, but the core logic remains consistent: protect the internal CAN bus from external intrusion.
+2.1 Technical Mechanism of the SGW
+The SGW module acts as a bridge between the diagnostic connector (DLC) and the rest of the vehicle. In a pre-SGW architecture, the CAN lines from the DLC would splice directly into the main vehicle CAN bus. In the 2021+ architecture, the CAN lines from the DLC terminate at the SGW. The SGW then decides whether to forward messages to the internal CAN bus based on a whitelist of allowed Command IDs.
+* Read Access: Generic scan tools can still read codes because the SGW allows standard diagnostic requests to pass through to the ECM and TCM.
+* Write Access: When a tool attempts to clear codes, change configuration parameters, or initiate key learning, it sends a service request (e.g., UDS Service 2E or 31). The SGW inspects this packet. If the source is unauthenticated (i.e., a standard aftermarket tool without AutoAuth access), the SGW drops the packet, and the BCM never receives the command.1
+This "Man-in-the-Middle" architecture requires technicians to gain access to the Private CAN side of the gateway to perform any meaningful work.
+2.2 Network Topology and Bypass Points
+To circumvent the SGW, technicians must physically access the connectors where the Public and Private networks meet. The SGW typically has two primary connectors: a 16-pin connector and a 32-pin connector (hence the "16+32" nomenclature).
+* The 16-Pin Connector: Typically carries power, ground, and the Public CAN lines from the OBD port.
+* The 32-Pin Connector: Typically carries the Private CAN lines going to the BCM, ECM, Dashboard, and other modules.
+By unplugging these connectors from the SGW and plugging them into a bypass cable, the technician bridges the Public CAN lines from the scan tool directly to the Private CAN lines of the vehicle, physically removing the filtering logic of the SGW from the circuit.6
+
+
+  
+
+
+
+3. Detailed Model Analysis: Architecture, Location, and Requirements
+The implementation of the SGW and the subsequent BCM security protocols varies significantly across the Nissan lineup. A generic approach will often lead to failure. This section provides a definitive analysis of the 2021+ Rogue, 2022+ Pathfinder, 2022+ Frontier, and 2020+ Sentra.
+3.1 Nissan Rogue (T33 Platform, 2021–2025)
+The T33 Rogue (introduced for the 2021 model year) represents the spearhead of Nissan's new security architecture. It was the first high-volume vehicle to combine the SGW with the new 22-digit rolling code BCM, creating a "double-lock" scenario for locksmiths.
+* Platform Architecture: The T33 utilizes the CMF-C/D platform. Crucially, it integrates CAN FD (Flexible Data-rate) protocols for internal communication between high-bandwidth modules (ADAS, Infotainment), although the diagnostic CAN often remains standard ISO 15765-4.10 The BCM is manufactured by Calsonic Kansei (Marelli) and features "read protection," meaning it does not broadcast its PIN code over the OBD network.
+* SGW Location: The Security Gateway Module is consistently located under the driver’s side dashboard. It is typically positioned above the kick panel or near the steering column junction. To access it, the technician must remove the lower dashboard trim panel. The SGW is identified by its two distinct connectors (16-pin and 32-pin).7
+* Bypass Requirement:
+   * Add Key (Spare): If a working key is present, standard OBD-II programming (using AutoAuth or a server-connected tool like Autel IM608) is often possible. The working key authorizes the BCM to accept new key data without requiring the complex PIN extraction process.13
+   * All Keys Lost (AKL): This is the critical failure point. In an AKL scenario, the tool cannot authenticate with the BCM. The BCM requires a 22-digit PIN to unlock. Because the BCM is read-protected, this PIN cannot be calculated via the standard 16+32 bypass connection. The definitive requirement is the Nissan-40 Pin BCM Cable.8 This cable connects directly to the BCM (bypassing the SGW entirely), allowing the programmer to read the BCM's EEPROM data directly to calculate the PIN.9
+* Key Frequency: The T33 Rogue uses 433MHz exclusively.
+   * FCC ID: KR5TXN1 (3 or 4-button, used on S/SV trims) and KR5TXN3 or KR5TXN4 (5-button, used on SL/Platinum trims with Remote Start and Power Liftgate).16 The 315MHz frequency used on the previous T32 Rogue is incompatible.
+3.2 Nissan Pathfinder (R53 Platform, 2022–2025)
+The 2022 Pathfinder (R53) shares its electronic architecture with the T33 Rogue but presents unique physical challenges due to its dashboard layout.
+* Platform Architecture: The R53 utilizes the same Calsonic Kansei BCM architecture with rolling code security. It also employs the SGW firewall.
+* SGW Location: Unlike the Rogue, the Pathfinder's SGW location is a source of significant confusion in the field. While some sources suggest a driver-side location, definitive teardown reports locate the Central Gateway Control Module (284Z0-6SA0A) deeper within the dashboard, often behind the glovebox or center stack assembly.20 This makes accessing the SGW for a 16+32 connection significantly more labor-intensive than on the Rogue.
+* Bypass Requirement: Due to the difficulty of accessing the SGW, the 40-Pin BCM Cable is the preferred method for both AKL and Add Key scenarios. The BCM is typically more accessible (often near the driver's kick panel or fuse box area) than the SGW itself. By connecting directly to the BCM, the technician bypasses the need to dismantle the passenger side dash to find the SGW.22
+* Key Frequency: 433MHz.
+   * FCC ID: KR5TXN7. This ID is often shared with the Frontier D41 but is distinct from the Rogue's TXN3/4 series.18
+3.3 Nissan Sentra (B18 Platform, 2020–2025)
+The 2020 Sentra (B18) was the pioneer of this new security era, and it remains one of the most challenging vehicles for aftermarket support due to its "Silence on CAN" logic.
+* Platform Architecture: The B18 introduced the 28-digit PIN requirement (a variation of the rolling code system) and a highly restrictive SGW.25
+* SGW Location: The SGW is located under the driver’s side dashboard, generally accessible after removing the trim panel above the pedals.7
+* Bypass Requirement:
+   * Add Key: The 16+32 cable is generally sufficient for adding a key if a working key exists.
+   * All Keys Lost: For the first two years of production (2020-2022), the B18 Sentra was widely considered "Add Key Only" by the aftermarket because tools could not extract the PIN data via the OBD or 16+32 connection.4 However, the introduction of the Nissan-40 Pin Cable and updated software (from Lonsdor and OBDSTAR) has solved this. The 40-pin connection allows the tool to read the BCM directly, enabling AKL programming.8 Using the 16+32 cable for AKL on a B18 Sentra will frequently result in failure.
+* Key Frequency: 433MHz.
+   * FCC ID: KR5TXN3 (4-button) and KR5TXN1.27
+   * Warning: 2019 "Sentra Classic" models may still be registered as 2020s but use the older B17 platform (315MHz). Technicians must visually identify the body style (B18 vs B17) to ensure correct key selection.
+3.4 Nissan Frontier (D41 Platform, 2022–2025)
+The Frontier D41 is a unique hybrid. While marketed as a new generation, its chassis roots (F-Alpha) mean it retains some legacy architectural traits while adopting the modern SGW and BCM security of the unibody lineup.
+* Platform Architecture: The D41 uses the SGW logic similar to the Titan and Rogue but appears to utilize a BCM variant (e.g., 284B2-9BU2A) that is slightly less restrictive regarding PIN extraction than the Rogue or Sentra.29
+* SGW Location: Evidence points to the driver’s side, near the OBD port or fuse box, similar to the Titan’s layout.30
+* Bypass Requirement: The 16+32 cable is generally compatible and sufficient for most Frontier programming needs, including AKL in many cases. The 40-pin cable is less frequently cited as mandatory for the Frontier compared to the Rogue/Sentra, likely because the BCM security protocols are aligned with the truck architecture rather than the CMF-C/D global architecture.24
+* Key Frequency: 433MHz.
+   * FCC ID: KR5TXN7 (3-button or 4-button). The TXN7 suffix distinguishes it from the Rogue's "TXN3/4" keys.24
+
+
+  
+
+
+
+4. The 16+32 vs. 40-Pin Bypass Cable: Mapping the Requirement
+The distinction between the 16+32 Gateway Bypass and the 40-Pin BCM Cable is the single most confusing aspect of modern Nissan diagnostics. While both are "bypass" cables, they solve fundamentally different problems within the security architecture.
+4.1 The 16+32 Cable (The "Network" Solution)
+The 16+32 cable is an interceptor. It is designed to be inserted between the SGW and the vehicle's wiring harness.
+* Function: It physically disconnects the SGW from the Public/Private CAN junction and bridges them together. This effectively restores the "pre-2020" network topology where the OBD port (Public CAN) has direct electrical continuity with the Private CAN.
+* Limitations: It only restores communication. It does not change the permissions or capabilities of the BCM itself. If the BCM utilizes a secure bootloader or disables PIN output over the standard CAN lines (a feature of the "Read-Protected" BCMs), the 16+32 cable will allow the tool to ask for the PIN, but the BCM will simply refuse to answer.
+* Primary Use Case: Diagnostics, Active Tests (e.g., rolling windows, firing injectors), and "Add Key" functions where a working key is present to authorize the session.2
+4.2 The 40-Pin Cable (The "Hardware" Solution)
+The 40-pin cable is a direct interface. It does not interact with the SGW at all. Instead, it connects the programmer directly to the BCM’s main 40-pin connector, bypassing the entire vehicle wiring harness.
+* Function: By isolating the BCM from the vehicle network, the tool creates a "bench" environment inside the car. This allows the programmer to use proprietary low-level protocols (often bypassing the standard CAN stack) to read the BCM’s microcontroller (MCU) directly.
+* Necessity for Memory Dumps: The rolling code calculation for the new BCMs requires a large data dump (often the entire EEPROM). Attempting to pull this data over the standard vehicle network via the 16+32 cable is often blocked by the BCM’s firmware or is too slow/unstable. The 40-pin direct connection provides the stability and authority required to extract this data.
+* Primary Use Case: All Keys Lost (AKL) on Rogue T33, Pathfinder R53, and Sentra B18. It is the only way to obtain the 22-digit or 28-digit PIN when no working key is available.8
+4.3 Bypass Requirement Summary
+* Nissan Sentra (2020+): 40-Pin Preferred for AKL. While 16+32 works for Add Key, high failure rates are reported for AKL without the 40-pin direct read.
+* Nissan Rogue (2021+): 40-Pin Mandatory for AKL. The encryption on the T33 BCM is too robust for standard OBD calculation via 16+32.
+* Nissan Pathfinder (2022+): 40-Pin Mandatory for AKL.
+* Nissan Frontier (2022+): 16+32 Generally Sufficient. The D41 platform allows for simpler interaction, often not requiring the deep memory dump of the unibody platforms.
+5. BCM Analysis: The 284B1-XXXXX Hierarchy and Read Protection
+The Body Control Module (BCM) is the gatekeeper of the Immobilizer system. The part number hierarchy, specifically the prefix 284B1, offers crucial clues regarding the internal security logic.
+5.1 The Manufacturer Split: Calsonic vs. Continental
+Nissan BCMs are primarily manufactured by Calsonic Kansei (now Marelli) and Continental.
+* Calsonic Kansei (Marelli): These units are the standard for the Sentra, Rogue, and Pathfinder. They utilize the new 22-digit rolling code architecture.
+* Continental: Often found on the Titan, Frontier, and some Infiniti models. These units sometimes retain legacy architectures or use a different encryption standard (20-digit).35
+5.2 Decoding the Part Number Logic
+The standard part number format is 284B1-XXXXX or 284B2-XXXXX.
+* 284B1: Standard Body Control Module.
+* 284B2: Variation, often denoting higher trim levels with integrated features (e.g., additional receivers or ProPILOT support).
+5.3 Identifying "Read-Protected" Units
+The term "Read-Protected" refers to BCMs that do not support PIN code calculation via the standard OBD diagnostic protocol. These units require the 40-pin cable to extract the data needed for calculation.
+* Type A: Legacy Rolling Code (20-Digit)
+   * Examples: Older 284B1-3Sxxx, 284B1-9Gxxx (Armada/Titan).
+   * Status: Calculation is usually possible via OBD (using the 16+32 cable if SGW is present) without needing a direct memory dump.
+* Type B: High-Security Rolling Code (22-Digit/28-Digit)
+   * Examples:
+      * 284B1-6LJ1B / 284B1-6LJ0A (Sentra B18).36 The "6LJ" infix is a definitive marker of the B18 high-security architecture.
+      * 284B1-5RL0A / 284B1-5RL1A (Kicks P15 Late / Versa N18).37
+      * 284B2-6RA3A (Rogue T33).38 The "6RA" infix denotes the T33 high-security platform.
+   * Status: These units are Read-Protected. They require the 40-pin cable to extract the "Pre-Code" or "Data Dump" needed to calculate the 22-digit PIN. You cannot calculate the PIN from the label serial number or standard OBD traffic.
+
+
+  
+
+
+
+6. Smart Key Frequency Analysis: 315MHz vs. 433MHz
+One of the most significant changes in the 2020+ architecture is the standardization of radio frequencies. For decades, Nissan utilized a mix of 315MHz (North America) and 433MHz (Europe/Asia). With the new global platforms (CMF-C/D), the frequency has been standardized.
+6.1 The 433MHz Standardization
+For the 2021+ Rogue, 2022+ Pathfinder, 2022+ Frontier, and 2020+ Sentra, the standard frequency is 433MHz (often noted as 433.92MHz or 434MHz). The 315MHz frequency has been effectively deprecated for these specific new platforms.
+6.2 Part Number and FCC ID Mapping
+Locksmiths must rely on FCC IDs rather than just "Model Year" because of mid-year splits and "Classic" body styles sold alongside new ones.
+* Nissan Rogue (T33):
+   * Frequency: 433MHz
+   * FCC ID: KR5TXN1 (Base S/SV trims, 3 or 4 button) / KR5TXN3 or KR5TXN4 (SL/Platinum trims, 5-button with Remote Start/Memory).16
+   * Crucial Distinction: Some aftermarket listings confuse the legacy "Rogue Select" or previous gen (T32) 315MHz keys. The 2021+ T33 chassis does not use 315MHz.
+* Nissan Sentra (B18):
+   * Frequency: 433MHz
+   * FCC ID: KR5TXN3 / KR5TXN1.
+   * Chip: Hitachi AES (4A Chip).
+   * Note: 43 lists a 315MHz key for "Sentra", but strictly for 2007-2012 models. Any 2020+ B18 Sentra uses 433MHz.
+* Nissan Frontier (D41):
+   * Frequency: 433MHz
+   * FCC ID: KR5TXN7.
+   * Chip: Hitachi AES (4A Chip).24
+   * Note: The Frontier key is physically similar to the Titan key but electronically distinct. The TXN7 suffix is exclusive to the Frontier D41 and is not interchangeable with the Rogue's TXN3/4 keys.
+
+
+  
+
+
+
+7. Operational Guidelines and Tool Ecosystem
+Navigating this new architecture requires not just the right cables, but the right programming tools. The ecosystem is currently dominated by three primary platforms: Autel, Lonsdor, and Smart Pro.
+7.1 Autel (IM508/IM608)
+Autel has aggressively updated its software to support the 2021+ Nissans.
+* Workflow: For AKL on Rogue/Sentra, the Autel tablet requires the G-Box (or similar adapter) and the 40-pin connection to the BCM. The tool performs a "network scan" to identify the BCM type. If it detects a protected BCM, it will prompt the user to connect the 40-pin cable.
+* Server Calculation: Autel utilizes a server-side calculation for the PIN. The tool reads the encrypted data from the BCM via the 40-pin cable, uploads it to the Autel server, and receives the calculated 22-digit PIN back. This requires an active internet connection.10
+7.2 Lonsdor (K518/K518 Pro)
+Lonsdor is widely cited as a robust solution for the "Read-Protected" Nissan BCMs.
+* Workflow: Lonsdor often supports AKL without a PIN code by utilizing a specific "Super Calculation" license. It connects via the Nissan-40 Cable and can emulate the key to start the ignition, allowing for programming.40
+* Advantage: Lonsdor's ability to emulate keys (via the LKE emulator) can be a significant advantage in AKL situations where the vehicle needs to "see" a key to wake up the BCM fully.
+7.3 Smart Pro (Advanced Diagnostics)
+Smart Pro has integrated support for the 2021+ Nissan architecture but heavily relies on the ADC2017 Bypass Cable.
+* Workflow: The ADC2017 is Smart Pro's version of the gateway bypass. For newer "read-protected" models, Smart Pro has released software updates (ADS2326) that allow for AKL programming, but often with the caveat that the bypass cable must be connected.22
+* Limitation: Smart Pro historically had issues with the "Add Key Only" restriction on the Sentra B18, though recent updates aim to address this via server-side calculation.23
+8. Conclusion
+The transition to the "Gateway" architecture in the 2020-2025 Nissan and Infiniti lineup represents a permanent shift in aftermarket service procedures. The days of simple plug-and-play OBD-II programming are effectively over for the core platforms (Rogue, Pathfinder, Sentra).
+The definitive architecture for the 2021+ Rogue and 2022+ Pathfinder relies on a Security Gateway (SGW) firewall and a Read-Protected BCM utilizing 22-digit rolling codes. While the 16+32 Bypass Cable remains a useful tool for basic diagnostics and "Add Key" scenarios, it is no longer sufficient for "All Keys Lost" programming on these high-security platforms. The Nissan-40 Pin BCM Cable has emerged as the mandatory hardware requirement, allowing technicians to bypass the vehicle network entirely and interact directly with the BCM's memory.
+Furthermore, the industry has standardized on 433MHz frequencies and Hitachi AES (4A) chips for these new platforms, rendering legacy 315MHz inventory obsolete for the Rogue T33, Sentra B18, and Frontier D41. Success in this new environment requires a comprehensive update to both hardware inventory (cables and keys) and technical knowledge regarding BCM identification. The "284B1" part number is no longer just a label; it is a roadmap to the security logic contained within.
+Works cited
+1. Security Gateways | Autel, accessed December 20, 2025, https://autel.us/security-gateways/
+2. Nissan 16+32 ByPass Cable - AESwave.com, accessed December 20, 2025, https://www.aeswave.com/nissan-16-32-bypass-cable-p10056.html
+3. FCA Security Gateway Module Basic Info and Location - JScan, accessed December 20, 2025, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+4. 2020-2023 Nissan Sentra; adding a spare virgin proximity key! - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=zRxAWpX6ouY
+5. Nissan Gateway Function Autel Scanner Limited Time Unlocked For Free - obdprice, accessed December 20, 2025, https://www.obdprice.com/blogs/news/nissan-gateway-function-current-unlock-event
+6. Nissan 16 & 32G Bypass Cable with CGW Adapter (AUTOPROPAD) - American Key Supply, accessed December 20, 2025, https://www.americankeysupply.com/product/nissan-16-32g-bypass-cable-with-cgw-adapter-autopropad-14701
+7. Nissan Universal 16+32G Bypass Cable with CGW Adapter - CLK Supplies, accessed December 20, 2025, https://www.clksupplies.com/products/nissan-universal-16-32g-bypass-cable-with-cgw-adapter
+8. OBDStar Nissan 40 BCM Cable Gateway Converter - MK3, accessed December 20, 2025, https://www.mk3.com/obdstar-nissan-40-bcm-cable
+9. Lonsdor Nissan 40Pin BCM Cable For Nissan - Mitsubishi 2019-2024 - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/lonsdor-nissan-40pin-bcm-programming-cable-for-nissan-1913
+10. How To Program keys All Keys Lost for Nissan Sentra using Autel IM608 Key Programmer, accessed December 20, 2025, https://www.youtube.com/watch?v=jqHMxyzweQ8
+11. accessed December 20, 2025, https://www.clksupplies.com/products/nissan-universal-16-32g-bypass-cable-with-cgw-adapter#:~:text=Locate%20the%20security%20gateway%20module,connectors%20directly%20into%20the%20module.
+12. Nissan 16 & 32G Bypass Cable with CGW Adapter (XTool) for Sale - UHS Hardware, accessed December 20, 2025, https://www.uhs-hardware.com/products/nissan-16-32g-bypass-cable-with-cgw-adapter-xtool
+13. 2021 Nissan Rogue T33 add key with SmartPro - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=KCL8u41PXtc
+14. NISSAN-40 BCM Cable for Adding Proximity Keys/All Keys Lost (OBDSTAR), accessed December 20, 2025, https://www.americankeysupply.com/product/nissan-40-bcm-cable-for-adding-proximity-keys-all-keys-lost-obdstar-19465
+15. Lonsdor - Nissan 40 Pin BCM Cable - Royal Key Supply, accessed December 20, 2025, https://royalkeysupply.com/products/lonsdor-nissan-40-pin-bcm-cable
+16. 2021 Nissan Rogue Smart Key 4B W/ Remote Start Fob FCC# KR5TXN3 - 285E - Locksmith Keyless, accessed December 20, 2025, https://www.locksmithkeyless.com/products/2021-nissan-rogue-smart-key-4b-w-remote-start-fob-fcc-kr5txn3-285e3-6ta5b-aftermarket
+17. Nissan Rogue 2021 Genuine Smart Key 5 Buttons 433MHz 285E3-6TA7B... - VVDI, accessed December 20, 2025, https://www.vvdi.com/vd1412-nissan-rogue-genuine-smart-key-285e3-6ta7b
+18. Nissan Rogue 2021 Genuine Smart Key 5 Buttons 433MHz 285E3-6TA7B - MK3, accessed December 20, 2025, https://www.mk3.com/nissan-rouge-2021-genuine-smart-key-5-buttons-433mhz-285e3-6ta7b
+19. 2021 Nissan Rogue Smart Remote Key Fob - CarandTruckRemotes, accessed December 20, 2025, https://www.carandtruckremotes.com/products/2021-nissan-rogue-smart-remote-key-fob
+20. 2022 Nissan Pathfinder Central Gateway Control Module - Sv 284Z0-6SA0A,, accessed December 20, 2025, https://ahparts.com/buy-used/2022-nissan-pathfinder-central-gateway-control-module-sv-284z0-6sa0a-284z06sa0a/524439-1
+21. 2023 Nissan Rogue - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Nissan/comments/1eqe0n1/2023_nissan_rogue/
+22. Bypass Cable for Renault Nissan Mitsubishi - Compatible with Smart Pro - Duplicate Proximity Keys for Sale | UHS Hardware, accessed December 20, 2025, https://www.uhs-hardware.com/products/bypass-cable-for-renault-nissan-mitsubishi-compatible-with-smart-pro-duplicate-proximity-keys
+23. Access the body control module to plug in the Nissan ADC-2017 bypass cable! - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=ymPfeiBFZvE
+24. 2022 Nissan Frontier / 4-Button Smart Key / PN: 285E3-9BU5A / KR5TXN7 (OEM), accessed December 20, 2025, https://www.uhs-hardware.com/products/2022-nissan-frontier-4-button-smart-key-pn-285e3-9bu5a-kr5txn7-oem
+25. ALL KEY LOST NISSAN SENTRA 2021 HOW REED PIN CODE OF HFM - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=qoQxATsEgjc
+26. Nissan new 40 digit pin : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1e02f0r/nissan_new_40_digit_pin/
+27. Genuine Nissan Sentra 2020-2023 Smart Key, 4Buttons 285E3-6LA5B 433MHz, KR5TXN3, accessed December 20, 2025, https://abkeys.com/products/nissan-sentra-smart-key-4buttons-433mhz-kr5txn3-2020up-285e3-6la5b-2252
+28. 2021 Nissan Sentra Smart Key Fob FCC ID: KR5TXN1, PN: 285E3-6CA1A, 285, accessed December 20, 2025, https://remotesandkeys.com/products/2021-nissan-sentra-smart-key-remote-4074
+29. Genuine Nissan Frontier Body Control Module, accessed December 20, 2025, https://www.nissanpartsdeal.com/oem-nissan-frontier-body_control_module.html
+30. Nissan Frontier Fuse box and OBD2 locations - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=dwQlXtgb3e4
+31. 2022 Nissan Frontier Can Gateway Control Module OEM # 284U16HH0A - eBay, accessed December 20, 2025, https://www.ebay.com/itm/356531389682
+32. Nissan Frontier 2022 Genuine Smart Remote Key 3 Buttons 433MHz 285E3-9BU1A - MK3, accessed December 20, 2025, https://www.mk3.com/nissan-frontier-genuine-smart-remote-key-285e3-9bu1a
+33. oem 2022-2024 nissan frontier remote key fob 285e3-9bu5a kr5txn7 s180144904 - eBay, accessed December 20, 2025, https://www.ebay.com/itm/295573737133
+34. 2021-2023 Nissan Frontier 3 Buttons Smart Key /433MHz / 285E3-9BU1A - Keyless City, accessed December 20, 2025, https://keyless-city.com/products/2022-nissan-frontier-3-buttons-smart-key-433mhz-285e3-9bu1a-oem
+35. www.JOBD2.jp - device.report, accessed December 20, 2025, https://device.report/m/167babda94039853ea3b93d437ab9514499d78185c117c00e3f3c645e053859b.pdf
+36. 2021-2024 Nissan Sentra Body Control Module 284B1-6LJ1B | OEM Parts Online, accessed December 20, 2025, https://nissan.oempartsonline.com/oem-parts/nissan-body-control-module-284b16lj1b
+37. Genuine Nissan Kicks Body Control Module, accessed December 20, 2025, https://www.nissanpartsdeal.com/oem-nissan-kicks-body_control_module.html
+38. 284B2-6RA3A - Body Control Module 2021-2022 Nissan Rogue, accessed December 20, 2025, https://parts.nissanusa.com/parts/nissan-body-control-module-284b26ra3a
+39. Lost All Keys? 2024 Nissan Rogue Smart Key Programming | Lonsdor + BCM 40 Cable Guide - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=O-g791CL7MY
+40. 2022 2023 2024 Land Cruiser all smart keys lost programming using lonsdor k518 pro, accessed December 20, 2025, https://www.youtube.com/watch?v=vfWtCsecSHE
+41. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed December 20, 2025, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+42. Program 2022 Nissan Pathfinder proximity key w Smart Pro Key Programmer - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=hJ5WN1Zp50w
+43. Nissan Sentra Smart Key Remote 315MHz 285E3-EW82D USED, accessed December 20, 2025, https://gskeyae.com/product/nissan-sentra-smart-key-315mhz-285e3-ew82d-used/

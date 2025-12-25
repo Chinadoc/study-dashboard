@@ -1,0 +1,21 @@
+-- VW Research Integration Part 1: Jetta
+-- Source: Google Drive Research Documents
+
+INSERT OR REPLACE INTO locksmith_data (make, make_norm, model, year, key_type, chip, fcc_id, frequency, keyway, immobilizer_system, prog_method, part_number, notes)
+VALUES 
+('Volkswagen', 'volkswagen', 'Jetta', 1999, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 2', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 2: PIN from cluster. Generic ID48 chip OK. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2000, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 2', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 2: PIN from cluster. Generic ID48 chip OK. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2001, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 2', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 2: PIN from cluster. Generic ID48 chip OK. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2002, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 3', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 3: VIN married. Generic ID48 chip OK. PIN required. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2003, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 3', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 3: VIN married. Generic ID48 chip OK. PIN required. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2004, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 3', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 3: VIN married. Generic ID48 chip OK. PIN required. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2005, 'Flip Key', 'ID48', 'HLO1J0959753AM', '315 MHz', 'HU66', 'Immo 3', 'OBD with PIN (4-digit SKC)', '1J0959753AM', 'Immo 3: VIN married. Generic ID48 chip OK. PIN required. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2006, 'Flip Key', 'ID48 CAN (TP23)', 'NBG92596263', '315 MHz', 'HU66', 'Immo 4', 'Pre-coded chip required. Read CS from cluster via OBD.', '1K0959753P', 'Immo 4: TP23 pre-coded chip required. Generic ID48 will NOT work. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2007, 'Flip Key', 'ID48 CAN (TP23)', 'NBG92596263', '315 MHz', 'HU66', 'Immo 4', 'Pre-coded chip required. Read CS from cluster via OBD.', '1K0959753P', 'Immo 4: TP23 pre-coded chip required. Generic ID48 will NOT work. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2008, 'Flip Key', 'ID48 CAN (TP23)', 'NBG92596263', '315 MHz', 'HU66', 'Immo 4', 'Pre-coded chip required. Read CS from cluster via OBD.', '1K0959753P', 'Immo 4: TP23 pre-coded chip required. Generic ID48 will NOT work. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2009, 'Flip Key', 'ID48 CAN (TP23)', 'NBG92596263', '315 MHz', 'HU66', 'Immo 4', 'Pre-coded chip required. Read CS from cluster via OBD.', '1K0959753P', 'Immo 4: TP23 pre-coded chip required. Generic ID48 will NOT work. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2010, 'Flip Key', 'ID48 CAN (TP23)', 'NBG92596263', '315 MHz', 'HU66', 'Immo 4', 'Pre-coded chip required. Read CS from cluster via OBD.', '1K0959753P', 'Immo 4: TP23 pre-coded chip required. Generic ID48 will NOT work. Lishi HU66.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2011, 'Flip Key', 'ID48 CAN (TP23)', 'NBG010180T', '315 MHz', 'HU66', 'Immo 4/5 (NEC+24C64)', 'Advanced UDS tools required. Prepare Dealer Key function.', '5K0837202AE', 'NCS platform. Uses NEC cluster. Lishi HU66 V.3 for sunken locks.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2012, 'Flip Key', 'ID48 CAN (TP23)', 'NBG010180T', '315 MHz', 'HU66', 'Immo 4', 'Advanced UDS tools required. Prepare Dealer Key function.', '5K0837202AE', 'NCS platform. Lishi HU66 V.3 for sunken locks.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2013, 'Flip Key', 'ID48 CAN (TP23)', 'NBG010180T', '315 MHz', 'HU66', 'Immo 4', 'Advanced UDS tools required. Prepare Dealer Key function.', '5K0837202AE', 'NCS platform. Lishi HU66 V.3 for sunken locks.'),
+('Volkswagen', 'volkswagen', 'Jetta', 2014, 'Flip Key', 'ID48 CAN (TP23)', 'NBG010180T', '315 MHz', 'HU66', 'Immo 4', 'Advanced UDS tools required. Prepare Dealer Key function.', '5K0837202AE', 'NCS platform. Lishi HU66 V.3 for sunken locks.');

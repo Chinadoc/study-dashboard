@@ -99,6 +99,260 @@
             "content": "BCM Label Trap: If BCM was replaced with used unit, physical sticker may show donor car ID but electronic ID differs. ALWAYS prioritize Electronic Read (via OBD) over physical label."
         },
         {
+            "type": "warning_banner",
+            "id": "nissan-40pin-mandatory",
+            "level": "critical",
+            "content": "40-PIN BCM CABLE MANDATORY (2020+): For AKL on Sentra B18, Rogue T33, or Pathfinder R53, the 16+32 bypass is NOT ENOUGH. These 'Read-Protected' BCMs use 22-digit rolling codes and do NOT broadcast PIN data over standard CAN. The 40-pin cable connects DIRECTLY to the BCM's MCU, bypassing the SGW AND the network to extract EEPROM data for calculation."
+        },
+        {
+            "type": "reference_table",
+            "id": "nissan-bypass-requirement-matrix",
+            "title": "Bypass Cable Requirement by Model (AKL)",
+            "headers": [
+                "Model",
+                "Years",
+                "Platform",
+                "16+32 Cable",
+                "40-Pin Cable",
+                "AKL Method"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Sentra",
+                        "2020-2025",
+                        "B18",
+                        "Add Key ONLY",
+                        "REQUIRED",
+                        "40-pin BCM dump → 28-digit PIN"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Rogue",
+                        "2021-2025",
+                        "T33",
+                        "Add Key ONLY",
+                        "REQUIRED",
+                        "40-pin BCM dump → 22-digit PIN"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Pathfinder",
+                        "2022-2025",
+                        "R53",
+                        "Add Key ONLY",
+                        "REQUIRED",
+                        "40-pin BCM dump → 22-digit PIN"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Frontier",
+                        "2022-2025",
+                        "D41",
+                        "Sufficient",
+                        "Optional",
+                        "16+32 OBD calculation"
+                    ]
+                },
+                {
+                    "cells": [
+                        "Altima",
+                        "2019-2025",
+                        "L34",
+                        "Add Key ONLY",
+                        "REQUIRED",
+                        "40-pin BCM dump → 22-digit PIN"
+                    ],
+                    "highlight": true
+                }
+            ]
+        },
+        {
+            "type": "reference_table",
+            "id": "nissan-bcm-part-number-identify",
+            "title": "Read-Protected BCM Identification (Part Number)",
+            "headers": [
+                "Part Number Pattern",
+                "Model",
+                "PIN Type",
+                "Bypass Req"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "284B1-6LJ0A / 6LJ1B",
+                        "Sentra B18",
+                        "28-digit",
+                        "40-Pin Mandatory"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "284B2-6RA3A",
+                        "Rogue T33",
+                        "22-digit",
+                        "40-Pin Mandatory"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "284B1-5RL0A/1A",
+                        "Kicks P15 / Versa N18",
+                        "22-digit",
+                        "40-Pin Recommended"
+                    ]
+                },
+                {
+                    "cells": [
+                        "284B1-9Gxxx",
+                        "Legacy (Armada/Titan)",
+                        "20-digit",
+                        "16+32 Sufficient"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "nissan-40pin-vs-16-32-logic",
+            "level": "important",
+            "content": "16+32 = Network Solution (restores OBD communication by bypassing SGW). 40-Pin = Hardware Solution (directly reads BCM MCU, bypasses vehicle network entirely). Both are needed: 16+32 for diagnostics/add-key, 40-pin for AKL memory dump on protected BCMs."
+        },
+        {
+            "type": "warning_banner",
+            "id": "nissan-sgw-warning",
+            "level": "critical",
+            "content": "2020+ Security Gateway: Sentra (B18) and Rogue (T33) have FIREWALLED OBD ports. Unlike Hyundai (AutoAuth software), Nissan requires PHYSICAL 16+32 CABLE bypass. No software-only solution exists."
+        },
+        {
+            "type": "reference_table",
+            "id": "nissan-sgw-locations",
+            "title": "Security Gateway Locations (16+32 Models)",
+            "headers": [
+                "Model",
+                "Years",
+                "Chassis",
+                "SGW/BCM Location",
+                "Access Notes"
+            ],
+            "rows": [
+                {
+                    "cells": [
+                        "Sentra",
+                        "2020-2025",
+                        "B18",
+                        "Under Driver Dash (Near BCM)",
+                        "Above brake pedal, left side"
+                    ],
+                    "highlight": false
+                },
+                {
+                    "cells": [
+                        "Rogue",
+                        "2021-2025",
+                        "T33",
+                        "Behind Instrument Cluster / Upper Dash",
+                        "Cluster bezel removal required (labor-intensive)"
+                    ],
+                    "highlight": true
+                },
+                {
+                    "cells": [
+                        "Pathfinder",
+                        "2022-2025",
+                        "R53",
+                        "Driver Kick Panel / BCM Area",
+                        "Similar to Sentra access"
+                    ],
+                    "highlight": false
+                }
+            ]
+        },
+        {
+            "type": "step_group",
+            "id": "nissan-16-32-bypass-procedure",
+            "title": "Procedure: 16+32 Gateway Bypass",
+            "estimated_time": "20-30 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "LOCATE: Access BCM area (see location table above). Look for 40-pin connector block split into 16-pin and 32-pin sections."
+                },
+                {
+                    "number": 2,
+                    "text": "UNPLUG: Disconnect both connectors from BCM/Gateway module."
+                },
+                {
+                    "number": 3,
+                    "text": "INSERT CABLE: Connect 16+32 bypass cable to vehicle-side harnesses. Plug male ends back into BCM (pass-through/tee design)."
+                },
+                {
+                    "number": 4,
+                    "text": "CONNECT TOOL: Plug OBD-II female port of bypass cable to scan tool."
+                },
+                {
+                    "number": 5,
+                    "text": "PROCEED: Direct CAN access achieved. Perform PIN read and key programming normally."
+                },
+                {
+                    "number": 6,
+                    "text": "RESTORE: After programming, remove bypass cable and reconnect OEM connectors."
+                }
+            ]
+        },
+        {
+            "type": "info_callout",
+            "id": "nissan-autoauth-note",
+            "level": "note",
+            "content": "AutoAuth for Diagnostics: Nissan supports AutoAuth for basic diagnostics (clearing codes, live data). However, for KEY PROGRAMMING, the gateway blocks immobilizer write commands even with AutoAuth. The 16+32 cable is effectively MANDATORY for AKL."
+        },
+        {
+            "type": "warning_banner",
+            "id": "nissan-escl-failure",
+            "level": "warning",
+            "content": "ESCL FAILURE: Nissan has a unique Electronic Steering Column Lock (ESCL) failure issue. Symptoms: Key won't turn (Twist Knob) or No Crank (Push Start). DTCs B2609/B2610. Fix: Replace ESCL or install ESCL EMULATOR to bypass the mechanical lock permanently."
+        },
+        {
+            "type": "step_group",
+            "id": "nissan-escl-diagnosis",
+            "title": "Procedure: ESCL Diagnosis and Emulator Install",
+            "estimated_time": "15-30 mins",
+            "steps": [
+                {
+                    "number": 1,
+                    "text": "SYMPTOMS: Twist Knob won't turn OR Push Start = no crank. Yellow 'Key' light may appear."
+                },
+                {
+                    "number": 2,
+                    "text": "AUDIO TEST: Press Start button - healthy car produces 'zzzt-clunk' of lock disengaging. Silence = ESCL failure."
+                },
+                {
+                    "number": 3,
+                    "text": "TAP TEST: While pressing Start, strike steering column housing with rubber mallet. Vibration may free stuck motor."
+                },
+                {
+                    "number": 4,
+                    "text": "SCAN: Check BCM for DTCs B2609 (Steering Lock Status) or B2610 (Ignition Relay)."
+                },
+                {
+                    "number": 5,
+                    "text": "EMULATOR: For permanent fix, unplug ESCL connector and plug in aftermarket ESCL Emulator. Device mimics 'Unlocked' signal."
+                },
+                {
+                    "number": 6,
+                    "text": "TEST: Vehicle should now start normally without mechanical lock engagement."
+                }
+            ]
+        },
+        {
             "type": "reference_table",
             "id": "nissan-transponder-reference",
             "title": "Transponder Reference Table",

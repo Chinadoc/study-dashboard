@@ -27,9 +27,10 @@ OUTPUT_DIR = 'gdrive_exports'
 CAR_KEYWORDS = [
     'locksmith', 'key', 'programming', 'transponder', 'immobilizer',
     'honda', 'toyota', 'ford', 'nissan', 'hyundai', 'kia', 'bmw', 'mercedes',
-    'audi', 'volkswagen', 'subaru', 'mazda', 'lexus', 'acura', 'infiniti',
+    'audi', 'volkswagen', 'vw', 'jetta', 'passat', 'golf', 'tiguan',
+    'subaru', 'mazda', 'lexus', 'acura', 'infiniti',
     'chevrolet', 'gmc', 'cadillac', 'dodge', 'jeep', 'chrysler', 'ram',
-    'pats', 'immo', 'smart key', 'prox', 'fobik', 'autel', 'lishi'
+    'pats', 'immo', 'smart key', 'prox', 'fobik', 'autel', 'lishi', 'fcc'
 ]
 
 
