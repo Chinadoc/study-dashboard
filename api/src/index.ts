@@ -20,6 +20,8 @@ export interface Env {
   DEV_EMAILS: string;  // Comma-separated developer email addresses
   AI: any;
   OPENROUTER_API_KEY: string;
+  CF_ANALYTICS_TOKEN?: string;  // Cloudflare Analytics API token
+  CF_ZONE_ID?: string;          // Cloudflare Zone ID for eurokeys.app
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -398,7 +400,7 @@ export default {
     // USER INVENTORY ENDPOINTS (Cloud Sync)
     // ==============================================
 
-    // GET /api/user/inventory - Fetch user's inventory
+    // GET /api/user/inventory - Fetch user's inventory (with ETag support)
     if (path === "/api/user/inventory" && request.method === "GET") {
       try {
         const sessionToken = getSessionToken(request);
@@ -423,7 +425,31 @@ export default {
           else blanks[row.item_key] = item;
         }
 
-        return corsResponse(request, JSON.stringify({ keys, blanks }));
+        const responseData = { keys, blanks };
+        const dataString = JSON.stringify(responseData);
+
+        // Generate ETag from data hash
+        const encoder = new TextEncoder();
+        const data = encoder.encode(dataString);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const etag = `"${hashArray.slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('')}"`;
+
+        // Check If-None-Match header
+        const clientEtag = request.headers.get('If-None-Match');
+        if (clientEtag && clientEtag === etag) {
+          // Data hasn't changed - return 304 Not Modified
+          const headers = new Headers();
+          headers.set('ETag', etag);
+          headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
+          return corsResponse(request, '', 304, headers);
+        }
+
+        // Return data with ETag
+        const headers = new Headers();
+        headers.set('ETag', etag);
+        headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
+        return corsResponse(request, dataString, 200, headers);
       } catch (err: any) {
         return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
@@ -816,9 +842,8 @@ export default {
 
         let userId = visitorId ? `guest:${visitorId}` : "anonymous";
 
-        // Try to get authenticated user if session exists
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        // Try to get authenticated user - use getSessionToken which checks both Bearer token AND cookies
+        const sessionToken = getSessionToken(request);
         if (sessionToken) {
           try {
             const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
@@ -856,9 +881,8 @@ export default {
 
         let userId = visitorId ? `guest:${visitorId}` : "anonymous";
 
-        // Try to get authenticated user if session exists
-        const cookieHeader = request.headers.get("Cookie");
-        const sessionToken = cookieHeader?.split(';').find(c => c.trim().startsWith('session='))?.split('=')[1];
+        // Try to get authenticated user - use getSessionToken which checks both Bearer token AND cookies
+        const sessionToken = getSessionToken(request);
         if (sessionToken) {
           try {
             const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
@@ -1041,6 +1065,125 @@ export default {
           visitorStats: visitorStats || { guest_count: 0, registered_count: 0 }
         }));
       } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Admin: Get Cloudflare Analytics (developer only)
+    if (path === "/api/admin/cloudflare") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+        if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+        // Check if API token is configured
+        if (!env.CF_ANALYTICS_TOKEN || !env.CF_ZONE_ID) {
+          return corsResponse(request, JSON.stringify({
+            error: "not_configured",
+            message: "Cloudflare Analytics not configured. Add CF_ANALYTICS_TOKEN and CF_ZONE_ID secrets."
+          }), 200);
+        }
+
+        // Query Cloudflare Analytics API (GraphQL)
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const today = now.toISOString().split('T')[0];
+
+        const graphqlQuery = `
+          query {
+            viewer {
+              zones(filter: { zoneTag: "${env.CF_ZONE_ID}" }) {
+                httpRequests1dGroups(
+                  limit: 7
+                  filter: { date_geq: "${sevenDaysAgo}", date_leq: "${today}" }
+                  orderBy: [date_ASC]
+                ) {
+                  dimensions { date }
+                  sum {
+                    requests
+                    bytes
+                    cachedBytes
+                    pageViews
+                  }
+                  uniq { uniques }
+                }
+              }
+            }
+          }
+        `;
+
+        const cfResponse = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${env.CF_ANALYTICS_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ query: graphqlQuery })
+        });
+
+        if (!cfResponse.ok) {
+          const errorText = await cfResponse.text();
+          console.error("Cloudflare API error:", errorText);
+          return corsResponse(request, JSON.stringify({ error: "Cloudflare API error" }), 500);
+        }
+
+        const cfData: any = await cfResponse.json();
+        const zones = cfData?.data?.viewer?.zones || [];
+        const httpData = zones[0]?.httpRequests1dGroups || [];
+
+        // Aggregate stats
+        let last24h = { visitors: 0, requests: 0, bytes: 0, cachedBytes: 0 };
+        let last7d = { visitors: 0, requests: 0, bytes: 0, cachedBytes: 0 };
+        const dailyData: any[] = [];
+
+        httpData.forEach((day: any, index: number) => {
+          const stats = {
+            date: day.dimensions?.date,
+            visitors: day.uniq?.uniques || 0,
+            requests: day.sum?.requests || 0,
+            bytes: day.sum?.bytes || 0,
+            cachedBytes: day.sum?.cachedBytes || 0
+          };
+          dailyData.push(stats);
+
+          // Accumulate 7-day totals
+          last7d.visitors += stats.visitors;
+          last7d.requests += stats.requests;
+          last7d.bytes += stats.bytes;
+          last7d.cachedBytes += stats.cachedBytes;
+
+          // Last day is 24h stats
+          if (index === httpData.length - 1) {
+            last24h = stats;
+          }
+        });
+
+        // Calculate cache hit rate
+        const cacheRate24h = last24h.bytes > 0 ? ((last24h.cachedBytes / last24h.bytes) * 100).toFixed(1) : "0.0";
+        const cacheRate7d = last7d.bytes > 0 ? ((last7d.cachedBytes / last7d.bytes) * 100).toFixed(1) : "0.0";
+
+        return corsResponse(request, JSON.stringify({
+          last24h: {
+            visitors: last24h.visitors,
+            requests: last24h.requests,
+            bytesServed: last24h.bytes,
+            cacheRate: cacheRate24h
+          },
+          last7d: {
+            visitors: last7d.visitors,
+            requests: last7d.requests,
+            bytesServed: last7d.bytes,
+            cacheRate: cacheRate7d
+          },
+          daily: dailyData
+        }));
+      } catch (err: any) {
+        console.error("Cloudflare analytics error:", err);
         return corsResponse(request, JSON.stringify({ error: err.message }), 500);
       }
     }

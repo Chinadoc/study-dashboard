@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-version="1.0.5">
+<html lang="en" data-version="1.0.7">
 
 <head>
     <!-- v1.0.4 - Restored InventoryManager.getAllKeys functionality -->
@@ -3722,6 +3722,61 @@
                 </div>
             </div>
 
+            <!-- Cloudflare Traffic Analytics -->
+            <div style="margin-top: 32px;">
+                <h3
+                    style="color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span>☁️</span> Cloudflare Traffic
+                    <span
+                        style="font-size: 0.7rem; background: rgba(249, 115, 22, 0.2); color: #f97316; padding: 4px 10px; border-radius: 100px; font-weight: 600;">LIVE</span>
+                </h3>
+                <div id="cfAnalyticsContainer"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                    <div
+                        style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(194, 65, 12, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(249, 115, 22, 0.2);">
+                        <div
+                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                            Unique Visitors (24h)</div>
+                        <div style="font-size: 2rem; font-weight: 850; color: #f97316;" id="cfVisitors24h">--</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                id="cfVisitors7d">--</span> (7d)</div>
+                    </div>
+                    <div
+                        style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                        <div
+                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                            Total Requests (24h)</div>
+                        <div style="font-size: 2rem; font-weight: 850; color: #22c55e;" id="cfRequests24h">--</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                id="cfRequests7d">--</span> (7d)</div>
+                    </div>
+                    <div
+                        style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(139, 92, 246, 0.2);">
+                        <div
+                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                            Data Served (24h)</div>
+                        <div style="font-size: 2rem; font-weight: 850; color: #8b5cf6;" id="cfData24h">--</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                id="cfData7d">--</span> (7d)</div>
+                    </div>
+                    <div
+                        style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(6, 182, 212, 0.2);">
+                        <div
+                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                            Cache Hit Rate</div>
+                        <div style="font-size: 2rem; font-weight: 850; color: #06b6d4;" id="cfCacheRate24h">--</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                id="cfCacheRate7d">--</span> (7d)</div>
+                    </div>
+                </div>
+                <div id="cfConfigMessage"
+                    style="display: none; text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.9rem;">
+                    <div style="font-size: 1.5rem; margin-bottom: 8px;">🔧</div>
+                    <span id="cfConfigText">Configure CF_ANALYTICS_TOKEN and CF_ZONE_ID to enable Cloudflare
+                        analytics</span>
+                </div>
+            </div>
+
             <!-- Conversion Funnel & AI Insight -->
             <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-top: 32px;">
                 <!-- Funnel -->
@@ -4458,6 +4513,23 @@
                 return;
             }
 
+            // Soft paywall for anonymous users after free views
+            if (!PremiumUsage.canViewGuide()) {
+                const remaining = PremiumUsage.getRemainingFreeViews();
+                openSignUpPaywall('guide', make + ' ' + model);
+                return;
+            }
+
+            // Track guide view for anonymous users
+            if (!currentUser) {
+                const viewCount = PremiumUsage.trackGuideView();
+                const remaining = PremiumUsage.getRemainingFreeViews();
+                if (remaining > 0 && remaining <= 2) {
+                    // Show subtle hint about remaining free views
+                    console.log(`📖 ${remaining} free guide view${remaining !== 1 ? 's' : ''} remaining. Sign up for unlimited access.`);
+                }
+            }
+
             // Check if we have a local structured guide first for this make/model
             const searchKey = (make + ' ' + model).toLowerCase();
             const localMatch = Object.keys(STRUCTURED_GUIDES).find(k => k.toLowerCase().includes(searchKey) || searchKey.includes(k.toLowerCase()));
@@ -4979,6 +5051,15 @@
                     selectVisualMake(foundMake);
                     // Parse rest of query for year/model? 
                     // Future enhancement: automatically select year/model if provided
+                } else {
+                    // No make matched - perform FCC database search (same as header search)
+                    showTab('fcc');
+                    document.getElementById('fccSearch').value = query;
+                    if (fccDataLoaded) {
+                        renderFccTable();
+                    } else {
+                        loadFccData();
+                    }
                 }
             }
         }
@@ -6378,12 +6459,13 @@
                 }
             }
 
-            // Consistency: Check premium tab visibility
+            // Tabs are always visible (site is 100% functional)
+            // Premium actions within tabs will prompt sign-up/upgrade as needed
             const inventoryTab = document.getElementById('inventoryTab');
             const subscriptionsTab = document.getElementById('subscriptionsTab');
 
-            if (inventoryTab) inventoryTab.style.display = isPro ? 'inline-flex' : 'none';
-            if (subscriptionsTab) subscriptionsTab.style.display = isPro ? 'inline-flex' : 'none';
+            if (inventoryTab) inventoryTab.style.display = 'inline-flex';
+            if (subscriptionsTab) subscriptionsTab.style.display = 'inline-flex';
 
             // Refresh inventory view if open
             if (document.getElementById('tabInventory')?.style.display === 'block') {
@@ -6399,6 +6481,63 @@
                 // Fallback if modal doesn't exist
                 alert('Upgrade to Pro for inventory features! Contact support@eurokeys.app');
             }
+        }
+
+        // Soft paywall modal for anonymous users (non-pushy sign-up prompt)
+        function openSignUpPaywall(feature = 'feature', context = '') {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('signUpPaywallModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'signUpPaywallModal';
+                modal.className = 'modal';
+                document.body.appendChild(modal);
+            }
+
+            const featureText = {
+                'guide': 'programming guides',
+                'inventory': 'inventory tracking',
+                'subscription': 'subscription management'
+            }[feature] || 'premium features';
+
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 480px; text-align: center; background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(251, 191, 36, 0.3);">
+                    <button class="modal-close" onclick="closeSignUpPaywall()">&times;</button>
+                    <div style="padding: 20px;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">🔓</div>
+                        <h2 style="color: #fbbf24; margin-bottom: 12px; font-size: 1.5rem;">Unlock Full Access</h2>
+                        <p style="color: #a0aec0; margin-bottom: 20px; line-height: 1.6;">
+                            You've used your <strong>3 free ${featureText}</strong> views.
+                            ${context ? `<br><span style="color: #718096; font-size: 0.9rem;">Trying to view: ${context}</span>` : ''}
+                        </p>
+                        <div style="background: rgba(251, 191, 36, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <div style="color: #fbbf24; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">🎁 14-Day Free Trial</div>
+                            <p style="color: #e2e8f0; font-size: 0.9rem; margin: 0;">
+                                Sign up with Google to unlock unlimited ${featureText}, cloud sync, and more.
+                            </p>
+                        </div>
+                        <button onclick="closeSignUpPaywall(); signInWithGoogle();" 
+                                style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; border: none; 
+                                       padding: 14px 32px; border-radius: 12px; font-weight: 700; font-size: 1rem; 
+                                       cursor: pointer; width: 100%; transition: transform 0.2s, box-shadow 0.2s;
+                                       box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);">
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                Sign Up with Google
+                            </span>
+                        </button>
+                        <p style="color: #718096; font-size: 0.8rem; margin-top: 16px;">
+                            No credit card required • Cancel anytime
+                        </p>
+                    </div>
+                </div>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        function closeSignUpPaywall() {
+            const modal = document.getElementById('signUpPaywallModal');
+            if (modal) modal.style.display = 'none';
         }
 
         function closeUpgradeModal() {
@@ -7005,9 +7144,11 @@
                     console.error("Backend logout failed", e);
                 }
 
-                // 2. Clear local state
+                // 2. Clear ALL local auth state (critical: include session token!)
                 currentUser = null;
                 localStorage.removeItem('eurokeys_user');
+                localStorage.removeItem('eurokeys_session_token');  // <-- This was missing! Caused ghost logins.
+                window.isAuthExpired = true;  // Prevent background auth checks from restoring session
                 updateAuthUI(false);
 
                 // 3. Clear Dev UI
@@ -7018,6 +7159,9 @@
                 if (typeof google !== 'undefined' && google.accounts) {
                     google.accounts.id.disableAutoSelect();
                 }
+
+                // 5. Force update trial banner to reflect signed-out state
+                updateTrialBanner();
             }
         }
 
@@ -7033,33 +7177,73 @@
             return vid;
         }
 
-        // ================== 14-DAY FREE TRIAL SYSTEM ==================
+        // ================== FREEMIUM TRIAL SYSTEM ==================
         const TRIAL_DAYS = 14;
         const TRIAL_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000;
 
-        // Initialize anonymous trial on first visit
-        function initAnonymousTrial() {
-            const stored = localStorage.getItem('eurokeys_trial_start');
-            if (!stored) {
-                localStorage.setItem('eurokeys_trial_start', Date.now().toString());
-                console.log('🎁 Trial started: 14 days of full access');
+        // Premium usage tracking for soft paywalls
+        const PremiumUsage = {
+            STORAGE_KEY: 'eurokeys_premium_usage',
+            THRESHOLDS: {
+                guide_views: 3,      // Free guide views before paywall
+            },
+
+            getUsage() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '{}');
+                } catch (e) {
+                    return {};
+                }
+            },
+
+            saveUsage(data) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            },
+
+            trackGuideView() {
+                const usage = this.getUsage();
+                usage.guide_views = (usage.guide_views || 0) + 1;
+                this.saveUsage(usage);
+                return usage.guide_views;
+            },
+
+            getGuideViews() {
+                return this.getUsage().guide_views || 0;
+            },
+
+            canViewGuide() {
+                // Pro users or signed-in trial users have unlimited access
+                if (currentUser?.is_pro) return true;
+                if (currentUser) return true; // Signed-in users on trial get full access
+                // Anonymous users: check threshold
+                return this.getGuideViews() < this.THRESHOLDS.guide_views;
+            },
+
+            getRemainingFreeViews() {
+                return Math.max(0, this.THRESHOLDS.guide_views - this.getGuideViews());
             }
+        };
+
+        // No-op for backwards compatibility (anonymous trial removed)
+        function initAnonymousTrial() {
+            // Anonymous trial removed - trial only for signed-in users now
+            console.log('ℹ️ Sign up for 14-day free trial with full access');
         }
 
-        // Get current trial status (works for both anonymous and signed-in users)
+        // Get current trial status (ONLY for signed-in users now)
         function getTrialStatus() {
             // If signed in with active subscription, full access
             if (currentUser?.is_pro) {
-                return { hasAccess: true, isTrialing: false, isPro: true, daysLeft: Infinity };
+                return { hasAccess: true, isTrialing: false, isPro: true, daysLeft: Infinity, isAnonymous: false };
             }
 
             // If signed in with explicit trial_until set
             if (currentUser?.trial_until && currentUser.trial_until > Date.now()) {
                 const daysLeft = Math.ceil((currentUser.trial_until - Date.now()) / (1000 * 60 * 60 * 24));
-                return { hasAccess: true, isTrialing: true, isPro: false, daysLeft };
+                return { hasAccess: true, isTrialing: true, isPro: false, daysLeft, isAnonymous: false };
             }
 
-            // If signed in, use server-side created_at for trial calculation (robust)
+            // If signed in, use server-side created_at for trial calculation
             if (currentUser?.created_at) {
                 const createdAt = typeof currentUser.created_at === 'string'
                     ? new Date(currentUser.created_at).getTime()
@@ -7067,27 +7251,17 @@
                 const trialEnd = createdAt + TRIAL_MS;
                 if (Date.now() < trialEnd) {
                     const daysLeft = Math.ceil((trialEnd - Date.now()) / (1000 * 60 * 60 * 24));
-                    return { hasAccess: true, isTrialing: true, isPro: false, daysLeft };
+                    return { hasAccess: true, isTrialing: true, isPro: false, daysLeft, isAnonymous: false };
                 }
                 // Trial expired for signed-in user
-                return { hasAccess: false, isTrialing: false, isPro: false, daysLeft: 0 };
+                return { hasAccess: false, isTrialing: false, isPro: false, daysLeft: 0, isAnonymous: false };
             }
 
-            // Anonymous trial (localStorage based - fallback for guests)
-            const trialStart = parseInt(localStorage.getItem('eurokeys_trial_start') || '0');
-            if (trialStart) {
-                const trialEnd = trialStart + TRIAL_MS;
-                if (Date.now() < trialEnd) {
-                    const daysLeft = Math.ceil((trialEnd - Date.now()) / (1000 * 60 * 60 * 24));
-                    return { hasAccess: true, isTrialing: true, isPro: false, daysLeft };
-                }
-            }
-
-            // Trial expired
-            return { hasAccess: false, isTrialing: false, isPro: false, daysLeft: 0 };
+            // Anonymous users - limited free access (no trial countdown)
+            return { hasAccess: false, isTrialing: false, isPro: false, daysLeft: 0, isAnonymous: true };
         }
 
-        // Update trial banner UI
+        // Update trial banner UI (only for signed-in users)
         function updateTrialBanner() {
             const existingBanner = document.getElementById('trialBanner');
             if (existingBanner) existingBanner.remove();
@@ -7099,8 +7273,11 @@
             const banner = document.createElement('div');
             banner.id = 'trialBanner';
 
-            if (status.hasAccess && status.isTrialing) {
-                // Active trial
+            if (status.isAnonymous) {
+                // Anonymous users - no trial banner, data is free, premium features prompt sign-up
+                return; // Don't show any banner for anonymous users
+            } else if (status.hasAccess && status.isTrialing) {
+                // Signed-in user with active trial
                 banner.innerHTML = `
                     <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
                                 padding: 8px 16px; display: flex; justify-content: center; align-items: center; 
@@ -7112,20 +7289,16 @@
                         </button>
                     </div>
                 `;
-            } else if (!status.hasAccess) {
-                // Trial expired
+            } else if (!status.hasAccess && !status.isAnonymous) {
+                // Signed-in user with expired trial
                 banner.innerHTML = `
                     <div style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); 
                                 padding: 10px 16px; display: flex; justify-content: center; align-items: center; 
                                 gap: 12px; border-bottom: 1px solid rgba(255,100,100,0.3);">
                         <span style="color: #fca5a5; font-weight: 600;">⚠️ Your free trial has ended</span>
-                        <button onclick="signInWithGoogle()" style="background: #fff; border: none; color: #7f1d1d; 
-                                         padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
-                            Sign In to Continue
-                        </button>
                         <button onclick="openUpgradeModal()" style="background: #fbbf24; border: none; color: #000; 
                                          padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
-                            Upgrade
+                            Upgrade to Pro
                         </button>
                     </div>
                 `;
@@ -7159,7 +7332,7 @@
             try {
                 await fetch(`${API}/api/activity/batch`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify({
                         logs: batch,
@@ -7588,6 +7761,48 @@
                     `;
                     }).join('');
                 }
+
+                // 7. Fetch Cloudflare Analytics (separate try/catch to not break main panel on CF failure)
+                try {
+                    const cfRes = await fetch(`${API}/api/admin/cloudflare`, authConfig);
+                    if (cfRes.ok) {
+                        const cfData = await cfRes.json();
+
+                        if (cfData.error === 'not_configured') {
+                            // Show config message
+                            document.getElementById('cfAnalyticsContainer').style.display = 'none';
+                            document.getElementById('cfConfigMessage').style.display = 'block';
+                            document.getElementById('cfConfigText').textContent = cfData.message;
+                        } else if (!cfData.error) {
+                            // Format bytes helper
+                            const formatBytes = (bytes) => {
+                                if (bytes < 1024) return bytes + ' B';
+                                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                                if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+                                return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+                            };
+
+                            // Update 24h stats
+                            document.getElementById('cfVisitors24h').textContent = (cfData.last24h?.visitors || 0).toLocaleString();
+                            document.getElementById('cfRequests24h').textContent = (cfData.last24h?.requests || 0).toLocaleString();
+                            document.getElementById('cfData24h').textContent = formatBytes(cfData.last24h?.bytesServed || 0);
+                            document.getElementById('cfCacheRate24h').textContent = (cfData.last24h?.cacheRate || '0.0') + '%';
+
+                            // Update 7d stats
+                            document.getElementById('cfVisitors7d').textContent = (cfData.last7d?.visitors || 0).toLocaleString();
+                            document.getElementById('cfRequests7d').textContent = (cfData.last7d?.requests || 0).toLocaleString();
+                            document.getElementById('cfData7d').textContent = formatBytes(cfData.last7d?.bytesServed || 0);
+                            document.getElementById('cfCacheRate7d').textContent = (cfData.last7d?.cacheRate || '0.0') + '%';
+
+                            document.getElementById('cfAnalyticsContainer').style.display = 'grid';
+                            document.getElementById('cfConfigMessage').style.display = 'none';
+                        }
+                    }
+                } catch (cfErr) {
+                    console.warn('Cloudflare analytics fetch failed:', cfErr);
+                    // Silently fail - don't break the dev panel
+                }
+
             } catch (err) {
                 console.error("Dev Panel Load Failed", err);
                 let message = err.message || 'Data stream interrupted';
@@ -7637,6 +7852,7 @@
         const InventoryManager = {
             KEYS_STORAGE_KEY: 'eurokeys_inventory_keys_v2',
             BLANKS_STORAGE_KEY: 'eurokeys_inventory_blanks_v2',
+            lastEtag: null, // For ETag-based cache validation
 
             // Get all keys inventory (format: { itemKey: { qty, vehicle, amazonLink } })
             getKeysInventory() {
@@ -7838,9 +8054,22 @@
                     return false;
                 }
                 try {
-                    const response = await fetch(`${API}/api/user/inventory`, {
-                        headers: getAuthHeaders()
-                    });
+                    // Include ETag for efficient revalidation
+                    const headers = { ...getAuthHeaders() };
+                    if (this.lastEtag) {
+                        headers['If-None-Match'] = this.lastEtag;
+                    }
+
+                    const response = await fetch(`${API}/api/user/inventory`, { headers });
+
+                    // Handle 304 Not Modified - data hasn't changed
+                    if (response.status === 304) {
+                        console.log('📦 Inventory: 304 Not Modified - using cached data');
+                        this.lastSyncTime = Date.now();
+                        this.lastSyncError = null;
+                        return true; // Data is still valid
+                    }
+
                     if (response.status === 401) {
                         console.warn('Session expired (401)');
                         signOut();
@@ -7851,6 +8080,13 @@
                         console.warn('📦 Inventory: Cloud sync unavailable', response.status);
                         return false;
                     }
+
+                    // Store ETag for future requests
+                    const etag = response.headers.get('ETag');
+                    if (etag) {
+                        this.lastEtag = etag;
+                    }
+
                     const data = await response.json();
                     const cloudKeyCount = Object.keys(data.keys || {}).length;
                     const cloudBlankCount = Object.keys(data.blanks || {}).length;
@@ -7900,6 +8136,8 @@
                     }
 
                     console.log('📦 Inventory: Loaded from cloud');
+                    this.lastSyncTime = Date.now();
+                    this.lastSyncError = null;
                     updateInventoryTabBadge();
                     // Re-render inventory page if it's currently visible
                     const inventoryContent = document.getElementById('tabInventory');
@@ -7909,6 +8147,7 @@
                     return true;
                 } catch (e) {
                     console.error('📦 Inventory: Cloud load failed', e);
+                    this.lastSyncError = e.message;
                     return false;
                 }
             },
@@ -8013,6 +8252,72 @@
                 // Sync deletion to cloud
                 this.deleteFromCloud(itemKey, type);
                 updateInventoryTabBadge();
+            },
+
+            // Sync status tracking
+            lastSyncTime: null,
+            lastSyncError: null,
+
+            getSyncStatus() {
+                if (this.lastSyncError) {
+                    return { status: 'error', message: this.lastSyncError, time: this.lastSyncTime };
+                }
+                if (this.lastSyncTime) {
+                    const ago = Math.floor((Date.now() - this.lastSyncTime) / 1000);
+                    let timeStr;
+                    if (ago < 60) timeStr = 'Just now';
+                    else if (ago < 3600) timeStr = `${Math.floor(ago / 60)}m ago`;
+                    else timeStr = `${Math.floor(ago / 3600)}h ago`;
+                    return { status: 'ok', message: `Synced ${timeStr}`, time: this.lastSyncTime };
+                }
+                return { status: 'unknown', message: 'Not synced', time: null };
+            },
+
+            // Clear all local data and force fresh cloud sync
+            async clearAndResync() {
+                if (!currentUser) {
+                    alert('You must be signed in to resync from cloud.');
+                    return false;
+                }
+
+                if (!confirm('This will clear all local data and reload from the cloud. Any data not synced to the cloud will be lost. Continue?')) {
+                    return false;
+                }
+
+                try {
+                    // Clear all inventory-related localStorage
+                    localStorage.removeItem(this.KEYS_STORAGE_KEY);
+                    localStorage.removeItem(this.BLANKS_STORAGE_KEY);
+                    localStorage.removeItem('eurokeys_inventory_keys'); // Old format
+                    localStorage.removeItem('eurokeys_inventory_blanks'); // Old format
+                    localStorage.removeItem('eurokeys_job_logs');
+
+                    console.log('🧹 Cleared local inventory and job logs');
+
+                    // Force reload from cloud
+                    this.lastSyncError = null;
+                    const inventoryLoaded = await this.loadFromCloud();
+                    const logsLoaded = await this.loadJobLogsFromCloud();
+
+                    if (inventoryLoaded || logsLoaded) {
+                        this.lastSyncTime = Date.now();
+                        this.lastSyncError = null;
+                        console.log('✅ Resync complete');
+                        alert('✅ Resync complete! Loaded data from cloud.');
+                        renderInventoryPage();
+                        return true;
+                    } else {
+                        console.log('📦 No cloud data found - starting fresh');
+                        alert('ℹ️ No cloud data found. Your inventory is now empty.');
+                        renderInventoryPage();
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Resync failed:', e);
+                    this.lastSyncError = e.message;
+                    alert('❌ Resync failed: ' + e.message);
+                    return false;
+                }
             }
         };
 
@@ -8542,8 +8847,13 @@
         }
 
         function inventoryAdd(itemKey, type = 'key', vehicle = null, amazonLink = null) {
-            // Allow all trial users (active trial OR pro)
             const trialStatus = getTrialStatus();
+            // Anonymous users: prompt sign-up
+            if (trialStatus.isAnonymous) {
+                openSignUpPaywall('inventory', itemKey);
+                return;
+            }
+            // Signed-in users with expired trial: prompt upgrade
             if (!trialStatus.hasAccess) {
                 openUpgradeModal();
                 return;
@@ -8558,8 +8868,13 @@
         }
 
         function inventoryMinus(itemKey, type = 'key') {
-            // Allow all trial users (active trial OR pro)
             const trialStatus = getTrialStatus();
+            // Anonymous users: prompt sign-up
+            if (trialStatus.isAnonymous) {
+                openSignUpPaywall('inventory', itemKey);
+                return;
+            }
+            // Signed-in users with expired trial: prompt upgrade
             if (!trialStatus.hasAccess) {
                 openUpgradeModal();
                 return;
@@ -9099,9 +9414,42 @@
                 return;
             }
 
-            // Toggle Header
+
+            // Sync status for display
+            const syncStatus = InventoryManager.getSyncStatus();
+            const syncColor = syncStatus.status === 'error' ? '#f87171' : syncStatus.status === 'ok' ? '#4ade80' : '#94a3b8';
+            const syncIcon = syncStatus.status === 'error' ? '⚠️' : syncStatus.status === 'ok' ? '☁️' : '🔄';
+
+            // Toggle Header with user info bar
             const headerHtml = `
-                    <div style="display: flex; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                    <!-- User Info & Sync Status Bar -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 12px; font-size: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            ${currentUser.picture ? `<img src="${currentUser.picture}" style="width: 28px; height: 28px; border-radius: 50%;" alt="Profile">` : ''}
+                            <div>
+                                <div style="color: var(--text-primary); font-weight: 600;">${currentUser.name || 'User'}</div>
+                                <div style="color: var(--text-muted); font-size: 0.75rem;">${currentUser.email || ''}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="display: flex; align-items: center; gap: 6px; color: ${syncColor};">
+                                <span>${syncIcon}</span>
+                                <span>${syncStatus.message}</span>
+                            </div>
+                            <button onclick="InventoryManager.clearAndResync()" style="
+                                padding: 6px 12px; 
+                                border-radius: 6px; 
+                                border: 1px solid rgba(239, 68, 68, 0.3); 
+                                background: rgba(239, 68, 68, 0.1); 
+                                color: #f87171; 
+                                font-weight: 500; 
+                                cursor: pointer;
+                                font-size: 0.8rem;
+                            " title="Clear local data and reload from cloud">🔄 Clear & Resync</button>
+                        </div>
+                    </div>
+                    <!-- Tab Navigation -->
+                    <div style="display: flex; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap;">
                         <button onclick="renderInventoryPage('inventory')" style="
                             padding: 8px 16px; 
                             border-radius: 20px; 
@@ -11601,6 +11949,165 @@
 
             // Show trial banner after short delay (to ensure auth is loaded)
             setTimeout(updateTrialBanner, 500);
+
+            // ================== MOBILE SYNC PATTERNS ==================
+
+            // 1. Revalidate on Focus - when user returns to tab/app, sync from cloud
+            let lastRevalidation = 0;
+            const REVALIDATION_COOLDOWN = 30000; // 30 seconds minimum between auto-syncs
+
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible' && currentUser) {
+                    const now = Date.now();
+                    if (now - lastRevalidation > REVALIDATION_COOLDOWN) {
+                        lastRevalidation = now;
+                        console.log('👀 Tab visible - revalidating from cloud...');
+                        try {
+                            await InventoryManager.loadFromCloud();
+                            await InventoryManager.loadJobLogsFromCloud();
+                            console.log('✅ Revalidation complete');
+                        } catch (e) {
+                            console.warn('Revalidation failed:', e);
+                        }
+                    }
+                }
+            });
+
+            // 2. Pull to Refresh - mobile gesture
+            let pullStartY = 0;
+            let pullCurrentY = 0;
+            let isPulling = false;
+            let pullIndicator = null;
+
+            function createPullIndicator() {
+                if (pullIndicator) return pullIndicator;
+                pullIndicator = document.createElement('div');
+                pullIndicator.id = 'pullToRefreshIndicator';
+                pullIndicator.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 0;
+                        left: 50%;
+                        transform: translateX(-50%) translateY(-100%);
+                        background: var(--bg-tertiary);
+                        border: 1px solid var(--border);
+                        padding: 12px 24px;
+                        border-radius: 0 0 16px 16px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        z-index: 9999;
+                        transition: transform 0.2s;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    ">
+                        <span class="pull-icon" style="font-size: 1.2rem;">↓</span>
+                        <span class="pull-text" style="color: var(--text-primary); font-size: 0.9rem; font-weight: 500;">Pull to refresh</span>
+                    </div>
+                `;
+                document.body.appendChild(pullIndicator);
+                return pullIndicator;
+            }
+
+            function handlePullStart(e) {
+                // Only enable pull-to-refresh when at top of page and on inventory tab
+                const inventoryTab = document.getElementById('tabInventory');
+                if (!inventoryTab || inventoryTab.style.display === 'none') return;
+                if (window.scrollY > 5) return;
+                if (!currentUser) return;
+
+                pullStartY = e.touches ? e.touches[0].clientY : e.clientY;
+                isPulling = true;
+            }
+
+            function handlePullMove(e) {
+                if (!isPulling) return;
+
+                pullCurrentY = e.touches ? e.touches[0].clientY : e.clientY;
+                const pullDistance = pullCurrentY - pullStartY;
+
+                if (pullDistance > 20 && pullDistance < 150) {
+                    const indicator = createPullIndicator();
+                    const inner = indicator.querySelector('div');
+                    const progress = Math.min(pullDistance / 80, 1);
+                    inner.style.transform = `translateX(-50%) translateY(${-100 + (progress * 120)}%)`;
+
+                    const icon = indicator.querySelector('.pull-icon');
+                    const text = indicator.querySelector('.pull-text');
+
+                    if (pullDistance > 80) {
+                        icon.textContent = '↻';
+                        icon.style.animation = 'none';
+                        text.textContent = 'Release to refresh';
+                    } else {
+                        icon.textContent = '↓';
+                        text.textContent = 'Pull to refresh';
+                    }
+                }
+            }
+
+            async function handlePullEnd(e) {
+                if (!isPulling) return;
+                isPulling = false;
+
+                const pullDistance = pullCurrentY - pullStartY;
+
+                if (pullIndicator) {
+                    const inner = pullIndicator.querySelector('div');
+
+                    if (pullDistance > 80 && currentUser) {
+                        // Trigger refresh
+                        const icon = pullIndicator.querySelector('.pull-icon');
+                        const text = pullIndicator.querySelector('.pull-text');
+                        icon.textContent = '↻';
+                        icon.style.animation = 'spin 0.8s linear infinite';
+                        text.textContent = 'Refreshing...';
+
+                        // Add spin animation if not exists
+                        if (!document.getElementById('pullSpinStyle')) {
+                            const style = document.createElement('style');
+                            style.id = 'pullSpinStyle';
+                            style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+                            document.head.appendChild(style);
+                        }
+
+                        try {
+                            await InventoryManager.loadFromCloud();
+                            await InventoryManager.loadJobLogsFromCloud();
+                            text.textContent = '✓ Updated!';
+                            icon.textContent = '✓';
+                            icon.style.animation = 'none';
+
+                            // Re-render current view
+                            const inventoryTab = document.getElementById('tabInventory');
+                            if (inventoryTab && inventoryTab.style.display !== 'none') {
+                                renderInventoryPage();
+                            }
+                        } catch (err) {
+                            text.textContent = '✗ Failed';
+                            icon.textContent = '✗';
+                            icon.style.animation = 'none';
+                        }
+
+                        // Hide after delay
+                        setTimeout(() => {
+                            inner.style.transform = 'translateX(-50%) translateY(-100%)';
+                        }, 1000);
+                    } else {
+                        // Cancel - hide indicator
+                        inner.style.transform = 'translateX(-50%) translateY(-100%)';
+                    }
+                }
+
+                pullStartY = 0;
+                pullCurrentY = 0;
+            }
+
+            // Attach pull-to-refresh listeners
+            document.addEventListener('touchstart', handlePullStart, { passive: true });
+            document.addEventListener('touchmove', handlePullMove, { passive: true });
+            document.addEventListener('touchend', handlePullEnd, { passive: true });
+
+            console.log('📱 Mobile sync patterns initialized (revalidateOnFocus + pull-to-refresh)');
         });
 
     </script>
