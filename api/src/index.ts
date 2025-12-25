@@ -20,8 +20,9 @@ export interface Env {
   DEV_EMAILS: string;  // Comma-separated developer email addresses
   AI: any;
   OPENROUTER_API_KEY: string;
-  CF_ANALYTICS_TOKEN?: string;  // Cloudflare Analytics API token
+  CF_ANALYTICS_TOKEN?: string;  // Cloudflare Global API Key
   CF_ZONE_ID?: string;          // Cloudflare Zone ID for eurokeys.app
+  CF_AUTH_EMAIL?: string;       // Cloudflare account email for API auth
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -1081,11 +1082,11 @@ export default {
         const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
         if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
 
-        // Check if API token is configured
-        if (!env.CF_ANALYTICS_TOKEN || !env.CF_ZONE_ID) {
+        // Check if API credentials are configured
+        if (!env.CF_ANALYTICS_TOKEN || !env.CF_ZONE_ID || !env.CF_AUTH_EMAIL) {
           return corsResponse(request, JSON.stringify({
             error: "not_configured",
-            message: "Cloudflare Analytics not configured. Add CF_ANALYTICS_TOKEN and CF_ZONE_ID secrets."
+            message: "Cloudflare Analytics not configured. Add CF_ANALYTICS_TOKEN, CF_ZONE_ID, and CF_AUTH_EMAIL secrets."
           }), 200);
         }
 
@@ -1120,7 +1121,8 @@ export default {
         const cfResponse = await fetch("https://api.cloudflare.com/client/v4/graphql", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${env.CF_ANALYTICS_TOKEN}`,
+            "X-Auth-Key": env.CF_ANALYTICS_TOKEN,
+            "X-Auth-Email": env.CF_AUTH_EMAIL,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({ query: graphqlQuery })
