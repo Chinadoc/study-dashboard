@@ -3722,53 +3722,200 @@
                 </div>
             </div>
 
-            <!-- Cloudflare Traffic Analytics -->
+            <!-- Cloudflare Traffic Analytics with Persona Tabs -->
             <div style="margin-top: 32px;">
-                <h3
-                    style="color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                    <span>☁️</span> Cloudflare Traffic
-                    <span
-                        style="font-size: 0.7rem; background: rgba(249, 115, 22, 0.2); color: #f97316; padding: 4px 10px; border-radius: 100px; font-weight: 600;">LIVE</span>
-                </h3>
-                <div id="cfAnalyticsContainer"
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
-                    <div
-                        style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(194, 65, 12, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(249, 115, 22, 0.2);">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                            Unique Visitors (24h)</div>
-                        <div style="font-size: 2rem; font-weight: 850; color: #f97316;" id="cfVisitors24h">--</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
-                                id="cfVisitors7d">--</span> (7d)</div>
-                    </div>
-                    <div
-                        style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(34, 197, 94, 0.2);">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                            Total Requests (24h)</div>
-                        <div style="font-size: 2rem; font-weight: 850; color: #22c55e;" id="cfRequests24h">--</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
-                                id="cfRequests7d">--</span> (7d)</div>
-                    </div>
-                    <div
-                        style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(139, 92, 246, 0.2);">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                            Data Served (24h)</div>
-                        <div style="font-size: 2rem; font-weight: 850; color: #8b5cf6;" id="cfData24h">--</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
-                                id="cfData7d">--</span> (7d)</div>
-                    </div>
-                    <div
-                        style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(6, 182, 212, 0.2);">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-                            Cache Hit Rate</div>
-                        <div style="font-size: 2rem; font-weight: 850; color: #06b6d4;" id="cfCacheRate24h">--</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
-                                id="cfCacheRate7d">--</span> (7d)</div>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <h3 style="color: var(--text-primary); display: flex; align-items: center; gap: 10px; margin: 0;">
+                        <span>☁️</span> Cloudflare Traffic
+                        <span
+                            style="font-size: 0.7rem; background: rgba(249, 115, 22, 0.2); color: #f97316; padding: 4px 10px; border-radius: 100px; font-weight: 600;">LIVE</span>
+                    </h3>
+                    <div id="cfPersonaTabs" style="display: flex; gap: 6px;">
+                        <button class="cf-persona-tab active" data-tab="overview" onclick="setCfPersonaTab('overview')"
+                            style="background: rgba(249,115,22,0.2); border: 1px solid rgba(249,115,22,0.3); color: #f97316; padding: 6px 14px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            📊 Overview
+                        </button>
+                        <button class="cf-persona-tab" data-tab="tech" onclick="setCfPersonaTab('tech')"
+                            style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; padding: 6px 14px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; opacity: 0.7;">
+                            🔧 Tech
+                        </button>
+                        <button class="cf-persona-tab" data-tab="marketing" onclick="setCfPersonaTab('marketing')"
+                            style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #22c55e; padding: 6px 14px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; opacity: 0.7;">
+                            📢 Marketing
+                        </button>
                     </div>
                 </div>
+
+                <!-- Overview Tab Content (Default) -->
+                <div id="cfTabOverview" class="cf-tab-content">
+                    <div id="cfAnalyticsContainer"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                        <div
+                            style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(194, 65, 12, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(249, 115, 22, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                Unique Visitors (24h)</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #f97316;" id="cfVisitors24h">--</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                    id="cfVisitors7d">--</span> (7d)</div>
+                        </div>
+                        <div
+                            style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                Total Requests (24h)</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #22c55e;" id="cfRequests24h">--</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                    id="cfRequests7d">--</span> (7d)</div>
+                        </div>
+                        <div
+                            style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(139, 92, 246, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                Data Served (24h)</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #8b5cf6;" id="cfData24h">--</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                    id="cfData7d">--</span> (7d)</div>
+                        </div>
+                        <div
+                            style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(6, 182, 212, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                Cache Hit Rate</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #06b6d4;" id="cfCacheRate24h">--</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"><span
+                                    id="cfCacheRate7d">--</span> (7d)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tech Tab Content -->
+                <div id="cfTabTech" class="cf-tab-content" style="display: none;">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <div
+                            style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 6px;">
+                                Error Rate (7d)</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #ef4444;" id="cfErrorRate">0.00%</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">4xx + 5xx
+                                responses</div>
+                        </div>
+                        <div
+                            style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(6, 182, 212, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 6px;">
+                                Cache Rate (7d)</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #06b6d4;" id="cfCacheRateTech">--
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Served from edge
+                            </div>
+                        </div>
+                        <div
+                            style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05)); border-radius: 16px; padding: 20px; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <div
+                                style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 6px;">
+                                Threats Blocked (7d)</div>
+                            <div style="font-size: 2rem; font-weight: 850; color: #fbbf24;" id="cfThreats">0</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Security
+                                incidents</div>
+                        </div>
+                    </div>
+                    <!-- Status Code Breakdown -->
+                    <div
+                        style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                        <div style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px;">Response Status
+                            Codes (7d)</div>
+                        <div id="cfStatusBars" style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="width: 40px; color: #4ade80; font-weight: 600;">2xx</span>
+                                <div
+                                    style="flex: 1; height: 20px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                    <div id="cfStatus2xx"
+                                        style="width: 0%; height: 100%; background: #4ade80; transition: width 0.5s;">
+                                    </div>
+                                </div>
+                                <span id="cfStatus2xxPct"
+                                    style="width: 50px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">0%</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="width: 40px; color: #60a5fa; font-weight: 600;">3xx</span>
+                                <div
+                                    style="flex: 1; height: 20px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                    <div id="cfStatus3xx"
+                                        style="width: 0%; height: 100%; background: #60a5fa; transition: width 0.5s;">
+                                    </div>
+                                </div>
+                                <span id="cfStatus3xxPct"
+                                    style="width: 50px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">0%</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="width: 40px; color: #fbbf24; font-weight: 600;">4xx</span>
+                                <div
+                                    style="flex: 1; height: 20px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                    <div id="cfStatus4xx"
+                                        style="width: 0%; height: 100%; background: #fbbf24; transition: width 0.5s;">
+                                    </div>
+                                </div>
+                                <span id="cfStatus4xxPct"
+                                    style="width: 50px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">0%</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="width: 40px; color: #ef4444; font-weight: 600;">5xx</span>
+                                <div
+                                    style="flex: 1; height: 20px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                    <div id="cfStatus5xx"
+                                        style="width: 0%; height: 100%; background: #ef4444; transition: width 0.5s;">
+                                    </div>
+                                </div>
+                                <span id="cfStatus5xxPct"
+                                    style="width: 50px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketing Tab Content -->
+                <div id="cfTabMarketing" class="cf-tab-content" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <!-- Top Countries -->
+                        <div
+                            style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                            <div
+                                style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                🌍 Top Countries (7d)
+                            </div>
+                            <div id="cfCountriesList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                            </div>
+                        </div>
+                        <!-- Device Breakdown -->
+                        <div
+                            style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                            <div
+                                style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                📱 Devices (7d)
+                            </div>
+                            <div id="cfDevicesList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                            </div>
+                        </div>
+                        <!-- Browser Breakdown -->
+                        <div
+                            style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                            <div
+                                style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                🌐 Browsers (7d)
+                            </div>
+                            <div id="cfBrowsersList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="cfConfigMessage"
                     style="display: none; text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.9rem;">
                     <div style="font-size: 1.5rem; margin-bottom: 8px;">🔧</div>
@@ -7626,6 +7773,55 @@
             });
         }
 
+        // Cloudflare persona tab switching
+        let currentCfTab = 'overview';
+
+        function setCfPersonaTab(tabName) {
+            currentCfTab = tabName;
+
+            // Update tab button styles
+            document.querySelectorAll('.cf-persona-tab').forEach(btn => {
+                const isActive = btn.dataset.tab === tabName;
+                btn.classList.toggle('active', isActive);
+                btn.style.opacity = isActive ? '1' : '0.7';
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.cf-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            const activeContent = document.getElementById(`cfTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+            if (activeContent) activeContent.style.display = '';
+        }
+
+        // Country flag emoji helper
+        function getCountryFlag(countryCode) {
+            const flags = {
+                'US': '🇺🇸', 'CA': '🇨🇦', 'GB': '🇬🇧', 'DE': '🇩🇪', 'FR': '🇫🇷', 'ES': '🇪🇸', 'IT': '🇮🇹',
+                'AU': '🇦🇺', 'JP': '🇯🇵', 'BR': '🇧🇷', 'MX': '🇲🇽', 'IN': '🇮🇳', 'CN': '🇨🇳', 'KR': '🇰🇷',
+                'NL': '🇳🇱', 'SE': '🇸🇪', 'CH': '🇨🇭', 'PL': '🇵🇱', 'RU': '🇷🇺', 'AR': '🇦🇷',
+                'XX': '🌐'
+            };
+            return flags[countryCode] || '🏳️';
+        }
+
+        // Device icon helper
+        function getDeviceIcon(deviceType) {
+            const icons = {
+                'desktop': '💻', 'mobile': '📱', 'tablet': '📟', 'bot': '🤖', 'unknown': '❓'
+            };
+            return icons[deviceType?.toLowerCase()] || '❓';
+        }
+
+        // Browser icon helper
+        function getBrowserIcon(browser) {
+            const icons = {
+                'Chrome': '🔵', 'Safari': '🧭', 'Firefox': '🦊', 'Edge': '🌊',
+                'Opera': '🔴', 'Samsung': '📱', 'Unknown': '❓'
+            };
+            return icons[browser] || '🌐';
+        }
 
         async function loadDevPanel() {
             // Reset error states
@@ -7925,13 +8121,13 @@
                                 return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
                             };
 
-                            // Update 24h stats
+                            // Update 24h stats (Overview tab)
                             document.getElementById('cfVisitors24h').textContent = (cfData.last24h?.visitors || 0).toLocaleString();
                             document.getElementById('cfRequests24h').textContent = (cfData.last24h?.requests || 0).toLocaleString();
                             document.getElementById('cfData24h').textContent = formatBytes(cfData.last24h?.bytesServed || 0);
                             document.getElementById('cfCacheRate24h').textContent = (cfData.last24h?.cacheRate || '0.0') + '%';
 
-                            // Update 7d stats
+                            // Update 7d stats (Overview tab)
                             document.getElementById('cfVisitors7d').textContent = (cfData.last7d?.visitors || 0).toLocaleString();
                             document.getElementById('cfRequests7d').textContent = (cfData.last7d?.requests || 0).toLocaleString();
                             document.getElementById('cfData7d').textContent = formatBytes(cfData.last7d?.bytesServed || 0);
@@ -7939,6 +8135,90 @@
 
                             document.getElementById('cfAnalyticsContainer').style.display = 'grid';
                             document.getElementById('cfConfigMessage').style.display = 'none';
+
+                            // === TECH TAB ===
+                            if (cfData.tech) {
+                                document.getElementById('cfErrorRate').textContent = cfData.tech.errorRate + '%';
+                                document.getElementById('cfCacheRateTech').textContent = cfData.tech.cacheRate + '%';
+                                document.getElementById('cfThreats').textContent = (cfData.last7d?.threats || 0).toLocaleString();
+
+                                // Status code bars
+                                const statusGroups = cfData.tech.statusGroups || {};
+                                const totalStatus = (statusGroups['2xx'] || 0) + (statusGroups['3xx'] || 0) +
+                                    (statusGroups['4xx'] || 0) + (statusGroups['5xx'] || 0);
+
+                                if (totalStatus > 0) {
+                                    ['2xx', '3xx', '4xx', '5xx'].forEach(code => {
+                                        const count = statusGroups[code] || 0;
+                                        const pct = ((count / totalStatus) * 100).toFixed(1);
+                                        document.getElementById(`cfStatus${code}`).style.width = pct + '%';
+                                        document.getElementById(`cfStatus${code}Pct`).textContent = pct + '%';
+                                    });
+                                }
+                            }
+
+                            // === MARKETING TAB ===
+                            if (cfData.marketing) {
+                                // Countries list
+                                const countriesList = document.getElementById('cfCountriesList');
+                                if (cfData.marketing.topCountries?.length > 0) {
+                                    const totalCountryReqs = cfData.marketing.topCountries.reduce((sum, c) => sum + c.requests, 0);
+                                    countriesList.innerHTML = cfData.marketing.topCountries.slice(0, 8).map(c => {
+                                        const pct = ((c.requests / totalCountryReqs) * 100).toFixed(1);
+                                        return `
+                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                <span style="display: flex; align-items: center; gap: 8px;">
+                                                    <span style="font-size: 1.2rem;">${getCountryFlag(c.country)}</span>
+                                                    <span style="color: var(--text-secondary);">${c.country}</span>
+                                                </span>
+                                                <span style="color: var(--text-primary); font-weight: 600;">${c.requests.toLocaleString()} <span style="color: var(--text-muted); font-weight: 400; font-size: 0.75rem;">(${pct}%)</span></span>
+                                            </div>
+                                        `;
+                                    }).join('');
+                                } else {
+                                    countriesList.innerHTML = '<div style="color: var(--text-muted);">No data available</div>';
+                                }
+
+                                // Devices list
+                                const devicesList = document.getElementById('cfDevicesList');
+                                if (cfData.marketing.devices?.length > 0) {
+                                    const totalDeviceReqs = cfData.marketing.devices.reduce((sum, d) => sum + d.requests, 0);
+                                    devicesList.innerHTML = cfData.marketing.devices.map(d => {
+                                        const pct = ((d.requests / totalDeviceReqs) * 100).toFixed(1);
+                                        return `
+                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                <span style="display: flex; align-items: center; gap: 8px;">
+                                                    <span style="font-size: 1.2rem;">${getDeviceIcon(d.device)}</span>
+                                                    <span style="color: var(--text-secondary); text-transform: capitalize;">${d.device}</span>
+                                                </span>
+                                                <span style="color: var(--text-primary); font-weight: 600;">${pct}%</span>
+                                            </div>
+                                        `;
+                                    }).join('');
+                                } else {
+                                    devicesList.innerHTML = '<div style="color: var(--text-muted);">No data available</div>';
+                                }
+
+                                // Browsers list
+                                const browsersList = document.getElementById('cfBrowsersList');
+                                if (cfData.marketing.topBrowsers?.length > 0) {
+                                    const totalBrowserReqs = cfData.marketing.topBrowsers.reduce((sum, b) => sum + b.requests, 0);
+                                    browsersList.innerHTML = cfData.marketing.topBrowsers.slice(0, 6).map(b => {
+                                        const pct = ((b.requests / totalBrowserReqs) * 100).toFixed(1);
+                                        return `
+                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                <span style="display: flex; align-items: center; gap: 8px;">
+                                                    <span style="font-size: 1.2rem;">${getBrowserIcon(b.browser)}</span>
+                                                    <span style="color: var(--text-secondary);">${b.browser}</span>
+                                                </span>
+                                                <span style="color: var(--text-primary); font-weight: 600;">${pct}%</span>
+                                            </div>
+                                        `;
+                                    }).join('');
+                                } else {
+                                    browsersList.innerHTML = '<div style="color: var(--text-muted);">No data available</div>';
+                                }
+                            }
                         }
                     }
                 } catch (cfErr) {
@@ -9091,13 +9371,16 @@
             document.getElementById('jobItemType').value = type;
             document.getElementById('jobItemName').textContent = `${type === 'blank' ? '🔑' : '🔐'} ${itemKey}`;
 
-            // Truncate preview if too long
+            // Display vehicle preview as compact chips
             const previewEl = document.getElementById('jobItemVehicle');
-            if (savedVehicle.length > 150) {
-                previewEl.textContent = savedVehicle.substring(0, 150) + '...';
+            if (savedVehicle) {
+                previewEl.innerHTML = renderVehicleChips(savedVehicle, null, 4);
+                previewEl.style.display = 'flex';
+                previewEl.style.flexWrap = 'wrap';
+                previewEl.style.gap = '4px';
                 previewEl.title = savedVehicle;
             } else {
-                previewEl.textContent = savedVehicle || '';
+                previewEl.innerHTML = '';
             }
 
             // Populate Vehicle Select Dropdown (The primary source)
@@ -9926,11 +10209,11 @@
                                     </div>
                                 </div>
                                 <div style="margin-bottom: 8px;">
-                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
                                         <span style="font-size: 0.85rem; padding: 2px 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px;">${log.type === 'blank' ? '🔑' : '🔐'} ${log.itemKey}</span>
-                                        ${description ? `<span style="font-size: 0.9rem; color: var(--text-primary);">${description}</span>` : ''}
                                     </div>
-                                    ${log.notes ? `<div style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">"${log.notes}"</div>` : ''}
+                                    ${description ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">${renderVehicleChips(description, null, 3)}</div>` : ''}
+                                    ${log.notes ? `<div style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin-top: 6px;">"${log.notes}"</div>` : ''}
                                 </div>
                             </div>
                         `;

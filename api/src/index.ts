@@ -1097,11 +1097,12 @@ export default {
           }), 200);
         }
 
-        // Query Cloudflare Analytics API (GraphQL)
+        // Query Cloudflare Analytics API (GraphQL) - Expanded for multi-persona dashboard
         const now = new Date();
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         const today = now.toISOString().split('T')[0];
 
+        // Expanded query with geo, device, browser, and status code breakdowns
         const graphqlQuery = `
           query {
             viewer {
@@ -1117,6 +1118,12 @@ export default {
                     bytes
                     cachedBytes
                     pageViews
+                    threats
+                    countryMap { clientCountryAlpha2 requests bytes }
+                    browserMap { uaBrowserFamily requests pageViews }
+                    clientDeviceTypeMap { clientDeviceType requests }
+                    responseStatusMap { edgeResponseStatus requests }
+                    contentTypeMap { edgeResponseContentTypeName requests bytes }
                   }
                   uniq { uniques }
                 }
@@ -1146,9 +1153,16 @@ export default {
         const httpData = zones[0]?.httpRequests1dGroups || [];
 
         // Aggregate stats
-        let last24h = { visitors: 0, requests: 0, bytes: 0, cachedBytes: 0 };
-        let last7d = { visitors: 0, requests: 0, bytes: 0, cachedBytes: 0 };
+        let last24h = { visitors: 0, requests: 0, bytes: 0, cachedBytes: 0, threats: 0 };
+        let last7d = { visitors: 0, requests: 0, bytes: 0, cachedBytes: 0, threats: 0 };
         const dailyData: any[] = [];
+
+        // Aggregated breakdown data (7-day totals)
+        const countries: Record<string, { requests: number; bytes: number }> = {};
+        const browsers: Record<string, { requests: number; pageViews: number }> = {};
+        const devices: Record<string, number> = {};
+        const statusCodes: Record<string, number> = {};
+        const contentTypes: Record<string, { requests: number; bytes: number }> = {};
 
         httpData.forEach((day: any, index: number) => {
           const stats = {
@@ -1156,7 +1170,8 @@ export default {
             visitors: day.uniq?.uniques || 0,
             requests: day.sum?.requests || 0,
             bytes: day.sum?.bytes || 0,
-            cachedBytes: day.sum?.cachedBytes || 0
+            cachedBytes: day.sum?.cachedBytes || 0,
+            threats: day.sum?.threats || 0
           };
           dailyData.push(stats);
 
@@ -1165,31 +1180,118 @@ export default {
           last7d.requests += stats.requests;
           last7d.bytes += stats.bytes;
           last7d.cachedBytes += stats.cachedBytes;
+          last7d.threats += stats.threats;
 
           // Last day is 24h stats
           if (index === httpData.length - 1) {
             last24h = stats;
           }
+
+          // Aggregate country data
+          (day.sum?.countryMap || []).forEach((c: any) => {
+            const cc = c.clientCountryAlpha2 || 'XX';
+            if (!countries[cc]) countries[cc] = { requests: 0, bytes: 0 };
+            countries[cc].requests += c.requests || 0;
+            countries[cc].bytes += c.bytes || 0;
+          });
+
+          // Aggregate browser data
+          (day.sum?.browserMap || []).forEach((b: any) => {
+            const browser = b.uaBrowserFamily || 'Unknown';
+            if (!browsers[browser]) browsers[browser] = { requests: 0, pageViews: 0 };
+            browsers[browser].requests += b.requests || 0;
+            browsers[browser].pageViews += b.pageViews || 0;
+          });
+
+          // Aggregate device data
+          (day.sum?.clientDeviceTypeMap || []).forEach((d: any) => {
+            const device = d.clientDeviceType || 'unknown';
+            devices[device] = (devices[device] || 0) + (d.requests || 0);
+          });
+
+          // Aggregate status codes
+          (day.sum?.responseStatusMap || []).forEach((s: any) => {
+            const status = String(s.edgeResponseStatus || 0);
+            statusCodes[status] = (statusCodes[status] || 0) + (s.requests || 0);
+          });
+
+          // Aggregate content types
+          (day.sum?.contentTypeMap || []).forEach((ct: any) => {
+            const type = ct.edgeResponseContentTypeName || 'other';
+            if (!contentTypes[type]) contentTypes[type] = { requests: 0, bytes: 0 };
+            contentTypes[type].requests += ct.requests || 0;
+            contentTypes[type].bytes += ct.bytes || 0;
+          });
         });
 
         // Calculate cache hit rate
         const cacheRate24h = last24h.bytes > 0 ? ((last24h.cachedBytes / last24h.bytes) * 100).toFixed(1) : "0.0";
         const cacheRate7d = last7d.bytes > 0 ? ((last7d.cachedBytes / last7d.bytes) * 100).toFixed(1) : "0.0";
 
+        // Calculate error rates (4xx + 5xx)
+        let totalRequests = 0;
+        let errorRequests = 0;
+        Object.entries(statusCodes).forEach(([code, count]) => {
+          totalRequests += count;
+          if (code.startsWith('4') || code.startsWith('5')) {
+            errorRequests += count;
+          }
+        });
+        const errorRate = totalRequests > 0 ? ((errorRequests / totalRequests) * 100).toFixed(2) : "0.00";
+
+        // Sort and limit breakdowns (top 10)
+        const topCountries = Object.entries(countries)
+          .sort((a, b) => b[1].requests - a[1].requests)
+          .slice(0, 10)
+          .map(([code, data]) => ({ country: code, ...data }));
+
+        const topBrowsers = Object.entries(browsers)
+          .sort((a, b) => b[1].requests - a[1].requests)
+          .slice(0, 8)
+          .map(([name, data]) => ({ browser: name, ...data }));
+
+        const deviceBreakdown = Object.entries(devices)
+          .sort((a, b) => b[1] - a[1])
+          .map(([type, requests]) => ({ device: type, requests }));
+
+        // Group status codes by category
+        const statusGroups = { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 };
+        Object.entries(statusCodes).forEach(([code, count]) => {
+          if (code.startsWith('2')) statusGroups['2xx'] += count;
+          else if (code.startsWith('3')) statusGroups['3xx'] += count;
+          else if (code.startsWith('4')) statusGroups['4xx'] += count;
+          else if (code.startsWith('5')) statusGroups['5xx'] += count;
+        });
+
         return corsResponse(request, JSON.stringify({
           last24h: {
             visitors: last24h.visitors,
             requests: last24h.requests,
             bytesServed: last24h.bytes,
-            cacheRate: cacheRate24h
+            cacheRate: cacheRate24h,
+            threats: last24h.threats
           },
           last7d: {
             visitors: last7d.visitors,
             requests: last7d.requests,
             bytesServed: last7d.bytes,
-            cacheRate: cacheRate7d
+            cacheRate: cacheRate7d,
+            threats: last7d.threats
           },
-          daily: dailyData
+          daily: dailyData,
+          // Tech metrics
+          tech: {
+            errorRate,
+            cacheRate: cacheRate7d,
+            statusGroups,
+            statusCodes
+          },
+          // Marketing metrics
+          marketing: {
+            topCountries,
+            topBrowsers,
+            devices: deviceBreakdown
+          }
         }));
       } catch (err: any) {
         console.error("Cloudflare analytics error:", err);
