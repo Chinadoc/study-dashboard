@@ -3875,6 +3875,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Security Details -->
+                    <div
+                        style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border); margin-top: 20px;">
+                        <div
+                            style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            🛡️ Security Events (7d)
+                        </div>
+                        <div id="cfSecurityList" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Marketing Tab Content -->
@@ -3910,6 +3922,28 @@
                                 🌐 Browsers (7d)
                             </div>
                             <div id="cfBrowsersList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                            </div>
+                        </div>
+                        <!-- Top Content -->
+                        <div
+                            style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                            <div
+                                style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                📄 Top Content (7d)
+                            </div>
+                            <div id="cfPathsList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                            </div>
+                        </div>
+                        <!-- Referrers -->
+                        <div
+                            style="background: var(--glass-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--glass-border);">
+                            <div
+                                style="color: var(--text-primary); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                🔗 Referrers (7d)
+                            </div>
+                            <div id="cfReferrersList" style="display: flex; flex-direction: column; gap: 8px;">
                                 <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
                             </div>
                         </div>
@@ -4563,7 +4597,17 @@
                 if (vinResults) vinResults.style.display = 'none';
             }
 
-            // 3. Tab-Specific Initialization
+            // 3. Clear stale state from other tabs
+            // When leaving FCC tab, reset search state to prevent stale results
+            if (tabName !== 'fcc') {
+                const fccSearch = document.getElementById('fccSearch');
+                if (fccSearch && fccSearch.value) {
+                    fccSearch.value = '';
+                    // Re-render table to clear filtered results (will use empty search on next visit)
+                }
+            }
+
+            // 4. Tab-Specific Initialization
             if (tabName === 'browse') {
                 if (typeof renderMakeGrid === 'function') {
                     renderMakeGrid();
@@ -8155,6 +8199,28 @@
                                         document.getElementById(`cfStatus${code}Pct`).textContent = pct + '%';
                                     });
                                 }
+
+                                // Security Details (Deep Dive)
+                                if (cfData.tech.securityEvents?.length > 0) {
+                                    const securityList = document.getElementById('cfSecurityList');
+                                    if (securityList) {
+                                        const totalSec = cfData.tech.securityEvents.reduce((sum, s) => sum + s.count, 0);
+                                        securityList.innerHTML = cfData.tech.securityEvents.map(s => {
+                                            return `
+                                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span style="display: flex; align-items: center; gap: 8px;">
+                                                        <span style="color: var(--text-secondary); text-transform: capitalize;">${s.action.replace(/_/g, ' ').toLowerCase()}</span>
+                                                        <span style="color: var(--text-muted); font-size: 0.75rem;">(${s.source})</span>
+                                                    </span>
+                                                    <span style="color: #ef4444; font-weight: 600;">${s.count.toLocaleString()}</span>
+                                                </div>
+                                            `;
+                                        }).join('');
+                                    }
+                                } else {
+                                    const securityList = document.getElementById('cfSecurityList');
+                                    if (securityList) securityList.innerHTML = '<div style="color: var(--text-muted);">No security events recorded</div>';
+                                }
                             }
 
                             // === MARKETING TAB ===
@@ -8217,6 +8283,42 @@
                                     }).join('');
                                 } else {
                                     browsersList.innerHTML = '<div style="color: var(--text-muted);">No data available</div>';
+                                }
+
+                                // Top Content (Deep Dive)
+                                const pathsList = document.getElementById('cfPathsList');
+                                if (pathsList) {
+                                    if (cfData.marketing.topPaths?.length > 0) {
+                                        const totalReqs = cfData.marketing.topPaths.reduce((sum, p) => sum + p.count, 0);
+                                        pathsList.innerHTML = cfData.marketing.topPaths.slice(0, 8).map(p => {
+                                            const pct = ((p.count / totalReqs) * 100).toFixed(1);
+                                            return `
+                                                <div style="display: flex; align-items: center; justify-content: space-between; overflow: hidden;">
+                                                    <span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;" title="${p.path}">${p.path}</span>
+                                                    <span style="color: var(--text-primary); font-weight: 600;">${p.count.toLocaleString()} <span style="color: var(--text-muted); font-weight: 400; font-size: 0.75rem;">(${pct}%)</span></span>
+                                                </div>
+                                            `;
+                                        }).join('');
+                                    } else {
+                                        pathsList.innerHTML = '<div style="color: var(--text-muted);">No path data available</div>';
+                                    }
+                                }
+
+                                // Referrers (Deep Dive)
+                                const referrersList = document.getElementById('cfReferrersList');
+                                if (referrersList) {
+                                    if (cfData.marketing.topReferrers?.length > 0) {
+                                        referrersList.innerHTML = cfData.marketing.topReferrers.map(r => {
+                                            return `
+                                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <span style="color: var(--text-secondary);">${r.referrer}</span>
+                                                    <span style="color: var(--text-primary); font-weight: 600;">${r.count.toLocaleString()}</span>
+                                                </div>
+                                            `;
+                                        }).join('');
+                                    } else {
+                                        referrersList.innerHTML = '<div style="color: var(--text-muted);">No referrer data available</div>';
+                                    }
                                 }
                             }
                         }

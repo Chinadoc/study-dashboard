@@ -837,6 +837,141 @@ export default {
 
 
     // ==============================================
+    // USER COMMENT SYSTEM ENDPOINTS
+    // ==============================================
+
+    // GET /api/comments - Fetch comments by context with visibility logic
+    if (path === "/api/comments" && request.method === "GET") {
+      try {
+        const sessionToken = getSessionToken(request);
+        let userId = null;
+        let isDev = false;
+
+        if (sessionToken) {
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (payload && payload.sub) {
+            userId = payload.sub as string;
+            // Check dev status from token or email list fallback
+            isDev = !!payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          }
+        }
+
+        const contextType = url.searchParams.get('context_type');
+        const contextId = url.searchParams.get('context_id');
+
+        if (!contextType || !contextId) {
+          return corsResponse(request, JSON.stringify({ error: "Missing context_type or context_id" }), 400);
+        }
+
+        // Query logic:
+        // 1. 'public': Visible to everyone
+        // 2. 'personal': Visible only to the author
+        // 3. 'dev': Visible only if requester is a developer
+        const results = await env.LOCKSMITH_DB.prepare(`
+          SELECT c.*, u.name as user_name, u.picture as user_picture 
+          FROM user_comments c
+          LEFT JOIN users u ON c.user_id = u.id
+          WHERE c.context_type = ? AND c.context_id = ?
+          AND (
+            c.comment_type = 'public' 
+            OR (c.comment_type = 'personal' AND c.user_id = ?)
+            OR (c.comment_type = 'dev' AND ?)
+          )
+          ORDER BY c.created_at DESC
+        `).bind(contextType, contextId, userId || '', isDev ? 1 : 0).all();
+
+        return corsResponse(request, JSON.stringify({ comments: results.results || [] }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // POST /api/comments - Create a new comment
+    if (path === "/api/comments" && request.method === "POST") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const isDev = !!payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+
+        const body: any = await request.json();
+        const { context_type, context_id, comment_type, content } = body;
+
+        if (!context_type || !context_id || !content) {
+          return corsResponse(request, JSON.stringify({ error: "Missing required fields" }), 400);
+        }
+
+        // Validate comment type
+        const validTypes = ['personal', 'public', 'dev'];
+        if (!validTypes.includes(comment_type)) {
+          return corsResponse(request, JSON.stringify({ error: "Invalid comment_type" }), 400);
+        }
+
+        // Only devs can post 'dev' comments
+        // 'public' comments allowed for all auth users (or restrict if needed)
+        if (comment_type === 'dev' && !isDev) {
+          return corsResponse(request, JSON.stringify({ error: "Forbidden: Dev access required" }), 403);
+        }
+
+        const id = crypto.randomUUID();
+        const now = Date.now(); // SQLite expects timestamp usually, schema said DATETIME
+        // Let's use ISO string for DATETIME or integer if schema used INTEGER. 
+        // Schema used DATETIME DEFAULT CURRENT_TIMESTAMP.
+        // We can pass ISO string or let DB handle it. Let's pass ISO.
+        const timestamp = new Date().toISOString();
+
+        await env.LOCKSMITH_DB.prepare(`
+          INSERT INTO user_comments (id, user_id, context_type, context_id, comment_type, content, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(id, userId, context_type, context_id, comment_type, content, timestamp, timestamp).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, comment: { id, userId, content, timestamp } }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // DELETE /api/comments - Delete a comment
+    if (path === "/api/comments" && request.method === "DELETE") {
+      try {
+        const sessionToken = getSessionToken(request);
+        if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+        if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+        const userId = payload.sub as string;
+        const isDev = !!payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+
+        const body: any = await request.json();
+        const { id } = body;
+
+        if (!id) return corsResponse(request, JSON.stringify({ error: "Missing id" }), 400);
+
+        // Fetch comment to check ownership
+        const comment = await env.LOCKSMITH_DB.prepare("SELECT user_id FROM user_comments WHERE id = ?").bind(id).first<any>();
+
+        if (!comment) return corsResponse(request, JSON.stringify({ error: "Not found" }), 404);
+
+        // Allow delete if owner OR developer
+        if (comment.user_id !== userId && !isDev) {
+          return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+        }
+
+        await env.LOCKSMITH_DB.prepare("DELETE FROM user_comments WHERE id = ?").bind(id).run();
+
+        return corsResponse(request, JSON.stringify({ success: true, id }));
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+
+    // ==============================================
     // ACTIVITY TRACKING & ADMIN PANEL
     // ==============================================
 
@@ -1102,7 +1237,7 @@ export default {
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         const today = now.toISOString().split('T')[0];
 
-        // Expanded query with geo, device, browser, and status code breakdowns
+        // Expanded query with geo, device, browser, status codes AND adaptive groups for deep dive
         const graphqlQuery = `
           query {
             viewer {
@@ -1126,6 +1261,33 @@ export default {
                     contentTypeMap { edgeResponseContentTypeName requests bytes }
                   }
                   uniq { uniques }
+                }
+                
+                topPaths: httpRequestsAdaptiveGroups(
+                  limit: 15
+                  filter: { date_geq: "${sevenDaysAgo}" }
+                  orderBy: [count_DESC]
+                ) {
+                  count
+                  dimensions { clientRequestPath }
+                }
+                
+                topReferrers: httpRequestsAdaptiveGroups(
+                  limit: 10
+                  filter: { date_geq: "${sevenDaysAgo}", clientRefererHost_neq: "" }
+                  orderBy: [count_DESC]
+                ) {
+                  count
+                  dimensions { clientRefererHost }
+                }
+                
+                securityEvents: firewallEventsAdaptiveGroups(
+                  limit: 10
+                  filter: { datetime_geq: "${sevenDaysAgo}T00:00:00Z" }
+                  orderBy: [count_DESC]
+                ) {
+                  count
+                  dimensions { action source }
                 }
               }
             }
@@ -1263,6 +1425,23 @@ export default {
           else if (code.startsWith('5')) statusGroups['5xx'] += count;
         });
 
+        // Process Deep Dive Data (Adaptive Groups)
+        const topPaths = (zones[0]?.topPaths || []).map((p: any) => ({
+          path: p.dimensions?.clientRequestPath || 'unknown',
+          count: p.count
+        }));
+
+        const topReferrers = (zones[0]?.topReferrers || []).map((r: any) => ({
+          referrer: r.dimensions?.clientRefererHost || 'direct/unknown',
+          count: r.count
+        }));
+
+        const securityDetails = (zones[0]?.securityEvents || []).map((s: any) => ({
+          action: s.dimensions?.action || 'unknown',
+          source: s.dimensions?.source || 'unknown',
+          count: s.count
+        }));
+
         return corsResponse(request, JSON.stringify({
           last24h: {
             visitors: last24h.visitors,
@@ -1284,13 +1463,16 @@ export default {
             errorRate,
             cacheRate: cacheRate7d,
             statusGroups,
-            statusCodes
+            statusCodes,
+            securityEvents: securityDetails
           },
           // Marketing metrics
           marketing: {
             topCountries,
             topBrowsers,
-            devices: deviceBreakdown
+            devices: deviceBreakdown,
+            topPaths,
+            topReferrers
           }
         }));
       } catch (err: any) {
