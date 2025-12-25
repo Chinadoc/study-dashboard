@@ -3932,9 +3932,39 @@
                 </div>
             </div>
 
-            <!-- Activity Log -->
+            <!-- Activity Log with Category Tabs -->
             <div style="margin-top: 32px;">
-                <h3 style="color: var(--text-primary); margin-bottom: 16px;">📊 Recent Activity</h3>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                    <h3 style="color: var(--text-primary); margin: 0;">📊 Recent Activity</h3>
+                    <div id="activityCategoryTabs" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="activity-tab active" data-category="all" onclick="setActivityTab('all')"
+                            style="background: rgba(96,165,250,0.2); border: 1px solid rgba(96,165,250,0.3); color: #60a5fa; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            All <span id="activityCountAll" style="opacity: 0.7; margin-left: 4px;">0</span>
+                        </button>
+                        <button class="activity-tab" data-category="job_logging" onclick="setActivityTab('job_logging')"
+                            style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            🔧 Jobs <span id="activityCountJobs" style="opacity: 0.7; margin-left: 4px;">0</span>
+                        </button>
+                        <button class="activity-tab" data-category="search" onclick="setActivityTab('search')"
+                            style="background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.2); color: #22d3ee; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            🔍 Search <span id="activityCountSearch" style="opacity: 0.7; margin-left: 4px;">0</span>
+                        </button>
+                        <button class="activity-tab" data-category="monetization"
+                            onclick="setActivityTab('monetization')"
+                            style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            💰 Revenue <span id="activityCountRevenue" style="opacity: 0.7; margin-left: 4px;">0</span>
+                        </button>
+                        <button class="activity-tab" data-category="browsing" onclick="setActivityTab('browsing')"
+                            style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); color: #a855f7; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            📱 Browse <span id="activityCountBrowse" style="opacity: 0.7; margin-left: 4px;">0</span>
+                        </button>
+                        <button class="activity-tab" data-category="session" onclick="setActivityTab('session')"
+                            style="background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.2); color: #94a3b8; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            ⏱️ Sessions <span id="activityCountSession" style="opacity: 0.7; margin-left: 4px;">0</span>
+                        </button>
+                    </div>
+                </div>
                 <div id="devActivityLog"
                     style="background: var(--glass-bg); border-radius: 16px; border: 1px solid var(--glass-border); padding: 16px; max-height: 400px; overflow-y: auto;">
                     <div style="text-align: center; padding: 40px; color: var(--text-muted);">Loading activity...</div>
@@ -7530,6 +7560,69 @@
             return new Date(timestamp).toLocaleDateString();
         }
 
+        // Activity categorization for dev panel
+        let currentActivityCategory = 'all';
+
+        function categorizeActivity(action, details) {
+            try {
+                const detailsObj = typeof details === 'string' ? JSON.parse(details || '{}') : (details || {});
+
+                // Job Logging category - users logging work or using inventory
+                if (action === 'click_button') {
+                    const btn = (detailsObj?.button || '').toLowerCase();
+                    if (btn.includes('log job') || btn.includes('calculate profit') || btn.includes('use item') ||
+                        btn.includes('add to inventory') || btn.includes('log') || btn.includes('job')) {
+                        return 'job_logging';
+                    }
+                }
+
+                // Search & Lookup
+                if (['search', 'vin_lookup', 'view_fcc'].includes(action)) return 'search';
+
+                // Monetization - revenue generating actions
+                if (['click_affiliate', 'click_external'].includes(action)) return 'monetization';
+
+                // Browsing - navigation and modal interactions
+                if (['view_tab', 'modal_open', 'feature_use'].includes(action)) return 'browsing';
+
+                // Session - time and engagement tracking
+                if (['session_end', 'page_hidden', 'page_visible', 'tab_time', 'sign_in', 'sign_out'].includes(action)) return 'session';
+
+                // Default to browsing for general button clicks
+                if (action === 'click_button') return 'browsing';
+
+                return 'other';
+            } catch (e) {
+                return 'other';
+            }
+        }
+
+        function setActivityTab(category) {
+            currentActivityCategory = category;
+
+            // Update tab styling
+            document.querySelectorAll('.activity-tab').forEach(tab => {
+                const isActive = tab.dataset.category === category;
+                tab.classList.toggle('active', isActive);
+
+                // Update visual style for active tab
+                if (isActive) {
+                    tab.style.opacity = '1';
+                    tab.style.transform = 'scale(1.05)';
+                } else {
+                    tab.style.opacity = '0.7';
+                    tab.style.transform = 'scale(1)';
+                }
+            });
+
+            // Filter activity items
+            document.querySelectorAll('.activity-item').forEach(item => {
+                const cat = item.dataset.category;
+                item.style.display = (category === 'all' || cat === category) ? '' : 'none';
+            });
+        }
+
+
         async function loadDevPanel() {
             // Reset error states
             const errorBanner = document.getElementById('devGlobalError');
@@ -7710,13 +7803,21 @@
                     }).join('');
                 }
 
-                // 6. Update Activity Log
+                // 6. Update Activity Log with Categorization
                 const activityContainer = document.getElementById('devActivityLog');
                 if (activity.length === 0) {
                     activityContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No activity logged yet</div>';
                 } else {
-                    activityContainer.innerHTML = activity.slice(0, 50).map(a => {
+                    // Count activities by category
+                    const categoryCounts = { all: 0, job_logging: 0, search: 0, monetization: 0, browsing: 0, session: 0, other: 0 };
+
+                    const activityHtml = activity.slice(0, 100).map(a => {
                         const time = formatRelativeDate(a.timestamp || a.created_at);
+                        const category = categorizeActivity(a.action, a.details);
+
+                        // Count by category
+                        categoryCounts.all++;
+                        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
 
                         // Improve Guest User display with short ID
                         let displayName = a.user_name || 'Guest User';
@@ -7733,6 +7834,7 @@
                         else if (a.action === 'vin_lookup') icon = '🚗';
                         else if (a.action === 'view_tab') icon = '📊';
                         else if (a.action.includes('session')) icon = '🕒';
+                        else if (category === 'job_logging') icon = '🔧';
 
                         if (a.details) {
                             try {
@@ -7748,7 +7850,7 @@
                         }
 
                         return `
-                        <div style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                        <div class="activity-item" data-category="${category}" style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem;">${icon}</div>
                                 <div>
@@ -7760,6 +7862,28 @@
                         </div>
                     `;
                     }).join('');
+
+                    activityContainer.innerHTML = activityHtml;
+
+                    // Update category count badges
+                    const countAll = document.getElementById('activityCountAll');
+                    const countJobs = document.getElementById('activityCountJobs');
+                    const countSearch = document.getElementById('activityCountSearch');
+                    const countRevenue = document.getElementById('activityCountRevenue');
+                    const countBrowse = document.getElementById('activityCountBrowse');
+                    const countSession = document.getElementById('activityCountSession');
+
+                    if (countAll) countAll.textContent = categoryCounts.all;
+                    if (countJobs) countJobs.textContent = categoryCounts.job_logging;
+                    if (countSearch) countSearch.textContent = categoryCounts.search;
+                    if (countRevenue) countRevenue.textContent = categoryCounts.monetization;
+                    if (countBrowse) countBrowse.textContent = categoryCounts.browsing;
+                    if (countSession) countSession.textContent = categoryCounts.session;
+
+                    // Apply current filter (in case user already selected a category)
+                    if (currentActivityCategory !== 'all') {
+                        setActivityTab(currentActivityCategory);
+                    }
                 }
 
                 // 7. Fetch Cloudflare Analytics (separate try/catch to not break main panel on CF failure)
