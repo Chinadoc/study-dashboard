@@ -1,0 +1,2568 @@
+make,model,year_start,year_end,key_type,fcc_status,chip_status,battery_status,blank_status,freq_status
+Acura,ILX,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,ILX,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,MDX,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,MDX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,MDX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,MDX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,MDX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,MDX,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RDX,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RLX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RLX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RLX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RLX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,RLX,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Acura,TLX,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+BMW,3-Series,2019,2024,"Smart Key",OK,OK,OK,OK,OK
+Buick,"Cascada Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Cascada Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Cascada Smart Remote",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Cascada Smart Remote",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Cascada Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Cascada Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Cascada Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Cascada Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,Enclave,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Buick,Enclave,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Buick,Enclave,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Buick,Enclave,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Enclave,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Enclave,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Enclave,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Enclave Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Enclave Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Enclave Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,Encore,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Encore,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Encore,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Encore,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Encore,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Encore,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore GX",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore GX",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore GX",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Remote",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Smart Remote",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Encore Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Encore Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Encore Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Encore Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Encore Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Encore Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,Envision,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Envision,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,LaCrosse,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,LaCrosse,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,LaCrosse,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"LaCrosse Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"LaCrosse Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,Regal,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Regal,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Regal,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,Regal,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Regal Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Regal Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Regal Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Smart Remotes",2017,2017,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Buick,"Verano Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Buick,"Verano Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Verano Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Buick,"Verano Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Cadillac,ATS,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,ATS,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,ATS,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,ATS,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,ATS,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT4,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT4,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT4,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT5,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT5,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT5,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT6,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT6,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT6,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT6,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CT6,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CTS,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CTS,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CTS,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CTS,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,CTS,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Escalade,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Lyriq,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Lyriq,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Lyriq,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Lyriq,2026,2026,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,Optiq,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,SRX,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,SRX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,"Smart Remotes",2020,2020,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Cadillac,Vistiq,2026,2026,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT4,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT4,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT4,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT4,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT4,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT5,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT5,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT5,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT5,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT5,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT6,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XT6,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XTS,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XTS,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XTS,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XTS,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Cadillac,XTS,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Avalanche,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Blazer,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Bolt,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Bolt,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Bolt,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Bolt,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Bolt,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Camaro,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Camaro Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Camaro Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Camaro Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Camaro Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Camaro Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Camaro Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Captiva Sport",2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,"Captiva Sport Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"City Express Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"City Express Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"City Express Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Colorado,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2021,2021,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Colorado,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Colorado Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Colorado Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Colorado Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Colorado Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Colorado Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Colorado Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Corvette,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Corvette,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette C8",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette C8",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette C8",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette Smart Key",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette Smart Key",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette Smart Key",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette Smart Key",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Corvette Smart Key",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Cruze,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Cruze,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Cruze,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Cruze,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Cruze Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Equinox,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Equinox,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Smart Remote",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Smart Remote",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Equinox Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Equinox Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Equinox Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Equinox Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Equinox Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Express,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Express,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Express,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Express,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Express,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Express,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Express,2021,2021,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,"Express Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Express Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Express Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Express Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Express Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Express Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Impala,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Impala,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Smart Remote",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Smart Remote",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Smart Remote",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Impala Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Impala Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Impala Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Impala Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Impala Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Malibu,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Malibu,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Malibu,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Malibu,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Malibu,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Malibu,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Malibu,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Malibu Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Malibu Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Malibu Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Malibu Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Malibu Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Malibu Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Malibu Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"SS Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"SS Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"SS Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2021,2021,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Silverado,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Silverado EV",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Silverado EV",2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Silverado EV",2026,2026,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Silverado Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Silverado Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Silverado Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Silverado Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Silverado Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Silverado Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Silverado Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Smart Remotes",2015,2015,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Smart Remotes",2016,2016,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Smart Remotes",2021,2021,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Sonic,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Sonic,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Sonic,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Sonic,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Smart Remote",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Sonic Smart Remote",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Spark,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Smart Remote",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Spark Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Spark Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Spark Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Suburban,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Suburban,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Suburban Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Suburban Transponder Key Blank",2022,2022,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Tahoe,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Tahoe,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Tahoe Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Tahoe Transponder Key Blank",2022,2022,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Terrain Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Terrain Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Terrain Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trailblazer,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trailblazer,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trailblazer,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trailblazer,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trailblazer,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trailblazer Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trailblazer Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Traverse,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Traverse Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Traverse Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Traverse Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Trax,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Trax,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Trax Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Trax Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Trax Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Trax Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,"Trax Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Chevrolet,Volt,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Volt,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,Volt,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chevrolet,"Volt Smart Remote",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,200,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,200,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,200,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,300,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Pacifica,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Pacifica,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Pacifica,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Pacifica,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Pacifica,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,"Smart Remotes",2016,2016,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Chrysler,"Smart Remotes",2021,2021,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Chrysler,Town,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Town,2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Chrysler,Town,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Town,2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Chrysler,Voyager,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Chrysler,Voyager,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Coin,"Cell Lithium Battery for Remote Key Fobs",2016,2016,Standard,MISSING,MISSING,OK,MISSING,MISSING
+Coin,"Cell Lithium Battery for Remote Key Fobs",2025,2025,Standard,MISSING,MISSING,OK,MISSING,MISSING
+Coin,"Cell Lithium Battery for Remote Key Fobs",2032,2032,Standard,MISSING,MISSING,OK,MISSING,MISSING
+Coin,"Cell Lithium Battery for Remote Key Fobs",2450,2450,Standard,MISSING,MISSING,OK,MISSING,MISSING
+Dodge,Caravan,2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Caravan,2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Caravan,2017,2017,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Caravan,2018,2018,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Caravan,2019,2019,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Caravan,2020,2020,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Caravan Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Dodge,"Caravan Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Dodge,"Caravan Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Dodge,"Caravan Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Dodge,Challenger,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Challenger,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Challenger,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Challenger,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Challenger,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Challenger,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Challenger,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Challenger SRT",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Challenger SRT",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Challenger SRT",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Charger,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Charger SRT",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Charger SRT",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Charger SRT",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Dart,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Dart,2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Dart,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Dart,2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Dart,2017,2017,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Dart Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Dodge,"Dart Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Dodge,Durango,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Durango,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Grand Caravan",2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Grand Caravan",2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Grand Caravan",2017,2017,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Grand Caravan",2018,2018,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Grand Caravan",2019,2019,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Grand Caravan",2020,2020,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Journey,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Journey,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Journey,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Journey,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Journey,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Journey,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2017,2017,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2018,2018,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2019,2019,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2020,2020,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,Ram,2021,2021,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2017,2017,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2018,2018,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2019,2019,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2020,2020,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2021,2021,Fobik,OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 1500",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 2500",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 2500",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 2500",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 2500",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 3500",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 3500",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 3500",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 3500",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 4500",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 4500",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 4500",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 4500",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 5500",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 5500",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 5500",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram 5500",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram Proximity",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram Proximity",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram Proximity",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Ram Proximity",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Dodge,"Smart Remotes",2021,2021,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Dodge,"Smart Remotes",2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Ford,Bronco,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Bronco,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Bronco,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Bronco,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Bronco 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Bronco 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,C-Max,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"C-Max Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"C-Max Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"C-Max Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,EcoSport,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,EcoSport,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,EcoSport,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,EcoSport,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,EcoSport,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"EcoSport 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"EcoSport 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"EcoSport 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"EcoSport 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"EcoSport 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"EcoSport 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Econoline,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Ford,Econoline,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Ford,"Econoline Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Econoline Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Econoline Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Econoline Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Econoline Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Econoline Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Ecosport Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Ecosport Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Ecosport Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Edge,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Edge,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 1-Way",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 2-Way PEPS",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 2-Way PEPS",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 2-Way PEPS",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 2-Way PEPS",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 2-Way PEPS",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 2-Way PEPS",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge ST",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge ST",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge ST",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge ST",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge ST",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge ST",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Edge Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Edge Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Edge Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Edge Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Edge Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Edge Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Escape,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Escape,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Escape 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Escape 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Escape 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Escape 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Escape 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Escape Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Escape Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Escape Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Escape Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Escape Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Escape Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Expedition,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Expedition,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Expedition 2-Way PEPS",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Expedition 2-Way PEPS",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Expedition 2-Way PEPS",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Expedition 2-Way PEPS",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Expedition 2-Way PEPS",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Explorer,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer  Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Explorer 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 2-Way PEPS",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 2-Way PEPS",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 2-Way PEPS",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 2-Way PEPS",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 2-Way PEPS",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer ST",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer ST",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer ST",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer ST",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer ST",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Explorer Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Explorer Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Explorer Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Explorer Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Explorer Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,F-150,2015,2017,"Smart Key",OK,OK,OK,OK,OK
+Ford,F-150,2018,2024,"Smart Key",OK,OK,OK,OK,OK
+Ford,F-150,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F-150,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-150 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-150 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-250 Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-250 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-250 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-350 Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-350 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-350 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-450 Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-450 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-450 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-550 Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-550 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-550 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-600 Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-600 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-600 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-750 Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"F-750 Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F150,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 Lightning",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 Lightning",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 Raptor",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 Raptor",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 Raptor",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F150 Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F150 Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F150 Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F150 Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F150 Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F150 Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,F250,2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F250,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F250 Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F250 Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F250 Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F250 Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F250 Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F250 Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,F350,2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F350,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F350 Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F350 Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F350 Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"F350 Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,F450,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F450,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F450 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F550,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F550 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,F650,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F650,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F650 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F650 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F650 80 Bit",2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F650 80 Bit",2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F650 80 Bit",2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F650 80 Bit",2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,F750,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,F750,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"F750 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F750 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F750 80 Bit",2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F750 80 Bit",2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F750 80 Bit",2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"F750 80 Bit",2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Fiesta,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fiesta Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Fiesta Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Fiesta Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Fiesta Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Fiesta Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Flex,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Flex,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Flex 80 Bit",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Flex 80 Bit",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Flex 80 Bit",2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Focus,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Focus Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Focus Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Focus Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Focus Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Fusion,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Fusion,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 1-Way",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 1-Way",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 2-Way PEPS",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 2-Way PEPS",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 2-Way PEPS",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 2-Way PEPS",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion 2-Way PEPS",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Fusion Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Fusion Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Fusion Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Maverick,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Maverick,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Maverick,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Maverick,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Maverick,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Maverick 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Maverick 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Maverick 1-Way",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Maverick Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Mustang,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang 2-Way PEPS",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang 2-Way PEPS",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang 2-Way PEPS",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang 2-Way PEPS",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang Mach-E",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang Mach-E",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang Mach-E",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Mustang Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Mustang Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Mustang Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Mustang Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Mustang Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Mustang Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,Ranger,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Ranger,2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Ranger,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Ranger,2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,Ranger,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Ranger,2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger 1-Way",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger 1-Way",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger 1-Way",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger 1-Way",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger 1-Way",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger STX",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger STX",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger STX",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger STX",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Ranger Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Smart Remotes",2017,2017,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Ford,"Smart Remotes",2020,2020,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Ford,Taurus,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ford,Taurus,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Transit,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Transit,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Transit,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Transit,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Transit,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,Transit,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Connect",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Connect",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Connect",2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Connect Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Connect Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Connect Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Connect Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Connect Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Connect Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Ford,"Transit Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ford,"Transit Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,Acadia,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Acadia,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Acadia Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,Canyon,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2021,2021,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2022,2022,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Canyon,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Canyon Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Canyon Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Canyon Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Canyon Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Canyon Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,Savana,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Savana,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Savana,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Savana,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Savana,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,"Savana Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Savana Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Savana Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Savana Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Savana Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Savana Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,Sierra,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2021,2021,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Sierra,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Sierra Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Sierra Transponder Key Blank",2022,2022,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Smart Remotes",2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Gmc,Terrain,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Terrain,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Terrain,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Terrain,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Terrain,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Terrain,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Terrain,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Terrain Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Terrain Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Terrain Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Terrain Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Terrain Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Terrain Transponder Key Blank",2022,2022,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,Yukon,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,Yukon,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Gmc,"Yukon Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Gmc,"Yukon Transponder Key Blank",2022,2022,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,Accord,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Accord,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"Accord Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Accord Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Accord Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,CR-V,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,CR-V,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"CR-V Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"CR-V Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"CR-V Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"CR-V Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"CR-V Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"CR-V Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,CR-Z,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2016,2021,"Smart Key",OK,OK,OK,OK,OK
+Honda,Civic,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2021,2021,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2022,2024,"Smart Key",OK,OK,OK,OK,OK
+Honda,Civic,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Civic,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"Civic Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Civic Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Civic Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Civic Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Civic Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Civic Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Civic Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,Clarity,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Clarity,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Clarity,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Clarity,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Clarity,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Crosstour,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Crosstour,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"Fit Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Fit Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"Fit Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,HR-V,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2021,2021,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2022,2022,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,HR-V,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"HR-V Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"HR-V Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"HR-V Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"HR-V Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"HR-V Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,"HR-V Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,Insight,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Insight,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Odyssey,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Passport,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Passport,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Passport,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Pilot,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"Pilot Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Honda,Ridgeline,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Ridgeline,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Ridgeline,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Ridgeline,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Ridgeline,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,Ridgeline,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Honda,"Smart Remotes",2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,Accent,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Accent,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Accent,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,"Accent Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Accent Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Accent Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Accent Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Accent Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Accent Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Accent Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Azera,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2017,2020,"Smart Key",OK,OK,OK,OK,OK
+Hyundai,Elantra,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Elantra,2021,2024,"Smart Key",OK,OK,OK,OK,OK
+Hyundai,"Elantra GT Hatchback",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Elantra GT Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Elantra GT Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Elantra GT Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Elantra Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Elantra Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Elantra Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Genesis G70",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis G70",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis G70",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis G80",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis G80",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis G80",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis G80",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis Sedan",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Genesis Sedan",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Kona,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Kona,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Kona,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Kona,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Kona,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Kona,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Kona Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Kona Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Kona Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Kona Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Kona Smart Remote Fob Key",2019,2019,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Hyundai,Palisade,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Palisade,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Palisade,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Palisade,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Palisade,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Palisade,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Santa Fe Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Santa Fe Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Santa Fe Mechanical Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Santa Fe Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Santa Fe Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Smart Remotes",2015,2015,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Smart Remotes",2016,2016,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Smart Remotes",2017,2017,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Smart Remotes",2019,2019,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Smart Remotes",2021,2021,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Smart Remotes",2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Hyundai,Sonata,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Sonata,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Sonata Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Sonata Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Sonata Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Tucson,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Tucson Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Tucson Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Tucson Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Tucson Mechanical Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Tucson Mechanical Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Tucson Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Tucson Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Tucson Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Tucson Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Tucson Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Tucson Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Veloster,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Veloster Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Veloster Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,"Veloster Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Hyundai,Venue,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,Venue,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Hyundai,"Venue Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q40,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q50,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q60,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q70,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q70,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q70,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q70,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,Q70,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX50,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX50,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX50,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX50,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX50,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX50,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX55,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX60,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX60,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX60,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX60,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX60,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX60,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX70,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX70,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX70,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,QX80,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Infiniti,"Smart Remotes",2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Jaguar,E-Pace,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,E-Pace,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,E-Pace,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,E-Pace,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Pace,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Pace,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Pace,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Pace,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Type,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Type,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Type,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Type,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Type,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,F-Type,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,I-Pace,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,I-Pace,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,I-Pace,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,I-Pace,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,I-Pace,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,I-Pace,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,"Smart Remotes",2020,2020,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Jaguar,XE,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XE,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XF,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XJ,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XJ,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XJ,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jaguar,XK,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2015,2015,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2016,2016,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2017,2017,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2018,2018,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2019,2019,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2020,2020,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Cherokee,2021,2021,Fobik,OK,MISSING,OK,MISSING,OK
+Jeep,"Cherokee Trailhawk",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Compass,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Compass Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,"Compass Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,"Compass Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,Gladiator,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Gladiator,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Gladiator,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee L",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee L",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Cherokee L",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Grand Wagoneer",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Patriot,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Patriot,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Patriot,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Patriot Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,"Patriot Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,"Patriot Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,Renegade,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Renegade,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Renegade,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Renegade,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Renegade,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Renegade,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Renegade,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Smart Remotes",2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Jeep,Wagoneer,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wagoneer,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wagoneer,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wagoneer,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,Wrangler,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Wrangler Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Wrangler Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Wrangler Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Wrangler Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Jeep,"Wrangler Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,"Wrangler Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Jeep,"Wrangler Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,Cadenza,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Cadenza,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Cadenza,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Cadenza,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Cadenza,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Carnival,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Carnival,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Forte,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Forte,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Forte,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Forte Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Forte Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Forte Mechanical Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Forte Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Forte Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,K5,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,K5,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,K5,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,K5,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Niro,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Niro,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Niro,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Niro,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Niro,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Niro,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Optima,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Optima,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Optima,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Optima,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Optima,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Optima,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Optima Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Optima Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Optima Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Optima Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Optima Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Optima Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Optima Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,Rio,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Rio,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Rio,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Rio Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Rio Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Rio Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Rio Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sedona,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sedona Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sedona Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sedona Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sedona Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,Seltos,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Seltos,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Seltos,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Seltos,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Seltos Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Seltos Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Seltos Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Smart Remotes",2019,2019,"Smart Key",OK,MISSING,MISSING,MISSING,MISSING
+Kia,Sorento,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sorento,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento  Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sorento Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sorento Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sorento Mechanical Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sorento Mechanical Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sorento Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sorento Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,Soul,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Soul,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Soul Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Sportage,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Mechanical Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sportage Mechanical Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sportage Mechanical Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sportage Mechanical Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sportage Mechanical Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Kia,"Sportage Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2023,2023,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2024,2024,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage Remote",2025,2025,"Flip Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage X-Line",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage X-Line",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage X-Line",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage X-Line",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,"Sportage X-Line",2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Stinger,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Stinger,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Stinger,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Stinger,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Stinger,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Stinger,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Telluride,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Telluride,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Kia,Telluride,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Defender",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Defender",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Defender",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Defender",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Defender",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Defender",2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Discovery",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Discovery",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Discovery",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Discovery",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Discovery",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Discovery",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Evoque",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Sport",2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Velar",2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Velar",2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Velar",2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Velar",2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Land,"Rover Range Rover Velar",2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,CT200h,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,CT200h,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,CT200h,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES300h,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES300h,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES300h,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES300h,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES350,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES350,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES350,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,ES350,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,"GS F",2016,2016,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Lexus,"GS F",2017,2017,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Lexus,"GS F",2018,2018,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Lexus,GS200t,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS200t,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS200t,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS300t,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS300t,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS350,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS350,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS350,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS350,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS350,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS350,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS450h,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS450h,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS450h,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,GS450h,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS200,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS200t,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS200t,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS250,2015,2015,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Lexus,IS250,2016,2016,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Lexus,IS300,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS300,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS300,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS300,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS300,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS300,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS300,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,IS350,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,LX570,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,LX570,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,LX570,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,LX570,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,LX570,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,LX570,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200T,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200T,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200T,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200T,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200T,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX200T,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300h,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300h,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300h,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300h,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300h,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,NX300h,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC200t,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC200t,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC300,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RC350,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RCF,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RCF,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RCF,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RCF,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RCF,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX350,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX350,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX350,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX350,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX350,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX350,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX450h,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX450h,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX450h,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX450h,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX450h,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lexus,RX450h,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Aviator,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Aviator,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Aviator,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Continental,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Continental,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Continental,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Continental,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"Continental Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"Continental Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"Continental Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"Continental Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,Corsair,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Corsair,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Corsair,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"Corsair Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,MKC,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKC,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKC,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKC,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKC,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKC,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKC,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"MKC Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKC Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKC Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKC Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKC Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,MKS,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKS,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKT,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKT,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKT,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKT,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKT,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKT,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKX,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"MKX Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKX Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKX Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKX Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,MKZ,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKZ,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKZ,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKZ,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKZ,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKZ,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,MKZ,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"MKZ Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKZ Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKZ Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKZ Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKZ Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"MKZ Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,Nautilus,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Nautilus,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Nautilus,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Nautilus,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"Nautilus Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,Navigator,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,Navigator,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Lincoln,"Navigator Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"Navigator Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"Navigator Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Lincoln,"Navigator Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Maserati,Ghibli,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Ghibli,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Levante,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Levante,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Levante,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Levante,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Quattroporte,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Maserati,Quattroporte,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,3,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback 5 Door",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback 5 Door",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback 5 Door",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Hatchback 5 Door",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Sedan",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Sedan",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Sedan",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"3 Sedan",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"5 Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Mazda,6,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,6,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,6,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,6,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,6,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-3,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-3,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-3,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-3,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-3,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-30,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-30,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-5,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-9,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-9,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-9,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-9,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-9,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,CX-9,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"CX-9 Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Mazda,"MX-5 Miata",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"MX-5 Miata",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"MX-5 Miata",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"MX-5 Miata",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mazda,"MX-5 Miata Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Lancer,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Lancer,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Lancer,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Lancer,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Mirage,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Mirage,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Mirage,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Mirage,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Mirage,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Mirage,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,Outlander,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,"Outlander Sport",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,"Outlander Sport",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,"Outlander Sport",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,"Outlander Sport",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,"Outlander Sport",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Mitsubishi,"Outlander Sport",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,370Z,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,370Z,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,370Z,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,370Z,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Altima,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Ariya,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Ariya,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Armada,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Frontier,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,Frontier,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,Frontier,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,Frontier,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,"Frontier Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Frontier Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Frontier Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Frontier Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,Juke,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Juke,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Juke,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Kicks,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Leaf,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Maxima,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Maxima,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Maxima,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Maxima,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Maxima,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Maxima,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Murano,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Murano,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Murano,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Murano,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Murano,2019,2019,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Nissan,Murano,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Murano,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,NV,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,NV,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,NV,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,NV,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,NV,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Pathfinder,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Quest,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Quest,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Quest,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Rogue,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Remote",2015,2015,"Flip Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Remote",2016,2016,"Flip Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Remote",2017,2017,"Flip Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Rogue Transponder Key Blank",2015,2015,Standard,OK,MISSING,MISSING,MISSING,MISSING
+Nissan,"Rogue Transponder Key Blank",2016,2016,Standard,OK,MISSING,MISSING,MISSING,MISSING
+Nissan,"Rogue Transponder Key Blank",2017,2017,Standard,OK,MISSING,MISSING,MISSING,MISSING
+Nissan,"Rogue Transponder Key Blank",2018,2018,Standard,OK,MISSING,MISSING,MISSING,MISSING
+Nissan,"Rogue Transponder Key Blank",2019,2019,Standard,OK,MISSING,MISSING,MISSING,MISSING
+Nissan,Sentra,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Sentra,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Sentra,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Sentra,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Sentra,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Sentra,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Sentra,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Sentra Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Sentra Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Sentra Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Sentra Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,Titan,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Titan,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Versa,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Versa,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,MISSING
+Nissan,Versa,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,Versa,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Versa Note",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Versa Note",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Versa Note",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Versa Note",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Versa Note",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Nissan,"Versa Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Versa Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Versa Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Versa Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Nissan,"Xterra Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Ram,1500,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ram,"1500 Tungsten",2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ram,Promaster,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ram,Promaster,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ram,Promaster,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Ram,Promaster,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Scion,iA,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Ascent,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,BRZ,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,BRZ,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,BRZ,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,BRZ,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Forester,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Impreza,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Legacy,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,Outback,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,STI,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,WRX,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Subaru,"XV Crosstrek",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2021,2021,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2022,2022,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,4Runner,2022,2022,"Smart Key",OK,MISSING,MISSING,MISSING,OK
+Toyota,4Runner,2023,2023,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"4Runner Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"4Runner Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"4Runner Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"4Runner Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"4Runner Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"4Runner Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"4Runner Transponder Key Blank",2021,2021,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Avalon,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Avalon,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Avalon,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Avalon,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,C-HR,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,C-HR,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,C-HR,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,C-HR,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"C-HR Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"C-HR Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"C-HR Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Camry,2025,2025,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Camry Remote",2018,2018,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Camry Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Camry Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Camry Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Camry Remote",2022,2022,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Camry Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Camry Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Camry Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Corolla,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2023,2023,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Corolla,2024,2024,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Corolla Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Corolla Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Corolla Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Corolla Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Corolla Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Corolla Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Highlander,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Highlander,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Highlander Limited",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Highlander Limited",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Highlander Limited",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Highlander Limited",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Highlander Limited",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Highlander Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Highlander Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Highlander Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Highlander Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Highlander Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Land Cruiser",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Land Cruiser",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Land Cruiser",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Prius,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Prius,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius C",2021,2021,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius Prime",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius Prime",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius Prime",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius Prime",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Prius Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Prius Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,RAV4,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,RAV4,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"RAV4 Remote",2019,2019,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"RAV4 Remote",2020,2020,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"RAV4 Remote",2021,2021,"Flip Key",OK,MISSING,OK,MISSING,OK
+Toyota,"RAV4 Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"RAV4 Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"RAV4 Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"RAV4 Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Sequoia,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sequoia,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Sequoia Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sequoia Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sequoia Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sequoia Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sequoia Transponder Key Blank",2019,2019,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sequoia Transponder Key Blank",2020,2020,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Sienna,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2019,2019,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Sienna,2020,2020,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,"Sienna Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sienna Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Sienna Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Tacoma,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2017,2017,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2021,2021,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tacoma,2022,2022,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Tacoma Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Tacoma Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Tacoma Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Tacoma Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Tundra,2015,2015,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2016,2016,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2017,2017,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2018,2018,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2018,2018,Standard,OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2019,2019,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2020,2020,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2021,2021,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Tundra,2021,2021,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Tundra Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Tundra Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Tundra Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,Venza,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Venza,2015,2015,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Venza,2016,2016,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,Venza,2016,2016,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,Yaris,2015,2015,"Remote Head Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Yaris Transponder Key Blank",2015,2015,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Yaris Transponder Key Blank",2016,2016,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Yaris Transponder Key Blank",2017,2017,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Yaris Transponder Key Blank",2018,2018,Standard,MISSING,MISSING,MISSING,MISSING,MISSING
+Toyota,"Yaris iA",2017,2017,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Yaris iA",2018,2018,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Yaris iA",2019,2019,"Smart Key",OK,MISSING,OK,MISSING,OK
+Toyota,"Yaris iA",2020,2020,"Smart Key",OK,MISSING,OK,MISSING,OK

@@ -30,6 +30,7 @@ CAR_KEYWORDS = [
     'audi', 'volkswagen', 'vw', 'jetta', 'passat', 'golf', 'tiguan',
     'subaru', 'mazda', 'lexus', 'acura', 'infiniti',
     'chevrolet', 'gmc', 'cadillac', 'dodge', 'jeep', 'chrysler', 'ram',
+    'jaguar', 'land rover', 'jlr', 'porsche', 'stellantis', 'range rover',
     'pats', 'immo', 'smart key', 'prox', 'fobik', 'autel', 'lishi', 'fcc'
 ]
 

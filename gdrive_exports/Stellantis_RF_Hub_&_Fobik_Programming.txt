@@ -1,0 +1,333 @@
+﻿Title: The Stellantis Security Architecture Report: A Comprehensive Analysis of RF Hub Forensics, Fobik Evolution, and Immobilizer Protocols (2018–2025)
+1. Introduction: The Paradigm Shift in Automotive Access Control
+The automotive industry has undergone a seismic shift in vehicle network architecture over the last decade, driven primarily by the escalating sophistication of vehicle theft and the parallel rise of connected vehicle services. For Stellantis, the multinational conglomerate formed from the merger of Fiat Chrysler Automobiles (FCA) and PSA Group, this transition is demarcated by the 2018 model year. This period represents the end of the "open architecture" era and the beginning of the "Secure Vehicle Architecture" (SVA) regime. This report provides an exhaustive technical analysis of the security systems deployed in Stellantis vehicles—specifically Ram, Dodge, and Jeep platforms—between 2018 and 2025. It dissects the intricate interplay between the Radio Frequency Hub Module (RFHM), the Security Gateway (SGW), and the evolving ecosystem of Fobik transponders.
+Prior to 2018, the Controller Area Network (CAN) bus was largely accessible via the On-Board Diagnostics (OBD-II) port. A technician or locksmith could connect a diagnostic tool, communicate directly with the Body Control Module (BCM) or Wireless Ignition Node (WIN), and perform privileged functions such as key programming with relative ease, provided they possessed the vehicle's four-digit PIN code. The introduction of the Security Gateway Module (SGW) in 2018 fundamentally altered this landscape by firewalling the vehicle's private networks from unauthorized external access. This was followed by the 2021 implementation of "RF Hub Lockdown" protocols on high-performance platforms, effectively transforming the RF Hub into a "Write-Once" component to combat relay attacks and key cloning.
+The implications of these changes are profound. The "All Keys Lost" (AKL) scenario, once a routine service procedure, has evolved into a complex forensic operation requiring physical hardware bypasses, voltage stabilization protocols, and a nuanced understanding of firmware compatibility. The landscape is further complicated by the bifurcation of platforms—most notably the simultaneous production of "Classic" and "New Body" architectures in the Ram lineup—which has created a minefield of incompatible hardware. This report aims to serve as the definitive technical reference for navigating this hostile security environment, aggregating data from technical service bulletins (TSBs), field reports, and forensic analysis of module behaviors.
+
+
+  
+
+
+
+2. Architectural Analysis: The Radio Frequency Hub (RFHM) Ecosystem
+To comprehend the modern security challenges, one must first analyze the central node of the passive entry system: the Radio Frequency Hub Module (RFHM). This component has evolved from a simple receiver to the primary arbiter of vehicle mobilization.
+2.1. Historical Migration: From WIN to RF Hub
+The trajectory of Stellantis immobilizer systems is characterized by the migration of logic from the dashboard to remote, concealed locations within the chassis.
+2.1.1. The Legacy WIN Era (Wireless Ignition Node)
+In the era preceding the widespread adoption of "Push-to-Start," specifically on 2008–2010s Chrysler and Dodge platforms (and continuing on the Ram 1500 Classic "DS" through 2024), the primary security module was the Wireless Ignition Node (WIN). The WIN was a unified module located on the dashboard that served three functions:
+1. Ignition Switch: It physically accepted the "Fobik" (Finger Operated Button Integrated Key).
+2. Immobilizer Receiver (SKREEM): It read the transponder data from the inserted key.
+3. RKE Receiver: It processed remote keyless entry commands (Lock/Unlock).
+The WIN module was prone to mechanical failure but was relatively straightforward to service. In an AKL situation, a technician could pull the PIN code via OBD and program a new Fobik key. If the module failed, it could be replaced and programmed with standard diagnostic tools. This architecture, while robust, lacked the advanced passive entry capabilities required by modern consumer demand.
+2.1.2. The Modern RFHM Architecture
+With the advent of the Keyless Enter-N-Go (Push-to-Start) system, the physical ignition switch was replaced by a "Keyless Ignition Node" (KIN)—a simple start/stop button that communicates user intent to the BCM. The heavy lifting of security validation moved to the RF Hub (RFHM).
+The RFHM is typically mounted remotely—often behind the rear seats in Ram trucks or in the rear quarter panels of SUVs like the Grand Cherokee. This relocation serves a dual purpose: it places the receiver antenna closer to the center of the vehicle for better triangulation of the key fob's position, and it makes physical tampering significantly more difficult. The RF Hub constantly broadcasts Low Frequency (LF) signals (125 kHz) to ping for a nearby key fob. When a valid key is detected, the key responds via an Ultra-High Frequency (UHF) signal (315 MHz or 433 MHz) containing its encrypted ID and rolling code.
+2.2. The "Locked" Status: A Technical Disambiguation
+A source of significant confusion within the locksmith and diagnostic community is the term "Locked" when applied to the RF Hub. In the context of Stellantis vehicles, this term refers to two distinct and mutually exclusive states depending on the model year and security generation.
+2.2.1. Pre-2021 "Locked" (VIN Association)
+On most FCA vehicles produced between 2013 and 2020 (and legacy platforms continuing later), a "virgin" RF Hub is essentially a blank slate. Upon its first installation and power-up sequence, the module automatically queries the Body Control Module (BCM) and Engine Control Unit (ECU) for the Vehicle Identification Number (VIN). Once it detects the VIN, it permanently writes this identifier to its non-volatile memory (EEPROM).
+In this state, the RF Hub is "locked" to that specific vehicle. It cannot be removed and installed in a different car; if done, the mismatched VIN will cause a "sentry key" error, and the vehicle will not start. However, importantly, this "locked" status does not prevent the programming of new keys. A technician can still access the module via the OBD-II port (bypassing the SGW if necessary), present a valid PIN code, and add additional fobs to the system.
+2.2.2. 2021+ "Lockdown" (Port Lock / Write Protection)
+The paradigm shifted dramatically with the 2021 model year, particularly for high-value targets such as the Dodge Charger SRT Hellcat, Dodge Challenger, and the Ram 1500 TRX. In response to a surge in relay attacks and key cloning thefts, Stellantis introduced a new security protocol often referred to as the "RF Hub Lockdown" (Technical Service Bulletin 08-086-22).
+Under this new protocol, the RF Hub's firmware is updated to disable the software routines that allow for key programming via the diagnostic port. The module rejects the Unified Diagnostic Services (UDS) request 0x27 (Security Access) required to enter programming mode.
+* Operational Consequence: If a vehicle with a "Lockdown" RF Hub loses all keys, the module itself is effectively bricked from a serviceability standpoint. A technician cannot simply "add a key" using a tool like the Autel IM608 or Smart Pro.
+* The Remedy: The only authorized repair for an "All Keys Lost" scenario on a Lockdown vehicle is the complete replacement of the RF Hub with a virgin unit sourced from the dealer. Once the new hub is installed and the VIN is burned in, the accompanying keys (often supplied in a kit) are paired. This hardware-level lockout is a deliberate design choice to prevent thieves from using pro-level scan tools to program blank keys into the system during a theft.
+2.3. The "Brick" Risk: Voltage Sensitivity and Bootloader Corruption
+The modern RF Hub, particularly on the WL Grand Cherokee and newer Jeep Compass/Renegade platforms, has exhibited extreme sensitivity to voltage fluctuations during the programming process. This has led to a widespread phenomenon known as "bricking."
+The programming process on these newer architectures typically involves the diagnostic tool momentarily flashing a modified bootloader or "unlock file" to the RF Hub's microcontroller to bypass the security algorithms. This process requires a stable, uninterrupted power supply.
+* Failure Mode: If the vehicle's battery voltage drops below a critical threshold (typically ~12.5V) during this read/write operation, or if the connection is interrupted, the RF Hub may fail to revert to its operational firmware.
+* Symptoms: The module becomes unresponsive. The instrument cluster displays "Service Passive Entry," and the vehicle enters a complete non-start condition. The ignition cannot be cycled to "OFF," and the vehicle may not even power down.
+* Recovery: In many cases, a "bricked" RF Hub on a WL platform is unrecoverable in the field and requires replacement. This underscores the mandatory requirement for connecting an external power supply (battery maintainer) capable of delivering clean, stable amperage during any key programming procedure on 2018+ Stellantis vehicles.
+3. The Security Gateway (SGW) Paradigm
+The introduction of the Security Gateway Module (SGW) in 2018 marked the first major step in the "Secure Vehicle Architecture." It serves as a firewall between the vehicle's external interfaces and its internal control networks.
+3.1. The Firewall Concept: Public vs. Private Bus
+The SGW divides the vehicle's CAN bus architecture into two distinct sectors:
+1. The Public Sector: This segment includes the Data Link Connector (DLC/OBD-II port) and the Telematics Box (T-Box/Radio). These are the points most vulnerable to external intrusion, whether physical (plugging in a tool) or wireless (cellular/Wi-Fi exploitation).
+2. The Private Sector: This segment contains the critical control modules: the Powertrain Control Module (PCM), Body Control Module (BCM), RF Hub, ABS, and Airbag modules.
+Operational Logic: The SGW acts as a traffic filter. It permits unauthorized tools to transmit read-only requests (e.g., Mode $01 powertrain data, reading DTCs) to the private sector. However, it blocks all write commands (e.g., clearing DTCs, active tests, actuation, and crucially, key programming) unless the request originates from a trusted source.
+* Trusted Source: Originally, this was limited to the OEM wiTECH 2.0 diagnostic tool authenticated via a cloud server.
+* Aftermarket Access: Eventually, the "AutoAuth" system was established, allowing aftermarket tool manufacturers (Autel, Snap-on, etc.) to register their devices. However, this requires an active internet connection and a paid subscription, which is not always feasible for mobile locksmiths operating in areas with poor connectivity.
+3.2. Physical Bypass Methodologies
+For technicians without AutoAuth access or working in offline environments, the physical bypass remains the standard operating procedure. This involves physically disconnecting the SGW and bridging the connections to bypass the firewall. The standard connector interface for the SGW is a 12-pin plug (CAN-C) and an 8-pin plug (CAN-IHS), necessitating the ubiquitous "12+8 Bypass Cable."
+
+
+  
+
+
+
+3.3. SGW Location and Access Matrix
+Locating the SGW is often the most time-consuming part of the service. The module's placement varies not just by model, but by year and trim.
+Make
+	Model
+	Year Range
+	SGW Location
+	Access Method / Difficulty
+	Ram
+	1500 (Classic/DS)
+	2018–2024
+	Behind Radio Head Unit
+	High Difficulty. Requires removal of the center stack bezel and the radio unit itself to access the module mounted on the bracket behind it.
+	Ram
+	1500 (New Body/DT)
+	2019–2025
+	Driver Footwell
+	Medium Difficulty. Located just above the accelerator pedal or to the left of the steering column. Access requires contortion but no major disassembly.
+	Ram
+	2500/3500 (HD)
+	2019–2025
+	Behind Instrument Cluster
+	High Difficulty. Often requires removing the instrument cluster bezel and the cluster itself to reach the module mounted on the firewall/bracket.
+	Jeep
+	Grand Cherokee (WK2)
+	2018–2021
+	Behind Glovebox / Kick Panel
+	Low Difficulty. Can often be reached by dropping the glovebox or removing the felt cover underneath. Some variations place it near the BCM.
+	Jeep
+	Grand Cherokee (WL)
+	2021–2025
+	Driver Knee Bolster
+	Medium Difficulty. Located behind the knee bolster panel on the driver's side, often stacked near the BCM. Panel removal is required.
+	Jeep
+	Wrangler (JL) / Gladiator (JT)
+	2018–2025
+	Under Driver Dash
+	Medium Difficulty. Located adjacent to the OBD port but tucked higher up. The challenge is often the cable length; the connectors are tight.
+	Dodge
+	Charger / Challenger
+	2018–2023
+	Above Kick Panel / Star Connector
+	Low Difficulty. While the SGW is present, technicians often bypass it by connecting directly to the Star Connector (CAN junction block) located in the passenger kick panel or under the glovebox, avoiding the need to unplug the SGW itself.
+	Dodge
+	Durango
+	2018–2024
+	Passenger Kick Panel Area
+	Low Difficulty. Generally accessible by removing the lower hush panel or kick panel on the passenger side.
+	The "Star Connector" Alternative: On Can-C/Can-IHS vehicles like the Dodge Charger, the "Star Connector" acts as a physical hub for the CAN bus networks. Rather than unplugging the SGW (which breaks the circuit), technicians can "back-probe" or plug a specialized adapter into an open slot on the Star Connector. This effectively places the diagnostic tool directly onto the private CAN bus, bypassing the SGW firewall entirely without disrupting the vehicle's network topology. This method is preferred for Dodge platforms as it is less invasive.
+4. Fobik Key Evolution: A Phylogenetic Analysis
+The evolution of the "Finger Operated Button Integrated Key" (FOBIK) and the subsequent Smart Keys (Proximity) presents a formidable challenge in inventory management. Stellantis utilizes multiple suppliers (Continental, Delphi, TRW) and distinct frequencies (433 MHz vs. 315 MHz), leading to a proliferation of keys that appear physically identical but are electronically incompatible.
+4.1. The Ram Truck Schism: DS vs. DT vs. HD
+The Ram truck lineup represents the most complex ecosystem due to the simultaneous production of two distinct generations: the "Classic" (DS platform) and the "New Body" (DT platform). This overlap has created a scenario where a "2020 Ram 1500" could require one of two completely different keys.
+4.1.1. Ram 1500 Classic (DS) & Legacy HD (Pre-2019)
+This platform relies on the legacy architecture mixing WIN modules and early RF Hubs.
+* Key Type: Tear-drop shaped Fobik (Tip Start) or early Proximity Fobik.
+* FCC ID: GQ4-53T.
+* Transponder Chip: Philips ID 46 (PCF7961/7945).
+* Frequency: 433 MHz.
+* Visual Identification: The key has a distinctive tapered "teardrop" shape. The buttons are rubberized and prone to wear.
+* Compatibility Scope: Fits 2013–2018 Ram 1500/2500/3500 and the 2019–2024 Ram 1500 Classic.
+* Critical Warning: This key is absolutely incompatible with the DT platform. It uses an older encryption standard.
+4.1.2. Ram 1500 New Body (DT) (2019–2025)
+The "New Body" style introduced the SVA architecture and a higher security standard.
+* Key Type: Smart Key (Push-to-Start).
+* FCC ID: OHT-4882056.
+* Transponder Chip: Hitag AES (4A) / PCF7939M.
+* Frequency: 433 MHz.
+* Visual Identification: A more angular, "shield" or "coffin" shape with a premium finish and metal sides on higher trims (Limited/Longhorn).
+* Compatibility Scope: Exclusively for the 2019+ Ram 1500 (DT platform).
+* Encryption: This key utilizes 128-bit AES encryption. It is not backward compatible with the ID 46 system of the Classic.
+4.1.3. Ram 2500/3500 Heavy Duty (2019–2025)
+The HD trucks underwent a refresh in 2019 that aligned their aesthetics with the DT 1500, but their electronic architecture retained subtle differences.
+* Key Type: Smart Key.
+* FCC ID: GQ4-76T.
+* Transponder Chip: Hitag AES (4A).
+* Visual Identification: Identical exterior to the Ram 1500 DT key (OHT-4882056). They are visually indistinguishable without checking the part number or using an RF detector.
+* Compatibility Scope: 2019+ Ram 2500, 3500, 4500, and 5500 chassis cabs.
+* The "HD Trap": While both the DT (1500) and HD (2500+) keys use the Hitag AES chip and 433 MHz frequency, they transmit different remote function codes for features like Air Suspension and Remote Start. Attempting to program a 1500 key (OHT-4882056) to a 2500 truck often results in a "Key Programming Success" message, but the remote functions will be dead or erratic. Technicians must verify the VIN and chassis rating before selecting the key.
+
+
+  
+
+
+
+4.2. Jeep Platform Divergence: WK2 vs. WL vs. JL
+Jeep's lineup exhibits a similar fracture between legacy and modern platforms.
+4.2.1. Wrangler (JL) & Gladiator (JT)
+The Wrangler JL (introduced 2018) and Gladiator JT (2020) utilize a ruggedized version of the SVA.
+* FCC ID: OHT1130261.
+* Chip: Hitag AES (4A).
+* Keyway: SIP22. This is a "laser cut" or milled track key, significantly different from the edge-cut keys of previous Jeeps.
+* Mechanism: "Flip" style smart key. The metal blade folds into the fob body.
+* Common Failure: The hinge mechanism on the OEM key is notorious for cracking, causing the blade to flop loose. This has created a robust market for aftermarket reinforcement shells (e.g., AJT Design).
+4.2.2. Grand Cherokee (WK2) (2014–2021)
+The WK2 platform remained on the legacy architecture until its discontinuation.
+* FCC ID: M3N-40821302.
+* Chip: Philips ID 46.
+* Keyway: Y159 (Edge cut).
+* Status: High reliability. Programming is standard via OBD with SGW bypass (for 2018+ models).
+4.2.3. Grand Cherokee L (WL) (2021–2025)
+The WL platform is the new flagship for Jeep's technology stack and the epicenter of the "Bricking" risk.
+* FCC ID: M3NWXF0B1 (433 MHz) or M3NWXF0B2 (315 MHz).
+* Chip: Hitag AES (4A) utilizing the NXP NCF29A1 Token.
+* Keyway: Y159-R. While it looks like a standard Y159 edge key, the "R" variant often has slightly different warding or depth requirements.
+* Operational Risk: This platform utilizes the new high-speed CAN-FD (Flexible Data-Rate) protocol in some segments. The RF Hub on early models (2021-2022) was subject to a major "Stop Sale" recall due to internal communication failures that left vehicles immobilized.
+4.3. Emergency Key Blade Specifications
+The mechanical insert keys, used to open the door when the battery dies, have also diversified.
+* Y159 (Y157): The ubiquitous Chrysler keyway. Used on Charger, Challenger, Ram DS, and Grand Cherokee WK2. It is a simple edge-cut key.
+* SIP22: A high-security milled track key used on the Wrangler JL, Gladiator, and Renegade (which shares architecture with the Fiat 500X).
+* Code Series: The Y159 typically uses the M-Series code (M1-M2618). The SIP22 utilizes a different coding structure, often requiring a laser cutter to duplicate.
+5. Procedural Security & The "Enable Fobik" Protocol
+The procedure to add a key—referred to in diagnostic tools as "Enable Fobik," "Program Smart Key," or "Add Key"—is a strict cryptographic handshake.
+5.1. The "Enable Fobik" Workflow
+On professional tools like the Autel IM508/608, Smart Pro, or proprietary dealer tools, the workflow follows a precise sequence:
+1. SGW Authentication: The tool initiates communication. It must first pass the SGW firewall, either by providing digital credentials (AutoAuth) or by detecting that the SGW is physically bypassed.
+2. PIN Retrieval: The tool queries the RF Hub for the vehicle's 4-digit PIN code.
+   * Forensic Note: On older (ID 46) systems, this was a simple memory read. On newer (4A) systems, this often involves reading the "D-Flash" (Data Flash) section of the microcontroller. This is the moment of highest risk; if voltage dips here, the D-Flash checksum can fail, corrupting the module.
+3. Bootloader Injection (Newer Models): For 2021+ systems, the diagnostic tool may need to momentarily overwrite the RF Hub's execution pointer with a custom bootloader to gain "Security Access" (Seed/Key exchange).
+4. Key Provisioning Window: The RF Hub enters a "learning mode," typically opening a 30-to-60-second window. The dashboard displays instructions to "Press Start Button with Fob."
+5. LF/UHF Handshake: The user holds the nose of the new key fob against the Start/Stop button. The KIN (button) contains a Low Frequency antenna coil. It energizes the transponder chip (even if the fob battery is dead). The chip responds with its ID.
+6. Secret Key Transfer: The RF Hub sends the encrypted "Secret Key" (SK) to the transponder. The transponder writes this SK to its locked memory sector.
+7. Finalization & Hard Reset: Once the key is registered, the tool exits the routine. A "Hard Reset" (disconnecting the vehicle battery negative terminal for 5-10 minutes) is frequently required to force the BCM and RF Hub to re-synchronize their rolling code counters. Failure to do this often results in the "Service Passive Entry" error message.
+6. Model-Specific Security Matrices and Case Studies
+6.1. Case Study: The Ram 1500 Water Intrusion & RF Hub Failure
+A critical vulnerability specific to the Ram 1500 (DT) and some HD models involves the physical location of the RF Hub.
+* The Flaw: The RF Hub is mounted on the rear cab wall, behind the rear seats. This location is directly below the third brake light (CHMSL) and the rear window seal.
+* The Failure: These seals are prone to leaking. Water runs down the back wall and drips directly onto the RF Hub connector or into the module casing.
+* Symptoms: This causes corrosion on the PCB, leading to phantom key detections, rapid battery drain, or a complete "No Start" condition where the truck cannot detect valid keys.
+* Forensics: Technicians encountering a "Keys Not Detected" issue on a Ram DT should immediately inspect the rear cabin wall for water stains before attempting to program new keys. Programming a key to a water-damaged hub will likely fail and could waste a key credit.
+6.2. Case Study: Dodge Performance Lockdown (Hellcat/Scat Pack)
+The theft rate of high-performance Dodge vehicles led to the TSB 08-086-22 update.
+* The Mechanism: The dealer flashes the RF Hub with "Lockdown" firmware. This firmware removes the "Program Key" routines from the software stack.
+* Implication for AKL: If a Hellcat owner loses all keys, a locksmith cannot program new ones via OBD. The RF Hub is effectively "read-only" for key IDs.
+* The Fix: The procedure requires purchasing a new RF Hub from the dealer. This new hub must be installed, and the keys programmed during the initial initialization. Once the session closes, that hub is also locked against future programming (depending on the specific software version applied).
+6.3. Case Study: The Jeep Grand Cherokee WL "Stop Sale"
+The rollout of the Grand Cherokee WL (2021/2022) was marred by a significant RF Hub defect.
+* The Issue: A communication breakdown between the RF Hub and the BCM caused the vehicle to believe it was being stolen when a legitimate user approached. The vehicle would immobilize itself.
+* The Recall: A "Stop Sale" order was issued. Dealerships were instructed to replace the RF Hubs on thousands of units with updated hardware (Revision AC or later).
+* Forensic Note: If a technician encounters a 2021/2022 WL that intermittently refuses to unlock or start, checking the RF Hub part number is the first step. If it is an AA or AB revision, it is likely defective hardware, not a programming issue.
+6.4. Security Matrix by Model
+6.4.1. Ram Truck Matrix
+Metric
+	Ram 1500 Classic (DS)
+	Ram 1500 New (DT)
+	Ram 2500/3500 (HD)
+	Year Range
+	2013–2024
+	2019–2025
+	2019–2025
+	FCC ID
+	GQ4-53T
+	OHT-4882056
+	GQ4-76T
+	Chip Type
+	46 (Philips)
+	4A (Hitag AES)
+	4A (Hitag AES)
+	SGW Location
+	Behind Radio (2018+)
+	Driver Footwell
+	Behind Cluster
+	AKL Difficulty
+	High (Dash disassembly)
+	Medium (Tight access)
+	High (Cluster removal)
+	RF Hub Lock
+	VIN Lock
+	VIN Lock
+	VIN Lock
+	6.4.2. Dodge Performance Matrix
+Metric
+	Charger/Challenger (SXT/GT)
+	Charger/Challenger (Scat Pack/Hellcat)
+	Year Range
+	2018–2023
+	2021–2023
+	FCC ID
+	M3N-40821302
+	M3N-40821302
+	Chip Type
+	46 (Philips)
+	46 (Philips)
+	SGW Location
+	Star Connector / Kick Panel
+	Star Connector / Kick Panel
+	RF Hub Status
+	Programmable (SGW Bypass)
+	LOCKED (Write-Protected)
+	AKL Solution
+	Add Key via OBD
+	Replace RF Hub + New Keys
+	6.4.3. Jeep Architecture Matrix
+Metric
+	Wrangler (JL) / Gladiator (JT)
+	Grand Cherokee (WK2)
+	Grand Cherokee (WL)
+	Year Range
+	2018–2025
+	2014–2021
+	2021–2025
+	FCC ID
+	OHT1130261
+	M3N-40821302
+	M3NWXF0B1
+	Chip Type
+	4A (Hitag AES)
+	46 (Philips)
+	4A (Hitag AES)
+	SGW Location
+	Under Dash (Driver)
+	Glovebox/Kick Panel
+	Driver Knee/Body Module
+	Keyway
+	SIP22 (Laser)
+	Y159 (Edge)
+	Y159-R (High Sec)
+	Risk Level
+	Medium
+	Low
+	Critical (Bricking Risk)
+	7. Critical Alerts & Forensic Troubleshooting
+7.1. The "Service Passive Entry" Error
+This generic error message on the cluster is the bane of the modern locksmith.
+* Scenario: Occurs immediately after programming a key.
+* Root Cause: The RF Hub has added the key ID to its whitelist, but the Rolling Code (Hopping Code) counter between the key and the BCM is out of sync.
+* Resolution:
+   1. Hard Reset: Disconnect battery negative cable for 10 minutes. This forces all modules to cold-boot and re-query the key status.
+   2. Proxy Alignment: If the reset fails, a "Restore PROXI Configuration" (Proxy Alignment) must be performed. This re-broadcasts the vehicle's configuration options to all modules, forcing them to handshake again.
+7.2. Recovering a "Bricked" Hub
+If an RF Hub fails during the bootloader flash (common on Renegade and Compass), the tool may display "Security Access Failed" and the car will be dead.
+* Recovery: Some advanced tools (e.g., IO Terminal, proprietary EEPROM programmers) can write a "Virgin" file directly to the MCU of the RF Hub on the bench. However, for most field technicians, the only solution is to replace the unit with a new dealer-sourced RF Hub.
+7.3. The 4A Chip "Pre-Coding" Myth
+Contrary to some older systems (like the Fiat code system) where chips had to be pre-coded with specific data by the locksmith before programming, modern Stellantis 4A keys (Hitag AES) generally come "unlocked" or "virgin." The vehicle writes the pre-coding to the key during the programming process.
+* Locking Consequence: Once a key is programmed to a vehicle (e.g., a Ram DT), that key is locked to that VIN. It cannot be reprogrammed to another truck unless it is "unlocked" (renewed) using a specialized unlocking tool (e.g., Xhorse Key Tool Max) that resets the crypto-sectors of the NCF29A1 chip. Using a used, locked key on a new vehicle will result in a programming failure.
+8. Master Data Specification
+
+
+  
+
+
+
+9. Conclusion
+The trajectory of Stellantis security architecture from 2018 to 2025 demonstrates a clear strategic intent: the closure of the automotive digital ecosystem. The progression from the open CAN bus of 2017 to the firewall-protected 2018 architectures, and finally to the component-level hardware lockdowns of 2021, indicates a future where vehicle access management is strictly controlled by the OEM. For the professional technician, success in this environment requires a pivot from simple "key learning" to complex "network diagnostics," necessitating a deep understanding of SGW topology, RF Hub firmware behaviors, and precise inventory management of incompatible transponder technologies.
+The era of the "simple key clone" is definitively over. We have entered the era of authorized, authenticated, and cryptographically secure vehicle access management, where the diagnostic tool is merely the final step in a complex forensic process.
+Citation Index:.1
+Works cited
+1. Dodge charger 2020. I can't get the passcode. Help : r/Locksmith - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Locksmith/comments/180sfpu/dodge_charger_2020_i_cant_get_the_passcode_help/
+2. FCA Security Gateway Module Basic Info and Location - JScan, accessed December 27, 2025, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+3. Customer Satisfaction Notification Z23 Radio Frequency Hub Module - nhtsa, accessed December 27, 2025, https://static.nhtsa.gov/odi/tsbs/2022/MC-10228024-9999.pdf
+4. Jeep Grand Cherokee Key Programming Made Simple - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=YAsRixmhjuE
+5. Dodge RAM 4-Button Key Fob FCC# GQ4-53T for 2013 2014 2015 2016 2017 2018 2019 2020 2021 - Locksmith Keyless, accessed December 27, 2025, https://www.locksmithkeyless.com/products/2013-2018-fobik-key-4b-fcc-gq4-53t-for-ram
+6. 2013-2024 Dodge RAM / 4-Button Fobik Key / GQ4-53T (AFTERMARKET) - Keyless City, accessed December 27, 2025, https://keyless-city.com/products/2013-2020-dodge-ram-4-button-fobik-key-gq4-53t-aftermarket
+7. Smart Remote Key for RAM Pickup 68365299AC GQ4-76T with 3 Button - Key4, accessed December 27, 2025, https://www.key4.com/smart-remote-key-ram-pickup-68365299ac-gq476t
+8. Locked RF Hub 22 Renegade : r/Locksmith - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Locksmith/comments/1m3kvyj/locked_rf_hub_22_renegade/
+9. Dodge's Security Update for the Challenger and Charger FREE? - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=RqIo9WJcRhE
+10. RAM 2013 2014 2015 2016 won't turn instruments ON, RFHUB not responding. Remote only locks/unlocks - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=JG0oD5V7Ajo
+11. Testing a customers RFhub that doesn't crank or turn the Instrument Cluster's Information Center ON - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=Wn82nvK2nWI
+12. RF Hub Help : r/ram_trucks - Reddit, accessed December 27, 2025, https://www.reddit.com/r/ram_trucks/comments/1j9veq8/rf_hub_help/
+13. So over the weekend I got bit by the Radio Frequency Hub Malfunction. - Reddit, accessed December 27, 2025, https://www.reddit.com/r/ram_trucks/comments/12z5k0x/so_over_the_weekend_i_got_bit_by_the_radio/
+14. 2013 - 2023 RAM 1500 2500 3500 Smart Key 3B Fob FCC# GQ4-54T (25 Pack), accessed December 27, 2025, https://www.locksmithkeyless.com/products/2013-2018-dodge-ram-smart-key-3b-fcc-gq4-54t-25-pack
+15. VD17064-Dodge Ram 1500 Pickup 2019-2024 Smart - VVDI, accessed December 27, 2025, https://www.vvdi.com/vd7064-dodge-ram-1500-remote-key-4-button-68291688ad
+16. Jeep New OEM 2018-2024 Wrangler, Gladiator Remote Flip Key (Prox) 4B R, accessed December 27, 2025, https://royalkeysupply.com/products/jeep-new-oem-2018-2021-wrangler-gladiator-remote-flip-key-4b-remote-start-fccid-oht1130261-pn-68416784aa
+17. Injection Fob IF013 (Wrangler JL / Gladiator JT) - ARMY GREEN - ajt design, accessed December 27, 2025, https://www.ajtdesign-llc.com/products/injection-fob-if013-wrangler-jl-gladiator-jt-army-green
+18. 2022 Jeep Grand Cherokee Smart Key 4B W/ Remote Start Fob FCC - Locksmith Keyless, accessed December 27, 2025, https://www.locksmithkeyless.com/products/2014-2019-jeep-grand-cherokee-smart-key-4b-fcc-m3n-40821302-2-pack
+19. 3 4 5 6 Buttons Smart Remote Car Key Fob 433.92MHz 4A Chip for, accessed December 27, 2025, https://www.aliexpress.com/item/1005009965872796.html
+20. How to Locate the 12+8 Connector on a Jeep Grand Cherokee | Quick Guide - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=ZvjCyt7AAqQ
+21. STE Chrysler Pass Through User Manual - Squarespace, accessed December 27, 2025, https://static1.squarespace.com/static/51fac8cfe4b0339e6c6987e1/t/5df85fc2cde8ca0f95214058/1576558531884/STE_Chrysler_Passthrough_V1_2.pdf
+22. 2019 Ram 1500 security gateway location - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=5WAIUTyQ3T0
+23. 2020 Dodge Charger Star connector/gateway location to program keys. Quick and easy, accessed December 27, 2025, https://www.youtube.com/watch?v=Loz88Hmi5xc
+24. STOP! Jeep® Tells Dealers To Suspend Sales Of Its All-New Grand Cherokee (WL)!, accessed December 27, 2025, https://moparinsiders.com/stop-jeep-tells-dealers-to-suspend-sales-of-its-all-new-grand-cherokee-wl/
+25. 2019-2024 Dodge Ram Smart Key Fob 5-Button With Remote Start - FCC ID:, accessed December 27, 2025, https://www.bestkeysolution.com/products/2019-2024-dodge-ram-smart-key-fob-4-button-with-remote-start-fcc-id-gq4-76t-433-mhz
+26. 2024 RAM 1500 Limited Smart Key 6B FCC# OHT-4882056 - Silver Si - Locksmith Keyless, accessed December 27, 2025, https://www.locksmithkeyless.com/products/2019-2021-dodge-ram-1500-limited-smart-key-fob-w-starter-6b-fcc-oht-4882056
+27. 2021-2024 Jeep Compass; the new faster PIN read option via Smart Pro! - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=lxEXEIbC5u4
+28. Customer Satisfaction Notification YA7 Reprogram Powertrain Control Module - nhtsa, accessed December 27, 2025, https://static.nhtsa.gov/odi/tsbs/2022/MC-10222966-9999.pdf
+29. Dealer TSB for Key programing lockdown and Enhanced security mode - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Challenger/comments/1ctp0ms/dealer_tsb_for_key_programing_lockdown_and/
+30. Has anyone with a 2022 RT been able to get the key lockdown? : r/Challenger - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Challenger/comments/z2w6ab/has_anyone_with_a_2022_rt_been_able_to_get_the/

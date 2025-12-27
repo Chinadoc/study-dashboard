@@ -408,7 +408,7 @@ export default {
     // USER INVENTORY ENDPOINTS (Cloud Sync)
     // ==============================================
 
-    // GET /api/user/inventory - Fetch user's inventory (with ETag support)
+    // GET /api/user/inventory - Fetch user's inventory (with ETag + Delta sync support)
     if (path === "/api/user/inventory" && request.method === "GET") {
       try {
         const sessionToken = getSessionToken(request);
@@ -419,10 +419,20 @@ export default {
 
         const userId = payload.sub as string;
 
-        const result = await env.LOCKSMITH_DB.prepare(`
-          SELECT item_key, type, qty, used, vehicle, amazon_link, updated_at
-          FROM inventory WHERE user_id = ?
-        `).bind(userId).all();
+        // Delta sync support: only return items updated since the given timestamp
+        const sinceParam = url.searchParams.get('since');
+        let query = `SELECT item_key, type, qty, used, vehicle, amazon_link, updated_at FROM inventory WHERE user_id = ?`;
+        const params: any[] = [userId];
+
+        if (sinceParam) {
+          const sinceTs = parseInt(sinceParam, 10);
+          if (!isNaN(sinceTs)) {
+            query += ` AND updated_at > ?`;
+            params.push(sinceTs);
+          }
+        }
+
+        const result = await env.LOCKSMITH_DB.prepare(query).bind(...params).all();
 
         const keys: Record<string, any> = {};
         const blanks: Record<string, any> = {};
