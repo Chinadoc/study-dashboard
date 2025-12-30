@@ -40,7 +40,12 @@ const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_titl
   'mazda': { infographic: '/assets/Mazda Infographic.png' },
   'mercedes': { pdf: '/assets/Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
   'nissan': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
-  'infiniti': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' }
+  'infiniti': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
+  // GM Brands - Global A/B Architecture
+  'chevrolet': { infographic: '/guides/Camaro_PEPS_Topology.png', pdf_title: 'Global A PEPS Guide' },
+  'gmc': { pdf_title: 'Global A PEPS Guide' },
+  'buick': { pdf_title: 'Global A PEPS Guide' },
+  'cadillac': { pdf_title: 'Global A PEPS Guide' }
 };
 
 
@@ -2556,9 +2561,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const makeKey = (row.make || "").toLowerCase();
           const modelKey = (row.model || "").toLowerCase();
 
-          // Add make assets (infographics, PDFs)
-          const assets = MAKE_ASSETS[makeKey];
-          const enrichedRow = assets ? { ...row, assets } : { ...row };
+          // Add static make assets (infographics, PDFs)
+          const staticAssets = MAKE_ASSETS[makeKey];
+          const enrichedRow = staticAssets ? { ...row, assets: staticAssets } : { ...row };
+
+          // NEW: Fetch dynamic images from guide_assets table
+          try {
+            const guideAssets = await env.LOCKSMITH_DB.prepare(`
+              SELECT asset_type, asset_url, caption, display_order, source_doc
+              FROM guide_assets 
+              WHERE LOWER(make) = ? OR make = '_GENERAL'
+              ORDER BY display_order
+              LIMIT 20
+            `).bind(makeKey).all();
+
+            if (guideAssets.results && guideAssets.results.length > 0) {
+              enrichedRow.guide_images = guideAssets.results;
+            }
+          } catch (e) {
+            // Silently continue if guide_assets fetch fails
+            console.error("Guide assets fetch failed:", e);
+          }
 
           // ENRICHMENT: Fetch research intel from vehicles table
           try {
