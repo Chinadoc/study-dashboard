@@ -1,7 +1,36 @@
 <!DOCTYPE html>
-<html lang="en" data-version="1.0.7">
+<html lang="en" data-version="1.0.13">
 
 <head>
+    <!-- Mobile Detection: Redirect phone users to mobile-optimized version -->
+    <script>
+        (function () {
+            // Skip if user explicitly chose desktop version
+            if (localStorage.getItem('eurokeys_prefer_desktop') === 'true') return;
+
+            // Detect mobile: screen width OR mobile user agent
+            const isMobile = window.innerWidth <= 768 ||
+                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile && !window.location.pathname.includes('mobile_v2')) {
+                // Show choice modal instead of auto-redirect
+                document.addEventListener('DOMContentLoaded', function () {
+                    const banner = document.createElement('div');
+                    banner.id = 'mobileBanner';
+                    banner.innerHTML = `
+                        <div style="position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#10b981,#34d399);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                            <span style="color:#000;font-weight:600;font-size:0.9rem;">📱 Try our new mobile app!</span>
+                            <div style="display:flex;gap:8px;">
+                                <button onclick="window.location.href='mobile_v2.html'" style="background:#000;color:#10b981;border:none;padding:8px 16px;border-radius:20px;font-weight:700;font-size:0.8rem;cursor:pointer;">Open App</button>
+                                <button onclick="localStorage.setItem('eurokeys_prefer_desktop','true');document.getElementById('mobileBanner').remove();" style="background:transparent;color:#000;border:1px solid #000;padding:8px 12px;border-radius:20px;font-weight:600;font-size:0.8rem;cursor:pointer;">✕</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.prepend(banner);
+                });
+            }
+        })();
+    </script>
     <!-- v1.0.4 - Restored InventoryManager.getAllKeys functionality -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -738,6 +767,69 @@
             margin-bottom: 16px;
         }
 
+        /* Key Carousel - for switching between compatible keys */
+        .key-carousel {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .key-carousel-title {
+            width: 100%;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .key-thumb {
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .key-thumb:hover {
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+        }
+
+        .key-thumb.active {
+            border-color: var(--brand-primary);
+            background: rgba(234, 179, 8, 0.1);
+            color: var(--text-primary);
+        }
+
+        .key-thumb-icon {
+            font-size: 1.2rem;
+        }
+
+        .key-thumb-label {
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .key-thumb-price {
+            font-size: 0.65rem;
+            color: #22c55e;
+        }
+
         .vehicle-card-header {
             display: flex;
             justify-content: space-between;
@@ -768,6 +860,49 @@
         .badge-gold {
             background: var(--brand-primary);
             color: var(--bg-primary);
+        }
+
+        /* Year Navigation Arrows */
+        .year-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 16px;
+        }
+
+        .year-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .year-nav-btn:hover:not(:disabled) {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
+            transform: scale(1.1);
+        }
+
+        .year-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .year-nav-current {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            min-width: 60px;
+            text-align: center;
         }
 
         .badge-dark {
@@ -1727,12 +1862,57 @@
             transition: all 0.2s;
             font-weight: 500;
             color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 70px;
+        }
+
+        .model-chip .key-icon {
+            font-size: 1.2rem;
+        }
+
+        .model-chip .model-name {
+            font-size: 0.9rem;
+            word-break: break-word;
         }
 
         .model-chip:hover {
             border-color: var(--brand-primary);
             background: rgba(251, 191, 36, 0.1);
             transform: translateY(-2px);
+        }
+
+        .model-filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .model-filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .model-filter-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .model-filter-btn.active {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
         }
 
         /* Mobile Adjustments */
@@ -3336,6 +3516,7 @@
     <div class="tabs" id="mainTabs">
         <button class="tab active" onclick="showTab('browse')">📂 Browse Database</button>
         <button class="tab" id="fccTab" onclick="showTab('fcc')">📡 FCC Database</button>
+        <button class="tab" id="guidesTab" onclick="showTab('guides')">📖 Guides</button>
         <button class="tab" id="inventoryTab" onclick="showTab('inventory')" style="display: none;">📦 My
             Inventory</button>
         <button class="tab" id="devTab" onclick="showTab('dev')" style="display: none;">🛠️ Dev Panel</button>
@@ -3419,6 +3600,11 @@
             <!-- Step 3: Select Model (Visual) -->
             <div id="modelChipsContainer" style="display: none; margin-top: 24px;">
                 <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-secondary);">Select Model</h3>
+                <div class="model-filter-bar" id="modelFilterBar" style="display: none;">
+                    <button class="model-filter-btn active" onclick="filterModels('all')">All</button>
+                    <button class="model-filter-btn" onclick="filterModels('keyed')">🔑 Keyed</button>
+                    <button class="model-filter-btn" onclick="filterModels('prox')">📡 Prox</button>
+                </div>
                 <div class="model-grid" id="modelChips"></div>
                 <div id="modelLoading"
                     style="display: none; color: var(--text-muted); padding: 20px; text-align: center;">Loading
@@ -3457,7 +3643,16 @@
     <div id="resultsSection" class="results-section">
         <div class="container">
             <div class="result-header">
-                <h2 class="result-title" id="resultTitle">Vehicle Results</h2>
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <h2 class="result-title" id="resultTitle" style="margin: 0;">Vehicle Results</h2>
+                    <div class="year-nav" id="yearNavigation" style="display: none;">
+                        <button class="year-nav-btn" id="yearPrevBtn" onclick="navigateYear(-1)"
+                            title="Previous Year">←</button>
+                        <span class="year-nav-current" id="yearNavCurrent">2023</span>
+                        <button class="year-nav-btn" id="yearNextBtn" onclick="navigateYear(1)"
+                            title="Next Year">→</button>
+                    </div>
+                </div>
                 <div class="result-actions">
                     <button class="back-btn" onclick="goBack()">🔍 New Search</button>
                 </div>
@@ -3549,6 +3744,71 @@
             </div>
 
             <div class="pagination" id="fccPagination"></div>
+        </div>
+    </div>
+
+    <!-- Guides Tab -->
+    <div class="tab-content" id="tabGuides" style="display: none;">
+        <div class="container">
+            <div class="page-title">
+                <h1>📖 Programming <span>Guides</span></h1>
+            </div>
+            <p class="page-subtitle">Comprehensive guides for every make for key programming procedures.</p>
+
+            <!-- Guides Search and Filters -->
+            <div class="fcc-filters" style="flex-wrap: wrap; margin-bottom: 20px;">
+                <button class="fcc-filter active" data-make="all" onclick="filterGuidesByMake('all')">All Makes</button>
+                <button class="fcc-filter" data-make="chevrolet"
+                    onclick="filterGuidesByMake('chevrolet')">Chevrolet/GM</button>
+                <button class="fcc-filter" data-make="mercedes-benz"
+                    onclick="filterGuidesByMake('mercedes-benz')">Mercedes-Benz</button>
+                <button class="fcc-filter" data-make="audi" onclick="filterGuidesByMake('audi')">Audi/VW</button>
+                <button class="fcc-filter" data-make="bmw" onclick="filterGuidesByMake('bmw')">BMW</button>
+                <button class="fcc-filter" data-make="toyota" onclick="filterGuidesByMake('toyota')">Toyota</button>
+                <button class="fcc-filter" data-make="honda" onclick="filterGuidesByMake('honda')">Honda</button>
+                <button class="fcc-filter" data-make="ford" onclick="filterGuidesByMake('ford')">Ford</button>
+                <button class="fcc-filter" data-make="stellantis"
+                    onclick="filterGuidesByMake('stellantis')">Stellantis</button>
+                <button class="fcc-filter" data-make="land rover"
+                    onclick="filterGuidesByMake('land rover')">JLR</button>
+                <button class="fcc-filter" data-make="mazda" onclick="filterGuidesByMake('mazda')">Mazda</button>
+                <button class="fcc-filter" data-make="volvo" onclick="filterGuidesByMake('volvo')">Volvo</button>
+            </div>
+
+            <div class="fcc-search" style="margin-bottom: 20px;">
+                <input type="text" id="guidesSearch"
+                    placeholder="🔍 Search guides... (e.g. 'E-Class FBS4', 'Camry H chip')"
+                    oninput="filterGuidesTable()">
+            </div>
+
+            <!-- Guide Stats -->
+            <div id="guideStats" style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+                <div class="stat-card"
+                    style="flex: 1; min-width: 150px; background: var(--bg-tertiary); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--brand-primary);" id="totalGuidesCount">
+                        --</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">Total Guides</div>
+                </div>
+                <div class="stat-card"
+                    style="flex: 1; min-width: 150px; background: var(--bg-tertiary); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #22c55e;" id="uniqueMakesCount">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">Makes Covered</div>
+                </div>
+                <div class="stat-card"
+                    style="flex: 1; min-width: 150px; background: var(--bg-tertiary); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #f59e0b;" id="dealerOnlyCount">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">Dealer-Only</div>
+                </div>
+            </div>
+
+            <!-- Guides Grid -->
+            <div id="guidesGrid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                <div class="loading"
+                    style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                    Loading guides...
+                </div>
+            </div>
         </div>
     </div>
 
@@ -4414,6 +4674,10 @@
         const API_BASE = API; // Alias for backwards compatibility
         const AFFILIATE_TAG = 'eurokeys-20';
 
+        // Global state for model filtering
+        let currentModelsData = [];
+        let currentModelFilter = 'all';
+
         // Valid makes only
         const VALID_MAKES = [
             'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick',
@@ -4524,6 +4788,7 @@
         // Tab switching with URL routing
         // Tab switching with URL routing
         function showTab(tabName, updateHash = true) {
+            window.scrollTo(0, 0);
             // Update URL hash for deep linking
             if (updateHash && window.location.hash !== `#${tabName}`) {
                 history.pushState(null, '', `#${tabName}`);
@@ -4554,7 +4819,7 @@
 
             // 2. Update Content Visibility
             // Hide all known content areas
-            const contentIds = ['browse', 'tabFcc', 'tabInventory', 'tabDev', 'tabSubscriptions'];
+            const contentIds = ['browse', 'tabFcc', 'tabGuides', 'tabInventory', 'tabDev', 'tabSubscriptions'];
             contentIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
@@ -4595,6 +4860,8 @@
                 if (legacySearch) legacySearch.style.display = 'none';
                 const vinResults = document.getElementById('vinResults');
                 if (vinResults) vinResults.style.display = 'none';
+                const rs = document.getElementById('resultsSection');
+                if (rs) rs.classList.remove('active');
             }
 
             // 3. Clear stale state from other tabs
@@ -4627,6 +4894,11 @@
                 if (typeof loadDevPanel === 'function') {
                     loadDevPanel();
                 }
+            } else if (tabName === 'guides') {
+                // Load guides when tab is shown
+                if (typeof loadGuidesTab === 'function') {
+                    loadGuidesTab();
+                }
             } else if (tabName === 'inventory') {
                 // Render inventory when tab is shown
                 if (typeof renderInventoryPage === 'function') {
@@ -4641,7 +4913,7 @@
         // Handle URL hash changes (back/forward buttons)
         window.addEventListener('hashchange', function () {
             const hash = window.location.hash.slice(1) || 'browse';
-            const validTabs = ['browse', 'database', 'fcc', 'inventory', 'dev', 'subscriptions'];
+            const validTabs = ['browse', 'database', 'fcc', 'guides', 'inventory', 'dev', 'subscriptions'];
             const tabName = hash === 'database' || hash === 'vin' ? 'browse' : hash;
             if (validTabs.includes(tabName)) {
                 showTab(tabName, false);
@@ -4658,13 +4930,78 @@
         // Handle initial URL hash on page load
         function handleInitialRoute() {
             const hash = window.location.hash.slice(1);
-            const validTabs = ['browse', 'database', 'fcc', 'vin', 'inventory', 'dev'];
+
+            // Handle vehicle deep links: #vehicle/Make/Model/Year
+            if (hash.startsWith('vehicle/')) {
+                const parts = hash.split('/');
+                if (parts.length >= 4) {
+                    const make = decodeURIComponent(parts[1]);
+                    const model = decodeURIComponent(parts[2]);
+                    const year = parts[3];
+                    console.log(`📍 Deep link: ${year} ${make} ${model}`);
+
+                    // Wait for page to be ready, then load the vehicle
+                    setTimeout(() => {
+                        loadVehicleFromDeepLink(make, model, year);
+                    }, 500);
+                    return;
+                }
+            }
+
+            const validTabs = ['browse', 'database', 'fcc', 'guides', 'vin', 'inventory', 'dev'];
             if (hash === 'database') {
                 showTab('browse', false);
             } else if (validTabs.includes(hash)) {
                 showTab(hash, false);
             }
         }
+
+        // Load vehicle from deep link URL
+        async function loadVehicleFromDeepLink(make, model, year) {
+            // Switch to browse tab
+            showTab('browse', false);
+
+            // Hide the make grid, show results section
+            const browseSection = document.getElementById('legacySearchCard');
+            if (browseSection) browseSection.style.display = 'none';
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.add('active');
+
+            // Update title and year navigation
+            currentVehicleYear = parseInt(year);
+            currentVehicleMake = make;
+            currentVehicleModel = model;
+
+            document.getElementById('resultTitle').textContent = `${make} ${model}`;
+            updateYearNavigation(parseInt(year));
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
+
+            initQuickSearch();
+            await ensureGuidesLoaded();
+
+            try {
+                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+                const data = await res.json();
+
+                if (data.rows && data.rows.length > 0) {
+                    displayResults(data.rows, year, make, model);
+                } else {
+                    document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found for this vehicle</div>';
+                }
+            } catch (e) {
+                console.error('Deep link load failed:', e);
+                document.getElementById('resultsContainer').innerHTML = '<div class="loading">Failed to load vehicle data</div>';
+            }
+        }
+
+        // Update URL when vehicle is displayed
+        function setVehicleUrl(make, model, year) {
+            const newHash = `#vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}`;
+            history.replaceState(null, '', newHash);
+        }
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleInitialRoute);
 
         // ================== HEADER QUICK SEARCH ==================
 
@@ -4681,15 +5018,137 @@
             const query = document.getElementById('headerSearchInput').value.trim();
             if (!query) return;
 
-            // Switch to FCC tab and search
-            showTab('fcc');
-            document.getElementById('fccSearch').value = query;
             toggleHeaderSearch(); // Close the search box
 
-            if (fccDataLoaded) {
-                renderFccTable();
+            // Try to parse vehicle query (e.g., "2018 Camaro", "Chevy Camaro 2018", "Honda Accord")
+            const vehicleInfo = parseVehicleQuery(query);
+
+            if (vehicleInfo.make || vehicleInfo.model) {
+                // Switch to Browse tab and search for vehicle
+                showTab('browse');
+                searchVehicleFromQuery(vehicleInfo, query);
             } else {
-                loadFccData();
+                // Fallback to FCC search for part numbers, FCC IDs, etc
+                showTab('fcc');
+                document.getElementById('fccSearch').value = query;
+                if (fccDataLoaded) {
+                    renderFccTable();
+                } else {
+                    loadFccData();
+                }
+            }
+        }
+
+        // Parse natural language vehicle queries
+        function parseVehicleQuery(query) {
+            const words = query.toLowerCase().split(/\s+/);
+            let year = null;
+            let make = null;
+            let model = null;
+
+            // Common make aliases
+            const makeAliases = {
+                'chevy': 'Chevrolet',
+                'vw': 'Volkswagen',
+                'mercedes': 'Mercedes-Benz',
+                'merc': 'Mercedes-Benz',
+                'beemer': 'BMW',
+                'bimmer': 'BMW'
+            };
+
+            // Find year (4-digit number between 1990-2030)
+            for (const word of words) {
+                const num = parseInt(word);
+                if (num >= 1990 && num <= 2030) {
+                    year = num;
+                    break;
+                }
+            }
+
+            // Find make - check against known makes
+            const knownMakes = ['acura', 'audi', 'bmw', 'buick', 'cadillac', 'chevrolet', 'chevy',
+                'chrysler', 'dodge', 'fiat', 'ford', 'genesis', 'gmc', 'honda', 'hyundai',
+                'infiniti', 'jaguar', 'jeep', 'kia', 'land rover', 'lexus', 'lincoln',
+                'maserati', 'mazda', 'mercedes', 'merc', 'mini', 'mitsubishi', 'nissan',
+                'porsche', 'ram', 'subaru', 'tesla', 'toyota', 'volkswagen', 'vw', 'volvo'];
+
+            for (const word of words) {
+                if (knownMakes.includes(word)) {
+                    make = makeAliases[word] || (word.charAt(0).toUpperCase() + word.slice(1));
+                    break;
+                }
+            }
+
+            // Model is remaining non-year, non-make words
+            const remainingWords = words.filter(w => {
+                if (parseInt(w) >= 1990 && parseInt(w) <= 2030) return false;
+                if (knownMakes.includes(w)) return false;
+                return true;
+            });
+
+            if (remainingWords.length > 0) {
+                // Capitalize first letter of each word
+                model = remainingWords.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+
+            return { year, make, model };
+        }
+
+        // Search for vehicle in Browse tab
+        async function searchVehicleFromQuery(vehicleInfo, originalQuery) {
+            // Hide the make grid, show results section
+            const browseSection = document.getElementById('legacySearchCard');
+            if (browseSection) browseSection.style.display = 'none';
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.add('active');
+
+            // Set display
+            const year = vehicleInfo.year || 2020;
+            const displayTitle = vehicleInfo.make
+                ? `${vehicleInfo.make} ${vehicleInfo.model || ''}`.trim()
+                : originalQuery;
+
+            document.getElementById('resultTitle').textContent = displayTitle;
+            updateYearNavigation(year);
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">Searching...</div>';
+
+            currentVehicleYear = year;
+            currentVehicleMake = vehicleInfo.make || '';
+            currentVehicleModel = vehicleInfo.model || '';
+
+            initQuickSearch();
+            await ensureGuidesLoaded();
+
+            try {
+                // Build query with available info
+                let url = `${API}/api/browse?year=${year}&limit=20`;
+                if (vehicleInfo.make) url += `&make=${encodeURIComponent(vehicleInfo.make)}`;
+                if (vehicleInfo.model) url += `&model=${encodeURIComponent(vehicleInfo.model)}`;
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.rows && data.rows.length > 0) {
+                    displayResults(data.rows, year, vehicleInfo.make || '', vehicleInfo.model || '');
+                } else {
+                    // No results - try without year restriction
+                    const fallbackUrl = `${API}/api/browse?limit=20` +
+                        (vehicleInfo.make ? `&make=${encodeURIComponent(vehicleInfo.make)}` : '') +
+                        (vehicleInfo.model ? `&model=${encodeURIComponent(vehicleInfo.model)}` : '');
+
+                    const fallbackRes = await fetch(fallbackUrl);
+                    const fallbackData = await fallbackRes.json();
+
+                    if (fallbackData.rows && fallbackData.rows.length > 0) {
+                        displayResults(fallbackData.rows, year, vehicleInfo.make || '', vehicleInfo.model || '');
+                    } else {
+                        document.getElementById('resultsContainer').innerHTML =
+                            `<div class="loading">No results for "${originalQuery}". Try a different search.</div>`;
+                    }
+                }
+            } catch (e) {
+                console.error('Search failed:', e);
+                document.getElementById('resultsContainer').innerHTML = '<div class="loading">Search failed</div>';
             }
         }
 
@@ -4807,22 +5266,29 @@
                         let assetsHtml = '';
                         if (guide.assets) {
                             if (guide.assets.infographic) {
+                                const infographicUrl = guide.assets.infographic.startsWith('/')
+                                    ? guide.assets.infographic
+                                    : `/api/assets/${guide.assets.infographic}`;
                                 assetsHtml += `
                                     <div class="guide-asset-block">
-                                        <img src="/api/assets/${guide.assets.infographic}" alt="${guide.make} Infographic" class="guide-infographic" loading="lazy">
+                                        <img src="${infographicUrl}" alt="${guide.make} Infographic" class="guide-infographic" loading="lazy" onerror="this.style.display='none'">
                                     </div>
                                 `;
                             }
                             if (guide.assets.pdf) {
+                                const pdfUrl = guide.assets.pdf.startsWith('/')
+                                    ? guide.assets.pdf
+                                    : `/api/assets/${guide.assets.pdf}`;
                                 assetsHtml += `
                                     <div class="guide-asset-link">
-                                        <a href="/api/assets/${guide.assets.pdf}" target="_blank" class="pdf-download-btn">
+                                        <a href="${pdfUrl}" target="_blank" class="pdf-download-btn">
                                             📄 Download ${guide.assets.pdf_title || 'Technical Guide'} (PDF)
                                         </a>
                                     </div>
                                 `;
                             }
                         }
+
 
                         // ===== RESEARCH INTEL BANNERS =====
                         // Auto-inject warnings from vehicles table enrichment
@@ -5372,6 +5838,7 @@
             const chipContainer = document.getElementById('modelChips');
             const containerWrapper = document.getElementById('modelChipsContainer');
             const loader = document.getElementById('modelLoading');
+            const filterBar = document.getElementById('modelFilterBar');
 
             if (!make) return;
 
@@ -5379,6 +5846,7 @@
             if (containerWrapper) {
                 containerWrapper.style.display = 'block';
                 if (chipContainer) chipContainer.innerHTML = '';
+                if (filterBar) filterBar.style.display = 'none';
                 if (loader) {
                     loader.style.display = 'block';
                     loader.innerHTML = 'Loading models... <small>(Checking database)</small>';
@@ -5386,7 +5854,7 @@
             }
 
             // Check Cache
-            const cacheKey = `models_${make}_${year}`;
+            const cacheKey = `models_v2_${make}_${year}`; // Updated cache key for version
             const cached = localStorage.getItem(cacheKey);
             if (cached) {
                 try {
@@ -5394,29 +5862,54 @@
                     // Cache valid for 24 hours
                     if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
                         console.log('Using cached models for', make, year);
+                        currentModelsData = data;
                         renderModels(data, chipContainer, loader);
                         return;
                     }
                 } catch (e) { localStorage.removeItem(cacheKey); }
             }
 
-            const fetchUrl = `${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&fields=model&limit=1000`;
+            const fetchUrl = `${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&fields=model,key_type,key_type_display&limit=1000`;
             try {
-                // Fetch data - optimized to only return 'model' field
+                // Fetch data
                 const res = await fetch(fetchUrl);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                 const data = await res.json();
 
-                // Filter and sort unique models
-                const models = [...new Set(data.rows.map(r => r.model))]
-                    .filter(isValidModelName)
-                    .sort();
+                // Process unique models with key type info
+                const processed = [];
+                const seen = new Set();
+
+                (data.rows || []).forEach(r => {
+                    const name = (r.model || '').trim();
+                    if (!name || !isValidModelName(name)) return;
+
+                    const lowerName = name.toLowerCase();
+                    const keyType = (r.key_type || r.key_type_display || '').toLowerCase();
+                    const isProx = keyType.includes('prox') || keyType.includes('smart');
+
+                    // Create unique key per model+type to handle same model name with different tech
+                    const uniqueKey = `${lowerName}|${isProx ? 'prox' : 'keyed'}`;
+
+                    if (!seen.has(uniqueKey)) {
+                        seen.add(uniqueKey);
+                        processed.push({
+                            name: name,
+                            type: isProx ? 'prox' : 'keyed',
+                            key_type_display: r.key_type_display || (isProx ? 'Smart Key' : 'Keyed')
+                        });
+                    }
+                });
+
+                // Sort by name
+                processed.sort((a, b) => a.name.localeCompare(b.name));
 
                 // Save to Cache
-                localStorage.setItem(cacheKey, JSON.stringify({ data: models, timestamp: Date.now() }));
+                localStorage.setItem(cacheKey, JSON.stringify({ data: processed, timestamp: Date.now() }));
+                currentModelsData = processed;
 
-                renderModels(models, chipContainer, loader);
+                renderModels(processed, chipContainer, loader);
 
             } catch (e) {
                 console.error("Failed to load models", e);
@@ -5433,30 +5926,71 @@
             }
         }
 
-        function renderModels(models, chipContainer, loader) {
+        function filterModels(type) {
+            currentModelFilter = type;
+
+            // Update filter buttons
+            const buttons = document.querySelectorAll('.model-filter-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(type) || (type === 'all' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            const chipContainer = document.getElementById('modelChips');
+            const loader = document.getElementById('modelLoading');
+
+            let filtered = currentModelsData;
+            if (type !== 'all') {
+                filtered = currentModelsData.filter(m => m.type === type);
+            }
+
+            renderModels(filtered, chipContainer, loader, true);
+        }
+
+        function renderModels(models, chipContainer, loader, isFiltering = false) {
             // Populate Visual Grid
             if (chipContainer && loader) {
                 loader.style.display = 'none';
+
+                const filterBar = document.getElementById('modelFilterBar');
+                if (filterBar && currentModelsData.length > 5) {
+                    filterBar.style.display = 'flex';
+                }
+
                 if (models.length === 0) {
                     chipContainer.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 20px;">
-                            No models found for this specific year.<br>
+                        <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
+                            No models found for this category.<br>
+                            <small>Try selecting "All" or a different category.</small>
                         </div>`;
                 } else {
                     chipContainer.innerHTML = models.map(m => `
-                        <div class="model-chip" onclick="selectVisualModel('${m}')">${m}</div>
+                        <div class="model-chip" onclick="selectVisualModel('${m.name}')">
+                            <span class="key-icon">${m.type === 'prox' ? '📡' : '🔑'}</span>
+                            <span class="model-name">${m.name}</span>
+                        </div>
                     `).join('');
                 }
             }
 
-            // Populate Legacy Select
-            const select = document.getElementById('modelSelect');
-            if (select) {
-                select.disabled = false;
-                select.innerHTML = '<option value="">Select Model</option>';
-                models.forEach(m => {
-                    select.innerHTML += `<option value="${m}">${m}</option>`;
-                });
+            // Populate Legacy Select (only if not filtering, as it needs all options)
+            if (!isFiltering) {
+                const select = document.getElementById('modelSelect');
+                if (select) {
+                    select.disabled = false;
+                    select.innerHTML = '<option value="">Select Model</option>';
+                    // Use simple list for the hidden select
+                    const uniqueNames = [...new Set(models.map(m => m.name))].sort();
+                    uniqueNames.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        select.appendChild(opt);
+                    });
+                }
             }
         }
 
@@ -5483,6 +6017,149 @@
             return null;
         }
 
+        // ========== COMPATIBLE KEYS CAROUSEL ==========
+        // Global cache for compatible keys by vehicle
+        const compatibleKeysCache = {};
+
+        async function fetchCompatibleKeys(make, model, year) {
+            const cacheKey = `${make}|${model}|${year}`;
+            if (compatibleKeysCache[cacheKey]) {
+                return compatibleKeysCache[cacheKey];
+            }
+
+            try {
+                const url = `${API}/api/vehicle-keys?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.keys && data.keys.length > 0) {
+                    compatibleKeysCache[cacheKey] = data.keys;
+                    return data.keys;
+                }
+            } catch (e) {
+                console.log('Failed to fetch compatible keys:', e);
+            }
+            return [];
+        }
+
+        function categorizeKeyType(key) {
+            // Smart/Prox: has FCC ID and buttons
+            if (key.fcc_id && key.product_title?.toLowerCase().includes('smart')) return 'smart';
+            if (key.fcc_id && (key.product_title?.toLowerCase().includes('remote head') || key.product_title?.toLowerCase().includes('rhk'))) return 'remote';
+            // Transponder: has chip, no FCC or remote-style
+            if (key.chip && !key.fcc_id) return 'transponder';
+            if (key.chip && key.fcc_id) return 'smart';
+            // Mechanical: shell or blank
+            if (key.product_title?.toLowerCase().includes('shell') || key.product_title?.toLowerCase().includes('blank')) return 'mechanical';
+            return 'key';
+        }
+
+        function getKeyIcon(type) {
+            switch (type) {
+                case 'smart': return '📡';
+                case 'remote': return '🎛️';
+                case 'transponder': return '🏷️';
+                case 'mechanical': return '🗝️';
+                default: return '🔑';
+            }
+        }
+
+        function renderKeyCarousel(keys, cardIndex, selectedIdx = 0) {
+            if (!keys || keys.length === 0) return '';
+
+            // Group keys by type for better organization
+            const typeCounts = { smart: 0, remote: 0, transponder: 0, mechanical: 0, key: 0 };
+            keys.forEach(k => typeCounts[categorizeKeyType(k)]++);
+
+            return `
+                <div class="key-carousel" id="keyCarousel-${cardIndex}">
+                    <div class="key-carousel-title">🔄 ${keys.length} Compatible Keys (click to switch)</div>
+                    ${keys.slice(0, 10).map((k, i) => {
+                const keyType = categorizeKeyType(k);
+                const icon = getKeyIcon(keyType);
+                const label = k.product_title?.split(' ').slice(0, 3).join(' ') || 'Key';
+                const price = k.price || '';
+                return `
+                            <div class="key-thumb ${i === selectedIdx ? 'active' : ''}" 
+                                 onclick="selectKey(${cardIndex}, ${i})"
+                                 data-key-index="${i}">
+                                <span class="key-thumb-icon">${icon}</span>
+                                <span class="key-thumb-label">${label.substring(0, 15)}...</span>
+                                ${price ? `<span class="key-thumb-price">${price}</span>` : ''}
+                            </div>
+                        `;
+            }).join('')}
+                    ${keys.length > 10 ? `<div class="key-thumb" style="opacity: 0.6; cursor: default;"><span>+${keys.length - 10} more</span></div>` : ''}
+                </div>
+            `;
+        }
+
+        // Global storage for keys data per card
+        const cardKeysData = {};
+
+        function selectKey(cardIndex, keyIndex) {
+            const keys = cardKeysData[cardIndex];
+            if (!keys || !keys[keyIndex]) return;
+
+            const key = keys[keyIndex];
+
+            // Update active state on thumbnails
+            const carousel = document.getElementById(`keyCarousel-${cardIndex}`);
+            if (carousel) {
+                carousel.querySelectorAll('.key-thumb').forEach((thumb, i) => {
+                    thumb.classList.toggle('active', i === keyIndex);
+                });
+            }
+
+            // Update card specs dynamically
+            const specsContainer = document.getElementById(`keySpecs-${cardIndex}`);
+            if (specsContainer) {
+                specsContainer.innerHTML = `
+                    <div class="data-item">
+                        <div class="data-label">Product</div>
+                        <div class="data-value highlight" style="font-size: 0.9rem;">${key.product_title || 'N/A'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">FCC ID</div>
+                        <div class="data-value highlight">${key.fcc_id ? `<a href="#" class="fcc-link" onclick="searchFccById('${key.fcc_id.split('\\n')[0]}'); return false;">${key.fcc_id.split('\\n')[0]}</a>` : 'N/A'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Chip</div>
+                        <div class="data-value">${key.chip || 'N/A'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Frequency</div>
+                        <div class="data-value">${key.frequency || 'N/A'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Battery</div>
+                        <div class="data-value">${key.battery || 'N/A'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Price (AKS)</div>
+                        <div class="data-value" style="color: #22c55e; font-weight: 600;">${key.price || 'N/A'}</div>
+                    </div>
+                `;
+            }
+
+            // Update Amazon button
+            const amazonBtn = document.getElementById(`amazonBtn-${cardIndex}`);
+            if (amazonBtn && key.amazon_search_url) {
+                amazonBtn.href = key.amazon_search_url;
+            }
+
+            // Update AKS link
+            const aksBtn = document.getElementById(`aksBtn-${cardIndex}`);
+            if (aksBtn && key.url) {
+                aksBtn.href = key.url;
+                aksBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Global state for year navigation
+        let currentVehicleYear = null;
+        let currentVehicleMake = null;
+        let currentVehicleModel = null;
+
         async function searchVehicle() {
             const year = document.getElementById('yearSelect').value;
             const make = document.getElementById('makeSelect').value;
@@ -5493,7 +6170,13 @@
                 return;
             }
 
-            document.getElementById('resultTitle').textContent = `${year} ${make} ${model}`;
+            // Store current vehicle for year navigation
+            currentVehicleYear = parseInt(year);
+            currentVehicleMake = make;
+            currentVehicleModel = model;
+
+            document.getElementById('resultTitle').textContent = `${make} ${model}`;
+            updateYearNavigation(parseInt(year));
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
             const browseSection = document.getElementById('legacySearchCard');
@@ -5501,6 +6184,7 @@
             const resultsSection = document.getElementById('resultsSection');
             if (resultsSection) resultsSection.classList.add('active');
             initQuickSearch();
+            await ensureGuidesLoaded(); // Predownload guides for linking
 
             try {
                 const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
@@ -5519,6 +6203,9 @@
 
         function displayResults(rows, year, make, model) {
             const container = document.getElementById('resultsContainer');
+
+            // Set shareable URL for this vehicle
+            setVehicleUrl(make, model, year);
 
             // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
             const seen = new Set();
@@ -5615,17 +6302,59 @@
                         ? `<span class="badge" style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span>`
                         : '';
 
-                // ===== STELLANTIS SPLIT-YEAR & PRE-CODING WARNINGS =====
+                // ===== VEHICLE WARNINGS & DIFFICULTY SYSTEM =====
                 const makeLower = make.toLowerCase();
                 const modelLower = model.toLowerCase();
                 const yearNum = parseInt(year);
                 const rfSystem = v.rf_system || '';
                 const vinOrdered = v.vin_ordered || 0;
                 const dealerToolOnly = v.dealer_tool_only || '';
+                const progDifficulty = v.prog_difficulty || v.akl_difficulty || '';
+                const immoSystem = (v.immobilizer_system || v.immobilizer || '').toLowerCase();
 
                 // Generate warning badges
                 let stellantisWarnings = '';
+                let difficultyBadge = '';
+                let dealerOnlyBadge = '';
 
+                // ===== MERCEDES FBS4 DEALER-ONLY =====
+                const isMercedes = makeLower.includes('mercedes') || makeLower === 'mercedes-benz';
+                const isFBS4 = yearNum >= 2015 && isMercedes;
+                const isFBS4AKL = isFBS4 && (immoSystem.includes('fbs4') || immoSystem.includes('das4'));
+
+                if (isFBS4 || (isMercedes && yearNum >= 2015)) {
+                    dealerOnlyBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600;">🚨 FBS4 Dealer-Only AKL</span>`;
+                    difficultyBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2);">⏱️ ~3-5 days (NASTF)</span>`;
+                }
+
+                // ===== VAG MQB-EVO DEALER-ONLY (2020+) =====
+                const isVAG = ['audi', 'volkswagen', 'vw', 'porsche', 'seat', 'skoda'].includes(makeLower);
+                const isMQBEvo = isVAG && yearNum >= 2020;
+                const isPorsche992 = makeLower === 'porsche' && yearNum >= 2019 && (modelLower.includes('911') || modelLower.includes('taycan'));
+
+                if (isPorsche992) {
+                    dealerOnlyBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600;">🚨 Dealer Only (BCM2)</span>`;
+                    difficultyBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2);">⏱️ Dealer Required</span>`;
+                } else if (isMQBEvo && !dealerOnlyBadge) {
+                    dealerOnlyBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 600;">⚠️ MQB-Evo (AKL Complex)</span>`;
+                    difficultyBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.2);">⏱️ 45-90 min bench</span>`;
+                }
+
+                // ===== DIFFICULTY LEVEL INDICATORS =====
+                if (!difficultyBadge && progDifficulty) {
+                    const diff = parseInt(progDifficulty) || 0;
+                    if (diff >= 8) {
+                        difficultyBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2);">🔴 Expert | 60+ min</span>`;
+                    } else if (diff >= 6) {
+                        difficultyBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.2);">🟡 Intermediate | 30-45 min</span>`;
+                    } else if (diff >= 4) {
+                        difficultyBadge = `<span class="badge" style="background: rgba(34, 197, 94, 0.1); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.2);">🟢 Standard | 15-30 min</span>`;
+                    } else {
+                        difficultyBadge = `<span class="badge" style="background: rgba(34, 197, 94, 0.1); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.2);">✅ Basic | 10-15 min</span>`;
+                    }
+                }
+
+                // ===== STELLANTIS SPLIT-YEAR & PRE-CODING WARNINGS =====
                 // Split-Year Warning (2022 Renegade)
                 if (makeLower === 'jeep' && modelLower.includes('renegade') && yearNum === 2022) {
                     stellantisWarnings += `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">⚠️ Split-Year</span>`;
@@ -5636,9 +6365,9 @@
                     stellantisWarnings += `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔒 VIN-Ordered</span>`;
                 }
 
-                // Dealer Tool Required Warning
-                if (dealerToolOnly) {
-                    stellantisWarnings += `<span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.4);">🔧 ${dealerToolOnly}</span>`;
+                // Dealer Tool Required Warning (from database)
+                if (dealerToolOnly && !dealerOnlyBadge) {
+                    dealerOnlyBadge = `<span class="badge" style="background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.4);">🔧 ${dealerToolOnly}</span>`;
                 }
 
                 // RF System Badge (Giobert/Continental/Alfa)
@@ -5661,6 +6390,8 @@
                             ${uniqueRows.length > 1 ? `<span style="color: var(--text-muted); font-size: 0.85rem;">• ${fccId !== 'N/A' ? 'FCC: ' + fccId : oem !== 'N/A' ? 'Part: ' + oem : 'Variant ' + (idx + 1)}</span>` : ''}
                         </div>
                         <div class="vehicle-badges">
+                            ${dealerOnlyBadge}
+                            ${difficultyBadge}
                             ${stellantisWarnings}
                             ${rfSystemBadge}
                             ${inventoryBadge}
@@ -5669,6 +6400,9 @@
                             <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
                         </div>
                     </div>
+
+                    <!-- Key Carousel Container (populated async) -->
+                    <div id="keyCarouselContainer-${idx}" class="key-carousel-container"></div>
 
                     <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
                         ${imageUrl ? `
@@ -5715,6 +6449,7 @@
 
                     <div class="vehicle-card-actions" style="display: flex; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 12px;">
                          ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="fcc-action-btn fcc-action-primary" style="flex: 1; text-decoration: none; text-align: center;">🛒 Buy on Amazon</a>` : ''}
+                         ${getGuideButtonHtml(make, model)}
                          <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary" style="flex: 1;">🔍 View Details</button>
                     </div>
                     
@@ -5773,6 +6508,19 @@
                 </div>
             `;
             }).join('');
+
+            // Async load compatible keys for each card
+            uniqueRows.forEach((v, idx) => {
+                fetchCompatibleKeys(make, model, year).then(keys => {
+                    if (keys && keys.length > 0) {
+                        cardKeysData[idx] = keys;
+                        const container = document.getElementById(`keyCarouselContainer-${idx}`);
+                        if (container) {
+                            container.innerHTML = renderKeyCarousel(keys, idx, 0);
+                        }
+                    }
+                });
+            });
         }
 
         function getKeyTypeIcon(keyType) {
@@ -5804,6 +6552,115 @@
             // Clear selected year badge
             const yearBadge = document.getElementById('selectedYearBadge');
             if (yearBadge) yearBadge.style.display = 'none';
+
+            // Hide year navigation
+            const yearNav = document.getElementById('yearNavigation');
+            if (yearNav) yearNav.style.display = 'none';
+        }
+
+        // Year Navigation Functions
+        function updateYearNavigation(year) {
+            const yearNav = document.getElementById('yearNavigation');
+            const yearCurrent = document.getElementById('yearNavCurrent');
+            const prevBtn = document.getElementById('yearPrevBtn');
+            const nextBtn = document.getElementById('yearNextBtn');
+
+            if (yearNav && yearCurrent) {
+                yearNav.style.display = 'flex';
+                yearCurrent.textContent = year;
+
+                // Determine year boundaries (2000 - next year)
+                const minYear = 2000;
+                const maxYear = new Date().getFullYear() + 1;
+
+                prevBtn.disabled = year <= minYear;
+                nextBtn.disabled = year >= maxYear;
+            }
+        }
+
+        async function navigateYear(direction) {
+            if (!currentVehicleMake || !currentVehicleModel || !currentVehicleYear) return;
+
+            const newYear = currentVehicleYear + direction;
+            const minYear = 2000;
+            const maxYear = new Date().getFullYear() + 1;
+
+            if (newYear < minYear || newYear > maxYear) return;
+
+            currentVehicleYear = newYear;
+            await loadVehicleByYear(newYear, currentVehicleMake, currentVehicleModel);
+        }
+
+        async function loadVehicleByYear(year, make, model) {
+            document.getElementById('resultTitle').textContent = `${make} ${model}`;
+            updateYearNavigation(year);
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+                const data = await res.json();
+
+                if (data.rows && data.rows.length > 0) {
+                    displayResults(data.rows, year, make, model);
+                } else {
+                    // Fetch available years for this make/model
+                    let availableYearsHtml = '';
+                    try {
+                        const yearsRes = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
+                        const yearsData = await yearsRes.json();
+                        if (yearsData.rows && yearsData.rows.length > 0) {
+                            // Extract unique years from year ranges
+                            const yearsSet = new Set();
+                            yearsData.rows.forEach(r => {
+                                const start = r.year_start || r.year_end;
+                                const end = r.year_end || r.year_start;
+                                if (start && end) {
+                                    for (let y = Math.min(start, end); y <= Math.max(start, end); y++) {
+                                        yearsSet.add(y);
+                                    }
+                                } else if (start) {
+                                    yearsSet.add(start);
+                                }
+                            });
+                            const sortedYears = [...yearsSet].sort((a, b) => b - a); // Newest first
+                            if (sortedYears.length > 0) {
+                                availableYearsHtml = `
+                                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Available years for ${make} ${model}:</div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
+                                            ${sortedYears.slice(0, 15).map(y => `
+                                                <button onclick="loadVehicleByYear(${y}, '${make}', '${model}')" 
+                                                    style="padding: 8px 14px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 0.9rem; transition: all 0.2s;"
+                                                    onmouseover="this.style.background='var(--brand-primary)'; this.style.color='var(--bg-primary)';"
+                                                    onmouseout="this.style.background='var(--bg-tertiary)'; this.style.color='var(--text-primary)';">
+                                                    ${y}
+                                                </button>
+                                            `).join('')}
+                                            ${sortedYears.length > 15 ? `<span style="color: var(--text-muted); font-size: 0.8rem; align-self: center;">+${sortedYears.length - 15} more</span>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Could not fetch available years:', e);
+                    }
+
+                    document.getElementById('resultsContainer').innerHTML = `
+                        <div class="loading" style="text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">🚫</div>
+                            <div>No data for ${year} ${make} ${model}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
+                                ${availableYearsHtml ? 'Select a year with available data below:' : 'Try adjacent years or this model may not exist for ' + year}
+                            </div>
+                            ${availableYearsHtml}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error('Year navigation failed:', e);
+                document.getElementById('resultsContainer').innerHTML = '<div class="loading">Failed to load</div>';
+            }
         }
 
         // Quick switch to a different make (pre-populate dropdowns)
@@ -5887,7 +6744,13 @@
                 return;
             }
 
-            document.getElementById('resultTitle').textContent = `${year} ${make} ${model}`;
+            // Store current vehicle for year navigation
+            currentVehicleYear = parseInt(year);
+            currentVehicleMake = make;
+            currentVehicleModel = model;
+
+            document.getElementById('resultTitle').textContent = `${make} ${model}`;
+            updateYearNavigation(parseInt(year));
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
             try {
@@ -5998,6 +6861,327 @@
             renderFccTable();
             // Re-render coverage map to highlight filtered key type
             renderKeyCoverageMap(true);
+        }
+
+        // ========== GUIDES TAB FUNCTIONS ==========
+        let guidesData = [];
+        let guidesDataLoaded = false;
+        let currentGuidesMakeFilter = 'all';
+
+        async function ensureGuidesLoaded() {
+            if (guidesDataLoaded) return;
+            try {
+                const res = await fetch(`${API}/api/guides`);
+                if (res.ok) {
+                    const data = await res.json();
+                    guidesData = data.rows || [];
+                    guidesDataLoaded = true;
+                }
+            } catch (e) { console.warn('Silent guide load failed:', e); }
+        }
+
+        function getGuideButtonHtml(make, model) {
+            if (!guidesDataLoaded || !guidesData.length) return '';
+
+            // Find guide that matches make and model
+            const guide = guidesData.find(g =>
+                g.make.toLowerCase() === make.toLowerCase() &&
+                g.model.toLowerCase() === model.toLowerCase()
+            );
+
+            if (guide) {
+                return `<button onclick="viewGuideDetail('${guide.id}')" class="fcc-action-btn" style="flex: 1; background: #c2410c; color: white; border: none;">📖 View Guide</button>`;
+            }
+            return '';
+        }
+
+        async function loadGuidesTab() {
+            if (guidesDataLoaded) {
+                renderGuidesGrid();
+                return;
+            }
+
+            const grid = document.getElementById('guidesGrid');
+            if (grid) {
+                grid.innerHTML = '<div class="loading" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">Loading guides...</div>';
+            }
+
+            try {
+                const res = await fetch(`${API}/api/guides`);
+                if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+                const data = await res.json();
+                guidesData = data.rows || [];
+                guidesDataLoaded = true;
+
+                // Update stats
+                const totalEl = document.getElementById('totalGuidesCount');
+                const makesEl = document.getElementById('uniqueMakesCount');
+                const dealerEl = document.getElementById('dealerOnlyCount');
+
+                if (totalEl) totalEl.textContent = guidesData.length;
+
+                const uniqueMakes = new Set(guidesData.map(g => g.make));
+                if (makesEl) makesEl.textContent = uniqueMakes.size;
+
+                const dealerOnly = guidesData.filter(g =>
+                    g.dealer_tool_only ||
+                    (g.content && g.content.toLowerCase().includes('dealer-only'))
+                ).length;
+                if (dealerEl) dealerEl.textContent = dealerOnly;
+
+                renderGuidesGrid();
+                try {
+                    renderGuideCoverageMap();
+                } catch (err) {
+                    console.error('Failed to render coverage map:', err);
+                }
+            } catch (e) {
+                console.error('Failed to load guides:', e);
+                if (grid) {
+                    grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #f87171;">
+                        Failed to load guides.<br>
+                        <small style="opacity:0.8">${e.message}</small><br>
+                        <button onclick="loadGuidesTab()" style="margin-top:16px;background:var(--bg-tertiary);border:1px solid var(--border);color:var(--text-primary);padding:8px 16px;border-radius:6px;cursor:pointer;">Try Again</button>
+                    </div>`;
+                }
+            }
+        }
+
+        // Render Guide Coverage Heatmap
+        function renderGuideCoverageMap() {
+            const container = document.getElementById('guideCoverageContainer');
+            if (!container) return;
+
+            // Use same makes and years layout as Key Coverage
+            // Use HARDCODED_COVERAGE keys if available, otherwise build from guidesData
+            const hardcodedMakes = typeof HARDCODED_COVERAGE !== 'undefined' ? Object.keys(HARDCODED_COVERAGE) : [];
+
+            // Get all unique makes from guidesData to ensure we cover everything
+            const guideMakes = [...new Set(guidesData.map(g => g.make))].sort();
+
+            // Combine and unique
+            const allMakes = [...new Set([...hardcodedMakes, ...guideMakes])].sort();
+            const years = Array.from({ length: 31 }, (_, i) => 1995 + i); // 1995-2025
+
+            // Build coverage grid
+            const coverage = {};
+            allMakes.forEach(make => {
+                coverage[make] = {};
+                years.forEach(year => {
+                    coverage[make][year] = { count: 0 };
+                });
+            });
+
+            // Populate from guidesData
+            guidesData.forEach(guide => {
+                if (!guide.make || !guide.year_start) return;
+
+                const make = guide.make;
+                // Normalize make matching if needed (simple check for now)
+                const targetMake = allMakes.find(m => m.toLowerCase() === make.toLowerCase()) || make;
+
+                if (coverage[targetMake]) {
+                    const start = parseInt(guide.year_start);
+                    const end = guide.year_end ? parseInt(guide.year_end) : 2025; // Default to 2025 if null
+
+                    for (let y = start; y <= end; y++) {
+                        if (y >= 1995 && y <= 2025) {
+                            coverage[targetMake][y].count++;
+                        }
+                    }
+                } else {
+                    // console.warn('Skipping coverage for unknown make:', targetMake);
+                }
+            });
+
+            // Sticky Header HTML
+            const headerHtml = years.map(y => `<th style="font-size: 0.5rem; color: var(--text-muted); text-align: center; padding: 0; width: 18px; min-width: 18px; font-weight: normal;">'${y.toString().slice(2)}</th>`).join('');
+
+            // Rows HTML
+            const rowsHtml = allMakes.map(make => {
+                // Filter rows based on active filter if needed, but let's show all for map context
+                // Or hide empty rows? Let's keep it consistent with the main map
+
+                // Check if make has ANY guides
+                const hasGuides = Object.values(coverage[make]).some(c => c.count > 0);
+                // If filtering by make, maybe only show that make?
+                if (currentGuidesMakeFilter !== 'all' && make.toLowerCase() !== currentGuidesMakeFilter) return '';
+                if (currentGuidesMakeFilter === 'all' && !hasGuides) return ''; // Hide makes with no guides in "All" view to save space
+
+                const cells = years.map(year => {
+                    const data = coverage[make][year];
+                    const count = data.count;
+
+                    // Color logic
+                    let bg = 'var(--bg-secondary)'; // Empty
+                    if (count > 0) bg = '#3b82f6'; // Generic Guide Blue
+                    // Could add logic: Dealer Only = Red?
+
+                    const opacity = count > 0 ? '1' : '0.3';
+                    // Use specific colors if we want to mimic the Key Map style
+                    if (count > 0) {
+                        bg = 'rgba(59, 130, 246, 0.8)'; // Blue for guides
+                    } else {
+                        bg = 'rgba(255, 255, 255, 0.05)';
+                    }
+
+                    return `<td style="padding: 1px;">
+                        <div style="height: 12px; background: ${bg}; border-radius: 2px;" title="${make} ${year}: ${count} Guides"></div>
+                   </td>`;
+                }).join('');
+
+                return `<tr>
+                    <td style="position: sticky; left: 0; z-index: 10; background: var(--bg-tertiary); font-size: 0.7rem; color: var(--text-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">${make}</td>
+                    ${cells}
+                </tr>`;
+            }).join('');
+
+            const html = `
+                <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 1rem;">
+                        <span>🗺️ Guide Coverage Map</span>
+                        <span style="font-size: 0.7rem; font-weight: normal; color: var(--text-muted); margin-left: auto;">Blue = Guide Available</span>
+                    </h3>
+                    
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative;">
+                        <table style="border-collapse: separate; border-spacing: 2px; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th style="position: sticky; left: 0; z-index: 10; background: var(--bg-tertiary); min-width: 70px; width: 70px;"></th>
+                                    ${headerHtml}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function filterGuidesByMake(make) {
+            currentGuidesMakeFilter = make.toLowerCase();
+
+            // Update active filter button
+            document.querySelectorAll('#tabGuides .fcc-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.make === make.toLowerCase());
+            });
+
+            renderGuidesGrid();
+        }
+
+        function filterGuidesTable() {
+            renderGuidesGrid();
+        }
+
+        function renderGuidesGrid() {
+            const grid = document.getElementById('guidesGrid');
+            if (!grid) return;
+
+            const searchTerm = (document.getElementById('guidesSearch')?.value || '').toLowerCase();
+
+            let filtered = guidesData.filter(g => {
+                // Make filter
+                if (currentGuidesMakeFilter !== 'all') {
+                    if (!g.make || !g.make.toLowerCase().includes(currentGuidesMakeFilter)) return false;
+                }
+
+                // Search filter
+                if (searchTerm) {
+                    const searchable = `${g.make || ''} ${g.model || ''} ${g.content || ''}`.toLowerCase();
+                    if (!searchable.includes(searchTerm)) return false;
+                }
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                    No guides found for this filter.
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(g => renderGuideCard(g)).join('');
+        }
+
+        function renderGuideCard(guide) {
+            const yearRange = guide.year_start && guide.year_end
+                ? `${guide.year_start}-${guide.year_end}`
+                : guide.year_start || 'All Years';
+
+            const isDealerOnly = guide.dealer_tool_only ||
+                (guide.content && guide.content.toLowerCase().includes('dealer-only'));
+
+            const hasFBS4 = guide.content && guide.content.toLowerCase().includes('fbs4');
+            const hasMQB = guide.content && guide.content.toLowerCase().includes('mqb');
+
+            let badges = '';
+            if (isDealerOnly) {
+                badges += `<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">🚨 Dealer-Only</span>`;
+            }
+            if (hasFBS4) {
+                badges += `<span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">FBS4</span>`;
+            }
+            if (hasMQB) {
+                badges += `<span style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">MQB</span>`;
+            }
+
+            // Extract first paragraph for preview
+            const contentPreview = (guide.content || '')
+                .replace(/##?\s+/g, '')
+                .replace(/\*\*/g, '')
+                .replace(/\n+/g, ' ')
+                .substring(0, 150) + '...';
+
+            return `
+                <div class="guide-card" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s;"
+                    onclick="viewGuideDetail('${guide.id}')"
+                    onmouseover="this.style.borderColor='var(--brand-primary)'; this.style.transform='translateY(-2px)';"
+                    onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--brand-primary); font-size: 0.85rem;">${guide.make}</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">${guide.model}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="background: var(--bg-secondary); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; color: var(--text-secondary);">${yearRange}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+                        ${badges}
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.4;">
+                        ${contentPreview}
+                    </div>
+                    <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+                        <button style="background: var(--brand-primary); color: var(--bg-primary); border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                            View Guide →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function viewGuideDetail(guideId) {
+            // Find the guide
+            const guide = guidesData.find(g => g.id === guideId);
+            if (!guide) return;
+
+            // Open modal using renderVehicleGuide for full structured view
+            const modalHtml = `
+                <div id="guideDetailModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px);" onclick="if(event.target.id === 'guideDetailModal') this.remove();">
+                    <div style="background: var(--bg-primary); border-radius: 16px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 0; position: relative; box-shadow: 0 4px 25px rgba(0,0,0,0.5); border: 1px solid var(--border);">
+                        <button onclick="document.getElementById('guideDetailModal').remove()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; z-index: 10; transition: all 0.2s;">✕</button>
+                        <div style="padding: 32px;">
+                             ${renderVehicleGuide(guide)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
 
         async function loadFccData() {
@@ -12776,6 +13960,7 @@
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "55cb95cc0e174..."}'></script>
     <!-- End Cloudflare Web Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="public/js/tool_coverage_data.js"></script>
     <script src="public/js/programming_guides_data.js"></script>
@@ -12783,7 +13968,6 @@
     <script src="public/js/coverage_metadata.js"></script>
     <!-- Dynamic Guide Renderer -->
     <script src="components/GuideRenderer.js"></script>
-    <script src="js/app.js"></script>
 </body>
 
 </html>
