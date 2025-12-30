@@ -6604,7 +6604,41 @@
                     <!-- Key Carousel Container (populated async) -->
                     <div id="keyCarouselContainer-${idx}" class="key-carousel-container"></div>
 
-                    <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                    <!-- CHIP & PROGRAMMING SECTION (Expanded) -->
+                    <div class="mega-info-section" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 12px; padding: 16px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(168, 85, 247, 0.05)); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.15);">
+                        <!-- Chip Technology Box -->
+                        <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.7rem; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">🔐 Chip Technology</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${chip}</div>
+                            ${v.chip_technology ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">${v.chip_technology}</div>` : ''}
+                            ${v.chip_description ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; padding: 6px; background: rgba(34, 197, 94, 0.1); border-radius: 4px; border-left: 2px solid #22c55e;">${v.chip_description}</div>` : ''}
+                            ${v.chip_bits ? `<div style="font-size: 0.75rem; color: #a78bfa; margin-top: 4px;">📊 ${v.chip_bits}-bit encryption</div>` : ''}
+                        </div>
+                        
+                        <!-- Programming Method Box -->
+                        <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.7rem; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">🔧 Programming</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${v.programming_method || 'OBD'}</div>
+                            ${v.pin_required ? `<div style="font-size: 0.85rem; color: #f59e0b;">🔑 PIN Required</div>` : `<div style="font-size: 0.85rem; color: #22c55e;">✅ No PIN Needed</div>`}
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+                                <span style="display: inline-block; background: rgba(59, 130, 246, 0.1); padding: 3px 8px; border-radius: 4px; margin-right: 4px;">Autel IM608</span>
+                                <span style="display: inline-block; background: rgba(59, 130, 246, 0.1); padding: 3px 8px; border-radius: 4px;">SmartPro</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Tools Required Box -->
+                        <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.7rem; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">🛠️ Tools Required</div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                ${v.lishi_tool ? `<div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">🔓</span><span style="font-weight: 600;">Lishi:</span> <span style="color: var(--brand-primary);">${v.lishi_tool}</span></div>` : ''}
+                                <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">🔌</span><span style="font-weight: 600;">OBD:</span> <span style="color: #22c55e;">Standard Port</span></div>
+                                ${keyway !== 'N/A' ? `<div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">🗝️</span><span style="font-weight: 600;">Blank:</span> <span>${keyway}</span></div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END CHIP & PROGRAMMING SECTION -->
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 16px;">
                         ${imageUrl ? `
                             <div class="fcc-card-image" style="width: 140px; height: 140px; margin-bottom: 0; flex-shrink: 0;" onclick="showFccModal('${fccId}')">
                                 <img src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'">
