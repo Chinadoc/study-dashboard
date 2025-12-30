@@ -1,0 +1,47 @@
+SCION
+FR-S 2013 2016 All 50000-69999 OEM# SU003-01445 or 
+SU003-05282 Smart Pro/TCP/MVPP Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+IA 2016 2016 All 10100-12283 OEM# 89904-WB003 or 
+DD1B-67-5RY Smart Pro/TCP/MVPP 288
+IM 2016 2016 All 40000-49999 OEM# 89070-12B00 Service Key LXP90-P Texas Instruments (4D74) 128 bit System 950
+IQ 2012 2014 All 50000-69999 X217/TR47 (LAL) Service Key TR47 1420
+IQ (CANADA)
+2012 2013 All 50000-69999 TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2012 2013 All 50000-69999 TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TC
+2014 2014 All 40000-49999 OEM# 89070-52G30 Smart Pro/TCP/MVPP/TKO/SDD Service Key LXP90-P Limited Release Edition 950
+2011 2015 All 50000-69999
+TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+2005 2010 All 50000-69999
+EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted Code System 1420
+TOY44D-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments (4D67) Encrypted Code System 1420
+XA 2004 2007 All 50000-69999 EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted Code System 1420
+XB (CANADA) 2011 2012 All 50000-69999
+TOY44G-PT Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+XB
+2004 2014 All 50000-69999 X217/TR47 (LAL) SDD/TKO for optional TOY44D-PT Service Key TR47 1420
+2004 2008 All 50000-69999 EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted Code System 1420
+XD (CANADA) 2011 2012 All 50000-69999
+TOY44G-PT (LAL) Smart Pro/TCP/MVPP/TKO/SDD Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+TOY43-GTS w/ T80 
+Transponder (GTHT80) RW5, SA+, RW4 Plus, EZ Clone Plus Service Key TR47 Texas Instruments 80 Bit Encrypted System 1420
+XD
+2008 2014 All 50000-69999 X217/TR47 SDD/TKO for optional TOY44D-PT Service Key TR47 1420
+2008 2008 All 50000-69999 EK3-TOY43/EK3LB-TOY43*/
+TOY43-GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key TR47 Texas Instruments (4D67) Encrypted Code System 1420

@@ -1,0 +1,106 @@
+MERCEDES BENZ
+190 CLASS, D, E W/O 
+ALARM 1984 1993
+All Mfg. Restricted 
+Code Series S50HF-P - High Security Key 25
+Valet Mfg. Restricted 
+Code Series S53HF-P - High Security Key 186
+MAZDA - MERCEDES BENZ
+--- PAGE 90 ---
+Page 90 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
+190 CLASS, D, E WITH 
+ALARM
+1984 1993 Valet Mfg. Restricted 
+Code Series S58HF-P - High Security Key 25
+1984 1990 All Mfg. Restricted 
+Code Series S34YS-P - High Security Key 186
+300 SERIES 1986 1993
+All Mfg. Restricted 
+Code Series S48HF-P - High Security Key N/A
+Valet Mfg. Restricted 
+Code Series S49HF-P - High Security Key N/A
+C CLASS - C220, 
+C230, C280, C43
+1997 2009 All 3501-6700 Dealer Key  Service Key HU64P High Security Key. Crypto Transponder, Ordered by VIN 83
+1994 1996 All Mfg. Restricted 
+Code Series S34YS-P - High Security Key N/A
+CL CLASS - CL500, 
+CL600, CL55, CL65 1998 2008 All Mfg. Restricted 
+Code Series Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN N/A
+CLK CLASS - CLK320, 
+CLK430, CABRIOLET 1998 2008 All 001-6700 Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN 913
+CLS CLASS - CLS500, 
+CLS555 2006 2008 All 001-6700 Dealer Key  - 913
+E CLASS - E55, E350, 
+E500, E300D, E320, 
+E430
+2005 2009 All 001-6700 Dealer Key  Service Key HU64P High Security Key. Crypto Transponder, Ordered by VIN 913
+1997 2005 All 001-6700 Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN 913
+1994 1996 All Mfg. Restricted 
+Code Series S34YS-P - High Security Key N/A
+G CLASS - G55, G500 2004 2011 All 001-6700 Dealer Key  Service Key HU64P High Security Key. Crypto Transponder, Ordered by VIN 913
+M CLASS
+2006 2009 All 001-6700 Dealer Key Service Key HU64P High Security Key. Crypto Transponder, Ordered by VIN 913
+1998 2005 All 001-6700 Dealer Key  Service Key HU64P High Security Key. Phillips Rolling Code System, 
+Ordered by VIN 913
+ML320, ML430 1998 2008 All Mfg. Restricted 
+Code Series Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN N/A
+R CLASS - R350, R500 2006 2009 All 001-6700 Dealer Key  Service Key HU64P High Security Key. Crypto Transponder, Ordered by VIN N/A
+S CLASS - S320, 
+S450, S500
+2001 2009 All 001-6700 Dealer Key  Service Key HU64P High Security Key. Crypto Transponder, Ordered by VIN N/A
+1997 2000 All Mfg. Restricted 
+Code Series Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN N/A
+SL CLASS - SL320, 
+SL500, SL600, 380SL, 
+420SL, 450SL
+1997 2008 All Mfg. Restricted 
+Code Series Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN N/A
+1987 1996
+All Mfg. Restricted 
+Code Series S48HF-P - High Security Key N/A
+Valet Mfg. Restricted 
+Code Series S49HF-P - High Security Key N/A
+1981 1986
+All HD4001-
+HD7350 MB18[-P] - High Security Key 15
+Valet ND4001-
+ND7350 MB18[-P] - High Security Key 15
+SLK 55, SLK230, 
+SLK280, SLK350 1998 2008 All Mfg. Restricted 
+Code Series Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN N/A
+SLR MC LAREN 2005 2008 All 3501-6700 Dealer Key  - High Security Key. Phillips Rolling Code System, 
+Ordered by VIN 913
+SPRINTER 2007 2013 All 001-6400 EK3P-HU64/EK3LB-HU64*/
+HU64-GTK#
+RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Service Key HU64 913
+ MERCEDES BENZ
+--- PAGE 91 ---
+Page 91 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.

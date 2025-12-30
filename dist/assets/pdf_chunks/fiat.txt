@@ -1,0 +1,36 @@
+FIAT
+124 SPIDER 2017 2020 All 10100-12283 OEM# 68314449AA or 
+68458550AA Smart Pro/TCP/MVPP SIP22KP Philips (47) Encrypted System 288
+500 2012 2018 All DE1-DE11210
+OEM# 68334510AA or 
+68269686AA (LAL) Smart Pro/TCP/MVPP/TKO/SDD SIP22KP High Security Key, Philips (46) Encrypted System 1627
+SIP22MH RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone SIP22KP High Security Key, Philips (46) Encrypted System 1627
+MODELS AND YEARS 
+NOT REFERENCED 
+ELSEWHERE 
+1981 1983
+Door/
+Trunk
+4100-4309 F91C - 3
+2100-2309 F91C2 - 3
+8100-8309 F91C8 - 3
+6100-6309 F91CR - 3
+1501-2000 FT37 - 4
+3501-4000 FT38 - 4
+Ignition FR1-FR2000 FT6R - 5
+K3301-K4886 X109/FT43 - 63
+FIAT
+F91C F91C2 F91C8 F91CR FT37 FT38 FT6R SIP22MH X109/FT43
+--- PAGE 46 ---
+Page 46 
+(LAL): Means there is an Ilco Look-Alike remote equivalent for all or part of the model coverage years.  Check www.ilcolookalike.com or MyKeyPro for complete Look-Alike coverage
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
