@@ -6174,13 +6174,23 @@
                         keyType === 'rhk' || keyType === 'flip' ? 'key-remote' :
                             keyType === 'transponder' ? 'key-transponder' : 'key-standard';
 
-                // Better label: "6-BTN RS" or "4-BTN TRUNK"
+                // Decision-tree labels: "6B + TRUNK" or "5B + RS" or "4B BASE"
                 const featureLabels = {
-                    rs: 'RS', trunk: 'TRUNK', hatch: 'HATCH', roof: 'ROOF', doors: 'DOORS'
+                    rs: '+RS', trunk: '+TRUNK', hatch: '+HATCH', roof: '+ROOF', doors: '+DOORS'
                 };
-                const featureStr = features.length ? features.map(f => featureLabels[f] || f.toUpperCase()).join(' ') : '';
-                const btnLabel = btnCount > 0 ? `${btnCount}-BTN` : keyType.toUpperCase();
-                const displayLabel = btnCount > 0 && featureStr ? `${btnLabel} ${featureStr}` : btnLabel;
+
+                // Build hierarchical label
+                let displayLabel = '';
+                if (btnCount > 0) {
+                    const featureStr = features.length
+                        ? features.map(f => featureLabels[f] || `+${f.toUpperCase()}`).join(' ')
+                        : 'BASE';
+                    displayLabel = `${btnCount}B ${featureStr}`;
+                } else if (keyType === 'blade' || keyType === 'mechanical') {
+                    displayLabel = 'BLADE';
+                } else {
+                    displayLabel = keyType.toUpperCase();
+                }
 
                 return `
                             <div class="key-thumb ${i === selectedIdx ? 'active' : ''} ${colorClass}" 
@@ -6192,7 +6202,7 @@
                                 <span class="key-thumb-type">${displayLabel}</span>
                                 ${fccId ? `<span class="key-thumb-fcc">${fccId}</span>` : `<span class="key-thumb-title">${keyType.toUpperCase()}</span>`}
                                 ${k.price ? `<span class="key-thumb-price">${k.price}</span>` : ''}
-                                ${variantsCount > 1 ? `<span class="key-variants-badge">${variantsCount} options</span>` : ''}
+                                ${variantsCount > 1 ? `<span class="key-variants-badge">${variantsCount} opts</span>` : ''}
                             </div>
                         `;
             }).join('')}
