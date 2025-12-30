@@ -6413,50 +6413,14 @@
         }
 
         function renderModels(models, chipContainer, loader, isFiltering = false) {
-            // Vehicle type icon based on model name
-            const getVehicleIcon = (name) => {
-                const n = name.toLowerCase();
-                // Trucks
-                if (n.includes('silverado') || n.includes('colorado') || n.includes('f-150') || n.includes('f150') ||
-                    n.includes('ranger') || n.includes('tacoma') || n.includes('tundra') || n.includes('titan') ||
-                    n.includes('ram') || n.includes('sierra') || n.includes('frontier') || n.includes('ridgeline') ||
-                    n.includes('canyon') || n.includes('maverick') || n.includes('gladiator')) return '🛻';
-                // SUVs
-                if (n.includes('tahoe') || n.includes('suburban') || n.includes('yukon') || n.includes('escalade') ||
-                    n.includes('explorer') || n.includes('expedition') || n.includes('4runner') || n.includes('highlander') ||
-                    n.includes('pilot') || n.includes('pathfinder') || n.includes('armada') || n.includes('wrangler') ||
-                    n.includes('grand cherokee') || n.includes('durango') || n.includes('traverse') || n.includes('blazer') ||
-                    n.includes('equinox') || n.includes('trailblazer') || n.includes('trax') || n.includes('terrain') ||
-                    n.includes('acadia') || n.includes('enclave') || n.includes('envision') || n.includes('encore') ||
-                    n.includes('rav4') || n.includes('cr-v') || n.includes('crv') || n.includes('rogue') || n.includes('murano') ||
-                    n.includes('cx-5') || n.includes('cx5') || n.includes('tucson') || n.includes('santa fe') ||
-                    n.includes('palisade') || n.includes('telluride') || n.includes('sorento') || n.includes('sportage') ||
-                    n.includes('land cruiser') || n.includes('sequoia') || n.includes('bronco') || n.includes('escape') ||
-                    n.includes('edge') || n.includes('nautilus') || n.includes('aviator') || n.includes('navigator') ||
-                    n.includes('qx') || n.includes('x3') || n.includes('x5') || n.includes('x7') || n.includes('q5') || n.includes('q7')) return '🚙';
-                // Sports/Performance
-                if (n.includes('camaro') || n.includes('corvette') || n.includes('mustang') || n.includes('challenger') ||
-                    n.includes('charger') || n.includes('supra') || n.includes('86') || n.includes('brz') ||
-                    n.includes('miata') || n.includes('mx-5') || n.includes('370z') || n.includes('400z') || n.includes('gt-r') ||
-                    n.includes('m3') || n.includes('m4') || n.includes('m5') || n.includes('amg') || n.includes('rs') ||
-                    n.includes('type r') || n.includes('sti') || n.includes('wrx') || n.includes('nismo')) return '🏎️';
-                // Vans
-                if (n.includes('express') || n.includes('transit') || n.includes('promaster') || n.includes('sprinter') ||
-                    n.includes('sienna') || n.includes('odyssey') || n.includes('pacifica') || n.includes('carnival') ||
-                    n.includes('caravan') || n.includes('savana') || n.includes('metris') || n.includes('nv')) return '🚐';
-                // Compact/Hatchback
-                if (n.includes('bolt') || n.includes('spark') || n.includes('sonic') || n.includes('cruze') ||
-                    n.includes('fit') || n.includes('civic') || n.includes('corolla') || n.includes('yaris') ||
-                    n.includes('versa') || n.includes('leaf') || n.includes('prius') || n.includes('focus') ||
-                    n.includes('fiesta') || n.includes('golf') || n.includes('jetta') || n.includes('elantra') ||
-                    n.includes('forte') || n.includes('mazda3') || n.includes('impreza') || n.includes('crosstrek')) return '🚗';
-                // Electric
-                if (n.includes('ev') || n.includes('electric') || n.includes('model s') || n.includes('model 3') ||
-                    n.includes('model x') || n.includes('model y') || n.includes('lyriq') || n.includes('hummer ev') ||
-                    n.includes('ioniq') || n.includes('mach-e') || n.includes('lightning') || n.includes('rivian') ||
-                    n.includes('lucid') || n.includes('ariya') || n.includes('bz4x') || n.includes('id.4')) return '⚡';
-                // Default sedan
-                return '🚗';
+            // Get the current make from the page state
+            const currentMake = document.querySelector('.make-title')?.textContent?.trim() || '';
+
+            // Generate vehicle image URL from R2 bucket via API
+            const getVehicleImageUrl = (make, model) => {
+                const cleanModel = model.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                const cleanMake = make.toLowerCase().replace(/\s+/g, '-');
+                return `${API_BASE}/api/assets/vehicles/${cleanMake}-${cleanModel}.png`;
             };
 
             // Populate Visual Grid
@@ -6475,10 +6439,16 @@
                             <small>Try selecting "All" or a different category.</small>
                         </div>`;
                 } else {
+                    const imageUrl = (model) => getVehicleImageUrl(currentMake, model);
                     chipContainer.innerHTML = models.map(m => `
-                        <div class="model-chip" onclick="selectVisualModel('${m.name}')">
-                            <span class="key-icon">${getVehicleIcon(m.name)}</span>
-                            <span class="model-name">${m.name}</span>
+                        <div class="model-chip" onclick="selectVisualModel('${m.name}')" style="flex-direction: column; padding: 8px; min-height: 110px;">
+                            <div class="model-image-container" style="width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(18,18,28,0.9), rgba(22,33,50,0.9)); border-radius: 8px; margin-bottom: 6px; overflow: hidden;">
+                                <img src="${imageUrl(m.name)}" alt="${m.name}" 
+                                     style="max-width: 100%; max-height: 60px; object-fit: contain;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <span style="display: none; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-align: center; padding: 8px;">${m.name}</span>
+                            </div>
+                            <span class="model-name" style="font-size: 0.7rem; text-align: center;">${m.name}</span>
                         </div>
                     `).join('');
                 }
