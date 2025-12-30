@@ -904,6 +904,37 @@
             background: rgba(234, 179, 8, 0.2);
         }
 
+        /* Visual tree view for key grouping */
+        .key-tree-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .key-tree-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .key-tree-header {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+            padding: 2px 6px;
+            background: rgba(234, 179, 8, 0.15);
+            border-radius: 4px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .key-tree-items {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
         .vehicle-card-header {
             display: flex;
             justify-content: space-between;
@@ -6140,8 +6171,39 @@
                 case 'remote': return '🎛️';
                 case 'transponder': return '🏷️';
                 case 'mechanical': return '🗝️';
+                case 'fobik': return '📡';
+                case 'flip': return '🔄';
+                case 'rhk': return '🔑';
+                case 'blade': return '🗡️';
                 default: return '🔑';
             }
+        }
+
+        // Clean product title for display - remove vendor names, conditions, noise
+        function cleanProductTitle(title) {
+            if (!title) return 'Key';
+            return title
+                // Remove vendor/brand tags
+                .replace(/\(BlueRocket\)/gi, '')
+                .replace(/\(STRATTEC\)/gi, '')
+                .replace(/\(ILCO\)/gi, '')
+                .replace(/\(JMA[^)]*\)/gi, '')
+                .replace(/\(BRK\)/gi, '')
+                // Remove condition descriptors
+                .replace(/—?OEM\s*(REFURB|NEW)?\s*(GREAT|MINT|NO LOGO|PRE-?OWNED)?/gi, '')
+                .replace(/—?Aftermarket/gi, '')
+                // Remove trailing dashes and clean up
+                .replace(/\s*—\s*$/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        // Clean FCC ID - get first one if multiple
+        function cleanFccId(fccId) {
+            if (!fccId) return null;
+            // Handle newline-separated FCC IDs
+            const firstId = fccId.split('\n')[0].split(' ')[0].trim();
+            return firstId || null;
         }
 
         // Track expanded carousel state
@@ -6149,79 +6211,66 @@
 
         function renderKeyCarousel(keys, cardIndex, selectedIdx = 0) {
             if (!keys || keys.length === 0) return '';
-
             const isExpanded = carouselExpanded[cardIndex] || false;
-            const visibleKeys = isExpanded ? keys : keys.slice(0, 8);
-            const hasMore = keys.length > 8;
 
-            return `
-                <div class="key-carousel" id="keyCarousel-${cardIndex}">
-                    <div class="key-carousel-title">🔐 ${keys.length} UNIQUE KEYS (CLICK TO SWITCH)</div>
-                    <div class="key-carousel-grid">
-                    ${visibleKeys.map((k, i) => {
-                // Use pre-computed fields from API if available, fallback to client-side
-                const keyType = k.key_type || categorizeKeyType(k);
+            // Group keys by button count
+            const groups = {};
+            keys.forEach((k, idx) => {
                 const btnCount = k.button_count || 0;
-                const features = k.features || [];
-                const variantsCount = k.variants_count || 1;
-                const icon = getKeyIcon(keyType);
-                const fccId = k.fcc_id ? k.fcc_id.split('\n')[0] : null;
-                // Use FCC image if available
-                const imageUrl = fccId ? `${API}/api/assets/${fccId}.png` : null;
-                // Color code by key type
-                const colorClass = keyType === 'smart' ? 'key-smart' :
-                    keyType === 'fobik' ? 'key-smart' :
-                        keyType === 'rhk' || keyType === 'flip' ? 'key-remote' :
-                            keyType === 'transponder' ? 'key-transponder' : 'key-standard';
+                const keyType = k.key_type || 'key';
+                let groupKey = btnCount > 0 ? `${btnCount}-BUTTON` :
+                    (keyType === 'blade' || keyType === 'mechanical') ? 'BLADE' : 'OTHER';
+                if (!groups[groupKey]) groups[groupKey] = [];
+                groups[groupKey].push({ ...k, originalIdx: idx });
+            });
 
-                // Decision-tree labels: "6B + TRUNK" or "5B + RS" or "4B BASE"
-                const featureLabels = {
-                    rs: '+RS', trunk: '+TRUNK', hatch: '+HATCH', roof: '+ROOF', doors: '+DOORS'
-                };
+            // Sort: higher buttons first
+            const groupOrder = Object.keys(groups).sort((a, b) => {
+                const aNum = parseInt(a) || 0;
+                const bNum = parseInt(b) || 0;
+                return bNum - aNum;
+            });
 
-                // Build hierarchical label
-                let displayLabel = '';
-                if (btnCount > 0) {
-                    const featureStr = features.length
-                        ? features.map(f => featureLabels[f] || `+${f.toUpperCase()}`).join(' ')
-                        : 'BASE';
-                    displayLabel = `${btnCount}B ${featureStr}`;
-                } else if (keyType === 'blade' || keyType === 'mechanical') {
-                    displayLabel = 'BLADE';
-                } else {
-                    displayLabel = keyType.toUpperCase();
+            const featureLabels = { rs: '+RS', trunk: '+TRUNK', hatch: '+HATCH', roof: '+ROOF', doors: '+DOORS' };
+            let keyCount = 0;
+            let treeHtml = '';
+
+            for (const groupKey of groupOrder) {
+                if (!isExpanded && keyCount >= 8) break;
+                treeHtml += `<div class="key-tree-group"><div class="key-tree-header">${groupKey}</div><div class="key-tree-items">`;
+                for (const k of groups[groupKey]) {
+                    if (!isExpanded && keyCount >= 8) break;
+                    const keyType = k.key_type || 'key';
+                    const features = k.features || [];
+                    const variantsCount = k.variants_count || 1;
+                    const icon = getKeyIcon(keyType);
+                    const fccId = cleanFccId(k.fcc_id);
+                    const imageUrl = fccId ? `${API}/api/assets/${fccId}.png` : null;
+                    const featureStr = features.length ? features.map(f => featureLabels[f] || `+${f.toUpperCase()}`).join(' ') : 'BASE';
+                    const colorClass = (keyType === 'smart' || keyType === 'fobik') ? 'key-smart' : (keyType === 'rhk' || keyType === 'flip') ? 'key-remote' : keyType === 'transponder' ? 'key-transponder' : 'key-standard';
+                    const isSelected = k.originalIdx === selectedIdx;
+                    treeHtml += `<div class="key-thumb ${isSelected ? 'active' : ''} ${colorClass}" onclick="selectKey(${cardIndex}, ${k.originalIdx})" data-key-index="${k.originalIdx}" title="${cleanProductTitle(k.product_title)}">`;
+                    if (imageUrl) treeHtml += `<img class="key-thumb-img" src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">`;
+                    treeHtml += `<span class="key-thumb-icon"${imageUrl ? ' style="display:none"' : ''}>${icon}</span>`;
+                    treeHtml += `<span class="key-thumb-type">${featureStr}</span>`;
+                    if (fccId) treeHtml += `<span class="key-thumb-fcc">${fccId}</span>`;
+                    if (k.price) treeHtml += `<span class="key-thumb-price">${k.price}</span>`;
+                    if (variantsCount > 1) treeHtml += `<span class="key-variants-badge">${variantsCount}</span>`;
+                    treeHtml += `</div>`;
+                    keyCount++;
                 }
+                treeHtml += `</div></div>`;
+            }
 
-                return `
-                            <div class="key-thumb ${i === selectedIdx ? 'active' : ''} ${colorClass}" 
-                                 onclick="selectKey(${cardIndex}, ${i})"
-                                 data-key-index="${i}"
-                                 title="${k.product_title || 'Key'}">
-                                ${imageUrl ? `<img class="key-thumb-img" src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">` : ''}
-                                <span class="key-thumb-icon" ${imageUrl ? 'style="display:none"' : ''}>${icon}</span>
-                                <span class="key-thumb-type">${displayLabel}</span>
-                                ${fccId ? `<span class="key-thumb-fcc">${fccId}</span>` : `<span class="key-thumb-title">${keyType.toUpperCase()}</span>`}
-                                ${k.price ? `<span class="key-thumb-price">${k.price}</span>` : ''}
-                                ${variantsCount > 1 ? `<span class="key-variants-badge">${variantsCount} opts</span>` : ''}
-                            </div>
-                        `;
-            }).join('')}
-                    ${hasMore && !isExpanded ? `
-                        <div class="key-thumb key-more" onclick="expandCarousel(${cardIndex})">
-                            <span class="key-thumb-icon">➕</span>
-                            <span class="key-thumb-type">SHOW</span>
-                            <span class="key-thumb-price">+${keys.length - 8} more</span>
-                        </div>
-                    ` : ''}
-                    ${isExpanded ? `
-                        <div class="key-thumb key-collapse" onclick="collapseCarousel(${cardIndex})">
-                            <span class="key-thumb-icon">➖</span>
-                            <span class="key-thumb-type">COLLAPSE</span>
-                        </div>
-                    ` : ''}
-                    </div>
+            const hasMore = keys.length > 8 && !isExpanded;
+            return `<div class="key-carousel" id="keyCarousel-${cardIndex}">
+                <div class="key-carousel-title">🔐 ${keys.length} UNIQUE KEYS (GROUPED BY BUTTON COUNT)</div>
+                <div class="key-tree-container">
+                    ${treeHtml}
+                    ${hasMore ? `<div class="key-thumb key-more" onclick="expandCarousel(${cardIndex})"><span class="key-thumb-icon">➕</span><span class="key-thumb-type">+${keys.length - 8} MORE</span></div>` : ''}
+                    ${isExpanded ? `<div class="key-thumb key-collapse" onclick="collapseCarousel(${cardIndex})"><span class="key-thumb-icon">➖</span><span class="key-thumb-type">COLLAPSE</span></div>` : ''}
                 </div>
-            `;
+            </div>`;
         }
 
         function expandCarousel(cardIndex) {
@@ -6261,15 +6310,17 @@
 
             // Update card specs dynamically
             const specsContainer = document.getElementById(`keySpecs-${cardIndex}`);
+            const cleanTitle = cleanProductTitle(key.product_title);
+            const fccId = cleanFccId(key.fcc_id);
             if (specsContainer) {
                 specsContainer.innerHTML = `
                     <div class="data-item">
                         <div class="data-label">Product</div>
-                        <div class="data-value highlight" style="font-size: 0.9rem;">${key.product_title || 'N/A'}</div>
+                        <div class="data-value highlight" style="font-size: 0.9rem;">${cleanTitle || 'N/A'}</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">FCC ID</div>
-                        <div class="data-value highlight">${key.fcc_id ? `<a href="#" class="fcc-link" onclick="searchFccById('${key.fcc_id.split('\\n')[0]}'); return false;">${key.fcc_id.split('\\n')[0]}</a>` : 'N/A'}</div>
+                        <div class="data-value highlight">${fccId ? `<a href="#" class="fcc-link" onclick="searchFccById('${fccId}'); return false;">${fccId}</a>` : 'N/A'}</div>
                     </div>
                     <div class="data-item">
                         <div class="data-label">Chip</div>
