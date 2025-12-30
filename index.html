@@ -828,6 +828,61 @@
         .key-thumb-price {
             font-size: 0.65rem;
             color: #22c55e;
+            font-weight: 700;
+        }
+
+        .key-carousel-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .key-thumb-type {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+        }
+
+        .key-thumb-fcc {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+        }
+
+        .key-thumb-title {
+            font-size: 0.6rem;
+            opacity: 0.8;
+        }
+
+        /* Key type color-coding */
+        .key-smart {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .key-remote {
+            border-left: 3px solid #a855f7;
+        }
+
+        .key-transponder {
+            border-left: 3px solid #14b8a6;
+        }
+
+        .key-standard {
+            border-left: 3px solid #6b7280;
+        }
+
+        .key-thumb.key-more,
+        .key-thumb.key-collapse {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.05));
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .key-thumb.key-more:hover,
+        .key-thumb.key-collapse:hover {
+            background: rgba(234, 179, 8, 0.2);
         }
 
         .vehicle-card-header {
@@ -6063,34 +6118,77 @@
             }
         }
 
+        // Track expanded carousel state
+        const carouselExpanded = {};
+
         function renderKeyCarousel(keys, cardIndex, selectedIdx = 0) {
             if (!keys || keys.length === 0) return '';
 
-            // Group keys by type for better organization
-            const typeCounts = { smart: 0, remote: 0, transponder: 0, mechanical: 0, key: 0 };
-            keys.forEach(k => typeCounts[categorizeKeyType(k)]++);
+            const isExpanded = carouselExpanded[cardIndex] || false;
+            const visibleKeys = isExpanded ? keys : keys.slice(0, 8);
+            const hasMore = keys.length > 8;
 
             return `
                 <div class="key-carousel" id="keyCarousel-${cardIndex}">
-                    <div class="key-carousel-title">🔄 ${keys.length} Compatible Keys (click to switch)</div>
-                    ${keys.slice(0, 10).map((k, i) => {
+                    <div class="key-carousel-title">🔐 ${keys.length} COMPATIBLE KEYS (CLICK TO SWITCH)</div>
+                    <div class="key-carousel-grid">
+                    ${visibleKeys.map((k, i) => {
                 const keyType = categorizeKeyType(k);
                 const icon = getKeyIcon(keyType);
-                const label = k.product_title?.split(' ').slice(0, 3).join(' ') || 'Key';
-                const price = k.price || '';
+                // Better label: show FCC ID or first distinctive part of title
+                const fccLabel = k.fcc_id ? k.fcc_id.split('\n')[0] : '';
+                const priceClean = k.price ? k.price.replace('$', '') : '';
+                const priceFloat = parseFloat(priceClean) || 0;
+                // Color code by key type
+                const colorClass = keyType === 'smart' ? 'key-smart' : keyType === 'remote' ? 'key-remote' : keyType === 'transponder' ? 'key-transponder' : 'key-standard';
+                // Short title - first 2 meaningful words
+                const titleWords = (k.product_title || 'Key').replace(/for|chevrolet|chevy|camaro|/gi, '').split(' ').filter(w => w.length > 1).slice(0, 2).join(' ');
                 return `
-                            <div class="key-thumb ${i === selectedIdx ? 'active' : ''}" 
+                            <div class="key-thumb ${i === selectedIdx ? 'active' : ''} ${colorClass}" 
                                  onclick="selectKey(${cardIndex}, ${i})"
-                                 data-key-index="${i}">
+                                 data-key-index="${i}"
+                                 title="${k.product_title || 'Key'}">
                                 <span class="key-thumb-icon">${icon}</span>
-                                <span class="key-thumb-label">${label.substring(0, 15)}...</span>
-                                ${price ? `<span class="key-thumb-price">${price}</span>` : ''}
+                                <span class="key-thumb-type">${keyType.toUpperCase()}</span>
+                                ${fccLabel ? `<span class="key-thumb-fcc">${fccLabel}</span>` : `<span class="key-thumb-title">${titleWords}</span>`}
+                                ${k.price ? `<span class="key-thumb-price">${k.price}</span>` : ''}
                             </div>
                         `;
             }).join('')}
-                    ${keys.length > 10 ? `<div class="key-thumb" style="opacity: 0.6; cursor: default;"><span>+${keys.length - 10} more</span></div>` : ''}
+                    ${hasMore && !isExpanded ? `
+                        <div class="key-thumb key-more" onclick="expandCarousel(${cardIndex})">
+                            <span class="key-thumb-icon">➕</span>
+                            <span class="key-thumb-type">SHOW</span>
+                            <span class="key-thumb-price">+${keys.length - 8} more</span>
+                        </div>
+                    ` : ''}
+                    ${isExpanded ? `
+                        <div class="key-thumb key-collapse" onclick="collapseCarousel(${cardIndex})">
+                            <span class="key-thumb-icon">➖</span>
+                            <span class="key-thumb-type">COLLAPSE</span>
+                        </div>
+                    ` : ''}
+                    </div>
                 </div>
             `;
+        }
+
+        function expandCarousel(cardIndex) {
+            carouselExpanded[cardIndex] = true;
+            const container = document.getElementById(`keyCarouselContainer-${cardIndex}`);
+            const keys = cardKeysData[cardIndex];
+            if (container && keys) {
+                container.innerHTML = renderKeyCarousel(keys, cardIndex, 0);
+            }
+        }
+
+        function collapseCarousel(cardIndex) {
+            carouselExpanded[cardIndex] = false;
+            const container = document.getElementById(`keyCarouselContainer-${cardIndex}`);
+            const keys = cardKeysData[cardIndex];
+            if (container && keys) {
+                container.innerHTML = renderKeyCarousel(keys, cardIndex, 0);
+            }
         }
 
         // Global storage for keys data per card
@@ -6411,7 +6509,7 @@
                             </div>
                         ` : ''}
                         
-                        <div class="data-grid" style="flex: 1; min-width: 250px; margin-top: 0;">
+                        <div class="data-grid" id="keySpecs-${idx}" style="flex: 1; min-width: 250px; margin-top: 0;">
                             <div class="data-item">
                                 <div class="data-label">FCC ID</div>
                                 <div class="data-value highlight">${fccDisplay}</div>
@@ -6448,7 +6546,7 @@
                     </div>
 
                     <div class="vehicle-card-actions" style="display: flex; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 12px;">
-                         ${amazonLink ? `<a href="${amazonLink}" target="_blank" class="fcc-action-btn fcc-action-primary" style="flex: 1; text-decoration: none; text-align: center;">🛒 Buy on Amazon</a>` : ''}
+                         ${amazonLink ? `<a href="${amazonLink}" target="_blank" id="amazonBtn-${idx}" class="fcc-action-btn fcc-action-primary" style="flex: 1; text-decoration: none; text-align: center;">🛒 Buy on Amazon</a>` : ''}
                          ${getGuideButtonHtml(make, model)}
                          <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary" style="flex: 1;">🔍 View Details</button>
                     </div>
