@@ -6580,6 +6580,15 @@
                     rfSystemBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">⚠️ Verify RF Hub</span>`;
                 }
 
+                // GM Architecture Badge (Global A = open, Global B = locked)
+                let gmArchBadge = '';
+                if (immo && immo.includes('Global A')) {
+                    gmArchBadge = `<span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">🟢 Global A</span>`;
+                } else if (immo && immo.includes('Global B')) {
+                    gmArchBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 Global B (Dealer Tool)</span>`;
+                }
+
+
                 return `
                 <div class="vehicle-card" style="display: flex; flex-direction: column; gap: 12px;">
                     <div class="vehicle-card-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 0;">
@@ -6594,6 +6603,7 @@
                             ${difficultyBadge}
                             ${stellantisWarnings}
                             ${rfSystemBadge}
+                            ${gmArchBadge}
                             ${inventoryBadge}
                             ${keyTypeDisplay ? `<span class="badge ${keyTypeBadgeClass}">${keyTypeDisplay}</span>` : ''}
                             ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
