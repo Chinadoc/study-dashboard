@@ -190,25 +190,25 @@ INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, ye
 ('Warning', 'Kia/Hyundai', 'All', 2019, 2025, 'TQ8-FOB-4F24 vs 4F27 Incompatibility', 'Keys look identical but serve different architectures. 4F24 = Standard CAN. 4F27 = CAN FD. NOT interchangeable.', 'Key Ordering', 'Check FCC ID carefully. 4F24 for 2020-2022 Telluride. 4F27 for 2023+ models.', 'Kia_Hyundai_Security_Update_Research.txt', CURRENT_TIMESTAMP);
 
 -- ============================================================================
--- SECTION 8: Update vehicles_master with New Data
+-- SECTION 8: Update vehicles with New Data
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     rfhub_status = 'Locked',
     program_method = 'Enable Fobik',
     special_notes = COALESCE(special_notes || ' | ', '') || 'VIN-specific keys required. Program Keys disabled. FCC 2ADPXFI7PE only.'
 WHERE make = 'Jeep' AND model = 'Renegade' AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     platform = 'Alfa Romeo Tonale/Giorgio',
     special_notes = COALESCE(special_notes || ' | ', '') || 'ALFA ROMEO PLATFORM - Uses Continental security. FCC KR5ALFA434 (7QV80LXHPA). NOT compatible with other Dodge keys.'
 WHERE make = 'Dodge' AND model = 'Hornet';
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     can_fd_required = 1,
     special_notes = COALESCE(special_notes || ' | ', '') || 'CAN FD Adapter mandatory. Dealer PIN purchase required. Campaign 993/CS920 blocks OBD PIN reading.'
 WHERE make IN ('Kia', 'Hyundai') AND year_start >= 2024;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     sgw_present = 1,
     special_notes = COALESCE(special_notes || ' | ', '') || 'SGW bypass required. AutoAuth or 12+8 physical bypass.'
 WHERE make IN ('Kia', 'Hyundai') AND year_start >= 2023;

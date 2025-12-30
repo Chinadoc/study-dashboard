@@ -4,14 +4,14 @@
 -- Generated: 2025-12-26
 
 -- ==============================================================================
--- PART 1: vehicles_master ENRICHMENT (Security & Platform)
+-- PART 1: vehicles ENRICHMENT (Security & Platform)
 -- ==============================================================================
 
 -- Dodge Hornet (2023-2025)
-INSERT OR IGNORE INTO vehicles_master (make, model, make_normalized, model_normalized) 
+INSERT OR IGNORE INTO vehicles (make, model, make_normalized, model_normalized) 
 VALUES ('Dodge', 'Hornet', 'dodge', 'hornet');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'HITAG-AES (Type 4A)',
     platform = 'Alfa Romeo Tonale (Giorgio-derived)',
     security_notes = 'Italian-built (VIN starts with Z). Uses Giobert (2ADPXFI7PE) or Alfa (KR5ALFA434) hardware. Pre-coding REQUIRED. Locked RF Hub protocol means virgin keys must be pre-coded with CS bytes before adding.',
@@ -21,7 +21,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Dodge' AND model = 'Hornet';
 
 -- Jeep Renegade (2022-2024 Evolution)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'HITAG-AES (Type 6A)',
     platform = 'Small Wide 4x4',
     security_notes = 'Critical supplier split in 2022: Melfi plant (Italy) moved to Giobert (2ADPXFI7PE). NAFTA models may still use M3N. Italian-built (VIN starts with Z) requires pre-coding. Locked RF Hub status common.',
@@ -34,7 +34,7 @@ WHERE make = 'Jeep' AND model = 'Renegade' AND id IN (
 );
 
 -- Jeep Compass (2023-2024 Mexican Production)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_notes = 'NAFTA-built (VIN starts with 3) typically stay on M3N-40821302. SGW present but pre-coding usually NOT required compared to Hornet/Renegade. Verify VIN origin (Z=Italy, 3=Mexico).',
     lishi_tool = 'SIP22',
     bypass_method = '12+8 Cable / AutoAuth',
@@ -42,7 +42,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Jeep' AND model = 'Compass';
 
 -- RAM ProMaster (2022-2024)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_notes = 'Fiat-based architecture. 2022+ models feature SGW and likely move to HITAG-AES. SIP22 lock is notoriously stiff; use caution with Lishi tools.',
     lishi_tool = 'SIP22',
     bypass_method = '12+8 Cable / AutoAuth',

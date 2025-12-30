@@ -1,4 +1,4 @@
--- Database Consolidation: Merge vehicles_master + vehicle_variants into unified vehicles table
+-- Database Consolidation: Merge vehicles + vehicle_variants into unified vehicles table
 -- Adds data quality tracking: confidence_score, source_name, source_url, verified_at
 
 -- Step 1: Create new unified vehicles table
@@ -73,8 +73,8 @@ SELECT
     'legacy_import',
     v.notes, v.created_at
 FROM vehicle_variants v
-JOIN vehicles_master m ON v.vehicle_id = m.id;
+JOIN vehicles m ON v.vehicle_id = m.id;
 
 -- Step 4: Backup old tables (rename instead of delete)
-ALTER TABLE vehicles_master RENAME TO vehicles_master_backup;
+ALTER TABLE vehicles RENAME TO vehicles_backup;
 ALTER TABLE vehicle_variants RENAME TO vehicle_variants_backup;

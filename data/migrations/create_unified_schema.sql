@@ -2,7 +2,7 @@
 -- Creates the core tables for a single source of truth
 
 -- 1. Master Vehicle Registry (unique make/model combinations)
-CREATE TABLE IF NOT EXISTS vehicles_master (
+CREATE TABLE IF NOT EXISTS vehicles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     make TEXT NOT NULL,
     model TEXT NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS vehicles_master (
 -- 2. Vehicle Variants (the definitive table with all data)
 CREATE TABLE IF NOT EXISTS vehicle_variants (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    vehicle_id INTEGER REFERENCES vehicles_master(id),
+    vehicle_id INTEGER REFERENCES vehicles(id),
     
     -- Year Range
     year_start INTEGER NOT NULL,
@@ -90,5 +90,5 @@ CREATE INDEX IF NOT EXISTS idx_variants_vehicle_id ON vehicle_variants(vehicle_i
 CREATE INDEX IF NOT EXISTS idx_variants_fcc_id ON vehicle_variants(fcc_id);
 CREATE INDEX IF NOT EXISTS idx_variants_keyway ON vehicle_variants(keyway);
 CREATE INDEX IF NOT EXISTS idx_variants_years ON vehicle_variants(year_start, year_end);
-CREATE INDEX IF NOT EXISTS idx_master_make ON vehicles_master(make);
-CREATE INDEX IF NOT EXISTS idx_master_model ON vehicles_master(model);
+CREATE INDEX IF NOT EXISTS idx_master_make ON vehicles(make);
+CREATE INDEX IF NOT EXISTS idx_master_model ON vehicles(model);

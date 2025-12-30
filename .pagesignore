@@ -1,32 +1,28 @@
-# Backend API (deployed separately as Cloudflare Worker)
-api/
+# Ignore all SQL files
+**/*.sql
 
-# Python virtual environments
+# Ignore data directory
+data/
+
+# Ignore api data/logs
+api/data.sql
+api/logs/
+
+# Python Virtual Environment
 .venv/
-venv/
+__pycache__/
+*.pyc
 
-# Large data files not needed for frontend
-data/suppliers_products.csv
-data/locksmithkeyless_products.csv
-data/locksmithkeyless_products.json
+# Scrapers and data
+scrapers/
+*.json
+*.csv
 
-# Large PDF assets (hosted on R2 or linked externally)
-assets/*.pdf
-
-# Development and migration files
-scripts/
-*.sql
-*.py
-
-# Node modules (if any)
-node_modules/
-
-# Git internals
+# Standard Ignores
 .git/
-
-# Editor and OS files
+.github/
+.vscode/
+node_modules/
+package-lock.json
+wrangler.toml
 .DS_Store
-*.log
-
-# Vercel files (obsolete)
-.vercel/

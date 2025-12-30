@@ -1,8 +1,8 @@
--- Cleanup Migration: Remove invalid "Part" entries from vehicles_master
+-- Cleanup Migration: Remove invalid "Part" entries from vehicles
 -- These entries were incorrectly imported from suppliers_products.csv as distinct vehicle models
 -- They often have "N/A" data and fragment the user experience.
 
-DELETE FROM vehicles_master
+DELETE FROM vehicles
 WHERE model LIKE '%• Part:%'
    OR model LIKE '%Part: %'
    OR model LIKE '%HD106-PT%'

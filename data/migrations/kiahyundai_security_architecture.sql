@@ -120,22 +120,22 @@ INSERT INTO kiahyundai_diagnostic_protocol (scenario, year_range, architecture, 
 ('Pre-2022 Turn-Key (Campaign 993)', 'Pre-2022', 'Legacy', 'Standard VCI', 'N/A', 0, 'Check Campaign 993 status. If applied, BCM may be in Virtual Immobilizer mode. Prioritize alarm state in No Start diagnosis.');
 
 -- ============================================================================
--- SECTION 6: Update vehicles_master
+-- SECTION 6: Update vehicles
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Kia/Hyundai Campaign 993 (Virtual Immobilizer)',
     special_notes = 'CHECK CAMPAIGN 993 STATUS. BCM "Armed" = Starter blocked. Dead Fob = Owner lockout. Prioritize alarm state in No Start diagnosis.'
 WHERE make IN ('Kia', 'Hyundai') AND year_start >= 2011 AND year_start <= 2022
 AND model IN ('Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona', 'Accent', 'Venue', 'Veloster');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Kia/Hyundai SGW (Hitag 3)',
     sgw_present = 1,
     special_notes = 'SGW blocks write commands. 12+8 physical bypass or AutoAuth required. TQ8-FOB-4F24 (Kia) vs 4F27 (Hyundai) NOT interchangeable.'
 WHERE make IN ('Kia', 'Hyundai') AND year_start >= 2020 AND year_start <= 2023
 AND model IN ('Telluride', 'Palisade', 'Sorento', 'Sportage', 'Tucson', 'Santa Fe', 'Elantra');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Kia/Hyundai ccNC + CAN FD (Hitag AES)',
     sgw_present = 1,
     can_fd_required = 1,

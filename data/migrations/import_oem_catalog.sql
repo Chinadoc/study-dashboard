@@ -4,7 +4,7 @@
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%ATS%')
 )
@@ -14,7 +14,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%ATS%')
 )
@@ -24,7 +24,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%ATS%')
 )
@@ -34,7 +34,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%ATS%')
 )
@@ -44,7 +44,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%ATS%')
 )
@@ -54,7 +54,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%CTS%')
 )
@@ -64,7 +64,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%CTS%')
 )
@@ -74,7 +74,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%CTS%')
 )
@@ -84,7 +84,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%CTS%')
 )
@@ -94,7 +94,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%CTS%')
 )
@@ -104,7 +104,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13598530', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%CTS%')
 )
@@ -114,7 +114,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580812', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%Escalade%')
 )
@@ -124,7 +124,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580812', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%Escalade%')
 )
@@ -134,7 +134,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580812', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%Escalade%')
 )
@@ -144,7 +144,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580812', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Cadillac')
     AND LOWER(model) LIKE LOWER('%Escalade%')
 )
@@ -154,7 +154,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Camaro%')
 )
@@ -164,7 +164,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Camaro%')
 )
@@ -174,7 +174,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Camaro%')
 )
@@ -184,7 +184,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Camaro%')
 )
@@ -194,7 +194,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Malibu%')
 )
@@ -204,7 +204,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Malibu%')
 )
@@ -214,7 +214,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Malibu%')
 )
@@ -224,7 +224,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Malibu%')
 )
@@ -234,7 +234,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze XL8%')
 )
@@ -244,7 +244,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze XL8%')
 )
@@ -254,7 +254,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze XL8%')
 )
@@ -264,7 +264,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508771', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze XL8%')
 )
@@ -274,7 +274,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Tahoe%')
 )
@@ -284,7 +284,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Tahoe%')
 )
@@ -294,7 +294,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Tahoe%')
 )
@@ -304,7 +304,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Tahoe%')
 )
@@ -314,7 +314,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Tahoe%')
 )
@@ -324,7 +324,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Suburban%')
 )
@@ -334,7 +334,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Suburban%')
 )
@@ -344,7 +344,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Suburban%')
 )
@@ -354,7 +354,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Suburban%')
 )
@@ -364,7 +364,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577766', buttons = 6, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Suburban%')
 )
@@ -374,7 +374,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Spark%')
 )
@@ -384,7 +384,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Spark%')
 )
@@ -394,7 +394,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Spark%')
 )
@@ -404,7 +404,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Spark%')
 )
@@ -414,7 +414,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Equinox%')
 )
@@ -424,7 +424,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Equinox%')
 )
@@ -434,7 +434,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585723', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Equinox%')
 )
@@ -444,7 +444,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Colorado%')
 )
@@ -454,7 +454,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Colorado%')
 )
@@ -464,7 +464,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Colorado%')
 )
@@ -474,7 +474,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Colorado%')
 )
@@ -484,7 +484,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Colorado%')
 )
@@ -494,7 +494,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Silverado%')
 )
@@ -504,7 +504,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Silverado%')
 )
@@ -514,7 +514,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Silverado%')
 )
@@ -524,7 +524,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Silverado%')
 )
@@ -534,7 +534,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Silverado%')
 )
@@ -544,7 +544,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13577770', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Silverado%')
 )
@@ -554,7 +554,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13519188', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Traverse%')
 )
@@ -564,7 +564,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13519188', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Traverse%')
 )
@@ -574,7 +574,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13519188', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Traverse%')
 )
@@ -584,7 +584,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13519188', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Blazer%')
 )
@@ -594,7 +594,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585728', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze%')
 )
@@ -604,7 +604,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585728', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze%')
 )
@@ -614,7 +614,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585728', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Cruze%')
 )
@@ -624,7 +624,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585728', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Volt%')
 )
@@ -634,7 +634,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13585728', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet')
     AND LOWER(model) LIKE LOWER('%Volt%')
 )
@@ -644,7 +644,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -654,7 +654,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -664,7 +664,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -674,7 +674,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -684,7 +684,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -694,7 +694,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -704,7 +704,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -714,7 +714,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046759AF', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -724,7 +724,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68217832', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%Pacifica%')
 )
@@ -734,7 +734,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68217832', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%Pacifica%')
 )
@@ -744,7 +744,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68217832', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%Pacifica%')
 )
@@ -754,7 +754,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68155687', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chrysler')
     AND LOWER(model) LIKE LOWER('%300%')
 )
@@ -764,7 +764,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -774,7 +774,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -784,7 +784,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -794,7 +794,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -804,7 +804,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -814,7 +814,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -824,7 +824,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -834,7 +834,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -844,7 +844,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -854,7 +854,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -864,7 +864,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -874,7 +874,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046709', buttons = 7, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Grand Caravan Fobik%')
 )
@@ -884,7 +884,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -894,7 +894,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -904,7 +904,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -914,7 +914,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -924,7 +924,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -934,7 +934,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -944,7 +944,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -954,7 +954,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -964,7 +964,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Challenger%')
 )
@@ -974,7 +974,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Challenger%')
 )
@@ -984,7 +984,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Challenger%')
 )
@@ -994,7 +994,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Challenger%')
 )
@@ -1004,7 +1004,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Dart%')
 )
@@ -1014,7 +1014,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Dart%')
 )
@@ -1024,7 +1024,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046777AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Dart%')
 )
@@ -1034,7 +1034,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68150061', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Durango%')
 )
@@ -1044,7 +1044,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68150061', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Durango%')
 )
@@ -1054,7 +1054,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68150061', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Durango%')
 )
@@ -1064,7 +1064,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68150061', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Durango%')
 )
@@ -1074,7 +1074,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68150061', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Durango%')
 )
@@ -1084,7 +1084,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68150061', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Durango%')
 )
@@ -1094,7 +1094,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1104,7 +1104,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1114,7 +1114,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1124,7 +1124,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1134,7 +1134,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1144,7 +1144,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1154,7 +1154,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046953AG', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram Fobik%')
 )
@@ -1164,7 +1164,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1174,7 +1174,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1184,7 +1184,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1194,7 +1194,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1204,7 +1204,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1214,7 +1214,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1224,7 +1224,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '56046955AG', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500 Fobik%')
 )
@@ -1234,7 +1234,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68394196AA', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -1244,7 +1244,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68394196AA', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Charger%')
 )
@@ -1254,7 +1254,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68394196AA', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Challenger%')
 )
@@ -1264,7 +1264,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68394196AA', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Challenger%')
 )
@@ -1274,7 +1274,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68291689AD', buttons = 4, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500%')
 )
@@ -1284,7 +1284,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68291689AD', buttons = 4, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Dodge')
     AND LOWER(model) LIKE LOWER('%Ram 1500%')
 )
@@ -1294,7 +1294,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 High Security%')
 )
@@ -1304,7 +1304,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 High Security%')
 )
@@ -1314,7 +1314,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 High Security%')
 )
@@ -1324,7 +1324,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 High Security%')
 )
@@ -1334,7 +1334,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 High Security%')
 )
@@ -1344,7 +1344,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 High Security%')
 )
@@ -1354,7 +1354,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 High Security%')
 )
@@ -1364,7 +1364,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 High Security%')
 )
@@ -1374,7 +1374,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 High Security%')
 )
@@ -1384,7 +1384,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 High Security%')
 )
@@ -1394,7 +1394,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 High Security%')
 )
@@ -1404,7 +1404,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 High Security%')
 )
@@ -1414,7 +1414,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 High Security%')
 )
@@ -1424,7 +1424,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 High Security%')
 )
@@ -1434,7 +1434,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 High Security%')
 )
@@ -1444,7 +1444,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 High Security%')
 )
@@ -1454,7 +1454,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 High Security%')
 )
@@ -1464,7 +1464,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 High Security%')
 )
@@ -1474,7 +1474,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 High Security%')
 )
@@ -1484,7 +1484,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer High Security%')
 )
@@ -1494,7 +1494,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer High Security%')
 )
@@ -1504,7 +1504,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%EcoSport High Security%')
 )
@@ -1514,7 +1514,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%EcoSport High Security%')
 )
@@ -1524,7 +1524,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8130', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Ranger STX High Security%')
 )
@@ -1534,7 +1534,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%EcoSport 1-Way%')
 )
@@ -1544,7 +1544,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%EcoSport 1-Way%')
 )
@@ -1554,7 +1554,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 1-Way%')
 )
@@ -1564,7 +1564,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 1-Way%')
 )
@@ -1574,7 +1574,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 1-Way%')
 )
@@ -1584,7 +1584,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 1-Way%')
 )
@@ -1594,7 +1594,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 1-Way%')
 )
@@ -1604,7 +1604,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 1-Way%')
 )
@@ -1614,7 +1614,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 1-Way%')
 )
@@ -1624,7 +1624,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 1-Way%')
 )
@@ -1634,7 +1634,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 1-Way%')
 )
@@ -1644,7 +1644,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 1-Way%')
 )
@@ -1654,7 +1654,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 1-Way%')
 )
@@ -1664,7 +1664,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 1-Way%')
 )
@@ -1674,7 +1674,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 1-Way%')
 )
@@ -1684,7 +1684,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 1-Way%')
 )
@@ -1694,7 +1694,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 1-Way%')
 )
@@ -1704,7 +1704,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 1-Way%')
 )
@@ -1714,7 +1714,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 1-Way%')
 )
@@ -1724,7 +1724,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 1-Way%')
 )
@@ -1734,7 +1734,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8163', buttons = 3, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 1-Way%')
 )
@@ -1744,7 +1744,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -1754,7 +1754,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -1764,7 +1764,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -1774,7 +1774,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 80 Bit%')
 )
@@ -1784,7 +1784,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 80 Bit%')
 )
@@ -1794,7 +1794,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 80 Bit%')
 )
@@ -1804,7 +1804,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150 80 Bit%')
 )
@@ -1814,7 +1814,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 80 Bit%')
 )
@@ -1824,7 +1824,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 80 Bit%')
 )
@@ -1834,7 +1834,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 80 Bit%')
 )
@@ -1844,7 +1844,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 80 Bit%')
 )
@@ -1854,7 +1854,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 80 Bit%')
 )
@@ -1864,7 +1864,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250 80 Bit%')
 )
@@ -1874,7 +1874,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 80 Bit%')
 )
@@ -1884,7 +1884,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 80 Bit%')
 )
@@ -1894,7 +1894,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 80 Bit%')
 )
@@ -1904,7 +1904,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 80 Bit%')
 )
@@ -1914,7 +1914,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 80 Bit%')
 )
@@ -1924,7 +1924,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350 80 Bit%')
 )
@@ -1934,7 +1934,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 80 Bit%')
 )
@@ -1944,7 +1944,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 80 Bit%')
 )
@@ -1954,7 +1954,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 80 Bit%')
 )
@@ -1964,7 +1964,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 80 Bit%')
 )
@@ -1974,7 +1974,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 80 Bit%')
 )
@@ -1984,7 +1984,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 80 Bit%')
 )
@@ -1994,7 +1994,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 80 Bit%')
 )
@@ -2004,7 +2004,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 80 Bit%')
 )
@@ -2014,7 +2014,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 80 Bit%')
 )
@@ -2024,7 +2024,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 80 Bit%')
 )
@@ -2034,7 +2034,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2044,7 +2044,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2054,7 +2054,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2064,7 +2064,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2074,7 +2074,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2084,7 +2084,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2094,7 +2094,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2104,7 +2104,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F650 80 Bit%')
 )
@@ -2114,7 +2114,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2124,7 +2124,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2134,7 +2134,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2144,7 +2144,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2154,7 +2154,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2164,7 +2164,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2174,7 +2174,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2184,7 +2184,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8067', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F750 80 Bit%')
 )
@@ -2194,7 +2194,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2204,7 +2204,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2214,7 +2214,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2224,7 +2224,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2234,7 +2234,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2244,7 +2244,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2254,7 +2254,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2264,7 +2264,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2274,7 +2274,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge 80 Bit%')
 )
@@ -2284,7 +2284,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape 80 Bit%')
 )
@@ -2294,7 +2294,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape 80 Bit%')
 )
@@ -2304,7 +2304,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape 80 Bit%')
 )
@@ -2314,7 +2314,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape 80 Bit%')
 )
@@ -2324,7 +2324,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape 80 Bit%')
 )
@@ -2334,7 +2334,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -2344,7 +2344,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -2354,7 +2354,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -2364,7 +2364,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -2374,7 +2374,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -2384,7 +2384,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer 80 Bit%')
 )
@@ -2394,7 +2394,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450 80 Bit%')
 )
@@ -2404,7 +2404,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550 80 Bit%')
 )
@@ -2414,7 +2414,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Five Hundred 80 Bit%')
 )
@@ -2424,7 +2424,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Five Hundred 80 Bit%')
 )
@@ -2434,7 +2434,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Five Hundred 80 Bit%')
 )
@@ -2444,7 +2444,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Five Hundred 80 Bit%')
 )
@@ -2454,7 +2454,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Five Hundred 80 Bit%')
 )
@@ -2464,7 +2464,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2474,7 +2474,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2484,7 +2484,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2494,7 +2494,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2504,7 +2504,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2514,7 +2514,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2524,7 +2524,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8070', buttons = 80, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex 80 Bit%')
 )
@@ -2534,7 +2534,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8149', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion 2-Way PEPS%')
 )
@@ -2544,7 +2544,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8149', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion 2-Way PEPS%')
 )
@@ -2554,7 +2554,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8149', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion 2-Way PEPS%')
 )
@@ -2564,7 +2564,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8149', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Mustang 2-Way PEPS%')
 )
@@ -2574,7 +2574,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape%')
 )
@@ -2584,7 +2584,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape%')
 )
@@ -2594,7 +2594,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape%')
 )
@@ -2604,7 +2604,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2614,7 +2614,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2624,7 +2624,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2634,7 +2634,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2644,7 +2644,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2654,7 +2654,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max%')
 )
@@ -2664,7 +2664,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max%')
 )
@@ -2674,7 +2674,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max%')
 )
@@ -2684,7 +2684,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7995', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max%')
 )
@@ -2694,7 +2694,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8162', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Mustang%')
 )
@@ -2704,7 +2704,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8162', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Mustang%')
 )
@@ -2714,7 +2714,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge%')
 )
@@ -2724,7 +2724,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge%')
 )
@@ -2734,7 +2734,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge%')
 )
@@ -2744,7 +2744,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge%')
 )
@@ -2754,7 +2754,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape%')
 )
@@ -2764,7 +2764,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape%')
 )
@@ -2774,7 +2774,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape%')
 )
@@ -2784,7 +2784,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -2794,7 +2794,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -2804,7 +2804,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -2814,7 +2814,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -2824,7 +2824,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -2834,7 +2834,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -2844,7 +2844,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -2854,7 +2854,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -2864,7 +2864,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2874,7 +2874,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2884,7 +2884,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2894,7 +2894,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2904,7 +2904,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2914,7 +2914,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2924,7 +2924,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Flex%')
 )
@@ -2934,7 +2934,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2944,7 +2944,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus%')
 )
@@ -2954,7 +2954,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -2964,7 +2964,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -2974,7 +2974,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -2984,7 +2984,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -2994,7 +2994,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -3004,7 +3004,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -3014,7 +3014,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8092', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Taurus%')
 )
@@ -3024,7 +3024,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max High Security%')
 )
@@ -3034,7 +3034,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max High Security%')
 )
@@ -3044,7 +3044,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max High Security%')
 )
@@ -3054,7 +3054,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max High Security%')
 )
@@ -3064,7 +3064,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max High Security%')
 )
@@ -3074,7 +3074,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%C-Max High Security%')
 )
@@ -3084,7 +3084,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3094,7 +3094,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3104,7 +3104,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3114,7 +3114,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3124,7 +3124,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3134,7 +3134,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3144,7 +3144,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Escape High Security%')
 )
@@ -3154,7 +3154,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3164,7 +3164,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3174,7 +3174,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3184,7 +3184,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3194,7 +3194,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3204,7 +3204,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3214,7 +3214,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3224,7 +3224,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8046', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Focus High Security%')
 )
@@ -3234,7 +3234,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8126', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Transit High Security%')
 )
@@ -3244,7 +3244,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8126', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Transit High Security%')
 )
@@ -3254,7 +3254,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8126', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Transit High Security%')
 )
@@ -3264,7 +3264,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8126', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Transit High Security%')
 )
@@ -3274,7 +3274,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8126', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Transit High Security%')
 )
@@ -3284,7 +3284,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7976', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fiesta High Security%')
 )
@@ -3294,7 +3294,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7976', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fiesta High Security%')
 )
@@ -3304,7 +3304,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7976', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fiesta High Security%')
 )
@@ -3314,7 +3314,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7976', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fiesta High Security%')
 )
@@ -3324,7 +3324,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7976', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fiesta High Security%')
 )
@@ -3334,7 +3334,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8119', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Mustang%')
 )
@@ -3344,7 +3344,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8119', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Mustang%')
 )
@@ -3354,7 +3354,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8119', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Mustang%')
 )
@@ -3364,7 +3364,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion%')
 )
@@ -3374,7 +3374,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion%')
 )
@@ -3384,7 +3384,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion%')
 )
@@ -3394,7 +3394,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion%')
 )
@@ -3404,7 +3404,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -3414,7 +3414,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Explorer%')
 )
@@ -3424,7 +3424,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge%')
 )
@@ -3434,7 +3434,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7989', buttons = 5, battery = 'CR2025'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Edge%')
 )
@@ -3444,7 +3444,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8117', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150%')
 )
@@ -3454,7 +3454,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8117', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150%')
 )
@@ -3464,7 +3464,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8117', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150%')
 )
@@ -3474,7 +3474,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7986', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion High Security%')
 )
@@ -3484,7 +3484,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7986', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion High Security%')
 )
@@ -3494,7 +3494,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7986', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion High Security%')
 )
@@ -3504,7 +3504,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R7986', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Fusion High Security%')
 )
@@ -3514,7 +3514,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8197', buttons = 4, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -3524,7 +3524,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8197', buttons = 4, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -3534,7 +3534,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8198', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -3544,7 +3544,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8198', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%Expedition%')
 )
@@ -3554,7 +3554,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150%')
 )
@@ -3564,7 +3564,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150%')
 )
@@ -3574,7 +3574,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F150%')
 )
@@ -3584,7 +3584,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250%')
 )
@@ -3594,7 +3594,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250%')
 )
@@ -3604,7 +3604,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250%')
 )
@@ -3614,7 +3614,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F250%')
 )
@@ -3624,7 +3624,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350%')
 )
@@ -3634,7 +3634,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350%')
 )
@@ -3644,7 +3644,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350%')
 )
@@ -3654,7 +3654,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F350%')
 )
@@ -3664,7 +3664,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450%')
 )
@@ -3674,7 +3674,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450%')
 )
@@ -3684,7 +3684,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450%')
 )
@@ -3694,7 +3694,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F450%')
 )
@@ -3704,7 +3704,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550%')
 )
@@ -3714,7 +3714,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550%')
 )
@@ -3724,7 +3724,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550%')
 )
@@ -3734,7 +3734,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '164-R8166', buttons = 5, battery = 'CR2450'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford')
     AND LOWER(model) LIKE LOWER('%F550%')
 )
@@ -3744,7 +3744,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '5E0U50707-AA', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jaguar')
     AND LOWER(model) LIKE LOWER('%F-Type%')
 )
@@ -3754,7 +3754,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '5E0U50707-AA', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jaguar')
     AND LOWER(model) LIKE LOWER('%F-Type%')
 )
@@ -3764,7 +3764,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '5E0U50707-AA', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jaguar')
     AND LOWER(model) LIKE LOWER('%XF%')
 )
@@ -3774,7 +3774,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508275', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Acadia%')
 )
@@ -3784,7 +3784,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508275', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Acadia%')
 )
@@ -3794,7 +3794,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508275', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Acadia%')
 )
@@ -3804,7 +3804,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508275', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Terrain%')
 )
@@ -3814,7 +3814,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13508275', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Terrain%')
 )
@@ -3824,7 +3824,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Sierra%')
 )
@@ -3834,7 +3834,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Sierra%')
 )
@@ -3844,7 +3844,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Sierra%')
 )
@@ -3854,7 +3854,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Sierra%')
 )
@@ -3864,7 +3864,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Sierra%')
 )
@@ -3874,7 +3874,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Sierra%')
 )
@@ -3884,7 +3884,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Canyon%')
 )
@@ -3894,7 +3894,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Canyon%')
 )
@@ -3904,7 +3904,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Canyon%')
 )
@@ -3914,7 +3914,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Canyon%')
 )
@@ -3924,7 +3924,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '13580082', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC')
     AND LOWER(model) LIKE LOWER('%Canyon%')
 )
@@ -3934,7 +3934,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-TBA-A11', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -3944,7 +3944,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-TBA-A11', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -3954,7 +3954,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-TBA-A11', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -3964,7 +3964,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-TBA-A11', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -3974,7 +3974,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-TBA-A11', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -3984,7 +3984,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -3994,7 +3994,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -4004,7 +4004,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -4014,7 +4014,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -4024,7 +4024,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Civic%')
 )
@@ -4034,7 +4034,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Accord%')
 )
@@ -4044,7 +4044,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '35118-T2A-A60', buttons = 4, battery = 'CR1620', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Accord%')
 )
@@ -4054,7 +4054,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-T2G-A41', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Accord%')
 )
@@ -4064,7 +4064,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '72147-T2G-A41', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda')
     AND LOWER(model) LIKE LOWER('%Accord%')
 )
@@ -4074,7 +4074,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1R300', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Accent%')
 )
@@ -4084,7 +4084,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1R300', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Accent%')
 )
@@ -4094,7 +4094,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1R300', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Accent%')
 )
@@ -4104,7 +4104,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1R300', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Accent%')
 )
@@ -4114,7 +4114,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-F2300', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra%')
 )
@@ -4124,7 +4124,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-F2300', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra%')
 )
@@ -4134,7 +4134,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-F2300', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra%')
 )
@@ -4144,7 +4144,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-F2300', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra%')
 )
@@ -4154,7 +4154,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-G3100', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra GT%')
 )
@@ -4164,7 +4164,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-G3100', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra GT%')
 )
@@ -4174,7 +4174,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-G3100', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Elantra GT%')
 )
@@ -4184,7 +4184,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-J9500', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Kona%')
 )
@@ -4194,7 +4194,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-J9500', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Kona%')
 )
@@ -4204,7 +4204,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-2W110', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Santa Fe%')
 )
@@ -4214,7 +4214,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-2W110', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Santa Fe%')
 )
@@ -4224,7 +4224,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-2W110', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Santa Fe%')
 )
@@ -4234,7 +4234,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-S2100', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Santa Fe%')
 )
@@ -4244,7 +4244,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-S2100', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Santa Fe%')
 )
@@ -4254,7 +4254,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-D3010', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Tucson%')
 )
@@ -4264,7 +4264,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-D3010', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Tucson%')
 )
@@ -4274,7 +4274,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-D3010', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Tucson%')
 )
@@ -4284,7 +4284,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-D3010', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Hyundai')
     AND LOWER(model) LIKE LOWER('%Tucson%')
 )
@@ -4294,7 +4294,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Commander%')
 )
@@ -4304,7 +4304,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Commander%')
 )
@@ -4314,7 +4314,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4324,7 +4324,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4334,7 +4334,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4344,7 +4344,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4354,7 +4354,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4364,7 +4364,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4374,7 +4374,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4384,7 +4384,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4394,7 +4394,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4404,7 +4404,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4414,7 +4414,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4424,7 +4424,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4434,7 +4434,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4444,7 +4444,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4454,7 +4454,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4464,7 +4464,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4474,7 +4474,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4484,7 +4484,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4494,7 +4494,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4504,7 +4504,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4514,7 +4514,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4524,7 +4524,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4534,7 +4534,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Patriot%')
 )
@@ -4544,7 +4544,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4554,7 +4554,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4564,7 +4564,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4574,7 +4574,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4584,7 +4584,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4594,7 +4594,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4604,7 +4604,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4614,7 +4614,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4624,7 +4624,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4634,7 +4634,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4644,7 +4644,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4654,7 +4654,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68001702', buttons = 3, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Wrangler%')
 )
@@ -4664,7 +4664,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68105081', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee Fobik%')
 )
@@ -4674,7 +4674,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68105081', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee Fobik%')
 )
@@ -4684,7 +4684,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68105081', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee Fobik%')
 )
@@ -4694,7 +4694,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68105081', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee Fobik%')
 )
@@ -4704,7 +4704,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68105081', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee Fobik%')
 )
@@ -4714,7 +4714,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68105081', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee Fobik%')
 )
@@ -4724,7 +4724,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '6MP33DX9', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Renegade%')
 )
@@ -4734,7 +4734,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '6MP33DX9', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Renegade%')
 )
@@ -4744,7 +4744,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '6MP33DX9', buttons = 3, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Renegade%')
 )
@@ -4754,7 +4754,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68250343AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4764,7 +4764,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68250343AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4774,7 +4774,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68250343AB', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Compass%')
 )
@@ -4784,7 +4784,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '6BY88DX9AA', buttons = 4, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Renegade%')
 )
@@ -4794,7 +4794,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68143505AC', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4804,7 +4804,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68143505AC', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4814,7 +4814,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68143505AC', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4824,7 +4824,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68143505AC', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4834,7 +4834,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68143505AC', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4844,7 +4844,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68143505AC', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Grand Cherokee%')
 )
@@ -4854,7 +4854,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68141580AG', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee%')
 )
@@ -4864,7 +4864,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68141580AG', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee%')
 )
@@ -4874,7 +4874,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68141580AG', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee%')
 )
@@ -4884,7 +4884,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68141580AG', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee%')
 )
@@ -4894,7 +4894,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68141580AG', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee%')
 )
@@ -4904,7 +4904,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '68141580AG', buttons = 5, battery = 'CR2032'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep')
     AND LOWER(model) LIKE LOWER('%Cherokee%')
 )
@@ -4914,7 +4914,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1W003', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Rio%')
 )
@@ -4924,7 +4924,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1W003', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Rio%')
 )
@@ -4934,7 +4934,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1W003', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Rio%')
 )
@@ -4944,7 +4944,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-1W003', buttons = 4, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Rio%')
 )
@@ -4954,7 +4954,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-A9300', buttons = 6, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Sedona%')
 )
@@ -4964,7 +4964,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-A9300', buttons = 6, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Sedona%')
 )
@@ -4974,7 +4974,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-A9300', buttons = 6, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Sedona%')
 )
@@ -4984,7 +4984,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95430-A9300', buttons = 6, battery = 'CR2032', keyway = 'One new battery One like new condition remote key fob 6-month warranty provided'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Sedona%')
 )
@@ -4994,7 +4994,7 @@ AND (oem_part_number IS NULL OR oem_part_number = '');
 UPDATE vehicle_variants
 SET oem_part_number = '95440-1U050', buttons = 4
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Kia')
     AND LOWER(model) LIKE LOWER('%Borrego%')
 )

@@ -4,6 +4,11 @@
         "/*"
     ],
     "exclude": [
-        "/api/*"
-    ]
+        "/assets/*",
+        "/public/*",
+        "/js/*",
+        "/css/*",
+        "/images/*"
+    ],
+    "comment": "All routes handled by Functions (except static assets). /api/* is specifically handled by functions/api/[[catchall]].js"
 }

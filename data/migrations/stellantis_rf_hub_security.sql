@@ -137,15 +137,15 @@ INSERT INTO stellantis_model_security_matrix (make, model, platform, year_start,
 ('Dodge', 'Durango', '-', 2018, 2024, 'M3N-40821302', 'ID46', 'Passenger Kick Panel', 'VIN Lock', 'Standard', 'Y159', 5, 'Low', 'Generally accessible SGW.');
 
 -- ============================================================================
--- SECTION 6: Update vehicles_master and locksmith_alerts
+-- SECTION 6: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Stellantis SVA (SGW + RF Hub)',
     akl_difficulty = 'Medium',
     special_notes = 'SGW bypass required (12+8 cable or AutoAuth). Check RF Hub Lockdown status on high-performance variants.'
 WHERE make IN ('Chrysler', 'Dodge', 'Jeep', 'Ram') AND year_start >= 2018;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Stellantis RF Hub Lockdown',
     akl_difficulty = 'Severe',
     special_notes = 'RF Hub REPLACEMENT required for AKL. Firmware blocks key programming via OBD. Dealer-sourced virgin RF Hub needed.'

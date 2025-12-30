@@ -14,7 +14,7 @@
 -- ==============================================================================
 
 -- CAS4 Systems (F10, F01, F25, F07)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'ID49 (PCF7953)',
     platform = 'CAS4',
     security_notes = 'CAS4 located under dash (driver side). Bench read required for AKL. ISN extraction via D-Flash read. Use 5M48H/1N35H MCU adapters.',
@@ -24,7 +24,7 @@ UPDATE vehicles_master SET
 WHERE make = 'BMW' AND model IN ('5 Series', '5-Series', '7 Series', '7-Series') 
     AND year >= 2010 AND year <= 2016;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'ID49 (PCF7953)',
     platform = 'CAS4',
     security_notes = 'CAS4 (F25 platform). Older L6 architecture despite SUV body. Bench read for AKL.',
@@ -35,7 +35,7 @@ WHERE make = 'BMW' AND model IN ('X3')
     AND year >= 2011 AND year <= 2017;
 
 -- FEM Systems (F30, F32, F20, F22)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'ID49 (PCF7953)',
     platform = 'FEM',
     security_notes = 'FEM in kick panel (passenger side). PREPROCESSING REQUIRED: Read 95128 EEPROM, generate Service File, flash MCU. ISN sync with DME mandatory for AKL.',
@@ -46,7 +46,7 @@ WHERE make = 'BMW' AND model IN ('3 Series', '3-Series', '4 Series', '4-Series',
     AND year >= 2012 AND year <= 2019;
 
 -- BDC Systems (F15, G-Series)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'ID49 (PCF7953)',
     platform = 'BDC',
     security_notes = 'BDC in kick panel (passenger side). Early BDC iteration. Bench preprocessing required.',
@@ -57,7 +57,7 @@ WHERE make = 'BMW' AND model IN ('X5', 'X6')
     AND year >= 2014 AND year <= 2018;
 
 -- BDC2/BDC3 G-Series (2019+)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     chip_type = 'NCF2951',
     platform = 'BDC3',
     security_notes = 'BDC3 system. Cloud calculation required (Autel subscription ~$120/VIN). Post-June 2020: BOSCH DME LOCKED - Cannot read ISN, dealer key required for AKL.',
@@ -363,10 +363,10 @@ ON CONFLICT(id) DO UPDATE SET content = excluded.content, title = excluded.title
 -- PART 5: Fix Frequency Display Bug (Remove duplicate "MHz")
 -- ==============================================================================
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     frequency = REPLACE(frequency, 'MHz MHz', 'MHz')
 WHERE frequency LIKE '%MHz MHz%';
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     frequency = REPLACE(frequency, 'mhz', 'MHz')
 WHERE frequency LIKE '%mhz%';

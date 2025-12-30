@@ -132,15 +132,15 @@ INSERT INTO audi_sync_data_methods (method, applicability, tool_requirements, pr
 ('ODIS + GeKo (Dealer)', 'All models', 'ODIS Engineering + GeKo 2FA account', 'Dealer logs into GeKo. Orders pre-coded key by VIN. ODIS handles Sync Data automatically in background.', 'None', '100%', 'Only guaranteed method. Requires dealer access level.');
 
 -- ============================================================================
--- SECTION 6: Update vehicles_master and locksmith_alerts
+-- SECTION 6: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Audi MQB-Evo (SFD + Sync Data)',
     akl_difficulty = 'High',
     special_notes = '5WA BCM is BORN LOCKED. SFD token unlocks coding ONLY. Key programming requires Sync Data calculation (server or bench read).'
 WHERE make = 'Audi' AND model LIKE 'A3%' AND year_start >= 2021;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Audi MEB (SFD + ICAS1)',
     akl_difficulty = 'Severe',
     special_notes = 'DEALER ONLY for AKL. ICAS1 module highly integrated with HV system. No reliable aftermarket solution.'

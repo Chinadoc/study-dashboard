@@ -155,15 +155,15 @@ INSERT INTO ford_key_blade_reference (blade_type, cut_type, chip_type, platform,
 ('Smart Fob', 'Embedded Emergency Blade', 'ID49 (Hitag Pro)', 'FNV2 / Modern', 'All Push-to-Start 2018+', '2018-2025', 'Proximity key. Emergency blade is H92 style insert.');
 
 -- ============================================================================
--- SECTION 7: Update vehicles_master and locksmith_alerts
+-- SECTION 7: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Ford PATS Gen 5+ (ID49 Smart)',
     akl_difficulty = 'High',
     special_notes = 'Active Alarm Lockout. Use SecuriCode keypad (5-digit on BCM) or battery reset. Gateway bypass may be required for 2021+ models.'
 WHERE make = 'Ford' AND model IN ('F-150', 'Explorer', 'Expedition', 'Mustang') AND year_start >= 2018;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Ford CAN FD (S650)',
     can_fd_required = 1,
     akl_difficulty = 'Severe',

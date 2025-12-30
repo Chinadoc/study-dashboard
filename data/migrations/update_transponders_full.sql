@@ -3,7 +3,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Silverado')
 )
@@ -12,7 +12,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Silverado')
 )
@@ -21,7 +21,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Silverado')
 )
@@ -30,7 +30,7 @@ UPDATE vehicle_variants
 SET chip = 'ID47', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Silverado')
 )
@@ -39,7 +39,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Equinox')
 )
@@ -48,7 +48,7 @@ UPDATE vehicle_variants
 SET chip = 'ID47', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Equinox')
 )
@@ -57,7 +57,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Malibu')
 )
@@ -66,7 +66,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Malibu')
 )
@@ -75,7 +75,7 @@ UPDATE vehicle_variants
 SET chip = 'ID47/4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Chevrolet') 
     AND LOWER(model) = LOWER('Malibu')
 )
@@ -84,7 +84,7 @@ UPDATE vehicle_variants
 SET chip = '4C', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('F-150')
 )
@@ -93,7 +93,7 @@ UPDATE vehicle_variants
 SET chip = '4D-63-40', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('F-150')
 )
@@ -102,7 +102,7 @@ UPDATE vehicle_variants
 SET chip = '4D-63-80bit', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('F-150')
 )
@@ -111,7 +111,7 @@ UPDATE vehicle_variants
 SET chip = 'ID49', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('F-150')
 )
@@ -120,7 +120,7 @@ UPDATE vehicle_variants
 SET chip = 'ID49', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('F-150')
 )
@@ -129,7 +129,7 @@ UPDATE vehicle_variants
 SET chip = '4D-63-40', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('Focus')
 )
@@ -138,7 +138,7 @@ UPDATE vehicle_variants
 SET chip = '4D-63-80bit', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ford') 
     AND LOWER(model) = LOWER('Focus')
 )
@@ -147,7 +147,7 @@ UPDATE vehicle_variants
 SET chip = '4D-67', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Camry')
 )
@@ -156,7 +156,7 @@ UPDATE vehicle_variants
 SET chip = '4D-67', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Camry')
 )
@@ -165,7 +165,7 @@ UPDATE vehicle_variants
 SET chip = 'G-Chip', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Camry')
 )
@@ -174,7 +174,7 @@ UPDATE vehicle_variants
 SET chip = 'H-Chip', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Camry')
 )
@@ -183,7 +183,7 @@ UPDATE vehicle_variants
 SET chip = '8A-H', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Camry')
 )
@@ -192,7 +192,7 @@ UPDATE vehicle_variants
 SET chip = '4D-67', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Corolla')
 )
@@ -201,7 +201,7 @@ UPDATE vehicle_variants
 SET chip = 'G-Chip', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Corolla')
 )
@@ -210,7 +210,7 @@ UPDATE vehicle_variants
 SET chip = 'H-Chip', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Corolla')
 )
@@ -219,7 +219,7 @@ UPDATE vehicle_variants
 SET chip = '8A-BA', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Toyota') 
     AND LOWER(model) = LOWER('Corolla')
 )
@@ -228,7 +228,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Accord')
 )
@@ -237,7 +237,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Accord')
 )
@@ -246,7 +246,7 @@ UPDATE vehicle_variants
 SET chip = 'ID47', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Accord')
 )
@@ -255,7 +255,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Accord')
 )
@@ -264,7 +264,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Civic')
 )
@@ -273,7 +273,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Civic')
 )
@@ -282,7 +282,7 @@ UPDATE vehicle_variants
 SET chip = 'ID47', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Honda') 
     AND LOWER(model) = LOWER('Civic')
 )
@@ -291,7 +291,7 @@ UPDATE vehicle_variants
 SET chip = '4D-64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ram') 
     AND LOWER(model) = LOWER('1500')
 )
@@ -300,7 +300,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ram') 
     AND LOWER(model) = LOWER('1500')
 )
@@ -309,7 +309,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ram') 
     AND LOWER(model) = LOWER('1500')
 )
@@ -318,7 +318,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ram') 
     AND LOWER(model) = LOWER('1500')
 )
@@ -327,7 +327,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Ram') 
     AND LOWER(model) = LOWER('1500')
 )
@@ -336,7 +336,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Altima')
 )
@@ -345,7 +345,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Altima')
 )
@@ -354,7 +354,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Altima')
 )
@@ -363,7 +363,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Altima')
 )
@@ -372,7 +372,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Rogue')
 )
@@ -381,7 +381,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Rogue')
 )
@@ -390,7 +390,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Nissan') 
     AND LOWER(model) = LOWER('Rogue')
 )
@@ -399,7 +399,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -408,7 +408,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -417,7 +417,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -426,7 +426,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -435,7 +435,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -444,7 +444,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee L')
 )
@@ -453,7 +453,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -462,7 +462,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -471,7 +471,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -480,7 +480,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -489,7 +489,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -498,7 +498,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -507,7 +507,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -516,7 +516,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -525,7 +525,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -534,7 +534,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -543,7 +543,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (NXP PCF7937E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -552,7 +552,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (NXP PCF7937E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -561,7 +561,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (NXP PCF7937E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -570,7 +570,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (NXP PCF7937E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Acadia')
 )
@@ -579,7 +579,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -588,7 +588,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -597,7 +597,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -606,7 +606,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -615,7 +615,7 @@ UPDATE vehicle_variants
 SET chip = 'ID48', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -624,7 +624,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -633,7 +633,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -642,7 +642,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -651,7 +651,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -660,7 +660,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -669,7 +669,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Canyon')
 )
@@ -678,7 +678,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Envoy')
 )
@@ -687,7 +687,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Envoy')
 )
@@ -696,7 +696,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Envoy')
 )
@@ -705,7 +705,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Envoy')
 )
@@ -714,7 +714,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -723,7 +723,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -732,7 +732,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -741,7 +741,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -750,7 +750,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -759,7 +759,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -768,7 +768,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -777,7 +777,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -786,7 +786,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Savana')
 )
@@ -795,7 +795,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -804,7 +804,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -813,7 +813,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -822,7 +822,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -831,7 +831,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -840,7 +840,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -849,7 +849,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -858,7 +858,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -867,7 +867,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -876,7 +876,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -885,7 +885,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -894,7 +894,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -903,7 +903,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -912,7 +912,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Sierra 1500')
 )
@@ -921,7 +921,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -930,7 +930,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -939,7 +939,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -948,7 +948,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -957,7 +957,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -966,7 +966,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -975,7 +975,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -984,7 +984,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7937)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Terrain')
 )
@@ -993,7 +993,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1002,7 +1002,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1011,7 +1011,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1020,7 +1020,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1029,7 +1029,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1038,7 +1038,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1047,7 +1047,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1056,7 +1056,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1065,7 +1065,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1074,7 +1074,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1083,7 +1083,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1092,7 +1092,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1101,7 +1101,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1110,7 +1110,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46E (PCF7952E)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('GMC') 
     AND LOWER(model) = LOWER('Yukon')
 )
@@ -1119,7 +1119,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1128,7 +1128,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1137,7 +1137,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1146,7 +1146,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1155,7 +1155,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1164,7 +1164,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1173,7 +1173,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1182,7 +1182,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1191,7 +1191,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1200,7 +1200,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1209,7 +1209,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1218,7 +1218,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1227,7 +1227,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1236,7 +1236,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Cherokee')
 )
@@ -1245,7 +1245,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Commander')
 )
@@ -1254,7 +1254,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Commander')
 )
@@ -1263,7 +1263,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Commander')
 )
@@ -1272,7 +1272,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Commander')
 )
@@ -1281,7 +1281,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Commander')
 )
@@ -1290,7 +1290,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1299,7 +1299,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1308,7 +1308,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1317,7 +1317,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1326,7 +1326,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1335,7 +1335,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1344,7 +1344,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1353,7 +1353,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1362,7 +1362,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1371,7 +1371,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1380,7 +1380,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1389,7 +1389,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1398,7 +1398,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1407,7 +1407,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1416,7 +1416,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Compass')
 )
@@ -1425,7 +1425,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Gladiator')
 )
@@ -1434,7 +1434,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Gladiator')
 )
@@ -1443,7 +1443,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Gladiator')
 )
@@ -1452,7 +1452,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Gladiator')
 )
@@ -1461,7 +1461,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1470,7 +1470,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1479,7 +1479,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1488,7 +1488,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1497,7 +1497,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1506,7 +1506,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1515,7 +1515,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1524,7 +1524,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1533,7 +1533,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1542,7 +1542,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1551,7 +1551,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1560,7 +1560,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1569,7 +1569,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1578,7 +1578,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1587,7 +1587,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1596,7 +1596,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7961)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1605,7 +1605,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1614,7 +1614,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1623,7 +1623,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1632,7 +1632,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1641,7 +1641,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1650,7 +1650,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1659,7 +1659,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1668,7 +1668,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Grand Cherokee')
 )
@@ -1677,7 +1677,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1686,7 +1686,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1695,7 +1695,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1704,7 +1704,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1713,7 +1713,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1722,7 +1722,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1731,7 +1731,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7941AT)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1740,7 +1740,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7941AT)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1749,7 +1749,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7941AT)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1758,7 +1758,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7941AT)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1767,7 +1767,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46 (PCF7941AT)', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Liberty')
 )
@@ -1776,7 +1776,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1785,7 +1785,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1794,7 +1794,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1803,7 +1803,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1812,7 +1812,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1821,7 +1821,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1830,7 +1830,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1839,7 +1839,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1848,7 +1848,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1857,7 +1857,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1866,7 +1866,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Patriot')
 )
@@ -1875,7 +1875,7 @@ UPDATE vehicle_variants
 SET chip = 'ID88', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1884,7 +1884,7 @@ UPDATE vehicle_variants
 SET chip = 'ID88', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1893,7 +1893,7 @@ UPDATE vehicle_variants
 SET chip = 'ID88', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1902,7 +1902,7 @@ UPDATE vehicle_variants
 SET chip = 'ID88', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1911,7 +1911,7 @@ UPDATE vehicle_variants
 SET chip = 'ID88', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1920,7 +1920,7 @@ UPDATE vehicle_variants
 SET chip = 'ID88', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1929,7 +1929,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7953M)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Renegade')
 )
@@ -1938,7 +1938,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -1947,7 +1947,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -1956,7 +1956,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -1965,7 +1965,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -1974,7 +1974,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -1983,7 +1983,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -1992,7 +1992,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2001,7 +2001,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2010,7 +2010,7 @@ UPDATE vehicle_variants
 SET chip = '4D64', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2019,7 +2019,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2028,7 +2028,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2037,7 +2037,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2046,7 +2046,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2055,7 +2055,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2064,7 +2064,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2073,7 +2073,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2082,7 +2082,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2091,7 +2091,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2100,7 +2100,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2109,7 +2109,7 @@ UPDATE vehicle_variants
 SET chip = 'ID46', 
     cloning_possible = 1
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2118,7 +2118,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2127,7 +2127,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2136,7 +2136,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )
@@ -2145,7 +2145,7 @@ UPDATE vehicle_variants
 SET chip = 'ID4A (PCF7939)', 
     cloning_possible = 0
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master 
+    SELECT id FROM vehicles 
     WHERE LOWER(make) = LOWER('Jeep') 
     AND LOWER(model) = LOWER('Wrangler')
 )

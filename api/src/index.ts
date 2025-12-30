@@ -26,22 +26,23 @@ export interface Env {
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
-  'bmw': { infographic: 'BMW infographic.png', pdf: 'BMW_Security_Mastery_The_Professional_Ladder.pdf', pdf_title: 'Security Mastery Guide' },
-  'chrysler': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
-  'dodge': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
-  'jeep': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
-  'ram': { infographic: 'Chrysler infographic.png', pdf: 'CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
-  'ford': { infographic: 'Ford key programming infographic.png', pdf: 'Ford_Key_Programming_Deep_Dive.pdf', pdf_title: 'Key Programming Deep Dive' },
-  'lincoln': { infographic: 'Ford key programming infographic.png', pdf: 'Ford_Key_Programming_Deep_Dive.pdf', pdf_title: 'Key Programming Deep Dive' },
-  'honda': { infographic: 'Honda 1998-2024 infographic.png', pdf: 'Honda_Immobilizer_Master_Guide.pdf', pdf_title: 'Immobilizer Master Guide' },
-  'acura': { infographic: 'Honda 1998-2024 infographic.png', pdf: 'Honda_Immobilizer_Master_Guide.pdf', pdf_title: 'Immobilizer Master Guide' },
-  'hyundai': { infographic: 'Hyundai infographic.png', pdf: 'Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
-  'kia': { infographic: 'Hyundai infographic.png', pdf: 'Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
-  'mazda': { infographic: 'Mazda Infographic.png' },
-  'mercedes': { pdf: 'Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
-  'nissan': { infographic: 'Nissan infographic.png', pdf: 'Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
-  'infiniti': { infographic: 'Nissan infographic.png', pdf: 'Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' }
+  'bmw': { infographic: '/assets/BMW infographic.png', pdf: '/assets/BMW_Security_Mastery_The_Professional_Ladder.pdf', pdf_title: 'Security Mastery Guide' },
+  'chrysler': { infographic: '/assets/Chrysler infographic.png', pdf: '/assets/CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'dodge': { infographic: '/assets/Chrysler infographic.png', pdf: '/assets/CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'jeep': { infographic: '/assets/Chrysler infographic.png', pdf: '/assets/CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'ram': { infographic: '/assets/Chrysler infographic.png', pdf: '/assets/CDJR_Security_Eras_Explained.pdf', pdf_title: 'Security Eras Explained' },
+  'ford': { infographic: '/assets/Ford_Key_Programming_Deep_Dive.png', pdf: '/assets/Ford_Key_Programming_Deep_Dive.pdf', pdf_title: 'Key Programming Deep Dive' },
+  'lincoln': { infographic: '/assets/Ford_Key_Programming_Deep_Dive.png', pdf: '/assets/Ford_Key_Programming_Deep_Dive.pdf', pdf_title: 'Key Programming Deep Dive' },
+  'honda': { infographic: '/assets/Honda_Immobilizer_Master_Guide.png', pdf: '/assets/Honda_Immobilizer_Master_Guide.pdf', pdf_title: 'Immobilizer Master Guide' },
+  'acura': { infographic: '/assets/Honda_Immobilizer_Master_Guide.png', pdf: '/assets/Honda_Immobilizer_Master_Guide.pdf', pdf_title: 'Immobilizer Master Guide' },
+  'hyundai': { infographic: '/assets/Hyundai_Key_Programming_Field_Guide.png', pdf: '/assets/Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
+  'kia': { infographic: '/assets/Hyundai_Key_Programming_Field_Guide.png', pdf: '/assets/Hyundai_Key_Programming_Field_Guide.pdf', pdf_title: 'Key Programming Field Guide' },
+  'mazda': { infographic: '/assets/Mazda Infographic.png' },
+  'mercedes': { pdf: '/assets/Mercedes_Locksmith_Codex.pdf', pdf_title: 'Locksmith Codex' },
+  'nissan': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' },
+  'infiniti': { infographic: '/assets/Nissan infographic.png', pdf: '/assets/Nissan_Immobilizer_Systems_A_Professional_Guide.pdf', pdf_title: 'Immobilizer Systems Guide' }
 };
+
 
 // Helper for CORS-compliant responses
 function corsResponse(request: Request, body: string, status = 200, extraHeaders?: Headers, contentType = "application/json") {
@@ -1894,6 +1895,215 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             "content-type": "application/json",
             "Cache-Control": "public, max-age=300",
             "Access-Control-Allow-Origin": "*",
+          },
+        });
+      } catch (err: any) {
+        return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+      }
+    }
+
+    // Vehicle Keys endpoint - returns all compatible keys from AKS for a vehicle
+    // With Amazon affiliate search links (eurokeys-20)
+    // Smart deduplication: groups by FCC+buttons+features, filters multipacks/shells
+    if (path === "/api/vehicle-keys") {
+      try {
+        const make = url.searchParams.get("make") || "";
+        const model = url.searchParams.get("model") || "";
+        const year = parseInt(url.searchParams.get("year") || "0", 10);
+        const showAll = url.searchParams.get("all") === "true"; // Optional: show all variants
+
+        if (!make || !model) {
+          return corsResponse(request, JSON.stringify({ error: "make and model required" }), 400);
+        }
+
+        const conditions: string[] = ["LOWER(make) = ?"];
+        const params: (string | number)[] = [make.toLowerCase()];
+
+        // Handle model matching - allow partial match
+        conditions.push("LOWER(model) LIKE ?");
+        params.push(`%${model.toLowerCase()}%`);
+
+        // Year filter
+        if (year) {
+          conditions.push("(year_start IS NULL OR year_start <= ?)");
+          conditions.push("(year_end IS NULL OR year_end >= ?)");
+          params.push(year, year);
+        }
+
+        const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
+        const sql = `
+          SELECT DISTINCT
+            product_item_num,
+            product_title,
+            chip,
+            frequency,
+            battery,
+            fcc_id,
+            price,
+            url,
+            year_start,
+            year_end
+          FROM vehicle_keys
+          ${whereClause}
+          ORDER BY product_title
+          LIMIT 100
+        `;
+
+        const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+        const allRows = result.results || [];
+
+        // === SMART DEDUPLICATION ===
+
+        // Patterns to HIDE (not unique keys, just purchasing variants)
+        const HIDE_PATTERNS = [
+          /^\d+-PACK\s/i,           // "5-PACK Ford..." - multipacks
+          /^\d+-Pack\s/i,           // Case variant
+          /\bSHELL\b/i,             // "Key SHELL" - case only, no electronics
+          /\bBLANK\b/i,             // Key blank only
+        ];
+
+        // Helper: Extract button count from title
+        function extractButtons(title: string): number {
+          const match = title.match(/(\d+)-?(?:Btn|Button|B)\b/i);
+          return match ? parseInt(match[1], 10) : 0;
+        }
+
+        // Helper: Extract features from title
+        function extractFeatures(title: string): string[] {
+          const features: string[] = [];
+          const t = title.toLowerCase();
+          if (t.includes('w/trunk') || t.includes('w/ trunk') || (t.includes('trunk') && !t.includes('hatch'))) features.push('trunk');
+          if (t.includes('w/hatch') || t.includes('w/ hatch') || t.includes('hatch')) features.push('hatch');
+          if (t.includes('w/rs') || t.includes('w/ rs') || t.includes('remote start') || t.includes('rmt start')) features.push('rs');
+          if (t.includes('w/roof') || t.includes('w/ roof') || t.includes('roof')) features.push('roof');
+          if (t.includes('w/doors') || t.includes('power door') || t.includes('sliding door')) features.push('doors');
+          return features.sort();
+        }
+
+        // Helper: Extract key type from title
+        function extractKeyType(title: string): string {
+          const t = title.toLowerCase();
+          if (t.includes('smart key') || t.includes('smart') && t.includes('key')) return 'smart';
+          if (t.includes('fobik')) return 'fobik';
+          if (t.includes('flip') && (t.includes('rhk') || t.includes('remote head'))) return 'flip';
+          if (t.includes('rhk') || t.includes('remote head')) return 'rhk';
+          if (t.includes('transponder')) return 'transponder';
+          if (t.includes('mechanical') || t.includes('mech key')) return 'mechanical';
+          if (t.includes('remote') && !t.includes('head') && !t.includes('start')) return 'remote';
+          if (t.includes('emergency') || t.includes('blade only') || t.includes('insert')) return 'blade';
+          return 'key';
+        }
+
+        // Helper: Check if aftermarket (BRK)
+        function isAftermarket(title: string): boolean {
+          return /\(BRK\)/i.test(title) || /—BRK$/i.test(title) || title.toLowerCase().startsWith('for ');
+        }
+
+        // Helper: Parse price to float (handle "$139.25 $128.11" -> 128.11)
+        function parsePrice(priceStr: string | null): number {
+          if (!priceStr) return 9999;
+          // If multiple prices (sale), take the lower one (usually 2nd)
+          const prices = priceStr.match(/\$?(\d+\.?\d*)/g);
+          if (!prices) return 9999;
+          return Math.min(...prices.map(p => parseFloat(p.replace('$', ''))));
+        }
+
+        // Helper: Generate unique key signature
+        function getKeySignature(row: any): string {
+          const title = row.product_title || '';
+          const fccId = (row.fcc_id || 'NOFCC').toUpperCase();
+          const buttons = extractButtons(title);
+          const features = extractFeatures(title).join('-') || 'base';
+          const keyType = extractKeyType(title);
+          return `${fccId}_${buttons}_${features}_${keyType}`;
+        }
+
+        // Filter out multipacks and shells
+        const filteredRows = (allRows as any[]).filter((row: any) => {
+          const title = row.product_title || '';
+          return !HIDE_PATTERNS.some(pattern => pattern.test(title));
+        });
+
+        // Group by key signature
+        const keyGroups: Record<string, any[]> = {};
+        for (const row of filteredRows) {
+          const sig = getKeySignature(row);
+          if (!keyGroups[sig]) keyGroups[sig] = [];
+          keyGroups[sig].push(row);
+        }
+
+        // Select best representative from each group
+        // Priority: OEM > Aftermarket, then lowest price
+        const uniqueKeys: any[] = [];
+        for (const sig of Object.keys(keyGroups)) {
+          const variants = keyGroups[sig];
+          // Sort: OEM first, then by price
+          variants.sort((a, b) => {
+            const aAfter = isAftermarket(a.product_title || '');
+            const bAfter = isAftermarket(b.product_title || '');
+            if (aAfter !== bAfter) return aAfter ? 1 : -1; // OEM first
+            return parsePrice(a.price) - parsePrice(b.price); // Then cheapest
+          });
+
+          const best = variants[0];
+          const prices = variants.map(v => parsePrice(v.price)).filter(p => p < 9999);
+          const minPrice = prices.length ? Math.min(...prices) : null;
+          const maxPrice = prices.length ? Math.max(...prices) : null;
+
+          uniqueKeys.push({
+            ...best,
+            key_signature: sig,
+            variants_count: variants.length,
+            price_range: minPrice !== maxPrice ? { min: minPrice, max: maxPrice } : null,
+            button_count: extractButtons(best.product_title || ''),
+            features: extractFeatures(best.product_title || ''),
+            key_type: extractKeyType(best.product_title || ''),
+            is_aftermarket: isAftermarket(best.product_title || '')
+          });
+        }
+
+        // Sort by: key type (smart first), then button count
+        const typeOrder: Record<string, number> = { smart: 1, fobik: 2, rhk: 3, flip: 4, remote: 5, transponder: 6, mechanical: 7, blade: 8, key: 9 };
+        uniqueKeys.sort((a, b) => {
+          const typeA = typeOrder[a.key_type] || 10;
+          const typeB = typeOrder[b.key_type] || 10;
+          if (typeA !== typeB) return typeA - typeB;
+          return (b.button_count || 0) - (a.button_count || 0); // More buttons first
+        });
+
+        // Generate Amazon affiliate search URLs
+        const AFFILIATE_TAG = "eurokeys-20";
+        const keysWithAmazon = uniqueKeys.map((row: any) => {
+          const searchTerms: string[] = [];
+          searchTerms.push(make);
+          if (model) searchTerms.push(model);
+          searchTerms.push("key");
+          if (row.fcc_id) searchTerms.push(row.fcc_id);
+          if (row.chip && row.chip !== "No" && row.chip !== "None") searchTerms.push(row.chip);
+
+          const searchQuery = searchTerms.join(" ");
+          const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AFFILIATE_TAG}`;
+
+          return {
+            ...row,
+            amazon_search_url: amazonUrl,
+            amazon_affiliate_tag: AFFILIATE_TAG
+          };
+        });
+
+        return new Response(JSON.stringify({
+          vehicle: { make, model, year: year || null },
+          total: keysWithAmazon.length,
+          total_variants: allRows.length,
+          keys: keysWithAmazon
+        }), {
+          headers: {
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=300",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
           },
         });
       } catch (err: any) {

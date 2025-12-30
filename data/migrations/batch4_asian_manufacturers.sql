@@ -208,23 +208,23 @@ INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, ye
 ('Warning', 'Honda', 'All 11th Gen', 2022, 2025, 'Internet Required for AKL', 'Hitag AES calculation performed server-side. No offline seed-key method exists.', 'All Keys Lost', 'Ensure stable WiFi connection. Safety Check Failed often indicates connectivity issue.', 'Honda_BSI_Key_Programming_Challenges.txt', CURRENT_TIMESTAMP);
 
 -- ============================================================================
--- SECTION 8: Update vehicles_master with Asian Data
+-- SECTION 8: Update vehicles with Asian Data
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     transponder_type = 'H-Chip (ID8A)',
     programming_method = 'APB112 Emulator',
     akl_difficulty = 'Medium',
     special_notes = COALESCE(special_notes || ' | ', '') || 'TSS 2.0 - Standard 0351 board. Check WMI for J-VIN frequency.'
 WHERE make = 'Toyota' AND model IN ('Camry', 'RAV4', 'Highlander') AND year_start >= 2018 AND year_end <= 2023;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     transponder_type = '8A-BA',
     programming_method = 'G-Box3 + 30-Pin Cable',
     akl_difficulty = 'High',
     special_notes = COALESCE(special_notes || ' | ', '') || 'BA encryption - Standard AA emulators fail. Requires latest firmware.'
 WHERE make = 'Toyota' AND model IN ('Tundra', 'Sequoia', 'Grand Highlander') AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     transponder_type = 'Hitag AES (4A)',
     programming_method = 'Manual Selection - Avoid Auto-Detect',
     akl_difficulty = 'Critical',

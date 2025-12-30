@@ -123,16 +123,16 @@ INSERT INTO honda_security_vulnerabilities (cve_id, vulnerability_name, affected
 ('CVE-2021-46145', 'Rolling-PWN', '2012-2022 (early production)', 'KR5V2X, KR5TP-4 (early)', 'Rolling code counter can be resynchronized to arbitrary value by sending specific sequence. Attacker can replay captured codes.', 'Firmware update (late 2023/2024). Keep FOB in faraday bag.', 'This is a LOGIC flaw, not crypto flaw. AES-128 encryption does not prevent attack because counter validation logic is flawed.');
 
 -- ============================================================================
--- SECTION 6: Update vehicles_master and locksmith_alerts
+-- SECTION 6: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Honda 11th Gen (Hitag AES/ID4A)',
     akl_difficulty = 'High',
     special_notes = 'KR5TP-4 FCC ID. NCF29A1M chip (ID4A). AES-128 encryption. ID47 keys = INSTANT FAILURE. Universal key (XM38/IKEY) required for bricked BCM recovery.'
 WHERE make = 'Honda' AND model IN ('Civic', 'Accord', 'CR-V', 'HR-V', 'Pilot')
 AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Honda Legacy (Hitag 3/ID47)',
     akl_difficulty = 'Medium',
     special_notes = 'KR5T4X FCC ID. EXCEPTION: Odyssey NOT on Honda Architecture despite 2024 model year. Uses legacy ID47 chip. Standard OBD programming.'

@@ -46,50 +46,50 @@ INSERT OR REPLACE INTO chip_registry (chip_type, technology, bits, description) 
 
 -- Update vehicle_variants with transponder chip data and clonability
 -- Toyota
-UPDATE vehicle_variants SET chip = '4C', cloning_possible = 1 WHERE year_start BETWEEN 1998 AND 2001 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Toyota', 'Lexus'));
-UPDATE vehicle_variants SET chip = '4D-67', cloning_possible = 1 WHERE year_start BETWEEN 2002 AND 2009 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Toyota', 'Lexus', 'Scion'));
-UPDATE vehicle_variants SET chip = '4D-72', cloning_possible = 1 WHERE year_start BETWEEN 2010 AND 2013 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Toyota', 'Lexus', 'Scion'));
-UPDATE vehicle_variants SET chip = '8A-H', cloning_possible = 1 WHERE year_start BETWEEN 2014 AND 2019 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Toyota', 'Lexus'));
-UPDATE vehicle_variants SET chip = '8A-BA', cloning_possible = 0, obd_program = 'Requires bypass cable/emulator' WHERE year_start >= 2020 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Toyota', 'Lexus'));
+UPDATE vehicle_variants SET chip = '4C', cloning_possible = 1 WHERE year_start BETWEEN 1998 AND 2001 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Toyota', 'Lexus'));
+UPDATE vehicle_variants SET chip = '4D-67', cloning_possible = 1 WHERE year_start BETWEEN 2002 AND 2009 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Toyota', 'Lexus', 'Scion'));
+UPDATE vehicle_variants SET chip = '4D-72', cloning_possible = 1 WHERE year_start BETWEEN 2010 AND 2013 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Toyota', 'Lexus', 'Scion'));
+UPDATE vehicle_variants SET chip = '8A-H', cloning_possible = 1 WHERE year_start BETWEEN 2014 AND 2019 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Toyota', 'Lexus'));
+UPDATE vehicle_variants SET chip = '8A-BA', cloning_possible = 0, obd_program = 'Requires bypass cable/emulator' WHERE year_start >= 2020 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Toyota', 'Lexus'));
 
 -- Ford (PATS generations)
-UPDATE vehicle_variants SET chip = '4C', cloning_possible = 1 WHERE year_start BETWEEN 1996 AND 2003 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Ford', 'Lincoln', 'Mercury'));
-UPDATE vehicle_variants SET chip = '4D-63-40', cloning_possible = 1 WHERE year_start BETWEEN 2004 AND 2010 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Ford', 'Lincoln', 'Mercury', 'Mazda'));
-UPDATE vehicle_variants SET chip = '4D-63-80', cloning_possible = 0, obd_program = 'OBD 80-bit programming' WHERE year_start BETWEEN 2011 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Ford', 'Lincoln'));
-UPDATE vehicle_variants SET chip = 'ID49', cloning_possible = 0, obd_program = 'OBD HU101; 10-min security delay' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Ford', 'Lincoln'));
+UPDATE vehicle_variants SET chip = '4C', cloning_possible = 1 WHERE year_start BETWEEN 1996 AND 2003 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Ford', 'Lincoln', 'Mercury'));
+UPDATE vehicle_variants SET chip = '4D-63-40', cloning_possible = 1 WHERE year_start BETWEEN 2004 AND 2010 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Ford', 'Lincoln', 'Mercury', 'Mazda'));
+UPDATE vehicle_variants SET chip = '4D-63-80', cloning_possible = 0, obd_program = 'OBD 80-bit programming' WHERE year_start BETWEEN 2011 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Ford', 'Lincoln'));
+UPDATE vehicle_variants SET chip = 'ID49', cloning_possible = 0, obd_program = 'OBD HU101; 10-min security delay' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Ford', 'Lincoln'));
 
 -- GM (Circle Plus / PK3+)
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2006 AND 2019 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Chevrolet', 'GMC', 'Buick', 'Cadillac'));
-UPDATE vehicle_variants SET chip = 'ID46E', cloning_possible = 0, obd_program = 'CAN-FD required 2021+' WHERE year_start >= 2020 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Chevrolet', 'GMC', 'Cadillac'));
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2006 AND 2019 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Chevrolet', 'GMC', 'Buick', 'Cadillac'));
+UPDATE vehicle_variants SET chip = 'ID46E', cloning_possible = 0, obd_program = 'CAN-FD required 2021+' WHERE year_start >= 2020 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Chevrolet', 'GMC', 'Cadillac'));
 
 -- Honda
-UPDATE vehicle_variants SET chip = 'ID48', cloning_possible = 1 WHERE year_start BETWEEN 2002 AND 2006 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Honda', 'Acura'));
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2007 AND 2012 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Honda', 'Acura'));
-UPDATE vehicle_variants SET chip = 'ID47', cloning_possible = 0, obd_program = 'OBD Add Key required' WHERE year_start BETWEEN 2013 AND 2017 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Honda', 'Acura'));
-UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'Hitag AES; K518/IM608' WHERE year_start >= 2018 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Honda', 'Acura'));
+UPDATE vehicle_variants SET chip = 'ID48', cloning_possible = 1 WHERE year_start BETWEEN 2002 AND 2006 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Honda', 'Acura'));
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2007 AND 2012 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Honda', 'Acura'));
+UPDATE vehicle_variants SET chip = 'ID47', cloning_possible = 0, obd_program = 'OBD Add Key required' WHERE year_start BETWEEN 2013 AND 2017 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Honda', 'Acura'));
+UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'Hitag AES; K518/IM608' WHERE year_start >= 2018 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Honda', 'Acura'));
 
 -- Nissan
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2005 AND 2018 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Nissan', 'Infiniti'));
-UPDATE vehicle_variants SET chip = 'ID47', cloning_possible = 0, obd_program = 'OBD; Security Gateway 2020+' WHERE year_start >= 2019 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Nissan', 'Infiniti'));
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2005 AND 2018 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Nissan', 'Infiniti'));
+UPDATE vehicle_variants SET chip = 'ID47', cloning_possible = 0, obd_program = 'OBD; Security Gateway 2020+' WHERE year_start >= 2019 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Nissan', 'Infiniti'));
 
 -- Hyundai/Kia
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2006 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Hyundai', 'Kia', 'Genesis'));
-UPDATE vehicle_variants SET chip = 'ID46E', cloning_possible = 0, obd_program = 'PIN from BCM required' WHERE year_start BETWEEN 2015 AND 2019 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Hyundai', 'Kia', 'Genesis'));
-UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'Hitag AES; OBD programming' WHERE year_start >= 2020 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Hyundai', 'Kia', 'Genesis'));
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2006 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Hyundai', 'Kia', 'Genesis'));
+UPDATE vehicle_variants SET chip = 'ID46E', cloning_possible = 0, obd_program = 'PIN from BCM required' WHERE year_start BETWEEN 2015 AND 2019 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Hyundai', 'Kia', 'Genesis'));
+UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'Hitag AES; OBD programming' WHERE year_start >= 2020 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Hyundai', 'Kia', 'Genesis'));
 
 -- Chrysler/Dodge/Jeep/Ram
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2005 AND 2017 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Chrysler', 'Dodge', 'Jeep', 'Ram'));
-UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'Secure Gateway bypass required' WHERE year_start >= 2018 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Chrysler', 'Dodge', 'Jeep', 'Ram'));
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2005 AND 2017 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Chrysler', 'Dodge', 'Jeep', 'Ram'));
+UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'Secure Gateway bypass required' WHERE year_start >= 2018 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Chrysler', 'Dodge', 'Jeep', 'Ram'));
 
 -- BMW
-UPDATE vehicle_variants SET chip = 'ID44', cloning_possible = 1 WHERE year_start BETWEEN 1995 AND 2005 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make = 'BMW');
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2006 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make = 'BMW');
-UPDATE vehicle_variants SET chip = 'ID49', cloning_possible = 0, obd_program = 'CAS4/FEM bench read required' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make = 'BMW');
+UPDATE vehicle_variants SET chip = 'ID44', cloning_possible = 1 WHERE year_start BETWEEN 1995 AND 2005 AND vehicle_id IN (SELECT id FROM vehicles WHERE make = 'BMW');
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2006 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles WHERE make = 'BMW');
+UPDATE vehicle_variants SET chip = 'ID49', cloning_possible = 0, obd_program = 'CAS4/FEM bench read required' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles WHERE make = 'BMW');
 
 -- VW/Audi
-UPDATE vehicle_variants SET chip = 'ID48', cloning_possible = 1 WHERE year_start BETWEEN 2000 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Volkswagen', 'Audi'));
-UPDATE vehicle_variants SET chip = 'ID88', cloning_possible = 0, obd_program = 'MQB CS codes; OBD only' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make IN ('Volkswagen', 'Audi'));
+UPDATE vehicle_variants SET chip = 'ID48', cloning_possible = 1 WHERE year_start BETWEEN 2000 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Volkswagen', 'Audi'));
+UPDATE vehicle_variants SET chip = 'ID88', cloning_possible = 0, obd_program = 'MQB CS codes; OBD only' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles WHERE make IN ('Volkswagen', 'Audi'));
 
 -- Mercedes
-UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2000 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make = 'Mercedes-Benz');
-UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'FBS4 - DEALER ONLY' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles_master WHERE make = 'Mercedes-Benz');
+UPDATE vehicle_variants SET chip = 'ID46', cloning_possible = 1 WHERE year_start BETWEEN 2000 AND 2014 AND vehicle_id IN (SELECT id FROM vehicles WHERE make = 'Mercedes-Benz');
+UPDATE vehicle_variants SET chip = 'ID4A', cloning_possible = 0, obd_program = 'FBS4 - DEALER ONLY' WHERE year_start >= 2015 AND vehicle_id IN (SELECT id FROM vehicles WHERE make = 'Mercedes-Benz');

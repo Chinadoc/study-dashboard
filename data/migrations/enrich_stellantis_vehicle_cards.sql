@@ -7,7 +7,7 @@
 -- ==============================================================================
 
 -- Wrangler JK (2007-2017): Legacy SKREEM System
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'GQ4-53T',
     key_blank = 'Y157-PT',
     battery = 'CR2032',
@@ -15,7 +15,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Jeep' AND model = 'Wrangler' AND year_start <= 2017;
 
 -- Wrangler JL (2018+): SGW + HITAG-AES System
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'GQ4-54T',
     key_blank = 'Y164-PT',
     battery = 'CR2032',
@@ -29,7 +29,7 @@ WHERE make = 'Jeep' AND model = 'Wrangler' AND year_start >= 2018;
 -- ==============================================================================
 
 -- Grand Cherokee WK2 (2014-2021): RFH System
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'M3N-40821302',
     key_blank = 'Y164-PT',
     battery = 'CR2032',
@@ -38,7 +38,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Jeep' AND model = 'Grand Cherokee' AND year_end <= 2021;
 
 -- Grand Cherokee WL (2022+): Locked RF Hub Protocol
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'OHT4882056',
     key_blank = 'Y164-PT',
     battery = 'CR2032',
@@ -52,7 +52,7 @@ WHERE make = 'Jeep' AND model = 'Grand Cherokee' AND year_start >= 2022;
 -- ==============================================================================
 
 -- Dodge Hornet (2023+): Alfa Romeo Architecture
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = '2ADPXFI7PE',
     key_blank = 'SIP22',
     battery = 'CR2032',
@@ -63,7 +63,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Dodge' AND model = 'Hornet';
 
 -- Jeep Renegade 2015-2021 (Legacy Continental)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = '2ADFTFI5AM433TX',
     key_blank = 'SIP22',
     battery = 'CR2032',
@@ -72,7 +72,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Jeep' AND model = 'Renegade' AND year_end <= 2021;
 
 -- Jeep Renegade 2022+ (Giobert Transition)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = '2ADPXFI7PE',
     key_blank = 'SIP22',
     battery = 'CR2032',
@@ -86,7 +86,7 @@ WHERE make = 'Jeep' AND model = 'Renegade' AND year_start >= 2022;
 -- ==============================================================================
 
 -- Jeep Compass (2017+)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'M3N-40821302',
     key_blank = 'SIP22',
     battery = 'CR2032',
@@ -95,7 +95,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Jeep' AND model = 'Compass' AND year_start >= 2017;
 
 -- RAM ProMaster (2022+)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     key_blank = 'SIP22',
     battery = 'CR2032',
     sgw_required = 1,
@@ -107,7 +107,7 @@ WHERE make = 'RAM' AND model = 'ProMaster' AND year_start >= 2022;
 -- ==============================================================================
 
 -- Ensure all battery entries are standardized
-UPDATE vehicles_master SET battery = 'CR2032' WHERE make IN ('Jeep', 'Dodge', 'RAM') AND battery IS NULL;
+UPDATE vehicles SET battery = 'CR2032' WHERE make IN ('Jeep', 'Dodge', 'RAM') AND battery IS NULL;
 
 -- Fix common casing issues in key_blank
-UPDATE vehicles_master SET key_blank = UPPER(key_blank) WHERE make IN ('Jeep', 'Dodge', 'RAM') AND key_blank LIKE 'y%';
+UPDATE vehicles SET key_blank = UPPER(key_blank) WHERE make IN ('Jeep', 'Dodge', 'RAM') AND key_blank LIKE 'y%';

@@ -5,7 +5,7 @@
 -- VEHICLES MASTER (Make/Model combinations)
 -- ============================================
 
-INSERT OR IGNORE INTO vehicles_master (make, model, make_normalized, model_normalized) VALUES
+INSERT OR IGNORE INTO vehicles (make, model, make_normalized, model_normalized) VALUES
 -- Hyundai
 ('Hyundai', 'Elantra', 'hyundai', 'elantra'),
 ('Hyundai', 'Sonata', 'hyundai', 'sonata'),
@@ -42,58 +42,58 @@ INSERT OR IGNORE INTO vehicles_master (make, model, make_normalized, model_norma
 -- Hyundai Elantra variants
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2007, 2010, 'Standard', 'ID46', 'PCF7936', 'HYN14R', 'OSLOKA-310T', '315 MHz', 3, 'CR2032', '95430-2L350', 'Autel IM608', 'OBD', 0, 'Gen 4 - Transponder key only', 1
-FROM vehicles_master WHERE make='Hyundai' AND model='Elantra';
+FROM vehicles WHERE make='Hyundai' AND model='Elantra';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2011, 2016, 'Smart Key', 'ID46', 'PCF7952', 'HY22', 'SY5HMFNA04', '315 MHz', 4, 'CR2032', '95440-3M220', 'Autel IM608', 'OBD', 0, 'Gen 5 - Push button start', 1
-FROM vehicles_master WHERE make='Hyundai' AND model='Elantra';
+FROM vehicles WHERE make='Hyundai' AND model='Elantra';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2011, 2016, 'Flip Key', 'ID46', 'PCF7936', 'HY22', 'OSLOKA-320T', '315 MHz', 4, 'CR2032', '95430-3X500', 'Autel IM608', 'OBD', 0, 'Gen 5 - Non push start', 1
-FROM vehicles_master WHERE make='Hyundai' AND model='Elantra';
+FROM vehicles WHERE make='Hyundai' AND model='Elantra';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2017, 2020, 'Smart Key', 'ID46', 'PCF7952A', 'HY18', 'CQOFD00120', '433 MHz', 4, 'CR2032', '95440-F2002', 'Autel IM608', 'OBD', 0, 'Gen 6 - Some have HY22', 1
-FROM vehicles_master WHERE make='Hyundai' AND model='Elantra';
+FROM vehicles WHERE make='Hyundai' AND model='Elantra';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2021, 2024, 'Smart Key', 'HITAG-AES', 'ID4A', 'KK12', 'NYOMBEC5FOB2004', '434 MHz', 4, 'CR2032', '95440-AA000', 'Autel IM608 Pro', 'OBD + SGW', 0, 'Gen 7 - Requires SGW bypass', 1
-FROM vehicles_master WHERE make='Hyundai' AND model='Elantra';
+FROM vehicles WHERE make='Hyundai' AND model='Elantra';
 
 -- Honda Civic variants
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2012, 2015, 'Standard', 'ID46', 'PCF7952A', 'HON66', 'N5F-A04TAA', '313.8 MHz', 4, 'CR2025', '35118-TR0-A00', 'Autel IM608', 'OBD', 0, '9th Gen - Transponder', 1
-FROM vehicles_master WHERE make='Honda' AND model='Civic';
+FROM vehicles WHERE make='Honda' AND model='Civic';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2016, 2021, 'Smart Key', 'ID47', 'HITAG3', 'HON66', 'KR5V2X', '433 MHz', 4, 'CR2032', '72147-TBA-A01', 'Autel IM608', 'OBD', 0, '10th Gen - Push start', 1
-FROM vehicles_master WHERE make='Honda' AND model='Civic';
+FROM vehicles WHERE make='Honda' AND model='Civic';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2022, 2024, 'Smart Key', 'ID47', 'HITAG3-AES', 'HON66', 'KR5V2X-V44', '433 MHz', 4, 'CR2032', '72147-T47-A01', 'Autel IM608 Pro', 'OBD', 0, '11th Gen - Latest security', 1
-FROM vehicles_master WHERE make='Honda' AND model='Civic';
+FROM vehicles WHERE make='Honda' AND model='Civic';
 
 -- BMW 3-Series variants
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2012, 2018, 'Smart Key', 'CAS4', 'ID49', 'HU92', 'YGOHUF5662', '315 MHz', 4, 'CR2450', '66128718217', 'Autohex II', 'OBD + ICOM', 1, 'F30 - FEM module', 1
-FROM vehicles_master WHERE make='BMW' AND model='3-Series';
+FROM vehicles WHERE make='BMW' AND model='3-Series';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2019, 2024, 'Smart Key', 'BDC', 'ID49-AES', 'HU100R', 'HUF5661', '434 MHz', 4, 'CR2450', '66128739952', 'Autohex II', 'OBD + ICOM', 1, 'G20 - BDC module, newer security', 1
-FROM vehicles_master WHERE make='BMW' AND model='3-Series';
+FROM vehicles WHERE make='BMW' AND model='3-Series';
 
 -- Ford F-150 variants
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2011, 2014, 'Standard', '4D63-80bit', '4D63', 'H75', 'CWTWB1U793', '315 MHz', 4, 'CR2025', 'AL3Z-15K601-A', 'Autel IM608', 'OBD', 0, '12th Gen - 80-bit chip', 1
-FROM vehicles_master WHERE make='Ford' AND model='F-150';
+FROM vehicles WHERE make='Ford' AND model='F-150';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2015, 2017, 'Smart Key', 'ID49', 'HITAG Pro', 'H92', 'M3N-A2C31243300', '902 MHz', 5, 'CR2450', 'FL3T-15K601-FC', 'Autel IM608', 'OBD', 0, '13th Gen - New key style', 1
-FROM vehicles_master WHERE make='Ford' AND model='F-150';
+FROM vehicles WHERE make='Ford' AND model='F-150';
 
 INSERT OR IGNORE INTO vehicle_variants (vehicle_id, year_start, year_end, key_type, immobilizer_system, chip, keyway, fcc_id, frequency, buttons, battery, oem_part_number, programmer, programming_method, pin_required, notes, verified)
 SELECT id, 2018, 2024, 'Smart Key', 'ID49', 'HITAG Pro', 'H92', 'M3N-A2C93142600', '902 MHz', 5, 'CR2450', 'JL3T-15K601-AC', 'Autel IM608', 'OBD', 0, '14th Gen - Current model', 1
-FROM vehicles_master WHERE make='Ford' AND model='F-150';
+FROM vehicles WHERE make='Ford' AND model='F-150';
 
 -- ============================================
 -- FCC REGISTRY (Common FCC IDs)

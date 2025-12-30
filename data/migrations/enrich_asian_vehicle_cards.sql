@@ -10,7 +10,7 @@ BEGIN TRANSACTION;
 
 -- Civic 10th Gen (2016-2021)
 -- Addressing the KR5V1X vs KR5V2X Trap
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5V2X (433MHz) / KR5V1X (314MHz)*',
     lishi_tool = 'HON66',
@@ -18,7 +18,7 @@ SET
 WHERE make = 'Honda' AND model = 'Civic' AND year_start >= 2016 AND year_end <= 2021;
 
 -- Civic 11th Gen (2022-2025)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5TP-4',
     lishi_tool = 'HON66',
@@ -26,7 +26,7 @@ SET
 WHERE make = 'Honda' AND model = 'Civic' AND year_start >= 2022;
 
 -- Accord 10th Gen (2018-2022)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'CWTWB1G0090',
     lishi_tool = 'HON66',
@@ -38,7 +38,7 @@ WHERE make = 'Honda' AND model = 'Accord' AND year_start >= 2018 AND year_end <=
 -- =============================================
 
 -- Rogue 2021+ (T33)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5TXN1 (Base) / KR5TXN3 (SL/Plat)',
     lishi_tool = 'NSN14',
@@ -46,7 +46,7 @@ SET
 WHERE make = 'Nissan' AND model = 'Rogue' AND year_start >= 2021;
 
 -- Pathfinder 2022+ (R53)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5TXN7',
     lishi_tool = 'NSN14',
@@ -58,7 +58,7 @@ WHERE make = 'Nissan' AND model = 'Pathfinder' AND year_start >= 2022;
 -- =============================================
 
 -- Telluride Pre-2023
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'TQ8-FOB-4F24',
     lishi_tool = 'KK12',
@@ -66,7 +66,7 @@ SET
 WHERE make = 'Kia' AND model = 'Telluride' AND year_start >= 2020 AND year_end <= 2022;
 
 -- Telluride 2023+ (CAN FD)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'TQ8-FOB-4F27',
     lishi_tool = 'HYN14',
@@ -78,7 +78,7 @@ WHERE make = 'Kia' AND model = 'Telluride' AND year_start >= 2023;
 -- =============================================
 
 -- Outback 2020+
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'HYQ14AKB',
     lishi_tool = 'DAT17',
@@ -90,7 +90,7 @@ WHERE make = 'Subaru' AND model = 'Outback' AND year_start >= 2020;
 -- =============================================
 
 -- Standardize Mazda common fields for recent models (2019+)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'MZ31',
     lishi_tool = 'MAZ24/MZ31',

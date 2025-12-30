@@ -116,21 +116,21 @@ INSERT INTO mazda_chip_comparison (industry_id, chip_family, nxp_part_number, ma
 ('ID47', 'Hitag 3', 'PCF7952/7953', 'NXP', 'Proprietary Hitag 3', 'Variable', 'Unlockable', 'NOT USED BY MAZDA', 'COMMON MISIDENTIFICATION - ID47 is Honda/Kia. Mazda skipped Hitag 3.');
 
 -- ============================================================================
--- SECTION 5: Update vehicles_master and locksmith_alerts
+-- SECTION 5: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Mazda Gen 1 (Hitag Pro/ID49)',
     akl_difficulty = 'Medium',
     special_notes = 'SSU-based architecture. Standard OBD Incode/Outcode. Two-key rule recommended. Check D01 vs D02 for Power Liftgate variants.'
 WHERE make = 'Mazda' AND model IN ('CX-5', 'CX-9', 'Mazda 6') AND year_start >= 2014 AND year_start <= 2023;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Mazda Gen 2 (Hitag AES/ID4A)',
     akl_difficulty = 'High',
     special_notes = 'BCM-integrated architecture. 7-minute server calculation. Stable 12V+ power CRITICAL. Battery voltage drop = BCM corruption.'
 WHERE make = 'Mazda' AND model IN ('Mazda 3', 'CX-30') AND year_start >= 2019;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Mazda Gen 2 + SGW (Hitag AES)',
     akl_difficulty = 'Severe',
     special_notes = 'Active Alarm Bypass + SGW physical bypass required. CX-90 is flagship complexity. Highest brick risk in Mazda fleet.'

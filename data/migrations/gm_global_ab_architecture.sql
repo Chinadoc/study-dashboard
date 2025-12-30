@@ -112,10 +112,10 @@ INSERT INTO gm_vin_12th_digit_decoder (digit_value, architecture, applies_to, de
 ('9', 'Global B', '2022.5 Silverado/Sierra 1500 Refresh', 'Refresh model. 24-digit server token REQUIRED.');
 
 -- ============================================================================
--- SECTION 4: Update vehicles_master
+-- SECTION 4: Update vehicles
 -- ============================================================================
-UPDATE vehicles_master SET
-    security_system = 'GM Global B (VIP)',
+UPDATE vehicles SET
+    immobilizer_system = 'GM Global B (VIP)',
     bypass_cable_required = 0, -- No physical bypass, but CAN FD adapter required
     can_fd_required = 1,
     akl_difficulty = 'High',
@@ -124,15 +124,15 @@ WHERE make IN ('Chevrolet', 'GMC', 'Cadillac', 'Buick')
 AND model IN ('Tahoe', 'Suburban', 'Yukon', 'Escalade', 'CT4', 'CT5', 'Envision', 'Colorado', 'Canyon', 'Trax', 'Acadia', 'Hummer EV', 'Lyriq', 'Blazer EV', 'Equinox EV')
 AND year_start >= 2021;
 
-UPDATE vehicles_master SET
-    security_system = 'GM Global B (VIP)',
+UPDATE vehicles SET
+    immobilizer_system = 'GM Global B (VIP)',
     can_fd_required = 1,
     akl_difficulty = 'Severe',
     special_notes = 'E99 ECM = MOST HARDENED TARGET. High bricking risk with aftermarket tools. SPS2 strongly preferred. Tuning requires physical ECM unlock.'
 WHERE make = 'Chevrolet' AND model = 'Corvette' AND year_start >= 2020;
 
-UPDATE vehicles_master SET
-    security_system = 'GM Global A',
+UPDATE vehicles SET
+    immobilizer_system = 'GM Global A',
     can_fd_required = 0,
     akl_difficulty = 'Low',
     special_notes = 'Legacy architecture. Standard OBD programming. Split year check required for Silverado 1500.'
@@ -143,7 +143,7 @@ AND year_start <= 2024;
 -- ============================================================================
 -- SECTION 5: Locksmith Alerts for GM
 -- ============================================================================
-INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, year_end, alert_title, alert_description, affected_operation, mitigation_steps, source_document, created_at) VALUES
+INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, year_end, alert_title, alert_content, affected_operation, mitigation, source_document, created_at) VALUES
 ('Critical', 'Chevrolet', 'Corvette C8', 2020, 2025, 'E99 ECM = Unbreakable Fortress', 'E99 ECM employs the most rigorous security in GM lineup. Aftermarket tuners cannot flash via OBD. AKL has HIGH BRICKING RISK.', 'All Keys Lost', 'Use dealer SPS2 process. Autel support listed but lower success rate. Failed midway = bricks state requiring dealer tow.', 'GM_Global_B_Key_Programming_Research.txt', CURRENT_TIMESTAMP),
 ('Critical', 'Chevrolet', 'Silverado 1500', 2022, 2022, '12th Digit Rule - Two Different Trucks', 'GM manufactured TWO versions: Limited (Global A) and Refresh (Global B). Using wrong protocol can BRICK module.', 'Pre-Job Identification', 'Check VIN 12th digit. ≤4 = Global A (standard). ≥5 = Global B (24-digit token). Verify J22 RPO code.', 'GM_Global_B_Key_Programming_Research.txt', CURRENT_TIMESTAMP),
 ('Critical', 'Chevrolet', 'Silverado 2500HD', 2024, 2025, '2024 HD Truck Surprise - Now Global B', 'The 2020-2023 HD trucks were Global A. The 2024 refresh moved HD lineup to Global B. Tools that worked on 2023 FAIL on 2024.', 'Tool Selection', 'If 2024 HD has new digital dashboard and C-shaped DRLs, it is Global B. Requires 24-digit token.', 'GM_Global_B_Key_Programming_Research.txt', CURRENT_TIMESTAMP),

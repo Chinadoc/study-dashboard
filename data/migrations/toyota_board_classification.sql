@@ -130,15 +130,15 @@ INSERT INTO toyota_key_clusters (cluster_name, board_id, fcc_id, architecture, v
 ('Transition 8A-BA Cluster', '3450', 'HYQ14FLA', '8A-BA', 'RAV4 2022+, 4Runner 2022+, Highlander 2021+', 'HIGH', 'Highest-volume SUV segment. CRITICAL to differentiate from FBC (Legacy 8A).');
 
 -- ============================================================================
--- SECTION 5: Update vehicles_master and locksmith_alerts
+-- SECTION 5: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Toyota 4A (NXP HITAG AES)',
     akl_difficulty = 'High',
     special_notes = 'NXP NCF29A1M chip (ID4A). G-Box3 or CAN Direct required for AKL. Password-free matching available on some tools. FBW Board 2561.'
 WHERE make = 'Toyota' AND model IN ('Corolla', 'Prius') AND year_start >= 2019;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Toyota 4A (NXP HITAG AES)',
     akl_difficulty = 'High',
     special_notes = '2025 NEW GENERATION. Camry now uses 4A (FBW Board 2561) instead of 8A. Aligns with Corolla. G-Box3 required.'

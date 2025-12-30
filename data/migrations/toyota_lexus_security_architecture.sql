@@ -92,9 +92,9 @@ INSERT INTO toyota_board_crossref (fcc_id, board_id_prefix, chip_logic, frequenc
 ('HYQ14FLC', '231451-xxxx', '8A-BA', 315, 'Lexus NX 2022+, Lexus RX 2023+, Lexus LX600', '2022-2025', 'Lexus-specific BA logic. Universally indicates 30-pin bypass requirement.');
 
 -- ============================================================================
--- SECTION 4: Update vehicles_master
+-- SECTION 4: Update vehicles
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Toyota 8A-AA (H-Chip TSS 2.0/2.5)',
     bypass_cable_required = 0,
     akl_difficulty = 'Medium',
@@ -102,7 +102,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Toyota' AND year_start >= 2018 AND year_start <= 2021
 AND model IN ('Camry', 'RAV4', 'Highlander', 'Sienna', 'Prius', 'Avalon', 'Corolla');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Toyota 8A-BA (TSS 3.0)',
     bypass_cable_required = 1,
     akl_difficulty = 'High',
@@ -110,7 +110,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Toyota' AND year_start >= 2022
 AND model IN ('Tundra', 'Sequoia', 'Sienna', 'RAV4');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Lexus LSS+ 3.0 (8A-BA)',
     bypass_cable_required = 1,
     akl_difficulty = 'Severe',

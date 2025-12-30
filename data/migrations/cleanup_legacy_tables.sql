@@ -22,7 +22,7 @@ DROP TABLE IF EXISTS d1_migrations;
 PRAGMA foreign_keys=ON;
 
 -- Tables remaining (unified schema):
--- vehicles_master
+-- vehicles
 -- vehicle_variants
 -- fcc_registry
 -- keyway_registry

@@ -7,7 +7,7 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- F30 (2012-2018)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'NBGIDGNG1',
     oem_part_number = '66126805993',
     battery = 'CR2450',
@@ -18,7 +18,7 @@ WHERE make = 'BMW'
   AND year >= 2012 AND year <= 2018;
 
 -- G20 (2019-2025)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'N5F-ID21A',
     oem_part_number = '66122471611',
     battery = 'CR2032',
@@ -33,7 +33,7 @@ WHERE make = 'BMW'
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- F10 (2011-2016)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'YGOHUF5662',
     oem_part_number = '66129268486',
     battery = 'CR2450',
@@ -48,7 +48,7 @@ WHERE make = 'BMW'
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- F25 (2011-2017)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'YGOHUF5662',
     oem_part_number = '66129268486',
     battery = 'CR2450',
@@ -59,7 +59,7 @@ WHERE make = 'BMW'
   AND year >= 2011 AND year <= 2017;
 
 -- G01 (2018-2025)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'N5F-ID21A',
     oem_part_number = '66122471611',
     battery = 'CR2032',

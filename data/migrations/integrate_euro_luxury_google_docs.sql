@@ -7,26 +7,27 @@
 -- ==============================================================================
 
 -- FBS3/DAS3 Systems (Legacy - 2000-2014)
-UPDATE vehicles_master SET
-    chip_type = 'ID48 (NEC BGA)',
+-- FBS3/DAS3 Systems (Legacy - 2000-2014)
+UPDATE vehicles SET
+    chip = 'ID48 (NEC BGA)',
     platform = 'FBS3 / DAS3',
     security_notes = 'DAS3 IR system. Induction powers key, battery for remote only. W204/W212 common ESL failure (A25464). Password calculation via IR/OBD required.',
     lishi_tool = 'HU64',
     bypass_method = 'IR Calculation',
     sgw_required = 0
 WHERE make = 'Mercedes-Benz' AND model IN ('C-Class', 'E-Class', 'S-Class', 'GLK-Class', 'ML-Class') 
-    AND year >= 2008 AND year <= 2014;
+    AND year_start >= 2008 AND year_end <= 2014;
 
 -- FBS4/DAS4 Systems (Modern - 2015+)
-UPDATE vehicles_master SET
-    chip_type = 'FBS4 Proprietary (Infineon)',
+UPDATE vehicles SET
+    chip = 'FBS4 Proprietary (Infineon)',
     platform = 'FBS4 / DAS4',
     security_notes = 'FBS4 "Hard Wall". 128-bit AES encryption. NO AFTERMARKET KEY PROGRAMMING (AKL) currently supported (2025). Dealer key via NASTF/TRP required. Module virginization (7G/9G/ISM) possible with G-Box 3.',
     lishi_tool = 'HU64',
     bypass_method = 'Dealer Only / NASTF',
     sgw_required = 1
 WHERE make = 'Mercedes-Benz' AND model IN ('C-Class', 'E-Class', 'S-Class', 'GLE-Class', 'GLC-Class') 
-    AND year >= 2015;
+    AND year_start >= 2015;
 
 -- Mercedes FCC Reference Data
 INSERT INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, key_type, notes, oem_part_numbers)
@@ -42,37 +43,37 @@ ON CONFLICT(fcc_id, make, model) DO UPDATE SET
 -- ==============================================================================
 
 -- P2 Platform (2000-2014)
-UPDATE vehicles_master SET
-    chip_type = 'ID48 (Megamos Crypto)',
+UPDATE vehicles SET
+    chip = 'ID48 (Megamos Crypto)',
     platform = 'P2',
     security_notes = 'Keys stored in CEM (L-shaped box under dash). Re-motes stored in UEM (Rearview mirror). Water ingress on CEM common. Remote programming requires VIDA/VDASH.',
     lishi_tool = 'NE66',
     bypass_method = 'CEM EEPROM Clone',
     sgw_required = 0
 WHERE make = 'Volvo' AND model IN ('S60', 'S80', 'XC90', 'V70', 'XC70') 
-    AND year >= 2005 AND year <= 2014;
+    AND year_start >= 2005 AND year_end <= 2014;
 
 -- P3 Platform (2007-2016)
-UPDATE vehicles_master SET
-    chip_type = 'ID46 (Hitag 2)',
+UPDATE vehicles SET
+    chip = 'ID46 (Hitag 2)',
     platform = 'P3',
     security_notes = 'CEM behind glovebox. KVM in trunk (right rear). Password brute force via OBD can take 1-12 hours. KVM read mandatory for Proximity/Keyless Go.',
     lishi_tool = 'HU101',
     bypass_method = 'CEM/KVM Bench Read',
     sgw_required = 0
 WHERE make = 'Volvo' AND model IN ('S60', 'S80', 'XC60', 'V60') 
-    AND year >= 2010 AND year <= 2016;
+    AND year_start >= 2010 AND year_end <= 2016;
 
 -- SPA Platform (2016+)
-UPDATE vehicles_master SET
-    chip_type = 'ID47/49 (HITAG 3/AES)',
+UPDATE vehicles SET
+    chip = 'ID47/49 (HITAG 3/AES)',
     platform = 'SPA',
     security_notes = 'Scalable Product Architecture. 128-bit AES. Secure Gateway (post-2021 iCUP) blocks OBD access. Sport Key (Tag) is waterproof/sealed. Requires high-voltage PSU (13.5V+).',
     lishi_tool = 'HU101',
     bypass_method = 'VGM PIN / Secure Gateway Bypass',
     sgw_required = 1
 WHERE make = 'Volvo' AND model IN ('XC90', 'S90', 'V90', 'XC60') 
-    AND year >= 2016;
+    AND year_start >= 2016;
 
 -- Volvo FCC Reference Data
 INSERT INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, key_type, notes, oem_part_numbers)
@@ -86,32 +87,32 @@ ON CONFLICT(fcc_id, make, model) DO UPDATE SET
 -- ==============================================================================
 
 -- BCM2 Era (2010-2018)
-UPDATE vehicles_master SET
-    chip_type = 'ID49 (Hitag Pro)',
+UPDATE vehicles SET
+    chip = 'ID49 (Hitag Pro)',
     platform = 'BCM2',
     security_notes = 'Security integrated in Rear BCM (BCM2). MCUs often locked (1N35H/2N35H/5M48H). Bench read with glitching (ACDP/Xhorse) required for AKL. ELV desync risk.',
     lishi_tool = 'HU66',
     bypass_method = 'BCM2 Bench Read',
     sgw_required = 0
 WHERE make = 'Porsche' AND model IN ('911', 'Cayenne', 'Panamera', 'Macan') 
-    AND year >= 2012 AND year <= 2018;
+    AND year_start >= 2012 AND year_end <= 2018;
 
 -- MLB Evo (2018-2025)
-UPDATE vehicles_master SET
-    chip_type = 'Hitag AES (NCF29A1)',
+UPDATE vehicles SET
+    chip = 'Hitag AES (NCF29A1)',
     platform = 'MLB Evo',
     security_notes = 'Connect Gateway with internet dependency. SFD logic requires token. Dealer only for AKL currently (2025). UWB keys neutralize relay attacks.',
     lishi_tool = 'HU66',
     bypass_method = 'Dealer Only / SFD Unlock',
     sgw_required = 1
 WHERE make = 'Porsche' AND model IN ('911', 'Cayenne', 'Taycan', 'Panamera') 
-    AND year >= 2019;
+    AND year_start >= 2019;
 
 -- Porsche FCC Reference Data
 INSERT INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, key_type, notes, oem_part_numbers)
 VALUES 
     ('KR55WK50138', 'Porsche', '911', 2010, 2017, '315/433 MHz', 'ID49', 'Smart Key', 'BCM2 system. Smart selection common.', NULL),
-    ('IYZ-PK3', 'Porsche', '911', 2019, 2025, '315/433 MHz', 'Hitag AES', 'MLB Evo / NCF29A1. Always online connectivity.', NULL)
+    ('IYZ-PK3', 'Porsche', '911', 2019, 2025, '315/433 MHz', 'Hitag AES', 'Smart Key', 'MLB Evo / NCF29A1. Always online connectivity.', NULL)
 ON CONFLICT(fcc_id, make, model) DO UPDATE SET
     notes = excluded.notes;
 

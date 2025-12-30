@@ -253,9 +253,9 @@ INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, ye
 ('Warning', 'Porsche', 'Cayenne 9PA', 2003, 2010, 'ELV Motor Failure Common', 'Steering Faulty message often from ELV microswitch failure, not key issue.', 'Diagnostics', 'Check ELV before assuming immobilizer problem. Motor/switch replacement may be needed.', 'Porsche_Security_&_Immobilizer_Research.txt', CURRENT_TIMESTAMP);
 
 -- ============================================================================
--- SECTION 7: Update vehicles_master with European security data
+-- SECTION 7: Update vehicles with European security data
 -- ============================================================================
-UPDATE vehicles_master SET 
+UPDATE vehicles SET 
     security_system = 'FEM',
     akl_difficulty = 'Hard',
     preprocessing_required = 1,
@@ -263,27 +263,27 @@ UPDATE vehicles_master SET
 WHERE make = 'BMW' AND year_start >= 2012 AND year_end <= 2019 
 AND model IN ('3-Series', '4-Series', '1-Series', '2-Series');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'BDC2',
     akl_difficulty = 'Dealer-Only',
     special_notes = COALESCE(special_notes || ' | ', '') || 'June 2020+ Bosch DME lock - Dealer only'
 WHERE make = 'BMW' AND year_start >= 2019
 AND model IN ('3-Series', '5-Series', 'X3', 'X5');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'FBS4',
     akl_difficulty = 'Dealer-Only',
     special_notes = COALESCE(special_notes || ' | ', '') || 'FBS4 system - Dealer pre-coded key required'
 WHERE make = 'Mercedes-Benz' AND year_start >= 2016;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'FBS3/FBS4',
     akl_difficulty = 'Limited',
     special_notes = COALESCE(special_notes || ' | ', '') || 'TRAP MODEL - Verify SA code (803=FBS3, 805=FBS4)'
 WHERE make = 'Mercedes-Benz' AND year_start >= 2013 AND year_end <= 2015
 AND model IN ('E-Class', 'CLS-Class');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'MQB-Evo',
     akl_difficulty = 'Dealer-Only',
     special_notes = COALESCE(special_notes || ' | ', '') || 'MQB-Evo - Sync Data required - ODIS dealer only'

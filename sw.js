@@ -1,5 +1,5 @@
-// v19 - Inventory cloud sync with Authorization header (cross-domain fix)
-const CACHE_NAME = 'euro-keys-v19';
+// v20 - Cache Bust for Guides Fix
+const CACHE_NAME = 'euro-keys-v20';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

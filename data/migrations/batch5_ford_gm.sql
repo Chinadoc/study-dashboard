@@ -189,23 +189,23 @@ INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, ye
 ('Warning', 'Chevrolet', 'All Global B', 2020, 2025, 'Active Alarm Blocks Communication', 'Alarm sounds in AKL scenario. Gateway may block OBDII handshake until alarm times out.', 'All Keys Lost', 'Wait for alarm cycle to complete OR use mechanical key in door if available to silence.', 'GM_Global_B_Key_Programming_Research.txt', CURRENT_TIMESTAMP);
 
 -- ============================================================================
--- SECTION 6: Update vehicles_master with Ford/GM Data
+-- SECTION 6: Update vehicles with Ford/GM Data
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Active Theft + Gateway',
     bypass_cable_required = 1,
     akl_difficulty = 'Hard',
     special_notes = COALESCE(special_notes || ' | ', '') || 'Active Alarm blocks OBD. 12-Pin bypass cable required. 902 MHz Hitag Pro key.'
 WHERE make = 'Ford' AND model IN ('F-150', 'Bronco') AND year_start >= 2021;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Active Theft + Gateway + Motion Sensors',
     bypass_cable_required = 1,
     akl_difficulty = 'Very Hard',
     special_notes = COALESCE(special_notes || ' | ', '') || 'Motion sensors re-arm alarm during programming. 12-Pin bypass cable mandatory.'
 WHERE make = 'Ford' AND model = 'Mustang Mach-E';
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Global B (VIP)',
     can_fd_required = 1,
     akl_difficulty = 'Very Hard',
@@ -214,7 +214,7 @@ WHERE make IN ('Chevrolet', 'GMC', 'Cadillac', 'Buick')
 AND model IN ('Tahoe', 'Suburban', 'Yukon', 'Yukon XL', 'Escalade', 'CT4', 'CT5', 'Colorado', 'Canyon', 'Envision')
 AND year_start >= 2021;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Global B (VIP)',
     can_fd_required = 1,
     akl_difficulty = 'Dealer Only',

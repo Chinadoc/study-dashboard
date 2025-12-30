@@ -162,21 +162,21 @@ INSERT INTO jlr_vin_decoder (wmi_prefix, brand, vehicle_type, manufacturing_loca
 ('L2C', 'Land Rover', 'China-spec models', 'China (Changshu JV)', 'Different BCM firmware versions. Tool compatibility may vary.');
 
 -- ============================================================================
--- SECTION 7: Update vehicles_master and locksmith_alerts
+-- SECTION 7: Update vehicles and locksmith_alerts
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'JLR IMMO 4 (JPLA)',
     akl_difficulty = 'High',
     special_notes = 'Write-Once RFA (2 key limit). Check UWB status. Silent Alarm may block OBD on 2019+. Star Connector bypass for SGW.'
 WHERE make IN ('Land Rover', 'Jaguar') AND year_start >= 2018 AND year_start <= 2021;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'JLR IMMO 5 (L8B2)',
     akl_difficulty = 'Severe',
     special_notes = 'SERVER-SIDE AUTH MANDATORY. TOPIx Cloud required. NO aftermarket OBD bypass. Dealer only.'
 WHERE make IN ('Land Rover', 'Jaguar') AND model IN ('Range Rover', 'Range Rover Sport') AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'JLR IMMO 4 (K8D2)',
     akl_difficulty = 'Severe',
     special_notes = 'Defender L663. Alarm active = complete OBD block. K8D2 voltage sensitivity CRITICAL. Official AKL = RFA + BCM replacement.'

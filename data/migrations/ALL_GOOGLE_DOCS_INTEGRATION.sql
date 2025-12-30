@@ -13,59 +13,62 @@
 -- PART 2: BMW Vehicle Card Updates (FCC IDs, Chips, Frequencies, Platforms)
 -- ==============================================================================
 
+
+
+
 -- CAS4 Systems (F10, F01, F25, F07)
-UPDATE vehicles_master SET
-    chip_type = 'ID49 (PCF7953)',
+UPDATE vehicles SET
+    chip = 'ID49 (PCF7953)',
     platform = 'CAS4',
     security_notes = 'CAS4 located under dash (driver side). Bench read required for AKL. ISN extraction via D-Flash read. Use 5M48H/1N35H MCU adapters.',
     lishi_tool = 'HU92',
     bypass_method = NULL,
     sgw_required = 0
 WHERE make = 'BMW' AND model IN ('5 Series', '5-Series', '7 Series', '7-Series') 
-    AND year >= 2010 AND year <= 2016;
+    AND year_start >= 2010 AND year_start <= 2016;
 
-UPDATE vehicles_master SET
-    chip_type = 'ID49 (PCF7953)',
+UPDATE vehicles SET
+    chip = 'ID49 (PCF7953)',
     platform = 'CAS4',
     security_notes = 'CAS4 (F25 platform). Older L6 architecture despite SUV body. Bench read for AKL.',
     lishi_tool = 'HU92',
     bypass_method = NULL,
     sgw_required = 0
 WHERE make = 'BMW' AND model IN ('X3') 
-    AND year >= 2011 AND year <= 2017;
+    AND year_start >= 2011 AND year_start <= 2017;
 
 -- FEM Systems (F30, F32, F20, F22)
-UPDATE vehicles_master SET
-    chip_type = 'ID49 (PCF7953)',
+UPDATE vehicles SET
+    chip = 'ID49 (PCF7953)',
     platform = 'FEM',
     security_notes = 'FEM in kick panel (passenger side). PREPROCESSING REQUIRED: Read 95128 EEPROM, generate Service File, flash MCU. ISN sync with DME mandatory for AKL.',
     lishi_tool = 'HU100R',
     bypass_method = 'EEPROM Preprocessing',
     sgw_required = 0
 WHERE make = 'BMW' AND model IN ('3 Series', '3-Series', '4 Series', '4-Series', '1 Series', '1-Series', '2 Series', '2-Series') 
-    AND year >= 2012 AND year <= 2019;
+    AND year_start >= 2012 AND year_start <= 2019;
 
 -- BDC Systems (F15, G-Series)
-UPDATE vehicles_master SET
-    chip_type = 'ID49 (PCF7953)',
+UPDATE vehicles SET
+    chip = 'ID49 (PCF7953)',
     platform = 'BDC',
     security_notes = 'BDC in kick panel (passenger side). Early BDC iteration. Bench preprocessing required.',
     lishi_tool = 'HU100R',
     bypass_method = 'EEPROM Preprocessing',
     sgw_required = 0
 WHERE make = 'BMW' AND model IN ('X5', 'X6') 
-    AND year >= 2014 AND year <= 2018;
+    AND year_start >= 2014 AND year_start <= 2018;
 
 -- BDC2/BDC3 G-Series (2019+)
-UPDATE vehicles_master SET
-    chip_type = 'NCF2951',
+UPDATE vehicles SET
+    chip = 'NCF2951',
     platform = 'BDC3',
     security_notes = 'BDC3 system. Cloud calculation required (Autel subscription ~$120/VIN). Post-June 2020: BOSCH DME LOCKED - Cannot read ISN, dealer key required for AKL.',
     lishi_tool = 'HU100R',
     bypass_method = 'Cloud Calculation / Dealer Only',
     sgw_required = 0
 WHERE make = 'BMW' AND model IN ('3 Series', '3-Series', '5 Series', '5-Series', 'X3', 'X5', 'X7', 'M3', 'M5') 
-    AND year >= 2019;
+    AND year_start >= 2019;
 
 -- ==============================================================================
 -- PART 3: BMW FCC Reference Updates
@@ -363,11 +366,11 @@ ON CONFLICT(id) DO UPDATE SET content = excluded.content, title = excluded.title
 -- PART 5: Fix Frequency Display Bug (Remove duplicate "MHz")
 -- ==============================================================================
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     frequency = REPLACE(frequency, 'MHz MHz', 'MHz')
 WHERE frequency LIKE '%MHz MHz%';
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     frequency = REPLACE(frequency, 'mhz', 'MHz')
 WHERE frequency LIKE '%mhz%';
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -673,15 +676,15 @@ ON CONFLICT(id) DO UPDATE SET content = excluded.content;
 -- Generated: 2025-12-26
 
 -- ==============================================================================
--- PART 1: vehicles_master ENRICHMENT (Security & Platform)
+-- PART 1: vehicles ENRICHMENT (Security & Platform)
 -- ==============================================================================
 
 -- Dodge Hornet (2023-2025)
-INSERT OR IGNORE INTO vehicles_master (make, model, make_normalized, model_normalized) 
+INSERT OR IGNORE INTO vehicles (make, model, make_normalized, model_normalized) 
 VALUES ('Dodge', 'Hornet', 'dodge', 'hornet');
 
-UPDATE vehicles_master SET
-    chip_type = 'HITAG-AES (Type 4A)',
+UPDATE vehicles SET
+    chip = 'HITAG-AES (Type 4A)',
     platform = 'Alfa Romeo Tonale (Giorgio-derived)',
     security_notes = 'Italian-built (VIN starts with Z). Uses Giobert (2ADPXFI7PE) or Alfa (KR5ALFA434) hardware. Pre-coding REQUIRED. Locked RF Hub protocol means virgin keys must be pre-coded with CS bytes before adding.',
     lishi_tool = 'SIP22',
@@ -690,8 +693,8 @@ UPDATE vehicles_master SET
 WHERE make = 'Dodge' AND model = 'Hornet';
 
 -- Jeep Renegade (2022-2024 Evolution)
-UPDATE vehicles_master SET
-    chip_type = 'HITAG-AES (Type 6A)',
+UPDATE vehicles SET
+    chip = 'HITAG-AES (Type 6A)',
     platform = 'Small Wide 4x4',
     security_notes = 'Critical supplier split in 2022: Melfi plant (Italy) moved to Giobert (2ADPXFI7PE). NAFTA models may still use M3N. Italian-built (VIN starts with Z) requires pre-coding. Locked RF Hub status common.',
     lishi_tool = 'SIP22',
@@ -703,7 +706,7 @@ WHERE make = 'Jeep' AND model = 'Renegade' AND id IN (
 );
 
 -- Jeep Compass (2023-2024 Mexican Production)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_notes = 'NAFTA-built (VIN starts with 3) typically stay on M3N-40821302. SGW present but pre-coding usually NOT required compared to Hornet/Renegade. Verify VIN origin (Z=Italy, 3=Mexico).',
     lishi_tool = 'SIP22',
     bypass_method = '12+8 Cable / AutoAuth',
@@ -711,7 +714,7 @@ UPDATE vehicles_master SET
 WHERE make = 'Jeep' AND model = 'Compass';
 
 -- RAM ProMaster (2022-2024)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_notes = 'Fiat-based architecture. 2022+ models feature SGW and likely move to HITAG-AES. SIP22 lock is notoriously stiff; use caution with Lishi tools.',
     lishi_tool = 'SIP22',
     bypass_method = '12+8 Cable / AutoAuth',
@@ -737,13 +740,16 @@ ON CONFLICT(fcc_id, make, model) DO UPDATE SET
 -- ==============================================================================
 
 -- 3.1 DODGE HORNET (2023-2025) GUIDE
-INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, content, "references")
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content)
 VALUES (
   'dodge-hornet-2023-2025',
   'Dodge',
   'Hornet',
   2023,
   2025,
+  'Autel/XP400',
+  'AKL',
+  'Dodge Hornet 2023-2025 Key Programming Guide',
   '# Dodge Hornet 2023-2025 Key Programming Guide
 ## High-Security Italian Platform (Alfa Romeo Tonale Architecture)
 
@@ -805,18 +811,21 @@ Because the RF Hub is "Locked" at the factory, it cannot generate new Secret Key
 - **"Enable Fobik" only option:** Normal behavior for locked hubs; proceed with pre-coded key.
 
 ---
-*Last Updated: December 2025*',
-  '{"sources": ["Stellantis_FCC_ID_VIN_Research", "Jeep_Renegade_Hornet_Issue"], "generated": "2025-12-26"}'
+*Last Updated: December 2025*
+Sources: Stellantis_FCC_ID_VIN_Research, Jeep_Renegade_Hornet_Issue'
 );
 
 -- 3.2 JEEP RENEGADE (2022-2024) - UPDATED SUPPLIER SPLIT
-INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, content, "references")
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content)
 VALUES (
   'jeep-renegade-2022-2024-split',
   'Jeep',
   'Renegade',
   2022,
   2024,
+  'General',
+  'AKL',
+  'Jeep Renegade 2022-2024 Supplier Transition Guide',
   '# Jeep Renegade 2022-2024 Supplier Transition Guide
 ## Continental vs. Giobert Architectures
 
@@ -858,22 +867,22 @@ Vehicles with the Z23 update or newer revisions (...AM or later) feature a hardw
 - **Frequency:** 434 MHz
 
 ---
-*Last Updated: December 2025*',
-  '{"sources": ["Stellantis_Key_FCC_Mapping"], "generated": "2025-12-26"}'
+*Last Updated: December 2025*
+Sources: Stellantis_Key_FCC_Mapping'
 );
 -- Migration: Integrate Asian Makes from Google Docs Research
--- Target Tables: vehicles_master, fcc_reference, vehicle_guides
+-- Target Tables: vehicles, fcc_reference, vehicle_guides
 
-BEGIN TRANSACTION;
+
 
 -- =============================================
 -- 1. HONDA / ACURA
 -- =============================================
 
--- Update vehicles_master for 11th Gen Honda/Acura
-UPDATE vehicles_master 
+-- Update vehicles for 11th Gen Honda/Acura
+UPDATE vehicles 
 SET 
-    chip_type = 'Hitag AES (4A)',
+    chip = 'Hitag AES (4A)',
     security_notes = 'Rolling Code Blockade: Extreme risk of BCM/BSI bricking if incorrect protocol selected. Manual selection "Civic FE" or "Accord CY" mandatory.',
     bypass_method = 'None (OBD Handshake)',
     sgw_required = 0
@@ -887,33 +896,33 @@ INSERT OR REPLACE INTO fcc_reference (fcc_id, make, model, year_start, year_end,
 ('KR5TP-2', 'Acura', 'Integra', 2023, 2025, '434.0MHz', 'Hitag AES (4A)', 'Uses KR5TP-2 specifically');
 
 -- Honda Guide
-INSERT OR REPLACE INTO vehicle_guides (make, model, year_start, year_end, tool, guide_type, content) VALUES
-('Honda', 'Civic', 2022, 2025, 'Autel', 'AKL', '## Honda 11th Gen BSI Recovery
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content) VALUES
+('honda-civic-11gen-bsi', 'Honda', 'Civic', 2022, 2025, 'Autel', 'AKL', 'Honda 11th Gen BSI Recovery', '## Honda 11th Gen BSI Recovery
 1. **Selection Alert**: DO NOT select "Yes" when asked if vehicle is 2020+. Manually select "Civic (FE)".
 2. **Procedure**: Immo Scan -> Manual Selection -> Civic -> Smart Key -> Push to Start.
 3. **Recovery**: If BCM is "bricked" (No Start), use Xhorse Universal Smart Key (Honda 2022+ profile) to force sync. Capacitive discharge recommended before recovery.'),
-('Honda', 'Accord', 2023, 2025, 'Autel', 'AKL', '## Honda Accord 11th Gen Security
+('honda-accord-11gen-security', 'Honda', 'Accord', 2023, 2025, 'Autel', 'AKL', 'Honda Accord 11th Gen Security', '## Honda Accord 11th Gen Security
 1. **BSI Access**: Connect via OBD. Requires internet for online challenge-response calculation.
 2. **Warning**: Selecting generic CAN-FD protocol will induce Defensive Lockdown (Brick). Use Manual Selection CY chassis.'),
-('Acura', 'Integra', 2023, 2025, 'Autel', 'AKL', 'Follow 11th Gen Civic FE protocol. Requires KR5TP-2 FCC ID key.');
+('acura-integra-2023-protocol', 'Acura', 'Integra', 2023, 2025, 'Autel', 'AKL', 'Acura Integra 2023+ Protocol', 'Follow 11th Gen Civic FE protocol. Requires KR5TP-2 FCC ID key.');
 
 -- =============================================
 -- 2. NISSAN / INFINITI
 -- =============================================
 
--- Update vehicles_master for New Gateway Systems
-UPDATE vehicles_master 
+-- Update vehicles for New Gateway Systems
+UPDATE vehicles 
 SET 
-    chip_type = 'Hitachi AES (4A)',
+    chip = 'Hitachi AES (4A)',
     security_notes = 'Security Gateway (SGW) present. 22-digit or 28-digit Rolling PIN. 433MHz standardize.',
     bypass_method = 'Nissan 16+32 or 40-Pin BCM',
     sgw_required = 1
 WHERE make IN ('Nissan', 'Infiniti') AND year_start >= 2020;
 
 -- Specific Bypass Requirements
-UPDATE vehicles_master SET bypass_method = 'Nissan 40-Pin BCM Mandatory' WHERE make = 'Nissan' AND model IN ('Rogue', 'Pathfinder') AND year_start >= 2021;
-UPDATE vehicles_master SET bypass_method = 'Nissan 40-Pin BCM Preferred' WHERE make = 'Nissan' AND model = 'Sentra' AND year_start >= 2020;
-UPDATE vehicles_master SET bypass_method = '16+32 Bypass Cable' WHERE make = 'Nissan' AND model = 'Frontier' AND year_start >= 2022;
+UPDATE vehicles SET bypass_method = 'Nissan 40-Pin BCM Mandatory' WHERE make = 'Nissan' AND model IN ('Rogue', 'Pathfinder') AND year_start >= 2021;
+UPDATE vehicles SET bypass_method = 'Nissan 40-Pin BCM Preferred' WHERE make = 'Nissan' AND model = 'Sentra' AND year_start >= 2020;
+UPDATE vehicles SET bypass_method = '16+32 Bypass Cable' WHERE make = 'Nissan' AND model = 'Frontier' AND year_start >= 2022;
 
 -- Insert FCC References for Nissan
 INSERT OR REPLACE INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, notes) VALUES
@@ -924,25 +933,25 @@ INSERT OR REPLACE INTO fcc_reference (fcc_id, make, model, year_start, year_end,
 ('KR5TXN7', 'Nissan', 'Frontier', 2022, 2025, '433MHz', '4A', 'D41 Platform');
 
 -- Nissan Guide
-INSERT OR REPLACE INTO vehicle_guides (make, model, year_start, year_end, tool, guide_type, content) VALUES
-('Nissan', 'Rogue', 2021, 2025, 'General', 'AKL', '## Nissan T33 / R53 Bypass Guide
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content) VALUES
+('nissan-rogue-2021-bypass', 'Nissan', 'Rogue', 2021, 2025, 'General', 'AKL', 'Nissan Rogue T33 Bypass', '## Nissan T33 / R53 Bypass Guide
 1. **AKL Requirement**: 16+32 cable is NOT sufficient for PIN reading on Read-Protected BCMs.
 2. **Hardware**: Must use Nissan-40 Pin BCM Cable to connect directly to the BCM.
 3. **PIN**: Requires server calculation for 22-digit rolling PIN.
 4. **Frequency**: 433MHz only. 315MHz keys will fail.'),
-('Nissan', 'Sentra', 2020, 2025, 'Autel', 'AKL', '## Sentra B18 AKL
+('nissan-sentra-2020-bcm', 'Nissan', 'Sentra', 2020, 2025, 'Autel', 'AKL', 'Nissan Sentra B18 BCM Access', '## Sentra B18 AKL
 1. **Access**: SGW under driver dashboard. Use 40-pin BCM cable for reliable PIN extraction.
 2. **PIN**: 28-digit encryption. Server calculation required.'),
-('Nissan', 'Frontier', 2022, 2025, 'General', 'AKL', '16+32 Bypass cable generally sufficient. SGW located near OBD or fuse box.');
+('nissan-frontier-2022-bypass', 'Nissan', 'Frontier', 2022, 2025, 'General', 'AKL', 'Nissan Frontier D41 Bypass', '16+32 Bypass cable generally sufficient. SGW located near OBD or fuse box.');
 
 -- =============================================
 -- 3. HYUNDAI / KIA
 -- =============================================
 
--- Update vehicles_master for CAN FD / SGW
-UPDATE vehicles_master 
+-- Update vehicles for CAN FD / SGW
+UPDATE vehicles 
 SET 
-    chip_type = 'Hitag3 (ID47)',
+    chip = 'Hitag3 (ID47)',
     security_notes = 'Post-June 2023 production uses CAN FD. SGW 12+8 bypass often required. Campaign 993/CS920 blocks OBD PIN reading.',
     bypass_method = '12+8 Bypass + CAN FD Adapter',
     sgw_required = 1
@@ -957,22 +966,22 @@ INSERT OR REPLACE INTO fcc_reference (fcc_id, make, model, year_start, year_end,
 ('TQ8-FOB-4F27', 'Hyundai', 'Santa Fe', 2021, 2024, '433MHz', 'ID47', 'SGW/CAN FD');
 
 -- Hyundai/Kia Guide
-INSERT OR REPLACE INTO vehicle_guides (make, model, year_start, year_end, tool, guide_type, content) VALUES
-('Kia', 'Telluride', 2023, 2025, 'General', 'AKL', '## Kia/Hyundai 2024+ CAN FD Protocol
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content) VALUES
+('kia-hyundai-canfd-protocol', 'Kia', 'Telluride', 2023, 2025, 'General', 'AKL', 'Kia/Hyundai 2024+ CAN FD Protocol', '## Kia/Hyundai 2024+ CAN FD Protocol
 1. **Hardware**: CAN FD Adapter is MANDATORY for post-June 2023 production.
 2. **Bypass**: Use 12+8 Bypass cable if AutoAuth/SGW blocks write access.
 3. **PIN**: OBD PIN reading is blocked by Campaign 993/CS920 firmware. Must purchase 6-digit PIN from dealer/broker.
 4. **Teaching**: Once PIN is accepted, teaching window is only 5 seconds. Hold fob to button immediately.'),
-('Hyundai', 'Solterra', 2023, 2025, 'General', 'AKL', 'Uses Toyota e-TNGA platform. 315MHz frequency. FCC ID HYQ14FBX (Toyota 8A).');
+('hyundai-solterra-toyota-platform', 'Hyundai', 'Solterra', 2023, 2025, 'General', 'AKL', 'Hyundai Solterra e-TNGA Platform', 'Uses Toyota e-TNGA platform. 315MHz frequency. FCC ID HYQ14FBX (Toyota 8A).');
 
 -- =============================================
 -- 4. MAZDA
 -- =============================================
 
--- Update vehicles_master for SkyActiv / Gen 7
-UPDATE vehicles_master 
+-- Update vehicles for SkyActiv / Gen 7
+UPDATE vehicles 
 SET 
-    chip_type = 'Hitag Pro (ID49)',
+    chip = 'Hitag Pro (ID49)',
     security_notes = 'SkyActiv SSU system. Gen 7 (2019+) uses SGW and 128-bit AES. OTP Keys (No Reuse).',
     bypass_method = 'SGW Online Auth (Hazard/Brake wake)',
     sgw_required = 1
@@ -986,12 +995,12 @@ INSERT OR REPLACE INTO fcc_reference (fcc_id, make, model, year_start, year_end,
 ('MZ31', 'Mazda', '3', 2019, 2025, '433MHz', 'ID49/AES', 'Gen 7 Secure Gateway');
 
 -- Mazda Guide
-INSERT OR REPLACE INTO vehicle_guides (make, model, year_start, year_end, tool, guide_type, content) VALUES
-('Mazda', 'General', 2014, 2019, 'Autel', 'AKL', '## Mazda SkyActiv AKL
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content) VALUES
+('mazda-skyactiv-akl-gen6', 'Mazda', 'General', 2014, 2019, 'Autel', 'AKL', 'Mazda SkyActiv AKL (Gen 6)', '## Mazda SkyActiv AKL
 1. **Alarm**: Locked vehicles in AKL state will trigger alarm. Silence horn and wait for timer or use Forced Ignition.
 2. **Procedure**: Immo Scan -> SSU -> All Keys Lost. Hold fob to Start Button (Inductive Backup).
 3. **Note**: Keys are OTP (One-Time Programmable). Used keys cannot be reused.'),
-('Mazda', 'General', 2019, 2025, 'General', 'AKL', '## Mazda Gen 7 Security
+('mazda-gen7-security-access', 'Mazda', 'General', 2019, 2025, 'General', 'AKL', 'Mazda Gen 7 Security Access', '## Mazda Gen 7 Security
 1. **SGW Access**: Requires online auth token. Stable internet and battery maintainer (13.5V) mandatory.
 2. **Wake-up**: Keep Hazard lights ON to prevent BCM Deep Sleep/Timeout during calculation.');
 
@@ -999,10 +1008,10 @@ INSERT OR REPLACE INTO vehicle_guides (make, model, year_start, year_end, tool, 
 -- 5. SUBARU
 -- =============================================
 
--- Update vehicles_master for SGP
-UPDATE vehicles_master 
+-- Update vehicles for SGP
+UPDATE vehicles 
 SET 
-    chip_type = 'DST-AES (8A/H)',
+    chip = 'DST-AES (8A/H)',
     security_notes = 'Subaru Global Platform (SGP). Secure Gateway (SGW) + DCM Telematics Interference. SLOA Brute-force Lockout.',
     bypass_method = '12+8 Bypass + DCM Fuse Pull',
     sgw_required = 1
@@ -1016,14 +1025,14 @@ INSERT OR REPLACE INTO fcc_reference (fcc_id, make, model, year_start, year_end,
 ('HYQ14AKB', 'Subaru', 'Ascent', 2019, 2025, '433MHz', 'ID47/8A', 'SGP Platform');
 
 -- Subaru Guide
-INSERT OR REPLACE INTO vehicle_guides (make, model, year_start, year_end, tool, guide_type, content) VALUES
-('Subaru', 'General', 2019, 2025, 'General', 'AKL', '## Subaru Global Platform (SGP) AKL
+INSERT OR REPLACE INTO vehicle_guides (id, make, model, year_start, year_end, tool, category, title, content) VALUES
+('subaru-sgp-akl-procedure', 'Subaru', 'General', 2019, 2025, 'General', 'AKL', 'Subaru SGP AKL Procedure', '## Subaru Global Platform (SGP) AKL
 1. **Isolation**: Pull DCM/Telematics fuse and Eyesight fuse. DCM causes bus jamming; Eyesight causes write collisions.
 2. **Bypass**: 12+8 Bypass mandatory. AutoAuth/Software bypass ineffective for Immobilizer.
 3. **Lockout**: SLOA (Locking On Attempt) triggered by 3 failed attempts. If triggered, wait 15-30 mins with Ignition ON.
 4. **H-Chip**: For bladed AKL, must use APB112/Simulator to sniff challenge and calculate master key signature.');
 
-COMMIT;
+
 -- European Luxury Research Integration Migration: Mercedes, Volvo, Porsche
 -- Source: Mercedes_FBS4_Forensic_Identification_Research.txt, Mercedes_Locksmith_Comprehensive_Guide.txt, Volvo_Locksmith_Guide_Development_Plan.txt, Porsche_Security_&_Immobilizer_Research.txt
 -- Generated: 2025-12-26
@@ -1033,26 +1042,26 @@ COMMIT;
 -- ==============================================================================
 
 -- FBS3/DAS3 Systems (Legacy - 2000-2014)
-UPDATE vehicles_master SET
-    chip_type = 'ID48 (NEC BGA)',
+UPDATE vehicles SET
+    chip = 'ID48 (NEC BGA)',
     platform = 'FBS3 / DAS3',
     security_notes = 'DAS3 IR system. Induction powers key, battery for remote only. W204/W212 common ESL failure (A25464). Password calculation via IR/OBD required.',
     lishi_tool = 'HU64',
     bypass_method = 'IR Calculation',
     sgw_required = 0
 WHERE make = 'Mercedes-Benz' AND model IN ('C-Class', 'E-Class', 'S-Class', 'GLK-Class', 'ML-Class') 
-    AND year >= 2008 AND year <= 2014;
+    AND year_start >= 2008 AND year_start <= 2014;
 
 -- FBS4/DAS4 Systems (Modern - 2015+)
-UPDATE vehicles_master SET
-    chip_type = 'FBS4 Proprietary (Infineon)',
+UPDATE vehicles SET
+    chip = 'FBS4 Proprietary (Infineon)',
     platform = 'FBS4 / DAS4',
     security_notes = 'FBS4 "Hard Wall". 128-bit AES encryption. NO AFTERMARKET KEY PROGRAMMING (AKL) currently supported (2025). Dealer key via NASTF/TRP required. Module virginization (7G/9G/ISM) possible with G-Box 3.',
     lishi_tool = 'HU64',
     bypass_method = 'Dealer Only / NASTF',
     sgw_required = 1
 WHERE make = 'Mercedes-Benz' AND model IN ('C-Class', 'E-Class', 'S-Class', 'GLE-Class', 'GLC-Class') 
-    AND year >= 2015;
+    AND year_start >= 2015;
 
 -- Mercedes FCC Reference Data
 INSERT INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, key_type, notes, oem_part_numbers)
@@ -1068,37 +1077,37 @@ ON CONFLICT(fcc_id, make, model) DO UPDATE SET
 -- ==============================================================================
 
 -- P2 Platform (2000-2014)
-UPDATE vehicles_master SET
-    chip_type = 'ID48 (Megamos Crypto)',
+UPDATE vehicles SET
+    chip = 'ID48 (Megamos Crypto)',
     platform = 'P2',
     security_notes = 'Keys stored in CEM (L-shaped box under dash). Re-motes stored in UEM (Rearview mirror). Water ingress on CEM common. Remote programming requires VIDA/VDASH.',
     lishi_tool = 'NE66',
     bypass_method = 'CEM EEPROM Clone',
     sgw_required = 0
 WHERE make = 'Volvo' AND model IN ('S60', 'S80', 'XC90', 'V70', 'XC70') 
-    AND year >= 2005 AND year <= 2014;
+    AND year_start >= 2005 AND year_start <= 2014;
 
 -- P3 Platform (2007-2016)
-UPDATE vehicles_master SET
-    chip_type = 'ID46 (Hitag 2)',
+UPDATE vehicles SET
+    chip = 'ID46 (Hitag 2)',
     platform = 'P3',
     security_notes = 'CEM behind glovebox. KVM in trunk (right rear). Password brute force via OBD can take 1-12 hours. KVM read mandatory for Proximity/Keyless Go.',
     lishi_tool = 'HU101',
     bypass_method = 'CEM/KVM Bench Read',
     sgw_required = 0
 WHERE make = 'Volvo' AND model IN ('S60', 'S80', 'XC60', 'V60') 
-    AND year >= 2010 AND year <= 2016;
+    AND year_start >= 2010 AND year_start <= 2016;
 
 -- SPA Platform (2016+)
-UPDATE vehicles_master SET
-    chip_type = 'ID47/49 (HITAG 3/AES)',
+UPDATE vehicles SET
+    chip = 'ID47/49 (HITAG 3/AES)',
     platform = 'SPA',
     security_notes = 'Scalable Product Architecture. 128-bit AES. Secure Gateway (post-2021 iCUP) blocks OBD access. Sport Key (Tag) is waterproof/sealed. Requires high-voltage PSU (13.5V+).',
     lishi_tool = 'HU101',
     bypass_method = 'VGM PIN / Secure Gateway Bypass',
     sgw_required = 1
 WHERE make = 'Volvo' AND model IN ('XC90', 'S90', 'V90', 'XC60') 
-    AND year >= 2016;
+    AND year_start >= 2016;
 
 -- Volvo FCC Reference Data
 INSERT INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, key_type, notes, oem_part_numbers)
@@ -1112,32 +1121,32 @@ ON CONFLICT(fcc_id, make, model) DO UPDATE SET
 -- ==============================================================================
 
 -- BCM2 Era (2010-2018)
-UPDATE vehicles_master SET
-    chip_type = 'ID49 (Hitag Pro)',
+UPDATE vehicles SET
+    chip = 'ID49 (Hitag Pro)',
     platform = 'BCM2',
     security_notes = 'Security integrated in Rear BCM (BCM2). MCUs often locked (1N35H/2N35H/5M48H). Bench read with glitching (ACDP/Xhorse) required for AKL. ELV desync risk.',
     lishi_tool = 'HU66',
     bypass_method = 'BCM2 Bench Read',
     sgw_required = 0
 WHERE make = 'Porsche' AND model IN ('911', 'Cayenne', 'Panamera', 'Macan') 
-    AND year >= 2012 AND year <= 2018;
+    AND year_start >= 2012 AND year_start <= 2018;
 
 -- MLB Evo (2018-2025)
-UPDATE vehicles_master SET
-    chip_type = 'Hitag AES (NCF29A1)',
+UPDATE vehicles SET
+    chip = 'Hitag AES (NCF29A1)',
     platform = 'MLB Evo',
     security_notes = 'Connect Gateway with internet dependency. SFD logic requires token. Dealer only for AKL currently (2025). UWB keys neutralize relay attacks.',
     lishi_tool = 'HU66',
     bypass_method = 'Dealer Only / SFD Unlock',
     sgw_required = 1
 WHERE make = 'Porsche' AND model IN ('911', 'Cayenne', 'Taycan', 'Panamera') 
-    AND year >= 2019;
+    AND year_start >= 2019;
 
 -- Porsche FCC Reference Data
 INSERT INTO fcc_reference (fcc_id, make, model, year_start, year_end, frequency, chip_type, key_type, notes, oem_part_numbers)
 VALUES 
     ('KR55WK50138', 'Porsche', '911', 2010, 2017, '315/433 MHz', 'ID49', 'Smart Key', 'BCM2 system. Smart selection common.', NULL),
-    ('IYZ-PK3', 'Porsche', '911', 2019, 2025, '315/433 MHz', 'Hitag AES', 'MLB Evo / NCF29A1. Always online connectivity.', NULL)
+    ('IYZ-PK3', 'Porsche', '911', 2019, 2025, '315/433 MHz', 'Hitag AES', 'Smart Key', 'MLB Evo / NCF29A1. Always online connectivity.', NULL)
 ON CONFLICT(fcc_id, make, model) DO UPDATE SET
     notes = excluded.notes;
 
@@ -1275,59 +1284,59 @@ ON CONFLICT(id) DO UPDATE SET content = excluded.content;
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- F30 (2012-2018)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'NBGIDGNG1',
-    oem_part_number = '66126805993',
+    oem_part_numbers = '66126805993',
     battery = 'CR2450',
     buttons = 4,
     key_blank = 'HU100R'
 WHERE make = 'BMW' 
   AND model IN ('3 Series', '3-Series') 
-  AND year >= 2012 AND year <= 2018;
+  AND year_start >= 2012 AND year_start <= 2018;
 
 -- G20 (2019-2025)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'N5F-ID21A',
-    oem_part_number = '66122471611',
+    oem_part_numbers = '66122471611',
     battery = 'CR2032',
     buttons = 4,
     key_blank = 'HU66'
 WHERE make = 'BMW' 
   AND model IN ('3 Series', '3-Series') 
-  AND year >= 2019;
+  AND year_start >= 2019;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 5-SERIES ENRICHMENT
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- F10 (2011-2016)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'YGOHUF5662',
-    oem_part_number = '66129268486',
+    oem_part_numbers = '66129268486',
     battery = 'CR2450',
     buttons = 4,
     key_blank = 'HU100R'
 WHERE make = 'BMW' 
   AND model IN ('5 Series', '5-Series') 
-  AND year >= 2011 AND year <= 2016;
+  AND year_start >= 2011 AND year_start <= 2016;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- X3 ENRICHMENT
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- F25 (2011-2017)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'YGOHUF5662',
-    oem_part_number = '66129268486',
+    oem_part_numbers = '66129268486',
     battery = 'CR2450',
     buttons = 4,
     key_blank = 'HU100R'
 WHERE make = 'BMW' 
   AND model = 'X3' 
-  AND year >= 2011 AND year <= 2017;
+  AND year_start >= 2011 AND year_start <= 2017;
 
 -- G01 (2018-2025)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'N5F-ID21A',
     oem_part_number = '66122471611',
     battery = 'CR2032',
@@ -1335,7 +1344,7 @@ UPDATE vehicles_master SET
     key_blank = 'HU66'
 WHERE make = 'BMW' 
   AND model = 'X3' 
-  AND year >= 2018;
+  AND year_start >= 2018;
 -- ═══════════════════════════════════════════════════════════════════════════
 -- TOYOTA/LEXUS VEHICLE CARD ENRICHMENT (PHASE B)
 -- Source: Phase A Results, Tier 1/2 Guides, Amazon Affiliate Data
@@ -1348,112 +1357,112 @@ WHERE make = 'BMW'
 -- ==============================================================================
 
 -- 2012-2017: Smart Key (Transition Era)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBA',
-    chip_type = '8A-AES (H-Chip)',
+    chip = '8A-AES (H-Chip)',
     battery = 'CR2032',
     key_blank = 'TOY48'
-WHERE make = 'Toyota' AND model = 'Camry' AND year >= 2012 AND year <= 2017;
+WHERE make = 'Toyota' AND model = 'Camry' AND year_start >= 2012 AND year_start <= 2017;
 
 -- 2018-2024: Smart Key (TNGA Era)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBC',
-    chip_type = '8A-AES (Page 1 AA)',
+    chip = '8A-AES (Page 1 AA)',
     battery = 'CR2450',
     key_blank = 'TOY51'
-WHERE make = 'Toyota' AND model = 'Camry' AND year >= 2018 AND year <= 2024;
+WHERE make = 'Toyota' AND model = 'Camry' AND year_start >= 2018 AND year_start <= 2024;
 
 -- ==============================================================================
 -- 2. TOYOTA RAV4
 -- ==============================================================================
 
 -- 2013-2018: Smart Key
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBA',
-    chip_type = '8A-AES (H-Chip)',
+    chip = '8A-AES (H-Chip)',
     battery = 'CR2032',
     key_blank = 'TOY48'
-WHERE make = 'Toyota' AND model = 'RAV4' AND year >= 2013 AND year <= 2018;
+WHERE make = 'Toyota' AND model = 'RAV4' AND year_start >= 2013 AND year_start <= 2018;
 
 -- 2019-2024: Smart Key (TNGA)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBC',
-    chip_type = '8A-AES (Page 1 AA)',
+    chip = '8A-AES (Page 1 AA)',
     battery = 'CR2450',
     key_blank = 'TOY51'
-WHERE make = 'Toyota' AND model = 'RAV4' AND year >= 2019 AND year <= 2024;
+WHERE make = 'Toyota' AND model = 'RAV4' AND year_start >= 2019 AND year_start <= 2024;
 
 -- ==============================================================================
 -- 3. TOYOTA HIGHLANDER
 -- ==============================================================================
 
 -- 2014-2019: Smart Key
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14AAB',
-    chip_type = '8A-AES (H-Chip)',
+    chip = '8A-AES (H-Chip)',
     battery = 'CR2032',
     key_blank = 'TOY48'
-WHERE make = 'Toyota' AND model = 'Highlander' AND year >= 2014 AND year <= 2019;
+WHERE make = 'Toyota' AND model = 'Highlander' AND year_start >= 2014 AND year_start <= 2019;
 
 -- 2020-2024: Smart Key (TNGA)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FLA',
-    chip_type = '8A-AES (Page 1 AA)',
+    chip = '8A-AES (Page 1 AA)',
     battery = 'CR2450',
     key_blank = 'TOY51'
-WHERE make = 'Toyota' AND model = 'Highlander' AND year >= 2020 AND year <= 2024;
+WHERE make = 'Toyota' AND model = 'Highlander' AND year_start >= 2020 AND year_start <= 2024;
 
 -- ==============================================================================
 -- 4. TOYOTA SIENNA
 -- ==============================================================================
 
 -- 2011-2020: Smart Key
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14ADR',
-    chip_type = '8A-AES (H-Chip)',
+    chip = '8A-AES (H-Chip)',
     battery = 'CR2032',
     key_blank = 'TOY48'
-WHERE make = 'Toyota' AND model = 'Sienna' AND year >= 2011 AND year <= 2020;
+WHERE make = 'Toyota' AND model = 'Sienna' AND year_start >= 2011 AND year_start <= 2020;
 
 -- 2021-2024: Smart Key (TNGA-K / Hybrid Only)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBX',
-    chip_type = '8A-BA',
+    chip = '8A-BA',
     battery = 'CR2450',
     key_blank = 'TOY51'
-WHERE make = 'Toyota' AND model = 'Sienna' AND year >= 2021 AND year <= 2024;
+WHERE make = 'Toyota' AND model = 'Sienna' AND year_start >= 2021 AND year_start <= 2024;
 
 -- ==============================================================================
 -- 5. TOYOTA COROLLA CROSS
 -- ==============================================================================
 
 -- 2022-2024: Smart Key (First 4A System)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBW',
-    chip_type = '4A (Hitag-AES)',
+    chip = '4A (Hitag-AES)',
     battery = 'CR2450',
     key_blank = 'TOY51'
-WHERE make = 'Toyota' AND model = 'Corolla Cross' AND year >= 2022 AND year <= 2024;
+WHERE make = 'Toyota' AND model = 'Corolla Cross' AND year_start >= 2022 AND year_start <= 2024;
 
 -- ==============================================================================
 -- 6. LEXUS MODELS (SAMPLE ENRICHMENT)
 -- ==============================================================================
 
 -- RX 350 (2023+ TNGA)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FLB',
-    chip_type = '8A-BA',
+    chip = '8A-BA',
     battery = 'CR2450',
     key_blank = 'LXP90'
-WHERE make = 'Lexus' AND model = 'RX 350' AND year >= 2023;
+WHERE make = 'Lexus' AND model = 'RX 350' AND year_start >= 2023;
 
 -- ES 350 (2019+ TNGA)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'HYQ14FBF',
-    chip_type = '8A-AES',
+    chip = '8A-AES',
     battery = 'CR2032',
     key_blank = 'LXP90'
-WHERE make = 'Lexus' AND model = 'ES 350' AND year >= 2019;
+WHERE make = 'Lexus' AND model = 'ES 350' AND year_start >= 2019;
 -- Phase B: Stellantis/CDJR Per-Vehicle Card Data Enrichment
 -- Source: Phase A Research + Consolidated CDJR Security Data
 -- Generated: 2025-12-26
@@ -1463,19 +1472,19 @@ WHERE make = 'Lexus' AND model = 'ES 350' AND year >= 2019;
 -- ==============================================================================
 
 -- Wrangler JK (2007-2017): Legacy SKREEM System
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'GQ4-53T',
     key_blank = 'Y157-PT',
     battery = 'CR2032',
-    chip_type = 'ID46 (PCF7936)'
+    chip = 'ID46 (PCF7936)'
 WHERE make = 'Jeep' AND model = 'Wrangler' AND year_start <= 2017;
 
 -- Wrangler JL (2018+): SGW + HITAG-AES System
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'GQ4-54T',
     key_blank = 'Y164-PT',
     battery = 'CR2032',
-    chip_type = 'HITAG-AES (Type 4A)',
+    chip = 'HITAG-AES (Type 4A)',
     sgw_required = 1,
     bypass_method = 'AutoAuth / 12+8 Cable'
 WHERE make = 'Jeep' AND model = 'Wrangler' AND year_start >= 2018;
@@ -1485,20 +1494,20 @@ WHERE make = 'Jeep' AND model = 'Wrangler' AND year_start >= 2018;
 -- ==============================================================================
 
 -- Grand Cherokee WK2 (2014-2021): RFH System
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'M3N-40821302',
     key_blank = 'Y164-PT',
     battery = 'CR2032',
-    chip_type = 'HITAG-AES (Type 4A)',
+    chip = 'HITAG-AES (Type 4A)',
     sgw_required = CASE WHEN year_start >= 2018 THEN 1 ELSE 0 END
 WHERE make = 'Jeep' AND model = 'Grand Cherokee' AND year_end <= 2021;
 
 -- Grand Cherokee WL (2022+): Locked RF Hub Protocol
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'OHT4882056',
     key_blank = 'Y164-PT',
     battery = 'CR2032',
-    chip_type = 'HITAG-AES (Type 4A)',
+    chip = 'HITAG-AES (Type 4A)',
     sgw_required = 1,
     security_notes = 'WL Platform. Locked RF Hub. Pre-coding or Enable Fobik routine required for AKL.'
 WHERE make = 'Jeep' AND model = 'Grand Cherokee' AND year_start >= 2022;
@@ -1508,31 +1517,31 @@ WHERE make = 'Jeep' AND model = 'Grand Cherokee' AND year_start >= 2022;
 -- ==============================================================================
 
 -- Dodge Hornet (2023+): Alfa Romeo Architecture
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = '2ADPXFI7PE',
     key_blank = 'SIP22',
     battery = 'CR2032',
-    chip_type = 'HITAG-AES (Type 4A)',
+    chip = 'HITAG-AES (Type 4A)',
     sgw_required = 1,
     platform = 'Alfa Romeo Tonale',
     security_notes = 'Giobert/Alfa Hardware. Italian-built. Requires pre-coding with CS bytes.'
 WHERE make = 'Dodge' AND model = 'Hornet';
 
 -- Jeep Renegade 2015-2021 (Legacy Continental)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = '2ADFTFI5AM433TX',
     key_blank = 'SIP22',
     battery = 'CR2032',
-    chip_type = 'Megamos AES',
+    chip = 'Megamos AES',
     security_notes = 'Legacy Continental/Fiat architecture. No SGW.'
 WHERE make = 'Jeep' AND model = 'Renegade' AND year_end <= 2021;
 
 -- Jeep Renegade 2022+ (Giobert Transition)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = '2ADPXFI7PE',
     key_blank = 'SIP22',
     battery = 'CR2032',
-    chip_type = 'HITAG-AES (Type 6A)',
+    chip = 'HITAG-AES (Type 6A)',
     sgw_required = 1,
     security_notes = '2022+ Giobert transition. Italian-built. Requires pre-coding.'
 WHERE make = 'Jeep' AND model = 'Renegade' AND year_start >= 2022;
@@ -1542,16 +1551,16 @@ WHERE make = 'Jeep' AND model = 'Renegade' AND year_start >= 2022;
 -- ==============================================================================
 
 -- Jeep Compass (2017+)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     fcc_id = 'M3N-40821302',
     key_blank = 'SIP22',
     battery = 'CR2032',
-    chip_type = 'HITAG-AES (Type 4A)',
+    chip = 'HITAG-AES (Type 4A)',
     sgw_required = 1
 WHERE make = 'Jeep' AND model = 'Compass' AND year_start >= 2017;
 
 -- RAM ProMaster (2022+)
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     key_blank = 'SIP22',
     battery = 'CR2032',
     sgw_required = 1,
@@ -1563,15 +1572,15 @@ WHERE make = 'RAM' AND model = 'ProMaster' AND year_start >= 2022;
 -- ==============================================================================
 
 -- Ensure all battery entries are standardized
-UPDATE vehicles_master SET battery = 'CR2032' WHERE make IN ('Jeep', 'Dodge', 'RAM') AND battery IS NULL;
+UPDATE vehicles SET battery = 'CR2032' WHERE make IN ('Jeep', 'Dodge', 'RAM') AND battery IS NULL;
 
 -- Fix common casing issues in key_blank
-UPDATE vehicles_master SET key_blank = UPPER(key_blank) WHERE make IN ('Jeep', 'Dodge', 'RAM') AND key_blank LIKE 'y%';
+UPDATE vehicles SET key_blank = UPPER(key_blank) WHERE make IN ('Jeep', 'Dodge', 'RAM') AND key_blank LIKE 'y%';
 -- Migration: Phase B - Asian Makes Per-Vehicle Enrichment
 -- Targets: Honda, Nissan, Hyundai/Kia, Mazda, Subaru
 -- Enhancements: FCC ID, Lishi Tool, Keyway, Frequency, Battery, and Technical Notes
 
-BEGIN TRANSACTION;
+
 
 -- =============================================
 -- 1. HONDA / ACURA ENRICHMENT
@@ -1579,27 +1588,27 @@ BEGIN TRANSACTION;
 
 -- Civic 10th Gen (2016-2021)
 -- Addressing the KR5V1X vs KR5V2X Trap
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5V2X (433MHz) / KR5V1X (314MHz)*',
     lishi_tool = 'HON66',
-    notes = COALESCE(notes, '') || ' [Phase B] Frequency Trap: Civic PTS traditionally uses KR5V2X (433MHz). Verification of FCC label mandatory. Uses CR2032 battery.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] Frequency Trap: Civic PTS traditionally uses KR5V2X (433MHz). Verification of FCC label mandatory. Uses CR2032 battery.'
 WHERE make = 'Honda' AND model = 'Civic' AND year_start >= 2016 AND year_end <= 2021;
 
 -- Civic 11th Gen (2022-2025)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5TP-4',
     lishi_tool = 'HON66',
-    notes = COALESCE(notes, '') || ' [Phase B] 11th Gen AES system. NCF29A1M (4A) chip. Battery: CR2032.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] 11th Gen AES system. NCF29A1M (4A) chip. Battery: CR2032.'
 WHERE make = 'Honda' AND model = 'Civic' AND year_start >= 2022;
 
 -- Accord 10th Gen (2018-2022)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'CWTWB1G0090',
     lishi_tool = 'HON66',
-    notes = COALESCE(notes, '') || ' [Phase B] 10th Gen PTS. Frequency: 433MHz. Battery: CR2032.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] 10th Gen PTS. Frequency: 433MHz. Battery: CR2032.'
 WHERE make = 'Honda' AND model = 'Accord' AND year_start >= 2018 AND year_end <= 2022;
 
 -- =============================================
@@ -1607,19 +1616,19 @@ WHERE make = 'Honda' AND model = 'Accord' AND year_start >= 2018 AND year_end <=
 -- =============================================
 
 -- Rogue 2021+ (T33)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5TXN1 (Base) / KR5TXN3 (SL/Plat)',
     lishi_tool = 'NSN14',
-    notes = COALESCE(notes, '') || ' [Phase B] 2021+ T33 Platform. 433MHz. Hitachi AES (4A). Keyway: NSN14.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] 2021+ T33 Platform. 433MHz. Hitachi AES (4A). Keyway: NSN14.'
 WHERE make = 'Nissan' AND model = 'Rogue' AND year_start >= 2021;
 
 -- Pathfinder 2022+ (R53)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'KR5TXN7',
     lishi_tool = 'NSN14',
-    notes = COALESCE(notes, '') || ' [Phase B] R53 Platform. 433MHz. Hitachi AES (4A). Keyway: NSN14.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] R53 Platform. 433MHz. Hitachi AES (4A). Keyway: NSN14.'
 WHERE make = 'Nissan' AND model = 'Pathfinder' AND year_start >= 2022;
 
 -- =============================================
@@ -1627,19 +1636,19 @@ WHERE make = 'Nissan' AND model = 'Pathfinder' AND year_start >= 2022;
 -- =============================================
 
 -- Telluride Pre-2023
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'TQ8-FOB-4F24',
     lishi_tool = 'KK12',
-    notes = COALESCE(notes, '') || ' [Phase B] Legacy Modern system. ID47 chip. Battery: CR2032.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] Legacy Modern system. ID47 chip. Battery: CR2032.'
 WHERE make = 'Kia' AND model = 'Telluride' AND year_start >= 2020 AND year_end <= 2022;
 
 -- Telluride 2023+ (CAN FD)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'TQ8-FOB-4F27',
     lishi_tool = 'HYN14',
-    notes = COALESCE(notes, '') || ' [Phase B] 2023+ CAN FD Requirement. ID47 chip. Keyway: HYN14. Battery: CR2032.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] 2023+ CAN FD Requirement. ID47 chip. Keyway: HYN14. Battery: CR2032.'
 WHERE make = 'Kia' AND model = 'Telluride' AND year_start >= 2023;
 
 -- =============================================
@@ -1647,11 +1656,11 @@ WHERE make = 'Kia' AND model = 'Telluride' AND year_start >= 2023;
 -- =============================================
 
 -- Outback 2020+
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'HYQ14AKB',
     lishi_tool = 'DAT17',
-    notes = COALESCE(notes, '') || ' [Phase B] 7th Gen SGP High Security. NOT HYQ14AHK. Battery: CR2032. Keyway: DAT17.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] 7th Gen SGP High Security. NOT HYQ14AHK. Battery: CR2032. Keyway: DAT17.'
 WHERE make = 'Subaru' AND model = 'Outback' AND year_start >= 2020;
 
 -- =============================================
@@ -1659,14 +1668,14 @@ WHERE make = 'Subaru' AND model = 'Outback' AND year_start >= 2020;
 -- =============================================
 
 -- Standardize Mazda common fields for recent models (2019+)
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET 
     fcc_id = 'MZ31',
     lishi_tool = 'MAZ24/MZ31',
-    notes = COALESCE(notes, '') || ' [Phase B] Gen 7 Secure Gateway. 128-bit AES. 433MHz.'
+    security_notes = COALESCE(security_notes, '') || ' [Phase B] Gen 7 Secure Gateway. 128-bit AES. 433MHz.'
 WHERE make = 'Mazda' AND year_start >= 2019 AND fcc_id IS NULL;
 
-COMMIT;
+
 -- Euro Phase B Enrichment: Mercedes, Volvo, Porsche, VW/Audi
 -- Generated: 2025-12-26
 

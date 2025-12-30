@@ -75,14 +75,14 @@ INSERT INTO tool_coverage (make, model, year_start, year_end, autel_status, smar
 ('Volkswagen', 'Golf', 2015, 2020, 'Both', 'Limited', 'Both', 'No', 'No', 'OBD', 'Bench (Cluster)', 0, 'MQB System; Requires Sync Data');
 
 -- Update vehicle_variants with summarized data
--- Updated queries to look up vehicle_id from vehicles_master
+-- Updated queries to look up vehicle_id from vehicles
 
 UPDATE vehicle_variants
 SET
     obd_program = 'CAN-FD Adapter Required',
     akl_procedure = 'Dealer Only / NASTF'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master
+    SELECT id FROM vehicles
     WHERE make = 'Chevrolet' AND model IN ('Silverado 1500', 'Tahoe', 'Suburban')
 ) AND year_start >= 2022;
 
@@ -91,7 +91,7 @@ SET
     obd_program = 'SGW Bypass (AutoAuth/Cable)',
     akl_procedure = 'Standard OBD'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master
+    SELECT id FROM vehicles
     WHERE make IN ('Ram', 'Jeep', 'Dodge', 'Chrysler')
 ) AND year_start >= 2018;
 
@@ -100,7 +100,7 @@ SET
     obd_program = 'SGW Bypass (AutoAuth/Cable)',
     akl_procedure = 'Replace RF Hub'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master
+    SELECT id FROM vehicles
     WHERE make = 'Jeep' AND model IN ('Grand Cherokee L', 'Wagoneer', 'Grand Wagoneer')
 ) AND year_start >= 2021;
 
@@ -109,7 +109,7 @@ SET
     obd_program = 'Standard OBD',
     akl_procedure = '16+32 Bypass Cable'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master
+    SELECT id FROM vehicles
     WHERE make = 'Nissan'
 ) AND year_start >= 2020;
 
@@ -118,7 +118,7 @@ SET
     obd_program = 'Standard OBD',
     akl_procedure = 'Requires 30-Pin Cable'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master
+    SELECT id FROM vehicles
     WHERE make = 'Toyota' AND model IN ('Tundra', 'Sequoia', 'Corolla Cross')
 ) AND year_start >= 2022;
 
@@ -127,6 +127,6 @@ SET
     obd_program = 'Bench Unlock Required',
     akl_procedure = 'EEPROM FEM/BDC'
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master
+    SELECT id FROM vehicles
     WHERE make = 'BMW'
 ) AND year_start >= 2012;

@@ -880,6 +880,18 @@
             border-left: 3px solid #6b7280;
         }
 
+        .key-variants-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--brand-primary);
+            color: #000;
+            font-size: 0.5rem;
+            font-weight: 600;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
         .key-thumb.key-more,
         .key-thumb.key-collapse {
             background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.05));
@@ -6144,16 +6156,32 @@
 
             return `
                 <div class="key-carousel" id="keyCarousel-${cardIndex}">
-                    <div class="key-carousel-title">🔐 ${keys.length} COMPATIBLE KEYS (CLICK TO SWITCH)</div>
+                    <div class="key-carousel-title">🔐 ${keys.length} UNIQUE KEYS (CLICK TO SWITCH)</div>
                     <div class="key-carousel-grid">
                     ${visibleKeys.map((k, i) => {
-                const keyType = categorizeKeyType(k);
+                // Use pre-computed fields from API if available, fallback to client-side
+                const keyType = k.key_type || categorizeKeyType(k);
+                const btnCount = k.button_count || 0;
+                const features = k.features || [];
+                const variantsCount = k.variants_count || 1;
                 const icon = getKeyIcon(keyType);
                 const fccId = k.fcc_id ? k.fcc_id.split('\n')[0] : null;
                 // Use FCC image if available
                 const imageUrl = fccId ? `${API}/api/assets/${fccId}.png` : null;
                 // Color code by key type
-                const colorClass = keyType === 'smart' ? 'key-smart' : keyType === 'remote' ? 'key-remote' : keyType === 'transponder' ? 'key-transponder' : 'key-standard';
+                const colorClass = keyType === 'smart' ? 'key-smart' :
+                    keyType === 'fobik' ? 'key-smart' :
+                        keyType === 'rhk' || keyType === 'flip' ? 'key-remote' :
+                            keyType === 'transponder' ? 'key-transponder' : 'key-standard';
+
+                // Better label: "6-BTN RS" or "4-BTN TRUNK"
+                const featureLabels = {
+                    rs: 'RS', trunk: 'TRUNK', hatch: 'HATCH', roof: 'ROOF', doors: 'DOORS'
+                };
+                const featureStr = features.length ? features.map(f => featureLabels[f] || f.toUpperCase()).join(' ') : '';
+                const btnLabel = btnCount > 0 ? `${btnCount}-BTN` : keyType.toUpperCase();
+                const displayLabel = btnCount > 0 && featureStr ? `${btnLabel} ${featureStr}` : btnLabel;
+
                 return `
                             <div class="key-thumb ${i === selectedIdx ? 'active' : ''} ${colorClass}" 
                                  onclick="selectKey(${cardIndex}, ${i})"
@@ -6161,9 +6189,10 @@
                                  title="${k.product_title || 'Key'}">
                                 ${imageUrl ? `<img class="key-thumb-img" src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">` : ''}
                                 <span class="key-thumb-icon" ${imageUrl ? 'style="display:none"' : ''}>${icon}</span>
-                                <span class="key-thumb-type">${keyType.toUpperCase()}</span>
-                                ${fccId ? `<span class="key-thumb-fcc">${fccId}</span>` : `<span class="key-thumb-title">${(k.product_title || 'Key').split(' ').slice(0, 2).join(' ')}</span>`}
+                                <span class="key-thumb-type">${displayLabel}</span>
+                                ${fccId ? `<span class="key-thumb-fcc">${fccId}</span>` : `<span class="key-thumb-title">${keyType.toUpperCase()}</span>`}
                                 ${k.price ? `<span class="key-thumb-price">${k.price}</span>` : ''}
+                                ${variantsCount > 1 ? `<span class="key-variants-badge">${variantsCount} options</span>` : ''}
                             </div>
                         `;
             }).join('')}

@@ -209,27 +209,27 @@ INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, ye
 ('Warning', 'Lexus', 'All Smart Key', 2023, 2025, 'VIN-Based Key Allocation', 'Chip shortage caused VIN-based rationing. Dealers cannot order for stock.', 'Key Ordering', 'Check Second Key Delivery Program status for VIN. 6-12 month backlog possible.', 'VIN-Coded_Key_Requirements_Research.txt', CURRENT_TIMESTAMP);
 
 -- ============================================================================
--- SECTION 8: Update vehicles_master with Stellantis Data
+-- SECTION 8: Update vehicles with Stellantis Data
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'HITAG-AES',
     pre_coding_required = 1,
     special_notes = COALESCE(special_notes || ' | ', '') || 'Italian build (VIN starts Z). Giobert 2ADPXFI7PE. Pre-coding required.'
 WHERE make = 'Dodge' AND model = 'Hornet';
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'HITAG-AES', 
     pre_coding_required = 1,
     special_notes = COALESCE(special_notes || ' | ', '') || 'Shifted to Giobert hardware mid-2022. Verify FCC ID by VIN.'
 WHERE make = 'Jeep' AND model = 'Renegade' AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     rf_hub_lockable = 1,
     akl_difficulty = 'Very Hard',
     special_notes = COALESCE(special_notes || ' | ', '') || 'RF Hub Write-Once. Replace RF Hub for AKL.'
 WHERE make = 'Jeep' AND model IN ('Grand Cherokee L', 'Wagoneer', 'Grand Wagoneer');
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     sgw_required = 1,
     special_notes = COALESCE(special_notes || ' | ', '') || 'SGW bypass required (AutoAuth or 12+8 cable)'
 WHERE make IN ('Chrysler', 'Dodge', 'Jeep', 'RAM') AND year_start >= 2018;

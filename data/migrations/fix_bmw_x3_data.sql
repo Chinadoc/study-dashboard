@@ -10,13 +10,13 @@
 -- First delete wrong entries with HUF5661
 DELETE FROM vehicle_variants 
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master WHERE make = 'BMW' AND model = 'X3'
+    SELECT id FROM vehicles WHERE make = 'BMW' AND model = 'X3'
 ) AND fcc_id = 'HUF5661';
 
 -- Also delete entries with wrong HU92 lishi tool for modern X3
 DELETE FROM vehicle_variants 
 WHERE vehicle_id IN (
-    SELECT id FROM vehicles_master WHERE make = 'BMW' AND model = 'X3'
+    SELECT id FROM vehicles WHERE make = 'BMW' AND model = 'X3'
 ) AND lishi_tool = 'HU92' AND year_start >= 2011;
 
 -- Insert correct 2018-2025 BMW X3 (G01) data
@@ -29,7 +29,7 @@ SELECT
     id, 2018, 2025, 'Smart Key', 'BDC', 'ID49',
     'HU100R', 'NBGIDGNG1', '315 MHz', 4, 'CR2450', '66125A55D19', 'HU100',
     'OBD + Online Auth', 'G01 chassis. Requires FEM/BDC online authorization. AKL typically requires bench work.', 1
-FROM vehicles_master WHERE make = 'BMW' AND model = 'X3';
+FROM vehicles WHERE make = 'BMW' AND model = 'X3';
 
 -- Add alternative FCC ID variant 
 INSERT INTO vehicle_variants (
@@ -41,7 +41,7 @@ SELECT
     id, 2018, 2025, 'Smart Key', 'BDC', 'ID49',
     'HU100R', 'N5FID21A', '315 MHz', 4, 'CR2450', '66125A40687', 'HU100',
     'OBD + Online Auth', 'G01 alternate FCC ID. Same programming as NBGIDGNG1.', 1
-FROM vehicles_master WHERE make = 'BMW' AND model = 'X3';
+FROM vehicles WHERE make = 'BMW' AND model = 'X3';
 
 -- 2022+ newer style key (IYZBK1)  
 INSERT INTO vehicle_variants (
@@ -53,7 +53,7 @@ SELECT
     id, 2022, 2025, 'Smart Key', 'BDC', 'ID49',
     'HU100R', 'IYZBK1', '315 MHz', 4, 'CR2450', '66125A55D19', 'HU100',
     'OBD + Online Auth', '2022+ black style key. G01 facelift. Requires online BMW authorization.', 1
-FROM vehicles_master WHERE make = 'BMW' AND model = 'X3';
+FROM vehicles WHERE make = 'BMW' AND model = 'X3';
 
 -- Update BMW X3 guide to use correct FCC IDs
 UPDATE vehicle_guides 

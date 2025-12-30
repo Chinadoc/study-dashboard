@@ -135,7 +135,7 @@ INSERT INTO honda_tool_workflows (tool_name, operation, model_range, menu_path, 
 ('Xhorse VVDI Key Tool', 'Recovery', 'Honda 2022+ (Bricked)', 'Generate Key > Honda > XKHO01EN universal', 'Generate and program universal key to bypass lockout', 'N/A - recovery tool', 'Latest firmware', 'Use when Autel bricking occurs; 80-90% success rate');
 
 -- ============================================================================
--- SECTION 5: Update Existing Vehicle Cards in vehicles_master
+-- SECTION 5: Update Existing Vehicle Cards in vehicles
 -- Links research to actual inventory
 -- ============================================================================
 
@@ -143,51 +143,51 @@ INSERT INTO honda_tool_workflows (tool_name, operation, model_range, menu_path, 
 -- Already added in previous migrations, but ensuring they exist
 
 -- Update Honda vehicles with security data
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (11th Gen)',
     akl_difficulty = 'Hard',
     bypass_cable_required = 0,
     special_notes = 'BCM BRICKING RISK with wrong Autel prompts. Use "New Style/New Protocol" only. Xhorse recovery available. TP-4 keys only.'
 WHERE make = 'Honda' AND model IN ('Civic', 'Accord') AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (6th Gen)',
     akl_difficulty = 'Hard',
     special_notes = 'BCM BRICKING RISK with wrong chip selection. Verify hybrid vs petrol in tool menu. RS chassis codes.'
 WHERE make = 'Honda' AND model = 'CR-V' AND year_start >= 2023;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (3rd Gen)',
     akl_difficulty = 'Medium',
     special_notes = 'Medium bricking risk. RV/RS1 chassis. Update tool firmware before attempting.'
 WHERE make = 'Honda' AND model = 'HR-V' AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (4th Gen)',
     akl_difficulty = 'Medium',
     special_notes = 'Lower bricking risk on petrol. YG chassis. Dealer preferred for hybrids.'
 WHERE make = 'Honda' AND model = 'Pilot' AND year_start >= 2023;
 
 -- Update Acura vehicles
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (Acura Premium)',
     akl_difficulty = 'Hard',
     special_notes = 'HIGH BRICKING RISK. Based on Civic platform (DE chassis). Use Acura menu path. KR5TP-2 keys.'
 WHERE make = 'Acura' AND model = 'Integra' AND year_start >= 2023;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (Acura Premium)',
     akl_difficulty = 'Hard',
     special_notes = 'YD/YE chassis. Type S (YE1) has stricter BCM. 4-button hatch fob with Driver 1/2 memory.'
 WHERE make = 'Acura' AND model = 'MDX' AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (Acura Premium)',
     akl_difficulty = 'Medium',
     special_notes = 'TC chassis. A-Spec adds proximity calibration complexity. Update tool firmware first.'
 WHERE make = 'Acura' AND model = 'RDX' AND year_start >= 2022;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'Hitag AES 4A (Acura Premium)',
     akl_difficulty = 'Medium',
     special_notes = 'UB chassis. UB7 = Type S with performance BCM. Standard (UB5/6) safer to program.'

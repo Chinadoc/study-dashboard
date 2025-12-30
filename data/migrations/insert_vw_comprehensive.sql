@@ -371,29 +371,29 @@ MQB AKL is **extremely difficult**:
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- Update VW vehicles with Lishi tool and keyway data
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET lishi_tool = 'HU66', keyway = 'HU66'
 WHERE make = 'Volkswagen' AND year <= 2014 AND lishi_tool IS NULL;
 
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET lishi_tool = 'HU162T', keyway = 'HU162T'
 WHERE make = 'Volkswagen' AND year >= 2015 AND lishi_tool IS NULL;
 
 -- Update chip types for VW
-UPDATE vehicles_master
+UPDATE vehicles
 SET chip_type = 'ID48'
 WHERE make = 'Volkswagen' AND year BETWEEN 1998 AND 2005 AND chip_type IS NULL;
 
-UPDATE vehicles_master
+UPDATE vehicles
 SET chip_type = 'ID48 CAN'
 WHERE make = 'Volkswagen' AND year BETWEEN 2006 AND 2014 AND chip_type IS NULL;
 
-UPDATE vehicles_master
+UPDATE vehicles
 SET chip_type = 'ID88 (MQB48)'
 WHERE make = 'Volkswagen' AND year >= 2015 AND chip_type IS NULL;
 
 -- Update frequency for all VW (US market)
-UPDATE vehicles_master
+UPDATE vehicles
 SET frequency = '315 MHz'
 WHERE make = 'Volkswagen' AND frequency IS NULL;
 
@@ -419,18 +419,18 @@ VALUES
 -- SECTION 5: IMMOBILIZER SYSTEM DETAILS
 -- ═══════════════════════════════════════════════════════════════════════════
 
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET immobilizer_system = 'VAG Immo2 / ID48'
 WHERE make = 'Volkswagen' AND year BETWEEN 1998 AND 2001;
 
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET immobilizer_system = 'VAG Immo3 / ID48'
 WHERE make = 'Volkswagen' AND year BETWEEN 2002 AND 2005;
 
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET immobilizer_system = 'VAG Immo4 / ID48 CAN'
 WHERE make = 'Volkswagen' AND year BETWEEN 2006 AND 2014;
 
-UPDATE vehicles_master 
+UPDATE vehicles 
 SET immobilizer_system = 'VAG Immo5 / MQB ID88'
 WHERE make = 'Volkswagen' AND year >= 2015;

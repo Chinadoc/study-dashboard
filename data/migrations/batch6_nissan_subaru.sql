@@ -194,23 +194,23 @@ INSERT OR IGNORE INTO locksmith_alerts (alert_level, make, model, year_start, ye
 ('Warning', 'Subaru', 'All SGP', 2019, 2025, 'HYQ14AHK vs HYQ14AKB Incompatibility', 'Keys look identical but are internally incompatible. Wrong key triggers SLOA as spoofing attack.', 'Key Ordering', 'Verify exact FCC ID before ordering. AHK = early SGP. AKB = 2020+ high security refresh.', 'Subaru_Security_Gateway_&_Key_Programming.txt', CURRENT_TIMESTAMP);
 
 -- ============================================================================
--- SECTION 7: Update vehicles_master with Nissan/Subaru Data
+-- SECTION 7: Update vehicles with Nissan/Subaru Data
 -- ============================================================================
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'SGW + Read-Protected BCM',
     bypass_cable_required = 1,
     akl_difficulty = 'Very Hard',
     special_notes = COALESCE(special_notes || ' | ', '') || '40-Pin BCM cable mandatory for AKL. 22-digit rolling code. 433 MHz keys only.'
 WHERE make = 'Nissan' AND model = 'Rogue' AND year_start >= 2021;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'SGW + Read-Protected BCM',
     bypass_cable_required = 1,
     akl_difficulty = 'Very Hard',
     special_notes = COALESCE(special_notes || ' | ', '') || '28-digit PIN. 40-Pin cable mandatory for AKL.'
 WHERE make = 'Nissan' AND model = 'Sentra' AND year_start >= 2020;
 
-UPDATE vehicles_master SET
+UPDATE vehicles SET
     security_system = 'SGP + DCM Active Jamming',
     bypass_cable_required = 1,
     eyesight_risk = 1,

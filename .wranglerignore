@@ -1,0 +1,16 @@
+api/
+data/
+node_modules/
+*.sql
+*.csv
+*.json
+.venv/
+.git/
+scripts/
+*.txt
+*.pdf
+*.rtf
+*.docx
+*.sqlite
+*.log
+*.pickle
