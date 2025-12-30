@@ -5018,15 +5018,137 @@
             const query = document.getElementById('headerSearchInput').value.trim();
             if (!query) return;
 
-            // Switch to FCC tab and search
-            showTab('fcc');
-            document.getElementById('fccSearch').value = query;
             toggleHeaderSearch(); // Close the search box
 
-            if (fccDataLoaded) {
-                renderFccTable();
+            // Try to parse vehicle query (e.g., "2018 Camaro", "Chevy Camaro 2018", "Honda Accord")
+            const vehicleInfo = parseVehicleQuery(query);
+
+            if (vehicleInfo.make || vehicleInfo.model) {
+                // Switch to Browse tab and search for vehicle
+                showTab('browse');
+                searchVehicleFromQuery(vehicleInfo, query);
             } else {
-                loadFccData();
+                // Fallback to FCC search for part numbers, FCC IDs, etc
+                showTab('fcc');
+                document.getElementById('fccSearch').value = query;
+                if (fccDataLoaded) {
+                    renderFccTable();
+                } else {
+                    loadFccData();
+                }
+            }
+        }
+
+        // Parse natural language vehicle queries
+        function parseVehicleQuery(query) {
+            const words = query.toLowerCase().split(/\s+/);
+            let year = null;
+            let make = null;
+            let model = null;
+
+            // Common make aliases
+            const makeAliases = {
+                'chevy': 'Chevrolet',
+                'vw': 'Volkswagen',
+                'mercedes': 'Mercedes-Benz',
+                'merc': 'Mercedes-Benz',
+                'beemer': 'BMW',
+                'bimmer': 'BMW'
+            };
+
+            // Find year (4-digit number between 1990-2030)
+            for (const word of words) {
+                const num = parseInt(word);
+                if (num >= 1990 && num <= 2030) {
+                    year = num;
+                    break;
+                }
+            }
+
+            // Find make - check against known makes
+            const knownMakes = ['acura', 'audi', 'bmw', 'buick', 'cadillac', 'chevrolet', 'chevy',
+                'chrysler', 'dodge', 'fiat', 'ford', 'genesis', 'gmc', 'honda', 'hyundai',
+                'infiniti', 'jaguar', 'jeep', 'kia', 'land rover', 'lexus', 'lincoln',
+                'maserati', 'mazda', 'mercedes', 'merc', 'mini', 'mitsubishi', 'nissan',
+                'porsche', 'ram', 'subaru', 'tesla', 'toyota', 'volkswagen', 'vw', 'volvo'];
+
+            for (const word of words) {
+                if (knownMakes.includes(word)) {
+                    make = makeAliases[word] || (word.charAt(0).toUpperCase() + word.slice(1));
+                    break;
+                }
+            }
+
+            // Model is remaining non-year, non-make words
+            const remainingWords = words.filter(w => {
+                if (parseInt(w) >= 1990 && parseInt(w) <= 2030) return false;
+                if (knownMakes.includes(w)) return false;
+                return true;
+            });
+
+            if (remainingWords.length > 0) {
+                // Capitalize first letter of each word
+                model = remainingWords.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+
+            return { year, make, model };
+        }
+
+        // Search for vehicle in Browse tab
+        async function searchVehicleFromQuery(vehicleInfo, originalQuery) {
+            // Hide the make grid, show results section
+            const browseSection = document.getElementById('legacySearchCard');
+            if (browseSection) browseSection.style.display = 'none';
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) resultsSection.classList.add('active');
+
+            // Set display
+            const year = vehicleInfo.year || 2020;
+            const displayTitle = vehicleInfo.make
+                ? `${vehicleInfo.make} ${vehicleInfo.model || ''}`.trim()
+                : originalQuery;
+
+            document.getElementById('resultTitle').textContent = displayTitle;
+            updateYearNavigation(year);
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">Searching...</div>';
+
+            currentVehicleYear = year;
+            currentVehicleMake = vehicleInfo.make || '';
+            currentVehicleModel = vehicleInfo.model || '';
+
+            initQuickSearch();
+            await ensureGuidesLoaded();
+
+            try {
+                // Build query with available info
+                let url = `${API}/api/browse?year=${year}&limit=20`;
+                if (vehicleInfo.make) url += `&make=${encodeURIComponent(vehicleInfo.make)}`;
+                if (vehicleInfo.model) url += `&model=${encodeURIComponent(vehicleInfo.model)}`;
+
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.rows && data.rows.length > 0) {
+                    displayResults(data.rows, year, vehicleInfo.make || '', vehicleInfo.model || '');
+                } else {
+                    // No results - try without year restriction
+                    const fallbackUrl = `${API}/api/browse?limit=20` +
+                        (vehicleInfo.make ? `&make=${encodeURIComponent(vehicleInfo.make)}` : '') +
+                        (vehicleInfo.model ? `&model=${encodeURIComponent(vehicleInfo.model)}` : '');
+
+                    const fallbackRes = await fetch(fallbackUrl);
+                    const fallbackData = await fallbackRes.json();
+
+                    if (fallbackData.rows && fallbackData.rows.length > 0) {
+                        displayResults(fallbackData.rows, year, vehicleInfo.make || '', vehicleInfo.model || '');
+                    } else {
+                        document.getElementById('resultsContainer').innerHTML =
+                            `<div class="loading">No results for "${originalQuery}". Try a different search.</div>`;
+                    }
+                }
+            } catch (e) {
+                console.error('Search failed:', e);
+                document.getElementById('resultsContainer').innerHTML = '<div class="loading">Search failed</div>';
             }
         }
 
