@@ -5040,6 +5040,13 @@
 
                 if (data.rows && data.rows.length > 0) {
                     displayResults(data.rows, year, make, model);
+                    // Scroll to the vehicle card after a brief delay for rendering
+                    setTimeout(() => {
+                        const resultsSection = document.getElementById('resultsSection');
+                        if (resultsSection) {
+                            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 100);
                 } else {
                     document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found for this vehicle</div>';
                 }
