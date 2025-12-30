@@ -845,6 +845,13 @@
             opacity: 0.7;
         }
 
+        .key-thumb-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
         .key-thumb-fcc {
             font-size: 0.65rem;
             font-weight: 600;
@@ -6142,22 +6149,20 @@
                     ${visibleKeys.map((k, i) => {
                 const keyType = categorizeKeyType(k);
                 const icon = getKeyIcon(keyType);
-                // Better label: show FCC ID or first distinctive part of title
-                const fccLabel = k.fcc_id ? k.fcc_id.split('\n')[0] : '';
-                const priceClean = k.price ? k.price.replace('$', '') : '';
-                const priceFloat = parseFloat(priceClean) || 0;
+                const fccId = k.fcc_id ? k.fcc_id.split('\n')[0] : null;
+                // Use FCC image if available
+                const imageUrl = fccId ? `${API}/api/assets/${fccId}.png` : null;
                 // Color code by key type
                 const colorClass = keyType === 'smart' ? 'key-smart' : keyType === 'remote' ? 'key-remote' : keyType === 'transponder' ? 'key-transponder' : 'key-standard';
-                // Short title - first 2 meaningful words
-                const titleWords = (k.product_title || 'Key').replace(/for|chevrolet|chevy|camaro|/gi, '').split(' ').filter(w => w.length > 1).slice(0, 2).join(' ');
                 return `
                             <div class="key-thumb ${i === selectedIdx ? 'active' : ''} ${colorClass}" 
                                  onclick="selectKey(${cardIndex}, ${i})"
                                  data-key-index="${i}"
                                  title="${k.product_title || 'Key'}">
-                                <span class="key-thumb-icon">${icon}</span>
+                                ${imageUrl ? `<img class="key-thumb-img" src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">` : ''}
+                                <span class="key-thumb-icon" ${imageUrl ? 'style="display:none"' : ''}>${icon}</span>
                                 <span class="key-thumb-type">${keyType.toUpperCase()}</span>
-                                ${fccLabel ? `<span class="key-thumb-fcc">${fccLabel}</span>` : `<span class="key-thumb-title">${titleWords}</span>`}
+                                ${fccId ? `<span class="key-thumb-fcc">${fccId}</span>` : `<span class="key-thumb-title">${(k.product_title || 'Key').split(' ').slice(0, 2).join(' ')}</span>`}
                                 ${k.price ? `<span class="key-thumb-price">${k.price}</span>` : ''}
                             </div>
                         `;
