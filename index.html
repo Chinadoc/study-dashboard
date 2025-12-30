@@ -1580,6 +1580,134 @@
             color: #fcd34d;
         }
 
+        /* Guide Images Gallery */
+        .guide-images-section {
+            margin: 16px 0;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .guide-images-section h4 {
+            margin: 0 0 12px 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .guide-images-carousel {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .guide-images-carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .guide-images-carousel::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        .guide-images-carousel::-webkit-scrollbar-thumb {
+            background: var(--brand-primary);
+            border-radius: 3px;
+        }
+
+        .guide-image-card {
+            flex: 0 0 200px;
+            scroll-snap-align: start;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .guide-image-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--brand-primary);
+        }
+
+        .guide-image-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .guide-image-caption {
+            display: block;
+            padding: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Guide Image Modal */
+        .guide-image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .guide-image-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .guide-image-modal img {
+            max-width: 90%;
+            max-height: 85%;
+            border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .guide-image-modal .modal-caption {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .guide-image-modal .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .guide-image-modal .modal-close:hover {
+            opacity: 1;
+        }
+
         /* Quick Tech Specs */
         .guide-tech-specs {
             display: flex;
@@ -2160,6 +2288,209 @@
 
         .text-sm {
             font-size: 0.875rem !important;
+        }
+
+        /* ==========================================================================
+           MEGA CARD 2.0 STYLES
+           ========================================================================== */
+
+        :root {
+            --theme-global-a-bg: #0f172a;
+            --theme-global-a-glow: #10b981;
+            /* Emerald */
+            --theme-global-a-border: rgba(16, 185, 129, 0.3);
+
+            --theme-global-b-bg: #0f172a;
+            --theme-global-b-glow: #ef4444;
+            /* Red */
+            --theme-global-b-border: rgba(239, 68, 68, 0.3);
+        }
+
+        .mega-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        /* Architecture Headers */
+        .mega-card-header {
+            padding: 20px 24px;
+            position: relative;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mega-card.theme-global-a {
+            border-color: var(--theme-global-a-border);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.05);
+        }
+
+        .mega-card.theme-global-a .mega-card-header {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, rgba(15, 23, 42, 0) 100%);
+            border-top: 3px solid var(--theme-global-a-glow);
+        }
+
+        .mega-card.theme-global-b {
+            border-color: var(--theme-global-b-border);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.05);
+        }
+
+        .mega-card.theme-global-b .mega-card-header {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.05) 0%, rgba(15, 23, 42, 0) 100%);
+            border-top: 3px solid var(--theme-global-b-glow);
+        }
+
+        .arch-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .arch-badge.global-a {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .arch-badge.global-b {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Spec Grid */
+        .mega-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            /* Creates grid lines */
+            border-bottom: 1px solid var(--border);
+        }
+
+        .spec-item {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .spec-icon {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .spec-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .spec-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Scanner Interface */
+        .diagnostic-scanner {
+            background: #000;
+            margin: 16px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .scanner-header {
+            background: #1a1a1a;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            color: #666;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .scanner-screen {
+            padding: 12px;
+        }
+
+        .scan-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #333;
+            color: #ccc;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .scan-row:last-child {
+            border-bottom: none;
+        }
+
+        .scan-row:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .scan-row.alert {
+            color: #fca5a5;
+        }
+
+        .scan-row.warning {
+            color: #fcd34d;
+        }
+
+        /* Interactive Tabs */
+        .mega-tabs {
+            display: flex;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+            margin-top: 16px;
+        }
+
+        .mega-tab {
+            padding: 12px 20px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .mega-tab.active {
+            color: var(--brand-primary);
+            border-bottom-color: var(--brand-primary);
+        }
+
+        .mega-tab-content {
+            padding: 24px;
+            display: none;
+        }
+
+        .mega-tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -3707,8 +4038,6 @@
                 <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-secondary);">Select Model</h3>
                 <div class="model-filter-bar" id="modelFilterBar" style="display: none;">
                     <button class="model-filter-btn active" onclick="filterModels('all')">All</button>
-                    <button class="model-filter-btn" onclick="filterModels('keyed')">🔑 Keyed</button>
-                    <button class="model-filter-btn" onclick="filterModels('prox')">📡 Prox</button>
                 </div>
                 <div class="model-grid" id="modelChips"></div>
                 <div id="modelLoading"
@@ -5467,6 +5796,26 @@
                             `;
                         }
 
+                        // NEW: Render dynamic guide images from guide_assets table
+                        let guideImagesHtml = '';
+                        if (guide.guide_images && guide.guide_images.length > 0) {
+                            const imageCards = guide.guide_images.map((img, imgIdx) => `
+                                <div class="guide-image-card" onclick="openGuideImageModal('${img.asset_url}', '${(img.caption || '').replace(/'/g, "\\'")}')">
+                                    <img src="${img.asset_url}" alt="${img.caption || 'Technical Diagram'}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                                    <span class="guide-image-caption">${img.caption || 'Technical Diagram'}</span>
+                                </div>
+                            `).join('');
+
+                            guideImagesHtml = `
+                                <div class="guide-images-section">
+                                    <h4>📊 Technical Diagrams & Research</h4>
+                                    <div class="guide-images-carousel">
+                                        ${imageCards}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
                         html = `
                             <div class="programming-guide-header">
                                 <h3>${guide.title || (make + ' ' + model)}</h3>
@@ -5475,6 +5824,7 @@
                             ${intelBannersHtml}
                             ${techSpecsHtml}
                             ${assetsHtml}
+                            ${guideImagesHtml}
                             <div class="programming-guide-body">
                                 ${contentHtml}
                             </div>
@@ -6580,134 +6930,112 @@
                     rfSystemBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">⚠️ Verify RF Hub</span>`;
                 }
 
-                // GM Architecture Badge (Global A = open, Global B = locked)
-                let gmArchBadge = '';
-                if (immo && immo.includes('Global A')) {
-                    gmArchBadge = `<span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">🟢 Global A</span>`;
-                } else if (immo && immo.includes('Global B')) {
-                    gmArchBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 Global B (Dealer Tool)</span>`;
+                // GM Architecture Badge & Theme Logic
+                let themeClass = '';
+                let archName = 'Standard Architecture';
+                let archBadgeClass = 'badge-dark';
+                let archIcon = '🔧';
+
+                if ((immoSystem && immoSystem.includes('Global A')) || (v.notes && v.notes.includes('Global A'))) {
+                    themeClass = 'theme-global-a';
+                    archName = 'Global A (Open)';
+                    archBadgeClass = 'global-a';
+                    archIcon = '🟢';
+                } else if ((immoSystem && immoSystem.includes('Global B')) || (v.notes && v.notes.includes('Global B'))) {
+                    themeClass = 'theme-global-b';
+                    archName = 'Global B (Locked)';
+                    archBadgeClass = 'global-b';
+                    archIcon = '🔴';
                 }
 
+                // Parse Service Notes for Scanner
+                let scannerRows = [];
+                if (v.service_notes_pro) {
+                    scannerRows = v.service_notes_pro.split('\n').filter(line => line.trim().length > 0).map(line => {
+                        let rowClass = '';
+                        if (line.includes('⚠️')) rowClass = 'warning';
+                        if (line.includes('CRITICAL') || line.includes('ERR')) rowClass = 'alert';
+                        return { text: line, class: rowClass };
+                    });
+                }
 
                 return `
-                <div class="vehicle-card" style="display: flex; flex-direction: column; gap: 12px;">
-                    <div class="vehicle-card-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 0;">
-                        <div class="vehicle-name" style="display: flex; align-items: center;">
+                <div class="mega-card ${themeClass}">
+                    <!-- Mega Header -->
+                    <div class="mega-card-header">
+                        <div style="display: flex; align-items: center; gap: 16px;">
                             ${logoHtml}
-                            <span class="make-link" onclick="quickSwitchMake('${make}')" style="cursor: pointer; color: var(--brand-primary);" title="View all ${make} models">${make}</span>
-                            <span style="margin: 0 6px; color: var(--text-muted);">${model}</span>
-                            ${uniqueRows.length > 1 ? `<span style="color: var(--text-muted); font-size: 0.85rem;">• ${fccId !== 'N/A' ? 'FCC: ' + fccId : oem !== 'N/A' ? 'Part: ' + oem : 'Variant ' + (idx + 1)}</span>` : ''}
-                        </div>
-                        <div class="vehicle-badges">
-                            ${dealerOnlyBadge}
-                            ${difficultyBadge}
-                            ${stellantisWarnings}
-                            ${rfSystemBadge}
-                            ${gmArchBadge}
-                            ${inventoryBadge}
-                            ${keyTypeDisplay ? `<span class="badge ${keyTypeBadgeClass}">${keyTypeDisplay}</span>` : ''}
-                            ${keyType !== 'N/A' ? `<span class="badge badge-dark">${keyTypeIcon} ${keyType}</span>` : ''}
-                            <span class="badge badge-gold">${immo !== 'N/A' ? immo : 'Standard'}</span>
-                        </div>
-                    </div>
-
-                    <!-- Key Carousel Container (populated async) -->
-                    <div id="keyCarouselContainer-${idx}" class="key-carousel-container"></div>
-
-                    <!-- CHIP & PROGRAMMING SECTION (Expanded) -->
-                    <div class="mega-info-section" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 12px; padding: 16px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(168, 85, 247, 0.05)); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.15);">
-                        <!-- Chip Technology Box -->
-                        <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
-                            <div style="font-size: 0.7rem; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">🔐 Chip Technology</div>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${chip}</div>
-                            ${v.chip_technology ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">${v.chip_technology}</div>` : ''}
-                            ${v.chip_description ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; padding: 6px; background: rgba(34, 197, 94, 0.1); border-radius: 4px; border-left: 2px solid #22c55e;">${v.chip_description}</div>` : ''}
-                            ${v.chip_bits ? `<div style="font-size: 0.75rem; color: #a78bfa; margin-top: 4px;">📊 ${v.chip_bits}-bit encryption</div>` : ''}
-                        </div>
-                        
-                        <!-- Programming Method Box -->
-                        <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
-                            <div style="font-size: 0.7rem; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">🔧 Programming</div>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${v.programming_method || 'OBD'}</div>
-                            ${v.pin_required ? `<div style="font-size: 0.85rem; color: #f59e0b;">🔑 PIN Required</div>` : `<div style="font-size: 0.85rem; color: #22c55e;">✅ No PIN Needed</div>`}
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
-                                <span style="display: inline-block; background: rgba(59, 130, 246, 0.1); padding: 3px 8px; border-radius: 4px; margin-right: 4px;">Autel IM608</span>
-                                <span style="display: inline-block; background: rgba(59, 130, 246, 0.1); padding: 3px 8px; border-radius: 4px;">SmartPro</span>
+                            <div>
+                                <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; letter-spacing: -0.5px;">
+                                    ${year} ${make} ${model}
+                                </div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px; font-family: monospace;">
+                                    ${fccId !== 'N/A' ? 'FCC: ' + fccId : 'P/N: ' + oem}
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Tools Required Box -->
-                        <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 12px; border: 1px solid var(--border);">
-                            <div style="font-size: 0.7rem; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600;">🛠️ Tools Required</div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
-                                ${v.lishi_tool ? `<div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">🔓</span><span style="font-weight: 600;">Lishi:</span> <span style="color: var(--brand-primary);">${v.lishi_tool}</span></div>` : ''}
-                                <div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">🔌</span><span style="font-weight: 600;">OBD:</span> <span style="color: #22c55e;">Standard Port</span></div>
-                                ${keyway !== 'N/A' ? `<div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 1rem;">🗝️</span><span style="font-weight: 600;">Blank:</span> <span>${keyway}</span></div>` : ''}
+                        <div style="text-align: right;">
+                             <div class="arch-badge ${archBadgeClass}">
+                                ${archIcon} ${archName}
                             </div>
-                        </div>
-                    </div>
-                    <!-- END CHIP & PROGRAMMING SECTION -->
-
-                    <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 16px;">
-                        ${imageUrl ? `
-                            <div class="fcc-card-image" style="width: 140px; height: 140px; margin-bottom: 0; flex-shrink: 0;" onclick="showFccModal('${fccId}')">
-                                <img src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'">
-                            </div>
-                        ` : ''}
-                        
-                        <div class="data-grid" id="keySpecs-${idx}" style="flex: 1; min-width: 250px; margin-top: 0;">
-                            <div class="data-item">
-                                <div class="data-label">FCC ID</div>
-                                <div class="data-value highlight">${fccDisplay}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">Chip</div>
-                                <div class="data-value">${chip}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">Frequency</div>
-                                <div class="data-value">${freq}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">Key Blank</div>
-                                <div class="data-value">${keyway}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">Buttons</div>
-                                <div class="data-value">${buttons}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">Battery</div>
-                                <div class="data-value">${battery}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">OEM Part #</div>
-                                <div class="data-value">${oem}</div>
-                            </div>
-                            <div class="data-item">
-                                <div class="data-label">Lishi Tool</div>
-                                <div class="data-value">${v.lishi_tool || 'N/A'}</div>
+                            <div style="display: flex; gap: 4px; justify-content: flex-end; margin-top: 6px; flex-wrap: wrap;">
+                                ${dealerOnlyBadge} ${difficultyBadge} ${stellantisWarnings}
                             </div>
                         </div>
                     </div>
 
-                    <div class="vehicle-card-actions" style="display: flex; gap: 12px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 12px;">
-                         ${amazonLink ? `<a href="${amazonLink}" target="_blank" id="amazonBtn-${idx}" class="fcc-action-btn fcc-action-primary" style="flex: 1; text-decoration: none; text-align: center;">🛒 Buy on Amazon</a>` : ''}
-                         ${getGuideButtonHtml(make, model)}
-                         <button onclick="showFccModal('${fccId}')" class="fcc-action-btn fcc-action-secondary" style="flex: 1;">🔍 View Details</button>
+                    <!-- Spec Grid -->
+                    <div class="mega-spec-grid">
+                        <div class="spec-item">
+                            <div class="spec-icon" style="color: #a855f7;">🛡️</div>
+                            <div class="spec-label">Chip</div>
+                            <div class="spec-value">${chip}</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon" style="color: #06b6d4;">⚡</div>
+                            <div class="spec-label">Frequency</div>
+                            <div class="spec-value">${freq}</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon" style="color: #eab308;">🗝️</div>
+                            <div class="spec-label">Keyway</div>
+                            <div class="spec-value">${keyway}</div>
+                        </div>
+                         <div class="spec-item">
+                            <div class="spec-icon" style="color: #22c55e;">🔧</div>
+                            <div class="spec-label">System</div>
+                            <div class="spec-value">${immoSystem}</div>
+                        </div>
                     </div>
                     
-                    ${hasAftermarket ? `
-                    <div style="margin-top: 4px; padding-top: 12px; border-top: 1px dashed var(--border);">
-                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Aftermarket Parts (click to buy)</div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.85rem;">
-                            ${ilco !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent('ILCO ' + ilco + ' key blank')}&tag=eurokeys-20" target="_blank" style="background: linear-gradient(135deg, #1a472a, #2d5a3f); padding: 6px 12px; border-radius: 6px; border: 1px solid #3d7a5a; text-decoration: none; color: white; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><span style="font-weight: 600;">ILCO</span> ${ilco} 🛒</a>` : ''}
-                            ${strattec !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent('Strattec ' + strattec + ' key')}&tag=eurokeys-20" target="_blank" style="background: linear-gradient(135deg, #1a365d, #2b4c7a); padding: 6px 12px; border-radius: 6px; border: 1px solid #3d5a80; text-decoration: none; color: white; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><span style="font-weight: 600;">Strattec</span> ${strattec} 🛒</a>` : ''}
+                    <!-- Diagnostic Scanner (Pro Notes) -->
+                    ${scannerRows.length > 0 ? `
+                    <div class="diagnostic-scanner">
+                        <div class="scanner-header">
+                            <span>DIAGNOSTIC_SYSTEM_V2.4 // ${make.toUpperCase()}_${model.toUpperCase()}</span>
+                            <span>STATUS: CONNECTED</span>
+                        </div>
+                        <div class="scanner-screen">
+                            ${scannerRows.map(row => `<div class="scan-row ${row.class}"><span>${row.text}</span></div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Key Carousel -->
+                    <div id="keyCarouselContainer-${idx}" class="key-carousel-container" style="background: var(--bg-secondary); padding: 16px; border-bottom: 1px solid var(--border);"></div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 4px; background: var(--bg-tertiary);">
+                        ${inventoryBadge}
+                    </div>
+
+                    <!-- Action Footer -->
+                     <div style="padding: 16px; display: flex; gap: 12px; justify-content: space-between; align-items: center; background: var(--bg-secondary);">
+                        <div style="display: flex; gap: 6px;">
+                            ${keyTypeDisplay ? `<span class="badge ${keyTypeBadgeClass}">${keyTypeDisplay}</span>` : ''}
                             ${jma !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent('JMA ' + jma + ' key blank')}&tag=eurokeys-20" target="_blank" style="background: linear-gradient(135deg, #5a3d1a, #7a5a2b); padding: 6px 12px; border-radius: 6px; border: 1px solid #8a6a3b; text-decoration: none; color: white; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><span style="font-weight: 600;">JMA</span> ${jma} 🛒</a>` : ''}
                             ${keydiy !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent('KEYDIY ' + keydiy)}&tag=eurokeys-20" target="_blank" style="background: linear-gradient(135deg, #4a1a5d, #6a2b7a); padding: 6px 12px; border-radius: 6px; border: 1px solid #7a3b8a; text-decoration: none; color: white; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><span style="font-weight: 600;">KEYDIY</span> ${keydiy} 🛒</a>` : ''}
                         </div>
                     </div>
-                    ` : ''}
                     
                     ${(fccId !== 'N/A' || oem !== 'N/A' || keyway !== 'N/A') ? `
                     <div style="margin-top: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
@@ -6749,22 +7077,34 @@
                         <button onclick="toggleGuide('${make}', '${model}', ${idx})" class="walkthrough-toggle">📖 View Guide</button>
                     </div>
                     <div id="guide-${idx}" class="walkthrough-content"></div>
-                </div>
+                </div >
             `;
             }).join('');
 
-            // Async load compatible keys for each card
-            uniqueRows.forEach((v, idx) => {
-                fetchCompatibleKeys(make, model, year).then(keys => {
+            // PERFORMANCE OPTIMIZATION 1: Batch fetch keys with Promise.all instead of sequential forEach
+            // PERFORMANCE OPTIMIZATION 2: Fixed broken template literal (was `keyCarouselContainer - ${ idx } `)
+            const keyLoadPromise = fetchCompatibleKeys(make, model, year);
+
+            Promise.all(uniqueRows.map(async (v, idx) => {
+                const container = document.getElementById(`keyCarouselContainer - ${idx} `);
+                if (!container) return;
+
+                // Show loading skeleton immediately
+                container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 8px;">Loading keys...</div>';
+
+                try {
+                    // Reuse single fetch for all cards (same make/model/year)
+                    const keys = await keyLoadPromise;
                     if (keys && keys.length > 0) {
                         cardKeysData[idx] = keys;
-                        const container = document.getElementById(`keyCarouselContainer-${idx}`);
-                        if (container) {
-                            container.innerHTML = renderKeyCarousel(keys, idx, 0);
-                        }
+                        container.innerHTML = renderKeyCarousel(keys, idx, 0);
+                    } else {
+                        container.innerHTML = '';
                     }
-                });
-            });
+                } catch (e) {
+                    container.innerHTML = '';
+                }
+            }));
         }
 
         function getKeyTypeIcon(keyType) {
@@ -6822,6 +7162,10 @@
             }
         }
 
+        // PERFORMANCE OPTIMIZATION 3: Debounced year navigation with abort controller
+        let navigateYearTimeout = null;
+        let currentNavigationController = null;
+
         async function navigateYear(direction) {
             if (!currentVehicleMake || !currentVehicleModel || !currentVehicleYear) return;
 
@@ -6831,17 +7175,32 @@
 
             if (newYear < minYear || newYear > maxYear) return;
 
+            // Update year immediately for responsive UI
             currentVehicleYear = newYear;
-            await loadVehicleByYear(newYear, currentVehicleMake, currentVehicleModel);
+            updateYearNavigation(newYear);
+
+            // Cancel any pending navigation
+            if (navigateYearTimeout) {
+                clearTimeout(navigateYearTimeout);
+            }
+            if (currentNavigationController) {
+                currentNavigationController.abort();
+            }
+
+            // Debounce: wait 150ms before actually fetching (allows rapid clicking)
+            navigateYearTimeout = setTimeout(() => {
+                loadVehicleByYear(newYear, currentVehicleMake, currentVehicleModel);
+            }, 150);
         }
 
         async function loadVehicleByYear(year, make, model) {
-            document.getElementById('resultTitle').textContent = `${make} ${model}`;
+            document.getElementById('resultTitle').textContent = `${make} ${model} `;
             updateYearNavigation(year);
+            // CRITICAL: Clear container BEFORE loading to prevent stacking
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
             try {
-                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+                const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
                 const data = await res.json();
 
                 if (data.rows && data.rows.length > 0) {
@@ -6850,10 +7209,9 @@
                     // Fetch available years for this make/model
                     let availableYearsHtml = '';
                     try {
-                        const yearsRes = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
+                        const yearsRes = await fetch(`${API} /api/master ? make = ${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& fields=year_start, year_end & limit=100`);
                         const yearsData = await yearsRes.json();
                         if (yearsData.rows && yearsData.rows.length > 0) {
-                            // Extract unique years from year ranges
                             const yearsSet = new Set();
                             yearsData.rows.forEach(r => {
                                 const start = r.year_start || r.year_end;
@@ -6866,10 +7224,10 @@
                                     yearsSet.add(start);
                                 }
                             });
-                            const sortedYears = [...yearsSet].sort((a, b) => b - a); // Newest first
+                            const sortedYears = [...yearsSet].sort((a, b) => b - a);
                             if (sortedYears.length > 0) {
                                 availableYearsHtml = `
-                                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+            < div style = "margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);" >
                                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Available years for ${make} ${model}:</div>
                                         <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
                                             ${sortedYears.slice(0, 15).map(y => `
@@ -6882,8 +7240,8 @@
                                             `).join('')}
                                             ${sortedYears.length > 15 ? `<span style="color: var(--text-muted); font-size: 0.8rem; align-self: center;">+${sortedYears.length - 15} more</span>` : ''}
                                         </div>
-                                    </div>
-                                `;
+                                    </div >
+            `;
                             }
                         }
                     } catch (e) {
@@ -6891,15 +7249,15 @@
                     }
 
                     document.getElementById('resultsContainer').innerHTML = `
-                        <div class="loading" style="text-align: center;">
+            < div class="loading" style = "text-align: center;" >
                             <div style="font-size: 2rem; margin-bottom: 12px;">🚫</div>
                             <div>No data for ${year} ${make} ${model}</div>
                             <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
                                 ${availableYearsHtml ? 'Select a year with available data below:' : 'Try adjacent years or this model may not exist for ' + year}
                             </div>
                             ${availableYearsHtml}
-                        </div>
-                    `;
+                        </div >
+            `;
                 }
             } catch (e) {
                 console.error('Year navigation failed:', e);
@@ -6946,11 +7304,11 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+                const res = await fetch(`${API} /api/master ? year = ${year}& limit=1000`);
                 const data = await res.json();
                 const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
                 select.innerHTML = '<option value="">Make</option>';
-                makes.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+                makes.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
             } catch (e) {
                 select.innerHTML = '<option value="">Make</option>';
             }
@@ -6968,11 +7326,11 @@
             select.innerHTML = '<option value="">Loading...</option>';
 
             try {
-                const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+                const res = await fetch(`${API} /api/master ? year = ${year}& make=${encodeURIComponent(make)}& limit=500`);
                 const data = await res.json();
                 const models = [...new Set(data.rows.map(r => r.model))].sort();
                 select.innerHTML = '<option value="">Model</option>';
-                models.forEach(m => { select.innerHTML += `<option value="${m}">${m}</option>`; });
+                models.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
             } catch (e) {
                 select.innerHTML = '<option value="">Model</option>';
             }
@@ -6993,12 +7351,12 @@
             currentVehicleMake = make;
             currentVehicleModel = model;
 
-            document.getElementById('resultTitle').textContent = `${make} ${model}`;
+            document.getElementById('resultTitle').textContent = `${make} ${model} `;
             updateYearNavigation(parseInt(year));
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
             try {
-                const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+                const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
                 const data = await res.json();
                 if (data.rows && data.rows.length > 0) {
                     displayResults(data.rows, year, make, model);
@@ -7016,7 +7374,7 @@
             if (select.options.length <= 1) {
                 const year = new Date().getFullYear() + 1;
                 for (let y = year; y >= 2000; y--) {
-                    select.innerHTML += `<option value="${y}">${y}</option>`;
+                    select.innerHTML += `< option value = "${y}" > ${y}</option > `;
                 }
             }
         }
@@ -7087,7 +7445,7 @@
             };
             const badge = badges[keyType] || badges['transponder'];
             const marginStyle = includeMarginLeft ? ' margin-left: 8px;' : '';
-            return `<span style="font-size: 0.7rem; background: ${badge.bg}; color: ${badge.color}; padding: 2px 6px; border-radius: 4px; border: 1px solid ${badge.border};${marginStyle}">${badge.label}</span>`;
+            return `< span style = "font-size: 0.7rem; background: ${badge.bg}; color: ${badge.color}; padding: 2px 6px; border-radius: 4px; border: 1px solid ${badge.border};${marginStyle}" > ${badge.label}</span > `;
         }
 
         // Legacy compatibility - keep isPushKey for any other usages
@@ -7115,7 +7473,7 @@
         async function ensureGuidesLoaded() {
             if (guidesDataLoaded) return;
             try {
-                const res = await fetch(`${API}/api/guides`);
+                const res = await fetch(`${API} /api/guides`);
                 if (res.ok) {
                     const data = await res.json();
                     guidesData = data.rows || [];
@@ -7125,17 +7483,9 @@
         }
 
         function getGuideButtonHtml(make, model) {
-            if (!guidesDataLoaded || !guidesData.length) return '';
-
-            // Find guide that matches make and model
-            const guide = guidesData.find(g =>
-                g.make.toLowerCase() === make.toLowerCase() &&
-                g.model.toLowerCase() === model.toLowerCase()
-            );
-
-            if (guide) {
-                return `<button onclick="viewGuideDetail('${guide.id}')" class="fcc-action-btn" style="flex: 1; background: #c2410c; color: white; border: none;">📖 View Guide</button>`;
-            }
+            // Deprecated: The mega-card template now handles View Guide via toggleGuide()
+            // This function was causing duplicate buttons and broken 'null' ID issues
+            // Return empty to prevent duplicate View Guide buttons
             return '';
         }
 
@@ -7151,8 +7501,8 @@
             }
 
             try {
-                const res = await fetch(`${API}/api/guides`);
-                if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+                const res = await fetch(`${API} /api/guides`);
+                if (!res.ok) throw new Error(`HTTP Error ${res.status} `);
                 const data = await res.json();
                 guidesData = data.rows || [];
                 guidesDataLoaded = true;
@@ -7182,8 +7532,8 @@
             } catch (e) {
                 console.error('Failed to load guides:', e);
                 if (grid) {
-                    grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #f87171;">
-                        Failed to load guides.<br>
+                    grid.innerHTML = `< div style = "grid-column: 1 / -1; text-align: center; padding: 40px; color: #f87171;" >
+            Failed to load guides.< br >
                         <small style="opacity:0.8">${e.message}</small><br>
                         <button onclick="loadGuidesTab()" style="margin-top:16px;background:var(--bg-tertiary);border:1px solid var(--border);color:var(--text-primary);padding:8px 16px;border-radius:6px;cursor:pointer;">Try Again</button>
                     </div>`;
@@ -7239,7 +7589,7 @@
             });
 
             // Sticky Header HTML
-            const headerHtml = years.map(y => `<th style="font-size: 0.5rem; color: var(--text-muted); text-align: center; padding: 0; width: 18px; min-width: 18px; font-weight: normal;">'${y.toString().slice(2)}</th>`).join('');
+            const headerHtml = years.map(y => `< th style = "font-size: 0.5rem; color: var(--text-muted); text-align: center; padding: 0; width: 18px; min-width: 18px; font-weight: normal;" > '${y.toString().slice(2)}</th>`).join('');
 
             // Rows HTML
             const rowsHtml = allMakes.map(make => {
@@ -8129,6 +8479,36 @@
             } else {
                 // Fallback if modal doesn't exist
                 alert('Upgrade to Pro for inventory features! Contact support@eurokeys.app');
+            }
+        }
+
+        // Guide image lightbox modal
+        function openGuideImageModal(imageUrl, caption) {
+            let modal = document.getElementById('guideImageModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'guideImageModal';
+                modal.className = 'guide-image-modal';
+                modal.onclick = (e) => {
+                    if (e.target === modal) closeGuideImageModal();
+                };
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = `
+                <button class="modal-close" onclick="closeGuideImageModal()">&times;</button>
+                <img src="${imageUrl}" alt="${caption || 'Technical Diagram'}" />
+                <div class="modal-caption">${caption || ''}</div>
+            `;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGuideImageModal() {
+            const modal = document.getElementById('guideImageModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
             }
         }
 
