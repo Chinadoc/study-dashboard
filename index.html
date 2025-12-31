@@ -6848,8 +6848,7 @@
                     const title = alert.alert_title || alert.title;
                     if (seenAlerts.has(title)) return;
                     seenAlerts.add(title);
-
-                    const level = (alert.alert_level || 'WARNING').toUpperCase();
+ const level = (alert.alert_level || 'WARNING').toUpperCase();
                     const levelColors = {
                         'CRITICAL': { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.5)', icon: '🔴', color: '#ef4444' },
                         'WARNING': { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.5)', icon: '⚠️', color: '#fbbf24' },
@@ -6859,8 +6858,7 @@
                     const content = alert.alert_content || alert.content || '';
                     const mitigation = alert.mitigation || '';
 
-                    html += `
-                    <details style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
+                              <details style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
                         <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
                             <span>${style.icon}</span>
                             <span>${title}</span>
