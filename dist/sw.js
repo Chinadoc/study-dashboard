@@ -1,5 +1,5 @@
-// v20 - Cache Bust for Guides Fix
-const CACHE_NAME = 'euro-keys-v20';
+// v25 - Fixed InventoryManager undefined errors
+const CACHE_NAME = 'euro-keys-v25';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
