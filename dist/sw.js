@@ -1,5 +1,5 @@
-// v25 - Fixed InventoryManager undefined errors
-const CACHE_NAME = 'euro-keys-v27-move-data';
+// v26 - Fixed Auth Redirect Proxy Issue (Do not intercept sensitive APIs)
+const CACHE_NAME = 'euro-keys-v28-auth-fix';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -78,8 +78,7 @@ self.addEventListener('fetch', (event) => {
     const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
 
     if (isSensitiveApi) {
-        event.respondWith(fetch(request)); // Pure network, no cache
-        return;
+        return; // Fall through to browser network (CRITICAL for redirects)
     }
 
     if (isMainPage || isApi) {

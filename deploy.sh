@@ -44,11 +44,14 @@ sync_dir() {
     dest="dist/$1"
     
     echo "  - Syncing $src to $dest..."
-    # Remove existing dest dir to ensure no stale files (optional, but safer)
-    rm -rf "$dest"
-    
-    # Copy new content
-    cp -R "$src" "$dest"
+    # Use rsync if available for better performance and reliability
+    if command -v rsync &> /dev/null; then
+        rsync -a --delete "$src/" "$dest/"
+    else
+        # Fallback to cp
+        rm -rf "$dest"
+        cp -R "$src" "$dest"
+    fi
 }
 
 sync_dir "js"
