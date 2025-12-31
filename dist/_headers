@@ -34,3 +34,13 @@
 # Favicon
 /favicon.ico
   Cache-Control: public, max-age=2592000, immutable
+
+# CSS files - Force correct MIME type and cache
+/css/*
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
+
+# JS files - Force correct MIME type and cache
+/js/*
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
