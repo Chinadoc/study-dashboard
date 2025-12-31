@@ -1,5 +1,5 @@
-// v23 - Fixed PWA banner HTML corruption
-const CACHE_NAME = 'euro-keys-v23';
+// v24 - Fixed logSearch and displayResults bugs
+const CACHE_NAME = 'euro-keys-v24';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

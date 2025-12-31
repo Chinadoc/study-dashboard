@@ -442,9 +442,8 @@ function populateFccYears() {
 
 function filterFccTable() {
     fccPage = 1;
-    const query =
-        document.getElementById('fccSearch').value;
-    logSearch(query);
+    const query = document.getElementById('fccSearch').value;
+    // logSearch(query); // TODO: logSearch is not defined, commenting out
     renderFccTable();
     // Refresh coverage map to sync highlighting with search
     renderKeyCoverageMap(true);

@@ -878,6 +878,16 @@ function displayResults(rows, year, make, model, extras = {}) {
     const container = document.getElementById('resultsContainer');
     const { alerts = [], guide = null } = extras;
 
+    // DEFENSIVE: Handle API response object {total, rows} vs raw array
+    if (rows && !Array.isArray(rows) && rows.rows) {
+        rows = rows.rows;
+    }
+    if (!Array.isArray(rows)) {
+        container.innerHTML = '<div class="loading">Failed to load results</div>';
+        console.error('displayResults: expected array, got', typeof rows, rows);
+        return;
+    }
+
     // Set shareable URL for this vehicle
     setVehicleUrl(make, model, year);
 
