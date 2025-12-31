@@ -6858,7 +6858,8 @@
                     const content = alert.alert_content || alert.content || '';
                     const mitigation = alert.mitigation || '';
 
-                              <details style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
+                    html += `
+                    <details style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
                         <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
                             <span>${style.icon}</span>
                             <span>${title}</span>
