@@ -1526,6 +1526,9 @@ function displayResults(rows, year, make, model, extras = {}) {
     `;
     }).join('');
 
+    // CRITICAL FIX: Inject the generated HTML into the DOM
+    container.innerHTML = html;
+
     // PERFORMANCE OPTIMIZATION 1: Batch fetch keys with Promise.all instead of sequential forEach
     // PERFORMANCE OPTIMIZATION 2: Fixed broken template literal (was `keyCarouselContainer - ${ idx } `)
     const keyLoadPromise = fetchCompatibleKeys(make, model, year);
