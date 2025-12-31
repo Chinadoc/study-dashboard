@@ -1,5 +1,5 @@
-// v26 - Fixed Auth Redirect Proxy Issue (Do not intercept sensitive APIs)
-const CACHE_NAME = 'euro-keys-v28-auth-fix';
+// v29 - Fixed Auth Redirect Proxy Issue (Debug Logs + String Check)
+const CACHE_NAME = 'euro-keys-v29-auth-fix';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -69,15 +69,19 @@ self.addEventListener('fetch', (event) => {
     if (!url.protocol.startsWith('http')) return;
 
     // Sensitive APIs: NEVER cache /api/user, /api/auth, or /api/admin
-    const isSensitiveApi = url.pathname.includes('/api/user') ||
-        url.pathname.includes('/api/auth/') ||
-        url.pathname.includes('/api/admin/');
+    // v29 - HARDENING: Check request.url string directly to avoid URL parsing issues
+    const urlString = request.url.toLowerCase();
+    const isSensitiveApi = urlString.includes('/api/user') ||
+        urlString.includes('/api/auth/') ||
+        urlString.includes('/api/admin/');
 
-    // Main Page & API: Network-first (always get fresh content)
-    const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
-    const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
+    // Debug logging for sensitive paths
+    if (urlString.includes('/api/')) {
+        console.log(`SW Fetch: ${urlString} | Sensitive: ${isSensitiveApi}`);
+    }
 
     if (isSensitiveApi) {
+        console.log('SW: Bypassing interception for sensitive API');
         return; // Fall through to browser network (CRITICAL for redirects)
     }
 
