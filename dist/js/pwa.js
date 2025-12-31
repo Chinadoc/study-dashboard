@@ -57,7 +57,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
             // Force fresh SW by using query param
-            const registration = await navigator.serviceWorker.register('/sw.js?v=29');
+            const registration = await navigator.serviceWorker.register('/sw.js?v=30');
             console.log('Service Worker registered:', registration.scope);
 
             // Check for updates immediately and every 5 minutes

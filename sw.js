@@ -1,5 +1,5 @@
-// v29 - Fixed Auth Redirect Proxy Issue (Debug Logs + String Check)
-const CACHE_NAME = 'euro-keys-v29-auth-fix';
+// v30 - Skip Cross-Origin Requests Entirely to Prevent CORS Failures
+const CACHE_NAME = 'euro-keys-v30-xorigin-bypass';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -67,6 +67,19 @@ self.addEventListener('fetch', (event) => {
 
     // Skip non-HTTP(S) requests
     if (!url.protocol.startsWith('http')) return;
+
+    // v30 CRITICAL: Skip ALL cross-origin requests entirely!
+    // If we accidentally proxy a third-party page (e.g. Google Sign-In), 
+    // its subrequests (gstatic.com, etc.) will be fetched with our origin 
+    // and fail CORS. We should ONLY handle requests to our own domain.
+    const isOurDomain = url.hostname === 'eurokeys.app' ||
+        url.hostname.endsWith('.eurokeys.app') ||
+        url.hostname === 'localhost' ||
+        url.hostname.includes('127.0.0.1');
+    if (!isOurDomain) {
+        console.log(`SW: Skipping cross-origin: ${url.hostname}`);
+        return;
+    }
 
     // Sensitive APIs: NEVER cache /api/user, /api/auth, or /api/admin
     // v29 - HARDENING: Check request.url string directly to avoid URL parsing issues
