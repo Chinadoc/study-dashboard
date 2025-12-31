@@ -1,5 +1,5 @@
-// v20 - Cache Bust for Guides Fix
-const CACHE_NAME = 'euro-keys-v20';
+// v23 - Fixed PWA banner HTML corruption
+const CACHE_NAME = 'euro-keys-v23';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
