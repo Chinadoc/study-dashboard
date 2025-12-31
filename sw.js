@@ -1,5 +1,5 @@
 // v25 - Fixed InventoryManager undefined errors
-const CACHE_NAME = 'euro-keys-v25';
+const CACHE_NAME = 'euro-keys-v26-hotfix';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

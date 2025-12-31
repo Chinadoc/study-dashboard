@@ -19,6 +19,8 @@ cp sw.js dist/
 # 2. Copy and Process Main HTML (Add Cache Busting)
 echo "📄 Copying and processing index.html..."
 cp index.html dist/
+cp structured_guides.json dist/
+cp asin_based_affiliate_products.json dist/
 
 # Generate valid timestamp
 TIMESTAMP=$(date +%s)

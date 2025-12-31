@@ -463,7 +463,7 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
     const getVehicleImageUrl = (make, model) => {
         const cleanModel = model.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
         const cleanMake = make.toLowerCase().replace(/\s+/g, '-');
-        return `${API_BASE}/api/assets/vehicles/${cleanMake}-${cleanModel}.png`;
+        return `${API_BASE}/assets/vehicles/${cleanMake}-${cleanModel}.png`;
     };
 
     // Populate Visual Grid
@@ -654,7 +654,7 @@ function renderKeyCarousel(keys, cardIndex, selectedIdx = 0) {
             const variantsCount = k.variants_count || 1;
             const icon = getKeyIcon(keyType);
             const fccId = cleanFccId(k.fcc_id);
-            const imageUrl = fccId ? `${API}/api/assets/${fccId}.png` : null;
+            const imageUrl = fccId ? `${API}/assets/${fccId}.png` : null;
             const featureStr = features.length ? features.map(f => featureLabels[f] || `+${f.toUpperCase()}`).join(' ') : 'BASE';
             const colorClass = (keyType === 'smart' || keyType === 'fobik') ? 'key-smart' : (keyType === 'rhk' || keyType === 'flip') ? 'key-remote' : keyType === 'transponder' ? 'key-transponder' : 'key-standard';
             const isSelected = k.originalIdx === selectedIdx;
@@ -1061,7 +1061,7 @@ function displayResults(rows, year, make, model, extras = {}) {
         } catch (e) { /* ignore parse errors */ }
 
         // Get image URL
-        const imageUrl = v.image_url || v.remote_image || (fccId !== 'N/A' && v.has_image ? `${API}/api/assets/${fccId}.png`
+        const imageUrl = v.image_url || v.remote_image || (fccId !== 'N/A' && v.has_image ? `${API}/assets/${fccId}.png`
             : null);
 
         // Aftermarket parts from part_crossref
@@ -1326,10 +1326,10 @@ function displayResults(rows, year, make, model, extras = {}) {
                 <!-- Key Fob Image -->
                 <div class="key-ref-card"
                     style="flex: 0 0 auto; width: 140px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
-                    <img src="${API}/api/assets/keys/${make.toLowerCase()}-${model.toLowerCase()}-${fccIdClean || 'key'}.png"
+                    <img src="${API}/assets/keys/${make.toLowerCase()}-${model.toLowerCase()}-${fccIdClean || 'key'}.png"
                         alt="Key Fob"
                         style="width: 100%; height: 80px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,0.05);"
-                        onerror="this.src='${API}/api/assets/keys/generic-fob.png'; this.onerror=null;">
+                        onerror="this.src='${API}/assets/keys/generic-fob.png'; this.onerror=null;">
                     <div style="font-size: 0.7rem; color: var(--accent); margin-top: 8px; font-weight: 600;">
                         ${fccIdClean || 'Smart Key'}</div>
                     <div style="font-size: 0.65rem; color: var(--text-muted);">Fob</div>
@@ -1338,7 +1338,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                 ${keyway && keyway !== 'N/A' ? `
                 <div class="key-ref-card"
                     style="flex: 0 0 auto; width: 140px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
-                    <img src="${API}/api/assets/keys/key-blank-${keyway.toLowerCase().split(' ')[0] || 'generic'}.png"
+                    <img src="${API}/assets/keys/key-blank-${keyway.toLowerCase().split(' ')[0] || 'generic'}.png"
                         alt="Key Blade"
                         style="width: 100%; height: 80px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,0.05);"
                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">

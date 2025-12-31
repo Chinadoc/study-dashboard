@@ -103,7 +103,7 @@ async function toggleGuide(make, model, idx) {
                     if (guide.assets.infographic) {
                         const infographicUrl = guide.assets.infographic.startsWith('/')
                             ? guide.assets.infographic
-                            : `/api/assets/${guide.assets.infographic}`;
+                            : `/assets/${guide.assets.infographic}`;
                         assetsHtml += `
                                     <div class="guide-asset-block">
                                         <img src="${infographicUrl}" alt="${guide.make} Infographic" class="guide-infographic" loading="lazy" onerror="this.style.display='none'">
@@ -113,7 +113,7 @@ async function toggleGuide(make, model, idx) {
                     if (guide.assets.pdf) {
                         const pdfUrl = guide.assets.pdf.startsWith('/')
                             ? guide.assets.pdf
-                            : `/api/assets/${guide.assets.pdf}`;
+                            : `/assets/${guide.assets.pdf}`;
                         assetsHtml += `
                                     <div class="guide-asset-link">
                                         <a href="${pdfUrl}" target="_blank" class="pdf-download-btn">
@@ -295,9 +295,9 @@ function renderGuideContent(markdown) {
     html = html.replace(/\n\n/g, '</p><p>');
     html = html.replace(/\n/g, ' ');
 
-    // R2 Asset Support (r2://bucket-path -> /api/assets/bucket-path)
-    html = html.replace(/src="r2:\/\/([^"]+)"/g, 'src="/api/assets/$1"');
-    html = html.replace(/href="r2:\/\/([^"]+)"/g, 'href="/api/assets/$1"');
+    // R2 Asset Support (r2://bucket-path -> /assets/bucket-path)
+    html = html.replace(/src="r2:\/\/([^"]+)"/g, 'src="/assets/$1"');
+    html = html.replace(/href="r2:\/\/([^"]+)"/g, 'href="/assets/$1"');
 
     return html;
 }
