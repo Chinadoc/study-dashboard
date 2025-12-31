@@ -1,0 +1,26 @@
+PANOZ
+ESPERANTE
+2001 2006 All 1X-1706X
+H72-PT Service Key H86 Texas Instruments (4C) Encrypted System 612
+EK3-H72/EK3LB-H72*/H72-
+GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key H86 Texas Instruments (4C) Encrypted System 612
+2007 2010 All 1X-1706X
+H92-PT (LAL) Service Key H86 Texas Instruments (4D63) Encrypted Code System 612
+EK3-H84/EK3LB-H84*/H84-
+GTK#
+RW5, SA+, RW4 Plus, RW4, EZ Clone Plus, EZ 
+Clone, Plus Box Service Key H86 Texas Instruments (4D63) Encrypted Code System 612
+OLDSMOBILE - PANOZ
+--- PAGE 105 ---
+Page 105 
+Model Start End Lock
+Apps
+Code
+Series
+Ilco/Ilco EZ
+(Plastic)
+Transponder
+Equipment Required + Substitues Notes Card
+No.
