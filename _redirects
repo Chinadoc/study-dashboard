@@ -12,3 +12,4 @@
 /*  /index.html  200
 
 
+/api/assets/*  /assets/:splat  200

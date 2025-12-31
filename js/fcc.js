@@ -610,7 +610,7 @@ function renderFccTable() {
         let imageUrl = null;
         if (r.has_image) {
             imageUrl =
-                `${API}/api/assets/${fccId}.png`;
+                `${API}/assets/${fccId}.png`;
         } else if (primaryAsin) {
             imageUrl =
                 `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${primaryAsin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`;
@@ -976,7 +976,7 @@ async function showFccModal(fccId) {
                 let imageUrl = null;
                 if (hasRemoteImage) {
                     imageUrl =
-                        `${API}/api/assets/${fccId}.png`;
+                        `${API}/assets/${fccId}.png`;
                 } else if (asin) {
                     imageUrl =
                         `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1`;

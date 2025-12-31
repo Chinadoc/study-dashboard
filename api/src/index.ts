@@ -1700,7 +1700,47 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
 
-        return new Response(JSON.stringify({ count: dataResult.results?.length || 0, total, rows: dataResult.results || [] }), {
+        // ---------------------------------------------------------
+        // CAMARO REBUILD: Fetch Alerts & Guides if specific vehicle
+        // ---------------------------------------------------------
+        let alerts: any[] = [];
+        let guide: any = null;
+
+        // Only fetch extras if we are narrowing down to a specific vehicle context
+        // Check if make/model/year match a single context
+        if (make && model && year) {
+          const y = parseInt(year, 10);
+          if (!Number.isNaN(y)) {
+            // 1. Fetch Alerts
+            const alertsResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM locksmith_alerts 
+                WHERE LOWER(make) = ? AND LOWER(model) = ? 
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY CASE alert_level 
+                  WHEN 'CRITICAL' THEN 1 
+                  WHEN 'WARNING' THEN 2 
+                  WHEN 'INFO' THEN 3 
+                  ELSE 4 END
+              `).bind(make, model, y).all();
+            alerts = alertsResult.results || [];
+
+            // 2. Fetch Programming Guide
+            guide = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM programming_guides
+                WHERE LOWER(make) = ? AND LOWER(model) = ?
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY created_at DESC LIMIT 1
+              `).bind(make, model, y).first();
+          }
+        }
+
+        return new Response(JSON.stringify({
+          count: dataResult.results?.length || 0,
+          total,
+          rows: dataResult.results || [],
+          alerts,
+          guide
+        }), {
           headers: {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
@@ -1772,6 +1812,38 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
         const rows = dataResult.results || [];
+
+        // ---------------------------------------------------------
+        // CAMARO REBUILD: Fetch Alerts & Guides if specific vehicle
+        // ---------------------------------------------------------
+        let alerts: any[] = [];
+        let guide: any = null;
+
+        if (make && model && year) {
+          const y = parseInt(year, 10);
+          if (!Number.isNaN(y)) {
+            // 1. Fetch Alerts
+            const alertsResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM locksmith_alerts 
+                WHERE LOWER(make) = ? AND LOWER(model) = ? 
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY CASE alert_level 
+                  WHEN 'CRITICAL' THEN 1 
+                  WHEN 'WARNING' THEN 2 
+                  WHEN 'INFO' THEN 3 
+                  ELSE 4 END
+              `).bind(make, model, y).all();
+            alerts = alertsResult.results || [];
+
+            // 2. Fetch Programming Guide
+            guide = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM programming_guides
+                WHERE LOWER(make) = ? AND LOWER(model) = ?
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY created_at DESC LIMIT 1
+              `).bind(make, model, y).first();
+          }
+        }
 
         const resp = new Response(JSON.stringify({ total, rows }), {
           headers: {
@@ -1894,8 +1966,46 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           LIMIT ? OFFSET ?
         `;
         const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
+        const rows = dataResult.results || [];
 
-        return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
+        // ---------------------------------------------------------
+        // CAMARO REBUILD: Fetch Alerts & Guides if specific vehicle
+        // ---------------------------------------------------------
+        let alerts: any[] = [];
+        let guide: any = null;
+
+        if (make && model && year) {
+          const y = parseInt(year, 10);
+          if (!Number.isNaN(y)) {
+            // 1. Fetch Alerts (Priority Order)
+            const alertsResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM locksmith_alerts 
+                WHERE LOWER(make) = ? AND LOWER(model) = ? 
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY CASE alert_level 
+                  WHEN 'CRITICAL' THEN 1 
+                  WHEN 'WARNING' THEN 2 
+                  WHEN 'INFO' THEN 3 
+                  ELSE 4 END
+              `).bind(make, model, y).all();
+            alerts = alertsResult.results || [];
+
+            // 2. Fetch Programming Guide
+            guide = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM programming_guides
+                WHERE LOWER(make) = ? AND LOWER(model) = ?
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY created_at DESC LIMIT 1
+              `).bind(make, model, y).first();
+          }
+        }
+
+        return new Response(JSON.stringify({
+          total,
+          rows,
+          alerts,
+          guide
+        }), {
           headers: {
             "content-type": "application/json",
             "Cache-Control": "public, max-age=300",

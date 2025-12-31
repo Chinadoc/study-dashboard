@@ -76,7 +76,7 @@ let asinData = { products_by_fcc: {} };
 
 async function loadAsinData() {
     try {
-        const res = await fetch('/asin_based_affiliate_products.json'); // Explicit relative path (works with _redirects proxy)
+        const res = await fetch('/assets/data/asin_based_affiliate_products.json'); // Explicit relative path (works with _redirects proxy)
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         asinData = await res.json();
         console.log('ASIN affiliate mapping loaded');
