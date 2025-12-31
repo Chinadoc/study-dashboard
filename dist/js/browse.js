@@ -770,9 +770,11 @@ let currentVehicleMake = null;
 let currentVehicleModel = null;
 
 async function searchVehicle() {
+    console.log('searchVehicle: Started');
     const year = document.getElementById('yearSelect').value;
     const make = document.getElementById('makeSelect').value;
     const model = document.getElementById('modelSelect').value;
+    console.log(`searchVehicle: Context`, { year, make, model });
 
     if (!year || !make || !model) {
         alert('Please select year, make, and model');
@@ -792,16 +794,32 @@ async function searchVehicle() {
     if (browseSection) browseSection.style.display = 'none';
     const resultsSection = document.getElementById('resultsSection');
     if (resultsSection) resultsSection.classList.add('active');
+
+    console.log('searchVehicle: UI Setup complete, calling initQuickSearch');
     initQuickSearch();
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`;
+        console.log(`searchVehicle: Fetching`, fetchUrl);
+
+        const res = await fetch(fetchUrl);
+        console.log(`searchVehicle: Response status`, res.status);
+
         const data = await res.json();
+        console.log(`searchVehicle: Data received`, data);
 
         if (data.rows && data.rows.length > 0) {
-            displayResults(data.rows, year, make, model);
+            console.log(`searchVehicle: Calling displayResults with ${data.rows.length} rows`);
+            try {
+                displayResults(data.rows, year, make, model);
+                console.log('searchVehicle: displayResults returned');
+            } catch (innerE) {
+                console.error('searchVehicle: displayResults CRASHED', innerE);
+                document.getElementById('resultsContainer').innerHTML = `<div class="error">Display Error: ${innerE.message}</div>`;
+            }
         } else {
+            console.log('searchVehicle: No rows found');
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
         }
     } catch (e) {
