@@ -6788,6 +6788,7 @@
 
             container.innerHTML = uniqueRows.map((v, idx) => {
                 const fccId = v.fcc_id || 'N/A';
+                const fccIdClean = fccId !== 'N/A' ? fccId.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
                 const oem = v.oem_part_number || 'N/A';
                 // Prefer direct ASIN link if available, otherwise search
                 const amazonLink = v.primary_asin
@@ -7037,6 +7038,44 @@
                         </div>
                     </div>
                     ` : ''}
+
+                    <!-- Key Reference Visual Section -->
+                    <div class="key-reference-section" style="background: linear-gradient(135deg, rgba(18,18,28,0.95), rgba(22,33,50,0.95)); padding: 16px; border-bottom: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span style="font-size: 1.2rem;">🔑</span>
+                            <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Key Reference</span>
+                        </div>
+                        <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px;">
+                            <!-- Key Fob Image -->
+                            <div class="key-ref-card" style="flex: 0 0 auto; width: 140px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                <img src="${API}/api/assets/keys/${make.toLowerCase()}-${model.toLowerCase()}-${fccIdClean || 'key'}.png"
+                                     alt="Key Fob"
+                                     style="width: 100%; height: 80px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,0.05);"
+                                     onerror="this.src='${API}/api/assets/keys/generic-fob.png'; this.onerror=null;">
+                                <div style="font-size: 0.7rem; color: var(--accent); margin-top: 8px; font-weight: 600;">${fccIdClean || 'Smart Key'}</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted);">Fob</div>
+                            </div>
+                            <!-- Key Blade Image -->
+                            ${keyway && keyway !== 'N/A' ? `
+                            <div class="key-ref-card" style="flex: 0 0 auto; width: 140px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                <img src="${API}/api/assets/keys/key-blank-${keyway.toLowerCase().split(' ')[0] || 'generic'}.png"
+                                     alt="Key Blade"
+                                     style="width: 100%; height: 80px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,0.05);"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; width: 100%; height: 80px; align-items: center; justify-content: center; color: var(--accent); font-size: 2rem;">🗝️</div>
+                                <div style="font-size: 0.7rem; color: #22c55e; margin-top: 8px; font-weight: 600;">${keyway}</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted);">Blade Profile</div>
+                            </div>
+                            ` : ''}
+                            <!-- Quick Specs Card -->
+                            <div class="key-ref-card" style="flex: 0 0 auto; width: 140px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                <div style="font-size: 1.5rem; margin-bottom: 4px;">📡</div>
+                                <div style="font-size: 0.7rem; color: #06b6d4; margin-top: 8px; font-weight: 600;">${freq}</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted);">Frequency</div>
+                                <div style="font-size: 0.65rem; color: #a855f7; margin-top: 6px;">${chip}</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Key Carousel -->
                     <div id="keyCarouselContainer-${idx}" class="key-carousel-container" style="background: var(--bg-secondary); padding: 16px; border-bottom: 1px solid var(--border);"></div>
