@@ -8,6 +8,9 @@ echo "🚀 Starting build/sync process..."
 # Ensure dist directory exists
 mkdir -p dist
 
+# Generate valid timestamp for cache busting
+TIMESTAMP=$(date +%s)
+
 # 1. Copy Key Config Files
 echo "📄 Copying configuration files..."
 cp _headers dist/
