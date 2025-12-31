@@ -1,4 +1,4 @@
-```
+
 // Cache for loaded guides
 const guideCache = {};
 let STRUCTURED_GUIDES = {};
@@ -7,7 +7,7 @@ let STRUCTURED_GUIDES = {};
 async function initStructuredGuides() {
     try {
         const res = await fetch('/assets/data/structured_guides.json');
-        if (!res.ok) throw new Error(`HTTP ${ res.status } `);
+        if (!res.ok) throw new Error(`HTTP ${res.status} `);
         STRUCTURED_GUIDES = await res.json();
         console.log('Loaded local structured guides:', Object.keys(STRUCTURED_GUIDES).length);
     } catch (e) {
@@ -17,7 +17,7 @@ async function initStructuredGuides() {
 initStructuredGuides();
 
 async function toggleGuide(make, model, idx) {
-    const containerId = `guide - ${ idx } `;
+    const containerId = `guide - ${idx} `;
     const container = document.getElementById(containerId);
 
     if (!container) return;
@@ -42,7 +42,7 @@ async function toggleGuide(make, model, idx) {
         const remaining = PremiumUsage.getRemainingFreeViews();
         if (remaining > 0 && remaining <= 2) {
             // Show toast hint about remaining free views
-            showToast(`📖 ${ remaining } free guide view${ remaining > 1 ? 's' : '' } left — sign up for unlimited!`, 6000);
+            showToast(`📖 ${remaining} free guide view${remaining > 1 ? 's' : ''} left — sign up for unlimited!`, 6000);
         }
     }
 
@@ -59,7 +59,7 @@ async function toggleGuide(make, model, idx) {
     }
 
     // Check cache next
-    const cacheKey = `${ make.toLowerCase() } - ${ model.toLowerCase() } `;
+    const cacheKey = `${make.toLowerCase()} - ${model.toLowerCase()} `;
     if (guideCache[cacheKey]) {
         container.innerHTML = guideCache[cacheKey];
         container.classList.add('expanded');
@@ -72,7 +72,7 @@ async function toggleGuide(make, model, idx) {
 
     try {
         // Determine category based on context (default to AKL_PROCEDURE for now)
-        const guideUrl = `${ API } /api/guides ? make = ${ encodeURIComponent(make) }& model=${ encodeURIComponent(model) }& category=AKL_PROCEDURE`;
+        const guideUrl = `${API} /api/guides ? make = ${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& category=AKL_PROCEDURE`;
         console.log('Fetching guide:', guideUrl);
         const res = await fetch(guideUrl);
         const data = await res.json();
@@ -104,7 +104,7 @@ async function toggleGuide(make, model, idx) {
                     if (guide.assets.infographic) {
                         const infographicUrl = guide.assets.infographic.startsWith('/')
                             ? guide.assets.infographic
-                            : `/ assets / ${ guide.assets.infographic } `;
+                            : `/ assets / ${guide.assets.infographic} `;
                         assetsHtml += `
     < div class="guide-asset-block" >
         <img src="${infographicUrl}" alt="${guide.make} Infographic" class="guide-infographic" loading="lazy" onerror="this.style.display='none'">
@@ -114,7 +114,7 @@ async function toggleGuide(make, model, idx) {
                     if (guide.assets.pdf) {
                         const pdfUrl = guide.assets.pdf.startsWith('/')
                             ? guide.assets.pdf
-                            : `/ assets / ${ guide.assets.pdf } `;
+                            : `/ assets / ${guide.assets.pdf} `;
                         assetsHtml += `
     < div class="guide-asset-link" >
         <a href="${pdfUrl}" target="_blank" class="pdf-download-btn">
@@ -184,9 +184,9 @@ async function toggleGuide(make, model, idx) {
                 if (guide.fcc_id || guide.chip || guide.programming_method) {
                     techSpecsHtml = `
     < div class="guide-tech-specs" >
-        ${ guide.fcc_id ? `<span class="tech-spec"><strong>FCC:</strong> ${guide.fcc_id}</span>` : '' }
-                                    ${ guide.chip ? `<span class="tech-spec"><strong>Chip:</strong> ${guide.chip}</span>` : '' }
-                                    ${ guide.oem_part_number ? `<span class="tech-spec"><strong>OEM Part:</strong> ${guide.oem_part_number}</span>` : '' }
+        ${guide.fcc_id ? `<span class="tech-spec"><strong>FCC:</strong> ${guide.fcc_id}</span>` : ''}
+                                    ${guide.chip ? `<span class="tech-spec"><strong>Chip:</strong> ${guide.chip}</span>` : ''}
+                                    ${guide.oem_part_number ? `<span class="tech-spec"><strong>OEM Part:</strong> ${guide.oem_part_number}</span>` : ''}
                                 </div >
     `;
                 }
@@ -216,10 +216,10 @@ async function toggleGuide(make, model, idx) {
                                 <h3>${guide.title || (make + ' ' + model)}</h3>
                                 <button onclick="this.closest('.expanded').classList.remove('expanded')" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕ Close</button>
                             </div >
-    ${ intelBannersHtml }
-                            ${ techSpecsHtml }
-                            ${ assetsHtml }
-                            ${ guideImagesHtml }
+    ${intelBannersHtml}
+                            ${techSpecsHtml}
+                            ${assetsHtml}
+                            ${guideImagesHtml}
 <div class="programming-guide-body">
     ${contentHtml}
 </div>
@@ -245,10 +245,10 @@ function renderGuideContent(markdown) {
 
     // Process tables (simple conversion)
     html = html.replace(/\|(.+)\|\n\|[-:| ]+\|\n((?:\|.+\|\n?)+)/g, (match, header, body) => {
-        const headerCells = header.split('|').filter(c => c.trim()).map(c => `< th > ${ c.trim() }</th > `).join('');
+        const headerCells = header.split('|').filter(c => c.trim()).map(c => `< th > ${c.trim()}</th > `).join('');
         const rows = body.trim().split('\n').map(row => {
-            const cells = row.split('|').filter(c => c.trim()).map(c => `< td > ${ c.trim() }</td > `).join('');
-            return `< tr > ${ cells }</tr > `;
+            const cells = row.split('|').filter(c => c.trim()).map(c => `< td > ${c.trim()}</td > `).join('');
+            return `< tr > ${cells}</tr > `;
         }).join('');
         return `< div class="table-container" > <table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table></div > `;
     });
@@ -281,14 +281,14 @@ function renderGuideContent(markdown) {
     // Lists (Improved)
     html = html.replace(/^(\d+\.|-)\s+(.*)$/gm, (match, prefix, content) => {
         const type = prefix.includes('.') ? 'ol' : 'ul';
-        return `< li data - type="${type}" > ${ content }</li > `;
+        return `< li data - type="${type}" > ${content}</li > `;
     });
 
     // Wrap contiguous <li> in <ul> or <ol>
     html = html.replace(/(?:<li data-type="(ul|ol)">.*?<\/li>\s*)+/g, (match, type) => {
         const tag = type === 'ol' ? 'ol' : 'ul';
         const items = match.replace(/ data-type="(ul|ol)"/g, '');
-        return `< ${ tag }> ${ items }</${ tag }> `;
+        return `< ${tag}> ${items}</${tag}> `;
     });
 
     // Line breaks
@@ -313,7 +313,7 @@ function renderBookGuide(vehicleName, data) {
 
     const tabsHtml = sections.map((s, i) => `
     < div class="book-tab ${i === 0 ? 'active' : ''}" onclick = "switchBookTab(this, '${s.id}')" >
-        ${ s.title }
+        ${s.title}
                 </div >
     `).join('');
 
@@ -346,7 +346,7 @@ function switchBookTab(el, sectionId) {
     container.querySelectorAll('.book-section').forEach(s => s.classList.remove('active'));
 
     el.classList.add('active');
-    container.querySelector(`#book - section - ${ sectionId } `).classList.add('active');
+    container.querySelector(`#book - section - ${sectionId} `).classList.add('active');
 }
 
 
