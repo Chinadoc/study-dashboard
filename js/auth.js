@@ -134,36 +134,8 @@ function signInWithGoogle() {
 }
 
 // Initialize Google Sign-In (kept for backward compatibility with One Tap on page load)
-function initGoogleSignIn() {
-    // One Tap is optional and may be blocked by cookie settings
-    // The main sign-in button uses redirect flow instead
-    try {
-        if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-            console.log('Google Identity Services not available, using redirect flow only');
-            return;
-        }
+// Google One Tap removed - using redirect flow exclusively
 
-        if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
-            return; // Not configured
-        }
-
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleSignIn,
-            auto_select: false,
-            use_fedcm_for_prompt: true // Use FedCM for better third-party cookie handling
-        });
-
-        // Try One Tap (may not display if cookies blocked)
-        google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed()) {
-                console.log('One Tap not displayed:', notification.getNotDisplayedReason());
-            }
-        });
-    } catch (e) {
-        console.log('Google Sign-In initialization error (using redirect flow as fallback):', e);
-    }
-}
 
 // Handle Google Sign-In callback (for ID token flow)
 async function handleGoogleSignIn(response) {
@@ -250,9 +222,13 @@ async function checkDeveloperStatus() {
                 if (currentUser && currentUser.is_developer) {
                     const devTab = document.getElementById('devTab');
                     if (devTab) devTab.style.display = 'inline-flex';
-                } else {
-                    const devTab = document.getElementById('devTab');
                     if (devTab) devTab.style.display = 'none';
+                }
+
+                // FIX: Sync subscription status to prevent drift
+                if (typeof SubscriptionManager !== 'undefined' && typeof SubscriptionManager.checkStatus === 'function') {
+                    // Run as background promise to not block UI
+                    SubscriptionManager.checkStatus().catch(e => console.log('Background sub check failed', e));
                 }
             } else {
                 // Backend returned 200 but user is empty/invalid
@@ -446,6 +422,7 @@ async function restorePurchases() {
             }));
             updateProUI();
             closeUpgradeModal();
+            updateTrialBanner(); // Update banner immediately
             showToast('✅ Subscription restored successfully! You now have Pro access.', 5000, 'success');
         } else {
             showToast('No active subscription found. Try again in a few moments.', 5000);
