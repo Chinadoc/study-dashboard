@@ -7105,7 +7105,7 @@
                     </div>
                     ` : ''}
 
-                    ${v.mechanical_spec || v.code_series || v.service_notes_pro ? `
+                    ${v.mechanical_spec || v.code_series || v.service_notes_pro || v.key_blank_refs ? `
                     <div class="pro-data-section">
                         <div class="pro-header">
                             <span style="font-size: 1.1rem;">🛠️</span> Mechanical Codex
@@ -7116,11 +7116,53 @@
                             ${v.depths ? `<div class="mec-item"><div class="mec-label">Depths</div><div class="mec-value">${v.depths}</div></div>` : ''}
                             ${v.code_series ? `<div class="mec-item"><div class="mec-label">Code Series</div><div class="mec-value">${v.code_series}</div></div>` : ''}
                             ${v.ignition_retainer ? `<div class="mec-item"><div class="mec-label">Ignition Retainer</div><div class="mec-value">${v.ignition_retainer}</div></div>` : ''}
+                            ${v.lishi_tool ? `<div class="mec-item"><div class="mec-label">Lishi Tool</div><div class="mec-value" style="color: #22c55e;">${v.lishi_tool}</div></div>` : ''}
                         </div>
+                        
+                        ${(() => {
+                            // Parse key_blank_refs JSON for cross-reference table
+                            let xrefHtml = '';
+                            if (v.key_blank_refs) {
+                                try {
+                                    const refs = typeof v.key_blank_refs === 'string' ? JSON.parse(v.key_blank_refs) : v.key_blank_refs;
+                                    xrefHtml = `
+                                    <div style="margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(34,197,94,0.3);">
+                                        <div style="font-size: 0.75rem; color: #22c55e; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">📋 Cross-Reference</div>
+                                        <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;">
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                <td style="padding: 6px 0; color: var(--text-muted);">Ilco</td>
+                                                <td style="padding: 6px 0; color: var(--accent); font-weight: 600;">${refs.ilco || 'N/A'}</td>
+                                            </tr>
+                                            ${refs.strattec ? Object.entries(refs.strattec).map(([btn, pn]) => `
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                <td style="padding: 6px 0; color: var(--text-muted);">Strattec (${btn})</td>
+                                                <td style="padding: 6px 0; color: #06b6d4; font-weight: 600;">${pn}</td>
+                                            </tr>
+                                            `).join('') : ''}
+                                            ${refs.oem_blade ? `
+                                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                <td style="padding: 6px 0; color: var(--text-muted);">OEM Blade</td>
+                                                <td style="padding: 6px 0; color: var(--accent);">${refs.oem_blade}</td>
+                                            </tr>` : ''}
+                                            ${refs.code_series ? `
+                                            <tr>
+                                                <td style="padding: 6px 0; color: var(--text-muted);">Code Series</td>
+                                                <td style="padding: 6px 0; color: #a855f7;">${refs.code_series}</td>
+                                            </tr>` : ''}
+                                        </table>
+                                    </div>`;
+                                } catch (e) { xrefHtml = ''; }
+                            }
+                            return xrefHtml;
+                        })()}
+                        
                         ${v.service_notes_pro ? `
-                        <div class="pro-note">
-                            <strong>Service Note:</strong> ${v.service_notes_pro}
-                        </div>
+                        <details style="margin-top: 12px;">
+                            <summary style="cursor: pointer; padding: 10px 12px; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; color: var(--accent); font-weight: 600; font-size: 0.85rem;">
+                                📌 Pro Service Notes (Click to expand)
+                            </summary>
+                            <div style="margin-top: 8px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">${v.service_notes_pro}</div>
+                        </details>
                         ` : ''}
                     </div>
                     ` : ''
