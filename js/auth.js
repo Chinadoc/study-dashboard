@@ -126,11 +126,10 @@ async function initGoogleAuth() {
 
 // Sign in with Google
 function signInWithGoogle() {
-    // Use the API constant which handles localhost vs production automatically
-    // API is empty string in production (uses relative path via _redirects proxy)
-    // API is full workers.dev URL in localhost for development
-    const authBase = API || window.location.origin;
-    window.location.href = `${authBase}/api/auth/google`;
+    // ALWAYS use the Worker URL directly for auth to bypass Cloudflare Pages _redirects
+    // The Pages proxy cannot properly handle 302 redirects to external domains (Google OAuth)
+    const workerAuthUrl = 'https://euro-keys.jeremy-samuels17.workers.dev/api/auth/google';
+    window.location.href = workerAuthUrl;
 }
 
 // Initialize Google Sign-In (kept for backward compatibility with One Tap on page load)
