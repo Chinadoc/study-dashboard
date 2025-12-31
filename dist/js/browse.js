@@ -793,7 +793,7 @@ async function searchVehicle() {
     const resultsSection = document.getElementById('resultsSection');
     if (resultsSection) resultsSection.classList.add('active');
     initQuickSearch();
-    await ensureGuidesLoaded(); // Predownload guides for linking
+    // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
         const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
