@@ -8,6 +8,24 @@ let googleAuth = null;
 let currentUser = null;
 window.isAuthExpired = false; // Global lock to stop console spam on 401
 
+// ================== AUTH CALLBACK TOKEN HANDLER ==================
+// After Google OAuth, the Worker redirects to: eurokeys.app/#auth_token=JWT_TOKEN
+// We need to extract and store this token on page load
+(function handleAuthCallback() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#auth_token=')) {
+        const token = hash.substring('#auth_token='.length);
+        if (token) {
+            console.log('Auth: Token received from OAuth callback');
+            localStorage.setItem('session_token', token);
+            // Clean up the URL (remove hash fragment)
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+            // Reload to apply the session
+            window.location.reload();
+        }
+    }
+})();
+
 // ================== TOAST NOTIFICATIONS ==================
 /**
  * Show an animated toast notification
@@ -77,13 +95,47 @@ async function initGoogleAuth() {
     const userAvatar = document.getElementById('userAvatar');
     if (userAvatar) userAvatar.classList.add('loading');
 
-    // 1. Initial UI from localStorage (for perceived performance)
-    // BUT we validate the data first to prevent ghost logins
+    // 1. Check for stored session token (set by OAuth callback)
+    const sessionToken = localStorage.getItem('session_token');
+
+    if (sessionToken) {
+        try {
+            // Fetch user data from backend using the token
+            const response = await fetch(`${API}/api/user`, {
+                headers: {
+                    'Authorization': `Bearer ${sessionToken}`
+                }
+            });
+            const data = await response.json();
+
+            if (data.user && data.user.email) {
+                // Valid session! Store user data and update UI
+                currentUser = data.user;
+                localStorage.setItem('eurokeys_user', JSON.stringify(data.user));
+                updateAuthUI(true);
+
+                // Load cloud data
+                InventoryManager.loadFromCloud();
+                InventoryManager.loadJobLogsFromCloud();
+                SubscriptionManager.loadFromCloud();
+                AssetManager.loadFromCloud();
+
+                if (userAvatar) userAvatar.classList.remove('loading');
+                return; // Success!
+            }
+        } catch (err) {
+            console.warn('initGoogleAuth: Error fetching user with token:', err);
+            // Token might be expired/invalid, clear it
+            localStorage.removeItem('session_token');
+        }
+    }
+
+    // 2. Fallback: Check for cached user data (for perceived performance)
     const savedUser = localStorage.getItem('eurokeys_user');
     if (savedUser) {
         try {
             const parsed = JSON.parse(savedUser);
-            // STRICT VALIDATION: Must have email AND a real name (not "User" placeholder)
+            // STRICT VALIDATION: Must have email AND a real name
             const hasValidData = parsed.email &&
                 parsed.email.includes('@') &&
                 parsed.name &&
@@ -95,8 +147,6 @@ async function initGoogleAuth() {
                 currentUser = parsed;
                 updateAuthUI(true);
             } else {
-                // Invalid/stale data, clear it and show signed out
-                console.warn('initGoogleAuth: Clearing invalid localStorage user data:', parsed);
                 localStorage.removeItem('eurokeys_user');
                 currentUser = null;
                 updateAuthUI(false);
@@ -109,13 +159,13 @@ async function initGoogleAuth() {
         updateAuthUI(false);
     }
 
-    // 2. ALWAYS verify with backend
+    // 3. Verify with backend (also checks developer status)
     await checkDeveloperStatus();
 
-    // Remove loading state after verification
+    // Remove loading state
     if (userAvatar) userAvatar.classList.remove('loading');
 
-    // 3. Load inventory from cloud if logged in
+    // 4. Load inventory from cloud if logged in
     if (currentUser) {
         InventoryManager.loadFromCloud();
         InventoryManager.loadJobLogsFromCloud();
