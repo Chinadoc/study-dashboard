@@ -686,7 +686,7 @@ function renderFccTable() {
                                                                                                 style="width: 24px; height: 24px; border-radius: 4px; border: none; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">−</button>
                                                                                             <span
                                                                                                 id="fcc-stock-${fccId}"
-                                                                                                style="min-width: 20px; text-align: center; font-size: 0.85rem;">${InventoryManager.getKeyStock(fccId)}</span>
+                                                                                                style="min-width: 20px; text-align: center; font-size: 0.85rem;">${typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0}</span>
                                                                                             <button
                                                                                                 onclick="fccInventoryAdd('${fccId}', '${(vehicles || '').replace(/'/g, "\\'")}', '${(amazonLink || '').replace(/'/g, "\\'")}')"
                                                                                                 class="inv-btn"

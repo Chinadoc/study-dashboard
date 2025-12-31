@@ -1,5 +1,5 @@
-// v24 - Fixed logSearch and displayResults bugs
-const CACHE_NAME = 'euro-keys-v24';
+// v25 - Fixed InventoryManager undefined errors
+const CACHE_NAME = 'euro-keys-v25';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

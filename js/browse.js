@@ -1100,8 +1100,8 @@ function displayResults(rows, year, make, model, extras = {}) {
         style="width: 28px; height: 28px; object-fit: contain; margin-right: 10px; border-radius: 4px;">` : '';
 
         // Check inventory stock for this key (if signed in)
-        const keyInStock = currentUser && fccId !== 'N/A' ? InventoryManager.getKeyStock(fccId) : 0;
-        const blankInStock = currentUser && keyway !== 'N/A' ? InventoryManager.getBlankStock(keyway) : 0;
+        const keyInStock = currentUser && fccId !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0;
+        const blankInStock = currentUser && keyway !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getBlankStock(keyway) : 0;
         const inventoryBadge = keyInStock > 0
             ? `<span class="badge" style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span>`
             : blankInStock > 0
