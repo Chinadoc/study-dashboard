@@ -1,51 +1,57 @@
 #!/bin/bash
 
-# Study Dashboard - Quick Deployment Script
-# This script helps deploy to GitHub Pages
+# Euro Keys Deployment Script
+# Syncs all necessary files to dist/ for Cloudflare Pages deployment
 
-echo "🚀 Study Dashboard Deployment Guide"
-echo "=================================="
-echo ""
-echo "Your study dashboard is ready! Here are your deployment options:"
-echo ""
-echo "📁 Project Location: $(pwd)"
-echo "🌐 Local Preview: http://localhost:8000 (if running)"
-echo ""
-echo "DEPLOYMENT OPTIONS:"
-echo ""
-echo "1️⃣ GitHub Pages (Free & Recommended):"
-echo "   • Create a new repository on GitHub"
-echo "   • Push this code: git remote add origin <your-repo-url>"
-echo "   • Push: git branch -M main && git push -u origin main"
-echo "   • Go to Settings → Pages → Source → 'Deploy from a branch'"
-echo "   • Select 'main' branch and '/ (root)' folder"
-echo "   • Your site will be at: https://yourusername.github.io/repository-name"
-echo ""
-echo "2️⃣ Netlify (Free & Instant):"
-echo "   • Go to netlify.com and sign up/login"
-echo "   • Drag & drop this entire folder to deploy instantly"
-echo "   • Or connect your GitHub repo for automatic deployments"
-echo ""
-echo "3️⃣ Vercel (Free & Fast):"
-echo "   • Go to vercel.com and sign up/login"
-echo "   • Import project from GitHub or upload files directly"
-echo ""
-echo "4️⃣ Other options:"
-echo "   • Any static hosting service (Firebase, Surge, etc.)"
-echo "   • Your own web server"
-echo ""
-echo "📝 What's included:"
-echo "   ✅ Interactive study dashboard with your exact code"
-echo "   ✅ Responsive design (works on phone/tablet/desktop)"
-echo "   ✅ Confetti celebrations when tasks are completed"
-echo "   ✅ Time calculations and progress tracking"
-echo "   ✅ Clean, modern UI with Tailwind CSS"
-echo ""
-echo "🔧 Local Development:"
-echo "   • Run: python3 -m http.server 8000"
-echo "   • Open: http://localhost:8000"
-echo "   • Or just double-click index.html in your browser"
-echo ""
-echo "Happy studying! 📚✨"
+echo "🚀 Starting build/sync process..."
 
+# Ensure dist directory exists
+mkdir -p dist
 
+# 1. Copy Key Config Files
+echo "📄 Copying configuration files..."
+cp _headers dist/
+cp _redirects dist/
+cp _routes.json dist/
+cp manifest.json dist/
+cp sw.js dist/
+
+# 2. Copy and Process Main HTML (Add Cache Busting)
+echo "📄 Copying and processing index.html..."
+cp index.html dist/
+
+# Generate valid timestamp
+TIMESTAMP=$(date +%s)
+echo "🔄 Injecting cache buster: v=$TIMESTAMP"
+
+# Use simple sed to append version to .js" and .css" checks
+# Note: macOS sed requires empty string for -i
+sed -i '' "s/\.js\"/.js?v=$TIMESTAMP\"/g" dist/index.html
+sed -i '' "s/\.css\"/.css?v=$TIMESTAMP\"/g" dist/index.html
+
+# 3. Sync Directories (using rsync for efficiency if available, else cp -r)
+echo "📂 Syncing directories..."
+
+# Function to clean and copy directory
+sync_dir() {
+    src=$1
+    dest="dist/$1"
+    
+    echo "  - Syncing $src to $dest..."
+    # Remove existing dest dir to ensure no stale files (optional, but safer)
+    rm -rf "$dest"
+    
+    # Copy new content
+    cp -R "$src" "$dest"
+}
+
+sync_dir "js"
+sync_dir "css"
+sync_dir "images"
+sync_dir "public"
+sync_dir "assets"
+sync_dir "components"
+sync_dir "functions"
+
+echo "✅ Build complete! 'dist/' is ready for deployment."
+echo "👉 Run: git add dist/ && git commit -m 'Deploy: Sync via deploy.sh' && git push"
