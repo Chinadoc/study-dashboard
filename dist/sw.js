@@ -1,11 +1,11 @@
 // v25 - Fixed InventoryManager undefined errors
-const CACHE_NAME = 'euro-keys-v26-hotfix';
+const CACHE_NAME = 'euro-keys-v27-move-data';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/assets/icon-192.png',
     '/assets/icon-512.png',
-    '/structured_guides.json',
+    '/assets/data/structured_guides.json',
     '/public/js/tool_coverage_data.js',
     '/public/js/programming_guides_data.js'
 ];
