@@ -16,20 +16,21 @@ cp _routes.json dist/
 cp manifest.json dist/
 cp sw.js dist/
 
-# 2. Copy and Process Main HTML (Add Cache Busting)
-echo "📄 Copying and processing index.html..."
+# 2. Process Root HTML (Add Cache Busting) & Copy
+echo "🔄 Injecting cache buster into Root index.html: v=$TIMESTAMP"
+
+# Update ROOT index.html in-place
+# Note: This modifies the source file to ensure consistency
+sed -i '' "s/\.js?v=[0-9]*\"/.js?v=$TIMESTAMP\"/g" index.html
+sed -i '' "s/\.css?v=[0-9]*\"/.css?v=$TIMESTAMP\"/g" index.html
+# Fallback for first run (if no v= exists yet)
+sed -i '' "s/\.js\"/.js?v=$TIMESTAMP\"/g" index.html
+sed -i '' "s/\.css\"/.css?v=$TIMESTAMP\"/g" index.html
+
+echo "📄 Copying updated index.html to dist/..."
 cp index.html dist/
-cp structured_guides.json dist/
-cp asin_based_affiliate_products.json dist/
-
-# Generate valid timestamp
-TIMESTAMP=$(date +%s)
-echo "🔄 Injecting cache buster: v=$TIMESTAMP"
-
-# Use simple sed to append version to .js" and .css" checks
-# Note: macOS sed requires empty string for -i
-sed -i '' "s/\.js\"/.js?v=$TIMESTAMP\"/g" dist/index.html
-sed -i '' "s/\.css\"/.css?v=$TIMESTAMP\"/g" dist/index.html
+cp structured_guides.json dist/ 2>/dev/null || :
+cp asin_based_affiliate_products.json dist/ 2>/dev/null || :
 
 # 3. Sync Directories (using rsync for efficiency if available, else cp -r)
 echo "📂 Syncing directories..."
