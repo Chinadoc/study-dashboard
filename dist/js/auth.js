@@ -112,7 +112,18 @@ async function initGoogleAuth() {
                 // Valid session! Store user data and update UI
                 currentUser = data.user;
                 localStorage.setItem('eurokeys_user', JSON.stringify(data.user));
+
+                // FIX: Set isPro based on subscription or trial
+                isPro = data.user.is_pro || (data.user.trial_until && data.user.trial_until > Date.now() / 1000);
+                updateProUI();
+                updateTrialBanner();
                 updateAuthUI(true);
+
+                // Show dev tab if developer
+                if (data.user.is_developer) {
+                    const devTab = document.getElementById('devTab');
+                    if (devTab) devTab.style.display = 'inline-flex';
+                }
 
                 // Load cloud data
                 InventoryManager.loadFromCloud();
@@ -121,6 +132,9 @@ async function initGoogleAuth() {
                 AssetManager.loadFromCloud();
 
                 if (userAvatar) userAvatar.classList.remove('loading');
+
+                // Show success toast after OAuth redirect
+                showToast('Signed in successfully!', 3000, 'success');
                 return; // Success!
             }
         } catch (err) {
@@ -271,7 +285,6 @@ async function checkDeveloperStatus() {
                 if (currentUser && currentUser.is_developer) {
                     const devTab = document.getElementById('devTab');
                     if (devTab) devTab.style.display = 'inline-flex';
-                    if (devTab) devTab.style.display = 'none';
                 }
 
                 // FIX: Sync subscription status to prevent drift
@@ -420,7 +433,7 @@ async function signOut() {
         // 2. Clear ALL local auth state (critical: include session token!)
         currentUser = null;
         localStorage.removeItem('eurokeys_user');
-        localStorage.removeItem('eurokeys_session_token');
+        localStorage.removeItem('session_token'); // FIX: Use consistent key name
         localStorage.removeItem('eurokeys_premium_usage'); // Reset anonymous free view counters
         window.isAuthExpired = true; // Prevent background auth checks from restoring session
 

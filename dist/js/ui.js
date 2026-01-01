@@ -122,28 +122,12 @@ function showTab(tabName, updateHash = true) {
     window.scrollTo(0, 0);
 }
 
-// Handle URL hash changes (back/forward buttons)
-window.addEventListener('hashchange', function () {
+// ================== UNIFIED ROUTER ==================
+// Handles all hash-based routing: tabs, legacy hashes, and deep links
+function route() {
     const hash = window.location.hash.slice(1) || 'browse';
-    const validTabs = ['browse', 'database', 'fcc', 'guides', 'inventory', 'dev', 'subscriptions'];
-    const tabName = hash === 'database' || hash === 'vin' ? 'browse' : hash;
-    if (validTabs.includes(tabName)) {
-        showTab(tabName, false);
-        if (hash === 'vin') {
-            const omni = document.getElementById('omniSearch');
-            if (omni) {
-                omni.focus();
-                omni.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-    }
-});
 
-// Handle initial URL hash on page load
-function handleInitialRoute() {
-    const hash = window.location.hash.slice(1);
-
-    // Handle vehicle deep links: #vehicle/Make/Model/Year
+    // 1. Vehicle deep links first: #vehicle/Make/Model/Year
     if (hash.startsWith('vehicle/')) {
         const parts = hash.split('/');
         if (parts.length >= 4) {
@@ -151,22 +135,38 @@ function handleInitialRoute() {
             const model = decodeURIComponent(parts[2]);
             const year = parts[3];
             console.log(`📍 Deep link: ${year} ${make} ${model}`);
+            // Wait for DOM to be ready
+            setTimeout(() => loadVehicleFromDeepLink(make, model, year), 100);
+        }
+        return;
+    }
 
-            // Wait for page to be ready, then load the vehicle
-            setTimeout(() => {
-                loadVehicleFromDeepLink(make, model, year);
-            }, 500);
-            return;
+    // 2. Map legacy hashes
+    let tabName = hash;
+    let focusVin = false;
+    if (hash === 'database' || hash === 'vin') {
+        tabName = 'browse';
+        if (hash === 'vin') focusVin = true;
+    }
+
+    // 3. Validate and switch tabs
+    const validTabs = ['browse', 'fcc', 'guides', 'inventory', 'dev', 'subscriptions'];
+    if (validTabs.includes(tabName)) {
+        showTab(tabName, false);
+
+        if (focusVin) {
+            const omni = document.getElementById('omniSearch');
+            if (omni) {
+                omni.focus();
+                omni.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     }
-
-    const validTabs = ['browse', 'database', 'fcc', 'guides', 'vin', 'inventory', 'dev'];
-    if (hash === 'database') {
-        showTab('browse', false);
-    } else if (validTabs.includes(hash)) {
-        showTab(hash, false);
-    }
 }
+
+// Single hashchange listener and DOMContentLoaded replaces previous duplicates
+window.addEventListener('hashchange', route);
+document.addEventListener('DOMContentLoaded', route);
 
 // Load vehicle from deep link URL
 async function loadVehicleFromDeepLink(make, model, year) {
