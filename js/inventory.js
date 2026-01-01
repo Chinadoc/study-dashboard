@@ -406,8 +406,15 @@ const InventoryManager = {
             }
 
             // Fetch from API
+            // Check for token first to avoid 401s
+            const headers = (typeof getAuthHeaders === 'function') ? getAuthHeaders() : {};
+            if (!headers['Authorization']) {
+                console.log('InventoryManager: No auth token, skipping cloud sync');
+                return;
+            }
+
             const response = await fetch(`${API}/api/user/inventory`, {
-                headers: getAuthHeaders()
+                headers: headers
             });
 
             if (response.ok) {

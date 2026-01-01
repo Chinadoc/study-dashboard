@@ -410,10 +410,10 @@ function updateAuthUI(isSignedIn) {
         signInBtn.style.display = 'flex';
         userMenu.style.display = 'none';
 
-        // Keep inventory tab visible (shows sign-in prompt when clicked)
+        // Hide inventory tab (requires sign-in)
         const inventoryTab = document.getElementById('inventoryTab');
         if (inventoryTab) {
-            inventoryTab.style.display = 'inline-flex';
+            inventoryTab.style.display = 'none';
         }
 
         // Hide developer tab (requires sign-in AND developer access)
@@ -422,10 +422,10 @@ function updateAuthUI(isSignedIn) {
             devTab.style.display = 'none';
         }
 
-        // Keep subscriptions tab visible (shows sign-in prompt when clicked)
+        // Hide subscriptions tab (requires sign-in)
         const subscriptionsTab = document.getElementById('subscriptionsTab');
         if (subscriptionsTab) {
-            subscriptionsTab.style.display = 'inline-flex';
+            subscriptionsTab.style.display = 'none';
         }
     }
 
