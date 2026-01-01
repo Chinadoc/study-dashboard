@@ -8,11 +8,80 @@ let googleAuth = null;
 let currentUser = null;
 window.isAuthExpired = false; // Global lock to stop console spam on 401
 
-// ================== AUTH CALLBACK TOKEN HANDLER ==================
-// After Google OAuth, the Worker redirects to: eurokeys.app/#auth_token=JWT_TOKEN
-// We need to extract and store this token on page load
 // Auth callback handled by inline script in index.html for performance
 // (Redundant handler removed)
+
+// ================== UNIFIED POST-LOGIN BOOTSTRAP ==================
+/**
+ * Called after successful authentication from ANY auth flow.
+ * Normalizes user data, updates UI, and syncs cloud data.
+ * @param {Object} user - User object from API
+ * @param {boolean} isNewSignIn - True if this is a fresh sign-in (vs page reload)
+ */
+async function postLoginBootstrap(user, isNewSignIn = false) {
+    // 1. Normalize user object
+    currentUser = user;
+
+    // Ensure name exists (fallback to email username)
+    if (!currentUser.name && currentUser.email) {
+        currentUser.name = currentUser.email.split('@')[0];
+    }
+
+    // Normalize ID field (API may return id or sub)
+    if (!currentUser.sub && currentUser.id) {
+        currentUser.sub = currentUser.id;
+    }
+    if (!currentUser.id && currentUser.sub) {
+        currentUser.id = currentUser.sub;
+    }
+
+    console.log('postLoginBootstrap: User normalized:', currentUser.name, currentUser.email, 'id:', currentUser.id, 'is_developer:', currentUser.is_developer);
+
+    // 2. Persist to localStorage
+    localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
+    window.isAuthExpired = false;
+
+    // 3. Set Pro status
+    isPro = currentUser.is_pro || (currentUser.trial_until && currentUser.trial_until > Date.now() / 1000);
+    updateProUI();
+    updateTrialBanner();
+
+    // 4. Update UI
+    updateAuthUI(true);
+
+    // 5. Show dev tab if developer
+    if (currentUser.is_developer) {
+        const devTab = document.getElementById('devTab');
+        if (devTab) devTab.style.display = 'inline-flex';
+    }
+
+    // 6. Sync data to/from cloud
+    // On NEW sign-in, merge local guest data first
+    if (isNewSignIn && typeof DataPortability !== 'undefined') {
+        try {
+            await DataPortability.syncAllToCloud();
+        } catch (e) {
+            console.warn('DataPortability sync failed:', e);
+        }
+    }
+
+    // Load from cloud
+    if (typeof InventoryManager !== 'undefined') {
+        InventoryManager.loadFromCloud();
+        InventoryManager.loadJobLogsFromCloud();
+    }
+    if (typeof SubscriptionManager !== 'undefined') {
+        SubscriptionManager.loadFromCloud();
+    }
+    if (typeof AssetManager !== 'undefined') {
+        AssetManager.loadFromCloud();
+    }
+    if (typeof PreferencesManager !== 'undefined') {
+        PreferencesManager.loadFromCloud();
+    }
+
+    console.log('postLoginBootstrap: Complete');
+}
 
 // ================== TOAST NOTIFICATIONS ==================
 /**
@@ -123,38 +192,8 @@ async function initGoogleAuth() {
             console.log('initGoogleAuth: /api/user response:', JSON.stringify(data, null, 2));
 
             if (data.user && data.user.email) {
-                // Valid session! Store user data and update UI
-                currentUser = data.user;
-                // Robustness: Ensure name exists
-                if (!currentUser.name && currentUser.email) {
-                    currentUser.name = currentUser.email.split('@')[0];
-                }
-                console.log('initGoogleAuth: currentUser set:', currentUser.name, currentUser.email, 'is_developer:', currentUser.is_developer);
-                localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
-
-                // FIX: Set isPro based on subscription or trial
-                isPro = data.user.is_pro || (data.user.trial_until && data.user.trial_until > Date.now() / 1000);
-                updateProUI();
-                updateTrialBanner();
-                updateAuthUI(true);
-
-                // Show dev tab if developer
-                if (data.user.is_developer) {
-                    const devTab = document.getElementById('devTab');
-                    if (devTab) devTab.style.display = 'inline-flex';
-                }
-
-                // Load cloud data (with defensive checks for script loading order)
-                if (typeof InventoryManager !== 'undefined') {
-                    InventoryManager.loadFromCloud();
-                    InventoryManager.loadJobLogsFromCloud();
-                }
-                if (typeof SubscriptionManager !== 'undefined') {
-                    SubscriptionManager.loadFromCloud();
-                }
-                if (typeof AssetManager !== 'undefined') {
-                    AssetManager.loadFromCloud();
-                }
+                // Valid session! Use unified bootstrap
+                await postLoginBootstrap(data.user, false);
 
                 if (userAvatar) userAvatar.classList.remove('loading');
 
@@ -248,32 +287,8 @@ async function handleGoogleSignIn(response) {
 
             const data = await verifyRes.json();
             if (data.success && data.user) {
-                currentUser = data.user;
-                if (!currentUser.name && currentUser.email) {
-                    currentUser.name = currentUser.email.split('@')[0];
-                }
-                window.isAuthExpired = false; // Reset lock on successful sign-in
-                localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
-                updateAuthUI(true);
-
-                // Check developer status again to show the tab if eligible
-                if (currentUser && currentUser.is_developer) {
-                    const devTab = document.getElementById('devTab');
-                    if (devTab) devTab.style.display = 'inline-flex';
-                }
-
-                // Load inventory and logs from cloud
-                // FIRST: Merge any local guest data to cloud (before loading)
-                if (typeof DataPortability !== 'undefined') {
-                    await DataPortability.syncAllToCloud();
-                }
-                if (typeof InventoryManager !== 'undefined') {
-                    InventoryManager.loadFromCloud();
-                    InventoryManager.loadJobLogsFromCloud();
-                }
-                if (typeof SubscriptionManager !== 'undefined') SubscriptionManager.loadFromCloud();
-                if (typeof AssetManager !== 'undefined') AssetManager.loadFromCloud();
-                if (typeof PreferencesManager !== 'undefined') PreferencesManager.loadFromCloud();
+                // Use unified bootstrap for consistency (isNewSignIn = true)
+                await postLoginBootstrap(data.user, true);
             } else {
                 console.error('Backend authentication failed:', data.error);
                 alert('Authentication failed. Please try again.');
