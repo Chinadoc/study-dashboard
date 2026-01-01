@@ -714,6 +714,181 @@ function updateTrialBanner() {
     }
 }
 
+// ================== DEV PANEL ANALYTICS ==================
+async function loadDevPanel() {
+    console.log('loadDevPanel: Loading developer analytics...');
+
+    try {
+        const headers = getAuthHeaders();
+        if (!headers['Authorization']) {
+            console.log('loadDevPanel: No auth token, skipping');
+            return;
+        }
+
+        // Fetch dev analytics from API
+        const response = await fetch(`${API}/api/dev/analytics`, {
+            headers: headers
+        });
+
+        if (!response.ok) {
+            console.error('loadDevPanel: API returned', response.status);
+            showDevPanelError('Failed to load analytics');
+            return;
+        }
+
+        const data = await response.json();
+        console.log('loadDevPanel: Received analytics data:', data);
+
+        // Update platform stats
+        updateDevStat('devTotalUsers', data.total_users || 0);
+        updateDevStat('devUserGrowth', data.user_growth || 0);
+
+        // Estimated revenue (based on affiliate clicks)
+        const estRevenue = (data.affiliate_clicks || 0) * 1.50;
+        const revenueEl = document.getElementById('devEstRevenue');
+        if (revenueEl) revenueEl.textContent = `$${estRevenue.toFixed(2)}`;
+
+        // Conversion rate
+        const cvr = data.total_searches > 0
+            ? ((data.affiliate_clicks / data.total_searches) * 100).toFixed(1)
+            : 0;
+        updateDevStat('devConversionRate', cvr + '%');
+
+        // Active engagement
+        updateDevStat('devAvgEngagement', data.avg_engagement?.toFixed(1) || '0.0');
+
+        // Update funnel stats
+        updateDevStat('funnelSearchCount', data.total_searches || 0);
+        updateDevStat('funnelVinCount', data.vin_lookups || 0);
+        updateDevStat('funnelClickCount', data.affiliate_clicks || 0);
+
+        // Update Cloudflare analytics if available
+        if (data.cloudflare) {
+            loadCloudflareAnalytics(data.cloudflare);
+        }
+
+        // Load users table
+        if (data.users && data.users.length > 0) {
+            renderDevUsersTable(data.users);
+        }
+
+        // Load activity log
+        if (data.activities && data.activities.length > 0) {
+            renderDevActivityLog(data.activities);
+        }
+
+    } catch (e) {
+        console.error('loadDevPanel: Error loading analytics:', e);
+        showDevPanelError('Error loading analytics');
+    }
+}
+
+function updateDevStat(elementId, value) {
+    const el = document.getElementById(elementId);
+    if (el) el.textContent = value;
+}
+
+function showDevPanelError(message) {
+    const container = document.getElementById('devUsersTable');
+    if (container) {
+        container.innerHTML = `<tr><td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">${message}</td></tr>`;
+    }
+}
+
+function loadCloudflareAnalytics(cfData) {
+    // Update 24h stats
+    updateDevStat('cfVisitors24h', cfData.visitors_24h || '--');
+    updateDevStat('cfRequests24h', cfData.requests_24h || '--');
+    updateDevStat('cfData24h', formatBytes(cfData.bytes_24h || 0));
+    updateDevStat('cfCacheRate24h', (cfData.cache_rate_24h || 0).toFixed(1) + '%');
+
+    // Update 7d stats
+    updateDevStat('cfVisitors7d', cfData.visitors_7d || '--');
+    updateDevStat('cfRequests7d', cfData.requests_7d || '--');
+    updateDevStat('cfData7d', formatBytes(cfData.bytes_7d || 0));
+    updateDevStat('cfCacheRate7d', (cfData.cache_rate_7d || 0).toFixed(1) + '%');
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function renderDevUsersTable(users) {
+    const tbody = document.getElementById('devUsersTable');
+    if (!tbody) return;
+
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td style="padding: 12px 16px; display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f59e0b); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #000;">
+                    ${(user.name || 'U')[0].toUpperCase()}
+                </div>
+                <span style="font-weight: 600; color: var(--text-primary);">${user.name || 'Unknown'}</span>
+            </td>
+            <td style="padding: 12px 16px; color: var(--text-secondary); font-size: 0.9rem;">${user.email || 'N/A'}</td>
+            <td style="padding: 12px 16px; text-align: center;">
+                <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; ${user.is_pro ? 'background: rgba(74,222,128,0.2); color: #4ade80;' : 'background: rgba(148,163,184,0.2); color: #94a3b8;'}">
+                    ${user.is_pro ? 'Pro' : 'Free'}
+                </span>
+            </td>
+            <td style="padding: 12px 16px; text-align: center; color: var(--text-muted);">${user.activity_count || 0}</td>
+            <td style="padding: 12px 16px; color: var(--text-muted); font-size: 0.85rem;">${formatDate(user.created_at)}</td>
+            <td style="padding: 12px 16px; color: var(--text-muted); font-size: 0.85rem;">${formatDate(user.last_active)}</td>
+        </tr>
+    `).join('');
+}
+
+function renderDevActivityLog(activities) {
+    const container = document.getElementById('devActivityLog');
+    if (!container) return;
+
+    container.innerHTML = activities.slice(0, 20).map(act => `
+        <div style="display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+            <div style="width: 32px; text-align: center;">${getActivityIcon(act.action_type)}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 500; color: var(--text-primary);">${act.action_type}</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">${JSON.stringify(act.metadata || {}).substring(0, 100)}</div>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${formatTimeAgo(act.created_at)}</div>
+        </div>
+    `).join('');
+}
+
+function getActivityIcon(type) {
+    const icons = {
+        'search': '🔍',
+        'view_tab': '📱',
+        'affiliate_click': '💰',
+        'vin_lookup': '🚗',
+        'sign_in': '🔑',
+        'sign_out': '🚪',
+        'add_inventory': '📦',
+        'job_logging': '🔧'
+    };
+    return icons[type] || '📊';
+}
+
+function formatDate(timestamp) {
+    if (!timestamp) return 'N/A';
+    const date = new Date(parseInt(timestamp) || timestamp);
+    return date.toLocaleDateString();
+}
+
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return '';
+    const now = Date.now();
+    const diff = now - (parseInt(timestamp) || new Date(timestamp).getTime());
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return Math.floor(hours / 24) + 'd ago';
+}
+
 // ================== INITIALIZATION ==================
 // Call initGoogleAuth when DOM is ready to restore any saved session
 document.addEventListener('DOMContentLoaded', () => {

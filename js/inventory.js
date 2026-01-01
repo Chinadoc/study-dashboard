@@ -567,8 +567,125 @@ const InventoryManager = {
         if (typeof renderInventoryPage === 'function' && document.getElementById('tabInventory')?.style.display === 'block') {
             renderInventoryPage();
         }
+        // Also update the inventory tab badge
+        if (typeof updateInventoryTabBadge === 'function') {
+            updateInventoryTabBadge();
+        }
+    },
+
+    // Update stock for an item (add or subtract)
+    updateStock: async function (itemKey, type, delta, vehicle = '', link = '') {
+        if (!itemKey) return;
+
+        // Find existing item
+        let item = this.inventory.find(i => i.itemKey === itemKey && i.type === type);
+
+        if (item) {
+            item.qty = Math.max(0, item.qty + delta);
+            // Remove if zero
+            if (item.qty === 0) {
+                this.inventory = this.inventory.filter(i => !(i.itemKey === itemKey && i.type === type));
+            }
+        } else if (delta > 0) {
+            // Add new item
+            this.inventory.push({
+                itemKey: itemKey,
+                type: type,
+                qty: delta,
+                vehicle: vehicle,
+                link: link
+            });
+        }
+
+        // Save to localStorage
+        localStorage.setItem('eurokeys_inventory', JSON.stringify(this.inventory));
+
+        // Sync to cloud
+        await this.syncToCloud(itemKey, type);
+
+        // Update UI
+        this.updateUI();
+        this.updateStockDisplay(itemKey);
+
+        console.log('InventoryManager: Updated', itemKey, type, delta);
+    },
+
+    // Update stock display in the UI (for FCC table, vehicle cards, etc.)
+    updateStockDisplay: function (itemKey) {
+        // Update FCC table stock display
+        const fccStockEl = document.getElementById(`fcc-stock-${itemKey}`);
+        if (fccStockEl) {
+            fccStockEl.textContent = this.getKeyStock(itemKey);
+        }
+
+        // Update any other stock displays
+        const stockEls = document.querySelectorAll(`[data-stock-key="${itemKey}"]`);
+        stockEls.forEach(el => {
+            el.textContent = this.getKeyStock(itemKey);
+        });
+    },
+
+    // Sync single item to cloud
+    syncToCloud: async function (itemKey, type) {
+        if (!currentUser) return;
+
+        try {
+            const headers = (typeof getAuthHeaders === 'function') ? getAuthHeaders() : {};
+            if (!headers['Authorization']) return;
+
+            const item = this.inventory.find(i => i.itemKey === itemKey && i.type === type);
+
+            await fetch(`${API}/api/user/inventory`, {
+                method: 'POST',
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    item_key: itemKey,
+                    type: type,
+                    qty: item ? item.qty : 0,
+                    vehicle: item?.vehicle || '',
+                    amazon_link: item?.link || ''
+                })
+            });
+        } catch (e) {
+            console.error('InventoryManager sync error:', e);
+        }
     }
 };
+
+// Global wrapper functions for onclick handlers
+
+// Add inventory from FCC Database page
+function fccInventoryAdd(fccId, vehicles, amazonLink) {
+    if (typeof InventoryManager !== 'undefined') {
+        InventoryManager.updateStock(fccId, 'key', 1, vehicles, amazonLink);
+        showToast(`Added ${fccId} to inventory`, 2000);
+    } else {
+        console.error('InventoryManager not loaded');
+    }
+}
+
+// Remove inventory (minus button)
+function inventoryMinus(itemKey, type) {
+    if (typeof InventoryManager !== 'undefined') {
+        const currentStock = type === 'key'
+            ? InventoryManager.getKeyStock(itemKey)
+            : InventoryManager.getBlankStock(itemKey);
+
+        if (currentStock > 0) {
+            InventoryManager.updateStock(itemKey, type, -1);
+        }
+    }
+}
+
+// Add inventory (plus button)
+function inventoryPlus(itemKey, type, vehicle = '', link = '') {
+    if (typeof InventoryManager !== 'undefined') {
+        InventoryManager.updateStock(itemKey, type, 1, vehicle, link);
+    }
+}
 
 // Subscription Manager - Handles subscription status
 const SubscriptionManager = {
