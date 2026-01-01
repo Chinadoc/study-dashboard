@@ -838,6 +838,153 @@ export default {
         }
       }
 
+      // ==============================================
+      // DEVELOPER ANALYTICS ENDPOINT
+      // ==============================================
+
+      // GET /api/dev/analytics - Developer panel analytics
+      if (path === "/api/dev/analytics" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          // Get total user count and growth
+          const userStats = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              COUNT(*) as total_users,
+              COUNT(CASE WHEN created_at > ? THEN 1 END) as new_users_30d
+            FROM users
+          `).bind(Date.now() - 30 * 24 * 60 * 60 * 1000).first<any>();
+
+          // Get activity stats
+          const activityStats = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              COUNT(CASE WHEN action = 'search' THEN 1 END) as total_searches,
+              COUNT(CASE WHEN action = 'vin_lookup' THEN 1 END) as vin_lookups,
+              COUNT(CASE WHEN action = 'affiliate_click' THEN 1 END) as affiliate_clicks
+            FROM user_activity
+            WHERE created_at > ?
+          `).bind(Date.now() - 30 * 24 * 60 * 60 * 1000).first<any>();
+
+          // Get recent users for table
+          const recentUsers = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              u.id, u.email, u.name, u.is_pro, u.created_at,
+              MAX(a.created_at) as last_active,
+              COUNT(a.id) as activity_count
+            FROM users u
+            LEFT JOIN user_activity a ON u.id = a.user_id
+            GROUP BY u.id
+            ORDER BY u.created_at DESC
+            LIMIT 50
+          `).all();
+
+          // Get recent activity log
+          const recentActivity = await env.LOCKSMITH_DB.prepare(`
+            SELECT action as action_type, details as metadata, created_at, user_id
+            FROM user_activity
+            ORDER BY created_at DESC
+            LIMIT 50
+          `).all();
+
+          // Calculate engagement (avg activities per user)
+          const engagement = userStats.total_users > 0
+            ? ((activityStats.total_searches || 0) + (activityStats.affiliate_clicks || 0)) / userStats.total_users
+            : 0;
+
+          // Cloudflare analytics placeholder (requires CF Analytics API token)
+          const cloudflareData = {
+            visitors_24h: '--',
+            requests_24h: '--',
+            bytes_24h: 0,
+            cache_rate_24h: 0,
+            visitors_7d: '--',
+            requests_7d: '--',
+            bytes_7d: 0,
+            cache_rate_7d: 0
+          };
+
+          // Try to fetch Cloudflare analytics if token is available
+          if (env.CF_ANALYTICS_TOKEN && env.CF_ZONE_ID) {
+            try {
+              const cfQuery = `
+                query {
+                  viewer {
+                    zones(filter: {zoneTag: "${env.CF_ZONE_ID}"}) {
+                      httpRequests1dGroups(limit: 7, filter: {date_gt: "${new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"}) {
+                        sum { requests visits bytes cachedBytes }
+                        dimensions { date }
+                      }
+                    }
+                  }
+                }
+              `;
+
+              const cfRes = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${env.CF_ANALYTICS_TOKEN}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: cfQuery })
+              });
+
+              if (cfRes.ok) {
+                const cfData: any = await cfRes.json();
+                const groups = cfData.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
+
+                // Generate 24h and 7d summaries from the data
+                if (groups.length > 0) {
+                  const last24h = groups[groups.length - 1]?.sum || {};
+                  cloudflareData.visitors_24h = last24h.visits || '--';
+                  cloudflareData.requests_24h = last24h.requests || '--';
+                  cloudflareData.bytes_24h = last24h.bytes || 0;
+                  cloudflareData.cache_rate_24h = last24h.bytes > 0 ? (last24h.cachedBytes / last24h.bytes) * 100 : 0;
+
+                  const total7d = groups.reduce((acc: any, g: any) => ({
+                    visits: acc.visits + (g.sum?.visits || 0),
+                    requests: acc.requests + (g.sum?.requests || 0),
+                    bytes: acc.bytes + (g.sum?.bytes || 0),
+                    cachedBytes: acc.cachedBytes + (g.sum?.cachedBytes || 0)
+                  }), { visits: 0, requests: 0, bytes: 0, cachedBytes: 0 });
+
+                  cloudflareData.visitors_7d = total7d.visits;
+                  cloudflareData.requests_7d = total7d.requests;
+                  cloudflareData.bytes_7d = total7d.bytes;
+                  cloudflareData.cache_rate_7d = total7d.bytes > 0 ? (total7d.cachedBytes / total7d.bytes) * 100 : 0;
+                }
+              }
+            } catch (cfErr) {
+              console.error('Cloudflare analytics fetch failed:', cfErr);
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({
+            total_users: userStats?.total_users || 0,
+            user_growth: userStats?.new_users_30d || 0,
+            total_searches: activityStats?.total_searches || 0,
+            vin_lookups: activityStats?.vin_lookups || 0,
+            affiliate_clicks: activityStats?.affiliate_clicks || 0,
+            avg_engagement: engagement,
+            users: recentUsers.results || [],
+            activities: (recentActivity.results || []).map((a: any) => ({
+              ...a,
+              metadata: a.metadata ? JSON.parse(a.metadata) : {}
+            })),
+            cloudflare: cloudflareData
+          }));
+        } catch (err: any) {
+          console.error('/api/dev/analytics error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // GET /api/admin/users-inventory - Admin view of all users with inventory counts
       if (path === "/api/admin/users-inventory") {
         try {
