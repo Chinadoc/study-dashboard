@@ -81,7 +81,8 @@ function showToast(message, duration = 4000, type = '') {
  * @returns {Object} Headers object with Authorization if token exists
  */
 function getAuthHeaders() {
-    const token = localStorage.getItem('session_token');
+    // Check both keys for backwards compatibility
+    const token = localStorage.getItem('session_token') || localStorage.getItem('eurokeys_session_token');
     if (token) {
         return { 'Authorization': `Bearer ${token}` };
     }
@@ -97,7 +98,17 @@ async function initGoogleAuth() {
     if (userAvatar) userAvatar.classList.add('loading');
 
     // 1. Check for stored session token (set by OAuth callback)
-    const sessionToken = localStorage.getItem('session_token');
+    // BACKWARDS COMPAT: Check both keys due to historical inconsistency
+    let sessionToken = localStorage.getItem('session_token');
+    if (!sessionToken) {
+        sessionToken = localStorage.getItem('eurokeys_session_token');
+        if (sessionToken) {
+            // Migrate to new key
+            localStorage.setItem('session_token', sessionToken);
+            localStorage.removeItem('eurokeys_session_token');
+            console.log('initGoogleAuth: Migrated token from eurokeys_session_token to session_token');
+        }
+    }
     console.log('initGoogleAuth: session_token length =', sessionToken ? sessionToken.length : 0);
 
     if (sessionToken) {
