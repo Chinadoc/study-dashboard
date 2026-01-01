@@ -3,6 +3,8 @@ let isPro = false;
 
 async function checkSubscription() {
     if (!currentUser) return;
+    const userId = currentUser.sub || currentUser.id;
+    if (!userId) return;
 
     try {
         const nowSeconds = Date.now() / 1000;
@@ -12,7 +14,7 @@ async function checkSubscription() {
         if (localStatus) {
             const data = JSON.parse(localStatus);
             // Use effectiveExpiry (max of subscription end or trial end)
-            if (data.userId === currentUser.sub && data.effectiveExpiry > nowSeconds) {
+            if (data.userId === userId && data.effectiveExpiry > nowSeconds) {
                 isPro = true;
                 updateProUI();
                 // Don't return, verify with server in background
@@ -20,7 +22,7 @@ async function checkSubscription() {
         }
 
         // FIX: Removed trailing space from URL
-        const res = await fetch(`${API}/api/subscription-status?userId=${currentUser.sub}`);
+        const res = await fetch(`${API}/api/subscription-status?userId=${userId}`);
         const data = await res.json();
 
         // FIX: Server timestamps (expiresAt, trial_until) are Unix seconds, not milliseconds
@@ -34,7 +36,7 @@ async function checkSubscription() {
         if (isPro) {
             localStorage.setItem('eurokeys_subscription',
                 JSON.stringify({
-                    userId: currentUser.sub,
+                    userId: userId,
                     effectiveExpiry: effectiveExpiry,
                     // Keep original fields for backward compatibility
                     expiresAt: data.expiresAt,
@@ -106,12 +108,18 @@ function updateProUI() {
             btn.style.transform = 'scale(1)';
         btn.onclick = openUpgradeModal;
 
-        const avatar =
-            document.getElementById('userAvatar');
-        if (avatar) {
-            userMenu.insertBefore(btn, avatar);
-        } else {
-            userMenu.appendChild(btn);
+        try {
+            const avatar =
+                document.getElementById('userAvatar');
+            // FIX: Check that avatar is actually a child of userMenu before insertBefore
+            if (avatar && avatar.parentNode === userMenu) {
+                userMenu.insertBefore(btn, avatar);
+            } else {
+                // Fallback: just append to userMenu
+                userMenu.appendChild(btn);
+            }
+        } catch (e) {
+            console.warn('updateProUI: DOM manipulation failed, skipping upgrade button:', e);
         }
     }
 
@@ -488,4 +496,3 @@ const AssetManager = {
 window.InventoryManager = InventoryManager;
 window.SubscriptionManager = SubscriptionManager;
 window.AssetManager = AssetManager;
-
