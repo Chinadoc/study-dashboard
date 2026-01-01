@@ -85,10 +85,7 @@ async function initGoogleAuth() {
 
     // 1. Check for stored session token (set by OAuth callback)
     const sessionToken = localStorage.getItem('session_token');
-    console.log('initGoogleAuth: session_token length =', sessionToken ? sessionToken.length : 0); // DEBUG
-
-    // TEMPORARY DEBUG: Show what initGoogleAuth sees
-    alert('DEBUG initGoogleAuth: token length = ' + (sessionToken ? sessionToken.length : 'NULL'));
+    console.log('initGoogleAuth: session_token length =', sessionToken ? sessionToken.length : 0);
 
     if (sessionToken) {
         try {
@@ -614,3 +611,10 @@ function updateTrialBanner() {
         header.parentNode.insertBefore(banner, header.nextSibling);
     }
 }
+
+// ================== INITIALIZATION ==================
+// Call initGoogleAuth when DOM is ready to restore any saved session
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Auth: DOMContentLoaded - calling initGoogleAuth');
+    initGoogleAuth();
+});
