@@ -219,11 +219,7 @@ function setVehicleUrl(make, model, year) {
     history.replaceState(null, '', newHash);
 }
 
-// Listen for hash changes
-window.addEventListener('hashchange', handleInitialRoute);
-
-// CRITICAL: Process initial URL hash on page load (for deep links)
-document.addEventListener('DOMContentLoaded', handleInitialRoute);
+// NOTE: hashchange and DOMContentLoaded listeners moved to unified route() function above
 
 // ================== HEADER QUICK SEARCH ==================
 

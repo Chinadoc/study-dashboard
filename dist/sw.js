@@ -88,6 +88,10 @@ self.addEventListener('fetch', (event) => {
         urlString.includes('/api/auth/') ||
         urlString.includes('/api/admin/');
 
+    // Define isMainPage and isApi BEFORE they are used
+    const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
+    const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
+
     // Debug logging for sensitive paths
     if (urlString.includes('/api/')) {
         console.log(`SW Fetch: ${urlString} | Sensitive: ${isSensitiveApi}`);
