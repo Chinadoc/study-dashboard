@@ -85,6 +85,7 @@ async function initGoogleAuth() {
 
     // 1. Check for stored session token (set by OAuth callback)
     const sessionToken = localStorage.getItem('session_token');
+    console.log('initGoogleAuth: session_token length =', sessionToken ? sessionToken.length : 0); // DEBUG
 
     if (sessionToken) {
         try {
