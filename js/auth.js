@@ -11,20 +11,8 @@ window.isAuthExpired = false; // Global lock to stop console spam on 401
 // ================== AUTH CALLBACK TOKEN HANDLER ==================
 // After Google OAuth, the Worker redirects to: eurokeys.app/#auth_token=JWT_TOKEN
 // We need to extract and store this token on page load
-(function handleAuthCallback() {
-    const hash = window.location.hash;
-    if (hash && hash.startsWith('#auth_token=')) {
-        const token = hash.substring('#auth_token='.length);
-        if (token) {
-            console.log('Auth: Token received from OAuth callback');
-            localStorage.setItem('session_token', token);
-            // Clean up the URL (remove hash fragment)
-            history.replaceState(null, '', window.location.pathname + window.location.search);
-            // Reload to apply the session
-            window.location.reload();
-        }
-    }
-})();
+// Auth callback handled by inline script in index.html for performance
+// (Redundant handler removed)
 
 // ================== TOAST NOTIFICATIONS ==================
 /**
