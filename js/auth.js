@@ -114,8 +114,12 @@ async function initGoogleAuth() {
             if (data.user && data.user.email) {
                 // Valid session! Store user data and update UI
                 currentUser = data.user;
+                // Robustness: Ensure name exists
+                if (!currentUser.name && currentUser.email) {
+                    currentUser.name = currentUser.email.split('@')[0];
+                }
                 console.log('initGoogleAuth: currentUser set:', currentUser.name, currentUser.email, 'is_developer:', currentUser.is_developer);
-                localStorage.setItem('eurokeys_user', JSON.stringify(data.user));
+                localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
 
                 // FIX: Set isPro based on subscription or trial
                 isPro = data.user.is_pro || (data.user.trial_until && data.user.trial_until > Date.now() / 1000);
@@ -234,6 +238,9 @@ async function handleGoogleSignIn(response) {
             const data = await verifyRes.json();
             if (data.success && data.user) {
                 currentUser = data.user;
+                if (!currentUser.name && currentUser.email) {
+                    currentUser.name = currentUser.email.split('@')[0];
+                }
                 window.isAuthExpired = false; // Reset lock on successful sign-in
                 localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
                 updateAuthUI(true);
@@ -359,7 +366,13 @@ function updateAuthUI(isSignedIn) {
     const dDevOption = document.getElementById('devMenuOption');
 
     // Validate currentUser has required properties
-    const hasValidUser = isSignedIn && currentUser && currentUser.name && currentUser.email;
+    // Validate currentUser has required properties
+    // RELAXED CHECK: allow name to be auto-generated
+    const hasValidUser = isSignedIn && currentUser && currentUser.email;
+
+    if (hasValidUser && !currentUser.name) {
+        currentUser.name = currentUser.email.split('@')[0];
+    }
 
     if (hasValidUser) {
         signInBtn.style.display = 'none';
@@ -401,7 +414,8 @@ function updateAuthUI(isSignedIn) {
     } else {
         console.log('updateAuthUI: Showing signed out state (hasValidUser: ' + hasValidUser + ')');
         // Clear invalid user data from localStorage if present
-        if (isSignedIn && currentUser && (!currentUser.name || !currentUser.email)) {
+        // Clear invalid user data from localStorage if present
+        if (isSignedIn && currentUser && !currentUser.email) {
             console.warn('Invalid user data in localStorage, clearing...');
             localStorage.removeItem('eurokeys_user');
             currentUser = null;
