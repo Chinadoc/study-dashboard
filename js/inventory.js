@@ -384,3 +384,101 @@ function getLastComment(itemKey) {
 }
 
 console.log('inventory.js loaded');
+
+// ================== MISSING MANAGERS RE-IMPLEMENTATION ==================
+
+// Inventory Manager - Handles stock tracking
+const InventoryManager = {
+    inventory: [],
+
+    // Load inventory from cloud (via API or localStorage cache)
+    loadFromCloud: async function () {
+        console.log('InventoryManager: Loading from cloud...');
+        try {
+            if (!currentUser) return;
+
+            // Check cache first
+            const saved = localStorage.getItem('eurokeys_inventory');
+            if (saved) {
+                this.inventory = JSON.parse(saved);
+                console.log('InventoryManager: Loaded', this.inventory.length, 'items from cache');
+                this.updateUI();
+            }
+
+            // Fetch from API
+            const response = await fetch(`${API}/api/user/inventory`, {
+                headers: getAuthHeaders()
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.inventory) {
+                    this.inventory = data.inventory.map(item => ({
+                        itemKey: item.item_key,
+                        type: item.type,
+                        qty: item.qty,
+                        vehicle: item.vehicle,
+                        link: item.amazon_link
+                    }));
+
+                    localStorage.setItem('eurokeys_inventory', JSON.stringify(this.inventory));
+                    console.log('InventoryManager: Synced', this.inventory.length, 'items from cloud');
+                    this.updateUI();
+                }
+            }
+        } catch (e) {
+            console.error('InventoryManager load error:', e);
+        }
+    },
+
+    loadJobLogsFromCloud: async function () {
+        // Similar to above, load logs
+        console.log('InventoryManager: Loading job logs...');
+    },
+
+    // Get stock for a key fob (by OEM ID)
+    getKeyStock: function (oemId) {
+        if (!oemId) return 0;
+        const item = this.inventory.find(i => i.itemKey === oemId && i.type === 'key');
+        return item ? item.qty : 0;
+    },
+
+    // Get stock for a blade/blank (by Keyway)
+    getBlankStock: function (keyway) {
+        if (!keyway) return 0;
+        const item = this.inventory.find(i => i.itemKey === keyway && i.type === 'blank');
+        return item ? item.qty : 0;
+    },
+
+    updateUI: function () {
+        // Trigger any UI updates if needed
+        // For example, if we are on the inventory tab
+        if (typeof renderInventoryPage === 'function' && document.getElementById('tabInventory')?.style.display === 'block') {
+            renderInventoryPage();
+        }
+    }
+};
+
+// Subscription Manager - Handles subscription status
+const SubscriptionManager = {
+    loadFromCloud: async function () {
+        console.log('SubscriptionManager: Loading...');
+        if (typeof checkSubscription === 'function') {
+            await checkSubscription();
+        }
+    }
+};
+
+// Asset Manager - Handles static assets (PDFs, images)
+const AssetManager = {
+    loadFromCloud: async function () {
+        console.log('AssetManager: Loading...');
+        // Placeholder for asset pre-loading if needed
+    }
+};
+
+// Make sure they are global
+window.InventoryManager = InventoryManager;
+window.SubscriptionManager = SubscriptionManager;
+window.AssetManager = AssetManager;
+
