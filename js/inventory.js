@@ -197,6 +197,11 @@ const InventoryManager = {
         }
     },
 
+    loadJobLogsFromCloud: async function () {
+        // Placeholder for job log loading
+        console.log('InventoryManager: loadJobLogsFromCloud called (stub)');
+    },
+
     getKeyStock: function (oemId) {
         if (!oemId) return 0;
         const item = this.inventory.find(i => i.itemKey === oemId && i.type === 'key');
