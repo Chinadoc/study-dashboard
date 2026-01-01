@@ -1,4 +1,9 @@
-
+// Safe definition of logActivity to prevent ReferenceError if managers.js loads late
+if (typeof logActivity === 'undefined') {
+    window.logActivity = function (action, metadata) {
+        console.log('[SafeStub] logActivity:', action, metadata);
+    };
+}
 // ================== GOOGLE OAUTH ==================
 
 // Google OAuth Client ID
