@@ -663,11 +663,31 @@ function getTrialStatus() {
 
     // If signed in, use server-side created_at for trial calculation
     if (currentUser?.created_at) {
-        const createdAt = typeof currentUser.created_at === 'string' ? new Date(currentUser.created_at).getTime() : currentUser.created_at;
-        const trialEnd = createdAt + TRIAL_MS;
+        // FIX: Handle created_at properly - it may be:
+        // 1. Unix seconds (number like 1735600000)
+        // 2. ISO string (like "2024-12-31T00:00:00Z")
+        // 3. Unix milliseconds (number like 1735600000000)
+        let createdAtMs;
+        if (typeof currentUser.created_at === 'string') {
+            createdAtMs = new Date(currentUser.created_at).getTime();
+        } else if (typeof currentUser.created_at === 'number') {
+            // If timestamp is less than year 2000 in ms, it's likely Unix seconds
+            // 946684800000 = Jan 1, 2000 in milliseconds
+            if (currentUser.created_at < 946684800000) {
+                createdAtMs = currentUser.created_at * 1000; // Convert seconds to ms
+            } else {
+                createdAtMs = currentUser.created_at; // Already in ms
+            }
+        } else {
+            createdAtMs = Date.now(); // Fallback to now
+        }
+
+        const trialEnd = createdAtMs + TRIAL_MS;
         if (Date.now() < trialEnd) {
             const daysLeft = Math.ceil((trialEnd - Date.now()) / (1000 * 60 * 60 * 24));
-            return { hasAccess: true, isTrialing: true, isPro: false, daysLeft, isAnonymous: false };
+            // Sanity check: trial should never show more than TRIAL_DAYS
+            const cappedDaysLeft = Math.min(daysLeft, TRIAL_DAYS);
+            return { hasAccess: true, isTrialing: true, isPro: false, daysLeft: cappedDaysLeft, isAnonymous: false };
         }
         // Trial expired for signed-in user
         return { hasAccess: false, isTrialing: false, isPro: false, daysLeft: 0, isAnonymous: false };
@@ -888,6 +908,29 @@ function formatTimeAgo(timestamp) {
     if (hours < 24) return `${hours}h ago`;
     return Math.floor(hours / 24) + 'd ago';
 }
+
+// ================== CF PERSONA TABS ==================
+function setCfPersonaTab(tab) {
+    // Update tab button states
+    document.querySelectorAll('.cf-persona-tab').forEach(btn => {
+        const isActive = btn.dataset.tab === tab;
+        btn.classList.toggle('active', isActive);
+        btn.style.opacity = isActive ? '1' : '0.7';
+    });
+
+    // Show/hide tab content
+    document.querySelectorAll('.cf-tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+
+    const targetTab = document.getElementById(`cfTab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+    }
+}
+
+// Make it globally available
+window.setCfPersonaTab = setCfPersonaTab;
 
 // ================== INITIALIZATION ==================
 // Call initGoogleAuth when DOM is ready to restore any saved session
