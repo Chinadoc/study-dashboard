@@ -121,6 +121,11 @@ function showTab(tabName, updateHash = true) {
         if (typeof renderInventoryPage === 'function') {
             renderInventoryPage();
         }
+    } else if (tabName === 'subscriptions') {
+        // Render subscriptions when tab is shown
+        if (typeof renderSubscriptionsDashboard === 'function') {
+            renderSubscriptionsDashboard();
+        }
     }
 
     // Scroll to top

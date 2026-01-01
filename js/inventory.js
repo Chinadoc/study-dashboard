@@ -82,6 +82,7 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
+window.escapeHtml = escapeHtml; // Global for subscriptions.js
 
 // ================== VEHICLE INVENTORY HTML ==================
 function getVehicleInventoryHtml(oemId, keyway, vehicleName, fobAmazonLink, bladeAmazonLink) {
@@ -326,15 +327,18 @@ window.InventoryManager = InventoryManager;
 window.SubscriptionManager = SubscriptionManager;
 window.AssetManager = AssetManager;
 
-// Fix for upgrade button reference error
-window.openAddSubscriptionModal = function () {
-    const modal = document.getElementById('upgradeModal');
-    if (modal) modal.style.display = 'block';
-};
-window.closeUpgradeModal = function () {
-    const modal = document.getElementById('upgradeModal');
-    if (modal) modal.style.display = 'none';
-};
+// Removed duplicate openAddSubscriptionModal - defined in subscriptions.js
+
+// Normalize legacy inventory items (item_key -> itemKey, etc.)
+function normalizeInventoryItem(item) {
+    return {
+        itemKey: item.itemKey || item.item_key || item.key || 'Unknown',
+        type: item.type || 'key',
+        qty: item.qty || item.quantity || 0,
+        vehicle: item.vehicle || item.vehicleName || '',
+        link: item.link || item.amazonLink || ''
+    };
+}
 
 // ================== RENDER INVENTORY PAGE (CARD LAYOUT) ==================
 function renderInventoryPage() {
@@ -367,10 +371,15 @@ function renderInventoryPage() {
         return;
     }
 
+    // Normalize legacy keys before rendering
+    inventory = inventory.map(normalizeInventoryItem);
+
     // Sort: keys first, then low → high quantity, then alpha
     inventory.sort((a, b) => {
         if (a.type !== b.type) return a.type === 'key' ? -1 : 1;
-        return a.qty - b.qty || a.itemKey.localeCompare(b.itemKey);
+        const aKey = a.itemKey || '';
+        const bKey = b.itemKey || '';
+        return (a.qty - b.qty) || aKey.localeCompare(bKey);
     });
 
     const totalItems = inventory.length;
