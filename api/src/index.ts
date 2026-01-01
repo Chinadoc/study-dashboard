@@ -181,10 +181,27 @@ export default {
 
       // 1. Google Login Redirect
       if (path === "/api/auth/google") {
-        const redirectUri = `${url.origin}/api/auth/callback`;
-        const scope = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
-        return Response.redirect(authUrl, 302);
+        try {
+          console.log("Auth: Starting Google login redirect...");
+
+          // Defensive checks
+          if (!env.GOOGLE_CLIENT_ID) {
+            console.error("Auth Error: GOOGLE_CLIENT_ID is not set!");
+            return corsResponse(request, JSON.stringify({ error: "OAuth not configured: Missing Client ID" }), 500);
+          }
+
+          const redirectUri = `${url.origin}/api/auth/callback`;
+          console.log("Auth: redirectUri =", redirectUri);
+
+          const scope = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
+          const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+
+          console.log("Auth: Redirecting to Google...");
+          return Response.redirect(authUrl, 302);
+        } catch (authErr: any) {
+          console.error("Auth Handler Crash:", authErr.message, authErr.stack);
+          return corsResponse(request, JSON.stringify({ error: "Auth redirect failed: " + authErr.message }), 500);
+        }
       }
 
       // 2. Google Callback (Redirect Flow)
@@ -1996,7 +2013,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 SELECT * FROM programming_guides
                 WHERE LOWER(make) = ? AND LOWER(model) = ?
                 AND ? BETWEEN year_start AND year_end
-                ORDER BY created_at DESC LIMIT 1
+                LIMIT 1
               `).bind(make, model, y).first();
             }
           }

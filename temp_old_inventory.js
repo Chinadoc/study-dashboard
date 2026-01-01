@@ -3,8 +3,6 @@ let isPro = false;
 
 async function checkSubscription() {
     if (!currentUser) return;
-    const userId = currentUser.sub || currentUser.id;
-    if (!userId) return;
 
     try {
         const nowSeconds = Date.now() / 1000;
@@ -14,7 +12,7 @@ async function checkSubscription() {
         if (localStatus) {
             const data = JSON.parse(localStatus);
             // Use effectiveExpiry (max of subscription end or trial end)
-            if (data.userId === userId && data.effectiveExpiry > nowSeconds) {
+            if (data.userId === currentUser.sub && data.effectiveExpiry > nowSeconds) {
                 isPro = true;
                 updateProUI();
                 // Don't return, verify with server in background
@@ -22,7 +20,7 @@ async function checkSubscription() {
         }
 
         // FIX: Removed trailing space from URL
-        const res = await fetch(`${API}/api/subscription-status?userId=${userId}`);
+        const res = await fetch(`${API}/api/subscription-status?userId=${currentUser.sub}`);
         const data = await res.json();
 
         // FIX: Server timestamps (expiresAt, trial_until) are Unix seconds, not milliseconds
@@ -36,7 +34,7 @@ async function checkSubscription() {
         if (isPro) {
             localStorage.setItem('eurokeys_subscription',
                 JSON.stringify({
-                    userId: userId,
+                    userId: currentUser.sub,
                     effectiveExpiry: effectiveExpiry,
                     // Keep original fields for backward compatibility
                     expiresAt: data.expiresAt,
@@ -49,102 +47,6 @@ async function checkSubscription() {
         updateProUI();
     } catch (err) {
         console.error('Subscription check failed:', err);
-    }
-}
-
-// Update inventory tab badge with count
-function updateInventoryTabBadge() {
-    try {
-        const inventoryTab = document.getElementById('inventoryTab');
-        if (!inventoryTab) return;
-
-        // Get inventory count (if InventoryManager exists)
-        const count = (typeof InventoryManager !== 'undefined' && InventoryManager.inventory)
-            ? InventoryManager.inventory.length
-            : 0;
-
-        // Find or create badge
-        let badge = inventoryTab.querySelector('.tab-badge');
-        if (count > 0) {
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'tab-badge';
-                badge.style.cssText = 'background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 10px; margin-left: 6px; font-weight: 700;';
-                inventoryTab.appendChild(badge);
-            }
-            badge.textContent = count;
-        } else if (badge) {
-            badge.remove();
-        }
-    } catch (e) {
-        console.warn('updateInventoryTabBadge error:', e);
-    }
-}
-
-// Render subscriptions dashboard (called when user signs in)
-function renderSubscriptionsDashboard() {
-    try {
-        const container = document.getElementById('subCardsGrid');
-        if (!container) return;
-
-        // Check if SubscriptionManager exists and has data
-        if (typeof SubscriptionManager !== 'undefined' && SubscriptionManager.subscriptions) {
-            const subs = SubscriptionManager.subscriptions;
-            if (subs.length === 0) {
-                // Show empty state
-                const emptyState = document.getElementById('subEmptyState');
-                if (emptyState) emptyState.style.display = 'block';
-            } else {
-                // Hide empty state and render cards
-                const emptyState = document.getElementById('subEmptyState');
-                if (emptyState) emptyState.style.display = 'none';
-
-                // Update stats
-                updateSubscriptionStats(subs);
-
-                // Render subscription cards (if full render function exists)
-                if (typeof renderSubscriptionCards === 'function') {
-                    renderSubscriptionCards(subs);
-                }
-            }
-        }
-        console.log('renderSubscriptionsDashboard: Complete');
-    } catch (e) {
-        console.warn('renderSubscriptionsDashboard error:', e);
-    }
-}
-
-// Update subscription stats counters
-function updateSubscriptionStats(subs) {
-    try {
-        const now = new Date();
-        let active = 0, warning = 0, expired = 0, lifetime = 0;
-
-        subs.forEach(sub => {
-            if (sub.billing_cycle === 'lifetime') {
-                lifetime++;
-            } else if (sub.expiration_date) {
-                const exp = new Date(sub.expiration_date);
-                const daysLeft = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
-                if (daysLeft < 0) expired++;
-                else if (daysLeft <= 30) warning++;
-                else active++;
-            } else {
-                active++;
-            }
-        });
-
-        const activeEl = document.getElementById('subActiveCount');
-        const warningEl = document.getElementById('subWarningCount');
-        const expiredEl = document.getElementById('subExpiredCount');
-        const lifetimeEl = document.getElementById('subLifetimeCount');
-
-        if (activeEl) activeEl.textContent = active;
-        if (warningEl) warningEl.textContent = warning;
-        if (expiredEl) expiredEl.textContent = expired;
-        if (lifetimeEl) lifetimeEl.textContent = lifetime;
-    } catch (e) {
-        console.warn('updateSubscriptionStats error:', e);
     }
 }
 
@@ -204,18 +106,12 @@ function updateProUI() {
             btn.style.transform = 'scale(1)';
         btn.onclick = openUpgradeModal;
 
-        try {
-            const avatar =
-                document.getElementById('userAvatar');
-            // FIX: Check that avatar is actually a child of userMenu before insertBefore
-            if (avatar && avatar.parentNode === userMenu) {
-                userMenu.insertBefore(btn, avatar);
-            } else {
-                // Fallback: just append to userMenu
-                userMenu.appendChild(btn);
-            }
-        } catch (e) {
-            console.warn('updateProUI: DOM manipulation failed, skipping upgrade button:', e);
+        const avatar =
+            document.getElementById('userAvatar');
+        if (avatar) {
+            userMenu.insertBefore(btn, avatar);
+        } else {
+            userMenu.appendChild(btn);
         }
     }
 
@@ -488,107 +384,3 @@ function getLastComment(itemKey) {
 }
 
 console.log('inventory.js loaded');
-
-// ================== MISSING MANAGERS RE-IMPLEMENTATION ==================
-
-// Inventory Manager - Handles stock tracking
-const InventoryManager = {
-    inventory: [],
-
-    // Load inventory from cloud (via API or localStorage cache)
-    loadFromCloud: async function () {
-        console.log('InventoryManager: Loading from cloud...');
-        try {
-            if (!currentUser) return;
-
-            // Check cache first
-            const saved = localStorage.getItem('eurokeys_inventory');
-            if (saved) {
-                this.inventory = JSON.parse(saved);
-                console.log('InventoryManager: Loaded', this.inventory.length, 'items from cache');
-                this.updateUI();
-            }
-
-            // Fetch from API
-            // Check for token first to avoid 401s
-            const headers = (typeof getAuthHeaders === 'function') ? getAuthHeaders() : {};
-            if (!headers['Authorization']) {
-                console.log('InventoryManager: No auth token, skipping cloud sync');
-                return;
-            }
-
-            const response = await fetch(`${API}/api/user/inventory`, {
-                headers: headers
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.inventory) {
-                    this.inventory = data.inventory.map(item => ({
-                        itemKey: item.item_key,
-                        type: item.type,
-                        qty: item.qty,
-                        vehicle: item.vehicle,
-                        link: item.amazon_link
-                    }));
-
-                    localStorage.setItem('eurokeys_inventory', JSON.stringify(this.inventory));
-                    console.log('InventoryManager: Synced', this.inventory.length, 'items from cloud');
-                    this.updateUI();
-                }
-            }
-        } catch (e) {
-            console.error('InventoryManager load error:', e);
-        }
-    },
-
-    loadJobLogsFromCloud: async function () {
-        // Similar to above, load logs
-        console.log('InventoryManager: Loading job logs...');
-    },
-
-    // Get stock for a key fob (by OEM ID)
-    getKeyStock: function (oemId) {
-        if (!oemId) return 0;
-        const item = this.inventory.find(i => i.itemKey === oemId && i.type === 'key');
-        return item ? item.qty : 0;
-    },
-
-    // Get stock for a blade/blank (by Keyway)
-    getBlankStock: function (keyway) {
-        if (!keyway) return 0;
-        const item = this.inventory.find(i => i.itemKey === keyway && i.type === 'blank');
-        return item ? item.qty : 0;
-    },
-
-    updateUI: function () {
-        // Trigger any UI updates if needed
-        // For example, if we are on the inventory tab
-        if (typeof renderInventoryPage === 'function' && document.getElementById('tabInventory')?.style.display === 'block') {
-            renderInventoryPage();
-        }
-    }
-};
-
-// Subscription Manager - Handles subscription status
-const SubscriptionManager = {
-    loadFromCloud: async function () {
-        console.log('SubscriptionManager: Loading...');
-        if (typeof checkSubscription === 'function') {
-            await checkSubscription();
-        }
-    }
-};
-
-// Asset Manager - Handles static assets (PDFs, images)
-const AssetManager = {
-    loadFromCloud: async function () {
-        console.log('AssetManager: Loading...');
-        // Placeholder for asset pre-loading if needed
-    }
-};
-
-// Make sure they are global
-window.InventoryManager = InventoryManager;
-window.SubscriptionManager = SubscriptionManager;
-window.AssetManager = AssetManager;

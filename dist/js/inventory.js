@@ -81,6 +81,73 @@ function updateInventoryTabBadge() {
     }
 }
 
+// Render subscriptions dashboard (called when user signs in)
+function renderSubscriptionsDashboard() {
+    try {
+        const container = document.getElementById('subCardsGrid');
+        if (!container) return;
+
+        // Check if SubscriptionManager exists and has data
+        if (typeof SubscriptionManager !== 'undefined' && SubscriptionManager.subscriptions) {
+            const subs = SubscriptionManager.subscriptions;
+            if (subs.length === 0) {
+                // Show empty state
+                const emptyState = document.getElementById('subEmptyState');
+                if (emptyState) emptyState.style.display = 'block';
+            } else {
+                // Hide empty state and render cards
+                const emptyState = document.getElementById('subEmptyState');
+                if (emptyState) emptyState.style.display = 'none';
+
+                // Update stats
+                updateSubscriptionStats(subs);
+
+                // Render subscription cards (if full render function exists)
+                if (typeof renderSubscriptionCards === 'function') {
+                    renderSubscriptionCards(subs);
+                }
+            }
+        }
+        console.log('renderSubscriptionsDashboard: Complete');
+    } catch (e) {
+        console.warn('renderSubscriptionsDashboard error:', e);
+    }
+}
+
+// Update subscription stats counters
+function updateSubscriptionStats(subs) {
+    try {
+        const now = new Date();
+        let active = 0, warning = 0, expired = 0, lifetime = 0;
+
+        subs.forEach(sub => {
+            if (sub.billing_cycle === 'lifetime') {
+                lifetime++;
+            } else if (sub.expiration_date) {
+                const exp = new Date(sub.expiration_date);
+                const daysLeft = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+                if (daysLeft < 0) expired++;
+                else if (daysLeft <= 30) warning++;
+                else active++;
+            } else {
+                active++;
+            }
+        });
+
+        const activeEl = document.getElementById('subActiveCount');
+        const warningEl = document.getElementById('subWarningCount');
+        const expiredEl = document.getElementById('subExpiredCount');
+        const lifetimeEl = document.getElementById('subLifetimeCount');
+
+        if (activeEl) activeEl.textContent = active;
+        if (warningEl) warningEl.textContent = warning;
+        if (expiredEl) expiredEl.textContent = expired;
+        if (lifetimeEl) lifetimeEl.textContent = lifetime;
+    } catch (e) {
+        console.warn('updateSubscriptionStats error:', e);
+    }
+}
+
 function updateProUI() {
     const userMenu =
         document.getElementById('userMenu');

@@ -464,7 +464,9 @@ function updateAuthUI(isSignedIn) {
         const subscriptionsTab = document.getElementById('subscriptionsTab');
         if (subscriptionsTab) {
             subscriptionsTab.style.display = 'inline-flex';
-            renderSubscriptionsDashboard();
+            if (typeof renderSubscriptionsDashboard === 'function') {
+                renderSubscriptionsDashboard();
+            }
         }
     } else {
         console.log('updateAuthUI: Showing signed out state (hasValidUser: ' + hasValidUser + ')');
