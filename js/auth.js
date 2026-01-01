@@ -75,6 +75,19 @@ function showToast(message, duration = 4000, type = '') {
     }, duration);
 }
 
+// ================== AUTH HEADERS HELPER ==================
+/**
+ * Get authorization headers for API calls
+ * @returns {Object} Headers object with Authorization if token exists
+ */
+function getAuthHeaders() {
+    const token = localStorage.getItem('session_token');
+    if (token) {
+        return { 'Authorization': `Bearer ${token}` };
+    }
+    return {};
+}
+
 async function initGoogleAuth() {
     // Initialize visitor ID for anonymous tracking
     getVisitorId();
