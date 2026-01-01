@@ -8,6 +8,20 @@ let googleAuth = null;
 let currentUser = null;
 window.isAuthExpired = false; // Global lock to stop console spam on 401
 
+const STORAGE_MIGRATION_NOTICE_KEY = 'eurokeys_storage_migration_notice_shown';
+
+function maybeShowStorageMigrationNotice() {
+    try {
+        if (localStorage.getItem(STORAGE_MIGRATION_NOTICE_KEY)) return;
+        localStorage.setItem(STORAGE_MIGRATION_NOTICE_KEY, '1');
+        if (typeof showToast === 'function') {
+            showToast('If sign-in issues persist, clear site data and sign in again.', 7000);
+        }
+    } catch (e) {
+        console.warn('Storage migration notice skipped:', e);
+    }
+}
+
 // Auth callback handled by inline script in index.html for performance
 // (Redundant handler removed)
 
@@ -176,6 +190,7 @@ async function initGoogleAuth() {
             localStorage.setItem('session_token', sessionToken);
             localStorage.removeItem('eurokeys_session_token');
             console.log('initGoogleAuth: Migrated token from eurokeys_session_token to session_token');
+            maybeShowStorageMigrationNotice();
         }
     }
     console.log('initGoogleAuth: session_token length =', sessionToken ? sessionToken.length : 0);
@@ -223,6 +238,14 @@ async function initGoogleAuth() {
 
             if (hasValidData) {
                 currentUser = parsed;
+                if (!currentUser.sub && currentUser.id) {
+                    currentUser.sub = currentUser.id;
+                }
+                if (!currentUser.id && currentUser.sub) {
+                    currentUser.id = currentUser.sub;
+                }
+                isPro = currentUser.is_pro || (currentUser.trial_until && currentUser.trial_until > Date.now() / 1000);
+                updateProUI();
                 updateAuthUI(true);
             } else {
                 localStorage.removeItem('eurokeys_user');
@@ -322,6 +345,12 @@ async function checkDeveloperStatus() {
             if (data.user && data.user.email) {
                 console.log('Session restored:', data.user.email);
                 currentUser = data.user;
+                if (!currentUser.sub && currentUser.id) {
+                    currentUser.sub = currentUser.id;
+                }
+                if (!currentUser.id && currentUser.sub) {
+                    currentUser.id = currentUser.sub;
+                }
                 localStorage.setItem('eurokeys_user', JSON.stringify(currentUser));
 
                 // Update isPro based on subscription or trial
@@ -516,9 +545,14 @@ async function restorePurchases() {
     }
 
     try {
+        const userId = currentUser.sub || currentUser.id;
+        if (!userId) {
+            showToast('Please sign out and sign back in to restore purchases.', 5000, 'error');
+            return;
+        }
         // Force refresh subscription status from server
         localStorage.removeItem('eurokeys_subscription');
-        const res = await fetch(`${API}/api/subscription-status?userId=${currentUser.sub}`);
+        const res = await fetch(`${API}/api/subscription-status?userId=${userId}`);
         const data = await res.json();
 
         // FIX: trial_until is in Unix seconds, Date.now() is milliseconds
@@ -532,7 +566,7 @@ async function restorePurchases() {
 
         if (isPro) {
             localStorage.setItem('eurokeys_subscription', JSON.stringify({
-                userId: currentUser.sub,
+                userId: userId,
                 effectiveExpiry: effectiveExpiry,
                 expiresAt: data.expiresAt,
                 trialUntil: data.trial_until
