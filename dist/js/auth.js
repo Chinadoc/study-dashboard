@@ -190,11 +190,14 @@ async function initGoogleAuth() {
     if (userAvatar) userAvatar.classList.remove('loading');
 
     // 4. Load inventory from cloud if logged in
+    // 4. Load inventory from cloud if logged in
     if (currentUser) {
-        InventoryManager.loadFromCloud();
-        InventoryManager.loadJobLogsFromCloud();
-        SubscriptionManager.loadFromCloud();
-        AssetManager.loadFromCloud();
+        if (typeof InventoryManager !== 'undefined') {
+            InventoryManager.loadFromCloud();
+            InventoryManager.loadJobLogsFromCloud();
+        }
+        if (typeof SubscriptionManager !== 'undefined') SubscriptionManager.loadFromCloud();
+        if (typeof AssetManager !== 'undefined') AssetManager.loadFromCloud();
     }
 }
 
@@ -246,10 +249,12 @@ async function handleGoogleSignIn(response) {
                 if (typeof DataPortability !== 'undefined') {
                     await DataPortability.syncAllToCloud();
                 }
-                InventoryManager.loadFromCloud();
-                InventoryManager.loadJobLogsFromCloud();
-                SubscriptionManager.loadFromCloud();
-                AssetManager.loadFromCloud();
+                if (typeof InventoryManager !== 'undefined') {
+                    InventoryManager.loadFromCloud();
+                    InventoryManager.loadJobLogsFromCloud();
+                }
+                if (typeof SubscriptionManager !== 'undefined') SubscriptionManager.loadFromCloud();
+                if (typeof AssetManager !== 'undefined') AssetManager.loadFromCloud();
                 if (typeof PreferencesManager !== 'undefined') PreferencesManager.loadFromCloud();
             } else {
                 console.error('Backend authentication failed:', data.error);
