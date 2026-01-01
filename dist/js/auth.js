@@ -109,10 +109,12 @@ async function initGoogleAuth() {
                 }
             });
             const data = await response.json();
+            console.log('initGoogleAuth: /api/user response:', JSON.stringify(data, null, 2));
 
             if (data.user && data.user.email) {
                 // Valid session! Store user data and update UI
                 currentUser = data.user;
+                console.log('initGoogleAuth: currentUser set:', currentUser.name, currentUser.email, 'is_developer:', currentUser.is_developer);
                 localStorage.setItem('eurokeys_user', JSON.stringify(data.user));
 
                 // FIX: Set isPro based on subscription or trial
