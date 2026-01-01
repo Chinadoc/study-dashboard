@@ -523,19 +523,44 @@ const InventoryManager = {
 
             if (response.ok) {
                 const data = await response.json();
-                if (data.inventory) {
-                    this.inventory = data.inventory.map(item => ({
-                        itemKey: item.item_key,
-                        type: item.type,
-                        qty: item.qty,
-                        vehicle: item.vehicle,
-                        link: item.amazon_link
-                    }));
+                console.log('InventoryManager: API response:', data);
 
-                    localStorage.setItem('eurokeys_inventory', JSON.stringify(this.inventory));
-                    console.log('InventoryManager: Synced', this.inventory.length, 'items from cloud');
-                    this.updateUI();
+                // API returns { keys: { itemKey: {qty, used, vehicle, amazonLink} }, blanks: {...} }
+                // Convert to array format for local storage
+                const inventoryArray = [];
+
+                // Process keys
+                if (data.keys) {
+                    for (const [itemKey, item] of Object.entries(data.keys)) {
+                        inventoryArray.push({
+                            itemKey: itemKey,
+                            type: 'key',
+                            qty: item.qty || 0,
+                            vehicle: item.vehicle || '',
+                            link: item.amazonLink || ''
+                        });
+                    }
                 }
+
+                // Process blanks
+                if (data.blanks) {
+                    for (const [itemKey, item] of Object.entries(data.blanks)) {
+                        inventoryArray.push({
+                            itemKey: itemKey,
+                            type: 'blank',
+                            qty: item.qty || 0,
+                            vehicle: item.vehicle || '',
+                            link: item.amazonLink || ''
+                        });
+                    }
+                }
+
+                this.inventory = inventoryArray;
+                localStorage.setItem('eurokeys_inventory', JSON.stringify(this.inventory));
+                console.log('InventoryManager: Synced', this.inventory.length, 'items from cloud');
+                this.updateUI();
+            } else {
+                console.error('InventoryManager: API returned', response.status);
             }
         } catch (e) {
             console.error('InventoryManager load error:', e);
