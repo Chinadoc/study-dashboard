@@ -909,6 +909,29 @@ function formatTimeAgo(timestamp) {
     return Math.floor(hours / 24) + 'd ago';
 }
 
+// ================== CF PERSONA TABS ==================
+function setCfPersonaTab(tab) {
+    // Update tab button states
+    document.querySelectorAll('.cf-persona-tab').forEach(btn => {
+        const isActive = btn.dataset.tab === tab;
+        btn.classList.toggle('active', isActive);
+        btn.style.opacity = isActive ? '1' : '0.7';
+    });
+
+    // Show/hide tab content
+    document.querySelectorAll('.cf-tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+
+    const targetTab = document.getElementById(`cfTab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+    }
+}
+
+// Make it globally available
+window.setCfPersonaTab = setCfPersonaTab;
+
 // ================== INITIALIZATION ==================
 // Call initGoogleAuth when DOM is ready to restore any saved session
 document.addEventListener('DOMContentLoaded', () => {
