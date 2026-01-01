@@ -129,11 +129,17 @@ async function initGoogleAuth() {
                     if (devTab) devTab.style.display = 'inline-flex';
                 }
 
-                // Load cloud data
-                InventoryManager.loadFromCloud();
-                InventoryManager.loadJobLogsFromCloud();
-                SubscriptionManager.loadFromCloud();
-                AssetManager.loadFromCloud();
+                // Load cloud data (with defensive checks for script loading order)
+                if (typeof InventoryManager !== 'undefined') {
+                    InventoryManager.loadFromCloud();
+                    InventoryManager.loadJobLogsFromCloud();
+                }
+                if (typeof SubscriptionManager !== 'undefined') {
+                    SubscriptionManager.loadFromCloud();
+                }
+                if (typeof AssetManager !== 'undefined') {
+                    AssetManager.loadFromCloud();
+                }
 
                 if (userAvatar) userAvatar.classList.remove('loading');
 
