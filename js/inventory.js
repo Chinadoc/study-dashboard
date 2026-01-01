@@ -332,7 +332,15 @@ window.InventoryManager = InventoryManager;
 window.SubscriptionManager = SubscriptionManager;
 window.AssetManager = AssetManager;
 
-// Removed duplicate openAddSubscriptionModal - defined in subscriptions.js
+// Upgrade modal functions for trial banner
+window.openUpgradeModal = function () {
+    const modal = document.getElementById('upgradeModal');
+    if (modal) modal.style.display = 'block';
+};
+window.closeUpgradeModal = function () {
+    const modal = document.getElementById('upgradeModal');
+    if (modal) modal.style.display = 'none';
+};
 
 // Normalize legacy inventory items (item_key -> itemKey, etc.)
 function normalizeInventoryItem(item) {
