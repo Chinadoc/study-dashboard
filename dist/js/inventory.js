@@ -52,6 +52,35 @@ async function checkSubscription() {
     }
 }
 
+// Update inventory tab badge with count
+function updateInventoryTabBadge() {
+    try {
+        const inventoryTab = document.getElementById('inventoryTab');
+        if (!inventoryTab) return;
+
+        // Get inventory count (if InventoryManager exists)
+        const count = (typeof InventoryManager !== 'undefined' && InventoryManager.inventory)
+            ? InventoryManager.inventory.length
+            : 0;
+
+        // Find or create badge
+        let badge = inventoryTab.querySelector('.tab-badge');
+        if (count > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'tab-badge';
+                badge.style.cssText = 'background: #fbbf24; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 10px; margin-left: 6px; font-weight: 700;';
+                inventoryTab.appendChild(badge);
+            }
+            badge.textContent = count;
+        } else if (badge) {
+            badge.remove();
+        }
+    } catch (e) {
+        console.warn('updateInventoryTabBadge error:', e);
+    }
+}
+
 function updateProUI() {
     const userMenu =
         document.getElementById('userMenu');
