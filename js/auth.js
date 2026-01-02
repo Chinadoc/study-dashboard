@@ -7,10 +7,11 @@ if (typeof logActivity === 'undefined') {
 // ================== GOOGLE OAUTH ==================
 
 // Google OAuth Client ID
+// Google OAuth Client ID
 const GOOGLE_CLIENT_ID = '1057439383868-t1h9qf10acvad82bv0h9gg2jeufg30v4.apps.googleusercontent.com';
 
 let googleAuth = null;
-let currentUser = null;
+window.currentUser = null; // EXPOSE GLOBALLY for other scripts (inventory.js)
 window.isAuthExpired = false; // Global lock to stop console spam on 401
 
 const STORAGE_MIGRATION_NOTICE_KEY = 'eurokeys_storage_migration_notice_shown';
