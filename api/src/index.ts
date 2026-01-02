@@ -2102,8 +2102,21 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
           const total = countResult?.cnt || 0;
 
-          // Data query using unified vehicles table
+          // Data query using unified vehicles table with DEDUPLICATION
+          // 1. Group by unique key signature (Make/Model/Year/FCC/KeyType)
+          // 2. Prioritize highest confidence_score (e.g., AKS > Locksmith > Legacy)
+          // 3. Deduplicate part_crossref matches
           const dataSql = `
+          WITH RankedVehicles AS (
+            SELECT 
+                v.*,
+                ROW_NUMBER() OVER (
+                    PARTITION BY v.make, v.model, v.year_start, v.year_end, v.fcc_id, v.key_type 
+                    ORDER BY v.confidence_score DESC, v.id DESC
+                ) as rn
+            FROM vehicles v
+            ${whereClause}
+          )
           SELECT 
             v.id,
             v.make,
@@ -2145,13 +2158,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             pc.keydiy_part,
             pc.key_type as crossref_key_type,
             pc.notes as crossref_notes
-          FROM vehicles v
+          FROM RankedVehicles v
           LEFT JOIN chip_registry cr ON LOWER(v.chip) = LOWER(cr.chip_type)
-          LEFT JOIN part_crossref pc ON (
+          LEFT JOIN (
+            SELECT * FROM part_crossref GROUP BY make, fcc_id
+          ) pc ON (
             LOWER(v.make) = LOWER(pc.make) AND 
             (v.fcc_id = pc.fcc_id OR v.oem_part_number = pc.oem_part)
           )
-          ${whereClause}
+          WHERE v.rn = 1
           ORDER BY v.make, v.model, v.year_start
           LIMIT ? OFFSET ?
         `;
