@@ -1,5 +1,5 @@
 // v30 - Skip Cross-Origin Requests Entirely to Prevent CORS Failures
-const CACHE_NAME = 'euro-keys-v32-xorigin-bypass';
+const CACHE_NAME = 'euro-keys-v33-xorigin-bypass';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

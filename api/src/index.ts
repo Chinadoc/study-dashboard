@@ -95,6 +95,29 @@ function textResponse(body: string, status = 200, contentType = "application/jso
   });
 }
 
+const DEFAULT_AUTH_REDIRECT = "https://eurokeys.app";
+
+function normalizeAuthRedirect(candidate?: string | null): string {
+  if (!candidate) return DEFAULT_AUTH_REDIRECT;
+  try {
+    const url = new URL(candidate);
+    const host = url.hostname.toLowerCase();
+    const isLocalhost = host === "localhost" || host === "127.0.0.1";
+    const isAllowedHost =
+      host === "eurokeys.app" ||
+      host.endsWith(".eurokeys.app") ||
+      host === "study-dashboard-8a9.pages.dev" ||
+      host.endsWith(".study-dashboard-8a9.pages.dev") ||
+      isLocalhost;
+
+    if (!isAllowedHost) return DEFAULT_AUTH_REDIRECT;
+    if (!isLocalhost && url.protocol !== "https:") return DEFAULT_AUTH_REDIRECT;
+    return url.origin;
+  } catch {
+    return DEFAULT_AUTH_REDIRECT;
+  }
+}
+
 async function createInternalToken(user: any, secret: string) {
   const secretKey = new TextEncoder().encode(secret);
   return await new SignJWT({
@@ -194,7 +217,8 @@ export default {
           console.log("Auth: redirectUri =", redirectUri);
 
           const scope = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
-          const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+          const redirectTarget = normalizeAuthRedirect(url.searchParams.get("redirect"));
+          const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${encodeURIComponent(redirectTarget)}`;
 
           console.log("Auth: Redirecting to Google...");
           return Response.redirect(authUrl, 302);
@@ -259,11 +283,12 @@ export default {
 
           // Redirect to Frontend with token in URL fragment
           // Cross-domain cookies won't work, so pass the token in the URL for the frontend to store
+          const redirectTarget = normalizeAuthRedirect(url.searchParams.get("state"));
           const headers = new Headers();
           // Still set cookie for Workers domain (for API calls that go directly to Workers)
           headers.set("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=2592000`);
           // Redirect with token in hash (hash fragment is not sent to server, so it's secure)
-          headers.set("Location", `https://eurokeys.app/#auth_token=${sessionToken}`);
+          headers.set("Location", `${redirectTarget}/#auth_token=${sessionToken}`);
 
           return new Response(null, { status: 302, headers });
 

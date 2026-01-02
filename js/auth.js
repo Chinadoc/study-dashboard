@@ -44,6 +44,48 @@ window.updateProUI = function () {
 
 const STORAGE_MIGRATION_NOTICE_KEY = 'eurokeys_storage_migration_notice_shown';
 
+function captureAuthTokenFromUrl() {
+    try {
+        let token = null;
+        let clearHash = false;
+
+        const hash = window.location.hash || '';
+        if (hash.startsWith('#auth_token=')) {
+            token = hash.substring('#auth_token='.length);
+            clearHash = true;
+        } else if (hash.includes('auth_token=')) {
+            const hashParams = new URLSearchParams(hash.slice(1));
+            token = hashParams.get('auth_token');
+            clearHash = !!token;
+        }
+
+        if (!token) {
+            const params = new URLSearchParams(window.location.search);
+            token = params.get('auth_token');
+            if (token) {
+                params.delete('auth_token');
+                const nextUrl = window.location.pathname + (params.toString() ? `?${params}` : '');
+                history.replaceState(null, '', nextUrl);
+            }
+        }
+
+        if (!token) return false;
+
+        localStorage.setItem('session_token', token);
+        if (clearHash) {
+            const nextUrl = window.location.pathname + window.location.search;
+            history.replaceState(null, '', nextUrl);
+        }
+        return true;
+    } catch (e) {
+        console.error('captureAuthTokenFromUrl failed:', e);
+        return false;
+    }
+}
+
+// Capture token before auth bootstrap runs (fallback for pages without inline handler).
+captureAuthTokenFromUrl();
+
 function maybeShowStorageMigrationNotice() {
     try {
         if (localStorage.getItem(STORAGE_MIGRATION_NOTICE_KEY)) return;
@@ -317,7 +359,8 @@ function signInWithGoogle() {
     // ALWAYS use the Worker URL directly for auth to bypass Cloudflare Pages _redirects
     // The Pages proxy cannot properly handle 302 redirects to external domains (Google OAuth)
     const workerAuthUrl = 'https://euro-keys.jeremy-samuels17.workers.dev/api/auth/google';
-    window.location.href = workerAuthUrl;
+    const redirect = encodeURIComponent(window.location.origin);
+    window.location.href = `${workerAuthUrl}?redirect=${redirect}`;
 }
 
 // Initialize Google Sign-In (kept for backward compatibility with One Tap on page load)
