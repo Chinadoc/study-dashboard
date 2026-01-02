@@ -1282,22 +1282,98 @@ function displayResults(rows, year, make, model, extras = {}) {
     </div>
     `;
 
-    // 2. Watch First (Video)
-    const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
-    html += `
-            <div class="video-section" style="background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                    <span style="font-size: 1.3rem;">📹</span>
-                    <span style="font-weight: 700; color: #ff6b6b;">WATCH FIRST</span>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">• Video tutorials for ${year} ${make} ${model}</span>
-                </div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <a href="https://www.youtube.com/results?search_query=${youtubeSearchQuery}" target="_blank" 
-                       style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #ff0000; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                        <span>🎬</span> Search YouTube Tutorials
-                    </a>
+    // 2. Critical Alerts (FIRST - before tools/videos per locksmith workflow)
+    if (alerts && alerts.length > 0) {
+        html += '<div class="vehicle-alerts-section" style="margin-bottom: 20px;">';
+        const seenAlerts = new Set();
+        alerts.forEach(alert => {
+            const title = alert.alert_title || alert.title;
+            if (seenAlerts.has(title)) return;
+            seenAlerts.add(title);
+
+            const level = (alert.alert_level || 'WARNING').toUpperCase();
+            const levelColors = {
+                'CRITICAL': { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.5)', icon: '🔴', color: '#ef4444' },
+                'WARNING': { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.5)', icon: '⚠️', color: '#fbbf24' },
+                'INFO': { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.5)', icon: 'ℹ️', color: '#3b82f6' }
+            };
+            const style = levelColors[level] || levelColors['WARNING'];
+            const content = alert.alert_content || alert.content || '';
+            const mitigation = alert.mitigation || '';
+
+            // CRITICAL alerts should be OPEN by default - locksmith must see them!
+            const openAttr = level === 'CRITICAL' ? 'open' : '';
+
+            html += `
+            <details ${openAttr} style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
+                        <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
+                            <span>${style.icon}</span>
+                            <span>${title}</span>
+                            ${level === 'CRITICAL' ? '<span style="font-size: 0.7rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto;">READ BEFORE QUOTING</span>' : ''}
+                        </summary>
+                        <div style="padding: 0 16px 12px 16px; font-size: 0.85rem; color: var(--text-secondary);">
+                            <p style="margin: 0 0 8px 0;">${content}</p>
+                            ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
+                        </div>
+                    </details>`;
+        });
+        html += '</div>';
+    }
+
+    // 3. Guide Callout (SECOND - programming guide is critical for job planning)
+    const premiumGuide = typeof getGuideAsset === 'function' ? getGuideAsset(make) : null;
+
+    if (premiumGuide && (premiumGuide.pdf || premiumGuide.html)) {
+        const hasPdf = !!premiumGuide.pdf;
+        const hasHtml = !!premiumGuide.html;
+        const hasInfographic = !!premiumGuide.infographic;
+
+        html += `
+            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="margin: 0 0 4px 0; color: #22c55e; display: flex; align-items: center; gap: 8px;">
+                            📖 ${premiumGuide.title || make + ' Programming Guide'}
+                            <span style="font-size: 0.7rem; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">PRO</span>
+                        </h3>
+                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Complete walkthrough with OEM parts, step-by-step procedures, and troubleshooting</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        ${hasPdf ? `
+                        <button onclick="openPdfGuide('${premiumGuide.pdf}', '${premiumGuide.title}')" 
+                                style="background: #22c55e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>📄</span> Open PDF Guide
+                        </button>` : ''}
+                        ${hasHtml ? `
+                        <button onclick="openHtmlGuide('${premiumGuide.html}', '${premiumGuide.title}')" 
+                                style="background: #3b82f6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>📋</span> View Walkthrough
+                        </button>` : ''}
+                        ${hasInfographic ? `
+                        <button onclick="openInfographic('${premiumGuide.infographic}', '${make} Quick Reference')" 
+                                style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>🖼️</span> Infographic
+                        </button>` : ''}
+                    </div>
                 </div>
             </div>`;
+    } else if (guide) {
+        html += `
+            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
+                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
+                    </div>
+                    <button onclick="openGuideModal('${guide.id}')" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <span>View Guide</span>
+                        <span>→</span>
+                    </button>
+                    <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
+            </div>`;
+    }
+
+    // 4. What You'll Need (Tools Checklist)
+    const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
 
     // 3. What You'll Need (Tools) - FIXED TEXT COLOR
     const firstRow = rows[0] || {};
@@ -1343,94 +1419,21 @@ function displayResults(rows, year, make, model, extras = {}) {
                 </div>
             </div>`;
 
-    // 4. Alerts
-    if (alerts && alerts.length > 0) {
-        html += '<div class="vehicle-alerts-section" style="margin-bottom: 20px;">';
-        const seenAlerts = new Set();
-        alerts.forEach(alert => {
-            const title = alert.alert_title || alert.title;
-            if (seenAlerts.has(title)) return;
-            seenAlerts.add(title);
-
-            const level = (alert.alert_level || 'WARNING').toUpperCase();
-            const levelColors = {
-                'CRITICAL': { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.5)', icon: '🔴', color: '#ef4444' },
-                'WARNING': { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.5)', icon: '⚠️', color: '#fbbf24' },
-                'INFO': { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.5)', icon: 'ℹ️', color: '#3b82f6' }
-            };
-            const style = levelColors[level] || levelColors['WARNING'];
-            const content = alert.alert_content || alert.content || '';
-            const mitigation = alert.mitigation || '';
-
-            html += `
-            <details style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
-                        <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
-                            <span>${style.icon}</span>
-                            <span>${title}</span>
-                        </summary>
-                        <div style="padding: 0 16px 12px 16px; font-size: 0.85rem; color: var(--text-secondary);">
-                            <p style="margin: 0 0 8px 0;">${content}</p>
-                            ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
-                        </div>
-                    </details>`;
-        });
-        html += '</div>';
-    }
-
-    // 5. Guide Callout - Check for premium assets first
-    const premiumGuide = typeof getGuideAsset === 'function' ? getGuideAsset(make) : null;
-
-    if (premiumGuide && (premiumGuide.pdf || premiumGuide.html)) {
-        // Premium guide available (PDF or HTML)
-        const hasPdf = !!premiumGuide.pdf;
-        const hasHtml = !!premiumGuide.html;
-        const hasInfographic = !!premiumGuide.infographic;
-
-        html += `
-            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <h3 style="margin: 0 0 4px 0; color: #22c55e; display: flex; align-items: center; gap: 8px;">
-                            📖 ${premiumGuide.title || make + ' Programming Guide'}
-                            <span style="font-size: 0.7rem; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">PRO</span>
-                        </h3>
-                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Comprehensive professional-grade guide with ${hasPdf ? 'PDF' : ''}${hasPdf && hasHtml ? ' & ' : ''}${hasHtml ? 'walkthrough' : ''}</p>
-                    </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        ${hasPdf ? `
-                        <button onclick="openPdfGuide('${premiumGuide.pdf}', '${premiumGuide.title}')" 
-                                style="background: #22c55e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>📄</span> Open PDF Guide
-                        </button>` : ''}
-                        ${hasHtml ? `
-                        <button onclick="openHtmlGuide('${premiumGuide.html}', '${premiumGuide.title}')" 
-                                style="background: #3b82f6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>📋</span> View Walkthrough
-                        </button>` : ''}
-                        ${hasInfographic ? `
-                        <button onclick="openInfographic('${premiumGuide.infographic}', '${make} Quick Reference')" 
-                                style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>🖼️</span> Infographic
-                        </button>` : ''}
-                    </div>
+    // 5. Video Section (moved down - procedures come after parts)
+    html += `
+            <div class="video-section" style="background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 1.3rem;">📹</span>
+                    <span style="font-weight: 700; color: #ff6b6b;">VIDEO TUTORIALS</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">• See it done for ${year} ${make} ${model}</span>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="https://www.youtube.com/results?search_query=${youtubeSearchQuery}" target="_blank" 
+                       style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #ff0000; color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                        <span>🎬</span> Search YouTube
+                    </a>
                 </div>
             </div>`;
-    } else if (guide) {
-        // Fallback to database guide
-        html += `
-            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
-                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
-                    </div>
-                    <button onclick="openGuideModal('${guide.id}')" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <span>View Guide</span>
-                        <span>→</span>
-                    </button>
-                    <!--Hidden data store for the guide-->
-            <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
-            </div>`;
-    }
 
     // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
     const seen = new Set();
@@ -1455,7 +1458,7 @@ function displayResults(rows, year, make, model, extras = {}) {
         const oem = v.oem_part_number || 'N/A';
         const immoSystem = (v.immobilizer_system || v.immobilizer || 'N/A');
         const chip = v.chip || v.chip_technology || 'N/A';
-        const freq = v.frequency ? `${v.frequency} MHz` : 'N/A';
+        const freq = v.frequency ? (v.frequency.toString().toLowerCase().includes('mhz') ? v.frequency : `${v.frequency} MHz`) : 'N/A';
         const keyway = v.keyway || 'N/A';
         const battery = v.battery || 'N/A';
 
