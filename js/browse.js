@@ -1010,18 +1010,16 @@ function selectKey(cardIndex, keyIndex) {
                 </div>
             </div>
         `;
-                    </div >
-            `;
     }
 
     // Update Amazon button
-    const amazonBtn = document.getElementById(`amazonBtn - ${ cardIndex } `);
+    const amazonBtn = document.getElementById(`amazonBtn-${cardIndex}`);
     if (amazonBtn && key.amazon_search_url) {
         amazonBtn.href = key.amazon_search_url;
     }
 
     // Update AKS link
-    const aksBtn = document.getElementById(`aksBtn - ${ cardIndex } `);
+    const aksBtn = document.getElementById(`aksBtn-${cardIndex}`);
     if (aksBtn && key.url) {
         aksBtn.href = key.url;
         aksBtn.style.display = 'inline-block';
@@ -1048,7 +1046,7 @@ async function searchVehicle() {
     currentVehicleMake = make;
     currentVehicleModel = model;
 
-    document.getElementById('resultTitle').textContent = `${ make } ${ model } `;
+    document.getElementById('resultTitle').textContent = `${make} ${model} `;
     updateYearNavigation(parseInt(year));
     document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
@@ -1061,7 +1059,7 @@ async function searchVehicle() {
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const fetchUrl = `${ API } /api/browse ? year = ${ year }& make=${ encodeURIComponent(make) }& model=${ encodeURIComponent(model) }& limit=10`;
+        const fetchUrl = `${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`;
 
         const res = await fetch(fetchUrl);
         const data = await res.json();
@@ -1071,7 +1069,7 @@ async function searchVehicle() {
                 displayResults(data.rows, year, make, model);
             } catch (innerE) {
                 console.error('Display Error:', innerE);
-                document.getElementById('resultsContainer').innerHTML = `< div class="error" > Display Error: ${ innerE.message }</div > `;
+                document.getElementById('resultsContainer').innerHTML = `< div class="error" > Display Error: ${innerE.message}</div > `;
             }
         } else {
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
@@ -1115,7 +1113,7 @@ window.openGuideModal = function (id) {
             < div class="guide-step" style = "margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" >
                     <h3 style="color: #60a5fa; margin-bottom: 12px; font-size: 1.1rem;">${step.title || ''}</h3>
                     <div style="color: #e5e7eb; line-height: 1.6;">${step.description || ''}</div>
-                    ${ step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : '' }
+                    ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : ''}
                 </div >
             `).join('');
         } else if (guide.content) {
@@ -1177,7 +1175,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             `;
 
     // 1. Embedded YouTube Video Section (Watch First)
-    const youtubeSearchQuery = encodeURIComponent(`${ year } ${ make } ${ model } key programming tutorial`);
+    const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
     html += `
             < div class="video-section" style = "background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;" >
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
@@ -1296,7 +1294,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const uniqueRows = rows.filter(v => {
         const fccId = v.fcc_id || '';
         const oem = v.oem_part_number || '';
-        const key = fccId ? `FCC:${ fccId } ` : `OEM:${ oem } -${ v.key_type || '' } `;
+        const key = fccId ? `FCC:${fccId} ` : `OEM:${oem} -${v.key_type || ''} `;
         if (key && seen.has(key)) return false;
         if (key) seen.add(key);
         return true;
