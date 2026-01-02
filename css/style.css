@@ -858,6 +858,60 @@
             background: rgba(234, 179, 8, 0.2);
         }
 
+        .visual-model-chip {
+            flex-direction: column !important;
+            padding: 8px !important;
+            min-height: 110px;
+            justify-content: flex-start !important;
+            gap: 8px;
+        }
+
+        .model-image-wrapper {
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1b26 0%, #24283b 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .model-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .visual-model-chip:hover .model-img {
+            transform: scale(1.05);
+        }
+
+        .model-img-fallback {
+            display: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 8px;
+            text-transform: uppercase;
+        }
+
+        .model-image-wrapper.no-image .model-img-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .model-image-wrapper.no-image {
+            background: var(--bg-tertiary);
+        }
+
         /* Visual tree view for key grouping */
         .key-tree-container {
             display: flex;
@@ -1789,6 +1843,7 @@
         .user-dropdown-item.logout:hover {
             background: rgba(248, 113, 113, 0.1);
         }
+
         /* Tabbed Book Guide Styles */
         .book-guide-tabs {
             display: flex;
@@ -2429,16 +2484,18 @@
         .mega-tab-content.active {
             display: block;
         }
-                .upgrade-modal-layout {
-                    display: flex;
-                    flex-direction: column;
-                }
 
-                @media (min-width: 768px) {
-                    .upgrade-modal-layout {
-                        flex-direction: column;
-                    }
-                }
+        .upgrade-modal-layout {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .upgrade-modal-layout {
+                flex-direction: column;
+            }
+        }
+
         .modal {
             position: fixed;
             top: 0;
@@ -3507,6 +3564,7 @@
                 opacity: 0;
                 transform: translateX(-50%) translateY(-100px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(-50%) translateY(0);
@@ -3518,6 +3576,7 @@
                 opacity: 1;
                 transform: translateX(-50%) translateY(0);
             }
+
             to {
                 opacity: 0;
                 transform: translateX(-50%) translateY(-100px);
@@ -3540,5 +3599,65 @@
         }
 
         @keyframes authSpinner {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
+/* Generation Selector Styles */
+.generation-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 10px;
+    width: 100%;
+}
+
+.generation-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.generation-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--brand-primary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.generation-img-container {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, #1a1b26 0%, #0f1016 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.generation-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+.generation-card:hover .generation-img {
+    transform: scale(1.05);
+}
+
+.generation-info {
+    padding: 12px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.generation-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+}

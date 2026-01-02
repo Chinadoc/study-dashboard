@@ -138,8 +138,142 @@ function selectVisualYear(year) {
     loadModels();
 }
 
+
+// ==========================================
+// GENERATION SELECTOR LOGIC
+// ==========================================
+
+const MODEL_GENERATIONS = {
+    'Camaro': [
+        { label: '1st Gen (1967-1969)', start: 1967, end: 1969, img: 'camaro_1967.png' },
+        { label: '2nd Gen (1970-1981)', start: 1970, end: 1981, img: 'camaro_1970.png' },
+        { label: '3rd Gen (1982-1992)', start: 1982, end: 1992, img: 'camaro_1982.png' },
+        { label: '4th Gen (1993-2002)', start: 1993, end: 2002, img: 'camaro_1993.png' },
+        { label: '5th Gen (2010-2015)', start: 2010, end: 2015, img: 'camaro_2010.png' },
+        { label: '6th Gen (2016-2024)', start: 2016, end: 2024, img: 'camaro_2016.png' }
+    ],
+    'Mustang': [
+        { label: '1st Gen (1964.5-1966)', start: 1965, end: 1966, img: 'mustang_1965.png' },
+        { label: '1st Gen (1967-1968)', start: 1967, end: 1968, img: 'mustang_1967.png' },
+        { label: '1st Gen (1969-1970)', start: 1969, end: 1970, img: 'mustang_1969.png' },
+        { label: '1st Gen (1971-1973)', start: 1971, end: 1973, img: 'mustang_1971.png' },
+        { label: '2nd Gen (1974-1978)', start: 1974, end: 1978, img: 'mustang_1974.png' },
+        { label: '3rd Gen (Fox) (1979-1986)', start: 1979, end: 1986, img: 'mustang_1979.png' },
+        { label: '3rd Gen (Aero) (1987-1993)', start: 1987, end: 1993, img: 'mustang_1987.png' },
+        { label: '4th Gen (SN95) (1994-1998)', start: 1994, end: 1998, img: 'mustang_1994.png' },
+        { label: '4th Gen (New Edge) (1999-2004)', start: 1999, end: 2004, img: 'mustang_1999.png' },
+        { label: '5th Gen (2005-2009)', start: 2005, end: 2009, img: 'mustang_2005.png' },
+        { label: '5th Gen (2010-2014)', start: 2010, end: 2014, img: 'mustang_2010.png' },
+        { label: '6th Gen (S550) (2015-2023)', start: 2015, end: 2023, img: 'mustang_2015.png' },
+        { label: '7th Gen (S650) (2024+)', start: 2024, end: 2025, img: 'mustang_2024.png' }
+    ],
+    'Challenger': [
+        { label: '1st Gen (1970-1974)', start: 1970, end: 1974, img: 'challenger_1970.png' },
+        { label: '2nd Gen (1978-1983)', start: 1978, end: 1983, img: 'challenger_1978.png' },
+        { label: '3rd Gen (2008-2014)', start: 2008, end: 2014, img: 'challenger_2008.png' },
+        { label: '3rd Gen (Facelift) (2015-2023)', start: 2015, end: 2023, img: 'challenger_2015.png' }
+    ]
+};
+
+function renderGenerationSelector(model) {
+    const selectorContainer = document.getElementById('modelChipsContainer'); // Re-use this container for visibility
+    const chipGrid = document.getElementById('chipContainer'); // The grid inside
+
+    const generations = MODEL_GENERATIONS[model];
+
+    // Hide filter bar if present
+    const filterBar = document.getElementById('modelFilterBar');
+    if (filterBar) filterBar.style.display = 'none';
+
+    // Update Header
+    const title = document.getElementById('browseTitle'); // Assuming there's a title element or we use another indicator
+    // In current UI: <h2 id="makeTitle"></h2>
+    const makeTitle = document.getElementById('makeTitle');
+    if (makeTitle) makeTitle.innerHTML = `<span style="opacity:0.7">${currentMake}</span> › ${model} <span style="color:var(--brand-primary)">Generations</span>`;
+
+    chipGrid.innerHTML = `
+        <div class="generation-selector-grid">
+            ${generations.map(gen => `
+                <div class="generation-card" onclick="selectGeneration('${model}', ${gen.start}, ${gen.end})">
+                    <div class="generation-img-container">
+                        <img src="/assets/vehicles/generations/${gen.img}" alt="${gen.label}" class="generation-img">
+                    </div>
+                    <div class="generation-info">
+                        <span class="generation-label">${gen.label}</span>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="width:100%; text-align:center; margin-top:20px;">
+            <button class="btn" style="background:var(--bg-secondary); border:1px solid var(--border);" onclick="loadModels(currentMake)">← Back to Models</button>
+        </div>
+    `;
+}
+
+function selectGeneration(model, startYear, endYear) {
+    // Select model and start year (as representative)
+    const modelSelect = document.getElementById('modelSelect');
+    if (modelSelect) {
+        if (![...modelSelect.options].some(o => o.value === model)) {
+            const opt = document.createElement('option');
+            opt.value = model;
+            opt.text = model;
+            modelSelect.add(opt);
+        }
+        modelSelect.value = model;
+    }
+
+    // Set year
+    // Note: The app relies on "Year" step being active usually.
+    // We can "skip" to search directly.
+    const yearSelect = document.getElementById('yearSelect');
+    if (yearSelect) yearSelect.value = startYear;
+
+    // Trigger standard search with these parameters
+    // We need to ensure global state is set if searchVehicle relies on it
+    currentVehicleMake = currentMake;
+    currentVehicleModel = model;
+    currentVehicleYear = startYear;
+
+    searchVehicle();
+}
+
+// Helper to get generation-specific image for Result Page
+function getVehicleResultImage(make, model, year) {
+    // 1. Check Gen Selector
+    if (typeof MODEL_GENERATIONS !== 'undefined' && MODEL_GENERATIONS[model] && year) {
+        const gen = MODEL_GENERATIONS[model].find(g => year >= g.start && year <= g.end);
+        if (gen) {
+            return `/assets/vehicles/generations/${gen.img}`;
+        }
+    }
+
+    // 2. Fallback to standard clean image
+    let cleanMake = make.toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+    let cleanModel = model.toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+    return `/assets/vehicles/${cleanMake}_${cleanModel}.png`;
+}
+
 function selectVisualModel(model) {
-    // Update legacy select (create option if needed)
+    // FIX: If year is already selected, skip generation selector and go to results
+    if (currentVehicleYear || (document.getElementById('yearSelect') && document.getElementById('yearSelect').value)) {
+        const modelSelect = document.getElementById('modelSelect');
+        if (![...modelSelect.options].some(o => o.value === model)) {
+            modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+        }
+        modelSelect.value = model;
+        modelSelect.disabled = false;
+        searchVehicle();
+        return;
+    }
+
+    // Check for Generational Flow
+    if (MODEL_GENERATIONS[model]) {
+        renderGenerationSelector(model);
+        return;
+    }
+
+    // Standard Logic
     const modelSelect = document.getElementById('modelSelect');
     if (![...modelSelect.options].some(o => o.value === model)) {
         modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
@@ -147,7 +281,18 @@ function selectVisualModel(model) {
     modelSelect.value = model;
     modelSelect.disabled = false;
 
-    // Trigger Search
+    // Trigger Search (Standard flow usually goes to Year step, but this function implies immediate selection)
+    // Looking at original code: it called searchVehicle(), implying year was already selected or it defaults?
+    // Wait, original code usage: onclick="selectVisualModel('${m.name}')"
+    // Usually user selects Make -> Year -> Model. 
+    // If Year is already selected (from previous step), then `searchVehicle` works.
+    // If Year is NOT selected (e.g. browsing by Make first), `searchVehicle` might fail or alert.
+    // Original code:
+    // document.getElementById('yearChipsContainer').style.display = 'none'; ... -> loadModels()
+    // It seems this function is called AFTER Year selection? 
+    // Line 137: console.log("Visual Year Selected:", year, "Triggering loadModels...");
+    // So `loadModels` is called after year is picked. So `year` is known.
+
     searchVehicle();
 }
 
@@ -386,25 +531,42 @@ async function loadModels() {
         const seen = new Set();
 
         (data.rows || []).forEach(r => {
-            const name = (r.model || '').trim();
+            let name = (r.model || '').trim();
             if (!name || !isValidModelName(name)) return;
+
+            // Clean up suffixes to merge duplicates (e.g., "Trax Remote" -> "Trax")
+            // This regex removes " Remote", " Key", " Fob", " Smart Key" from the end, case-insensitive
+            name = name.replace(/\s+(remote|key|fob|smart key|model)\s*$/i, '').trim();
 
             const lowerName = name.toLowerCase();
             const keyType = (r.key_type || r.key_type_display || '').toLowerCase();
             const isProx = keyType.includes('prox') || keyType.includes('smart');
 
-            // Create unique key per model+type to handle same model name with different tech
-            const uniqueKey = `${lowerName}|${isProx ? 'prox' : 'keyed'}`;
+            // If we've already seen this normalized model name, we might simply update its type status
+            // instead of adding a new entry unless we want to split by type visually.
+            // Current logic implies one chip per model name.
 
-            if (!seen.has(uniqueKey)) {
-                seen.add(uniqueKey);
+            // Check if we already have this model in our processed list
+            const existingIndex = processed.findIndex(p => p.name.toLowerCase() === lowerName);
+
+            if (existingIndex > -1) {
+                // If existing was keyed and this is prox (or vice versa), mark as mixed/varies
+                const existing = processed[existingIndex];
+                if (existing.type !== 'varies') {
+                    if ((existing.type === 'prox' && !isProx) || (existing.type === 'keyed' && isProx)) {
+                        existing.type = 'varies';
+                    }
+                }
+            } else {
                 processed.push({
                     name: name,
                     type: isProx ? 'prox' : 'keyed',
-                    key_type_display: r.key_type_display || (isProx ? 'Smart Key' : 'Keyed')
+                    // Store original to help with debugging if needed, but display cleaned name
+                    originalName: r.model
                 });
             }
         });
+
 
         // Sort by name
         processed.sort((a, b) => a.name.localeCompare(b.name));
@@ -459,11 +621,51 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
     const currentMake = document.getElementById('selectedMakeName')?.textContent?.trim() ||
         document.getElementById('makeSelect')?.value || '';
 
-    // Generate vehicle image URL from R2 bucket via API
+    // Generate vehicle image URL from local assets
     const getVehicleImageUrl = (make, model) => {
-        const cleanModel = model.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        const cleanMake = make.toLowerCase().replace(/\s+/g, '-');
-        return `${API_BASE}/assets/vehicles/${cleanMake}-${cleanModel}.png`;
+        let cleanMake = make.toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+        let cleanModel = model.toLowerCase().trim();
+
+        // Manual mapping for specific models to match generated filenames
+        const modelMap = {
+            'silverado 1500': 'silverado',
+            'silverado': 'silverado',
+            'sierra 1500': 'sierra',
+            'sierra': 'sierra',
+            'ram 1500': 'ram_1500',
+            'ram 2500': 'ram_2500',
+            'f-150': 'f150',
+            'f150': 'f150',
+            'cr-v': 'crv',
+            'cx-5': 'cx5',
+            'cx-9': 'cx9',
+            'cx-30': 'cx30',
+            'rav4': 'rav4',
+            '4runner': '4runner',
+            'bronco sport': 'bronco_sport',
+            'accord': 'accord',
+            'civic': 'civic',
+            'camry': 'camry',
+            'corolla': 'corolla',
+            'altima': 'altima',
+            'rogue': 'rogue',
+            'tucson': 'tucson',
+            'elantra': 'elantra',
+            'sportage': 'sportage',
+            'sorento': 'sorento',
+            'jetta': 'jetta',
+            'tiguan': 'tiguan',
+            '3-series': '3series',
+            'c-class': 'cclass',
+        };
+
+        if (modelMap[cleanModel]) {
+            cleanModel = modelMap[cleanModel];
+        } else {
+            cleanModel = cleanModel.replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+        }
+
+        return `/assets/vehicles/${cleanMake}_${cleanModel}.png`;
     };
 
     // Populate Visual Grid
@@ -484,14 +686,14 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
         } else {
             const imageUrl = (model) => getVehicleImageUrl(currentMake, model);
             chipContainer.innerHTML = models.map(m => `
-                        <div class="model-chip" onclick="selectVisualModel('${m.name}')" style="flex-direction: column; padding: 8px; min-height: 110px;">
-                            <div class="model-image-container" style="width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(18,18,28,0.9), rgba(22,33,50,0.9)); border-radius: 8px; margin-bottom: 6px; overflow: hidden;">
+                        <div class="model-chip visual-model-chip" onclick="selectVisualModel('${m.name}')">
+                            <div class="model-image-wrapper">
                                 <img src="${imageUrl(m.name)}" alt="${m.name}" 
-                                     style="max-width: 100%; max-height: 60px; object-fit: contain;"
+                                     class="model-img"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <span style="display: none; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-align: center; padding: 8px;">${m.name}</span>
+                                <span class="model-img-fallback">${m.name}</span>
                             </div>
-                            <span class="model-name" style="font-size: 0.7rem; text-align: center;">${m.name}</span>
+                            <span class="model-name">${m.name}</span>
                         </div>
                     `).join('');
         }
@@ -719,45 +921,107 @@ function selectKey(cardIndex, keyIndex) {
 
     // Update card specs dynamically
     const specsContainer = document.getElementById(`keySpecs-${cardIndex}`);
-    const cleanTitle = cleanProductTitle(key.product_title);
-    const fccId = cleanFccId(key.fcc_id);
     if (specsContainer) {
+        specsContainer.style.display = 'block';
+
+        // Get defaults from dataset
+        const ds = specsContainer.dataset;
+        const year = ds.year;
+        const make = ds.make;
+        const model = ds.model;
+
+        // Resolve values (Key specific -> Vehicle Default -> N/A)
+        const cleanTitle = cleanProductTitle(key.product_title);
+        const fccId = cleanFccId(key.fcc_id) || cleanFccId(key.oem_part) || null; // Use key specific
+        const chip = key.chip || ds.chip;
+        const keyway = key.keyway || ds.defaultKeyway; // Assuming key object might have keyway, else default
+        const battery = key.battery || ds.defaultBattery;
+
+        // Amazon Tag
+        const amazonTag = 'eurokeys-20';
+
+        // Cutting Info
+        const codeSeries = ds.codeSeries;
+        const lishi = ds.lishi;
+        const ignition = ds.ignition;
+
         specsContainer.innerHTML = `
-                    <div class="data-item">
-                        <div class="data-label">Product</div>
-                        <div class="data-value highlight" style="font-size: 0.9rem;">${cleanTitle || 'N/A'}</div>
+            <div style="padding: 16px;">
+                <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">${cleanTitle}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+                        ${fccId ? `FCC: <span style="color:var(--accent); font-family:monospace;">${fccId}</span>` : ''} 
+                        ${chip ? ` • Chip: ${chip}` : ''}
                     </div>
-                    <div class="data-item">
-                        <div class="data-label">FCC ID</div>
-                        <div class="data-value highlight">${fccId ? `<a href="#" class="fcc-link" onclick="searchFccById('${fccId}'); return false;">${fccId}</a>` : 'N/A'}</div>
+                </div>
+
+                <!-- Three Column Grid for Parts -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                    <!-- 1. Key/Remote -->
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${year} ${make} ${model} key fob ${fccId || ''}`)}&tag=${amazonTag}" target="_blank" 
+                       style="display: flex; flex-direction: column; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-decoration: none; transition: all 0.2s;"
+                       onmouseover="this.style.borderColor='var(--brand-primary)'; this.style.background='rgba(59,130,246,0.1)'"
+                       onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(0,0,0,0.2)'">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span style="font-size: 1.2rem;">🔑</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">Key / Remote</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--accent); margin-bottom: 4px;">${fccId || 'View Choices'}</div>
+                        <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                    </a>
+
+                    <!-- 2. Blade/Blank -->
+                    ${keyway !== 'N/A' ? `
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${keyway} key blank`)}&tag=${amazonTag}" target="_blank" 
+                       style="display: flex; flex-direction: column; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-decoration: none; transition: all 0.2s;"
+                       onmouseover="this.style.borderColor='var(--brand-primary)'; this.style.background='rgba(59,130,246,0.1)'"
+                       onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(0,0,0,0.2)'">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span style="font-size: 1.2rem;">🗝️</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">Blade / Blank</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--accent); margin-bottom: 4px;">${keyway}</div>
+                        <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                    </a>` : ''}
+
+                    <!-- 3. Battery -->
+                    ${battery !== 'N/A' ? `
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${battery} battery`)}&tag=${amazonTag}" target="_blank" 
+                       style="display: flex; flex-direction: column; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-decoration: none; transition: all 0.2s;"
+                       onmouseover="this.style.borderColor='var(--brand-primary)'; this.style.background='rgba(59,130,246,0.1)'"
+                       onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(0,0,0,0.2)'">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span style="font-size: 1.2rem;">🔋</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">Battery</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--accent); margin-bottom: 4px;">${battery}</div>
+                        <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                    </a>` : ''}
+                </div>
+
+                <!-- Cutting & Tech Specs -->
+                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Technical & Cutting Specs</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 0.85rem;">
+                        ${codeSeries !== 'N/A' ? `<div><span style="color:var(--text-secondary);">Code Series:</span> <span style="color:var(--text-primary); font-family:monospace;">${codeSeries}</span></div>` : ''}
+                        ${lishi !== 'N/A' ? `<div><span style="color:var(--text-secondary);">Lishi:</span> <span style="color:#22c55e;">${lishi}</span></div>` : ''}
+                        ${ignition !== 'N/A' ? `<div><span style="color:var(--text-secondary);">Ignition:</span> <span style="color:var(--text-primary);">${ignition}</span></div>` : ''}
                     </div>
-                    <div class="data-item">
-                        <div class="data-label">Chip</div>
-                        <div class="data-value">${key.chip || 'N/A'}</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Frequency</div>
-                        <div class="data-value">${key.frequency || 'N/A'}</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Battery</div>
-                        <div class="data-value">${key.battery || 'N/A'}</div>
-                    </div>
-                    <div class="data-item">
-                        <div class="data-label">Price (AKS)</div>
-                        <div class="data-value" style="color: #22c55e; font-weight: 600;">${key.price || 'N/A'}</div>
-                    </div>
-                `;
+                </div>
+            </div>
+        `;
+                    </div >
+            `;
     }
 
     // Update Amazon button
-    const amazonBtn = document.getElementById(`amazonBtn-${cardIndex}`);
+    const amazonBtn = document.getElementById(`amazonBtn - ${ cardIndex } `);
     if (amazonBtn && key.amazon_search_url) {
         amazonBtn.href = key.amazon_search_url;
     }
 
     // Update AKS link
-    const aksBtn = document.getElementById(`aksBtn-${cardIndex}`);
+    const aksBtn = document.getElementById(`aksBtn - ${ cardIndex } `);
     if (aksBtn && key.url) {
         aksBtn.href = key.url;
         aksBtn.style.display = 'inline-block';
@@ -784,7 +1048,7 @@ async function searchVehicle() {
     currentVehicleMake = make;
     currentVehicleModel = model;
 
-    document.getElementById('resultTitle').textContent = `${make} ${model}`;
+    document.getElementById('resultTitle').textContent = `${ make } ${ model } `;
     updateYearNavigation(parseInt(year));
     document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
@@ -797,7 +1061,7 @@ async function searchVehicle() {
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`;
+        const fetchUrl = `${ API } /api/browse ? year = ${ year }& make=${ encodeURIComponent(make) }& model=${ encodeURIComponent(model) }& limit=10`;
 
         const res = await fetch(fetchUrl);
         const data = await res.json();
@@ -807,7 +1071,7 @@ async function searchVehicle() {
                 displayResults(data.rows, year, make, model);
             } catch (innerE) {
                 console.error('Display Error:', innerE);
-                document.getElementById('resultsContainer').innerHTML = `<div class="error">Display Error: ${innerE.message}</div>`;
+                document.getElementById('resultsContainer').innerHTML = `< div class="error" > Display Error: ${ innerE.message }</div > `;
             }
         } else {
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
@@ -829,8 +1093,8 @@ window.openGuideModal = function (id) {
     }
 
     try {
-        // Decode base64 data
-        const jsonStr = atob(dataEl.dataset.guideJson);
+        // Decode base64 data (Unicode safe)
+        const jsonStr = decodeURIComponent(escape(atob(dataEl.dataset.guideJson)));
         const guide = JSON.parse(jsonStr);
 
         const modal = document.getElementById('guideModal');
@@ -848,12 +1112,12 @@ window.openGuideModal = function (id) {
         } else if (guide.steps) {
             // Default render for steps
             contentHtml = guide.steps.map(step => `
-                <div class="guide-step" style="margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+            < div class="guide-step" style = "margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" >
                     <h3 style="color: #60a5fa; margin-bottom: 12px; font-size: 1.1rem;">${step.title || ''}</h3>
                     <div style="color: #e5e7eb; line-height: 1.6;">${step.description || ''}</div>
-                    ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : ''}
-                </div>
-             `).join('');
+                    ${ step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : '' }
+                </div >
+            `).join('');
         } else if (guide.content) {
             // Simple markdown-to-html fallback
             contentHtml = guide.content
@@ -899,12 +1163,23 @@ function displayResults(rows, year, make, model, extras = {}) {
     // Set shareable URL for this vehicle
     setVehicleUrl(make, model, year);
 
-    let html = '';
+    // Show Generation/Vehicle Image
+    const resultImg = getVehicleResultImage(make, model, year);
+    let html = `
+            < div style = "display: flex; justify-content: center; margin-bottom: 24px;" >
+                <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; padding: 20px; width: 100%; max-width: 600px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.3); text-align: center;">
+                    <img src="${resultImg}" alt="${year} ${make} ${model}"
+                        style="max-width: 100%; max-height: 200px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));"
+                        onerror="this.style.display='none'">
+                        <div style="margin-top: 12px; font-weight: 700; color: var(--text-primary); font-size: 1.1rem;">${year} ${make} ${model}</div>
+                </div>
+        </div >
+            `;
 
     // 1. Embedded YouTube Video Section (Watch First)
-    const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
+    const youtubeSearchQuery = encodeURIComponent(`${ year } ${ make } ${ model } key programming tutorial`);
     html += `
-            <div class="video-section" style="background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            < div class="video-section" style = "background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;" >
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <span style="font-size: 1.3rem;">📹</span>
                     <span style="font-weight: 700; color: #ff6b6b;">WATCH FIRST</span>
@@ -920,7 +1195,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         AKL Tutorial
                     </a>
                 </div>
-            </div>`;
+            </div > `;
 
     // 2. Tool Checklist Section (What You'll Need)
     const firstRow = rows[0] || {};
@@ -929,7 +1204,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const battery = firstRow.battery || 'CR2032';
     const amazonTag = 'eurokeys-20';
     html += `
-            <div class="tool-checklist" style="background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            < div class="tool-checklist" style = "background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;" >
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <span style="font-size: 1.3rem;">🛠️</span>
                     <span style="font-weight: 700; color: #22c55e;">WHAT YOU'LL NEED</span>
@@ -961,7 +1236,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         </div>
                     </a>
                 </div>
-            </div>`;
+            </div > `;
 
     // 3. Render Alerts (if any) - FIXED field names
     if (alerts && alerts.length > 0) {
@@ -984,7 +1259,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             const mitigation = alert.mitigation || '';
 
             html += `
-                    <details style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
+            < details style = "background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;" >
                         <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
                             <span>${style.icon}</span>
                             <span>${title}</span>
@@ -993,7 +1268,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                             <p style="margin: 0 0 8px 0;">${content}</p>
                             ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
                         </div>
-                    </details>`;
+                    </details > `;
         });
         html += '</div>';
     }
@@ -1001,7 +1276,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     // 4. Programming Guide Callout (if available)
     if (guide) {
         html += `
-                <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            < div class="guide-callout" style = "background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;" >
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Comprehensive step-by-step instructions for ${year} ${make} ${model}</p>
@@ -1010,10 +1285,10 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <span>View Guide</span>
                         <span>→</span>
                     </button>
-                    <!-- Hidden data store for the guide -->
-                    <div id="guide-data-${guide.id}" data-guide-json="${btoa(JSON.stringify(guide))}" style="display:none;"></div>
-    </div>
-    `;
+                    <!--Hidden data store for the guide-- >
+            <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
+    </div >
+            `;
     }
 
     // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
@@ -1021,7 +1296,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const uniqueRows = rows.filter(v => {
         const fccId = v.fcc_id || '';
         const oem = v.oem_part_number || '';
-        const key = fccId ? `FCC:${fccId}` : `OEM:${oem}-${v.key_type || ''}`;
+        const key = fccId ? `FCC:${ fccId } ` : `OEM:${ oem } -${ v.key_type || '' } `;
         if (key && seen.has(key)) return false;
         if (key) seen.add(key);
         return true;
@@ -1326,6 +1601,20 @@ function displayResults(rows, year, make, model, extras = {}) {
         <!-- Key Carousel -->
         <div id="keyCarouselContainer-${idx}" class="key-carousel-container"
             style="background: var(--bg-secondary); padding: 16px; border-bottom: 1px solid var(--border);"></div>
+        
+        <!-- Dynamic Key Details (Selected Key) -->
+        <div id="keySpecs-${idx}" class="key-specs-container" 
+             style="background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: none;"
+             data-default-keyway="${keyway || 'N/A'}"
+             data-default-battery="${battery || 'N/A'}"
+             data-code-series="${v.code_series || 'N/A'}"
+             data-lishi="${v.lishi_tool || 'N/A'}"
+             data-ignition="${v.ignition_retainer || 'N/A'}"
+             data-chip="${chip || 'N/A'}"
+             data-year="${year}" data-make="${make}" data-model="${model}">
+             <!-- Populated by selectKey() -->
+        </div>
+
         <div
             style="font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 4px; background: var(--bg-tertiary);">
             ${inventoryBadge}
@@ -1491,6 +1780,8 @@ function displayResults(rows, year, make, model, extras = {}) {
             if (keys && keys.length > 0) {
                 cardKeysData[idx] = keys;
                 container.innerHTML = renderKeyCarousel(keys, idx, 0);
+                // Auto-select first key to populate details
+                selectKey(idx, 0);
             } else {
                 container.innerHTML = '';
             }
