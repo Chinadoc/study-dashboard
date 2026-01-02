@@ -15,7 +15,7 @@ async function checkSubscription() {
             const data = JSON.parse(localStatus);
             if (data.userId === userId && data.effectiveExpiry > nowSeconds) {
                 window.isPro = true;
-                updateProUI();
+                window.updateProUI();
                 // Verify with server in background
             }
         }
@@ -41,7 +41,7 @@ async function checkSubscription() {
             localStorage.removeItem('eurokeys_subscription');
         }
 
-        updateProUI();
+        window.updateProUI();
     } catch (err) {
         console.error('Subscription check failed:', err);
     }

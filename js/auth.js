@@ -90,8 +90,8 @@ async function postLoginBootstrap(user, isNewSignIn = false) {
     window.isAuthExpired = false;
 
     // 3. Set Pro status
-    isPro = currentUser.is_pro || (currentUser.trial_until && currentUser.trial_until > Date.now() / 1000);
-    updateProUI();
+    window.isPro = currentUser.is_pro || (currentUser.trial_until && currentUser.trial_until > Date.now() / 1000);
+    window.updateProUI();
     updateTrialBanner();
 
     // 4. Update UI
@@ -279,7 +279,7 @@ async function initGoogleAuth() {
                     currentUser.id = currentUser.sub;
                 }
                 isPro = currentUser.is_pro || (currentUser.trial_until && currentUser.trial_until > Date.now() / 1000);
-                updateProUI();
+                window.updateProUI();
                 updateAuthUI(true);
             } else {
                 localStorage.removeItem('eurokeys_user');
@@ -390,7 +390,7 @@ async function checkDeveloperStatus() {
                 // Update isPro based on subscription or trial
                 // FIX: trial_until is in Unix seconds, Date.now() is milliseconds
                 isPro = currentUser.is_pro || (currentUser.trial_until && currentUser.trial_until > Date.now() / 1000);
-                updateProUI();
+                window.updateProUI();
                 updateAuthUI(true);
 
                 if (currentUser && currentUser.is_developer) {
