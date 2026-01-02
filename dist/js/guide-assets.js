@@ -118,7 +118,7 @@ window.openPdfGuide = function (pdfUrl, title) {
     }
 };
 
-// Open an HTML guide in a modal iframe
+// Open an HTML guide by fetching content and rendering inline (bypasses SPA routing)
 window.openHtmlGuide = function (htmlUrl, title) {
     const modal = document.getElementById('guideModal');
     const modalBody = document.getElementById('guideModalBody');
@@ -126,16 +126,71 @@ window.openHtmlGuide = function (htmlUrl, title) {
 
     if (modalTitle) modalTitle.textContent = title || 'Programming Guide';
 
+    // Show loading state
     modalBody.innerHTML = `
-        <div style="position: relative; width: 100%; height: 70vh; background: white; border-radius: 8px; overflow: hidden;">
-            <iframe src="${htmlUrl}" 
-                    style="width: 100%; height: 100%; border: none;" 
-                    title="${title || 'Guide'}">
-            </iframe>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: var(--text-muted);">
+            <div style="width: 40px; height: 40px; border: 3px solid var(--border); border-top: 3px solid var(--brand-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p style="margin-top: 16px;">Loading guide...</p>
         </div>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
     `;
-
     modal.style.display = 'flex';
+
+    // Fetch the HTML content and render inline
+    fetch(htmlUrl)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.text();
+        })
+        .then(html => {
+            // Extract just the body content from the fetched HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Get the style and body content
+            const styles = doc.querySelectorAll('style');
+            const bodyContent = doc.body ? doc.body.innerHTML : html;
+
+            // Build the inline content with scoped styles
+            let scopedStyles = '';
+            styles.forEach(style => {
+                scopedStyles += style.outerHTML;
+            });
+
+            modalBody.innerHTML = `
+                <div class="guide-content-wrapper" style="
+                    max-height: calc(100vh - 140px); 
+                    overflow-y: auto; 
+                    padding: 0;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                ">
+                    ${scopedStyles}
+                    <div style="padding: 20px;">
+                        ${bodyContent}
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 12px 0; border-top: 1px solid var(--border); margin-top: 12px;">
+                    <a href="${htmlUrl}" target="_blank" 
+                       style="color: var(--brand-primary); font-size: 0.9rem; text-decoration: none;">
+                       📄 Open in New Tab
+                    </a>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Failed to load guide:', error);
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <p style="font-size: 2rem; margin-bottom: 16px;">📄</p>
+                    <p style="margin-bottom: 16px;">Guide could not be loaded</p>
+                    <a href="${htmlUrl}" target="_blank" 
+                       style="display: inline-block; padding: 12px 24px; background: var(--brand-primary); color: var(--bg-primary); text-decoration: none; border-radius: 8px; font-weight: 600;">
+                       Open Guide in New Tab →
+                    </a>
+                </div>
+            `;
+        });
 
     if (typeof logActivity === 'function') {
         logActivity('guide_html_open', { url: htmlUrl, title: title });
