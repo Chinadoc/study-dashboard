@@ -245,16 +245,15 @@ function renderGuideContent(markdown) {
 
     // Process tables (simple conversion)
     html = html.replace(/\|(.+)\|\n\|[-:| ]+\|\n((?:\|.+\|\n?)+)/g, (match, header, body) => {
-        const headerCells = header.split('|').filter(c => c.trim()).map(c => `< th > ${c.trim()}</th > `).join('');
+        const headerCells = header.split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
         const rows = body.trim().split('\n').map(row => {
-            const cells = row.split('|').filter(c => c.trim()).map(c => `< td > ${c.trim()}</td > `).join('');
-            return `< tr > ${cells}</tr > `;
+            const cells = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+            return `<tr>${cells}</tr>`;
         }).join('');
-        return `< div class="table-container" > <table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table></div > `;
+        return `<div class="table-container"><table><thead><tr>${headerCells}</tr></thead><tbody>${rows}</tbody></table></div>`;
     });
 
     // Alerts / Callouts (Custom Syntax Support)
-    // Support > [!TIP] etc
     html = html.replace(/^> \[!TIP\] (.*)$/gm, '<blockquote class="alert-tip"><strong>💡 Tip:</strong> $1</blockquote>');
     html = html.replace(/^> \[!WARNING\] (.*)$/gm, '<blockquote class="alert-warning"><strong>⚠️ Warning:</strong> $1</blockquote>');
     html = html.replace(/^> \[!IMPORTANT\] (.*)$/gm, '<blockquote class="alert-important"><strong>🚨 Important:</strong> $1</blockquote>');
@@ -278,23 +277,54 @@ function renderGuideContent(markdown) {
     // Horizontal rules
     html = html.replace(/^---$/gm, '<hr>');
 
-    // Lists (Improved)
-    html = html.replace(/^(\d+\.|-)\s+(.*)$/gm, (match, prefix, content) => {
-        const type = prefix.includes('.') ? 'ol' : 'ul';
-        return `< li data - type="${type}" > ${content}</li > `;
-    });
+    // Process lists properly - convert to temporary markers first
+    const lines = html.split('\n');
+    const processedLines = [];
+    let inList = false;
+    let listType = null;
 
-    // Wrap contiguous <li> in <ul> or <ol>
-    html = html.replace(/(?:<li data-type="(ul|ol)">.*?<\/li>\s*)+/g, (match, type) => {
-        const tag = type === 'ol' ? 'ol' : 'ul';
-        const items = match.replace(/ data-type="(ul|ol)"/g, '');
-        return `< ${tag}> ${items}</${tag}> `;
-    });
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const bulletMatch = line.match(/^- (.*)$/);
+        const numberMatch = line.match(/^(\d+)\. (.*)$/);
 
-    // Line breaks
-    // Preserve paragraphs but avoid double-spacing block elements
-    html = html.replace(/\n\n/g, '</p><p>');
-    html = html.replace(/\n/g, ' ');
+        if (bulletMatch) {
+            if (!inList || listType !== 'ul') {
+                if (inList) processedLines.push(`</${listType}>`);
+                processedLines.push('<ul class="guide-list">');
+                inList = true;
+                listType = 'ul';
+            }
+            processedLines.push(`<li>${bulletMatch[1]}</li>`);
+        } else if (numberMatch) {
+            if (!inList || listType !== 'ol') {
+                if (inList) processedLines.push(`</${listType}>`);
+                processedLines.push('<ol class="guide-list">');
+                inList = true;
+                listType = 'ol';
+            }
+            processedLines.push(`<li>${numberMatch[2]}</li>`);
+        } else {
+            if (inList) {
+                processedLines.push(`</${listType}>`);
+                inList = false;
+                listType = null;
+            }
+            processedLines.push(line);
+        }
+    }
+    if (inList) processedLines.push(`</${listType}>`);
+
+    html = processedLines.join('\n');
+
+    // Line breaks - convert double newlines to paragraphs
+    html = html.replace(/\n\n+/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+
+    // Wrap in paragraph if not already wrapped
+    if (!html.startsWith('<')) {
+        html = '<p>' + html + '</p>';
+    }
 
     // R2 Asset Support (r2://bucket-path -> /assets/bucket-path)
     html = html.replace(/src="r2:\/\/([^"]+)"/g, 'src="/assets/$1"');
@@ -312,32 +342,32 @@ function renderBookGuide(vehicleName, data) {
     ];
 
     const tabsHtml = sections.map((s, i) => `
-    < div class="book-tab ${i === 0 ? 'active' : ''}" onclick = "switchBookTab(this, '${s.id}')" >
-        ${s.title}
-                </div >
+        <div class="book-tab ${i === 0 ? 'active' : ''}" onclick="switchBookTab(this, '${s.id}')">
+            ${s.title}
+        </div>
     `).join('');
 
     const contentHtml = sections.map((s, i) => `
-    < div id = "book-section-${s.id}" class="book-section ${i === 0 ? 'active' : ''}" >
-                    <div class="book-chapter-title">${s.title}</div>
-                    <div class="programming-guide-body">
-                        ${renderGuideContent(data[s.id] || 'Information coming soon.')}
-                    </div>
-                </div >
+        <div id="book-section-${s.id}" class="book-section ${i === 0 ? 'active' : ''}">
+            <div class="book-chapter-title">${s.title}</div>
+            <div class="programming-guide-body">
+                ${renderGuideContent(data[s.id] || 'Information coming soon.')}
+            </div>
+        </div>
     `).join('');
 
     return `
-    < div class="programming-guide-header" >
-                    <h3>${vehicleName}</h3>
-                    <button onclick="this.closest('.walkthrough-content').classList.remove('expanded')" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕ Close</button>
-                </div >
-    <div class="book-guide-container">
-        <div class="book-guide-tabs">
-            ${tabsHtml}
+        <div class="programming-guide-header">
+            <h3>${vehicleName}</h3>
+            <button onclick="this.closest('.walkthrough-content').classList.remove('expanded')" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕ Close</button>
         </div>
-        ${contentHtml}
-    </div>
-`;
+        <div class="book-guide-container">
+            <div class="book-guide-tabs">
+                ${tabsHtml}
+            </div>
+            ${contentHtml}
+        </div>
+    `;
 }
 
 function switchBookTab(el, sectionId) {
@@ -346,7 +376,7 @@ function switchBookTab(el, sectionId) {
     container.querySelectorAll('.book-section').forEach(s => s.classList.remove('active'));
 
     el.classList.add('active');
-    container.querySelector(`#book - section - ${sectionId} `).classList.add('active');
+    container.querySelector(`#book-section-${sectionId}`).classList.add('active');
 }
 
 

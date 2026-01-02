@@ -1398,25 +1398,124 @@ export default {
         `).bind(sevenDaysAgo).first<any>();
 
           // 5. Visitor Stats (Last 30 days)
+          const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
           const visitorStats = await env.LOCKSMITH_DB.prepare(`
           SELECT 
-            COUNT(DISTINCT CASE WHEN user_id LIKE 'guest:%' THEN user_id END) as guest_count,
-            COUNT(DISTINCT CASE WHEN user_id NOT LIKE 'guest:%' AND user_id != 'anonymous' THEN user_id END) as registered_count
+            COUNT(DISTINCT user_id) as active_users,
+            COUNT(*) as total_events
           FROM user_activity
           WHERE created_at > ?
-        `).bind(Date.now() - (30 * 24 * 60 * 60 * 1000)).first<any>();
+        `).bind(thirtyDaysAgo).first<any>();
 
           return corsResponse(request, JSON.stringify({
-            topSearches: topSearches.results || [],
-            topClicks: topClicks.results || [],
-            globalTotals: globalTotals || { searches: 0, clicks: 0, vin_lookups: 0 },
-            growth: growthStats?.new_users || 0,
-            visitorStats: visitorStats || { guest_count: 0, registered_count: 0 }
+            top_searches: topSearches.results || [],
+            top_clicks: topClicks.results || [], // This uses 'click_affiliate', we should standardize
+            global_totals: globalTotals,
+            user_growth: growthStats?.new_users || 0,
+            visitor_stats: visitorStats
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
       }
+
+      // Admin: Intelligence - Inventory Aggregation
+      if (path === "/api/admin/intelligence/inventory") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          // Get top stocked items
+          const topStocked = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              item_key,
+              type,
+              COUNT(DISTINCT user_id) as user_count,
+              SUM(qty) as total_qty
+            FROM inventory
+            WHERE qty > 0
+            GROUP BY item_key, type
+            ORDER BY user_count DESC, total_qty DESC
+            LIMIT 50
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ items: topStocked.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Admin: Intelligence - Subscriptions
+      if (path === "/api/admin/intelligence/subscriptions") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          // Get top subscriptions directly from JSON data
+          // Note: SQLite JSON extraction syntax
+          const subscriptions = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              json_extract(data, '$.name') as tool_name,
+              COUNT(DISTINCT user_id) as subscriber_count
+            FROM user_tool_subscriptions
+            GROUP BY tool_name
+            ORDER BY subscriber_count DESC
+            LIMIT 20
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ subscriptions: subscriptions.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // Admin: Intelligence - Advanced Click Tracking
+      if (path === "/api/admin/intelligence/clicks") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Forbidden" }), 403);
+
+          // Get detailed click stats
+          // Aggregating both 'affiliate_click' and 'click_affiliate' to cover legacy/current mix
+          const clicks = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              json_extract(details, '$.term') as term,
+              json_extract(details, '$.fcc_id') as fcc_id,
+              json_extract(details, '$.type') as click_type,
+              COUNT(*) as count,
+              COUNT(DISTINCT user_id) as distinct_users
+            FROM user_activity
+            WHERE action IN ('affiliate_click', 'click_affiliate')
+            GROUP BY term, fcc_id, click_type
+            ORDER BY count DESC
+            LIMIT 50
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ clicks: clicks.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+
 
       // Admin: Get Cloudflare Analytics (developer only)
       if (path === "/api/admin/cloudflare") {

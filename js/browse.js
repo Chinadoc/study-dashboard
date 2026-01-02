@@ -631,6 +631,11 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
         let cleanMake = make.toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
         let cleanModel = model.toLowerCase().trim();
 
+        // Manual mapping for Makes (Match generated filenames)
+        if (cleanMake === 'mercedes_benz') cleanMake = 'mercedes';
+        if (cleanMake === 'volkswagen') cleanMake = 'vw';
+        if (cleanMake === 'land_rover') cleanMake = 'landrover';
+
         // Manual mapping for specific models to match generated filenames
         const modelMap = {
             'silverado 1500': 'silverado',
@@ -662,6 +667,17 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
             'tiguan': 'tiguan',
             '3-series': '3series',
             'c-class': 'cclass',
+            // Batch 18-20 Mappings
+            'land cruiser': 'landcruiser',
+            'corolla cross': 'corollacross',
+            'model 3': 'model3',
+            'model y': 'modely',
+            'model s': 'models',
+            'model x': 'modelx',
+            'range rover': 'rangerover',
+            'range rover sport': 'rangeroversport',
+            'f-pace': 'fpace',
+            'f-type': 'ftype'
         };
 
         if (modelMap[cleanModel]) {
@@ -690,17 +706,44 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
                         </div>`;
         } else {
             const imageUrl = (model) => getVehicleImageUrl(currentMake, model);
-            chipContainer.innerHTML = models.map(m => `
-                        <div class="model-chip visual-model-chip" onclick="selectVisualModel('${m.name}')">
-                            <div class="model-image-wrapper">
-                                <img src="${imageUrl(m.name)}" alt="${m.name}" 
-                                     class="model-img"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <span class="model-img-fallback">${m.name}</span>
-                            </div>
-                            <span class="model-name">${m.name}</span>
-                        </div>
+
+            chipContainer.innerHTML = models.map(m => {
+                let imagesHtml = '';
+
+                // Check for generational images
+                if (typeof MODEL_GENERATIONS !== 'undefined' && MODEL_GENERATIONS[m.name]) {
+                    const gens = MODEL_GENERATIONS[m.name];
+                    // Create multiple img tags
+                    // The first one is active by default
+                    imagesHtml = gens.map((g, idx) => `
+                        <img src="/assets/vehicles/generations/${g.img}" 
+                             alt="${m.name} ${g.label}" 
+                             class="model-img gen-img ${idx === 0 ? 'active' : ''}"
+                             data-idx="${idx}"
+                             onerror="this.style.display='none';">
                     `).join('');
+                } else {
+                    // Standard single image
+                    imagesHtml = `
+                        <img src="${imageUrl(m.name)}" alt="${m.name}" 
+                             class="model-img"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="model-img-fallback">${m.name}</span>
+                    `;
+                }
+
+                return `
+                    <div class="model-chip visual-model-chip ${MODEL_GENERATIONS && MODEL_GENERATIONS[m.name] ? 'has-generations' : ''}" onclick="selectVisualModel('${m.name}')">
+                        <div class="model-image-wrapper">
+                            ${imagesHtml}
+                        </div>
+                        <span class="model-name">${m.name}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Start the cycler if not already running
+            startModelImageCycler();
         }
     }
 
@@ -720,6 +763,31 @@ function renderModels(models, chipContainer, loader, isFiltering = false) {
             });
         }
     }
+}
+
+let imageCyclerInterval = null;
+
+function startModelImageCycler() {
+    if (imageCyclerInterval) clearInterval(imageCyclerInterval);
+
+    imageCyclerInterval = setInterval(() => {
+        const chips = document.querySelectorAll('.visual-model-chip.has-generations');
+        chips.forEach(chip => {
+            const images = chip.querySelectorAll('.gen-img');
+            if (images.length > 1) {
+                // Find current active
+                let activeIdx = -1;
+                images.forEach((img, idx) => {
+                    if (img.classList.contains('active')) activeIdx = idx;
+                    img.classList.remove('active');
+                });
+
+                // Next index
+                let nextIdx = (activeIdx + 1) % images.length;
+                images[nextIdx].classList.add('active');
+            }
+        });
+    }, 2500); // Cycle every 2.5 seconds
 }
 
 
@@ -1113,8 +1181,8 @@ window.openGuideModal = function (id) {
         let contentHtml = '';
 
         // Check for GuideRenderer or custom steps
-        if (window.renderGuideContent) {
-            contentHtml = window.renderGuideContent(guide);
+        if (window.renderGuideContent && guide.content) {
+            contentHtml = window.renderGuideContent(guide.content);
         } else if (guide.steps) {
             // Default render for steps
             contentHtml = guide.steps.map(step => `
@@ -1309,13 +1377,51 @@ function displayResults(rows, year, make, model, extras = {}) {
         html += '</div>';
     }
 
-    // 5. Guide Callout
-    if (guide) {
+    // 5. Guide Callout - Check for premium assets first
+    const premiumGuide = typeof getGuideAsset === 'function' ? getGuideAsset(make) : null;
+
+    if (premiumGuide && (premiumGuide.pdf || premiumGuide.html)) {
+        // Premium guide available (PDF or HTML)
+        const hasPdf = !!premiumGuide.pdf;
+        const hasHtml = !!premiumGuide.html;
+        const hasInfographic = !!premiumGuide.infographic;
+
+        html += `
+            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="margin: 0 0 4px 0; color: #22c55e; display: flex; align-items: center; gap: 8px;">
+                            📖 ${premiumGuide.title || make + ' Programming Guide'}
+                            <span style="font-size: 0.7rem; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">PRO</span>
+                        </h3>
+                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Comprehensive professional-grade guide with ${hasPdf ? 'PDF' : ''}${hasPdf && hasHtml ? ' & ' : ''}${hasHtml ? 'walkthrough' : ''}</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        ${hasPdf ? `
+                        <button onclick="openPdfGuide('${premiumGuide.pdf}', '${premiumGuide.title}')" 
+                                style="background: #22c55e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>📄</span> Open PDF Guide
+                        </button>` : ''}
+                        ${hasHtml ? `
+                        <button onclick="openHtmlGuide('${premiumGuide.html}', '${premiumGuide.title}')" 
+                                style="background: #3b82f6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>📋</span> View Walkthrough
+                        </button>` : ''}
+                        ${hasInfographic ? `
+                        <button onclick="openInfographic('${premiumGuide.infographic}', '${make} Quick Reference')" 
+                                style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>🖼️</span> Infographic
+                        </button>` : ''}
+                    </div>
+                </div>
+            </div>`;
+    } else if (guide) {
+        // Fallback to database guide
         html += `
             <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
-                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Comprehensive step-by-step instructions for ${year} ${make} ${model}</p>
+                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
                     </div>
                     <button onclick="openGuideModal('${guide.id}')" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                         <span>View Guide</span>
@@ -1349,7 +1455,7 @@ function displayResults(rows, year, make, model, extras = {}) {
         const oem = v.oem_part_number || 'N/A';
         const immoSystem = (v.immobilizer_system || v.immobilizer || 'N/A');
         const chip = v.chip || v.chip_technology || 'N/A';
-        const freq = v.frequency ? `${v.frequency} MHz` : 'N/A';
+        const freq = v.frequency ? (v.frequency.toString().toLowerCase().includes('mhz') ? v.frequency : `${v.frequency} MHz`) : 'N/A';
         const keyway = v.keyway || 'N/A';
         const battery = v.battery || 'N/A';
 
