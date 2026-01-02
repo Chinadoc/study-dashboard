@@ -143,7 +143,11 @@ function route() {
         if (parts.length >= 4) {
             const make = decodeURIComponent(parts[1]);
             const model = decodeURIComponent(parts[2]);
-            const year = parts[3];
+            let year = parts[3];
+            // FIX: Remove query parameters from year
+            if (year && year.includes('?')) {
+                year = year.split('?')[0];
+            }
             console.log(`📍 Deep link: ${year} ${make} ${model}`);
             // Wait for DOM to be ready
             setTimeout(() => loadVehicleFromDeepLink(make, model, year), 100);

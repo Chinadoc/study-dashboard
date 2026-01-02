@@ -89,17 +89,15 @@ const GUIDE_ASSETS = {
     },
     'Chevrolet': {
         html: '/public/guides/html/Chevrolet_Camaro_PEPS_Guide/CamaroPEPSGuide.html',
-        title: 'Chevrolet PEPS Key Programming Guide'
+        title: 'Chevrolet PEPS Key Programming Guide',
+        snippets: [
+            { text: 'Slot: REAR Cup Holder', color: '#dc2626' }, // Red
+            { text: '433 MHz ONLY', color: '#2563eb' }, // Blue
+            { text: 'FCC: HYQ4EA', color: '#d97706' }, // Orange
+            { text: 'Used Keys Need Unlock', color: '#059669' } // Green
+        ]
     },
     // Model-specific guides (checked before make fallback)
-    'Chevrolet Silverado': {
-        html: '/public/guides/html/Chevrolet_Silverado_Global_B_Guide/SilveradoGlobalBGuide.html',
-        title: 'Chevrolet Silverado Global B Programming Guide'
-    },
-    'GMC Sierra': {
-        html: '/public/guides/html/Chevrolet_Silverado_Global_B_Guide/SilveradoGlobalBGuide.html',
-        title: 'GMC Sierra Global B Programming Guide'
-    },
     'GMC': {
         html: '/public/guides/html/Chevrolet_Camaro_PEPS_Guide/CamaroPEPSGuide.html',
         title: 'GM PEPS Key Programming Guide'
@@ -115,15 +113,54 @@ const GUIDE_ASSETS = {
 };
 
 // Get premium guide asset for a make (supports model-specific: "Chevrolet Silverado")
-window.getGuideAsset = function (make, model) {
-    // Check for model-specific guide first
+window.getGuideAsset = function (make, model, yearStr) {
+    const year = parseInt(yearStr);
+
+    // 1. Model-Specific Rules
     if (model) {
+        // Chevrolet Silverado Global B (2024+)
+        if (make === 'Chevrolet' && model.includes('Silverado')) {
+            if (year >= 2024) {
+                return {
+                    html: '/public/guides/html/Chevrolet_Silverado_Global_B_Guide/SilveradoGlobalBGuide.html',
+                    title: 'Chevrolet Silverado Global B Programming Guide (2024+)',
+                    snippets: [
+                        { text: 'CANFD Adapter Required', color: '#dc2626' },
+                        { text: 'Server Connection Needed', color: '#2563eb' },
+                        { text: 'Do Not Disconnect Battery', color: '#d97706' },
+                        { text: 'Keys Can Be Reused', color: '#059669' }
+                    ]
+                };
+            }
+            // Add future legacy guide here
+            return null;
+        }
+
+        // GMC Sierra Global B (2024+)
+        if (make === 'GMC' && model.includes('Sierra')) {
+            if (year >= 2024) {
+                return {
+                    html: '/public/guides/html/Chevrolet_Silverado_Global_B_Guide/SilveradoGlobalBGuide.html',
+                    title: 'GMC Sierra Global B Programming Guide (2024+)',
+                    snippets: [
+                        { text: 'CANFD Adapter Required', color: '#dc2626' },
+                        { text: 'Server Connection Needed', color: '#2563eb' },
+                        { text: 'Do Not Disconnect Battery', color: '#d97706' },
+                        { text: 'Keys Can Be Reused', color: '#059669' }
+                    ]
+                };
+            }
+            return null;
+        }
+
+        // Generic Model Match
         const modelKey = `${make} ${model}`;
         if (GUIDE_ASSETS[modelKey]) {
             return GUIDE_ASSETS[modelKey];
         }
     }
-    // Fall back to make-level guide
+
+    // 2. Make-Level Fallback
     return GUIDE_ASSETS[make] || null;
 };
 
@@ -160,19 +197,23 @@ window.openHtmlGuide = function (htmlUrl, title) {
             return response.text();
         })
         .then(html => {
-            // Extract just the body content from the fetched HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            // Get the style and body content
-            const styles = doc.querySelectorAll('style');
-            const bodyContent = doc.body ? doc.body.innerHTML : html;
-
-            // Build the inline content with scoped styles
+            // Regex fallback for body extraction (DOMParser was stripping images)
+            const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
             let scopedStyles = '';
-            styles.forEach(style => {
-                scopedStyles += style.outerHTML;
-            });
+            if (styleMatch) {
+                scopedStyles = styleMatch.join('\n');
+            }
+
+            const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            const bodyContent = bodyMatch ? bodyMatch[1] : html;
+
+            console.log('Guide Loaded (Regex):', title);
+            console.log('Body Content Length:', bodyContent.length);
+
+            // Debug if images are still missing
+            if ((bodyContent.match(/<img/g) || []).length === 0) {
+                console.warn('WARNING: No images found even with Regex. Raw content check:', html.includes('<img'));
+            }
 
             modalBody.innerHTML = `
                 <div class="guide-content-wrapper" style="
