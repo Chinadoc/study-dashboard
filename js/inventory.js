@@ -1,5 +1,5 @@
 // Subscription Management
-let isPro = false;
+// Rely on global window.isPro defined in auth.js
 
 async function checkSubscription() {
     if (!currentUser) return;
@@ -14,7 +14,7 @@ async function checkSubscription() {
         if (localStatus) {
             const data = JSON.parse(localStatus);
             if (data.userId === userId && data.effectiveExpiry > nowSeconds) {
-                isPro = true;
+                window.isPro = true;
                 updateProUI();
                 // Verify with server in background
             }
@@ -27,9 +27,9 @@ async function checkSubscription() {
         const trialExpiry = data.trial_until || 0;
         const effectiveExpiry = Math.max(subExpiry, trialExpiry);
 
-        isPro = data.isPro || (trialExpiry > nowSeconds);
+        window.isPro = data.isPro || (trialExpiry > nowSeconds);
 
-        if (isPro) {
+        if (window.isPro) {
             localStorage.setItem('eurokeys_subscription',
                 JSON.stringify({
                     userId: userId,

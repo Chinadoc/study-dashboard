@@ -12,7 +12,35 @@ const GOOGLE_CLIENT_ID = '1057439383868-t1h9qf10acvad82bv0h9gg2jeufg30v4.apps.go
 
 let googleAuth = null;
 window.currentUser = null; // EXPOSE GLOBALLY for other scripts (inventory.js)
+window.isPro = false; // EXPOSE GLOBALLY
 window.isAuthExpired = false; // Global lock to stop console spam on 401
+
+// Global UI Updater for Pro features
+window.updateProUI = function () {
+    // 1. Calculate status from global user object
+    const user = window.currentUser;
+    window.isPro = user && (user.is_pro || (user.trial_until && user.trial_until > Date.now() / 1000));
+
+    console.log('updateProUI: Status updated. isPro=', window.isPro);
+
+    // 2. Update specific UI elements if they exist
+    // Hide/Show "Upgrade" buttons
+    const upgradeBtns = document.querySelectorAll('.upgrade-btn');
+    upgradeBtns.forEach(btn => {
+        btn.style.display = window.isPro ? 'none' : 'inline-block';
+    });
+
+    // Show/Hide "Pro" badges
+    const proBadges = document.querySelectorAll('.pro-badge');
+    proBadges.forEach(badge => {
+        badge.style.display = window.isPro ? 'inline-block' : 'none';
+    });
+
+    // 3. Update Trial Banner
+    if (typeof updateTrialBanner === 'function') {
+        updateTrialBanner();
+    }
+};
 
 const STORAGE_MIGRATION_NOTICE_KEY = 'eurokeys_storage_migration_notice_shown';
 
