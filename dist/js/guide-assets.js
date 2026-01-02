@@ -91,6 +91,15 @@ const GUIDE_ASSETS = {
         html: '/public/guides/html/Chevrolet_Camaro_PEPS_Guide/CamaroPEPSGuide.html',
         title: 'Chevrolet PEPS Key Programming Guide'
     },
+    // Model-specific guides (checked before make fallback)
+    'Chevrolet Silverado': {
+        html: '/public/guides/html/Chevrolet_Silverado_Global_B_Guide/SilveradoGlobalBGuide.html',
+        title: 'Chevrolet Silverado Global B Programming Guide'
+    },
+    'GMC Sierra': {
+        html: '/public/guides/html/Chevrolet_Silverado_Global_B_Guide/SilveradoGlobalBGuide.html',
+        title: 'GMC Sierra Global B Programming Guide'
+    },
     'GMC': {
         html: '/public/guides/html/Chevrolet_Camaro_PEPS_Guide/CamaroPEPSGuide.html',
         title: 'GM PEPS Key Programming Guide'
@@ -105,8 +114,16 @@ const GUIDE_ASSETS = {
     }
 };
 
-// Get premium guide asset for a make
-window.getGuideAsset = function (make) {
+// Get premium guide asset for a make (supports model-specific: "Chevrolet Silverado")
+window.getGuideAsset = function (make, model) {
+    // Check for model-specific guide first
+    if (model) {
+        const modelKey = `${make} ${model}`;
+        if (GUIDE_ASSETS[modelKey]) {
+            return GUIDE_ASSETS[modelKey];
+        }
+    }
+    // Fall back to make-level guide
     return GUIDE_ASSETS[make] || null;
 };
 

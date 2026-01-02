@@ -1321,7 +1321,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     }
 
     // 3. Guide Callout (SECOND - programming guide is critical for job planning)
-    const premiumGuide = typeof getGuideAsset === 'function' ? getGuideAsset(make) : null;
+    const premiumGuide = typeof getGuideAsset === 'function' ? getGuideAsset(make, model) : null;
 
     if (premiumGuide && (premiumGuide.pdf || premiumGuide.html)) {
         const hasPdf = !!premiumGuide.pdf;
