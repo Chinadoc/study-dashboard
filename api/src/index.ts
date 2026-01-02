@@ -2111,7 +2111,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             SELECT 
                 v.*,
                 ROW_NUMBER() OVER (
-                    PARTITION BY v.make, v.model, v.year_start, v.year_end, v.fcc_id, v.key_type 
+                    PARTITION BY v.make, v.model, v.fcc_id 
                     ORDER BY v.confidence_score DESC, v.id DESC
                 ) as rn
             FROM vehicles v

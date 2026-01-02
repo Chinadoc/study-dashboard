@@ -1,0 +1,14 @@
+HUMMER
+H1 SUV 2000 2004
+Door/
+GB FB0-FB1863 S1167FD/H50 [-PC] OBP Program A or G H56 140
+Ignition FA0-FA1863 1167FD/H51 [-PC] RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box - 140
+H2 2008 2009 All S000A-S999K
+B111-PT Service Key B106-P Circle +, Philips (46) Encrypted System 567
+EK3P-B111/EK3LB-B111*/
+B111-GTK# OBP Program A or G Service Key B106-P Circle +, Philips (46) Encrypted System 567
+2003 2007 All S000A-S999K P1113/B102 [-P] (LAL) P1106/B86 567
+H3 (TRANSPONDER 
+OPTIONAL) 2006 2009 All 70000-75928 P1113/B102 [-P] (LAL) OBP Program A or G Circle +, Philips (46) Encrypted System (Optional) 1420
+H3 2003 2005 All S000A-S999K P1113/B102 [-P] P1106/B86 567

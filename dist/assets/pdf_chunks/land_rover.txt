@@ -1,0 +1,33 @@
+LAND ROVER
+DEFENDER 1995 2003 GB E8000-E8999 X239/RV4 [-P] - 68
+Ignition R1001-R2000 X157/LF17 - 9
+DISCOVERY 1994 2004 All 7001-9000 X239/RV4 [-P] - 68
+EVOQUE 2012 2014 All 4001-9000 Dealer Key Smart Pro/TCP/MVPP Service Key HU101 Ordered by VIN 2264
+FREELANDER
+2002 2006 All NSP7001-9000 Dealer Key  Service Key X239/RV4 Ordered by VIN 68
+2002 2005 All NSP7001-9000 NE75EHP RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Service Key X239/RV4 Philips Crypto Transponder 68
+LR2 2005 2009 All 0001-6000 Dealer Key  Philips Crypto Transponder, High Security Key, Ordered 
+by VIN 223
+LR3 2005 2009 All 0001-6000
+Dealer Key  - Philips Crypto Transponder, High Security Key, Ordered 
+by VIN 223
+HU101MH# RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Service Key HU101 Philips Crypto Transponder, High Security Key 223
+LR4 2010 2014 All 4001-9000 Dealer Key Smart Pro/TCP/MVPP Service Key HU101 Ordered by VIN 2264
+RANGE ROVER
+2003 2009 All 0001-6000 or 
+4001-9000 Dealer Key  Philips Crypto Transponder, High Security Key, Ordered 
+by VIN 223/835
+2007 2009 All 4001-9000 HU101MH# RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Service Key HU101 Philips Crypto Transponder, High Security Key 2264
+2003 2006 All 0001-6000 HU92RMH# RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Service Key HU92RP Philips Crypto Transponder, High Security Key 223
+1996 2002 All 1000-2500 HU109FP Service Key HU74T N/A
+1995 1995 All NSP7001-9000 X239/RV4 [-P] 68
+1989 1994 All E8000-E8999 X170/NE48 - 68
+RANGE ROVER 
+SPORT
+2010 2014 All 4001-9000 Dealer Key Service Key HU101 Ordered by VIN 2264
+2006 2009 All 4001-9000 HU101MH# RW5, SA+, RW5, SA+, RW4 Plus, EZ Clone 
+Plus, Plus Box Service Key HU101 Philips Crypto Transponder, High Security Key 2264

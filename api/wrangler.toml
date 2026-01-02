@@ -24,3 +24,6 @@ crons = ["0 0 * * *"] # Run daily at midnight UTC
 
 [vars]
 DEV_EMAILS = "jeremysamuels17@gmail.com,jeremyandenmei@gmail.com,ben.samuels20@gmail.com"
+# Cloudflare Analytics (Set these in your Cloudflare dashboard or .dev.vars for local dev)
+CF_ANALYTICS_TOKEN = "OO4H6yv484kSfbB2D_HgnUhUXH-WBv67xQGq86vj" 
+CF_ZONE_ID = "7bafb36a5620206fa00528e710e2b551"

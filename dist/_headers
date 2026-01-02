@@ -1,0 +1,46 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# HTML - Always revalidate, use stale content while fetching
+/index.html
+  Cache-Control: public, max-age=0, s-maxage=3600, stale-while-revalidate=86400
+
+# Service Worker - NEVER cache (browsers need to check for updates)
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Manifest - Revalidate
+/manifest.webmanifest
+  Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=86400
+
+# Public JS files (data scripts) - Cache 1 hour, stale-while-revalidate
+/public/js/*
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
+
+# Data files - Edge cached 1 week
+/data/*
+  Cache-Control: public, max-age=86400, s-maxage=604800
+
+# Static assets - Long cache, immutable (icons, images)
+/assets/*
+  Cache-Control: public, max-age=2592000, s-maxage=2592000, immutable
+
+# JSON data - Cache 1 hour, stale while revalidate
+/*.json
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
+
+# Favicon
+/favicon.ico
+  Cache-Control: public, max-age=2592000, immutable
+
+# CSS files - Force correct MIME type and cache
+/css/*
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
+
+# JS files - Force correct MIME type and cache
+/js/*
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400
