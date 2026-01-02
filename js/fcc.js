@@ -1105,7 +1105,7 @@ async function showFccModal(fccId) {
     } catch (err) {
         console.error('Error loading FCC detail:', err);
         // Fallback to basic display from cached
-        data
+        // data was removed here
         const record = fccData.find(r =>
             r.fcc_id === fccId);
         if (record) {

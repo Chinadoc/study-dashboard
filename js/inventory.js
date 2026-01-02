@@ -135,7 +135,7 @@ function getVehicleInventoryHtml(oemId, keyway, vehicleName, fobAmazonLink, blad
     return html;
 }
 
-console.log('inventory.js loaded (Fixed_14 - OpenModal Verified)');
+console.log('inventory.js loaded (Fixed_15 - OpenModal Verified)');
 
 // ================== INVENTORY MANAGER ==================
 const InventoryManager = {
@@ -447,8 +447,17 @@ function renderInventoryCard(item) {
                         ${item.qty} in stock
                     </div>
                 </div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-                    ${escapeHtml(item.vehicle || 'Unknown Vehicle')}
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                    ${item.vehicle ? `
+                        <details>
+                            <summary style="cursor: pointer; color: var(--brand-primary); user-select: none;">
+                                View Compatible Vehicles
+                            </summary>
+                            <div style="margin-top: 8px; padding: 8px; background: var(--bg-primary); border-radius: 6px; border: 1px solid var(--border); font-size: 0.8rem; max-height: 150px; overflow-y: auto;">
+                                ${escapeHtml(item.vehicle).split(',').map(v => `<div style="padding: 2px 0; border-bottom: 1px solid var(--bg-tertiary);">${v.trim()}</div>`).join('')}
+                            </div>
+                        </details>
+                    ` : 'Unknown Vehicle'}
                 </div>
             </div>
             
