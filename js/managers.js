@@ -96,7 +96,7 @@ async function logActivity(action, metadata = {}) {
         if (typeof API !== 'undefined') {
             const headers = (typeof getAuthHeaders === 'function') ? getAuthHeaders() : {};
             if (headers['Authorization']) {
-                fetch(`${API}/api/log/activity`, {
+                fetch(`${API}/api/activity/log`, {
                     method: 'POST',
                     headers: {
                         ...headers,

@@ -370,7 +370,7 @@ function renderInventoryPage() {
         return;
     }
 
-    const inventory = InventoryManager.inventory || [];
+    let inventory = InventoryManager.inventory || [];
 
     if (inventory.length === 0) {
         container.innerHTML = `
