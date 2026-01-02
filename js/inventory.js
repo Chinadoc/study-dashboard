@@ -135,7 +135,7 @@ function getVehicleInventoryHtml(oemId, keyway, vehicleName, fobAmazonLink, blad
     return html;
 }
 
-console.log('inventory.js loaded');
+console.log('inventory.js loaded (Fixed_9 - OpenModal Verified)');
 
 // ================== INVENTORY MANAGER ==================
 const InventoryManager = {
