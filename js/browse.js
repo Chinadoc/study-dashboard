@@ -6,6 +6,15 @@
 if (typeof currentUser === 'undefined') window.currentUser = null;
 if (typeof InventoryManager === 'undefined') window.InventoryManager = { getKeyStock: () => 0, getBlankStock: () => 0, getAllKeys: () => [] };
 
+// Lightbox functions for Key Reference images
+function openLightbox(imgSrc) {
+    document.getElementById('lightboxImage').src = imgSrc;
+    document.getElementById('photoLightbox').style.display = 'flex';
+}
+
+function closeLightbox() {
+    document.getElementById('photoLightbox').style.display = 'none';
+}
 
 const POPULAR_MAKES = [
     'Acura', 'Audi', 'BMW', 'Buick', 'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge',
@@ -1855,7 +1864,9 @@ function displayResults(rows, year, make, model, extras = {}) {
                        <div style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.1);">
                           <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; text-align: center;">🔑 Key Reference</div>
                           <img src="${keyTechCardImg}" alt="${make} Key Fob, Blade & Battery" 
-                               style="width: 100%; height: auto; border-radius: 8px; display: block;"
+                               style="width: 100%; height: auto; border-radius: 8px; display: block; cursor: zoom-in;"
+                               onclick="openLightbox('${keyTechCardImg}')"
+                               ondblclick="openLightbox('${keyTechCardImg}')"
                                onerror="this.closest('.key-ref-card')?.remove(); this.parentElement.parentElement.remove();">
                        </div>
                     </div>
