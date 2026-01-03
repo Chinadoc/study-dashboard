@@ -239,7 +239,14 @@ window.getGuideAsset = function (make, model, yearStr) {
                     padding: 0;
                     border-radius: 12px;
                     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                    color: #e6edf3;
                 ">
+                    <style>
+                        .guide-content-wrapper h1, .guide-content-wrapper h2, .guide-content-wrapper h3 { color: #58a6ff !important; }
+                        .guide-content-wrapper p, .guide-content-wrapper li, .guide-content-wrapper td { color: #e6edf3 !important; }
+                        .guide-content-wrapper a { color: #7ee787 !important; }
+                        .guide-content-wrapper th { color: #fbbf24 !important; }
+                    </style>
                     ${scopedStyles}
                     <div style="padding: 20px;">
                         ${bodyContent}
