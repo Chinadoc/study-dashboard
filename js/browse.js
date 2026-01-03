@@ -1360,7 +1360,7 @@ function selectKey(cardIndex, keyIndex) {
                     ${ignition !== 'N/A' ? `<span><strong>Ignition:</strong> <span style="color:var(--text-primary);">${ignition}</span></span>` : ''}
                 </div>` : ''
             }
-            </div >
+            </div>
             `;
     }
 
@@ -1421,7 +1421,7 @@ async function searchVehicle() {
                 displayResults(data.rows, year, make, model);
             } catch (innerE) {
                 console.error('Display Error:', innerE);
-                document.getElementById('resultsContainer').innerHTML = `< div class="error" > Display Error: ${innerE.message}</div > `;
+                document.getElementById('resultsContainer').innerHTML = `<div class="error"> Display Error: ${innerE.message}</div> `;
             }
         } else {
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
@@ -1462,11 +1462,11 @@ window.openGuideModal = function (id) {
         } else if (guide.steps) {
             // Default render for steps
             contentHtml = guide.steps.map(step => `
-            < div class="guide-step" style = "margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" >
+            <div class="guide-step"style="margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                     <h3 style="color: #60a5fa; margin-bottom: 12px; font-size: 1.1rem;">${step.title || ''}</h3>
                     <div style="color: #e5e7eb; line-height: 1.6;">${step.description || ''}</div>
                     ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : ''}
-                </div >
+                </div>
             `).join('');
         } else if (guide.content) {
             // Simple markdown-to-html fallback
@@ -1518,7 +1518,7 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     // 1. Master Header
     const makeLogo = getMakeLogo(make);
-    const logoHtml = makeLogo ? `< img src = "${makeLogo}" alt = "${make}" class="make-logo" onerror = "this.style.display='none'" style = "width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;" > ` : '';
+    const logoHtml = makeLogo ? `<imgsrc="${makeLogo}"alt="${make}" class="make-logo"onerror="this.style.display='none'"style="width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;"> ` : '';
 
     // Calculate global badges (Stellantis/Mercedes)
     let globalWarnings = '';
@@ -1530,10 +1530,10 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     uniqueRowsForBadges.forEach(v => {
         if (make.toLowerCase() === 'jeep' && model.toLowerCase().includes('renegade') && parseInt(year) === 2022 && !globalWarnings.includes('Split-Year')) {
-            globalWarnings += `< span class="badge" style = "background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);" >⚠️ Split - Year</span > `;
+            globalWarnings += `<span class="badge"style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">⚠️ Split - Year</span> `;
         }
         if ((v.vin_ordered === 1) && !globalWarnings.includes('VIN-Ordered')) {
-            globalWarnings += `< span class="badge" style = "background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);" >🔒 VIN - Ordered</span > `;
+            globalWarnings += `<span class="badge"style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔒 VIN - Ordered</span> `;
         }
     });
 
@@ -1569,7 +1569,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         ${globalWarnings}
                     </div>
                 </div>
-    </div >
+    </div>
             `;
 
     // 1b. Critical Insight Tiles (Windows Phone Style)
@@ -1624,7 +1624,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             const openAttr = level === 'CRITICAL' ? 'open' : '';
 
             html += `
-            < details ${openAttr} style = "background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;" >
+            <details ${openAttr} style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
                         <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
                             <span>${style.icon}</span>
                             <span>${title}</span>
@@ -1634,7 +1634,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                             <p style="margin: 0 0 8px 0;">${content}</p>
                             ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
                         </div>
-                    </details > `;
+                    </details>`;
         });
         html += '</div>';
     }
@@ -1676,10 +1676,10 @@ function displayResults(rows, year, make, model, extras = {}) {
                         </button>` : ''}
                     </div>
                 </div>
-            </div > `;
+            </div> `;
     } else if (guide) {
         html += `
-            < div class="guide-callout" style = "background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;" >
+            <div class="guide-callout"style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
@@ -1689,7 +1689,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <span>→</span>
                     </button>
                     <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
-            </div > `;
+            </div> `;
     }
 
     // 4. What You'll Need (Tools Checklist)
@@ -1819,9 +1819,9 @@ function displayResults(rows, year, make, model, extras = {}) {
         const keyInStock = (typeof currentUser !== 'undefined' && currentUser) && fccId !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0;
         const blankInStock = (typeof currentUser !== 'undefined' && currentUser) && keyway !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getBlankStock(keyway) : 0;
         const inventoryBadge = keyInStock > 0
-            ? `< span class="badge" style = "background: #22c55e; color: white;" >📦 ${keyInStock} in stock</span > `
+            ? `<span class="badge"style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span> `
             : blankInStock > 0
-                ? `< span class="badge" style = "background: #22c55e; color: white;" >🔑 ${blankInStock} blanks</span > `
+                ? `<span class="badge"style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span> `
                 : '';
 
         // Generate the Config Card HTML
@@ -1956,11 +1956,11 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <div style="margin-top: 8px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">${v.service_notes_pro}</div>
                     </details>` : ''}
             </div>
-        </div >
+        </div>
             `;
     }).join('');
 
-    html += `</div > `; // End configurations-section
+    html += `</div> `; // End configurations-section
 
     // CRITICAL FIX: Inject the generated HTML into the DOM
     container.innerHTML = html;
@@ -2115,7 +2115,7 @@ async function loadVehicleByYear(year, make, model) {
                     const sortedYears = [...yearsSet].sort((a, b) => b - a);
                     if (sortedYears.length > 0) {
                         availableYearsHtml = `
-            < div style = "margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);" >
+            <divstyle="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
                                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Available years for ${make} ${model}:</div>
                                 <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
                                     ${sortedYears.slice(0, 15).map(y => `
@@ -2128,7 +2128,7 @@ async function loadVehicleByYear(year, make, model) {
                                     `).join('')}
                                     ${sortedYears.length > 15 ? `<span style="color: var(--text-muted); font-size: 0.8rem; align-self: center;">+${sortedYears.length - 15} more</span>` : ''}
                                 </div>
-                            </div >
+                            </div>
             `;
                     }
                 }
@@ -2137,14 +2137,14 @@ async function loadVehicleByYear(year, make, model) {
             }
 
             document.getElementById('resultsContainer').innerHTML = `
-            < div class="loading" style = "text-align: center;" >
+            <div class="loading"style="text-align: center;">
                     <div style="font-size: 2rem; margin-bottom: 12px;">🚫</div>
                     <div>No data for ${year} ${make} ${model}</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
                         ${availableYearsHtml ? 'Select a year with available data below:' : 'Try adjacent years or this model may not exist for ' + year}
                     </div>
                     ${availableYearsHtml}
-                </div >
+                </div>
             `;
         }
     } catch (e) {
@@ -2196,7 +2196,7 @@ async function quickLoadMakes() {
         const data = await res.json();
         const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
         select.innerHTML = '<option value="">Make</option>';
-        makes.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
+        makes.forEach(m => { select.innerHTML += `<option value = "${m}"> ${m}</option> `; });
     } catch (e) {
         select.innerHTML = '<option value="">Make</option>';
     }
@@ -2218,7 +2218,7 @@ async function quickLoadModels() {
         const data = await res.json();
         const models = [...new Set(data.rows.map(r => r.model))].sort();
         select.innerHTML = '<option value="">Model</option>';
-        models.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
+        models.forEach(m => { select.innerHTML += `<option value = "${m}"> ${m}</option> `; });
     } catch (e) {
         select.innerHTML = '<option value="">Model</option>';
     }
@@ -2261,7 +2261,7 @@ function initQuickSearch() {
     const select = document.getElementById('quickYear');
     if (select.options.length <= 1) {
         const year = new Date().getFullYear() + 1; for (let y = year; y >= 2000; y--) {
-            select.innerHTML += `< option value = "${y}" > ${y}</option > `;
+            select.innerHTML += `<option value = "${y}"> ${y}</option> `;
         }
     }
 }
