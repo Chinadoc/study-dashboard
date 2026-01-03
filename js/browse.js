@@ -1700,7 +1700,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const battery = firstRow.battery || 'CR2032';
     const amazonTag = 'eurokeys-20';
     html += `
-            < div class="tool-checklist" style = "background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;" >
+            <div class="tool-checklist" style="background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <span style="font-size: 1.3rem;">🛠️</span>
                     <span style="font-weight: 700; color: #22c55e;">WHAT YOU'LL NEED</span>
@@ -1735,11 +1735,11 @@ function displayResults(rows, year, make, model, extras = {}) {
                         </div>
                     </a>
                 </div>
-            </div > `;
+            </div>`;
 
     // 5. Video Section (moved down - procedures come after parts)
     html += `
-            < div class="video-section" style = "background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;" >
+            <div class="video-section" style="background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <span style="font-size: 1.3rem;">📹</span>
                     <span style="font-weight: 700; color: #ff6b6b;">VIDEO TUTORIALS</span>
@@ -1751,7 +1751,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <span>🎬</span> Search YouTube
                     </a>
                 </div>
-            </div > `;
+            </div>`;
 
     // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
     const seen = new Set();
@@ -1765,7 +1765,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     });
 
     // --- CONFIGURATION LIST ---
-    html += `< div class="configurations-section" >
+    html += `<div class="configurations-section">
             <h3 style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                 Available Key Configurations (${uniqueRows.length})
             </h3>`;
