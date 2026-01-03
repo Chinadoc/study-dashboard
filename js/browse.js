@@ -159,40 +159,40 @@ const MODEL_GENERATIONS = {
     ],
     // Chevy Trucks & SUVs
     'Silverado': [
-        { label: 'Remote Head Era (2007-2013)', start: 2007, end: 2013, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'K2XX Smart Key (2014-2018)', start: 2014, end: 2018, img: 'chevy_truck_smart_tech_card.png' },
-        { label: 'Global B (2019+)', start: 2019, end: 2026, img: 'chevy_global_b_tech_card.png' }
+        { label: 'Remote Head Era (2007-2013)', start: 2007, end: 2013, img: 'chevrolet_silverado.png' },
+        { label: 'K2XX Smart Key (2014-2018)', start: 2014, end: 2018, img: 'chevrolet_silverado_2014_2018.png' },
+        { label: 'Global B (2019+)', start: 2019, end: 2026, img: 'chevy_silverado_2024.png' }
     ],
     'Tahoe': [
-        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevy_truck_smart_tech_card.png' },
-        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevy_global_b_tech_card.png' }
+        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevrolet_tahoe.png' },
+        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevrolet_tahoe_2015_2020.png' },
+        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevrolet_tahoe.png' }
     ],
     'Suburban': [
-        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevy_truck_smart_tech_card.png' },
-        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevy_global_b_tech_card.png' }
+        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevrolet_suburban.png' },
+        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevrolet_suburban.png' },
+        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevrolet_suburban.png' }
     ],
     // Chevy Sedans & Crossovers
     'Malibu': [
-        { label: 'Flip Key Era (2010-2015)', start: 2010, end: 2015, img: 'chevy_generic_flip_tech_card.png' },
-        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' } // Re-using Gen 6 style
+        { label: 'Flip Key Era (2010-2015)', start: 2010, end: 2015, img: 'chevrolet_malibu_2013_2015.png' },
+        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'chevrolet_malibu.png' }
     ],
     'Cruze': [
-        { label: 'Flip Key Era (2011-2015)', start: 2011, end: 2015, img: 'chevy_generic_flip_tech_card.png' },
-        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' }
+        { label: 'Flip Key Era (2011-2015)', start: 2011, end: 2015, img: 'chevrolet_cruze.png' },
+        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'chevrolet_cruze.png' }
     ],
     'Equinox': [
-        { label: 'Flip Key Era (2010-2017)', start: 2010, end: 2017, img: 'chevy_generic_flip_tech_card.png' },
-        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'camaro_gen6_tech_card.png' }
+        { label: 'Flip Key Era (2010-2017)', start: 2010, end: 2017, img: 'chevrolet_equinox_2010_2017.png' },
+        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevrolet_equinox.png' }
     ],
     'Impala': [
-        { label: 'Classic Remote Head (2006-2013)', start: 2006, end: 2013, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'New Gen Smart Key (2014+)', start: 2014, end: 2026, img: 'camaro_gen6_tech_card.png' }
+        { label: 'Classic Remote Head (2006-2013)', start: 2006, end: 2013, img: 'chevrolet_impala.png' },
+        { label: 'New Gen Smart Key (2014+)', start: 2014, end: 2026, img: 'chevrolet_impala.png' }
     ],
     'Traverse': [
-        { label: 'Classic Remote Head (2009-2017)', start: 2009, end: 2017, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevy_truck_smart_tech_card.png' } // Traverse uses truck style often
+        { label: 'Classic Remote Head (2009-2017)', start: 2009, end: 2017, img: 'chevrolet_traverse.png' },
+        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevrolet_traverse.png' }
     ],
     'Mustang': [
         { label: '1st Gen (1964.5-1966)', start: 1965, end: 1966, img: 'mustang_1965.png' },
@@ -1069,9 +1069,11 @@ async function fetchCompatibleKeys(make, model, year) {
     }
 
     try {
+        console.time('FetchCompatibleKeys');
         const url = `${API}/api/vehicle-keys?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
         const res = await fetch(url);
         const data = await res.json();
+        console.timeEnd('FetchCompatibleKeys');
         if (data.keys && data.keys.length > 0) {
             compatibleKeysCache[cacheKey] = data.keys;
             return data.keys;
@@ -1409,7 +1411,7 @@ async function searchVehicle() {
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const fetchUrl = `${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`;
+        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`;
 
         const res = await fetch(fetchUrl);
         const data = await res.json();
@@ -2077,6 +2079,7 @@ async function navigateYear(direction) {
 }
 
 async function loadVehicleByYear(year, make, model) {
+    console.time('LoadVehicleFull');
     document.getElementById('resultTitle').textContent = `${make} ${model} `;
     updateYearNavigation(year);
     // CRITICAL: Clear container BEFORE loading to prevent stacking
@@ -2084,17 +2087,19 @@ async function loadVehicleByYear(year, make, model) {
 
     try {
         // FIXED: Clean URL (no spaces, correct query syntax)
-        const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
+        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
         const data = await res.json();
 
         if (data.rows && data.rows.length > 0) {
+            console.timeLog('LoadVehicleFull', 'API Response Received');
             displayResults(data.rows, year, make, model);
+            console.timeEnd('LoadVehicleFull');
         } else {
             // Fetch available years for this make/model
             let availableYearsHtml = '';
             try {
                 // FIXED: Clean URL for available years
-                const yearsRes = await fetch(`${API} /api/master ? make = ${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& fields=year_start, year_end & limit=100`);
+                const yearsRes = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
                 const yearsData = await yearsRes.json();
                 if (yearsData.rows && yearsData.rows.length > 0) {
                     const yearsSet = new Set();
@@ -2187,7 +2192,7 @@ async function quickLoadMakes() {
     select.innerHTML = '<option value="">Loading...</option>';
 
     try {
-        const res = await fetch(`${API} /api/master ? year = ${year}& limit=1000`);
+        const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
         const data = await res.json();
         const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
         select.innerHTML = '<option value="">Make</option>';
@@ -2209,7 +2214,7 @@ async function quickLoadModels() {
     select.innerHTML = '<option value="">Loading...</option>';
 
     try {
-        const res = await fetch(`${API} /api/master ? year = ${year}& make=${encodeURIComponent(make)}& limit=500`);
+        const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
         const data = await res.json();
         const models = [...new Set(data.rows.map(r => r.model))].sort();
         select.innerHTML = '<option value="">Model</option>';
@@ -2239,7 +2244,7 @@ async function quickSearch() {
     document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
     try {
-        const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
+        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
         const data = await res.json();
         if (data.rows && data.rows.length > 0) {
             displayResults(data.rows, year, make, model);
