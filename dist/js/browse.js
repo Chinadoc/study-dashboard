@@ -154,8 +154,45 @@ const MODEL_GENERATIONS = {
         { label: '2nd Gen (1970-1981)', start: 1970, end: 1981, img: 'camaro_1970.png' },
         { label: '3rd Gen (1982-1992)', start: 1982, end: 1992, img: 'camaro_1982.png' },
         { label: '4th Gen (1993-2002)', start: 1993, end: 2002, img: 'camaro_1993.png' },
-        { label: '5th Gen (2010-2015)', start: 2010, end: 2015, img: 'camaro_2010.png' },
-        { label: '6th Gen (2016-2024)', start: 2016, end: 2024, img: 'camaro_2016.png' }
+        { label: '5th Gen (2010-2015)', start: 2010, end: 2015, img: 'camaro_gen5_tech_card.png' },
+        { label: '6th Gen (2016-2024+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' }
+    ],
+    // Chevy Trucks & SUVs
+    'Silverado': [
+        { label: 'Remote Head Era (2007-2013)', start: 2007, end: 2013, img: 'chevy_classic_remote_tech_card.png' },
+        { label: 'K2XX Smart Key (2014-2018)', start: 2014, end: 2018, img: 'chevy_truck_smart_tech_card.png' },
+        { label: 'Global B (2019+)', start: 2019, end: 2026, img: 'chevy_global_b_tech_card.png' }
+    ],
+    'Tahoe': [
+        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevy_classic_remote_tech_card.png' },
+        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevy_truck_smart_tech_card.png' },
+        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevy_global_b_tech_card.png' }
+    ],
+    'Suburban': [
+        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevy_classic_remote_tech_card.png' },
+        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevy_truck_smart_tech_card.png' },
+        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevy_global_b_tech_card.png' }
+    ],
+    // Chevy Sedans & Crossovers
+    'Malibu': [
+        { label: 'Flip Key Era (2010-2015)', start: 2010, end: 2015, img: 'chevy_generic_flip_tech_card.png' },
+        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' } // Re-using Gen 6 style
+    ],
+    'Cruze': [
+        { label: 'Flip Key Era (2011-2015)', start: 2011, end: 2015, img: 'chevy_generic_flip_tech_card.png' },
+        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' }
+    ],
+    'Equinox': [
+        { label: 'Flip Key Era (2010-2017)', start: 2010, end: 2017, img: 'chevy_generic_flip_tech_card.png' },
+        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'camaro_gen6_tech_card.png' }
+    ],
+    'Impala': [
+        { label: 'Classic Remote Head (2006-2013)', start: 2006, end: 2013, img: 'chevy_classic_remote_tech_card.png' },
+        { label: 'New Gen Smart Key (2014+)', start: 2014, end: 2026, img: 'camaro_gen6_tech_card.png' }
+    ],
+    'Traverse': [
+        { label: 'Classic Remote Head (2009-2017)', start: 2009, end: 2017, img: 'chevy_classic_remote_tech_card.png' },
+        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevy_truck_smart_tech_card.png' } // Traverse uses truck style often
     ],
     'Mustang': [
         { label: '1st Gen (1964.5-1966)', start: 1965, end: 1966, img: 'mustang_1965.png' },
@@ -201,7 +238,7 @@ function renderGenerationSelector(model) {
             ${generations.map(gen => `
                 <div class="generation-card" onclick="selectGeneration('${model}', ${gen.start}, ${gen.end})">
                     <div class="generation-img-container">
-                        <img src="/assets/vehicles/generations/${gen.img}" alt="${gen.label}" class="generation-img">
+                        <img src="/assets/vehicles/${gen.img}" alt="${gen.label}" class="generation-img">
                     </div>
                     <div class="generation-info">
                         <span class="generation-label">${gen.label}</span>
@@ -249,7 +286,7 @@ function getVehicleResultImage(make, model, year) {
     if (typeof MODEL_GENERATIONS !== 'undefined' && MODEL_GENERATIONS[model] && year) {
         const gen = MODEL_GENERATIONS[model].find(g => year >= g.start && year <= g.end);
         if (gen) {
-            return `/assets/vehicles/generations/${gen.img}`;
+            return `/assets/vehicles/${gen.img}`;
         }
     }
 
@@ -257,6 +294,214 @@ function getVehicleResultImage(make, model, year) {
     let cleanMake = make.toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
     let cleanModel = model.toLowerCase().trim().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
     return `/assets/vehicles/${cleanMake}_${cleanModel}.png`;
+}
+
+// Key Tech Card Mapping - Maps vehicles to key fob/blade/battery reference images
+const KEY_TECH_CARD_MAP = {
+    // GM/Chevrolet Platform Mapping by Era
+    'Chevrolet': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_5btn.png' } },
+        rhk: { min: 2007, max: 2017, buttons: { 5: 'gm_rhk_5btn_flip.png', 4: 'gm_rhk_4btn_flip.png', default: 'gm_rhk_4btn_flip.png' } },
+        classic: { min: 2000, max: 2006, buttons: { 4: 'gm_classic_remote_4btn.png', 3: 'gm_classic_remote_3btn.png', default: 'gm_classic_remote_3btn.png' } },
+        fobik: { min: 2010, max: 2015, buttons: { default: 'gm_fobik_4btn.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    'GMC': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_5btn.png' } },
+        rhk: { min: 2007, max: 2017, buttons: { 5: 'gm_rhk_5btn_flip.png', 4: 'gm_rhk_4btn_flip.png', default: 'gm_rhk_4btn_flip.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    'Buick': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_4btn.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    'Cadillac': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_5btn.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    // Ford Platform Mapping
+    'Ford': {
+        smart: { min: 2015, max: 2099, buttons: { 5: 'ford_smart_5btn.png', 4: 'ford_smart_4btn.png', default: 'ford_smart_5btn.png' } },
+        rhk: { min: 2011, max: 2019, buttons: { 5: 'ford_rhk_5btn.png', 4: 'ford_rhk_4btn.png', default: 'ford_rhk_4btn.png' } },
+        flip: { min: 2007, max: 2014, buttons: { 4: 'ford_flip_4btn.png', 3: 'ford_flip_3btn.png', default: 'ford_flip_4btn.png' } },
+        pats: { min: 1996, max: 2010, buttons: { default: 'ford_pats_transponder.png' } },
+        tibbe: { min: 1990, max: 2000, buttons: { default: 'ford_tibbe_transponder.png' } }
+    },
+    'Lincoln': {
+        smart: { min: 2015, max: 2099, buttons: { 5: 'ford_smart_5btn.png', 4: 'ford_smart_4btn.png', default: 'ford_smart_5btn.png' } },
+        rhk: { min: 2011, max: 2019, buttons: { 5: 'ford_rhk_5btn.png', 4: 'ford_rhk_4btn.png', default: 'ford_rhk_5btn.png' } },
+        pats: { min: 1996, max: 2010, buttons: { default: 'ford_pats_transponder.png' } }
+    },
+    // Stellantis Platform Mapping
+    'Chrysler': {
+        smart: { min: 2017, max: 2099, buttons: { 6: 'chrysler_van_remote_6btn.png', 5: 'stellantis_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2008, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        transponder: { min: 1998, max: 2008, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    'Dodge': {
+        smart: { min: 2017, max: 2099, buttons: { 5: 'stellantis_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2008, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        rhk: { min: 2004, max: 2012, buttons: { default: 'dodge_ram_classic_4btn.png' } },
+        transponder: { min: 1998, max: 2008, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    'Jeep': {
+        smart: { min: 2018, max: 2099, buttons: { 5: 'jeep_wrangler_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2008, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        rhk: { min: 2007, max: 2018, buttons: { 4: 'jeep_wrangler_rhk_4btn.png', 3: 'jeep_liberty_rhk_3btn.png', default: 'jeep_wrangler_rhk_4btn.png' } },
+        transponder: { min: 1998, max: 2008, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    'Ram': {
+        smart: { min: 2019, max: 2099, buttons: { 5: 'stellantis_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2013, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        rhk: { min: 2009, max: 2018, buttons: { default: 'dodge_ram_classic_4btn.png' } },
+        transponder: { min: 1998, max: 2012, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    // Toyota/Lexus Platform Mapping
+    'Toyota': {
+        smart: { min: 2010, max: 2099, buttons: { 4: 'toyota_smart_4btn.png', 3: 'toyota_smart_3btn.png', default: 'toyota_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2018, buttons: { 4: 'toyota_rhk_4btn.png', 3: 'toyota_rhk_3btn.png', default: 'toyota_rhk_4btn.png' } },
+        hChip: { min: 2013, max: 2020, buttons: { default: 'toyota_h_chip_transponder.png' } },
+        dot: { min: 2003, max: 2012, buttons: { default: 'toyota_dot_chip_transponder.png' } },
+        transponder: { min: 1998, max: 2005, buttons: { default: 'toyota_4d67_transponder.png' } }
+    },
+    'Lexus': {
+        smart: { min: 2006, max: 2099, buttons: { 4: 'lexus_smart_4btn.png', 3: 'lexus_smart_3btn.png', default: 'lexus_smart_4btn.png' } },
+        transponder: { min: 1998, max: 2010, buttons: { default: 'toyota_4d67_transponder.png' } }
+    },
+    // Honda/Acura Platform Mapping
+    'Honda': {
+        smart: { min: 2013, max: 2099, buttons: { 5: 'honda_odyssey_smart_5btn.png', 4: 'honda_smart_4btn.png', 3: 'honda_smart_3btn.png', default: 'honda_smart_4btn.png' } },
+        rhk: { min: 2006, max: 2018, buttons: { 4: 'honda_rhk_4btn.png', 3: 'honda_rhk_3btn.png', default: 'honda_rhk_4btn.png' } },
+        flip: { min: 2013, max: 2018, buttons: { default: 'honda_flip_3btn.png' } },
+        transponder: { min: 1999, max: 2010, buttons: { default: 'honda_transponder.png' } }
+    },
+    'Acura': {
+        smart: { min: 2010, max: 2099, buttons: { 4: 'acura_smart_4btn.png', 3: 'honda_smart_3btn.png', default: 'acura_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2015, buttons: { 4: 'honda_rhk_4btn.png', 3: 'honda_rhk_3btn.png', default: 'honda_rhk_4btn.png' } },
+        transponder: { min: 1999, max: 2010, buttons: { default: 'honda_transponder.png' } }
+    },
+    // Nissan/Infiniti Platform Mapping
+    'Nissan': {
+        smart: { min: 2007, max: 2099, buttons: { 4: 'nissan_smart_4btn.png', 3: 'nissan_smart_3btn.png', default: 'nissan_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2016, buttons: { 4: 'nissan_rhk_4btn.png', 3: 'nissan_rhk_3btn.png', default: 'nissan_rhk_4btn.png' } },
+        flip: { min: 2007, max: 2018, buttons: { default: 'nissan_flip_4btn.png' } },
+        transponder: { min: 2000, max: 2010, buttons: { default: 'nissan_transponder.png' } }
+    },
+    'Infiniti': {
+        smart: { min: 2006, max: 2099, buttons: { 4: 'infiniti_smart_4btn.png', 3: 'nissan_smart_3btn.png', default: 'infiniti_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2016, buttons: { 4: 'nissan_rhk_4btn.png', 3: 'nissan_rhk_3btn.png', default: 'nissan_rhk_4btn.png' } },
+        transponder: { min: 2000, max: 2008, buttons: { default: 'nissan_transponder.png' } }
+    },
+    // Hyundai/Kia/Genesis Platform Mapping
+    'Hyundai': {
+        smart: { min: 2012, max: 2099, buttons: { 4: 'hyundai_smart_4btn.png', 3: 'hyundai_smart_3btn.png', default: 'hyundai_smart_4btn.png' } },
+        flip: { min: 2010, max: 2020, buttons: { default: 'hyundai_flip_4btn.png' } },
+        transponder: { min: 2005, max: 2012, buttons: { default: 'hyundai_transponder.png' } }
+    },
+    'Kia': {
+        smart: { min: 2012, max: 2099, buttons: { 4: 'kia_smart_4btn.png', 3: 'kia_smart_3btn.png', default: 'kia_smart_4btn.png' } },
+        flip: { min: 2010, max: 2020, buttons: { default: 'kia_flip_4btn.png' } },
+        transponder: { min: 2005, max: 2012, buttons: { default: 'hyundai_transponder.png' } }
+    },
+    'Genesis': {
+        smart: { min: 2017, max: 2099, buttons: { 4: 'genesis_smart_4btn.png', default: 'genesis_smart_4btn.png' } },
+        transponder: { min: 2015, max: 2017, buttons: { default: 'hyundai_transponder.png' } }
+    },
+    // German Luxury Platform Mapping
+    'BMW': {
+        smart: { min: 2014, max: 2099, buttons: { default: 'bmw_diamond_key.png' } },
+        comfort: { min: 2007, max: 2018, buttons: { default: 'bmw_comfort_access.png' } },
+        rhk: { min: 2004, max: 2013, buttons: { default: 'bmw_smart_4btn.png' } }
+    },
+    'Mercedes-Benz': {
+        smart: { min: 2019, max: 2099, buttons: { default: 'mercedes_chrome_key.png' } },
+        smartLegacy: { min: 2008, max: 2018, buttons: { default: 'mercedes_smart_3btn.png' } }
+    },
+    'Audi': {
+        smart: { min: 2016, max: 2099, buttons: { default: 'audi_smart_3btn.png' } },
+        flip: { min: 2006, max: 2018, buttons: { default: 'audi_flip_3btn.png' } }
+    },
+    'Volkswagen': {
+        smart: { min: 2019, max: 2099, buttons: { default: 'vw_smart_3btn.png' } },
+        flip: { min: 2006, max: 2018, buttons: { default: 'audi_flip_3btn.png' } }
+    }
+};
+
+// Get Key Tech Card Image based on make, year, and key type
+function getKeyTechCardImage(make, year, keyType, buttonCount) {
+    const yearNum = parseInt(year) || 2020;
+    const buttons = parseInt(buttonCount) || 4;
+
+    // Normalize make
+    const normalizedMake = make?.trim() || '';
+    const makeConfig = KEY_TECH_CARD_MAP[normalizedMake];
+
+    if (!makeConfig) return null;
+
+    // Determine key category from keyType string
+    let category = 'smart'; // Default to smart key
+    const keyTypeLower = (keyType || '').toLowerCase();
+
+    if (keyTypeLower.includes('transponder') || keyTypeLower.includes('chip only')) {
+        category = 'transponder';
+    } else if (keyTypeLower.includes('fobik') || keyTypeLower.includes('fob-ik')) {
+        category = 'fobik';
+    } else if (keyTypeLower.includes('flip') || keyTypeLower.includes('switchblade')) {
+        category = 'flip';
+    } else if (keyTypeLower.includes('remote head') || keyTypeLower.includes('rhk')) {
+        category = 'rhk';
+    } else if (keyTypeLower.includes('smart') || keyTypeLower.includes('prox') || keyTypeLower.includes('proximity')) {
+        // Check era for smart keys
+        if (normalizedMake === 'Chevrolet' || normalizedMake === 'GMC' || normalizedMake === 'Buick' || normalizedMake === 'Cadillac') {
+            category = yearNum >= 2016 ? 'smart' : 'smartLegacy';
+        } else if (normalizedMake === 'Mercedes-Benz') {
+            category = yearNum >= 2019 ? 'smart' : 'smartLegacy';
+        } else if (normalizedMake === 'BMW') {
+            category = yearNum >= 2014 ? 'smart' : (yearNum >= 2007 ? 'comfort' : 'rhk');
+        } else {
+            category = 'smart';
+        }
+    } else if (keyTypeLower.includes('comfort access')) {
+        category = 'comfort';
+    } else if (keyTypeLower.includes('h-chip') || keyTypeLower.includes('h chip')) {
+        category = 'hChip';
+    } else if (keyTypeLower.includes('dot') || keyTypeLower.includes('4d67')) {
+        category = 'dot';
+    } else if (keyTypeLower.includes('pats')) {
+        category = 'pats';
+    } else if (keyTypeLower.includes('tibbe')) {
+        category = 'tibbe';
+    }
+
+    // Find matching config by year
+    const categoryConfig = makeConfig[category];
+    if (!categoryConfig) {
+        // Fallback to smart if category not found
+        const fallbackConfig = makeConfig.smart || makeConfig[Object.keys(makeConfig)[0]];
+        if (!fallbackConfig) return null;
+        const img = fallbackConfig.buttons?.[buttons] || fallbackConfig.buttons?.default;
+        return img ? `/assets/vehicles/${img}` : null;
+    }
+
+    // Check if year is in range
+    if (yearNum >= categoryConfig.min && yearNum <= categoryConfig.max) {
+        const img = categoryConfig.buttons?.[buttons] || categoryConfig.buttons?.default;
+        return img ? `/assets/vehicles/${img}` : null;
+    }
+
+    // If not in range, try to find best match
+    for (const [cat, config] of Object.entries(makeConfig)) {
+        if (yearNum >= config.min && yearNum <= config.max) {
+            const img = config.buttons?.[buttons] || config.buttons?.default;
+            return img ? `/assets/vehicles/${img}` : null;
+        }
+    }
+
+    return null;
 }
 
 function selectVisualModel(model) {
@@ -895,64 +1140,80 @@ const carouselExpanded = {};
 
 function renderKeyCarousel(keys, cardIndex, selectedIdx = 0) {
     if (!keys || keys.length === 0) return '';
-    const isExpanded = carouselExpanded[cardIndex] || false;
 
-    // Group keys by button count
-    const groups = {};
-    keys.forEach((k, idx) => {
-        const btnCount = k.button_count || 0;
-        const keyType = k.key_type || 'key';
-        let groupKey = btnCount > 0 ? `${btnCount}-BUTTON` :
-            (keyType === 'blade' || keyType === 'mechanical') ? 'BLADE' : 'OTHER';
-        if (!groups[groupKey]) groups[groupKey] = [];
-        groups[groupKey].push({ ...k, originalIdx: idx });
-    });
+    // Sort keys by button count ASC (Base -> High Spec) to show evolution
+    // Map with original index to preserve selection logic
+    const keysWithIndices = keys.map((k, i) => ({ ...k, idx: i }));
+    keysWithIndices.sort((a, b) => (a.button_count || 0) - (b.button_count || 0));
 
-    // Sort: higher buttons first
-    const groupOrder = Object.keys(groups).sort((a, b) => {
-        const aNum = parseInt(a) || 0;
-        const bNum = parseInt(b) || 0;
-        return bNum - aNum;
-    });
+    // Helper for feature badges
+    const getFeaturesBadge = (k) => {
+        const feats = k.features || [];
+        const labels = [];
+        if (feats.includes('rs')) labels.push('Remote Start');
+        if (feats.includes('trunk')) labels.push('Trunk');
+        if (feats.includes('hatch')) labels.push('Hatch');
+        if (feats.includes('tailgate')) labels.push('Tailgate');
+        if (feats.includes('panic')) labels.push('Panic');
 
-    const featureLabels = { rs: '+RS', trunk: '+TRUNK', hatch: '+HATCH', roof: '+ROOF', doors: '+DOORS' };
-    let keyCount = 0;
-    let treeHtml = '';
+        if (labels.length === 0 && k.button_count <= 3) return '<span style="color:var(--text-muted); font-size:0.75rem;">Base Config</span>';
 
-    for (const groupKey of groupOrder) {
-        if (!isExpanded && keyCount >= 8) break;
-        treeHtml += `<div class="key-tree-group"><div class="key-tree-header">${groupKey}</div><div class="key-tree-items">`;
-        for (const k of groups[groupKey]) {
-            if (!isExpanded && keyCount >= 8) break;
-            const keyType = k.key_type || 'key';
-            const features = k.features || [];
-            const variantsCount = k.variants_count || 1;
-            const icon = getKeyIcon(keyType);
-            const fccId = cleanFccId(k.fcc_id);
-            const imageUrl = fccId ? `${API}/assets/${fccId}.png` : null;
-            const featureStr = features.length ? features.map(f => featureLabels[f] || `+${f.toUpperCase()}`).join(' ') : 'BASE';
-            const colorClass = (keyType === 'smart' || keyType === 'fobik') ? 'key-smart' : (keyType === 'rhk' || keyType === 'flip') ? 'key-remote' : keyType === 'transponder' ? 'key-transponder' : 'key-standard';
-            const isSelected = k.originalIdx === selectedIdx;
-            treeHtml += `<div class="key-thumb ${isSelected ? 'active' : ''} ${colorClass}" onclick="selectKey(${cardIndex}, ${k.originalIdx})" data-key-index="${k.originalIdx}" title="${cleanProductTitle(k.product_title)}">`;
-            if (imageUrl) treeHtml += `<img class="key-thumb-img" src="${imageUrl}" alt="${fccId}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">`;
-            treeHtml += `<span class="key-thumb-icon"${imageUrl ? ' style="display:none"' : ''}>${icon}</span>`;
-            treeHtml += `<span class="key-thumb-type">${featureStr}</span>`;
-            if (fccId) treeHtml += `<span class="key-thumb-fcc">${fccId}</span>`;
-            if (k.price) treeHtml += `<span class="key-thumb-price">${k.price}</span>`;
-            if (variantsCount > 1) treeHtml += `<span class="key-variants-badge">${variantsCount}</span>`;
-            treeHtml += `</div>`;
-            keyCount++;
+        // Return badges (max 2 to avoid clutter)
+        return labels.slice(0, 2).map(l => `<span style="background:rgba(34,197,94,0.1); color:#22c55e; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-right:4px; display:inline-block; margin-bottom:2px;">+${l}</span>`).join('');
+    };
+
+    let flowHtml = '';
+    keysWithIndices.forEach((k, i) => {
+        const isSelected = (typeof selectedIdx !== 'undefined') ? (k.idx === selectedIdx) : (i === 0);
+
+        // Visual arrow for progression
+        if (i > 0) {
+            flowHtml += `<div style="color:var(--text-muted); font-size:1.2rem; opacity:0.5;">➝</div>`;
         }
-        treeHtml += `</div></div>`;
-    }
 
-    const hasMore = keys.length > 8 && !isExpanded;
-    return `<div class="key-carousel" id="keyCarousel-${cardIndex}">
-                <div class="key-carousel-title">🔐 ${keys.length} UNIQUE KEYS (GROUPED BY BUTTON COUNT)</div>
-                <div class="key-tree-container">
-                    ${treeHtml}
-                    ${hasMore ? `<div class="key-thumb key-more" onclick="expandCarousel(${cardIndex})"><span class="key-thumb-icon">➕</span><span class="key-thumb-type">+${keys.length - 8} MORE</span></div>` : ''}
-                    ${isExpanded ? `<div class="key-thumb key-collapse" onclick="collapseCarousel(${cardIndex})"><span class="key-thumb-icon">➖</span><span class="key-thumb-type">COLLAPSE</span></div>` : ''}
+        const icon = getKeyIcon(k.key_type || 'key');
+        const featureBadges = getFeaturesBadge(k);
+        const btnLabel = k.button_count ? `${k.button_count}-Btn` : 'Key';
+        const isSmart = (k.key_type || '').toLowerCase().includes('smart') || (k.key_type || '').toLowerCase().includes('prox');
+
+        flowHtml += `
+            <div class="key-thumb ${isSelected ? 'active' : ''}" 
+                 onclick="selectKey(${cardIndex}, ${k.idx})"
+                 style="
+                    background: ${isSelected ? 'rgba(59,130,246,0.1)' : 'var(--bg-tertiary)'}; 
+                    border: 1px solid ${isSelected ? '#3b82f6' : 'var(--border)'};
+                    border-radius: 8px;
+                    padding: 10px;
+                    cursor: pointer;
+                    min-width: 130px;
+                    text-align: center;
+                    transition: all 0.2s;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                 "
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='var(--brand-primary)'"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='${isSelected ? '#3b82f6' : 'var(--border)'}'">
+                 
+                 <div style="font-size:1.8rem; margin-bottom:6px;">${icon}</div>
+                 <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px; font-size:0.9rem;">${btnLabel}</div>
+                 <div style="margin-bottom:6px; min-height:20px;">${featureBadges}</div>
+                 ${isSmart ? '<div style="font-size:0.65rem; color:var(--text-muted); border-top:1px solid var(--border); width:100%; padding-top:4px; margin-top:2px;">+ Emergency Blade</div>' : ''}
+            </div>
+        `;
+    });
+
+    return `<div class="key-carousel" id="keyCarousel-${cardIndex}" style="overflow:hidden;">
+                <div class="key-carousel-title" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>🔐 AVAILABLE VARIATIONS (BASE ➝ PREMIUM)</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">Select a variant to view specifics</span>
+                </div>
+                <div class="key-tree-container" style="overflow-x:auto; padding-bottom:12px;">
+                    <div style="display:flex; gap:12px; align-items:center; min-width:max-content; padding: 4px;">
+                        ${flowHtml}
+                    </div>
                 </div>
             </div>`;
 }
@@ -1018,21 +1279,35 @@ function selectKey(cardIndex, keyIndex) {
         const lishi = ds.lishi;
         const ignition = ds.ignition;
 
+
+
+        // Generate Targeted Amazon Query
+        let amazonQuery = `${year} ${make} ${model} key fob`;
+        if (key.button_count) amazonQuery += ` ${key.button_count} button`;
+
+        const feats = key.features || [];
+        if (feats.includes('rs')) amazonQuery += ` remote start`;
+        if (feats.includes('tailgate')) amazonQuery += ` tailgate`;
+        if (feats.includes('hatch')) amazonQuery += ` hatch`;
+        if (feats.includes('trunk')) amazonQuery += ` trunk`;
+
+        // Append FCC if meaningful
+        if (fccId) amazonQuery += ` ${fccId} `;
+
         specsContainer.innerHTML = `
             <div style="padding: 16px;">
                 <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
                     <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">${cleanTitle}</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
                         ${fccId ? `FCC: <span style="color:var(--accent); font-family:monospace;">${fccId}</span>` : ''} 
-                        ${chip ? ` • Chip: ${chip}` : ''}
                     </div>
                 </div>
 
                 <!-- Three Column Grid for Parts -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
                     <!-- 1. Key/Remote -->
-                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${year} ${make} ${model} key fob ${fccId || ''}`)}&tag=${amazonTag}" target="_blank" 
-                       onclick="logActivity('affiliate_click', { type: 'carousel_key', term: '${year} ${make} ${model} key fob ${fccId || ''}', fcc_id: '${fccId || ''}' })"
+                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${amazonTag}" target="_blank" 
+                       onclick="logActivity('affiliate_click', { type: 'carousel_key', term: '${amazonQuery}', fcc_id: '${fccId || ''}' })"
                        style="display: flex; flex-direction: column; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-decoration: none; transition: all 0.2s;"
                        onmouseover="this.style.borderColor='var(--brand-primary)'; this.style.background='rgba(59,130,246,0.1)'"
                        onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(0,0,0,0.2)'">
@@ -1056,6 +1331,7 @@ function selectKey(cardIndex, keyIndex) {
                             <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">Blade / Blank</span>
                         </div>
                         <div style="font-size: 0.85rem; color: var(--accent); margin-bottom: 4px;">${keyway}</div>
+                        ${lishi !== 'N/A' ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px;">Lishi: ${lishi}</div>` : ''}
                         <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
                     </a>` : ''}
 
@@ -1075,27 +1351,25 @@ function selectKey(cardIndex, keyIndex) {
                     </a>` : ''}
                 </div>
 
-                <!-- Cutting & Tech Specs -->
-                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Technical & Cutting Specs</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 0.85rem;">
-                        ${codeSeries !== 'N/A' ? `<div><span style="color:var(--text-secondary);">Code Series:</span> <span style="color:var(--text-primary); font-family:monospace;">${codeSeries}</span></div>` : ''}
-                        ${lishi !== 'N/A' ? `<div><span style="color:var(--text-secondary);">Lishi:</span> <span style="color:#22c55e;">${lishi}</span></div>` : ''}
-                        ${ignition !== 'N/A' ? `<div><span style="color:var(--text-secondary);">Ignition:</span> <span style="color:var(--text-primary);">${ignition}</span></div>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
+                <!--Technical Specs(Condensed)-- >
+            ${(codeSeries !== 'N/A' || ignition !== 'N/A') ? `
+                <div style="background: rgba(0,0,0,0.2); border-radius: 6px; padding: 8px 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.8rem; color: var(--text-secondary);">
+                    ${codeSeries !== 'N/A' ? `<span><strong>Code Series:</strong> <span style="font-family:monospace; color:var(--text-primary);">${codeSeries}</span></span>` : ''}
+                    ${ignition !== 'N/A' ? `<span><strong>Ignition:</strong> <span style="color:var(--text-primary);">${ignition}</span></span>` : ''}
+                </div>` : ''
+            }
+            </div >
+            `;
     }
 
     // Update Amazon button
-    const amazonBtn = document.getElementById(`amazonBtn-${cardIndex}`);
+    const amazonBtn = document.getElementById(`amazonBtn - ${cardIndex} `);
     if (amazonBtn && key.amazon_search_url) {
         amazonBtn.href = key.amazon_search_url;
     }
 
     // Update AKS link
-    const aksBtn = document.getElementById(`aksBtn-${cardIndex}`);
+    const aksBtn = document.getElementById(`aksBtn - ${cardIndex} `);
     if (aksBtn && key.url) {
         aksBtn.href = key.url;
         aksBtn.style.display = 'inline-block';
@@ -1135,7 +1409,7 @@ async function searchVehicle() {
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`;
+        const fetchUrl = `${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`;
 
         const res = await fetch(fetchUrl);
         const data = await res.json();
@@ -1145,7 +1419,7 @@ async function searchVehicle() {
                 displayResults(data.rows, year, make, model);
             } catch (innerE) {
                 console.error('Display Error:', innerE);
-                document.getElementById('resultsContainer').innerHTML = `<div class="error" > Display Error: ${innerE.message}</div > `;
+                document.getElementById('resultsContainer').innerHTML = `< div class="error" > Display Error: ${innerE.message}</div > `;
             }
         } else {
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
@@ -1186,7 +1460,7 @@ window.openGuideModal = function (id) {
         } else if (guide.steps) {
             // Default render for steps
             contentHtml = guide.steps.map(step => `
-            <div class="guide-step" style = "margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" >
+            < div class="guide-step" style = "margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" >
                     <h3 style="color: #60a5fa; margin-bottom: 12px; font-size: 1.1rem;">${step.title || ''}</h3>
                     <div style="color: #e5e7eb; line-height: 1.6;">${step.description || ''}</div>
                     ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : ''}
@@ -1222,7 +1496,7 @@ window.closeGuideModal = function () {
 
 function displayResults(rows, year, make, model, extras = {}) {
     const container = document.getElementById('resultsContainer');
-    const { alerts = [], guide = null } = extras;
+    const { alerts = [] } = extras;
 
     // DEFENSIVE: Handle API response object {total, rows} vs raw array
     if (rows && !Array.isArray(rows) && rows.rows) {
@@ -1242,7 +1516,7 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     // 1. Master Header
     const makeLogo = getMakeLogo(make);
-    const logoHtml = makeLogo ? `<img src="${makeLogo}" alt="${make}" class="make-logo" onerror="this.style.display='none'" style="width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;">` : '';
+    const logoHtml = makeLogo ? `< img src = "${makeLogo}" alt = "${make}" class="make-logo" onerror = "this.style.display='none'" style = "width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;" > ` : '';
 
     // Calculate global badges (Stellantis/Mercedes)
     let globalWarnings = '';
@@ -1254,33 +1528,76 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     uniqueRowsForBadges.forEach(v => {
         if (make.toLowerCase() === 'jeep' && model.toLowerCase().includes('renegade') && parseInt(year) === 2022 && !globalWarnings.includes('Split-Year')) {
-            globalWarnings += `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">⚠️ Split-Year</span>`;
+            globalWarnings += `< span class="badge" style = "background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);" >⚠️ Split - Year</span > `;
         }
         if ((v.vin_ordered === 1) && !globalWarnings.includes('VIN-Ordered')) {
-            globalWarnings += `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔒 VIN-Ordered</span>`;
+            globalWarnings += `< span class="badge" style = "background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);" >🔒 VIN - Ordered</span > `;
         }
     });
 
+    // Clean year for display to avoid '2024?v=12345'
+    const cleanYear = parseInt(year);
+
+    // Get Vehicle Image
+    const vehicleImage = typeof getVehicleResultImage === 'function' ? getVehicleResultImage(make, model, cleanYear) : null;
+
+    // Get Guide Asset (Early fetch for snippets)
+    const guide = typeof getGuideAsset === 'function' ? getGuideAsset(make, model, cleanYear) : null;
+
     let html = `
-    <div class="vehicle-master-header" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
-            <div style="display: flex; align-items: center;">
-                ${logoHtml}
-                <div>
-                    <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.2; letter-spacing: -0.5px; color: var(--text-primary);">
-                        ${year} ${make} ${model}
-                    </h1>
-                    <div style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 4px;">
-                        ${uniqueRowsForBadges.length} Configuration${uniqueRowsForBadges.length !== 1 ? 's' : ''} Found
+            <div class="vehicle-master-header" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;">
+                
+                ${vehicleImage ? `<div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); opacity: 0.12; pointer-events: none;">
+                    <img src="${vehicleImage}" alt="${model}" style="max-height: 200px; width: auto; filter: grayscale(100%);">
+                </div>` : ''}
+
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; position: relative; z-index: 2;">
+                    <div style="display: flex; align-items: center;">
+                        ${logoHtml}
+                        <div>
+                            <h1 style="font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.2; letter-spacing: -0.5px; color: var(--text-primary);">
+                                ${cleanYear} ${make} ${model}
+                            </h1>
+                            <div style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 4px;">
+                                ${uniqueRowsForBadges.length} Configuration${uniqueRowsForBadges.length !== 1 ? 's' : ''} Found
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        ${globalWarnings}
                     </div>
                 </div>
+    </div >
+            `;
+
+    // 1b. Critical Insight Tiles (Windows Phone Style)
+    if (guide && guide.snippets && guide.snippets.length > 0) {
+        html += `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                ${guide.snippets.map(snippet => `
+                    <div style="
+                        background: ${snippet.color};
+                        color: white;
+                        border-radius: 8px;
+                        padding: 16px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-end;
+                        aspect-ratio: 1.4;
+                        box-shadow: 0 4px 6px -2px rgba(0,0,0,0.3);
+                        font-weight: 700;
+                        font-size: 0.95rem;
+                        line-height: 1.3;
+                        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                        transition: transform 0.2s;
+                        cursor: default;
+                    ">
+                        ${snippet.text}
+                    </div>
+                `).join('')}
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                 ${globalWarnings}
-            </div>
-        </div>
-    </div>
-    `;
+        `;
+    }
 
     // 2. Critical Alerts (FIRST - before tools/videos per locksmith workflow)
     if (alerts && alerts.length > 0) {
@@ -1305,7 +1622,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             const openAttr = level === 'CRITICAL' ? 'open' : '';
 
             html += `
-            <details ${openAttr} style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
+            < details ${openAttr} style = "background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;" >
                         <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
                             <span>${style.icon}</span>
                             <span>${title}</span>
@@ -1315,51 +1632,52 @@ function displayResults(rows, year, make, model, extras = {}) {
                             <p style="margin: 0 0 8px 0;">${content}</p>
                             ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
                         </div>
-                    </details>`;
+                    </details > `;
         });
         html += '</div>';
     }
 
     // 3. Guide Callout (SECOND - programming guide is critical for job planning)
-    const premiumGuide = typeof getGuideAsset === 'function' ? getGuideAsset(make, model) : null;
+    // const guide was fetched earlier
 
-    if (premiumGuide && (premiumGuide.pdf || premiumGuide.html)) {
-        const hasPdf = !!premiumGuide.pdf;
-        const hasHtml = !!premiumGuide.html;
-        const hasInfographic = !!premiumGuide.infographic;
+    if (guide && (guide.pdf || guide.html)) {
+        const premiumGuide = guide; // Alias for backward compatibility if needed, or refactor below
+        const hasPdf = !!guide.pdf;
+        const hasHtml = !!guide.html;
+        const hasInfographic = !!guide.infographic;
 
         html += `
             <div class="guide-callout" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #22c55e; display: flex; align-items: center; gap: 8px;">
-                            📖 ${premiumGuide.title || make + ' Programming Guide'}
+                            📖 ${guide.title || make + ' Programming Guide'}
                             <span style="font-size: 0.7rem; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">PRO</span>
                         </h3>
                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Complete walkthrough with OEM parts, step-by-step procedures, and troubleshooting</p>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         ${hasPdf ? `
-                        <button onclick="openPdfGuide('${premiumGuide.pdf}', '${premiumGuide.title}')" 
+                        <button onclick="openPdfGuide('${guide.pdf}', '${guide.title}')" 
                                 style="background: #22c55e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <span>📄</span> Open PDF Guide
                         </button>` : ''}
                         ${hasHtml ? `
-                        <button onclick="openHtmlGuide('${premiumGuide.html}', '${premiumGuide.title}')" 
+                        <button onclick="openHtmlGuide('${guide.html}', '${guide.title}')" 
                                 style="background: #3b82f6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <span>📋</span> View Walkthrough
                         </button>` : ''}
                         ${hasInfographic ? `
-                        <button onclick="openInfographic('${premiumGuide.infographic}', '${make} Quick Reference')" 
+                        <button onclick="openInfographic('${guide.infographic}', '${make} Quick Reference')" 
                                 style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <span>🖼️</span> Infographic
                         </button>` : ''}
                     </div>
                 </div>
-            </div>`;
+            </div > `;
     } else if (guide) {
         html += `
-            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            < div class="guide-callout" style = "background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;" >
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
@@ -1369,7 +1687,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <span>→</span>
                     </button>
                     <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
-            </div>`;
+            </div > `;
     }
 
     // 4. What You'll Need (Tools Checklist)
@@ -1440,7 +1758,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const uniqueRows = rows.filter(v => {
         const fccId = (v.fcc_id || '').trim().toUpperCase();
         const oem = (v.oem_part_number || '').trim().toUpperCase();
-        const key = fccId ? `FCC:${fccId}` : `OEM:${oem}-${v.key_type || ''}`;
+        const key = fccId ? `FCC:${fccId} ` : `OEM:${oem} -${v.key_type || ''} `;
         if (key && seen.has(key)) return false;
         if (key) seen.add(key);
         return true;
@@ -1448,15 +1766,24 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     // --- CONFIGURATION LIST ---
     html += `<div class="configurations-section">
-                <h3 style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                    Available Key Configurations (${uniqueRows.length})
-                </h3>`;
+            <h3 style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                Available Key Configurations (${uniqueRows.length})
+            </h3>`;
 
     // Make Config Cards
     html += uniqueRows.map((v, idx) => {
         const fccId = v.fcc_id || 'N/A';
         const oem = v.oem_part_number || 'N/A';
-        const immoSystem = (v.immobilizer_system || v.immobilizer || 'N/A');
+
+        // System Logic (Infer Global A/B for Camaro if missing)
+        let immoSystem = (v.immobilizer_system || v.immobilizer || 'N/A');
+        if (immoSystem === 'N/A' && make.toLowerCase() === 'chevrolet' && model.toLowerCase().includes('camaro')) {
+            const y = parseInt(year);
+            if (y >= 2010 && y <= 2015) immoSystem = 'Global A';
+            else if (y >= 2016 && y <= 2018) immoSystem = 'Global A (PEPS)';
+            else if (y >= 2019) immoSystem = 'Global B';
+        }
+
         const chip = v.chip || v.chip_technology || 'N/A';
         const freq = v.frequency ? (v.frequency.toString().toLowerCase().includes('mhz') ? v.frequency : `${v.frequency} MHz`) : 'N/A';
         const keyway = v.keyway || 'N/A';
@@ -1490,14 +1817,20 @@ function displayResults(rows, year, make, model, extras = {}) {
         const keyInStock = (typeof currentUser !== 'undefined' && currentUser) && fccId !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0;
         const blankInStock = (typeof currentUser !== 'undefined' && currentUser) && keyway !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getBlankStock(keyway) : 0;
         const inventoryBadge = keyInStock > 0
-            ? `<span class="badge" style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span>`
+            ? `< span class="badge" style = "background: #22c55e; color: white;" >📦 ${keyInStock} in stock</span > `
             : blankInStock > 0
-                ? `<span class="badge" style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span>`
+                ? `< span class="badge" style = "background: #22c55e; color: white;" >🔑 ${blankInStock} blanks</span > `
                 : '';
 
         // Generate the Config Card HTML
+        // Get tech card image for this generation
+        const techCardImg = typeof getVehicleResultImage === 'function' ? getVehicleResultImage(make, model, parseInt(year)) : null;
+
+        // Get key tech card image (fob/blade/battery reference)
+        const keyTechCardImg = typeof getKeyTechCardImage === 'function' ? getKeyTechCardImage(make, year, keyTypeDisplay, v.button_count || 4) : null;
+
         return `
-        <div class="config-card ${themeClass}" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; position: relative;">
+            <div class="config-card ${themeClass}" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; position: relative;">
             
             <!-- Config Header -->
             <div style="background: var(--bg-tertiary); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -1511,13 +1844,79 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>
 
             <div style="padding: 16px;">
-                 <!-- Specs Grid -->
-                 <div class="mega-spec-grid" style="margin-bottom: 16px;">
-                    <div class="spec-item"><div class="spec-icon" style="color: #a855f7;">🛡️</div><div class="spec-label">Chip</div><div class="spec-value">${chip}</div></div>
-                    <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Frequency</div><div class="spec-value">${freq}</div></div>
-                    <div class="spec-item"><div class="spec-icon" style="color: #eab308;">🗝️</div><div class="spec-label">Keyway</div><div class="spec-value">${keyway}</div></div>
-                    <div class="spec-item"><div class="spec-icon" style="color: #22c55e;">🔧</div><div class="spec-label">System</div><div class="spec-value">${immoSystem}</div></div>
+                 <!-- Integrated Key Reference + Specs Layout -->
+                 <div style="display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-start;">
+                    
+                    ${keyTechCardImg ? `
+                    <!-- Key Tech Card Image (Primary Visual) -->
+                    <div style="flex: 0 0 auto; width: 180px; max-width: 100%;">
+                       <div style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                          <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; text-align: center;">🔑 Key Reference</div>
+                          <img src="${keyTechCardImg}" alt="${make} Key Fob, Blade & Battery" 
+                               style="width: 100%; height: auto; border-radius: 8px; display: block;"
+                               onerror="this.closest('.key-ref-card')?.remove(); this.parentElement.parentElement.remove();">
+                       </div>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Electronic Specs (Grows to fill space) -->
+                    <div style="flex: 1; min-width: 200px;">
+                       <div class="electronic-specs-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                          <div class="spec-item"><div class="spec-icon" style="color: #a855f7;">🛡️</div><div class="spec-label">Chip</div><div class="spec-value">${chip}</div></div>
+                          <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Frequency</div><div class="spec-value">${freq}</div></div>
+                          <div class="spec-item"><div class="spec-icon" style="color: #22c55e;">🔧</div><div class="spec-label">System</div><div class="spec-value">${immoSystem}</div></div>
+                       </div>
+                    </div>
                  </div>
+
+                 <!-- Service Specs: Mechanical & Service (Bottom) -->
+                 <div class="service-specs-container" style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;">Service Data</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                        
+                        <!-- Blade / Keyway -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 1.2rem;">🗝️</div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Keyway</div>
+                                <div style="font-weight: 600; color: var(--text-primary); font-family: monospace;">${keyway || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                         <!-- Code Series (Inferred if missing) -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 1.2rem;">🔢</div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Code Series</div>
+                                <div style="font-weight: 600; color: var(--text-primary); font-family: monospace;">
+                                    ${v.code_series || (keyway.includes('HU100') && parseInt(year) <= 2016 ? 'Z-Series (8-Cut)' : 'Varies (Check Lishi)')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lishi Tool -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 1.2rem;">📐</div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Lishi Tool</div>
+                                <div style="font-weight: 600; color: #22c55e;">
+                                    ${v.lishi_tool || (keyway.includes('HU100') ? 'HU100' : 'N/A')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Battery -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 1.2rem;">🔋</div>
+                            <div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Battery</div>
+                                <div style="font-weight: 600; color: var(--text-primary);">${battery}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                 </div>
+                 </div> <!-- Close tech card wrapper if present -->
 
                  <!-- Key Carousel Placeholder -->
                  <div id="keyCarouselContainer-${idx}" class="key-carousel-container" style="background: var(--bg-primary); padding: 12px; border-radius: 8px; border: 1px solid var(--border);"></div>
@@ -1555,11 +1954,11 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <div style="margin-top: 8px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">${v.service_notes_pro}</div>
                     </details>` : ''}
             </div>
-        </div>
-        `;
+        </div >
+            `;
     }).join('');
 
-    html += `</div>`; // End configurations-section
+    html += `</div > `; // End configurations-section
 
     // CRITICAL FIX: Inject the generated HTML into the DOM
     container.innerHTML = html;
@@ -1569,7 +1968,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const keyLoadPromise = fetchCompatibleKeys(make, model, year);
 
     Promise.all(uniqueRows.map(async (v, idx) => {
-        const container = document.getElementById(`keyCarouselContainer-${idx}`);
+        const container = document.getElementById(`keyCarouselContainer - ${idx} `);
         if (!container) return;
 
         // Show loading skeleton immediately
@@ -1678,14 +2077,14 @@ async function navigateYear(direction) {
 }
 
 async function loadVehicleByYear(year, make, model) {
-    document.getElementById('resultTitle').textContent = `${make} ${model}`;
+    document.getElementById('resultTitle').textContent = `${make} ${model} `;
     updateYearNavigation(year);
     // CRITICAL: Clear container BEFORE loading to prevent stacking
     document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
     try {
         // FIXED: Clean URL (no spaces, correct query syntax)
-        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+        const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
         const data = await res.json();
 
         if (data.rows && data.rows.length > 0) {
@@ -1695,7 +2094,7 @@ async function loadVehicleByYear(year, make, model) {
             let availableYearsHtml = '';
             try {
                 // FIXED: Clean URL for available years
-                const yearsRes = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
+                const yearsRes = await fetch(`${API} /api/master ? make = ${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& fields=year_start, year_end & limit=100`);
                 const yearsData = await yearsRes.json();
                 if (yearsData.rows && yearsData.rows.length > 0) {
                     const yearsSet = new Set();
@@ -1711,7 +2110,7 @@ async function loadVehicleByYear(year, make, model) {
                     const sortedYears = [...yearsSet].sort((a, b) => b - a);
                     if (sortedYears.length > 0) {
                         availableYearsHtml = `
-                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+            < div style = "margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);" >
                                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Available years for ${make} ${model}:</div>
                                 <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
                                     ${sortedYears.slice(0, 15).map(y => `
@@ -1724,8 +2123,8 @@ async function loadVehicleByYear(year, make, model) {
                                     `).join('')}
                                     ${sortedYears.length > 15 ? `<span style="color: var(--text-muted); font-size: 0.8rem; align-self: center;">+${sortedYears.length - 15} more</span>` : ''}
                                 </div>
-                            </div>
-                        `;
+                            </div >
+            `;
                     }
                 }
             } catch (e) {
@@ -1733,14 +2132,14 @@ async function loadVehicleByYear(year, make, model) {
             }
 
             document.getElementById('resultsContainer').innerHTML = `
-                <div class="loading" style="text-align: center;">
+            < div class="loading" style = "text-align: center;" >
                     <div style="font-size: 2rem; margin-bottom: 12px;">🚫</div>
                     <div>No data for ${year} ${make} ${model}</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
                         ${availableYearsHtml ? 'Select a year with available data below:' : 'Try adjacent years or this model may not exist for ' + year}
                     </div>
                     ${availableYearsHtml}
-                </div>
+                </div >
             `;
         }
     } catch (e) {
@@ -1788,11 +2187,11 @@ async function quickLoadMakes() {
     select.innerHTML = '<option value="">Loading...</option>';
 
     try {
-        const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
+        const res = await fetch(`${API} /api/master ? year = ${year}& limit=1000`);
         const data = await res.json();
         const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
         select.innerHTML = '<option value="">Make</option>';
-        makes.forEach(m => { select.innerHTML += `<option value = "${m}" > ${m}</option> `; });
+        makes.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
     } catch (e) {
         select.innerHTML = '<option value="">Make</option>';
     }
@@ -1810,11 +2209,11 @@ async function quickLoadModels() {
     select.innerHTML = '<option value="">Loading...</option>';
 
     try {
-        const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
+        const res = await fetch(`${API} /api/master ? year = ${year}& make=${encodeURIComponent(make)}& limit=500`);
         const data = await res.json();
         const models = [...new Set(data.rows.map(r => r.model))].sort();
         select.innerHTML = '<option value="">Model</option>';
-        models.forEach(m => { select.innerHTML += `<option value = "${m}" > ${m}</option> `; });
+        models.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
     } catch (e) {
         select.innerHTML = '<option value="">Model</option>';
     }
@@ -1840,7 +2239,7 @@ async function quickSearch() {
     document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
     try {
-        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
+        const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
         const data = await res.json();
         if (data.rows && data.rows.length > 0) {
             displayResults(data.rows, year, make, model);
@@ -1857,7 +2256,7 @@ function initQuickSearch() {
     const select = document.getElementById('quickYear');
     if (select.options.length <= 1) {
         const year = new Date().getFullYear() + 1; for (let y = year; y >= 2000; y--) {
-            select.innerHTML += `<option value = "${y}" > ${y}</option> `;
+            select.innerHTML += `< option value = "${y}" > ${y}</option > `;
         }
     }
 }

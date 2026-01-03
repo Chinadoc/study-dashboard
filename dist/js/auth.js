@@ -874,6 +874,24 @@ async function loadDevPanel() {
             renderDevActivityLog(data.activities);
         }
 
+        // Load Business Intelligence (Parallel Fetch)
+        try {
+            const [invRes, subRes, clickRes] = await Promise.all([
+                fetch(`${API}/api/admin/intelligence/inventory`, { headers }),
+                fetch(`${API}/api/admin/intelligence/subscriptions`, { headers }),
+                fetch(`${API}/api/admin/intelligence/clicks`, { headers })
+            ]);
+
+            const invData = invRes.ok ? await invRes.json() : { items: [] };
+            const subData = subRes.ok ? await subRes.json() : { subscriptions: [] };
+            const clickData = clickRes.ok ? await clickRes.json() : { clicks: [] };
+
+            renderBusinessIntelligence(invData, subData, clickData);
+        } catch (e) {
+            console.warn('loadDevPanel: Failed to load intelligence:', e);
+            document.getElementById('devAiInsights').innerHTML = '<div style="color: #f87171;">Failed to load insights.</div>';
+        }
+
     } catch (e) {
         console.error('loadDevPanel: Error loading analytics:', e);
         showDevPanelError('Error loading analytics');
@@ -943,17 +961,134 @@ function renderDevActivityLog(activities) {
     const container = document.getElementById('devActivityLog');
     if (!container) return;
 
-    container.innerHTML = activities.slice(0, 20).map(act => `
+    // Store activities globally for filtering
+    window.allActivities = activities;
+
+    // Category mapping for counting
+    const categoryMap = {
+        'job_logging': 'job_logging',
+        'search': 'search',
+        'vin_lookup': 'search',
+        'affiliate_click': 'monetization',
+        'click_affiliate': 'monetization',
+        'view_tab': 'browsing',
+        'view_vehicle': 'browsing',
+        'sign_in': 'session',
+        'sign_out': 'session'
+    };
+
+    // Count by category
+    const counts = { all: 0, job_logging: 0, search: 0, monetization: 0, browsing: 0, session: 0 };
+    activities.forEach(act => {
+        const type = act.action_type || act.action || 'unknown';
+        counts.all++;
+        const cat = categoryMap[type] || 'browsing';
+        counts[cat] = (counts[cat] || 0) + 1;
+    });
+
+    // Update category counts in UI
+    const countEls = {
+        'activityCountAll': counts.all,
+        'activityCountJobs': counts.job_logging,
+        'activityCountSearch': counts.search,
+        'activityCountRevenue': counts.monetization,
+        'activityCountBrowse': counts.browsing,
+        'activityCountSession': counts.session
+    };
+    Object.entries(countEls).forEach(([id, count]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = count;
+    });
+
+    // Render the activity list
+    renderActivityList(activities, 'all');
+}
+
+function renderActivityList(activities, category) {
+    const container = document.getElementById('devActivityLog');
+    if (!container) return;
+
+    const categoryMap = {
+        'job_logging': 'job_logging',
+        'search': 'search',
+        'vin_lookup': 'search',
+        'affiliate_click': 'monetization',
+        'click_affiliate': 'monetization',
+        'view_tab': 'browsing',
+        'view_vehicle': 'browsing',
+        'sign_in': 'session',
+        'sign_out': 'session'
+    };
+
+    const filtered = category === 'all'
+        ? activities
+        : activities.filter(act => {
+            const type = act.action_type || act.action || 'unknown';
+            return categoryMap[type] === category;
+        });
+
+    container.innerHTML = filtered.slice(0, 30).map(act => {
+        const type = act.action_type || act.action || 'unknown';
+        // Parse metadata safely
+        let meta = act.metadata || act.details || {};
+        if (typeof meta === 'string') {
+            try { meta = JSON.parse(meta); } catch { meta = {}; }
+        }
+        const metaDisplay = formatActivityMeta(type, meta);
+
+        // User identification
+        const userName = act.user_name || 'Guest';
+        const userInitial = userName.charAt(0).toUpperCase();
+        const isGuest = userName === 'Guest' || !act.user_id;
+
+        return `
         <div style="display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
-            <div style="width: 32px; text-align: center;">${getActivityIcon(act.action_type)}</div>
+            <div style="width: 32px; text-align: center;">${getActivityIcon(type)}</div>
             <div style="flex: 1;">
-                <div style="font-weight: 500; color: var(--text-primary);">${act.action_type}</div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">${JSON.stringify(act.metadata || {}).substring(0, 100)}</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 500; color: var(--text-primary);">${type}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; ${isGuest ? 'background: rgba(148,163,184,0.2); color: #94a3b8;' : 'background: rgba(74,222,128,0.15); color: #4ade80;'}">
+                        <span style="width: 16px; height: 16px; border-radius: 50%; background: ${isGuest ? '#64748b' : '#22c55e'}; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: #fff;">${userInitial}</span>
+                        ${userName}
+                    </span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">${metaDisplay}</div>
             </div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">${formatTimeAgo(act.created_at)}</div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('') || '<div style="text-align: center; padding: 20px; color: var(--text-muted);">No activities in this category</div>';
 }
+
+function formatActivityMeta(type, meta) {
+    if (!meta || Object.keys(meta).length === 0) return '';
+
+    if (type === 'search' && meta.term) return `Searched: "${meta.term}"`;
+    if (type === 'vin_lookup' && meta.vin) return `VIN: ${meta.vin}`;
+    if ((type === 'affiliate_click' || type === 'click_affiliate') && meta.term) return `Product: ${meta.term}`;
+    if (type === 'view_tab' && meta.tab) return `Tab: ${meta.tab}`;
+    if (type === 'view_vehicle') return `${meta.year || ''} ${meta.make || ''} ${meta.model || ''}`.trim();
+    if (type === 'job_logging' && meta.vehicle) return `Job: ${meta.vehicle}`;
+
+    // Fallback: show first 100 chars of JSON
+    const str = JSON.stringify(meta);
+    return str.length > 100 ? str.substring(0, 100) + '...' : str;
+}
+
+// Global function for tab switching
+window.setActivityTab = function (category) {
+    // Update button styles
+    document.querySelectorAll('.activity-tab').forEach(btn => {
+        const isActive = btn.dataset.category === category;
+        btn.classList.toggle('active', isActive);
+        btn.style.opacity = isActive ? '1' : '0.7';
+    });
+
+    // Re-render with filter
+    if (window.allActivities) {
+        renderActivityList(window.allActivities, category);
+    }
+};
+
 
 function getActivityIcon(type) {
     const icons = {
@@ -1015,3 +1150,88 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Auth: DOMContentLoaded - calling initGoogleAuth');
     initGoogleAuth();
 });
+// Helper to render BI widget
+function renderBusinessIntelligence(inv, sub, clicks) {
+    const container = document.getElementById('devAiInsights');
+    if (!container) return;
+
+    // Trending Model (from Inventory or Search)
+    const topItem = inv.items && inv.items[0] ? inv.items[0] : null;
+    if (topItem) {
+        const trendEl = document.getElementById('devTrendingModel');
+        if (trendEl) {
+            trendEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${topItem.item_key}</span>
+                    <span style="font-size: 0.8em; opacity: 0.8;">${topItem.user_count} locksmiths stock this</span>
+                </div>
+            `;
+        }
+    }
+
+    // Build Tabs for Insights
+    let html = `
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+            <button onclick="switchBiTab('stock')" id="btnBiStock" class="bi-tab active" style="background: none; border: none; color: #34d399; font-weight: 600; cursor: pointer; padding: 4px 8px; border-bottom: 2px solid #34d399;">Inventory</button>
+            <button onclick="switchBiTab('subs')" id="btnBiSubs" class="bi-tab" style="background: none; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; padding: 4px 8px;">Subs</button>
+            <button onclick="switchBiTab('exits')" id="btnBiExits" class="bi-tab" style="background: none; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; padding: 4px 8px;">Exits</button>
+        </div>
+    `;
+
+    // Stock Content
+    html += `<div id="biStockContent" class="bi-content">
+        ${inv.items && inv.items.length > 0
+            ? inv.items.slice(0, 5).map(i => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+                    <span style="color: var(--text-primary);">${i.item_key}</span>
+                    <span style="color: var(--text-muted);">${i.user_count} users (${i.total_qty} units)</span>
+                </div>`).join('')
+            : '<div style="color: var(--text-muted);">No inventory data</div>'}
+    </div>`;
+
+    // Subs Content
+    html += `<div id="biSubsContent" class="bi-content" style="display: none;">
+        ${sub.subscriptions && sub.subscriptions.length > 0
+            ? sub.subscriptions.map(s => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+                    <span style="color: var(--text-primary);">${s.tool_name || 'Unknown'}</span>
+                    <span style="color: var(--text-muted);">${s.subscriber_count} users</span>
+                </div>`).join('')
+            : '<div style="color: var(--text-muted);">No subscription data</div>'}
+    </div>`;
+
+    // Exits Content
+    html += `<div id="biExitsContent" class="bi-content" style="display: none;">
+        ${clicks.clicks && clicks.clicks.length > 0
+            ? clicks.clicks.slice(0, 5).map(c => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+                    <span style="color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;" title="${c.term}">${c.term || c.fcc_id || 'Link'}</span>
+                    <span style="color: var(--text-muted);">${c.count} clicks</span>
+                </div>`).join('')
+            : '<div style="color: var(--text-muted);">No click data</div>'}
+    </div>`;
+
+    container.innerHTML = html;
+
+    // Add global switcher if not exists
+    if (!window.switchBiTab) {
+        window.switchBiTab = function (tab) {
+            // Update buttons
+            document.querySelectorAll('.bi-tab').forEach(b => {
+                b.style.color = 'var(--text-muted)';
+                b.style.borderBottom = 'none';
+                b.classList.remove('active');
+            });
+            const activeBtn = document.getElementById('btnBi' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if (activeBtn) {
+                activeBtn.style.color = '#34d399';
+                activeBtn.style.borderBottom = '2px solid #34d399';
+                activeBtn.classList.add('active');
+            }
+
+            // Update content
+            document.querySelectorAll('.bi-content').forEach(c => c.style.display = 'none');
+            document.getElementById('bi' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Content').style.display = 'block';
+        };
+    }
+}
