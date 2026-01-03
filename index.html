@@ -367,6 +367,20 @@
                 ">
                     <span style="font-size: 1rem;">👑</span> Upgrade
                 </button>
+                <script>
+                    // Register Service Worker with version bump
+                    if ('serviceWorker' in navigator) {
+                        window.addEventListener('load', () => {
+                            navigator.serviceWorker.register('/sw.js?v=32', { scope: '/' })
+                                .then(registration => {
+                                    console.log('Service Worker registered with scope:', registration.scope);
+                                })
+                                .catch(error => {
+                                    console.error('Service Worker registration failed:', error);
+                                });
+                        });
+                    }
+                </script>
                 <div class="user-menu-container">
                     <span class="user-name" id="userName"
                         style="font-weight: 600; color: var(--text-primary); cursor: pointer;"
@@ -1623,17 +1637,19 @@
     </script>
     <script src="js/lib/tesseract.min.js?v=1767403468"></script> <!-- OCR Library -->
 
-    <script src="js/ui.js?v=unified_view_v13"></script>
-    <script src="js/guide-assets.js?v=text_fix_v2"></script>
-    <script src="js/guides.js?v=unified_view_v13"></script>
-    <script src="js/fcc.js?v=unified_view_v13"></script>
-    <script src="js/browse.js?v=pearls_v1"></script>
-    <script src="js/app.js?v=unified_view_v13"></script>
-    <script src="js/inventory.js?v=unified_view_v13"></script>
-    <script src="js/managers.js?v=unified_view_v13"></script>
-    <script src="js/auth.js?v=unified_view_v13"></script>
-    <script src="js/pwa.js?v=unified_view_v13"></script>
-    <script src="components/GuideRenderer.js?v=unified_view_v13"></script>
+    <script src="js/ui.js?v=unified_view_v18"></script>
+    <script src="js/guide-assets.js?v=unified_view_v18"></script>
+    <script src="js/guides.js?v=unified_view_v18"></script>
+    <script src="js/fcc.js?v=unified_view_v18"></script>
+    <script src="js/browse.js?v=unified_view_v18"></script>
+    <script src="js/app.js?v=unified_view_v18"></script>
+    <script src="js/inventory.js?v=unified_view_v18"></script>
+    <script src="js/managers.js?v=unified_view_v18"></script>
+    <script src="js/auth.js?v=unified_view_v18"></script>
+    <script src="js/pwa.js?v=unified_view_v18"></script>
+    <script src="components/GuideRenderer.js?v=unified_view_v18"></script>
+    <script src="js/vin.js?v=unified_view_v18"></script>
+    <script src="js/subscriptions.js?v=unified_view_v18"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js?v=cache_fix_complete_v3"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js?v=cache_fix_complete_v3"></script>

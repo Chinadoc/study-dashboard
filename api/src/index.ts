@@ -2001,6 +2001,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           // ---------------------------------------------------------
           let alerts: any[] = [];
           let guide: any = null;
+          let pearls: any[] = [];
 
           // Only fetch extras if we are narrowing down to a specific vehicle context
           // Check if make/model/year match a single context
@@ -2029,12 +2030,14 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               `).bind(make, model, y).first();
 
               // 3. Fetch Programming Pearls (New Research Automation)
+              // Use LIKE for model matching to handle variations like "Escalade (K2XL) Forensic"
+              const modelPattern = `${model}%`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
                 SELECT * FROM vehicle_pearls
-                WHERE LOWER(make) = ? AND LOWER(model) = ?
+                WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
                 ORDER BY display_order ASC
-              `).bind(make, model, y).all();
+              `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
             }
           }
@@ -2410,17 +2413,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const total = countResult?.cnt || 0;
           const tCount = performance.now();
 
-          // Data query using unified vehicles table with DEDUPLICATION
-          // 1. Group by unique key signature (Make/Model/Year/FCC/KeyType)
-          // 2. Prioritize highest confidence_score (e.g., AKS > Locksmith > Legacy)
-          // 3. Deduplicate part_crossref matches
+          // Data query using unified vehicles table with SMART DEDUPLICATION
+          // 1. Group by unique key signature (Make/Model/Year/NormalizedFCC/KeyType)
+          // 2. Normalize FCC (O vs 0, remove hyphens) to merge typos
+          // 3. Prioritize highest confidence_score (AKS > Locksmith > Legacy)
           const dataSql = `
           WITH RankedVehicles AS (
             SELECT 
                 v.*,
                 ROW_NUMBER() OVER (
-                    PARTITION BY v.make, v.model, v.fcc_id 
-                    ORDER BY v.confidence_score DESC, v.id DESC
+                    PARTITION BY 
+                        v.make, 
+                        v.model, 
+                        -- NORMALIZE FCC: Uppercase, O->0, Remove Hyphens
+                        REPLACE(REPLACE(UPPER(v.fcc_id), 'O', '0'), '-', '') 
+                    ORDER BY 
+                        v.confidence_score DESC,
+                        (v.source_name = 'AKS') DESC, -- Prefer AKS (Verified)
+                        v.id DESC
                 ) as rn
             FROM vehicles v
             ${whereClause}
@@ -2487,6 +2497,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           // ---------------------------------------------------------
           let alerts: any[] = [];
           let guide: any = null;
+          let pearls: any[] = [];
 
           if (make && model && year) {
             const y = parseInt(year, 10);
@@ -2511,6 +2522,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND ? BETWEEN year_start AND year_end
                 LIMIT 1
               `).bind(make, model, y).first();
+
+              // 3. Fetch Programming Pearls (Research Automation)
+              // Use LIKE for model matching to handle variations
+              const modelPattern = `${model}%`;
+              const pearlsResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM vehicle_pearls
+                WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY display_order ASC
+              `).bind(make, modelPattern, y).all();
+              pearls = pearlsResult.results || [];
             }
           }
           const tEnd = performance.now();
@@ -2527,6 +2549,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             rows,
             alerts,
             guide,
+            pearls,
             _timings: {
               total: tEnd - tStart,
               count: tCount - tStart,

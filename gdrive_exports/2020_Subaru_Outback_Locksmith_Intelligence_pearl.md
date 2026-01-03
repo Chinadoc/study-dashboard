@@ -1,0 +1,197 @@
+ï»¿2020 Subaru Outback (BT) Locksmith Forensic Intelligence Report
+1. Architectural Evolution: The BT Platform and Security Paradigm Shift
+The release of the 2020 Subaru Outback marked a definitive transition in the automotive security landscape, signifying the commencement of the BT generation (the sixth iteration of the Legacy/Outback platform). This shift was not merely a cosmetic update or a minor mechanical refinement; it represented a fundamental re-engineering of the vehicleâs digital architecture, heavily influenced by the adoption of the Subaru Global Platform (SGP) and the deepening technical alliance with Toyota. For the forensic locksmith and automotive security professional, the 2020 Outback constitutes a critical demarcation line, separating the legacy systems of the BS generation (2015â2019) from the modernized, encrypted, and gated networks of the new decade.
+The architectural philosophy of the BT platform is characterized by a significant hardening of the immobilizer ecosystem. Where previous generations utilized relatively open Controller Area Network (CAN) bus architectures, the 2020 model introduces a bifurcated network topology protected by a Security Gateway Module (SGW). This module serves as a digital firewall, effectively segregating the public-facing On-Board Diagnostics (OBD-II) port from the vehicleâs private control networks, including the high-speed CAN-C (Chassis) and CAN-IH (Body/Interior) buses.1 This implementation mirrors the security protocols introduced by Fiat Chrysler Automobiles (FCA) in 2018, necessitating a paradigm shift in how aftermarket tools communicate with the vehicle.2
+Furthermore, the cryptographic underpinnings of the immobilizer system have been upgraded from the legacy 40-bit and 80-bit protocols to a robust 128-bit AES encryption standard. This system utilizes the Texas Instruments 'H' Chip (8A) logic, a technology derived directly from the Toyota immobilizer ecosystem.4 This harmonization with Toyotaâs security architecture means that the 2020 Outback acts, effectively, like a modern Toyota or Lexus in terms of digital handshakes and key registration, yet it resides within a Subaru physical infrastructure. This hybrid nature creates a unique set of challenges: technicians must employ Toyota-compatible emulation strategies while navigating Subaru-specific physical access points and module locations.6
+The implications of this shift are profound. The "plug-and-play" simplicity of programming keys via direct OBD-II connection, common in the BS generation, is rendered obsolete without specific bypass hardware. The introduction of the StarLink Data Communication Module (DCM) as an active node on the CAN bus adds a layer of signal interference that can disrupt programming sequences, a phenomenon not prevalent in earlier models.7 Consequently, the 2020 Outback requires a forensic approach that integrates physical layer access (SGW bypass), digital layer emulation (128-bit key simulation), and environmental control (telematics isolation and voltage stabilization).
+
+
+  
+
+
+
+2. Transponder Forensics and Smart Key Intelligence
+The integrity of any access control system relies on the credential used to authenticate the user. In the context of the 2020 Subaru Outback, this credential is the Smart Key Fob. The transition to the BT platform brought with it a complete overhaul of the Radio Frequency (RF) and Low Frequency (LF) communication protocols, moving away from the 315 MHz standard that dominated the North American market for decades.
+2.1 The Migration to 433 MHz and 128-Bit Encryption
+A critical differentiator for the 2020 model year is the frequency standardization. The Smart Key system operates on a 433.92 MHz (often listed as 433 MHz or 434 MHz) carrier wave.4 This is a departure from the 315 MHz frequency used in the ostensibly identical-looking fobs of the 2015-2019 era (FCC ID: HYQ14AHC). This distinction is vital for inventory management; attempting to program a legacy 315 MHz fob to a 2020 Outback will result in a failure to communicate during the initial handshake phase, as the vehicleâs Remote Keyless Entry (RKE) receiver will simply not detect the transmission.
+The encryption logic embedded within the transponder is the Texas Instruments 128-Bit AES, designated in the industry as the "8A" or "H-Chip" configuration.4 This designation "H-Chip" is borrowed from Toyota locksmithing terminology, reflecting the shared underlying technology. Unlike the "G-Chip" (80-bit) systems of the previous generation, the 8A chip utilizes advanced encryption that requires significantly higher processing power to calculate security challenges. This necessitates the use of modern programming tools capable of handling high-security Toyota/Lexus protocols over a Subaru data stream. The chip itself is integrated into the PCB, making it a "Smart" system where the immobilization function and remote function are unified on a single board.9
+2.2 Printed Circuit Board (PCB) Architecture
+Forensic examination of the OEM key fob reveals a specific board architecture known as the 'G' Board, identifiable by the board number 231451-7000 printed on the PCB.10 This board layout is highly specific and critical for verification. The use of the 231451-7000 board confirms the presence of the 128-bit architecture. Technicians encountering a board with a different identifier (such as the 231451-5801 found in older models) can immediately determine incompatibility before attempting any programming procedures.
+The FCC ID HYQ14AHK serves as the primary external identifier for this generation of hardware.4 This FCC ID is shared across a wide range of Subaru vehicles built on the Global Platform, creating a unified "Smart Key" ecosystem for the manufacturer. The Industry Canada (IC) identifier 1551A-14AHK further corroborates this specification.10
+2.3 Comprehensive Parts Matrix and Cross-Compatibility
+The 2020 Outback utilizes a key fob that is cross-compatible with the majority of the Subaru lineup during the 2018-2021 transition period. This interoperability is a significant logistical advantage for locksmiths, allowing a single stock keeping unit (SKU) to service multiple models. The primary OEM part number is 88835FL03A, though it has seen several supersessions including 88835FL03B and 88835FL03C, as well as variant codes like 88835FL030, 88835FL031, and 88835FL032.4 These variants are functionally identical regarding the transponder and remote frequency, often differing only in minor internal component suppliers or cosmetic casing details.
+Confirmed compatibility for the HYQ14AHK / 433 MHz / 8A Chip fob includes:
+* Subaru Outback: 2020, 2021, 2022.4
+* Subaru Legacy: 2018, 2019, 2020, 2021.4
+* Subaru Forester: 2019, 2020, 2021.4
+* Subaru Ascent: 2019, 2020, 2021.4
+* Subaru Impreza: 2017, 2018, 2019, 2020, 2021.4
+* Subaru Crosstrek: 2018, 2019, 2020, 2021.4
+* Subaru WRX / STI: 2019, 2020.4
+It is imperative to distinguish this from the visually identical HYQ14AHC fob used on 2014-2018 models (BRZ, older Forester/Impreza), which operates on 315 MHz and uses a different transponder protocol.11 Confusion between the AHK and AHC series is a leading cause of programming failures in the field.
+
+
+  
+
+
+
+3. Physical Access and Mechanical Security: The TOY51 Paradigm
+While digital security garners much of the attention in modern automotive forensics, the physical security layer remains the primary point of interaction for emergency access and battery failure scenarios. The 2020 Outback employs a high-security laser-cut keyway system that has also undergone a transition, moving decisively away from legacy Nissan-derived profiles toward Toyota-standardized profiles.
+3.1 Keyway Identification: The TOY51 Standard
+For the 2020 model year, the emergency blade insert contained within the smart key, as well as the driver's door lock cylinder, utilizes the TOY51 keyway.13 This profile is characterized by a high-security, internal 2-track or 4-track configuration (depending on the specific cut depth strategy) and a distinctive face cap styling consistent with Toyota and Lexus vehicles.
+In professional locksmith databases and code series references, this keyway may also be designated as Toy40S or LXP90.16 It is crucial to differentiate this from the NSN14 keyway, a Nissan-style profile used on older Subarus (pre-2014) and some transitional models.18 The NSN14 is an external 2-track key that is physically incompatible with the TOY51 lock cylinders found on the BT platform. The Ilco cross-reference for the blade is often listed as LXP90 or part of the HYQ14AHK shell assembly, distinct from the older X251 (Nissan style) blank.17
+The forensic implication of this change is significant for physical entry. Tools designed for Nissan locks (such as the Lishi NSN14 2-in-1 pick) will not fit or function in the 2020 Outback's door lock. Technicians must utilize Lishi TOY51 picks to successfully decode the wafer depths and manipulate the lock cylinder.21
+3.2 Key Code Series and Cutting Specifications
+The key code series for the high-security TOY51 locks on the 2020 Outback typically falls within the 40000-49999 or 90000-99999 numerical ranges.17 These code series are proprietary and access to the specific bitting (cut depths) associated with a Vehicle Identification Number (VIN) is restricted. Authorized dealers and registered security professionals access this data through the Subaru Lock Information Site (SLIS).23
+When cutting a replacement emergency blade, the machine must be calibrated for the Toyota/Lexus high-security profile. The cut depths and spacing are identical to contemporary Toyota models, reinforcing the manufacturing synergy between the two companies. Misidentifying the keyway as a Nissan profile will result in a miscut key that cannot rotate the lock cylinder.
+3.3 The PIN Code Access System: A Forensic Backdoor
+A unique feature of the Subaru ecosystem, retained and refined in the 2020 Outback, is the PIN Code Access system. This feature allows a user to unlock the vehicle without the physical presence of the key fob by entering a pre-programmed 5-digit code via the trunk release button.24
+From a forensic perspective, this system represents a potential non-destructive entry vector. The mechanism relies on the distinct "chimes" emitted by the vehicle and the tactile input on the liftgate button (or a specific rhythm on the handle for manual liftgates). If a vehicle is recovered in a "locked-out" state, a forensic investigator or locksmith can attempt to check for an active PIN code. It is not uncommon for users to set simple, easily guessed sequences such as 1-1-1-1-1 or 1-2-3-4-5.26 Successful entry of the PIN unlocks the driverâs door, bypassing the need for lock picking or air wedges, preserving the physical integrity of the door seals and lock mechanism.
+4. The Security Gateway (SGW): Network Architecture and Bypass Protocols
+The most significant operational hurdle in programming keys for the 2020 Subaru Outback is the Security Gateway Module (SGW). Introduced across the industry to mitigate the risk of unauthorized CAN bus injection attacks and wireless hacking, the SGW acts as a rigorous firewall between the external world and the vehicle's internal nervous system.
+4.1 SGW Topography and Functionality
+The SGW fundamentally alters the network topography of the vehicle. It bifurcates the Controller Area Network (CAN) into two distinct zones:
+1. Public Zone: This includes the OBD-II (DLC) port and often the Telematics (StarLink) unit.
+2. Private Zone: This encompasses the critical vehicle control modules, including the Engine Control Unit (ECU), Body Integrated Unit (BIU), and the Smart Key ECU (SMT).
+In this architecture, the OBD-II port is no longer a direct line to the vehicle's brain. Any attempt to send "active" commandsâsuch as "Write VIN," "Reset Immobilizer," or "Add Key"âvia the OBD-II port is intercepted by the SGW. Unless the diagnostic tool possesses a digital certificate authenticated by the OEM server (a feature largely restricted to dealer tools like SSM4), the SGW blocks the command, returning a "Security Access Denied" or "Communication Error" message.2
+4.2 Locating the Gateway
+Physical access to the SGW is a prerequisite for any aftermarket programming attempt. In the 2020 Outback, the SGW is typically located above the driver's kick panel, situated near the steering column or tucked behind the instrument cluster area.1 It is visually identifiable by its two distinct connectors: a 12-pin connector and an 8-pin connector. This 12+8 configuration is the industry standard for this type of gateway, shared with Fiat Chrysler Automobiles (FCA) vehicles from 2018 onwards.
+While some literature references a 16+32 gateway configuration found in Nissan vehicles (specifically the B18 chassis Sentra/Sylphy), the 2020 Outback overwhelmingly utilizes the 12+8 FCA-style connector configuration.1 However, technicians must be adaptable; the use of the ADC-2021 cable (for Smart Pro users) connects directly to the Smart ECU, effectively bypassing the gateway by interacting directly with the target module rather than the gateway itself.27
+4.3 Bypass Implementation Strategies
+To program keys without an expensive OEM subscription, the forensic locksmith must physically bypass the SGW. This involves disconnecting the vehicle's harness from the SGW module and bridging the connection to the diagnostic tool.
+Method 1: Universal FCA 12+8 Bypass Cable
+Since the SGW hardware architecture is shared with Stellantis, the standard "Chrysler 12+8" bypass cable is the primary tool for Autel users (IM508/IM608). The procedure is as follows:
+1. Locate the SGW module under the driver's dash.
+2. Unplug the 12-pin and 8-pin vehicle connectors from the SGW.
+3. Connect these vehicle connectors into the female ends of the 12+8 bypass cable.
+4. Connect the OBD-II end of the bypass cable to the Autel programmer.1
+This creates a physical bridge that completely circumvents the SGW, giving the programmer direct, unfiltered access to the private CAN bus.
+Method 2: Specialized Tool Cables (ADC-2019 / ADC-2021)
+For users of the Advanced Diagnostics Smart Pro, specific cables are engineered for this task. The ADC-2019 serves as the standard gateway bypass (similar to the 12+8 cable), while the ADC-2021 is a specialized cable designed to connect directly to the Smart ECU or certification unit, often used in "All Keys Lost" scenarios to inject data directly into the immobilizer module.30
+Operational Warning: Attempting to program a 2020 Outback without a physical SGW bypass or an authenticated OEM tool will result in immediate failure. The tool may be able to read generic OBD-II codes (which are allowed through the gateway), but all immobilizer functions will be blocked.
+
+
+  
+
+
+
+5. Control Modules: The Triad of Governance
+The security of the 2020 Outback is not managed by a single component but is distributed across a triad of control modules. Understanding the function and failure modes of each is essential for troubleshooting and advanced repairs.
+5.1 The Body Integrated Unit (BIU)
+The Body Integrated Unit (BIU) serves as the central nervous system for the vehicle's body electronics. It manages door locks, lighting, and crucially, the gateway for the immobilizer system's handshake with the dashboard and ECU. In the BT platform, the BIU often contains a protected MCU (Microcontroller Unit) such as the MB91F526, which is locked and cannot be easily read by standard EEPROM programmers.32 This makes "bench programming" (removing the module to read data) significantly more difficult than in previous generations. The BIU is also the repository for vehicle configuration data, including the settings for the EyeSight system. Replacing a BIU without transferring this configuration data will disable the safety systems.33
+5.2 The Smart ECU (SMT)
+The Smart ECU (often referred to as the Certification ECU or Immo Box) is responsible for communicating directly with the smart key fob. It handles the 128-bit AES challenge-response protocol. Located typically behind the glove box or instrument cluster, this module stores the unique IDs of the registered keys.34 In an "All Keys Lost" scenario, this is the target module for emulation attacks. Tools like the Smart Pro with the ADC-2015 cable aim to emulate a "master key" signal that the Smart ECU accepts, thereby opening the programming window.36
+5.3 The Data Communication Module (DCM)
+The Data Communication Module (DCM), or Telematics Unit, manages the StarLink cellular connectivity. While not a security module in the traditional sense, it plays a villainous role in forensic programming. The DCM is highly active on the CAN bus, constantly broadcasting status updates and "health checks" to the network. During critical programming phasesâsuch as when the scan tool is attempting to write a new key ID to the Smart ECUâthe DCM's traffic can collide with the programming packets, causing the procedure to fail. This is known as Telematics Interference. The DCM is often mounted directly beneath the head unit (radio) or deep within the dashboard, making physical access difficult.37
+6. Advanced Programming Methodologies
+The programming landscape for the 2020 Outback is bifurcated into two distinct operational categories: Add Key (when at least one working key is present) and All Keys Lost (AKL) (when no working keys are available). Each requires a specific set of tools and protocols.
+6.1 OEM Protocol: Subaru Select Monitor 4 (SSM4)
+The official dealer methodology utilizes the SSM4 diagnostic software coupled with a compliant J2534 interface (like the Denso DST-i or Mongoose-Plus). For the 2020+ models, Subaru introduced a rigorous authentication layer. The system now requires a rolling "Authentication Key"âan 8-digit code supplied by Subaru of America (SOA) that changes approximately every six months.39
+   * Procedure: The technician enters the current Authentication Key into the SSM4 software to unlock the immobilizer registration functions. The tool then guides the user through a "teaching" process where the new key is registered to the Smart ECU.
+   * Limitation: This method relies entirely on server access and valid subscription credentials, making it inaccessible to unauthorized personnel or those without an active Subaru Security Professional (LSP) ID.
+6.2 Aftermarket Solution: Autel (IM508 / IM608)
+Autel has established itself as a primary aftermarket solution for Subaru forensics.
+   * Add Key: This process is relatively straightforward. The technician connects the IM508/IM608 to the vehicle using the SGW bypass cable. The tool reads the current immobilizer data and guides the user to place the new key near the start button to register it.
+   * All Keys Lost (AKL): This scenario is significantly more complex and requires the APB112 Smart Key Simulator.
+   1. Connection: Connect the programmer via the 12+8 SGW bypass.
+   2. Data Extraction: The tool attempts to back up the EEPROM data from the Smart ECU/BIU via the OBD connection.
+   3. Emulation: The backed-up data is used to generate a "simulated" master key on the APB112 device.
+   4. Registration: The APB112 is held near the start button to turn the ignition ON ("Ignition ON" state is required for programming). Once the vehicle recognizes the simulator as a valid key, the technician can proceed to add a permanent physical fob.40
+   * Risks: Success relies heavily on the quality of the EEPROM backup. If the connection is unstable (due to voltage drops or DCM interference), the backup may be corrupt, leading to a failure to generate the emulator.
+6.3 Aftermarket Solution: Smart Pro (Advanced Diagnostics)
+The Smart Pro platform utilizes a dedicated hardware ecosystem for Subaru.
+   * ADC-2015 Emulator Cable: This hardware is mandatory for AKL situations on the 2020 Outback. Unlike the Autel which uses a wireless emulator, the ADC-2015 connects physically to the Smart Pro unit. It emulates the 128-bit master key signal directly into the vehicle's system.36
+   * Software Modules: The procedure typically involves the ADS2286 (Subaru) or ADS2328 (Toyota) software modules. The cross-listing with Toyota software highlights the shared underlying architecture.
+   * Procedure:
+   1. Connect Smart Pro with the ADC-2015 cable and the appropriate SGW bypass (ADC-2019/2021).
+   2. The software forces the Smart ECU into a reset state or extracts the necessary key data.
+   3. The ADC-2015 cable acts as the master key to "wake up" the system.
+   4. New keys are presented to the start button for registration.
+This method is often preferred for its stability, as the wired connection of the emulator reduces the risk of wireless signal dropouts during the critical emulation phase.
+
+
+  
+
+
+
+7. The StarLink Telematics Barrier: Interference and Mitigation
+A persistent and often undiagnosed cause of programming failure in the 2020 Outback is the interference generated by the StarLink Telematics Unit (DCM). This module, responsible for remote services, SOS calls, and vehicle health reports, is a "noisy" neighbor on the CAN bus.
+7.1 The Interference Mechanism
+During the key programming process, the diagnostic tool must establish a stable, uninterrupted communication session with the Smart ECU and BIU. The DCM, however, is programmed to aggressively monitor the bus for status changes. When it detects the unusual activity associated with programming (or the battery disconnects often performed during service), it may "wake up" and flood the bus with status messages or "keep-alive" signals. This data flood collides with the delicate handshake packets of the immobilizer registration process, causing the tool to time out or report a "Communication Failed" error, even if the SGW is successfully bypassed.7
+7.2 Mitigation Protocols
+To ensure programming success, the forensic locksmith must effectively silence the DCM.
+      * Protocol A: Fuse Extraction. The most direct method is to locate the fuse dedicated to the DCM/Telematics in the interior fuse box and remove it. This physically cuts power to the unit, preventing it from broadcasting.44
+      * Protocol B: The "Power Cycle" Wait. If fuse pulling is not feasible, a hard battery reset is required. The technician should disconnect the vehicleâs main battery and wait for a minimum of 15 to 30 minutes. This duration is critical; it allows the internal backup battery of the DCM to deplete or the module to enter a deep sleep state, reducing the likelihood of it waking up immediately upon reconnection.45
+      * Protocol C: Hardware Bypass. For persistent cases, or in vehicles where the head unit is being serviced, a StarLink Bypass Plug (such as the AHH-7747) can be installed. This device loops the necessary audio signals (like the front speakers which pass through the DCM) while isolating the telematics data stream from the rest of the network.37
+Forensic Note: Simply disconnecting the battery for a few seconds is insufficient. The DCM has capacitors and often a small internal battery that allow it to send a "Vehicle Power Loss" distress signal to the Subaru servers. This transmission activity is exactly what disrupts the programming process.
+8. ADAS Integration: The EyeSight Factor
+The 2020 Outback is equipped with the advanced EyeSight Driver Assist Technology. The integration between the security modules and these safety systems is profound and carries significant liability risks for the locksmith.
+8.1 The BIU-EyeSight Dependency
+The Body Integrated Unit (BIU) stores the configuration data for the vehicle, including the specific calibration parameters for the EyeSight system. If a locksmith or technician replaces a faulty BIU (a common fix for "bricked" modules) with a virgin or used unit, the EyeSight system will detect a configuration mismatch. This will immediately disable all driver assist features (Pre-Collision Braking, Adaptive Cruise Control) and illuminate multiple warning lights on the dashboard.33
+8.2 Calibration Triggers and Risks
+Forensic professionals must be aware that certain "reset" functions in aftermarket programming tools can inadvertently wipe the BIU's configuration data. If this occurs, or if the BIU is replaced, the vehicle must undergo a full EyeSight Calibration.
+      * Triggers: Windshield replacement, removal of stereo cameras, suspension modifications, and BIU replacement are all mandatory triggers for calibration.33
+      * Cost Implication: Calibration is a specialized procedure requiring static targets and a large, level bay. It is typically a dealer-only or specialist glass shop service, costing hundreds of dollars. Locksmiths must avoid unnecessary "Parameter Resets" on the BIU to prevent incurring this liability.46
+9. Troubleshooting and Environmental Control
+Success in programming the 2020 Outback is as much about environmental control as it is about the correct software.
+9.1 Voltage Stabilization
+The electronic control units in the BT platform are highly sensitive to voltage fluctuations. During the programming processâespecially during the EEPROM write phaseâa voltage drop below 12.0 Volts can result in data corruption, effectively "bricking" the BIU or Smart ECU.47
+      * Requirement: A stable power supply (maintainer) providing a constant 13.2V - 13.5V must be connected to the vehicle battery throughout the procedure. Reliance on a portable jump pack is discouraged due to potential voltage spikes or sag under load.48
+9.2 Sleep Mode
+A common "false failure" occurs when the new key fob is inadvertently placed in Sleep Mode. This is a battery-saving feature activated by holding the LOCK button and pressing UNLOCK twice. A fob in sleep mode will not transmit LF/RF signals and will not be detected by the vehicle during the registration phase. Technicians should always verify the fob is active by pressing a button and checking for the LED flash before attempting programming.26
+10. Conclusion
+The forensic analysis of the 2020 Subaru Outback (BT) reveals a vehicle that has shed its legacy roots to embrace a thoroughly modern, high-security architecture. The transition to the Subaru Global Platform has aligned its security logic with Toyota's 128-bit 8A ecosystem, protected it behind an FCA-style Security Gateway, and integrated it deeply with telematics and ADAS systems.
+For the automotive locksmith, the implications are clear: the toolkit of the past is insufficient. Success now requires a triad of capabilities:
+      1. Physical Access: The correct TOY51 laser picks and cutters to navigate the new mechanical locks.
+      2. Digital Access: The hardware to bypass the SGW (12+8 cables) and the emulation technology (APB112/ADC-2015) to mimic the high-security encryption.
+      3. Environmental Mastery: The knowledge to manage StarLink interference and voltage stability to prevent catastrophic module failure.
+By adhering to the protocols outlined in this reportâspecifically the mandatory SGW bypass, the correct identification of 433 MHz hardware, and the mitigation of telematics noiseâforensic professionals can navigate the complexities of the BT platform with confidence and precision.
+Works cited
+      1. FCA SGW MODULE | Bypass, Installation, & Info - eurocompulsion, accessed January 3, 2026, https://shopeurocompulsion.net/blogs/installation-database/fca-sgw-module-bypass-installation-info
+      2. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 3, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+      3. Security Gateway Bypass Module - ZAutomotive, accessed January 3, 2026, https://www.zautomotive.com/products/z_sgw
+      4. 2017 - 2022 Subaru Smart Key 4B FCC# HYQ14AHK - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2017-2022-subaru-smart-key-4b-fcc-hyq14ahk
+      5. Subaru Proximity Remote Key HYQ14AHK 8835-FL03B ILCO LookAlike - Key4, accessed January 3, 2026, https://www.key4.com/subaru-ilco-smart-remote-key-hyq14ahk-8835fl03b
+      6. SUBARU BRZ ALL KEYS LOST PROGRAMMING EEPROM - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=X7kQPBg-7sk
+      7. SERVICE PROGRAM BULLETIN - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2020/MC-10185074-0001.pdf
+      8. 2020 Subaru Outback Smart Remote Key Fob 4B w/ Trunk (FCC: HYQ14AHK, P/N, accessed January 3, 2026, https://oemcarkeymall.com/products/2020-subaru-outback-smart-key-proximity-4button-hyq14ahk
+      9. 2018-2021 Subaru Outback / Legacy OEM Smart Key Fob FCC ID:HYQ14AHK ,UNLOCKED, accessed January 3, 2026, https://www.ebay.com/itm/317285471124
+      10. 2018-2023 Subaru Outback Smart Key Fob Remote Logo (HYQ14AHK, 88835FL03A, 88835FL03B, 88835FL03C, 'G' Board: 231451-7000) - NorthCoast Keyless, accessed January 3, 2026, https://northcoastkeyless.com/product/subaru-outback-smart-key-fob-remote-logo-fcc-hyq14ahk-p-n-88835fl03a-g-board-231451-7000/
+      11. Subaru New OEM 2014-2020 BRZ, Forester, Outback, Impreza, Legacy, WRX, accessed January 3, 2026, https://royalkeysupply.com/products/subaru-new-oem-2014-2020-brz-forester-outback-impreza-legacy-wrx-smart-key-4b-trunk-fccid-hyq14ahc-pn-88835-al04a
+      12. Subaru Prox Key HYQ14AHC ILCO LookAlike - Key4, accessed January 3, 2026, https://www.key4.com/subaru-ilco-smart-key-hyq14ahc-88835-al04a
+      13. 2014-2021 Subaru / Emergency Key / TOY51 / PN: 57497-AL02A (AFTERMARKET), accessed January 3, 2026, https://www.uhs-hardware.com/products/2014-2021-subaru-emergency-key-toy51-pn-57497-al02a-aftermarket
+      14. INSERT 2014-2025 Subaru Smart Emergency Key Blade TOY51 - Your Car Key Guys, accessed January 3, 2026, https://yourcarkeyguys.com/products/insert-2014-2023-subaru-smart-emergency-key-blade-toy51
+      15. X2 TOY51 Emergency Key for 2014-2021 Subaru HYQ14AHK / HYQ14AHC PN: 57497-AL02A | eBay, accessed January 3, 2026, https://www.ebay.com/itm/236502712387
+      16. 2014 - 2024 Subaru Emergency Key (2 Pack) - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2014-2024-subaru-emergency-key-2-pack
+      17. Subaru 2014-2024 Smart Emergency Key - Nitrous Keys, accessed January 3, 2026, https://nitrouskeys.com/products/subaru-2014-2021-emergency-key
+      18. 2 Remote Key Blade Blank for Subaru Subaru Ascent Forester WRX Legacy Outback | eBay, accessed January 3, 2026, https://www.ebay.com/itm/387383425617
+      19. New Arrival LISHI Lockpicks 112 Pcs 2 in 1 TOY38 447 HON66 CY24 Auto Key Decoder Set Locksmith Equipment - AliExpress, accessed January 3, 2026, https://www.aliexpress.com/i/1005008903009202.html
+      20. Subaru key question : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/153ox3n/subaru_key_question/
+      21. Vehicle Keys, Remotes and Transponders - Hickleys, accessed January 3, 2026, https://www.hickleys.com/diagnostics/keys_list.php?cat=161&sc=161
+      22. 2005-2019 Toyota Scion Subaru / Emergency Key / TOY51 / 69515-52120 (AFTERMARKET) - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2005-2019-toyota-scion-subaru-emergency-key-toy51-69515-52120-aftermarket
+      23. SERVICE BULLETIN - Subaru, accessed January 3, 2026, https://subaru.locksmithsdrm.com/SubaruSDRM/downloads/subaru_service_bulletin.pdf
+      24. How to Use the Secret Subaru PIN Code to Lock Your Key Fob in Your Car, accessed January 3, 2026, https://www.twinfalls-subaru.com/how-to-use-the-secret-subaru-pin-code-to-lock-your-key-fob-in-your-subaru/
+      25. How to Program Subaru PIN Code Keyless Entry | Mark Miller Subaru South Towne, accessed January 3, 2026, https://www.markmillersubarusouthtowne.com/blog/subaru-pin-code-keyless-entry
+      26. 2020 Subaru Outback: Secret Access Pin - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=P8iR1YTiQ1Y
+      27. ADC2021 SMART PRO TOYOTA GATEWAY BYPASS CABLE - The Locksmith Store, accessed January 3, 2026, https://locksmithstore.com/adc2021-smart-pro-toyota-gateway-bypass-cable-adv-adc2021-00.html
+      28. The 2022-2024 Subaru Solterra requires the ADC-2021 bypass cable for Smart Pro, accessed January 3, 2026, https://www.youtube.com/watch?v=ecftmlqlRA4
+      29. (US Ship)Chrysler 12+8 Adaptor for Autel MaxiSys Elite/ MS908/ MS908P/ MS908S Pro - AutelShop.us, accessed January 3, 2026, https://www.autelshop.us/products/chrysler-12-8-adaptor-for-autel-maxisys-elite-ms908-ms908p-ms908s-pro
+      30. Advanced Diagnostics Cables - Key4, accessed January 3, 2026, https://www.key4.com/cables-advanced-diagnostics
+      31. Smart Pro Cables - Hickleys, accessed January 3, 2026, https://www.hickleys.com/diagnostics/smartpro_cables.php
+      32. SUBARU IMMOBILIZER SOLUTION 2012-2026 | ALL KEYS LOST | SAVE THOUSANDS OF, accessed January 3, 2026, https://www.youtube.com/watch?v=8dIIIZv4skY
+      33. Calibration Research Tips: Subaru EyeSight - I-CAR Repairability Technical Support Portal, accessed January 3, 2026, https://rts.i-car.com/collision-repair-news/crn-1623.html
+      34. 2023 Subaru Outback immo box location : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1l9coge/2023_subaru_outback_immo_box_location/
+      35. Subaru Smart Key Programming (All key lost) - Data Transferring Service, accessed January 3, 2026, https://www.datatransferring.com/subaru-smart-key-programming
+      36. Advanced Diagnostics Emulator Cable for Toyota / Subaru ADC2015 (D755650AD), accessed January 3, 2026, https://keyinnovations.com/advanced-diagnostics-emulator-cable-for-toyota-subaru-adc2015-d755650ad/
+      37. Bypass the Subaru Starlink Tracking & Front Speaker fix - AutoHarnessHouse, accessed January 3, 2026, https://www.autoharnesshouse.com/69018.html
+      38. How can I get rid of this? : r/Subaru_Outback - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Subaru_Outback/comments/1j58a04/how_can_i_get_rid_of_this/
+      39. SERVICE INFORMATION BULLETIN - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10238472-0001.pdf
+      40. 2023 Subaru Forester all keys lost proximity key programming - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=rFEo1TQxY54
+      41. Autel Tech Tips: Adding a Prox Key to a Subaru - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=v9lGoS_YR00
+      42. Autel MaxiIM IM608 PRO II with 2-Year Update, Bypass Cable, GBOX3, APB - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/autel-maxiim-im608-pro-ii-with-2-year-update-bypass-cable-gbox3-apb112-and-imkpa-no-area-restriction
+      43. Advanced Diagnostics - ADC2015 - Emulator Cable suitable for Toyota / Subaru, accessed January 3, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-adc2015-emulator-cable-suitable-for-toyota-subaru
+      44. Bypassing Starlink/Telematics and not voiding the extended Warranty : r/subaru - Reddit, accessed January 3, 2026, https://www.reddit.com/r/subaru/comments/1ad4j5d/bypassing_starlinktelematics_and_not_voiding_the/
+      45. SPi Vehicle Application Guide KEYS Pro SD23.2 - SP Diagnostics, accessed January 3, 2026, https://spdiagnostics.com/keyscan/downloads/Documents/iKeys+document+-+complete+(23.2).pdf
+      46. Subaru EyeSight Safety Features & Recalibration - Safelite, accessed January 3, 2026, https://www.safelite.com/vehicle-glass-repair/subaru-eyesight-adas-recalibration
+      47. 2020 Outback bricked by locksmith programming keys with a dying battery : r/Subaru_Outback - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Subaru_Outback/comments/134s102/2020_outback_bricked_by_locksmith_programming/
+      48. How to Program a Car Key Fob: Step-by-Step Guide - AutoPi.io, accessed January 3, 2026, https://www.autopi.io/blog/how-to-program-a-key-fob/

@@ -1,5 +1,5 @@
-// v30 - Skip Cross-Origin Requests Entirely to Prevent CORS Failures
-const CACHE_NAME = 'euro-keys-v34-force-assets';
+// v31 - Force Clean Cache Rebuild
+const CACHE_NAME = 'euro-keys-v36-clean-rebuild';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

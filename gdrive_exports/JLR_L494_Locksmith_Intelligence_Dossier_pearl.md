@@ -1,0 +1,163 @@
+ï»¿2019 Land Rover Range Rover Sport (L494) FORENSIC LOCKSMITH INTELLIGENCE DOSSIER
+1. Executive Intelligence Summary
+The 2019 Land Rover Range Rover Sport (L494) represents a definitive and hostile inflection point in the lineage of Jaguar Land Rover (JLR) security architectures. For the automotive locksmith, forensic security analyst, and vehicle systems researcher, the 2019 model year is not merely an incremental update; it constitutes a fundamental cryptographic fortress designed to repel the standard operational procedures that governed the preceding decade of automotive access. This dossier serves as an exhaustive, expert-level operational guide, dissecting the proprietary mechanisms, failure modes, and forensic programming exploits required to successfully navigate the "JPLA" chassis control era.
+The intelligence gathered herein suggests a high-risk operational environment where the margin for error is effectively zero. The transition from the legacy High-Speed CAN (HS-CAN) bus to the high-bandwidth FlexRay and Ethernet backbones utilizing Diagnostics over Internet Protocol (DoIP) has rendered traditional OBD-II key programming tools obsolete or dangerous. The 2019 L494 sits precisely on the "facelift" fault line where JLR introduced the JPLA Keyless Vehicle Module (KVM)âalso referred to technically as the Remote Function Actuator (RFA). This module utilizes a secure, One-Time Programmable (OTP) microcontroller architecture, typically based on Renesas V850 or NXP SPC560 series silicon, which fundamentally breaks the read/write capabilities of pre-2017 diagnostic methods.1
+The "All Keys Lost" (AKL) scenario for a 2019 L494 is widely regarded within the professional community as one of the most difficult and financially perilous operations in the commercial locksmith sector. It often necessitates the physical extraction of the KVM for bench programming or the complete replacement of the module with a "virgin" unit to bypass the locked memory sectors.1 Furthermore, the introduction of Ultra-Wideband (UWB) time-of-flight technology in subsequent updates to combat relay attacks, coupled with the strict requirement for DoIP-compliant hardware, creates a significant barrier to entry for the generalist technician.5 This report analyzes the proprietary JLR security architecture, the operational necessity of specific aftermarket tooling like the Yanhua Mini ACDP Module 24, the critical frequency distinctions between North American (NAS) and Rest of World (ROW) markets, and the persistent, liability-inducing issue of parasitic battery drain post-programming.
+2. Vehicle Network Architecture and DoIP Protocols
+To successfully interact with the 2019 Range Rover Sport, one must first understand the medium of communication, which has shifted radically from the standards of the early 2010s. The L494 facelift introduced a sophisticated electrical architecture relying heavily on FlexRay and Ethernet for high-speed data transfer between modules, largely replacing the High-Speed CAN (HS-CAN) for module flashing and critical security handshakes. This shift was necessitated by the increasing data throughput requirements of modern infotainment, autonomous driving aids, and advanced security protocols.
+2.1 The DoIP Imperative and Gateway Architecture
+Diagnostics over Internet Protocol (DoIP) is not an optional feature for the 2019 model year; it is a mandatory communication standard.5 The vehicle's Gateway Module (GWM) acts as a rigorous firewall and router, managing traffic between the external diagnostic port and the internal vehicle networks. Traditional CAN-based tools, such as the older J2534 pass-thru devices used with legacy SDD software, cannot effectively communicate with the high-speed domain required to program the KVM or the Body Control Module (BCM). The GWM filters traffic, and without the correct DoIP handshake and protocol adherence, the diagnostic requests are simply dropped.
+The implication for the locksmith is profound. If a technician attempts to use a standard CAN-only OBD programmer on a 2019 L494, the tool may successfully read basic engine Diagnostic Trouble Codes (DTCs), as these often still reside on legacy CAN lines to satisfy regulatory OBDII compliance mandates. However, any attempt to access the Remote Function Actuator (RFA) or Body Control Module (BCM) for the purpose of key programming will result in a "communication failure" or a timeout error.6 The tool is physically connected, but linguistically isolated from the relevant control units.
+2.2 Chronological Evolution of Security Architectures
+Understanding the specific timeline of KVM evolution is paramount to selecting the correct forensic approach. The JLR platform did not jump to this level of security overnight; it was a phased evolution.
+The FK72 era, spanning roughly 2015 to 2016, represented the baseline for the modern smart key system. During this period, the Microcontroller Unit (MCU) within the KVM was generally open, allowing for relatively straightforward reading and writing via OBD-II ports or basic bench connections. The encryption keys were static enough to be calculated without invasive hardware modification.
+This was followed by the HPLA transitional period, covering the 2017 and early 2018 model years. This era introduced mixed security protocols. Some modules remained open, while others began implementing partial locks on the memory sectors. Locksmiths during this period faced a "Russian Roulette" scenario where an OBD attempt might work, or it might fail, necessitating a bench approach.
+By late 2018 and cementing itself in the 2019 model year, the JPLA architecture became the standard. This is the "Nightmare Scenario" referenced in industry alerts. The JPLA modules feature MCUs that are almost exclusively configured as One-Time Programmable (OTP) or cryptographically locked. This means the specific memory sectors containing the key identifiers cannot be overwritten via standard diagnostic commands once they have been written to at the factory. The security bytes are fused, preventing modification. Consequently, the "Add Key" function via OBD is often disabled or impossible because the module rejects the write command. This necessitates the use of "Renew" or "Virginize" techniques on the bench to wipe the module back to a factory-blank state, or the complete replacement of the KVM.2
+2.3 SDD vs. Pathfinder: The Software Divide
+A critical distinction must be drawn between the two generations of JLR diagnostic software, as confusion here leads to immediate operational failure and potential data corruption.
+JLR SDD (Symptom Driven Diagnostics) was the standard for vehicles produced from 2005 through 2016. Its relevance to the 2019 Range Rover Sport L494 is effectively zero regarding key programming. SDD lacks the protocol definitions to communicate with the JPLA architecture found in the 2019 model. Attempting to force SDD protocols on a Pathfinder-era vehicle is a known method for corrupting the Central Car Configuration (CCF) files, leading to a "bricked" BCM.8
+JLR Pathfinder, introduced for 2017 and newer vehicles, is the mandated OEM software solution. It operates on a cloud-based architecture (TOPIx Cloud) and relies heavily on DoIP. For the legitimate dealer or authorized locksmith, this is the official method for adding keys. It requires an active online subscription, a validated Locksmith ID (LSID) for security operations, and a certified DoIP Vehicle Communication Interface (VCI).7 While Pathfinder is the "official" route, it is often restrictive for the aftermarket professional. In "All Keys Lost" scenarios, Pathfinder may require the replacement of the KVM if the unit is "locked," whereas specialized aftermarket tools attempt to bypass this cost by manipulating the KVM data directly at the EEPROM level.4
+2.4 The "JPLA" Architecture Identifier
+The chassis control modules in the 2019 L494 carry the prefix JPLA (e.g., JPLA-14C104-AF).3 This alphanumeric identifier is the primary indicator of difficulty for the technician. It signals the presence of the locked MCU and mandates the use of specific, advanced tooling. Identifying this prefix on the physical label of the module is a critical first step in the forensic process, differentiating the vehicle from earlier, easier-to-service HPLA or FK72 models.
+3. The Keyless Vehicle Module (KVM) Intelligence
+The KVM, also known in JLR technical literature as the RFA (Remote Function Actuator), is the neural center of the passive entry system. For the 2019 Range Rover Sport, this module is the primary target for forensic programming and the source of the most significant security hurdles.
+3.1 Forensic Location Analysis
+Locating the KVM is the first physical challenge in the forensic process. Conflicting reports abound in online forums due to the variations between the L494 (Sport), L405 (Full Size), and L538 (Evoque), as well as changes between pre-facelift and post-facelift models. While some earlier JLR vehicles placed the KVM behind the glovebox or near the fuse panel in the passenger footwell, forensic consensus and technical diagrams for the 2019 L494 Sport place the module in the Left-Hand Side (LHS) of the Loadspace (Trunk) area.11
+To access the module, the technician must remove the rear loadspace trim panel on the driverâs side (LHS for US/UK markets). The module is typically mounted near the rear fuse box or adjacent to the audio amplifier and blower assembly. It is visually identifiable as a white plastic box with three distinct connectors: white, blue, and gray/black.4 Verification of the label is essential; it will likely read JPLA-19H440-xx. If the label reads FK72, the vehicle may have had a module swap or represents an anomaly in the production run, but for a 2019 VIN, JPLA is the expected standard.3
+3.2 The Encryption Barrier (OTP)
+The core of the "nightmare" scenario lies in the memory architecture of the JPLA KVM. It utilizes a secure bootloader and an encrypted EEPROM/Flash storage system. When a key is programmed to the vehicle, its unique ID is written to a specific "slot" in the module's memory. In older FK72 units, these slots could be overwritten, allowing for keys to be deleted and new ones added relatively freely.
+In the JPLA architecture, the memory sectors are often set to One-Time Programmable (OTP). Once a key slot is written, it is cryptographically locked and cannot be erased or overwritten via standard OBD commands. If all key slots are full or if the module is in a "locked" state, the technician cannot simply "add" a key. The KVM must be effectively "refurbished." This process involves removing the KVM from the vehicle, connecting it to a bench programmer, and performing a "Renew" or "Virginize" operation. This operation wipes the existing key data and resets the module to a factory-new, blank state, allowing it to accept new keys as if it were a brand-new component installed at the assembly line.1
+4. Key Fob Intelligence: Frequency and Hardware
+A significant source of failure in JLR programming operations is the mismatch of key frequency and hardware variant. The 2019 L494 uses the Smart Key system (Proximity/PEPS), but the technical specifications vary significantly by market, leading to costly errors for the uninformed technician.
+4.1 Frequency Analysis: 315 MHz vs. 433 MHz
+The radio frequency environment for JLR vehicles is bifurcated based on geopolitical regions.
+* United States / North America (NAS): The overwhelming majority of 2019 Range Rover Sports delivered to the US market utilize 315 MHz.13 This is a critical distinction, as many European-centric diagnostic tools default to 433 MHz.
+* Europe / Rest of World (ROW): These markets utilize 433 MHz (often listed technically as 433.92 MHz or 434 MHz).16
+The trap for the technician lies in the behavior of the programming tools. Many aftermarket keys are sold as "dual frequency" or "switchable," or simply mislabeled. If a technician attempts to program a 433 MHz key to a US-spec 315 MHz vehicle, the programming tool may report "Success." This is because the tool successfully wrote the transponder ID (Hitag Pro) to the KVM's memory via the low-frequency coil induction or the OBD port. However, the remote buttons and passive entry functions will fail completely because the vehicle's RF receiver is tuned to 315 MHz and physically cannot "hear" the 433 MHz transmissions from the fob.19
+4.2 Hardware Specifications and Cryptography
+The 2019 Smart Key utilizes the Hitag Pro / ID49 (PCF7953) transponder chip.16 This chip employs 128-bit AES encryption, making it significantly more secure than the older Hitag 2 systems. The physical key blade profile is the HU101, a 10-cut internal track laser key that requires precise milling.
+OEM Part numbers for the US market include LR116874 (often cited for 2018-2020 models) 17 and FCC ID KOBJTF10A.14 It is crucial to verify the FCC ID on the existing working key (if available) before attempting to source a replacement.
+4.3 Aftermarket vs. OEM
+The intelligence gathered strongly suggests a strict adherence to OEM or Refurbished OEM keys for the 2019 model year. "Universal" keys (such as those from Lonsdor or Autel) often struggle with the UWB (Ultra-Wideband) proximity features introduced in late-model JLR vehicles. While a universal key might successfully start the car when placed in the emergency start slot, the passive entry (keyless go) functions often fail or work intermittently due to timing discrepancies in the UWB handshake.24
+
+
+  
+
+
+
+4.4 The Activity Key
+The 2019 Range Rover Sport supports the Activity Key, a robust, waterproof wristband designed for active lifestyles. This device functions differently from the standard smart key. It operates as a passive transponder tag without buttons. The registration process involves a specific "handshake" where the standard key is left inside the vehicle, effectively deactivating it, while the Activity Key is used to lock the vehicle externally. This toggles the security state, ensuring the key left inside cannot be used to start the car if a break-in occurs, until the Activity Key is used to unlock the vehicle again.26
+5. Tool Methodology and Forensic Procedures
+The choice of tool determines the success rate and the risk of catastrophic failure ("bricking") of the KVM. The 2019 L494 is not a vehicle for experimentation with low-end clones; the cost of a replacement KVM and the associated downtime mandates professional-grade equipment.
+5.1 The Gold Standard: Yanhua Mini ACDP (Module 24)
+The community consensus and technical data overwhelmingly point to the Yanhua Mini ACDP as the most reliable aftermarket solution for the JPLA architecture.1 Its modular design allows for specific targeting of JLR protocols.
+It is imperative to use Module 24 (New JLR 2018+), not just Module 9 (Older JLR). While Module 9 covers the FK72 and HPLA architectures, Module 24 is specifically designed for the JPLA and K8D2 architectures found in the 2019+ models.3 Using Module 9 on a JPLA unit will result in a failure to read or potential data corruption.
+The methodology employed by the ACDP is ICP (In-Circuit Programming), which offers a significant safety advantage over traditional soldering methods. The process involves:
+1. Extraction: Removing the KVM from the rear loadspace.
+2. Connection: Attaching the OBP+ICP adapter (a specialized copper interface board) to the KVM. This board uses precision pogo pins to make contact with the necessary test points on the PCB, avoiding the need to solder wires directly to the delicate MCU legs.1
+3. Backup: Reading and saving the D-FLASH and P-FLASH data. This is a critical fail-safe step.
+4. Virginize/Unlock: The software modifies the EEPROM data to reset the "Key Count" and remove the OTP lock status, effectively making the module "new" again.
+5. Write Key: The tool writes the new key ID directly into the KVM dump.
+6. Reinstall: The KVM is re-fitted to the vehicle, where it should recognize the new key immediately.
+
+
+  
+
+
+
+5.2 The OBD Gamble: Autel IM608 / IM608 Pro
+The Autel IM608 platform is a staple in the industry, but its efficacy on the 2019 JPLA platform is historically mixed. While Autel has released updates (often labeled as "Beta" or requiring a specific "Smart Mode") to support JPLA via OBD 28, the risk remains high. OBD programming attempts to authenticate with the secure Gateway and write to the KVM over the network. If the KVM is fully locked (OTP), the OBD method will often fail, potentially leaving the vehicle in a "Key Not Detected" state if the process is interrupted mid-write.6 Autel also supports bench programming using the XP400 Pro programmer, but this typically requires soldering wires to the MCU, which is significantly riskier and more time-consuming than the Yanhua pogo-pin method.30
+5.3 The Lonsdor Option (K518ISE/K518S)
+Lonsdor offers an OBD solution that relies on a specific JLR License activation.25 The workflow requires the K518 device and a specialized "Lonsdor JLR Key" which allows its ID to be modified by the car. While this claims to work via OBD without removing the KVM, it requires the use of a proprietary key (limiting the ability to use OEM stock) and necessitates a recurring or one-time license fee. It operates by emulating a key generation process that the JPLA software accepts under specific conditions, effectively "tricking" the system.33
+
+
+  
+
+
+
+5.4 JLR Pathfinder (OEM)
+Pathfinder is the official solution but is often the most restrictive for the locksmith. It requires a stable internet connection, a valid TOPIx subscription, and an authorized LSID. In an "All Keys Lost" scenario on a JPLA vehicle, Pathfinder will often force the technician to replace the KVM with a new unit, as it does not have the "hacker" capability to unlock an OTP module. This makes it the most expensive option in terms of parts, though it carries the legitimacy of OEM procedures.7
+6. Operational Procedures and Workflows
+Successful execution of key programming on the 2019 Range Rover Sport requires a disciplined adherence to procedure.
+6.1 Diagnostic Phase and Power Management
+Before any tool is connected, power stability must be guaranteed. JLR modules are notoriously sensitive to voltage fluctuations. A high-quality Battery Support Unit (BSU) capable of maintaining a steady 13.5V to 14V at up to 50 Amps is mandatory. Simple trickle chargers are insufficient. A voltage drop during the writing phase of the KVM can corrupt the flash memory, leading to a "bricked" module. Furthermore, the technician must check for any existing "Quiescent Current" or parasitic drain issues before beginning, to ensure that existing faults are not blamed on the programming procedure.
+6.2 All Keys Lost (AKL) Workflow via Bench (Yanhua Method)
+The preferred workflow for AKL on a 2019 L494 involves the following steps:
+1. Vehicle Entry: If the vehicle is locked, use the Lishi HU101 pick tool to decode the door lock cylinder hidden under the cap on the driver's door handle.
+2. Module Extraction: Locate and remove the JPLA KVM from the rear loadspace.
+3. Bench Connection: Secure the KVM to the Yanhua ACDP interface board. Ensure all pogo pins are making solid contact.
+4. Data Backup: Read and verify the D-FLASH and P-FLASH. Save these files locally and to the cloud if possible.
+5. Virginize: Execute the "Renew" function to unlock the MCU.
+6. Key Generation: Select the key position (Slot 1 or 2) and write the new key ID.
+7. Restoration: Reinstall the KVM.
+8. Testing: Verify engine start, remote locking/unlocking, and passive entry functionality.
+6.3 Emergency Start Procedure
+In scenarios where the key battery is dead or the KVM is malfunctioning (but the BCM is intact), the 2019 L494 features a redundant emergency start mechanism. The induction coil is located on the underside of the steering column. The technician must locate three small embossed lines or ridges on the plastic cowl. The procedure involves holding the Smart Key flat against these lines (buttons facing outwards typically yields the best results), depressing the brake pedal, and pressing the Start/Stop button. This process utilizes the low-frequency (125 kHz) transponder coil to energize the chip directly, bypassing the UHF remote receiver.35
+6.4 Activity Key Pairing
+The pairing of an Activity Key is a distinct process. With the ignition off, the standard Smart Key must be left inside the vehicle. The technician then exits the vehicle, closes all doors, and holds the Activity Key against the target area on the tailgate. This target is specifically the Letter "R" or "S" of the "Range Rover" script. The hazard lights will flash to confirm the pairing. This action simultaneously locks the vehicle and deactivates the standard key left inside, securing the vehicle for the user's activity.26
+7. Nightmare Scenarios: Troubleshooting and Recovery
+The 2019 L494 is notorious for post-programming anomalies. The forensic technician must be aware of these liabilities.
+7.1 The Parasitic Battery Drain
+A common and debilitating phenomenon after key programming (especially if the procedure fails or is interrupted) is a massive parasitic battery drain. The vehicle may function normally immediately after programming, only to be found dead the next morning. This is caused by the KVM/RFA module getting stuck in a "polling" state. Instead of entering "sleep" (Quiescent mode), the module stays awake, constantly searching for a key transponder, drawing significant amperage (often >1A).36
+Technical Service Bulletins (TSBs) link this to KVM software lockups.38 The first line of defense is a Hard Reset: disconnect the battery terminals and touch them together (capacitive discharge) to reset the module logic.39 If the drain persists, the KVM internal flash is likely corrupted, and the module must be removed, "renewed" on the bench, or replaced.40
+7.2 Passive Entry Antenna Corrosion
+Technicians often encounter a scenario where the remote buttons work, but the "Keyless Entry" (grabbing the handle to unlock) fails. This is often not a programming error but a hardware fault. The L494 (and its predecessors) is prone to water ingress in the rear tailgate area, leading to corrosion of the Passive Entry Antenna connectors. If the antenna circuit is open, the KVM disables passive entry to protect the system. Diagnosis involves visually inspecting the connectors in the rear loadspace near the KVM for blue/green corrosion.37
+8. Community Intelligence and Forum "War Stories"
+Deep dives into forums like RangeRovers.net and technician groups reveal a pattern of "war stories" that validate the technical analysis. A recurring theme involves the "Double-Lock" scenario, where a technician attempts to program a key using a generic OBD tool, fails mid-process, and triggers the vehicle's anti-theft lockdown. In this state, the BCM rejects all keys, even the original. Recovery from this state often requires a dealer-level "Immobilizer Reset" using Pathfinder or a complete replacement of the KVM and BCM, a repair bill exceeding $3,000.
+Another common thread is the "Key Shell Quality" issue. Aftermarket shells for JLR keys are notoriously poor, with buttons that are too stiff or casings that do not seal properly against moisture. Community consensus strongly advises using only OEM shells or high-quality refurbished units to avoid callbacks due to physical key failure.
+9. Conclusions and Strategic Recommendations
+The 2019 Land Rover Range Rover Sport L494 is a hostile environment for the unprepared locksmith. The convergence of JPLA encryption, DoIP protocol requirements, and critical frequency distinctions creates a high probability of failure for generic approaches.
+Strategic Recommendations:
+1. Mandatory Tooling: Do not attempt AKL on a 2019 L494 without a Yanhua Mini ACDP with Module 24. The ability to read/write the KVM without soldering is the only way to mitigate the risk of damaging the expensive JPLA module.
+2. Verify Frequency: Rigorously check the VIN or existing key. If the vehicle is a US import or domestic model, it is 99% likely to be 315 MHz. Do not force a 433 MHz key.
+3. Power Management: Always connect a high-quality battery support unit during any diagnostic or programming session.
+4. Billing & Liability: Quote for "KVM Bench Service," not just "Key Programming." Prepare the client for the possibility of KVM replacement if the existing unit is OTP locked and refuses to yield to the "Renew" commands.
+The 2019 L494 is solvable, but it demands forensic precision, not brute force.
+
+
+  
+
+
+
+Works cited
+1. Yanhua Mini ACDP Module 9 Jaguar/Land Rover KVM Module Support Adding - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/yanhua-mini-acdp-module-9-jaguar-land-rover-key-programming-support-kvm-from-2015-2018-with-add-key-all-key-lost-and-key-refresh
+2. hpla kvm module, accessed January 3, 2026, https://landrover-jaguar-key-replacement.com/jaguar-spare-and-backup-keys/kvm-keyless-vehicle-entry/hpla-module/
+3. Yanhua â ACDP â JLR 2018+ â Module #24 â Smart Key Without Soldering, accessed January 3, 2026, https://www.mykeysupply.com/product/yanhua-acdp-jlr-2018-module-24-smart-key-without-soldering/
+4. KVM & BCM Programming - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/land-rover-jaguar-kvm-programmer/?currency=usd&items_per_page=24&sort_by=popularity&sort_order=desc&layout=products_without_options
+5. Ethernet/DoIP Communications | Snap-on Diagnostics, accessed January 3, 2026, https://www.snapon.com/EN/US/Diagnostics/Ethernet
+6. What is JLR DOIP? An Essential Guide for Independent Workshops | SX-Tool, accessed January 3, 2026, https://sx-tool.com/en/what-is-jlr-doip/
+7. FAQ - Topix Device Agent Login jlr vci driver jlr doip vci bosch vci manager jlr jlr sdd passthru jlr vci manager download jlr sdd manual jaguar land rover diagnostic software jlr device obd doip pass thru tool JLR SDD Mangoose Vehicle Interface for Jaguar and Land Rover jlr doip pathfinder jlr pathfinder download jlr pathfinder software download jlr doip vci jlr doip, accessed January 3, 2026, https://www.jlridssddmongoose.com/jlr-sdd-faq/
+8. Jaguar LandRover SDD Pathfinder License Subscription - Diagnoex, accessed January 3, 2026, https://diagnoex.com/products/jaguar-landrover-jlr-sdd-pathfinder-diagnoex
+9. Yanhua ACDP-2 Complete Key Programmer - BMW JLR IMMO Package Includes, accessed January 3, 2026, https://www.locksmithkeyless.com/products/yanhua-acdp-2-complete-key-programmer-bmw-jlr-immo-package-includes-module-9-jaguar-land-rover-support-kvm-and-module-10-porsche-bcm
+10. Software Install SDD Pathfinder Work With JLR-DOIP-VCI-WF - JLR rETROFIT, accessed January 3, 2026, https://jlr-retrofit.com/software-install-sdd-pathfinder-with-jlr-doip-vci-wf-vci/
+11. Jaguar Land Rover KVM Location Quick Guide - Yanhua Mini ACDP Tech Suport, accessed January 3, 2026, http://blog.yanhuaacdp.com/jaguar-land-rover-kvm-location-quick-guide/
+12. Yanhua Mini ACDP Module9 For Land Rover K-e-y Progarmming Support KVM Add K/ey, accessed January 3, 2026, https://www.ebay.com/itm/187503687884
+13. Land Rover Flip Key Fob - Range Rover, Discovery - Best Key Solution, accessed January 3, 2026, https://www.bestkeysolution.com/products/land-rover-ranger-rover-sport
+14. Modified Smart Remote Key Fob 315MHz for 2011-2020 Land Rover Range Rover Sport, accessed January 3, 2026, https://www.ebay.com/itm/235608473164
+15. 89904-78J50 Aftermarket Land Rover Smart Proximity - Techno Lock Keys Trading, accessed January 3, 2026, https://www.tlkeys.com/products/Land-Rover-2021-Smart-Key-5B-315mhz-Aftermarket-brand-35004
+16. 5AVC11F08-AK Genuine Land Rover Smart Proximity - Techno Lock Keys Trading, accessed January 3, 2026, https://www.tlkeys.com/products/Genuine-Land-Rover-2023-Smart-Key-5B-JK5215K601DG-35190
+17. OEM Smart Remoter for Land Rover LR116874 MY2015-2020+ | SX JLR Engineering Tool, accessed January 3, 2026, https://sx-tool.com/en/product/oem-smart-remoter-for-land-rover-lr116874-my2015-2020/
+18. Range Rover 2019-2024 Genuine Smart PEPS Remote Key 5 Buttons 433MHz JK52-15K601-DK / LR116874 - MK3, accessed January 3, 2026, https://www.mk3.com/range-rover-2019-genuine-smart-remote-key-5-buttons-433mhz
+19. jlr smart key transmission frequency - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/jlr-smart-key-transmission-frequency/
+20. Key FOB Remote more info - 315Mhz vs 433Mhz - Parallax Forums, accessed January 3, 2026, https://forums.parallax.com/discussion/148128/key-fob-remote-more-info-315mhz-vs-433mhz
+21. jingyuqin Car Smart Key 315/433MHZ ID49 For Land Rover, accessed January 3, 2026, https://www.aliexpress.com/item/1005004291916664.html
+22. OEM Smart Remoter For Land Rover LR116874 MY2015-2020+ - JLR rETROFIT, accessed January 3, 2026, https://jlr-retrofit.com/oem-remoter-for-land-rover-lr116874-2015-2020/
+23. KEYECU 315/ 433MHz KOBJTF10A / LR078921 5 Button Smart, accessed January 3, 2026, https://www.aliexpress.com/item/1005010344501196.html
+24. LIXIANG 315/433 MHZ ID49 Chip Specail JLR Smart Key for Land Rover Range Rover LR2 LR4 Jaguar F-Pace F-Type XE XF XJ 2018-2021 - AliExpress, accessed January 3, 2026, https://www.aliexpress.com/item/1005008753397638.html
+25. 2018-2021 Jaguar Land Rover / Can be Modified / RKE and PKE Functions / 315MHz & 433MHz / Smart Key for Lonsdor K518USA & KH100+ - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2018-2021-jaguar-land-rover-can-be-modified-rke-and-pke-functions-315mhz-433mhz-smart-key-for-lonsdor-k518usa-kh100
+26. Land Rover Activity Key, accessed January 3, 2026, https://www.landroverwhiteplains.com/research/activity-key.htm
+27. How Does the Land Rover Activity Key Work?, accessed January 3, 2026, https://www.landroverwestchester.com/how-the-land-rover-activity-key-works/
+28. im software - update - Autel, accessed January 3, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202208/04091122pbh1.pdf
+29. Autel IM608 II Update New Update on Land rover Jaguar RFA/KVM Key Prog - AutelShop.us, accessed January 3, 2026, https://www.autelshop.us/blogs/autel-update-information/autel-im608-ii-update-new-update-on-land-rover-jaguar-rfa-kvm-key-programming
+30. Autel IM608 questions. : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/z8wnxi/autel_im608_questions/
+31. Autel IM608 XP400 PRO LAND ROVER RANGE ROVER SPORT All Keys Lost, BCM HACK! EASY! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=gu74riBEo30
+32. Lonsdor K518 2018- 2021 JLR OBD Key Programming Menu obdii365 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=n_7Jrl9ilEk
+33. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 3, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+34. LONSDOR K518USA-Land Rover 2018- ALL KEYS LOST,NEW KEY PROGRAMMING-turn on CC for english subtitles - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=wJ9NJ05Zwco
+35. How To Start Range Rover Sport 2019 Using The Emergency Start Function, accessed January 3, 2026, https://nationalcarkeys.uk/how-to-start-range-rover-sport-2019-using-the-emergency-start-function/
+36. âSmart Key not Recognizedâ warning in Range Rover: here's TSB - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=bI2DmLFDC70
+37. Land Rover Range Rover Sport - Battery drain and flat | Technical matters | Back Room Forum | Honest John, accessed January 3, 2026, https://www.honestjohn.co.uk/forum/post/index.htm?t=105499
+38. TECHNICAL BULLETIN - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2015/MC-10104481-9340.pdf
+39. How to Perform a Land Rover Battery Reset in Less than 40 Seconds - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=LiEc1zk1XCg
+40. Battery drain solved at last - Topic - rangerovers.pub, accessed January 3, 2026, https://rangerovers.pub/topic/1611-battery-drain-solved-at-last
+41. Range Rover L322 Common Rust Spots & Exterior Issues - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=ECK3FTXGvDM

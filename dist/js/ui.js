@@ -210,7 +210,7 @@ async function loadVehicleFromDeepLink(make, model, year) {
         const data = await res.json();
 
         if (data.rows && data.rows.length > 0) {
-            displayResults(data.rows, year, make, model, { alerts: data.alerts, guide: data.guide });
+            displayResults(data.rows, year, make, model, { alerts: data.alerts || [], guide: data.guide, pearls: data.pearls || [] });
             // Scroll to the vehicle card after a brief delay for rendering
             setTimeout(() => {
                 const resultsSection = document.getElementById('resultsSection');
@@ -361,7 +361,7 @@ async function searchVehicleFromQuery(vehicleInfo, originalQuery) {
         const data = await res.json();
 
         if (data.rows && data.rows.length > 0) {
-            displayResults(data.rows, year, vehicleInfo.make || '', vehicleInfo.model || '');
+            displayResults(data.rows, year, vehicleInfo.make || '', vehicleInfo.model || '', { alerts: data.alerts || [], guide: data.guide, pearls: data.pearls || [] });
         } else {
             // No results - try without year restriction
             const fallbackUrl = `${API}/api/browse?limit=20` +
@@ -372,7 +372,7 @@ async function searchVehicleFromQuery(vehicleInfo, originalQuery) {
             const fallbackData = await fallbackRes.json();
 
             if (fallbackData.rows && fallbackData.rows.length > 0) {
-                displayResults(fallbackData.rows, year, vehicleInfo.make || '', vehicleInfo.model || '');
+                displayResults(fallbackData.rows, year, vehicleInfo.make || '', vehicleInfo.model || '', { alerts: fallbackData.alerts || [], guide: fallbackData.guide, pearls: fallbackData.pearls || [] });
             } else {
                 document.getElementById('resultsContainer').innerHTML =
                     `<div class="loading">No results for "${originalQuery}". Try a different search.</div>`;

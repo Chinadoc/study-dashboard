@@ -1555,7 +1555,13 @@ async function searchVehicle() {
 
         if (data.rows && data.rows.length > 0) {
             try {
-                displayResults(data.rows, year, make, model);
+                // Pass alerts and pearls from API response to displayResults
+                const extras = {
+                    alerts: data.alerts || [],
+                    pearls: data.pearls || [],
+                    guide: data.guide || null
+                };
+                displayResults(data.rows, year, make, model, extras);
             } catch (innerE) {
                 console.error('Display Error:', innerE);
                 document.getElementById('resultsContainer').innerHTML = `<div class="error"> Display Error: ${innerE.message}</div> `;
@@ -1738,102 +1744,126 @@ function displayResults(rows, year, make, model, extras = {}) {
         `;
     }
 
-    // 2. Critical Alerts (FIRST - before tools/videos per locksmith workflow)
-    if (alerts && alerts.length > 0) {
-        html += '<div class="vehicle-alerts-section" style="margin-bottom: 20px;">';
-        const seenAlerts = new Set();
-        alerts.forEach(alert => {
-            const title = alert.alert_title || alert.title;
-            if (seenAlerts.has(title)) return;
-            seenAlerts.add(title);
+    // --- UNIFIED JOB BRIEF DASHBOARD ---
+    // Merges Alerts, Guide, and Pearls into one high-value strategic view
 
-            const level = (alert.alert_level || 'WARNING').toUpperCase();
-            const levelColors = {
-                'CRITICAL': { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.5)', icon: '🔴', color: '#ef4444' },
-                'WARNING': { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.5)', icon: '⚠️', color: '#fbbf24' },
-                'INFO': { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.5)', icon: 'ℹ️', color: '#3b82f6' }
-            };
-            const style = levelColors[level] || levelColors['WARNING'];
-            const content = alert.alert_content || alert.content || '';
-            const mitigation = alert.mitigation || '';
-
-            // CRITICAL alerts should be OPEN by default - locksmith must see them!
-            const openAttr = level === 'CRITICAL' ? 'open' : '';
-
-            html += `
-            <details ${openAttr} style="background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;">
-                        <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
-                            <span>${style.icon}</span>
-                            <span>${title}</span>
-                            ${level === 'CRITICAL' ? '<span style="font-size: 0.7rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto;">READ BEFORE QUOTING</span>' : ''}
-                        </summary>
-                        <div style="padding: 0 16px 12px 16px; font-size: 0.85rem; color: var(--text-secondary);">
-                            <p style="margin: 0 0 8px 0;">${content}</p>
-                            ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
-                        </div>
-                    </details>`;
-        });
-        html += '</div>';
-    }
-
-    // 3. Guide Callout (SECOND - programming guide is critical for job planning)
-    // const guide was fetched earlier
-
-    if (guide && (guide.pdf || guide.html)) {
-        const premiumGuide = guide; // Alias for backward compatibility if needed, or refactor below
-        const hasPdf = !!guide.pdf;
-        const hasHtml = !!guide.html;
-        const hasInfographic = !!guide.infographic;
-
-        html += `
-            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <h3 style="margin: 0 0 4px 0; color: #22c55e; display: flex; align-items: center; gap: 8px;">
-                            📖 ${guide.title || make + ' Programming Guide'}
-                            <span style="font-size: 0.7rem; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">PRO</span>
-                        </h3>
-                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Complete walkthrough with OEM parts, step-by-step procedures, and troubleshooting</p>
-                    </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        ${hasPdf ? `
-                        <button onclick="openPdfGuide('${guide.pdf}', '${guide.title}')" 
-                                style="background: #22c55e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>📄</span> Open PDF Guide
-                        </button>` : ''}
-                        ${hasHtml ? `
-                        <button onclick="openHtmlGuide('${guide.html}', '${guide.title}')" 
-                                style="background: #3b82f6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>📋</span> View Walkthrough
-                        </button>` : ''}
-                        ${hasInfographic ? `
-                        <button onclick="openInfographic('${guide.infographic}', '${make} Quick Reference')" 
-                                style="background: #f59e0b; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>🖼️</span> View Infographic
-                        </button>` : ''}
-                    </div>
-                </div>
-            </div> `;
-    }
-
-    // 4. Programming Pearls (THIRD - High value research insights)
+    // 1. Resolve Data Sources
+    // PRIORITIZE API data (extras.guide) over legacy local mapping
+    const guideData = extras.guide || (typeof getGuideAsset === 'function' ? getGuideAsset(make, model, cleanYear) : null);
+    // Reuse existing 'alerts' from function scope, ensure pearls is destructured if not already
     const { pearls = [] } = extras;
-    if (pearls && pearls.length > 0) {
+
+    const hasAlerts = alerts && alerts.length > 0;
+    const hasPearls = pearls && pearls.length > 0;
+    const hasGuide = guideData && (guideData.pdf || guideData.html || guideData.id);
+
+    // Only render the briefing if there is intelligence to show
+    if (hasAlerts || hasPearls || hasGuide) {
+
+        // HELPER: Format Pearl Content (Markdown-lite + Affiliate Links)
+        const formatPearlContent = (text) => {
+            if (!text) return '';
+            const amazonTag = 'eurokeys-20';
+            const linkify = (str) => {
+                const terms = [
+                    { regex: /\b(CR2032|CR2450|CR2025|CR1620)\b/gi, type: 'battery' },
+                    { regex: /\b(HU100|HU66|HU101|SIP22|TOY43|TOY48|HON66)\b/gi, type: 'blade' },
+                    { regex: /\b(Lishi)\b/gi, type: 'tool' },
+                    { regex: /\b(Autel|Key Tool Max|IM508|IM608)\b/gi, type: 'programmer' }
+                ];
+                let linked = str;
+                terms.forEach(t => {
+                    linked = linked.replace(t.regex, (match) => {
+                        const query = encodeURIComponent(`${match} ${t.type === 'battery' ? 'battery' : 'key tool'}`);
+                        return `<a href="https://www.amazon.com/s?k=${query}&tag=${amazonTag}" target="_blank" class="pearl-affiliate-link" style="color: #22c55e; text-decoration: none; border-bottom: 1px dotted #22c55e; font-weight: 600;" onclick="event.stopPropagation();">${match}</a>`;
+                    });
+                });
+                return linked;
+            };
+            let formatted = text
+                .replace(/\* Alert:(.*?)(?=\*|$)/g, '<div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; padding: 8px 12px; margin: 8px 0; border-radius: 4px; color: #fca5a5;"><strong style="color:#ef4444;">⚠️ ALERT:</strong> $1</div>')
+                .replace(/\*\s?(.*?):/g, '<strong style="color: #e9d5ff; display: block; margin-top: 8px;">$1:</strong>')
+                .replace(/(\d+)\.\s(.*?)(?=(\d+\.| \*|$))/g, '<div style="margin-left: 8px; margin-bottom: 4px;"><span style="color: #8b5cf6; font-weight: bold;">$1.</span> $2</div>')
+                .replace(/\*\s(.*?)(?=(\*|$))/g, '<div style="margin-left: 12px; position: relative; padding-left: 12px;"><span style="position: absolute; left: 0; color: #8b5cf6;">•</span> $1</div>');
+            return linkify(formatted);
+        };
+
+        html += `<div class="job-brief-container" style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">`;
+
+        // A. Briefing Header
         html += `
-        <div class="pearls-section" style="margin-bottom: 20px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 16px;">
-            <h3 style="margin: 0 0 12px 0; color: #8b5cf6; display: flex; align-items: center; gap: 8px;">
-                💎 Programming Pearls
-                <span style="font-size: 0.7rem; background: #8b5cf6; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">RESEARCH</span>
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #e2e8f0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                ⚡ Job Brief
+                <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">Strategic Intelligence for ${make} ${model}</span>
             </h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                ${pearls.map(p => `
-                <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid rgba(139, 92, 246, 0.1);">
-                    <strong style="color: #c4b5fd; display: block; margin-bottom: 4px;">${p.pearl_title}</strong>
-                    <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${p.pearl_content}</div>
-                </div>
-                `).join('')}
-            </div>
+            ${hasGuide && (guideData.id || guideData.html) ?
+                `<button onclick="openGuideModal('${guideData.id || guideData.html}')" style="background: var(--brand-primary); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>📖</span> View Guide
+                 </button>` : ''}
         </div>`;
+
+        html += `<div style="padding: 20px;">`;
+
+        // B. Critical Alerts (Top Priority)
+        if (hasAlerts) {
+            html += `<div class="brief-section alerts" style="margin-bottom: 20px;">`;
+            alerts.forEach(alert => {
+                const color = alert.alert_level === 'CRITICAL' ? '#ef4444' : (alert.alert_level === 'WARNING' ? '#f59e0b' : '#3b82f6');
+                const bg = alert.alert_level === 'CRITICAL' ? 'rgba(239, 68, 68, 0.1)' : (alert.alert_level === 'WARNING' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)');
+
+                html += `
+                <div style="background: ${bg}; border-left: 4px solid ${color}; padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <strong style="color: ${color}; text-transform: uppercase; font-size: 0.8rem;">${alert.alert_level || 'ALERT'}</strong>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">${alert.source || 'Verified Source'}</span>
+                    </div>
+                    <div style="color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${alert.title}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">${alert.content}</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // C. Programming Pearls (Research)
+        if (hasPearls) {
+            html += `
+            <div class="brief-section pearls">
+                <h4 style="margin: 0 0 12px 0; color: #a78bfa; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    💎 Research Snippets
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                    ${pearls.map(p => `
+                    <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 8px; padding: 14px;">
+                        <strong style="color: #c4b5fd; display: block; margin-bottom: 8px; font-size: 0.95rem;">${p.pearl_title}</strong>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${formatPearlContent(p.pearl_content)}</div>
+                    </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        }
+
+        // D. Guide Embed (Collapsible Preview)
+        if (hasGuide && guideData.html) {
+            html += `
+            <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+                 <details style="cursor: pointer;">
+                    <summary style="color: var(--brand-primary); font-weight: 600; outline: none; list-style: none;">
+                        <span style="margin-right: 6px;">▶</span> Expand Programming Procedure Preview
+                    </summary>
+                    <div style="margin-top: 12px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px; max-height: 300px; overflow-y: auto; font-size: 0.9rem; color: var(--text-secondary);">
+                        ${guideData.content || 'Preview not available. Click "View Guide" for full details.'}
+                        <div style="margin-top: 12px; text-align: center;">
+                             <button onclick="openGuideModal('${guideData.id || guideData.html}')" style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                                Open Full Guide
+                             </button>
+                        </div>
+                    </div>
+                </details>
+            </div>`;
+        }
+
+        html += `</div></div>`; // End job-brief-container
     } else if (guide) {
         html += `
             <div class="guide-callout"style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -2291,7 +2321,13 @@ async function loadVehicleByYear(year, make, model) {
 
         if (data.rows && data.rows.length > 0) {
             console.timeLog('LoadVehicleFull', 'API Response Received');
-            displayResults(data.rows, year, make, model);
+            // Pass alerts and pearls from API response to displayResults
+            const extras = {
+                alerts: data.alerts || [],
+                pearls: data.pearls || [],
+                guide: data.guide || null
+            };
+            displayResults(data.rows, year, make, model, extras);
             console.timeEnd('LoadVehicleFull');
         } else {
             // Fetch available years for this make/model
@@ -2314,7 +2350,7 @@ async function loadVehicleByYear(year, make, model) {
                     const sortedYears = [...yearsSet].sort((a, b) => b - a);
                     if (sortedYears.length > 0) {
                         availableYearsHtml = `
-            <divstyle="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
                                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Available years for ${make} ${model}:</div>
                                 <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
                                     ${sortedYears.slice(0, 15).map(y => `

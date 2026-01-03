@@ -6,6 +6,143 @@
 if (typeof currentUser === 'undefined') window.currentUser = null;
 if (typeof InventoryManager === 'undefined') window.InventoryManager = { getKeyStock: () => 0, getBlankStock: () => 0, getAllKeys: () => [] };
 
+// Lightbox functions for Key Reference images
+function openLightbox(imgSrc) {
+    document.getElementById('lightboxImage').src = imgSrc;
+    document.getElementById('photoLightbox').style.display = 'flex';
+}
+
+function closeLightbox() {
+    document.getElementById('photoLightbox').style.display = 'none';
+}
+
+// ==============================================
+// COMMUNITY COMMENTS FUNCTIONS
+// ==============================================
+
+async function loadComments(vehicleKey, containerIdx) {
+    const container = document.getElementById(`commentsContainer-${containerIdx}`);
+    const countBadge = document.getElementById(`commentCount-${containerIdx}`);
+
+    if (!container) return;
+
+    try {
+        const response = await fetch(`${API}/api/comments?vehicle_key=${encodeURIComponent(vehicleKey)}`);
+        const data = await response.json();
+
+        if (data.comments && data.comments.length > 0) {
+            countBadge.textContent = data.comments.length;
+            container.innerHTML = data.comments.map(c => renderComment(c)).join('');
+        } else {
+            countBadge.textContent = '0';
+            container.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted); padding: 12px; text-align: center;">No tips yet. Be the first to share!</div>';
+        }
+    } catch (err) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem;">Could not load comments</div>';
+        countBadge.textContent = '?';
+    }
+}
+
+function renderComment(c) {
+    const timeAgo = getTimeAgo(c.created_at);
+    const score = (c.upvotes || 0) - (c.downvotes || 0);
+
+    return `
+        <div class="comment-item" style="padding: 12px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span style="font-weight: 600; color: var(--brand-primary); font-size: 0.8rem;">@${c.user_name}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">${timeAgo}</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary); line-height: 1.5;">${escapeHtml(c.content)}</p>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="voteComment(${c.id}, 'up')" style="background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; color: var(--text-secondary);" title="Helpful">▲</button>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: ${score > 0 ? '#22c55e' : score < 0 ? '#ef4444' : 'var(--text-muted)'};">${score}</span>
+                    <button onclick="voteComment(${c.id}, 'down')" style="background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; color: var(--text-secondary);" title="Not helpful">▼</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function postComment(vehicleKey, containerIdx) {
+    const input = document.getElementById(`commentInput-${containerIdx}`);
+    const content = input?.value?.trim();
+
+    if (!content) {
+        showToast && showToast('Please enter a comment', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API}/api/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('eurokeys_token') ? `Bearer ${localStorage.getItem('eurokeys_token')}` : ''
+            },
+            body: JSON.stringify({ vehicle_key: vehicleKey, content })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            input.value = '';
+            showToast && showToast('Tip posted!', 'success');
+            loadComments(vehicleKey, containerIdx);
+        } else {
+            showToast && showToast(data.error || 'Failed to post', 'error');
+        }
+    } catch (err) {
+        showToast && showToast('Network error', 'error');
+    }
+}
+
+async function voteComment(commentId, voteType) {
+    try {
+        const response = await fetch(`${API}/api/comments/${commentId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('eurokeys_token') ? `Bearer ${localStorage.getItem('eurokeys_token')}` : ''
+            },
+            body: JSON.stringify({ vote_type: voteType })
+        });
+
+        const data = await response.json();
+
+        if (data.error === 'Login required to vote') {
+            showToast && showToast('Please sign in to vote', 'info');
+        } else if (data.success) {
+            // Refresh the comment section - find the vehicle key from URL or state
+            // For now just show feedback
+            showToast && showToast('Vote recorded', 'success');
+        }
+    } catch (err) {
+        console.error('Vote error:', err);
+    }
+}
+
+function getTimeAgo(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return `${Math.floor(seconds / 604800)}w ago`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 
 const POPULAR_MAKES = [
     'Acura', 'Audi', 'BMW', 'Buick', 'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge',
@@ -159,40 +296,40 @@ const MODEL_GENERATIONS = {
     ],
     // Chevy Trucks & SUVs
     'Silverado': [
-        { label: 'Remote Head Era (2007-2013)', start: 2007, end: 2013, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'K2XX Smart Key (2014-2018)', start: 2014, end: 2018, img: 'chevy_truck_smart_tech_card.png' },
-        { label: 'Global B (2019+)', start: 2019, end: 2026, img: 'chevy_global_b_tech_card.png' }
+        { label: 'Remote Head Era (2007-2013)', start: 2007, end: 2013, img: 'chevrolet_silverado.png' },
+        { label: 'K2XX Smart Key (2014-2018)', start: 2014, end: 2018, img: 'chevrolet_silverado_2014_2018.png' },
+        { label: 'Global B (2019+)', start: 2019, end: 2026, img: 'chevy_silverado_2024.png' }
     ],
     'Tahoe': [
-        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevy_truck_smart_tech_card.png' },
-        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevy_global_b_tech_card.png' }
+        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevrolet_tahoe.png' },
+        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevrolet_tahoe_2015_2020.png' },
+        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevrolet_tahoe.png' }
     ],
     'Suburban': [
-        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevy_truck_smart_tech_card.png' },
-        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevy_global_b_tech_card.png' }
+        { label: 'Remote Head Era (2007-2014)', start: 2007, end: 2014, img: 'chevrolet_suburban.png' },
+        { label: 'K2XX Smart Key (2015-2020)', start: 2015, end: 2020, img: 'chevrolet_suburban.png' },
+        { label: 'Global B (2021+)', start: 2021, end: 2026, img: 'chevrolet_suburban.png' }
     ],
     // Chevy Sedans & Crossovers
     'Malibu': [
-        { label: 'Flip Key Era (2010-2015)', start: 2010, end: 2015, img: 'chevy_generic_flip_tech_card.png' },
-        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' } // Re-using Gen 6 style
+        { label: 'Flip Key Era (2010-2015)', start: 2010, end: 2015, img: 'chevrolet_malibu_2013_2015.png' },
+        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'chevrolet_malibu.png' }
     ],
     'Cruze': [
-        { label: 'Flip Key Era (2011-2015)', start: 2011, end: 2015, img: 'chevy_generic_flip_tech_card.png' },
-        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'camaro_gen6_tech_card.png' }
+        { label: 'Flip Key Era (2011-2015)', start: 2011, end: 2015, img: 'chevrolet_cruze.png' },
+        { label: 'Smart Key Era (2016+)', start: 2016, end: 2026, img: 'chevrolet_cruze.png' }
     ],
     'Equinox': [
-        { label: 'Flip Key Era (2010-2017)', start: 2010, end: 2017, img: 'chevy_generic_flip_tech_card.png' },
-        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'camaro_gen6_tech_card.png' }
+        { label: 'Flip Key Era (2010-2017)', start: 2010, end: 2017, img: 'chevrolet_equinox_2010_2017.png' },
+        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevrolet_equinox.png' }
     ],
     'Impala': [
-        { label: 'Classic Remote Head (2006-2013)', start: 2006, end: 2013, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'New Gen Smart Key (2014+)', start: 2014, end: 2026, img: 'camaro_gen6_tech_card.png' }
+        { label: 'Classic Remote Head (2006-2013)', start: 2006, end: 2013, img: 'chevrolet_impala.png' },
+        { label: 'New Gen Smart Key (2014+)', start: 2014, end: 2026, img: 'chevrolet_impala.png' }
     ],
     'Traverse': [
-        { label: 'Classic Remote Head (2009-2017)', start: 2009, end: 2017, img: 'chevy_classic_remote_tech_card.png' },
-        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevy_truck_smart_tech_card.png' } // Traverse uses truck style often
+        { label: 'Classic Remote Head (2009-2017)', start: 2009, end: 2017, img: 'chevrolet_traverse.png' },
+        { label: 'Smart Key Era (2018+)', start: 2018, end: 2026, img: 'chevrolet_traverse.png' }
     ],
     'Mustang': [
         { label: '1st Gen (1964.5-1966)', start: 1965, end: 1966, img: 'mustang_1965.png' },
@@ -1069,9 +1206,11 @@ async function fetchCompatibleKeys(make, model, year) {
     }
 
     try {
+        console.time('FetchCompatibleKeys');
         const url = `${API}/api/vehicle-keys?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}`;
         const res = await fetch(url);
         const data = await res.json();
+        console.timeEnd('FetchCompatibleKeys');
         if (data.keys && data.keys.length > 0) {
             compatibleKeysCache[cacheKey] = data.keys;
             return data.keys;
@@ -1358,7 +1497,7 @@ function selectKey(cardIndex, keyIndex) {
                     ${ignition !== 'N/A' ? `<span><strong>Ignition:</strong> <span style="color:var(--text-primary);">${ignition}</span></span>` : ''}
                 </div>` : ''
             }
-            </div >
+            </div>
             `;
     }
 
@@ -1409,17 +1548,23 @@ async function searchVehicle() {
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const fetchUrl = `${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`;
+        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`;
 
         const res = await fetch(fetchUrl);
         const data = await res.json();
 
         if (data.rows && data.rows.length > 0) {
             try {
-                displayResults(data.rows, year, make, model);
+                // Pass alerts and pearls from API response to displayResults
+                const extras = {
+                    alerts: data.alerts || [],
+                    pearls: data.pearls || [],
+                    guide: data.guide || null
+                };
+                displayResults(data.rows, year, make, model, extras);
             } catch (innerE) {
                 console.error('Display Error:', innerE);
-                document.getElementById('resultsContainer').innerHTML = `< div class="error" > Display Error: ${innerE.message}</div > `;
+                document.getElementById('resultsContainer').innerHTML = `<div class="error"> Display Error: ${innerE.message}</div> `;
             }
         } else {
             document.getElementById('resultsContainer').innerHTML = '<div class="loading">No results found</div>';
@@ -1460,11 +1605,11 @@ window.openGuideModal = function (id) {
         } else if (guide.steps) {
             // Default render for steps
             contentHtml = guide.steps.map(step => `
-            < div class="guide-step" style = "margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" >
+            <div class="guide-step"style="margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                     <h3 style="color: #60a5fa; margin-bottom: 12px; font-size: 1.1rem;">${step.title || ''}</h3>
                     <div style="color: #e5e7eb; line-height: 1.6;">${step.description || ''}</div>
                     ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : ''}
-                </div >
+                </div>
             `).join('');
         } else if (guide.content) {
             // Simple markdown-to-html fallback
@@ -1516,7 +1661,7 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     // 1. Master Header
     const makeLogo = getMakeLogo(make);
-    const logoHtml = makeLogo ? `< img src = "${makeLogo}" alt = "${make}" class="make-logo" onerror = "this.style.display='none'" style = "width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;" > ` : '';
+    const logoHtml = makeLogo ? `<imgsrc="${makeLogo}"alt="${make}" class="make-logo"onerror="this.style.display='none'"style="width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;"> ` : '';
 
     // Calculate global badges (Stellantis/Mercedes)
     let globalWarnings = '';
@@ -1528,10 +1673,10 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     uniqueRowsForBadges.forEach(v => {
         if (make.toLowerCase() === 'jeep' && model.toLowerCase().includes('renegade') && parseInt(year) === 2022 && !globalWarnings.includes('Split-Year')) {
-            globalWarnings += `< span class="badge" style = "background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);" >⚠️ Split - Year</span > `;
+            globalWarnings += `<span class="badge"style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">⚠️ Split - Year</span> `;
         }
         if ((v.vin_ordered === 1) && !globalWarnings.includes('VIN-Ordered')) {
-            globalWarnings += `< span class="badge" style = "background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);" >🔒 VIN - Ordered</span > `;
+            globalWarnings += `<span class="badge"style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔒 VIN - Ordered</span> `;
         }
     });
 
@@ -1567,7 +1712,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         ${globalWarnings}
                     </div>
                 </div>
-    </div >
+    </div>
             `;
 
     // 1b. Critical Insight Tiles (Windows Phone Style)
@@ -1599,85 +1744,129 @@ function displayResults(rows, year, make, model, extras = {}) {
         `;
     }
 
-    // 2. Critical Alerts (FIRST - before tools/videos per locksmith workflow)
-    if (alerts && alerts.length > 0) {
-        html += '<div class="vehicle-alerts-section" style="margin-bottom: 20px;">';
-        const seenAlerts = new Set();
-        alerts.forEach(alert => {
-            const title = alert.alert_title || alert.title;
-            if (seenAlerts.has(title)) return;
-            seenAlerts.add(title);
+    // --- UNIFIED JOB BRIEF DASHBOARD ---
+    // Merges Alerts, Guide, and Pearls into one high-value strategic view
 
-            const level = (alert.alert_level || 'WARNING').toUpperCase();
-            const levelColors = {
-                'CRITICAL': { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.5)', icon: '🔴', color: '#ef4444' },
-                'WARNING': { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.5)', icon: '⚠️', color: '#fbbf24' },
-                'INFO': { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.5)', icon: 'ℹ️', color: '#3b82f6' }
+    // 1. Resolve Data Sources
+    // PRIORITIZE API data (extras.guide) over legacy local mapping
+    const guideData = extras.guide || (typeof getGuideAsset === 'function' ? getGuideAsset(make, model, cleanYear) : null);
+    // Reuse existing 'alerts' from function scope, ensure pearls is destructured if not already
+    const { pearls = [] } = extras;
+
+    const hasAlerts = alerts && alerts.length > 0;
+    const hasPearls = pearls && pearls.length > 0;
+    const hasGuide = guideData && (guideData.pdf || guideData.html || guideData.id);
+
+    // Only render the briefing if there is intelligence to show
+    if (hasAlerts || hasPearls || hasGuide) {
+
+        // HELPER: Format Pearl Content (Markdown-lite + Affiliate Links)
+        const formatPearlContent = (text) => {
+            if (!text) return '';
+            const amazonTag = 'eurokeys-20';
+            const linkify = (str) => {
+                const terms = [
+                    { regex: /\b(CR2032|CR2450|CR2025|CR1620)\b/gi, type: 'battery' },
+                    { regex: /\b(HU100|HU66|HU101|SIP22|TOY43|TOY48|HON66)\b/gi, type: 'blade' },
+                    { regex: /\b(Lishi)\b/gi, type: 'tool' },
+                    { regex: /\b(Autel|Key Tool Max|IM508|IM608)\b/gi, type: 'programmer' }
+                ];
+                let linked = str;
+                terms.forEach(t => {
+                    linked = linked.replace(t.regex, (match) => {
+                        const query = encodeURIComponent(`${match} ${t.type === 'battery' ? 'battery' : 'key tool'}`);
+                        return `<a href="https://www.amazon.com/s?k=${query}&tag=${amazonTag}" target="_blank" class="pearl-affiliate-link" style="color: #22c55e; text-decoration: none; border-bottom: 1px dotted #22c55e; font-weight: 600;" onclick="event.stopPropagation();">${match}</a>`;
+                    });
+                });
+                return linked;
             };
-            const style = levelColors[level] || levelColors['WARNING'];
-            const content = alert.alert_content || alert.content || '';
-            const mitigation = alert.mitigation || '';
+            let formatted = text
+                .replace(/\* Alert:(.*?)(?=\*|$)/g, '<div style="background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; padding: 8px 12px; margin: 8px 0; border-radius: 4px; color: #fca5a5;"><strong style="color:#ef4444;">⚠️ ALERT:</strong> $1</div>')
+                .replace(/\*\s?(.*?):/g, '<strong style="color: #e9d5ff; display: block; margin-top: 8px;">$1:</strong>')
+                .replace(/(\d+)\.\s(.*?)(?=(\d+\.| \*|$))/g, '<div style="margin-left: 8px; margin-bottom: 4px;"><span style="color: #8b5cf6; font-weight: bold;">$1.</span> $2</div>')
+                .replace(/\*\s(.*?)(?=(\*|$))/g, '<div style="margin-left: 12px; position: relative; padding-left: 12px;"><span style="position: absolute; left: 0; color: #8b5cf6;">•</span> $1</div>');
+            return linkify(formatted);
+        };
 
-            // CRITICAL alerts should be OPEN by default - locksmith must see them!
-            const openAttr = level === 'CRITICAL' ? 'open' : '';
+        html += `<div class="job-brief-container" style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">`;
 
-            html += `
-            < details ${openAttr} style = "background: ${style.bg}; border: 1px solid ${style.border}; border-radius: 8px; margin-bottom: 8px;" >
-                        <summary style="padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; color: ${style.color};">
-                            <span>${style.icon}</span>
-                            <span>${title}</span>
-                            ${level === 'CRITICAL' ? '<span style="font-size: 0.7rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; margin-left: auto;">READ BEFORE QUOTING</span>' : ''}
-                        </summary>
-                        <div style="padding: 0 16px 12px 16px; font-size: 0.85rem; color: var(--text-secondary);">
-                            <p style="margin: 0 0 8px 0;">${content}</p>
-                            ${mitigation ? `<p style="margin: 0; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;"><strong>Fix:</strong> ${mitigation}</p>` : ''}
-                        </div>
-                    </details > `;
-        });
-        html += '</div>';
-    }
-
-    // 3. Guide Callout (SECOND - programming guide is critical for job planning)
-    // const guide was fetched earlier
-
-    if (guide && (guide.pdf || guide.html)) {
-        const premiumGuide = guide; // Alias for backward compatibility if needed, or refactor below
-        const hasPdf = !!guide.pdf;
-        const hasHtml = !!guide.html;
-        const hasInfographic = !!guide.infographic;
-
+        // A. Briefing Header
         html += `
-            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <h3 style="margin: 0 0 4px 0; color: #22c55e; display: flex; align-items: center; gap: 8px;">
-                            📖 ${guide.title || make + ' Programming Guide'}
-                            <span style="font-size: 0.7rem; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">PRO</span>
-                        </h3>
-                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Complete walkthrough with OEM parts, step-by-step procedures, and troubleshooting</p>
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #e2e8f0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                ⚡ Job Brief
+                <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">Strategic Intelligence for ${make} ${model}</span>
+            </h3>
+            ${hasGuide && (guideData.id || guideData.html) ?
+                `<button onclick="openGuideModal('${guideData.id || guideData.html}')" style="background: var(--brand-primary); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>📖</span> View Guide
+                 </button>` : ''}
+        </div>`;
+
+        html += `<div style="padding: 20px;">`;
+
+        // B. Critical Alerts (Top Priority)
+        if (hasAlerts) {
+            html += `<div class="brief-section alerts" style="margin-bottom: 20px;">`;
+            alerts.forEach(alert => {
+                const color = alert.alert_level === 'CRITICAL' ? '#ef4444' : (alert.alert_level === 'WARNING' ? '#f59e0b' : '#3b82f6');
+                const bg = alert.alert_level === 'CRITICAL' ? 'rgba(239, 68, 68, 0.1)' : (alert.alert_level === 'WARNING' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)');
+
+                html += `
+                <div style="background: ${bg}; border-left: 4px solid ${color}; padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <strong style="color: ${color}; text-transform: uppercase; font-size: 0.8rem;">${alert.alert_level || 'ALERT'}</strong>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">${alert.source || 'Verified Source'}</span>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        ${hasPdf ? `
-                        <button onclick="openPdfGuide('${guide.pdf}', '${guide.title}')" 
-                                style="background: #22c55e; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>📄</span> Open PDF Guide
-                        </button>` : ''}
-                        ${hasHtml ? `
-                        <button onclick="openHtmlGuide('${guide.html}', '${guide.title}')" 
-                                style="background: #3b82f6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>📋</span> View Walkthrough
-                        </button>` : ''}
-                        ${hasInfographic ? `
-                        <button onclick="openInfographic('${guide.infographic}', '${make} Quick Reference')" 
-                                style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>🖼️</span> Infographic
-                        </button>` : ''}
+                    <div style="color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${alert.title}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">${alert.content}</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // C. Programming Pearls (Research)
+        if (hasPearls) {
+            html += `
+            <div class="brief-section pearls">
+                <h4 style="margin: 0 0 12px 0; color: #a78bfa; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    💎 Research Snippets
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                    ${pearls.map(p => `
+                    <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 8px; padding: 14px;">
+                        <strong style="color: #c4b5fd; display: block; margin-bottom: 8px; font-size: 0.95rem;">${p.pearl_title}</strong>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${formatPearlContent(p.pearl_content)}</div>
                     </div>
+                    `).join('')}
                 </div>
-            </div > `;
+            </div>`;
+        }
+
+        // D. Guide Embed (Collapsible Preview)
+        if (hasGuide && guideData.html) {
+            html += `
+            <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+                 <details style="cursor: pointer;">
+                    <summary style="color: var(--brand-primary); font-weight: 600; outline: none; list-style: none;">
+                        <span style="margin-right: 6px;">▶</span> Expand Programming Procedure Preview
+                    </summary>
+                    <div style="margin-top: 12px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px; max-height: 300px; overflow-y: auto; font-size: 0.9rem; color: var(--text-secondary);">
+                        ${guideData.content || 'Preview not available. Click "View Guide" for full details.'}
+                        <div style="margin-top: 12px; text-align: center;">
+                             <button onclick="openGuideModal('${guideData.id || guideData.html}')" style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                                Open Full Guide
+                             </button>
+                        </div>
+                    </div>
+                </details>
+            </div>`;
+        }
+
+        html += `</div></div>`; // End job-brief-container
     } else if (guide) {
         html += `
-            < div class="guide-callout" style = "background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;" >
+            <div class="guide-callout"style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
@@ -1687,7 +1876,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                         <span>→</span>
                     </button>
                     <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
-            </div > `;
+            </div> `;
     }
 
     // 4. What You'll Need (Tools Checklist)
@@ -1817,9 +2006,9 @@ function displayResults(rows, year, make, model, extras = {}) {
         const keyInStock = (typeof currentUser !== 'undefined' && currentUser) && fccId !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0;
         const blankInStock = (typeof currentUser !== 'undefined' && currentUser) && keyway !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getBlankStock(keyway) : 0;
         const inventoryBadge = keyInStock > 0
-            ? `< span class="badge" style = "background: #22c55e; color: white;" >📦 ${keyInStock} in stock</span > `
+            ? `<span class="badge"style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span> `
             : blankInStock > 0
-                ? `< span class="badge" style = "background: #22c55e; color: white;" >🔑 ${blankInStock} blanks</span > `
+                ? `<span class="badge"style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span> `
                 : '';
 
         // Generate the Config Card HTML
@@ -1853,7 +2042,9 @@ function displayResults(rows, year, make, model, extras = {}) {
                        <div style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.1);">
                           <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; text-align: center;">🔑 Key Reference</div>
                           <img src="${keyTechCardImg}" alt="${make} Key Fob, Blade & Battery" 
-                               style="width: 100%; height: auto; border-radius: 8px; display: block;"
+                               style="width: 100%; height: auto; border-radius: 8px; display: block; cursor: zoom-in;"
+                               onclick="openLightbox('${keyTechCardImg}')"
+                               ondblclick="openLightbox('${keyTechCardImg}')"
                                onerror="this.closest('.key-ref-card')?.remove(); this.parentElement.parentElement.remove();">
                        </div>
                     </div>
@@ -1953,12 +2144,38 @@ function displayResults(rows, year, make, model, extras = {}) {
                         </summary>
                         <div style="margin-top: 8px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">${v.service_notes_pro}</div>
                     </details>` : ''}
+                 
+                 <!-- Community Tips Section -->
+                 <div id="communityTips-${idx}" class="community-tips-section" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+                     <details>
+                         <summary style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;">
+                             <span>💬</span>
+                             <span>Community Tips</span>
+                             <span id="commentCount-${idx}" style="background: var(--bg-tertiary); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">...</span>
+                         </summary>
+                         <div style="margin-top: 12px;">
+                             <div id="commentsContainer-${idx}" style="margin-bottom: 12px;">
+                                 <div class="loading" style="font-size: 0.8rem; color: var(--text-muted);">Loading tips...</div>
+                             </div>
+                             <div style="display: flex; gap: 8px;">
+                                 <input type="text" id="commentInput-${idx}" 
+                                        placeholder="Share a tip for this vehicle..." 
+                                        style="flex: 1; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 0.85rem;"
+                                        maxlength="500">
+                                 <button onclick="postComment('${make}|${model}|${cleanYear}', ${idx})"
+                                         style="padding: 8px 16px; background: var(--brand-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                                     Post
+                                 </button>
+                             </div>
+                         </div>
+                     </details>
+                 </div>
             </div>
-        </div >
+        </div>
             `;
     }).join('');
 
-    html += `</div > `; // End configurations-section
+    html += `</div> `; // End configurations-section
 
     // CRITICAL FIX: Inject the generated HTML into the DOM
     container.innerHTML = html;
@@ -1989,6 +2206,20 @@ function displayResults(rows, year, make, model, extras = {}) {
             container.innerHTML = '';
         }
     }));
+
+    // Load comments for each configuration
+    uniqueRows.forEach((v, idx) => {
+        const vehicleKey = `${make}|${model}|${year}`;
+        // Add event listener for when comments section is expanded
+        const details = document.querySelector(`#communityTips-${idx} details`);
+        if (details) {
+            details.addEventListener('toggle', function () {
+                if (this.open) {
+                    loadComments(vehicleKey, idx);
+                }
+            }, { once: true });
+        }
+    });
 }
 
 function getKeyTypeIcon(keyType) {
@@ -2077,6 +2308,7 @@ async function navigateYear(direction) {
 }
 
 async function loadVehicleByYear(year, make, model) {
+    console.time('LoadVehicleFull');
     document.getElementById('resultTitle').textContent = `${make} ${model} `;
     updateYearNavigation(year);
     // CRITICAL: Clear container BEFORE loading to prevent stacking
@@ -2084,17 +2316,25 @@ async function loadVehicleByYear(year, make, model) {
 
     try {
         // FIXED: Clean URL (no spaces, correct query syntax)
-        const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
+        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
         const data = await res.json();
 
         if (data.rows && data.rows.length > 0) {
-            displayResults(data.rows, year, make, model);
+            console.timeLog('LoadVehicleFull', 'API Response Received');
+            // Pass alerts and pearls from API response to displayResults
+            const extras = {
+                alerts: data.alerts || [],
+                pearls: data.pearls || [],
+                guide: data.guide || null
+            };
+            displayResults(data.rows, year, make, model, extras);
+            console.timeEnd('LoadVehicleFull');
         } else {
             // Fetch available years for this make/model
             let availableYearsHtml = '';
             try {
                 // FIXED: Clean URL for available years
-                const yearsRes = await fetch(`${API} /api/master ? make = ${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& fields=year_start, year_end & limit=100`);
+                const yearsRes = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
                 const yearsData = await yearsRes.json();
                 if (yearsData.rows && yearsData.rows.length > 0) {
                     const yearsSet = new Set();
@@ -2110,7 +2350,7 @@ async function loadVehicleByYear(year, make, model) {
                     const sortedYears = [...yearsSet].sort((a, b) => b - a);
                     if (sortedYears.length > 0) {
                         availableYearsHtml = `
-            < div style = "margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);" >
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
                                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Available years for ${make} ${model}:</div>
                                 <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
                                     ${sortedYears.slice(0, 15).map(y => `
@@ -2123,7 +2363,7 @@ async function loadVehicleByYear(year, make, model) {
                                     `).join('')}
                                     ${sortedYears.length > 15 ? `<span style="color: var(--text-muted); font-size: 0.8rem; align-self: center;">+${sortedYears.length - 15} more</span>` : ''}
                                 </div>
-                            </div >
+                            </div>
             `;
                     }
                 }
@@ -2132,14 +2372,14 @@ async function loadVehicleByYear(year, make, model) {
             }
 
             document.getElementById('resultsContainer').innerHTML = `
-            < div class="loading" style = "text-align: center;" >
+            <div class="loading"style="text-align: center;">
                     <div style="font-size: 2rem; margin-bottom: 12px;">🚫</div>
                     <div>No data for ${year} ${make} ${model}</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
                         ${availableYearsHtml ? 'Select a year with available data below:' : 'Try adjacent years or this model may not exist for ' + year}
                     </div>
                     ${availableYearsHtml}
-                </div >
+                </div>
             `;
         }
     } catch (e) {
@@ -2187,11 +2427,11 @@ async function quickLoadMakes() {
     select.innerHTML = '<option value="">Loading...</option>';
 
     try {
-        const res = await fetch(`${API} /api/master ? year = ${year}& limit=1000`);
+        const res = await fetch(`${API}/api/master?year=${year}&limit=1000`);
         const data = await res.json();
         const makes = [...new Set(data.rows.map(r => r.make))].filter(isValidMake).sort();
         select.innerHTML = '<option value="">Make</option>';
-        makes.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
+        makes.forEach(m => { select.innerHTML += `<option value = "${m}"> ${m}</option> `; });
     } catch (e) {
         select.innerHTML = '<option value="">Make</option>';
     }
@@ -2209,11 +2449,11 @@ async function quickLoadModels() {
     select.innerHTML = '<option value="">Loading...</option>';
 
     try {
-        const res = await fetch(`${API} /api/master ? year = ${year}& make=${encodeURIComponent(make)}& limit=500`);
+        const res = await fetch(`${API}/api/master?year=${year}&make=${encodeURIComponent(make)}&limit=500`);
         const data = await res.json();
         const models = [...new Set(data.rows.map(r => r.model))].sort();
         select.innerHTML = '<option value="">Model</option>';
-        models.forEach(m => { select.innerHTML += `< option value = "${m}" > ${m}</option > `; });
+        models.forEach(m => { select.innerHTML += `<option value = "${m}"> ${m}</option> `; });
     } catch (e) {
         select.innerHTML = '<option value="">Model</option>';
     }
@@ -2239,7 +2479,7 @@ async function quickSearch() {
     document.getElementById('resultsContainer').innerHTML = '<div class="loading">Loading...</div>';
 
     try {
-        const res = await fetch(`${API} /api/browse ? year = ${year}& make=${encodeURIComponent(make)}& model=${encodeURIComponent(model)}& limit=10`);
+        const res = await fetch(`${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`);
         const data = await res.json();
         if (data.rows && data.rows.length > 0) {
             displayResults(data.rows, year, make, model);
@@ -2256,7 +2496,7 @@ function initQuickSearch() {
     const select = document.getElementById('quickYear');
     if (select.options.length <= 1) {
         const year = new Date().getFullYear() + 1; for (let y = year; y >= 2000; y--) {
-            select.innerHTML += `< option value = "${y}" > ${y}</option > `;
+            select.innerHTML += `<option value = "${y}"> ${y}</option> `;
         }
     }
 }

@@ -1,0 +1,233 @@
+ï»¿2019 Ram 1500 DT (5th Gen) Locksmith Forensic Intelligence Report
+I. Introduction: The Paradigm Shift in Automotive Access Control
+The release of the 2019 Ram 1500 DT (New Body Style) marked a watershed moment in the trajectory of automotive security architecture. It represented far more than a cosmetic redesign or a mechanical evolution of the preceding DS platform; it functioned as the vanguard for a comprehensive digital fortification strategy implemented by Fiat Chrysler Automobiles (FCA), now Stellantis. For the forensic locksmith, the automotive security professional, and the advanced diagnostician, the transition from the legacy DS architecture to the DT platform constitutes a complete rewriting of the rules of engagement. The era of analog intuition and simple transponder cloning has been superseded by an era of encrypted gateways, rolling code algorithms, and complex network topologies that demand a forensic approach to service.
+This report serves as an exhaustive intelligence dossier, designed to equip the field operative with a nuanced, deep-level understanding of the DT platform's security ecosystem. The scope of this analysis extends beyond standard key programming procedures to encompass the systemic interactions between the Body Control Module (BCM), the Radio Frequency (RF) Hub, the Secure Gateway Module (SGW), and the emerging variables introduced by mild-hybrid electrification. We analyze the specific failure modesâoften termed "edge cases"âthat have plagued this platform, distinguishing between cryptographic failures, hardware corruption due to environmental ingress, and electromagnetic interference.
+The 2019 model year introduced a bifurcation in the Ram lineup that continues to sow confusion in the aftermarket: the simultaneous production of the "Classic" (DS) and the "New Body Style" (DT).1 This overlapping manufacturing timeline created a diagnostic minefield where assumptions based on model year alone lead to catastrophic service errors. Furthermore, the introduction of the Atlantis High Electrical Architecture brought with it the Secure Gateway Module (SGW) as a mandatory fixture, fundamentally severing the "plug-and-play" relationship technicians historically enjoyed with the OBD-II port.3
+However, the most insidious challenges of the DT platform are not digital but physical and environmental. The relocation of critical control modules, specifically the RF Hub to the rear cab wall, created a vulnerability profile unique to this generation. We have identified a high prevalence of "soft-lock" failure modes driven not by software glitches, but by water intrusion from the Center High-Mounted Stop Lamp (CHMSL) and rear window seals.4 These leaks compromise the RF Hub, resulting in "phantom" key failures that defy traditional logic. Additionally, the eTorque mild-hybrid system introduces a 48-volt variable that generates significant electromagnetic fields, capable of disrupting the delicate 433 MHz communication used by the Passive Entry/Passive Start (PEPS) system.6
+This report aggregates data from deep-dive forensic examinations of technical service bulletins (TSBs), enthusiast forums, locksmith community field reports, and engineering schematics. It is structured to guide the professional through the identification of the target, the navigation of the digital firewall, the diagnosis of environmental hardware failures, and the precise execution of key programming protocols.
+
+
+  
+
+
+
+II. Architectural Forensics: Distinguishing the DS from the DT
+The first and most critical step in servicing a 2019-2024 Ram truck is the positive identification of the platform architecture. The marketing decision to sell the previous generation (DS) alongside the new generation (DT) created a scenario where two vehicles with the same model year on the registration document utilize completely incompatible security hardware, key blanks, and programming protocols.
+2.1 The Legacy DS "Classic" Platform
+The DS platform is a continuation of the 4th generation Ram architecture, which originated in 2009. While it received updates over its lifespan, its core security topology remains rooted in the PowerNet architecture. For the forensic locksmith, the DS platform is characterized by specific identifiers that must be verified before any tool is connected.
+* Ignition Systems: The DS platform predominantly utilizes the "Tip-Start" mechanism, where a Fobik style key is inserted into the Wireless Ignition Node (WIN) and turned. While later "Classic" trims offered proximity entry, they utilize the older "teardrop" style fob shape.
+* Network Topology: Most 2018-2019 DS models do not feature the Secure Gateway Module (SGW), allowing for direct OBD-II access without bypass cables. However, it is crucial to note that late-production "Classic" models (2020+) began integrating the SGW as the supply chain consolidated, introducing a "hybrid" service requirement where a legacy vehicle requires modern bypass procedures.1
+* Visual Identifiers: The "Classic" badge on the door is the most obvious indicator.2 Physically, the DS utilizes a 5-lug wheel pattern on the 1500 models, a distinctive "crosshair" grille design on most trims, and separate housings for headlights and turn signals.
+2.2 The DT "New Body Style" Platform
+The DT platform represents a ground-up redesign, introducing the Atlantis High Electrical Architecture. This system is designed with a focus on high-speed data throughput to support advanced driver-assistance systems (ADAS) and encrypted communications.
+* Ignition Systems: The DT platform is exclusively Push-To-Start (PTS). There is no option for a mechanical turn-key ignition or the older Fobik slot. The presence of a dedicated "Start/Stop" button is a primary indicator of the DT architecture.
+* Security Architecture: The Secure Gateway Module (SGW) is standard equipment on 100% of DT models from the start of production in 2019.3 This necessitates the use of a 12+8 bypass cable or a Star Connector tap for any key programming functions.
+* Visual Identifiers: The DT 1500 utilizes a 6-lug wheel pattern, a significant departure from the 5-lug DS. The front fascia features a "mustache" bar or a large "RAM" text grille, often with sleeker, integrated LED headlight assemblies. The "Classic" badge is notably absent.
+2.3 The "Split Year" Hazard
+The operational danger lies in the assumption of platform based on year. A "2019 Ram 1500" request from a customer is ambiguous. If a locksmith arrives with GQ4-53T Fobik keys (DS spec) for a DT truck, they will be unable to proceed. Conversely, attempting to force a DT programming protocol on a DS truck can result in communication errors or BCM instability. The forensic approach dictates that the technician must request a photo of the existing key or the dashboard prior to dispatch. The angular, shield-shaped key fob is the hallmark of the DT; the rounded, teardrop fob belongs to the DS.
+III. The Nervous System: CAN Architecture & The Security Gateway (SGW)
+The defining characteristic of the DT platform from a diagnostic perspective is the Secure Gateway Module (SGW). Introduced to thwart remote hacking attempts via the cellular telematics units, the SGW acts as a digital firewall, strictly policing traffic between the external world (the OBD-II port) and the vehicle's internal networks.
+3.1 The Firewall Mechanism
+The SGW effectively partitions the vehicle's Controller Area Network (CAN) into "public" and "private" sectors.3
+* The Public Sector: This includes the Data Link Connector (DLC) and the Telematics Box Module (TBM/Radio).
+* The Private Sector: This encompasses the Body Control Module (BCM), RF Hub, Powertrain Control Module (PCM), and all other critical systems.
+* Operational Logic: Diagnostic tools connected to the OBD-II port can broadcast "Read" requests, allowing them to view Diagnostic Trouble Codes (DTCs) and live data streams. However, any "Write" requestâcommands that alter the state of the vehicle, such as clearing codes, actuating solenoids, or writing a new key ID to the RF Hubâis intercepted by the SGW. Unless the tool provides a cryptographically signed certificate (via AutoAuth) that the SGW recognizes, the request is dropped.
+3.2 Physical Access Vectors: The "12+8" Reality
+For the independent locksmith utilizing aftermarket tools like the Autel IM508/IM608 or Advanced Diagnostics Smart Pro, digital authentication via AutoAuth is often unreliable or requires internet connectivity that may not be available in the field. Therefore, the industry standard procedure is the physical bypass: disconnecting the SGW and bridging the networks directly using a "12+8" bypass cable. The location of the SGW varies significantly within the DT family, a detail that is often glossed over in general documentation.
+3.2.1 2019+ Ram 1500 DT (Light Duty)
+In the Ram 1500 DT, the SGW is located in the driver's footwell area, immediately above the kick panel and near the parking brake mechanism.8 It is a black module, approximately the size of a deck of cards, with two distinct connectors: a 12-pin and an 8-pin.
+* Access Procedure: The technician must lie in the footwell, looking upwards. The module is often obscured by the main wire harness bundles. It requires dexterity to reach up, depress the locking tabs on the connectors, and insert the bypass cable.
+* Early Production Warning: Some very early 2019 build dates placed the SGW behind the radio/center stack, specifically the Uconnect screen.8 This location is a severe impediment, requiring the removal of the bezel and head unit. However, field reports indicate this is an extreme outlier, with the vast majority of 1500 DTs utilizing the footwell location.
+3.2.2 2019+ Ram 2500/3500 (Heavy Duty)
+The Heavy Duty lineup (2500, 3500, 4500, 5500) utilizes a completely different location for the SGW, despite sharing the cab architecture with the DT 1500.
+* Location: The SGW is mounted behind the Instrument Cluster (Speedometer/Tachometer).8
+* Access Procedure: This requires a significant disassembly process. The cluster bezel must be removed, followed by the cluster assembly itself, to access the module connectors on the rear firewall. This distinction is critical for time management; a job on a 2500 will take significantly longer than on a 1500 due to this disassembly requirement.
+3.3 The Star Connector "Backdoor"
+An alternative method to the direct SGW bypass is the use of the Star Connector, also known as the CAN Junction Block. This component serves as a physical hub where multiple CAN lines meet. By tapping directly into this block, the locksmith can inject signals onto the CAN IHS (Interior High Speed) or CAN C busses, effectively bypassing the SGW without needing to unplug it.
+* Location: In the Ram DT, the Star Connector is located behind the passenger side glove box or the passenger kick panel.11
+* Procedure: Access involves dropping the glove box or removing the side kick panel. A specific cable (such as the ADC-2011) connects the programmer directly to an open port on the Star Connector.
+* Tactical Advantage: This method is often preferred for the Heavy Duty models to avoid cluster removal, and for 1500s where the footwell connectors are too tight to access. It provides a cleaner, albeit different, entry point into the network.11
+
+
+  
+
+
+
+IV. The RF Hub: The Achilles Heel of the DT Platform
+If the SGW is the gatekeeper, the Radio Frequency (RF) Hub is the central nervous system for access control. This module is responsible for receiving and demodulating the signals from the key fobs (Remote Keyless Entry - RKE), managing the Passive Entry (PE) antennas, and authorizing the ignition sequence via the Keyless Ignition Node (KIN). In the Ram DT, the RF Hub has become a focal point for catastrophic failure, driven not by electronic design flaws, but by environmental vulnerabilities.
+4.1 The Water Intrusion Crisis
+The RF Hub in the Ram 1500 DT is mounted on the rear cab wall, behind the rear seats.4 This placement, while efficient for assembly, places the module directly in the path of gravity-fed water leaks from three primary sources.
+1. The Third Brake Light (CHMSL): The gasket sealing the Center High-Mounted Stop Lamp to the cab is a known weak point. As the gasket degrades, water tracks along the wiring harness or the cab metal, dripping directly onto the RF Hub mounted below.5
+2. The Rear Power Slider Window: The sliding rear glass assembly often suffers from frame cracking or seal failure. Water accumulates in the window track and overflows down the rear wall.13
+3. The Cab Exhausters (Vents): Located low on the rear wall, these pressure vents rely on rubber flaps to prevent water ingress. If these flaps warp or debris prevents them from closing, road spray and rain are drawn into the cabin, saturating the carpet and the lower connectors of the RF Hub.13
+4.2 The "Soft-Lock" Phenomenon
+When water creates a bridge across the pins of the RF Hub connectors, it induces a range of symptoms collectively known as "Soft-Lock." These symptoms mimic a dead key fob but are actually a systemic failure of the receiver.
+* Symptom Cluster: The vehicle becomes unresponsive to all remote inputs. Buttons do not lock or unlock the doors. The "Key Fob Not Detected" message appears on the Instrument Cluster Display (ICD) when the start button is pressed. Crucially, the vehicle battery is often fully charged, and the key fob batteries are new.15
+* The "Smoked" Hub: In advanced cases, the water causes galvanic corrosion on the PCB, often visible as green crust (verdigris) on the connector pins. This physical damage destroys the module's ability to process the 433 MHz signal, rendering the truck immovable.16
+* Diagnostic Path: Before assuming a key programming failure or a bad BCM, the forensic locksmith must inspect the rear cab wall. Dampness in the carpet under the rear seats, water stains on the headliner, or a musty smell are definitive indicators of RF Hub compromise.17
+4.3 The "Logic Lock" Mechanism
+Not all "Soft-Locks" are due to physical water damage at the hub. A second form of lockout occurs due to logic protection in the Body Control Module (BCM). The Passive Entry handles on the DT platform utilize capacitive touch sensors. These sensors are prone to shorting out when water enters the handle housingâa common occurrence during high-pressure car washes or heavy rainstorms.18
+* The Bus Flood: A shorted handle sends a continuous "Unlock" or "Lock" request to the RF Hub. This floods the Local Interconnect Network (LIN) bus with traffic. To preserve the integrity of the network, the BCM/RF Hub may enter a "protective ignore" state, disregarding all valid signals from the key fobs to prevent erratic actuation.19
+* The "Phantom" Honk: A signature symptom of this failure is the "Three Honk" alert. The vehicle logic interprets the shorted handle sensor as a user trying to lock the door while a key is still inside, triggering the "Fob Left in Vehicle" alert (three quick honks) as the driver walks away.6
+* Remediation: Disconnecting the door handle harnesses one by one can isolate the short. If the system returns to normal operation after a handle is unplugged, the RF Hub is intact, and the fault lies in the peripheral handle unit.18
+V. The eTorque Variable: Electromagnetic Interference (EMI)
+The 2019 Ram 1500 introduced the eTorque mild-hybrid system, a 48-volt architecture designed to improve fuel economy and start/stop smoothness. This system adds a significant variable to the locksmith's diagnostic equation: Electromagnetic Interference (EMI).
+5.1 The 48-Volt Noise Floor
+The eTorque system utilizes a large 48V battery pack mounted behind the rear passenger seatâin close proximity to the RF Hub.6 The system involves high-current switching and DC-DC conversion to interface with the vehicle's standard 12V system. While shielded from the factory, any compromise in the grounding bonding or the addition of aftermarket accessories can lead to EMI leakage.
+* The 433 MHz Conflict: The key fobs operate on 433.92 MHz.20 This frequency band is susceptible to near-field interference from the high-frequency switching noise generated by the 48V system's power electronics.
+* Diagnostic Indicators: Interference issues typically manifest as intermittent range reduction or failure only when the engine (and the 48V Motor Generator Unit) is running. If a key works perfectly with the engine off but fails to operate the locks or is not detected while the truck is idling, EMI is a prime suspect.
+5.2 Aftermarket Amplification: The Ground Loop Trap
+A specific and common edge case involves the installation of aftermarket audio amplifiers. Installers frequently utilize the chassis ground points near the rear wall for convenience.
+* The Mechanism: If an amplifier is grounded to the same stud or area as the 48V battery negative or the RF Hub ground, it can create a "ground loop." The high-current draw of the amplifier injects noise directly into the reference ground of the RF Hub.6
+* The Result: This raises the noise floor of the RF receiver, effectively "blinding" it to the relatively weak signal from the key fob. The truck behaves as if no key is present. Relocating the aftermarket ground point often resolves this "impossible" key failure.
+5.3 The Wireless Charger Interaction
+The DT platform offers a factory wireless charging pad, and many owners add aftermarket ones. These inductive chargers operate by creating a magnetic field.
+* Interference: Poorly shielded chargers can emit harmonic noise that overlaps with the 125 kHz Low Frequency (LF) signal used by the truck to localize the key fob inside the cabin.
+* Symptom: The cluster displays "Key Fob Not Detected" specifically when the phone is on the charger or the charger is active. This is not a key failure but a localization failure.6
+VI. Key Fob Intelligence: Frequencies, IDs, and Hardware
+A significant source of friction in the locksmith workflow for the Ram DT is the correct identification of key fob hardware. The transition to the new architecture brought with it a strict frequency standard that is often misunderstood due to the lingering presence of the DS platform.
+6.1 The 433 MHz Standard
+The Ram 1500 DT (2019-2024) is exclusively a 433 MHz (technically 433.92 MHz) platform.
+There is a persistent myth, fueled by inaccurate aftermarket listings, that some 2019 Rams use 315 MHz keys. This is incorrect for the DT platform.
+* The 315 MHz Trap: Listings for "2019 Ram Key 315 MHz" are almost invariably referring to the DS Classic model or older inventory.21 Attempting to program a 315 MHz fob to a DT truck will result in a failure to communicate, as the RF Hub receiver is physically tuned to 433 MHz.
+* Verification: Using a simple frequency counter or an SDR (Software Defined Radio) on the customer's existing key is the definitive test. A DT key will always transmit on 433 MHz.22
+6.2 FCC ID Taxonomy: OHT vs. GQ4
+Within the 433 MHz ecosystem, there are two primary FCC IDs. They are generally not interchangeable, and utilizing the wrong one can lead to functionality gaps (e.g., remote start not working, air suspension button ineffective).
+Feature Set
+	FCC ID
+	Part Numbers (Sample)
+	Compatibility / Notes
+	Highline (Air Susp/Tailgate)
+	OHT-4882056
+	68291692, 68442910
+	Used on Laramie, Limited, Longhorn (DT). Supports 5-button layouts. High feature content.
+	Standard (Keyless Go)
+	GQ4-76T
+	68374994, 68365327
+	Used on Big Horn, Tradesman (DT). Typically 3 or 4 buttons.
+	Legacy (Turn Key/Fobik)
+	GQ4-53T
+	56046955
+	Ram Classic (DS) ONLY. Do not attempt to use on a DT truck.
+	* The "OHT" Dominance: The OHT-4882056 is the most common ID for higher-trim trucks. It is critical to note that GQ4-76T is the specific ID for the smart key version of the lower trims. Confusion often arises with the GQ4-53T, which is the older Fobik (turn-to-start) key for the DS.24
+
+
+  
+
+
+
+6.3 The Aftermarket "Brick" Risk
+The Ram DT BCM utilizes a rigorous "Rolling Code Seed" check. When a key is presented for programming, the BCM verifies that the key's pre-coded seed matches the manufacturer's algorithm.
+* The Risk: Low-quality aftermarket keys often use "cloned" or static seeds that do not roll correctly.
+* Consequence: The BCM may flag the key as invalid. In some documented cases, this triggers a security lockout where the BCM refuses any further programming attempts for a set duration (often 1 hour), or displays "Key Already Programmed" erroneously.27
+* Best Practice: For high-security trims (TRX, Limited), it is strongly recommended to use OEM keys or high-grade refurbished keys that have been properly unlocked and virginized.29
+6.4 Physical Locksmithing: The Y159 vs. Y164 Dilemma
+The emergency key blade inserted into the smart fob is another point of potential failure.
+* Y159: This is the correct, standard keyway for the Ram DT. It features a wide, double-sided profile.
+* Y164: This keyway is visually similar and used on older Chrysler/Jeep products. It is often distinguished by a tanner head color on transponder versions.31
+* The Mismatch: A Y164 blank is slightly different in warding. It may slide into a worn DT lock cylinder but will jam or fail to turn. Locksmiths must ensure they are stocking the specific Y159 emergency insert for the OHT/GQ4 smart keys to avoid destroying a customer's door lock.32
+* Picking: The door lock is a standard Chrysler 8-cut wafer lock. It can be picked with a Lishi CY24 or Y159 tool. Note that picking the lock typically does not disarm the factory alarm; only the fob or ignition start will do that.
+VII. Programming Pearls & Procedural Intelligence
+Programming a key to the Ram DT is not a passive activity; it requires active management of the vehicle's state and a specific toolchain workflow. The "Old Way"âplugging into the OBD, pulling a PIN, and programmingâis obsolete.
+7.1 The Toolchain Workflow
+Modern locksmith programmers like the Autel IM508/IM608 and Advanced Diagnostics Smart Pro have developed specific protocols for the DT platform.34
+1. SGW Bypass: Establish the physical connection via the 12+8 cable or Star Connector. The tool will not communicate with the RF Hub otherwise.36
+2. PIN Extraction: With the bypass in place, the tool communicates with the RF Hub to extract the 4-digit PIN code. Note that some tools may fail to read the PIN if the battery voltage is low or if there is excessive bus traffic.
+3. Key Learning: The tool puts the RF Hub into "Learn Mode." The user is typically instructed to press the "Unlock" button on the fob while holding the nose of the fob against the Start/Stop button.
+4. Verification: The cluster should illuminate, and the "Key Fob Not Detected" message should clear.
+7.2 Pearl: The "Door Latch" Trick
+When using the 12+8 cable in the driver's footwell, the driver's door must remain open to accommodate the cable and the technician.
+* The Problem: An open door keeps the BCM awake and the interior CAN bus active with "Door Ajar" messages. This bus chatter can interfere with the delicate timing of the programming handshake.
+* The Fix: Use a screwdriver or latch tool to manually close the jaw of the driver's door latch while the door is physically open. This tricks the BCM into thinking the door is closed, quieting the bus and allowing the programming sequence to proceed without interference. Crucial: Remember to "open" the latch with the handle before slamming the door shut!
+7.3 Pearl: Voltage is King
+The Atlantis architecture is extremely sensitive to voltage drops.
+* The Threshold: If the vehicle battery drops below 12.5V, the RF Hub may refuse to enter programming mode, or the SGW bypass may fail to authenticate.37
+* The Solution: Always connect a high-quality battery maintainer (not just a jumper pack) during the programming session. A stable voltage supply prevents "Security Access Denied" errors that can be mistaken for a bad key or tool failure.
+7.4 Pearl: The Air Suspension Lockout
+Trucks equipped with the 4-Corner Air Suspension introduce a unique edge case. If the suspension system has a fault (e.g., a leak or sensor failure), the Air Suspension Control Module (ASCM) broadcasts high-priority error messages on the CAN bus ("Service Air Suspension").
+* The Jam: This high-priority traffic can crowd out the lower-priority programming commands sent by the locksmith tool.
+* The Workaround: If a truck has air suspension warnings and programming is failing, locate the Air Suspension fuse (usually in the Power Distribution Center under the hood) and pull it.38 This silences the ASCM, clearing the bus for the key programming session.
+7.5 Pearl: The "Emergency Start" Loophole
+When troubleshooting a "Dead Key" situation, distinguishing between a dead fob battery and a dead RF Hub is critical.
+* The Nose Press: The "Emergency Start" procedure involves pressing the nose of the fob directly into the Start button. This utilizes a separate Near Field Communication (NFC/RFID) chip (Hitag AES) embedded in the fob.15
+* The Physics: This chip is passively powered by the inductive field of the KIN (Start Button), similar to a credit card chip. It does not require the fob battery.
+* Forensic Conclusion:
+   * If the truck starts with the nose press but buttons don't work: The Fob Battery is dead OR the RF Hub receiver (433 MHz) is deaf (Water/EMI). The key programming is intact.
+   * If the truck does not start with the nose press: The RF Hub is completely dead (no power/logic), the Key is bad/unprogrammed, or the KIN is faulty.
+VIII. Passive Entry & The "Phantom" Gremlins
+The Passive Entry system on the DT platform is a frequent source of customer complaints that land in the locksmith's lap. The system relies on LF antennas to detect the key and capacitive sensors in the handles to detect the user's hand.
+8.1 The "Three Honk" Mystery
+A common complaint is that the truck honks three times rapidly when the driver walks away or closes the door, even if they have the key.
+* Standard Logic: Three honks is the "Fob Left in Vehicle" alert.
+* The Glitch: This is often caused by a missing rear antenna in trucks that have had aftermarket or DIY passive entry upgrades installed.18 The system cannot triangulate the key's position accurately, confusing "outside near the door" with "inside near the door."
+* Wiring Forensics: In upgrade scenarios, technicians often fail to install the rear jumper harness and antenna, leaving the system with a blind spot. Verifying the presence of the rear antenna (located behind the rear bumper fascia) is a necessary step in diagnosing passive entry glitches.
+8.2 Door Handle Shorts
+As detailed in the RF Hub section, the door handles are vulnerable to water.
+* Diagnosis: If a truck is suffering from intermittent locking/unlocking or "phantom" actuations, the locksmith should view live data for the "Door Handle Capacitive Sensor" status. A reading of "Active" when no hand is present confirms a shorted handle.18
+* Temporary Fix: Disconnecting the door handle harness inside the door panel will disable the passive entry for that door but restore normal fob button functionality, proving the diagnosis to the customer.
+IX. Case Studies: The "Soft Lock" Files
+Case Study A: The "Ghost" Key (Water Damage)
+Scenario: A 2020 Ram 1500 Limited. Customer states neither key works. Truck won't start. Battery is good.
+Forensics: Locksmith connects Autel. Tool fails to communicate with RF Hub (No Comm).
+Investigation: Technician checks rear cab wall. Finds condensation on the back window. Pulls rear seat. RF Hub is wet to the touch.
+Resolution: Replace RF Hub. Critical: A new RF Hub must be programmed to the vehicle (VIN write) and then keys programmed to it. The old keys often will not program to a new hub if they are "locked" to the old VIN, unless they are virginized or the hub is capable of accepting used keys (variable by hub firmware version). This job requires a new hub and potentially new keys.4
+Case Study B: The "Phantom" Honk (Passive Entry Short)
+Scenario: 2019 Ram Rebel. Truck randomly honks 3 times when the customer walks away, even with the key in their pocket. Passive entry sometimes fails to lock.
+Forensics: Diagnostic scan shows "Left Front Door Handle Sensor Short to Ground."
+Root Cause: Water ingress in the driver's door handle passive entry button. The system thinks the button is being permanently pressed, confusing the "Fob Left Behind" logic.
+Resolution: Replace the door handle assembly. Bypassing/unplugging the handle harness temporarily stops the honking and restores reliable locking via the fob.18
+Case Study C: The eTorque "Jammer"
+Scenario: 2021 Ram 1500 eTorque. Customer can unlock the truck remotely from a distance, but "Key Not Detected" appears when trying to start inside the cabin. Pressing the fob to the button works.
+Forensics: Fob battery replaced. No change. RF Hub dry. No water leaks found.
+Investigation: Customer had installed a high-powered aftermarket subwoofer amplifier. The installer grounded the amp to the same chassis point as the 48V battery negative cable.
+Resolution: The amplifier's ground loop was creating massive RF noise on the chassis ground, blinding the internal LF antennas that localize the key. Moving the amplifier ground to a dedicated point on the frame resolved the issue.6
+
+
+  
+
+
+
+X. Conclusion & Future Outlook
+The 2019 Ram 1500 DT represents a definitive step towards the "connected, secured, and fragile" modern vehicle. It is a platform where digital security (SGW) meets physical vulnerability (Water Intrusion), creating a complex service environment for the locksmith. Success no longer relies solely on mechanical skill or owning a key programmer. It requires a forensic mindset capable of distinguishing between a failed cryptographic handshake and a corroded circuit board.
+As the DT platform ages, the "Water Intrusion" failure mode of the RF Hub is projected to become the single most common "All Keys Lost" scenario, likely outpacing lost keys themselves. Locksmiths who position themselves not just as key cutters, but as "Access Control Diagnosticians" capable of diagnosing leaks, managing EMI, and navigating the Secure Gateway, will find a lucrative and growing market in the 5th Gen Ram ecosystem. The DT is not just a truck; it is a complex network of computers that happens to have wheels, and it must be serviced as such.
+Works cited
+1. How to Program a RAM 1500 Key Fob â Quick DIY Guide, accessed January 3, 2026, https://www.encorechryslerdodgejeepram.com/dodge-ram-1500-key-fob-programming/
+2. RAM DT vs RAM DS: What Are the Key Differences? | Kunes Chrysler Jeep Dodge RAM of Woodstock Blog, accessed January 3, 2026, https://kuneswoodstock.com/blog/ram-dt-vs-ram-ds-what-are-the-key-differences
+3. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 3, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+4. How to fix a Ram 1500 3rd brake light water leak 5th Gen 2019 2020 2021. We fix headliner stain too - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=HNdlMkQquFg
+5. Water leak : r/ram_trucks - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/1akc1js/water_leak/
+6. This truck is annoying : r/ram_trucks - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/1okz5am/this_truck_is_annoying/
+7. Bypass the Pesky RAM Security Gateway - HERE'S HOW! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=-u3Rtx7mThY
+8. STE Chrysler Pass Through User Manual - Squarespace, accessed January 3, 2026, https://static1.squarespace.com/static/51fac8cfe4b0339e6c6987e1/t/5df85fc2cde8ca0f95214058/1576558531884/STE_Chrysler_Passthrough_V1_2.pdf
+9. DiabloSport 2019-2023 Dodge Ram 1500 New Body Style Gateway Bypass Module Install, accessed January 3, 2026, https://www.youtube.com/watch?v=kFMUy9vXsXk
+10. 2019 Ram 1500 security gateway location - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=5WAIUTyQ3T0
+11. 2019 Dodge Ram; super easy star connector location revealed - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=vRxpsc5IViA
+12. RAM Third Brake Light Leak And Another Hidden Leak Spot - DIY Self Sufficient Vehicle Repair - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=5P5ysn9wHl4
+13. Is this the infamous 3rd brake light leak? Stains on both sides of my headliner. : r/ram_trucks, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/15jqdn1/is_this_the_infamous_3rd_brake_light_leak_stains/
+14. Random water under rear passenger seats? : r/ram_trucks - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/14h9pbf/random_water_under_rear_passenger_seats/
+15. Key Fob Not Responding and Truck Won't Start - Possible Water Damage? : r/ram_trucks, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/x8jddg/key_fob_not_responding_and_truck_wont_start/
+16. Rf hub, leaking back window strikes again. : r/ram_trucks - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/1h67zht/rf_hub_leaking_back_window_strikes_again/
+17. Ram 1500 2500 3500 Third Brake Light, Rear Window and Shark Fin Leaks | How to fix them all for $60! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=NSCSTq0TEZg
+18. Ram Passive Keyless Entry Upgrade â Troubleshooting Guide, accessed January 3, 2026, https://infotainment.zohodesk.com/portal/en/kb/articles/ram-passive-keyless-entry-upgrade-troubleshooting-guide
+19. Data ONTAP 8.2 Commands: Manual Page Reference for 7-Mode, Volume 1 - IBM, accessed January 3, 2026, https://www.ibm.com/support/pages/system/files/support/ssg/ssgdocs.nsf/0/877ff58ea85d9de685257d7e0024bf1a/$FILE/sc27593603.pdf
+20. For 2019 2020 2021 Dodge Ram 2500 3500 Smart Remote Key Fob GQ4-76T | eBay, accessed January 3, 2026, https://www.ebay.com/itm/176317292598
+21. 1 Kit 315MHz Keyless Entry Remote Ignition Transponder Key Fob for Dodge for Ram | eBay, accessed January 3, 2026, https://www.ebay.com/itm/335928008331
+22. Can I convert my keyfob from 433MHZ to 315MHZ? : r/AskElectronics - Reddit, accessed January 3, 2026, https://www.reddit.com/r/AskElectronics/comments/1carf47/can_i_convert_my_keyfob_from_433mhz_to_315mhz/
+23. I need the frequency for the 2019 Ram 1500 Keyless Entry, accessed January 3, 2026, https://mechanics.stackexchange.com/questions/79579/i-need-the-frequency-for-the-2019-ram-1500-keyless-entry
+24. 2019 RAM 1500 Classic Remote Key Fob w/ Engine Start - CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2019-ram-1500-classic-remote-key-fob-w-engine-start
+25. 2024 RAM 1500 Smart Key 6B FCC# OHT-4882056 - Silver Sides (2 P - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2019-2021-dodge-ram-1500-smart-key-fob-w-starter-6b-fcc-oht-4882056-2-pack
+26. 2019 - 2024 RAM Smart Key 3B Fob FCC# GQ4-76T - Black Sides - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2019-2020-2021-dodge-ram-2500-3500-4500-5500-smart-remote-key-fob-3b-fcc-gq4-76t-black-sides
+27. Battery Message - Discussion: The key programming procedure starting on MY19 new Ram 1500 (DT) is different - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10221430-9999.pdf
+28. 2024 Dodge Ram Truck Smart Key Remote Proxy Keyfob 68291687AE GQ4-76T, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2024-dodge-ram-1500-smart-remote-key-fob-aftermarket
+29. Genuine RAM Auto Parts vs. Aftermarket Options - a.m. Maus & Son, accessed January 3, 2026, https://www.ammaus.com/blog/2025/april/16/genuine-ram-auto-parts-vs-aftermarket-parts.htm
+30. Mopar vs. Aftermarket Parts Review - Spitzer Jeep RAM Brook Park, accessed January 3, 2026, https://www.spitzerchryslerdodgejeepram.com/genuine-mopar-vs-aftermarket-parts-blog/
+31. Locksmithing 101 | EVERYTHING You Need to Know About the Y164 Transponder Key, accessed January 3, 2026, https://www.clksupplies.com/blogs/news/locksmithing-101-everything-you-need-to-know-about-the-y164-transponder-key
+32. INSERT for RAM 2019-2025 Smart Emergency Key Blade Y157/Y159, accessed January 3, 2026, https://yourcarkeyguys.com/products/insert-ram-2019-2022-smart-emergency-key-blade-y157-y159
+33. New Uncut Insert Blade Emergency Key Replacement for Dodge RAM - Y159 - eBay, accessed January 3, 2026, https://www.ebay.com/itm/143937554676
+34. HOW TO PROGRAM A KEY FOR 2023 DODGE RAM 1500 USING AUTEL IM508 & 12+8 CABLE - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Yxb_NuYY_4A
+35. How To Use Autel IM608 Pro Car Key Programmer - Introduction and Unboxing - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=t1OvWATiRh4
+36. 2019 Ram 1500 Autel : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1eftzgg/2019_ram_1500_autel/
+37. How to Program Key Fob â Ram 1500 / 2500 / 3500 - Appcar DiagFCA, accessed January 3, 2026, https://appcar-diagfca.com/en/diy/key-programming/how-to-program-key-fob-ram-1500-ds/
+38. How to Disable Ram Factory Air Assist ~ Finally Solved!! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=5hJFLre_8qo
+39. DODGE RAM 1500 2500 3500 IMMOBILISER IMMOBILIZER FUSE 2013 2014 2015 2016 2017 2018 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=KxHXlZAl3RE
+40. RAM Key fob Not Working / Responding **Quick Fix**- 2016 Ram 1500 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=4yeAJLCAcVo

@@ -1,0 +1,148 @@
+ï»¿Technical Analysis: 2021 Chevrolet Silverado Security Protocols and Locksmith Methodologies
+1. Executive Intelligence: The T1XX Platform Divergence
+The 2021 model year for the Chevrolet Silverado represents a seminal "boundary event" in the domain of automotive locksmithing and forensic vehicle security. It marks the definitive, yet often invisible, convergence of General Motorsâ legacy Global A electronic architecture with the emerging, highly encrypted, and high-bandwidth Vehicle Intelligence Platform (VIP), colloquially known in the industry as Global B. For the security professional, the 2021 Silverado is not a singular vehicular profile but rather a bifurcated operational landscape where the precise identification of the underlying digital topography is the primary determinant of procedural success or catastrophic module failure.
+Research data indicates that General Motors utilized the 2021 production cycle to aggressively integrate the CAN FD (Controller Area Network Flexible Data-Rate) protocol into the 1500 series light-duty trucks, while frequently retaining legacy communication standards in specific heavy-duty (2500/3500 HD) configurations and lower-tier trim packages.1 This architectural schism necessitates a complete revision of standard operating procedures (SOPs). The "plug-and-play" methodologies that were highly effective on the preceding 2014â2018 K2XX platforms are not only largely ineffective on the 2021 T1XX platform but pose significant risks of "bricking" the Body Control Module (BCM) if legacy protocols are forced onto the new encrypted data bus.4
+The critical intelligence for this vehicle centers on three pillars: the absolute requirement for active network connections during programming to facilitate server-side authentication, the management of the "Active Alarm" lockout state which physically severs communication to the OBDII port via the security gateway, and the stringent hardware requirement for CAN FD negotiation.2 Furthermore, the supply chain is currently saturated with conflicting key fob frequenciesâspecifically the migration from the legacy 315 MHz standard to the global 433 MHz standard in higher trimsâcreating a logistical minefield for inventory management.7 This report provides an exhaustive technical deconstruction of these elements, mapping the risk landscape and defining the precise procedural pearls required for successful transponder programming.
+2. The Architectural Schism: Global A vs. Global B Topography
+Understanding the underlying electronic architecture is the non-negotiable prerequisite for interacting with the 2021 Silverado. General Motorsâ transition to the Global B (VIP) architecture was driven by the necessity for higher data throughput to support over-the-air (OTA) updates, advanced driver-assistance systems (ADAS), and enhanced cybersecurity measures.9 This shift is not merely a software update; it is a fundamental rewiring of the vehicle's nervous system.
+2.1 The Global B Imperative (Vehicle Intelligence Platform)
+The Global B architecture, which is omnipresent in the 2021 Silverado 1500 and is gradually permeating the HD lineup, fundamentally alters how the On-Board Diagnostic (OBDII) port interacts with the vehicle's broader control units. Unlike the Global A architecture, where the OBDII port maintained a relatively direct uninhibited access to the High-Speed CAN bus, Global B inserts a robust security gateway between the diagnostic port and the vehicle's internal networks.11
+This architecture introduces a dedicated diagnostic or gateway module that serves as a firewall. While field analysis suggests that the CAN frames themselves may not be fully encrypted in the traditional sense, they are heavily authenticated. The modules are programmed to verify the source and integrity of every message before executing a command.12 This authentication requirement is the primary reason why third-party tools lacking proper server credentials or "seed-key" exchange capabilities fail to communicate. The VIP architecture boasts a fivefold increase in system capacity over Global A, managing over 100 computer modules with a processing speed necessary to handle the complex cryptographic handshakes required during the key programming process.9
+
+
+  
+
+
+
+2.2 Differentiating the Platforms via Pinout Analysis
+For the locksmith operating in the field, the ability to visually or electronically identify the platform before connecting a programming tool is a critical skill that prevents wasted time and potential module corruption.
+The 2021 Silverado 1500 is the primary adopter of the Global B architecture and universally requires CAN FD adapters for communication.1 In contrast, the transition for the 2500 and 3500 HD series is slower and less uniform. While some 2021 HD models may still operate on Global A or a hybrid "Global A+" architecture, the presence of specific mechanical features, such as the 10-speed Allison transmission or the 6.6L gas engine, often correlates with the presence of newer electronic architectures.13 However, the most definitive method for identifying Global B is probing Pin 1 of the OBDII port. On Global B vehicles, this pin is active for the CAN-FD secondary network, whereas on Global A vehicles, it was traditionally utilized for Low-Speed Single Wire CAN (SWCAN).11 Technicians are advised to treat all 2021 models as potential Global B candidates until proven otherwise via VIN decoding or module identification.
+2.3 The Role of CAN FD (Flexible Data-Rate)
+The Controller Area Network Flexible Data-Rate (CAN FD) serves as the transport layer for Global B. It allows for significantly faster data transmission and larger payload sizes per frameâup to 64 bytes compared to the 8 bytes found in standard CAN packets.2 This increased payload is essential for carrying the encrypted security blocks during the programming sequence.
+Hardware compatibility is a strict constraint here. Standard OBDII interfaces cannot read or write CAN FD frames; they interpret the high-speed signal as noise or error frames. Consequently, standard diagnostic tools without hardware modification will fail to connect. Tools such as the Autel IM608 or IM508 require a specific CAN FD adapter (or the newer VCI V200/Ultra VCI) to bridge this communication gap.2 Furthermore, the industry is seeing a shift toward "tokenized" access, where some aftermarket solutions require the purchase of "CAN FD Tokens" or credits to access the calculation servers needed to bypass the security gateway, highlighting the shift from "offline" programming to "online/pay-per-use" business models.16
+3. Transponder Hardware and Frequency Intelligence
+The 2021 Silverado ecosystem is currently plagued by a confusing split in remote frequency allocation, driven by the transition from legacy North American systems to the new global standards required by the VIP architecture. This results in a scenario where two visually identical keys operate on incompatible frequencies, leading to frequent inventory errors.
+3.1 Frequency Allocation Logic: The 315 MHz vs. 433 MHz Dilemma
+Historically, the 315 MHz frequency has been the standard for North American General Motors vehicles. In the 2021 Silverado lineup, 315 MHz systems are predominantly found in lower trim levels such as the Work Truck (WT) and Custom trims, or in vehicles that utilize the keyed ignition cylinder and carry over legacy architecture components.17
+Conversely, the 433 MHz frequency (technically 433.92 MHz) has become the standard for the Global B platform. While this frequency is standard in European and Asian markets, GM has adopted it for the VIP architecture to offer better range and signal penetration in environments saturated with RF noise. Higher trim levels, specifically the LTZ and High Country, as well as any vehicle equipped with Passive Entry/Passive Start (PEPS) push-button ignitions, are overwhelmingly likely to utilize the 433 MHz standard.19
+3.2 FCC ID and Part Number Mapping
+Correct part identification is the single most common failure point in inventory management for this vehicle. A mismatch in FCC ID will often result in a successful "programming" cycle where the vehicle's immobilizer accepts the transponder chip (allowing the engine to start), but the remote functions (lock/unlock) fail to operate, or the vehicle refuses to detect the key for proximity starting functions. The following data table elucidates the specific relationships between ignition type, frequency, and part numbers.
+
+
+Ignition System
+	Frequency
+	FCC ID
+	OEM Part Numbers
+	Application Context
+	Smart Key (Prox)
+	433 MHz
+	HYQ1EA
+	13529632, 13508398, 13591396
+	High Trim, Push-to-Start (LTZ, High Country) 8
+	Smart Key (Prox)
+	315 MHz
+	HYQ1AA
+	13529634, 13508278, 13580802
+	Mid/Low Trim, Push-to-Start 19
+	Flip Key (Bladed)
+	315 MHz
+	M3N-32337100
+	13577771, 13577770, 84540865
+	Keyed Ignition (Work Truck, Custom) 17
+	Flip Key (Bladed)
+	433 MHz
+	M3N-32337200
+	Varies
+	Rare, typically late-production HD models 7
+	3.3 The HU100 Physical Interface
+Regardless of the electronic sophistication, the physical interface for the 2021 Silverado remains the HU100 high-security laser-cut keyway.24 This keyway utilizes a side-milled track, and for the 2021 model year, the code series is typically the Z-series (Z0001-Z6000). Locksmiths must maintain a calibrated tracer and cutter to ensure smooth operation, as the tolerance in the ignition cylinder is tight.
+For smart key systems, the emergency blade is a critical component. If the vehicle battery is depleted, this blade provides the only means of entry. It is important to note that the latch mechanism inside the fob varies between the HYQ1EA and HYQ1AA shells; thus, the emergency blades are not always interchangeable between the 315 MHz and 433 MHz fobs.25
+4. Critical Operational Risks: The "Bricking" Threat
+The 2021 Silverado introduces aggressive defensive postures by the vehicle's security system. Understanding these states is the difference between a successful job and a tow truck liability.
+4.1 The Active Alarm Lockout (The Silent Killer)
+One of the most insidious features of the Global B architecture is the Active Alarm lockout. If the vehicle is locked and the alarm is armed, the gateway shuts down communication to the OBDII port to prevent tampering.26 In this state, a technician connecting a scan tool will receive a "No VCI Connected" or "Linking Error" message. The alarm may be sounding, or the theft light may be flashing rapidly, but the tool will be unable to silence it because the port itself is electronically disconnected from the network.
+To resolve this catch-22, technicians must utilize specific bypass strategies. Advanced tools like the Smart Pro and AutoProPad utilize a specialized ADC2011 or Ford/GM Active Alarm Cable. This cable connects directly to the CAN linesâoften by piercing the harness or connecting at a specific junction blockâphysically bypassing the OBDII gateway to inject the "Silence" command directly onto the bus.27 Without this cable, manual methods must be employed, such as using the physical key in the door (if the lock cylinder switch is functioning) to send a disarm signal, or waiting for the alarm to time out, which is unreliable on newer firmware.
+4.2 BCM "Bricking" and Voltage Instability
+While Nissan Body Control Modules (BCMs) are infamous for failure, the GM Global B BCM is increasingly fragile during voltage fluctuations or interrupted data streams. The primary cause of failure is an interruption of the internet connection or a drop in battery voltage during the critical seed-key exchange, which can leave the BCM in a boot-loop or "blank" state.4 Symptoms of a "bricked" BCM include windshield wipers moving constantly, a dead instrument cluster, a "no crank" condition, and a complete loss of communication with the module.
+Prevention requires strict adherence to voltage support protocols. A high-quality battery maintainer capable of supplying clean amperage (30-50A) is mandatory. The vehicle's systems remain awake during the lengthy programming process, drawing significant current. If the voltage drops below a critical threshold (approximately 12.2V), the BCM may abort the write process, resulting in corruption.29
+5. Programming Pearls: 6-8 Key Insights for Success
+The following "Pearls" represent high-level insights derived from field experience and technical analysis, designed to guide the locksmith through the specific nuances of the 2021 Silverado.
+Pearl 1: The 12-Minute Bypass (The "Wait")
+The defining characteristic of the Global B programming sequence, particularly when using aftermarket tools like the Autel IM608 or OBDSTAR, is the mandatory security access wait time. After the initial handshake and PIN reading, the system enters a security delay to bypass the anti-theft protocols. This delay is strictly 10 to 12 minutes.30 This is not a processing lag; it is a security feature. Technicians must budget this time into their service calls and, crucially, ensure vehicle power is supported throughout this duration.
+
+
+  
+
+
+
+Pearl 2: Server-Side Authentication (The Tethering Imperative)
+Unlike older models where "All Keys Lost" programming could often be performed offline, the 2021 Silverado requires a live, stable internet connection to the programming tool. The tool must communicate with the manufacturer's server to calculate the challenge-response for the security gateway. A weak Wi-Fi signal or an unstable hotspot can cause the PIN reading process to hang or fail, potentially locking the session.30
+Pearl 3: The "All Keys Lost" Trap
+On Global B vehicles, the "Add Key" function often fails if the tool cannot authenticate an existing key due to the gateway restrictions. Consequently, many tools default to an "All Keys Lost" workflow even when adding a spare. However, this workflow wipes all existing keys. A critical warning for locksmiths is that some variations of the system require two keys to close the programming cycle. If a technician wipes the system and attempts to program only one key, the vehicle may remain in a "Learn Mode," leaving the theft light blinking or the alarm active until a second key is introduced.33
+Pearl 4: Slot Location Intelligence
+The physical placement of the smart key during the learning phase is non-negotiable, as the proximity antenna has a highly limited range.
+* Bench Seat / Work Truck: The slot is often hidden in the lower storage compartment of the center seat section, or under a removable cupholder liner.34
+* Bucket Seat / Console: The slot is typically a shaped pocket inside the center console storage bin, often at the rear or bottom.30
+* Cup Holder: In some HD trim variations, the transmitter pocket is located in the front cup holder.34
+* If programming fails, a common trick is to rotate the key 180 degrees or remove the key ring to ensure the fob sits flush against the bottom of the pocket.
+Pearl 5: The "Theft Deterrent" Loop
+After a successful programming sequence, the dashboard may display a "Theft Deterrent System" message or a persistent padlock icon. This indicates that the BCM has not fully synchronized with the Immobilizer. To resolve this, the technician must perform a specific "Remove Key" and reprogram sequence, ensuring the ignition is cycled exactly as prompted. Furthermore, driving the vehicle is often necessary to allow the system to receive wheel speed sensor data, which completes the synchronization of the modules.35
+Pearl 6: The "False Positive" Add Key
+Technicians should be wary of tools that claim to "Add Key" without the 12-minute wait on Global B systems. While some advanced tools are beginning to crack this, attempting a fast add on a system that requires a full reset can result in a "False Positive" where the key appears to program but lacks remote functionality. The "All Keys Lost" method, while longer, provides a cleaner reset of the immobilizer table, ensuring both starting and remote functions are correctly aligned.33
+6. Tool-Specific Methodologies and Workflows
+The capability to program a 2021 Silverado is defined by the tool's software ecosystem and hardware adapters.
+6.1 Autel IM508 / IM608 Configuration
+The Autel ecosystem is a dominant player but requires specific configurations. The standard VCI supplied with older units does not support CAN FD. The Autel CAN FD Adapter or the newer VCI V200 is mandatory.2 Autel's workflow relies on a connection to the Autel server to retrieve the 24-digit security verification code. This feature was briefly blocked in 2021 but has been reinstated via a remote calculation method. The workflow involves auto-detecting the VIN, selecting "Smart Key," reading the PIN (internet required), and strictly following the "All Keys Lost" 12-minute wait procedure.30
+6.2 OBDSTAR KeyMaster G3 / DP Plus
+OBDSTAR has gained significant traction for its robust GM capabilities. It requires the P001 Programmer and the CAN FD Adapter, although the KeyMaster G3 often has CAN FD built-in. OBDSTAR is noted for a very stable PIN reading algorithm for 2020+ GM prox systems, often succeeding where other tools time out.32 Additionally, it includes specific menus for bypassing the alarm state if the CAN Direct Kit is used to connect directly to the vehicle harness.37
+6.3 Smart Pro (Advanced Diagnostics)
+The Smart Pro utilizes the ADC2011 cable to connect to the vehicle. This tool is particularly effective at handling the "Active Alarm" lockout because the cable physically bypasses the gateway that blocks the OBDII port.28 However, Smart Pro operates on a token system, and Global B transactions often consume tokens due to the high server calculation cost.
+7. Troubleshooting and Recovery
+Even with strict adherence to procedure, anomalies can occur.
+7.1 Recovering from a Bricked State
+If the BCM becomes unresponsive (bricked) due to a voltage drop or interrupted update, the first step is a "hard reset." This involves disconnecting both battery cables and touching them together (capacitive discharge) for at least 10 minutes to drain all capacitors in the modules. This forces the BCM to reboot from its base firmware. If this fails, the module may require reflashing via the dealer tool (Techline Connect) or replacement.38
+7.2 Fuse Diagnostics
+Communication failures often stem from simple power issues. The OBDII port's auxiliary power is frequently shared with the cigarette lighter or auxiliary power outlets. Technicians should inspect Fuse 8864, Fuse 8385, and Fuse 8430 in the instrument panel fuse block if the tool fails to power up or communicate.40
+8. Conclusion: The Protocol for Future-Proofing
+The 2021 Chevrolet Silverado serves as a litmus test for the modern automotive locksmith. It punishes those who rely on legacy assumptions and rewards those who respect the physics of the Global B architecture. Success is not a matter of luck; it is the product of precise identification, the use of correct hardware (CAN FD adapters, battery maintainers), and the patience to adhere to the security timers. As General Motors continues to expand the VIP architecture across its fleet, the procedures refined on the 2021 Silverado will become the baseline standard for all future GM security operations. The locksmith who masters these protocols has effectively future-proofed their business for the next decade of automotive security.
+Works cited
+1. GM Global B Tuning Support is Here. - HP Tuners, accessed January 3, 2026, https://www.hptuners.com/gmglobalb/
+2. Autel MaxiSys CAN FD Adapter for Autel IM508 and IM608 - Key4, accessed January 3, 2026, https://www.key4.com/autel-maxisys-can-fd-adapter
+3. im software - update - Autel, accessed January 3, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202212/12024605cqed.pdf
+4. Why BCM Failures Cause No-Start Issues - YouTube, accessed January 3, 2026, https://m.youtube.com/shorts/OzzHVxRPSHc
+5. [COURT UPDATE] Car locksmith messed up programming another key fob and cost me $2000 worth of repair. - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1ff5imr/court_update_car_locksmith_messed_up_programming/
+6. Autel CAN FD? : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/zurqs4/autel_can_fd/
+7. 2014-2021 Chevrolet | GMC 3B Remote 315mhz M3N-32337100 - Your Car Key Guys, accessed January 3, 2026, https://yourcarkeyguys.com/products/2014-2021-chevrolet-gmc-3b-remote-315mhz-m3n-32337100
+8. HYQ1EA FOR 2019-2021 CHEVROLET SILVERADO GMC SIERRA 433MHz SMART REMOTE KEY FOB | eBay, accessed January 3, 2026, https://www.ebay.com/itm/234793270122
+9. Vehicle Intelligence Platform - TechLink, accessed January 3, 2026, https://gm-techlink.com/wp-content/uploads/2021/04/GM_TechLink_06_Mid-March_2021.pdf
+10. Driving the Future: GM's Global B Architecture Revolutionizes Vehicle Connectivity, accessed January 3, 2026, https://www.mcgoverngmcofwestborough.com/blog/2023/november/15/driving-the-future-gms-global-b-architecture-revolutionizes-vehicle-connectivity.htm
+11. Gretio Global B Status - Surreal Development, accessed January 3, 2026, https://surrealdev.com/gretio-global-b-status/
+12. 2020 Sierra/GMC CAN ids : r/CarHacking - Reddit, accessed January 3, 2026, https://www.reddit.com/r/CarHacking/comments/14w1s5v/2020_sierragmc_can_ids/
+13. 2021 Chevy Silverado 1500 vs. 2500HD - Dale Earnhardt Jr. Chevrolet, accessed January 3, 2026, https://www.daleearnhardtjrchevy.com/2021-chevy-silverado-1500-vs-2021-chevy-silverado-2500/
+14. 2021 Chevy Silverado 1500 vs. 2021 Chevy Silverado 2500 | Stingray Chevrolet | Plant City, accessed January 3, 2026, https://www.stingraychevrolet.com/model-comparisons/2021-chevy-silverado-1500-vs-chevy-silverado-2500/
+15. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 3, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+16. How to program remote for 2023 Chevy Silverado Using CAN FD & Auto Pro Pad - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=J_nLTx2r9-0
+17. 315MHz 3 Button Keyless Entry Remote Ignition Transponder Key Fob for Chevrolet | eBay, accessed January 3, 2026, https://www.ebay.com/itm/256648084680
+18. Determining the transmit frequency of a key fob - Electronics Stack Exchange, accessed January 3, 2026, https://electronics.stackexchange.com/questions/545674/determining-the-transmit-frequency-of-a-key-fob
+19. 1x New Replacement Keyless Key Fob For Select Chevrolet Vehicles HYQ4AA 315 MHz - VisualSP, accessed January 3, 2026, https://www.visualsp.com/1032501/Keyless-Key-Fob-For-Select-Chevrolet-Vehicles-HYQ4AA-315-MHz
+20. What's The Difference Between 315MHz Remote Control And 433MHz Remote Control?-www.s4a-access.com, accessed January 3, 2026, https://www.s4a-access.com/blog/what-s-the-difference-between-315mhz-remote-control-and-433mhz-remote-control_b25
+21. 2019-2023 Chevrolet Silverado 5-Button Smart Key Fob Remote (HYQ1EA, 13529632), accessed January 3, 2026, https://northcoastkeyless.com/product/2019-2021-chevrolet-silverado-5-button-smart-key-fob-remote-fcc-hyq1ea-p-n-13529632/
+22. 13529634 HYQ1AA Chevrolet Smart Keyless Entry Remote â CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/original-smart-remote-for-chevrolet-hyq1aa-13508278
+23. OEM FOB & KEY BUNDLE 2014-2021 SILVERADO KEYLESS ENTRY 13577771 M3N-32337100 | eBay, accessed January 3, 2026, https://www.ebay.com/itm/406137990960
+24. 2019-2021 Chevrolet Silverado Smart Key | ID46 | 5-Buttons | HU100 | 4 - KeyShop Online, accessed January 3, 2026, https://keyshop-online.com/products/aft-chevrolet-silverado-2019-2021-smart-key-5b-434mhz-hu100-id46
+25. 2021 - 2024 Chevrolet GMC Buick Emergency Key - HU100 (10 Pack) - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2021-2022-chevrolet-gmc-buick-emergency-key-hu100-10-pack
+26. Unlocking Anti-Theft Systems: Disable, Reset & Start Your Car | Key Me, accessed January 3, 2026, https://key.me/article/unlocking-anti-theft-systems-disable-reset-start-your-car
+27. Magnus - Ford Active Alarm Bypass Kit - OBDII Adapter & Extension Cable - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/ford-active-alarm-bypass-kit-obdii-adapter-extension-cable-lock-labs
+28. Smart Pro Cables - Hickleys, accessed January 3, 2026, https://www.hickleys.com/diagnostics/smartpro_cables.php
+29. 10 Steps for 100% Safe Car Key Programming (AVOID BRICKING!) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=lR9jv9WjwGk
+30. Add a Smart Key to 2019-2023 Chevy Silverado in Minutes! (Autel IM508 Tutorial) GMC sierra - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Mhuwy5bz8x4
+31. How to Program GMC YUKON 2021+ Smart Key All Keys Lost by the OBDSTAR - ABKEYS, accessed January 3, 2026, https://abkeys.com/blogs/news/how-to-program-gmc-yukon-2021-smart-key-all-keys-lost-by-the-obdstar-x300-dp-plus-can-fd-adapter
+32. 2021 GMC Sierra 1500 Chevy Silverado All Keys Lost OBDSTAR KeyMaster G3! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=OaSgoN74oo4
+33. Chevrolet programming. : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/10pg52o/chevrolet_programming/
+34. Installation Guide. 2021 Chevrolet Silverado 2500/3500 (Smart Key). 403.GM9 2.51.106 RSR - NET, accessed January 3, 2026, https://directechs.blob.core.windows.net/ddt/403-GM9-2.51.106-RSR_2021-Chevrolet-Silverado-25003500-(Smart-Key)_IG_EN_20240328.pdf
+35. Programming key fob : r/Silverado - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Silverado/comments/1d3pi4p/programming_key_fob/
+36. OBDStar - 2020-2021 - GMC Key Programming Adapter for Sale - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2021-gm-key-programming-adapter-for-obdstar-machine
+37. OBDSTAR Key Master DP Plus Package A including 2 Year Software Update - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/obdstar-key-master-dp-plus-programming-device-full-immobilizer-package-a-with-2-year-software-code-key-simulator-key-programming-canfd-adapter-and-cable-package-bundle
+38. How to Reset Chevy Body Control Module (No-Tool BCM Relearn Guide) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=bQDryE24D84
+39. 2021 Silverado "Theft Attempted" message, now won't move out of Park - Reddit, accessed January 3, 2026, https://www.reddit.com/r/autorepair/comments/yysqe0/2021_silverado_theft_attempted_message_now_wont/
+40. HOW TO RESET THEFT DETERRENT SYSTEM CHEVROLET SILVERADO 2014 2015 2016 2017 2018 2019 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=X-XOLpCpFqM
