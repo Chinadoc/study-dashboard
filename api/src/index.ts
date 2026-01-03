@@ -2160,8 +2160,199 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
+      // ==============================================
+      // VEHICLE COMMENTS API
+      // ==============================================
+
+      // GET comments for a vehicle
+      if (path === "/api/comments" && request.method === "GET") {
+        try {
+          const vehicleKey = url.searchParams.get("vehicle_key");
+          if (!vehicleKey) {
+            return corsResponse(request, JSON.stringify({ error: "vehicle_key required" }), 400);
+          }
+
+          const comments = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, vehicle_key, user_id, user_name, content, upvotes, downvotes, created_at
+            FROM vehicle_comments 
+            WHERE vehicle_key = ? AND is_approved = 1
+            ORDER BY (upvotes - downvotes) DESC, created_at DESC
+            LIMIT 50
+          `).bind(vehicleKey).all();
+
+          return corsResponse(request, JSON.stringify({
+            vehicle_key: vehicleKey,
+            comments: comments.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST new comment
+      if (path === "/api/comments" && request.method === "POST") {
+        try {
+          const body: any = await request.json();
+          const { vehicle_key, content, user_name } = body;
+
+          if (!vehicle_key || !content) {
+            return corsResponse(request, JSON.stringify({ error: "vehicle_key and content required" }), 400);
+          }
+
+          if (content.length > 500) {
+            return corsResponse(request, JSON.stringify({ error: "Comment too long (max 500 chars)" }), 400);
+          }
+
+          // Get user from session if logged in
+          let userId = null;
+          let displayName = user_name || "Anonymous";
+          const token = getSessionToken(request);
+          if (token) {
+            try {
+              const payload = await verifyInternalToken(token, env.JWT_SECRET);
+              userId = payload.sub;
+              displayName = payload.name || displayName;
+            } catch (_) { }
+          }
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO vehicle_comments (vehicle_key, user_id, user_name, content)
+            VALUES (?, ?, ?, ?)
+          `).bind(vehicle_key, userId, displayName, content).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            comment_id: result.meta.last_row_id,
+            message: "Comment added"
+          }), 201);
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST vote on comment
+      if (path.match(/^\/api\/comments\/\d+\/vote$/) && request.method === "POST") {
+        try {
+          const commentId = parseInt(path.split("/")[3]);
+          const body: any = await request.json();
+          const voteType = body.vote_type; // 'up' or 'down'
+
+          if (!['up', 'down'].includes(voteType)) {
+            return corsResponse(request, JSON.stringify({ error: "vote_type must be 'up' or 'down'" }), 400);
+          }
+
+          // Require login to vote
+          const token = getSessionToken(request);
+          if (!token) {
+            return corsResponse(request, JSON.stringify({ error: "Login required to vote" }), 401);
+          }
+
+          let userId;
+          try {
+            const payload = await verifyInternalToken(token, env.JWT_SECRET);
+            userId = payload.sub;
+          } catch (_) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          // Check if already voted
+          const existingVote = await env.LOCKSMITH_DB.prepare(`
+            SELECT vote_type FROM comment_votes WHERE comment_id = ? AND user_id = ?
+          `).bind(commentId, userId).first<any>();
+
+          if (existingVote) {
+            if (existingVote.vote_type === voteType) {
+              // Remove vote (toggle off)
+              await env.LOCKSMITH_DB.prepare(`
+                DELETE FROM comment_votes WHERE comment_id = ? AND user_id = ?
+              `).bind(commentId, userId).run();
+
+              // Update count
+              const column = voteType === 'up' ? 'upvotes' : 'downvotes';
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE vehicle_comments SET ${column} = ${column} - 1 WHERE id = ?
+              `).bind(commentId).run();
+
+              return corsResponse(request, JSON.stringify({ success: true, action: "removed" }));
+            } else {
+              // Change vote
+              const oldColumn = existingVote.vote_type === 'up' ? 'upvotes' : 'downvotes';
+              const newColumn = voteType === 'up' ? 'upvotes' : 'downvotes';
+
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE comment_votes SET vote_type = ? WHERE comment_id = ? AND user_id = ?
+              `).bind(voteType, commentId, userId).run();
+
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE vehicle_comments SET ${oldColumn} = ${oldColumn} - 1, ${newColumn} = ${newColumn} + 1 WHERE id = ?
+              `).bind(commentId).run();
+
+              return corsResponse(request, JSON.stringify({ success: true, action: "changed" }));
+            }
+          }
+
+          // New vote
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO comment_votes (comment_id, user_id, vote_type) VALUES (?, ?, ?)
+          `).bind(commentId, userId, voteType).run();
+
+          const column = voteType === 'up' ? 'upvotes' : 'downvotes';
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE vehicle_comments SET ${column} = ${column} + 1 WHERE id = ?
+          `).bind(commentId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, action: "voted" }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE comment (owner or admin only)
+      if (path.match(/^\/api\/comments\/\d+$/) && request.method === "DELETE") {
+        try {
+          const commentId = parseInt(path.split("/")[3]);
+
+          const token = getSessionToken(request);
+          if (!token) {
+            return corsResponse(request, JSON.stringify({ error: "Login required" }), 401);
+          }
+
+          let userId, userEmail;
+          try {
+            const payload = await verifyInternalToken(token, env.JWT_SECRET);
+            userId = payload.sub;
+            userEmail = payload.email;
+          } catch (_) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          // Check ownership or admin
+          const comment = await env.LOCKSMITH_DB.prepare(`
+            SELECT user_id FROM vehicle_comments WHERE id = ?
+          `).bind(commentId).first<any>();
+
+          if (!comment) {
+            return corsResponse(request, JSON.stringify({ error: "Comment not found" }), 404);
+          }
+
+          const isOwner = comment.user_id === userId;
+          const isAdmin = isDeveloper(userEmail || "", env.DEV_EMAILS);
+
+          if (!isOwner && !isAdmin) {
+            return corsResponse(request, JSON.stringify({ error: "Not authorized" }), 403);
+          }
+
+          await env.LOCKSMITH_DB.prepare(`DELETE FROM vehicle_comments WHERE id = ?`).bind(commentId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, deleted: commentId }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // Browse Database endpoint - uses unified schema
       if (path === "/api/browse") {
+        const tStart = performance.now();
         try {
           const year = url.searchParams.get("year");
           const make = url.searchParams.get("make")?.toLowerCase() || "";
@@ -2207,6 +2398,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         `;
           const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
           const total = countResult?.cnt || 0;
+          const tCount = performance.now();
 
           // Data query using unified vehicles table with DEDUPLICATION
           // 1. Group by unique key signature (Make/Model/Year/FCC/KeyType)
@@ -2278,6 +2470,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         `;
           const dataResult = await env.LOCKSMITH_DB.prepare(dataSql).bind(...params, limit, offset).all();
           const rows = dataResult.results || [];
+          const tData = performance.now();
 
           // ---------------------------------------------------------
           // CAMARO REBUILD: Fetch Alerts & Guides if specific vehicle
@@ -2310,18 +2503,28 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               `).bind(make, model, y).first();
             }
           }
+          const tEnd = performance.now();
+
+          const headers = new Headers({
+            "content-type": "application/json",
+            "Cache-Control": "public, max-age=60", // Reduced cache for debugging
+            "Access-Control-Allow-Origin": "*",
+          });
+          headers.set("Server-Timing", `total;desc="Total";dur=${tEnd - tStart}, count;desc="CountQuery";dur=${tCount - tStart}, data;desc="DataQuery";dur=${tData - tCount}, extras;desc="AlertsGuide";dur=${tEnd - tData}`);
 
           return new Response(JSON.stringify({
             total,
             rows,
             alerts,
-            guide
+            guide,
+            _timings: {
+              total: tEnd - tStart,
+              count: tCount - tStart,
+              data: tData - tCount,
+              extras: tEnd - tData
+            }
           }), {
-            headers: {
-              "content-type": "application/json",
-              "Cache-Control": "public, max-age=300",
-              "Access-Control-Allow-Origin": "*",
-            },
+            headers
           });
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);

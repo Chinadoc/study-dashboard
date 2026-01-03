@@ -16,6 +16,134 @@ function closeLightbox() {
     document.getElementById('photoLightbox').style.display = 'none';
 }
 
+// ==============================================
+// COMMUNITY COMMENTS FUNCTIONS
+// ==============================================
+
+async function loadComments(vehicleKey, containerIdx) {
+    const container = document.getElementById(`commentsContainer-${containerIdx}`);
+    const countBadge = document.getElementById(`commentCount-${containerIdx}`);
+
+    if (!container) return;
+
+    try {
+        const response = await fetch(`${API}/api/comments?vehicle_key=${encodeURIComponent(vehicleKey)}`);
+        const data = await response.json();
+
+        if (data.comments && data.comments.length > 0) {
+            countBadge.textContent = data.comments.length;
+            container.innerHTML = data.comments.map(c => renderComment(c)).join('');
+        } else {
+            countBadge.textContent = '0';
+            container.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-muted); padding: 12px; text-align: center;">No tips yet. Be the first to share!</div>';
+        }
+    } catch (err) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem;">Could not load comments</div>';
+        countBadge.textContent = '?';
+    }
+}
+
+function renderComment(c) {
+    const timeAgo = getTimeAgo(c.created_at);
+    const score = (c.upvotes || 0) - (c.downvotes || 0);
+
+    return `
+        <div class="comment-item" style="padding: 12px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span style="font-weight: 600; color: var(--brand-primary); font-size: 0.8rem;">@${c.user_name}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">${timeAgo}</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-primary); line-height: 1.5;">${escapeHtml(c.content)}</p>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="voteComment(${c.id}, 'up')" style="background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; color: var(--text-secondary);" title="Helpful">▲</button>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: ${score > 0 ? '#22c55e' : score < 0 ? '#ef4444' : 'var(--text-muted)'};">${score}</span>
+                    <button onclick="voteComment(${c.id}, 'down')" style="background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; color: var(--text-secondary);" title="Not helpful">▼</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function postComment(vehicleKey, containerIdx) {
+    const input = document.getElementById(`commentInput-${containerIdx}`);
+    const content = input?.value?.trim();
+
+    if (!content) {
+        showToast && showToast('Please enter a comment', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API}/api/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('eurokeys_token') ? `Bearer ${localStorage.getItem('eurokeys_token')}` : ''
+            },
+            body: JSON.stringify({ vehicle_key: vehicleKey, content })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            input.value = '';
+            showToast && showToast('Tip posted!', 'success');
+            loadComments(vehicleKey, containerIdx);
+        } else {
+            showToast && showToast(data.error || 'Failed to post', 'error');
+        }
+    } catch (err) {
+        showToast && showToast('Network error', 'error');
+    }
+}
+
+async function voteComment(commentId, voteType) {
+    try {
+        const response = await fetch(`${API}/api/comments/${commentId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('eurokeys_token') ? `Bearer ${localStorage.getItem('eurokeys_token')}` : ''
+            },
+            body: JSON.stringify({ vote_type: voteType })
+        });
+
+        const data = await response.json();
+
+        if (data.error === 'Login required to vote') {
+            showToast && showToast('Please sign in to vote', 'info');
+        } else if (data.success) {
+            // Refresh the comment section - find the vehicle key from URL or state
+            // For now just show feedback
+            showToast && showToast('Vote recorded', 'success');
+        }
+    } catch (err) {
+        console.error('Vote error:', err);
+    }
+}
+
+function getTimeAgo(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return `${Math.floor(seconds / 604800)}w ago`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+
 const POPULAR_MAKES = [
     'Acura', 'Audi', 'BMW', 'Buick', 'Cadillac', 'Chevrolet', 'Chrysler', 'Dodge',
     'Fiat', 'Ford', 'GMC', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar', 'Jeep',
@@ -1966,6 +2094,32 @@ function displayResults(rows, year, make, model, extras = {}) {
                         </summary>
                         <div style="margin-top: 8px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.8rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">${v.service_notes_pro}</div>
                     </details>` : ''}
+                 
+                 <!-- Community Tips Section -->
+                 <div id="communityTips-${idx}" class="community-tips-section" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+                     <details>
+                         <summary style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;">
+                             <span>💬</span>
+                             <span>Community Tips</span>
+                             <span id="commentCount-${idx}" style="background: var(--bg-tertiary); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">...</span>
+                         </summary>
+                         <div style="margin-top: 12px;">
+                             <div id="commentsContainer-${idx}" style="margin-bottom: 12px;">
+                                 <div class="loading" style="font-size: 0.8rem; color: var(--text-muted);">Loading tips...</div>
+                             </div>
+                             <div style="display: flex; gap: 8px;">
+                                 <input type="text" id="commentInput-${idx}" 
+                                        placeholder="Share a tip for this vehicle..." 
+                                        style="flex: 1; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 0.85rem;"
+                                        maxlength="500">
+                                 <button onclick="postComment('${make}|${model}|${cleanYear}', ${idx})"
+                                         style="padding: 8px 16px; background: var(--brand-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                                     Post
+                                 </button>
+                             </div>
+                         </div>
+                     </details>
+                 </div>
             </div>
         </div>
             `;
@@ -2002,6 +2156,20 @@ function displayResults(rows, year, make, model, extras = {}) {
             container.innerHTML = '';
         }
     }));
+
+    // Load comments for each configuration
+    uniqueRows.forEach((v, idx) => {
+        const vehicleKey = `${make}|${model}|${year}`;
+        // Add event listener for when comments section is expanded
+        const details = document.querySelector(`#communityTips-${idx} details`);
+        if (details) {
+            details.addEventListener('toggle', function () {
+                if (this.open) {
+                    loadComments(vehicleKey, idx);
+                }
+            }, { once: true });
+        }
+    });
 }
 
 function getKeyTypeIcon(keyType) {
