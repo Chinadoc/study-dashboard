@@ -1036,11 +1036,22 @@ function renderActivityList(activities, category) {
         }
         const metaDisplay = formatActivityMeta(type, meta);
 
+        // User identification
+        const userName = act.user_name || 'Guest';
+        const userInitial = userName.charAt(0).toUpperCase();
+        const isGuest = userName === 'Guest' || !act.user_id;
+
         return `
         <div style="display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
             <div style="width: 32px; text-align: center;">${getActivityIcon(type)}</div>
             <div style="flex: 1;">
-                <div style="font-weight: 500; color: var(--text-primary);">${type}</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 500; color: var(--text-primary);">${type}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; ${isGuest ? 'background: rgba(148,163,184,0.2); color: #94a3b8;' : 'background: rgba(74,222,128,0.15); color: #4ade80;'}">
+                        <span style="width: 16px; height: 16px; border-radius: 50%; background: ${isGuest ? '#64748b' : '#22c55e'}; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: #fff;">${userInitial}</span>
+                        ${userName}
+                    </span>
+                </div>
                 <div style="font-size: 0.85rem; color: var(--text-muted);">${metaDisplay}</div>
             </div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">${formatTimeAgo(act.created_at)}</div>
