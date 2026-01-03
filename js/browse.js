@@ -1664,9 +1664,12 @@ function displayResults(rows, year, make, model, extras = {}) {
     const logoHtml = makeLogo ? `<imgsrc="${makeLogo}"alt="${make}" class="make-logo"onerror="this.style.display='none'"style="width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;"> ` : '';
 
     // Calculate global badges (Stellantis/Mercedes)
+    // NORMALIZE FCC for deduplication: Uppercase, O->0, Remove Hyphens
+    const normFcc = (fcc) => (fcc || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
     let globalWarnings = '';
     const uniqueRowsForBadges = rows.reduce((acc, current) => {
-        const x = acc.find(item => item.fcc_id === current.fcc_id);
+        const normalizedCurrent = normFcc(current.fcc_id);
+        const x = acc.find(item => normFcc(item.fcc_id) === normalizedCurrent);
         if (!x) return acc.concat([current]);
         return acc;
     }, []);
@@ -1943,11 +1946,15 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>`;
 
     // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
+    // NORMALIZE FCC: Uppercase, O->0, Remove Hyphens (match API logic)
+    const normalizeFcc = (fcc) => fcc.toUpperCase().replace(/O/g, '0').replace(/-/g, '');
     const seen = new Set();
     const uniqueRows = rows.filter(v => {
-        const fccId = (v.fcc_id || '').trim().toUpperCase();
+        const rawFcc = (v.fcc_id || '').trim();
+        const fccId = normalizeFcc(rawFcc);
         const oem = (v.oem_part_number || '').trim().toUpperCase();
-        const key = fccId ? `FCC:${fccId} ` : `OEM:${oem} -${v.key_type || ''} `;
+        // Key includes normalized FCC OR OEM + key_type if no FCC
+        const key = fccId ? `FCC:${fccId}` : `OEM:${oem}-${(v.key_type || '').toLowerCase()}`;
         if (key && seen.has(key)) return false;
         if (key) seen.add(key);
         return true;
