@@ -910,11 +910,18 @@ export default {
             LIMIT 50
           `).all();
 
-          // Get recent activity log
+          // Get recent activity log with user info
           const recentActivity = await env.LOCKSMITH_DB.prepare(`
-            SELECT action as action_type, details as metadata, created_at, user_id
-            FROM user_activity
-            ORDER BY created_at DESC
+            SELECT 
+              a.action as action_type, 
+              a.details as metadata, 
+              a.created_at, 
+              a.user_id,
+              COALESCE(u.name, 'Guest') as user_name,
+              u.email as user_email
+            FROM user_activity a
+            LEFT JOIN users u ON a.user_id = u.id
+            ORDER BY a.created_at DESC
             LIMIT 50
           `).all();
 

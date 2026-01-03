@@ -296,6 +296,214 @@ function getVehicleResultImage(make, model, year) {
     return `/assets/vehicles/${cleanMake}_${cleanModel}.png`;
 }
 
+// Key Tech Card Mapping - Maps vehicles to key fob/blade/battery reference images
+const KEY_TECH_CARD_MAP = {
+    // GM/Chevrolet Platform Mapping by Era
+    'Chevrolet': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_5btn.png' } },
+        rhk: { min: 2007, max: 2017, buttons: { 5: 'gm_rhk_5btn_flip.png', 4: 'gm_rhk_4btn_flip.png', default: 'gm_rhk_4btn_flip.png' } },
+        classic: { min: 2000, max: 2006, buttons: { 4: 'gm_classic_remote_4btn.png', 3: 'gm_classic_remote_3btn.png', default: 'gm_classic_remote_3btn.png' } },
+        fobik: { min: 2010, max: 2015, buttons: { default: 'gm_fobik_4btn.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    'GMC': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_5btn.png' } },
+        rhk: { min: 2007, max: 2017, buttons: { 5: 'gm_rhk_5btn_flip.png', 4: 'gm_rhk_4btn_flip.png', default: 'gm_rhk_4btn_flip.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    'Buick': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_4btn.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    'Cadillac': {
+        smart: { min: 2016, max: 2099, buttons: { 5: 'gm_global_b_smart_5btn.png', 4: 'gm_global_b_smart_4btn.png', default: 'gm_global_b_smart_5btn.png' } },
+        smartLegacy: { min: 2010, max: 2015, buttons: { 5: 'gm_global_a_smart_5btn.png', 4: 'gm_global_a_smart_4btn.png', default: 'gm_global_a_smart_5btn.png' } },
+        transponder: { min: 1995, max: 2010, buttons: { default: 'gm_transponder_chip.png' } }
+    },
+    // Ford Platform Mapping
+    'Ford': {
+        smart: { min: 2015, max: 2099, buttons: { 5: 'ford_smart_5btn.png', 4: 'ford_smart_4btn.png', default: 'ford_smart_5btn.png' } },
+        rhk: { min: 2011, max: 2019, buttons: { 5: 'ford_rhk_5btn.png', 4: 'ford_rhk_4btn.png', default: 'ford_rhk_4btn.png' } },
+        flip: { min: 2007, max: 2014, buttons: { 4: 'ford_flip_4btn.png', 3: 'ford_flip_3btn.png', default: 'ford_flip_4btn.png' } },
+        pats: { min: 1996, max: 2010, buttons: { default: 'ford_pats_transponder.png' } },
+        tibbe: { min: 1990, max: 2000, buttons: { default: 'ford_tibbe_transponder.png' } }
+    },
+    'Lincoln': {
+        smart: { min: 2015, max: 2099, buttons: { 5: 'ford_smart_5btn.png', 4: 'ford_smart_4btn.png', default: 'ford_smart_5btn.png' } },
+        rhk: { min: 2011, max: 2019, buttons: { 5: 'ford_rhk_5btn.png', 4: 'ford_rhk_4btn.png', default: 'ford_rhk_5btn.png' } },
+        pats: { min: 1996, max: 2010, buttons: { default: 'ford_pats_transponder.png' } }
+    },
+    // Stellantis Platform Mapping
+    'Chrysler': {
+        smart: { min: 2017, max: 2099, buttons: { 6: 'chrysler_van_remote_6btn.png', 5: 'stellantis_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2008, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        transponder: { min: 1998, max: 2008, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    'Dodge': {
+        smart: { min: 2017, max: 2099, buttons: { 5: 'stellantis_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2008, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        rhk: { min: 2004, max: 2012, buttons: { default: 'dodge_ram_classic_4btn.png' } },
+        transponder: { min: 1998, max: 2008, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    'Jeep': {
+        smart: { min: 2018, max: 2099, buttons: { 5: 'jeep_wrangler_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2008, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        rhk: { min: 2007, max: 2018, buttons: { 4: 'jeep_wrangler_rhk_4btn.png', 3: 'jeep_liberty_rhk_3btn.png', default: 'jeep_wrangler_rhk_4btn.png' } },
+        transponder: { min: 1998, max: 2008, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    'Ram': {
+        smart: { min: 2019, max: 2099, buttons: { 5: 'stellantis_smart_5btn.png', 4: 'stellantis_smart_4btn.png', default: 'stellantis_smart_5btn.png' } },
+        fobik: { min: 2013, max: 2020, buttons: { 5: 'stellantis_fobik_5btn.png', 4: 'stellantis_fobik_4btn.png', default: 'stellantis_fobik_4btn.png' } },
+        rhk: { min: 2009, max: 2018, buttons: { default: 'dodge_ram_classic_4btn.png' } },
+        transponder: { min: 1998, max: 2012, buttons: { default: 'stellantis_transponder.png' } }
+    },
+    // Toyota/Lexus Platform Mapping
+    'Toyota': {
+        smart: { min: 2010, max: 2099, buttons: { 4: 'toyota_smart_4btn.png', 3: 'toyota_smart_3btn.png', default: 'toyota_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2018, buttons: { 4: 'toyota_rhk_4btn.png', 3: 'toyota_rhk_3btn.png', default: 'toyota_rhk_4btn.png' } },
+        hChip: { min: 2013, max: 2020, buttons: { default: 'toyota_h_chip_transponder.png' } },
+        dot: { min: 2003, max: 2012, buttons: { default: 'toyota_dot_chip_transponder.png' } },
+        transponder: { min: 1998, max: 2005, buttons: { default: 'toyota_4d67_transponder.png' } }
+    },
+    'Lexus': {
+        smart: { min: 2006, max: 2099, buttons: { 4: 'lexus_smart_4btn.png', 3: 'lexus_smart_3btn.png', default: 'lexus_smart_4btn.png' } },
+        transponder: { min: 1998, max: 2010, buttons: { default: 'toyota_4d67_transponder.png' } }
+    },
+    // Honda/Acura Platform Mapping
+    'Honda': {
+        smart: { min: 2013, max: 2099, buttons: { 5: 'honda_odyssey_smart_5btn.png', 4: 'honda_smart_4btn.png', 3: 'honda_smart_3btn.png', default: 'honda_smart_4btn.png' } },
+        rhk: { min: 2006, max: 2018, buttons: { 4: 'honda_rhk_4btn.png', 3: 'honda_rhk_3btn.png', default: 'honda_rhk_4btn.png' } },
+        flip: { min: 2013, max: 2018, buttons: { default: 'honda_flip_3btn.png' } },
+        transponder: { min: 1999, max: 2010, buttons: { default: 'honda_transponder.png' } }
+    },
+    'Acura': {
+        smart: { min: 2010, max: 2099, buttons: { 4: 'acura_smart_4btn.png', 3: 'honda_smart_3btn.png', default: 'acura_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2015, buttons: { 4: 'honda_rhk_4btn.png', 3: 'honda_rhk_3btn.png', default: 'honda_rhk_4btn.png' } },
+        transponder: { min: 1999, max: 2010, buttons: { default: 'honda_transponder.png' } }
+    },
+    // Nissan/Infiniti Platform Mapping
+    'Nissan': {
+        smart: { min: 2007, max: 2099, buttons: { 4: 'nissan_smart_4btn.png', 3: 'nissan_smart_3btn.png', default: 'nissan_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2016, buttons: { 4: 'nissan_rhk_4btn.png', 3: 'nissan_rhk_3btn.png', default: 'nissan_rhk_4btn.png' } },
+        flip: { min: 2007, max: 2018, buttons: { default: 'nissan_flip_4btn.png' } },
+        transponder: { min: 2000, max: 2010, buttons: { default: 'nissan_transponder.png' } }
+    },
+    'Infiniti': {
+        smart: { min: 2006, max: 2099, buttons: { 4: 'infiniti_smart_4btn.png', 3: 'nissan_smart_3btn.png', default: 'infiniti_smart_4btn.png' } },
+        rhk: { min: 2005, max: 2016, buttons: { 4: 'nissan_rhk_4btn.png', 3: 'nissan_rhk_3btn.png', default: 'nissan_rhk_4btn.png' } },
+        transponder: { min: 2000, max: 2008, buttons: { default: 'nissan_transponder.png' } }
+    },
+    // Hyundai/Kia/Genesis Platform Mapping
+    'Hyundai': {
+        smart: { min: 2012, max: 2099, buttons: { 4: 'hyundai_smart_4btn.png', 3: 'hyundai_smart_3btn.png', default: 'hyundai_smart_4btn.png' } },
+        flip: { min: 2010, max: 2020, buttons: { default: 'hyundai_flip_4btn.png' } },
+        transponder: { min: 2005, max: 2012, buttons: { default: 'hyundai_transponder.png' } }
+    },
+    'Kia': {
+        smart: { min: 2012, max: 2099, buttons: { 4: 'kia_smart_4btn.png', 3: 'kia_smart_3btn.png', default: 'kia_smart_4btn.png' } },
+        flip: { min: 2010, max: 2020, buttons: { default: 'kia_flip_4btn.png' } },
+        transponder: { min: 2005, max: 2012, buttons: { default: 'hyundai_transponder.png' } }
+    },
+    'Genesis': {
+        smart: { min: 2017, max: 2099, buttons: { 4: 'genesis_smart_4btn.png', default: 'genesis_smart_4btn.png' } },
+        transponder: { min: 2015, max: 2017, buttons: { default: 'hyundai_transponder.png' } }
+    },
+    // German Luxury Platform Mapping
+    'BMW': {
+        smart: { min: 2014, max: 2099, buttons: { default: 'bmw_diamond_key.png' } },
+        comfort: { min: 2007, max: 2018, buttons: { default: 'bmw_comfort_access.png' } },
+        rhk: { min: 2004, max: 2013, buttons: { default: 'bmw_smart_4btn.png' } }
+    },
+    'Mercedes-Benz': {
+        smart: { min: 2019, max: 2099, buttons: { default: 'mercedes_chrome_key.png' } },
+        smartLegacy: { min: 2008, max: 2018, buttons: { default: 'mercedes_smart_3btn.png' } }
+    },
+    'Audi': {
+        smart: { min: 2016, max: 2099, buttons: { default: 'audi_smart_3btn.png' } },
+        flip: { min: 2006, max: 2018, buttons: { default: 'audi_flip_3btn.png' } }
+    },
+    'Volkswagen': {
+        smart: { min: 2019, max: 2099, buttons: { default: 'vw_smart_3btn.png' } },
+        flip: { min: 2006, max: 2018, buttons: { default: 'audi_flip_3btn.png' } }
+    }
+};
+
+// Get Key Tech Card Image based on make, year, and key type
+function getKeyTechCardImage(make, year, keyType, buttonCount) {
+    const yearNum = parseInt(year) || 2020;
+    const buttons = parseInt(buttonCount) || 4;
+
+    // Normalize make
+    const normalizedMake = make?.trim() || '';
+    const makeConfig = KEY_TECH_CARD_MAP[normalizedMake];
+
+    if (!makeConfig) return null;
+
+    // Determine key category from keyType string
+    let category = 'smart'; // Default to smart key
+    const keyTypeLower = (keyType || '').toLowerCase();
+
+    if (keyTypeLower.includes('transponder') || keyTypeLower.includes('chip only')) {
+        category = 'transponder';
+    } else if (keyTypeLower.includes('fobik') || keyTypeLower.includes('fob-ik')) {
+        category = 'fobik';
+    } else if (keyTypeLower.includes('flip') || keyTypeLower.includes('switchblade')) {
+        category = 'flip';
+    } else if (keyTypeLower.includes('remote head') || keyTypeLower.includes('rhk')) {
+        category = 'rhk';
+    } else if (keyTypeLower.includes('smart') || keyTypeLower.includes('prox') || keyTypeLower.includes('proximity')) {
+        // Check era for smart keys
+        if (normalizedMake === 'Chevrolet' || normalizedMake === 'GMC' || normalizedMake === 'Buick' || normalizedMake === 'Cadillac') {
+            category = yearNum >= 2016 ? 'smart' : 'smartLegacy';
+        } else if (normalizedMake === 'Mercedes-Benz') {
+            category = yearNum >= 2019 ? 'smart' : 'smartLegacy';
+        } else if (normalizedMake === 'BMW') {
+            category = yearNum >= 2014 ? 'smart' : (yearNum >= 2007 ? 'comfort' : 'rhk');
+        } else {
+            category = 'smart';
+        }
+    } else if (keyTypeLower.includes('comfort access')) {
+        category = 'comfort';
+    } else if (keyTypeLower.includes('h-chip') || keyTypeLower.includes('h chip')) {
+        category = 'hChip';
+    } else if (keyTypeLower.includes('dot') || keyTypeLower.includes('4d67')) {
+        category = 'dot';
+    } else if (keyTypeLower.includes('pats')) {
+        category = 'pats';
+    } else if (keyTypeLower.includes('tibbe')) {
+        category = 'tibbe';
+    }
+
+    // Find matching config by year
+    const categoryConfig = makeConfig[category];
+    if (!categoryConfig) {
+        // Fallback to smart if category not found
+        const fallbackConfig = makeConfig.smart || makeConfig[Object.keys(makeConfig)[0]];
+        if (!fallbackConfig) return null;
+        const img = fallbackConfig.buttons?.[buttons] || fallbackConfig.buttons?.default;
+        return img ? `/assets/vehicles/${img}` : null;
+    }
+
+    // Check if year is in range
+    if (yearNum >= categoryConfig.min && yearNum <= categoryConfig.max) {
+        const img = categoryConfig.buttons?.[buttons] || categoryConfig.buttons?.default;
+        return img ? `/assets/vehicles/${img}` : null;
+    }
+
+    // If not in range, try to find best match
+    for (const [cat, config] of Object.entries(makeConfig)) {
+        if (yearNum >= config.min && yearNum <= config.max) {
+            const img = config.buttons?.[buttons] || config.buttons?.default;
+            return img ? `/assets/vehicles/${img}` : null;
+        }
+    }
+
+    return null;
+}
+
 function selectVisualModel(model) {
     // FIX: If year is already selected, skip generation selector and go to results
     if (currentVehicleYear || (document.getElementById('yearSelect') && document.getElementById('yearSelect').value)) {
@@ -1615,10 +1823,16 @@ function displayResults(rows, year, make, model, extras = {}) {
                 : '';
 
         // Generate the Config Card HTML
+        // Get tech card image for this generation
+        const techCardImg = typeof getVehicleResultImage === 'function' ? getVehicleResultImage(make, model, parseInt(year)) : null;
+
+        // Get key tech card image (fob/blade/battery reference)
+        const keyTechCardImg = typeof getKeyTechCardImage === 'function' ? getKeyTechCardImage(make, year, keyTypeDisplay, v.button_count || 4) : null;
+
         return `
-            < div class="config-card ${themeClass}" style = "background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; position: relative;" >
+            <div class="config-card ${themeClass}" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; position: relative;">
             
-            < !--Config Header-- >
+            <!-- Config Header -->
             <div style="background: var(--bg-tertiary); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                  <div style="display: flex; align-items: center; gap: 10px;">
                     ${keyTypeDisplay ? `<span class="badge ${keyTypeBadgeClass}">${keyTypeDisplay}</span>` : '<span class="badge badge-dark">Standard Configuration</span>'}
@@ -1630,8 +1844,27 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>
 
             <div style="padding: 16px;">
-                 <!-- Specs Grid -->
-                 <!-- Specs Grid: Electronic (Top) -->
+                 <!-- Key Tech Card Visual (fob/blade/battery reference) -->
+                 ${keyTechCardImg ? `
+                 <div style="margin-bottom: 16px; text-align: center;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;">🔑 Key Reference Card</div>
+                    <img src="${keyTechCardImg}" alt="${make} Key Fob, Blade & Battery Reference" 
+                         style="max-width: 100%; width: 320px; height: auto; border-radius: 12px; border: 2px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
+                         onerror="this.parentElement.style.display='none';">
+                 </div>
+                 ` : ''}
+                 
+                 <!-- Tech Card Visual (vehicle generation image, if available) -->
+                 ${techCardImg ? `
+                 <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div style="flex: 0 0 auto; max-width: 200px;">
+                        <img src="${techCardImg}" alt="${make} ${model} Tech Reference" 
+                             style="width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border);"
+                             onerror="this.parentElement.style.display='none';">
+                    </div>
+                    <div style="flex: 1; min-width: 250px;">
+                 ` : '<div>'}
+                 <!-- Specs Grid: Electronic -->
                  <div class="electronic-specs-grid" style="margin-bottom: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
                     <div class="spec-item"><div class="spec-icon" style="color: #a855f7;">🛡️</div><div class="spec-label">Chip</div><div class="spec-value">${chip}</div></div>
                     <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Frequency</div><div class="spec-value">${freq}</div></div>
@@ -1685,6 +1918,7 @@ function displayResults(rows, year, make, model, extras = {}) {
 
                     </div>
                  </div>
+                 </div> <!-- Close tech card wrapper if present -->
 
                  <!-- Key Carousel Placeholder -->
                  <div id="keyCarouselContainer-${idx}" class="key-carousel-container" style="background: var(--bg-primary); padding: 12px; border-radius: 8px; border: 1px solid var(--border);"></div>
