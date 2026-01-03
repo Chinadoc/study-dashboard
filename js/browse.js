@@ -1844,31 +1844,29 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>
 
             <div style="padding: 16px;">
-                 <!-- Key Tech Card Visual (fob/blade/battery reference) -->
-                 ${keyTechCardImg ? `
-                 <div style="margin-bottom: 16px; text-align: center;">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;">🔑 Key Reference Card</div>
-                    <img src="${keyTechCardImg}" alt="${make} Key Fob, Blade & Battery Reference" 
-                         style="max-width: 100%; width: 320px; height: auto; border-radius: 12px; border: 2px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
-                         onerror="this.parentElement.style.display='none';">
-                 </div>
-                 ` : ''}
-                 
-                 <!-- Tech Card Visual (vehicle generation image, if available) -->
-                 ${techCardImg ? `
-                 <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
-                    <div style="flex: 0 0 auto; max-width: 200px;">
-                        <img src="${techCardImg}" alt="${make} ${model} Tech Reference" 
-                             style="width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border);"
-                             onerror="this.parentElement.style.display='none';">
+                 <!-- Integrated Key Reference + Specs Layout -->
+                 <div style="display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-start;">
+                    
+                    ${keyTechCardImg ? `
+                    <!-- Key Tech Card Image (Primary Visual) -->
+                    <div style="flex: 0 0 auto; width: 180px; max-width: 100%;">
+                       <div style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                          <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; text-align: center;">🔑 Key Reference</div>
+                          <img src="${keyTechCardImg}" alt="${make} Key Fob, Blade & Battery" 
+                               style="width: 100%; height: auto; border-radius: 8px; display: block;"
+                               onerror="this.closest('.key-ref-card')?.remove(); this.parentElement.parentElement.remove();">
+                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 250px;">
-                 ` : '<div>'}
-                 <!-- Specs Grid: Electronic -->
-                 <div class="electronic-specs-grid" style="margin-bottom: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
-                    <div class="spec-item"><div class="spec-icon" style="color: #a855f7;">🛡️</div><div class="spec-label">Chip</div><div class="spec-value">${chip}</div></div>
-                    <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Frequency</div><div class="spec-value">${freq}</div></div>
-                    <div class="spec-item"><div class="spec-icon" style="color: #22c55e;">🔧</div><div class="spec-label">System</div><div class="spec-value">${immoSystem}</div></div>
+                    ` : ''}
+                    
+                    <!-- Electronic Specs (Grows to fill space) -->
+                    <div style="flex: 1; min-width: 200px;">
+                       <div class="electronic-specs-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                          <div class="spec-item"><div class="spec-icon" style="color: #a855f7;">🛡️</div><div class="spec-label">Chip</div><div class="spec-value">${chip}</div></div>
+                          <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Frequency</div><div class="spec-value">${freq}</div></div>
+                          <div class="spec-item"><div class="spec-icon" style="color: #22c55e;">🔧</div><div class="spec-label">System</div><div class="spec-value">${immoSystem}</div></div>
+                       </div>
+                    </div>
                  </div>
 
                  <!-- Service Specs: Mechanical & Service (Bottom) -->
