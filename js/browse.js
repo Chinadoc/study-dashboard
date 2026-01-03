@@ -1808,12 +1808,32 @@ function displayResults(rows, year, make, model, extras = {}) {
                         </button>` : ''}
                         ${hasInfographic ? `
                         <button onclick="openInfographic('${guide.infographic}', '${make} Quick Reference')" 
-                                style="background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            <span>🖼️</span> Infographic
+                                style="background: #f59e0b; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <span>🖼️</span> View Infographic
                         </button>` : ''}
                     </div>
                 </div>
             </div> `;
+    }
+
+    // 4. Programming Pearls (THIRD - High value research insights)
+    const { pearls = [] } = extras;
+    if (pearls && pearls.length > 0) {
+        html += `
+        <div class="pearls-section" style="margin-bottom: 20px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 16px;">
+            <h3 style="margin: 0 0 12px 0; color: #8b5cf6; display: flex; align-items: center; gap: 8px;">
+                💎 Programming Pearls
+                <span style="font-size: 0.7rem; background: #8b5cf6; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600;">RESEARCH</span>
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                ${pearls.map(p => `
+                <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid rgba(139, 92, 246, 0.1);">
+                    <strong style="color: #c4b5fd; display: block; margin-bottom: 4px;">${p.pearl_title}</strong>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${p.pearl_content}</div>
+                </div>
+                `).join('')}
+            </div>
+        </div>`;
     } else if (guide) {
         html += `
             <div class="guide-callout"style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">

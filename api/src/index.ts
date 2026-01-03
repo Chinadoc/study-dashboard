@@ -2027,6 +2027,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND ? BETWEEN year_start AND year_end
                 ORDER BY created_at DESC LIMIT 1
               `).bind(make, model, y).first();
+
+              // 3. Fetch Programming Pearls (New Research Automation)
+              const pearlsResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM vehicle_pearls
+                WHERE LOWER(make) = ? AND LOWER(model) = ?
+                AND ? BETWEEN year_start AND year_end
+                ORDER BY display_order ASC
+              `).bind(make, model, y).all();
+              pearls = pearlsResult.results || [];
             }
           }
 
@@ -2035,7 +2044,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             total,
             rows: dataResult.results || [],
             alerts,
-            guide
+            guide,
+            pearls: pearls || [] // Include pearls in the response
           }), {
             headers: {
               "content-type": "application/json",
