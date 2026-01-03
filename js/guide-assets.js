@@ -178,61 +178,65 @@ window.getGuideAsset = function (make, model, yearStr) {
         }
 
         // 2. Make-Level Fallback
-        return GUIDE_ASSETS[make] || null;
-    };
+        // This is now reachable even if model specific checks don't return
+    }
 
-    // Open a PDF guide in a new tab
-    window.openPdfGuide = function (pdfUrl, title) {
-        window.open(pdfUrl, '_blank');
-        if (typeof logActivity === 'function') {
-            logActivity('guide_pdf_open', { url: pdfUrl, title: title });
-        }
-    };
+    // Default fallback to make-only guide if no model specific one matched
+    return GUIDE_ASSETS[make] || null;
+};
 
-    // Open an HTML guide by fetching content and rendering inline (bypasses SPA routing)
-    window.openHtmlGuide = function (htmlUrl, title) {
-        const modal = document.getElementById('guideModal');
-        const modalBody = document.getElementById('guideModalBody');
-        const modalTitle = document.getElementById('guideModalTitle');
+// Open a PDF guide in a new tab
+window.openPdfGuide = function (pdfUrl, title) {
+    window.open(pdfUrl, '_blank');
+    if (typeof logActivity === 'function') {
+        logActivity('guide_pdf_open', { url: pdfUrl, title: title });
+    }
+};
 
-        if (modalTitle) modalTitle.textContent = title || 'Programming Guide';
+// Open an HTML guide by fetching content and rendering inline (bypasses SPA routing)
+window.openHtmlGuide = function (htmlUrl, title) {
+    const modal = document.getElementById('guideModal');
+    const modalBody = document.getElementById('guideModalBody');
+    const modalTitle = document.getElementById('guideModalTitle');
 
-        // Show loading state
-        modalBody.innerHTML = `
+    if (modalTitle) modalTitle.textContent = title || 'Programming Guide';
+
+    // Show loading state
+    modalBody.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: var(--text-muted);">
             <div style="width: 40px; height: 40px; border: 3px solid var(--border); border-top: 3px solid var(--brand-primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
             <p style="margin-top: 16px;">Loading guide...</p>
         </div>
         <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
     `;
-        modal.style.display = 'flex';
+    modal.style.display = 'flex';
 
-        // Fetch the HTML content and render inline
-        fetch(htmlUrl)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.text();
-            })
-            .then(html => {
-                // Regex fallback for body extraction (DOMParser was stripping images)
-                const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
-                let scopedStyles = '';
-                if (styleMatch) {
-                    scopedStyles = styleMatch.join('\n');
-                }
+    // Fetch the HTML content and render inline
+    fetch(htmlUrl)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.text();
+        })
+        .then(html => {
+            // Regex fallback for body extraction (DOMParser was stripping images)
+            const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+            let scopedStyles = '';
+            if (styleMatch) {
+                scopedStyles = styleMatch.join('\n');
+            }
 
-                const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-                const bodyContent = bodyMatch ? bodyMatch[1] : html;
+            const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            const bodyContent = bodyMatch ? bodyMatch[1] : html;
 
-                console.log('Guide Loaded (Regex):', title);
-                console.log('Body Content Length:', bodyContent.length);
+            console.log('Guide Loaded (Regex):', title);
+            console.log('Body Content Length:', bodyContent.length);
 
-                // Debug if images are still missing
-                if ((bodyContent.match(/<img/g) || []).length === 0) {
-                    console.warn('WARNING: No images found even with Regex. Raw content check:', html.includes('<img'));
-                }
+            // Debug if images are still missing
+            if ((bodyContent.match(/<img/g) || []).length === 0) {
+                console.warn('WARNING: No images found even with Regex. Raw content check:', html.includes('<img'));
+            }
 
-                modalBody.innerHTML = `
+            modalBody.innerHTML = `
                 <div class="guide-content-wrapper" style="
                     max-height: calc(100vh - 140px); 
                     overflow-y: auto; 
@@ -259,10 +263,10 @@ window.getGuideAsset = function (make, model, yearStr) {
                     </a>
                 </div>
             `;
-            })
-            .catch(error => {
-                console.error('Failed to load guide:', error);
-                modalBody.innerHTML = `
+        })
+        .catch(error => {
+            console.error('Failed to load guide:', error);
+            modalBody.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: var(--text-muted);">
                     <p style="font-size: 2rem; margin-bottom: 16px;">📄</p>
                     <p style="margin-bottom: 16px;">Guide could not be loaded</p>
@@ -272,22 +276,22 @@ window.getGuideAsset = function (make, model, yearStr) {
                     </a>
                 </div>
             `;
-            });
+        });
 
-        if (typeof logActivity === 'function') {
-            logActivity('guide_html_open', { url: htmlUrl, title: title });
-        }
-    };
+    if (typeof logActivity === 'function') {
+        logActivity('guide_html_open', { url: htmlUrl, title: title });
+    }
+};
 
-    // Open infographic in lightbox
-    window.openInfographic = function (imgUrl, title) {
-        const modal = document.getElementById('guideModal');
-        const modalBody = document.getElementById('guideModalBody');
-        const modalTitle = document.getElementById('guideModalTitle');
+// Open infographic in lightbox
+window.openInfographic = function (imgUrl, title) {
+    const modal = document.getElementById('guideModal');
+    const modalBody = document.getElementById('guideModalBody');
+    const modalTitle = document.getElementById('guideModalTitle');
 
-        if (modalTitle) modalTitle.textContent = title || 'Quick Reference';
+    if (modalTitle) modalTitle.textContent = title || 'Quick Reference';
 
-        modalBody.innerHTML = `
+    modalBody.innerHTML = `
         <div style="text-align: center; max-height: 80vh; overflow: auto;">
             <img src="${imgUrl}" 
                  alt="${title || 'Infographic'}" 
@@ -297,7 +301,7 @@ window.getGuideAsset = function (make, model, yearStr) {
         </div>
     `;
 
-        modal.style.display = 'flex';
-    };
+    modal.style.display = 'flex';
+};
 
-    console.log('✅ Premium guide assets loaded:', Object.keys(GUIDE_ASSETS).length, 'makes');
+console.log('✅ Premium guide assets loaded:', Object.keys(GUIDE_ASSETS).length, 'makes');

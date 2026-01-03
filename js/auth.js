@@ -19,7 +19,7 @@ window.isAuthExpired = false; // Global lock to stop console spam on 401
 window.updateProUI = function () {
     // 1. Calculate status from global user object
     const user = window.currentUser;
-    window.isPro = user && (user.is_pro || (user.trial_until && user.trial_until > Date.now() / 1000));
+    window.isPro = !!(user && (user.is_pro || (user.trial_until && user.trial_until > Date.now() / 1000)));
 
     console.log('updateProUI: Status updated. isPro=', window.isPro);
 
