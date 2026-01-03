@@ -2569,6 +2569,42 @@
             padding: 24px;
         }
 
+        /* Mobile-responsive guide modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95% !important;
+                width: 95% !important;
+                padding: 12px;
+                border-radius: 12px;
+                max-height: 85vh;
+            }
+
+            .modal-body {
+                padding: 12px !important;
+            }
+
+            .guide-content-wrapper {
+                padding: 12px !important;
+            }
+
+            .guide-content-wrapper img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            .guide-content-wrapper table {
+                display: block;
+                overflow-x: auto;
+                width: 100% !important;
+            }
+
+            .guide-content-wrapper pre {
+                overflow-x: auto;
+                max-width: 100%;
+                font-size: 0.75rem;
+            }
+        }
+
         .modal-close {
             position: absolute;
             top: 12px;
