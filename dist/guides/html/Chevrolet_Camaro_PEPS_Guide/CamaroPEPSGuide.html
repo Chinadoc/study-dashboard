@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2018 Chevrolet Camaro PEPS Key Programming Guide</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e5e7eb;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            color: #9ca3af;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin: 4px;
+        }
+
+        .badge-red {
+            background: #ef4444;
+            color: white;
+        }
+
+        .badge-green {
+            background: #22c55e;
+            color: white;
+        }
+
+        .badge-blue {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .critical-alert {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.1));
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .critical-alert h3 {
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .critical-alert ul {
+            margin-left: 24px;
+        }
+
+        .critical-alert li {
+            margin-bottom: 8px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #60a5fa;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h3 {
+            color: #93c5fd;
+            font-size: 1.1rem;
+            margin: 16px 0 12px 0;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .spec-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .spec-card .label {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .spec-card .value {
+            color: #22c55e;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .part-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .part-table th,
+        .part-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .part-table th {
+            background: rgba(0, 0, 0, 0.3);
+            color: #93c5fd;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .part-table td {
+            font-size: 0.95rem;
+        }
+
+        .part-table tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        .step-list li {
+            position: relative;
+            padding: 16px 16px 16px 60px;
+            margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .warning-box {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .warning-box strong {
+            color: #fbbf24;
+        }
+
+        .troubleshoot-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .troubleshoot-table th,
+        .troubleshoot-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .troubleshoot-table th {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .troubleshoot-table td:first-child {
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .tool-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .tool-card h4 {
+            color: #22c55e;
+            margin-bottom: 8px;
+        }
+
+        .tool-card p {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #fbbf24;
+        }
+
+        .highlight {
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        .important {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 2018 Chevrolet Camaro</h1>
+            <p class="subtitle">PEPS Key Programming - Technical Guide for Professional Locksmiths</p>
+            <div style="margin-top: 12px;">
+                <span class="badge badge-green">Global A Architecture</span>
+                <span class="badge badge-blue">Aftermarket Friendly</span>
+                <span class="badge badge-red">10-Min Security Wait</span>
+            </div>
+        </div>
+
+        <div class="critical-alert">
+            <h3>🚨 CRITICAL: Before You Start</h3>
+            <ul>
+                <li><strong class="important">Programming Slot Location:</strong> REAR cup holder - NOT front!</li>
+                <li>Fobs are <strong>433 MHz ONLY</strong> - 315 MHz will NOT work</li>
+                <li>FCC ID must be <code>HYQ4EA</code> - no exceptions</li>
+                <li>Used keys require <strong>unlocking</strong> before reprogramming</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>📋 Hardware Specifications</h2>
+            <div class="specs-grid">
+                <div class="spec-card">
+                    <div class="label">FCC ID</div>
+                    <div class="value">HYQ4EA</div>
+                </div>
+                <div class="spec-card">
+                    <div class="label">Frequency</div>
+                    <div class="value">433 MHz</div>
+                </div>
+                <div class="spec-card">
+                    <div class="label">Chip</div>
+                    <div class="value">ID46 (PCF7937E)</div>
+                </div>
+                <div class="spec-card">
+                    <div class="label">Keyway</div>
+                    <div class="value">HU100</div>
+                </div>
+                <div class="spec-card">
+                    <div class="label">Battery</div>
+                    <div class="value">CR2032</div>
+                </div>
+                <div class="spec-card">
+                    <div class="label">Lishi Tool</div>
+                    <div class="value">HU100 8-Cut</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔑 Key Configurations by Body Style</h2>
+            <table class="part-table">
+                <thead>
+                    <tr>
+                        <th>Configuration</th>
+                        <th>Buttons</th>
+                        <th>OEM Part Numbers</th>
+                        <th>Strattec</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Coupe w/ Remote Start</strong><br><small>SS, LT, RS trims</small></td>
+                        <td>5</td>
+                        <td>13508769, 13584497, 13529662</td>
+                        <td>5942493</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Convertible</strong><br><small>Has folding top button</small></td>
+                        <td>6</td>
+                        <td>13508780, 13529653</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Base / Manual Trans</strong><br><small>No remote start</small></td>
+                        <td>4</td>
+                        <td>13508771, 13584504, 13529660</td>
+                        <td>5942492</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="warning-box">
+                <strong>⚠️ Note:</strong> 5-button fobs on convertibles will NOT control the top. 6-button fobs on
+                coupes will have an inactive top button.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Method A: Add Key (Onboard - Need 2 Working Keys)</h2>
+            <p style="margin-bottom: 16px; color: #9ca3af;">No tokens needed. Works when customer has 2 existing keys
+                and wants a spare.</p>
+            <ol class="step-list">
+                <li>Place <strong class="highlight">both working keys</strong> in the <strong class="important">REAR cup
+                        holder</strong></li>
+                <li>Insert emergency blade into driver door lock. Turn to Unlock <strong class="highlight">5× in 10
+                        seconds</strong></li>
+                <li>Dashboard shows: <code>"Ready for Remote #3"</code></li>
+                <li>Remove working keys. Place <strong>new key</strong> in rear cup holder</li>
+                <li>Press <strong>ENGINE START</strong> button once. Wait for confirmation</li>
+                <li><strong class="important">Hold START button 12 seconds</strong> to save and exit</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Method B: All Keys Lost (Diagnostic Tool)</h2>
+            <p style="margin-bottom: 16px; color: #9ca3af;">Requires Autel IM608, Smart Pro, or Lonsdor K518. System
+                will erase all previous keys.</p>
+            <ol class="step-list">
+                <li>Connect diagnostic tool to OBD-II. Ensure battery >12.5V (use external supply)</li>
+                <li>Navigate: <code>GM → Chevrolet → Camaro → 2018 → Smart Key</code></li>
+                <li>Select <strong>"Read Password"</strong> - tool retrieves 4-digit PIN from BCM</li>
+                <li><strong class="important">Wait 10-12 minutes</strong> for security timer (this is normal!)</li>
+                <li>Place new key in <strong class="important">REAR cup holder</strong>. Press START button</li>
+                <li>Repeat for additional keys, removing previous key first</li>
+                <li><strong class="important">Hold START button 12 seconds</strong> to finalize</li>
+            </ol>
+            <div class="warning-box">
+                <strong>⚠️ Security Timer:</strong> Dashboard may go dark. Progress bar may sit at 0% for 10 minutes.
+                This is anti-theft protection - do NOT disconnect!
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ Compatible Tools</h2>
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <h4>Autel IM608</h4>
+                    <p>Full support. Read PIN, AKL, Add Key. No token for Global A.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>Smart Pro</h4>
+                    <p>ADS2279 (GM 2018) + ADS2282 (PIN). Uses 1 token per session.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>Lonsdor K518</h4>
+                    <p>Full support. K518 Pro or ISE versions with GM software.</p>
+                </div>
+                <div class="tool-card">
+                    <h4>VVDI Key Tool</h4>
+                    <p>Generate keys under ID46 433MHz. Ensure "Proximity" is selected.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Troubleshooting</h2>
+            <table class="troubleshoot-table">
+                <thead>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>"No Remote Detected"</td>
+                        <td>Key in wrong slot / dead battery / RF interference</td>
+                        <td>Move key to REAR cup holder. Replace CR2032. Unplug USB chargers</td>
+                    </tr>
+                    <tr>
+                        <td>PIN Read Fails (Error 11 23)</td>
+                        <td>BCM hung from previous session</td>
+                        <td>Disconnect battery 2 minutes. Retry</td>
+                    </tr>
+                    <tr>
+                        <td>Tool Can't Connect</td>
+                        <td>BCM in deep sleep</td>
+                        <td>Turn hazards ON, flash high beams, press brake, open/close door</td>
+                    </tr>
+                    <tr>
+                        <td>Key Won't Program</td>
+                        <td>Used key still locked to previous vehicle</td>
+                        <td>Unlock key with VVDI/Renewal adapter before programming</td>
+                    </tr>
+                    <tr>
+                        <td>Programming Success but No Start</td>
+                        <td>Didn't hold START 12 seconds</td>
+                        <td>Repeat procedure and finalize properly</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📊 Global A vs Global B</h2>
+            <p style="margin-bottom: 16px;">The 2018 Camaro uses <strong class="highlight">Global A</strong> - the last
+                year before the locked Global B architecture.</p>
+            <table class="part-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Global A (2018)</th>
+                        <th>Global B (2019+)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Aftermarket Tools</td>
+                        <td class="highlight">✅ Full Support</td>
+                        <td style="color: #ef4444;">⚠️ Limited/CAN-FD Required</td>
+                    </tr>
+                    <tr>
+                        <td>Online Auth</td>
+                        <td class="highlight">Not Required</td>
+                        <td style="color: #ef4444;">Required</td>
+                    </tr>
+                    <tr>
+                        <td>Dealer Tool</td>
+                        <td class="highlight">Optional</td>
+                        <td style="color: #ef4444;">Often Required</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; padding: 24px; color: #6b7280; font-size: 0.85rem;">
+            <p>Euro Keys Professional Locksmith Database</p>
+            <p>Data verified from OEM sources, FCC filings, and professional locksmith experience</p>
+        </div>
+    </div>
+</body>
+
+</html>

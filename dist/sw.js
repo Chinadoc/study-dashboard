@@ -1,5 +1,5 @@
-// v31 - Force Clean Cache Rebuild
-const CACHE_NAME = 'euro-keys-v36-clean-rebuild';
+// v37 - Fix Refresh Loop
+const CACHE_NAME = 'euro-keys-v37-fix';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -39,13 +39,6 @@ self.addEventListener('activate', (event) => {
         }).then(() => {
             // Claim all clients immediately
             return self.clients.claim();
-        }).then(() => {
-            // Notify all clients to reload for the update
-            return self.clients.matchAll().then((clients) => {
-                clients.forEach((client) => {
-                    client.postMessage({ type: 'SW_UPDATED', version: CACHE_NAME });
-                });
-            });
         })
     );
 });

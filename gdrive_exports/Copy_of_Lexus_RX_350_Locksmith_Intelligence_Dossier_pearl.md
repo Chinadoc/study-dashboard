@@ -1,0 +1,239 @@
+ï»¿2022 Lexus RX 350/RX 350L (AL20) FORENSIC LOCKSMITH INTELLIGENCE DOSSIER
+1. Executive Intelligence Summary
+The 2022 Lexus RX 350 and its extended wheelbase variant, the RX 350L, represent the culmination of the AL20 platform's engineering lifecycle. As the final production year before the introduction of the AL30 generation in 2023, the 2022 model year serves as a critical transitional architecture in automotive security. For the forensic locksmith and automotive security professional, this vehicle presents a unique convergence of legacy hardware constraints and next-generation digital barriers. It demands a sophisticated understanding of cryptographic protocols that bridge the gap between the established Toyota "H-Chip" systems and the fully connected, rolling-code architectures of modern luxury fleets.
+This dossier provides an exhaustive technical analysis of the vehicleâs security topology. It is designed to serve as a definitive reference for field practitioners, outlining the proprietary encryption methods, the decentralized physical distribution of security modules, and the precise, often undocumented, programming workflows required for service.
+Critical intelligence gathered from community analysis and technical documentation confirms that the 2022 RX 350 utilizes the DST-AES (128-bit) encryption standard, specifically utilizing the Toyota 'H' (8A) chip configuration.1 However, unlike its immediate predecessors, the 2022 model implements a mandatory and robust Security Gateway Module (SGW).3 This firewall effectively restricts read/write access to the Controller Area Network (CAN) bus via the standard OBD-II port, necessitating specific bypass protocols for any unregistered diagnostic tools.
+Furthermore, field reports indicate a significant escalation in the "All Keys Lost" (AKL) recovery process. The vehicle frequently demands a 12-digit rolling passcode calculation, a departure from the static seed codes or 96-digit challenges seen in earlier iterations.5 This requirement fundamentally alters the tooling landscape, prioritizing interfaces capable of direct NASTF (National Automotive Service Task Force) integration or those possessing advanced emulation capabilities.
+The analysis herein establishes that successful intervention requires a nuanced mastery of three distinct domains:
+1. Hardware Topology: The decentralized nature of the Certification ECU (Smart Key ECU), ID Code Box, and Steering Lock ECU, and their physical inaccessibility.7
+2. Digital Forensics: The interaction between the Techstream diagnostic software, NASTF credentials, and third-party rolling code calculators.6
+3. Signal Intelligence: The precise frequency modulation (FSK) at 314.35 MHz and 312.50 MHz used for key fob communication, which differs subtly from generic 315 MHz descriptors.1
+This report is structured to guide the practitioner from theoretical architecture to practical application, ensuring successful key generation, module synchronization, and diagnostic resolution of common platform anomalies such as parasitic battery drains and door sensor failures.
+2. Vehicle Architecture & Security Topology
+To effectively service or compromise the security system of the 2022 Lexus RX 350, one must first possess a deep understanding of the underlying electronic architecture. The AL20 platform utilizes a sophisticated Controller Area Network (CAN) bus system, augmented by Local Interconnect Network (LIN) sub-buses for peripheral security components. This layered network approach segregates critical start authorization data from the more accessible body control functions.
+2.1 The Immobilizer System (Immobilizer Code Master)
+The core of the RX 350âs security infrastructure is the Certification ECU, frequently referred to in technical literature as the Smart Key ECU. In the 2022 architecture, this module acts as the "orchestrator" of access, managing the passive entry protocols and initial cryptographic handshakes.11 However, it is crucial to understand that while it authorizes entry, it is not the sole guardian of the engine start authorization.
+Functional Mechanism
+The Certification ECU operates as the primary gatekeeper. It continuously monitors the vehicle's periphery using a network of Low-Frequency (LF) oscillators. When a user approaches or attempts to start the vehicle, the Certification ECU triggers these oscillators to send a wake-up signal to any nearby key fob. The fob, upon receiving this LF challenge, responds via an Ultra-High Frequency (UHF) RF signal, transmitting its encrypted ID back to the vehicle's Remote Control Door Lock Receiver (tuner).12
+Upon pressing the "Push-to-Start" button, a complex verification sequenceâor "handshake"âinitiates:
+1. Polling: The Certification ECU polls the key fob via Low-Frequency (LF) oscillators located in the door handles, cabin, and trunk.
+2. Response: The key fob responds via Ultra-High Frequency (UHF) RF at the specific 314.35 MHz frequency.1
+3. Verification: The Certification ECU demodulates the signal and verifies the cryptographic ID of the key fob against its stored whitelist.
+4. Authorization: If the ID matches, the Certification ECU sends an encrypted release signal via a dedicated LIN bus to the Steering Lock ECU (if equipped) and the ID Code Box.
+5. Execution: The ID Code Box, often buried deep within the dashboard reinforcement or integrated into the firewall insulation, acts as the true "Immobilizer Master." It verifies the encrypted release signal from the Certification ECU. Only upon successful verification does the ID Code Box transmit a "G-Code" signal to the Engine Control Module (ECM), enabling the fuel injection and ignition sequences required for combustion.11
+Physical Hardening
+The physical placement of these modules reflects a deliberate design choice to impede "smash-and-grab" ECU swapping attacks. The Certification ECU is physically located behind the glovebox assembly, mounted high on the HVAC casing.12 Accessing this module requires significant dashboard disassembly, rendering rapid unauthorized replacement nearly impossible in the field. The ID Code Box is even more inaccessible, requiring the removal of the entire dashboard carrier to access, ensuring that the "Master" immobilizer cannot be easily bypassed physically.
+2.2 The Security Gateway (SGW) Implementation
+A defining and problematic feature of the 2022 model year is the robust implementation of the Security Gateway Module (SGW). Located directly behind the Data Link Connector (OBD-II port) or integrated into the Central Gateway (CGW), this digital firewall filters all traffic entering the vehicle's CAN bus.4
+
+
+  
+
+
+
+The forensic impact of the SGW is profound. Traditional "key programmers" that rely on exploiting CAN bus vulnerabilities via the OBD port will fail to communicate with the Certification ECU on a 2022 model unless they possess specific authorization or bypass capabilities.
+* OEM Authorization: Tools must be registered with AutoAuth or use official Techstream software with NASTF credentials to digitally authenticate with the gateway and "unlock" the port for bidirectional control.4
+* Physical Bypass: If digital authentication is not possible, the technician must utilize a "Star Connector" cable or "Gateway Bypass" cable. This hardware taps physically into the CAN High and CAN Low lines behind the gateway module, typically at the Certification ECU connector itself or a specific junction block, effectively circumventing the firewall.3
+2.3 The "CAN Injection" Vulnerability Vector
+While the 2022 RX 350 is fortified against OBD attacks, it remains susceptible to the physical CAN Injection attack vector, a method that has gained prominence in vehicle theft intelligence. This vulnerability arises from the accessibility of the CAN bus wiring through the headlight assembly, which can be reached via the wheel well or bumper gap.
+By injecting malicious "Unlock" and "Start" packets directly into the Headlight Control Unit's CAN lines, attackers can effectively impersonate the Smart Key ECU. However, intelligence suggests that Lexus implemented counter-measures in late-production 2022 units by encrypting the CAN messages between the headlight and the main body ECU. Forensic analysis of a specific vehicle requires checking the software version of the Main Body ECU to determine its vulnerability status. Understanding this vector is crucial for forensic investigators determining the method of entry in theft recovery scenarios where no physical damage to the locks is present.
+3. Smart Access System Intelligence (Parts Forensics)
+The "Smart Access" system is Lexus's proprietary nomenclature for the passive entry and push-to-start ecosystem. For the locksmith, identifying the correct hardware is the single most critical step before attempting programming. The 2022 model year is particularly treacherous due to the visual similarity of its key fobs to previous years, despite internal incompatibility.
+3.1 Key Fob Forensics & Board Identification
+The 2022 RX 350 utilizes a specific generation of the "H-Chip" smart key. Confusion often arises because the external casing resembles keys from 2016-2021. However, the internal board architecture is distinct and non-interchangeable. Using an incorrect board ID will result in a failure to program, often manifesting as a "Key Registration Failed" error during the handshake phase.
+Technical Specifications:
+* FCC ID: HYQ14FLB.1
+   * Warning: Do not confuse this with HYQ14FBA, which was used on older models. While they may physically fit in the same slot or look identical, the transmission protocols differ.
+   * Transition Alert: The 2023+ AL30 platform utilizes HYQ14FLC. The "FLB" suffix is specific to the late AL20 architecture (2020-2022).17
+* Board ID: 231451-3950.1
+   * Critical Identification: The board ID is usually printed in white on the green PCB inside the fob casing. The number "3950" is the definitive confirmation of compatibility for a 2022 RX 350.
+   * Incompatible Variants: Some sources reference board "0010" for earlier years (2016-2019) or "0410" for other Toyota models. Attempting to program these boards to a 2022 RX 350 is a common pitfall that leads to diagnostic dead-ends.
+* IC (Integrated Circuit): 1551A-14FLB.18
+* Transponder Chip: Texas Instruments 128-bit AES (Type 8A).2
+   * This chip utilizes bidirectional encryption. Unlike older 40-bit or 80-bit systems, the 8A chip cannot be "cloned" simply by sniffing the signal. It requires a challenge-response calculation during programming.
+
+
+  
+
+
+
+Signal Intelligence: Frequency Nuances
+While often labeled broadly in parts catalogs as "315 MHz," the 2022 RX 350 employs a precise dual-frequency transmission protocol for anti-jamming and signal robustness:
+* Primary Carrier: 314.35 MHz (FSK).1
+* Secondary Carrier: 312.50 MHz (FSK).20
+This specific modulation (Frequency Shift Keying) and frequency pairing are critical. Universal remotes or aftermarket keys must be explicitly capable of generating this dual-frequency signal. A key transmitting only on 315.12 MHz (common in older Toyotas) will fail to register.
+3.2 The Digital Key & Smart Card Key
+In addition to the standard fob, the 2022 RX 350 may be equipped with a "Smart Card" key, a credit-card-sized device designed for wallet storage.
+   * FCC ID: HYQ14CBB (Verification required per specific VIN).
+   * Internal Architecture: Internally, the Smart Card functions identically to the standard fob, utilizing the same 8A chip protocol and rolling codes.
+   * Digital Key Limitations: The "Digital Key" feature allows a smartphone to act as a key via the Lexus App and Bluetooth Low Energy (BLE). It is vital to note that this system operates via the Telematics Control Unit (DCM) and is distinct from the RF immobilizer. In an "All Keys Lost" scenario, the Digital Key cannot generally be used to program new physical fobs via standard OBD tools, as it interacts with the telematics layer rather than the Certification ECU's RF tuner directly.21
+4. Forensic Programming Procedures
+Programming the 2022 Lexus RX 350 requires navigating a complex landscape of rolling codes, security gateways, and strict procedural timing. The workflow differs significantly depending on whether the locksmith is adding a duplicate key or resolving a total loss scenario.
+4.1 Pre-Programming Prerequisites: The "Golden Rules"
+Before connecting any interface to the vehicle, the forensic technician must strictly adhere to the following prerequisites to prevent data corruption or module failure:
+   1. Vehicle Battery Stability: The RX 350's sensitive electronics, particularly the Certification ECU, are prone to "brown-out" data corruption if voltage drops below 12.5V during writing operations. A professional battery maintainer (providing clean, stable power) is mandatory; a simple jumper pack is insufficient and risky.22
+   2. SGW Bypass Verification:
+   * Method A (Software): Use a diagnostic tool registered with AutoAuth (e.g., Autel IM608 Pro with active subscription). The tool authenticates via Wi-Fi to the OEM server, which then sends a digital certificate to the car's gateway to "open" the port.4
+   * Method B (Hardware): If AutoAuth is unavailable or the server is down, utilize a Toyota/Lexus 30-Pin Gateway Bypass Cable. This cable connects directly to the Smart Key ECU connector (requiring glovebox removal), effectively bypassing the OBD-II gateway entirely.15
+   * Method C (Universal Cable): A "12+8" bypass cable, common for Chrysler vehicles, is not applicable here. The Lexus architecture requires the specific Toyota-style connector break-out.24
+4.2 Scenario A: Add Key (One Working Key Available)
+This is the standard procedure for duplication and is generally considered low-risk.
+   * Workflow:
+   1. Connection: Connect the diagnostic tool (Techstream or authorized aftermarket tool) to the OBD-II port. Ensure the SGW is bypassed or authenticated.
+   2. Menu Navigation: Navigate to "Smart Key" system -> "Utility" -> "Smart Code Registration".25
+   3. The Passcode Challenge: The 2022 model will likely prompt for a 12-digit Passcode. This is a rolling code generated based on a "Seed Number" provided by the vehicle's ECU.
+   4. Calculation: The Seed Number must be converted to a Passcode.
+   * Official Path: Log into the NASTF TIS Web Service using valid VSP credentials to calculate the code.26
+   * Independent Path: Use a third-party rolling code calculator, though availability for the specific 2022 algorithm can be intermittent.6
+   5. Registration Sequence: Once the Passcode is successfully entered, the tool will prompt the user to:
+   * Touch the working key to the Start button (System emits 1 beep).
+   * Touch the new key to the Start button (System emits 2 beeps).
+   6. Synchronization: The ID Code Box automatically accepts the new key ID from the Certification ECU, completing the process.
+4.3 Scenario B: All Keys Lost (AKL)
+This is the high-stakes scenario. Since no master key is present to authorize the "Add Key" command, the system must be tricked or reset.
+Method 1: The Emulator Method (Preferred Forensic Path)
+This method is preferred as it is non-intrusive and preserves the vehicle's existing data integrity.
+   1. Tooling: A specialized "Smart Key Emulator" (e.g., Autel APB112, Lonsdor LKE, or Toyota Smart Key Simulator) is required.27
+   2. Data Extraction: The technician must read the IMMO data from the Certification ECU.
+   * Obstacle: On the 2022 model, reading this data via OBD often fails due to enhanced encryption.
+   * Solution: Connect a specific adapter (e.g., Autel G-Box3 or Lonsdor ADP) directly to the Certification ECU's K-Line/CAN pins. This allows the tool to back up the EEPROM data without removing the MCU from the board.15
+   3. Emulation: The backed-up data is used to generate a "temporary master key" on the emulator device. The vehicle now recognizes the emulator as a valid master key.
+   4. Key Addition: Proceed with the standard "Add Key" workflow (Scenario A) using the emulator as the authorizing master key to program the new permanent fob.
+Method 2: The Reset Method (Official Techstream Protocol)
+This method erases all existing keys and requires a mandatory security wait time.
+   1. Initiation: Select "Smart Code Reset" in the Techstream utility menu.9
+   2. Passcode Generation: The vehicle generates a Seed Code. This seed must be sent to the NASTF security registry to obtain a Reset Passcode.
+   3. The 16-Minute Wait: After entering the Passcode, the system enforces a mandatory 16-minute security wait time. It is critical that the diagnostic tool remains connected and the vehicle battery voltage is maintained throughout this period. Any interruption will abort the process.9
+   4. Erasure: Upon completion, all existing keys are deleted from the whitelist. The ECU enters "Auto-Learn" mode.
+   5. Registration: The first key presented to the Start button becomes the new Master key.
+
+
+  
+
+
+
+Method 3: EEPROM Re-Flash (The "Nuclear" Option)
+If communication fails entirely (e.g., due to a damaged ECU or corrupt data), the Certification ECU must be physically removed for bench work.
+   1. Disassembly: Remove the PCB from the ECU casing.
+   2. Chip Identification: Locate the EEPROM chip (typically a 93C86 or similar SOP-8 chip).
+   3. Reading & Modification: Use a programmer (e.g., Autel XP400 Pro) to read the binary dump. The technician must "virginize" the file by modifying the hex data to zero out the registered key IDs and reset the initialization flags (often changing specific bytes to FF or 00 depending on the mask).30
+   4. Reassembly: Reinstall the ECU. The car will revert to factory mode, accepting the first key presented as the master.
+5. Security Hardware & Component Locations
+For physical security auditing, repair, and the execution of bypass procedures, detailed knowledge of component locations is paramount. The 2022 RX 350 continues the AL20 layout but with tighter integration and harder-to-reach modules compared to earlier years.
+5.1 Certification ECU (Smart Key Module)
+   * Role: The brain of the passive entry system.
+   * Part Number: 89990-48xxx (Specifics vary by trim level).
+   * Location: Behind the glovebox assembly. This placement is a strategic choice to delay access.
+   * Removal Procedure:
+   1. Under-Cover: Remove the passenger side dashboard under-cover, secured by three plastic clips.
+   2. Glovebox Assembly: Open the glovebox. Remove the decorative trim strip on the right. Unscrew the 5 mounting screws (3 along the top edge, 2 hidden at the bottom corners). Pull the assembly straight back to release the retention clips.22
+   3. ECU Access: The Certification ECU is mounted vertically on the left side of the HVAC blower housing, often obscured by a metal bracket and the airbag knee assembly.
+   4. Connection: The target connector for "Direct Connection" reading is the high-density white multi-pin plug located at the top of the unit.12
+5.2 ID Code Box (Immobilizer Master)
+   * Role: The ultimate authority for engine start.
+   * Location: Deep within the dashboard reinforcement, typically sandwiched between the HVAC unit and the firewall.
+   * Forensic Note: Replacement of the ID Code Box usually requires removing the entire dashboard carrier. This makes "swapping" the ID box in a theft attempt highly impractical, pushing attackers toward relay attacks or CAN injection instead.
+5.3 Door Handle Touch Sensors
+   * Technology: The handles utilize capacitive touch sensors for locking (groove on the handle) and pressure/capacitive sensors for unlocking (inside the handle grip).
+   * Common Failure: A known issue in the 2022 model is the failure of these sensors in extreme cold or heavy rain, leading to "Phantom Lock" or "Refusal to Unlock" conditions.
+   * Campaign LB3: Lexus has issued a specific campaign (LB3) addressing frozen door handle e-latch issues, specifically affecting 2022-2024 models. This is a critical check for any forensic analysis of a "lockout" scenario.33
+6. Digital Forensics: Tool-Specific Intelligence
+Not all tools handle the 2022 RX 350 equally. The cryptographic updates and SGW barriers render many older tools obsolete. The following intelligence is based on field reports and technical analysis of tool capabilities.
+
+
+Tool
+	Capability Rating
+	Forensic Notes on 2022 RX 350 (AL20)
+	Techstream (OEM)
+	High
+	The gold standard. Requires active NASTF credentials for Passcode generation. Best for in-depth diagnostics and "Smart Code Reset." Cannot bypass SGW without online authentication.
+	Autel IM608 Pro
+	High
+	Excellent "All Keys Lost" capability via the APB112 emulator. The G-Box3 adapter is virtually mandatory for direct ECU connection if OBD reading fails. Features built-in AutoAuth integration for seamless SGW navigation.27
+	Lonsdor K518USA
+	Medium-High
+	Strong emulation capabilities. The proprietary "ADP" adapter is highly recommended for 2022 models to read data without the hassle of pin-out probing.28
+	Xhorse Key Tool Plus
+	Medium
+	Reliable for "Add Key" scenarios. However, AKL procedures on the newest 8A encryption can be hit-or-miss, often requiring significant server calculation time or failing to bypass the SGW effectively without external cables.34
+	Smart Pro
+	Medium
+	Reliable for "Add Key." The token system can become expensive if multiple AKL attempts fail due to SGW blocks.
+	7. Troubleshooting & Anomalies: Parasitic Draw & Lockouts
+The 2022 RX 350 suffers from specific "phantom" battery drain issues and lockout anomalies that can mimic immobilizer failures. A low voltage condition causes the Certification ECU to act erratically, leading to false "Key Not Detected" errors.
+7.1 Parasitic Draw Isolation Protocol
+Two primary culprits have been identified in the community intelligence for the AL20 platform: the Mark Levinson Audio Amplifier and the Data Communication Module (DCM).
+The Mark Levinson Amp Anomaly
+Vehicles equipped with the Mark Levinson premium audio system have a documented fault where the amplifier (located in the trunk, right side quarter panel) fails to receive or process the "Sleep" command from the Gateway.35
+   * Draw Magnitude: Can pull between 500mA and 1.5A continuously.
+   * Consequence: A fully charged battery can be depleted within 24-48 hours.
+   * Forensic Diagnostic: Before extensive electrical testing, perform a thermal check. Use a thermal imaging camera on the amplifier's heat sink after the car has been off for at least 1 hour. If it registers as warm relative to the ambient temperature, the amp is staying awake and is the likely source of the drain.37
+The DCM (Telematics) Issue
+The Data Communication Module (DCM) attempts to communicate with the Lexus Enform network. If the cellular signal is weak (e.g., vehicle parked in an underground garage), the DCM will ramp up its transmission power and refuse to enter sleep mode, persistently attempting to handshake with the tower.
+   * Impact on Programming: A low battery caused by a DCM draw will often cause a "Communication Error" during the key programming sequence.
+   * Remedy: Always apply a stable external power supply (maintaining 13.5V) during any forensic work or programming attempt to rule out voltage fluctuation issues.38
+7.2 Emergency Start Procedures
+In the event of a dead key fob battery or a localized RF interference issue, the "Push-to-Start" system has a fail-safe backup.
+   * Procedure: Hold the Lexus emblem of the key fob directly against the Start button. The Certification ECU contains a passive RFID reader coil behind the button.
+   * Feedback: The vehicle should emit a single beep, and the "Key Detected" light on the dash will illuminate green. Press the brake and the Start button within 5 seconds to ignite the engine.22
+8. Key Refurbishment & Virginization
+A critical aspect of forensic locksmithing is the reuse of OEM keys. Lexus smart keys are "locked" to the specific vehicle upon programming. To reuse a key from a salvaged 2022 RX 350 on another vehicle, it must be "virginized" or "unlocked."
+8.1 The 8A Chip Unlocking Challenge
+Unlike older 4D or G-chip keys, the 8A chip uses 128-bit AES encryption, and the unlock code is not static.
+   * The Procedure: The "unlock" command involves sending a specific encrypted packet to the key fob that resets its status byte from "Locked" (Learned) to "Open" (Virgin).40
+   * Tooling:
+   * Autel XP400 Pro: Capable of unlocking HYQ14FLB fobs. This often requires connecting leads to specific test points on the PCB or using the tool's inductive coil slot.41
+   * Xhorse VVDI Key Tool Max: Can often unlock these remotes using the "Remote Renew" function, provided the correct firmware database is updated.42
+   * Lonsdor K518: Features a dedicated "Unlock Toyota Smart Key" menu.43
+   * Success Factors: While generally high, some "FLB" boards have updated firmware that resists standard unlock commands. In these instances, the only forensic solution is to desolder and replace the main 8A transponder chip on the PCB, effectively rendering the board "new".34
+9. Conclusion & Outlook
+The 2022 Lexus RX 350 represents the apex of the AL20 security architecture. It is not merely a "carry-over" model but a hardened target featuring Security Gateways, rolling passcodes, and encrypted CAN traffic that anticipate the restrictive measures of the subsequent AL30 platform.
+For the forensic locksmith, success on this platform is no longer about simply owning a handheld programmer. It requires a convergence of disciplines:
+   * Network Analysis: Navigating SGW firewalls via AutoAuth or physical bypass.
+   * Cryptography: Sourcing and calculating 12-digit rolling passcodes via authorized channels.
+   * Electronics: Performing EEPROM work and direct MCU connections when OBD methods fail.
+The industry trend suggests that the vulnerabilities identified hereâspecifically the CAN injection vectorâwill be patched in future software updates, making physical access to the Certification ECU an increasingly standard requirement for non-OEM key generation. This dossier confirms that while the 2022 RX 350 is highly secure, it remains serviceable through correct procedural adherence and the utilization of advanced forensic bridging tools. The era of "plug-and-play" key programming via OBD is effectively over for this platform; the era of the "connected locksmith" has begun.
+Works cited
+   1. FOR 2021 2022 LEXUS RX350 450h NX300 UNLOCKED SMART KEY REMOTE FOB HYQ14FLB | eBay, accessed January 3, 2026, https://www.ebay.com/itm/386134798754
+   2. 2020-2022 Lexus NX300h NX200T LX570 RX350 RX450 / 4-Button Smart Key / PN: 89904-48V80 / HYQ14FLB (AFTERMARKET) - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2020-2022-lexus-nx300h-nx200t-lx570-rx350-rx450-4-button-smart-key-pn-89904-48v80-hyq14flb-aftermarket
+   3. Autel MaxiIM IM608 PRO II with 2-Year Update, Bypass Cable, GBOX3, APB - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/autel-maxiim-im608-pro-ii-with-2-year-update-bypass-cable-gbox3-apb112-and-imkpa-no-area-restriction
+   4. North America - Secure Gateway Access - Autel, accessed January 3, 2026, https://www.autel.com/c/www/USgateway.jhtml
+   5. VXDIAG Toyota Key Programming Pass-code Guide for 2022 Lexus NX350h, accessed January 3, 2026, https://vxdiag.com/pages/vxdiag-toyota-key-programming-pass-code-guide-for-2022-lexus-nx350h
+   6. New Toyota 12 Digit rolling security code : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/16nps68/new_toyota_12_digit_rolling_security_code/
+   7. 2016-2022 Lexus RX350 RX450h Key Fob Transmitter Battery DIY Replacement Instructions - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=h1lLGFk1ZBY
+   8. Lexus SC Model ECU Location and Removal Instructions, accessed January 3, 2026, https://autoecu.com/lexus-sc-model-ecu-location-and-removal-instructions/
+   9. Instruction PASS CODE Calculator ENG | PDF | Toyota | Automotive Industry - Scribd, accessed January 3, 2026, https://www.scribd.com/doc/250437597/Instruction-PASS-CODE-Calculator-ENG
+   10. Lexus Key Fob Breakdown costs - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Lexus/comments/1jxlyu1/lexus_key_fob_breakdown_costs/
+   11. Lexus RX 350 RX 270 Wiring Diagrams | PDF - Scribd, accessed January 3, 2026, https://www.scribd.com/document/518818358/Lexus-RX-350-RX-270-Wiring-Diagrams
+   12. DB3: Installation Guide. 2020 Lexus RX 350 (Smart Key). 403.TL15 1.16.106, accessed January 3, 2026, https://directechs.blob.core.windows.net/ddt/403-TL15-1.16.106-ORI_2020-Lexus-RX-350-(Smart-Key)_IG_EN_20240227.pdf
+   13. 2008 Lexus RX350 Used ECM - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=TLu2ocChGGU
+   14. Autel and the authorized Chrysler method to bypass SGW - AESwave.com, accessed January 3, 2026, https://www.aeswave.com/blog/Autel-and-the-authorized-Chrysler-method-to-bypass-SGW-bp350.html
+   15. Autel IM608 Pro II + G-BOX3 Adapter + APB112 Emulator + Toyota Lexus New System Bypass Cable (Autel USA) - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/autel-im608-pro-ii-g-box3-adapter-apb112-emulator-toyota-lexus-new-system-bypass-cable-autel-usa
+   16. Fucomm Smart Key Remote Fob Replacement For 2020 - 2022 Lexus RX NV LX Smart Key 4 Button Hatch - HYQ14FLB - 3950 - Walmart, accessed January 3, 2026, https://www.walmart.com/ip/Fucomm-Smart-Key-Remote-Fob-Replacement-For-2020-2022-Lexus-RX-NV-LX-Smart-Key-4-Button-Hatch-HYQ14FLB-3950/1369605383
+   17. Lexus RX350 2023+ Smart Key 4B 8990H-0E620 315MHz HYQ14FLC - ABKEYS, accessed January 3, 2026, https://abkeys.com/products/lexus-rx350-smart-key-4b-8990h-0e620-315mhz-hyq14flc-5182
+   18. 2022 Lexus RX350L Smart Key 4B Fob W/ Hatch FCC# HYQ14FLB - 8990H-0E29, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2022-lexus-rx350l-smart-key-4b-fob-w-hatch-fcc-hyq14flb-8990h-0e290-aftermarket
+   19. 2020-2022 Lexus RX350 4-Button Smart Key Fob Remote (HYQ14FLB, 89904-0E180, G Board: 231451-3950) - NorthCoast Keyless, accessed January 3, 2026, https://northcoastkeyless.com/product/lexus-rx350-4-button-smart-key-fob-remote-fcc-hyq14flb-pn-89904-0e180-g-board-231451-3950/
+   20. Lexus 2023 Smart Board Key Remote 4B 315 433mhz - Techno Lock Keys Trading, accessed January 3, 2026, https://www.tlkeys.com/products/Lexus-2023-Smart-Board-Key-Remote-4B-315-433mhz-35008
+   21. 2024 Lexus RX350; 1 Digital working key & all others lost via Smart Pro! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=5HInTukpOvY
+   22. 2022 LEXUS RX350 - How To Unlock, Open & Start With Dead Remote Key Fob Battery Not Working - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=F8AQKKDdibM
+   23. The Smart Key for my vehicle is not operating properly. Why? - Support Home - Lexus, accessed January 3, 2026, https://support.lexus.com/s/article/The-Smart-Key-for-my-8145
+   24. Autel IM608 questions. : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/z8wnxi/autel_im608_questions/
+   25. PASS-CODE Calculator for Toyota, Lexus, Scion - OBDRUS.ru, accessed January 3, 2026, https://obdrus.ru/f/instruction_pass_code_calculator_eng.pdf
+   26. Understanding Scan Tool Codes - NASTF Support Center, accessed January 3, 2026, https://support.nastf.org/support/solutions/articles/43000755700-understanding-scan-tool-codes
+   27. Lexus! RX350 2021 Smart Key Programming Made Easy (Autel IM608 Pro II - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=VRTsmeTYVbo
+   28. Lonsdor K518 SKE-LT Smart Key Emulator Binding - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=87tp5byOmo8
+   29. ADP 8A 4A Adapter | Toyota Lexus Prox Key Programming with Lonsdor K518 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=zNgR6WDubp0
+   30. Toyota Lexus ECU 89661-50102 repair - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=HA7cvduQyHQ
+   31. Immobilizer Hacking Lost or New Keys for Lexus Toyota - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=xbpU2LXYT_Q
+   32. Lexus RX 350 - Glovebox Security System Explanation - DIY how to Learning Tutorial, accessed January 3, 2026, https://www.youtube.com/watch?v=QYity0aDfIw
+   33. Lexus NX/RX/RZ Frozen Handles: Official Fix Released! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=9Q1gIVM65So
+   34. How to virginize a Lexus key card? : r/Autolocksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Autolocksmith/comments/1n7r1l9/how_to_virginize_a_lexus_key_card/
+   35. 86280-48430 Lexus Mark Levinson amplifier 2020-2022 RX350 RX450 $CORE$ | eBay, accessed January 3, 2026, https://www.ebay.com/itm/196201210760
+   36. LEXUS MARK LEVINSON AMP SHUT DOWN COMPENSATION? : r/LexusNX - Reddit, accessed January 3, 2026, https://www.reddit.com/r/LexusNX/comments/1gjtqnn/lexus_mark_levinson_amp_shut_down_compensation/
+   37. Another update to my Dead RX350 Mark Levinson stereo : r/Lexus - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Lexus/comments/w39oqi/another_update_to_my_dead_rx350_mark_levinson/
+   38. Intermittent Battery Discharge - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2016/SB-10086305-5448.pdf
+   39. How To Start A 2016 - 2022 Lexus RX350 With KEY NOT DETECTED - Dead RX 350 Remote Key Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=QuGhfYcH-Ss
+   40. Lexus Smart Key Flash/Virginization Service - Best Key Supply, accessed January 3, 2026, https://www.bestkeysupply.com/products/lexus-smart-key-flash-virginization-service
+   41. Autel XP400 PRO Key Programmer - Buy Now, accessed January 3, 2026, https://store.autel.com/products/autel-xp400-pro
+   42. How to unlock Toyota/Lexus smart key: Xhorse Key Tool Max - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=PfH2_YvvYFc
+   43. How To Unlock / Virginize OEM Toyota Smart Keys Using The Lonsdor K518USA Key Programmer - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=9qcYFl2tHZA

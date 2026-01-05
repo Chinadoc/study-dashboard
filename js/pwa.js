@@ -57,7 +57,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
             // Force fresh SW by using query param
-            const registration = await navigator.serviceWorker.register('/sw.js?v=32');
+            const registration = await navigator.serviceWorker.register('/sw.js?v=37');
             console.log('Service Worker registered:', registration.scope);
 
             // Check for updates immediately and every 5 minutes
@@ -87,11 +87,13 @@ if ('serviceWorker' in navigator) {
         }
     });
 
-    // Listen for SW_UPDATED message from service worker
+    // Listen for SW_UPDATED message from service worker (Deprecated: Auto-reload caused loops)
+    // We now rely on showUpdateBanner() above
     navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'SW_UPDATED') {
-            console.log('Service Worker: Received update notification, reloading...');
-            window.location.reload();
+            console.log('Service Worker: Received update notification');
+            // window.location.reload(); // DISABLED to prevent loops
+            showUpdateBanner();
         }
     });
 }

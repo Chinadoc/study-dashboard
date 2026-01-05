@@ -9,23 +9,17 @@ import json
 import requests
 from datetime import datetime, timedelta
 
-# Paths
-CREDS_PATH = os.path.expanduser("~/.gemini/oauth_creds.json")
+# Paths - Use gdrive_token.json which monitor_and_ingest.py keeps refreshed
+CREDS_PATH = os.path.expanduser("~/Documents/study-dashboard/gdrive_token.json")
 EXPORT_DIR = os.path.expanduser("~/Documents/study-dashboard/gdrive_exports")
 
 def refresh_token_if_needed():
-    """Refresh the access token if expired."""
+    """Get the access token from gdrive_token.json (kept fresh by monitor_and_ingest.py)."""
     with open(CREDS_PATH, 'r') as f:
         creds = json.load(f)
     
-    # Check if token is expired
-    expiry = creds.get('expiry_date', 0)
-    if datetime.now().timestamp() * 1000 > expiry - 60000:  # 1 min buffer
-        print("🔄 Token expired, refreshing...")
-        # Token refresh would need client credentials - for now just warn
-        print("⚠️  Token may need manual refresh. Please re-authenticate if needed.")
-    
-    return creds['access_token']
+    # gdrive_token.json uses 'token' key (not 'access_token')
+    return creds.get('token') or creds.get('access_token')
 
 def list_recent_docs(access_token, hours_back=24):
     """List documents created/modified in the last N hours."""
@@ -85,8 +79,8 @@ def main():
     # Get access token
     access_token = refresh_token_if_needed()
     
-    # List recent documents (last 48 hours)
-    docs = list_recent_docs(access_token, hours_back=48)
+    # List recent documents (last 168 hours / 7 days)
+    docs = list_recent_docs(access_token, hours_back=168)
     
     if not docs:
         print("📭 No recent documents found.")

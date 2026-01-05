@@ -4,6 +4,7 @@
 /images/*  /images/:splat  200
 /assets/*  /assets/:splat  200
 /public/*  /public/:splat  200
+/guides/*  /guides/:splat  200
 
 # Auth endpoints: redirect to Worker directly (browser navigates to Worker, which then redirects to Google)
 /api/auth/*  https://euro-keys.jeremy-samuels17.workers.dev/api/auth/:splat  302

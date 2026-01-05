@@ -6,6 +6,7 @@
     "exclude": [
         "/assets/*",
         "/public/*",
+        "/guides/*",
         "/js/*",
         "/css/*",
         "/images/*"

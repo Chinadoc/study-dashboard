@@ -6,6 +6,14 @@
 if (typeof currentUser === 'undefined') window.currentUser = null;
 if (typeof InventoryManager === 'undefined') window.InventoryManager = { getKeyStock: () => 0, getBlankStock: () => 0, getAllKeys: () => [] };
 
+// Stub for showPremiumModal (defined in auth.js, may not be loaded yet)
+if (typeof showPremiumModal === 'undefined') {
+    window.showPremiumModal = function () {
+        console.log('Premium modal not implemented yet');
+        alert('Premium features coming soon! Contact us for early access.');
+    };
+}
+
 // Lightbox functions for Key Reference images
 function openLightbox(imgSrc) {
     document.getElementById('lightboxImage').src = imgSrc;
@@ -27,7 +35,7 @@ async function loadComments(vehicleKey, containerIdx) {
     if (!container) return;
 
     try {
-        const response = await fetch(`${API}/api/comments?vehicle_key=${encodeURIComponent(vehicleKey)}`);
+        const response = await fetch(`${API}/api/vehicle-comments?vehicle_key=${encodeURIComponent(vehicleKey)}`);
         const data = await response.json();
 
         if (data.comments && data.comments.length > 0) {
@@ -77,7 +85,7 @@ async function postComment(vehicleKey, containerIdx) {
     }
 
     try {
-        const response = await fetch(`${API}/api/comments`, {
+        const response = await fetch(`${API}/api/vehicle-comments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -100,15 +108,1013 @@ async function postComment(vehicleKey, containerIdx) {
     }
 }
 
+// ==============================================
+// LOCKSMITH INTELLIGENCE CARD FUNCTIONS
+// ==============================================
+
+const AMAZON_TAG = 'eurokeys-20';
+
+/**
+ * Parse structured steps from walkthrough data
+ */
+function parseStructuredSteps(guideData) {
+    if (!guideData?.structured_steps_json) return null;
+    if (Array.isArray(guideData.structured_steps_json)) {
+        return guideData.structured_steps_json;
+    }
+    try {
+        return JSON.parse(guideData.structured_steps_json);
+    } catch (e) {
+        console.warn('Failed to parse structured steps:', e);
+        return null;
+    }
+}
+
+/**
+ * Render difficulty stars (1-5)
+ */
+function renderDifficultyStars(level) {
+    const max = 5;
+    const filled = Math.min(Math.max(1, level || 3), max);
+    let html = '<div class="difficulty-stars">';
+    for (let i = 1; i <= max; i++) {
+        html += `<span class="star ${i <= filled ? '' : 'empty'}">★</span>`;
+    }
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Render an affiliate part link with tracking
+ */
+function renderAffiliatePart(part, vehicle = {}) {
+    const { year, make, model } = vehicle;
+    const icons = { fob: '🔑', blade: '🗝️', battery: '🔋', tool: '🔧', lishi: '📐' };
+    const icon = icons[part.type] || '🔧';
+
+    // Build search query based on part type
+    let query = '';
+    switch (part.type) {
+        case 'fob':
+            query = `${year || ''} ${make || ''} ${model || ''} key fob ${part.id}`.trim();
+            break;
+        case 'blade':
+            query = `${part.id} key blank`;
+            break;
+        case 'battery':
+            query = `${part.id} battery 10 pack`;
+            break;
+        case 'tool':
+            query = `${part.id} locksmith programmer`;
+            break;
+        case 'lishi':
+            query = `Lishi ${part.id} pick decoder`;
+            break;
+        default:
+            query = part.id;
+    }
+
+    const url = `https://www.amazon.com/s?k=${encodeURIComponent(query)}&tag=${AMAZON_TAG}`;
+    const trackingData = JSON.stringify({ type: part.type, id: part.id, ...vehicle });
+
+    return `
+        <a href="${url}" target="_blank" 
+           onclick="logActivity('affiliate_click', ${trackingData})"
+           class="part-link">
+            <div class="part-info">
+                <span class="part-icon">${icon}</span>
+                <div>
+                    <div class="part-id">${part.id}</div>
+                    <div class="part-type">${part.type}</div>
+                </div>
+            </div>
+            <span class="part-arrow">→</span>
+        </a>
+    `;
+}
+
+/**
+ * Render premium-gated content
+ * TEMPORARY: Gating disabled - showing all content for development/preview
+ */
+function renderGatedContent(content, isPremium, userHasPremium) {
+    // Disable gating for now - show all content
+    return content;
+
+    /* Re-enable for paywall:
+    if (!isPremium || userHasPremium) {
+        return content;
+    }
+    return `
+        <div class="premium-gate">
+            <div class="premium-gate-content">${content}</div>
+            <div class="premium-gate-overlay">
+                <button class="premium-unlock-btn" onclick="showPremiumModal && showPremiumModal()">
+                    🔒 Unlock with Premium
+                </button>
+            </div>
+        </div>
+    `;
+    */
+}
+
+/**
+ * Render a Locksmith Intelligence Card
+ * @param {Object} walkthrough - Walkthrough data from API
+ * @param {Object} config - Vehicle config data
+ * @param {Object} vehicle - { year, make, model }
+ * @param {Object} options - { isPremiumUser, showAffiliate, cardIndex }
+ */
+function renderIntelCard(walkthrough, config, vehicle, options = {}) {
+    const { isPremiumUser = false, showAffiliate = true, cardIndex = 0 } = options;
+    const { year, make, model } = vehicle;
+
+    // Parse structured data from walkthrough
+    // The structured_steps_json may be a string that needs parsing first
+    let parsed = {};
+    if (typeof walkthrough?.structured_steps_json === 'string') {
+        try {
+            parsed = JSON.parse(walkthrough.structured_steps_json);
+        } catch (e) {
+            console.warn('Failed to parse structured_steps_json:', e);
+        }
+    } else if (typeof walkthrough?.structured_steps_json === 'object') {
+        parsed = walkthrough.structured_steps_json || {};
+    }
+
+
+
+    const quickFacts = parsed.quick_facts || walkthrough?.quick_facts || {};
+    const partsNeeded = parsed.parts_needed || walkthrough?.parts_needed || [];
+    const alerts = parsed.alerts || walkthrough?.alerts || [];
+    const steps = parsed.steps || walkthrough?.steps || [];
+    const proTips = parsed.pro_tips || walkthrough?.pro_tips || [];
+
+    // Sanitize Quick Facts to reject garbage values
+    function sanitizeQuickFactValue(value, fieldType = 'generic') {
+        if (!value || value === 'null' || value === 'undefined') return null;
+        const strVal = String(value).trim();
+        // Reject base64-looking strings (contain + / = and long)
+        if (/[\/+=]/.test(strVal) && strVal.length > 15) return null;
+        // Reject long alphanumeric hashes (> 20 chars of just letters/numbers)
+        if (/^[a-zA-Z0-9]{20,}$/.test(strVal)) return null;
+        // Reject values that are too long for display
+        if (strVal.length > 30) return null;
+        // Field-specific validation
+        if (fieldType === 'chip') {
+            // Only allow known chip patterns
+            if (!/^(NCF|PCF|Hitag|ID4|4[DCEF]|N\/A|Varies)/i.test(strVal) && strVal.length > 15) return null;
+        }
+        return strVal;
+    }
+
+    // Sanitized values for display
+    const displayChip = sanitizeQuickFactValue(quickFacts.chip, 'chip') || config?.chip || 'N/A';
+
+    // NEW: Enhanced structured data
+    const criticalInsights = parsed.critical_insights || [];
+    const dossierSections = parsed.dossier_sections || [];
+    const componentLocations = parsed.component_locations || [];
+    const toolWorkflow = parsed.tool_workflow || [];
+
+    // NEW: Book-style chapters (full document sections)
+    const isBookFormat = parsed.book_format === true;
+    const bookChapters = parsed.chapters || [];
+
+    // Derive data from config if walkthrough is sparse
+    const fccId = config?.fcc_id || walkthrough?.fcc_id || 'N/A';
+    const keyType = config?.config_type || config?.key_type || 'Smart Key';
+    const isVerified = config?.verified || walkthrough?.verified;
+
+    // Build parts from config if not in walkthrough
+    const parts = partsNeeded.length > 0 ? partsNeeded : [
+        { type: 'fob', id: fccId, affiliate: true },
+        { type: 'blade', id: config?.key_blade || config?.keyway || 'N/A', affiliate: true },
+        { type: 'battery', id: config?.battery || 'CR2032', affiliate: true }
+    ].filter(p => p.id && p.id !== 'N/A');
+
+    // Generate unique key for this card
+    const cardKey = walkthrough?.id || walkthrough?.slug || `intel-${make}-${model}-${year}-${cardIndex}`;
+
+    // Store HTML content or URL for modal (multi-tier storage support)
+    if (walkthrough?.full_content_html) {
+        currentWalkthroughHtml = walkthrough.full_content_html;
+        currentWalkthroughUrl = null;
+    } else if (parsed?.html_url) {
+        // Multi-tier storage: fetch HTML from static URL on demand
+        currentWalkthroughUrl = parsed.html_url;
+        currentWalkthroughHtml = null;
+    }
+    currentWalkthroughTitle = walkthrough?.title || `${year} ${make} ${model} Guide`;
+
+    let html = `
+        <div class="intel-card" id="intel-card-${cardKey}">
+            <!-- Card Header -->
+            <div class="intel-card-header">
+                <div class="intel-card-title">
+                    <span>🔑</span>
+                    <span>${year} ${make} ${model} - ${keyType}</span>
+                </div>
+                <div class="intel-card-badges">
+                    ${fccId !== 'N/A' ? `<span class="fcc-badge">${fccId}</span>` : ''}
+                    ${isVerified ? '<span class="verified-badge">✔ Verified</span>' : ''}
+                </div>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="intel-card-body">
+                
+                <!-- Two Column Layout: Quick Facts + Parts -->
+                <div class="intel-grid">
+                    <!-- Quick Facts -->
+                    <div class="quick-facts">
+                        <div class="quick-facts-title">⚡ Quick Facts</div>
+                        <div class="quick-facts-grid">
+                            <div class="quick-fact">
+                                <span class="quick-fact-icon">📊</span>
+                                <div class="quick-fact-content">
+                                    <div class="quick-fact-label">Difficulty</div>
+                                    <div class="quick-fact-value">${renderDifficultyStars(quickFacts.difficulty || 3)}</div>
+                                </div>
+                            </div>
+                            <div class="quick-fact">
+                                <span class="quick-fact-icon">⏱️</span>
+                                <div class="quick-fact-content">
+                                    <div class="quick-fact-label">Time</div>
+                                    <div class="quick-fact-value">~${quickFacts.time_mins || walkthrough?.estimated_time_mins || 30} min</div>
+                                </div>
+                            </div>
+                            <div class="quick-fact">
+                                <span class="quick-fact-icon">🛡️</span>
+                                <div class="quick-fact-content">
+                                    <div class="quick-fact-label">Chip</div>
+                                    <div class="quick-fact-value">${displayChip}</div>
+                                </div>
+                            </div>
+                            <div class="quick-fact">
+                                <span class="quick-fact-icon">${quickFacts.sgw_required ? '⚠️' : '✅'}</span>
+                                <div class="quick-fact-content">
+                                    <div class="quick-fact-label">SGW</div>
+                                    <div class="quick-fact-value" style="color: ${quickFacts.sgw_required ? '#f59e0b' : '#22c55e'};">
+                                        ${quickFacts.sgw_required ? 'Bypass Req' : 'N/A'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Parts Needed -->
+                    ${showAffiliate && parts.length > 0 ? `
+                    <div class="parts-needed">
+                        <div class="parts-needed-title">🛒 What You'll Need</div>
+                        ${parts.map(p => renderAffiliatePart(p, vehicle)).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+    `;
+
+    // ===========================================
+    // NEW: Critical Insights (Actionable Warnings)
+    // ===========================================
+    if (criticalInsights.length > 0) {
+        html += `<div class="critical-insights-section">`;
+        criticalInsights.forEach(insight => {
+            const typeColors = {
+                danger: { bg: 'rgba(239, 68, 68, 0.15)', border: '#ef4444', icon: '🚨' },
+                warning: { bg: 'rgba(245, 158, 11, 0.15)', border: '#f59e0b', icon: '⚠️' },
+                info: { bg: 'rgba(59, 130, 246, 0.15)', border: '#3b82f6', icon: 'ℹ️' }
+            };
+            const style = typeColors[insight.type] || typeColors.warning;
+
+            html += `
+                <div class="critical-insight" style="background: ${style.bg}; border-left: 4px solid ${style.border}; padding: 12px 16px; margin: 8px 0; border-radius: 8px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 1.1rem;">${style.icon}</span>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.85rem; color: ${style.border}; margin-bottom: 4px;">${insight.title || 'Warning'}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.5;">${insight.text}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    }
+
+    // ===========================================
+    // NEW: Tool Walkthrough (Step-by-Step with Tools)
+    // ===========================================
+    if (toolWorkflow.length > 0) {
+        html += `
+            <details class="dossier-section" style="margin-top: 16px;">
+                <summary style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; font-weight: 600; color: var(--text-primary);">
+                    <span>🔧</span>
+                    <span>Tool Walkthrough</span>
+                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">${toolWorkflow.length} steps</span>
+                </summary>
+                <div style="padding: 16px; background: var(--bg-secondary); border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none;">
+        `;
+        toolWorkflow.forEach((step, idx) => {
+            html += `
+                <div class="workflow-step" style="display: flex; gap: 12px; padding: 10px 0; ${idx > 0 ? 'border-top: 1px solid var(--border);' : ''}">
+                    <div style="width: 28px; height: 28px; background: var(--brand-primary); color: var(--bg-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0;">${step.step || idx + 1}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">${step.title}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">${step.description}</div>
+                        ${step.tool ? `<div style="margin-top: 6px;"><span style="background: var(--bg-tertiary); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; color: var(--text-muted);">🔧 ${step.tool}</span></div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div></details>`;
+    }
+
+    // ===========================================
+    // NEW: Collapsible Dossier Sections
+    // ===========================================
+    if (dossierSections.length > 0) {
+        html += `<div class="dossier-sections" style="margin-top: 16px;">`;
+        dossierSections.slice(0, 6).forEach((section, idx) => { // Max 6 sections
+            html += `
+                <details class="dossier-section" style="margin-top: 8px;">
+                    <summary style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; font-weight: 600; color: var(--text-primary);">
+                        <span>${section.icon || '📄'}</span>
+                        <span>${section.title}</span>
+                    </summary>
+                    <div style="padding: 16px; background: var(--bg-secondary); border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                        ${section.content_html || section.summary || 'No content available'}
+                    </div>
+                </details>
+            `;
+        });
+        html += `</div>`;
+    }
+
+    // ===========================================
+    // BOOK FORMAT: Full Document Chapters
+    // ===========================================
+    if (isBookFormat && bookChapters.length > 0) {
+        html += `<div class="book-chapters" style="margin-top: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <span style="font-size: 1.1rem;">📚</span>
+                <span style="font-weight: 600; color: var(--text-primary);">Full Document (${bookChapters.length} Chapters)</span>
+            </div>`;
+
+        bookChapters.forEach((chapter, chapterIdx) => {
+            const sectionCount = chapter.sections?.length || 0;
+            html += `
+            <details class="book-chapter" style="margin-top: 8px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+                <summary style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%); font-weight: 600; color: var(--text-primary);">
+                    <span style="font-size: 1.1rem;">${chapter.icon || '📄'}</span>
+                    <span>${chapter.number}. ${chapter.title}</span>
+                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted); background: var(--bg-primary); padding: 3px 8px; border-radius: 4px;">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+                </summary>
+                <div style="padding: 12px 16px; background: var(--bg-secondary);">`;
+
+            if (chapter.sections && chapter.sections.length > 0) {
+                chapter.sections.forEach((section, secIdx) => {
+                    html += `
+                    <details class="book-subsection" style="margin-top: ${secIdx > 0 ? '8px' : '0'};" ${secIdx === 0 ? 'open' : ''}>
+                        <summary style="cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 6px; font-weight: 500; font-size: 0.9rem; color: var(--text-primary);">
+                            <span style="color: var(--brand-primary); font-weight: 700;">${section.number}</span>
+                            <span>${section.title}</span>
+                        </summary>
+                        <div style="padding: 14px; background: var(--bg-primary); border-radius: 0 0 6px 6px; margin-top: -4px; font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary);">
+                            ${section.content_html || '<p>Content loading...</p>'}
+                        </div>
+                    </details>`;
+                });
+            }
+
+            html += `</div></details>`;
+        });
+
+        html += `</div>`;
+    }
+
+    // ===========================================
+    // NEW: Component Location Table
+    // ===========================================
+    if (componentLocations.length > 0) {
+        html += `
+            <details class="dossier-section" style="margin-top: 16px;">
+                <summary style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; font-weight: 600; color: var(--text-primary);">
+                    <span>📍</span>
+                    <span>Component Locations</span>
+                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">${componentLocations.length} items</span>
+                </summary>
+                <div style="padding: 12px; background: var(--bg-secondary); border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none; overflow-x: auto;">
+                    <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;">
+                        <thead>
+                            <tr style="text-align: left; border-bottom: 2px solid var(--border);">
+                                <th style="padding: 8px; color: var(--text-muted);">Component</th>
+                                <th style="padding: 8px; color: var(--text-muted);">Location</th>
+                                <th style="padding: 8px; color: var(--text-muted);">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${componentLocations.map(c => `
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 8px; font-weight: 600; color: var(--text-primary);">${c.component}</td>
+                                    <td style="padding: 8px; color: var(--text-secondary);">${c.location}</td>
+                                    <td style="padding: 8px; color: var(--text-muted); font-size: 0.75rem;">${c.notes}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        `;
+    }
+
+    // Legacy: Critical Alerts (fallback if no critical_insights)
+    if (alerts.length > 0 && criticalInsights.length === 0) {
+        alerts.slice(0, 3).forEach(alert => {
+            if (!alert.premium || isPremiumUser) {
+                const level = (alert.level || 'info').toLowerCase();
+                const icons = { critical: '🚨', warning: '⚠️', info: 'ℹ️' };
+                html += `
+                    <div class="intel-alert ${level}">
+                        <span class="intel-alert-icon">${icons[level] || 'ℹ️'}</span>
+                        <div class="intel-alert-content">
+                            <div class="intel-alert-title">${level.toUpperCase()}</div>
+                            <div class="intel-alert-text">${alert.text || alert.content}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    // Procedure Steps (collapsible, only if no tool_workflow)
+    if (steps.length > 0 && toolWorkflow.length === 0) {
+        html += `
+            <details class="dossier-section" style="margin-top: 16px;">
+                <summary style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; font-weight: 600; color: var(--text-primary);">
+                    <span>📋</span>
+                    <span>Procedure Steps</span>
+                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">${steps.length} steps</span>
+                </summary>
+                <div style="padding: 16px; background: var(--bg-secondary); border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none;">
+                ${steps.map((step, idx) => `
+                    <div class="procedure-step" style="display: flex; gap: 12px; padding: 8px 0; ${idx > 0 ? 'border-top: 1px solid var(--border);' : ''}">
+                        <div style="width: 24px; height: 24px; background: var(--brand-primary); color: var(--bg-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">${idx + 1}</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">${step.title || `Step ${idx + 1}`}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">${step.description || step.content || ''}</div>
+                        </div>
+                    </div>
+                `).join('')}
+                </div>
+            </details>
+        `;
+    }
+
+    // Pro Tips (collapsible)
+    if (proTips.length > 0) {
+        html += `
+            <details class="dossier-section" style="margin-top: 16px;">
+                <summary style="cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; font-weight: 600; color: var(--text-primary);">
+                    <span>💎</span>
+                    <span>Pro Tips</span>
+                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">${proTips.length}</span>
+                </summary>
+                <div style="padding: 16px; background: var(--bg-secondary); border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none;">
+                ${proTips.map(tip => `
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <span style="color: var(--brand-primary);">•</span>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">${tip.text || tip}</span>
+                    </div>
+                `).join('')}
+                </div>
+            </details>
+        `;
+    }
+
+
+    // Action Bar
+    const youtubeQuery = encodeURIComponent(`${year} ${make} ${model} key programming`);
+    const vehicleKey = `${make}|${model}|${year}`;
+
+    // Community Tips Section (inside Intel Card)
+    html += `
+        <!-- Community Tips Section -->
+        <div id="communityTips-intel-${cardIndex}" class="community-tips-section" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+            <details>
+                <summary style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;">
+                    <span>💬</span>
+                    <span>Community Tips</span>
+                    <span id="commentCount-intel-${cardIndex}" style="background: var(--bg-tertiary); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">...</span>
+                </summary>
+                <div style="margin-top: 12px;">
+                    <div id="commentsContainer-intel-${cardIndex}" style="margin-bottom: 12px;">
+                        <div class="loading" style="font-size: 0.8rem; color: var(--text-muted);">Loading tips...</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="commentInput-intel-${cardIndex}" 
+                               placeholder="Share a tip for this vehicle..." 
+                               style="flex: 1; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 0.85rem;"
+                               maxlength="500">
+                        <button onclick="postComment('${vehicleKey}', 'intel-${cardIndex}')"
+                                style="padding: 8px 16px; background: var(--brand-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                            Post
+                        </button>
+                    </div>
+                </div>
+            </details>
+        </div>
+    `;
+
+    html += `
+                <!-- Action Bar -->
+                <div class="intel-card-actions">
+                    ${walkthrough?.video_url ? `
+                    <a href="${walkthrough.video_url}" target="_blank" class="intel-action-btn video">
+                        📹 Watch Video
+                    </a>
+                    ` : `
+                    <a href="https://youtube.com/results?search_query=${youtubeQuery}" target="_blank" class="intel-action-btn video">
+                        📹 Find Videos
+                    </a>
+                    `}
+                    ${(walkthrough?.full_content_html || parsed?.html_url) ? `
+                    <button onclick="showFullGuide(${cardIndex})" class="intel-action-btn">
+                        📄 Full Guide
+                    </button>
+                    ` : ''}
+                    <button onclick="document.querySelector('#communityTips-intel-${cardIndex} details')?.setAttribute('open', '')" class="intel-action-btn">
+                        💬 Tips
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
+// Store walkthrough data for modal access
+let currentWalkthroughHtml = null;
+let currentWalkthroughUrl = null;  // For multi-tier storage (fetch on demand)
+let currentWalkthroughTitle = null;
+let currentWalkthroughMeta = null;
+
+/**
+ * Show full guide content in a premium modal
+ * Renders Google Docs HTML in an iframe for proper formatting
+ */
+function showFullGuide(cardIndex) {
+    let modal = document.getElementById('fullGuideModal');
+
+    if (!modal) {
+        // Create beautiful modal with premium styling
+        const modalHtml = `
+            <div id="fullGuideModal" class="guide-modal-overlay">
+                <div class="guide-modal-container">
+                    <!-- Floating Header -->
+                    <div class="guide-modal-header">
+                        <div class="guide-header-left">
+                            <span class="guide-header-icon">📖</span>
+                            <div class="guide-header-info">
+                                <div id="guideModalTitle" class="guide-header-title">Full Guide</div>
+                                <div id="guideModalMeta" class="guide-header-meta">
+                                    <span class="meta-badge">🖼️ With Images</span>
+                                    <span class="meta-badge">📄 Google Docs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="guide-header-actions">
+                            <button onclick="toggleGuideTheme()" class="guide-btn-icon" title="Toggle Theme">
+                                🌓
+                            </button>
+                            <button onclick="closeFullGuide()" class="guide-btn-close">
+                                <span>✕</span> Close
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Area with iframe -->
+                    <div class="guide-modal-body">
+                        <div id="guideLoadingState" class="guide-loading">
+                            <div class="guide-loading-spinner"></div>
+                            <div class="guide-loading-text">Loading document...</div>
+                        </div>
+                        <iframe id="guideContentFrame" 
+                                class="guide-content-frame" 
+                                sandbox="allow-same-origin"
+                                onload="onGuideFrameLoad()"></iframe>
+                    </div>
+                    
+                    <!-- Bottom Bar -->
+                    <div class="guide-modal-footer">
+                        <div class="guide-footer-hint">
+                            💡 Scroll to view full document • Images included
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        modal = document.getElementById('fullGuideModal');
+    }
+
+    // Update title if available
+    if (currentWalkthroughTitle) {
+        document.getElementById('guideModalTitle').textContent = currentWalkthroughTitle;
+    }
+
+    // Show loading state
+    document.getElementById('guideLoadingState').style.display = 'flex';
+    document.getElementById('guideContentFrame').style.opacity = '0';
+
+    // Inject HTML into iframe for proper isolation
+    const iframe = document.getElementById('guideContentFrame');
+
+    if (currentWalkthroughHtml) {
+        // Create full HTML document with dark theme styling
+        const wrappedHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    :root {
+                        --bg: #111827;
+                        --bg-secondary: #1f2937;
+                        --text: #f9fafb;
+                        --text-secondary: #d1d5db;
+                        --accent: #fbbf24;
+                        --border: rgba(251, 191, 36, 0.2);
+                    }
+                    
+                    * { box-sizing: border-box; }
+                    
+                    body {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        background: var(--bg);
+                        color: var(--text);
+                        line-height: 1.8;
+                        padding: 32px 40px;
+                        margin: 0;
+                        font-size: 16px;
+                    }
+                    
+                    /* Override Google Docs default styling */
+                    body * {
+                        background-color: transparent !important;
+                        color: inherit !important;
+                    }
+                    
+                    h1, h2, h3, h4, h5, h6 {
+                        color: var(--accent) !important;
+                        margin-top: 1.5em;
+                        margin-bottom: 0.5em;
+                        font-weight: 700;
+                        line-height: 1.3;
+                    }
+                    
+                    h1 { font-size: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+                    h2 { font-size: 1.5rem; }
+                    h3 { font-size: 1.25rem; }
+                    
+                    p {
+                        margin: 0.75em 0;
+                        color: var(--text-secondary) !important;
+                    }
+                    
+                    a {
+                        color: var(--accent) !important;
+                        text-decoration: underline;
+                    }
+                    
+                    /* Tables */
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1.5em 0;
+                        background: var(--bg-secondary) !important;
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    
+                    th, td {
+                        padding: 12px 16px;
+                        text-align: left;
+                        border: 1px solid var(--border);
+                    }
+                    
+                    th {
+                        background: rgba(251, 191, 36, 0.1) !important;
+                        font-weight: 600;
+                        color: var(--accent) !important;
+                    }
+                    
+                    tr:hover td {
+                        background: rgba(251, 191, 36, 0.05) !important;
+                    }
+                    
+                    /* Lists */
+                    ul, ol {
+                        padding-left: 1.5em;
+                        margin: 1em 0;
+                    }
+                    
+                    li {
+                        margin: 0.5em 0;
+                        color: var(--text-secondary) !important;
+                    }
+                    
+                    /* Images */
+                    img {
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 8px;
+                        margin: 1em 0;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    }
+                    
+                    /* Code blocks */
+                    code, pre {
+                        font-family: 'Monaco', 'Consolas', monospace;
+                        background: var(--bg-secondary) !important;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-size: 0.9em;
+                    }
+                    
+                    pre {
+                        padding: 16px;
+                        overflow-x: auto;
+                    }
+                    
+                    /* Blockquotes / Callouts */
+                    blockquote {
+                        border-left: 4px solid var(--accent);
+                        margin: 1em 0;
+                        padding: 0.5em 1em;
+                        background: rgba(251, 191, 36, 0.05) !important;
+                        font-style: italic;
+                    }
+                    
+                    /* Dividers */
+                    hr {
+                        border: none;
+                        border-top: 1px solid var(--border);
+                        margin: 2em 0;
+                    }
+                    
+                    /* Light theme mode */
+                    body.light-theme {
+                        --bg: #ffffff;
+                        --bg-secondary: #f3f4f6;
+                        --text: #111827;
+                        --text-secondary: #4b5563;
+                        --accent: #d97706;
+                        --border: rgba(217, 119, 6, 0.3);
+                    }
+                    
+                    /* Responsive */
+                    @media (max-width: 768px) {
+                        body { padding: 20px; font-size: 15px; }
+                        h1 { font-size: 1.5rem; }
+                        h2 { font-size: 1.25rem; }
+                    }
+                </style>
+            </head>
+            <body id="guideBody">
+                ${currentWalkthroughHtml}
+            </body>
+            </html>
+        `;
+
+        iframe.srcdoc = wrappedHtml;
+    } else if (currentWalkthroughUrl) {
+        // Multi-tier storage: fetch HTML from static URL
+        fetchAndDisplayGuide(currentWalkthroughUrl, iframe);
+    } else {
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head><style>
+                body { 
+                    font-family: 'Inter', sans-serif; 
+                    background: #111827; 
+                    color: #9ca3af; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100vh; 
+                    margin: 0;
+                    text-align: center;
+                }
+            </style></head>
+            <body>
+                <div>
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                    <div>Full guide content not available.</div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Handle iframe load completion
+ */
+function onGuideFrameLoad() {
+    document.getElementById('guideLoadingState').style.display = 'none';
+    document.getElementById('guideContentFrame').style.opacity = '1';
+}
+
+/**
+ * Toggle between dark and light theme in the guide
+ */
+function toggleGuideTheme() {
+    const iframe = document.getElementById('guideContentFrame');
+    try {
+        const body = iframe.contentDocument?.getElementById('guideBody');
+        if (body) {
+            body.classList.toggle('light-theme');
+        }
+    } catch (e) {
+        console.warn('Could not toggle theme:', e);
+    }
+}
+
+/**
+ * Fetch HTML guide from static URL and display in iframe
+ * Used for multi-tier storage where full HTML is stored as static files
+ */
+async function fetchAndDisplayGuide(url, iframe) {
+    try {
+        console.log('📄 Fetching guide from:', url);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch guide: ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        // Wrap with dark theme styling (same as inline HTML)
+        const wrappedHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    :root {
+                        --bg: #111827;
+                        --bg-secondary: #1f2937;
+                        --text: #f9fafb;
+                        --text-secondary: #d1d5db;
+                        --accent: #fbbf24;
+                        --border: rgba(251, 191, 36, 0.2);
+                    }
+                    
+                    * { box-sizing: border-box; }
+                    
+                    body {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        background: var(--bg);
+                        color: var(--text);
+                        line-height: 1.8;
+                        padding: 32px 40px;
+                        margin: 0;
+                        font-size: 16px;
+                    }
+                    
+                    /* Override Google Docs default styling */
+                    body * {
+                        background-color: transparent !important;
+                        color: inherit !important;
+                    }
+                    
+                    h1, h2, h3, h4, h5, h6 {
+                        color: var(--accent) !important;
+                        margin-top: 1.5em;
+                        margin-bottom: 0.5em;
+                        font-weight: 700;
+                        line-height: 1.3;
+                    }
+                    
+                    h1 { font-size: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+                    h2 { font-size: 1.5rem; }
+                    h3 { font-size: 1.25rem; }
+                    
+                    p { margin: 0.75em 0; color: var(--text-secondary) !important; }
+                    a { color: var(--accent) !important; text-decoration: underline; }
+                    
+                    /* Tables */
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1.5em 0;
+                        background: var(--bg-secondary) !important;
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    
+                    th, td { padding: 12px 16px; text-align: left; border: 1px solid var(--border); }
+                    th { background: rgba(251, 191, 36, 0.1) !important; font-weight: 600; color: var(--accent) !important; }
+                    tr:hover td { background: rgba(251, 191, 36, 0.05) !important; }
+                    
+                    /* Lists */
+                    ul, ol { padding-left: 1.5em; margin: 1em 0; }
+                    li { margin: 0.5em 0; color: var(--text-secondary) !important; }
+                    
+                    /* Images */
+                    img {
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 8px;
+                        margin: 1em 0;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    }
+                    
+                    /* Light theme mode */
+                    body.light-theme {
+                        --bg: #ffffff;
+                        --bg-secondary: #f3f4f6;
+                        --text: #111827;
+                        --text-secondary: #4b5563;
+                        --accent: #d97706;
+                        --border: rgba(217, 119, 6, 0.3);
+                    }
+                </style>
+            </head>
+            <body id="guideBody">
+                ${html}
+            </body>
+            </html>
+        `;
+
+        iframe.srcdoc = wrappedHtml;
+
+    } catch (error) {
+        console.error('Failed to fetch guide:', error);
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head><style>
+                body { 
+                    font-family: 'Inter', sans-serif; 
+                    background: #111827; 
+                    color: #ef4444; 
+                    display: flex; 
+                    flex-direction: column;
+                    align-items: center; 
+                    justify-content: center; 
+                    height: 100vh; 
+                    margin: 0;
+                    text-align: center;
+                    padding: 20px;
+                }
+                .retry { 
+                    margin-top: 16px; 
+                    padding: 12px 24px; 
+                    background: #fbbf24; 
+                    color: #111827; 
+                    border: none; 
+                    border-radius: 8px; 
+                    font-weight: 600;
+                    cursor: pointer;
+                }
+            </style></head>
+            <body>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <div>Failed to load guide content.</div>
+                <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 8px;">${error.message}</div>
+            </body>
+            </html>
+        `;
+        onGuideFrameLoad(); // Hide loading state
+    }
+}
+
+/**
+ * Close the full guide modal
+ */
+function closeFullGuide() {
+    const modal = document.getElementById('fullGuideModal');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
 async function voteComment(commentId, voteType) {
     try {
-        const response = await fetch(`${API}/api/comments/${commentId}/vote`, {
+        const response = await fetch(`${API}/api/vehicle-comments/upvote`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('eurokeys_token') ? `Bearer ${localStorage.getItem('eurokeys_token')}` : ''
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ vote_type: voteType })
+            body: JSON.stringify({ comment_id: commentId })
         });
 
         const data = await response.json();
@@ -1559,7 +2565,9 @@ async function searchVehicle() {
                 const extras = {
                     alerts: data.alerts || [],
                     pearls: data.pearls || [],
-                    guide: data.guide || null
+                    guide: data.guide || null,
+                    walkthroughs: data.walkthroughs || [],
+                    configs: data.configs || []
                 };
                 displayResults(data.rows, year, make, model, extras);
             } catch (innerE) {
@@ -1599,21 +2607,53 @@ window.openGuideModal = function (id) {
         // Render content
         let contentHtml = '';
 
+        // [NEW] Handle Walkthrough Video
+        if (guide.video_url) {
+            // Simple embed check (YouTube only for now)
+            let embedUrl = guide.video_url;
+            if (embedUrl.includes('youtube.com/watch?v=')) {
+                embedUrl = embedUrl.replace('watch?v=', 'embed/');
+            } else if (embedUrl.includes('youtu.be/')) {
+                embedUrl = embedUrl.replace('youtu.be/', 'www.youtube.com/embed/');
+            }
+
+            if (embedUrl.includes('embed')) {
+                contentHtml += `
+                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--border);">
+                        <iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
+                    </div>`;
+            }
+        }
+
+        // [NEW] Prioritize Structured Steps (Hybrid Storage)
+        let steps = guide.steps;
+        if (guide.structured_steps_json) {
+            try {
+                steps = JSON.parse(guide.structured_steps_json);
+            } catch (e) {
+                console.error('Failed to parse structured_steps_json', e);
+            }
+        }
+
         // Check for GuideRenderer or custom steps
-        if (window.renderGuideContent && guide.content) {
-            contentHtml = window.renderGuideContent(guide.content);
-        } else if (guide.steps) {
-            // Default render for steps
-            contentHtml = guide.steps.map(step => `
-            <div class="guide-step"style="margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="color: #60a5fa; margin-bottom: 12px; font-size: 1.1rem;">${step.title || ''}</h3>
-                    <div style="color: #e5e7eb; line-height: 1.6;">${step.description || ''}</div>
-                    ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px;">`).join('') : ''}
+        if (window.renderGuideContent && guide.content && !steps) {
+            contentHtml += window.renderGuideContent(guide.content);
+        } else if (steps && Array.isArray(steps)) {
+            // Default render for structured steps
+            contentHtml += steps.map((step, idx) => `
+            <div class="guide-step" style="margin-bottom: 24px; background: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: #60a5fa; margin: 0 0 12px 0; font-size: 1.1rem; display: flex; justify-content: space-between;">
+                        <span>${step.title || `Step ${idx + 1}`}</span>
+                        ${step.time ? `<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">⏱️ ${step.time}</span>` : ''}
+                    </h3>
+                    <div style="color: #e5e7eb; line-height: 1.6;">${step.description || step.content || ''}</div>
+                    ${step.images ? step.images.map(img => `<img src="${img}" style="max-width:100%; margin-top:10px; border-radius:6px; border: 1px solid var(--border);">`).join('') : ''}
+                    ${step.tools ? `<div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">🛠️ Tools: ${step.tools.join(', ')}</div>` : ''}
                 </div>
             `).join('');
         } else if (guide.content) {
             // Simple markdown-to-html fallback
-            contentHtml = guide.content
+            contentHtml += guide.content
                 .replace(/\n\n/g, '<br><br>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/^# (.*)/gm, '<h1>$1</h1>')
@@ -1621,7 +2661,7 @@ window.openGuideModal = function (id) {
                 .replace(/^### (.*)/gm, '<h3>$1</h3>')
                 .replace(/^- (.*)/gm, '<li>$1</li>');
         } else {
-            contentHtml = '<p>No content available for this guide.</p>';
+            contentHtml = '<p>No content available for this programming procedure.</p>';
         }
 
         modalBody.innerHTML = contentHtml;
@@ -1751,17 +2791,59 @@ function displayResults(rows, year, make, model, extras = {}) {
     // Merges Alerts, Guide, and Pearls into one high-value strategic view
 
     // 1. Resolve Data Sources
-    // PRIORITIZE API data (extras.guide) over legacy local mapping
-    const guideData = extras.guide || (typeof getGuideAsset === 'function' ? getGuideAsset(make, model, cleanYear) : null);
-    // Reuse existing 'alerts' from function scope, ensure pearls is destructured if not already
-    const { pearls = [] } = extras;
+    // 1. Resolve Data Sources
+    const { pearls = [], walkthroughs = [], configs = [] } = extras;
+
+    // PRIORITIZE Walkthroughs (New Architecture) -> Legacy Guide -> Local Asset
+    let guideData = null;
+    let isWalkthrough = false;
+
+    if (walkthroughs && walkthroughs.length > 0) {
+        guideData = walkthroughs[0]; // API sorts by is_primary DESC
+        isWalkthrough = true;
+    } else {
+        guideData = extras.guide || (typeof getGuideAsset === 'function' ? getGuideAsset(make, model, cleanYear) : null);
+    }
 
     const hasAlerts = alerts && alerts.length > 0;
     const hasPearls = pearls && pearls.length > 0;
-    const hasGuide = guideData && (guideData.pdf || guideData.html || guideData.id);
+    const hasGuide = guideData && (guideData.content || guideData.id);
 
-    // Only render the briefing if there is intelligence to show
-    if (hasAlerts || hasPearls || hasGuide) {
+    // --- NEW: RENDER INTEL CARD if walkthrough has structured data ---
+    const hasStructuredWalkthrough = isWalkthrough && guideData && (
+        guideData.structured_steps_json ||
+        guideData.quick_facts ||
+        guideData.parts_needed
+    );
+
+    if (hasStructuredWalkthrough) {
+        // Parse structured data if it's a string
+        let walkthroughData = guideData;
+        if (typeof guideData.structured_steps_json === 'string') {
+            try {
+                const parsed = JSON.parse(guideData.structured_steps_json);
+                walkthroughData = { ...guideData, ...parsed };
+            } catch (e) {
+                console.warn('Failed to parse structured_steps_json:', e);
+            }
+        }
+
+        // Get primary config for this vehicle
+        const primaryConfig = configs.find(c => c.verified) || configs[0] || null;
+
+        // Check if user has premium (integrate with your auth system)
+        const isPremiumUser = typeof currentUser !== 'undefined' && currentUser?.premium;
+
+        // Render the Intel Card
+        html += renderIntelCard(walkthroughData, primaryConfig, { year: cleanYear, make, model }, {
+            isPremiumUser,
+            showAffiliate: true,
+            cardIndex: 0
+        });
+    }
+
+    // Only render the OLD briefing if there is intelligence to show AND no intel card was rendered
+    if ((hasAlerts || hasPearls || hasGuide) && !hasStructuredWalkthrough) {
 
         // HELPER: Format Pearl Content (Markdown-lite + Affiliate Links)
         const formatPearlContent = (text) => {
@@ -1800,10 +2882,13 @@ function displayResults(rows, year, make, model, extras = {}) {
                 ⚡ Job Brief
                 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">Strategic Intelligence for ${make} ${model}</span>
             </h3>
-            ${hasGuide && (guideData.id || guideData.html) ?
-                `<button onclick="openGuideModal('${guideData.id || guideData.html}')" style="background: var(--brand-primary); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                    <span>📖</span> View Guide
-                 </button>` : ''}
+            ${hasGuide ?
+                `<button onclick="openGuideModal('${guideData.id}')" style="background: var(--brand-primary); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>${isWalkthrough ? '🛠️' : '📖'}</span> ${isWalkthrough ? 'Start Walkthrough' : 'View Guide'}
+                 </button>
+                 <!-- Hidden data container for modal access -->
+                 <div id="guide-data-${guideData.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guideData))))}" style="display:none;"></div>`
+                : ''}
         </div>`;
 
         html += `<div style="padding: 20px;">`;
@@ -1847,51 +2932,66 @@ function displayResults(rows, year, make, model, extras = {}) {
         }
 
         // D. Guide Embed (Collapsible Preview)
-        if (hasGuide && guideData.html) {
+        if (hasGuide && (guideData.content || guideData.html)) {
+            // Determine preview text
+            let previewText = '';
+            if (guideData.content) {
+                // Strip markdown headers for cleaner preview
+                previewText = guideData.content.split('\n').filter(l => l.trim() && !l.startsWith('#')).slice(0, 3).join('<br>');
+            } else {
+                previewText = guideData.html || 'Preview not available.';
+            }
+
             html += `
             <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
                  <details style="cursor: pointer;">
                     <summary style="color: var(--brand-primary); font-weight: 600; outline: none; list-style: none;">
-                        <span style="margin-right: 6px;">▶</span> Expand Programming Procedure Preview
+                        <span style="margin-right: 6px;">▶</span> Expand Procedure Preview
                     </summary>
                     <div style="margin-top: 12px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px; max-height: 300px; overflow-y: auto; font-size: 0.9rem; color: var(--text-secondary);">
-                        ${guideData.content || 'Preview not available. Click "View Guide" for full details.'}
+                        ${previewText}
                         <div style="margin-top: 12px; text-align: center;">
-                             <button onclick="openGuideModal('${guideData.id || guideData.html}')" style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-                                Open Full Guide
+                             <button onclick="openGuideModal('${guideData.id}')" style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                                Open Full Details
                              </button>
                         </div>
                     </div>
                 </details>
             </div>`;
         }
-
         html += `</div></div>`; // End job-brief-container
-    } else if (guide) {
+    } else if (guide && !hasStructuredWalkthrough) {
         html += `
-            <div class="guide-callout"style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
                         <h3 style="margin: 0 0 4px 0; color: #60a5fa;">📚 Programming Guide Available</h3>
                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Step-by-step instructions for ${year} ${make} ${model}</p>
                     </div>
-                    <button onclick="openGuideModal('${guide.id}')" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <button onclick="openGuideModal('${guideData.id}')" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                         <span>View Guide</span>
                         <span>→</span>
                     </button>
-                    <div id="guide-data-${guide.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guide))))}" style="display:none;"></div>
+                    <!-- Hidden data container -->
+                    <div id="guide-data-${guideData.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(guideData))))}" style="display:none;"></div>
             </div> `;
     }
 
-    // 4. What You'll Need (Tools Checklist)
-    const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
+    // 4. What You'll Need and Video Section - only show if NO Intel Card
+    if (!hasStructuredWalkthrough) {
+        const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
 
-    // 3. What You'll Need (Tools) - FIXED TEXT COLOR
-    const firstRow = rows[0] || {};
-    const fccId = firstRow.fcc_id || 'HYQ4EA';
-    const keyway = firstRow.keyway || 'HU100';
-    const battery = firstRow.battery || 'CR2032';
-    const amazonTag = 'eurokeys-20';
-    html += `
+        // 3. What You'll Need (Tools)
+        // PRIORITIZE Verified Configs -> Legacy Rows
+        const configSource = (configs && configs.length > 0) ? configs[0] : (rows[0] || {});
+        // Fallback for missing fields in configs (e.g. keyway might be in rows but not configs?)
+        const legacyRow = rows[0] || {};
+
+        // Map fields: Configs uses 'fcc_id', 'key_blade', 'battery'. Legacy uses 'fcc_id', 'keyway', 'battery'
+        const fccId = configSource.fcc_id || legacyRow.fcc_id || 'HYQ4EA';
+        const keyway = configSource.key_blade || legacyRow.keyway || 'HU100';
+        const battery = configSource.battery || legacyRow.battery || 'CR2032';
+        const amazonTag = 'eurokeys-20';
+        html += `
             <div class="tool-checklist" style="background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <span style="font-size: 1.3rem;">🛠️</span>
@@ -1929,8 +3029,8 @@ function displayResults(rows, year, make, model, extras = {}) {
                 </div>
             </div>`;
 
-    // 5. Video Section (moved down - procedures come after parts)
-    html += `
+        // 5. Video Section (moved down - procedures come after parts)
+        html += `
             <div class="video-section" style="background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(139,0,0,0.1)); border: 1px solid rgba(255,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <span style="font-size: 1.3rem;">📹</span>
@@ -1944,94 +3044,135 @@ function displayResults(rows, year, make, model, extras = {}) {
                     </a>
                 </div>
             </div>`;
+    } // End if (!hasStructuredWalkthrough) for legacy tools/video
 
-    // Deduplicate rows - prioritize FCC ID, only separate by OEM when FCC is N/A
-    // NORMALIZE FCC: Uppercase, O->0, Remove Hyphens (match API logic)
-    const normalizeFcc = (fcc) => fcc.toUpperCase().replace(/O/g, '0').replace(/-/g, '');
+    // --- Deduplicate and Merge Configs (always needed for key carousel) ---
+    const normalizeFcc = (fcc) => (fcc || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
     const seen = new Set();
-    const uniqueRows = rows.filter(v => {
+
+    // [NEW] Merge verified configs first
+    const mergedList = [];
+    if (configs && Array.isArray(configs)) {
+        configs.forEach(c => {
+            const fcc = normalizeFcc(c.fcc_id);
+            // Normalize to expected shape
+            const item = {
+                ...c,
+                is_verified_config: true,
+                keyway: c.key_blade || undefined,
+                key_type: c.config_type || c.key_type,
+                frequency: c.frequency,
+                chip: c.chip,
+                battery: c.battery
+            };
+
+            // Key includes normalized FCC OR OEM
+            const key = fcc ? `FCC:${fcc}` : `OEM:${(c.oem_part_number || '').toUpperCase()}`;
+            if ((fcc || c.oem_part_number) && !seen.has(key)) {
+                seen.add(key);
+                mergedList.push(item);
+            }
+        });
+    }
+
+    // Add Legacy Rows if not seen
+    rows.forEach(v => {
         const rawFcc = (v.fcc_id || '').trim();
         const fccId = normalizeFcc(rawFcc);
         const oem = (v.oem_part_number || '').trim().toUpperCase();
         // Key includes normalized FCC OR OEM + key_type if no FCC
         const key = fccId ? `FCC:${fccId}` : `OEM:${oem}-${(v.key_type || '').toLowerCase()}`;
-        if (key && seen.has(key)) return false;
-        if (key) seen.add(key);
-        return true;
+
+        if (key && !seen.has(key)) {
+            seen.add(key);
+            mergedList.push(v);
+        }
     });
 
-    // --- CONFIGURATION LIST ---
-    html += `<div class="configurations-section">
+    const uniqueRows = mergedList;
+
+    // --- LEGACY CONFIGURATIONS: Only RENDER if no Intel Card ---
+    if (!hasStructuredWalkthrough) {
+
+        // --- CONFIGURATION LIST ---
+        html += `<div class="configurations-section">
             <h3 style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
                 Available Key Configurations (${uniqueRows.length})
             </h3>`;
 
-    // Make Config Cards
-    html += uniqueRows.map((v, idx) => {
-        const fccId = v.fcc_id || 'N/A';
-        const oem = v.oem_part_number || 'N/A';
+        // Make Config Cards
+        html += uniqueRows.map((v, idx) => {
+            const fccId = v.fcc_id || 'N/A';
+            const oem = v.oem_part_number || 'N/A';
 
-        // System Logic (Infer Global A/B for Camaro if missing)
-        let immoSystem = (v.immobilizer_system || v.immobilizer || 'N/A');
-        if (immoSystem === 'N/A' && make.toLowerCase() === 'chevrolet' && model.toLowerCase().includes('camaro')) {
-            const y = parseInt(year);
-            if (y >= 2010 && y <= 2015) immoSystem = 'Global A';
-            else if (y >= 2016 && y <= 2018) immoSystem = 'Global A (PEPS)';
-            else if (y >= 2019) immoSystem = 'Global B';
-        }
+            // System Logic (Infer Global A/B for Camaro if missing)
+            let immoSystem = (v.immobilizer_system || v.immobilizer || 'N/A');
+            if (immoSystem === 'N/A' && make.toLowerCase() === 'chevrolet' && model.toLowerCase().includes('camaro')) {
+                const y = parseInt(year);
+                if (y >= 2010 && y <= 2015) immoSystem = 'Global A';
+                else if (y >= 2016 && y <= 2018) immoSystem = 'Global A (PEPS)';
+                else if (y >= 2019) immoSystem = 'Global B';
+            }
 
-        const chip = v.chip || v.chip_technology || 'N/A';
-        const freq = v.frequency ? (v.frequency.toString().toLowerCase().includes('mhz') ? v.frequency : `${v.frequency} MHz`) : 'N/A';
-        const keyway = v.keyway || 'N/A';
-        const battery = v.battery || 'N/A';
+            const chip = v.chip || v.chip_technology || 'N/A';
+            const freq = v.frequency ? (v.frequency.toString().toLowerCase().includes('mhz') ? v.frequency : `${v.frequency} MHz`) : 'N/A';
+            const keyway = v.keyway || 'N/A';
+            const battery = v.battery || 'N/A';
 
-        const keyType = v.key_type || v.crossref_key_type || 'N/A';
-        const getKeyTypeBadgeClass = (type) => {
-            if (!type) return '';
-            const t = type.toLowerCase();
-            if (t.includes('transponder')) return 'badge-transponder';
-            if (t.includes('smart')) return 'badge-smartkey';
-            if (t.includes('remote head')) return 'badge-remotehead';
-            if (t.includes('mechanical')) return 'badge-mechanical';
-            return 'badge-dark';
-        };
-        const keyTypeDisplay = v.key_type_display || keyType;
-        const keyTypeBadgeClass = getKeyTypeBadgeClass(keyTypeDisplay);
+            const keyType = v.key_type || v.crossref_key_type || 'N/A';
+            const getKeyTypeBadgeClass = (type) => {
+                if (!type) return '';
+                const t = type.toLowerCase();
+                if (t.includes('transponder')) return 'badge-transponder';
+                if (t.includes('smart')) return 'badge-smartkey';
+                if (t.includes('remote head')) return 'badge-remotehead';
+                if (t.includes('mechanical')) return 'badge-mechanical';
+                return 'badge-dark';
+            };
+            const keyTypeDisplay = v.key_type_display || keyType;
+            const keyTypeBadgeClass = getKeyTypeBadgeClass(keyTypeDisplay);
 
-        // GM Architecture & Theme
-        let themeClass = '';
-        let archName = 'Standard Architecture';
-        let archBadgeClass = 'badge-dark';
-        let archIcon = '🔧';
-        if ((immoSystem && immoSystem.includes('Global A')) || (v.notes && v.notes.includes('Global A'))) {
-            themeClass = 'theme-global-a'; archName = 'Global A (Open)'; archBadgeClass = 'global-a'; archIcon = '🟢';
-        } else if ((immoSystem && immoSystem.includes('Global B')) || (v.notes && v.notes.includes('Global B'))) {
-            themeClass = 'theme-global-b'; archName = 'Global B (Locked)'; archBadgeClass = 'global-b'; archIcon = '🔴';
-        }
+            // GM Architecture & Theme
+            let themeClass = '';
+            let archName = 'Standard Architecture';
+            let archBadgeClass = 'badge-dark';
+            let archIcon = '🔧';
+            if ((immoSystem && immoSystem.includes('Global A')) || (v.notes && v.notes.includes('Global A'))) {
+                themeClass = 'theme-global-a'; archName = 'Global A (Open)'; archBadgeClass = 'global-a'; archIcon = '🟢';
+            } else if ((immoSystem && immoSystem.includes('Global B')) || (v.notes && v.notes.includes('Global B'))) {
+                themeClass = 'theme-global-b'; archName = 'Global B (Locked)'; archBadgeClass = 'global-b'; archIcon = '🔴';
+            }
 
-        // Inventory
-        const keyInStock = (typeof currentUser !== 'undefined' && currentUser) && fccId !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0;
-        const blankInStock = (typeof currentUser !== 'undefined' && currentUser) && keyway !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getBlankStock(keyway) : 0;
-        const inventoryBadge = keyInStock > 0
-            ? `<span class="badge"style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span> `
-            : blankInStock > 0
-                ? `<span class="badge"style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span> `
-                : '';
+            // [NEW] Verified Badge
+            let verifiedHtml = '';
+            if (v.is_verified_config) {
+                verifiedHtml = `<span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.4); display: inline-flex; align-items: center; gap: 4px;">✅ Verified</span>`;
+            }
 
-        // Generate the Config Card HTML
-        // Get tech card image for this generation
-        const techCardImg = typeof getVehicleResultImage === 'function' ? getVehicleResultImage(make, model, parseInt(year)) : null;
+            // Inventory
+            const keyInStock = (typeof currentUser !== 'undefined' && currentUser) && fccId !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getKeyStock(fccId) : 0;
+            const blankInStock = (typeof currentUser !== 'undefined' && currentUser) && keyway !== 'N/A' && typeof InventoryManager !== 'undefined' ? InventoryManager.getBlankStock(keyway) : 0;
+            const inventoryBadge = keyInStock > 0
+                ? `<span class="badge"style="background: #22c55e; color: white;">📦 ${keyInStock} in stock</span> `
+                : blankInStock > 0
+                    ? `<span class="badge"style="background: #22c55e; color: white;">🔑 ${blankInStock} blanks</span> `
+                    : '';
 
-        // Get key tech card image (fob/blade/battery reference)
-        const keyTechCardImg = typeof getKeyTechCardImage === 'function' ? getKeyTechCardImage(make, year, keyTypeDisplay, v.button_count || 4) : null;
+            // Generate the Config Card HTML
+            // Get tech card image for this generation
+            const techCardImg = typeof getVehicleResultImage === 'function' ? getVehicleResultImage(make, model, parseInt(year)) : null;
 
-        return `
+            // Get key tech card image (fob/blade/battery reference)
+            const keyTechCardImg = typeof getKeyTechCardImage === 'function' ? getKeyTechCardImage(make, year, keyTypeDisplay, v.button_count || 4) : null;
+
+            return `
             <div class="config-card ${themeClass}" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; position: relative;">
             
             <!-- Config Header -->
             <div style="background: var(--bg-tertiary); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                  <div style="display: flex; align-items: center; gap: 10px;">
                     ${keyTypeDisplay ? `<span class="badge ${keyTypeBadgeClass}">${keyTypeDisplay}</span>` : '<span class="badge badge-dark">Standard Configuration</span>'}
+                    ${verifiedHtml}
                     <span style="font-weight: 600; font-family: monospace; color: var(--text-primary); font-size: 1.05rem;">
                         ${fccId !== 'N/A' ? `FCC: ${fccId}` : `P/N: ${oem}`}
                     </span>
@@ -2180,14 +3321,27 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>
         </div>
             `;
-    }).join('');
+        }).join('');
 
-    html += `</div> `; // End configurations-section
+        html += `</div> `; // End configurations-section
+
+    } // End if (!hasStructuredWalkthrough)
 
     // CRITICAL FIX: Inject the generated HTML into the DOM
     container.innerHTML = html;
 
-    // PERFORMANCE OPTIMIZATION 1: Batch fetch keys with Promise.all instead of sequential forEach
+    // Add toggle listener for Intel Card comments (if present)
+    if (hasStructuredWalkthrough) {
+        const intelTipsDetails = document.querySelector('#communityTips-intel-0 details');
+        if (intelTipsDetails) {
+            intelTipsDetails.addEventListener('toggle', function () {
+                if (this.open) {
+                    loadComments(`${make}|${model}|${year}`, 'intel-0');
+                }
+            }, { once: true });
+        }
+    }
+
     // PERFORMANCE OPTIMIZATION 2: Fixed broken template literal (was `keyCarouselContainer - ${ idx } `)
     const keyLoadPromise = fetchCompatibleKeys(make, model, year);
 

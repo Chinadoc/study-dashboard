@@ -1,0 +1,166 @@
+ï»¿2021 Jeep Wrangler (JL) & Gladiator (JT) Forensic Locksmith Dossier
+1. Introduction: The Paradigm Shift in Automotive Security
+The 2021 model year for the Jeep Wrangler (JL) and its pickup counterpart, the Gladiator (JT), represents a pivotal moment in the evolution of automotive security architecture. This era marks the definitive transition from the legacy systems of the Chrysler era to the integrated, encrypted, and highly fortified environment of Stellantis. For the forensic locksmith, automotive security professional, or recovery agent, the JL/JT platform is not merely an incremental update to the previous JK generation (2007â2018); it is a fundamental reimagining of how a vehicle authorizes access, immobilizes its drivetrain, and communicates internally.
+Historically, the Jeep Wrangler was a vehicle defined by its simplicity. The JK generation utilized the Sentry Key Remote Entry Module (SKREEM) or the Wireless Control Module (WCM), systems that, while secure for their time, operated on relatively open Controller Area Network (CAN) architectures. A locksmith could access the On-Board Diagnostics (OBD-II) port, interface with the WCM, and program a key with minimal resistance. The 2021 JL and JT, however, operate under the "Secure Vehicle Architecture" (SVA) paradigm. This architecture was born out of the necessity to thwart remote hacking and unauthorized CAN bus injection attacks, threats that became headline news in the mid-2010s.
+The defining characteristic of this new landscape is the Secure Gateway Module (SGW). Introduced in late 2018 and standard across the fleet by 2021, the SGW acts as a hardware firewall between the public-facing OBD-II port and the vehicleâs private control networks. This dossier serves as a comprehensive forensic guide to navigating this locked-down environment. It aggregates technical specifications, field intelligence from professional forums, and critical procedural nuancesâ"pearls"âthat distinguish a successful recovery from a stranded asset. We will explore the migration to the Fiat-derived SIP22 physical keyway, the implementation of NXP HITAG AES encryption, the silent complexities of the 4xe plug-in hybrid powertrain, and the physical gymnastics required to bypass the digital gatekeepers.
+2. Platform Architecture and Network Topology
+2.1. The "PowerNet" Architecture
+The underlying nervous system of the 2021 JL/JT is the PowerNet electrical architecture, a high-speed data network that facilitates communication between the vehicle's varying modules. Unlike older systems that relied heavily on a single CAN bus, PowerNet utilizes multiple specialized networksâprimarily CAN-C (high speed for powertrain and chassis) and CAN-IHS (Interior High Speed for body controls and infotainment).
+Forensically, understanding this topology is critical because the locksmith's programming tools must communicate with specific modules that reside on different network branches. The primary target for key programming is the Radio Frequency Hub Module (RFHM), which acts as the master node for the Passive Entry/Keyless Go system. The RF Hub resides on the CAN-IHS bus but requires authorization from the Body Control Module (BCM) and the Powertrain Control Module (PCM), which communicate via CAN-C.
+2.2. The Secure Gateway Module (SGW) Firewall
+The single most significant obstacle for the locksmith on the 2021 platform is the SGW. Physically located behind the dashboardâoften behind the glovebox or near the driver's kick panel depending on the specific assembly plant and dateâthe SGW intercepts all traffic from the Data Link Connector (DLC/OBD-II).
+When a diagnostic tool is connected to the OBD-II port of a 2021 Wrangler, the SGW permits "Read-Only" access. The locksmith can read Diagnostic Trouble Codes (DTCs), view live data streams, and identify module part numbers. However, any attempt to "Write" dataâsuch as clearing codes, actuating solenoids, or, crucially, writing a new key ID to the RF Hubâis blocked. The SGW effectively filters out these commands to prevent unauthorized devices from altering the vehicle's configuration.1
+To circumvent this, the forensic standard is the "Physical Bypass." This involves disconnecting the communication lines from the SGW (or the Star Connector banks) and connecting them directly to a bypass cable (commonly known as the 12+8 cable due to its connector configuration). This bypass physically bridges the diagnostic tool to the CAN-C and CAN-IHS networks, effectively removing the firewall from the conversation and allowing the programmer to speak directly to the RF Hub.
+
+
+  
+
+
+
+2.3. The Star Connector Banks
+An alternative, and often preferred, point of attack for the locksmith is the "Star Connector." In the PowerNet architecture, the Star Connector acts as a central hub or breakout box where multiple modules on the same CAN bus connect.
+* The Green Bank: This typically handles the CAN-C (Critical/Chassis) network. This is the high-speed bus where the PCM, ABS, and Transmission Control Module reside.2
+* The White Bank: This typically handles the CAN-IHS (Interior High Speed) network. The BCM, Radio, and RF Hub often communicate here.
+* Forensic Relevance: Rather than digging for the SGW module itself, which can be buried deep in the dash, a locksmith can often locate the Star Connector banks behind the glove box or kick panel. By unplugging the specific bus lines and plugging the 12+8 bypass cable directly into the Star Connector ports, the locksmith gains the necessary access. The "Green" connector is often the primary target for key programming protocols that require high-speed access.2
+
+
+  
+
+
+
+3. The Keys: Physical and Digital Anatomy
+3.1. The SIP22 "Laser Cut" Keyway
+The most visible indicator of the JL/JT platform's departure from its predecessors is the physical key blade. The JK generation utilized the Chrysler Y159/Y164 keyway, a double-sided, edge-cut profile that had been a staple of the brand for decades. The 2021 JL/JT, reflecting the merger with Fiat, utilizes the SIP22 keyway.3
+* Characteristics: The SIP22 is a "laser cut" or "sidewinder" profile, characterized by a rectangular blade with a milled internal groove track on both sides. It offers significantly higher resistance to manipulation (picking) than the older wafer locks and tighter manufacturing tolerances.
+* Forensic Identification: Visually, the blade is unmistakable. However, the emergency key blade is concealed inside the fob. A small slide release on the side of the fob allows the top cap to be removed (or the blade to flip out, depending on the specific fob shell design), revealing the mechanical key used for the driver's door lock cylinder and the glove box. It is crucial to note that there is no ignition cylinder on the 2021 Wrangler; the mechanical key is solely for ingress.5
+* Lishi Tooling: For the forensic locksmith gaining non-destructive entry, the tool of choice is the Lishi SIP22 2-in-1 pick and decoder. This tool allows the operator to pick the door lock to the open position and simultaneously decode the bitting depths (1-4) to cut a replacement blade.3
+3.2. Transponder Forensics: HITAG AES (4A)
+Under the plastic shell lies the true security: the transponder chip. The 2021 JL/JT utilizes the NXP HITAG AES 128-bit transponder, widely referred to in the industry as the 4A Chip or PCF7939M.6
+* Encryption Strength: This represents a massive leap in cryptographic strength from the 46-chip (HITAG 2) or the older rolling code systems. The use of AES (Advanced Encryption Standard) 128-bit encryption means that "cloning" a keyâcopying the digital signature of an existing key to a blank chipâis mathematically infeasible in the field without sophisticated "sniffing" of the data exchange between the key and the vehicle.
+* Programming vs. Cloning: Consequently, the forensic standard for the 2021 JL/JT is exclusively programming. A new, unprogrammed key must be introduced to the vehicle's RF Hub via the OBD/Star Connector interface. The vehicle generates a challenge, the key responds, and if the cryptographic handshake is valid, the RF Hub adds the key's unique ID to its authorized list.6
+3.3. FCC ID and Part Number Matrix
+Correctly identifying the key fob is the first step in any recovery. Using a visually similar fob with the wrong internal architecture will result in failed programming attempts and wasted diagnostic time.
+* Primary FCC ID: OHT1130261.5 This is the golden identifier. If the FCC ID on the back of the fob (or on the packaging of an aftermarket unit) does not match this, it will not work for a 2021 JL/JT.
+* Frequency: 433 MHz (often listed as 433.92 MHz). This frequency is standard for the JL platform globally, a shift from the 315 MHz frequency that was common on US-market Chryslers for years.6
+* IC (Industry Canada): 5461A-1130261 or 6461A-1130261.7
+Button Configuration & Part Numbers:
+The JL/JT fob is modular, sharing the same PCB architecture across various trims but with different button masks.
+* 4-Button Smart Key (Remote Start): Part # 68416784AA / AB / AC / AD. Features Lock, Unlock, Remote Start, Panic. This is the most common fob for Sahara, Rubicon, and High Altitude trims.6
+* 3-Button Smart Key (No Remote Start): Part # 68416782. Features Lock, Unlock, Panic. Common on mid-range Sport S trims without the Cold Weather Group package.9
+* 2-Button Smart Key: Part # 68416786AB. Features Lock, Unlock only. Found on base Sport models.5
+* Gladiator Distinction: While the fobs are electronically identical, Gladiator fobs may have a distinct part number or icon for the "Tailgate" release if equipped, although the Wrangler's glass hatch release is the more common variant. The FCC ID OHT1130261 remains the constant across both.6
+3.4. The Activity Key: A Forensic Anomaly
+Jeep introduced a water-resistant "Activity Key" for the JL, allowing owners to lock their main fob inside the vehicle and wear a wristband for active pursuits (surfing, hiking).
+* Mechanism: This device is essentially a passive transponder tag. It does not have a battery for remote transmission (RKE) but relies on near-field communication (RFID) with the RF Hub's antennas.
+* Troubleshooting: If an owner reports the Activity Key is dead, it cannot simply be "recharged" if it is a passive tag (though some versions are active). Forensic verification involves holding the wristband against the "Start" button or the designated sweet spot on the tailgate handle to test for passive coupling. Failure usually indicates physical damage to the antenna coil within the band.11
+4. The Heart of the System: Radio Frequency Hub Module (RFHM)
+4.1. The "Black Box" of the JL
+In previous generations (JK), the Wireless Control Module (WCM) was a relatively simple receiver located near the ignition cylinder. In the JL/JT, this function has been subsumed by the Radio Frequency Hub Module (RFHM), a sophisticated computer that manages all wireless entry authorization.
+* Role: The RFHM is the master controller for the Keyless Enter-N-Go system. It constantly polls for the presence of a valid key fob using Low Frequency (LF) antennas located in the doors and trunk. When a handle is pulled, the RFHM pings the key; if the key responds with the correct 433 MHz encrypted signal, the RFHM tells the BCM to unlock the door.13
+* VIN Locking & "One-Time Use": A critical forensic detail is that the RF Hub is "OTP" (One-Time Programmable) regarding the VIN. Once an RF Hub is installed in a vehicle and programmed, it is permanently married to that VIN. A used RF Hub from a salvage yard cannot be installed in another vehicle and reprogrammed using standard locksmith tools. It will result in a "Security Mismatch" error. Only a "virgin" (brand new or factory reset) RF Hub can be programmed to a vehicle.13
+4.2. Location and Access
+For the forensic locksmith, physical access to the RF Hub is sometimes necessary, particularly in cases of water damage or module failure.
+* Location: In the 4-door Wrangler Unlimited (JLU), the RF Hub is located behind the rear seat backrest on the driver's side (left rear quarter area). Access requires folding the rear seats down and removing the plastic trim panel covering the C-pillar/quarter panel area. In some configurations, it is bolted to the rear cab wall.15
+* Water Vulnerability: This location makes the RF Hub susceptible to water intrusion, a common occurrence in Wranglers where the hardtop seals leak or when owners aggressively wash the interior with the drain plugs out. A corroded RF Hub is a frequent cause of "Key Fob Not Detected" errors even when the key and battery are good.14
+5. The 4xe Hybrid Challenge: Unique Indicators
+The 2021 Jeep Wrangler 4xe (Plug-in Hybrid) introduces a specific set of forensic challenges for the locksmith, primarily due to its silent operation and complex high-voltage dependencies.
+5.1. The "Silent Start" False Negative
+In a traditional Wrangler (3.6L V6 or 2.0L Turbo), a successful remote start or key programming verification is audibly confirmed by the engine cranking and firing. In the 4xe, the vehicle defaults to Electric Mode.
+* The Problem: A locksmith finishes programming, presses the Start button, and hears... nothing. They assume the programming failed and may attempt to restart the procedure, potentially corrupting the RF Hub or wasting tokens.
+* The Solution ("Ready" Light): The forensic verification standard for the 4xe is the green "READY" car icon on the instrument cluster.17 If this light is illuminated, the vehicle is "running" and the key is successfully authorized, even if the gas engine is off.
+* Ready to Drive Indicator: This light indicates the high-voltage battery contactors have closed and the vehicle is mobile. It is the only reliable indicator of a successful start in Electric Mode.19
+
+
+  
+
+
+
+5.2. 4xe Battery Dependencies
+The 4xe has a complex 12V system that supports the High Voltage (HV) system. If the 12V battery is dead, the HV system cannot engage (the contactors require 12V to close).
+* Alert: A dead 12V battery on a 4xe can mimic a "Key Not Detected" error. The proximity system requires 12V. If the 12V is low, the dash may light up, but the RF Hub may not have enough stable voltage to authenticate the fob, leading the locksmith to believe the key is bad.21
+* Forensic Check: Always measure 12V bus voltage under the hood before condemning a key on a 4xe. The 4xe does not have a traditional alternator; the 12V battery is charged by the HV battery via a DC-DC converter, but only when the HV system is active ("Ready"). If the vehicle sits for a long period, the 12V battery can drain, disabling the entire car even if the HV battery is full.
+6. Critical Programming Pearls: A Field Guide (10-12)
+Based on forensic analysis of forum discussions, technical bulletins, and locksmith case studies, the following "Pearls" represent critical, non-obvious procedures essential for success on the 2021 JL/JT platform.
+Pearl 1: The "Green Bank" Connection
+When performing the SGW bypass at the Star Connector, locksmiths are often presented with multiple connector banks. The Green bank corresponds to the CAN-C (Chassis/Critical) network, which hosts the PCM and ABS. This is the primary target for key programming tools that need high-speed access to the immobilization chain. The White bank corresponds to CAN-IHS (Interior High Speed), which hosts the BCM and RF Hub. While some tools can utilize the CAN-IHS connection, the Green CAN-C connection is generally the most robust path for the "All Keys Lost" procedure.2
+Pearl 2: The "Press" Inductive Start
+In an "All Keys Lost" scenario, the new key fob usually has a fresh battery, but the vehicle may not immediately recognize the proximity signal during the programming phase. The tool will prompt the user to "Press the Start Button with the Key." This is not a suggestion to hold it nearby; the user must physically push the Start button with the nose of the fob. This physical contact minimizes the air gap for the inductive RFID coil (located behind the button) to couple with the transponder chip, ensuring the key ID is read even if the fob battery is weak or RF interference is high.22
+Pearl 3: The "Two-Key" Myth vs. Reality
+Older Chrysler systems often required two keys to close a programming cycle. The JL/JT RF Hub supports up to 8 keys. Some aftermarket tools may prompt, "Do you want to program another key?" or warn that "2 keys are required." In forensic practice on the 2021 platform, it is almost always possible to program a single key and exit the session successfully. If the tool prompts for a second key and you do not have one, selecting "No" or "Cancel" typically finalizes the session with the first key working correctly.23
+Pearl 4: The Auxiliary Battery "Death Loop"
+The 2021 Wrangler (non-4xe) features a dual-battery system for the Electronic Stop/Start (ESS). The small auxiliary battery is buried beneath the main fuse box. When this aux battery fails, it often draws the main battery down to a critical voltage threshold (paralleling via the PCR relay).
+* Pearl: A vehicle with a bad aux battery may show ~10-11V on the main terminals but fail to program due to voltage sag when the ignition is cycled. The forensic fix is to isolate the batteries. Disconnecting the main negative cable alone may not suffice. The most reliable method is to disconnect both main cables and jump the vehicle's leads directly to a strong booster pack, effectively taking the vehicle's compromised batteries out of the circuit during the critical programming phase.21
+Pearl 5: The "Key Left Vehicle" Drift
+Aftermarket fobs for the JL/JT are notorious for "frequency drift" or poor antenna tuning. A common complaint from owners using cheap aftermarket keys is the persistent "Key Left Vehicle" message appearing on the dashboard while they are driving. This occurs because the fob's proximity signal intermittently drops out or is too weak to be acknowledged by the internal antennas.
+* Pearl: For forensic verification, if a client complains of this message, test the fob's signal strength. If it fluctuates significantly or is below nominal power, the fob is likely an aftermarket unit with a poor-quality oscillator, not a fault of the vehicle's RF Hub.6
+Pearl 6: The SIP22 Lishi "High Security" Nuance
+Picking the SIP22 lock requires a different touch than the older Y159. The SIP22 is a "track" cut.
+* Pearl: When using the Lishi tool, the user must be aware that the wafers in the SIP22 lock can be prone to jamming if too much tension is applied. The "bouncing" feel of the wafers is subtle. Furthermore, the lock cylinder on the door is the only cylinder. If it is seized from disuse (common on vehicles with remote entry), it may need lubrication and gentle raking before the Lishi can even be inserted.
+Pearl 7: RF Hub "One-Way Ticket"
+As detailed in Section 4.1, the RF Hub is VIN-locked.
+* Pearl: Never attempt to "swap" RF Hubs between vehicles to test a fault. You will effectively ruin the donor hub if you manage to perform a "Replace" routine, as it will lock to the new vehicle's VIN. There is currently no reliable aftermarket method to "unlock" or "virginize" a used JL RF Hub to a factory-new state; replacement with a new OEM unit is the only forensic protocol for a failed module.13
+Pearl 8: Manual Transmission Clutch Interlock Bypass
+On manual transmission models, the "No Start" condition can be caused by a faulty Clutch Safety Switch rather than an immobilizer issue.
+* Pearl: In an off-road recovery scenario where the key is programmed but the starter won't engage, verify the clutch switch status. A field bypass involves using the "4-Low" starting procedure (if equipped), which bypasses the clutch interlock requirement to allow the starter motor to move the vehicle in gear. This confirms the key authorization is valid and the fault lies in the clutch safety circuit.26
+Pearl 9: Soft Top "Zipperless" Entry
+Attempting to gain entry to a soft-top JL by looking for zippers will result in failure or damage.
+* Pearl: The JL top uses a "C-channel" slide system. The non-destructive entry method involves prying the "tailgate bar" (the rigid bar at the bottom of the rear window) out of its retaining brackets on the tub. Once the bottom bar is free, the entire rear window can be flapped upward, allowing a person to crawl in or reach the door locks. This avoids any damage to the window material or the expensive plastic slide retainers.28
+Pearl 10: Water Damage Recovery (Passive Chip)
+If a fob has been submerged (e.g., ocean swim), the battery and active electronics are likely destroyed.
+* Pearl: Do not assume the key is useless. The HITAG AES transponder chip is a passive RFID element. Even if the battery contacts are corroded and the buttons don't work, the chip itself is sealed. By removing the battery and cleaning the board with high-purity alcohol to remove conductive salts, the key can often still start the car using the "Inductive Press" method (Pearl #2). This is a critical recovery technique for getting a client out of a beach location.31
+Pearl 11: Uconnect App Interference
+* Pearl: For JL/JT owners with the Uconnect app actively paired to the vehicle, there can be Bluetooth interference during the programming of new fobs, particularly if the phone is inside the vehicle. The app constantly polls the RF Hub.
+* Procedure: Ensure all paired phones are moved at least 20 feet away or have Bluetooth disabled during the programming session to prevent "Pairing Loop" errors or communication timeouts.33
+Pearl 12: The 12+8 Cable Connection "Click"
+* Pearl: The connectors on the SGW/Star banks are small and delicate. When connecting the 12+8 bypass cable, a distinct tactile "click" must be felt. A loose connection here is the #1 cause of "Communication Error" during the PIN read phase. Furthermore, be extremely careful not to bend the pins on the vehicle side, as repairing a damaged Star Connector in the tight confines of the dash is a nightmare scenario.34
+7. Lockout Scenarios and Off-Road Recovery
+7.1. Hard Top vs. Soft Top Entry Strategies
+* Hard Top: The hard top offers standard automotive security. Entry is achieved via the driver's door keyway using a Lishi SIP22 or air wedge/reach tool. Note that the frameless window glass on the hard top is robust but can shatter if the wedge exerts point pressure. Use a wide wedge and position it near the B-pillar for maximum leverage with minimum stress.
+* Soft Top: As mentioned in Pearl #9, the rear window is the vulnerability. The "zipperless" design relies on tension. Release the tension at the bottom bar, and the security is compromised. This is the preferred method for soft tops to avoid damaging the door seals or bending the window frame with wedges.35
+7.2. Park Override (Automatic Transmission)
+In a recovery scenario where the key is lost or the vehicle has no power, the 8-speed automatic transmission is electronically shifted and defaults to Park. It cannot be shifted to Neutral without a special procedure.
+* The Tether: Located behind a small access panel on the dashboard (near the driver's knee or center stack, depending on console config) is an orange tether strap. Pulling this tether manually disengages the parking pawl in the transmission, allowing the vehicle to roll for towing or positioning. This is a critical knowledge point for recovering a disabled unit from a trail.36
+8. Conclusion
+The 2021 Jeep Wrangler JL and Gladiator JT stand as a testament to the rapid evolution of automotive security. The transition from the open architecture of the JK to the firewall-protected, encrypted ecosystem of the JL has fundamentally changed the locksmith's toolkit. The pick set and simple programmer have been augmented by 12+8 bypass cables, high-speed internet-connected diagnostic tablets, and a deep understanding of network topology.
+For the forensic professional, success on this platform requires a holistic view: recognizing the SIP22 keyway, respecting the voltage requirements of the dual-battery system, navigating the silent logic of the 4xe hybrid, and mastering the physical bypass of the Secure Gateway. The "Ready" light, the Green Star connector, and the inductive start button are the new keys to the kingdom. As Stellantis continues to refine the Secure Vehicle Architecture, the lessons learned on the 2021 platformâspecifically the necessity of physical layer access to circumvent digital barriersâwill likely remain the standard operating procedure for the foreseeable future.
+________________
+Document Status: FINAL
+Classification: TECHNICAL / FORENSIC
+Authorized Persona: Senior Automotive Security Research Analyst
+Works cited
+1. JL/JT FCA Security Gateway Module - JScan, accessed January 3, 2026, http://jscan.net/jl-jt-security-bypass/
+2. CAN-C Star Connector Gremlin Fix for JEEP JL/JT - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=EEdb4_TfN44
+3. Jeep-Fiat SIP22 High Security Test Key Blade (Aftermarket) (Pack of 10 - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/jeep-fiat-sip22-high-security-test-key-blade-aftermarket-pack-of-10
+4. Jeep Wrangler, Gladiator Aftermarket Flip Remote Key Blade SIP22 - Key4, accessed January 3, 2026, https://www.key4.com/flip-remote-key-blade-jeep-flip-remoye-key-sip22
+5. 2018-2024 Jeep Wrangler | Gladiator No Button Flip Smart Key OHT1130261, accessed January 3, 2026, https://yourcarkeyguys.com/products/2018-2024-jeep-wrangler-gladiator-no-button-flip-smart-key-oht1130261
+6. 2021 Jeep Gladiator Smart Flip Key Fob 4B W/ Remote Start FCC# OHT1130, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2021-jeep-gladiator-smart-flip-key-fob-4b-w-remote-start-fcc-oht1130261-aftermarket
+7. 2021-2024 Jeep Wrangler Gladiator / 2-Button Smart Flip Key / PN: 68416786AB / OHT1130261 / SIP22 (OEM) - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2021-2024-jeep-wrangler-gladiator-2-button-smart-flip-key-pn-68416786ab-oht1130261-sip22-oem
+8. 2018-2026 Jeep Integrated Key Fob Transmitter 68416784AD - Mopar OEM Parts Online, accessed January 3, 2026, https://mopar.oempartsonline.com/oem-parts/mopar-integrated-key-fob-transmitter-68416784ad
+9. 2020-2024 Jeep Gladiator 3-Button Smart Key Fob Remote (OHT1130261, 68416782, 68292942) - NorthCoast Keyless, accessed January 3, 2026, https://northcoastkeyless.com/product/jeep-gladiator-3-button-smart-key-fob-remote-fcc-id-oht1130261-p-n-68416782-68292942/
+10. OEM 2018 2019 2020 2021 2022 2023 2024 Jeep Wrangler JL & JK Remote 68416782, accessed January 3, 2026, https://www.ebay.com/itm/225480575834
+11. Activity Key Wristband, 315Mhz - Jaguar (T4K15873), accessed January 3, 2026, https://parts.jaguarcary.com/oem-parts/jaguar-activity-key-wristband-315mhz-t4k15873
+12. Range Rover Sport - INTERIOR - FUNCTION & TECHNOLOGY - Activity Key Wristband, 315Mhz, accessed January 3, 2026, https://accessories.landrover.com/us/en/range-rover-sport/interior/function-technology/lr147248-activity-key-wristband-315mhz/?brand=RangeRover
+13. remote start jeep wrangler - Amazon S3, accessed January 3, 2026, https://s3.amazonaws.com/rp-part-images/assets/d13dc0fadcab4fec095da2d38baf4969.PDF
+14. 2022 Wrangler: Lost communication with RF HUB - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=THz8yT7ROKo
+15. Jeep Cherokee RF Hub Keyless Entry Fuse Relay Location Replacement 2014 2023, accessed January 3, 2026, https://www.youtube.com/watch?v=BR0VzrEiIXI
+16. RF Hub Installation Location / Seat Removal - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=ZGDYekifYAc
+17. 20 23 WRANGLER 2023 WRANGLER | OWNER'S MANUAL - Dealer E Process, accessed January 3, 2026, https://cdn.dealereprocess.org/cdn/servicemanuals/jeep/2023-wrangler.pdf
+18. 2024 Jeep Wrangler Owner's Manual - Dealer E Process, accessed January 3, 2026, https://cdn.dealereprocess.org/cdn/servicemanuals/jeep/2024-wrangler.pdf
+19. accessed January 3, 2026, https://www.reddit.com/r/Jeep/comments/vxk155/just_curious_to_know_what_this_ready_means_on/#:~:text=Ready%20To%20Drive%20Indicator%20Light,the%20speed%20of%20the%20vehicle.
+20. 2022 WRANGLER, accessed January 3, 2026, https://msmownerassets.z13.web.core.windows.net/assets/publications/en-us/Jeep/2022/Wrangler_4xe/P133041_22_JL_H_SU_EN_USC_DIGITAL.pdf
+21. JL Batteries/starting issues - Auxiliary battery? : r/Wrangler - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Wrangler/comments/zxsh7j/jl_batteriesstarting_issues_auxiliary_battery/
+22. How to Program Jeep Key Fob | Dodge Dealer Near Columbia, SC, accessed January 3, 2026, https://www.tonytcdjr.com/key-fob.html
+23. 2021 Jeep Wrangler Key Fob Programming | All Keys Lost | Autel Universal Remote | Autel KM100 /IM508 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=G9pV6q1Di2w
+24. I FIXED Jeep's Aux Battery Issue FOR GOOD! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=ibESE5fAGf4
+25. AUX battery delete: Solve Jeep JL/JT Battery Problems in 20 Minutes DIY - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=3H3A6U-zk50
+26. 2017 Jeep Wrangler Clutch Switch Replacement - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=NPuoBQBs3Rg
+27. Fix for 2019 Jeep JL manual trans won't start and/or auto start stop service required - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Jeep/comments/a6udbz/fix_for_2019_jeep_jl_manual_trans_wont_start/
+28. How to Latch a Jeep Wrangler Soft Top - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=oiIO7-JT0nk
+29. Tips On How to Remove Jeep Wrangler JL Tops, accessed January 3, 2026, https://www.kendalldodgechryslerjeepram.com/tips-on-how-to-remove-jeep-wrangler-jl-tops-2/
+30. Soft top back window easier access? : r/Wrangler - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Wrangler/comments/183ubde/soft_top_back_window_easier_access/
+31. Key fob took a swim-- now what?! : r/JeepWrangler - Reddit, accessed January 3, 2026, https://www.reddit.com/r/JeepWrangler/comments/18u17oh/key_fob_took_a_swim_now_what/
+32. Fixing a water-damaged remote key - Motor Vehicle Maintenance & Repair Stack Exchange, accessed January 3, 2026, https://mechanics.stackexchange.com/questions/11305/fixing-a-water-damaged-remote-key
+33. How To Program Jeep Wrangler Key Fob â Remote Pairing (JK/JL) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=_ydFnHYT_T4
+34. 2018 JEEP WRANGLER / GLADIATOR 12+8 LOCATIONS (SGM LOCATION) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=D072R88XJdc
+35. Lowering Soft Top | How To | 2023 Jeep Wrangler - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=soOkhxTQ4uc
+36. Manual park override release Jeep JL Wrangler 8 speed trans - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=vQYHQbuBPC4

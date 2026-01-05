@@ -815,6 +815,95 @@ export default {
       }
 
       // ==============================================
+      // VEHICLE COMMENTS ENDPOINTS (Public Job Notes)
+      // ==============================================
+
+      // GET /api/vehicle-comments - Fetch comments for a vehicle
+      if (path === "/api/vehicle-comments" && request.method === "GET") {
+        try {
+          const vehicleKey = url.searchParams.get('vehicle_key');
+          if (!vehicleKey) {
+            return corsResponse(request, JSON.stringify({ error: "Missing vehicle_key" }), 400);
+          }
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, user_name, content, job_type, tool_used, upvotes, created_at
+            FROM vehicle_comments
+            WHERE vehicle_key = ? AND is_approved = 1
+            ORDER BY upvotes DESC, created_at DESC
+            LIMIT 50
+          `).bind(vehicleKey).all();
+
+          return corsResponse(request, JSON.stringify({
+            comments: result.results || [],
+            vehicle_key: vehicleKey
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/vehicle-comments - Add a new comment (requires auth)
+      if (path === "/api/vehicle-comments" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to leave a comment" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Please sign in to leave a comment" }), 401);
+
+          const userId = payload.sub as string;
+          const userName = (payload.name as string) || 'Anonymous';
+          const body: any = await request.json();
+          const { vehicle_key, content, job_type, tool_used } = body;
+
+          if (!vehicle_key || !content) {
+            return corsResponse(request, JSON.stringify({ error: "Missing vehicle_key or content" }), 400);
+          }
+
+          if (content.length > 2000) {
+            return corsResponse(request, JSON.stringify({ error: "Comment too long (max 2000 chars)" }), 400);
+          }
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO vehicle_comments (vehicle_key, user_id, user_name, content, job_type, tool_used)
+            VALUES (?, ?, ?, ?, ?, ?)
+          `).bind(vehicle_key, userId, userName, content.trim(), job_type || null, tool_used || null).run();
+
+          // Log activity
+          try {
+            await env.LOCKSMITH_DB.prepare(
+              "INSERT INTO user_activity (user_id, action, details, created_at) VALUES (?, ?, ?, ?)"
+            ).bind(userId, 'add_comment', JSON.stringify({ vehicle_key }), Date.now()).run();
+          } catch (e) { /* non-critical */ }
+
+          return corsResponse(request, JSON.stringify({ success: true, message: "Comment added!" }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/vehicle-comments/upvote - Upvote a comment
+      if (path === "/api/vehicle-comments/upvote" && request.method === "POST") {
+        try {
+          const body: any = await request.json();
+          const { comment_id } = body;
+
+          if (!comment_id) {
+            return corsResponse(request, JSON.stringify({ error: "Missing comment_id" }), 400);
+          }
+
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE vehicle_comments SET upvotes = upvotes + 1 WHERE id = ?
+          `).bind(comment_id).run();
+
+          return corsResponse(request, JSON.stringify({ success: true }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // USER PREFERENCES ENDPOINTS
       // ==============================================
 
@@ -2031,11 +2120,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
               // 3. Fetch Programming Pearls (New Research Automation)
               // Use LIKE for model matching to handle variations like "Escalade (K2XL) Forensic"
+              // Use GROUP BY pearl_title to deduplicate any duplicate ingestions
               const modelPattern = `${model}%`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
-                SELECT * FROM vehicle_pearls
+                SELECT id, vehicle_key, make, model, year_start, year_end, 
+                       pearl_title, pearl_content, display_order, source_doc, created_at
+                FROM vehicle_pearls
                 WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
+                GROUP BY pearl_title
                 ORDER BY display_order ASC
               `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
@@ -2498,6 +2591,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let alerts: any[] = [];
           let guide: any = null;
           let pearls: any[] = [];
+          let walkthroughs: any[] = [];
+          let configs: any[] = [];
 
           if (make && model && year) {
             const y = parseInt(year, 10);
@@ -2525,14 +2620,59 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
               // 3. Fetch Programming Pearls (Research Automation)
               // Use LIKE for model matching to handle variations
+              // Use GROUP BY pearl_title to deduplicate any duplicate ingestions
               const modelPattern = `${model}%`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
-                SELECT * FROM vehicle_pearls
+                SELECT id, vehicle_key, make, model, year_start, year_end, 
+                       pearl_title, pearl_content, display_order, source_doc, created_at
+                FROM vehicle_pearls
                 WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
+                GROUP BY pearl_title
                 ORDER BY display_order ASC
               `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
+
+              // 4. Fetch Walkthroughs (NEW: via junction table for one-to-many relationship)
+              // A walkthrough can apply to multiple vehicles/years
+              try {
+                const walkthroughsResult = await env.LOCKSMITH_DB.prepare(`
+                  SELECT w.id, w.slug, w.title, w.content, w.difficulty, 
+                         w.estimated_time_mins, w.video_url, w.tools_required,
+                         w.prerequisites, w.platform_code, w.security_architecture,
+                         w.category, w.updated_at, w.structured_steps_json, w.full_content_html,
+                         wv.is_primary, wv.notes as vehicle_notes
+                  FROM walkthroughs w
+                  JOIN walkthrough_vehicles wv ON w.id = wv.walkthrough_id
+                  WHERE LOWER(wv.make) = ? 
+                    AND LOWER(wv.model) LIKE ?
+                    AND ? BETWEEN wv.year_start AND wv.year_end
+                  ORDER BY wv.is_primary DESC, w.updated_at DESC
+                `).bind(make, modelPattern, y).all();
+                walkthroughs = walkthroughsResult.results || [];
+              } catch (e) {
+                // Table may not exist yet - graceful fallback
+                walkthroughs = [];
+              }
+
+              // 5. Fetch Vehicle Configs (NEW: verified key specs per vehicle/year)
+              try {
+                const configsResult = await env.LOCKSMITH_DB.prepare(`
+                  SELECT id, config_type, fcc_id, key_blade, chip, chip_family,
+                         battery, frequency, buttons, oem_part_number, 
+                         aftermarket_part_number, lishi_tool, programmer,
+                         programming_method, verified, source
+                  FROM vehicle_configs
+                  WHERE LOWER(make) = ? 
+                    AND LOWER(model) LIKE ?
+                    AND ? BETWEEN year_start AND year_end
+                  ORDER BY verified DESC, config_type
+                `).bind(make, modelPattern, y).all();
+                configs = configsResult.results || [];
+              } catch (e) {
+                // Table may not exist yet - graceful fallback
+                configs = [];
+              }
             }
           }
           const tEnd = performance.now();
@@ -2550,6 +2690,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             alerts,
             guide,
             pearls,
+            walkthroughs,
+            configs,
             _timings: {
               total: tEnd - tStart,
               count: tCount - tStart,

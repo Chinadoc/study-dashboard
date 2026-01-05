@@ -2569,6 +2569,42 @@
             padding: 24px;
         }
 
+        /* Mobile-responsive guide modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95% !important;
+                width: 95% !important;
+                padding: 12px;
+                border-radius: 12px;
+                max-height: 85vh;
+            }
+
+            .modal-body {
+                padding: 12px !important;
+            }
+
+            .guide-content-wrapper {
+                padding: 12px !important;
+            }
+
+            .guide-content-wrapper img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            .guide-content-wrapper table {
+                display: block;
+                overflow-x: auto;
+                width: 100% !important;
+            }
+
+            .guide-content-wrapper pre {
+                overflow-x: auto;
+                max-width: 100%;
+                font-size: 0.75rem;
+            }
+        }
+
         .modal-close {
             position: absolute;
             top: 12px;
@@ -3701,4 +3737,262 @@
             font-weight: 700;
             color: var(--text-primary);
             display: block;
+        }
+
+        /* ========================================
+   FULL GUIDE MODAL - Premium Reading Experience
+   ======================================== */
+
+        .guide-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(12px);
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .guide-modal-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            margin: 0 auto;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Floating Header */
+        .guide-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .guide-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .guide-header-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .guide-header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .guide-header-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .guide-header-meta {
+            display: flex;
+            gap: 8px;
+        }
+
+        .meta-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 12px;
+            color: var(--brand-primary);
+            font-weight: 600;
+        }
+
+        .guide-header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .guide-btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .guide-btn-icon:hover {
+            background: var(--bg-primary);
+            border-color: var(--brand-primary);
+            color: var(--text-primary);
+            transform: scale(1.05);
+        }
+
+        .guide-btn-close {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+            border: none;
+            border-radius: 10px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .guide-btn-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+        }
+
+        .guide-btn-close span {
+            font-size: 1rem;
+        }
+
+        /* Content Area */
+        .guide-modal-body {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #111827;
+        }
+
+        .guide-content-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #111827;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Loading State */
+        .guide-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: var(--bg-primary);
+            z-index: 5;
+        }
+
+        .guide-loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--brand-primary);
+            border-radius: 50%;
+            animation: guideSpinner 0.8s linear infinite;
+        }
+
+        @keyframes guideSpinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .guide-loading-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .guide-modal-footer {
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .guide-footer-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .guide-modal-header {
+                padding: 12px 16px;
+            }
+
+            .guide-header-title {
+                font-size: 0.95rem;
+                max-width: 180px;
+            }
+
+            .guide-header-meta {
+                display: none;
+            }
+
+            .guide-btn-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .guide-btn-close {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .guide-btn-close span {
+                display: none;
+            }
         }

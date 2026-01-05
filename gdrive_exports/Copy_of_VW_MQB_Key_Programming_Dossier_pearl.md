@@ -1,0 +1,283 @@
+ï»¿FORENSIC DOSSIER: 2021 VOLKSWAGEN JETTA (A7) & TIGUAN (AD/BW) â US MQB ARCHITECTURE, IMMOBILIZER PROTOCOLS, AND FORENSIC PROGRAMMING PROCEDURES
+1. Executive Intelligence Summary
+1.1 The US MQB Landscape: A Forensic Overview
+The 2021 model year represents a pivotal maturation point for Volkswagenâs Modularer Querbaukasten (MQB) architecture in the North American Region (NAR). This dossier focuses exclusively on two high-volume assets: the Jetta A7 (Mk7) and the Tiguan AD/BW (Long Wheelbase). For the forensic technician, security researcher, or automotive locksmith, these vehicles present a bifurcated security landscape. While they share the underlying MQB foundation, their implementation of the Immobilizer V (Immo 5) protocol diverges significantly based on the Tier 1 supplier of the instrument cluster.
+The critical finding of this investigation is the prevalence of Johnson Controls International (JCI) instrument clustersâand their Visteon successorsâin the US market Jetta A7. Unlike the VDO/Continental clusters common in European Golf Mk7 models, which allow for relatively straightforward On-Board Diagnostics (OBD) data extraction, the JCI clusters utilize a locked NEC 35xx microcontroller configuration that defeats standard OBD reading methods. This architectural decision forces forensic operators to employ invasive "on-bench" methodologies, specifically the "lift-pin" or "cut-trace" techniques, to extract the Component Security (CS) bytes required for key programming in "All Keys Lost" (AKL) scenarios.
+1.2 Critical Alert: The JCI/Visteon Encryption Barrier
+The primary operational risk identified in this dossier is the misidentification of the instrument cluster manufacturer. Attempting standard OBD unlock procedures on a locked JCI cluster can result in partial data corruption or communication lockouts. The transition of JCIâs automotive electronics division to Visteon has further complicated part identification, with 2021 models often featuring hybrid labeling.
+Key Forensic Indicators:
+* Jetta A7 (17A): High probability of JCI/Visteon analog clusters. Requires invasive MCU manipulation for AKL.
+* Tiguan (5NA): Mixed environment. Digital Cockpit (FPK) variants are generally VDO/Continental but require specific licenses for handling. Analog variants may be JCI.
+* Transponder Tech: Both platforms utilize the Megamos AES (MQB48/88) transponder protocol.
+* Remote Frequency: 315 MHz remains the standard for NAR, distinct from the 433 MHz used in the Rest of World (RoW).
+
+
+  
+
+
+
+________________
+2. Architectural Foundation: The US MQB Ecosystem
+2.1 The Evolution of the Modular Transverse Toolkit
+The shift from the previous PQ35 platform to the Modularer Querbaukasten (MQB) architecture marked a fundamental transformation in how Volkswagen vehicles are constructed, both mechanically and electronically. By the 2021 model year, this architecture had matured significantly in the North American market. The MQB system is not merely a shared chassis; it is a standardized matrix of "hard points"âspecifically the distance from the front axle to the firewallâthat allows for the interchangeability of powertrains and, crucially for forensic analysis, electronic modules.
+For the US market, this standardization created a unified electronic environment where a Jetta A7 and a Tiguan AD share nearly identical control modules, gateways, and communication protocols. This homogeneity suggests that forensic techniques developed for one model are theoretically applicable to the other. However, implementation details regarding supplier sourcing create a fragmented security landscape. The 2021 Jetta, internally designated as the A7 or Mk7 (though distinct from the European Golf Mk7), utilizes the MQB-A1 sub-platform. This vehicle is specifically engineered for the North American and Chinese markets, prioritizing cost-efficiency over the premium complexity found in the European Golf. This cost-optimization strategy directly influences the choice of security components, most notably the instrument cluster.
+The 2021 Tiguan sold in the US is universally the Long Wheelbase (LWB) version, often referred to globally as the Tiguan Allspace or Tiguan L. Like the Jetta, it sits on the MQB architecture but often integrates higher-tier electronic options such as the Digital Cockpit Pro as standard on mid-to-high trims.1
+2.2 Manufacturing Geography and Supplier Logic
+A critical, often overlooked factor in automotive forensics is the point of assembly. Both the 2021 Jetta and the 2021 Tiguan for the US market are manufactured at the Volkswagen de MÃ©xico facility in Puebla. This geographical concentration has profound implications for the supply chain of electronic components. While European-built MQB vehicles (like the Golf R or Arteon) frequently source instrument clusters from Continental VDO (a German supplier), the Puebla-built models heavily favor Johnson Controls International (JCI) and Visteon for their analog cluster needs.
+This supplier divergence is the root cause of the "JCI Problem" discussed throughout this dossier. The firmware variants and hardware revisions found in Puebla-built JCI clusters differ subtly from their European counterparts, often featuring unique encryption keys or board layouts that are not immediately documented in standard global service manuals. The JCI clusters in the US market Jetta are notorious for their robust security implementation, specifically the locking of the NEC microcontroller's debug port, a measure less aggressively applied in VDO units. Understanding this "Puebla Factor" allows the forensic analyst to predict the likely hardware inside a vehicle simply by decoding the VIN's first digit (3 for Mexico) or examining the manufacturing label.1
+2.3 Topological Distinctions: Jetta A7 vs. Tiguan AD
+While sharing the MQB backbone, the topology of the Jetta and Tiguan differs in ways that affect physical access and module interaction. The Tiguan, being an SUV, typically locates its KESSY (Keyless Access) antenna modules in the higher headliner and rear cargo areas, whereas the Jetta sedan places them in the center console and C-pillars.
+Furthermore, the 2021 model year sits on the cusp of the transition to MIB3 (Modular Infotainment Matrix 3). Higher trim Jettas (SEL/SEL Premium) and Tiguans equipped with MIB3 introduce a more complex "Component Protection" environment where the Infotainment unit is more tightly coupled with the Gateway and Cluster. However, the Immobilizer functionality remains anchored in the Cluster-ECU relationship, preserving the relevance of cluster-focused forensic attacks. The Jetta A7's architecture is notably flatter, often lacking the separate Gateway module found in higher-end Audis, instead integrating the Gateway function directly into the BCM (Body Control Module) or maintaining a discrete but simplified Gateway J533, depending on the specific equipment packages.1
+________________
+3. Immobilizer V (Immo 5): The Cryptographic Framework
+3.1 The "Circle of Trust" Architecture
+The 2021 Jetta and Tiguan operate on the Fifth Generation Immobilizer System (Immo 5). This system represents a significant leap in complexity over the previous Immo 4 found in the Jetta Mk6. In Immo 4, the cluster was the distinct master, but the relationship between components was less interdependent. In the MQB Immo 5 architecture, VW implemented a federated security model often described as a "Circle of Trust."
+At the heart of this circle is the Instrument Cluster (Address 17), which acts as the Immo Master. It is the repository for the vehicle's unique identity, storing the Component Security (CS) bytes, the MAC (Message Authentication Code) synchronization keys, and the PowerClass byte.
+* The Handshake: When the ignition is engaged, the Cluster queries the Key (Transponder) for its unique ID and encrypted payload.
+* Verification: If the Key is validated, the Cluster does not simply send a "go" signal. Instead, it engages in a challenge-response handshake with the Engine Control Unit (ECU/DME - Address 01) and the Transmission Control Unit (TCU/DSG - Address 02).
+* Authorization: The Cluster sends the CS bytes to the ECU/TCU. These slave modules compare the received CS against their own stored CS. If, and only if, the bytes match perfectly, the ECU authorizes fuel injection and the TCU releases the gear shift lock.
+This architecture means that a forensic technician cannot simply swap a "locked" ECU with an "unlocked" one from a scrapyard. The donor ECU would carry different CS bytes, failing the handshake with the original Cluster. The vehicle would start for one second and then dieâa classic "Immo Active" symptom.
+
+
+  
+
+
+
+3.2 Component Security (CS) Theory
+The Component Security (CS) block is a 16-byte hexadecimal string that acts as the vehicle's DNA.
+* CS 1-6 (Bytes 1-6): Historically used in Immo 4.
+* CS 7-12 (Bytes 7-12): Added in Immo 5 for enhanced entropy.
+* The "Seventh Byte" Issue: In older systems, finding the "7th byte" was the holy grail of key programming. In the 2021 MQB system, the concept has evolved. The system relies on the full 16-byte CS string plus a specific MAC synchronization between the Cluster and ECU.
+* Forensic Implication: Reading the CS from the ECU (which is often easier via boot mode) is insufficient to create a working key for the Cluster. The Cluster contains "Immo Data" that includes not just the CS, but also the specific crypto-keys for the transponder. Therefore, the Cluster remains the primary target for forensic acquisition. If the Cluster is destroyed or totally inaccessible, the technician faces a "Total System Loss" scenario requiring the purchase of a new Cluster and adaptation via ODIS online, as the data cannot be fully reconstructed from the ECU alone.5
+3.3 Transponder Evolution: From Megamos 48 to AES
+The 2021 Jetta and Tiguan utilize the Megamos AES transponder protocol. In the locksmith trade, this is often referred to as MQB48 or ID88.
+* Legacy Context: Previous generations (Mk6 Jetta) used the Megamos Crypto (ID48) chip. While the physical glass pill looks identical, the logic is incompatible.
+* AES Encryption: The "AES" designation indicates the use of the Advanced Encryption Standard (128-bit) for the challenge-response between the key and the car. This effectively neutralizes old "cloning" attacks that relied on sniffing the communication.
+* Pre-Coding Necessity: A generic, blank ID48 AES chip cannot be programmed to the car immediately. It must first be "pre-coded" or "prepared" using the specific CS data extracted from the Cluster. This process writes the specific brand identity (Volkswagen) and the vehicle's CS onto the locked sectors of the transponder, turning it into a "Dealer Key." Only a Dealer Key can be subsequently "learned" by the vehicle's Immo system.6
+________________
+4. The Instrument Cluster: The Forensic Battlefield
+4.1 The Supplier Bifurcation
+The defining characteristic of the 2021 US MQB platform is the bifurcation of instrument cluster technology. This is not merely a difference in aesthetics (digital vs. analog) but a fundamental divergence in hardware architecture and security hardening.
+4.1.1 VDO / Continental: The "Open" Architecture
+Clusters manufactured by Continental VDO are typically found in the 2021 Tiguan SEL Premium R-Line and other high-trim models equipped with the Digital Cockpit Pro (Active Info Display).
+* Architecture: These units generally employ a Renesas or NEC microcontroller, but the implementation of the bootloader and debug interfaces is standard.
+* Forensic Access: VDO clusters are widely supported by aftermarket forensic tools (Autel, Xhorse, Abrites) via the OBD-II port. The tools utilize known exploits in the VDO firmware to authenticate and read the Immo data (CS, MAC, Key IDs) without removing the cluster from the dashboard. This makes "All Keys Lost" scenarios on VDO-equipped Tiguans relatively fast and non-invasive.5
+* Visual ID: VDO clusters often have part numbers starting with 5G1 or specific 5NA digital variants. The rear label clearly states "Continental" or "VDO".10
+4.1.2 Johnson Controls (JCI) / Visteon: The "Fortress"
+This is the standard equipment for the vast majority of 2021 Jetta A7 models (S, SE, R-Line) and lower-trim Tiguans (S, SE). The analog gauge cluster with the central monochrome or color LCD is almost exclusively a JCI/Visteon product.
+* The Transition: During the lifecycle of the MQB platform, Johnson Controls spun off its automotive electronics business to Visteon. Consequently, 2021 models may bear labels from either JCI or Visteon, but the underlying architecture remains the "JCI style" secure design.
+* The NEC Barrier: These clusters utilize specific NEC D70F35xx microcontrollers (e.g., D70F3525, D70F3526, D70F3532).
+* The Lock: Unlike VDO, JCI implemented a robust hardware lock on the microcontroller's debug port. The chip monitors specific voltage levels on its "Mode" pins. If it detects an attempt to enter "Test/Debug Mode" (which forensic tools use to read memory), it shuts down communication or, in some iterations, can trigger a security lockout.12
+* Forensic Consequence: Standard OBD reading is impossible for JCI clusters in an "All Keys Lost" situation. The tool cannot handshake with the locked MCU. The analyst must remove the cluster and perform invasive bench operations.14
+4.2 Detailed Identification: 17A vs. 5G1 vs. 5NA
+Misidentifying a cluster can lead to catastrophic tool failure (bricking the unit). The Part Number is the primary indicator.
+Model
+	Part Number Prefix
+	Likely Supplier
+	Gauge Type
+	Forensic Access
+	Jetta A7
+	17A (e.g., 17A-920-840)
+	JCI / Visteon
+	Analog + LCD
+	Invasive (Lift Pin)
+	Tiguan
+	5NA (e.g., 5NA-920-850)
+	JCI / Visteon
+	Analog + LCD
+	Invasive (Lift Pin)
+	Tiguan
+	5NA (e.g., 5NA-920-891)
+	VDO / Continental
+	Digital Cockpit
+	OBD (Usually)
+	Golf/GTI
+	5G1 (e.g., 5G1-920-858)
+	VDO / Continental
+	Analog or Digital
+	OBD
+	Note: The 17A prefix is specific to the Jetta Mk7 sedan. The 5NA prefix is specific to the Tiguan MQB. The presence of Visteon branding on a 2021 17A cluster confirms it requires the same treatment as older JCI units.11
+4.3 Deep Dive: The NEC D70F35xx Architecture
+The NEC (now Renesas) V850/RH850 family of microcontrollers used in these clusters are 32-bit RISC processors designed for high-reliability automotive applications.
+* Internal Flash: The Immo data is not stored in an external EEPROM (like a 24C64) that can be easily clipped. It resides in the Data Flash area inside the MCU silicon.
+* Security Mechanism: The MCU has a "Disable Serial Programming" bit set. However, forensic researchers discovered that by manipulating the voltage on the FLMD0 (Flash Mode 0) pin during the boot sequence, the chip can be tricked into a maintenance mode.
+* The Trace Issue: On JCI PCBs, the FLMD0 pin is often hardwired to a ground or VCC plane via internal PCB layers or very short traces, making it difficult to isolate. This necessitates the "Lift Pin" or "Cut Trace" technique to physically break that connection and allow the forensic tool to drive the pin high/low as needed.13
+________________
+5. Forensic Acquisition Procedures
+5.1 The "All Keys Lost" (AKL) Crisis
+In a "Add Key" scenario where the owner has one working key, the working key can be used to authenticate with the Cluster, bypassing the need for aggressive exploits. The tool simply asks the Cluster to authorize a new key using the existing session.
+However, in "All Keys Lost," the Cluster is in a locked state (Armed). It rejects all OBD requests to read sensitive memory. This is where the procedural fork occurs.
+
+
+  
+
+
+
+5.2 Bench Extraction: The "Lift-Pin" Methodology
+For the 2021 Jetta A7 with a JCI/Visteon cluster, the only viable method for AKL (without paying the dealer/ODIS) is the Bench Extraction.
+Step-by-Step Procedure:
+1. Extraction: Remove the trim bezel and T20 Torx screws. Disconnect the LVDS cable and the main 32-pin connector.
+2. Disassembly: Open the cluster casing. Remove the gauge needles (requires a specialized removal tool to avoid bending the stepper motor shafts). Remove the gauge faceplate to expose the PCB.
+3. MCU Identification: Locate the NEC D70F35xx chip.
+4. Pin Isolation (The Critical Step):
+   * Identify the specific FLMD0 pin (often Pin 105 or similar, depending on the specific chip package 3525 vs 3532).
+   * Technique: Using a hot air rework station (set to approx. 350Â°C) and a fine dental pick or needle, gently heat the solder pad of that single pin. Once molten, lift the pin upwards so it no longer touches the pad.
+   * Warning: The pins are extremely fragile. Excessive force will snap the leg off the silicon body, destroying the cluster.13
+5. Connection: Solder a fine magnet wire to the lifted pin. Connect this wire to the "FLMD0" line of the programmer (e.g., VVDI Prog or Key Tool Plus). Connect the remaining VCC, GND, RESET, TX, and RX lines to the standard test points on the PCB.
+6. Reading: Execute the "Read Immo Data" function in the software. The tool uses the lifted pin to force the MCU into a debug mode, bypassing the security check, and dumps the Data Flash.
+7. Restoration: Desolder the wire. Gently press the pin back down to the pad and reflow the solder. Verify continuity. Reassemble the cluster.
+5.3 Alternative Method: The "Probe" (ADC-219)
+Some tools, specifically from Advanced Diagnostics (Ilco) and Abrites, utilize a specialized adapter cable (ADC-219) that incorporates pogo pins or specific connector interfaces.
+* Mechanism: This adapter attempts to connect to the necessary test points on the back of the PCB without full disassembly/needle removal.
+* Success Rate: While effective on older JCI variants (2014-2017), its efficacy on the 2021+ Visteon-manufactured JCI boards is inconsistent. The "Lift Pin" method remains the gold standard for 100% success on the newest hardware.20
+5.4 Toolchain Analysis
+
+
+Tool
+	JCI Support Status
+	Method
+	Notes
+	Xhorse VVDI2 / Key Tool Plus
+	YES
+	Bench (Lift Pin)
+	Requires "MQB License". Supports D70F35xx reading, decrypting, and key generation. High success rate. Currently the market leader for this specific task. 6
+	Abrites AVDI (VN007/VN009)
+	Partial/Specific
+	Probe (ADC-219)
+	Often uses a pogo-pin adapter (ADC-219) to avoid soldering. Supports many JCI variants but requires specific licenses (VN009 for newer MQB). Good for those avoiding soldering. 5
+	Autel IM608
+	Limited
+	OBD / Bench
+	Generally weaker on JCI specifically compared to Xhorse. Often requires the XP400 Pro programmer and removing the cluster. The software menu for "JCI" is often less updated than Xhorse. 24
+	ODIS (Dealer)
+	YES
+	Server-Side
+	Requires NASTF credentials (in US) and valid Geeko/ODIS subscription. Does not read data; it downloads it from VW servers. This is the only "non-invasive" method but takes days for key ordering. 26
+	________________
+6. Programming Pearls: Transponders, Remotes, and Frequencies
+The US market utilizes specific frequencies and part numbers that are incompatible with European models. A common error is attempting to program a 433 MHz key (standard for Golfs in Europe) to a US Jetta, which results in the immobilizer working (car starts) but the remote buttons failing.
+6.1 Transponder Forensics: Megamos AES
+Both the Jetta A7 and Tiguan AD use the Megamos AES protocol.
+* Encryption: The transponder uses 128-bit AES encryption. It is not "clonable" onto generic T5 or CN chips in the traditional sense. It must be generated.
+* Pre-Coding: A "blank" ID48 chip cannot simply be programmed. It must first be "pre-coded" into a "Dealer Key" using the vehicle's specific Component Security (CS) and Brand (VW) bytes. Only then can it be "learned" to the car.6
+6.2 US Market Frequencies & Part Numbers
+The US market strictly uses 315 MHz for these models.
+6.2.1 Jetta A7 (2019-2021)
+The Jetta predominantly uses two key types depending on the "KESSY" (Keyless Entry Start and Exit System) package.
+* Flip Key (Keyed Ignition): Found on S and some SE trims.
+   * Part Number: 5G6 959 752 BM.27
+   * FCC ID: NBGFS125C1.27
+   * Buttons: 4 (Lock, Unlock, Trunk, Panic).
+   * Chip: MQB49 / MQB48 AES.
+   * Pearl: This key often has a very strong spring mechanism. Ensure the "BM" suffix matches; earlier "BE" keys (Mk7 Golf) may not work on the A7 Jetta BCM.
+* Smart Key (Push-to-Start): Found on SEL, R-Line, and SEL Premium.
+   * Part Number: 3G0 959 752 T (or BQ / DA supersessions).30
+   * FCC ID: KR5FS14-T (or KR5FS14-US).
+   * Buttons: 5 (Lock, Unlock, Trunk, Remote Start, Panic).
+   * Note: The presence of the Remote Start (x2) button is a key identifier for US models. The remote start sequence is usually Lock -> Double Press Start.
+6.2.2 Tiguan AD/BW (2018-2021)
+The Tiguan in the US is almost exclusively KESSY equipped on most trims seen in 2021.
+* Part Number: 3G0 959 752 T / BQ.32
+* FCC ID: KR5FS14-T.
+* Frequency: 315 MHz.
+* Compatibility: This key is shared with the VW Atlas and Passat (NMS) of similar years. This "cross-platform" compatibility allows locksmiths to stock fewer SKUs (the "3G0" key covers Tiguan, Atlas, and Jetta Kessy).
+
+
+  
+
+
+
+6.3 "Renewing" OEM Keys
+Used keys from these vehicles are typically "locked" to the original VIN. However, the PCB hardware (e.g., 2694A-FS125C1) allows for unlocking/renewing.
+* Method: Tools like the Xhorse Key Tool Plus or VVDI Key Tool Max with the "Renew" adapter can erase the locked data sectors, resetting the key to a "Virgin" state. This requires soldering wires to specific test points on the remote PCB.34
+* Application: This allows forensic technicians to recycle OEM keys, which are often of higher build quality than aftermarket replacements.
+________________
+7. Advanced Coding & Retrofits
+7.1 Remote Start Retrofit: The FeC Barrier
+Unlike the PQ35 platform (Mk6 Jetta) where remote start could sometimes be enabled via simple coding if the hardware was present, the MQB platform uses FeC (Feature Enable Codes) or "Swap" (Software as a Product) codes for function activation.
+For a 2021 Tiguan or Jetta that did not come with Remote Start, adding it is not just a matter of buying the 5-button key.
+1. Hardware: You must install the Remote Start Relay (J901) in the relay carrier (often slot 10 or similar in the BCM area).
+2. Activation: You must purchase an activation document from VW. This document contains a code (e.g., 3FBD for V6 models, 4196 for 1.4 TSI models).36
+3. Procedure: This code must be entered via ODIS Online. The VW server verifies the VIN and the code, then sends a signed certificate to the BCM to unlock the feature.
+4. Implication: Aftermarket retrofits that use "3x Lock" on the factory key often bypass this by using a CAN-bus module (like Fortin or Compustar) that simulates the key presence, rather than using the native VW remote start logic.38
+7.2 Convenience Coding (Windows)
+A popular "Forensic/Enthusiast" modification is enabling the key fob to open/close windows. This capability is present in the BCM firmware but disabled for the US market due to safety regulations.
+* Module: 09-Central Electrics.
+* Security Access: 31347.
+* Adaptation Channels:
+   * Access Control 2 -> Comfort opening -> Active
+   * Access Control 2 -> Comfort closing -> Active
+   * Access Control 2 -> Menu Control Comfort Control -> Active (This adds a checkbox in the car's radio menu).
+   * Access Control 2 -> Kessy comfort operation -> Active (For door handle sensor operation).39
+* Function: Once coded, holding the "Unlock" button on the remote rolls down all windows; holding "Lock" rolls them up.
+________________
+8. Emergency Contingencies & Troubleshooting
+8.1 Emergency Start Protocols
+When the key fob battery (CR2025/CR2032) is depleted, the "Key Not Detected" error prevents vehicle start. The induction coil location is a frequent point of confusion due to historical changes.
+* Jetta A7 & Tiguan AD (2021): The emergency coil is located on the steering column. Look for a key icon or "WiFi-like" marking on the right side of the column plastic.
+   * Procedure: Hold the back of the fob (logo side) directly against this marking. Press the Start button with the other hand. The cluster will read the transponder passively (via induction, requiring no battery power).41
+   * Correction: Do not look for a slot in the dash or the cup holder (common in older Passats/Touaregs). The column placement is the MQB standard.
+
+
+  
+
+
+
+8.2 Battery Failure Modes
+A dying key fob battery often manifests as reduced range before total failure.
+* Warning: The Digital Cockpit will usually display "Replace Key Battery" well in advance.
+* Battery Type:
+   * Smart Keys (3G0): CR2032.32
+   * Flip Keys (5G6): CR2025 is standard, though CR2032 can sometimes be forced in (not recommended as it strains the casing).
+________________
+9. Conclusion
+The 2021 VW Jetta A7 and Tiguan AD represent a high-security environment for automotive forensics. The era of simple OBD key programming is effectively over for the volume-selling Jetta trims due to the widespread adoption of JCI/Visteon instrument clusters. The platform's security relies on the robust hardware locking of the NEC microcontroller and the federated "Circle of Trust" between the Cluster and ECU.
+For the forensic technician, success requires a shift in methodology:
+1. Verify Hardware First: Use visual cues and part numbers (17A vs 5G1) to identify JCI clusters immediately.
+2. Invest in Bench Tools: OBD-only tools are insufficient. A soldering station, microscope, and bench programmer (Key Tool Plus, VVDI Prog) are mandatory requirements for handling the JCI "Lift Pin" procedure.
+3. Respect the Data: The Immo 5 architecture means data corruption in the cluster can brick the ECU and Transmission. Always backup the original EEPROM/Flash before attempting invasive operations.
+This dossier confirms that while the platform is secure, it is not impenetrable. With the correct invasive techniques, cryptographic tools, and understanding of the US-specific componentry (315 MHz, Puebla supply chain), full forensic access and key recovery remain achievable.
+Works cited
+1. 2021 Volkswagen Jetta for Sale | Auto Dealer near Seattle, WA, accessed January 3, 2026, https://www.budclaryauburnvw.com/wmp/new/2021-volkswagen-jetta/
+2. 2021 Volkswagen Tiguan Review, Pricing, and Specs - Car and Driver, accessed January 3, 2026, https://www.caranddriver.com/volkswagen/tiguan-2021
+3. Buy a 2021 VW Jetta for Sale | Volkswagen Dealer near Me, accessed January 3, 2026, https://www.tomwoodvolkswagennoblesville.com/2021-volkswagen-jetta-near-indianapolis-in.htm
+4. Different digital dashes? : r/VWatlas - Reddit, accessed January 3, 2026, https://www.reddit.com/r/VWatlas/comments/1juhvi8/different_digital_dashes/
+5. ABRITES AVDI VAG Km Special Functions Set for VAG Mileage Recalibration VN001, VN007, VN010 | Transponder Island Inc., accessed January 3, 2026, https://transponderisland.com/shop/tit-avdi-15-abrites-avdi-vag-km-special-functions-set-for-vag-mileage-recalibration-vn001-vn007-vn010-131
+6. Read MQB Locked NEC35xx Using KEY TOOL PLUS | Xhorse - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=CyfBuegkrX0
+7. jingyuqin 5G0959753BH /5G0959753AE 315Mhz MQB48 Smart Remote Car Key FOB for Volkswagen VW Golf 7 Tiguan KeylessGo MQB System - AliExpress, accessed January 3, 2026, https://www.aliexpress.com/item/1005003534939266.html
+8. Volkswagen MQB Transponder Key MEGAMOS AES ID MQB48, HU66 - ABKEYS, accessed January 3, 2026, https://abkeys.com/products/volkswagen-golf7-tiguan-mqbuttons-transponder-key-megamos-aes-hu66-2532
+9. Volkswagen, Audi, Seat, Skoda Diagnostic Software Abrites, accessed January 3, 2026, https://abrites.com/page/abrites-diagnostics-for-volkswagen-audi-seat-skoda
+10. Genuine Volkswagen Instrument Cluster 5G1-920-858-B - eBay, accessed January 3, 2026, https://www.ebay.com/itm/127113038240
+11. Genuine Volkswagen Cluster Assembly 5G1-920-841 | eBay, accessed January 3, 2026, https://www.ebay.com/itm/226999188305
+12. DIAGPROG4* - Software Price list, accessed January 3, 2026, https://www.diagprog4.com/files/dp4_pricelist.pdf?1765238400014
+13. MQB Dashboard NEC3525 Lift Pin & Cut Wire Tutorial | KEY TOOL PLUS - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Clg9fOyKPgw
+14. VW Jetta All Keys Lost Programming with Abrites Pogo Pin - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=TrK5XvW3hK4
+15. 2017 VW Jetta All Keys Lost: Unlock the Secret to Key Programming! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=2wXgma3_dcU
+16. 2021 Volkswagen Jetta Instrument Cluster 17A-920-840-C | OEM Parts Online, accessed January 3, 2026, https://vw.oempartsonline.com/oem-parts/volkswagen-instrument-cluster-17a920840c
+17. Genuine Volkswagen 2021 Volkswagen Jetta - Instrument Cluster 17A-920-840-C | eBay, accessed January 3, 2026, https://www.ebay.com/itm/365526091658
+18. Genuine Volkswagen Instrument Cluster 5NA-920-850-A | eBay, accessed January 3, 2026, https://www.ebay.com/itm/397080981667
+19. How To Perform MQB Dashboard NEC3525 Lift Pin & Cut Wire Tutorial w Xhorse VVDI KEY TOOL PLUS - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Sk1GASGrIhw
+20. VW All Keys Lost? Master the ADC-219 Pinout! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=2xuog66PoD4
+21. adva ADC219 VAG Instrument Cluster Reset Cable User Guide - device.report, accessed January 3, 2026, https://device.report/manual/5884365
+22. How To Program #vw #volkswagen All Keys Lost using ADC-219 Pinout 2015 Jetta Advanced #diagnostics - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Xx19QlBSJOo
+23. Xhorse VVDI Prog / VVDI 2 / Key Tool Plus MQB Function Authorization Software (Machine Sold Separately) - Key Innovations, accessed January 3, 2026, https://keyinnovations.com/xhorse-vvdi-prog-vvdi-2-key-tool-plus-mqb-function-authorization-software-machine-sold-separately/
+24. IM608 Pro | How To Do All Keys Lost On A Volkswagen Jetta 2014 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=4c6Srv63QRM
+25. How to Salvage a Key Programming Disaster: Accidental Key Deletion On a 2015 VW Jetta with the Im608 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=4BchfrAZBIY
+26. All keys lost : r/jetta - Reddit, accessed January 3, 2026, https://www.reddit.com/r/jetta/comments/1e9s4lw/all_keys_lost/
+27. OEM Key Fob Volkswagen VW Jetta Tiguan Golf GTI NBGFS125C1 5G6 959 752 BM | eBay, accessed January 3, 2026, https://www.ebay.com/itm/365143088717
+28. 2020 Volkswagen Jetta Remote Key Fob - CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2020-volkswagen-jetta-remote-key-fob
+29. Volkswagen 5G6 959 752 BM NBGFS125C1 Flip Remote Key (Refurbished) - Key4, accessed January 3, 2026, https://www.key4.com/volkswagen-flip-remote-key-5g6959752-bm-nbgfs125c1-refurbished
+30. 2019 Volkswagen Jetta Smart Remote Key Fob - CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2019-volkswagen-jetta-smart-remote-key-fob
+31. Volkswagen 5 Button Smart Key KR5FS14-T, 3G0959752BQ, 315 MHz - Refurbished, Grade A, accessed January 3, 2026, https://keyinnovations.com/volkswagen-5-button-smart-key-kr5fs14-t-3g0959752bq-315-mhz-refurbished-grade-a/
+32. 2023 Volkswagen Smart Key 5B FCC# KR5FS14 T - 3G0.959.752.BQ - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2018-2023-volkswagen-smart-key-5b-fcc-kr5fs14-t-3g0-959-752-bq
+33. 2021-2023 VW Volkswagen Atlas Genuine OEM 5 Btn Smart Key Remote 3G0959752BQR KR5FS14-T | Trunk Release - eBay, accessed January 3, 2026, https://www.ebay.com/itm/394236045008
+34. Newb's Guide: How to Use Xhorse Key Tools to Program a Spare Key (Toyota) - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Autolocksmith/comments/1h3qtrc/newbs_guide_how_to_use_xhorse_key_tools_to/
+35. How To Unlock Used Car Keys Using Xhorse Renew Adapters - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=O_kVdC5f3cw
+36. Installation of genuine remote start feature accessory - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2020/MC-10177908-0001.pdf
+37. 3CN 065 760 - Installation Of Genuine Remote Start Feature Accessory, Volkswagen MQB Models, accessed January 3, 2026, https://vw-audi.oemdtc.com/856/3cn-065-760-installation-of-genuine-remote-start-feature-accessory-volkswagen-mqb-models
+38. Can You Add Remote Start to an Audi or VW Vehicle? - Compustar, accessed January 3, 2026, https://www.compustar.com/blog/can-you-add-remote-start-to-an-audi-or-vw-vehicle/
+39. VCDS Key Remote Adaptation for VW and Audi - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=xLKNg4yioFk
+40. VW Jetta (16/AJ) Tweaks - Ross-Tech Wiki, accessed January 3, 2026, https://wiki.ross-tech.com/wiki/index.php/VW_Jetta_(16/AJ)_Tweaks
+41. 2019 - 2022 Volkswagen Jetta KEY NOT DETECTED - How To Start With Dead VW Remote Key Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=VEYJGS4XU4g
+42. 2022 Volkswagen Jetta KEY FOB NOT DETECTED - How To Start With Dead Remote Key Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/shorts/7U_89hiDfYM
+43. How to Start VW Tiguan with Key, accessed January 3, 2026, https://www.icartea.com/en/wiki/how-to-start-vw-tiguan-with-key
