@@ -2121,7 +2121,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               // 3. Fetch Programming Pearls (New Research Automation)
               // Use LIKE for model matching to handle variations like "Escalade (K2XL) Forensic"
               // Include pearl_type and is_critical for frontend section distribution
-              const modelPattern = `${model}%`;
+              const modelPattern = `${model.toLowerCase()}%`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
                 SELECT id, vehicle_key, make, model, year_start, year_end, 
                        pearl_title, pearl_content, pearl_type, is_critical, reference_url,
@@ -2143,7 +2143,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   END,
                   is_critical DESC,
                   display_order ASC
-              `).bind(make, modelPattern, y).all();
+              `).bind(make.toLowerCase(), modelPattern, y).all();
               pearls = pearlsResult.results || [];
             }
           }
@@ -2755,16 +2755,29 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
               // 3. Fetch Programming Pearls (Research Automation)
               // Use LIKE for model matching to handle variations
-              // Use GROUP BY pearl_title to deduplicate any duplicate ingestions
+              // Include pearl_type and is_critical for frontend section distribution
               const modelPattern = `${model}%`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
                 SELECT id, vehicle_key, make, model, year_start, year_end, 
-                       pearl_title, pearl_content, display_order, source_doc, created_at
+                       pearl_title, pearl_content, pearl_type, is_critical, reference_url,
+                       display_order, source_doc, created_at,
+                       COALESCE((SELECT SUM(vote) FROM pearl_votes pv WHERE pv.pearl_id = vehicle_pearls.id), 0) as score,
+                       COALESCE((SELECT COUNT(*) FROM pearl_comments pc WHERE pc.pearl_id = vehicle_pearls.id), 0) as comment_count
                 FROM vehicle_pearls
                 WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
                 GROUP BY pearl_title
-                ORDER BY display_order ASC
+                ORDER BY 
+                  CASE pearl_type 
+                    WHEN 'Alert' THEN 1
+                    WHEN 'AKL Procedure' THEN 2
+                    WHEN 'Add Key Procedure' THEN 3
+                    WHEN 'Tool Alert' THEN 4
+                    WHEN 'FCC Registry' THEN 5
+                    ELSE 10 
+                  END,
+                  is_critical DESC,
+                  display_order ASC
               `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
 
