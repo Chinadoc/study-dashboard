@@ -114,6 +114,288 @@ async function postComment(vehicleKey, containerIdx) {
 
 const AMAZON_TAG = 'eurokeys-20';
 
+// ==============================================
+// PEARL SECTIONS RENDERER (8 Distinct Sections)
+// ==============================================
+
+/**
+ * Render pearls distributed across distinct sections based on pearl_type
+ * @param {Array} pearls - Array of pearl objects with pearl_type
+ * @param {Object} vehicle - { year, make, model }
+ * @returns {string} HTML for all pearl sections
+ */
+function renderPearlSections(pearls, vehicle) {
+    if (!pearls || pearls.length === 0) return '';
+
+    const { year, make, model } = vehicle;
+
+    // Distribute pearls by type
+    const sections = {
+        alerts: pearls.filter(p => p.pearl_type === 'Alert' || p.is_critical),
+        akl: pearls.filter(p => p.pearl_type === 'AKL Procedure'),
+        addKey: pearls.filter(p => p.pearl_type === 'Add Key Procedure'),
+        tools: pearls.filter(p => p.pearl_type === 'Tool Alert'),
+        fccRegistry: pearls.filter(p => p.pearl_type === 'FCC Registry'),
+        mechanical: pearls.filter(p => p.pearl_type === 'Mechanical'),
+        electronic: pearls.filter(p => p.pearl_type === 'Electronic'),
+        procedures: pearls.filter(p => p.pearl_type === 'Procedure'),
+        youtube: pearls.filter(p => p.reference_url && p.reference_url.includes('youtube')),
+        general: pearls.filter(p => p.pearl_type === 'System Info' || p.pearl_type === 'Reference')
+    };
+
+    let html = '';
+
+    // Helper: Render a single pearl card with voting
+    const renderPearlCard = (p, expanded = false) => {
+        const scoreDisplay = p.score > 0 ? `+${p.score}` : (p.score || '0');
+        const scoreColor = p.score > 0 ? '#22c55e' : (p.score < 0 ? '#ef4444' : 'var(--text-muted)');
+        const truncatedContent = p.pearl_content?.length > 200 && !expanded
+            ? p.pearl_content.substring(0, 200) + '...'
+            : p.pearl_content;
+
+        return `
+            <div class="pearl-card" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 10px; padding: 16px; transition: all 0.2s;"
+                 onmouseover="this.style.borderColor='rgba(139, 92, 246, 0.4)'"
+                 onmouseout="this.style.borderColor='rgba(139, 92, 246, 0.15)'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px;">
+                    <strong style="color: #c4b5fd; font-size: 0.95rem; flex: 1;">${p.pearl_title || 'Intel'}</strong>
+                    ${p.is_critical ? '<span style="background: rgba(239,68,68,0.2); color: #ef4444; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">⚠️ CRITICAL</span>' : ''}
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+                    ${truncatedContent || ''}
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; margin-top: 8px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button onclick="votePearl(${p.id}, 1)" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px; transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(34,197,94,0.1)'; this.style.color='#22c55e'"
+                                onmouseout="this.style.background='none'; this.style.color='var(--text-muted)'">
+                            👍
+                        </button>
+                        <span style="font-weight: 700; color: ${scoreColor}; min-width: 24px; text-align: center;">${scoreDisplay}</span>
+                        <button onclick="votePearl(${p.id}, -1)" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px; transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(239,68,68,0.1)'; this.style.color='#ef4444'"
+                                onmouseout="this.style.background='none'; this.style.color='var(--text-muted)'">
+                            👎
+                        </button>
+                        <button onclick="showPearlComments(${p.id})" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; font-size: 0.85rem;">
+                            💬 ${p.comment_count || 0}
+                        </button>
+                    </div>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">
+                        ${p.source_doc ? p.source_doc.replace('.html', '').substring(0, 25) : 'Research'}
+                    </span>
+                </div>
+            </div>
+        `;
+    };
+
+    // Section: Critical Alerts (Always first if present)
+    if (sections.alerts.length > 0) {
+        html += `
+            <div class="pearl-section alerts-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #ef4444; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">⚠️</span> CRITICAL ALERTS
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.alerts.length} alerts</span>
+                </h4>
+                <div style="display: grid; gap: 12px;">
+                    ${sections.alerts.map(p => renderPearlCard(p)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Section: All Keys Lost (AKL)
+    if (sections.akl.length > 0) {
+        html += `
+            <div class="pearl-section akl-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #f59e0b; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">🚨</span> ALL KEYS LOST
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.akl.length} procedures</span>
+                </h4>
+                <div style="display: grid; gap: 12px;">
+                    ${sections.akl.map(p => renderPearlCard(p)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Section: Add Key
+    if (sections.addKey.length > 0) {
+        html += `
+            <div class="pearl-section addkey-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #22c55e; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">🔑</span> ADD KEY PROCEDURE
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.addKey.length} procedures</span>
+                </h4>
+                <div style="display: grid; gap: 12px;">
+                    ${sections.addKey.map(p => renderPearlCard(p)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Section: Tool Recommendations
+    if (sections.tools.length > 0) {
+        html += `
+            <div class="pearl-section tools-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #3b82f6; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">🛠️</span> RECOMMENDED TOOLS
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.tools.length} alerts</span>
+                </h4>
+                <div style="display: grid; gap: 12px;">
+                    ${sections.tools.map(p => renderPearlCard(p)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Section: FCC Registry / What You'll Need
+    if (sections.fccRegistry.length > 0 || sections.mechanical.length > 0 || sections.electronic.length > 0) {
+        const allParts = [...sections.fccRegistry, ...sections.mechanical, ...sections.electronic];
+        html += `
+            <div class="pearl-section parts-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #a78bfa; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">📦</span> WHAT YOU'LL NEED
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">FCC IDs, Keys, Parts</span>
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+                    ${allParts.slice(0, 4).map(p => renderPearlCard(p)).join('')}
+                </div>
+                ${allParts.length > 4 ? `
+                    <details style="margin-top: 12px;">
+                        <summary style="color: var(--brand-primary); cursor: pointer; font-size: 0.9rem;">Show ${allParts.length - 4} more entries...</summary>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 12px;">
+                            ${allParts.slice(4).map(p => renderPearlCard(p)).join('')}
+                        </div>
+                    </details>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    // Section: YouTube Videos
+    if (sections.youtube.length > 0) {
+        html += `
+            <div class="pearl-section youtube-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #ff6b6b; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">🎥</span> VIDEO TUTORIALS
+                </h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                    ${sections.youtube.map(p => `
+                        <a href="${p.reference_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); border-radius: 8px; text-decoration: none; color: white;">
+                            <span>▶️</span>
+                            <span>${p.pearl_title || 'Watch Tutorial'}</span>
+                        </a>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Section: General Intelligence (System Info, References, Procedures)
+    const generalPearls = [...sections.general, ...sections.procedures].slice(0, 6);
+    if (generalPearls.length > 0) {
+        html += `
+            <div class="pearl-section general-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #8b5cf6; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">💎</span> RESEARCH INTELLIGENCE
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${generalPearls.length} pearls</span>
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                    ${generalPearls.map(p => renderPearlCard(p)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    return html;
+}
+
+// Pearl voting function
+async function votePearl(pearlId, vote) {
+    try {
+        const res = await fetch(`${API}/api/pearls/${pearlId}/vote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ vote })
+        });
+        const data = await res.json();
+        if (data.error) {
+            showToast(data.error, 'error');
+        } else {
+            showToast(`Vote ${data.action}!`, 'success');
+            // Optionally refresh the section
+        }
+    } catch (e) {
+        showToast('Failed to vote', 'error');
+    }
+}
+
+// Pearl comments modal
+async function showPearlComments(pearlId) {
+    try {
+        const res = await fetch(`${API}/api/pearls/${pearlId}/comments`);
+        const data = await res.json();
+        const comments = data.comments || [];
+
+        const modal = document.createElement('div');
+        modal.id = 'pearlCommentsModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow: hidden;">
+                <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">💬 Pearl Comments</h3>
+                    <button onclick="document.getElementById('pearlCommentsModal').remove()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+                <div style="padding: 16px; overflow-y: auto; max-height: 50vh;">
+                    ${comments.length === 0 ? '<p style="color: var(--text-muted); text-align: center;">No comments yet. Be the first!</p>' : comments.map(c => `
+                        <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <strong style="color: var(--text-primary);">${c.username || 'Anonymous'}</strong>
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">${new Date(c.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <p style="margin: 0; color: var(--text-secondary);">${c.content}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="padding: 16px; border-top: 1px solid var(--border);">
+                    <textarea id="pearlCommentInput" placeholder="Add a comment..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); resize: none; height: 60px;"></textarea>
+                    <button onclick="postPearlComment(${pearlId})" style="margin-top: 8px; width: 100%; padding: 10px; background: var(--brand-primary); border: none; border-radius: 8px; color: #000; font-weight: 600; cursor: pointer;">Post Comment</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch (e) {
+        showToast('Failed to load comments', 'error');
+    }
+}
+
+async function postPearlComment(pearlId) {
+    const input = document.getElementById('pearlCommentInput');
+    const content = input?.value?.trim();
+    if (!content) return;
+
+    try {
+        const res = await fetch(`${API}/api/pearls/${pearlId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ content })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Comment added!', 'success');
+            document.getElementById('pearlCommentsModal')?.remove();
+            showPearlComments(pearlId); // Refresh
+        } else {
+            showToast(data.error || 'Failed', 'error');
+        }
+    } catch (e) {
+        showToast('Failed to post comment', 'error');
+    }
+}
+
 /**
  * Parse structured steps from walkthrough data
  */
@@ -3152,22 +3434,9 @@ function displayResults(rows, year, make, model, extras = {}) {
             html += `</div>`;
         }
 
-        // C. Programming Pearls (Research)
+        // C. Programming Pearls (New Section-Based Renderer)
         if (hasPearls) {
-            html += `
-            <div class="brief-section pearls">
-                <h4 style="margin: 0 0 12px 0; color: #a78bfa; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                    💎 Research Snippets
-                </h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                    ${pearls.map(p => `
-                    <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 8px; padding: 14px;">
-                        <strong style="color: #c4b5fd; display: block; margin-bottom: 8px; font-size: 0.95rem;">${p.pearl_title}</strong>
-                        <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${formatPearlContent(p.pearl_content)}</div>
-                    </div>
-                    `).join('')}
-                </div>
-            </div>`;
+            html += renderPearlSections(pearls, { year: cleanYear, make, model });
         }
 
         // D. Guide Embed (Collapsible Preview)

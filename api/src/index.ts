@@ -2120,16 +2120,29 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
               // 3. Fetch Programming Pearls (New Research Automation)
               // Use LIKE for model matching to handle variations like "Escalade (K2XL) Forensic"
-              // Use GROUP BY pearl_title to deduplicate any duplicate ingestions
+              // Include pearl_type and is_critical for frontend section distribution
               const modelPattern = `${model}%`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
                 SELECT id, vehicle_key, make, model, year_start, year_end, 
-                       pearl_title, pearl_content, display_order, source_doc, created_at
+                       pearl_title, pearl_content, pearl_type, is_critical, reference_url,
+                       display_order, source_doc, created_at,
+                       COALESCE((SELECT SUM(vote) FROM pearl_votes pv WHERE pv.pearl_id = vehicle_pearls.id), 0) as score,
+                       COALESCE((SELECT COUNT(*) FROM pearl_comments pc WHERE pc.pearl_id = vehicle_pearls.id), 0) as comment_count
                 FROM vehicle_pearls
                 WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
                 GROUP BY pearl_title
-                ORDER BY display_order ASC
+                ORDER BY 
+                  CASE pearl_type 
+                    WHEN 'Alert' THEN 1
+                    WHEN 'AKL Procedure' THEN 2
+                    WHEN 'Add Key Procedure' THEN 3
+                    WHEN 'Tool Alert' THEN 4
+                    WHEN 'FCC Registry' THEN 5
+                    ELSE 10 
+                  END,
+                  is_critical DESC,
+                  display_order ASC
               `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
             }
@@ -2451,6 +2464,128 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           await env.LOCKSMITH_DB.prepare(`DELETE FROM vehicle_comments WHERE id = ?`).bind(commentId).run();
 
           return corsResponse(request, JSON.stringify({ success: true, deleted: commentId }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL VOTING & COMMENTS API
+      // ==============================================
+
+      // POST vote on pearl
+      if (path.match(/^\/api\/pearls\/\d+\/vote$/) && request.method === "POST") {
+        try {
+          const pearlId = parseInt(path.split("/")[3]);
+          const body: any = await request.json();
+          const vote = body.vote; // 1 = upvote, -1 = downvote
+
+          if (![1, -1].includes(vote)) {
+            return corsResponse(request, JSON.stringify({ error: "vote must be 1 or -1" }), 400);
+          }
+
+          // Require login to vote
+          const token = getSessionToken(request);
+          if (!token) {
+            return corsResponse(request, JSON.stringify({ error: "Login required to vote" }), 401);
+          }
+
+          let userId: string;
+          try {
+            const payload = await verifyInternalToken(token, env.JWT_SECRET);
+            if (!payload || !payload.sub) throw new Error("Invalid session");
+            userId = payload.sub as string;
+          } catch (_) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          // Check existing vote
+          const existingVote = await env.LOCKSMITH_DB.prepare(`
+            SELECT vote FROM pearl_votes WHERE pearl_id = ? AND user_id = ?
+          `).bind(pearlId, userId).first<any>();
+
+          if (existingVote) {
+            if (existingVote.vote === vote) {
+              // Remove vote (toggle off)
+              await env.LOCKSMITH_DB.prepare(`
+                DELETE FROM pearl_votes WHERE pearl_id = ? AND user_id = ?
+              `).bind(pearlId, userId).run();
+              return corsResponse(request, JSON.stringify({ success: true, action: "removed", userVote: 0 }));
+            } else {
+              // Change vote
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE pearl_votes SET vote = ? WHERE pearl_id = ? AND user_id = ?
+              `).bind(vote, pearlId, userId).run();
+              return corsResponse(request, JSON.stringify({ success: true, action: "changed", userVote: vote }));
+            }
+          }
+
+          // New vote
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pearl_votes (pearl_id, user_id, vote) VALUES (?, ?, ?)
+          `).bind(pearlId, userId, vote).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, action: "voted", userVote: vote }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET pearl comments
+      if (path.match(/^\/api\/pearls\/\d+\/comments$/) && request.method === "GET") {
+        try {
+          const pearlId = parseInt(path.split("/")[3]);
+          const comments = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, pearl_id, user_id, username, content, created_at
+            FROM pearl_comments 
+            WHERE pearl_id = ?
+            ORDER BY created_at DESC
+            LIMIT 50
+          `).bind(pearlId).all();
+
+          return corsResponse(request, JSON.stringify({
+            pearl_id: pearlId,
+            comments: comments.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST pearl comment
+      if (path.match(/^\/api\/pearls\/\d+\/comments$/) && request.method === "POST") {
+        try {
+          const pearlId = parseInt(path.split("/")[3]);
+          const body: any = await request.json();
+          const { content } = body;
+
+          if (!content || content.length > 500) {
+            return corsResponse(request, JSON.stringify({ error: "Content required (max 500 chars)" }), 400);
+          }
+
+          // Get user from session
+          let userId = "anonymous";
+          let username = "Anonymous";
+          const token = getSessionToken(request);
+          if (token) {
+            try {
+              const payload = await verifyInternalToken(token, env.JWT_SECRET);
+              if (payload && payload.sub) {
+                userId = payload.sub as string;
+                username = (payload.name as string) || "User";
+              }
+            } catch (_) { }
+          }
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pearl_comments (pearl_id, user_id, username, content) VALUES (?, ?, ?, ?)
+          `).bind(pearlId, userId, username, content).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            comment_id: result.meta.last_row_id,
+            message: "Comment added"
+          }), 201);
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
