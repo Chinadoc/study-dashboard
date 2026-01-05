@@ -194,6 +194,241 @@ function renderAffiliatePart(part, vehicle = {}) {
 }
 
 /**
+ * Render comprehensive Key Intel Panel
+ * Shows FCC IDs, key cutting info, chip details, and research guide links
+ * @param {Array} configs - Vehicle configurations from /api/browse
+ * @param {Array} keys - Compatible keys from /api/vehicle-keys (optional)
+ * @param {Object} vehicle - { year, make, model }
+ * @param {Object} options - { showAffiliateLinks, pearls, walkthrough }
+ */
+function renderKeyIntelPanel(configs, keys, vehicle, options = {}) {
+    const { year, make, model } = vehicle;
+    const { showAffiliateLinks = true, pearls = [], walkthrough = null } = options;
+
+    if ((!configs || configs.length === 0) && (!keys || keys.length === 0)) {
+        return '';
+    }
+
+    // Merge and dedupe FCC configurations
+    const fccMap = new Map();
+
+    // Add configs first (higher priority - verified data)
+    (configs || []).forEach(c => {
+        const fcc = (c.fcc_id || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
+        if (fcc && fcc !== 'N/A') {
+            if (!fccMap.has(fcc)) {
+                fccMap.set(fcc, {
+                    fcc_id: c.fcc_id,
+                    config_type: c.config_type || 'Smart Key',
+                    buttons: c.buttons,
+                    chip: c.chip || c.chip_family,
+                    key_blade: c.key_blade,
+                    battery: c.battery,
+                    frequency: c.frequency,
+                    lishi_tool: c.lishi_tool,
+                    programmer: c.programmer,
+                    verified: c.verified,
+                    source: 'config'
+                });
+            }
+        }
+    });
+
+    // Add keys if no configs (fallback)
+    if (fccMap.size === 0 && keys && keys.length > 0) {
+        keys.forEach(k => {
+            const fcc = (k.fcc_id || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
+            if (fcc && !fccMap.has(fcc)) {
+                fccMap.set(fcc, {
+                    fcc_id: k.fcc_id,
+                    config_type: k.key_type || 'Key',
+                    buttons: k.button_count || k.buttons,
+                    chip: k.chip,
+                    key_blade: null,
+                    battery: k.battery,
+                    frequency: k.frequency,
+                    verified: false,
+                    source: 'vehicle_keys'
+                });
+            }
+        });
+    }
+
+    const uniqueConfigs = Array.from(fccMap.values());
+    if (uniqueConfigs.length === 0) return '';
+
+    // Get cutting info from first config with data
+    const cuttingConfig = uniqueConfigs.find(c => c.key_blade || c.lishi_tool) || uniqueConfigs[0];
+    const keyBlade = cuttingConfig.key_blade || 'N/A';
+    const lishiTool = cuttingConfig.lishi_tool || 'N/A';
+    const chip = uniqueConfigs.find(c => c.chip)?.chip || 'N/A';
+    const battery = uniqueConfigs.find(c => c.battery)?.battery || 'CR2032';
+    const frequency = uniqueConfigs.find(c => c.frequency)?.frequency || 'N/A';
+
+    let html = `<div class="key-intel-panel" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-top: 16px; overflow: hidden;">`;
+
+    // === SECTION 1: KEY OPTIONS (FCC IDs) ===
+    html += `
+        <div class="key-intel-section" style="padding: 16px; border-bottom: 1px solid var(--border);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <span style="font-size: 1.2rem;">🔐</span>
+                <span style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">KEY OPTIONS</span>
+                ${uniqueConfigs.length > 1 ? `<span style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 8px; border-radius: 4px;">${uniqueConfigs.length} variants</span>` : ''}
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">`;
+
+    uniqueConfigs.forEach((config, idx) => {
+        const isFirst = idx === 0;
+        const fccDisplay = config.fcc_id || 'Unknown';
+        const btnDisplay = config.buttons ? `${config.buttons}-Btn` : '';
+        const typeLabel = config.config_type || 'Smart Key';
+
+        // Determine variant label (Base, Remote Start, etc.)
+        let variantLabel = typeLabel;
+        if (config.buttons) {
+            if (config.buttons <= 4) variantLabel = 'Base Model';
+            else if (config.buttons >= 5) variantLabel = 'Remote Start';
+        }
+
+        const amazonQuery = `${year} ${make} ${model} key fob ${fccDisplay}`;
+        const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${AMAZON_TAG}`;
+
+        html += `
+            <a href="${amazonUrl}" target="_blank" 
+               onclick="logActivity('affiliate_click', {type:'key_intel_fcc', fcc:'${fccDisplay}', year:'${year}', make:'${make}', model:'${model}'})"
+               style="display: flex; flex-direction: column; padding: 12px; background: ${isFirst ? 'rgba(59,130,246,0.1)' : 'var(--bg-tertiary)'}; border: 1px solid ${isFirst ? 'rgba(59,130,246,0.4)' : 'var(--border)'}; border-radius: 8px; text-decoration: none; transition: all 0.2s;"
+               onmouseover="this.style.borderColor='var(--brand-primary)'; this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.borderColor='${isFirst ? 'rgba(59,130,246,0.4)' : 'var(--border)'}'; this.style.transform='translateY(0)'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem; color: var(--accent); font-family: monospace;">${fccDisplay}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">${btnDisplay} ${variantLabel}</div>
+                    </div>
+                    ${config.verified ? '<span style="color: #22c55e; font-size: 0.9rem;" title="Verified">✓</span>' : ''}
+                </div>
+                ${config.chip ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);">Chip: ${config.chip}</div>` : ''}
+                <div style="font-size: 0.7rem; color: #22c55e; margin-top: 8px;">Buy on Amazon →</div>
+            </a>`;
+    });
+
+    html += `</div></div>`;
+
+    // === SECTION 2: KEY CUTTING INFO ===
+    if (keyBlade !== 'N/A' || lishiTool !== 'N/A' || chip !== 'N/A') {
+        html += `
+            <div class="key-intel-section" style="padding: 16px; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 1.2rem;">🗝️</span>
+                    <span style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">KEY CUTTING & CHIP</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">`;
+
+        // Key Blade
+        if (keyBlade !== 'N/A') {
+            const bladeQuery = `${keyBlade} key blank`;
+            const bladeUrl = `https://www.amazon.com/s?k=${encodeURIComponent(bladeQuery)}&tag=${AMAZON_TAG}`;
+            html += `
+                <a href="${bladeUrl}" target="_blank" 
+                   onclick="logActivity('affiliate_click', {type:'key_intel_blade', blade:'${keyBlade}'})"
+                   style="display: flex; flex-direction: column; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; text-decoration: none;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Key Blank</div>
+                    <div style="font-weight: 600; color: var(--text-primary);">${keyBlade}</div>
+                    <div style="font-size: 0.65rem; color: #22c55e; margin-top: 4px;">Shop →</div>
+                </a>`;
+        }
+
+        // Lishi Tool
+        if (lishiTool !== 'N/A') {
+            const lishiQuery = `Lishi ${lishiTool} pick decoder`;
+            const lishiUrl = `https://www.amazon.com/s?k=${encodeURIComponent(lishiQuery)}&tag=${AMAZON_TAG}`;
+            html += `
+                <a href="${lishiUrl}" target="_blank" 
+                   onclick="logActivity('affiliate_click', {type:'key_intel_lishi', lishi:'${lishiTool}'})"
+                   style="display: flex; flex-direction: column; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; text-decoration: none;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Lishi Tool</div>
+                    <div style="font-weight: 600; color: var(--text-primary);">${lishiTool}</div>
+                    <div style="font-size: 0.65rem; color: #22c55e; margin-top: 4px;">Shop →</div>
+                </a>`;
+        }
+
+        // Chip Type
+        if (chip !== 'N/A') {
+            html += `
+                <div style="display: flex; flex-direction: column; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Chip Type</div>
+                    <div style="font-weight: 600; color: var(--accent);">${chip}</div>
+                </div>`;
+        }
+
+        // Battery
+        if (battery && battery !== 'N/A') {
+            const batteryQuery = `${battery} battery 10 pack`;
+            const batteryUrl = `https://www.amazon.com/s?k=${encodeURIComponent(batteryQuery)}&tag=${AMAZON_TAG}`;
+            html += `
+                <a href="${batteryUrl}" target="_blank" 
+                   onclick="logActivity('affiliate_click', {type:'key_intel_battery', battery:'${battery}'})"
+                   style="display: flex; flex-direction: column; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; text-decoration: none;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Battery</div>
+                    <div style="font-weight: 600; color: var(--text-primary);">${battery}</div>
+                    <div style="font-size: 0.65rem; color: #22c55e; margin-top: 4px;">Shop →</div>
+                </a>`;
+        }
+
+        // Frequency
+        if (frequency !== 'N/A') {
+            html += `
+                <div style="display: flex; flex-direction: column; padding: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Frequency</div>
+                    <div style="font-weight: 600; color: var(--text-primary);">${frequency}</div>
+                </div>`;
+        }
+
+        html += `</div></div>`;
+    }
+
+    // === SECTION 3: RESEARCH GUIDE (if pearls or walkthrough available) ===
+    if (pearls.length > 0 || walkthrough) {
+        html += `
+            <div class="key-intel-section" style="padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 1.2rem;">📚</span>
+                    <span style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">RESEARCH GUIDE</span>
+                    ${walkthrough?.verified ? '<span style="background: rgba(34,197,94,0.2); color: #22c55e; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">Verified</span>' : ''}
+                </div>`;
+
+        // Show summary pearls (max 3)
+        if (pearls.length > 0) {
+            html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
+            pearls.slice(0, 3).forEach(pearl => {
+                html += `
+                    <div style="background: rgba(139, 92, 246, 0.1); border-left: 3px solid #8b5cf6; padding: 10px 12px; border-radius: 0 6px 6px 0;">
+                        <div style="font-weight: 600; color: #a78bfa; font-size: 0.85rem; margin-bottom: 4px;">${pearl.pearl_title || 'Key Insight'}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">${(pearl.pearl_content || '').substring(0, 150)}${(pearl.pearl_content || '').length > 150 ? '...' : ''}</div>
+                    </div>`;
+            });
+            html += `</div>`;
+        }
+
+        // Show walkthrough link if available
+        if (walkthrough && walkthrough.id) {
+            html += `
+                <button onclick="openGuideModal('${walkthrough.id}')" 
+                        style="margin-top: 12px; width: 100%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>📖</span>
+                    <span>View Full Research Guide</span>
+                    <span>→</span>
+                </button>
+                <div id="guide-data-${walkthrough.id}" data-guide-json="${btoa(unescape(encodeURIComponent(JSON.stringify(walkthrough))))}" style="display:none;"></div>`;
+        }
+
+        html += `</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+}
+
+/**
  * Render premium-gated content
  * TEMPORARY: Gating disabled - showing all content for development/preview
  */
@@ -2984,54 +3219,74 @@ function displayResults(rows, year, make, model, extras = {}) {
     if (!hasStructuredWalkthrough) {
         const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
 
-        // 3. What You'll Need (Tools)
-        // PRIORITIZE Verified Configs -> Legacy Rows
-        const configSource = (configs && configs.length > 0) ? configs[0] : (rows[0] || {});
-        // Fallback for missing fields in configs (e.g. keyway might be in rows but not configs?)
-        const legacyRow = rows[0] || {};
+        // === NEW: Render Key Intel Panel (comprehensive key data) ===
+        // Uses configs from API, fallback to legacy rows, includes pearls and walkthrough
+        html += renderKeyIntelPanel(
+            configs,                    // Vehicle configs from /api/browse
+            [],                         // Compatible keys (loaded dynamically later via carousel)
+            { year: cleanYear, make, model },
+            {
+                showAffiliateLinks: true,
+                pearls: pearls || [],
+                walkthrough: guideData
+            }
+        );
 
-        // Map fields: Configs uses 'fcc_id', 'key_blade', 'battery'. Legacy uses 'fcc_id', 'keyway', 'battery'
-        const fccId = configSource.fcc_id || legacyRow.fcc_id || 'HYQ4EA';
-        const keyway = configSource.key_blade || legacyRow.keyway || 'HU100';
-        const battery = configSource.battery || legacyRow.battery || 'CR2032';
-        const amazonTag = 'eurokeys-20';
-        html += `
-            <div class="tool-checklist" style="background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                    <span style="font-size: 1.3rem;">🛠️</span>
-                    <span style="font-weight: 700; color: #22c55e;">WHAT YOU'LL NEED</span>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${year} ${make} ${model} key fob ${fccId}`)}&tag=${amazonTag}" target="_blank" 
-                       onclick="logActivity('affiliate_click', { type: 'checklist_key', term: '${year} ${make} ${model} key fob ${fccId}', fcc_id: '${fccId}' })"
-                       style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
-                        <span>🔑</span>
-                        <div>
-                            <div style="font-weight: 600; color: #ffffff;">Key Fob (${fccId})</div>
-                            <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+        // If no configs available, show legacy fallback with basic info
+        if (!configs || configs.length === 0) {
+            // Legacy fallback for older vehicles without verified configs
+            const legacyRow = rows[0] || {};
+            const fccId = legacyRow.fcc_id || 'N/A';
+            const keyway = legacyRow.keyway || 'N/A';
+            const battery = legacyRow.battery || 'CR2032';
+            const chip = legacyRow.chip || 'N/A';
+            const amazonTag = 'eurokeys-20';
+
+            // Only show if we have meaningful data
+            if (fccId !== 'N/A' || keyway !== 'N/A') {
+                html += `
+                    <div class="tool-checklist" style="background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span style="font-size: 1.3rem;">🛠️</span>
+                            <span style="font-weight: 700; color: #22c55e;">WHAT YOU'LL NEED</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">Legacy Data</span>
                         </div>
-                    </a>
-                    ${keyway && keyway !== 'N/A' ? `
-                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${keyway} key blank`)}&tag=${amazonTag}" target="_blank" 
-                       onclick="logActivity('affiliate_click', { type: 'checklist_blade', term: '${keyway} key blank', keyway: '${keyway}' })"
-                       style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
-                        <span>🗝️</span>
-                        <div>
-                            <div style="font-weight: 600; color: #ffffff;">Blade (${keyway.split(' ')[0]})</div>
-                            <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            ${fccId !== 'N/A' ? `
+                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${year} ${make} ${model} key fob ${fccId}`)}&tag=${amazonTag}" target="_blank" 
+                               onclick="logActivity('affiliate_click', { type: 'checklist_key', term: '${year} ${make} ${model} key fob ${fccId}', fcc_id: '${fccId}' })"
+                               style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
+                                <span>🔑</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #ffffff;">Key (${fccId})</div>
+                                    ${chip !== 'N/A' ? `<div style="font-size: 0.7rem; color: var(--text-muted);">Chip: ${chip}</div>` : ''}
+                                    <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                                </div>
+                            </a>` : ''}
+                            ${keyway !== 'N/A' ? `
+                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${keyway} key blank`)}&tag=${amazonTag}" target="_blank" 
+                               onclick="logActivity('affiliate_click', { type: 'checklist_blade', term: '${keyway} key blank', keyway: '${keyway}' })"
+                               style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
+                                <span>🗝️</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #ffffff;">Blade (${keyway.split(' ')[0]})</div>
+                                    <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                                </div>
+                            </a>` : ''}
+                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${battery} battery 10 pack`)}&tag=${amazonTag}" target="_blank" 
+                               onclick="logActivity('affiliate_click', { type: 'checklist_battery', term: '${battery} battery', battery: '${battery}' })"
+                               style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
+                                <span>🔋</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #ffffff;">Battery (${battery})</div>
+                                    <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
+                                </div>
+                            </a>
                         </div>
-                    </a>` : ''}
-                    <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${battery} battery 10 pack`)}&tag=${amazonTag}" target="_blank" 
-                       onclick="logActivity('affiliate_click', { type: 'checklist_battery', term: '${battery} battery', battery: '${battery}' })"
-                       style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
-                        <span>🔋</span>
-                        <div>
-                            <div style="font-weight: 600; color: #ffffff;">Battery (${battery})</div>
-                            <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
-                        </div>
-                    </a>
-                </div>
-            </div>`;
+                    </div>`;
+            }
+        }
+
 
         // 5. Video Section (moved down - procedures come after parts)
         html += `
@@ -3098,13 +3353,37 @@ function displayResults(rows, year, make, model, extras = {}) {
     // --- LEGACY CONFIGURATIONS: Only RENDER if no Intel Card ---
     if (!hasStructuredWalkthrough) {
 
-        // --- CONFIGURATION LIST ---
+        // --- FLIP CARD CAROUSEL FOR CONFIGURATIONS ---
+        const configCount = uniqueRows.length;
         html += `<div class="configurations-section">
-            <h3 style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                Available Key Configurations (${uniqueRows.length})
-            </h3>`;
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                <h3 style="font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin: 0;">
+                    Available Key Configurations (${configCount})
+                </h3>
+                ${configCount > 1 ? `
+                <div class="config-carousel-nav" style="display: flex; align-items: center; gap: 12px;">
+                    <button onclick="prevConfigCard()" class="carousel-arrow-btn" aria-label="Previous configuration" style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s;">
+                        ←
+                    </button>
+                    <span id="config-carousel-counter" style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; min-width: 50px; text-align: center;">1 / ${configCount}</span>
+                    <button onclick="nextConfigCard()" class="carousel-arrow-btn" aria-label="Next configuration" style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s;">
+                        →
+                    </button>
+                </div>
+                ` : ''}
+            </div>
+            
+            <!-- Pagination dots for quick navigation -->
+            ${configCount > 1 ? `
+            <div id="config-dots-container" style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                ${uniqueRows.map((_, i) => `<button onclick="goToConfigCard(${i})" class="config-dot ${i === 0 ? 'active' : ''}" style="width: 10px; height: 10px; border-radius: 50%; border: none; cursor: pointer; transition: all 0.2s; background: ${i === 0 ? 'var(--brand-primary)' : 'var(--bg-tertiary)'};" aria-label="Go to configuration ${i + 1}"></button>`).join('')}
+            </div>
+            ` : ''}
+            
+            <!-- Flip card container -->
+            <div id="config-cards-container" style="position: relative; overflow: hidden;">`;
 
-        // Make Config Cards
+        // Make Config Cards (hidden by default except first)
         html += uniqueRows.map((v, idx) => {
             const fccId = v.fcc_id || 'N/A';
             const oem = v.oem_part_number || 'N/A';
@@ -3170,7 +3449,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             const keyTechCardImg = typeof getKeyTechCardImage === 'function' ? getKeyTechCardImage(make, year, keyTypeDisplay, v.button_count || 4) : null;
 
             return `
-            <div class="config-card ${themeClass}" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; position: relative;">
+            <div class="config-card ${themeClass}" data-config-index="${idx}" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; position: relative; display: ${idx === 0 ? 'block' : 'none'}; animation: ${idx === 0 ? 'fadeInCard 0.3s ease' : 'none'};">
             
             <!-- Config Header -->
             <div style="background: var(--bg-tertiary); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -3327,6 +3606,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             `;
         }).join('');
 
+        html += `</div>`; // End config-cards-container
         html += `</div> `; // End configurations-section
 
     } // End if (!hasStructuredWalkthrough)
@@ -3665,4 +3945,77 @@ function initQuickSearch() {
         }
     }
 }
+
+// ==============================================
+// CONFIGURATION CAROUSEL FUNCTIONS
+// ==============================================
+
+window.currentConfigIndex = 0;
+
+window.updateConfigCarouselUI = function () {
+    const cards = document.querySelectorAll('.config-card');
+    const dots = document.querySelectorAll('.config-dot');
+    const counter = document.getElementById('config-carousel-counter');
+
+    if (cards.length === 0) return;
+
+    // Ensure index is within bounds
+    if (window.currentConfigIndex >= cards.length) window.currentConfigIndex = 0;
+    if (window.currentConfigIndex < 0) window.currentConfigIndex = cards.length - 1;
+
+    // Update Cards
+    cards.forEach((card, idx) => {
+        if (idx === window.currentConfigIndex) {
+            card.style.display = 'block';
+            card.style.animation = 'fadeInConfigCard 0.3s ease forwards';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Update Dots
+    dots.forEach((dot, idx) => {
+        if (idx === window.currentConfigIndex) {
+            dot.classList.add('active');
+            dot.style.background = 'var(--brand-primary)';
+            dot.style.transform = 'scale(1.2)';
+        } else {
+            dot.classList.remove('active');
+            dot.style.background = 'var(--bg-tertiary)';
+            dot.style.transform = 'scale(1)';
+        }
+    });
+
+    // Update Counter
+    if (counter) {
+        counter.textContent = `${window.currentConfigIndex + 1} / ${cards.length}`;
+    }
+};
+
+window.nextConfigCard = function () {
+    const cards = document.querySelectorAll('.config-card');
+    if (cards.length <= 1) return;
+
+    window.currentConfigIndex++;
+    if (window.currentConfigIndex >= cards.length) {
+        window.currentConfigIndex = 0;
+    }
+    window.updateConfigCarouselUI();
+};
+
+window.prevConfigCard = function () {
+    const cards = document.querySelectorAll('.config-card');
+    if (cards.length <= 1) return;
+
+    window.currentConfigIndex--;
+    if (window.currentConfigIndex < 0) {
+        window.currentConfigIndex = cards.length - 1;
+    }
+    window.updateConfigCarouselUI();
+};
+
+window.goToConfigCard = function (index) {
+    window.currentConfigIndex = index;
+    window.updateConfigCarouselUI();
+};
 
