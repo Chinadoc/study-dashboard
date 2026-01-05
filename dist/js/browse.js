@@ -316,7 +316,11 @@ function renderIntelCard(walkthrough, config, vehicle, options = {}) {
                     <span>${year} ${make} ${model} - ${keyType}</span>
                 </div>
                 <div class="intel-card-badges">
-                    ${fccId !== 'N/A' ? `<span class="fcc-badge">${fccId}</span>` : ''}
+                    ${fccId !== 'N/A' ? `<a href="https://www.amazon.com/s?k=${encodeURIComponent(`${year} ${make} ${model} key fob ${fccId}`)}&tag=${AMAZON_TAG}" 
+                       target="_blank" 
+                       class="fcc-badge affiliate-link" 
+                       onclick="typeof logActivity === 'function' && logActivity('affiliate_click', {type:'fcc',id:'${fccId}',year:'${year}',make:'${make}',model:'${model}'})"
+                       title="Shop for ${fccId} key fob on Amazon">${fccId} 🛒</a>` : ''}
                     ${isVerified ? '<span class="verified-badge">✔ Verified</span>' : ''}
                 </div>
             </div>
