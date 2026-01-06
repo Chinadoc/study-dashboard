@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 # Paths - Use gdrive_token.json which monitor_and_ingest.py keeps refreshed
 CREDS_PATH = os.path.expanduser("~/Documents/study-dashboard/gdrive_token.json")
-EXPORT_DIR = os.path.expanduser("~/Documents/study-dashboard/gdrive_exports")
+EXPORT_DIR = os.path.expanduser("~/Documents/study-dashboard/gdrive_exports/html")
 
 def refresh_token_if_needed():
     """Get the access token from gdrive_token.json (kept fresh by monitor_and_ingest.py)."""
@@ -48,11 +48,11 @@ def list_recent_docs(access_token, hours_back=24):
     
     return response.json().get('files', [])
 
-def download_doc_as_text(access_token, file_id, filename):
-    """Download a Google Doc as plain text."""
+def download_doc_as_html(access_token, file_id, filename):
+    """Download a Google Doc as HTML."""
     url = f"https://www.googleapis.com/drive/v3/files/{file_id}/export"
     headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"mimeType": "text/plain"}
+    params = {"mimeType": "text/html"}
     
     response = requests.get(url, headers=headers, params=params)
     
@@ -101,7 +101,9 @@ def main():
                    'honda', 'nissan', 'explorer', 'escape', 'bronco', 'f-150', 'f150',
                    'maverick', 'mach-e', 'expedition', 'tundra', 'sequoia', 'rav4',
                    'highlander', 'camry', 'silverado', 'equinox', 'blazer', 'traverse',
-                   'colorado', 'sierra', 'programming', 'pearl', 'security']
+                   'colorado', 'sierra', 'programming', 'pearl', 'security', 'dossier',
+                   'sgw', 'stellantis', 'alfa', 'romeo', 'jaguar', 'volvo', 'bmw', 'audi',
+                   'mercedes', 'fcc', 'key system', 'platform', 'intelligence']
         
         name_lower = name.lower()
         if not any(kw in name_lower for kw in keywords):
@@ -109,22 +111,22 @@ def main():
             skipped.append(name)
             continue
         
-        # Generate safe filename
+        # Generate safe filename (HTML format)
         safe_name = sanitize_filename(name)
-        if not safe_name.endswith('.md'):
-            safe_name += '_pearl.md'
+        if not safe_name.endswith('.html'):
+            safe_name += '.html'
         
         output_path = os.path.join(EXPORT_DIR, safe_name)
         
-        # Check if already downloaded
+        # Check if already downloaded (in html/ folder)
         if os.path.exists(output_path):
             print(f"  ⏭️  Already exists: {safe_name}")
             skipped.append(name)
             continue
         
-        # Download
+        # Download as HTML
         print(f"  📥 Downloading: {name}...")
-        content = download_doc_as_text(access_token, file_id, name)
+        content = download_doc_as_html(access_token, file_id, name)
         
         if content:
             with open(output_path, 'w', encoding='utf-8') as f:
