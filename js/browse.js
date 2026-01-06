@@ -125,8 +125,12 @@ const AMAZON_TAG = 'eurokeys-20';
  * @returns {string} HTML for all pearl sections
  */
 function renderPearlSections(pearls, vehicle) {
-    if (!pearls || pearls.length === 0) return '';
+    if (!pearls || pearls.length === 0) {
+        console.log('[PEARLS] No pearls to render');
+        return '';
+    }
 
+    console.log('[PEARLS] Rendering', pearls.length, 'pearls for', vehicle);
     const { year, make, model } = vehicle;
 
     // Distribute pearls by type
@@ -329,6 +333,22 @@ function renderPearlSections(pearls, vehicle) {
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
                     ${generalPearls.map(p => renderPearlCard(p)).join('')}
                 </div>
+            </div>
+        `;
+    }
+
+    // Wrap all sections in a prominent container
+    if (html.trim()) {
+        html = `
+            <div class="pearl-master-section" style="background: linear-gradient(145deg, rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.04)); border: 2px solid rgba(139, 92, 246, 0.35); border-radius: 16px; padding: 20px; margin: 24px 0; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(139, 92, 246, 0.25);">
+                    <h2 style="margin: 0; color: #a78bfa; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; font-weight: 700;">
+                        💎 Intelligence Pearls
+                        <span style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">${pearls.length} pearls</span>
+                    </h2>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Community-verified locksmith intelligence</span>
+                </div>
+                ${html}
             </div>
         `;
     }
@@ -3071,6 +3091,20 @@ function selectKey(cardIndex, keyIndex) {
 let currentVehicleYear = null;
 let currentVehicleMake = null;
 let currentVehicleModel = null;
+
+// Refresh vehicle page (forces reload with cache bust)
+window.refreshVehiclePage = function () {
+    const year = currentVehicleYear;
+    const make = currentVehicleMake;
+    const model = currentVehicleModel;
+    if (year && make && model) {
+        // Force cache bust and reload
+        window.location.href = `#vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}?_t=${Date.now()}`;
+        setTimeout(() => window.location.reload(), 50);
+    } else {
+        window.location.reload();
+    }
+};
 
 async function searchVehicle() {
     const year = document.getElementById('yearSelect').value;
