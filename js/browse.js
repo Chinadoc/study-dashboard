@@ -131,22 +131,39 @@ function renderPearlSections(pearls, vehicle) {
         return '';
     }
 
-    console.log('[PEARLS] Rendering', pearls.length, 'pearls for', vehicle);
+    // Quality filter: exclude low-value pearls
+    const qualityFilter = (p) => {
+        const content = p.pearl_content || '';
+        const title = p.pearl_title || '';
+        // Exclude: citations, numbered headings, short content, URLs as titles
+        if (content.length < 80) return false;
+        if (content.includes('accessed December') || content.includes('accessed January')) return false;
+        if (/^\d+\.\s/.test(title)) return false; // "1. Introduction..."
+        if (/^http/.test(title)) return false;
+        if (/^\([\d\/]+\)/.test(title)) return false; // "(3/6) Autel..."
+        return true;
+    };
+
+    const filteredPearls = pearls.filter(qualityFilter);
+    console.log('[PEARLS] Filtered', pearls.length, '->', filteredPearls.length, 'pearls for', vehicle);
     const { year, make, model } = vehicle;
+
+    // Section limits
+    const LIMITS = { alerts: 5, akl: 3, addKey: 3, tools: 4, fccRegistry: 4, mechanical: 3, electronic: 3, procedures: 3, youtube: 4, intelligence: 4, general: 4 };
 
     // Distribute pearls by type
     const sections = {
-        alerts: pearls.filter(p => p.pearl_type === 'Alert' || p.is_critical),
-        akl: pearls.filter(p => p.pearl_type === 'AKL Procedure'),
-        addKey: pearls.filter(p => p.pearl_type === 'Add Key Procedure'),
-        tools: pearls.filter(p => p.pearl_type === 'Tool Alert'),
-        fccRegistry: pearls.filter(p => p.pearl_type === 'FCC Registry'),
-        mechanical: pearls.filter(p => p.pearl_type === 'Mechanical'),
-        electronic: pearls.filter(p => p.pearl_type === 'Electronic'),
-        procedures: pearls.filter(p => p.pearl_type === 'Procedure'),
-        youtube: pearls.filter(p => p.reference_url && p.reference_url.includes('youtube')),
-        intelligence: pearls.filter(p => p.pearl_type === 'Intelligence'),
-        general: pearls.filter(p => p.pearl_type === 'System Info' || p.pearl_type === 'Reference')
+        alerts: filteredPearls.filter(p => p.pearl_type === 'Alert' || p.is_critical),
+        akl: filteredPearls.filter(p => p.pearl_type === 'AKL Procedure'),
+        addKey: filteredPearls.filter(p => p.pearl_type === 'Add Key Procedure'),
+        tools: filteredPearls.filter(p => p.pearl_type === 'Tool Alert'),
+        fccRegistry: filteredPearls.filter(p => p.pearl_type === 'FCC Registry'),
+        mechanical: filteredPearls.filter(p => p.pearl_type === 'Mechanical'),
+        electronic: filteredPearls.filter(p => p.pearl_type === 'Electronic'),
+        procedures: filteredPearls.filter(p => p.pearl_type === 'Procedure'),
+        youtube: filteredPearls.filter(p => p.reference_url && p.reference_url.includes('youtube')),
+        intelligence: filteredPearls.filter(p => p.pearl_type === 'Intelligence'),
+        general: filteredPearls.filter(p => p.pearl_type === 'System Info' || p.pearl_type === 'Reference')
     };
 
     let html = '';
@@ -197,6 +214,8 @@ function renderPearlSections(pearls, vehicle) {
 
     // Section: Critical Alerts (Always first if present)
     if (sections.alerts.length > 0) {
+        const displayAlerts = sections.alerts.slice(0, LIMITS.alerts);
+        const hiddenCount = sections.alerts.length - displayAlerts.length;
         html += `
             <div class="pearl-section alerts-section" style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; color: #ef4444; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
@@ -204,14 +223,16 @@ function renderPearlSections(pearls, vehicle) {
                     <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.alerts.length} alerts</span>
                 </h4>
                 <div style="display: grid; gap: 12px;">
-                    ${sections.alerts.map(p => renderPearlCard(p)).join('')}
+                    ${displayAlerts.map(p => renderPearlCard(p)).join('')}
                 </div>
+                ${hiddenCount > 0 ? `<details style="margin-top: 12px;"><summary style="color: var(--brand-primary); cursor: pointer;">Show ${hiddenCount} more...</summary><div style="display: grid; gap: 12px; margin-top: 12px;">${sections.alerts.slice(LIMITS.alerts).map(p => renderPearlCard(p)).join('')}</div></details>` : ''}
             </div>
         `;
     }
 
     // Section: All Keys Lost (AKL)
     if (sections.akl.length > 0) {
+        const displayAkl = sections.akl.slice(0, LIMITS.akl);
         html += `
             <div class="pearl-section akl-section" style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; color: #f59e0b; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
@@ -219,7 +240,7 @@ function renderPearlSections(pearls, vehicle) {
                     <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.akl.length} procedures</span>
                 </h4>
                 <div style="display: grid; gap: 12px;">
-                    ${sections.akl.map(p => renderPearlCard(p)).join('')}
+                    ${displayAkl.map(p => renderPearlCard(p)).join('')}
                 </div>
             </div>
         `;
@@ -227,6 +248,7 @@ function renderPearlSections(pearls, vehicle) {
 
     // Section: Add Key
     if (sections.addKey.length > 0) {
+        const displayAddKey = sections.addKey.slice(0, LIMITS.addKey);
         html += `
             <div class="pearl-section addkey-section" style="margin-bottom: 24px;">
                 <h4 style="margin: 0 0 16px 0; color: #22c55e; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
@@ -234,7 +256,7 @@ function renderPearlSections(pearls, vehicle) {
                     <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.addKey.length} procedures</span>
                 </h4>
                 <div style="display: grid; gap: 12px;">
-                    ${sections.addKey.map(p => renderPearlCard(p)).join('')}
+                    ${displayAddKey.map(p => renderPearlCard(p)).join('')}
                 </div>
             </div>
         `;
@@ -3487,12 +3509,12 @@ function displayResults(rows, year, make, model, extras = {}) {
 
                 html += `
                 <div style="background: ${bg}; border-left: 4px solid ${color}; padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                         <strong style="color: ${color}; text-transform: uppercase; font-size: 0.8rem;">${alert.alert_level || 'ALERT'}</strong>
                         <span style="font-size: 0.75rem; color: var(--text-muted);">${alert.source || 'Verified Source'}</span>
                     </div>
-                    <div style="color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${alert.title}</div>
-                    <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">${alert.content}</div>
+                    <div style="color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${alert.pearl_title || alert.title || 'Alert'}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">${alert.pearl_content || alert.content || ''}</div>
                 </div>`;
             });
             html += `</div>`;
