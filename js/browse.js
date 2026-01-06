@@ -3363,8 +3363,9 @@ function displayResults(rows, year, make, model, extras = {}) {
         });
     }
 
-    // Only render the OLD briefing if there is intelligence to show AND no intel card was rendered
-    if ((hasAlerts || hasPearls || hasGuide) && !hasStructuredWalkthrough) {
+    // --- STRATEGIC INTELLIGENCE (Job Brief) ---
+    // Merges Alerts, Guide, and Pearls into one high-value strategic view
+    if (hasAlerts || hasPearls || hasGuide) {
 
         // HELPER: Format Pearl Content (Markdown-lite + Affiliate Links)
         const formatPearlContent = (text) => {
@@ -3468,7 +3469,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>`;
         }
         html += `</div></div>`; // End job-brief-container
-    } else if (guide && !hasStructuredWalkthrough) {
+    } else if (guide) {
         html += `
             <div class="guide-callout" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <div>
@@ -3484,8 +3485,8 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div> `;
     }
 
-    // 4. What You'll Need and Video Section - only show if NO Intel Card
-    if (!hasStructuredWalkthrough) {
+    // --- CORE PARTS & VIDEO ---
+    {
         const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
 
         // === NEW: Render Key Intel Panel (comprehensive key data) ===
@@ -3572,7 +3573,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                     </a>
                 </div>
             </div>`;
-    } // End if (!hasStructuredWalkthrough) for legacy tools/video
+    } // End Core Parts & Video Section
 
     // --- Deduplicate and Merge Configs (always needed for key carousel) ---
     const normalizeFcc = (fcc) => (fcc || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
@@ -3619,8 +3620,8 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     const uniqueRows = mergedList;
 
-    // --- LEGACY CONFIGURATIONS: Only RENDER if no Intel Card ---
-    if (!hasStructuredWalkthrough) {
+    // --- DETAILED CONFIGURATIONS (Flip Cards + Variations) ---
+    {
 
         // --- FLIP CARD CAROUSEL FOR CONFIGURATIONS ---
         const configCount = uniqueRows.length;
@@ -3878,7 +3879,7 @@ function displayResults(rows, year, make, model, extras = {}) {
         html += `</div>`; // End config-cards-container
         html += `</div> `; // End configurations-section
 
-    } // End if (!hasStructuredWalkthrough)
+    } // End Detailed Configurations Section
 
     // CRITICAL FIX: Inject the generated HTML into the DOM
     container.innerHTML = html;
@@ -3899,7 +3900,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     const keyLoadPromise = fetchCompatibleKeys(make, model, year);
 
     Promise.all(uniqueRows.map(async (v, idx) => {
-        const container = document.getElementById(`keyCarouselContainer - ${idx} `);
+        const container = document.getElementById(`keyCarouselContainer-${idx}`);
         if (!container) return;
 
         // Show loading skeleton immediately
