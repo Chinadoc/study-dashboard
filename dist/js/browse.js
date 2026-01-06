@@ -140,6 +140,7 @@ function renderPearlSections(pearls, vehicle) {
         electronic: pearls.filter(p => p.pearl_type === 'Electronic'),
         procedures: pearls.filter(p => p.pearl_type === 'Procedure'),
         youtube: pearls.filter(p => p.reference_url && p.reference_url.includes('youtube')),
+        intelligence: pearls.filter(p => p.pearl_type === 'Intelligence'),
         general: pearls.filter(p => p.pearl_type === 'System Info' || p.pearl_type === 'Reference')
     };
 
@@ -288,6 +289,30 @@ function renderPearlSections(pearls, vehicle) {
                         </a>
                     `).join('')}
                 </div>
+            </div>
+        `;
+    }
+
+    // Section: Strategic Intelligence (Deep Research Content)
+    if (sections.intelligence.length > 0) {
+        const maxIntel = 10;
+        html += `
+            <div class="pearl-section intelligence-section" style="margin-bottom: 24px;">
+                <h4 style="margin: 0 0 16px 0; color: #22d3ee; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">📊</span> STRATEGIC INTELLIGENCE
+                    <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">${sections.intelligence.length} insights</span>
+                </h4>
+                <div style="display: grid; gap: 12px;">
+                    ${sections.intelligence.slice(0, maxIntel).map(p => renderPearlCard(p)).join('')}
+                </div>
+                ${sections.intelligence.length > maxIntel ? `
+                    <details style="margin-top: 12px;">
+                        <summary style="color: var(--brand-primary); cursor: pointer; font-size: 0.9rem; padding: 8px 0;">📖 Show ${sections.intelligence.length - maxIntel} more insights...</summary>
+                        <div style="display: grid; gap: 12px; margin-top: 12px;">
+                            ${sections.intelligence.slice(maxIntel).map(p => renderPearlCard(p)).join('')}
+                        </div>
+                    </details>
+                ` : ''}
             </div>
         `;
     }
