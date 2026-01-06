@@ -1,5 +1,5 @@
-// v37 - Fix Refresh Loop
-const CACHE_NAME = 'euro-keys-v37-fix';
+// v38 - Force Pearl Update
+const CACHE_NAME = 'euro-keys-v38-pearls';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

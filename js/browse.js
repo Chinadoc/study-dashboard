@@ -1,6 +1,7 @@
 // ================== BROWSE DATABASE ==================
 
 // ================== BROWSE DATABASE (Redesign) ==================
+console.log('[BROWSE] v20260105.1 Loaded');
 
 // Global Safety Checks
 if (typeof currentUser === 'undefined') window.currentUser = null;
@@ -3134,10 +3135,12 @@ async function searchVehicle() {
     // await ensureGuidesLoaded(); // Predownload guides for linking
 
     try {
-        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10`;
+        const fetchUrl = `${API}/api/browse?year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&limit=10&_cb=${Date.now()}`;
 
         const res = await fetch(fetchUrl);
         const data = await res.json();
+        console.log('[DEBUG] API Data received:', data);
+        console.log('[DEBUG] Pearls count:', data.pearls?.length || 0);
 
         if (data.rows && data.rows.length > 0) {
             try {
@@ -3261,7 +3264,8 @@ window.closeGuideModal = function () {
 
 function displayResults(rows, year, make, model, extras = {}) {
     const container = document.getElementById('resultsContainer');
-    const { alerts = [] } = extras;
+    const { alerts = [], pearls = [], walkthroughs = [], configs = [], guide: extraGuide = null } = extras;
+    console.log('[DEBUG] displayResults called with:', { rowsCount: rows.length, pearlsCount: pearls.length, alertsCount: alerts.length });
 
     // DEFENSIVE: Handle API response object {total, rows} vs raw array
     if (rows && !Array.isArray(rows) && rows.rows) {
@@ -3371,8 +3375,8 @@ function displayResults(rows, year, make, model, extras = {}) {
     // Merges Alerts, Guide, and Pearls into one high-value strategic view
 
     // 1. Resolve Data Sources
-    // 1. Resolve Data Sources
-    const { pearls = [], walkthroughs = [], configs = [] } = extras;
+    // Data (pearls, walkthroughs, configs) already extracted from extras at start of function
+    const guideDataTop = extraGuide;
 
     // PRIORITIZE Walkthroughs (New Architecture) -> Legacy Guide -> Local Asset
     let guideData = null;
