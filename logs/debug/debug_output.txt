@@ -1,0 +1,151 @@
+
+🔍 Analyzing: Toyota_Lexus_
+🔍 Analyzing: Toyota_[
+  {
+    "board_id": "Diagnostic",
+    "context_model": "Toyota 4Runner",
+    "context_years": "Unknown",
+    "raw_source": "The \"H-Chip\" Paradigm Shift (2014–2016): The first major disruption was the silent migration from Te..."
+  },
+  {
+    "board_id": "2110 vs",
+    "system_type": "Smart Key",
+    "context_model": "Toyota 4Runner",
+    "context_years": "Unknown",
+    "raw_source": "The Telematics Bifurcation (2020–2021): For the 4Runner and GX 460, the years 2020 and 2021 represen..."
+  },
+  {
+    "board_id": "disassembly to",
+    "context_model": "Toyota 4Runner",
+    "context_years": "Unknown",
+    "raw_source": "The \"8A\" Bypass Evolution: The investigation also highlights the ongoing arms race between TMC secur..."
+  },
+  {
+    "fcc_id": "HYQ14ACX",
+    "context_model": "Toyota 4Runner",
+    "context_years": "2010–2019",
+    "raw_source": "FCC ID: HYQ14ACX...."
+  },
+  {
+    "board_id": "271451-5290",
+    "context_model": "Toyota 4Runner",
+    "context_years": "2010–2019",
+    "raw_source": "Board ID: 271451-5290...."
+  },
+  {
+    "board_id": "2110 AG",
+    "context_model": "Toyota 4Runner",
+    "context_years": "2020–2021",
+    "raw_source": "Board ID: 2110 AG...."
+  },
+  {
+    "board_id": "2110",
+    "context_model": "Toyota 4Runner",
+    "context_years": "2020–2021",
+    "raw_source": "A critical divergence occurred in late 2021, creating a \"split year\" scenario. While the SR5 Premium..."
+  },
+  {
+    "board_id": "requirement",
+    "context_model": "Toyota 4Runner",
+    "context_years": "2020–2021",
+    "raw_source": "Diagnostic Tip: The only reliable method to distinguish them without a working key is to check the V..."
+  },
+  {
+    "fcc_id": "HYQ12BDP",
+    "context_model": "Toyota Tacoma",
+    "context_years": "2020–2021",
+    "raw_source": "FCC ID: HYQ12BDP.8..."
+  },
+  {
+    "board_id": "0010",
+    "context_model": "Toyota Tacoma",
+    "context_years": "2020–2021",
+    "raw_source": "Board ID: 0010 (G Board).13..."
+  },
+  {
+    "board_id": "271451-5290",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "Board ID: 271451-5290...."
+  },
+  {
+    "board_id": "5290",
+    "frequency": "315",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "Forensic Note: This system is highly stable and known as \"Board 5290.\" It operates on 315 MHz and us..."
+  },
+  {
+    "board_id": "231451-0440",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "Board ID: 231451-0440.18..."
+  },
+  {
+    "fcc_id": "Reference",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "6.1. Master FCC ID Reference Table..."
+  },
+  {
+    "board_id": "near th",
+    "system_type": "Smart Key",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "Tacoma N300 Smart Key ECU: The topology is denser in the Tacoma. The Smart Key ECU is often located ..."
+  },
+  {
+    "fcc_id": "hyq12bby-g",
+    "buttons": "3",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "2017 Toyota 4Runner Key Fob 3 Buttons FCC# HYQ12BBY / G Chip - Locksmith Keyless, accessed January 3..."
+  },
+  {
+    "fcc_id": "HYQ14ACX",
+    "board_id": "271451-5290",
+    "system_type": "Smart Key",
+    "buttons": "3",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "2010-2019 Toyota 4Runner 3-Button Smart Key Fob (FCC: HYQ14ACX, P/N: 89904-47370, Board: 271451-5290..."
+  },
+  {
+    "fcc_id": "hyq14fba-2110",
+    "system_type": "Smart Key",
+    "buttons": "3",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "2021 Toyota 4Runner Smart Key 3B FCC# HYQ14FBA - 2110 AG - Locksmith Keyless, accessed January 3, 20..."
+  },
+  {
+    "fcc_id": "hyq12bdp-p",
+    "buttons": "3",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "2015-2022 Toyota Tacoma 3-Button “H” Chip Remote Head Key Fob (FCC, accessed January 3, 2026, https:..."
+  },
+  {
+    "fcc_id": "hyq12bdp-pn",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "Toyota New OEM 2015-2024 Tacoma Remote Head Key - Royal Key Supply, accessed January 3, 2026, https:..."
+  },
+  {
+    "fcc_id": "hyq14acx-5290",
+    "system_type": "Smart Key",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "2010 Lexus GX460 Smart Key 4B W/ Hatch Glass Fob FCC# HYQ14ACX - 5290, accessed January 3, 2026, htt..."
+  },
+  {
+    "fcc_id": "hyq14fbf-89904",
+    "system_type": "Smart Key",
+    "context_model": "Lexus GX 460",
+    "context_years": "2010–2019",
+    "raw_source": "2022 Lexus GX460 Smart Key 4B W/ Hatch Glass Fob FCC# HYQ14FBF - 89904, accessed January 3, 2026, ht..."
+  }
+]
+60 Smart Key 4B W/ Hatch Glass Fob FCC# HYQ14FBF - 89904, accessed January 3, 2026, ht..."
+  }
+]
