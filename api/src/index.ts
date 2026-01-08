@@ -2700,6 +2700,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             v.key_blank_refs,
             v.key_type_display,
             v.key_image_url,
+            v.pearl_count,
+            v.alert_count,
+            v.has_akl_procedure,
+            v.has_add_key_procedure,
+            v.primary_walkthrough_id,
+            v.verified_config_count,
+            v.tool_support_json,
+            v.quick_facts_json,
+            v.architecture_tags_json,
+            v.data_sources_json,
+            v.last_validated,
             cr.technology as chip_technology,
             cr.bits as chip_bits,
             cr.description as chip_description,
@@ -2791,13 +2802,36 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
 
-              // 4. Fetch Procedures (NEW)
-              const proceduresResult = await env.LOCKSMITH_DB.prepare(`
-                SELECT * FROM vehicle_procedures
-                WHERE LOWER(make) = ? AND LOWER(model) = ?
-                AND ? BETWEEN year_start AND year_end
-              `).bind(make, model, y).all();
-              procedures = proceduresResult.results || [];
+              // 4. Fetch Procedures from vehicle_procedures (Rich procedure data)
+              try {
+                const proceduresResult = await env.LOCKSMITH_DB.prepare(`
+                  SELECT 
+                    id,
+                    tool,
+                    tool_category,
+                    LOWER(procedure_type) as procedure_type,
+                    steps,
+                    time_estimate,
+                    online_required,
+                    voltage_warning,
+                    source_file,
+                    created_at
+                  FROM vehicle_procedures
+                  WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
+                  AND ? BETWEEN year_start AND year_end
+                  ORDER BY 
+                    CASE LOWER(procedure_type)
+                      WHEN 'akl' THEN 1
+                      WHEN 'add_key' THEN 2
+                      ELSE 3
+                    END,
+                    tool ASC
+                `).bind(make, modelPattern, y).all();
+                procedures = proceduresResult.results || [];
+              } catch (e) {
+                // Table may not exist yet - graceful fallback
+                procedures = [];
+              }
 
               // 5. Fetch Walkthroughs (NEW: via junction table for one-to-many relationship)
               // A walkthrough can apply to multiple vehicles/years
@@ -2856,6 +2890,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             alerts,
             guide,
             pearls,
+            procedures,
             walkthroughs,
             configs,
             _timings: {
