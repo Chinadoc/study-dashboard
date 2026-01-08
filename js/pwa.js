@@ -57,7 +57,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
             // Force fresh SW by using query param
-            const registration = await navigator.serviceWorker.register('/sw.js?v=37');
+            const registration = await navigator.serviceWorker.register('/sw.js?v=39');
             console.log('Service Worker registered:', registration.scope);
 
             // Check for updates immediately and every 5 minutes
@@ -99,13 +99,114 @@ if ('serviceWorker' in navigator) {
 }
 
 function showUpdateBanner() {
+    // Rate limiting: Only show once per session unless it's been > 30 min
+    const lastShown = sessionStorage.getItem('update_banner_shown');
+    const now = Date.now();
+    if (lastShown && (now - parseInt(lastShown)) < 30 * 60 * 1000) {
+        console.log('Update banner suppressed (shown recently this session)');
+        return;
+    }
+    sessionStorage.setItem('update_banner_shown', now.toString());
+
+    // Remove any existing banner first
+    const existing = document.getElementById('updateBanner');
+    if (existing) existing.remove();
+
     const banner = document.createElement('div');
     banner.id = 'updateBanner';
+    
+    // Auto-dismiss countdown
+    let countdown = 8;
+    
     banner.innerHTML = `
-                <div style="position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 12px 16px; display: flex; justify-content: center; align-items: center; gap: 16px; z-index: 10001; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-                    <span style="color: #fff; font-weight: 600;">🎉 New version available!</span>
-                    <button onclick="window.location.reload()" style="padding: 6px 16px; background: #fff; border: none; color: #16a34a; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem;">Refresh Now</button>
+        <div id="updateToast" style="
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
+            padding: 12px 16px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            z-index: 10001; 
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 320px;
+            animation: slideInRight 0.3s ease-out;
+        ">
+            <div style="flex: 1;">
+                <div style="color: #22c55e; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                    <span>✨</span> Update Available
                 </div>
-            `;
+                <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-top: 2px;">
+                    Refresh for latest features <span id="countdownTimer">(${countdown}s)</span>
+                </div>
+            </div>
+            <button onclick="window.location.reload()" style="
+                padding: 6px 12px; 
+                background: #22c55e; 
+                border: none; 
+                color: #fff; 
+                border-radius: 6px; 
+                cursor: pointer; 
+                font-weight: 600; 
+                font-size: 0.75rem;
+                white-space: nowrap;
+            ">Refresh</button>
+            <button onclick="dismissUpdateBanner()" style="
+                background: none; 
+                border: none; 
+                color: rgba(255,255,255,0.4); 
+                cursor: pointer; 
+                font-size: 1.1rem;
+                padding: 0 4px;
+            ">×</button>
+        </div>
+        <style>
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        </style>
+    `;
     document.body.appendChild(banner);
+    
+    // Countdown timer
+    const timerEl = document.getElementById('countdownTimer');
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (timerEl) timerEl.textContent = `(${countdown}s)`;
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            dismissUpdateBanner();
+        }
+    }, 1000);
+    
+    // Store interval ID for cleanup
+    banner.dataset.intervalId = countdownInterval;
 }
+
+function dismissUpdateBanner() {
+    const banner = document.getElementById('updateBanner');
+    if (!banner) return;
+    
+    // Clear countdown interval
+    if (banner.dataset.intervalId) {
+        clearInterval(parseInt(banner.dataset.intervalId));
+    }
+    
+    // Animate out
+    const toast = document.getElementById('updateToast');
+    if (toast) {
+        toast.style.animation = 'slideOutRight 0.3s ease-in forwards';
+        setTimeout(() => banner.remove(), 300);
+    } else {
+        banner.remove();
+    }
+}
+

@@ -1,5 +1,5 @@
-// v38 - Force Pearl Update
-const CACHE_NAME = 'euro-keys-v38-pearls';
+// v39 - Improved Update Banner UX
+const CACHE_NAME = 'euro-keys-v39';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

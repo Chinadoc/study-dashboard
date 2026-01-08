@@ -2057,7 +2057,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let selectClause = `
             v.id, v.make, v.model,
             v.year_start, v.year_end, v.key_type, v.keyway, v.fcc_id, v.chip,
-            v.frequency, v.immobilizer_system,
+            v.frequency, v.immobilizer_system, v.immobilizer_system_specific,
+            v.mcu_mask, v.chassis_code,
             v.lishi_tool, v.oem_part_number, v.aftermarket_part,
             v.buttons, v.battery, v.programming_method,
             v.pin_required, v.notes,
@@ -2131,6 +2132,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 FROM vehicle_pearls
                 WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
+                AND LENGTH(pearl_content) > 80
+                AND pearl_title NOT LIKE 'http%'
+                AND pearl_content NOT LIKE '%accessed December%'
+                AND pearl_content NOT LIKE '%accessed January%'
                 GROUP BY pearl_title
                 ORDER BY 
                   CASE pearl_type 
@@ -2726,6 +2731,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let alerts: any[] = [];
           let guide: any = null;
           let pearls: any[] = [];
+          let procedures: any[] = [];
           let walkthroughs: any[] = [];
           let configs: any[] = [];
 
@@ -2766,6 +2772,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 FROM vehicle_pearls
                 WHERE LOWER(make) = ? AND LOWER(model) LIKE ?
                 AND ? BETWEEN year_start AND year_end
+                AND LENGTH(pearl_content) > 80
+                AND pearl_title NOT LIKE 'http%'
+                AND pearl_content NOT LIKE '%accessed December%'
+                AND pearl_content NOT LIKE '%accessed January%'
                 GROUP BY pearl_title
                 ORDER BY 
                   CASE pearl_type 
@@ -2781,7 +2791,15 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               `).bind(make, modelPattern, y).all();
               pearls = pearlsResult.results || [];
 
-              // 4. Fetch Walkthroughs (NEW: via junction table for one-to-many relationship)
+              // 4. Fetch Procedures (NEW)
+              const proceduresResult = await env.LOCKSMITH_DB.prepare(`
+                SELECT * FROM vehicle_procedures
+                WHERE LOWER(make) = ? AND LOWER(model) = ?
+                AND ? BETWEEN year_start AND year_end
+              `).bind(make, model, y).all();
+              procedures = proceduresResult.results || [];
+
+              // 5. Fetch Walkthroughs (NEW: via junction table for one-to-many relationship)
               // A walkthrough can apply to multiple vehicles/years
               try {
                 const walkthroughsResult = await env.LOCKSMITH_DB.prepare(`
@@ -2790,8 +2808,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                          w.prerequisites, w.platform_code, w.security_architecture,
                          w.category, w.updated_at, w.structured_steps_json, w.full_content_html,
                          wv.is_primary, wv.notes as vehicle_notes
-                  FROM walkthroughs w
-                  JOIN walkthrough_vehicles wv ON w.id = wv.walkthrough_id
+                  FROM walkthrough_vehicles wv
+                  JOIN walkthroughs w ON w.id = wv.walkthrough_id
                   WHERE LOWER(wv.make) = ? 
                     AND LOWER(wv.model) LIKE ?
                     AND ? BETWEEN wv.year_start AND wv.year_end
@@ -2803,7 +2821,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 walkthroughs = [];
               }
 
-              // 5. Fetch Vehicle Configs (NEW: verified key specs per vehicle/year)
+              // 6. Fetch Vehicle Configs (NEW: verified key specs per vehicle/year)
               try {
                 const configsResult = await env.LOCKSMITH_DB.prepare(`
                   SELECT id, config_type, fcc_id, key_blade, chip, chip_family,

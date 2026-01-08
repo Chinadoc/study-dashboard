@@ -3170,6 +3170,7 @@ async function searchVehicle() {
                 const extras = {
                     alerts: data.alerts || [],
                     pearls: data.pearls || [],
+                    procedures: data.procedures || [],
                     guide: data.guide || null,
                     walkthroughs: data.walkthroughs || [],
                     configs: data.configs || []
@@ -3286,7 +3287,7 @@ window.closeGuideModal = function () {
 
 function displayResults(rows, year, make, model, extras = {}) {
     const container = document.getElementById('resultsContainer');
-    const { alerts = [], pearls = [], walkthroughs = [], configs = [], guide: extraGuide = null } = extras;
+    const { alerts = [], pearls = [], procedures = [], walkthroughs = [], configs = [], guide: extraGuide = null } = extras;
     console.log('[DEBUG] displayResults called with:', { rowsCount: rows.length, pearlsCount: pearls.length, alertsCount: alerts.length });
 
     // DEFENSIVE: Handle API response object {total, rows} vs raw array
@@ -3299,15 +3300,123 @@ function displayResults(rows, year, make, model, extras = {}) {
         return;
     }
 
-    // Set shareable URL for this vehicle
+    // [NEW] VehicleCard Integration (7-Layer Hub) - Can be toggled on/off
+    const useVehicleCard = localStorage.getItem('useVehicleCard') === 'true' ||
+                          window.location.hash.includes('vehiclecard=1');
+    
+    if (useVehicleCard && typeof VehicleCard !== 'undefined') {
+        console.log('[VehicleCard] Rendering 7-layer vehicle hub');
+        
+        // Prepare vehicle data for VehicleCard
+        const primaryRow = rows[0] || {};
+        const vehicleData = {
+            year: parseInt(year),
+            make,
+            model,
+            immobilizer_system: primaryRow.immobilizer_system,
+            immobilizer_system_specific: primaryRow.immobilizer_system_specific,
+            mcu_mask: primaryRow.mcu_mask,
+            chassis_code: primaryRow.chassis_code,
+            notes: primaryRow.notes
+        };
+        
+        // Get inventory data if available
+        let inventoryData = {};
+        if (typeof InventoryManager !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
+            configs.forEach(c => {
+                const fcc = c.fcc_id;
+                if (fcc) {
+                    inventoryData[fcc] = InventoryManager.getKeyStock(fcc);
+                }
+            });
+        }
+        
+        // Prepare subscription data (if available)
+        const subscriptionData = typeof currentUser !== 'undefined' && currentUser?.subscription 
+            ? currentUser.subscription 
+            : null;
+        
+        // Create container for VehicleCard
+        container.innerHTML = `
+            <div style="margin-bottom: 16px;">
+                <button onclick="localStorage.setItem('useVehicleCard', 'false'); window.location.reload();" 
+                        style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                    ⚙️ Switch to Legacy View
+                </button>
+            </div>
+            <div id="vehicleCardContainer"></div>
+        `;
+        
+        // Instantiate and render VehicleCard
+        const vehicleCard = new VehicleCard('vehicleCardContainer');
+        window.vehicleCard = vehicleCard; // Store globally for method calls
+        
+        vehicleCard.render({
+            vehicle: vehicleData,
+            configs: configs || [],
+            procedures: procedures || [],
+            pearls: pearls || [],
+            inventory: inventoryData,
+            subscription: subscriptionData
+        });
+        
+        // Set shareable URL
+        setVehicleUrl(make, model, year);
+        
+        return; // Exit early - VehicleCard handles all rendering
+    }
+
+    // Legacy rendering continues below...
     // Set shareable URL for this vehicle
     setVehicleUrl(make, model, year);
 
     // --- UNIFIED VEHICLE HEADER & GLOBALS ---
+    
+    // Clean year for display to avoid '2024?v=12345' - MUST be declared before first use
+    const cleanYear = parseInt(year);
 
     // 1. Master Header
     const makeLogo = getMakeLogo(make);
-    const logoHtml = makeLogo ? `<imgsrc="${makeLogo}"alt="${make}" class="make-logo"onerror="this.style.display='none'"style="width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;"> ` : '';
+    const logoHtml = makeLogo ? `<img src="${makeLogo}" alt="${make}" class="make-logo" onerror="this.style.display='none'" style="width: 32px; height: 32px; object-fit: contain; margin-right: 12px; border-radius: 4px;">` : '';
+
+    // === ARCHITECTURE BADGES (7-Layer Hub) ===
+    // Extract immobilizer data from first row for architecture display
+    const primaryRow = rows[0] || {};
+    const archBadges = [];
+    
+    // Primary security system badge (e.g., CAS3+, Global B, EWS)
+    if (primaryRow.immobilizer_system_specific && primaryRow.immobilizer_system_specific !== primaryRow.immobilizer_system) {
+        archBadges.push({ label: primaryRow.immobilizer_system_specific, class: 'security' });
+    } else if (primaryRow.immobilizer_system) {
+        archBadges.push({ label: primaryRow.immobilizer_system, class: 'security' });
+    }
+    
+    // CAN-FD detection (GM Global B, Ford 2021+, etc.)
+    const immoSystem = primaryRow.immobilizer_system || '';
+    const notes = primaryRow.notes || '';
+    const isCaNFD = immoSystem.includes('Global B') || immoSystem.includes('CAN-FD') ||
+                   notes.includes('CAN-FD') || (cleanYear >= 2021 && 
+                   (make === 'Chevrolet' || make === 'GMC' || make === 'Cadillac'));
+    if (isCaNFD) {
+        archBadges.push({ label: 'CAN-FD', class: 'protocol' });
+    }
+    
+    // MCU Mask (BMW specific - e.g., 1L15Y, 0L01Y)
+    if (primaryRow.mcu_mask) {
+        archBadges.push({ label: `MCU: ${primaryRow.mcu_mask}`, class: 'technical' });
+    }
+    
+    // Chassis code (BMW/MB specific - e.g., E90, F30, W204)
+    if (primaryRow.chassis_code) {
+        archBadges.push({ label: primaryRow.chassis_code, class: 'chassis' });
+    }
+    
+    // Build badges HTML
+    const archBadgesHtml = archBadges.length > 0 ? `
+        <div class="vc-arch-badges" style="margin-top: 8px;">
+            ${archBadges.map(b => `<span class="vc-badge ${b.class}">${b.label}</span>`).join('')}
+        </div>
+    ` : '';
 
     // Calculate global badges (Stellantis/Mercedes)
     // NORMALIZE FCC for deduplication: Uppercase, O->0, Remove Hyphens
@@ -3328,9 +3437,6 @@ function displayResults(rows, year, make, model, extras = {}) {
             globalWarnings += `<span class="badge"style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔒 VIN - Ordered</span> `;
         }
     });
-
-    // Clean year for display to avoid '2024?v=12345'
-    const cleanYear = parseInt(year);
 
     // Get Vehicle Image
     const vehicleImage = typeof getVehicleResultImage === 'function' ? getVehicleResultImage(make, model, cleanYear) : null;
@@ -3355,6 +3461,7 @@ function displayResults(rows, year, make, model, extras = {}) {
                             <div style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 4px;">
                                 ${uniqueRowsForBadges.length} Configuration${uniqueRowsForBadges.length !== 1 ? 's' : ''} Found
                             </div>
+                            ${archBadgesHtml}
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
@@ -3479,6 +3586,11 @@ function displayResults(rows, year, make, model, extras = {}) {
                 .replace(/\*\s(.*?)(?=(\*|$))/g, '<div style="margin-left: 12px; position: relative; padding-left: 12px;"><span style="position: absolute; left: 0; color: #8b5cf6;">•</span> $1</div>');
             return linkify(formatted);
         };
+
+        // --- NEW: PROCEDURE VIEWER (Split Brain UI) ---
+        if (procedures && procedures.length > 0) {
+            html += `<div id="procViewerContainer" style="margin-bottom: 24px;"></div>`;
+        }
 
         html += `<div class="job-brief-container" style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">`;
 
@@ -3968,6 +4080,17 @@ function displayResults(rows, year, make, model, extras = {}) {
 
     // CRITICAL FIX: Inject the generated HTML into the DOM
     container.innerHTML = html;
+
+    // Initialize Procedure Viewer (After DOM Injection)
+    if (procedures && procedures.length > 0 && window.ProcedureViewer) {
+        if (!window.procedureViewer) {
+            window.procedureViewer = new ProcedureViewer('procViewerContainer');
+        } else {
+            // Re-target container (it was replaced by innerHTML)
+            window.procedureViewer.container = document.getElementById('procViewerContainer');
+        }
+        window.procedureViewer.render(procedures, pearls);
+    }
 
     // Add toggle listener for Intel Card comments (if present)
     if (hasStructuredWalkthrough) {

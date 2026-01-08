@@ -33,6 +33,13 @@ function showTab(tabName, updateHash = true) {
     const activeBtn = document.getElementById(btnId1) || document.getElementById(btnId2);
     if (activeBtn) activeBtn.classList.add('active');
 
+    // Sync Mobile Bottom Nav active state
+    document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.tab === tabName) {
+            item.classList.add('active');
+        }
+    });
 
     // 2. Update Content Visibility
     // Hide all known content areas

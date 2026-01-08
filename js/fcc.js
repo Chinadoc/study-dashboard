@@ -661,6 +661,8 @@ function renderFccTable() {
                                                                                             ` : ''}
                                                                                             <a href="#" class="fcc-link"
                                                                                                 onclick="showFccModal('${fccId}'); return false;">${fccId}</a>
+                                                                                            ${r.confidence_score >= 90 ? `<span title="Verified Forensic Data: ${r.verified_context || 'Verified'}" style="font-size:0.8rem; cursor:help; margin-left:4px;">🏆</span>` : ''}
+                                                                                            ${r.confidence_score >= 70 && r.confidence_score < 90 ? `<span title="Verified Source" style="font-size:0.8rem; cursor:help; margin-left:4px;">✅</span>` : ''}
                                                                                         </div>
                                                                                     </td>
                                                                                     <td style="font-size: 0.85rem;">

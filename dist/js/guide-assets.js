@@ -136,6 +136,24 @@ window.getGuideAsset = function (make, model, yearStr) {
             return null;
         }
 
+        // Nissan Rogue T32 Widowmaker (2014-2017)
+        if (make === 'Nissan' && model.includes('Rogue')) {
+            if (year >= 2014 && year <= 2017) {
+                return {
+                    html: '/guides/nissan_rogue_2014_2017_widowmaker.html',
+                    title: '🚨 Nissan Rogue T32: The Widowmaker Module Guide',
+                    snippets: [
+                        { text: '⛔ HIGH BCM BRICKING RISK', color: '#dc2626' },
+                        { text: 'Check BCM Part Number First', color: '#d97706' },
+                        { text: 'Use AKL Not Add-Key', color: '#2563eb' },
+                        { text: '13.5V+ Battery Required', color: '#059669' }
+                    ]
+                };
+            }
+            // 2018+ uses different architecture (safer)
+            return null;
+        }
+
         // GMC Sierra Global B (2024+)
         if (make === 'GMC' && model.includes('Sierra')) {
             if (year >= 2024) {
@@ -158,9 +176,12 @@ window.getGuideAsset = function (make, model, yearStr) {
         if (GUIDE_ASSETS[modelKey]) {
             return GUIDE_ASSETS[modelKey];
         }
+
+        // 2. Make-Level Fallback
+        // This is now reachable even if model specific checks don't return
     }
 
-    // 2. Make-Level Fallback
+    // Default fallback to make-only guide if no model specific one matched
     return GUIDE_ASSETS[make] || null;
 };
 
@@ -222,7 +243,14 @@ window.openHtmlGuide = function (htmlUrl, title) {
                     padding: 0;
                     border-radius: 12px;
                     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                    color: #e6edf3;
                 ">
+                    <style>
+                        .guide-content-wrapper h1, .guide-content-wrapper h2, .guide-content-wrapper h3 { color: #58a6ff !important; }
+                        .guide-content-wrapper p, .guide-content-wrapper li, .guide-content-wrapper td { color: #e6edf3 !important; }
+                        .guide-content-wrapper a { color: #7ee787 !important; }
+                        .guide-content-wrapper th { color: #fbbf24 !important; }
+                    </style>
                     ${scopedStyles}
                     <div style="padding: 20px;">
                         ${bodyContent}

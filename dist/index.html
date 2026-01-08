@@ -36,8 +36,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="css/style.css?v=20260105_pearls">
-    <link rel="stylesheet" href="css/intel-card.css?v=20260105">
+    <link rel="stylesheet" href="css/style.css?v=1767888207">
+    <link rel="stylesheet" href="css/intel-card.css?v=1767888207">
 </head>
 
 <body>
@@ -1605,15 +1605,46 @@
         </div>
     </div>
 
+    <!-- Mobile Bottom Navigation (Mockup 3 Design) -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav">
+        <div class="nav-items">
+            <button class="nav-item active" onclick="showTab('browse')" data-tab="browse">
+                <span class="nav-icon">📂</span>
+                <span>Browse</span>
+            </button>
+            <button class="nav-item" onclick="showTab('fcc')" data-tab="fcc">
+                <span class="nav-icon">📡</span>
+                <span>FCC</span>
+            </button>
+            <button class="nav-item" onclick="showTab('guides')" data-tab="guides">
+                <span class="nav-icon">📖</span>
+                <span>Guides</span>
+            </button>
+            <button class="nav-item" onclick="showTab('inventory')" data-tab="inventory">
+                <span class="nav-icon">📦</span>
+                <span>Inventory</span>
+                <span class="nav-badge" id="mobileInvBadge" style="display: none;">0</span>
+            </button>
+            <button class="nav-item" onclick="showTab('dev')" data-tab="dev" id="mobileDevTab" style="display: none;">
+                <span class="nav-icon">🛠️</span>
+                <span>Dev</span>
+            </button>
+            <button class="nav-item" onclick="showTab('subscriptions')" data-tab="subscriptions">
+                <span class="nav-icon">📅</span>
+                <span>Subs</span>
+            </button>
+        </div>
+    </nav>
+
     <!-- Cloudflare Web Analytics -->
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
         data-cf-beacon='{"token": "55cb95cc0e174..."}'></script>
     <!-- End Cloudflare Web Analytics -->
 
     <!-- Core Scripts -->
-    <script src="sw.js?v=1767403468"></script>
-    <script src="js/config.js?v=fixed_15"></script>
-    <script src="js/errorhandler.js?v=fixed_15"></script>
+    <script src="sw.js?v=1767888207"></script>
+    <script src="js/config.js?v=1767888207"></script>
+    <script src="js/errorhandler.js?v=1767888207"></script>
 
     <!-- AUTH TOKEN EXTRACTION: Must run BEFORE ui.js hash routing -->
     <script>
@@ -1639,29 +1670,31 @@
             }
         })();
     </script>
-    <script src="js/lib/tesseract.min.js?v=1767403468"></script> <!-- OCR Library -->
+    <script src="js/lib/tesseract.min.js?v=1767888207"></script> <!-- OCR Library -->
 
-    <script src="js/ui.js?v=intel_card_v1"></script>
-    <script src="js/guide-assets.js?v=unified_view_v18"></script>
-    <script src="js/guides.js?v=unified_view_v18"></script>
-    <script src="js/fcc.js?v=unified_view_v18"></script>
-    <script src="js/browse.js?v=20260105_pearls"></script>
-    <script src="js/app.js?v=unified_view_v18"></script>
-    <script src="js/inventory.js?v=unified_view_v18"></script>
-    <script src="js/managers.js?v=unified_view_v18"></script>
-    <script src="js/auth.js?v=unified_view_v18"></script>
-    <script src="js/pwa.js?v=unified_view_v18"></script>
-    <script src="components/GuideRenderer.js?v=unified_view_v18"></script>
-    <script src="js/vin.js?v=unified_view_v18"></script>
-    <script src="js/subscriptions.js?v=unified_view_v18"></script>
+    <script src="js/ui.js?v=1767888207"></script>
+    <script src="js/guide-assets.js?v=1767888207"></script>
+    <script src="js/guides.js?v=1767888207"></script>
+    <script src="js/fcc.js?v=1767888207"></script>
+    <script src="components/ProcedureViewer.js?v=1767888207"></script>
+    <script src="components/VehicleCard.js?v=1767888207"></script>
+    <script src="js/browse.js?v=1767888207"></script>
+    <script src="js/app.js?v=1767888207"></script>
+    <script src="js/inventory.js?v=1767888207"></script>
+    <script src="js/managers.js?v=1767888207"></script>
+    <script src="js/auth.js?v=1767888207"></script>
+    <script src="js/pwa.js?v=1767888207"></script>
+    <script src="components/GuideRenderer.js?v=1767888207"></script>
+    <script src="js/vin.js?v=1767888207"></script>
+    <script src="js/subscriptions.js?v=1767888207"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js?v=cache_fix_complete_v3"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js?v=cache_fix_complete_v3"></script>
-    <script src="public/js/tool_coverage_data.js?v=cache_fix_complete_v3"></script>
-    <script src="public/js/transponder_reference.js?v=cache_fix_complete_v3"></script>
-    <script src="public/js/coverage_metadata.js?v=cache_fix_complete_v3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js?v=1767888207"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js?v=1767888207"></script>
+    <script src="public/js/tool_coverage_data.js?v=1767888207"></script>
+    <script src="public/js/transponder_reference.js?v=1767888207"></script>
+    <script src="public/js/coverage_metadata.js?v=1767888207"></script>
     <!-- Dynamic Guide Renderer -->
-    <script src="components/GuideRenderer.js?v=cache_fix_complete_v3"></script>
+    <script src="components/GuideRenderer.js?v=1767888207"></script>
 </body>
 
 </html>

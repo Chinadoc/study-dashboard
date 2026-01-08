@@ -45,11 +45,14 @@ CREATE TABLE IF NOT EXISTS locksmith_data (
   url TEXT,
   fcc_confidence TEXT,
   fcc_source TEXT,
+  mcu_mask TEXT, -- Critical for BMW CAS3/CAS3+ distinction
+  chassis_code TEXT, -- e.g. E90, F30
+
   -- New columns for unified database
   video_id TEXT,
   data_completeness INTEGER DEFAULT 0,
   needs_enrichment INTEGER DEFAULT 1,
-  key_type TEXT,
+
   explainer_text TEXT
 );
 
@@ -101,3 +104,24 @@ CREATE TABLE IF NOT EXISTS curated_overrides (
 
 CREATE INDEX IF NOT EXISTS idx_curated_make_model ON curated_overrides(make, model);
 CREATE INDEX IF NOT EXISTS idx_curated_fcc ON curated_overrides(fcc_id);
+
+-- Procedures extracted from documentation
+CREATE TABLE IF NOT EXISTS vehicle_procedures (
+    id TEXT PRIMARY KEY,
+    make TEXT,
+    model TEXT,
+    year_start INTEGER,
+    year_end INTEGER,
+    procedure_type TEXT, -- AKL, ADD_KEY, GENERAL_PROCEDURE
+    tool TEXT,
+    tool_category TEXT, -- Autel, VVDI, SmartPro, etc
+    steps TEXT, -- JSON array of strings
+    created_at INTEGER,
+    source_file TEXT,
+    time_estimate INTEGER, -- minutes
+    online_required INTEGER, -- 1 or 0
+    voltage_warning TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_procedures_vehicle ON vehicle_procedures(make, model, year_start, year_end);
+CREATE INDEX IF NOT EXISTS idx_procedures_type ON vehicle_procedures(procedure_type);

@@ -24,11 +24,13 @@ echo "🔄 Injecting cache buster into Root index.html: v=$TIMESTAMP"
 
 # Update ROOT index.html in-place
 # Note: This modifies the source file to ensure consistency
-sed -i '' "s/\.js?v=[0-9]*\"/.js?v=$TIMESTAMP\"/g" index.html
-sed -i '' "s/\.css?v=[0-9]*\"/.css?v=$TIMESTAMP\"/g" index.html
-# Fallback for first run (if no v= exists yet)
-sed -i '' "s/\.js\"/.js?v=$TIMESTAMP\"/g" index.html
-sed -i '' "s/\.css\"/.css?v=$TIMESTAMP\"/g" index.html
+# Pattern matches any version string: ?v=anything" (alphanumeric, underscores, dashes)
+sed -i '' 's/\.js?v=[a-zA-Z0-9_-]*"/.js?v='"$TIMESTAMP"'"/g' index.html
+sed -i '' 's/\.css?v=[a-zA-Z0-9_-]*"/.css?v='"$TIMESTAMP"'"/g' index.html
+# Fallback for first run (if no v= exists yet) - only match .js" or .css" at end of src/href
+# Using a more specific pattern to avoid double-adding
+sed -i '' 's/\.js"$/.js?v='"$TIMESTAMP"'"/g' index.html 2>/dev/null || :
+sed -i '' 's/\.css"$/.css?v='"$TIMESTAMP"'"/g' index.html 2>/dev/null || :
 
 echo "📄 Copying updated index.html to dist/..."
 cp index.html dist/

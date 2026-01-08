@@ -3996,3 +3996,998 @@
                 display: none;
             }
         }
+
+        /* ========================================
+          CONFIG CARD CAROUSEL
+           ======================================== */
+        .carousel-arrow-btn:hover {
+            background: var(--bg-primary) !important;
+            border-color: var(--brand-primary) !important;
+            color: var(--brand-primary) !important;
+            transform: scale(1.1);
+        }
+
+        .config-dot.active {
+            box-shadow: 0 0 8px var(--brand-primary);
+        }
+
+        @keyframes fadeInConfigCard {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* PROCEDURE VIEWER STYLES */
+        .procedure-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .proc-tab {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .proc-tab.active {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
+        }
+
+        .proc-tab.akl-tab.active {
+            background: #f59e0b;
+            border-color: #f59e0b;
+            color: black;
+        }
+
+        .proc-tab.add-tab.active {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: black;
+        }
+
+        .procedure-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .tool-selector-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .tool-selector-wrapper label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .tool-selector-wrapper select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .proc-meta-badges {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .badge.time {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .badge.online {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .badge.voltage {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .proc-steps-list {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-primary);
+        }
+
+        .proc-step {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .proc-arrow {
+            color: var(--text-muted);
+            margin: 0 4px;
+        }
+
+        .proc-menu-item {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid var(--border);
+            color: var(--brand-primary);
+        }
+
+        .proc-pearls-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .proc-pearls-section h4 {
+            margin: 0 0 16px 0;
+            color: #ffd700;
+        }
+
+        .proc-pearl-card {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .proc-pearl-card.critical {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .pearl-title {
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 4px;
+        }
+
+        .proc-pearl-card.critical .pearl-title {
+            color: #ef4444;
+        }
+
+        .pearl-body {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .proc-empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .research-btn {
+            margin-top: 16px;
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--brand-primary);
+            cursor: pointer;
+        }
+
+        /* PROCEDURE VIEWER V2 - Tool-Based Tabs */
+        .procedure-viewer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .procedure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .procedure-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .proc-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        /* Tool Tabs */
+        .tool-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tool-tab {
+            flex-shrink: 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tool-tab:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .tool-tab.active {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border-color: var(--brand-primary);
+        }
+
+        /* Procedure Content */
+        .procedure-content {
+            padding: 20px;
+        }
+
+        /* Procedure Sections */
+        .proc-section {
+            margin-bottom: 24px;
+        }
+
+        .proc-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .proc-section-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .proc-type-badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .proc-type-badge.akl {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .proc-type-badge.add-key {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .meta-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Steps */
+        .proc-steps {
+            margin: 0;
+            padding-left: 24px;
+            color: var(--text-primary);
+            line-height: 1.8;
+        }
+
+        .proc-steps li {
+            margin-bottom: 8px;
+        }
+
+        .proc-steps .arrow {
+            color: var(--text-muted);
+            margin: 0 6px;
+        }
+
+        .proc-steps .menu-item {
+            background: var(--bg-tertiary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            border: 1px solid var(--border);
+            color: var(--brand-primary);
+        }
+
+        /* Inline Pearls */
+        .inline-pearls {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+        }
+
+        .inline-pearls h5 {
+            margin: 0 0 12px 0;
+            color: #a78bfa;
+            font-size: 0.9rem;
+        }
+
+        .pearl-chip {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .pearl-chip:last-child {
+            margin-bottom: 0;
+        }
+
+        .pearl-chip.critical {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .pearl-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .pearl-header strong {
+            color: #c4b5fd;
+            font-size: 0.9rem;
+        }
+
+        .pearl-chip.critical .pearl-header strong {
+            color: #fca5a5;
+        }
+
+        .pearl-votes {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .pearl-votes button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .pearl-votes button:hover {
+            opacity: 1;
+        }
+
+        .pearl-votes span {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .pearl-chip p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Empty State */
+        .procedure-viewer.empty {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .procedure-viewer.empty h4 {
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .procedure-viewer.empty p {
+            color: var(--text-muted);
+            margin: 0 0 20px 0;
+        }
+
+        .request-btn {
+            background: var(--brand-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* VEHICLE CARD V2 STYLES */
+        .vehicle-card-v2 {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        /* Header */
+        .vc-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vc-make-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .vc-title h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+        }
+
+        /* Key Type Tabs */
+        .vc-key-type-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .vc-key-tab {
+            flex: 1;
+            padding: 10px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .vc-key-tab:hover {
+            border-color: var(--brand-primary);
+        }
+
+        .vc-key-tab.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            border-color: #f59e0b;
+        }
+
+        /* Key Carousel */
+        .vc-key-carousel {
+            padding: 16px;
+        }
+
+        .vc-key-cards {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+
+        .vc-key-card {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .vc-key-card.active {
+            border-color: #f59e0b;
+        }
+
+        .vc-key-img {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .vc-key-img img {
+            max-width: 100px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .vc-key-fcc {
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: 8px;
+        }
+
+        .vc-key-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .vc-key-specs span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .vc-stock-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .vc-stock-badge.in-stock {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .vc-stock-badge.out {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .vc-carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .vc-carousel-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .vc-carousel-dots .dot.active {
+            background: var(--brand-primary);
+        }
+
+        /* Mechanical Strip */
+        .vc-mechanical-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vc-mech-item {
+            background: var(--bg-tertiary);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .vc-mech-item .icon {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .vc-mech-item .label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .vc-mech-item .value {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+        }
+
+        /* Procedures */
+        .vc-procedures {
+            padding: 20px;
+        }
+
+        .vc-procedures h3 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .vc-tool-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .vc-tool-tab {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .vc-tool-tab.active {
+            background: var(--brand-primary);
+            color: #000;
+            border-color: var(--brand-primary);
+        }
+
+        /* AKL/Add Key Sub-tabs */
+        .vc-proc-subtabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .vc-proc-subtab {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .vc-proc-subtab.active.akl {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .vc-proc-subtab.active.add {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        /* Procedure Content */
+        .vc-proc-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .vc-steps {
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .vc-step {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .vc-step .step-hint {
+            position: absolute;
+            right: 0;
+            top: 0;
+            cursor: pointer;
+        }
+
+        .vc-step .arrow {
+            color: var(--text-muted);
+            margin: 0 4px;
+        }
+
+        .vc-step .menu {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--brand-primary);
+            font-family: monospace;
+        }
+
+        /* Tool Status Banner */
+        .vc-tool-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            margin: 0 16px 16px;
+            border-radius: 8px;
+        }
+
+        .vc-tool-status.good {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .vc-tool-status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .vc-tool-status.critical {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* Pearls Section */
+        .vc-pearls-section {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .vc-pearls-section h4 {
+            margin: 0 0 16px 0;
+            color: #ffd700;
+        }
+
+        .vc-pearls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .vc-pearl {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .vc-pearl.critical {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .vc-pearl .pearl-title {
+            font-weight: 600;
+            color: #c4b5fd;
+            margin-bottom: 6px;
+        }
+
+        .vc-pearl.critical .pearl-title {
+            color: #fca5a5;
+        }
+
+        .vc-pearl .pearl-content {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .vc-pearl .pearl-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .vc-pearl .pearl-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .vc-pearl .pearl-actions button:hover {
+            color: var(--text-primary);
+        }
+
+        /* Architecture Badges */
+        .vc-arch-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .vc-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vc-badge.security {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .vc-badge.protocol {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .vc-badge.technical {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .vc-badge.chassis {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        /* ==========================================
+           MOBILE BOTTOM NAVIGATION (Mockup 3)
+           ========================================== */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 8px 0;
+            padding-bottom: env(safe-area-inset-bottom, 8px);
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-bottom-nav .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .mobile-bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .mobile-bottom-nav .nav-item .nav-icon {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .mobile-bottom-nav .nav-item.active {
+            color: var(--brand-primary);
+        }
+
+        .mobile-bottom-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: var(--brand-primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .mobile-bottom-nav .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        .mobile-bottom-nav .nav-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* Mobile: Show bottom nav, hide desktop tabs */
+        @media (max-width: 768px) {
+            .mobile-bottom-nav {
+                display: block;
+            }
+
+            .tabs#mainTabs {
+                display: none;
+            }
+
+            /* Add padding to body so content isn't hidden under bottom nav */
+            body {
+                padding-bottom: 80px;
+            }
+
+            #resultsSection,
+            #browse,
+            .tab-view,
+            .tab-content {
+                padding-bottom: 100px;
+            }
+        }
+
+        /* Desktop: Hide bottom nav, keep tabs */
+        @media (min-width: 769px) {
+            .mobile-bottom-nav {
+                display: none !important;
+            }
+
+            .tabs#mainTabs {
+                display: flex;
+            }
+        }
