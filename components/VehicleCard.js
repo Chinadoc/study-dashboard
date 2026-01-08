@@ -259,8 +259,8 @@ class VehicleCard {
         }
 
         const toolProcs = procedures.filter(p => (p.tool || 'General') === this.activeTool);
-        const aklProcs = toolProcs.filter(p => p.procedure_type === 'AKL');
-        const addProcs = toolProcs.filter(p => p.procedure_type === 'ADD_KEY');
+        const aklProcs = toolProcs.filter(p => (p.procedure_type || '').toLowerCase() === 'akl');
+        const addProcs = toolProcs.filter(p => (p.procedure_type || '').toLowerCase() === 'add_key');
 
         return `
             <div class="vc-procedures">
@@ -349,7 +349,17 @@ class VehicleCard {
     }
 
     formatStep(step) {
-        return step
+        // Handle both string and object step formats
+        let stepText = '';
+        if (typeof step === 'string') {
+            stepText = step;
+        } else if (step && typeof step === 'object') {
+            stepText = step.action || step.text || step.description || step.content || JSON.stringify(step);
+        } else {
+            stepText = String(step || '');
+        }
+        
+        return stepText
             .replace(/>/g, '<span class="arrow">→</span>')
             .replace(/"([^"]+)"/g, '<span class="menu">"$1"</span>');
     }

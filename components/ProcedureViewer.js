@@ -136,8 +136,19 @@ class ProcedureViewer {
         if (!Array.isArray(steps)) return '<li>No steps available</li>';
 
         return steps.map((step, idx) => {
+            // Extract text from step - handle both string and object formats
+            let stepText = '';
+            if (typeof step === 'string') {
+                stepText = step;
+            } else if (step && typeof step === 'object') {
+                // Handle structured step objects: { action, step_number, notes, ... }
+                stepText = step.action || step.text || step.description || step.content || JSON.stringify(step);
+            } else {
+                stepText = String(step || '');
+            }
+            
             // Format menu paths
-            const formatted = step
+            const formatted = stepText
                 .replace(/>/g, '<span class="arrow">→</span>')
                 .replace(/"([^"]+)"/g, '<span class="menu-item">"$1"</span>');
             return `<li>${formatted}</li>`;
