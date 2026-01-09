@@ -3418,108 +3418,154 @@ function renderMockup3VehiclePage(vehicle, data) {
     const keyway = primaryRow.keyway || primaryRow.key_blade || 'N/A';
     const bladeType = primaryRow.blade_type || (keyway.includes('8-Cut') ? '8-Cut' : keyway.includes('10-Cut') ? '10-Cut' : 'Standard');
     const codeSeries = primaryRow.code_series || 'N/A';
-    // NEW: Spaces, Depths, MACs from AKS data (97.8%+ coverage)
-    const spaces = primaryRow.spaces || 'N/A';
-    const depths = primaryRow.depths || 'N/A';
-    const macs = primaryRow.macs || 'N/A';
+
+    // Count pearls by type for integrated indicators
+    const pearlsByType = {
+        mechanical: pearls.filter(p => p.pearl_type === 'Mechanical' || (p.pearl_content || '').toLowerCase().includes('lishi')).length,
+        procedure: pearls.filter(p => p.pearl_type === 'Procedure' || p.pearl_type === 'AKL Procedure').length,
+        alert: pearls.filter(p => p.is_critical || p.pearl_type === 'Alert').length
+    };
 
     let html = `
         <div class="mockup3-vehicle-page">
-            <!-- Header with Back and Tab Navigation -->
+            <!-- Header with Tab Navigation -->
             <div class="m3-header">
                 <button class="m3-back-btn" onclick="history.back()">← Back</button>
                 <h1 class="m3-title">${year} ${make} ${model}</h1>
                 <div class="m3-tabs">
-                    <button class="m3-tab active" data-tab="vehicle">🚗 Vehicle</button>
-                    <button class="m3-tab" data-tab="inventory">📦 Inventory</button>
+                    <button class="m3-tab active" data-tab="vehicle" onclick="switchMockup3Tab('vehicle')">🚗 Vehicle</button>
+                    <button class="m3-tab" data-tab="inventory" onclick="switchMockup3Tab('inventory')">📦 Inventory</button>
                 </div>
             </div>
             
             <div class="m3-tab-content" id="vehicleTab">
                 <!-- SECTION 1 - KEY CONFIGURATIONS -->
                 <section class="m3-section">
-                    <h2 class="m3-section-title">SECTION 1 - KEY CONFIGURATIONS</h2>
+                    <h2 class="m3-section-title">SECTION 1: KEY CONFIGURATIONS</h2>
                     <div class="m3-config-carousel">
                         ${renderKeyConfigCards(configs, inventory, vehicle)}
                     </div>
                 </section>
                 
-                <!-- SECTION 2 - MECHANICAL -->
-                <section class="m3-section">
-                    <h2 class="m3-section-title">SECTION 2 - MECHANICAL</h2>
-                    <div class="m3-mechanical-grid">
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">📐</span>
-                            <span class="m3-mech-label">Lishi Tool:</span>
-                            <span class="m3-mech-value">${lishiTool}</span>
+                <!-- TWO-COLUMN LAYOUT: MECHANICAL + PROCEDURES -->
+                <div class="m3-two-column">
+                    <!-- SECTION 2 - MECHANICAL -->
+                    <section class="m3-section m3-mechanical-section">
+                        <h2 class="m3-section-title">SECTION 2: MECHANICAL ${pearlsByType.mechanical > 0 ? `<span class="m3-pearl-indicator" title="${pearlsByType.mechanical} tips available">💎 ${pearlsByType.mechanical}</span>` : ''}</h2>
+                        <div class="m3-mechanical-grid">
+                            <div class="m3-mech-item">
+                                <span class="m3-mech-icon">📐</span>
+                                <div class="m3-mech-content">
+                                    <span class="m3-mech-label">Lishi Tool:</span>
+                                    <span class="m3-mech-value">${lishiTool}</span>
+                                </div>
+                            </div>
+                            <div class="m3-mech-item">
+                                <span class="m3-mech-icon">🔑</span>
+                                <div class="m3-mech-content">
+                                    <span class="m3-mech-label">Keyway:</span>
+                                    <span class="m3-mech-value">${keyway}</span>
+                                </div>
+                            </div>
+                            <div class="m3-mech-item">
+                                <span class="m3-mech-icon">✂️</span>
+                                <div class="m3-mech-content">
+                                    <span class="m3-mech-label">Blade Type:</span>
+                                    <span class="m3-mech-value">${bladeType}</span>
+                                </div>
+                            </div>
+                            <div class="m3-mech-item">
+                                <span class="m3-mech-icon">📊</span>
+                                <div class="m3-mech-content">
+                                    <span class="m3-mech-label">Code Series:</span>
+                                    <span class="m3-mech-value">${codeSeries}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">🔑</span>
-                            <span class="m3-mech-label">Keyway:</span>
-                            <span class="m3-mech-value">${keyway}</span>
-                        </div>
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">✂️</span>
-                            <span class="m3-mech-label">Blade Type:</span>
-                            <span class="m3-mech-value">${bladeType}</span>
-                        </div>
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">📊</span>
-                            <span class="m3-mech-label">Code Series:</span>
-                            <span class="m3-mech-value">${codeSeries}</span>
-                        </div>
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">🔢</span>
-                            <span class="m3-mech-label">Spaces:</span>
-                            <span class="m3-mech-value">${spaces}</span>
-                        </div>
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">📏</span>
-                            <span class="m3-mech-label">Depths:</span>
-                            <span class="m3-mech-value">${depths}</span>
-                        </div>
-                        <div class="m3-mech-item">
-                            <span class="m3-mech-icon">⚙️</span>
-                            <span class="m3-mech-label">MACs:</span>
-                            <span class="m3-mech-value">${macs}</span>
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                    
+                    <!-- PROCEDURES -->
+                    <section class="m3-section m3-procedures-section">
+                        <h2 class="m3-section-title">PROCEDURES ${pearlsByType.procedure > 0 ? `<span class="m3-pearl-indicator" title="${pearlsByType.procedure} tips available">💎 ${pearlsByType.procedure}</span>` : ''}</h2>
+                        ${renderMockup3Procedures(procedures, pearls)}
+                    </section>
+                </div>
                 
-                <!-- SECTION 3 - PEARLS -->
-                <section class="m3-section">
-                    <h2 class="m3-section-title">PEARLS</h2>
-                    <div class="m3-pearls-list">
+                <!-- PEARLS (Community Tips) - Integrated View -->
+                ${pearls.length > 0 ? `
+                <section class="m3-section m3-pearls-section">
+                    <h2 class="m3-section-title">PEARLS <span class="m3-pearl-count">${pearls.length} tips</span></h2>
+                    <div class="m3-pearls-grid">
                         ${renderMockup3Pearls(pearls)}
                     </div>
                 </section>
+                ` : ''}
                 
-                <!-- SECTION 4 - PROCEDURES -->
-                <section class="m3-section">
-                    <h2 class="m3-section-title">PROCEDURES</h2>
-                    ${renderMockup3Procedures(procedures)}
-                </section>
-                
-                <!-- SECTION 5 - TOOL STATUS -->
-                <section class="m3-section" id="m3ToolStatus">
+                <!-- TOOL STATUS -->
+                <section class="m3-section m3-tool-status-section">
                     <h2 class="m3-section-title">SECTION 5 - TOOL STATUS</h2>
                     <div id="m3ToolStatusContent">
-                        <!-- Populated dynamically -->
+                        ${renderToolStatusInline(subscription)}
                     </div>
                 </section>
             </div>
             
             <div class="m3-tab-content" id="inventoryTab" style="display: none;">
-                <div class="m3-inventory-view">
-                    <p style="color: var(--text-muted); text-align: center; padding: 32px;">
-                        📦 Inventory management for ${make} ${model} keys
-                    </p>
-                </div>
+                ${renderInventoryTab(configs, inventory, vehicle)}
             </div>
         </div>
     `;
 
     return html;
+}
+
+// Inline tool status renderer
+function renderToolStatusInline(subscription) {
+    if (!subscription) {
+        return `<div class="m3-tool-empty">
+            <span>📱 Connect your tools to see subscription status</span>
+        </div>`;
+    }
+
+    const daysRemaining = subscription.days_remaining || 45;
+    const statusColor = daysRemaining > 30 ? '#22c55e' : daysRemaining > 7 ? '#f59e0b' : '#ef4444';
+
+    return `
+        <div class="m3-tool-card">
+            <div class="m3-tool-info">
+                <span class="m3-tool-name">${subscription.tool_name || 'Autel IM608 Pro'}</span>
+                <span class="m3-tool-days">${daysRemaining} days remaining</span>
+            </div>
+            <span class="m3-tool-badge" style="background: ${statusColor}20; color: ${statusColor};">✓ Subscription Active</span>
+        </div>
+        <div class="m3-tool-sync">Last Sync: ${subscription.last_sync || 'Today, 10:45 AM'}</div>
+    `;
+}
+
+// Inventory tab content
+function renderInventoryTab(configs, inventory, vehicle) {
+    const { year, make, model } = vehicle;
+    const hasInventory = Object.values(inventory).some(v => v > 0);
+
+    if (!hasInventory) {
+        return `<div class="m3-inventory-empty">
+            <span style="font-size: 3rem;">📦</span>
+            <h3>No ${make} ${model} Keys in Inventory</h3>
+            <p>Add keys to your inventory to track stock levels</p>
+        </div>`;
+    }
+
+    return `<div class="m3-inventory-grid">
+        ${configs.map(c => {
+        const stock = inventory[c.fcc_id] || 0;
+        return stock > 0 ? `
+                <div class="m3-inventory-item">
+                    <span class="m3-inv-fcc">${c.fcc_id}</span>
+                    <span class="m3-inv-stock">${stock} in stock</span>
+                </div>
+            ` : '';
+    }).join('')}
+    </div>`;
 }
 
 // Render horizontal scrolling key config cards
@@ -3543,7 +3589,7 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
         const inStock = stockCount > 0;
 
         // Build Amazon affiliate link
-        const amazonQuery = `${year} ${make} ${model} key fob ${fccId}`;
+        const amazonQuery = `${year} ${make} ${model} key fob ${fccId} `;
         const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${amazonTag}`;
 
         // Determine key image based on type
