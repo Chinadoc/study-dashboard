@@ -110,6 +110,111 @@ async function postComment(vehicleKey, containerIdx) {
 }
 
 // ==============================================
+// SECTION 5: TOOL STATUS (User's Tool Subscriptions)
+// ==============================================
+
+/**
+ * Render Tool Status section for logged-in users
+ * Shows their owned tools and subscription status
+ */
+async function renderToolStatusSection(containerId = 'toolStatusContainer') {
+    // Only for authenticated users
+    if (!currentUser) return;
+
+    try {
+        const response = await fetch(`${API}/api/user/tool-subscriptions`, {
+            credentials: 'include'
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const subscriptions = data.subscriptions || [];
+
+        if (subscriptions.length === 0) return;
+
+        // Find container or create after procedures
+        let container = document.getElementById(containerId);
+        if (!container) {
+            const procContainer = document.getElementById('procViewerContainer');
+            if (procContainer) {
+                container = document.createElement('div');
+                container.id = containerId;
+                container.className = 'tool-status-section';
+                procContainer.parentNode.insertBefore(container, procContainer.nextSibling);
+            } else {
+                return;
+            }
+        }
+
+        // Calculate days remaining for subscriptions
+        const now = Date.now();
+        const toolCards = subscriptions.map(sub => {
+            const expiresAt = sub.expiresAt || sub.expires_at;
+            let daysRemaining = null;
+            let statusColor = '#22c55e'; // Green
+            let statusText = 'Active';
+
+            if (expiresAt) {
+                daysRemaining = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+                if (daysRemaining <= 0) {
+                    statusColor = '#ef4444'; // Red
+                    statusText = 'Expired';
+                } else if (daysRemaining <= 30) {
+                    statusColor = '#f59e0b'; // Yellow
+                    statusText = `${daysRemaining} days`;
+                } else {
+                    statusText = `${daysRemaining} days`;
+                }
+            }
+
+            const toolName = sub.toolName || sub.tool_name || sub.name || 'Unknown Tool';
+            const toolIcon = getToolIcon(toolName);
+
+            return `
+                <div class="tool-status-card" style="background: rgba(34,197,94,0.1); border: 1px solid ${statusColor}40; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 1.5rem;">${toolIcon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">${toolName}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Subscription Active</div>
+                    </div>
+                    <div style="background: ${statusColor}20; color: ${statusColor}; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                        ${statusText}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="tool-status-wrapper" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px; margin: 16px 0; border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 1.2rem;">🔧</span>
+                    <span style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">TOOL STATUS</span>
+                    <span style="background: var(--bg-tertiary); color: var(--text-muted); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">${subscriptions.length} tools</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    ${toolCards}
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        console.warn('Could not load tool status:', err);
+    }
+}
+
+function getToolIcon(toolName) {
+    const lower = (toolName || '').toLowerCase();
+    if (lower.includes('autel')) return '🔴';
+    if (lower.includes('smart pro') || lower.includes('smartpro')) return '🟠';
+    if (lower.includes('vvdi') || lower.includes('xhorse')) return '🔵';
+    if (lower.includes('lonsdor')) return '🟣';
+    if (lower.includes('acdp') || lower.includes('yanhua')) return '🟢';
+    if (lower.includes('topdon')) return '🟤';
+    if (lower.includes('lishi')) return '📐';
+    return '🔧';
+}
+
+// ==============================================
 // LOCKSMITH INTELLIGENCE CARD FUNCTIONS
 // ==============================================
 
@@ -847,14 +952,21 @@ function renderIntelCard(walkthrough, config, vehicle, options = {}) {
         if (strVal.length > 30) return null;
         // Field-specific validation
         if (fieldType === 'chip') {
-            // Only allow known chip patterns
-            if (!/^(NCF|PCF|Hitag|ID4|4[DCEF]|N\/A|Varies)/i.test(strVal) && strVal.length > 15) return null;
+            // Explicitly reject known garbage values (common data integrity issues)
+            const garbageValues = ['architecture', 'system', 'undefined', 'object', 'null', 'unknown', 'n/a', 'na', 'none', 'empty', 'test'];
+            if (garbageValues.includes(strVal.toLowerCase())) return null;
+
+            // Allow known chip patterns - whitelist approach for data integrity
+            // Matches: Philips 47 (Honda G), NCF29A1, PCF7936, Hitag Pro, ID46, 4D63, Texas Fixed, etc.
+            const validChipPattern = /^(NCF|PCF|Hitag|ID4[0-9]?|4[DCEF][0-9]*|Philips|Megamos|Texas|NXP|Honda|Toyota|Tiris|Crypto|DST|AES|TMS37|TK[0-9]*|Carbon|Ceramic|Glass|Meg|ID[0-9]+|TP[0-9]+|T[0-9]+|H[0-9]+|Smart|Prox)/i;
+            if (!validChipPattern.test(strVal)) return null;
         }
         return strVal;
     }
 
     // Sanitized values for display
-    const displayChip = sanitizeQuickFactValue(quickFacts.chip, 'chip') || config?.chip || 'N/A';
+    // Priority: 1) Verified config data, 2) Walkthrough quick_facts, 3) Fallback
+    const displayChip = config?.chip || sanitizeQuickFactValue(quickFacts.chip, 'chip') || 'N/A';
 
     // NEW: Enhanced structured data
     const criticalInsights = parsed.critical_insights || [];
@@ -3285,6 +3397,291 @@ window.closeGuideModal = function () {
     if (modal) modal.style.display = 'none';
 };
 
+// ==============================================
+// MOCKUP 3 VEHICLE PAGE RENDERER
+// Implements the approved UI vision with:
+// - Tab navigation (Vehicle | Inventory)
+// - Section 1: KEY CONFIGURATIONS (horizontal scrolling cards)
+// - Section 2: MECHANICAL (Lishi, Keyway, Blade, Code Series)
+// - Section 3: PEARLS (community tips with voting)
+// - Section 4: PROCEDURES (tool-specific tabs)
+// - Section 5: TOOL STATUS (user subscriptions)
+// ==============================================
+
+function renderMockup3VehiclePage(vehicle, data) {
+    const { year, make, model } = vehicle;
+    const { configs = [], procedures = [], pearls = [], inventory = {}, subscription = null, rows = [] } = data;
+
+    // Get mechanical data from first row or config
+    const primaryRow = rows[0] || configs[0] || {};
+    const lishiTool = primaryRow.lishi_tool || primaryRow.lishi || 'N/A';
+    const keyway = primaryRow.keyway || primaryRow.key_blade || 'N/A';
+    const bladeType = primaryRow.blade_type || (keyway.includes('8-Cut') ? '8-Cut' : keyway.includes('10-Cut') ? '10-Cut' : 'Standard');
+    const codeSeries = primaryRow.code_series || 'N/A';
+    // NEW: Spaces, Depths, MACs from AKS data (97.8%+ coverage)
+    const spaces = primaryRow.spaces || 'N/A';
+    const depths = primaryRow.depths || 'N/A';
+    const macs = primaryRow.macs || 'N/A';
+
+    let html = `
+        <div class="mockup3-vehicle-page">
+            <!-- Header with Back and Tab Navigation -->
+            <div class="m3-header">
+                <button class="m3-back-btn" onclick="history.back()">← Back</button>
+                <h1 class="m3-title">${year} ${make} ${model}</h1>
+                <div class="m3-tabs">
+                    <button class="m3-tab active" data-tab="vehicle">🚗 Vehicle</button>
+                    <button class="m3-tab" data-tab="inventory">📦 Inventory</button>
+                </div>
+            </div>
+            
+            <div class="m3-tab-content" id="vehicleTab">
+                <!-- SECTION 1 - KEY CONFIGURATIONS -->
+                <section class="m3-section">
+                    <h2 class="m3-section-title">SECTION 1 - KEY CONFIGURATIONS</h2>
+                    <div class="m3-config-carousel">
+                        ${renderKeyConfigCards(configs, inventory, vehicle)}
+                    </div>
+                </section>
+                
+                <!-- SECTION 2 - MECHANICAL -->
+                <section class="m3-section">
+                    <h2 class="m3-section-title">SECTION 2 - MECHANICAL</h2>
+                    <div class="m3-mechanical-grid">
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">📐</span>
+                            <span class="m3-mech-label">Lishi Tool:</span>
+                            <span class="m3-mech-value">${lishiTool}</span>
+                        </div>
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">🔑</span>
+                            <span class="m3-mech-label">Keyway:</span>
+                            <span class="m3-mech-value">${keyway}</span>
+                        </div>
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">✂️</span>
+                            <span class="m3-mech-label">Blade Type:</span>
+                            <span class="m3-mech-value">${bladeType}</span>
+                        </div>
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">📊</span>
+                            <span class="m3-mech-label">Code Series:</span>
+                            <span class="m3-mech-value">${codeSeries}</span>
+                        </div>
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">🔢</span>
+                            <span class="m3-mech-label">Spaces:</span>
+                            <span class="m3-mech-value">${spaces}</span>
+                        </div>
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">📏</span>
+                            <span class="m3-mech-label">Depths:</span>
+                            <span class="m3-mech-value">${depths}</span>
+                        </div>
+                        <div class="m3-mech-item">
+                            <span class="m3-mech-icon">⚙️</span>
+                            <span class="m3-mech-label">MACs:</span>
+                            <span class="m3-mech-value">${macs}</span>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SECTION 3 - PEARLS -->
+                <section class="m3-section">
+                    <h2 class="m3-section-title">PEARLS</h2>
+                    <div class="m3-pearls-list">
+                        ${renderMockup3Pearls(pearls)}
+                    </div>
+                </section>
+                
+                <!-- SECTION 4 - PROCEDURES -->
+                <section class="m3-section">
+                    <h2 class="m3-section-title">PROCEDURES</h2>
+                    ${renderMockup3Procedures(procedures)}
+                </section>
+                
+                <!-- SECTION 5 - TOOL STATUS -->
+                <section class="m3-section" id="m3ToolStatus">
+                    <h2 class="m3-section-title">SECTION 5 - TOOL STATUS</h2>
+                    <div id="m3ToolStatusContent">
+                        <!-- Populated dynamically -->
+                    </div>
+                </section>
+            </div>
+            
+            <div class="m3-tab-content" id="inventoryTab" style="display: none;">
+                <div class="m3-inventory-view">
+                    <p style="color: var(--text-muted); text-align: center; padding: 32px;">
+                        📦 Inventory management for ${make} ${model} keys
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
+// Render horizontal scrolling key config cards
+function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
+    if (!configs || configs.length === 0) {
+        return '<div class="m3-empty-state">No key configurations found</div>';
+    }
+
+    const { year, make, model } = vehicle;
+    const amazonTag = 'eurokeys-20';
+
+    return configs.map((config, idx) => {
+        const fccId = config.fcc_id || 'N/A';
+        const keyType = config.config_type || config.key_type || 'Smart Key';
+        const buttons = config.buttons || config.button_count || '?';
+        const chip = config.chip || config.chip_family || 'N/A';
+        const battery = config.battery || 'CR2032';
+
+        // Check inventory status
+        const stockCount = inventory[fccId] || 0;
+        const inStock = stockCount > 0;
+
+        // Build Amazon affiliate link
+        const amazonQuery = `${year} ${make} ${model} key fob ${fccId}`;
+        const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(amazonQuery)}&tag=${amazonTag}`;
+
+        // Determine key image based on type
+        const keyImage = keyType.toLowerCase().includes('smart') || keyType.toLowerCase().includes('prox')
+            ? '/assets/images/keys/smart-key-generic.png'
+            : '/assets/images/keys/flip-key-generic.png';
+
+        return `
+            <div class="m3-config-card ${idx === 0 ? 'primary' : ''}">
+                ${inStock ? `<div class="m3-stock-badge">✓ In Stock: ${stockCount}</div>` : ''}
+                <div class="m3-config-image">
+                    <img src="${keyImage}" alt="${keyType}" onerror="this.src='/assets/images/keys/key-placeholder.png'">
+                </div>
+                <div class="m3-config-details">
+                    <div class="m3-config-fcc">
+                        <a href="${amazonUrl}" target="_blank" onclick="logActivity && logActivity('affiliate_click', {type:'m3_config', fcc:'${fccId}'})">
+                            FCC ID: ${fccId}
+                        </a>
+                    </div>
+                    <div class="m3-config-specs">
+                        <div class="m3-spec-row">
+                            <span>Button Count:</span>
+                            <span>${buttons}</span>
+                        </div>
+                        <div class="m3-spec-row">
+                            <span>Chip Type:</span>
+                            <span>${chip}</span>
+                        </div>
+                        <div class="m3-spec-row">
+                            <span>Battery:</span>
+                            <span>${battery}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render pearls with voting and scores (Mockup 3 style)
+function renderMockup3Pearls(pearls) {
+    if (!pearls || pearls.length === 0) {
+        return '<div class="m3-empty-state">No community pearls yet</div>';
+    }
+
+    // Filter to quality pearls and limit display
+    const displayPearls = pearls
+        .filter(p => (p.pearl_content || '').length > 50)
+        .slice(0, 5);
+
+    return displayPearls.map(pearl => {
+        const score = pearl.score || 0;
+        const upvotes = pearl.upvotes || 0;
+        const downvotes = pearl.downvotes || 0;
+        const commentCount = pearl.comment_count || 0;
+        const author = pearl.author_name || pearl.source_name || 'Community';
+
+        return `
+            <div class="m3-pearl-card">
+                <div class="m3-pearl-header">
+                    <span class="m3-pearl-title">${pearl.pearl_title || 'Pro Tip'}</span>
+                    <span class="m3-pearl-author">👤 ${author}</span>
+                </div>
+                <div class="m3-pearl-content">${(pearl.pearl_content || '').substring(0, 200)}${(pearl.pearl_content || '').length > 200 ? '...' : ''}</div>
+                <div class="m3-pearl-actions">
+                    <button class="m3-vote-btn" onclick="votePearl(${pearl.id}, 'up')">👍 ${upvotes}</button>
+                    <button class="m3-vote-btn" onclick="votePearl(${pearl.id}, 'down')">👎 ${downvotes}</button>
+                    <button class="m3-comment-btn" onclick="showPearlComments(${pearl.id})">💬 ${commentCount}</button>
+                    <span class="m3-pearl-score" style="color: ${score > 0 ? '#22c55e' : score < 0 ? '#ef4444' : '#888'}">Score: ${score}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render procedures with tool-specific tabs (Mockup 3 style)
+function renderMockup3Procedures(procedures) {
+    if (!procedures || procedures.length === 0) {
+        return '<div class="m3-empty-state">No procedures available</div>';
+    }
+
+    // Group procedures by tool
+    const byTool = {};
+    procedures.forEach(proc => {
+        const tool = proc.tool_name || proc.tool || 'General';
+        if (!byTool[tool]) byTool[tool] = [];
+        byTool[tool].push(proc);
+    });
+
+    const tools = Object.keys(byTool);
+    if (tools.length === 0) return '';
+
+    let tabsHtml = tools.map((tool, idx) => `
+        <button class="m3-proc-tab ${idx === 0 ? 'active' : ''}" data-tool="${tool.replace(/\s+/g, '-').toLowerCase()}" onclick="switchProcedureTab(this)">
+            ${getToolIcon(tool)} ${tool}
+        </button>
+    `).join('');
+
+    let contentHtml = tools.map((tool, idx) => `
+        <div class="m3-proc-content" data-tool="${tool.replace(/\s+/g, '-').toLowerCase()}" style="${idx === 0 ? '' : 'display: none;'}">
+            ${byTool[tool].map((proc, pidx) => `
+                <div class="m3-proc-step">
+                    <span class="m3-step-number">${pidx + 1}</span>
+                    <div class="m3-step-content">
+                        <div class="m3-step-title">${proc.procedure_name || proc.title || `Step ${pidx + 1}`}</div>
+                        <div class="m3-step-desc">${proc.summary || proc.description || proc.content || ''}</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+
+    return `
+        <div class="m3-proc-tabs">${tabsHtml}</div>
+        <div class="m3-proc-panels">${contentHtml}</div>
+    `;
+}
+
+// Tab switching for procedures
+window.switchProcedureTab = function (btn) {
+    const tool = btn.dataset.tool;
+    // Update tab styles
+    document.querySelectorAll('.m3-proc-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    // Show/hide content
+    document.querySelectorAll('.m3-proc-content').forEach(c => {
+        c.style.display = c.dataset.tool === tool ? 'block' : 'none';
+    });
+};
+
+// Main tab switching (Vehicle | Inventory)
+window.switchMockup3Tab = function (tab) {
+    document.querySelectorAll('.m3-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.m3-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById('vehicleTab').style.display = tab === 'vehicle' ? 'block' : 'none';
+    document.getElementById('inventoryTab').style.display = tab === 'inventory' ? 'block' : 'none';
+};
+
 function displayResults(rows, year, make, model, extras = {}) {
     const container = document.getElementById('resultsContainer');
     const { alerts = [], pearls = [], procedures = [], walkthroughs = [], configs = [], guide: extraGuide = null } = extras;
@@ -3300,13 +3697,96 @@ function displayResults(rows, year, make, model, extras = {}) {
         return;
     }
 
-    // [NEW] VehicleCard Integration (7-Layer Hub) - Can be toggled on/off
+    // [NEW] Mockup 3 Vehicle Page - Default rendering mode
+    const useMockup3 = localStorage.getItem('useLegacyView') !== 'true';
+
+    if (useMockup3) {
+        console.log('[Mockup3] Rendering new vehicle page layout');
+
+        // Clean year for display
+        const cleanYear = parseInt(year);
+
+        // Get inventory data if available
+        let inventoryData = {};
+        if (typeof InventoryManager !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
+            configs.forEach(c => {
+                const fcc = c.fcc_id;
+                if (fcc) {
+                    inventoryData[fcc] = InventoryManager.getKeyStock(fcc);
+                }
+            });
+        }
+
+        // Fallback: Extract config-like data from rows if configs is empty
+        let effectiveConfigs = configs || [];
+        if (effectiveConfigs.length === 0 && rows.length > 0) {
+            const yearFilteredRows = rows.filter(row => {
+                const yearStart = parseInt(row.year_start) || 0;
+                const yearEnd = parseInt(row.year_end) || 9999;
+                return cleanYear >= yearStart && cleanYear <= yearEnd;
+            });
+
+            effectiveConfigs = yearFilteredRows.map(row => ({
+                fcc_id: row.fcc_id,
+                chip: row.chip,
+                frequency_mhz: row.frequency || row.frequency_mhz,
+                battery: row.battery,
+                config_type: row.key_type || (row.prox_only ? 'Smart Key' : 'Physical Key'),
+                buttons: row.button_count || row.buttons,
+                keyway: row.keyway,
+                lishi_tool: row.lishi,
+                blade_type: row.blade_type,
+                code_series: row.code_series
+            })).filter((c, i, arr) =>
+                c.fcc_id && arr.findIndex(x => x.fcc_id === c.fcc_id) === i
+            );
+        }
+
+        // Render Mockup 3 page
+        const html = renderMockup3VehiclePage(
+            { year: cleanYear, make, model },
+            {
+                configs: effectiveConfigs,
+                procedures,
+                pearls,
+                inventory: inventoryData,
+                rows
+            }
+        );
+
+        container.innerHTML = `
+            <div style="margin-bottom: 16px; display: flex; gap: 8px;">
+                <button onclick="localStorage.setItem('useLegacyView', 'true'); window.location.reload();" 
+                        style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                    ⚙️ Switch to Legacy View
+                </button>
+            </div>
+            ${html}
+        `;
+
+        // Initialize tab switching
+        document.querySelectorAll('.m3-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchMockup3Tab(tab.dataset.tab));
+        });
+
+        // Load tool status if user is logged in
+        if (typeof currentUser !== 'undefined' && currentUser) {
+            renderToolStatusSection('m3ToolStatusContent');
+        }
+
+        // Set shareable URL
+        setVehicleUrl(make, model, year);
+
+        return;
+    }
+
+    // [LEGACY] VehicleCard Integration (7-Layer Hub) - Can be toggled on/off
     const useVehicleCard = localStorage.getItem('useVehicleCard') === 'true' ||
-                          window.location.hash.includes('vehiclecard=1');
-    
+        window.location.hash.includes('vehiclecard=1');
+
     if (useVehicleCard && typeof VehicleCard !== 'undefined') {
         console.log('[VehicleCard] Rendering 7-layer vehicle hub');
-        
+
         // Prepare vehicle data for VehicleCard
         const primaryRow = rows[0] || {};
         const vehicleData = {
@@ -3319,7 +3799,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             chassis_code: primaryRow.chassis_code,
             notes: primaryRow.notes
         };
-        
+
         // Get inventory data if available
         let inventoryData = {};
         if (typeof InventoryManager !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
@@ -3330,12 +3810,12 @@ function displayResults(rows, year, make, model, extras = {}) {
                 }
             });
         }
-        
+
         // Prepare subscription data (if available)
-        const subscriptionData = typeof currentUser !== 'undefined' && currentUser?.subscription 
-            ? currentUser.subscription 
+        const subscriptionData = typeof currentUser !== 'undefined' && currentUser?.subscription
+            ? currentUser.subscription
             : null;
-        
+
         // Create container for VehicleCard
         container.innerHTML = `
             <div style="margin-bottom: 16px;">
@@ -3346,23 +3826,54 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>
             <div id="vehicleCardContainer"></div>
         `;
-        
+
+        // Fallback: Extract config-like data from rows if configs is empty
+        let effectiveConfigs = configs || [];
+        if (effectiveConfigs.length === 0 && rows.length > 0) {
+            console.log('[VehicleCard] No configs found, extracting from rows data');
+
+            // CRITICAL: Filter rows by year range FIRST to prevent cross-generation data
+            const cleanYearInt = parseInt(year);
+            const yearFilteredRows = rows.filter(row => {
+                const yearStart = parseInt(row.year_start) || 0;
+                const yearEnd = parseInt(row.year_end) || 9999;
+                return cleanYearInt >= yearStart && cleanYearInt <= yearEnd;
+            });
+
+            effectiveConfigs = yearFilteredRows.map(row => ({
+                fcc_id: row.fcc_id,
+                chip: row.chip,
+                frequency_mhz: row.frequency || row.frequency_mhz,
+                battery: row.battery,
+                key_type: row.key_type || (row.prox_only ? 'Smart Key' : 'Physical Key'),
+                buttons: row.button_count || row.buttons,
+                keyway: row.keyway,
+                lishi_tool: row.lishi,
+                blade_type: row.blade_type,
+                code_series: row.code_series,
+                // Dedupe by FCC ID
+                _source: 'rows_fallback'
+            })).filter((c, i, arr) =>
+                c.fcc_id && arr.findIndex(x => x.fcc_id === c.fcc_id) === i
+            );
+        }
+
         // Instantiate and render VehicleCard
         const vehicleCard = new VehicleCard('vehicleCardContainer');
         window.vehicleCard = vehicleCard; // Store globally for method calls
-        
+
         vehicleCard.render({
             vehicle: vehicleData,
-            configs: configs || [],
+            configs: effectiveConfigs,
             procedures: procedures || [],
             pearls: pearls || [],
             inventory: inventoryData,
             subscription: subscriptionData
         });
-        
+
         // Set shareable URL
         setVehicleUrl(make, model, year);
-        
+
         return; // Exit early - VehicleCard handles all rendering
     }
 
@@ -3371,7 +3882,7 @@ function displayResults(rows, year, make, model, extras = {}) {
     setVehicleUrl(make, model, year);
 
     // --- UNIFIED VEHICLE HEADER & GLOBALS ---
-    
+
     // Clean year for display to avoid '2024?v=12345' - MUST be declared before first use
     const cleanYear = parseInt(year);
 
@@ -3383,34 +3894,34 @@ function displayResults(rows, year, make, model, extras = {}) {
     // Extract immobilizer data from first row for architecture display
     const primaryRow = rows[0] || {};
     const archBadges = [];
-    
+
     // Primary security system badge (e.g., CAS3+, Global B, EWS)
     if (primaryRow.immobilizer_system_specific && primaryRow.immobilizer_system_specific !== primaryRow.immobilizer_system) {
         archBadges.push({ label: primaryRow.immobilizer_system_specific, class: 'security' });
     } else if (primaryRow.immobilizer_system) {
         archBadges.push({ label: primaryRow.immobilizer_system, class: 'security' });
     }
-    
+
     // CAN-FD detection (GM Global B, Ford 2021+, etc.)
     const immoSystem = primaryRow.immobilizer_system || '';
     const notes = primaryRow.notes || '';
     const isCaNFD = immoSystem.includes('Global B') || immoSystem.includes('CAN-FD') ||
-                   notes.includes('CAN-FD') || (cleanYear >= 2021 && 
-                   (make === 'Chevrolet' || make === 'GMC' || make === 'Cadillac'));
+        notes.includes('CAN-FD') || (cleanYear >= 2021 &&
+            (make === 'Chevrolet' || make === 'GMC' || make === 'Cadillac'));
     if (isCaNFD) {
         archBadges.push({ label: 'CAN-FD', class: 'protocol' });
     }
-    
+
     // MCU Mask (BMW specific - e.g., 1L15Y, 0L01Y)
     if (primaryRow.mcu_mask) {
         archBadges.push({ label: `MCU: ${primaryRow.mcu_mask}`, class: 'technical' });
     }
-    
+
     // Chassis code (BMW/MB specific - e.g., E90, F30, W204)
     if (primaryRow.chassis_code) {
         archBadges.push({ label: primaryRow.chassis_code, class: 'chassis' });
     }
-    
+
     // Build badges HTML
     const archBadgesHtml = archBadges.length > 0 ? `
         <div class="vc-arch-badges" style="margin-top: 8px;">
@@ -3686,10 +4197,46 @@ function displayResults(rows, year, make, model, extras = {}) {
     {
         const youtubeSearchQuery = encodeURIComponent(`${year} ${make} ${model} key programming tutorial`);
 
-        // === NEW: Render Key Intel Panel (comprehensive key data) ===
-        // Uses configs from API, fallback to legacy rows, includes pearls and walkthrough
+        // Generate configs from rows (year-filtered and deduped)
+        // CRITICAL: Filter rows by year range FIRST to prevent cross-generation data
+        // e.g., 2002 Honda Civic data should NOT appear on 2024 Honda Civic page
+        const yearFilteredRows = rows.filter(row => {
+            const yearStart = parseInt(row.year_start) || 0;
+            const yearEnd = parseInt(row.year_end) || 9999;
+            return cleanYear >= yearStart && cleanYear <= yearEnd;
+        });
+
+        console.log(`[Key Intel] Filtered ${rows.length} rows to ${yearFilteredRows.length} for year ${cleanYear}`);
+
+        // Dedupe by normalized FCC ID, preserving mechanical data
+        const normFcc = (fcc) => (fcc || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
+        const seenFcc = new Set();
+        const effectiveConfigs = yearFilteredRows.filter(row => {
+            const fcc = normFcc(row.fcc_id);
+            // Include rows with FCC ID or mechanical data (lishi/keyway)
+            if ((fcc && !seenFcc.has(fcc)) || row.lishi_tool || row.keyway) {
+                if (fcc) seenFcc.add(fcc);
+                return true;
+            }
+            return false;
+        }).map(row => ({
+            fcc_id: row.fcc_id,
+            config_type: row.key_type || row.key_type_display || 'Smart Key',
+            buttons: row.buttons,
+            chip: row.chip,
+            chip_family: null,
+            key_blade: row.keyway,  // Map keyway to key_blade for renderKeyIntelPanel
+            battery: row.battery,
+            frequency: row.frequency,
+            lishi_tool: row.lishi_tool,
+            code_series: row.code_series,
+            programmer: null,
+            verified: false,
+            source: 'vehicles_table'
+        }));
+
         html += renderKeyIntelPanel(
-            configs,                    // Vehicle configs from /api/browse
+            effectiveConfigs,           // Vehicle configs (or fallback from rows)
             [],                         // Compatible keys (loaded dynamically later via carousel)
             { year: cleanYear, make, model },
             {
@@ -3699,60 +4246,7 @@ function displayResults(rows, year, make, model, extras = {}) {
             }
         );
 
-        // If no configs available, show legacy fallback with basic info
-        if (!configs || configs.length === 0) {
-            // Legacy fallback for older vehicles without verified configs
-            const legacyRow = rows[0] || {};
-            const fccId = legacyRow.fcc_id || 'N/A';
-            const keyway = legacyRow.keyway || 'N/A';
-            const battery = legacyRow.battery || 'CR2032';
-            const chip = legacyRow.chip || 'N/A';
-            const amazonTag = 'eurokeys-20';
 
-            // Only show if we have meaningful data
-            if (fccId !== 'N/A' || keyway !== 'N/A') {
-                html += `
-                    <div class="tool-checklist" style="background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                            <span style="font-size: 1.3rem;">🛠️</span>
-                            <span style="font-weight: 700; color: #22c55e;">WHAT YOU'LL NEED</span>
-                            <span style="font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">Legacy Data</span>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
-                            ${fccId !== 'N/A' ? `
-                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${year} ${make} ${model} key fob ${fccId}`)}&tag=${amazonTag}" target="_blank" 
-                               onclick="logActivity('affiliate_click', { type: 'checklist_key', term: '${year} ${make} ${model} key fob ${fccId}', fcc_id: '${fccId}' })"
-                               style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
-                                <span>🔑</span>
-                                <div>
-                                    <div style="font-weight: 600; color: #ffffff;">Key (${fccId})</div>
-                                    ${chip !== 'N/A' ? `<div style="font-size: 0.7rem; color: var(--text-muted);">Chip: ${chip}</div>` : ''}
-                                    <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
-                                </div>
-                            </a>` : ''}
-                            ${keyway !== 'N/A' ? `
-                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${keyway} key blank`)}&tag=${amazonTag}" target="_blank" 
-                               onclick="logActivity('affiliate_click', { type: 'checklist_blade', term: '${keyway} key blank', keyway: '${keyway}' })"
-                               style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
-                                <span>🗝️</span>
-                                <div>
-                                    <div style="font-weight: 600; color: #ffffff;">Blade (${keyway.split(' ')[0]})</div>
-                                    <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
-                                </div>
-                            </a>` : ''}
-                            <a href="https://www.amazon.com/s?k=${encodeURIComponent(`${battery} battery 10 pack`)}&tag=${amazonTag}" target="_blank" 
-                               onclick="logActivity('affiliate_click', { type: 'checklist_battery', term: '${battery} battery', battery: '${battery}' })"
-                               style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; text-decoration: none; color: white;">
-                                <span>🔋</span>
-                                <div>
-                                    <div style="font-weight: 600; color: #ffffff;">Battery (${battery})</div>
-                                    <div style="font-size: 0.75rem; color: #22c55e;">Buy on Amazon →</div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>`;
-            }
-        }
 
 
         // 5. Video Section (moved down - procedures come after parts)
@@ -3772,37 +4266,19 @@ function displayResults(rows, year, make, model, extras = {}) {
             </div>`;
     } // End Core Parts & Video Section
 
-    // --- Deduplicate and Merge Configs (always needed for key carousel) ---
+    // --- Deduplicate rows for key carousel ---
     const normalizeFcc = (fcc) => (fcc || '').toUpperCase().replace(/O/g, '0').replace(/-/g, '');
     const seen = new Set();
 
-    // [NEW] Merge verified configs first
+    // Filter rows by year and deduplicate
+    const yearFilteredLegacyRows = rows.filter(v => {
+        const yearStart = parseInt(v.year_start) || 0;
+        const yearEnd = parseInt(v.year_end) || 9999;
+        return cleanYear >= yearStart && cleanYear <= yearEnd;
+    });
+
     const mergedList = [];
-    if (configs && Array.isArray(configs)) {
-        configs.forEach(c => {
-            const fcc = normalizeFcc(c.fcc_id);
-            // Normalize to expected shape
-            const item = {
-                ...c,
-                is_verified_config: true,
-                keyway: c.key_blade || undefined,
-                key_type: c.config_type || c.key_type,
-                frequency: c.frequency,
-                chip: c.chip,
-                battery: c.battery
-            };
-
-            // Key includes normalized FCC OR OEM
-            const key = fcc ? `FCC:${fcc}` : `OEM:${(c.oem_part_number || '').toUpperCase()}`;
-            if ((fcc || c.oem_part_number) && !seen.has(key)) {
-                seen.add(key);
-                mergedList.push(item);
-            }
-        });
-    }
-
-    // Add Legacy Rows if not seen
-    rows.forEach(v => {
+    yearFilteredLegacyRows.forEach(v => {
         const rawFcc = (v.fcc_id || '').trim();
         const fccId = normalizeFcc(rawFcc);
         const oem = (v.oem_part_number || '').trim().toUpperCase();
@@ -4091,6 +4567,10 @@ function displayResults(rows, year, make, model, extras = {}) {
         }
         window.procedureViewer.render(procedures, pearls);
     }
+
+    // SECTION 5: Tool Status (for logged-in users)
+    renderToolStatusSection();
+
 
     // Add toggle listener for Intel Card comments (if present)
     if (hasStructuredWalkthrough) {
