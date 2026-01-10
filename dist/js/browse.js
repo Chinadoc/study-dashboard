@@ -3418,6 +3418,10 @@ function renderMockup3VehiclePage(vehicle, data) {
     const keyway = primaryRow.keyway || primaryRow.key_blade || 'N/A';
     const bladeType = primaryRow.blade_type || (keyway.includes('8-Cut') ? '8-Cut' : keyway.includes('10-Cut') ? '10-Cut' : 'Standard');
     const codeSeries = primaryRow.code_series || 'N/A';
+    // Cutting specs from AKS data
+    const spaces = primaryRow.spaces || 'N/A';
+    const depths = primaryRow.depths || 'N/A';
+    const macs = primaryRow.macs || 'N/A';
 
     // Count pearls by type for integrated indicators
     const pearlsByType = {
@@ -3480,6 +3484,21 @@ function renderMockup3VehiclePage(vehicle, data) {
                                     <span class="m3-mech-label">Code Series:</span>
                                     <span class="m3-mech-value">${codeSeries}</span>
                                 </div>
+                            </div>
+                        </div>
+                        <!-- Cutting Specs Row -->
+                        <div class="m3-cutting-specs">
+                            <div class="m3-cutting-item">
+                                <span class="m3-cutting-label">Spaces</span>
+                                <span class="m3-cutting-value">${spaces}</span>
+                            </div>
+                            <div class="m3-cutting-item">
+                                <span class="m3-cutting-label">Depths</span>
+                                <span class="m3-cutting-value">${depths}</span>
+                            </div>
+                            <div class="m3-cutting-item">
+                                <span class="m3-cutting-label">MACs</span>
+                                <span class="m3-cutting-value">${macs}</span>
                             </div>
                         </div>
                     </section>

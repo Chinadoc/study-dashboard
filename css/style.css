@@ -5256,7 +5256,48 @@
             margin-left: auto;
         }
 
-        /* Pearls */
+        /* Cutting Specs Row (Spaces / Depths / MACs) */
+        .m3-cutting-specs {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(251, 191, 36, 0.03));
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 10px;
+        }
+
+        .m3-cutting-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .m3-cutting-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .m3-cutting-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fbbf24;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .m3-cutting-specs {
+                padding: 10px;
+            }
+
+            .m3-cutting-value {
+                font-size: 1.1rem;
+            }
+        }
+
         .m3-pearls-list {
             display: flex;
             flex-direction: column;
