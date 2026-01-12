@@ -3422,6 +3422,10 @@ function renderMockup3VehiclePage(vehicle, data) {
     const spaces = primaryRow.spaces || 'N/A';
     const depths = primaryRow.depths || 'N/A';
     const macs = primaryRow.macs || 'N/A';
+    // Key blank info from AKS
+    const chipType = primaryRow.chip || primaryRow.chip_family || 'N/A';
+    const mechanicalKey = primaryRow.mechanical_key || 'N/A';
+    const transponderKey = primaryRow.transponder_key || 'N/A';
 
     // Count pearls by type for integrated indicators
     const pearlsByType = {
@@ -3467,15 +3471,22 @@ function renderMockup3VehiclePage(vehicle, data) {
                             <div class="m3-mech-item">
                                 <span class="m3-mech-icon">🔑</span>
                                 <div class="m3-mech-content">
-                                    <span class="m3-mech-label">Keyway:</span>
-                                    <span class="m3-mech-value">${keyway}</span>
+                                    <span class="m3-mech-label">Mechanical Key:</span>
+                                    <span class="m3-mech-value">${mechanicalKey}</span>
                                 </div>
                             </div>
                             <div class="m3-mech-item">
-                                <span class="m3-mech-icon">✂️</span>
+                                <span class="m3-mech-icon">📡</span>
                                 <div class="m3-mech-content">
-                                    <span class="m3-mech-label">Blade Type:</span>
-                                    <span class="m3-mech-value">${bladeType}</span>
+                                    <span class="m3-mech-label">Transponder:</span>
+                                    <span class="m3-mech-value">${transponderKey}</span>
+                                </div>
+                            </div>
+                            <div class="m3-mech-item">
+                                <span class="m3-mech-icon">💾</span>
+                                <div class="m3-mech-content">
+                                    <span class="m3-mech-label">Chip Type:</span>
+                                    <span class="m3-mech-value">${chipType}</span>
                                 </div>
                             </div>
                             <div class="m3-mech-item">
