@@ -7,6 +7,10 @@
 /index.html
   Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=60
 
+# ALL other HTML files - Same as index.html (always revalidate)
+/*.html
+  Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=60
+
 # Service Worker - NEVER cache (browsers need to check for updates)
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate

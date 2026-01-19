@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EuroKeys Search - Vehicle Lookup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(20, 20, 30, 0.8);
+            --border-color: rgba(139, 92, 246, 0.3);
+            --border-glow: rgba(139, 92, 246, 0.6);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-purple: #8b5cf6;
+            --accent-purple-light: #a78bfa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple-light), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 0.75rem 1.25rem;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--accent-purple), #6366f1);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Search Suggestions Dropdown */
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .suggestions-dropdown.visible {
+            display: block;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .suggestion-icon {
+            font-size: 1.25rem;
+        }
+
+        .suggestion-text {
+            flex: 1;
+        }
+
+        .suggestion-title {
+            font-weight: 500;
+        }
+
+        .suggestion-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Wizard */
+        .wizard-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .wizard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .wizard-step {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s;
+        }
+
+        .wizard-step.active {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .wizard-step.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .step-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-purple-light);
+            margin-bottom: 1rem;
+        }
+
+        .step-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .step-option {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .step-option:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--border-color);
+        }
+
+        .step-option.selected {
+            background: linear-gradient(135deg, var(--accent-purple), #6366f1);
+            color: white;
+            font-weight: 500;
+        }
+
+        .step-placeholder {
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .step-loading {
+            color: var(--accent-purple-light);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        /* Navigation Button */
+        .nav-button {
+            display: none;
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+
+        .nav-button.visible {
+            display: block;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: var(--accent-purple-light);
+        }
+
+        /* Scrollbar */
+        .step-options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .step-options::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .step-options::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+
+        <div class="header">
+            <h1>EuroKeys Search</h1>
+            <p>Instant access to vehicles, FCC IDs, and procedures</p>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search 2020 Cadillac CT5...">
+                <button class="search-btn" onclick="handleSearch()">Search</button>
+            </div>
+            <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
+        </div>
+
+        <div class="wizard-container">
+            <div class="wizard-step active" id="step1">
+                <div class="step-header">Step 1: Make</div>
+                <div class="step-options" id="makeOptions">
+                    <div class="step-loading">Loading makes...</div>
+                </div>
+            </div>
+
+            <div class="wizard-step disabled" id="step2">
+                <div class="step-header">Step 2: Model</div>
+                <div class="step-options" id="modelOptions">
+                    <div class="step-placeholder">Select a make first</div>
+                </div>
+            </div>
+
+            <div class="wizard-step disabled" id="step3">
+                <div class="step-header">Step 3: Year</div>
+                <div class="step-options" id="yearOptions">
+                    <div class="step-placeholder">Select a model first</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="nav-button" id="navButton" onclick="navigateToVehicle()">
+            View Vehicle Details →
+        </button>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // CLOUDFLARE API INTEGRATION
+        // ═══════════════════════════════════════════════════════════════════════
+        const API = 'https://aski.eurokeys.app';
+
+        // State
+        let selectedMake = null;
+        let selectedModel = null;
+        let selectedYear = null;
+        let allMakes = [];
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadMakes();
+            setupSearchAutocomplete();
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // API FETCH FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        async function loadMakes() {
+            try {
+                const res = await fetch(`${API}/api/master?fields=make&limit=2000`);
+                const data = await res.json();
+
+                // Extract unique makes
+                allMakes = [...new Set(data.results.map(r => r.make))].filter(m => m).sort();
+
+                renderMakes(allMakes);
+            } catch (e) {
+                console.error('Failed to load makes:', e);
+                document.getElementById('makeOptions').innerHTML =
+                    '<div class="step-placeholder">Failed to load. Please refresh.</div>';
+            }
+        }
+
+        async function loadModels(make) {
+            document.getElementById('modelOptions').innerHTML = '<div class="step-loading">Loading models...</div>';
+
+            try {
+                const res = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&fields=model&limit=1000`);
+                const data = await res.json();
+
+                const models = [...new Set(data.results.map(r => r.model))].filter(m => m).sort();
+                renderModels(models);
+            } catch (e) {
+                console.error('Failed to load models:', e);
+                document.getElementById('modelOptions').innerHTML =
+                    '<div class="step-placeholder">Failed to load models.</div>';
+            }
+        }
+
+        async function loadYears(make, model) {
+            document.getElementById('yearOptions').innerHTML = '<div class="step-loading">Loading years...</div>';
+
+            try {
+                const res = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
+                const data = await res.json();
+
+                // Build unique years from year_start to year_end ranges
+                const years = new Set();
+                data.results.forEach(r => {
+                    const start = r.year_start || 2015;
+                    const end = r.year_end || r.year_start || 2024;
+                    for (let y = start; y <= end; y++) {
+                        years.add(y);
+                    }
+                });
+
+                const yearArray = [...years].sort((a, b) => b - a); // Newest first
+                renderYears(yearArray);
+            } catch (e) {
+                console.error('Failed to load years:', e);
+                document.getElementById('yearOptions').innerHTML =
+                    '<div class="step-placeholder">Failed to load years.</div>';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // RENDER FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function renderMakes(makes) {
+            const container = document.getElementById('makeOptions');
+            container.innerHTML = makes
+                .map(make => `<div class="step-option" onclick="selectMake('${make.replace(/'/g, "\\'")}')">${make}</div>`)
+                .join('');
+        }
+
+        function renderModels(models) {
+            const container = document.getElementById('modelOptions');
+            if (models.length === 0) {
+                container.innerHTML = '<div class="step-placeholder">No models found</div>';
+                return;
+            }
+            container.innerHTML = models
+                .map(model => `<div class="step-option" onclick="selectModel('${model.replace(/'/g, "\\'")}')">${model}</div>`)
+                .join('');
+        }
+
+        function renderYears(years) {
+            const container = document.getElementById('yearOptions');
+            if (years.length === 0) {
+                container.innerHTML = '<div class="step-placeholder">No years found</div>';
+                return;
+            }
+            container.innerHTML = years
+                .map(year => `<div class="step-option" onclick="selectYear(${year})">${year}</div>`)
+                .join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SELECTION HANDLERS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function selectMake(make) {
+            selectedMake = make;
+            selectedModel = null;
+            selectedYear = null;
+
+            // Update UI
+            document.querySelectorAll('#makeOptions .step-option').forEach(el => {
+                el.classList.toggle('selected', el.textContent === make);
+            });
+
+            // Enable step 2
+            document.getElementById('step2').classList.remove('disabled');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('step1').classList.remove('active');
+
+            // Load models from API
+            loadModels(make);
+
+            // Reset step 3
+            document.getElementById('step3').classList.add('disabled');
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('yearOptions').innerHTML = '<div class="step-placeholder">Select a model first</div>';
+
+            // Hide nav button
+            document.getElementById('navButton').classList.remove('visible');
+        }
+
+        function selectModel(model) {
+            selectedModel = model;
+            selectedYear = null;
+
+            // Update UI
+            document.querySelectorAll('#modelOptions .step-option').forEach(el => {
+                el.classList.toggle('selected', el.textContent === model);
+            });
+
+            // Enable step 3
+            document.getElementById('step3').classList.remove('disabled');
+            document.getElementById('step3').classList.add('active');
+            document.getElementById('step2').classList.remove('active');
+
+            // Load years from API
+            loadYears(selectedMake, model);
+
+            // Hide nav button
+            document.getElementById('navButton').classList.remove('visible');
+        }
+
+        function selectYear(year) {
+            selectedYear = year;
+
+            // Update UI
+            document.querySelectorAll('#yearOptions .step-option').forEach(el => {
+                el.classList.toggle('selected', el.textContent == year);
+            });
+
+            // Show nav button
+            const btn = document.getElementById('navButton');
+            btn.textContent = `View ${selectedYear} ${selectedMake} ${selectedModel} →`;
+            btn.classList.add('visible');
+
+            // Update search input
+            document.getElementById('searchInput').value = `${selectedYear} ${selectedMake} ${selectedModel}`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // NAVIGATION
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function navigateToVehicle() {
+            if (selectedMake && selectedModel && selectedYear) {
+                // Navigate to main app with vehicle deep link
+                window.location.href = `/#vehicle/${encodeURIComponent(selectedMake)}/${encodeURIComponent(selectedModel)}/${selectedYear}`;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SEARCH AUTOCOMPLETE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function setupSearchAutocomplete() {
+            const input = document.getElementById('searchInput');
+            const dropdown = document.getElementById('suggestionsDropdown');
+
+            input.addEventListener('input', debounce(async (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                if (query.length < 2) {
+                    dropdown.classList.remove('visible');
+                    return;
+                }
+
+                // Filter makes that match
+                const matchingMakes = allMakes.filter(m =>
+                    m.toLowerCase().includes(query)
+                ).slice(0, 5);
+
+                // Build suggestions
+                let html = '';
+
+                // Parse for year + make + model pattern
+                const yearMatch = query.match(/(\d{4})/);
+                const year = yearMatch ? yearMatch[1] : null;
+
+                matchingMakes.forEach(make => {
+                    html += `
+                        <div class="suggestion-item" onclick="selectSuggestion('${make}')">
+                            <span class="suggestion-icon">🚗</span>
+                            <div class="suggestion-text">
+                                <div class="suggestion-title">${year || ''} ${make}</div>
+                                <div class="suggestion-subtitle">Browse all ${make} vehicles</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (html) {
+                    dropdown.innerHTML = html;
+                    dropdown.classList.add('visible');
+                } else {
+                    dropdown.classList.remove('visible');
+                }
+            }, 200));
+
+            // Close on click outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    dropdown.classList.remove('visible');
+                }
+            });
+        }
+
+        function selectSuggestion(make) {
+            document.getElementById('suggestionsDropdown').classList.remove('visible');
+            selectMake(make);
+
+            // Scroll to wizard
+            document.querySelector('.wizard-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            // Parse the search query
+            const parts = query.split(/\s+/);
+            const year = parts.find(p => /^\d{4}$/.test(p));
+            const make = allMakes.find(m =>
+                parts.some(p => p.toLowerCase() === m.toLowerCase())
+            );
+
+            if (make) {
+                selectMake(make);
+                // If year found, we'd need to wait for models then years
+                // For now just select the make
+            } else if (parts.length > 0) {
+                // Search for partial make match
+                const partialMake = allMakes.find(m =>
+                    m.toLowerCase().includes(parts[0].toLowerCase())
+                );
+                if (partialMake) {
+                    selectMake(partialMake);
+                }
+            }
+        }
+
+        // Utility: Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Handle Enter key in search
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+    </script>
+</body>
+
+</html>

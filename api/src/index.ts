@@ -52,21 +52,24 @@ const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_titl
 // Helper for CORS-compliant responses
 function corsResponse(request: Request, body: string, status = 200, extraHeaders?: Headers, contentType = "application/json") {
   const origin = request.headers.get("Origin") || "*";
-  // Allow production domain and local development
+  // Allow production domain, local development, and file:// (which sends 'null')
   const isAllowedOrigin = origin === "https://eurokeys.app" ||
     origin === "https://study-dashboard-8a9.pages.dev" ||
     origin.endsWith(".study-dashboard-8a9.pages.dev") ||
+    origin.endsWith(".workers.dev") ||
     origin.startsWith("http://localhost:") ||
-    origin.startsWith("http://127.0.0.1:");
+    origin.startsWith("http://127.0.0.1:") ||
+    origin === "null" ||  // file:// protocol sends null origin
+    origin === "*";       // Fallback for missing origin
 
   const headers: Record<string, string> = {
     "Content-Type": contentType,
-    "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "https://eurokeys.app",
+    "Access-Control-Allow-Origin": isAllowedOrigin ? (origin === "null" ? "*" : origin) : "https://eurokeys.app",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Cookie, Authorization",
   };
 
-  if (isAllowedOrigin) {
+  if (isAllowedOrigin && origin !== "null" && origin !== "*") {
     headers["Access-Control-Allow-Credentials"] = "true";
   }
 
@@ -2126,6 +2129,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               const pearlsResult = await env.LOCKSMITH_DB.prepare(`
                 SELECT id, vehicle_key, make, model, year_start, year_end, 
                        pearl_title, pearl_content, pearl_type, is_critical, reference_url,
+                       target_section, target_step, image_url, dev_flag,
                        display_order, source_doc, created_at,
                        COALESCE((SELECT SUM(vote) FROM pearl_votes pv WHERE pv.pearl_id = vehicle_pearls.id), 0) as score,
                        COALESCE((SELECT COUNT(*) FROM pearl_comments pc WHERE pc.pearl_id = vehicle_pearls.id), 0) as comment_count
@@ -2138,15 +2142,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND pearl_content NOT LIKE '%accessed January%'
                 GROUP BY pearl_title
                 ORDER BY 
-                  CASE pearl_type 
-                    WHEN 'Alert' THEN 1
-                    WHEN 'AKL Procedure' THEN 2
-                    WHEN 'Add Key Procedure' THEN 3
-                    WHEN 'Tool Alert' THEN 4
-                    WHEN 'FCC Registry' THEN 5
+                  CASE target_section
+                    WHEN 'voltage' THEN 1
+                    WHEN 'fcc' THEN 2
+                    WHEN 'akl_procedure' THEN 3
+                    WHEN 'add_key_procedure' THEN 4
+                    WHEN 'mechanical' THEN 5
+                    WHEN 'troubleshooting' THEN 6
                     ELSE 10 
                   END,
                   is_critical DESC,
+                  target_step ASC,
                   display_order ASC
               `).bind(make.toLowerCase(), modelPattern, y).all();
               pearls = pearlsResult.results || [];
@@ -2596,6 +2602,475 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
+      // ==============================================
+      // VEHICLE YEAR PRODUCTS (AKS Aggregation)
+      // ==============================================
+      // Query the vehicle_year_products table which has pre-aggregated
+      // FCC IDs, OEM parts, chips, etc. from American Key Supply data
+      if (path === "/api/vyp") {
+        try {
+          const year = url.searchParams.get("year");
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, 200);
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+          if (year) {
+            const y = parseInt(year, 10);
+            if (!Number.isNaN(y)) {
+              conditions.push("year = ?");
+              params.push(y);
+            }
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              make, model, year, product_count,
+              item_numbers, fcc_ids, oem_parts, chips, product_types, driver_memories
+            FROM vehicle_year_products
+            ${whereClause}
+            ORDER BY make, model, year
+            LIMIT ?
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit).all();
+
+          return corsResponse(request, JSON.stringify({
+            source: "vehicle_year_products",
+            count: result.results?.length || 0,
+            results: result.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // AKS PRODUCT DETAIL (battery, chips, etc)
+      // ==============================================
+      // Query individual products from aks_products_detail by item_number
+      // Supports year filtering and consensus computation
+      if (path === "/api/aks-product") {
+        try {
+          const itemNumbers = url.searchParams.get("items")?.split(",") || [];
+          const yearParam = url.searchParams.get("year");
+          const year = yearParam ? parseInt(yearParam, 10) : null;
+
+          if (itemNumbers.length === 0) {
+            return corsResponse(request, JSON.stringify({ error: "items parameter required (comma-separated)" }), 400);
+          }
+
+          const placeholders = itemNumbers.map(() => "?").join(",");
+
+          // Build query with optional year filtering
+          let sql = `
+            SELECT 
+              item_number, title, ez_number, model_num,
+              fcc_id, ic, chip, frequency, battery, keyway,
+              buttons, oem_part_numbers, condition, price, url,
+              year_start, year_end
+            FROM aks_products_detail
+            WHERE item_number IN (${placeholders})
+          `;
+
+          // Add year filter if specified
+          if (year && !Number.isNaN(year)) {
+            sql += ` AND (year_start IS NULL OR year_start <= ${year}) AND (year_end IS NULL OR year_end >= ${year})`;
+          }
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...itemNumbers).all();
+          const products = (result.results || []) as any[];
+
+          // Compute consensus for key fields
+          const computeConsensus = (field: string) => {
+            const values: { [key: string]: { count: number; items: string[] } } = {};
+            for (const p of products) {
+              const val = p[field];
+              if (val && val !== "null" && val !== "N/A") {
+                if (!values[val]) values[val] = { count: 0, items: [] };
+                values[val].count++;
+                values[val].items.push(p.item_number);
+              }
+            }
+
+            // Find mode (most common value)
+            let mode = null;
+            let maxCount = 0;
+            const outliers: { value: string; items: string[] }[] = [];
+
+            for (const [val, data] of Object.entries(values)) {
+              if (data.count > maxCount) {
+                // Previous mode becomes outlier
+                if (mode !== null) {
+                  outliers.push({ value: mode, items: values[mode].items });
+                }
+                mode = val;
+                maxCount = data.count;
+              } else {
+                // This value is an outlier
+                outliers.push({ value: val, items: data.items });
+              }
+            }
+
+            return { value: mode, count: maxCount, outliers };
+          };
+
+          const consensus = {
+            battery: computeConsensus("battery"),
+            keyway: computeConsensus("keyway"),
+            chip: computeConsensus("chip"),
+            frequency: computeConsensus("frequency")
+          };
+
+          return corsResponse(request, JSON.stringify({
+            source: "aks_products_detail",
+            year_filter: year,
+            count: products.length,
+            consensus,
+            products
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // AKS VEHICLE PAGES (lishi, mechanical specs)
+      // ==============================================
+      // Query aks_vehicle_pages for lishi, code_series, etc.
+      if (path === "/api/aks-vp") {
+        try {
+          const year = url.searchParams.get("year");
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+          if (year) {
+            const y = parseInt(year, 10);
+            if (!Number.isNaN(y)) {
+              conditions.push("year_start <= ? AND year_end >= ?");
+              params.push(y, y);
+            }
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              id, make, model, year_start, year_end,
+              code_series, mechanical_key, transponder_key, lishi,
+              spaces, depths, macs, image_url
+            FROM aks_vehicle_pages
+            ${whereClause}
+            ORDER BY make, model, year_start
+            LIMIT 50
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          return corsResponse(request, JSON.stringify({
+            source: "aks_vehicle_pages",
+            count: result.results?.length || 0,
+            results: result.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // R2 IMAGE PROXY - Serve images from R2 bucket
+      // ==============================================
+      // Proxies requests to /api/r2/{key} to the R2 bucket
+      if (path.startsWith("/api/r2/")) {
+        try {
+          const r2Key = decodeURIComponent(path.slice(8)); // Remove "/api/r2/"
+          if (!r2Key) {
+            return corsResponse(request, JSON.stringify({ error: "Missing image key" }), 400);
+          }
+
+          const object = await env.ASSETS_BUCKET.get(r2Key);
+          if (!object) {
+            return corsResponse(request, JSON.stringify({ error: "Image not found", key: r2Key }), 404);
+          }
+
+          // Determine content type from extension
+          const ext = r2Key.split('.').pop()?.toLowerCase() || 'png';
+          const contentTypes: Record<string, string> = {
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'gif': 'image/gif',
+            'webp': 'image/webp',
+            'svg': 'image/svg+xml'
+          };
+          const contentType = contentTypes[ext] || 'application/octet-stream';
+
+          // Return image with caching headers
+          const headers = new Headers();
+          headers.set("Content-Type", contentType);
+          headers.set("Cache-Control", "public, max-age=31536000"); // 1 year
+          headers.set("Access-Control-Allow-Origin", "*");
+
+          return new Response(object.body, { status: 200, headers });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: "R2 proxy error", message: err?.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // IMAGE METADATA (infographics, references)
+      // ==============================================
+      // Query image_metadata for infographics by vehicle/section/tags
+      // Supports cross-pollinated queries (global-b applies to all GM vehicles)
+      if (path === "/api/images") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const section = url.searchParams.get("section") || "";
+          const tag = url.searchParams.get("tag") || "";
+          const imageType = url.searchParams.get("type") || "";
+          const crossPollinate = url.searchParams.get("cross") !== "false"; // default true
+
+          const conditions: string[] = [];
+          const params: string[] = [];
+
+          // Cross-pollination: for GM makes, also include 'gm', 'global-b', 'hu100'
+          const gmMakes = ['chevrolet', 'gmc', 'cadillac', 'buick'];
+          const isGM = gmMakes.includes(make);
+
+          if (make && crossPollinate && isGM) {
+            // For GM vehicles, search by make OR related tags
+            conditions.push("(LOWER(make) = ? OR LOWER(make) = 'gm' OR tags LIKE '%global-b%' OR tags LIKE '%hu100%' OR tags LIKE '%can-fd%')");
+            params.push(make);
+          } else if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+          if (section) {
+            conditions.push("section = ?");
+            params.push(section);
+          }
+          if (tag) {
+            conditions.push("tags LIKE ?");
+            params.push(`%${tag}%`);
+          }
+          if (imageType) {
+            conditions.push("image_type = ?");
+            params.push(imageType);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              id, filename, r2_key, image_type,
+              make, model, year_start, year_end,
+              section, tags, pearl_id,
+              description, alt_text
+            FROM image_metadata
+            ${whereClause}
+            ORDER BY 
+              CASE WHEN LOWER(make) = '${make}' THEN 0 ELSE 1 END,
+              make, model, section
+            LIMIT 50
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          // Build full URLs for images using Worker proxy
+          const WORKER_BASE = url.origin; // e.g. https://euro-keys.jeremy-samuels17.workers.dev
+          const images = (result.results || []).map((img: any) => ({
+            ...img,
+            tags: img.tags ? JSON.parse(img.tags) : [],
+            // Use Worker proxy for R2 images
+            url: img.r2_key
+              ? `${WORKER_BASE}/api/r2/${encodeURIComponent(img.r2_key)}`
+              : `/assets/key_reference/${img.filename}`
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            source: "image_metadata",
+            count: images.length,
+            crossPollinated: crossPollinate && isGM,
+            images
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // REFINED PEARLS (Technical Intelligence)
+      // ==============================================
+      // Query refined_pearls for technical insights by vehicle
+      if (path === "/api/pearls") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const category = url.searchParams.get("category") || "";
+          const risk = url.searchParams.get("risk") || "";
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
+
+          const conditions: string[] = [];
+          const params: string[] = [];
+
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+          if (category) {
+            conditions.push("category = ?");
+            params.push(category);
+          }
+          if (risk) {
+            conditions.push("risk = ?");
+            params.push(risk);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              id, content, category, make, model,
+              year_start, year_end, risk, tags, display_tags,
+              source_doc, action
+            FROM refined_pearls
+            ${whereClause}
+            ORDER BY 
+              CASE risk WHEN 'critical' THEN 1 WHEN 'important' THEN 2 ELSE 3 END,
+              make, model
+            LIMIT ?
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit).all();
+
+          const pearls = (result.results || []).map((p: any) => ({
+            ...p,
+            tags: p.tags ? (typeof p.tags === 'string' ? JSON.parse(p.tags) : p.tags) : [],
+            display_tags: p.display_tags ? (typeof p.display_tags === 'string' ? p.display_tags : JSON.stringify(p.display_tags)) : '[]'
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            source: "refined_pearls",
+            count: pearls.length,
+            pearls
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // WALKTHROUGHS ENDPOINT - Step-by-step procedures
+      // ==============================================
+      // Returns Add Key and AKL procedures from walkthroughs_v2
+      // Filters by make/model and year range
+      if (path === "/api/walkthroughs") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const year = parseInt(url.searchParams.get("year") || "0", 10);
+          const type = url.searchParams.get("type") || ""; // 'add_key', 'akl', or '' for all
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("LOWER(model) LIKE ?");
+            params.push(`%${model}%`);
+          }
+          if (year) {
+            // Year-range filtering: walkthrough.year_start <= year AND walkthrough.year_end >= year
+            conditions.push("(year_start IS NULL OR year_start <= ?)");
+            conditions.push("(year_end IS NULL OR year_end >= ?)");
+            params.push(year, year);
+          }
+          if (type) {
+            conditions.push("type = ?");
+            params.push(type);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              id, type, title, make, model,
+              year_start, year_end, difficulty, time_minutes, risk_level,
+              requirements_json, tools_json, steps_json, menu_path, source_file
+            FROM walkthroughs_v2
+            ${whereClause}
+            ORDER BY 
+              CASE type WHEN 'add_key' THEN 1 WHEN 'akl' THEN 2 ELSE 3 END,
+              year_start DESC
+            LIMIT 20
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          const walkthroughs = (result.results || []).map((w: any) => ({
+            id: w.id,
+            type: w.type,
+            title: w.title,
+            make: w.make,
+            model: w.model,
+            year_start: w.year_start,
+            year_end: w.year_end,
+            difficulty: w.difficulty,
+            time_minutes: w.time_minutes,
+            risk_level: w.risk_level,
+            requirements_json: w.requirements_json,
+            tools_json: w.tools_json,
+            steps_json: w.steps_json,
+            menu_path: w.menu_path,
+            source_file: w.source_file
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            source: "walkthroughs_v2",
+            count: walkthroughs.length,
+            query: { make, model, year: year || null, type: type || null },
+            walkthroughs
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // Browse Database endpoint - uses unified schema
       if (path === "/api/browse") {
         const tStart = performance.now();
@@ -2650,6 +3125,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           // 1. Group by unique key signature (Make/Model/Year/NormalizedFCC/KeyType)
           // 2. Normalize FCC (O vs 0, remove hyphens) to merge typos
           // 3. Prioritize highest confidence_score (AKS > Locksmith > Legacy)
+          // 4. Filter by generation_boundaries to exclude wrong-generation FCC IDs
           const dataSql = `
           WITH RankedVehicles AS (
             SELECT 
@@ -2659,7 +3135,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                         v.make, 
                         v.model, 
                         -- NORMALIZE FCC: Uppercase, O->0, Remove Hyphens
-                        REPLACE(REPLACE(UPPER(v.fcc_id), 'O', '0'), '-', '') 
+                        REPLACE(REPLACE(UPPER(v.fcc_id), 'O', '0'), '-', ''),
+                        -- GENERATION BOUNDARY: Group by decade to prevent cross-generational merge
+                        -- 2002-2009 = 200, 2010-2019 = 201, 2020-2029 = 202
+                        (v.year_start / 10)
                     ORDER BY 
                         v.confidence_score DESC,
                         (v.source_name = 'AKS') DESC, -- Prefer AKS (Verified)
@@ -2667,7 +3146,25 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 ) as rn
             FROM vehicles v
             ${whereClause}
+            -- GENERATION BOUNDARY FILTER: Exclude FCC IDs from wrong generations
+            AND (
+                -- If generation_boundaries exists for this make/model, only allow valid FCC IDs
+                NOT EXISTS (
+                    SELECT 1 FROM generation_boundaries gb 
+                    WHERE LOWER(gb.make) = LOWER(v.make) 
+                    AND LOWER(gb.model) = LOWER(v.model)
+                )
+                OR EXISTS (
+                    SELECT 1 FROM generation_boundaries gb 
+                    WHERE LOWER(gb.make) = LOWER(v.make) 
+                    AND LOWER(gb.model) = LOWER(v.model)
+                    AND v.year_start >= gb.year_start AND v.year_end <= gb.year_end
+                    AND gb.valid_fcc_ids LIKE '%' || UPPER(v.fcc_id) || '%'
+                )
+                OR v.fcc_id IS NULL  -- Allow mechanical key entries without FCC
+            )
           )
+
           SELECT 
             v.id,
             v.make,
@@ -2744,7 +3241,6 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           let pearls: any[] = [];
           let procedures: any[] = [];
           let walkthroughs: any[] = [];
-          let configs: any[] = [];
 
           if (make && model && year) {
             const y = parseInt(year, 10);
@@ -2855,24 +3351,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 walkthroughs = [];
               }
 
-              // 6. Fetch Vehicle Configs (NEW: verified key specs per vehicle/year)
-              try {
-                const configsResult = await env.LOCKSMITH_DB.prepare(`
-                  SELECT id, config_type, fcc_id, key_blade, chip, chip_family,
-                         battery, frequency, buttons, oem_part_number, 
-                         aftermarket_part_number, lishi_tool, programmer,
-                         programming_method, verified, source
-                  FROM vehicle_configs
-                  WHERE LOWER(make) = ? 
-                    AND LOWER(model) LIKE ?
-                    AND ? BETWEEN year_start AND year_end
-                  ORDER BY verified DESC, config_type
-                `).bind(make, modelPattern, y).all();
-                configs = configsResult.results || [];
-              } catch (e) {
-                // Table may not exist yet - graceful fallback
-                configs = [];
-              }
+
             }
           }
           const tEnd = performance.now();
@@ -2892,7 +3371,6 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             pearls,
             procedures,
             walkthroughs,
-            configs,
             _timings: {
               total: tEnd - tStart,
               count: tCount - tStart,
@@ -2901,6 +3379,356 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
           }), {
             headers
+          });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // VEHICLE DETAIL ENDPOINT - Combined Data with Priority Rules
+      // ==============================================
+      // Combines:
+      //   Priority 0: vehicle_enrichments (LLM-parsed research docs) - HIGHEST
+      //   Priority 1: AKS product detail (year-filtered, product-type segmented)
+      //   Priority 2: VYP (vehicle_year_products) - primary for Lishi
+      //   Priority 3: Vehicles table - fallback for immobilizer, platform, etc.
+      if (path === "/api/vehicle-detail") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const yearParam = url.searchParams.get("year");
+          const year = yearParam ? parseInt(yearParam, 10) : null;
+
+          if (!make || !model) {
+            return corsResponse(request, JSON.stringify({ error: "make and model required" }), 400);
+          }
+
+          // 0. Get enrichments (Priority 0 - LLM-parsed research docs, HIGHEST priority)
+          let enrichmentData: any = null;
+          const enrichmentQuery = year
+            ? `SELECT * FROM vehicle_enrichments WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND (year_start IS NULL OR year_start <= ?) AND (year_end IS NULL OR year_end >= ?) ORDER BY confidence_score DESC LIMIT 1`
+            : `SELECT * FROM vehicle_enrichments WHERE LOWER(make) = ? AND LOWER(model) LIKE ? ORDER BY confidence_score DESC LIMIT 1`;
+
+          const enrichmentParams = year ? [make, `%${model}%`, year, year] : [make, `%${model}%`];
+          enrichmentData = await env.LOCKSMITH_DB.prepare(enrichmentQuery).bind(...enrichmentParams).first<any>();
+
+          // 1. Get VYP data (Priority 2 - source for Lishi, spaces, depths, MACS)
+          let vypData: any = null;
+          let itemNumbers: string[] = [];
+
+          if (year) {
+            const vypResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT * FROM vehicle_year_products 
+              WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND year = ?
+            `).bind(make, `%${model}%`, year).first<any>();
+
+            if (vypResult) {
+              vypData = vypResult;
+              try {
+                itemNumbers = JSON.parse(vypResult.item_numbers || "[]");
+              } catch { itemNumbers = []; }
+            }
+          }
+
+          // 2. Get vehicles table data (Priority 3 - fallback for immobilizer, platform, etc.)
+          let vehicleData: any = null;
+          const vehicleQuery = year
+            ? `SELECT * FROM vehicles WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND year_start <= ? AND (year_end IS NULL OR year_end >= ?) LIMIT 1`
+            : `SELECT * FROM vehicles WHERE LOWER(make) = ? AND LOWER(model) LIKE ? LIMIT 1`;
+
+          const vehicleParams = year ? [make, `%${model}%`, year, year] : [make, `%${model}%`];
+          vehicleData = await env.LOCKSMITH_DB.prepare(vehicleQuery).bind(...vehicleParams).first<any>();
+
+          // 3. Get AKS products aggregated by product_type (Priority 1 for OEM/FCC/chip/keyway/prices)
+          const productsByType: Record<string, any> = {};
+
+          if (itemNumbers.length > 0) {
+            const placeholders = itemNumbers.map(() => "?").join(",");
+
+            // Apply year filter to AKS products
+            let yearFilter = "";
+            if (year) {
+              yearFilter = ` AND (year_start IS NULL OR year_start <= ${year}) AND (year_end IS NULL OR year_end >= ${year})`;
+            }
+
+            const aksResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT 
+                product_type,
+                GROUP_CONCAT(DISTINCT fcc_id) as fcc_ids,
+                GROUP_CONCAT(DISTINCT oem_part_numbers) as oem_parts_raw,
+                GROUP_CONCAT(DISTINCT ic) as ic_numbers,
+                GROUP_CONCAT(DISTINCT chip) as chips,
+                GROUP_CONCAT(DISTINCT keyway) as keyways,
+                GROUP_CONCAT(DISTINCT frequency) as frequencies,
+                GROUP_CONCAT(DISTINCT battery) as batteries,
+                MIN(CAST(price AS REAL)) as price_min,
+                MAX(CAST(price AS REAL)) as price_max,
+                COUNT(*) as product_count
+              FROM aks_products_detail
+              WHERE item_number IN (${placeholders})${yearFilter}
+              GROUP BY product_type
+            `).bind(...itemNumbers).all();
+
+            for (const row of (aksResult.results || []) as any[]) {
+              const productType = row.product_type || "Unknown";
+
+              // Parse OEM parts (stored as JSON strings concatenated)
+              let oemParts: string[] = [];
+              try {
+                const rawParts = (row.oem_parts_raw || "").split(",").filter(Boolean);
+                for (const part of rawParts) {
+                  try {
+                    const parsed = JSON.parse(part);
+                    if (Array.isArray(parsed)) {
+                      oemParts.push(...parsed);
+                    }
+                  } catch {
+                    oemParts.push(part);
+                  }
+                }
+                oemParts = [...new Set(oemParts)].filter(Boolean);
+              } catch { }
+
+              productsByType[productType] = {
+                fcc_ids: [...new Set((row.fcc_ids || "").split(",").filter(Boolean))],
+                oem_parts: oemParts,
+                ic_numbers: [...new Set((row.ic_numbers || "").split(",").filter(Boolean))],
+                chips: [...new Set((row.chips || "").split(",").filter(Boolean))],
+                keyways: [...new Set((row.keyways || "").split(",").filter(Boolean))],
+                frequencies: [...new Set((row.frequencies || "").split(",").filter(Boolean))],
+                batteries: [...new Set((row.batteries || "").split(",").filter(Boolean))],
+                price_range: {
+                  min: row.price_min || null,
+                  max: row.price_max || null
+                },
+                product_count: row.product_count
+              };
+            }
+          }
+
+          // 4. Build combined response with priority rules
+          // Priority: enrichments (0) > AKS (1) > VYP (2) > vehicles (3)
+          const response: any = {
+            query: { make, model, year },
+            data_sources: {
+              enrichments: !!enrichmentData,
+              vyp: !!vypData,
+              vehicles: !!vehicleData,
+              aks_products: Object.keys(productsByType).length > 0
+            },
+
+            // Header data (enrichments override vehicles)
+            header: {
+              make: vehicleData?.make || make,
+              model: vehicleData?.model || model,
+              year: year,
+              year_range: vehicleData ? { start: vehicleData.year_start, end: vehicleData.year_end } : null,
+              // Priority 0: enrichments override
+              immobilizer_system: enrichmentData?.immobilizer_system || vehicleData?.immobilizer_system || null,
+              platform: enrichmentData?.platform || vehicleData?.platform || null,
+              protocol_type: enrichmentData?.protocol_type || null,
+              security_gateway: enrichmentData?.security_gateway || null,
+              key_type: vehicleData?.key_type || null,
+              can_fd_required: enrichmentData?.can_fd_required ?? vehicleData?.can_fd_required ?? false,
+              online_required: enrichmentData?.online_required ?? false,
+              architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : []
+            },
+
+            // Specs data - Priority: enrichments > VYP > vehicles
+            specs: {
+              // Priority 0: enrichments > VYP for Lishi
+              lishi: enrichmentData?.lishi || vypData?.lishi || vehicleData?.lishi_tool || null,
+              lishi_source: enrichmentData?.lishi ? "enrichments" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles" : null)),
+
+              // Mechanical specs
+              spaces: parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
+              depths: parseInt(vypData?.depths, 10) || vehicleData?.depths || null,
+              macs: parseInt(vypData?.macs, 10) || null,
+              code_series: vypData?.code_series || vehicleData?.code_series || null,
+              mechanical_key: vypData?.mechanical_key || vehicleData?.mechanical_spec || null,
+              transponder_key: vypData?.transponder_key || vehicleData?.blade_type || null,
+              keyway: enrichmentData?.keyway || null,
+
+              // Priority 0: enrichments > vehicles for chip/freq/battery
+              chip: enrichmentData?.chip || vehicleData?.chip || null,
+              frequency: enrichmentData?.frequency || vehicleData?.frequency || null,
+              battery: enrichmentData?.battery || vehicleData?.battery || null,
+              buttons: vehicleData?.buttons || null,
+              fcc_id: vehicleData?.fcc_id || null
+            },
+
+            // Enrichment data (if available)
+            enrichments: enrichmentData ? {
+              source_doc: enrichmentData.source_doc,
+              confidence_score: enrichmentData.confidence_score,
+              extraction_method: enrichmentData.extraction_method,
+              fcc_ids: enrichmentData.fcc_ids_json ? JSON.parse(enrichmentData.fcc_ids_json) : null,
+              oem_parts: enrichmentData.oem_parts_json ? JSON.parse(enrichmentData.oem_parts_json) : null,
+              ic_numbers: enrichmentData.ic_numbers_json ? JSON.parse(enrichmentData.ic_numbers_json) : null
+            } : null,
+
+            // VYP aggregated data
+            vyp: vypData ? {
+              product_count: vypData.product_count,
+              fcc_ids: (vypData.fcc_ids || "").split(",").filter(Boolean),
+              oem_parts: (vypData.oem_parts || "").split(",").filter(Boolean),
+              chips: (vypData.chips || "").split(",").filter(Boolean),
+              product_types: (vypData.product_types || "").split(",").filter(Boolean)
+            } : null,
+
+            // AKS products by type (Priority 1 for OEM/FCC/IC/chip/keyway/prices)
+            products_by_type: productsByType,
+
+            // Programming info from vehicles table
+            programming: vehicleData ? {
+              method: vehicleData.programming_method,
+              pin_required: !!vehicleData.pin_required,
+              akl_supported: !!vehicleData.akl_supported,
+              akl_difficulty: vehicleData.akl_difficulty,
+              prog_difficulty: vehicleData.prog_difficulty,
+              prog_tools: vehicleData.prog_tools
+            } : null,
+
+            // Counts for UI badges
+            counts: {
+              pearls: vehicleData?.pearl_count || 0,
+              alerts: vehicleData?.alert_count || 0,
+              has_akl: vehicleData?.has_akl_procedure || false,
+              has_add_key: vehicleData?.has_add_key_procedure || false
+            }
+          };
+
+          return corsResponse(request, JSON.stringify(response));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // VEHICLE PRODUCTS ENDPOINT - AKS Products with R2 Images
+      // ==============================================
+
+      // Returns key fob products from aks_products_detail with image_r2_key for dynamic frontend
+      if (path === "/api/vehicle-products") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const year = parseInt(url.searchParams.get("year") || "0", 10);
+          const fccId = url.searchParams.get("fcc")?.toUpperCase() || "";
+          const oem = url.searchParams.get("oem") || "";
+
+          if (!make && !fccId && !oem) {
+            return corsResponse(request, JSON.stringify({ error: "make, fcc, or oem required" }), 400);
+          }
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          // Build WHERE clause
+          if (make) {
+            conditions.push("LOWER(title) LIKE ?");
+            params.push(`%${make}%`);
+          }
+          if (model) {
+            conditions.push("(LOWER(title) LIKE ? OR LOWER(compatible_vehicles) LIKE ?)");
+            params.push(`%${model}%`, `%${model}%`);
+          }
+          if (fccId) {
+            conditions.push("UPPER(fcc_id) LIKE ?");
+            params.push(`%${fccId}%`);
+          }
+          if (oem) {
+            conditions.push("oem_part_numbers LIKE ?");
+            params.push(`%${oem}%`);
+          }
+
+          // Year filter - only return products that fit the requested year
+          if (year > 0) {
+            conditions.push("(year_start IS NULL OR year_start <= ?)");
+            conditions.push("(year_end IS NULL OR year_end >= ?)");
+            params.push(year, year);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              item_number,
+              title,
+              fcc_id,
+              buttons,
+              frequency,
+              battery,
+              keyway,
+              chip,
+              oem_part_numbers,
+              price,
+              cost,
+              url,
+              compatible_vehicles,
+              product_type,
+              emergency_key,
+              image_r2_key,
+              year_start,
+              year_end
+            FROM aks_products_detail
+            ${whereClause}
+            ORDER BY 
+              CASE WHEN title LIKE '%OEM%' THEN 0 ELSE 1 END,
+              buttons DESC
+            LIMIT 50
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          // Build full R2 proxy URLs for images
+          const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
+          const products = (result.results || []).map((p: any) => {
+            // Parse OEM part numbers from JSON string
+            let oemParts: string[] = [];
+            try {
+              if (p.oem_part_numbers) {
+                oemParts = JSON.parse(p.oem_part_numbers);
+              }
+            } catch { oemParts = []; }
+
+            return {
+              item_number: p.item_number,
+              title: p.title,
+              fcc_id: p.fcc_id,
+              buttons: p.buttons,
+              frequency: p.frequency,
+              battery: p.battery,
+              keyway: p.keyway,
+              chip: p.chip,
+              oem_part_numbers: oemParts,
+              price: p.price,
+              cost: p.cost,
+              aks_url: p.url,
+              compatible_vehicles: p.compatible_vehicles,
+              product_type: p.product_type,
+              emergency_key: p.emergency_key,
+              year_start: p.year_start,
+              year_end: p.year_end,
+              image_url: p.image_r2_key
+                ? `${WORKER_BASE}/api/r2/${encodeURIComponent(p.image_r2_key)}`
+                : null
+            };
+          });
+
+          return new Response(JSON.stringify({
+            query: { make, model, year: year || null, fcc: fccId || null, oem: oem || null },
+            total: products.length,
+            products
+          }), {
+            headers: {
+              "content-type": "application/json",
+              "Cache-Control": "public, max-age=300",
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "GET, OPTIONS",
+              "Access-Control-Allow-Headers": "*",
+            },
           });
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);

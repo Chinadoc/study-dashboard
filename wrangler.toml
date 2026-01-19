@@ -1,0 +1,7 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "eurokeys"
+compatibility_date = "2024-04-03"
+
+[pages_build_config]
+build_command = "npm run build"
+destination_dir = ".vercel/output/static"

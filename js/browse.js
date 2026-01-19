@@ -5,6 +5,9 @@ console.log('[BROWSE] v20260105.1 Loaded');
 
 // Global Safety Checks
 if (typeof currentUser === 'undefined') window.currentUser = null;
+
+// [PREMIUM UI] Enable high-fidelity detail view
+window.RENDER_PREMIUM_UI = true;
 if (typeof InventoryManager === 'undefined') window.InventoryManager = { getKeyStock: () => 0, getBlankStock: () => 0, getAllKeys: () => [] };
 
 // Stub for showPremiumModal (defined in auth.js, may not be loaded yet)
@@ -3412,6 +3415,9 @@ function renderMockup3VehiclePage(vehicle, data) {
     const { year, make, model } = vehicle;
     const { configs = [], procedures = [], pearls = [], inventory = {}, subscription = null, rows = [] } = data;
 
+    // Store pearls globally for inline insight access
+    currentVehiclePearls = pearls;
+
     // Get mechanical data from first row or config
     const primaryRow = rows[0] || configs[0] || {};
     const lishiTool = primaryRow.lishi_tool || primaryRow.lishi || 'N/A';
@@ -3438,7 +3444,7 @@ function renderMockup3VehiclePage(vehicle, data) {
         <div class="mockup3-vehicle-page">
             <!-- Header with Tab Navigation -->
             <div class="m3-header">
-                <button class="m3-back-btn" onclick="history.back()">← Back</button>
+                <button class="m3-back-btn" onclick="history.back()" style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; padding: 8px 16px; border-radius: 20px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z"/></svg>Back</button>
                 <h1 class="m3-title">${year} ${make} ${model}</h1>
                 <div class="m3-tabs">
                     <button class="m3-tab active" data-tab="vehicle" onclick="switchMockup3Tab('vehicle')">🚗 Vehicle</button>
@@ -3521,10 +3527,13 @@ function renderMockup3VehiclePage(vehicle, data) {
                     </section>
                 </div>
                 
-                <!-- PEARLS (Community Tips) - Integrated View -->
+                <!-- PEARLS (Technical Pearls & Field Intelligence) -->
                 ${pearls.length > 0 ? `
                 <section class="m3-section m3-pearls-section">
-                    <h2 class="m3-section-title">PEARLS <span class="m3-pearl-count">${pearls.length} tips</span></h2>
+                    <h2 class="m3-section-title" style="color: #06b6d4;">
+                        <span style="margin-right: 8px;">✨</span>Technical Pearls & Field Intelligence 
+                        <span class="m3-pearl-count">${pearls.length} tips</span>
+                    </h2>
                     <div class="m3-pearls-grid">
                         ${renderMockup3Pearls(pearls)}
                     </div>
@@ -3598,6 +3607,101 @@ function renderInventoryTab(configs, inventory, vehicle) {
     </div>`;
 }
 
+// ==============================================
+// INLINE INSIGHT SYSTEM
+// Renders 💡 icons next to data fields that have matching pearls
+// ==============================================
+
+// Store pearls globally for inline access
+let currentVehiclePearls = [];
+
+// Render inline insight icon with tooltip
+function renderInlineInsight(targetSection, pearls = currentVehiclePearls) {
+    const matchingPearls = pearls.filter(p => p.target_section === targetSection);
+    if (matchingPearls.length === 0) return '';
+
+    // Get first pearl for tooltip preview
+    const firstPearl = matchingPearls[0];
+    const previewText = (firstPearl.pearl_content || '').substring(0, 150);
+    const moreCount = matchingPearls.length > 1 ? matchingPearls.length - 1 : 0;
+
+    // Encode content for data attribute
+    const encodedPearls = btoa(encodeURIComponent(JSON.stringify(matchingPearls)));
+
+    return `
+        <span class="inline-insight" 
+              data-section="${targetSection}" 
+              data-pearls="${encodedPearls}"
+              onclick="showInlineInsightPopover(this, event)"
+              title="${firstPearl.pearl_title || 'Insight'}">
+            <span class="insight-icon">💡</span>
+            ${matchingPearls.length > 1 ? `<span class="insight-count">${matchingPearls.length}</span>` : ''}
+        </span>
+    `;
+}
+
+// Show insight popover when 💡 is clicked
+window.showInlineInsightPopover = function (element, event) {
+    event.stopPropagation();
+
+    // Close any existing popover
+    const existing = document.querySelector('.insight-popover');
+    if (existing) existing.remove();
+
+    try {
+        const pearlsJson = decodeURIComponent(atob(element.dataset.pearls));
+        const pearls = JSON.parse(pearlsJson);
+
+        const popover = document.createElement('div');
+        popover.className = 'insight-popover';
+        popover.innerHTML = `
+            <div class="insight-popover-header">
+                <span>💡 ${pearls.length} Insight${pearls.length > 1 ? 's' : ''}</span>
+                <button class="insight-close" onclick="this.closest('.insight-popover').remove()">×</button>
+            </div>
+            <div class="insight-popover-body">
+                ${pearls.map(p => `
+                    <div class="insight-item ${p.is_critical ? 'critical' : ''}">
+                        <div class="insight-title">${p.pearl_title || 'Insight'}</div>
+                        <div class="insight-content">${p.pearl_content || ''}</div>
+                        ${p.reference_url ? `<a href="${p.reference_url}" target="_blank" class="insight-link">Source →</a>` : ''}
+                        <div class="insight-footer">
+                            <span class="insight-score" style="color: ${(p.score || 0) >= 0 ? '#22c55e' : '#ef4444'}">
+                                ${(p.score || 0) >= 0 ? '👍' : '👎'} ${p.score || 0}
+                            </span>
+                            <button class="insight-vote-btn" onclick="votePearl(${p.id}, 1)">👍</button>
+                            <button class="insight-vote-btn" onclick="votePearl(${p.id}, -1)">👎</button>
+                            <button class="insight-comment-btn" onclick="showPearlComments(${p.id})">💬 ${p.comment_count || 0}</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        // Position popover near the clicked element
+        const rect = element.getBoundingClientRect();
+        popover.style.position = 'fixed';
+        popover.style.top = (rect.bottom + 8) + 'px';
+        popover.style.left = Math.max(10, rect.left - 150) + 'px';
+        popover.style.zIndex = '10000';
+
+        document.body.appendChild(popover);
+
+        // Close when clicking outside
+        setTimeout(() => {
+            document.addEventListener('click', function closePopover(e) {
+                if (!popover.contains(e.target) && e.target !== element) {
+                    popover.remove();
+                    document.removeEventListener('click', closePopover);
+                }
+            });
+        }, 100);
+
+    } catch (e) {
+        console.error('Error showing insight popover:', e);
+    }
+};
+
 // Render horizontal scrolling key config cards
 function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     if (!configs || configs.length === 0) {
@@ -3638,6 +3742,7 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
                         <a href="${amazonUrl}" target="_blank" onclick="logActivity && logActivity('affiliate_click', {type:'m3_config', fcc:'${fccId}'})">
                             FCC ID: ${fccId}
                         </a>
+                        ${renderInlineInsight('fcc')}
                     </div>
                     <div class="m3-config-specs">
                         <div class="m3-spec-row">
@@ -3659,36 +3764,151 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     }).join('');
 }
 
-// Render pearls with voting and scores (Mockup 3 style)
+// Render pearls with demo-colorado.html style (Technical Pearls & Field Intelligence)
 function renderMockup3Pearls(pearls) {
     if (!pearls || pearls.length === 0) {
-        return '<div class="m3-empty-state">No community pearls yet</div>';
+        return '<div class="m3-empty-state">No technical pearls available</div>';
     }
 
-    // Filter to quality pearls and limit display
+    // Severity color configuration (matching demo-colorado.html)
+    const severityConfig = {
+        critical: {
+            bg: 'rgba(239, 68, 68, 0.08)',
+            border: '#ef4444',
+            badge: '#ef4444',
+            badgeText: '#fff',
+            tagBg: 'rgba(239, 68, 68, 0.2)',
+            tagText: '#fca5a5'
+        },
+        high: {
+            bg: 'rgba(139, 92, 246, 0.08)',
+            border: '#8b5cf6',
+            badge: '#8b5cf6',
+            badgeText: '#fff',
+            tagBg: 'rgba(139, 92, 246, 0.2)',
+            tagText: '#c4b5fd'
+        },
+        medium: {
+            bg: 'rgba(245, 158, 11, 0.08)',
+            border: '#f59e0b',
+            badge: '#f59e0b',
+            badgeText: '#000',
+            tagBg: 'rgba(245, 158, 11, 0.2)',
+            tagText: '#fcd34d'
+        },
+        low: {
+            bg: 'rgba(34, 197, 94, 0.08)',
+            border: '#22c55e',
+            badge: '#22c55e',
+            badgeText: '#000',
+            tagBg: 'rgba(34, 197, 94, 0.2)',
+            tagText: '#86efac'
+        },
+        info: {
+            bg: 'rgba(6, 182, 212, 0.08)',
+            border: '#06b6d4',
+            badge: '#06b6d4',
+            badgeText: '#000',
+            tagBg: 'rgba(6, 182, 212, 0.2)',
+            tagText: '#67e8f9'
+        }
+    };
+
+    // Filter and sort pearls - prioritize critical first
     const displayPearls = pearls
         .filter(p => (p.pearl_content || '').length > 50)
-        .slice(0, 5);
+        .sort((a, b) => {
+            const severityOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+            const aOrder = severityOrder[a.severity] ?? 4;
+            const bOrder = severityOrder[b.severity] ?? 4;
+            return aOrder - bOrder;
+        })
+        .slice(0, 8);
 
     return displayPearls.map(pearl => {
+        // Determine severity from pearl data or is_critical flag
+        let severity = pearl.severity || (pearl.is_critical ? 'critical' : 'medium');
+        severity = severity.toLowerCase();
+        if (!severityConfig[severity]) severity = 'info';
+
+        const config = severityConfig[severity];
         const score = pearl.score || 0;
         const upvotes = pearl.upvotes || 0;
         const downvotes = pearl.downvotes || 0;
-        const commentCount = pearl.comment_count || 0;
-        const author = pearl.author_name || pearl.source_name || 'Community';
+
+        // Parse tags - handle both string and array formats
+        let tags = [];
+        if (pearl.tags) {
+            if (typeof pearl.tags === 'string') {
+                try {
+                    tags = JSON.parse(pearl.tags);
+                } catch (e) {
+                    tags = pearl.tags.split(',').map(t => t.trim());
+                }
+            } else if (Array.isArray(pearl.tags)) {
+                tags = pearl.tags;
+            }
+        }
+        // Limit to 4 tags for display
+        tags = tags.slice(0, 4);
+
+        // Truncate content with ellipsis
+        const content = (pearl.pearl_content || '').substring(0, 250);
+        const hasMore = (pearl.pearl_content || '').length > 250;
 
         return `
-            <div class="m3-pearl-card">
-                <div class="m3-pearl-header">
-                    <span class="m3-pearl-title">${pearl.pearl_title || 'Pro Tip'}</span>
-                    <span class="m3-pearl-author">👤 ${author}</span>
+            <div class="m3-pearl-card-enhanced" style="
+                background: ${config.bg};
+                padding: 15px;
+                border-radius: 12px;
+                border-left: 4px solid ${config.border};
+                transition: all 0.2s ease;
+            " onmouseenter="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.25)'"
+               onmouseleave="this.style.transform='none'; this.style.boxShadow='none'">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="
+                        background: ${config.badge};
+                        color: ${config.badgeText};
+                        font-size: 0.65rem;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                    ">${severity}</span>
+                    <span style="font-weight: 700; font-size: 0.9rem; color: ${config.border};">
+                        ${pearl.pearl_title || 'Technical Pearl'}
+                    </span>
                 </div>
-                <div class="m3-pearl-content">${(pearl.pearl_content || '').substring(0, 200)}${(pearl.pearl_content || '').length > 200 ? '...' : ''}</div>
-                <div class="m3-pearl-actions">
-                    <button class="m3-vote-btn" onclick="votePearl(${pearl.id}, 'up')">👍 ${upvotes}</button>
-                    <button class="m3-vote-btn" onclick="votePearl(${pearl.id}, 'down')">👎 ${downvotes}</button>
-                    <button class="m3-comment-btn" onclick="showPearlComments(${pearl.id})">💬 ${commentCount}</button>
-                    <span class="m3-pearl-score" style="color: ${score > 0 ? '#22c55e' : score < 0 ? '#ef4444' : '#888'}">Score: ${score}</span>
+                <p style="font-size: 0.85rem; color: #a1a1aa; line-height: 1.5; margin: 0 0 10px 0;">
+                    ${content}${hasMore ? '...' : ''}
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        ${tags.map(tag => `
+                            <span style="
+                                background: ${config.tagBg};
+                                color: ${config.tagText};
+                                font-size: 0.7rem;
+                                padding: 2px 6px;
+                                border-radius: 3px;
+                            ">${tag}</span>
+                        `).join('')}
+                    </div>
+                    ${pearl.id ? `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button onclick="votePearl(${pearl.id}, 'up')" style="
+                            background: none; border: none; cursor: pointer; 
+                            color: #22c55e; font-size: 1rem; padding: 2px;
+                        ">⬆️</button>
+                        <span style="font-size: 0.8rem; color: #a1a1aa; min-width: 24px; text-align: center;">
+                            ${score >= 0 ? score : score}
+                        </span>
+                        <button onclick="votePearl(${pearl.id}, 'down')" style="
+                            background: none; border: none; cursor: pointer; 
+                            color: #ef4444; font-size: 1rem; padding: 2px;
+                        ">⬇️</button>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -3777,7 +3997,18 @@ function displayResults(rows, year, make, model, extras = {}) {
     const useMockup3 = localStorage.getItem('useLegacyView') !== 'true';
 
     if (useMockup3) {
-        console.log('[Mockup3] Rendering new vehicle page layout');
+        console.log('[Mockup3] Redirecting to premium vehicle route');
+
+        // REDIRECT to hash route - this triggers fetchPremiumVehicleData() in ui.js
+        // which properly loads all 5 API endpoints for key cards, pearls, procedures, etc.
+        const targetHash = `vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}`;
+        if (window.location.hash !== `#${targetHash}`) {
+            window.location.hash = targetHash;
+            console.log('[Mockup3] Hash updated for redirect, exiting local render');
+            return; // Exit - hashchange handler in ui.js will take over
+        }
+
+        console.log('[Mockup3] Already at vehicle route, rendering directly');
 
         // Clean year for display
         const cleanYear = parseInt(year);
@@ -3830,13 +4061,44 @@ function displayResults(rows, year, make, model, extras = {}) {
             }
         );
 
+        // [PREMIUM UI] HIGH-FIDELITY RENDERER TAKE-OVER
+        if (window.RENDER_PREMIUM_UI && typeof mapBrowseDataToDetail === 'function' && typeof VehicleDetailRenderer !== 'undefined') {
+            console.log('[PremiumUI] Mapping data and rendering high-fidelity view');
+
+            const detailData = mapBrowseDataToDetail(
+                walkthroughs[0] || {},
+                effectiveConfigs[0] || {},
+                { year, make, model }
+            );
+
+            if (detailData) {
+                // Initialize Renderer (Global instance for onclick/onhover handlers)
+                let renderer;
+                if (typeof initVehicleDetail === 'function') {
+                    renderer = initVehicleDetail('premium-detail-container');
+                } else {
+                    renderer = new VehicleDetailRenderer('premium-detail-container');
+                }
+                window.vehicleDetailRenderer = renderer;
+
+                // Hide standard results container, show premium container
+                container.style.display = 'none';
+                const premiumSection = document.getElementById('premium-vehicle-detail');
+                if (premiumSection) premiumSection.style.display = 'block';
+
+                // Render the premium view
+                renderer.render(detailData);
+
+                // Scroll to top of the premium view
+                window.scrollTo(0, 0);
+
+                // Set shareable URL
+                setVehicleUrl(make, model, year);
+                return;
+            }
+        }
+
         container.innerHTML = `
-            <div style="margin-bottom: 16px; display: flex; gap: 8px;">
-                <button onclick="localStorage.setItem('useLegacyView', 'true'); window.location.reload();" 
-                        style="background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
-                    ⚙️ Switch to Legacy View
-                </button>
-            </div>
             ${html}
         `;
 
@@ -4501,62 +4763,67 @@ function displayResults(rows, year, make, model, extras = {}) {
                     ` : ''}
                     
                     <!-- Electronic Specs (Grows to fill space) -->
-                    <div style="flex: 1; min-width: 200px;">
-                       <div class="electronic-specs-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                    <div style="flex: 1; min-width: 250px;">
+                       <div class="electronic-specs-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
                           <div class="spec-item"><div class="spec-icon" style="color: #a855f7;">🛡️</div><div class="spec-label">Chip</div><div class="spec-value">${chip}</div></div>
-                          <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Frequency</div><div class="spec-value">${freq}</div></div>
+                          <div class="spec-item"><div class="spec-icon" style="color: #06b6d4;">⚡</div><div class="spec-label">Freq</div><div class="spec-value">${freq}</div></div>
+                          <div class="spec-item"><div class="spec-icon" style="color: #38bdf8;">🔋</div><div class="spec-label">Battery</div><div class="spec-value">${battery}</div></div>
+                          ${v.architecture ? `<div class="spec-item"><div class="spec-icon" style="color: #8b5cf6;">🏗️</div><div class="spec-label">Arch</div><div class="spec-value">${v.architecture}</div></div>` : ''}
+                          ${v.can_fd_required ? `<div class="spec-item" style="border-color: #ef4444;"><div class="spec-icon" style="color: #ef4444;">📡</div><div class="spec-label">CAN FD</div><div class="spec-value" style="color: #ef4444; font-weight: 800;">REQUIRED</div></div>` : ''}
                           <div class="spec-item"><div class="spec-icon" style="color: #22c55e;">🔧</div><div class="spec-label">System</div><div class="spec-value">${immoSystem}</div></div>
                        </div>
                     </div>
                  </div>
 
-                 <!-- Service Specs: Mechanical & Service (Bottom) -->
-                 <div class="service-specs-container" style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;">Service Data</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
-                        
-                        <!-- Blade / Keyway -->
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="font-size: 1.2rem;">🗝️</div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">Keyway</div>
-                                <div style="font-weight: 600; color: var(--text-primary); font-family: monospace;">${keyway || 'N/A'}</div>
-                            </div>
-                        </div>
+                  <!-- Service Specs: Mechanical & Service (Bottom) -->
+                  <div class="service-specs-container" style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                     <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; display: flex; justify-content: space-between;">
+                        <span>Mechanical & Service Data</span>
+                        ${v.ic_number ? `<span style="color: #06b6d4;">IC: ${v.ic_number}</span>` : ''}
+                     </div>
+                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                         
+                         <!-- Blade / Keyway -->
+                         <div style="display: flex; align-items: center; gap: 8px;">
+                             <div style="font-size: 1.2rem;">🗝️</div>
+                             <div>
+                                 <div style="font-size: 0.7rem; color: var(--text-muted);">Keyway</div>
+                                 <div style="font-weight: 600; color: var(--text-primary); font-family: monospace;">${keyway || 'N/A'}</div>
+                             </div>
+                         </div>
+ 
+                          <!-- Emergency Key -->
+                         <div style="display: flex; align-items: center; gap: 8px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 8px;">
+                             <div style="font-size: 1.2rem;">🚨</div>
+                             <div>
+                                 <div style="font-size: 0.7rem; color: #fbbf24;">Emergency Key</div>
+                                 <div style="font-weight: 600; color: #fbbf24; font-family: monospace;">${v.emergency_key_pn || 'In Fob'}</div>
+                             </div>
+                         </div>
 
-                         <!-- Code Series (Inferred if missing) -->
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="font-size: 1.2rem;">🔢</div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">Code Series</div>
-                                <div style="font-weight: 600; color: var(--text-primary); font-family: monospace;">
-                                    ${v.code_series || (keyway.includes('HU100') && parseInt(year) <= 2016 ? 'Z-Series (8-Cut)' : 'Varies (Check Lishi)')}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lishi Tool -->
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="font-size: 1.2rem;">📐</div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">Lishi Tool</div>
-                                <div style="font-weight: 600; color: #22c55e;">
-                                    ${v.lishi_tool || (keyway.includes('HU100') ? 'HU100' : 'N/A')}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Battery -->
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="font-size: 1.2rem;">🔋</div>
-                            <div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">Battery</div>
-                                <div style="font-weight: 600; color: var(--text-primary);">${battery}</div>
-                            </div>
-                        </div>
-
-                    </div>
-                 </div>
+                          <!-- Code Series -->
+                         <div style="display: flex; align-items: center; gap: 8px;">
+                             <div style="font-size: 1.2rem;">🔢</div>
+                             <div>
+                                 <div style="font-size: 0.7rem; color: var(--text-muted);">Code Series</div>
+                                 <div style="font-weight: 600; color: var(--text-primary); font-family: monospace;">
+                                     ${v.code_series || (keyway.includes('HU100') && parseInt(year) <= 2016 ? 'Z-Series' : 'Varies')}
+                                 </div>
+                             </div>
+                         </div>
+ 
+                         <!-- Lishi Tool -->
+                         <div style="display: flex; align-items: center; gap: 8px;">
+                             <div style="font-size: 1.2rem;">📐</div>
+                             <div>
+                                 <div style="font-size: 0.7rem; color: var(--text-muted);">Lishi Tool</div>
+                                 <div style="font-weight: 600; color: #22c55e;">
+                                     ${v.lishi_tool || (keyway.includes('HU100') ? 'HU100' : 'N/A')}
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                  </div>
                  </div> <!-- Close tech card wrapper if present -->
 
                  <!-- Key Carousel Placeholder -->

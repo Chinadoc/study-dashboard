@@ -5577,11 +5577,27 @@
             font-weight: normal;
         }
 
-        /* Pearls Grid */
+        /* Pearls Grid - 2 Column Layout (Technical Pearls & Field Intelligence) */
         .m3-pearls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .m3-pearls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Enhanced Pearl Card (demo-colorado style) */
+        .m3-pearl-card-enhanced {
+            transition: all 0.2s ease;
+        }
+
+        .m3-pearl-card-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
         /* Tool Status Section */
@@ -5676,4 +5692,289 @@
             border-radius: 10px;
             font-size: 0.8rem;
             font-weight: 600;
+        }
+
+        /* ==============================================
+   INLINE INSIGHT SYSTEM
+   💡 icons with popovers for contextual pearls
+============================================== */
+
+        .inline-insight {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            vertical-align: middle;
+        }
+
+        .inline-insight:hover {
+            transform: scale(1.15);
+        }
+
+        .insight-icon {
+            font-size: 1rem;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+                filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+            }
+        }
+
+        .insight-count {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 8px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* Insight Popover */
+        .insight-popover {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 1px rgba(139, 92, 246, 0.3);
+            max-width: 400px;
+            min-width: 300px;
+            animation: popoverSlideIn 0.2s ease;
+        }
+
+        @keyframes popoverSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .insight-popover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .insight-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: color 0.2s;
+        }
+
+        .insight-close:hover {
+            color: var(--text-primary);
+        }
+
+        .insight-popover-body {
+            padding: 12px 16px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .insight-item {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .insight-item.critical {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .insight-content {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .insight-link {
+            color: #8b5cf6;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .insight-link:hover {
+            text-decoration: underline;
+        }
+
+        .insight-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .insight-score {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+        .insight-vote-btn,
+        .insight-comment-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .insight-vote-btn:hover,
+        .insight-comment-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+            color: var(--text-primary);
+        }
+
+        /* Discussion Section (Collapsible) */
+        .discussion-section {
+            margin-top: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .discussion-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 8px 0;
+            width: 100%;
+            text-align: left;
+            transition: color 0.2s;
+        }
+
+        .discussion-toggle:hover {
+            color: var(--text-primary);
+        }
+
+        .discussion-toggle .arrow {
+            transition: transform 0.2s;
+        }
+
+        .discussion-toggle.expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        .discussion-content {
+            display: none;
+            padding: 12px 0;
+        }
+
+        .discussion-content.expanded {
+            display: block;
+        }
+
+        .discussion-comment {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .discussion-comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .discussion-author {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+        }
+
+        .discussion-timestamp {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .discussion-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .discussion-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .discussion-vote {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .discussion-vote:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .discussion-vote.upvote:hover {
+            color: #22c55e;
+        }
+
+        .discussion-vote.downvote:hover {
+            color: #ef4444;
         }
