@@ -429,15 +429,22 @@ export default function VehicleDetailClient() {
         w.category?.toLowerCase().includes('akl') || w.title?.toLowerCase().includes('all keys lost')
     );
 
-    // Filter pearls by context
+    // Filter pearls by context - safely handle tags as string or array
+    const getTags = (p: any): string[] => {
+        if (!p.tags) return [];
+        if (Array.isArray(p.tags)) return p.tags.map((t: string) => t.toLowerCase());
+        if (typeof p.tags === 'string') return p.tags.split(',').map((t: string) => t.trim().toLowerCase());
+        return [];
+    };
+
     const addKeyPearls = pearlsList.filter((p: any) => {
-        const tags = (p.tags || []).map((t: string) => t.toLowerCase());
+        const tags = getTags(p);
         const cat = (p.category || '').toLowerCase();
         return tags.includes('add key') || tags.includes('spare key') || cat.includes('add key');
     });
 
     const aklPearls = pearlsList.filter((p: any) => {
-        const tags = (p.tags || []).map((t: string) => t.toLowerCase());
+        const tags = getTags(p);
         const cat = (p.category || '').toLowerCase();
         const risk = (p.risk || '').toLowerCase();
         return tags.includes('akl') || tags.includes('all keys lost') || cat.includes('akl') || risk === 'critical';
