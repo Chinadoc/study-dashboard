@@ -394,9 +394,11 @@ export default function VehicleDetailClient() {
     // Deduplicate keys by type (3-btn, 4-btn, blade) to avoid showing all product variants
     const mergedKeys = deduplicateKeysByType(rawKeys, specs);
 
-    // Extract pearls and images
-    const pearlsList = data.pearls?.pearls || [];
-    const imagesList = data.images?.images || [];
+    // Extract pearls and images - ensure they are arrays
+    const rawPearls = data.pearls?.pearls;
+    const pearlsList = Array.isArray(rawPearls) ? rawPearls : [];
+    const rawImages = data.images?.images;
+    const imagesList = Array.isArray(rawImages) ? rawImages : [];
 
     // Extract dynamic sidebar content from pearls
     const criticalPearl = pearlsList.find((p: any) => (p.risk || '').toLowerCase() === 'critical');
