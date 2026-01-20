@@ -29,21 +29,27 @@ export default function VehicleProcedures({
     const hasAddKey = procedures?.addKey && (procedures.addKey.steps?.length || 0) > 0;
     const hasAkl = procedures?.akl && (procedures.akl.steps?.length || 0) > 0;
 
-    // If no procedures, show a polished placeholder with disabled tabs
+    // If no procedures, show a polished placeholder with clickable tabs
     if (!hasAddKey && !hasAkl) {
         return (
             <div className="space-y-6">
-                {/* Disabled Procedure Tabs */}
+                {/* Clickable Procedure Tabs - both show same "Coming Soon" */}
                 <div className="flex border-b border-zinc-800">
                     <button
-                        disabled
-                        className="px-6 py-3 text-sm font-bold transition-all border-b-2 border-purple-500/30 text-purple-400/50 bg-purple-500/5 cursor-not-allowed"
+                        onClick={() => setActiveTab('addKey')}
+                        className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'addKey'
+                                ? 'border-purple-500 text-purple-400 bg-purple-500/10'
+                                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                            }`}
                     >
                         🔑 Add Smart Key
                     </button>
                     <button
-                        disabled
-                        className="px-6 py-3 text-sm font-bold transition-all border-b-2 border-transparent text-zinc-600 cursor-not-allowed"
+                        onClick={() => setActiveTab('akl')}
+                        className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'akl'
+                                ? 'border-red-500 text-red-400 bg-red-500/10'
+                                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                            }`}
                     >
                         🚨 All Keys Lost (AKL)
                     </button>

@@ -121,23 +121,24 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
                 </div>
             )}
 
-            {/* Image Modal */}
+            {/* Image Modal - Fixed overlay */}
             {modalImage && (
                 <div
-                    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                    className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/95 flex items-center justify-center p-4"
+                    style={{ zIndex: 9999 }}
                     onClick={() => setModalImage(null)}
                 >
-                    <div className="relative max-w-5xl max-h-[90vh] w-full">
+                    <div className="relative max-w-4xl max-h-[85vh] w-full" onClick={e => e.stopPropagation()}>
                         <button
                             onClick={() => setModalImage(null)}
-                            className="absolute -top-10 right-0 text-white text-2xl hover:text-amber-400 transition-colors"
+                            className="absolute -top-12 right-0 text-white text-3xl hover:text-amber-400 transition-colors z-10"
                         >
                             ✕
                         </button>
                         <img
                             src={getImageUrl(modalImage)}
                             alt={modalImage.description || 'Full-size image'}
-                            className="w-full h-full object-contain rounded-lg"
+                            className="w-full max-h-[75vh] object-contain rounded-lg bg-zinc-900"
                         />
                         <div className="mt-4 text-center">
                             <p className="text-white text-lg">{modalImage.description || modalImage.filename}</p>

@@ -9,7 +9,6 @@ import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
-import ProductCatalog from '@/components/vehicle/ProductCatalog';
 import { API_BASE } from '@/lib/config';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
@@ -275,52 +274,104 @@ export default function VehicleDetailClient() {
     const productsByType = detail.products_by_type || {};
     const vyp = detail.vyp || {};
 
-    // Transform VYP data into key configurations (fallback when no products)
-    function transformVypToKeys(vypData: any): any[] {
+    // Universal key classification system
+    // Groups products by (type + button count), filters packs/shells, aggregates OEM parts
+    function classifyVypProducts(vypData: any, vehicleSpecs: any): any[] {
         if (!vypData || !vypData.product_types || vypData.product_types.length === 0) return [];
 
         const productTypes: string[] = vypData.product_types || [];
-        const fccIds: string[] = vypData.fcc_ids || [];
-        const oemParts: string[] = vypData.oem_parts || [];
-        const chips: string[] = vypData.chips || [];
+        const fccIds: string[] = (vypData.fcc_ids || []).map((f: string) => f.trim()).filter(Boolean);
+        const oemParts: string[] = [...new Set((vypData.oem_parts || []).map((p: string) => p.trim()).filter(Boolean))];
+        const chips: string[] = (vypData.chips || []).map((c: string) => c.trim()).filter(Boolean);
+
+        // Detect button configurations from product type names
+        const buttonConfigs: Set<string> = new Set();
+        productTypes.forEach(t => {
+            const lowerT = t.toLowerCase();
+            // Skip packs and shells
+            if (lowerT.includes('pack') || lowerT.includes('shell')) return;
+
+            // Parse button count from product types or FCC descriptions
+            if (lowerT.includes('3-btn') || lowerT.includes('3 btn') || lowerT.includes('3-button')) {
+                buttonConfigs.add('3btn');
+            }
+            if (lowerT.includes('4-btn') || lowerT.includes('4 btn') || lowerT.includes('4-button')) {
+                buttonConfigs.add('4btn');
+            }
+            if (lowerT.includes('5-btn') || lowerT.includes('5 btn') || lowerT.includes('5-button')) {
+                buttonConfigs.add('5btn');
+            }
+            if (lowerT.includes('6-btn') || lowerT.includes('6 btn') || lowerT.includes('6-button')) {
+                buttonConfigs.add('6btn');
+            }
+        });
+
+        // Also scan FCC strings for button hints
+        fccIds.forEach(f => {
+            const lowerF = f.toLowerCase();
+            if (lowerF.includes('3-btn')) buttonConfigs.add('3btn');
+            if (lowerF.includes('4-btn')) buttonConfigs.add('4btn');
+            if (lowerF.includes('5-btn')) buttonConfigs.add('5btn');
+        });
+
+        // Determine key types present
+        const hasRemotes = productTypes.some(t => t.toLowerCase().includes('remote') && !t.toLowerCase().includes('shell'));
+        const hasTransponder = productTypes.some(t => t.toLowerCase().includes('transponder') && !t.toLowerCase().includes('shell'));
+        const hasMechanical = productTypes.some(t => t.toLowerCase().includes('mechanical'));
+        const hasFlip = productTypes.some(t => t.toLowerCase().includes('flip'));
 
         const keys: any[] = [];
 
-        // Group by major key types
-        const hasRemotes = productTypes.some(t => t.toLowerCase().includes('remote'));
-        const hasTransponder = productTypes.some(t => t.toLowerCase().includes('transponder'));
-        const hasMechanical = productTypes.some(t => t.toLowerCase().includes('mechanical'));
-
-        if (hasRemotes) {
-            // Extract FCC IDs for remotes
-            const remoteFcc = fccIds.find(f => f.includes('OUC') || f.includes('HYQ')) || fccIds[0];
+        // If we have specific button configs, create a card for each
+        if (hasRemotes && buttonConfigs.size > 0) {
+            const buttonList = Array.from(buttonConfigs).sort();
+            buttonList.forEach(btnKey => {
+                const btnNum = btnKey.replace('btn', '');
+                const features = btnNum === '4' ? ' w/Start or Hatch' : btnNum === '5' ? ' w/Hatch' : '';
+                keys.push({
+                    name: `${btnNum}-Button Remote${features}`,
+                    type: 'prox',
+                    buttons: btnNum,
+                    fcc: fccIds.slice(0, 3).join(', '),
+                    chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
+                    battery: 'CR2032',
+                    oem: oemParts.slice(0, 6).map(p => ({ number: p })),
+                    priceRange: `$12 - $${parseInt(btnNum) > 4 ? '95' : '85'}`,
+                });
+            });
+        } else if (hasRemotes) {
+            // Generic remote if no specific buttons detected
             keys.push({
                 name: 'Remote Key Fob',
                 type: 'prox',
-                fcc: remoteFcc?.replace(/\s+/g, ', ').replace(/\s*\/\s*/g, ' / '),
+                fcc: fccIds.slice(0, 3).join(', '),
                 chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
                 battery: 'CR2032',
-                oem: oemParts.slice(0, 6).map(p => ({ number: p.trim() })),
+                oem: oemParts.slice(0, 6).map(p => ({ number: p })),
                 priceRange: '$12 - $95',
             });
         }
 
+        // Transponder key (chip key without remote buttons)
         if (hasTransponder) {
+            const keyway = vehicleSpecs.transponder_key || vehicleSpecs.mechanical_key || 'B111';
             keys.push({
-                name: `Transponder Key (${specs.transponder_key || 'B111'})`,
-                type: 'prox',
+                name: `Transponder Key (${keyway})`,
+                type: hasFlip ? 'flip' : 'prox',
                 chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
-                keyway: specs.transponder_key || specs.mechanical_key,
+                keyway: keyway,
                 priceRange: '$4 - $15',
                 oem: [],
             });
         }
 
-        if (hasMechanical || specs.mechanical_key) {
+        // Mechanical/Emergency blade
+        if (hasMechanical || vehicleSpecs.mechanical_key) {
+            const blade = vehicleSpecs.mechanical_key || 'B106';
             keys.push({
-                name: `Emergency Blade (${specs.mechanical_key || 'B106'})`,
+                name: `Emergency Blade (${blade})`,
                 type: 'blade',
-                keyway: specs.mechanical_key,
+                keyway: blade,
                 priceRange: '$0.70 - $7',
                 oem: [],
             });
@@ -332,7 +383,7 @@ export default function VehicleDetailClient() {
     // Merge keys: prioritize /api/vehicle-products (has R2 images), fallback to products_by_type, then VYP
     const keysFromProducts = transformProducts(data.products?.products || []);
     const keysFromPBT = transformProductsByType(productsByType);
-    const keysFromVYP = transformVypToKeys(vyp);
+    const keysFromVYP = classifyVypProducts(vyp, specs);
     const rawKeys = keysFromProducts.length > 0 ? keysFromProducts
         : keysFromPBT.length > 0 ? keysFromPBT
             : keysFromVYP;
@@ -397,9 +448,6 @@ export default function VehicleDetailClient() {
 
                     {/* Key Configuration Cards with R2 images */}
                     <KeyCards keys={mergedKeys} />
-
-                    {/* Full Product Catalog from VYP */}
-                    <ProductCatalog vyp={vyp} specs={specs} />
 
                     {/* Programming Procedures */}
                     <VehicleProcedures procedures={{
