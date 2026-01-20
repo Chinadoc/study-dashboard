@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import VehicleHeader from '@/components/vehicle/VehicleHeader';
 import VehicleSpecs from '@/components/vehicle/VehicleSpecs';
 import KeyCards from '@/components/vehicle/KeyCards';
@@ -60,7 +60,12 @@ function transformProducts(products: any[]): any[] {
 
 export default function VehicleDetailClient() {
     const pathname = usePathname() ?? '';
-    const segments = pathname.split('/').filter(Boolean);
+    const searchParams = useSearchParams();
+
+    // Check for 'original' query param from 404 redirect, otherwise use pathname
+    const originalPath = searchParams?.get('original') || pathname;
+    const segments = originalPath.split('/').filter(Boolean);
+
     // Path: /vehicle/make/model/year -> segments: ["vehicle", make, model, year]
     const make = segments[1] ? decodeURIComponent(segments[1]) : '';
     const model = segments[2] ? decodeURIComponent(segments[2]) : '';
@@ -71,6 +76,7 @@ export default function VehicleDetailClient() {
     const [data, setData] = useState<any>({});
 
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         async function fetchVehicleData() {
             if (!make || !model || !year) return;
             setLoading(true);

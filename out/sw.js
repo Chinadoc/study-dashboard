@@ -1,5 +1,5 @@
-// v19 - Inventory cloud sync with Authorization header (cross-domain fix)
-const CACHE_NAME = 'euro-keys-v19';
+// v20 - Force network-first for browse/vehicle pages to prevent stale content
+const CACHE_NAME = 'euro-keys-v20';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -57,7 +57,7 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// Fetch: Network-first for main pages & API, cache-first for other assets
+// Fetch: Network-first for main pages, browse, vehicle & API, cache-first for other assets
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -73,8 +73,9 @@ self.addEventListener('fetch', (event) => {
         url.pathname.includes('/api/auth/') ||
         url.pathname.includes('/api/admin/');
 
-    // Main Page & API: Network-first (always get fresh content)
+    // Main Page, Browse, Vehicle & API: Network-first (always get fresh content)
     const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
+    const isBrowseOrVehicle = url.pathname.startsWith('/browse') || url.pathname.startsWith('/vehicle');
     const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
 
     if (isSensitiveApi) {
@@ -82,7 +83,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    if (isMainPage || isApi) {
+    if (isMainPage || isBrowseOrVehicle || isApi) {
         event.respondWith(
             fetch(request)
                 .then((response) => {

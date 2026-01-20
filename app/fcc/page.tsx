@@ -26,6 +26,7 @@ function FccContent() {
     const router = useRouter();
 
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         async function fetchData() {
             try {
                 const res = await fetch(`${API_BASE}/api/fcc?limit=1000`);
@@ -106,8 +107,8 @@ function FccContent() {
                             key={type}
                             onClick={() => setKeyType(type)}
                             className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all whitespace-nowrap ${keyType === type
-                                    ? 'bg-zinc-800 text-white shadow-lg'
-                                    : 'text-zinc-500 hover:text-zinc-300'
+                                ? 'bg-zinc-800 text-white shadow-lg'
+                                : 'text-zinc-500 hover:text-zinc-300'
                                 }`}
                         >
                             {type.replace('-', ' ')}

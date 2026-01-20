@@ -2658,27 +2658,26 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
-      // VYP SUB-ROUTES - Makes/Models/Years with specs filter
+      // VYP SUB-ROUTES - Makes/Models/Years from vehicles table
       // ==============================================
-      // Only returns makes/models that have spaces, depths, and macs (actual key specs)
-      // This filters out orphan entries that lead to empty vehicle pages
+      // Uses vehicles table to include all makes (BMW, Mercedes, etc)
+      // Falls back to vehicle_year_products for enhanced data
 
-      // GET /api/vyp/makes - Returns distinct makes that have mechanical specs
+      // GET /api/vyp/makes - Returns distinct makes from vehicles table
       if (path === "/api/vyp/makes") {
         try {
+          // Use vehicles table as primary source for all makes
           const sql = `
             SELECT DISTINCT make 
-            FROM vehicle_year_products
-            WHERE spaces IS NOT NULL 
-            AND depths IS NOT NULL 
-            AND macs IS NOT NULL
+            FROM vehicles
+            WHERE make IS NOT NULL AND make != ''
             ORDER BY make
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).all();
           const makes = (result.results || []).map((r: any) => r.make);
 
           return corsResponse(request, JSON.stringify({
-            source: "vehicle_year_products",
+            source: "vehicles",
             count: makes.length,
             makes
           }));
@@ -2687,7 +2686,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
-      // GET /api/vyp/models?make=X - Returns models for a make that have mechanical specs
+      // GET /api/vyp/models?make=X - Returns models for a make from vehicles table
       if (path === "/api/vyp/models") {
         try {
           const make = url.searchParams.get("make") || "";
@@ -2695,20 +2694,19 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
           }
 
+          // Use vehicles table as primary source
           const sql = `
             SELECT DISTINCT model 
-            FROM vehicle_year_products
+            FROM vehicles
             WHERE LOWER(make) = LOWER(?)
-            AND spaces IS NOT NULL 
-            AND depths IS NOT NULL 
-            AND macs IS NOT NULL
+            AND model IS NOT NULL AND model != ''
             ORDER BY model
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
           const models = (result.results || []).map((r: any) => r.model);
 
           return corsResponse(request, JSON.stringify({
-            source: "vehicle_year_products",
+            source: "vehicles",
             make,
             count: models.length,
             models
@@ -2718,7 +2716,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
-      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model that have mechanical specs
+      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model from vehicles table
       if (path === "/api/vyp/years") {
         try {
           const make = url.searchParams.get("make") || "";
@@ -2727,21 +2725,30 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make and model parameters required" }), 400);
           }
 
+          // Use vehicles table - get year_start and year_end, expand to individual years
           const sql = `
-            SELECT DISTINCT year 
-            FROM vehicle_year_products
+            SELECT year_start, year_end 
+            FROM vehicles
             WHERE LOWER(make) = LOWER(?)
             AND LOWER(model) = LOWER(?)
-            AND spaces IS NOT NULL 
-            AND depths IS NOT NULL 
-            AND macs IS NOT NULL
-            ORDER BY year DESC
+            AND year_start IS NOT NULL
+            ORDER BY year_start DESC
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make, model).all();
-          const years = (result.results || []).map((r: any) => r.year);
+
+          // Expand year ranges into individual years
+          const yearSet = new Set<number>();
+          for (const row of (result.results || []) as any[]) {
+            const start = row.year_start;
+            const end = row.year_end || start;
+            for (let y = start; y <= end; y++) {
+              yearSet.add(y);
+            }
+          }
+          const years = Array.from(yearSet).sort((a, b) => b - a); // DESC
 
           return corsResponse(request, JSON.stringify({
-            source: "vehicle_year_products",
+            source: "vehicles",
             make,
             model,
             count: years.length,

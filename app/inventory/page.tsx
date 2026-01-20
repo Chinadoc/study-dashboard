@@ -22,6 +22,7 @@ export default function InventoryPage() {
 
     // Fetch from Cloudflare API with localStorage fallback
     const loadInventory = useCallback(async () => {
+        if (typeof window === 'undefined') return;
         setLoading(true);
         setError(null);
 
