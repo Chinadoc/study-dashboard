@@ -9,6 +9,7 @@ import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
+import ProductCatalog from '@/components/vehicle/ProductCatalog';
 import { API_BASE } from '@/lib/config';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
@@ -274,10 +275,67 @@ export default function VehicleDetailClient() {
     const productsByType = detail.products_by_type || {};
     const vyp = detail.vyp || {};
 
-    // Merge keys: prioritize /api/vehicle-products (has R2 images), fallback to products_by_type
+    // Transform VYP data into key configurations (fallback when no products)
+    function transformVypToKeys(vypData: any): any[] {
+        if (!vypData || !vypData.product_types || vypData.product_types.length === 0) return [];
+
+        const productTypes: string[] = vypData.product_types || [];
+        const fccIds: string[] = vypData.fcc_ids || [];
+        const oemParts: string[] = vypData.oem_parts || [];
+        const chips: string[] = vypData.chips || [];
+
+        const keys: any[] = [];
+
+        // Group by major key types
+        const hasRemotes = productTypes.some(t => t.toLowerCase().includes('remote'));
+        const hasTransponder = productTypes.some(t => t.toLowerCase().includes('transponder'));
+        const hasMechanical = productTypes.some(t => t.toLowerCase().includes('mechanical'));
+
+        if (hasRemotes) {
+            // Extract FCC IDs for remotes
+            const remoteFcc = fccIds.find(f => f.includes('OUC') || f.includes('HYQ')) || fccIds[0];
+            keys.push({
+                name: 'Remote Key Fob',
+                type: 'prox',
+                fcc: remoteFcc?.replace(/\s+/g, ', ').replace(/\s*\/\s*/g, ' / '),
+                chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
+                battery: 'CR2032',
+                oem: oemParts.slice(0, 6).map(p => ({ number: p.trim() })),
+                priceRange: '$12 - $95',
+            });
+        }
+
+        if (hasTransponder) {
+            keys.push({
+                name: `Transponder Key (${specs.transponder_key || 'B111'})`,
+                type: 'prox',
+                chip: chips[0]?.replace(/PHILIPS\s*/i, ''),
+                keyway: specs.transponder_key || specs.mechanical_key,
+                priceRange: '$4 - $15',
+                oem: [],
+            });
+        }
+
+        if (hasMechanical || specs.mechanical_key) {
+            keys.push({
+                name: `Emergency Blade (${specs.mechanical_key || 'B106'})`,
+                type: 'blade',
+                keyway: specs.mechanical_key,
+                priceRange: '$0.70 - $7',
+                oem: [],
+            });
+        }
+
+        return keys;
+    }
+
+    // Merge keys: prioritize /api/vehicle-products (has R2 images), fallback to products_by_type, then VYP
     const keysFromProducts = transformProducts(data.products?.products || []);
     const keysFromPBT = transformProductsByType(productsByType);
-    const rawKeys = keysFromProducts.length > 0 ? keysFromProducts : keysFromPBT;
+    const keysFromVYP = transformVypToKeys(vyp);
+    const rawKeys = keysFromProducts.length > 0 ? keysFromProducts
+        : keysFromPBT.length > 0 ? keysFromPBT
+            : keysFromVYP;
 
     // Deduplicate keys by type (3-btn, 4-btn, blade) to avoid showing all product variants
     const mergedKeys = deduplicateKeysByType(rawKeys, specs);
@@ -339,6 +397,9 @@ export default function VehicleDetailClient() {
 
                     {/* Key Configuration Cards with R2 images */}
                     <KeyCards keys={mergedKeys} />
+
+                    {/* Full Product Catalog from VYP */}
+                    <ProductCatalog vyp={vyp} specs={specs} />
 
                     {/* Programming Procedures */}
                     <VehicleProcedures procedures={{
