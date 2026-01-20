@@ -88,15 +88,15 @@ function KeyCard({ config }: { config: KeyConfig }) {
             {/* Specs */}
             <div className="space-y-2 mb-4">
                 {config.fcc && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-zinc-500">FCC ID</span>
-                        <span className="font-mono text-yellow-500 font-bold">{config.fcc}</span>
+                    <div className="flex justify-between text-sm gap-2">
+                        <span className="text-zinc-500 shrink-0">FCC ID</span>
+                        <span className="font-mono text-yellow-500 font-bold truncate text-right" title={config.fcc}>{config.fcc}</span>
                     </div>
                 )}
                 {config.chip && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-zinc-500">Chip</span>
-                        <span className="text-white">{config.chip}</span>
+                    <div className="flex justify-between text-sm gap-2">
+                        <span className="text-zinc-500 shrink-0">Chip</span>
+                        <span className="text-white truncate text-right" title={config.chip}>{config.chip}</span>
                     </div>
                 )}
                 {config.battery && (
@@ -124,7 +124,7 @@ function KeyCard({ config }: { config: KeyConfig }) {
                 <div className="mb-4 pt-3 border-t border-zinc-800">
                     <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2">OEM Part Numbers</div>
                     <div className="flex flex-wrap gap-1">
-                        {config.oem.map((part, i) => (
+                        {config.oem.slice(0, 6).map((part, i) => (
                             <span
                                 key={i}
                                 className="px-2 py-1 bg-zinc-800 rounded text-xs font-mono text-zinc-300"
@@ -133,6 +133,11 @@ function KeyCard({ config }: { config: KeyConfig }) {
                                 {part.number}
                             </span>
                         ))}
+                        {config.oem.length > 6 && (
+                            <span className="px-2 py-1 text-[10px] text-zinc-600 font-bold flex items-center">
+                                +{config.oem.length - 6} more
+                            </span>
+                        )}
                     </div>
                 </div>
             )}

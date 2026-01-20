@@ -38,25 +38,35 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
 function transformProducts(products: any[]): any[] {
     if (!products || products.length === 0) return [];
 
-    return products.map(p => ({
-        name: p.title || `${p.buttons}-Button Key`,
-        fcc: p.fcc_id,
-        chip: p.chip,
-        battery: p.battery,
-        frequency: p.frequency,
-        keyway: p.keyway,
-        buttons: p.buttons,
-        priceRange: p.price ? `$${p.price}` : undefined,
-        oem: p.oem_part_numbers?.map((n: string) => ({ number: n })) || [],
-        image: p.image_url,
-        image_r2_key: p.image_r2_key,
-        type: p.product_type?.toLowerCase().includes('smart') ? 'prox'
-            : p.product_type?.toLowerCase().includes('flip') ? 'flip'
-                : p.product_type?.toLowerCase().includes('blade') ? 'blade'
-                    : 'prox',
-        title: p.title,
-        item_number: p.item_number,
-    }));
+    return products.map(p => {
+        // Build a descriptive name if title is generic or missing
+        let name = p.title || p.product_title || '';
+        if (!name || name === 'Unknown' || name.toLowerCase().includes('remote')) {
+            const btn = p.buttons || '';
+            const tech = p.product_type || '';
+            name = `${btn}-Button ${tech}`.trim();
+        }
+
+        return {
+            name: name,
+            fcc: p.fcc_id,
+            chip: p.chip,
+            battery: p.battery,
+            frequency: p.frequency,
+            keyway: p.keyway,
+            buttons: p.buttons,
+            priceRange: p.price ? `$${p.price}` : undefined,
+            oem: p.oem_part_numbers?.map((n: string) => ({ number: n })) || [],
+            image: p.image_url,
+            image_r2_key: p.image_r2_key,
+            type: p.product_type?.toLowerCase().includes('smart') || p.product_type?.toLowerCase().includes('prox') ? 'prox'
+                : p.product_type?.toLowerCase().includes('flip') ? 'flip'
+                    : p.product_type?.toLowerCase().includes('blade') ? 'blade'
+                        : 'prox',
+            title: p.title,
+            item_number: p.item_number,
+        };
+    });
 }
 
 // Deduplicate keys by type: show one representative per key configuration
@@ -127,12 +137,20 @@ function deduplicateKeysByType(keys: any[], specs?: any): any[] {
             if (!nameA.includes('brk') && nameB.includes('brk')) return -1;
             if (nameA.includes('brk') && !nameB.includes('brk')) return 1;
 
-            return 0;
+            return nameA.localeCompare(nameB);
         });
 
-        // Take the best one from each group
+        // Grouping improvement: If multiple FCCs/Buttons exist that are distinct, 
+        // they might be different legitimate options (e.g. 5-btn vs 6-btn on Enclave)
         if (groupKeys.length > 0) {
             result.push(groupKeys[0]);
+
+            // If there's another key with a different button count in the same group, keep it too
+            const firstButtons = groupKeys[0].buttons;
+            const differentButtonVariant = groupKeys.find(k => k.buttons && k.buttons !== firstButtons && !k.name.toLowerCase().includes('brk'));
+            if (differentButtonVariant) {
+                result.push(differentButtonVariant);
+            }
         }
     });
 
@@ -242,6 +260,10 @@ export default function VehicleDetailClient() {
     const pearlsList = data.pearls?.pearls || [];
     const imagesList = data.images?.images || [];
 
+    // Extract dynamic sidebar content from pearls
+    const criticalPearl = pearlsList.find((p: any) => (p.risk || '').toLowerCase() === 'critical');
+    const proTipPearl = pearlsList.find((p: any) => (p.risk || '').toLowerCase() === 'important' || (p.risk || '').toLowerCase() === 'info');
+
     // Build complete specs object for VehicleSpecs component
     const fullSpecs = {
         architecture: header.immobilizer_system,
@@ -279,14 +301,6 @@ export default function VehicleDetailClient() {
                 platform={header.platform}
                 architecture={header.immobilizer_system}
                 canFd={header.can_fd_required === 1 || header.can_fd_required === true}
-                specs={{
-                    chipType: specs.chip,
-                    fccId: specs.fcc_id,
-                    frequency: specs.frequency,
-                    battery: specs.battery,
-                    keyway: specs.keyway,
-                    lishi: specs.lishi,
-                }}
             />
 
             {/* Two-Column Layout Grid */}
@@ -330,6 +344,8 @@ export default function VehicleDetailClient() {
                         specs={fullSpecs}
                         platform={header.platform}
                         architecture={header.immobilizer_system}
+                        gotchaText={criticalPearl?.content}
+                        proTipText={proTipPearl?.content}
                     />
                 </div>
             </div>

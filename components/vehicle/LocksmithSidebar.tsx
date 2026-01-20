@@ -10,9 +10,11 @@ interface SidebarProps {
     };
     platform?: string;
     architecture?: string;
+    gotchaText?: string;
+    proTipText?: string;
 }
 
-export default function LocksmithSidebar({ specs, platform, architecture }: SidebarProps) {
+export default function LocksmithSidebar({ specs, platform, architecture, gotchaText, proTipText }: SidebarProps) {
     const buyList = [
         { name: `Battery: ${specs.battery || 'CR2032'}`, icon: '🔋', desc: 'Required for all remotes' },
         { name: `Blade: ${specs.keyway || 'MAZ24'}`, icon: '🔑', desc: 'Emergency physical bypass' },
@@ -45,15 +47,19 @@ export default function LocksmithSidebar({ specs, platform, architecture }: Side
             </div>
 
             {/* Critical Gotcha */}
-            {(specs.canFdRequired || architecture?.includes('Global B')) && (
+            {(gotchaText || specs.canFdRequired || architecture?.includes('Global B')) && (
                 <div className="bg-red-900/10 border border-red-500/30 rounded-2xl p-5">
                     <h3 className="text-red-400 font-bold text-sm flex items-center gap-2 mb-2">
                         🛑 Critical Gotcha
                     </h3>
                     <p className="text-xs text-red-200/70 leading-relaxed">
-                        This vehicle uses {architecture || 'Global B'} architecture.
-                        <strong>CAN FD adapter is required</strong> for communication.
-                        Do NOT attempt programming without a stable battery maintainer (12.5V+).
+                        {gotchaText || (
+                            <>
+                                This vehicle uses {architecture || 'Global B'} architecture.
+                                <strong> CAN FD adapter is required</strong> for communication.
+                                Do NOT attempt programming without a stable battery maintainer (12.5V+).
+                            </>
+                        )}
                     </p>
                 </div>
             )}
@@ -64,9 +70,7 @@ export default function LocksmithSidebar({ specs, platform, architecture }: Side
                     💡 Pro Tip
                 </h3>
                 <p className="text-xs text-green-200/70 leading-relaxed">
-                    Always turn on hazard lights before starting. This sends keep-alive signals
-                    on the CAN bus and prevents the BCM from entering sleep mode during
-                    programming.
+                    {proTipText || "Always turn on hazard lights before starting. This sends keep-alive signals on the CAN bus and prevents the BCM from entering sleep mode during programming."}
                 </p>
             </div>
 

@@ -66,29 +66,6 @@ export default function VehicleHeader({
                 </div>
             </div>
 
-            {/* Specs Grid */}
-            <div className="glass p-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    {specs.chipType && (
-                        <SpecItem label="Chip Type" value={specs.chipType} />
-                    )}
-                    {specs.battery && (
-                        <SpecItem label="Battery" value={specs.battery} />
-                    )}
-                    {specs.keyway && (
-                        <SpecItem label="Keyway" value={specs.keyway} />
-                    )}
-                    {specs.fccId && (
-                        <SpecItem label="Primary FCC" value={specs.fccId} highlight />
-                    )}
-                    {specs.frequency && (
-                        <SpecItem label="Frequency" value={specs.frequency} />
-                    )}
-                    {specs.lishi && (
-                        <SpecItem label="Lishi Tool" value={specs.lishi} />
-                    )}
-                </div>
-            </div>
         </div>
     );
 }
