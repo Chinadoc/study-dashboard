@@ -214,6 +214,32 @@ export default function VehicleDetailClient() {
                     pearls = makePearlsRes?.ok ? await makePearlsRes.json() : { pearls: [] };
                 }
 
+                // Cross-pollination: If still no pearls, fetch from related makes by architecture
+                if (!pearls.pearls?.length) {
+                    const architecture = detail.header?.immobilizer_system || '';
+                    const ARCHITECTURE_MAKES: Record<string, string[]> = {
+                        'GM PK3 / PK3+ / PEPS': ['Chevrolet', 'GMC', 'Cadillac'],
+                        'Global A': ['Chevrolet', 'GMC', 'Cadillac'],
+                        'Global B': ['Chevrolet', 'GMC', 'Cadillac'],
+                    };
+
+                    // Find related makes for this architecture
+                    const relatedMakes = Object.entries(ARCHITECTURE_MAKES)
+                        .filter(([arch]) => architecture.toLowerCase().includes(arch.toLowerCase().split(' ')[0]))
+                        .flatMap(([, makes]) => makes)
+                        .filter(m => m.toLowerCase() !== make.toLowerCase());
+
+                    // Fetch pearls from the first related make that has data
+                    for (const relatedMake of relatedMakes) {
+                        const relatedPearlsRes = await fetch(`${API_BASE}/api/pearls?make=${encodeURIComponent(relatedMake)}`).catch(() => null);
+                        const relatedPearls = relatedPearlsRes?.ok ? await relatedPearlsRes.json() : { pearls: [] };
+                        if (relatedPearls.pearls?.length > 0) {
+                            pearls = { ...relatedPearls, source: `cross-pollinated from ${relatedMake}` };
+                            break;
+                        }
+                    }
+                }
+
                 setData({ detail, products, walkthroughs, pearls, images });
             } catch (err) {
                 console.error('Failed to fetch vehicle data:', err);

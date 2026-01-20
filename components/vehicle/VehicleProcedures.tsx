@@ -29,12 +29,55 @@ export default function VehicleProcedures({
     const hasAddKey = procedures?.addKey && (procedures.addKey.steps?.length || 0) > 0;
     const hasAkl = procedures?.akl && (procedures.akl.steps?.length || 0) > 0;
 
+    // If no procedures, show a polished placeholder with disabled tabs
     if (!hasAddKey && !hasAkl) {
         return (
-            <div className="glass p-8 text-center text-zinc-500">
-                <div className="text-4xl mb-2">📋</div>
-                <p>No procedure data available for this vehicle yet.</p>
-                <p className="text-sm mt-1">Check back soon or contribute to our database.</p>
+            <div className="space-y-6">
+                {/* Disabled Procedure Tabs */}
+                <div className="flex border-b border-zinc-800">
+                    <button
+                        disabled
+                        className="px-6 py-3 text-sm font-bold transition-all border-b-2 border-purple-500/30 text-purple-400/50 bg-purple-500/5 cursor-not-allowed"
+                    >
+                        🔑 Add Smart Key
+                    </button>
+                    <button
+                        disabled
+                        className="px-6 py-3 text-sm font-bold transition-all border-b-2 border-transparent text-zinc-600 cursor-not-allowed"
+                    >
+                        🚨 All Keys Lost (AKL)
+                    </button>
+                </div>
+
+                {/* Placeholder Message */}
+                <div className="glass p-8 text-center">
+                    <div className="text-4xl mb-3">📋</div>
+                    <p className="text-zinc-300 font-semibold">Procedure Data Coming Soon</p>
+                    <p className="text-sm text-zinc-500 mt-2 max-w-md mx-auto">
+                        Detailed step-by-step programming instructions for this vehicle are being curated.
+                        Check back soon or contribute your knowledge!
+                    </p>
+                    <a
+                        href="/guides"
+                        className="inline-block mt-4 px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 text-sm rounded-lg transition-colors"
+                    >
+                        Browse Available Guides →
+                    </a>
+                </div>
+
+                {/* Tool Status Section */}
+                <div className="glass p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                            🛠️ Platform Support Status
+                        </h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {toolsToShow.map(tool => (
+                            <ToolStatusBadge key={tool} toolName={tool} />
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
@@ -49,8 +92,8 @@ export default function VehicleProcedures({
                     <button
                         onClick={() => setActiveTab('addKey')}
                         className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'addKey'
-                                ? 'border-purple-500 text-purple-400 bg-purple-500/5'
-                                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                            ? 'border-purple-500 text-purple-400 bg-purple-500/5'
+                            : 'border-transparent text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
                         🔑 Add Smart Key
@@ -60,8 +103,8 @@ export default function VehicleProcedures({
                     <button
                         onClick={() => setActiveTab('akl')}
                         className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'akl'
-                                ? 'border-red-500 text-red-400 bg-red-500/5'
-                                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                            ? 'border-red-500 text-red-400 bg-red-500/5'
+                            : 'border-transparent text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
                         🚨 All Keys Lost (AKL)
