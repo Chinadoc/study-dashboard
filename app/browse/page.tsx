@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { WizardStep, WizardStepOption } from '@/components/WizardStep';
 import { MakeGrid } from '@/components/browse/MakeGrid';
 import { SearchBar } from '@/components/browse/SearchBar';
@@ -9,16 +9,21 @@ import { POPULAR_MAKES } from '@/lib/make-data';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
-export default function BrowsePage() {
+function BrowsePageContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Read initial selection from URL params
+    const initialMake = searchParams?.get('make') ?? null;
+    const initialModel = searchParams?.get('model') ?? null;
 
     // State
     const [makes, setMakes] = useState<string[]>([]);
     const [models, setModels] = useState<string[]>([]);
     const [years, setYears] = useState<number[]>([]);
 
-    const [selectedMake, setSelectedMake] = useState<string | null>(null);
-    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+    const [selectedMake, setSelectedMake] = useState<string | null>(initialMake);
+    const [selectedModel, setSelectedModel] = useState<string | null>(initialModel);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
     const [loadingModels, setLoadingModels] = useState(false);
@@ -26,6 +31,9 @@ export default function BrowsePage() {
 
     // Use static POPULAR_MAKES for the grid, but augment with API data
     useEffect(() => {
+        // Skip fetch during SSR/Pre-rendering
+        if (typeof window === 'undefined') return;
+
         async function fetchMakes() {
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/makes`);
@@ -44,7 +52,7 @@ export default function BrowsePage() {
 
     // Load models when make changes
     useEffect(() => {
-        if (!selectedMake) {
+        if (!selectedMake || typeof window === 'undefined') {
             setModels([]);
             return;
         }
@@ -67,7 +75,7 @@ export default function BrowsePage() {
 
     // Load years when model changes
     useEffect(() => {
-        if (!selectedModel || !selectedMake) {
+        if (!selectedModel || !selectedMake || typeof window === 'undefined') {
             setYears([]);
             return;
         }
@@ -77,7 +85,7 @@ export default function BrowsePage() {
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/years?make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}`);
                 const data = await res.json();
-                const sortedYears = (data.years || []).map((y: any) => y.year) as number[];
+                const sortedYears = (data.years || []).map((y: any) => typeof y === 'number' ? y : y.year).filter(Boolean) as number[];
                 setYears(sortedYears);
             } catch (error) {
                 console.error('Failed to fetch years:', error);
@@ -95,9 +103,7 @@ export default function BrowsePage() {
     };
 
     const handleSearch = (query: string) => {
-        // TODO: Implement omni-search (VIN decode, fuzzy match, etc.)
         console.log('Search:', query);
-        // For now, if it looks like a year/make/model, try to parse it
         const parts = query.trim().split(/\s+/);
         if (parts.length >= 3) {
             const yearMatch = parts[0].match(/^\d{4}$/);
@@ -122,15 +128,12 @@ export default function BrowsePage() {
                 <p className="text-gray-400">Access professional locksmith data, programming guides, and part numbers.</p>
             </header>
 
-            {/* Google-style Search Bar */}
             <SearchBar onSearch={handleSearch} />
 
-            {/* Show Make Grid OR Wizard based on selection state */}
             {!selectedMake ? (
-                <MakeGrid makes={makes} selectedMake={selectedMake} onSelect={handleMakeSelect} />
+                <MakeGrid makes={makes.length > 0 ? makes : (POPULAR_MAKES as unknown as string[])} selectedMake={selectedMake} onSelect={handleMakeSelect} />
             ) : (
                 <>
-                    {/* Selected Make Header */}
                     <div className="flex items-center gap-4 mb-6">
                         <button
                             onClick={() => { setSelectedMake(null); setSelectedModel(null); setSelectedYear(null); }}
@@ -142,7 +145,6 @@ export default function BrowsePage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                        {/* Step 2: Model */}
                         <WizardStep
                             title="Model"
                             stepNumber={2}
@@ -166,7 +168,6 @@ export default function BrowsePage() {
                             )}
                         </WizardStep>
 
-                        {/* Step 3: Year */}
                         <WizardStep
                             title="Year"
                             stepNumber={3}
@@ -192,7 +193,6 @@ export default function BrowsePage() {
                 </>
             )}
 
-            {/* Navigation Button */}
             <div className={`transition-all duration-500 overflow-hidden ${selectedYear ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
                 <button
                     onClick={handleNavigate}
@@ -208,5 +208,20 @@ export default function BrowsePage() {
                 </a>
             </div>
         </div>
+    );
+}
+
+export default function BrowsePage() {
+    return (
+        <Suspense fallback={
+            <div className="container mx-auto px-4 py-8 text-center">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent mb-8">
+                    Browse Database
+                </h1>
+                <div className="text-purple-400 animate-pulse">Initializing browser environment...</div>
+            </div>
+        }>
+            <BrowsePageContent />
+        </Suspense>
     );
 }
