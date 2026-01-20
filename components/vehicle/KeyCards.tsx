@@ -136,12 +136,20 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
 
             {/* Specs */}
             <div className="space-y-2 mb-4">
-                {config.fcc && (
-                    <div className="flex justify-between text-sm gap-2">
-                        <span className="text-zinc-500 shrink-0">FCC ID</span>
-                        <span className="font-mono text-yellow-500 font-bold truncate text-right" title={config.fcc}>{config.fcc}</span>
-                    </div>
-                )}
+                {config.fcc && (() => {
+                    // Split and deduplicate FCC IDs (handles "YG0G20TB1 YG0G20TB1" duplication)
+                    const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
+                    return (
+                        <div className="flex justify-between text-sm gap-2">
+                            <span className="text-zinc-500 shrink-0">FCC ID</span>
+                            <span className="font-mono text-yellow-500 font-bold truncate text-right flex flex-wrap gap-1 justify-end" title={fccIds.join(', ')}>
+                                {fccIds.map((fcc, i) => (
+                                    <span key={fcc} className={i > 0 ? 'text-yellow-400' : ''}>{fcc}</span>
+                                ))}
+                            </span>
+                        </div>
+                    );
+                })()}
                 {config.chip && (
                     <div className="flex justify-between text-sm gap-2">
                         <span className="text-zinc-500 shrink-0">Chip</span>

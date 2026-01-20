@@ -144,7 +144,8 @@ function BrowsePageContent() {
                         <h2 className="text-2xl font-bold text-white">{selectedMake}</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        {/* Column 1: Model Selection */}
                         <WizardStep
                             title="Model"
                             stepNumber={2}
@@ -168,6 +169,7 @@ function BrowsePageContent() {
                             )}
                         </WizardStep>
 
+                        {/* Column 2: Year Selection */}
                         <WizardStep
                             title="Year"
                             stepNumber={3}
@@ -189,18 +191,67 @@ function BrowsePageContent() {
                                 ))
                             )}
                         </WizardStep>
+
+                        {/* Column 3: Preview Panel */}
+                        <div
+                            className={`
+                                p-6 rounded-2xl border transition-all duration-300 backdrop-blur-md
+                                ${selectedYear
+                                    ? 'border-emerald-500/60 shadow-[0_0_30px_rgba(16,185,129,0.2)] bg-emerald-500/5'
+                                    : 'border-white/10 bg-white/5'}
+                            `}
+                        >
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-4">
+                                Preview
+                            </div>
+
+                            {selectedYear ? (
+                                <div className="flex flex-col gap-4">
+                                    {/* Vehicle Summary */}
+                                    <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/10 border border-white/10">
+                                        <div className="text-2xl font-bold text-white mb-1">
+                                            {selectedYear} {selectedMake}
+                                        </div>
+                                        <div className="text-xl text-purple-300 font-medium">
+                                            {selectedModel}
+                                        </div>
+                                    </div>
+
+                                    {/* Quick Stats Placeholder */}
+                                    <div className="grid grid-cols-2 gap-2 text-center">
+                                        <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                                            <div className="text-xs text-gray-500 uppercase">Keys</div>
+                                            <div className="text-lg font-bold text-purple-400">—</div>
+                                        </div>
+                                        <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                                            <div className="text-xs text-gray-500 uppercase">Remotes</div>
+                                            <div className="text-lg font-bold text-purple-400">—</div>
+                                        </div>
+                                    </div>
+
+                                    {/* GO Button - Prominently placed */}
+                                    <button
+                                        onClick={handleNavigate}
+                                        className="w-full px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-1 hover:shadow-emerald-500/40 active:scale-95 text-center text-lg"
+                                    >
+                                        Go →
+                                    </button>
+                                </div>
+                            ) : selectedModel ? (
+                                <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
+                                    <div className="text-4xl mb-4 opacity-30">📅</div>
+                                    <div className="text-gray-500 text-sm">Select a year to preview</div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
+                                    <div className="text-4xl mb-4 opacity-30">🚗</div>
+                                    <div className="text-gray-500 text-sm">Select model and year to see preview</div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </>
             )}
-
-            <div className={`transition-all duration-500 overflow-hidden ${selectedYear ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <button
-                    onClick={handleNavigate}
-                    className="w-full max-w-md mx-auto block px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-1 active:scale-95 text-center"
-                >
-                    View {selectedYear} {selectedMake} {selectedModel} →
-                </button>
-            </div>
 
             <div className="mt-12 text-center">
                 <a href="/" className="text-gray-500 hover:text-purple-400 transition-colors text-sm">

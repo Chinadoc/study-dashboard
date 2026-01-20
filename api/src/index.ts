@@ -3705,7 +3705,89 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
           }
 
-          // 4. Build combined response with priority rules
+          // 4. Extract consensus specs from productsByType (AKS data) using 60% Mode Rule
+          // This handles transition years where hardware varies (e.g., 2022 Silverado)
+          const aksConsensus: {
+            chip: string | null;
+            battery: string | null;
+            frequency: string | null;
+            keyway: string | null;
+            fcc_id: string | null;
+            hasVariance: boolean;
+            varianceDetails: Record<string, { values: string[]; percentages: Record<string, number> }>;
+          } = {
+            chip: null,
+            battery: null,
+            frequency: null,
+            keyway: null,
+            fcc_id: null,
+            hasVariance: false,
+            varianceDetails: {}
+          };
+
+          const productTypeKeys = Object.keys(productsByType);
+          if (productTypeKeys.length > 0) {
+            // Helper to find consensus value using 60% Mode Rule
+            const findConsensus = (field: 'chips' | 'batteries' | 'frequencies' | 'keyways' | 'fcc_ids'): { value: string | null; hasVariance: boolean; percentages: Record<string, number> } => {
+              const allValues: string[] = [];
+              for (const type of productTypeKeys) {
+                const group = productsByType[type];
+                if (group[field] && Array.isArray(group[field])) {
+                  allValues.push(...group[field]);
+                }
+              }
+
+              if (allValues.length === 0) return { value: null, hasVariance: false, percentages: {} };
+
+              // Count occurrences
+              const counts: Record<string, number> = {};
+              for (const v of allValues) {
+                counts[v] = (counts[v] || 0) + 1;
+              }
+
+              // Calculate percentages
+              const total = allValues.length;
+              const percentages: Record<string, number> = {};
+              for (const [val, count] of Object.entries(counts)) {
+                percentages[val] = Math.round((count / total) * 100);
+              }
+
+              // Find max occurrence
+              const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+              const [topValue, topCount] = sorted[0];
+              const topPercentage = (topCount / total) * 100;
+
+              // 60% Mode Rule: if top value >= 60%, it's the consensus
+              // Otherwise, flag as variance (transition year)
+              if (topPercentage >= 60) {
+                return { value: topValue, hasVariance: false, percentages };
+              } else {
+                return { value: topValue, hasVariance: true, percentages };
+              }
+            };
+
+            const chipResult = findConsensus('chips');
+            const batteryResult = findConsensus('batteries');
+            const frequencyResult = findConsensus('frequencies');
+            const keywayResult = findConsensus('keyways');
+            const fccResult = findConsensus('fcc_ids');
+
+            aksConsensus.chip = chipResult.value;
+            aksConsensus.battery = batteryResult.value;
+            aksConsensus.frequency = frequencyResult.value;
+            aksConsensus.keyway = keywayResult.value;
+            aksConsensus.fcc_id = fccResult.value;
+
+            // Track variance for UI alerts
+            if (chipResult.hasVariance || batteryResult.hasVariance || frequencyResult.hasVariance) {
+              aksConsensus.hasVariance = true;
+              if (chipResult.hasVariance) aksConsensus.varianceDetails.chip = { values: Object.keys(chipResult.percentages), percentages: chipResult.percentages };
+              if (batteryResult.hasVariance) aksConsensus.varianceDetails.battery = { values: Object.keys(batteryResult.percentages), percentages: batteryResult.percentages };
+              if (frequencyResult.hasVariance) aksConsensus.varianceDetails.frequency = { values: Object.keys(frequencyResult.percentages), percentages: frequencyResult.percentages };
+            }
+          }
+
+          // 5. Build combined response with priority rules
           // Priority: enrichments (0) > AKS (1) > VYP (2) > vehicles (3)
           const response: any = {
             query: { make, model, year },
@@ -3739,21 +3821,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               lishi: enrichmentData?.lishi || vypData?.lishi || vehicleData?.lishi_tool || null,
               lishi_source: enrichmentData?.lishi ? "enrichments" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles" : null)),
 
-              // Mechanical specs
+              // Mechanical specs - VYP primary, vehicles fallback with source tracking
               spaces: parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
-              depths: parseInt(vypData?.depths, 10) || vehicleData?.depths || null,
-              macs: parseInt(vypData?.macs, 10) || null,
+              depths: vypData?.depths || vehicleData?.depths || null,
+              macs: parseInt(vypData?.macs, 10) || vehicleData?.macs || null,
+              // Track source for accuracy warnings when data comes from vehicles table
+              mechanical_source: vypData?.spaces ? "vyp" : (vehicleData?.spaces ? "vehicles" : null),
               code_series: vypData?.code_series || vehicleData?.code_series || null,
               mechanical_key: vypData?.mechanical_key || vehicleData?.mechanical_spec || null,
               transponder_key: vypData?.transponder_key || vehicleData?.blade_type || null,
-              keyway: enrichmentData?.keyway || null,
+              keyway: enrichmentData?.keyway || aksConsensus.keyway || vehicleData?.keyway || null,
 
-              // Priority 0: enrichments > vehicles for chip/freq/battery
-              chip: enrichmentData?.chip || vehicleData?.chip || null,
-              frequency: enrichmentData?.frequency || vehicleData?.frequency || null,
-              battery: enrichmentData?.battery || vehicleData?.battery || null,
+              // Priority: enrichments (override) > AKS (primary hardware authority) > vehicles (fallback)
+              chip: enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null,
+              frequency: enrichmentData?.frequency || aksConsensus.frequency || vehicleData?.frequency || null,
+              battery: enrichmentData?.battery || aksConsensus.battery || vehicleData?.battery || null,
               buttons: vehicleData?.buttons || null,
-              fcc_id: vehicleData?.fcc_id || null
+              fcc_id: enrichmentData?.fcc_id || aksConsensus.fcc_id || vehicleData?.fcc_id || null,
+
+              // Transition year variance detection (60% Mode Rule)
+              hasVariance: aksConsensus.hasVariance,
+              varianceDetails: aksConsensus.hasVariance ? aksConsensus.varianceDetails : null
             },
 
             // Enrichment data (if available)

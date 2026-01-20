@@ -421,6 +421,7 @@ export default function VehicleDetailClient() {
         depths: specs.depths,
         macs: specs.macs,
         codeSeries: specs.code_series,
+        mechanicalSource: specs.mechanical_source,
     };
 
     // Map walkthroughs to procedures format

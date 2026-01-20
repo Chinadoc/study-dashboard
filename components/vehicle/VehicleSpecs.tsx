@@ -20,6 +20,7 @@ interface VehicleSpecsProps {
         depths?: number | string;
         macs?: number;
         codeSeries?: string;
+        mechanicalSource?: string | null;
     };
     make?: string;
     year?: number;
@@ -127,8 +128,15 @@ export default function VehicleSpecs({ specs, make, year }: VehicleSpecsProps) {
             {/* Bitting Specs Row */}
             {(specs.spaces || specs.depths || specs.macs || specs.codeSeries) && (
                 <div className="mt-4 pt-4 border-t border-zinc-800">
-                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-3">
-                        Bitting Specifications
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                            Bitting Specifications
+                        </span>
+                        {specs.mechanicalSource === 'vehicles' && (
+                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-400 border border-amber-700/30">
+                                ⚠️ May be inaccurate
+                            </span>
+                        )}
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {specs.spaces && (

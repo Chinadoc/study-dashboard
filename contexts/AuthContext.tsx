@@ -23,10 +23,11 @@ interface AuthContextType {
     isPro: boolean;
 }
 
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = 'https://aski.eurokeys.app';
-const WORKER_AUTH_URL = 'https://euro-keys.jeremy-samuels17.workers.dev/api/auth/google';
+const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+const WORKER_AUTH_URL = `${API_BASE}/api/auth/google`;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -119,13 +120,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     useEffect(() => {
-        const tokenCaptured = captureAuthToken();
-        verifySession();
+        const initAuth = async () => {
+            const tokenCaptured = captureAuthToken();
 
-        // If we just captured a token, reload to get fresh state
-        if (tokenCaptured) {
-            window.location.reload();
-        }
+            if (tokenCaptured) {
+                // Token was just captured from URL - verify it immediately
+                // The token is already in localStorage, so verifySession will use it
+                await verifySession();
+                // Clean the URL hash after successful verification (no reload needed)
+                if (typeof window !== 'undefined' && window.location.hash.includes('auth_token')) {
+                    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                }
+            } else {
+                // Normal page load - just verify any existing session
+                await verifySession();
+            }
+        };
+
+        initAuth();
     }, [captureAuthToken, verifySession]);
 
     const login = useCallback(() => {
