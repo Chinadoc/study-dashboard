@@ -192,6 +192,32 @@
             pointer-events: none;
         }
 
+        /* Vehicle background image for year step */
+        .wizard-step.has-vehicle-bg {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vehicle-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.08;
+            z-index: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+
+        .wizard-step.has-vehicle-bg .step-header,
+        .wizard-step.has-vehicle-bg .step-options {
+            position: relative;
+            z-index: 1;
+        }
+
         .step-header {
             font-size: 0.75rem;
             font-weight: 600;
@@ -330,6 +356,7 @@
             </div>
 
             <div class="wizard-step disabled" id="step3">
+                <div class="vehicle-bg-image" id="vehicleBgImage"></div>
                 <div class="step-header">Step 3: Year</div>
                 <div class="step-options" id="yearOptions">
                     <div class="step-placeholder">Select a model first</div>
@@ -347,6 +374,7 @@
         // CLOUDFLARE API INTEGRATION
         // ═══════════════════════════════════════════════════════════════════════
         const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
+        const R2_BASE = 'https://pub-e65908c06d2c43c99cd099b245deb8b1.r2.dev';
 
         // State
         let selectedMake = null;
@@ -398,6 +426,8 @@
 
         async function loadYears(make, model) {
             document.getElementById('yearOptions').innerHTML = '<div class="step-loading">Loading years...</div>';
+            const step3 = document.getElementById('step3');
+            const bgEl = document.getElementById('vehicleBgImage');
 
             try {
                 const res = await fetch(`${API}/api/vyp/years?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
@@ -406,12 +436,50 @@
                 // VYP endpoint returns years directly as an array
                 const yearArray = (data.years || []).sort((a, b) => b - a); // Newest first
                 renderYears(yearArray);
+
+                // Try to load vehicle image from R2 as background
+                loadVehicleBackgroundImage(make, model);
             } catch (e) {
                 console.error('Failed to load years:', e);
                 document.getElementById('yearOptions').innerHTML =
                     '<div class="step-placeholder">Failed to load years.</div>';
             }
         }
+
+        // Fetch and display vehicle image from R2 as faded background
+        async function loadVehicleBackgroundImage(make, model) {
+            const step3 = document.getElementById('step3');
+            const bgEl = document.getElementById('vehicleBgImage');
+
+            // Clear previous background
+            bgEl.style.backgroundImage = 'none';
+            step3.classList.remove('has-vehicle-bg');
+
+            // Try multiple image path patterns
+            const patterns = [
+                `vehicles/${make.toLowerCase()}/${model.toLowerCase().replace(/\s+/g, '-')}/hero.jpg`,
+                `vehicles/${make.toLowerCase()}/${model.toLowerCase().replace(/\s+/g, '-')}/main.jpg`,
+                `vehicles/${make.toLowerCase()}/${model.toLowerCase().replace(/\s+/g, '_')}.jpg`,
+                `aks/products/${make.toLowerCase()}-${model.toLowerCase().replace(/\s+/g, '-')}.jpg`
+            ];
+
+            for (const path of patterns) {
+                try {
+                    const url = `${R2_BASE}/${path}`;
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        bgEl.style.backgroundImage = `url('${url}')`;
+                        step3.classList.add('has-vehicle-bg');
+                        console.log('Loaded vehicle background:', url);
+                        return;
+                    }
+                } catch (e) {
+                    // Continue to next pattern
+                }
+            }
+            console.log('No vehicle background image found for', make, model);
+        }
+
 
         // ═══════════════════════════════════════════════════════════════════════
         // RENDER FUNCTIONS
