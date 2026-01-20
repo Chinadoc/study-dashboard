@@ -1,7 +1,7 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "eurokeys"
+name = "eurokeys-frontend"
 compatibility_date = "2024-04-03"
+compatibility_flags = ["nodejs_compat"]
 
-[pages_build_config]
-build_command = "npm run build"
-destination_dir = ".vercel/output/static"
+# next-on-pages handles the build output
+# Deploy with: npx wrangler pages deploy .vercel/output/static

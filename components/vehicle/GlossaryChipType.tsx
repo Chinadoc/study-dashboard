@@ -118,78 +118,82 @@ export default function GlossaryChipType({ chipType, make, year }: GlossaryChipT
                 </span>
             </span>
 
-            {/* Glossary Modal */}
+            {/* Glossary Modal - Mobile-first bottom sheet */}
             {isModalOpen && (
                 <div
-                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
                     onClick={() => setIsModalOpen(false)}
                 >
                     <div
-                        className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl"
+                        className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-700 
+                                   w-full sm:max-w-lg sm:mx-4 sm:rounded-2xl rounded-t-2xl
+                                   max-h-[80vh] overflow-y-auto
+                                   p-5 sm:p-6 shadow-2xl
+                                   animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-amber-400 flex items-center gap-2">
+                        <div className="flex items-start justify-between mb-3 gap-4">
+                            <h3 className="text-base sm:text-lg font-bold text-amber-400 flex items-center gap-2">
                                 📖 {glossaryEntry.term}
                             </h3>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="text-zinc-400 hover:text-white transition-colors text-xl"
+                                className="text-zinc-400 hover:text-white transition-colors text-xl p-1 -mr-1 -mt-1 min-w-[32px] min-h-[32px] flex items-center justify-center"
                             >
                                 ✕
                             </button>
                         </div>
 
                         {/* Definition */}
-                        <p className="text-zinc-300 mb-4 leading-relaxed">
+                        <p className="text-zinc-300 text-sm sm:text-base mb-3 leading-relaxed">
                             {glossaryEntry.definition}
                         </p>
 
                         {/* Year Range Badge */}
                         {glossaryEntry.yearRange && (
-                            <div className="inline-block bg-purple-900/40 text-purple-400 px-3 py-1 rounded-full text-xs font-semibold mb-4">
+                            <div className="inline-block bg-purple-900/40 text-purple-400 px-3 py-1 rounded-full text-xs font-semibold mb-3">
                                 Years: {glossaryEntry.yearRange}
                             </div>
                         )}
 
-                        {/* Technical Details Grid */}
-                        <div className="grid grid-cols-2 gap-3 mb-4">
+                        {/* Technical Details - Stack on mobile, grid on desktop */}
+                        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-3 mb-3">
                             {glossaryEntry.cloning && (
                                 <div className="bg-zinc-800/60 p-3 rounded-lg">
                                     <div className="text-[10px] text-zinc-500 uppercase mb-1">Cloning</div>
-                                    <div className="text-sm text-green-400">{glossaryEntry.cloning}</div>
+                                    <div className="text-xs sm:text-sm text-green-400">{glossaryEntry.cloning}</div>
                                 </div>
                             )}
                             {glossaryEntry.programming && (
                                 <div className="bg-zinc-800/60 p-3 rounded-lg">
                                     <div className="text-[10px] text-zinc-500 uppercase mb-1">Programming</div>
-                                    <div className="text-sm text-blue-400">{glossaryEntry.programming}</div>
+                                    <div className="text-xs sm:text-sm text-blue-400">{glossaryEntry.programming}</div>
                                 </div>
                             )}
                         </div>
 
                         {/* Contextual Insight (if applicable for this make) */}
                         {showInsight && (
-                            <div className="bg-amber-900/20 border border-amber-700/40 rounded-lg p-4 mt-4">
-                                <div className="flex items-center gap-2 text-amber-400 font-semibold text-sm mb-2">
+                            <div className="bg-amber-900/20 border border-amber-700/40 rounded-lg p-3 sm:p-4 mb-3">
+                                <div className="flex items-center gap-2 text-amber-400 font-semibold text-xs sm:text-sm mb-2">
                                     💡 Insight for {make}
                                 </div>
-                                <p className="text-amber-200/80 text-sm leading-relaxed">
+                                <p className="text-amber-200/80 text-xs sm:text-sm leading-relaxed">
                                     {glossaryEntry.insight}
                                 </p>
                             </div>
                         )}
 
-                        {/* Applicable Makes */}
+                        {/* Applicable Makes - Horizontal scroll on mobile */}
                         {glossaryEntry.applicableMakes && (
-                            <div className="mt-4 pt-4 border-t border-zinc-800">
+                            <div className="pt-3 border-t border-zinc-800">
                                 <div className="text-[10px] text-zinc-500 uppercase mb-2">Common Manufacturers</div>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                                     {glossaryEntry.applicableMakes.map(m => (
                                         <span
                                             key={m}
-                                            className={`px-2 py-1 rounded text-xs ${make?.toLowerCase().includes(m.toLowerCase())
+                                            className={`px-2 py-1 rounded text-[10px] sm:text-xs ${make?.toLowerCase().includes(m.toLowerCase())
                                                     ? 'bg-green-900/40 text-green-400 border border-green-700/50'
                                                     : 'bg-zinc-800 text-zinc-400'
                                                 }`}

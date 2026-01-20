@@ -36,7 +36,11 @@ export default function KeyCards({ keys }: KeyCardsProps) {
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-2xl">🔐</span> Key Configurations
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Auto-fill grid: cards flex to fill row whether 3, 4, or 5 */}
+            <div
+                className="grid gap-6"
+                style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}
+            >
                 {keys.map((key, index) => (
                     <KeyCard key={key.fcc || index} config={key} />
                 ))}

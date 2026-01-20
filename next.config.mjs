@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'export',
+    trailingSlash: true,
     images: {
         unoptimized: true,
     },
-    trailingSlash: true,
 
     // Performance: Ignore ESLint and TypeScript during builds for speed
     // (We rely on editor lints and local checks)
