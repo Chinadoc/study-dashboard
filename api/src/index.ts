@@ -191,6 +191,75 @@ function getSessionToken(request: Request): string | null {
 }
 
 
+
+// ==============================================
+// KEY DATA HELPERS (Global)
+// ==============================================
+
+// Patterns to HIDE (not unique keys, just purchasing variants)
+const HIDE_PATTERNS = [
+  /^\d+-PACK\s/i,           // "5-PACK Ford..." - multipacks
+  /^\d+-Pack\s/i,           // Case variant
+  /\bSHELL\b/i,             // "Key SHELL" - case only, no electronics
+  /\bBLANK\b/i,             // Key blank only
+];
+
+// Helper: Extract button count from title
+function extractButtons(title: string): number {
+  const match = title.match(/(\d+)-?(?:Btn|Button|B)\b/i);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+// Helper: Extract features from title
+function extractFeatures(title: string): string[] {
+  const features: string[] = [];
+  const t = title.toLowerCase();
+  if (t.includes('w/trunk') || t.includes('w/ trunk') || (t.includes('trunk') && !t.includes('hatch'))) features.push('trunk');
+  if (t.includes('w/hatch') || t.includes('w/ hatch') || t.includes('hatch')) features.push('hatch');
+  if (t.includes('w/rs') || t.includes('w/ rs') || t.includes('remote start') || t.includes('rmt start')) features.push('rs');
+  if (t.includes('w/roof') || t.includes('w/ roof') || t.includes('roof')) features.push('roof');
+  if (t.includes('w/doors') || t.includes('power door') || t.includes('sliding door')) features.push('doors');
+  return features.sort();
+}
+
+// Helper: Extract key type from title
+function extractKeyType(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes('smart key') || t.includes('smart') && t.includes('key')) return 'smart';
+  if (t.includes('fobik')) return 'fobik';
+  if (t.includes('flip') && (t.includes('rhk') || t.includes('remote head'))) return 'flip';
+  if (t.includes('rhk') || t.includes('remote head')) return 'rhk';
+  if (t.includes('transponder')) return 'transponder';
+  if (t.includes('mechanical') || t.includes('mech key')) return 'mechanical';
+  if (t.includes('remote') && !t.includes('head') && !t.includes('start')) return 'remote';
+  if (t.includes('emergency') || t.includes('blade only') || t.includes('insert')) return 'blade';
+  return 'key';
+}
+
+// Helper: Check if aftermarket (BRK)
+function isAftermarket(title: string): boolean {
+  return /\(BRK\)/i.test(title) || /—BRK$/i.test(title) || title.toLowerCase().startsWith('for ');
+}
+
+// Helper: Parse price to float (handle "$139.25 $128.11" -> 128.11)
+function parsePrice(priceStr: string | null): number {
+  if (!priceStr) return 9999;
+  // If multiple prices (sale), take the lower one (usually 2nd)
+  const prices = priceStr.match(/\$?(\d+\.?\d*)/g);
+  if (!prices) return 9999;
+  return Math.min(...prices.map(p => parseFloat(p.replace('$', ''))));
+}
+
+// Helper: Generate unique key signature
+function getKeySignature(row: any): string {
+  const title = (row.product_title || row.title || '');
+  const fccId = (row.fcc_id || 'NOFCC').toUpperCase();
+  const buttons = extractButtons(title) || row.buttons || 0;
+  const features = extractFeatures(title).join('-') || 'base';
+  const keyType = extractKeyType(title);
+  return `${fccId}_${buttons}_${features}_${keyType}`;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
@@ -3541,72 +3610,98 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
             const aksResult = await env.LOCKSMITH_DB.prepare(`
               SELECT 
+                item_number,
                 product_type,
-                GROUP_CONCAT(DISTINCT fcc_id) as fcc_ids,
-                GROUP_CONCAT(DISTINCT oem_part_numbers) as oem_parts_raw,
-                GROUP_CONCAT(DISTINCT ic) as ic_numbers,
-                GROUP_CONCAT(DISTINCT chip) as chips,
-                GROUP_CONCAT(DISTINCT keyway) as keyways,
-                GROUP_CONCAT(DISTINCT frequency) as frequencies,
-                GROUP_CONCAT(DISTINCT battery) as batteries,
-                MIN(CAST(price AS REAL)) as price_min,
-                MAX(CAST(price AS REAL)) as price_max,
-                COUNT(*) as product_count
+                buttons,
+                title,
+                fcc_id,
+                oem_part_numbers,
+                ic,
+                chip,
+                keyway,
+                frequency,
+                battery,
+                CAST(price AS REAL) as price_num
               FROM aks_products_detail
               WHERE item_number IN (${placeholders})${yearFilter}
-              GROUP BY product_type
             `).bind(...itemNumbers).all();
 
             for (const row of (aksResult.results || []) as any[]) {
-              const productType = row.product_type || "Unknown";
+              // Hide multipacks/shells
+              if (HIDE_PATTERNS.some(p => p.test(row.title || ''))) continue;
 
-              // Parse OEM parts (stored as JSON strings that were GROUP_CONCATed)
-              // e.g., '["15857839","25839476"],["22936098"]' needs to be split on '],' then parsed
+              // Generate unique signature for this variation (By FCC + Buttons + Features)
+              const sig = getKeySignature(row);
+
+              // Extract or fallback button count
+              const btns = extractButtons(row.title || '') || row.buttons || null;
+              const features = extractFeatures(row.title || '');
+              const baseType = row.product_type || extractKeyType(row.title || '') || "Remote";
+
+              // Construct a readable name for this variant
+              let productType = baseType;
+              if (btns && btns > 0) {
+                productType = `${btns}-Button ${baseType}`;
+                if (features.length > 0) {
+                  productType += ` (${features.join(', ')})`;
+                }
+              }
+
+              // Parse OEM parts
               let oemParts: string[] = [];
               try {
-                const rawPartsStr = (row.oem_parts_raw || "").trim();
-                if (rawPartsStr) {
-                  // Split on '],' to separate JSON arrays, then add back the ']'
-                  const jsonArrays = rawPartsStr.split(/\],\s*(?=\[)/);
-                  for (let jsonStr of jsonArrays) {
-                    jsonStr = jsonStr.trim();
-                    // Ensure it ends with ] if we split it off
-                    if (jsonStr.startsWith('[') && !jsonStr.endsWith(']')) {
-                      jsonStr += ']';
-                    }
-                    try {
-                      const parsed = JSON.parse(jsonStr);
-                      if (Array.isArray(parsed)) {
-                        oemParts.push(...parsed.map(p => String(p).trim()).filter(Boolean));
-                      } else if (parsed) {
-                        oemParts.push(String(parsed).trim());
-                      }
-                    } catch {
-                      // Not valid JSON - try as plain string
-                      if (jsonStr && !jsonStr.startsWith('[')) {
-                        oemParts.push(jsonStr.trim());
-                      }
-                    }
-                  }
-                  // Dedupe and clean
-                  oemParts = [...new Set(oemParts)].filter(p => p && !p.startsWith('[') && !p.startsWith('"'));
+                if (row.oem_part_numbers) {
+                  const parsed = JSON.parse(row.oem_part_numbers);
+                  if (Array.isArray(parsed)) oemParts = parsed.map(String);
+                  else oemParts = [String(parsed)];
                 }
-              } catch { }
+              } catch {
+                if (row.oem_part_numbers) oemParts = [row.oem_part_numbers];
+              }
 
-              productsByType[productType] = {
-                fcc_ids: [...new Set((row.fcc_ids || "").split(",").filter(Boolean))],
-                oem_parts: oemParts,
-                ic_numbers: [...new Set((row.ic_numbers || "").split(",").filter(Boolean))],
-                chips: [...new Set((row.chips || "").split(",").filter(Boolean))],
-                keyways: [...new Set((row.keyways || "").split(",").filter(Boolean))],
-                frequencies: [...new Set((row.frequencies || "").split(",").filter(Boolean))],
-                batteries: [...new Set((row.batteries || "").split(",").filter(Boolean))],
-                price_range: {
-                  min: row.price_min || null,
-                  max: row.price_max || null
-                },
-                product_count: row.product_count
-              };
+              // Initialize group if not exists
+              if (!productsByType[productType]) {
+                productsByType[productType] = {
+                  buttons: btns,
+                  features: features,
+                  fcc_ids: [],
+                  oem_parts: [],
+                  ic_numbers: [],
+                  chips: [],
+                  keyways: [],
+                  frequencies: [],
+                  batteries: [],
+                  price_range: { min: row.price_num, max: row.price_num },
+                  product_count: 0
+                };
+              }
+
+              const group = productsByType[productType];
+              if (row.fcc_id) group.fcc_ids.push(row.fcc_id);
+              if (oemParts.length > 0) group.oem_parts.push(...oemParts);
+              if (row.ic) group.ic_numbers.push(row.ic);
+              if (row.chip) group.chips.push(row.chip);
+              if (row.keyway) group.keyways.push(row.keyway);
+              if (row.frequency) group.frequencies.push(row.frequency);
+              if (row.battery) group.batteries.push(row.battery);
+
+              if (row.price_num) {
+                group.price_range.min = group.price_range.min ? Math.min(group.price_range.min, row.price_num) : row.price_num;
+                group.price_range.max = group.price_range.max ? Math.max(group.price_range.max, row.price_num) : row.price_num;
+              }
+              group.product_count++;
+            }
+
+            // Deduplicate lists in groups
+            for (const type of Object.keys(productsByType)) {
+              const g = productsByType[type];
+              g.fcc_ids = [...new Set(g.fcc_ids)].filter(Boolean);
+              g.oem_parts = [...new Set(g.oem_parts)].filter(Boolean);
+              g.ic_numbers = [...new Set(g.ic_numbers)].filter(Boolean);
+              g.chips = [...new Set(g.chips)].filter(Boolean);
+              g.keyways = [...new Set(g.keyways)].filter(Boolean);
+              g.frequencies = [...new Set(g.frequencies)].filter(Boolean);
+              g.batteries = [...new Set(g.batteries)].filter(Boolean);
             }
           }
 
@@ -3891,69 +3986,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           // === SMART DEDUPLICATION ===
 
-          // Patterns to HIDE (not unique keys, just purchasing variants)
-          const HIDE_PATTERNS = [
-            /^\d+-PACK\s/i,           // "5-PACK Ford..." - multipacks
-            /^\d+-Pack\s/i,           // Case variant
-            /\bSHELL\b/i,             // "Key SHELL" - case only, no electronics
-            /\bBLANK\b/i,             // Key blank only
-          ];
-
-          // Helper: Extract button count from title
-          function extractButtons(title: string): number {
-            const match = title.match(/(\d+)-?(?:Btn|Button|B)\b/i);
-            return match ? parseInt(match[1], 10) : 0;
-          }
-
-          // Helper: Extract features from title
-          function extractFeatures(title: string): string[] {
-            const features: string[] = [];
-            const t = title.toLowerCase();
-            if (t.includes('w/trunk') || t.includes('w/ trunk') || (t.includes('trunk') && !t.includes('hatch'))) features.push('trunk');
-            if (t.includes('w/hatch') || t.includes('w/ hatch') || t.includes('hatch')) features.push('hatch');
-            if (t.includes('w/rs') || t.includes('w/ rs') || t.includes('remote start') || t.includes('rmt start')) features.push('rs');
-            if (t.includes('w/roof') || t.includes('w/ roof') || t.includes('roof')) features.push('roof');
-            if (t.includes('w/doors') || t.includes('power door') || t.includes('sliding door')) features.push('doors');
-            return features.sort();
-          }
-
-          // Helper: Extract key type from title
-          function extractKeyType(title: string): string {
-            const t = title.toLowerCase();
-            if (t.includes('smart key') || t.includes('smart') && t.includes('key')) return 'smart';
-            if (t.includes('fobik')) return 'fobik';
-            if (t.includes('flip') && (t.includes('rhk') || t.includes('remote head'))) return 'flip';
-            if (t.includes('rhk') || t.includes('remote head')) return 'rhk';
-            if (t.includes('transponder')) return 'transponder';
-            if (t.includes('mechanical') || t.includes('mech key')) return 'mechanical';
-            if (t.includes('remote') && !t.includes('head') && !t.includes('start')) return 'remote';
-            if (t.includes('emergency') || t.includes('blade only') || t.includes('insert')) return 'blade';
-            return 'key';
-          }
-
-          // Helper: Check if aftermarket (BRK)
-          function isAftermarket(title: string): boolean {
-            return /\(BRK\)/i.test(title) || /—BRK$/i.test(title) || title.toLowerCase().startsWith('for ');
-          }
-
-          // Helper: Parse price to float (handle "$139.25 $128.11" -> 128.11)
-          function parsePrice(priceStr: string | null): number {
-            if (!priceStr) return 9999;
-            // If multiple prices (sale), take the lower one (usually 2nd)
-            const prices = priceStr.match(/\$?(\d+\.?\d*)/g);
-            if (!prices) return 9999;
-            return Math.min(...prices.map(p => parseFloat(p.replace('$', ''))));
-          }
-
-          // Helper: Generate unique key signature
-          function getKeySignature(row: any): string {
-            const title = row.product_title || '';
-            const fccId = (row.fcc_id || 'NOFCC').toUpperCase();
-            const buttons = extractButtons(title);
-            const features = extractFeatures(title).join('-') || 'base';
-            const keyType = extractKeyType(title);
-            return `${fccId}_${buttons}_${features}_${keyType}`;
-          }
+          // selects best representative from each group
 
           // Filter out multipacks and shells
           const filteredRows = (allRows as any[]).filter((row: any) => {
