@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import GlossaryChipType from './GlossaryChipType';
 
 interface VehicleSpecsProps {
     specs: {
@@ -20,9 +21,11 @@ interface VehicleSpecsProps {
         macs?: number;
         codeSeries?: string;
     };
+    make?: string;
+    year?: number;
 }
 
-export default function VehicleSpecs({ specs }: VehicleSpecsProps) {
+export default function VehicleSpecs({ specs, make, year }: VehicleSpecsProps) {
     if (!specs || Object.keys(specs).length === 0) {
         return null;
     }
@@ -54,12 +57,16 @@ export default function VehicleSpecs({ specs }: VehicleSpecsProps) {
                     />
                 )}
 
-                {/* Chip Type */}
+                {/* Chip Type - with glossary linkage */}
                 {specs.chipType && (
-                    <SpecItem
-                        label="Chip Type"
-                        value={`🔒 ${specs.chipType}`}
-                    />
+                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                            Chip Type
+                        </div>
+                        <div className="font-semibold text-white">
+                            <GlossaryChipType chipType={specs.chipType} make={make} year={year} />
+                        </div>
+                    </div>
                 )}
 
                 {/* FCC ID */}
@@ -99,8 +106,8 @@ export default function VehicleSpecs({ specs }: VehicleSpecsProps) {
                         </div>
                         {specs.lishiSource && (
                             <div className={`text-[9px] mt-1 px-2 py-0.5 rounded-full inline-block ${specs.lishiSource === 'enrichments' ? 'bg-green-900/40 text-green-400' :
-                                    specs.lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
-                                        'bg-zinc-800 text-zinc-500'
+                                specs.lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
+                                    'bg-zinc-800 text-zinc-500'
                                 }`}>
                                 {specs.lishiSource === 'vyp' ? 'VYP' : specs.lishiSource}
                             </div>

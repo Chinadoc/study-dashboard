@@ -444,7 +444,7 @@ export default function VehicleDetailClient() {
                 {/* Left Column: Main Content (8/12) */}
                 <div className="lg:col-span-8 space-y-8">
                     {/* Vehicle Specifications Grid */}
-                    <VehicleSpecs specs={fullSpecs} />
+                    <VehicleSpecs specs={fullSpecs} make={make} year={year} />
 
                     {/* Key Configuration Cards with R2 images */}
                     <KeyCards keys={mergedKeys} />
