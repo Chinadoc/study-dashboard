@@ -1,0 +1,262 @@
+ï»¿2018 Cadillac CTS Locksmith Intelligence: Comprehensive Technical Reference & Security Protocols
+1. Introduction and Platform Architecture
+The 2018 Cadillac CTS stands as a pivotal model in the evolution of General Motors' luxury sedan lineage, representing a sophisticated convergence of mechanical engineering and digital security. For the automotive locksmith and security professional, the vehicle offers a complex case study in the implementation of the Global A electrical architecture, specifically tailored for the Alpha platform. This report provides an exhaustive, granular technical analysis of the security systems, access protocols, and programming methodologies required to service the 2018 Cadillac CTS. It is designed not merely as a guide but as a definitive reference standard for populating professional databases, ensuring that every variableâfrom radio frequency modulation to mechanical shear linesâis documented with precision.
+The security ecosystem of the 2018 CTS is defined by its reliance on the Passive Entry Passive Start (PEPS) system. Unlike its predecessors that utilized physical ignition cylinders and resistor-based verification (VATS) or simple transponder interrogation (Pass-Key III+), the 2018 CTS operates on a continuous, bidirectional encrypted handshake between the somatic presence of the authorized token (the Smart Key) and the vehicle's Body Control Module (BCM). This shift necessitates a fundamental change in the locksmith's approach: the task is no longer just cutting metal or cloning a chip, but authenticating a digital identity within a secure network.
+
+
+  
+
+
+
+1.1 The GM Alpha Platform Context
+The 2018 CTS is built upon the GM Alpha platform, a rear-wheel-drive architecture that prioritized weight reduction and structural rigidity.1 This structural philosophy extends to the electrical architecture. The vehicle utilizes a high-speed GMLAN (General Motors Local Area Network) for mission-critical communications, including the immobilizer data stream. While later iterations and the subsequent CT5 models migrated fully to the CAN-FD (Controller Area Network Flexible Data-Rate) protocol, the 2018 CTS sits on the technological cusp. It largely retains the standard CAN architecture for its immobilizer functions, allowing legacy diagnostic tools to function without specialized adapters, although the presence of Secure Gateway Modules (SGW) in late-production models can present intermittent communication barriers.2
+Understanding this transitional status is vital. A locksmith approaching a 2018 CTS is interacting with a system that possesses the robust anti-theft capabilities of a modern vehicleâincluding "All Keys Lost" timer penalties and online PIN verificationâwhile often remaining accessible via Onboard Programming (OBP) protocols that were phased out in many competitors years prior.3
+1.2 The Security Triad: BCM, RCDLR, and PEPS
+The vehicle's security is managed by a triad of modules. The Body Control Module (BCM) acts as the central authority, storing the trusted key identifiers in its non-volatile memory.5 The Remote Control Door Lock Receiver (RCDLR) serves as the radio frequency gateway, capturing the UHF signals (315 MHz or 433 MHz) from the remote and relaying them to the BCM for demodulation and logic processing.1 Finally, the PEPS module manages the low-frequency (125 kHz) antennas distributed throughout the cabin and door handles, which trigger the key fob to transmit its encrypted response when the user attempts to open a door or press the start button.
+This distributed architecture means that a "No Remote Detected" error 6 is rarely a simple key failure; it is a breakdown in this tripartite communication loop. The locksmith's role involves diagnosing whether the failure lies in the token (key fob), the transmission medium (RF interference), or the receiver (module failure).
+________________
+2. Transmitter Intelligence: The Smart Key Ecosystem
+The primary interface for the 2018 CTS is the Smart Key, a sophisticated proximity transmitter that performs dual functions: active remote entry (RKE) and passive start authorization. The market is flooded with visually identical fobs that are electronically incompatible, making precise identification the single most critical step in the service workflow.
+2.1 Frequency Allocation and FCC ID Criticality
+One of the most common pitfalls in servicing the 2018 CTS is the bifurcation of radio frequencies based on the intended market of the vehicle. General Motors utilizes two distinct bands for the CTS: 315 MHz for the North American domestic market (US and Canada) and 433 MHz for export markets (Europe, Middle East, and parts of Asia).7
+The 315 MHz Standard (North America)
+For the vast majority of vehicles encountered in the United States, the system operates at 315 MHz. The governing FCC ID for this remote is HYQ2AB.1 This identifier is laser-etched or embossed on the rear cover of the fob, often requiring a magnifying glass or good lighting to read due to the text color blending with the casing.
+* FCC ID: HYQ2AB.7
+* IC: 1551A-2AB.1
+* Frequency: 315 MHz.
+* Modulation: ASK (Amplitude Shift Keying).
+The 433 MHz Variant (Export)
+Vehicles manufactured for export or re-imported "grey market" vehicles utilize the 433 MHz band. The external shell of these fobs is identical to the US version, meaning a visual inspection of the buttons and shape is insufficient. The only distinguishing feature is the FCC ID HYQ2EB.8
+* FCC ID: HYQ2EB.9
+* Frequency: 433 MHz.
+Operational Implication: A technician attempting to program an HYQ2EB remote to a US-spec CTS will experience a "Remote Learn Failed" or simple non-response from the vehicle. The RCDLR hardware is tuned to a specific bandwidth; it cannot "hear" the wrong frequency key, regardless of the programming tool used. Inventory management must rigorously separate these two SKUs.
+
+
+  
+
+
+
+2.2 OEM and Aftermarket Part Number Matrix
+The automotive supply chain is characterized by frequent part number supersessions. GM often updates the internal electronics or the supplier contracts, resulting in multiple valid part numbers for the same vehicle.
+For the 315 MHz (HYQ2AB) remote, the following OEM part numbers are interchangeable:
+* Primary Active Numbers: 13598537, 13510254, 13598507.7
+* Superseded/Legacy Numbers: 13580811, 13594024, 1358539, 13598530, 13598939.7
+* Strattec Number: 5942706 (5-Button), 5942488 (4-Button).11 Strattec is the Original Equipment Manufacturer (OEM) for GM keys; thus, a Strattec-branded bag often contains the exact same fob as a GM-branded bag, usually at a lower wholesale cost.
+It is critical to note that the 5-button remote (with Remote Start) is the most versatile stock item. It can typically be programmed to a 4-button vehicle (the remote start button simply won't function), whereas a 4-button remote cannot operate the remote start on a higher-trim vehicle.
+2.3 Transponder Architecture: Philips ID46 (GM Extended)
+Embedded within the remote's PCB is the transponder chipset, responsible for the immobilizer authorization. The 2018 CTS utilizes a variant of the Philips ID46 (PCF7952 or NCF2951) architecture, customized with GM's proprietary "Extended" data extensions.1
+This "GM Extended" protocol involves a specific pre-coding of the transponder pages. A generic, unlocked, or "virgin" ID46 chip will not program directly to the vehicle unless the programming tool (such as the Smart Pro or Autel IM608) has the capability to write the specific manufacturer configuration data to the chip during the "preparation" phase. Most modern diagnostic tools handle this automatically, but if using separate transponder cloning tools, the technician must ensure the chip is prepared as "GM Circle Plus" or "GM PEPS" format.
+2.4 Battery Specification and Replacement
+The Smart Key is powered by a CR2032 3-volt lithium coin cell.7 The lifespan of this battery in a PEPS application is typically 2-3 years, significantly shorter than in standard RKE keys, due to the constant "listening" required by the passive entry antennas.
+* Replacement Procedure: The back cover is pried open using the mechanical key blade as a lever in the designated slot.
+* Voltage Sensitivity: A fob battery reading below 2.9V may cause intermittent "No Remote Detected" messages, specifically in cold weather where voltage sag is more pronounced.13
+________________
+3. Mechanical Security: The HU100 System
+While the 2018 CTS is a push-to-start vehicle, it retains a high-security mechanical lock cylinder on the driver's door for emergency access in the event of a dead vehicle or fob battery. This lock cylinder utilizes the HU100 system, a "laser-cut" or "sidewinder" keyway that presents specific challenges for decoding and cutting.
+3.1 Keyway Evolution: 8-Cut vs. 10-Cut
+A significant source of confusion in the GM ecosystem is the existence of two distinct HU100 variations: the 8-cut system (common on Chevrolet Equinox, Cruze, and Camaro) and the 10-cut system (standard on Cadillac CTS, SRX, and higher-end Buicks).14
+* System Type: 2-Track Internal (Center Groove). The milling is a rectangular snake groove down the center of the blade.
+* Wafer Count: The 2018 CTS utilizes the 10-cut system. This means there are 10 potential positions for wafers along the blade axis.15
+* Door Lock Configuration: The driver's door lock cylinder typically contains wafers in positions 3 through 10.16 Positions 1 and 2 are usually found only in the ignition cylinder of keyed-ignition vehicles. Since the 2018 CTS has no ignition cylinder, codes and cuts for positions 1 and 2 are theoretically irrelevant for operation but are required to complete a valid key code series.
+* Code Series: The key codes fall into the Z-Series (Z0001-Z6000) or occasionally the V-Series (V0001-V5573).15
+Operational Implication: Using a Lishi tool designed for the 8-cut system (Lishi HU100-8) on a 10-cut lock will result in incorrect spacing alignment. The technician must use the Lishi HU100 (10-Cut) tool.14 The tool will have a grid tailored to the tighter spacing of the 10-cut system.
+
+
+  
+
+
+
+3.2 Emergency Key Blade Specifications
+The emergency insert blade is detachable from the main fob body.
+* OEM Part Number: 22984994.7
+* Strattec Part Number: 5922070.7
+* Cross-Reference: 22894661.
+* Material: Nickel-plated brass or steel. Steel blades are harder on cutter bits but more durable.
+3.3 Accessing the Lock Cylinder
+The lock cylinder on the 2018 CTS is concealed for aesthetic reasons. A cap covers the rear portion of the driver's door handle.
+1. Pull: Pull the door handle to the open position and hold it.
+2. Locate: Identify the small slot on the underside of the cap.
+3. Pry: Insert the tip of the emergency key (or a small flathead screwdriver) into the slot and gently pry upward and outward. The cap will snap off, revealing the lock cylinder.19
+4. Usage: Once exposed, the key is inserted and turned counter-clockwise to unlock. This mechanical action overrides the electronic lock actuators.
+________________
+4. Immobilizer Programming Procedures
+The 2018 Cadillac CTS occupies a unique position in the locksmithing landscape: it is a modern, high-security luxury vehicle that nevertheless supports Onboard Programming (OBP). This feature, a legacy of GM's user-friendly approach, allows for key programming without expensive diagnostic equipment, provided specific conditions are met. However, for professional efficiency, Diagnostic Programming via the OBD-II port remains the standard.
+4.1 The Transmitter Pocket: The Inductive Interface
+Regardless of the programming method used (OBP or Diagnostic), the vehicle must communicate directly with the transponder chip in the new fob. This is achieved via the Transmitter Pocket, which houses a low-frequency (LF) immobilizer coil.
+* Location: Inside the center console storage bin, between the driver and passenger seats.
+* Access: Open the console lid. Remove the rubber mat at the bottom of the bin. This step is frequently missed. The pocket is a molded depression in the plastic floor of the bin, shaped exactly like the key fob.3
+* Orientation: Place the key fob into the depression. The buttons should generally face UP (towards the roof) or towards the rear of the vehicle, ensuring the fob lies flat against the coil.4
+4.2 Onboard Programming (OBP) Protocols
+The OBP method utilizes the vehicle's internal logic to learn new keys. It is divided into two procedures: "Add Key" (which preserves existing keys) and "All Keys Lost" (which erases all previous keys).
+Method A: Add Key (Requires Two Working Keys)
+This procedure is essentially a "clone" authorization. It requires two already-programmed keys to authorize the addition of a third.
+1. Preparation: Have the two working keys and the new unprogrammed key ready.
+2. Authorization: Place the two working keys in the cupholder (not the pocket).
+3. Trigger: Insert the mechanical key of the new fob into the driver's door lock. Turn it to the UNLOCK position 5 times within 10 seconds.
+4. Confirmation: The Driver Information Center (DIC) on the dashboard will display: READY FOR REMOTE #3 (or 4, 5).
+5. Programming: Place the new fob into the Transmitter Pocket (under the mat).
+6. Finalize: Press the ENGINE START/STOP button. The system will read the chip.
+7. Exit: Remove the key, press Unlock on the remote to verify function.20
+Method B: All Keys Lost (No Working Keys)
+This is the "nuclear option." It is used when no keys are available. It involves a security delay designed to thwart casual theft. The total process takes approximately 30 minutes.
+1. Trigger: Insert the cut mechanical key into the driver's door lock. Turn to UNLOCK 5 times within 10 seconds.
+2. Display: DIC displays REMOTE LEARN PENDING, PLEASE WAIT.
+3. Wait Cycle 1: Wait exactly 10 minutes. The DIC will change to PRESS ENGINE START BUTTON TO LEARN.
+4. Action: Press the ENGINE START/STOP button.
+5. Display: DIC returns to REMOTE LEARN PENDING.
+6. Wait Cycle 2: Wait another 10 minutes. DIC changes to PRESS ENGINE START BUTTON TO LEARN.
+7. Action: Press the ENGINE START/STOP button.
+8. Display: DIC returns to REMOTE LEARN PENDING.
+9. Wait Cycle 3: Wait a final 10 minutes. (Total elapsed time: ~30 mins). DIC changes to PRESS ENGINE START BUTTON TO LEARN.
+10. Action: Press ENGINE START/STOP.
+11. Learning Mode: DIC displays READY FOR REMOTE #1. All previous keys are now erased.
+12. Program Key 1: Place the first new fob in the Transmitter Pocket. Press ENGINE START/STOP. The system learns the key.
+13. Program Key 2: Remove Key 1. Place the second new fob in the pocket. Press ENGINE START/STOP.
+14. Exit: Press and hold the ENGINE START/STOP button for approximately 12 seconds to exit programming mode.3
+
+
+  
+
+
+
+4.3 Diagnostic Programming (Professional Tools)
+For professional locksmiths, the 30-minute wait is often unacceptable. Diagnostic tools communicate directly with the BCM to bypass this delay using a secure challenge-response or PIN code authentication.
+Tool Capabilities
+* Autel (IM508/IM608): These tools are highly effective on the 2018 CTS. They can typically access the "Smart Mode" or "Expert Mode" to guide the technician through the process. The tool will attempt to Read PIN from the BCM via the OBD-II port. If successful, programming is instant. If the PIN cannot be read (due to updated BCM firmware), the tool may prompt for a manual PIN entry.2
+* Advanced Diagnostics (Smart Pro): The Smart Pro uses the "ADC2000" cable and typically selects the GM > Cadillac > CTS > 2017+ software. It allows for "Add Key" and "All Keys Lost" without the 30-minute wait, often bypassing the PIN requirement via its server connection or reading it directly.23
+* AutoProPad: Also supports this vehicle, usually under GM > USA > Cadillac > CTS > 2017-2019. It is a reliable option for reading pin codes and programming.7
+Operational Workflow: Decision Logic
+To maximize efficiency, a locksmith should follow a structured decision logic when approaching a 2018 CTS.
+1. Assess Key State: Are there any working keys?
+   * Yes (2+ Keys): Use OBP Method A (Add Key). It is fast, free, and low risk.
+   * Yes (1 Key): OBP Add Key requires two working keys. If only one is available, you must essentially perform an "All Keys Lost" reset to add more, or use a diagnostic tool to "Add Key" using the one valid key as an auth token.
+   * No (0 Keys): Proceed to step 2.
+2. Assess Tooling: Do you have a programmer (Autel/Smart Pro)?
+   * Yes: Attempt Diagnostic Programming.
+      * Connect to OBD-II.
+      * Attempt "Read PIN".
+      * If PIN found -> Program immediately (5 mins).
+      * If PIN fail -> Use NASTF/TDS to buy PIN code by VIN, then Program.
+   * No: Use OBP Method B (30-Minute Wait).
+3. Voltage Check: Before any programming (especially diagnostic), connect a battery maintainer. The CTS BCM is voltage-sensitive. Dropping below 12.0V during the PIN read can cause the process to fail or the module to hang.
+________________
+5. Electronic Architecture and Troubleshooting
+The reliability of the locksmithing process depends on the health of the vehicle's electronic infrastructure. The Global A architecture is robust but unforgiving of component failures or power irregularities.
+5.1 The Voltage Criticality
+Modern GM BCMs are notoriously sensitive to voltage fluctuations. During the programming phase, the BCM enters a "learn mode" where it writes to its EEPROM. If the voltage drops (e.g., due to the headlights being on or the battery being weak) during this write cycle, the data can be corrupted, potentially "bricking" the module.
+* Protocol: Always connect a clean power supply (maintaining 13.2V - 13.8V) to the battery terminals before initiating diagnostic programming. Do not rely on a simple jump pack; a regulated power supply is required to ensure steady amperage.24
+5.2 "No Remote Detected" Diagnostics
+A common service call for the 2018 CTS involves the vehicle failing to recognize a programmed key, displaying "No Remote Detected."
+* Pocket Test: Place the fob in the Transmitter Pocket. If the car starts, the transponder chip and the BCM authentication logic are intact. The failure is likely in the UHF (Remote) path.
+* Battery Check: Replace the CR2032. Cold weather often drops the coin cell voltage below the threshold needed for the strong burst transmission required by PEPS.
+* RCDLR Antenna: If the pocket start works but buttons do not function (and battery is new), the Remote Control Door Lock Receiver (RCDLR) may be faulty or its antenna disconnected. This is often located in the rear C-pillar or headliner area.
+* Interference: High-power USB chargers, dash cams, or radar detectors can flood the cabin with RF noise, blocking the weak 315 MHz signal from the key. Unplug all aftermarket accessories and retest.
+5.3 CAN-FD Transition
+While the 2018 CTS primarily uses standard High-Speed CAN for immobilizer communication, it sits on the transition timeline toward CAN-FD (Flexible Data-rate). This newer protocol allows for faster data transmission and is standard on 2020+ GM vehicles.
+* Technician Alert: Some late-production 2018 or 2019 "facelift" models may exhibit communication errors with older OBD-II tools. If a standard tool fails to communicate with the BCM, a CAN-FD adapter (such as the Autel CAN-FD Adapter) may be required to bridge the protocol gap.2 It is considered best practice to have this adapter available when servicing any GM vehicle from 2018 onwards.
+________________
+6. Comprehensive Parts Database
+The following data tables provide a definitive procurement guide. Locksmiths must ensure strict adherence to Part Numbers and FCC IDs to avoid costly mis-orders.
+6.1 Smart Key Fob Specifications
+Parameter
+	Specification (North America)
+	Specification (Export/Europe)
+	Frequency
+	315 MHz
+	433 MHz
+	FCC ID
+	HYQ2AB
+	HYQ2EB
+	IC
+	1551A-2AB
+	1551A-2EB
+	OEM P/N (5-Button)
+	13598537, 13510254, 13598507
+	13598512, 13598516
+	OEM P/N (4-Button)
+	13594023, 13580811
+	N/A
+	Strattec P/N
+	5942706 (5-Btn), 5942488 (4-Btn)
+	5942489
+	Chip Type
+	Philips ID46 (GM Extended)
+	Philips ID46 (GM Extended)
+	Battery
+	CR2032
+	CR2032
+	6.2 Mechanical Key Specifications
+Component
+	Specification
+	Part Number
+	Tooling
+	Emergency Blade
+	HU100 High Security
+	22984994 (OEM)
+	HU100 (10-Cut) Lishi
+	Strattec Blade
+	HU100 High Security
+	5922070
+	HU100 (10-Cut) Lishi
+	Keyway Profile
+	2-Track Internal
+	Z-Series (Z0001-Z6000)
+	Side Mill / Laser Cutter
+	Cross-Reference
+	22894661
+	N/A
+	N/A
+	6.3 Diagnostic Tool Compatibility Matrix
+Tool
+	Capability
+	Notes
+	Autel IM508/IM608
+	Read PIN, Add Key, AKL
+	Highly reliable. Can often bypass 30-min wait.
+	Smart Pro
+	Add Key, AKL
+	Requires tokens. Fast programming via server.
+	AutoProPad
+	Read PIN, Add Key, AKL
+	Good coverage. Unlimited use (no tokens).
+	Tech2Win / MDI
+	OEM Programming
+	Requires subscription. 100% reliable but complex setup.
+	________________
+7. Legal and Economic Considerations
+7.1 Release of Liability
+In the event of an "All Keys Lost" situation, the locksmith must inform the customer that the programming procedure (Method B) effectively erases all previous keys from the vehicle's memory. This is a security feature: lost keys will no longer start the car. However, the physical blades of the lost keys will still mechanically unlock the driver's door. For complete security, the customer would need to have the door lock cylinder re-keyed or replaced, a service that incurs significant additional labor and cost.
+7.2 NASTF and PIN Codes
+While many tools can read the PIN code from the BCM, there are instances (updated firmware, electrical faults) where the PIN cannot be extracted via OBD-II. In these cases, the locksmith must be a registered Vehicle Security Professional (VSP) with the National Automotive Service Task Force (NASTF). This credential allows access to the ACDelco TDS (Technical Delivery System) to purchase the key code and immobilizer PIN by VIN. Reliance solely on "PIN reading" tools without a NASTF backup plan can lead to job failures in the field.
+7.3 Economic Positioning
+The 2018 CTS key service commands a premium price point due to the high cost of the OEM fobs and the technical expertise required.
+* Dealer Cost: Often exceeds $350-$450 for the fob and labor.
+* Locksmith Pricing: A competitive market rate typically falls between $200-$300 for a complete service (fob + cut + program), offering significant savings to the consumer while maintaining healthy margins for the technician.
+________________
+8. Conclusion
+The 2018 Cadillac CTS represents a convergence of high-security standards and accessible serviceability. Its reliance on the HYQ2AB (315 MHz) Smart Key and HU100 (10-Cut) mechanical system defines the hardware requirements, while the Onboard Programming capability provides a safety net that is increasingly rare in the luxury segment. Success in servicing this vehicle hinges on the technician's ability to verify the specific frequency of the fob, correctly decode the high-security cylinder, and manage the delicate voltage requirements of the BCM during programming. With the correct inventory and knowledge of the "All Keys Lost" timer protocols, the 2018 CTS is a straightforward and profitable vehicle for the prepared automotive locksmith.
+Works cited
+1. 2019 Cadillac ATS CTS XTS Smart Key 4B W/ Trunk FCC# HYQ2AB - 1 - Locksmith Keyless, accessed January 20, 2026, https://www.locksmithkeyless.com/products/2014-2019-cadillac-smart-key-4b-fcc-hyq2ab
+2. How To Use Autel IM608 Pro Car Key Programmer - Introduction and Unboxing - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=t1OvWATiRh4
+3. 2018 Cadillac CTS-V Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 20, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2018-cadillac-cts-v-keyless-entry-remote-fob-smart-key-programming-instructions
+4. How To Program A Cadillac CTS Smart Key Remote Fob 2015 - 2019 - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=euxdLFFelvk
+5. Signs You Need a Body Control Module Reset - In The Garage with CarParts.com, accessed January 20, 2026, https://www.carparts.com/blog/signs-you-need-a-body-control-module-reset/
+6. 2019 Cadillac XTS - No Remote Detected | How to Start With Dead, Bad, Broken Smart Key Fob - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=kzSE37Rh_d0
+7. 2018 Cadillac CTS Smart Remote Keyless Entry Key Fob 13598537 HYQ2AB â CarandTruckRemotes, accessed January 20, 2026, https://www.carandtruckremotes.com/products/2018-cadillac-cts-smart-remote-key-fob-w-engine-start
+8. Remote Car Key For Escalade ESV Cadillac SRX XTS CTS CT6 ATS XT4 XT5 2015 2016 2017 2018 2019 HYQ2AB HYQ2EB 315/433MHz No logo - AliExpress, accessed January 20, 2026, https://www.aliexpress.com/item/1005008164363378.html
+9. OEM 2014-2020 Cadillac ATS CTS CT6 5B Smart Key Fob Remote HYQ2EB, P/N, accessed January 20, 2026, https://www.drrobbieray.com/webapp/wcs/stores/servlet/Search?storeId=6052&langId=-1&catalogId=106455&
+10. For Cadillac ATS CTS XTS 2015 2016 2017 2018 2019 Remote Car, accessed January 20, 2026, https://www.ebay.com/itm/376432859360
+11. Cadillac Remote Keyless Entry Fobs - STRATTEC Aftermarket Solutions, accessed January 20, 2026, https://aftermarket.strattec.com/product-finder/new-products/cadillac-remote-keyless-entry-fobs
+12. Cadillac ATS / CT6 / XTS / CTS Key Fob Battery Replacement - EASY DIY - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=zg5ffh9pjsU
+13. Cadillac CTS Key Fob Battery Replacement (2014 - 2019) - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=s3IMG7b-Zl0
+14. GM (HU100-10CUT-V.3) 2-in-1 tool - by Original Lishi - Lockpicks.com, accessed January 20, 2026, https://www.lockpicks.com/products/hu100-10-cut-v-3-for-gm-cadillac-and-chevrolet-ign-dr-bt-lishi-hu100-10cut-by-original-lishi
+15. Original Lishi 2-in-1 HU100 GM 10-Cut 2-in-1 Pick and Decoder for Door, Ignition, and Trunk - Anti Glare, accessed January 20, 2026, https://www.southernlock.com/itemdetail/132-4110
+16. Original Lishi GM B111 Z-Keyway 2-In-1 Pick and Decoder, accessed January 20, 2026, https://www.bestkeysupply.com/products/lishi-l01
+17. ORIGINAL LISHI - B111 Z-Keyway GM / (Warded) 2-In-1 Pick & Decoder / AG - Keyless City, accessed January 20, 2026, https://keyless-city.com/products/original-lishi-b111-z-keyway-gm-warded-2-in-1-pick-decoder-ag
+18. GM HU100 8 Cut Practice Lock - The Lishi Locksmith, accessed January 20, 2026, https://thelishilocksmith.com/product/gm-hu100-8-cut-practice-lock/
+19. Keyless Open and Start | Vehicle Support - Cadillac, accessed January 20, 2026, https://www.cadillac.com/support/vehicle/security/keyless-open-start
+20. 2018 Cadillac CTS Keyless Entry Remote Fob Programming Instructions, accessed January 20, 2026, https://northcoastkeyless.com/2018-cadillac-cts-keyless-entry-remote-fob-programming-instructions/
+21. 2019 Cadillac CTS Keyless Entry Remote Fob Programming Instructions, accessed January 20, 2026, https://northcoastkeyless.com/2019-cadillac-cts-keyless-entry-remote-fob-programming-instructions/
+22. Autel IM608 Pro Key Programmer Demonstration and Q &A - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=c7hEYBcWy4c
+23. Tips to Program GM 2021 2024 All Smart Keys Lost with Autel IM508/IM608 - YouTube, accessed January 20, 2026, https://www.youtube.com/watch?v=8IfiDRog05Q
+24. Identifying Common Symptoms of a Faulty Body Control Module (BCM) - Foxwell, accessed January 20, 2026, https://www.foxwelldiag.com/blogs/car-diagnostic/body-control-module-failure
