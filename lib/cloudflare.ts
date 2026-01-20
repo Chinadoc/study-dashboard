@@ -1,6 +1,6 @@
 // Cloudflare API client for aski.eurokeys.app
 
-const API_BASE = 'https://aski.eurokeys.app';
+import { API_BASE } from './config';
 
 // Generic fetch wrapper with error handling
 async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {

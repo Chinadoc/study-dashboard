@@ -17,16 +17,16 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
 
     return Object.entries(pbt).map(([type, data]) => ({
         name: type,
-        fcc: data.fcc_ids?.filter(Boolean).join(', ') || undefined,
-        chip: data.chips?.filter(Boolean).join(', ') || undefined,
-        battery: data.batteries?.[0] || undefined,
-        frequency: data.frequencies?.[0] || undefined,
-        keyway: data.keyways?.[0] || undefined,
-        buttons: data.buttons?.filter(Boolean).join(', ') || undefined,
+        fcc: Array.isArray(data.fcc_ids) ? data.fcc_ids.filter(Boolean).join(', ') : undefined,
+        chip: Array.isArray(data.chips) ? data.chips.filter(Boolean).join(', ') : undefined,
+        battery: Array.isArray(data.batteries) ? data.batteries[0] : undefined,
+        frequency: Array.isArray(data.frequencies) ? data.frequencies[0] : undefined,
+        keyway: Array.isArray(data.keyways) ? data.keyways[0] : undefined,
+        buttons: Array.isArray(data.buttons) ? data.buttons.filter(Boolean).join(', ') : undefined,
         priceRange: data.price_range?.min && data.price_range?.max
             ? `$${Number(data.price_range.min).toFixed(2)} - $${Number(data.price_range.max).toFixed(2)}`
             : undefined,
-        oem: data.oem_parts?.filter(Boolean).map((p: string) => ({ number: p })) || [],
+        oem: Array.isArray(data.oem_parts) ? data.oem_parts.filter(Boolean).map((p: string) => ({ number: p })) : [],
         type: type.toLowerCase().includes('prox') || type.toLowerCase().includes('smart') ? 'prox'
             : type.toLowerCase().includes('flip') ? 'flip'
                 : type.toLowerCase().includes('blade') ? 'blade'
@@ -36,7 +36,7 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
 
 // Transform products from /api/vehicle-products to include R2 image URLs
 function transformProducts(products: any[]): any[] {
-    if (!products || products.length === 0) return [];
+    if (!products || !Array.isArray(products) || products.length === 0) return [];
 
     return products.map(p => {
         // Build a descriptive name if title is generic or missing
@@ -49,14 +49,14 @@ function transformProducts(products: any[]): any[] {
 
         return {
             name: name,
-            fcc: p.fcc_id,
-            chip: p.chip,
+            fcc: Array.isArray(p.fcc_id) ? p.fcc_id.join(', ') : p.fcc_id,
+            chip: Array.isArray(p.chip) ? p.chip.join(', ') : p.chip,
             battery: p.battery,
             frequency: p.frequency,
             keyway: p.keyway,
             buttons: p.buttons,
             priceRange: p.price ? `$${p.price}` : undefined,
-            oem: p.oem_part_numbers?.map((n: string) => ({ number: n })) || [],
+            oem: Array.isArray(p.oem_part_numbers) ? p.oem_part_numbers.map((n: string) => ({ number: n })) : [],
             image: p.image_url,
             image_r2_key: p.image_r2_key,
             type: p.product_type?.toLowerCase().includes('smart') || p.product_type?.toLowerCase().includes('prox') ? 'prox'

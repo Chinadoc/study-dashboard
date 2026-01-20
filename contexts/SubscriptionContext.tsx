@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE } from '@/lib/config';
 
 export interface Subscription {
     id: string;
@@ -29,7 +30,7 @@ interface SubscriptionContextType {
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
-const API_BASE = 'https://aski.eurokeys.app/api/user';
+// API_BASE imported from @/lib/config
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -41,16 +42,17 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         setError(null);
         try {
             // API endpoint from user request
-            const response = await fetch(`${API_BASE}/tool-subscriptions`);
+            const response = await fetch(`${API_BASE}/api/user/tool-subscriptions`);
             if (!response.ok) {
                 throw new Error('Failed to fetch subscriptions');
             }
             const data = await response.json();
-            setSubscriptions(data);
+            const subscriptionsArray = Array.isArray(data) ? data : (data.subscriptions || []);
+            setSubscriptions(subscriptionsArray);
 
             // Sync with local storage for offline/fallback access
             if (typeof window !== 'undefined') {
-                localStorage.setItem('eurokeys_user_subscriptions', JSON.stringify(data));
+                localStorage.setItem('eurokeys_user_subscriptions', JSON.stringify(subscriptionsArray));
             }
         } catch (err) {
             console.error('Error fetching subscriptions:', err);
