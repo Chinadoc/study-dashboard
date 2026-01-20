@@ -8,6 +8,7 @@ import KeyCards from '@/components/vehicle/KeyCards';
 import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
+import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import { API_BASE } from '@/lib/config';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
@@ -56,6 +57,95 @@ function transformProducts(products: any[]): any[] {
         title: p.title,
         item_number: p.item_number,
     }));
+}
+
+// Deduplicate keys by type: show one representative per key configuration
+// (e.g., one 3-button, one 4-button with RS, one emergency blade)
+// Excludes bulk packs and prioritizes OEM NEW
+function deduplicateKeysByType(keys: any[], specs?: any): any[] {
+    if (!keys || (keys.length === 0 && !specs?.keyway)) return [];
+
+    // Group keys by their "key type" - determined by button count and features
+    const groups: Record<string, any[]> = {};
+
+    keys.forEach(key => {
+        const name = (key.name || key.title || '').toLowerCase();
+        const buttons = key.buttons || '';
+
+        // Skip bulk packs (5-PACK, 10-PACK, etc.)
+        if (name.includes('-pack') || name.includes('pack ')) return;
+
+        // Determine key type group
+        let groupKey: string;
+        if (name.includes('blade') || name.includes('emergency') || key.type === 'blade') {
+            groupKey = 'emergency_blade';
+        } else if (name.includes('remote start') || name.includes('w/rs')) {
+            // 4-button with remote start
+            const btnMatch = name.match(/(\d)-btn/) || name.match(/(\d)-button/);
+            const btnCount = btnMatch ? btnMatch[1] : '4';
+            groupKey = `${btnCount}btn_rs`;
+        } else {
+            // Regular button count
+            const btnMatch = name.match(/(\d)-btn/) || name.match(/(\d)-button/);
+            const btnCount = btnMatch ? btnMatch[1] : buttons.split(',')[0]?.match(/\d+/)?.[0] || 'prox';
+            groupKey = `${btnCount}btn`;
+        }
+
+        if (!groups[groupKey]) groups[groupKey] = [];
+        groups[groupKey].push(key);
+    });
+
+    // Synthesis: If a keyway exists in specs but no emergency_blade group was found, add it
+    if (specs?.keyway && !groups['emergency_blade']) {
+        groups['emergency_blade'] = [{
+            name: `Emergency Blade (${specs.keyway})`,
+            type: 'blade',
+            keyway: specs.keyway,
+            priceRange: '$12.00 - $18.00',
+            image: undefined, // Will show 🔑 emoji in KeyCard
+            oem: []
+        }];
+    }
+
+    // From each group, select best representative: prefer OEM NEW > OEM REFURB MINT > BRK, lowest price
+    const result: any[] = [];
+    Object.values(groups).forEach(groupKeys => {
+        // Sort by quality preference then price
+        groupKeys.sort((a, b) => {
+            const nameA = (a.name || '').toLowerCase();
+            const nameB = (b.name || '').toLowerCase();
+
+            // Prioritize OEM NEW
+            if (nameA.includes('oem new') && !nameB.includes('oem new')) return -1;
+            if (!nameA.includes('oem new') && nameB.includes('oem new')) return 1;
+
+            // Then OEM REFURB MINT
+            if (nameA.includes('mint') && !nameB.includes('mint')) return -1;
+            if (!nameA.includes('mint') && nameB.includes('mint')) return 1;
+
+            // Deprioritize BRK (aftermarket)
+            if (!nameA.includes('brk') && nameB.includes('brk')) return -1;
+            if (nameA.includes('brk') && !nameB.includes('brk')) return 1;
+
+            return 0;
+        });
+
+        // Take the best one from each group
+        if (groupKeys.length > 0) {
+            result.push(groupKeys[0]);
+        }
+    });
+
+    // Sort result: blade last, then by button count
+    result.sort((a, b) => {
+        const aIsBlade = (a.name || '').toLowerCase().includes('blade');
+        const bIsBlade = (b.name || '').toLowerCase().includes('blade');
+        if (aIsBlade && !bIsBlade) return 1;
+        if (!aIsBlade && bIsBlade) return -1;
+        return 0;
+    });
+
+    return result;
 }
 
 export default function VehicleDetailClient() {
@@ -143,7 +233,10 @@ export default function VehicleDetailClient() {
     // Merge keys: prioritize /api/vehicle-products (has R2 images), fallback to products_by_type
     const keysFromProducts = transformProducts(data.products?.products || []);
     const keysFromPBT = transformProductsByType(productsByType);
-    const mergedKeys = keysFromProducts.length > 0 ? keysFromProducts : keysFromPBT;
+    const rawKeys = keysFromProducts.length > 0 ? keysFromProducts : keysFromPBT;
+
+    // Deduplicate keys by type (3-btn, 4-btn, blade) to avoid showing all product variants
+    const mergedKeys = deduplicateKeysByType(rawKeys, specs);
 
     // Extract pearls and images
     const pearlsList = data.pearls?.pearls || [];
@@ -177,7 +270,7 @@ export default function VehicleDetailClient() {
     );
 
     return (
-        <div className="container mx-auto px-4 py-6 max-w-6xl">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
             {/* Header with title and badges */}
             <VehicleHeader
                 make={make}
@@ -193,38 +286,53 @@ export default function VehicleDetailClient() {
                     battery: specs.battery,
                     keyway: specs.keyway,
                     lishi: specs.lishi,
-                    lishiSource: specs.lishi_source,
                 }}
             />
 
-            {/* Vehicle Specifications Grid */}
-            <VehicleSpecs specs={fullSpecs} />
+            {/* Two-Column Layout Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
 
-            {/* Key Configuration Cards with R2 images */}
-            <KeyCards keys={mergedKeys} />
+                {/* Left Column: Main Content (8/12) */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* Vehicle Specifications Grid */}
+                    <VehicleSpecs specs={fullSpecs} />
 
-            {/* Visual References Gallery */}
-            <VisualReferences images={imagesList} />
+                    {/* Key Configuration Cards with R2 images */}
+                    <KeyCards keys={mergedKeys} />
 
-            {/* Technical Pearls / Insights */}
-            <TechnicalPearls pearls={pearlsList} />
+                    {/* Programming Procedures */}
+                    <VehicleProcedures procedures={{
+                        addKey: addKeyWalkthrough ? {
+                            title: addKeyWalkthrough.title,
+                            time_minutes: addKeyWalkthrough.estimated_time_mins,
+                            steps: addKeyWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
+                            menu_path: addKeyWalkthrough.platform_code,
+                        } : undefined,
+                        akl: aklWalkthrough ? {
+                            title: aklWalkthrough.title,
+                            time_minutes: aklWalkthrough.estimated_time_mins,
+                            risk_level: 'high' as const,
+                            steps: aklWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
+                            menu_path: aklWalkthrough.platform_code,
+                        } : undefined,
+                    }} />
 
-            {/* Programming Procedures */}
-            <VehicleProcedures procedures={{
-                addKey: addKeyWalkthrough ? {
-                    title: addKeyWalkthrough.title,
-                    time_minutes: addKeyWalkthrough.estimated_time_mins,
-                    steps: addKeyWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
-                    menu_path: addKeyWalkthrough.platform_code,
-                } : undefined,
-                akl: aklWalkthrough ? {
-                    title: aklWalkthrough.title,
-                    time_minutes: aklWalkthrough.estimated_time_mins,
-                    risk_level: 'high' as const,
-                    steps: aklWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
-                    menu_path: aklWalkthrough.platform_code,
-                } : undefined,
-            }} />
+                    {/* Visual References Gallery */}
+                    <VisualReferences images={imagesList} />
+
+                    {/* Technical Pearls / Insights */}
+                    <TechnicalPearls pearls={pearlsList} />
+                </div>
+
+                {/* Right Column: Locksmith Sidebar (4/12) */}
+                <div className="lg:col-span-4 space-y-6">
+                    <LocksmithSidebar
+                        specs={fullSpecs}
+                        platform={header.platform}
+                        architecture={header.immobilizer_system}
+                    />
+                </div>
+            </div>
         </div>
     );
 }

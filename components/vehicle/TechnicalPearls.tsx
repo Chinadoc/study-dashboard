@@ -4,13 +4,20 @@ import React, { useState } from 'react';
 
 interface Pearl {
     id?: number;
+    // API returns these fields from refined_pearls
+    content?: string;
+    category?: string;
+    risk?: string;
+    source_doc?: string;
+    tags?: string[];
+    action?: string;
+    // Legacy fields for backwards compatibility
     pearl_title?: string;
     pearl_content?: string;
     pearl_type?: string;
     is_critical?: boolean;
     score?: number;
     comment_count?: number;
-    source_doc?: string;
 }
 
 interface TechnicalPearlsProps {
@@ -35,15 +42,30 @@ export default function TechnicalPearls({ pearls }: TechnicalPearlsProps) {
         );
     }
 
-    // Group pearls by type
+    // Group pearls by type/category
     const groupedPearls: Record<string, Pearl[]> = {};
     pearls.forEach(pearl => {
-        const type = pearl.pearl_type || 'General';
+        // Use category from API, fallback to pearl_type for legacy
+        const type = pearl.category || pearl.pearl_type || 'General';
         if (!groupedPearls[type]) {
             groupedPearls[type] = [];
         }
         groupedPearls[type].push(pearl);
     });
+
+    // Helper to extract title from content
+    const getTitle = (pearl: Pearl): string => {
+        if (pearl.pearl_title) return pearl.pearl_title;
+        if (!pearl.content) return 'Insight';
+        // Take first sentence or first 50 chars
+        const firstSentence = pearl.content.split('.')[0];
+        return firstSentence.length > 50 ? firstSentence.substring(0, 47) + '...' : firstSentence;
+    };
+
+    // Helper to get content
+    const getContent = (pearl: Pearl): string => {
+        return pearl.content || pearl.pearl_content || '';
+    };
 
     return (
         <section className="glass p-6 mb-6">
@@ -92,11 +114,11 @@ export default function TechnicalPearls({ pearls }: TechnicalPearlsProps) {
                                             )}
                                             <div className="flex-1">
                                                 <div className="font-semibold text-sm">
-                                                    {pearl.pearl_title || 'Insight'}
+                                                    {getTitle(pearl)}
                                                 </div>
                                                 {!isExpanded && (
                                                     <div className="text-xs text-zinc-400 line-clamp-1 mt-0.5">
-                                                        {pearl.pearl_content?.substring(0, 60)}...
+                                                        {getContent(pearl).substring(0, 60)}...
                                                     </div>
                                                 )}
                                             </div>
@@ -108,23 +130,25 @@ export default function TechnicalPearls({ pearls }: TechnicalPearlsProps) {
                                         </div>
 
                                         {/* Expanded content */}
-                                        {isExpanded && (
-                                            <div className="mt-3 pt-3 border-t border-zinc-700/50">
-                                                <p className="text-sm text-zinc-300 leading-relaxed">
-                                                    {pearl.pearl_content}
-                                                </p>
-                                                {pearl.source_doc && (
-                                                    <div className="mt-2 text-[10px] text-zinc-500">
-                                                        Source: {pearl.source_doc}
-                                                    </div>
-                                                )}
-                                                {pearl.comment_count !== undefined && pearl.comment_count > 0 && (
-                                                    <div className="mt-2 text-xs text-zinc-400">
-                                                        💬 {pearl.comment_count} comment{pearl.comment_count !== 1 ? 's' : ''}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
+                                        {
+                                            isExpanded && (
+                                                <div className="mt-3 pt-3 border-t border-zinc-700/50">
+                                                    <p className="text-sm text-zinc-300 leading-relaxed">
+                                                        {getContent(pearl)}
+                                                    </p>
+                                                    {pearl.source_doc && (
+                                                        <div className="mt-2 text-[10px] text-zinc-500">
+                                                            Source: {pearl.source_doc}
+                                                        </div>
+                                                    )}
+                                                    {pearl.comment_count !== undefined && pearl.comment_count > 0 && (
+                                                        <div className="mt-2 text-xs text-zinc-400">
+                                                            💬 {pearl.comment_count} comment{pearl.comment_count !== 1 ? 's' : ''}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 );
                             })}
@@ -132,7 +156,7 @@ export default function TechnicalPearls({ pearls }: TechnicalPearlsProps) {
                     </div>
                 ))}
             </div>
-        </section>
+        </section >
     );
 }
 
@@ -149,10 +173,11 @@ function getTypeIcon(type: string): string {
 }
 
 function getRiskClass(pearl: Pearl): string {
-    if (pearl.is_critical || pearl.pearl_type === 'Alert') {
+    // API uses 'risk' field with values: 'critical', 'important', 'info'
+    if (pearl.is_critical || pearl.risk === 'critical' || pearl.pearl_type === 'Alert') {
         return 'bg-red-900/20 border-red-700/50 hover:border-red-500/70';
     }
-    if (pearl.pearl_type === 'Tool Alert') {
+    if (pearl.risk === 'important' || pearl.pearl_type === 'Tool Alert') {
         return 'bg-yellow-900/20 border-yellow-700/50 hover:border-yellow-500/70';
     }
     return 'bg-purple-900/20 border-purple-700/50 hover:border-purple-500/70';

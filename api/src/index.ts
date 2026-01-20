@@ -2658,26 +2658,25 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
-      // VYP SUB-ROUTES - Makes/Models/Years from vehicles table
+      // VYP SUB-ROUTES - Makes/Models/Years from browse_catalog
       // ==============================================
-      // Uses vehicles table to include all makes (BMW, Mercedes, etc)
-      // Falls back to vehicle_year_products for enhanced data
+      // Uses browse_catalog for clean, normalized makes/models/years
+      // Extracted from aks_products_detail compatible_vehicles
 
-      // GET /api/vyp/makes - Returns distinct makes from vehicles table
+      // GET /api/vyp/makes - Returns distinct makes from browse_catalog
       if (path === "/api/vyp/makes") {
         try {
-          // Use vehicles table as primary source for all makes
           const sql = `
             SELECT DISTINCT make 
-            FROM vehicles
-            WHERE make IS NOT NULL AND make != ''
+            FROM browse_catalog
+            WHERE make IS NOT NULL
             ORDER BY make
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).all();
           const makes = (result.results || []).map((r: any) => r.make);
 
           return corsResponse(request, JSON.stringify({
-            source: "vehicles",
+            source: "browse_catalog",
             count: makes.length,
             makes
           }));
@@ -2686,7 +2685,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
-      // GET /api/vyp/models?make=X - Returns models for a make from vehicles table
+      // GET /api/vyp/models?make=X - Returns models for a make from browse_catalog
       if (path === "/api/vyp/models") {
         try {
           const make = url.searchParams.get("make") || "";
@@ -2694,19 +2693,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
           }
 
-          // Use vehicles table as primary source
           const sql = `
             SELECT DISTINCT model 
-            FROM vehicles
+            FROM browse_catalog
             WHERE LOWER(make) = LOWER(?)
-            AND model IS NOT NULL AND model != ''
             ORDER BY model
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
           const models = (result.results || []).map((r: any) => r.model);
 
           return corsResponse(request, JSON.stringify({
-            source: "vehicles",
+            source: "browse_catalog",
             make,
             count: models.length,
             models
@@ -2716,7 +2713,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
-      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model from vehicles table
+      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model from browse_catalog
       if (path === "/api/vyp/years") {
         try {
           const make = url.searchParams.get("make") || "";
@@ -2725,30 +2722,18 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return corsResponse(request, JSON.stringify({ error: "make and model parameters required" }), 400);
           }
 
-          // Use vehicles table - get year_start and year_end, expand to individual years
           const sql = `
-            SELECT year_start, year_end 
-            FROM vehicles
+            SELECT year
+            FROM browse_catalog
             WHERE LOWER(make) = LOWER(?)
             AND LOWER(model) = LOWER(?)
-            AND year_start IS NOT NULL
-            ORDER BY year_start DESC
+            ORDER BY year DESC
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make, model).all();
-
-          // Expand year ranges into individual years
-          const yearSet = new Set<number>();
-          for (const row of (result.results || []) as any[]) {
-            const start = row.year_start;
-            const end = row.year_end || start;
-            for (let y = start; y <= end; y++) {
-              yearSet.add(y);
-            }
-          }
-          const years = Array.from(yearSet).sort((a, b) => b - a); // DESC
+          const years = (result.results || []).map((r: any) => r.year);
 
           return corsResponse(request, JSON.stringify({
-            source: "vehicles",
+            source: "browse_catalog",
             make,
             model,
             count: years.length,
@@ -3575,21 +3560,37 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             for (const row of (aksResult.results || []) as any[]) {
               const productType = row.product_type || "Unknown";
 
-              // Parse OEM parts (stored as JSON strings concatenated)
+              // Parse OEM parts (stored as JSON strings that were GROUP_CONCATed)
+              // e.g., '["15857839","25839476"],["22936098"]' needs to be split on '],' then parsed
               let oemParts: string[] = [];
               try {
-                const rawParts = (row.oem_parts_raw || "").split(",").filter(Boolean);
-                for (const part of rawParts) {
-                  try {
-                    const parsed = JSON.parse(part);
-                    if (Array.isArray(parsed)) {
-                      oemParts.push(...parsed);
+                const rawPartsStr = (row.oem_parts_raw || "").trim();
+                if (rawPartsStr) {
+                  // Split on '],' to separate JSON arrays, then add back the ']'
+                  const jsonArrays = rawPartsStr.split(/\],\s*(?=\[)/);
+                  for (let jsonStr of jsonArrays) {
+                    jsonStr = jsonStr.trim();
+                    // Ensure it ends with ] if we split it off
+                    if (jsonStr.startsWith('[') && !jsonStr.endsWith(']')) {
+                      jsonStr += ']';
                     }
-                  } catch {
-                    oemParts.push(part);
+                    try {
+                      const parsed = JSON.parse(jsonStr);
+                      if (Array.isArray(parsed)) {
+                        oemParts.push(...parsed.map(p => String(p).trim()).filter(Boolean));
+                      } else if (parsed) {
+                        oemParts.push(String(parsed).trim());
+                      }
+                    } catch {
+                      // Not valid JSON - try as plain string
+                      if (jsonStr && !jsonStr.startsWith('[')) {
+                        oemParts.push(jsonStr.trim());
+                      }
+                    }
                   }
+                  // Dedupe and clean
+                  oemParts = [...new Set(oemParts)].filter(p => p && !p.startsWith('[') && !p.startsWith('"'));
                 }
-                oemParts = [...new Set(oemParts)].filter(Boolean);
               } catch { }
 
               productsByType[productType] = {
