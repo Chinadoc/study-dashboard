@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import { Providers } from '@/components/Providers';
+import { GoogleSignInButton } from '@/components/shared/GoogleSignInButton';
 
 export const metadata: Metadata = {
     title: 'EuroKeys - Locksmith Database',
@@ -28,22 +29,35 @@ export default function RootLayout({
                     <nav className="sticky top-0 z-50 border-b border-eurokeys-border bg-eurokeys-dark/90 backdrop-blur-md">
                         <div className="mx-auto max-w-7xl px-4">
                             <div className="flex h-14 items-center justify-between">
-                                <a href="/" className="text-xl font-bold text-eurokeys-purple-light">
-                                    EuroKeys
+                                {/* Logo */}
+                                <a href="/" className="flex items-center gap-2 text-xl font-bold text-eurokeys-purple-light">
+                                    <span>🔑</span>
+                                    EURO KEYS
                                 </a>
-                                <div className="flex gap-4">
+
+                                {/* Center Navigation */}
+                                <div className="flex gap-6">
                                     <a href="/browse" className="text-sm text-slate-400 hover:text-white">
-                                        Browse
+                                        📁 Browse Database
                                     </a>
                                     <a href="/fcc" className="text-sm text-slate-400 hover:text-white">
-                                        FCC Database
+                                        📡 FCC Database
                                     </a>
                                     <a href="/guides" className="text-sm text-slate-400 hover:text-white">
-                                        Guides
+                                        📚 Guides
                                     </a>
-                                    <a href="/inventory" className="text-sm text-slate-400 hover:text-white">
-                                        Inventory
-                                    </a>
+                                </div>
+
+                                {/* Right - Search & Auth */}
+                                <div className="flex items-center gap-3">
+                                    {/* Search Icon */}
+                                    <button className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white">
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </button>
+                                    {/* Google Sign-In Button */}
+                                    <GoogleSignInButton />
                                 </div>
                             </div>
                         </div>
