@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Detail Renderer Test - 2023 Colorado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/vehicle-detail.css">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 20px;
+        }
+
+        .test-controls {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            padding: 16px;
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .test-controls h2 {
+            margin: 0 0 12px;
+            color: #8b5cf6;
+        }
+
+        .test-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #8b5cf6;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .test-btn:hover {
+            background: #7c3aed;
+        }
+
+        .test-btn.secondary {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid #8b5cf6;
+            color: #8b5cf6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Test Controls -->
+    <div class="test-controls">
+        <h2>🧪 VehicleDetailRenderer Test</h2>
+        <p style="margin-bottom: 12px; color: #a1a1aa;">Testing the renderer with 2023 Chevrolet Colorado data</p>
+        <button class="test-btn" onclick="renderColorado()">Render Colorado 2023</button>
+        <button class="test-btn secondary" onclick="clearRender()">Clear</button>
+        <button class="test-btn secondary" onclick="testMobileView()">Toggle Mobile View</button>
+    </div>
+
+    <!-- Render Target -->
+    <div id="vehicle-detail-container"></div>
+
+    <!-- Load Scripts -->
+    <script src="js/data/colorado-2023.js"></script>
+    <script src="js/VehicleDetailRenderer.js"></script>
+
+    <script>
+        // Test functions
+        function renderColorado() {
+            console.log('Rendering Colorado 2023 data:', COLORADO_2023_DATA);
+            VehicleDetailRenderer.render('vehicle-detail-container', COLORADO_2023_DATA);
+        }
+
+        function clearRender() {
+            document.getElementById('vehicle-detail-container').innerHTML = '';
+        }
+
+        function testMobileView() {
+            const currentWidth = document.body.style.maxWidth;
+            if (currentWidth === '375px') {
+                document.body.style.maxWidth = '';
+                document.body.style.margin = '';
+            } else {
+                document.body.style.maxWidth = '375px';
+                document.body.style.margin = '0 auto';
+            }
+        }
+
+        // Auto-render on load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Ready, COLORADO_2023_DATA:', typeof COLORADO_2023_DATA);
+            renderColorado();
+        });
+    </script>
+
+</body>
+
+</html>

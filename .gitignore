@@ -1,0 +1,60 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# GIT IGNORE - EuroKeys
+# ═══════════════════════════════════════════════════════════════════════════
+# See .ignore.base for documentation on each category.
+# This file controls what goes into source control (GitHub).
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─── Build outputs & caches ─────────────────────────────────────────────────
+.next/
+node_modules/
+.vercel/
+
+# ─── Large data directories (165MB+) ────────────────────────────────────────
+data/
+gdrive_exports/
+scrapers/
+research/
+logs/
+api/
+resources/
+ios/
+_legacy/
+images/
+
+# ─── Python & Wrangler ──────────────────────────────────────────────────────
+.venv/
+.wrangler/
+__pycache__/
+
+# ─── Secrets ────────────────────────────────────────────────────────────────
+.env*
+gdrive_token*
+
+# ─── Large files ────────────────────────────────────────────────────────────
+*.log
+*.sqlite
+*.db
+*.pickle
+locksmith.db
+db.sqlite
+
+# ─── System ─────────────────────────────────────────────────────────────────
+.DS_Store
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️  IMPORTANT: These ARE tracked in git (needed for deployment)
+# ═══════════════════════════════════════════════════════════════════════════
+# ✓ app/              - Next.js source code
+# ✓ components/       - React components  
+# ✓ js/               - Legacy JS files
+# ✓ css/              - Stylesheets
+# ✓ public/           - Static assets  
+# ✓ browse-v2.html    - Static browse page
+# ✓ index.html        - Legacy SPA
+# ✓ functions/        - Cloudflare Pages Functions
+# ✓ _headers          - Cloudflare cache rules
+# ✓ _redirects        - Cloudflare redirects
+# ✓ package.json      - Dependencies
+# ✓ next.config.mjs   - Next.js config
+# ✓ tailwind.config.js

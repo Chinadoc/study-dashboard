@@ -1,0 +1,3270 @@
+[
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/VW_MQB_Key_Programming_Dossier.html",
+    "filename": "VW_MQB_Key_Programming_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Jetta A7"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tiguan"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tiguan"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Golf/GTI"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Honda_Civic_Accord_Locksmith_Dossier.html",
+    "filename": "Honda_Civic_Accord_Locksmith_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Civic (FE)",
+          "year": "2022-2024+",
+          "fcc": "KR5TP-4",
+          "chip": "4A (Hitag AES)",
+          "frequency": "433.92 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accord (CV)",
+          "year": "2018-2022",
+          "fcc": "CWTWB1G0090",
+          "chip": "NXP AES 128",
+          "frequency": "433 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accord (11th)",
+          "year": "2023+",
+          "fcc": "KR5TP-4",
+          "chip": "4A (Hitag AES)",
+          "frequency": "433.92 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "HR-V / CR-V",
+          "year": "2023+",
+          "fcc": "KR5TP-4",
+          "chip": "4A (Hitag AES)",
+          "frequency": "433.92 MHz"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Jaguar_Key_System_Dossier.html",
+    "filename": "Jaguar_Key_System_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2017\u20132020",
+          "year": "2017\u20132020"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2014\u20132020",
+          "year": "2014\u20132020"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2015+",
+          "year": "2015+"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2015+",
+          "year": "2015+"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2018+",
+          "year": "2018+"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2018+",
+          "year": "2018+"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Rivian_Locksmith_Dossier_Research.html",
+    "filename": "Rivian_Locksmith_Dossier_Research.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "frequency": "13.56 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "frequency": "2.4 GHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "frequency": "3.1 - 10.6 GHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "frequency": "Cellular Bands"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "frequency": "2.4 / 5 GHz"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Ford_Commercial_Compact_Platform_Dossier.html",
+    "filename": "Ford_Commercial_Compact_Platform_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Transit (VN)",
+          "year": "2021+",
+          "frequency": "315 MHz",
+          "fcc": "N5F-A08TAA",
+          "chip": "ID49",
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Transit (VN)",
+          "year": "2015-19",
+          "frequency": "315/902",
+          "fcc": "Varies",
+          "chip": "4D63",
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Ranger (NA)",
+          "year": "2019-23",
+          "frequency": "315 MHz",
+          "fcc": "M3N-A2C931423",
+          "chip": "ID49",
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Ranger (Intl)",
+          "year": "2012+",
+          "frequency": "433 MHz",
+          "fcc": "Varies",
+          "chip": "ID49",
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Maverick XL",
+          "year": "2022+",
+          "frequency": "315 MHz",
+          "fcc": "N5F-A08TAA",
+          "chip": "ID49",
+          "keyway": "HU198"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Maverick Lariat",
+          "year": "2022+",
+          "frequency": "902 MHz",
+          "fcc": "M3N-A2C931426",
+          "chip": "ID49",
+          "keyway": "HU198"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Bronco Sport",
+          "year": "2021+",
+          "frequency": "315 MHz",
+          "fcc": "M3N-A2C931423",
+          "chip": "ID49",
+          "keyway": "HU198"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Bronco (Big)",
+          "year": "2021+",
+          "frequency": "902 MHz",
+          "fcc": "M3N-A2C931426",
+          "chip": "ID49",
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "E-Series",
+          "year": "2021+",
+          "frequency": "315 MHz",
+          "fcc": "164-R8130",
+          "chip": "4D63/ID49",
+          "keyway": "HU101"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Copy_of_GM_E2XX_Key_Programming_Dossier.html",
+    "filename": "Copy_of_GM_E2XX_Key_Programming_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Malibu",
+          "year": "2016 - 2021",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E (Hitag AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Malibu",
+          "year": "2016 - 2021",
+          "frequency": "315 MHz",
+          "fcc": "HYQ4AA",
+          "chip": "ID46 / Hitag 2/AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Equinox",
+          "year": "2018 - 2021",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Equinox",
+          "year": "2018 - 2021",
+          "frequency": "315 MHz",
+          "fcc": "HYQ4AA",
+          "chip": "ID46 / Hitag 2/AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Cruze",
+          "year": "2016 - 2019",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Camaro",
+          "year": "2016 - 2020",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Traverse",
+          "year": "2018 - 2020",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Blazer",
+          "year": "2019 - 2020",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Copy_of_VW_MQB_Key_Programming_Dossier.html",
+    "filename": "Copy_of_VW_MQB_Key_Programming_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Jetta A7"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tiguan"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tiguan"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Golf/GTI"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/GM_E2XX_Key_Programming_Dossier.html",
+    "filename": "GM_E2XX_Key_Programming_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Malibu",
+          "year": "2016 - 2021",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E (Hitag AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Malibu",
+          "year": "2016 - 2021",
+          "frequency": "315 MHz",
+          "fcc": "HYQ4AA",
+          "chip": "ID46 / Hitag 2/AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Equinox",
+          "year": "2018 - 2021",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Equinox",
+          "year": "2018 - 2021",
+          "frequency": "315 MHz",
+          "fcc": "HYQ4AA",
+          "chip": "ID46 / Hitag 2/AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Cruze",
+          "year": "2016 - 2019",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Camaro",
+          "year": "2016 - 2020",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Traverse",
+          "year": "2018 - 2020",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Blazer",
+          "year": "2019 - 2020",
+          "frequency": "433 MHz",
+          "fcc": "HYQ4EA",
+          "chip": "ID46 / NCF2951E"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Dodge_Charger_Challenger_Locksmith_Dossier.html",
+    "filename": "Dodge_Charger_Challenger_Locksmith_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "fcc": "M3N-40821302",
+          "chip": "Hitag-AES (4A)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "fcc": "M3N-40821302",
+          "chip": "Hitag-AES (4A)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "fcc": "M3N-40821302",
+          "chip": "Hitag-AES (4A)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "fcc": "M3N-40821302",
+          "chip": "Hitag-AES (4A)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "fcc": "M3N-40821302",
+          "chip": "Hitag-AES (4A)"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Nissan_Locksmith_Research_Dossier.html",
+    "filename": "Nissan_Locksmith_Research_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Altima (L34)",
+          "year": "2019-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Altima (L34)",
+          "year": "2019-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sentra (B18)",
+          "year": "2020-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Versa (N18)",
+          "year": "2020-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Kicks (P15)",
+          "year": "2018-2021",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Rogue (T33)",
+          "year": "2021+",
+          "chip": "4A AES"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Copy_of_Honda_Civic_Accord_Locksmith_Dossier.html",
+    "filename": "Copy_of_Honda_Civic_Accord_Locksmith_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Civic (FE)",
+          "year": "2022-2024+",
+          "fcc": "KR5TP-4",
+          "chip": "4A (Hitag AES)",
+          "frequency": "433.92 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accord (CV)",
+          "year": "2018-2022",
+          "fcc": "CWTWB1G0090",
+          "chip": "NXP AES 128",
+          "frequency": "433 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accord (11th)",
+          "year": "2023+",
+          "fcc": "KR5TP-4",
+          "chip": "4A (Hitag AES)",
+          "frequency": "433.92 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "HR-V / CR-V",
+          "year": "2023+",
+          "fcc": "KR5TP-4",
+          "chip": "4A (Hitag AES)",
+          "frequency": "433.92 MHz"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Copy_of_Nissan_Locksmith_Research_Dossier.html",
+    "filename": "Copy_of_Nissan_Locksmith_Research_Dossier.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Altima (L34)",
+          "year": "2019-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Altima (L34)",
+          "year": "2019-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sentra (B18)",
+          "year": "2020-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Versa (N18)",
+          "year": "2020-2022",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Kicks (P15)",
+          "year": "2018-2021",
+          "chip": "4A AES"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Rogue (T33)",
+          "year": "2021+",
+          "chip": "4A AES"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Toyota_Lexus Smart Key Reset Procedures/ToyotaLexusSmartKeyResetProcedures.html",
+    "filename": "ToyotaLexusSmartKeyResetProcedures.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Avalon",
+          "year": "2005 \u2013 2012",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Camry",
+          "year": "2007 \u2013 2011",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Corolla",
+          "year": "2009 \u2013 2013",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Highlander",
+          "year": "2008 \u2013 2013",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Land Cruiser",
+          "year": "2008 \u2013 2015",
+          "fcc": "HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Prius (Gen 3)",
+          "year": "2010 \u2013 2015",
+          "fcc": "HYQ14ACX",
+          "chip": "4D (Page 1: 98)",
+          "transponder": "4D (Page 1: 98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Prius V",
+          "year": "2012 \u2013 2016",
+          "fcc": "HYQ14ACX",
+          "chip": "4D (Page 1: 98)",
+          "transponder": "4D (Page 1: 98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RAV4",
+          "year": "2006 \u2013 2012",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sienna",
+          "year": "2011 \u2013 2016",
+          "fcc": "HYQ14AEM",
+          "chip": "4D (Page 1: 98)",
+          "transponder": "4D (Page 1: 98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tundra",
+          "year": "2007 \u2013 2017",
+          "fcc": "Keyed (Dot/G) / HYQ14FBA",
+          "chip": "4D / G / H",
+          "transponder": "4D / G / H"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Venza",
+          "year": "2009 \u2013 2016",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "ES 350",
+          "year": "2007 \u2013 2012",
+          "fcc": "HYQ14AEM, HYQ14AAB",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "GS 350/430",
+          "year": "2006 \u2013 2011",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "IS 250/350",
+          "year": "2006 \u2013 2013",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "LS 460",
+          "year": "2007 \u2013 2012",
+          "fcc": "HYQ14AAB, HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RX 350/450h",
+          "year": "2010 \u2013 2015",
+          "fcc": "HYQ14ACX",
+          "chip": "4D (Page 1: 98)",
+          "transponder": "4D (Page 1: 98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "GX 460",
+          "year": "2010 \u2013 2016",
+          "fcc": "HYQ14ACX",
+          "chip": "4D (Page 1: 98)",
+          "transponder": "4D (Page 1: 98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "LX 570",
+          "year": "2008 \u2013 2015",
+          "fcc": "HYQ14AEM",
+          "chip": "4D (Page 1: 94/98)",
+          "transponder": "4D (Page 1: 94/98)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Camry",
+          "year": "2018 \u2013 2024",
+          "fcc": "HYQ14FBC, HYQ14FBE",
+          "chip": "8A (H) / 8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "C-HR",
+          "year": "2018 \u2013 2022",
+          "fcc": "HYQ14FBA / HYQ14FBC",
+          "chip": "8A (H)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Corolla",
+          "year": "2020 \u2013 2024",
+          "fcc": "HYQ14FBC, HYQ14FBE",
+          "chip": "8A (H) / 4A (Cross)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Highlander",
+          "year": "2020 \u2013 2024",
+          "fcc": "HYQ14FBC, HYQ14FBE",
+          "chip": "8A (H) / 8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RAV4",
+          "year": "2019 \u2013 2024",
+          "fcc": "HYQ14FBC, HYQ14FBE",
+          "chip": "8A (H) / 8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sienna",
+          "year": "2021 \u2013 2024",
+          "fcc": "HYQ14FBC",
+          "chip": "8A-BA (TMLF19D)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tundra",
+          "year": "2022 \u2013 2024",
+          "fcc": "HYQ14FBE",
+          "chip": "8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Venza",
+          "year": "2021 \u2013 2024",
+          "fcc": "HYQ14FBC",
+          "chip": "8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Prius",
+          "year": "2016 \u2013 2024",
+          "fcc": "HYQ14FBC",
+          "chip": "8A (H)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "ES 350/300h",
+          "year": "2019 \u2013 2024",
+          "fcc": "HYQ14FBC",
+          "chip": "8A (H)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "LS 500",
+          "year": "2018 \u2013 2024",
+          "fcc": "HYQ14FBC",
+          "chip": "8A (H)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "UX 200/250h",
+          "year": "2019 \u2013 2024",
+          "fcc": "HYQ14FBC",
+          "chip": "8A (H)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "NX 250/350",
+          "year": "2022 \u2013 2024",
+          "fcc": "HYQ14FBC / FLB",
+          "chip": "8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RX 350",
+          "year": "2016 \u2013 2022",
+          "fcc": "HYQ14FBB",
+          "chip": "8A (H)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RX 350 (New)",
+          "year": "2023 \u2013 2024",
+          "fcc": "HYQ14FLB",
+          "chip": "8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "IS 300/350",
+          "year": "2014 \u2013 2024*",
+          "fcc": "HYQ14FBA / FBC",
+          "chip": "8A (H)"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Key Fob Research Mapping Project/KeyFobResearchMappingProject.html",
+    "filename": "KeyFobResearchMappingProject.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Prius C (2012\u20132020)",
+          "model": "Prius C (2012\u20132020)",
+          "fcc": "HYQ14FBA",
+          "chip": "Texas ID 4D-G"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "RAV4 (2013\u20132018)",
+          "model": "RAV4 (2013\u20132018)",
+          "fcc": "HYQ14FBA",
+          "chip": "Texas ID 4D-G"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Highlander (2014\u20132019)",
+          "model": "Highlander (2014\u20132019)",
+          "fcc": "HYQ14FBA",
+          "chip": "Texas ID H-8A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Tacoma (2016\u20132020)",
+          "model": "Tacoma (2016\u20132020)",
+          "fcc": "HYQ14FBA",
+          "chip": "Texas ID H-8A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Land Cruiser (2016\u20132019)",
+          "model": "Land Cruiser (2016\u20132019)",
+          "fcc": "HYQ14FBA",
+          "chip": "Texas ID H-8A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Mirai (2016\u20132020)",
+          "model": "Mirai (2016\u20132020)",
+          "fcc": "HYQ14FBA",
+          "chip": "Texas ID H-8A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Pilot (2016\u20132020)",
+          "model": "Pilot (2016\u20132020)",
+          "fcc": "KR5V2X / KR5V41",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Pilot (2016\u20132020)",
+          "model": "Pilot (2016\u20132020)",
+          "fcc": "KR5V2X / KR5V41",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Civic (2016\u20132020)",
+          "model": "Civic (2016\u20132020)",
+          "fcc": "KR5V2X",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Civic (2016\u20132020)",
+          "model": "Civic (2016\u20132020)",
+          "fcc": "KR5V2X",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Accord (2016\u20132017)",
+          "model": "Accord (2016\u20132017)",
+          "fcc": "KR5V1X",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Rogue (2021\u20132023)",
+          "model": "Rogue (2021\u20132023)",
+          "fcc": "KR5TXN1",
+          "chip": "4A (Hitag AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Rogue (2021\u20132023)",
+          "model": "Rogue (2021\u20132023)",
+          "fcc": "KR5TXN3",
+          "chip": "4A (Hitag AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Sentra (2022\u20132025)",
+          "model": "Sentra (2022\u20132025)",
+          "fcc": "KR5TXN1",
+          "chip": "4A (Hitag AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Ariya (2023\u20132024)",
+          "model": "Ariya (2023\u20132024)",
+          "fcc": "KR5TXPZ1",
+          "chip": "4A (Hitag AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "F-150 (2015\u20132020)",
+          "model": "F-150 (2015\u20132020)",
+          "fcc": "M3N-A2C31243300",
+          "frequency": "902 MHz",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Explorer (2016\u20132017)",
+          "model": "Explorer (2016\u20132017)",
+          "fcc": "M3N-A2C31243300",
+          "frequency": "902 MHz",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Fusion (2013\u20132016)",
+          "model": "Fusion (2013\u20132016)",
+          "fcc": "M3N-A2C31243300",
+          "frequency": "902 MHz",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Edge (2015\u20132017)",
+          "model": "Edge (2015\u20132017)",
+          "fcc": "M3N-A2C31243300",
+          "frequency": "902 MHz",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "Transit (2020\u20132024)",
+          "model": "Transit (2020\u20132024)",
+          "fcc": "N5F-A08TAA",
+          "frequency": "315 MHz",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2010\u20132014",
+          "model": "Camry, Corolla",
+          "fcc": "HYQ12BDM",
+          "chip": "4D-G (80-bit)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2014\u20132017",
+          "model": "Camry, RAV4",
+          "fcc": "HYQ12BDM",
+          "chip": "8A \"H\" (128-bit)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2012\u20132020",
+          "model": "Prius C, RAV4",
+          "fcc": "HYQ14FBA",
+          "chip": "4D-G"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2014\u20132019",
+          "model": "Highlander, Tacoma",
+          "fcc": "HYQ14FBA",
+          "chip": "8A \"H\""
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2016\u20132019",
+          "model": "Land Cruiser",
+          "fcc": "HYQ14FBA",
+          "chip": "8A \"H\""
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2019\u20132025",
+          "model": "Camry (Smart)",
+          "fcc": "HYQ14FBW",
+          "chip": "Hitag AES (4A)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2022\u20132024",
+          "model": "Tacoma, Tundra",
+          "fcc": "HYQ14FBX",
+          "chip": "8A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2023\u20132025",
+          "model": "Lexus NX, RX",
+          "fcc": "HYQ14FLD",
+          "chip": "8A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2010\u20132013",
+          "model": "Civic",
+          "fcc": "N5F-S0084A",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2013\u20132015",
+          "model": "Accord",
+          "fcc": "KR5V1X",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2016\u20132020",
+          "model": "Pilot, Civic, CR-V",
+          "fcc": "KR5V2X",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2016\u20132020",
+          "model": "Pilot, Civic, CR-V",
+          "fcc": "KR5V2X",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2021\u20132025",
+          "model": "Accord, Civic",
+          "fcc": "KR5TP-4",
+          "chip": "4A (AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2019\u20132025",
+          "model": "Passport, Pilot",
+          "fcc": "KR5V44",
+          "chip": "ID47"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2010\u20132014",
+          "model": "Murano",
+          "fcc": "KR55WK49622",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2013\u20132019",
+          "model": "Sentra, Versa",
+          "fcc": "CWTWB1U840",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2013\u20132018",
+          "model": "Pathfinder, Altima",
+          "fcc": "KR5S180144",
+          "chip": "ID47 (Hitag 3)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2021\u20132023",
+          "model": "Rogue",
+          "fcc": "KR5TXN1",
+          "chip": "4A (AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2021\u20132023",
+          "model": "Rogue (High Trim)",
+          "fcc": "KR5TXN3",
+          "chip": "4A (AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2023\u20132025",
+          "model": "Ariya",
+          "fcc": "KR5TXPZ1",
+          "chip": "4A (AES)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2010\u20132014",
+          "model": "Edge, Explorer",
+          "fcc": "CWTWB1U793",
+          "chip": "4D-63 (80-bit)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2011\u20132019",
+          "model": "Focus, Escape",
+          "fcc": "M3N5WY8609",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2015\u20132020",
+          "model": "F-150, Fusion",
+          "fcc": "M3N-A2C31243300",
+          "chip": "ID49 (902 MHz)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2020\u20132024",
+          "model": "Transit Connect",
+          "fcc": "N5F-A08TAA",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2018\u20132024",
+          "model": "Fiesta, Focus (Euro)",
+          "fcc": "-",
+          "chip": "ID49"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Chrysler Locksmith Guide Creation (1)/ChryslerLocksmithGuideCreation.html",
+    "filename": "ChryslerLocksmithGuideCreation.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "system": "SKIM (Early)",
+          "transponder": "ID64 (4E) / ID46",
+          "keyway": "Y157 / Y159",
+          "model": "Jeep WJ, Dodge Ram BE"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "SKREEM (RHK)",
+          "transponder": "Philips ID46 (PCF7936)",
+          "keyway": "Y159 / Y160",
+          "model": "Sebring, Wrangler JK, Charger"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "WIN (Fobik)",
+          "transponder": "Philips ID46 (Integrated)",
+          "keyway": "N/A (Plastic Fob)",
+          "model": "Caravan, Town & Country, Ram"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Keyless Go",
+          "transponder": "ID46 (PCF7953)",
+          "keyway": "Y159 Emergency Blade",
+          "model": "Journey, 300, Charger, Dart"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "RFH (AES)",
+          "transponder": "HITAG AES (4A)",
+          "keyway": "SIP22 / Y159",
+          "model": "Wrangler JL, Ram DT, Pacifica"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Vehicle SGW Access and Key Programming/VehicleSGWAccessandKeyProgramming.html",
+    "filename": "VehicleSGWAccessandKeyProgramming.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "1500 \"Classic\"",
+          "year": "2018-2024"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "1500 (New Body)",
+          "year": "2019-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "2500/3500 HD",
+          "year": "2019-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Wrangler",
+          "year": "2018-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Gladiator",
+          "year": "2020-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Grand Cherokee",
+          "year": "2018-2021"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Grand Cherokee L",
+          "year": "2021-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Wagoneer",
+          "year": "2022-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Charger/Challenger",
+          "year": "2018-2023"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Pacifica",
+          "year": "2018-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sentra",
+          "year": "2020-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Rogue",
+          "year": "2021-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Pathfinder",
+          "year": "2022-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-150",
+          "year": "2021-2025"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Mustang Mach-E",
+          "year": "2021-2025"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/BMW Locksmith Guide Development/BMWLocksmithGuideDevelopment.html",
+    "filename": "BMWLocksmithGuideDevelopment.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS3",
+          "frequency": "315 MHz",
+          "fcc": "KR55WK49127",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS3",
+          "frequency": "315 MHz",
+          "fcc": "KR55WK49123",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS4",
+          "frequency": "315 MHz",
+          "fcc": "YGOHUF5662",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS4",
+          "frequency": "434 MHz",
+          "fcc": "YGOHUF5767",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "FEM",
+          "frequency": "315 MHz",
+          "fcc": "YGOHUF5662",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "FEM",
+          "frequency": "434 MHz",
+          "fcc": "NBGIDGNG1",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "BDC3",
+          "frequency": "434 MHz",
+          "fcc": "N5F-ID21A",
+          "chip": "NCF2951"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Automotive Key Cross-Reference Database/AutomotiveKeyCrossReferenceDatabase.html",
+    "filename": "AutomotiveKeyCrossReferenceDatabase.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Silverado 1500",
+          "year": "2013",
+          "fcc": "OUC60270"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Silverado 1500",
+          "year": "2018",
+          "fcc": "OHT01060512"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Equinox",
+          "year": "2017",
+          "fcc": "OHT01060512"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Cruze",
+          "year": "2016",
+          "fcc": "OHT01060512"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Malibu",
+          "year": "2021",
+          "fcc": "HYQ4EA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sierra",
+          "year": "2019",
+          "fcc": "OHT01060512"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Yukon",
+          "year": "2020",
+          "fcc": "HYQ1AA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Escalade",
+          "year": "2014",
+          "fcc": "OUC6000066"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "CTS",
+          "year": "2013",
+          "fcc": "M3N5WY7777A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Encore",
+          "year": "2016",
+          "fcc": "OHT01060512"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Express Van",
+          "year": "2022",
+          "fcc": "--"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "G6",
+          "year": "2010",
+          "fcc": "KOBGT04A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Vue",
+          "year": "2010",
+          "fcc": "--"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Corvette",
+          "year": "2007",
+          "fcc": "M3N5WY7777A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Camaro",
+          "year": "2015",
+          "fcc": "OHT01060512"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-150",
+          "year": "2010",
+          "fcc": "CWTWB1U331"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-150",
+          "year": "2014",
+          "fcc": "CWTWB1U793"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-150",
+          "year": "2020",
+          "fcc": "N5F-A08TAA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Focus",
+          "year": "2019",
+          "fcc": "KR55WK48801"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Fusion",
+          "year": "2016",
+          "fcc": "N5F-A08TAA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Explorer",
+          "year": "2015",
+          "fcc": "M3N5WY8609"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Explorer",
+          "year": "2017",
+          "fcc": "M3N-A2C31243300"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Mustang",
+          "year": "2014",
+          "fcc": "CWTWB1U793"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Navigator",
+          "year": "2006",
+          "fcc": "CWTWB1U331"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Grand Marquis",
+          "year": "2002",
+          "fcc": "--"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Transit",
+          "year": "2020",
+          "fcc": "GK2T-15K601"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Escape",
+          "year": "2012",
+          "fcc": "CWTWB1U793"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Ram 1500",
+          "year": "2012",
+          "fcc": "IYZ-C01C"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Ram 1500",
+          "year": "2018",
+          "fcc": "GQ4-53T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Ram",
+          "year": "2023",
+          "fcc": "OHT-4882056"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Wrangler (JK)",
+          "year": "2018",
+          "fcc": "OHT692713AA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Wrangler (JL)",
+          "year": "2024",
+          "fcc": "OHT1130261"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Grand Cherokee",
+          "year": "2021",
+          "fcc": "M3N-40821302"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "300",
+          "year": "2007",
+          "fcc": "OHT692427AA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Town & Country",
+          "year": "2016",
+          "fcc": "IYZ-C01C"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Charger",
+          "year": "2018",
+          "fcc": "M3N-40821302"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Cherokee (KL)",
+          "year": "2021",
+          "fcc": "GQ4-54T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "ProMaster",
+          "year": "2021",
+          "fcc": "2ADFTFI5AM433TX"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Camry",
+          "year": "2014",
+          "fcc": "HYQ12BDM"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RAV4",
+          "year": "2018",
+          "fcc": "HYQ12BDM"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Corolla",
+          "year": "2019",
+          "fcc": "HYQ12BEL"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tacoma",
+          "year": "2021",
+          "fcc": "HYQ12BDM"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Highlander",
+          "year": "2013",
+          "fcc": "HYQ14AAB"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RX350",
+          "year": "2015",
+          "fcc": "HYQ14ACX"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "tC",
+          "year": "2016",
+          "fcc": "HYQ12BBY"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tundra",
+          "year": "2017",
+          "fcc": "HYQ12BBY"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sienna",
+          "year": "2020",
+          "fcc": "HYQ14ADR"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Prius",
+          "year": "2015",
+          "fcc": "HYQ14ACX"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "4Runner",
+          "year": "2019",
+          "fcc": "HYQ12BBY"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accord",
+          "year": "2012",
+          "fcc": "OUCG8D-380H-A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Civic",
+          "year": "2013",
+          "fcc": "N5F-S0084A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "CR-V",
+          "year": "2013",
+          "fcc": "OUCG8D-380H-A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Odyssey",
+          "year": "2013",
+          "fcc": "N5F-A04TAA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "MDX",
+          "year": "2013",
+          "fcc": "OUCG8D-439H-A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Pilot",
+          "year": "2015",
+          "fcc": "KR55WK49308"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accord",
+          "year": "2015",
+          "fcc": "MLBHLIK6-1T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Civic",
+          "year": "2020",
+          "fcc": "KR5V2X"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "TL",
+          "year": "2014",
+          "fcc": "M3N5W8406"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Fit",
+          "year": "2013",
+          "fcc": "OUCG8D-380H-A"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Altima",
+          "year": "2012",
+          "fcc": "KR55WK48903"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Rogue",
+          "year": "2013",
+          "fcc": "CWTWB1U751"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sentra",
+          "year": "2012",
+          "fcc": "--"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Versa",
+          "year": "2012",
+          "fcc": "CWTWB1U751"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "G37",
+          "year": "2013",
+          "fcc": "KR55WK49622"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Titan",
+          "year": "2015",
+          "fcc": "CWTWB1U331"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Maxima",
+          "year": "2014",
+          "fcc": "KR55WK49622"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Frontier",
+          "year": "2018",
+          "fcc": "CWTWB1U343"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "QX60",
+          "year": "2016",
+          "fcc": "S180144020"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Juke",
+          "year": "2017",
+          "fcc": "CWTWB1U825"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sonata",
+          "year": "2014",
+          "fcc": "OSLOKA-870T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Elantra",
+          "year": "2016",
+          "fcc": "OSLOKA-950T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Optima",
+          "year": "2013",
+          "fcc": "NYOSEKS-TF10ATX"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Soul",
+          "year": "2013",
+          "fcc": "NYOSEKS-AM08TX"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Santa Fe",
+          "year": "2018",
+          "fcc": "SY5DMFNA433"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sorento",
+          "year": "2015",
+          "fcc": "SY5HMFNA04"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tucson",
+          "year": "2015",
+          "fcc": "TQ8-RKE-3F04"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Forte",
+          "year": "2018",
+          "fcc": "OSLOKA-875T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Accent",
+          "year": "2017",
+          "fcc": "OKA-N028"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sportage",
+          "year": "2013",
+          "fcc": "SY5HMFNA04"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "3-Series (E46)",
+          "year": "2005",
+          "fcc": "LX8 FZV"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "5-Series (E39)",
+          "year": "2003",
+          "fcc": "LX8 FZV"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "3-Series (E90)",
+          "year": "2011",
+          "fcc": "KR55WK49127"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "X5 (E70)",
+          "year": "2013",
+          "fcc": "KR55WK49127"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-Series",
+          "year": "2018",
+          "fcc": "YGOHUF5662"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Z4 (E85)",
+          "year": "2008",
+          "fcc": "LX8 FZV"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "7-Series (E65)",
+          "year": "2008",
+          "fcc": "LX8766S"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Cooper",
+          "year": "2014",
+          "fcc": "KR55WK49333"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "X3 (F25)",
+          "year": "2017",
+          "fcc": "YGOHUF5662"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "5-Series (F10)",
+          "year": "2016",
+          "fcc": "YGOHUF5662"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "C-Class (W204)",
+          "year": "2014",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "E-Class (W211)",
+          "year": "2009",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "ML-Class (W164)",
+          "year": "2011",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "S-Class (W221)",
+          "year": "2013",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sprinter",
+          "year": "2018",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "SLK (R171)",
+          "year": "2011",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "CLS (W219)",
+          "year": "2011",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "GLK (X204)",
+          "year": "2015",
+          "fcc": "IYZ3312"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "GLA (X156)",
+          "year": "2019",
+          "fcc": "FBS4"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "CLA (C117)",
+          "year": "2019",
+          "fcc": "FBS4"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Jetta",
+          "year": "2005",
+          "fcc": "HLO1J0959753AM"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Jetta",
+          "year": "2010",
+          "fcc": "NBG92596263"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Passat",
+          "year": "2014",
+          "fcc": "NBG009066T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Golf",
+          "year": "2014",
+          "fcc": "NBG010180T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "A4 (B7)",
+          "year": "2008",
+          "fcc": "8E0837220L"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "A4 (B8)",
+          "year": "2016",
+          "fcc": "IYZFBSB802"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tiguan",
+          "year": "2017",
+          "fcc": "NBG010180T"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Beetle",
+          "year": "2001",
+          "fcc": "HLO1J0959753F"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Q5",
+          "year": "2017",
+          "fcc": "IYZFBSB802"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "GTI",
+          "year": "2020",
+          "fcc": "NBGFS12A01"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU100"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "B106/B111"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "H75"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "Y159"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "SIP22"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "TOY43"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "TR47/TOY48"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HO01"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "NSN14"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HY18"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "KK10"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU66"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU92"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU64"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Automotive Transponder Chip Database/AutomotiveTransponderChipDatabase.html",
+    "filename": "AutomotiveTransponderChipDatabase.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "year": "1998\u20132002",
+          "chip": "CN1, TPX1, XT27"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2002\u20132010",
+          "chip": "CN2, TPX2, XT27"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2010\u20132014",
+          "chip": "CN5, LKP-02, XT27"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2013\u20132019",
+          "chip": "LKP-04, XT27"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2019\u20132025",
+          "chip": "Specialized Emulators"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "PATS 1",
+          "year": "1996\u20132004",
+          "chip": "4C",
+          "keyway": "H72 (8-cut)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "PATS 2",
+          "year": "2004\u20132010",
+          "chip": "4D-63 (40)",
+          "keyway": "H84/H92"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "PATS 3",
+          "year": "2011\u20132014",
+          "chip": "4D-63 (80)",
+          "keyway": "H92 (8-cut)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "PATS 4",
+          "year": "2013\u20132020",
+          "chip": "ID49",
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "PATS 5",
+          "year": "2017\u20132025",
+          "chip": "ID49",
+          "keyway": "Fob"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "chip": "Megamos 48"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "chip": "Philips 46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "chip": "Hitag 3 (ID47)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "chip": "Hitag AES (4A)"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Nissan Locksmith Programming Guide/NissanLocksmithProgrammingGuide.html",
+    "filename": "NissanLocksmithProgrammingGuide.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "system": "NATS 5 (Legacy)",
+          "chip": "TI 4D-60 (40-bit)",
+          "transponder": "TI 4D-60 (40-bit)",
+          "frequency": "N/A (Chip Only)",
+          "keyway": "DA34 / NSN14",
+          "model": "Maxima, Altima, Frontier, Xterra"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Intelligent Key (Twist)",
+          "chip": "ID46 (PCF7936)",
+          "transponder": "ID46 (PCF7936)",
+          "frequency": "315 MHz",
+          "keyway": "NSN14",
+          "model": "Rogue, Versa, Sentra, Qashqai"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Intelligent Key (Push)",
+          "chip": "ID46 (PCF7952)",
+          "transponder": "ID46 (PCF7952)",
+          "frequency": "315 MHz",
+          "keyway": "NSN14 (Blade)",
+          "model": "Altima, Maxima, G37, 370Z"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "NATS 6 / Prox",
+          "chip": "ID47 (HITAG 3)",
+          "transponder": "ID47 (HITAG 3)",
+          "frequency": "433 MHz",
+          "keyway": "NSN14",
+          "model": "Altima, Rogue, Pathfinder, Murano"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Modern Prox",
+          "chip": "ID4A (HITAG-AES)",
+          "transponder": "ID4A (HITAG-AES)",
+          "frequency": "433 MHz",
+          "keyway": "NSN14",
+          "model": "Sentra, Versa, Rogue, Kicks"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Commercial / Truck",
+          "chip": "ID46 Extended",
+          "transponder": "ID46 Extended",
+          "frequency": "315 MHz",
+          "keyway": "NSN14",
+          "model": "Titan, Frontier (Steel Key)"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Locksmith Tool Vehicle Coverage/LocksmithToolVehicleCoverage.html",
+    "filename": "LocksmithToolVehicleCoverage.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Silverado",
+          "year": "2014-2018"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Silverado",
+          "year": "2019-2021"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Silverado",
+          "year": "2022+ (Refreshed)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Tahoe",
+          "year": "2015-2020"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Chevy Tahoe",
+          "year": "2021-2024"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Corvette C8",
+          "year": "2020-2024"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-150",
+          "year": "2015-2020",
+          "system": "Prox"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "F-150",
+          "year": "2021-2024",
+          "system": "Active Alarm"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Bronco",
+          "year": "2021-2024",
+          "system": "Active Alarm"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Mustang",
+          "year": "2015-2020",
+          "system": "Prox"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Mach-E",
+          "year": "2021-2024",
+          "system": "Active Alarm"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RAM 1500",
+          "year": "2013-2017"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RAM 1500",
+          "year": "2018-2018"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "RAM 1500 (DT)",
+          "year": "2019-2024"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Grand Cherokee",
+          "year": "2014-2021"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Grand Cherokee L",
+          "year": "2021-2024"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Wagoneer",
+          "year": "2022-2024"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Camry",
+          "year": "2012-2017",
+          "chip": "H-Chip (Blade)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Camry",
+          "year": "2018-2023",
+          "chip": "8A (Smart)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Sienna",
+          "year": "2021-2024",
+          "chip": "8A (Smart)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Tundra",
+          "year": "2022-2024",
+          "chip": "8A-BA"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "model": "Corolla Cross",
+          "year": "2022-2024",
+          "chip": "4A"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/BMW Locksmith Guide Development (1)/BMWLocksmithGuideDevelopment.html",
+    "filename": "BMWLocksmithGuideDevelopment.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS3",
+          "frequency": "315 MHz",
+          "fcc": "KR55WK49127",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS3",
+          "frequency": "315 MHz",
+          "fcc": "KR55WK49123",
+          "chip": "ID46"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS4",
+          "frequency": "315 MHz",
+          "fcc": "YGOHUF5662",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "CAS4",
+          "frequency": "434 MHz",
+          "fcc": "YGOHUF5767",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "FEM",
+          "frequency": "315 MHz",
+          "fcc": "YGOHUF5662",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "FEM",
+          "frequency": "434 MHz",
+          "fcc": "NBGIDGNG1",
+          "chip": "ID49"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "BDC3",
+          "frequency": "434 MHz",
+          "fcc": "N5F-ID21A",
+          "chip": "NCF2951"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Mazda Locksmith Data and Walkthroughs/MazdaLocksmithDataandWalkthroughs.html",
+    "filename": "MazdaLocksmithDataandWalkthroughs.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Legacy Lucas",
+          "chip": "TI 8C (Mazda 8C)",
+          "transponder": "TI 8C (Mazda 8C)",
+          "frequency": "N/A",
+          "keyway": "MZ27",
+          "model": "626, Miata (NB), MPV"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Early PATS",
+          "chip": "TI 4C (Fixed)",
+          "transponder": "TI 4C (Fixed)",
+          "frequency": "N/A",
+          "keyway": "MAZ24",
+          "model": "Tribute, B-Series"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Ford PATS",
+          "chip": "TI 4D-63 (40-bit)",
+          "transponder": "TI 4D-63 (40-bit)",
+          "frequency": "315 MHz",
+          "keyway": "MAZ24",
+          "model": "Mazda 3, Mazda 6, RX-8"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Ford PATS",
+          "chip": "TI 4D-63 (80-bit)",
+          "transponder": "TI 4D-63 (80-bit)",
+          "frequency": "315 MHz",
+          "keyway": "HU101",
+          "model": "Mazda 2, Mazda 3, CX-7"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Smart Card",
+          "chip": "ID46 / 4D-63",
+          "transponder": "ID46 / 4D-63",
+          "frequency": "315 MHz",
+          "keyway": "MAZ24",
+          "model": "MX-5 (NC), CX-9 (Twist)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "SkyActiv Prox",
+          "chip": "ID49 (HITAG Pro)",
+          "transponder": "ID49 (HITAG Pro)",
+          "frequency": "315 MHz",
+          "keyway": "MAZ24/MZ31",
+          "model": "Mazda 3, 6, CX-5, CX-3"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Gen 7 Prox",
+          "chip": "ID49 / HITAG-AES",
+          "transponder": "ID49 / HITAG-AES",
+          "frequency": "433 MHz",
+          "keyway": "MZ31",
+          "model": "Mazda 3 (BP), CX-30, CX-50"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Chrysler Locksmith Guide Creation/ChryslerLocksmithGuideCreation.html",
+    "filename": "ChryslerLocksmithGuideCreation.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "system": "SKIM (Early)",
+          "transponder": "ID64 (4E) / ID46",
+          "keyway": "Y157 / Y159",
+          "model": "Jeep WJ, Dodge Ram BE"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "SKREEM (RHK)",
+          "transponder": "Philips ID46 (PCF7936)",
+          "keyway": "Y159 / Y160",
+          "model": "Sebring, Wrangler JK, Charger"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "WIN (Fobik)",
+          "transponder": "Philips ID46 (Integrated)",
+          "keyway": "N/A (Plastic Fob)",
+          "model": "Caravan, Town & Country, Ram"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "Keyless Go",
+          "transponder": "ID46 (PCF7953)",
+          "keyway": "Y159 Emergency Blade",
+          "model": "Journey, 300, Charger, Dart"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "system": "RFH (AES)",
+          "transponder": "HITAG AES (4A)",
+          "keyway": "SIP22 / Y159",
+          "model": "Wrangler JL, Ram DT, Pacifica"
+        }
+      }
+    ]
+  },
+  {
+    "filepath": "/Users/jeremysamuels/Documents/study-dashboard/dist/guides/html/Volvo Locksmith Guide Development Plan/VolvoLocksmithGuideDevelopmentPlan.html",
+    "filename": "VolvoLocksmithGuideDevelopmentPlan.html",
+    "data_points": [
+      {
+        "type": "table_row",
+        "data": {
+          "year": "1993\u20131998",
+          "model": "850, 940, 960",
+          "chip": "ID44 (PCF7935)",
+          "transponder": "ID44 (PCF7935)",
+          "frequency": "N/A (Chip Only)"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "1999\u20132004",
+          "model": "S70, V70, S80, S60",
+          "chip": "ID48 (Megamos)",
+          "transponder": "ID48 (Megamos)",
+          "frequency": "315 / 433 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2005\u20132014",
+          "model": "XC90, XC70, S60",
+          "chip": "ID48 (Megamos)",
+          "transponder": "ID48 (Megamos)",
+          "frequency": "315 / 433 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2004\u20132013",
+          "model": "S40, V50, C30, C70",
+          "chip": "ID46 (PCF7945)",
+          "transponder": "ID46 (PCF7945)",
+          "frequency": "315 / 433 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2007\u20132016",
+          "model": "S80, V70, XC60, S60",
+          "chip": "ID46 (PCF7953)",
+          "transponder": "ID46 (PCF7953)",
+          "frequency": "433 / 868 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2016\u2013Present",
+          "model": "XC90 II, S90, XC60 II",
+          "chip": "ID47/49 (HITAG 3)",
+          "transponder": "ID47/49 (HITAG 3)",
+          "frequency": "433 / 902 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "year": "2019\u2013Present",
+          "model": "XC40, C40",
+          "chip": "ID49 (HITAG AES)",
+          "transponder": "ID49 (HITAG AES)",
+          "frequency": "433 / 902 MHz"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "NE66"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "NE66"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU101"
+        }
+      },
+      {
+        "type": "table_row",
+        "data": {
+          "keyway": "HU101"
+        }
+      }
+    ]
+  }
+]

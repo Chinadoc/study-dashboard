@@ -1,0 +1,24 @@
+# Exclude large files from Cloudflare Pages deploy
+
+# Google Drive HTML exports (large with embedded images)
+gdrive_exports/html/
+
+# Data and scripts not needed in production
+data/
+scripts/
+api/
+
+# Python virtual environment (contains large binaries)
+.venv/
+
+# Git and config
+.git/
+.gitignore
+*.log
+
+# Node modules
+node_modules/
+
+# Capacitor native builds
+ios/
+android/

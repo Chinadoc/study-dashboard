@@ -1,0 +1,9 @@
+data/
+gdrive_exports/
+node_modules/
+.git/
+api/
+scrapers/
+*.sqlite*
+*.zip
+*.log

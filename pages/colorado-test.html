@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2023 Chevrolet Colorado | EuroKeys</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .section {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 20px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .spec-item {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .spec-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .spec-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .key-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .key-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border-radius: 16px;
+            border: 2px solid;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .key-card.green {
+            border-color: #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .key-card.purple {
+            border-color: #a855f7;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+
+        .key-card.amber {
+            border-color: #f59e0b;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+        }
+
+        .key-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .key-card h4.green {
+            color: #4ade80;
+        }
+
+        .key-card h4.purple {
+            color: #c084fc;
+        }
+
+        .key-card h4.amber {
+            color: #fbbf24;
+        }
+
+        .key-card .trim {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+        }
+
+        .key-img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin: 16px auto;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        .key-img.loading {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 100%);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+
+            100% {
+                background-position: 200px 0;
+            }
+        }
+
+        .key-buttons {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin: 12px 0;
+        }
+
+        .key-buttons .start {
+            color: #fbbf24;
+        }
+
+        .key-fcc {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 12px;
+        }
+
+        .key-fcc strong {
+            color: #94a3b8;
+        }
+
+        .oem-parts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .oem-part {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .price {
+            color: #4ade80;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 16px;
+        }
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .visual-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .visual-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .visual-card .content {
+            padding: 16px;
+        }
+
+        .visual-card .type {
+            color: #fbbf24;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .visual-card .desc {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+
+        .visual-card .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .visual-card .tag {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: #f87171;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .loading-text {
+            color: #94a3b8;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .pearl-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 4px;
+            font-size: 0.85rem;
+        }
+
+        .pearl-chip.risk-high {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .pearl-chip.risk-medium {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .pearl-chip.risk-info {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .pearls-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>2023 Chevrolet Colorado</h1>
+        <p class="subtitle">
+            <span class="badge">GLOBAL B (VIP) ARCHITECTURE</span>
+            Vehicle Data from AKS Import
+        </p>
+
+        <!-- Vehicle Specs -->
+        <section class="section">
+            <h3 class="section-title">🔧 Vehicle Specifications</h3>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Architecture</div>
+                    <div class="spec-value" style="color:#a855f7">GLOBAL B</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">CAN FD</div>
+                    <div class="spec-value" style="color:#ef4444">REQUIRED</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Chip Type</div>
+                    <div class="spec-value">🔒 HITAG 3 (ID49)</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">FCC ID</div>
+                    <div class="spec-value" style="font-family:monospace">📡 YG0G21TB2</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Battery</div>
+                    <div class="spec-value">CR2450</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Keyway / Lishi</div>
+                    <div class="spec-value" style="color:#22c55e">HU100</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Types -->
+        <section class="section">
+            <h3 class="section-title">🔑 Key Types for This Vehicle</h3>
+            <div class="key-cards" id="key-cards">
+                <!-- Populated by JS with images from R2 -->
+            </div>
+        </section>
+
+        <!-- Visual References -->
+        <section class="section">
+            <h3 class="section-title">📸 Visual References</h3>
+            <div class="visual-grid" id="visual-grid">
+                <div class="loading-text">Loading images...</div>
+            </div>
+        </section>
+
+        <!-- Technical Pearls -->
+        <section class="section">
+            <h3 class="section-title">💎 Technical Pearls</h3>
+            <div class="pearls-container" id="pearls-container">
+                <div class="loading-text">Loading pearls...</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+
+        // Key configurations with R2 images via Worker proxy
+        const API_R2 = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
+        const keyConfigs = [
+            {
+                name: '3-Button Smart Key',
+                trim: 'Base / WT Trim',
+                buttons: 'Lock · Unlock · Panic',
+                fcc: 'YG0G21TB2',
+                freq: '433 MHz',
+                oem: ['13548436', '13514330', '13560198'],
+                price: '$67 - $98',
+                color: 'green',
+                image: `${API_R2}/keyfobs/gm/chevrolet_colorado_3btn.jpg`
+            },
+            {
+                name: '4-Button Smart Key',
+                trim: 'LT / Z71 / Trail Boss',
+                buttons: 'Lock · Unlock · Panic · <span class="start">Start</span>',
+                fcc: 'YG0G21TB2',
+                freq: '433 MHz',
+                oem: ['13560201', '13548442', '13541260'],
+                price: '$80 - $110',
+                color: 'purple',
+                image: `${API_R2}/keyfobs/gm/chevrolet_colorado_4btn.jpg`
+            },
+            {
+                name: 'Emergency Key Blade',
+                trim: 'Physical Access Only',
+                buttons: 'Door Unlock · Backup Start',
+                blade: 'B122',
+                profile: 'HU100',
+                cut: '10-Cut',
+                style: 'Laser',
+                price: 'Included w/ Fob',
+                color: 'amber',
+                image: `${API_R2}/keyfobs/gm/chevrolet_emergency_blade.jpg`
+            }
+        ];
+
+        // Render key cards
+        const keyCardsEl = document.getElementById('key-cards');
+        keyCardsEl.innerHTML = keyConfigs.map(k => `
+            <div class="key-card ${k.color}">
+                <h4 class="${k.color}">${k.name}</h4>
+                <div class="trim">${k.trim}</div>
+                <img src="${k.image}" alt="${k.name}" class="key-img" onerror="this.src='https://via.placeholder.com/120?text=Key+Fob'">
+                <div class="key-buttons">${k.buttons}</div>
+                <div class="key-fcc">
+                    <strong>FCC:</strong> ${k.fcc || 'N/A'} · <strong>Freq:</strong> ${k.freq || 'N/A'}
+                    ${k.blade ? `<br><strong>Blade:</strong> ${k.blade} · <strong>Profile:</strong> ${k.profile}` : ''}
+                </div>
+                ${k.oem ? `
+                    <div class="oem-parts">
+                        ${k.oem.map(p => `<span class="oem-part">${p}</span>`).join('')}
+                    </div>
+                ` : ''}
+                <div class="price">${k.price}</div>
+            </div>
+        `).join('');
+
+        // Fetch visual references
+        async function loadImages() {
+            const grid = document.getElementById('visual-grid');
+            try {
+                const res = await fetch(`${API_BASE}/api/images?make=chevrolet`);
+                const data = await res.json();
+
+                if (data.images && data.images.length > 0) {
+                    grid.innerHTML = data.images.slice(0, 6).map(img => `
+                        <div class="visual-card">
+                            <img src="${img.url || 'https://via.placeholder.com/300x180?text=Loading...'}" 
+                                 alt="${img.description || img.filename}"
+                                 onerror="this.src='https://via.placeholder.com/300x180?text=Image+Not+Available'">
+                            <div class="content">
+                                <div class="type">${img.image_type || 'reference'}</div>
+                                <p class="desc">${img.description || img.filename}</p>
+                                <div class="tags">
+                                    ${(img.tags || []).slice(0, 4).map(t => `<span class="tag">${t}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<div class="error">No images found for this vehicle.</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+            }
+        }
+
+        // Fetch pearls
+        async function loadPearls() {
+            const container = document.getElementById('pearls-container');
+            try {
+                const res = await fetch(`${API_BASE}/api/pearls?make=chevrolet&model=colorado`);
+                const data = await res.json();
+
+                if (data.pearls && data.pearls.length > 0) {
+                    container.innerHTML = data.pearls.slice(0, 12).map(p => {
+                        const riskClass = p.risk === 'high' ? 'risk-high' :
+                            p.risk === 'medium' ? 'risk-medium' : 'risk-info';
+                        return `<div class="pearl-chip ${riskClass}">${p.content}</div>`;
+                    }).join('');
+                } else {
+                    // Fall back to GM pearls
+                    const gmRes = await fetch(`${API_BASE}/api/pearls?make=chevrolet`);
+                    const gmData = await gmRes.json();
+                    if (gmData.pearls && gmData.pearls.length > 0) {
+                        container.innerHTML = gmData.pearls.slice(0, 12).map(p => {
+                            const riskClass = p.risk === 'high' ? 'risk-high' :
+                                p.risk === 'medium' ? 'risk-medium' : 'risk-info';
+                            return `<div class="pearl-chip ${riskClass}">${p.content}</div>`;
+                        }).join('');
+                    } else {
+                        container.innerHTML = '<div class="error">No pearls found.</div>';
+                    }
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+            }
+        }
+
+        // Load data when page loads
+        loadImages();
+        loadPearls();
+    </script>
+</body>
+
+</html>

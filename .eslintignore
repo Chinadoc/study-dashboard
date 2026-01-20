@@ -1,0 +1,35 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# ESLINT IGNORE - EuroKeys
+# ═══════════════════════════════════════════════════════════════════════════
+# Prevents ESLint from scanning non-source directories (speeds up linting)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Large data directories
+gdrive_exports/
+data/
+api/
+scrapers/
+scripts/
+resources/
+research/
+logs/
+ios/
+images/
+_legacy/
+
+# Build outputs
+dist/
+out/
+.next/
+.wrangler/
+node_modules/
+
+# Config files (not JS)
+public/
+assets/
+capacitor.config.json
+package-lock.json
+*.sql
+*.json
+*.csv
+public/

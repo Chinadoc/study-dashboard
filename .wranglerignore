@@ -1,0 +1,37 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# WRANGLER IGNORE - EuroKeys
+# ═══════════════════════════════════════════════════════════════════════════
+# Controls what Wrangler uploads to Cloudflare Workers.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Large directories
+api/
+data/
+gdrive_exports/
+scrapers/
+scripts/
+research/
+logs/
+ios/
+resources/
+_legacy/
+images/
+
+# Dependencies & caches
+node_modules/
+.venv/
+.git/
+.wrangler/
+
+# Large file types
+*.sql
+*.csv
+*.json
+*.txt
+*.pdf
+*.rtf
+*.docx
+*.sqlite
+*.db
+*.log
+*.pickle

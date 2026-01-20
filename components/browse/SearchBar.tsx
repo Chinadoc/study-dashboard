@@ -1,6 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+
+const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+
+interface SearchResult {
+    type: 'make' | 'model' | 'vehicle';
+    make: string;
+    model?: string;
+    year?: number;
+    display: string;
+}
 
 interface SearchBarProps {
     onSearch: (query: string) => void;
@@ -9,21 +20,160 @@ interface SearchBarProps {
 
 export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/VIN..." }: SearchBarProps) {
     const [query, setQuery] = useState('');
+    const [results, setResults] = useState<SearchResult[]>([]);
+    const [allMakes, setAllMakes] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const router = useRouter();
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
+    // Fetch makes on mount
+    useEffect(() => {
+        async function fetchMakes() {
+            try {
+                const res = await fetch(`${API_BASE}/api/vyp/makes`);
+                const data = await res.json();
+                setAllMakes(data.makes || []);
+            } catch (error) {
+                console.error('Failed to fetch makes:', error);
+            }
+        }
+        fetchMakes();
+    }, []);
+
+    // Debounced search with local filtering + model fetching
+    useEffect(() => {
+        if (!query.trim() || query.length < 2) {
+            setResults([]);
+            setShowDropdown(false);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsLoading(true);
+            const suggestions: SearchResult[] = [];
+            const lowerQuery = query.toLowerCase().trim();
+
+            try {
+                // Filter makes locally
+                const matchingMakes = allMakes
+                    .filter(make => make.toLowerCase().includes(lowerQuery))
+                    .slice(0, 5);
+
+                matchingMakes.forEach(make => {
+                    suggestions.push({
+                        type: 'make',
+                        make,
+                        display: make
+                    });
+                });
+
+                // If query exactly or closely matches a make, fetch its models too
+                const exactMake = allMakes.find(m => m.toLowerCase() === lowerQuery);
+                const partialMake = !exactMake && matchingMakes.length === 1 ? matchingMakes[0] : null;
+                const targetMake = exactMake || partialMake;
+
+                if (targetMake) {
+                    const modelsRes = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(targetMake)}`);
+                    const modelsData = await modelsRes.json();
+                    const models = (modelsData.models || []) as string[];
+
+                    models.slice(0, 5).forEach(model => {
+                        suggestions.push({
+                            type: 'model',
+                            make: targetMake,
+                            model,
+                            display: `${targetMake} ${model}`
+                        });
+                    });
+                }
+
+                // Deduplicate
+                const uniqueSuggestions = suggestions.filter((item, index, self) =>
+                    index === self.findIndex(t => t.display === item.display)
+                );
+
+                setResults(uniqueSuggestions.slice(0, 8));
+                setShowDropdown(uniqueSuggestions.length > 0);
+                setSelectedIndex(-1);
+            } catch (error) {
+                console.error('Search error:', error);
+                // Still show matching makes on error
+                const matchingMakes = allMakes
+                    .filter(make => make.toLowerCase().includes(lowerQuery))
+                    .slice(0, 8);
+                setResults(matchingMakes.map(make => ({ type: 'make' as const, make, display: make })));
+                setShowDropdown(matchingMakes.length > 0);
+            } finally {
+                setIsLoading(false);
+            }
+        }, 200);
+
+        return () => clearTimeout(timer);
+    }, [query, allMakes]);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleSelect = (result: SearchResult) => {
+        if (result.type === 'make') {
+            // Navigate to browse with make pre-selected
+            window.location.href = `/browse?make=${encodeURIComponent(result.make)}`;
+        } else if (result.type === 'model' && result.model) {
+            // Navigate to browse with make and model
+            window.location.href = `/browse?make=${encodeURIComponent(result.make)}&model=${encodeURIComponent(result.model)}`;
+        } else if (result.type === 'vehicle' && result.make && result.model && result.year) {
+            router.push(`/vehicle/${encodeURIComponent(result.make)}/${encodeURIComponent(result.model)}/${result.year}`);
+        }
+        setShowDropdown(false);
+        setQuery('');
+    };
+
+    const handleSubmit = () => {
+        if (selectedIndex >= 0 && results[selectedIndex]) {
+            handleSelect(results[selectedIndex]);
+        } else if (query.trim()) {
             onSearch(query);
+            setShowDropdown(false);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedIndex(prev => Math.min(prev + 1, results.length - 1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedIndex(prev => Math.max(prev - 1, -1));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSubmit();
+        } else if (e.key === 'Escape') {
+            setShowDropdown(false);
         }
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto mb-8">
+        <div className="w-full max-w-2xl mx-auto mb-8 relative" ref={dropdownRef}>
             <div className="relative">
                 <input
+                    ref={inputRef}
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => results.length > 0 && setShowDropdown(true)}
                     placeholder={placeholder}
                     className="
                         w-full px-6 py-4 pl-12
@@ -43,16 +193,21 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     <circle cx="11" cy="11" r="8" />
                     <path d="M21 21l-4.35-4.35" />
                 </svg>
-                {query && (
+                {isLoading && (
+                    <div className="absolute right-20 top-1/2 -translate-y-1/2">
+                        <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
+                {query && !isLoading && (
                     <button
-                        onClick={() => { setQuery(''); }}
-                        className="absolute right-16 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                        onClick={() => { setQuery(''); setResults([]); setShowDropdown(false); }}
+                        className="absolute right-16 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
                     >
                         ✕
                     </button>
                 )}
                 <button
-                    onClick={() => onSearch(query)}
+                    onClick={handleSubmit}
                     className="
                         absolute right-2 top-1/2 -translate-y-1/2
                         px-4 py-2 bg-purple-600 hover:bg-purple-500
@@ -63,6 +218,54 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     Go
                 </button>
             </div>
+
+            {/* Autocomplete Dropdown - Google style */}
+            {showDropdown && results.length > 0 && (
+                <div className="
+                    absolute top-full left-0 right-0 mt-2
+                    bg-gray-800/95 backdrop-blur-md border border-gray-700
+                    rounded-2xl shadow-2xl shadow-black/50
+                    overflow-hidden z-50
+                ">
+                    {results.map((result, index) => (
+                        <button
+                            key={`${result.type}-${result.display}`}
+                            onClick={() => handleSelect(result)}
+                            className={`
+                                w-full px-5 py-3 flex items-center gap-4 text-left
+                                transition-colors duration-150
+                                ${index === selectedIndex
+                                    ? 'bg-purple-600/30 text-white'
+                                    : 'hover:bg-gray-700/50 text-gray-200'
+                                }
+                                ${index !== results.length - 1 ? 'border-b border-gray-700/50' : ''}
+                            `}
+                        >
+                            {/* Icon based on type */}
+                            <span className={`
+                                w-8 h-8 rounded-lg flex items-center justify-center text-sm
+                                ${result.type === 'make'
+                                    ? 'bg-purple-500/20 text-purple-400'
+                                    : result.type === 'model'
+                                        ? 'bg-blue-500/20 text-blue-400'
+                                        : 'bg-emerald-500/20 text-emerald-400'
+                                }
+                            `}>
+                                {result.type === 'make' ? '🏭' : result.type === 'model' ? '🚙' : '🚗'}
+                            </span>
+                            <div className="flex-1">
+                                <div className="font-medium">{result.display}</div>
+                                <div className="text-xs text-gray-400">
+                                    {result.type === 'make' ? 'View all models' : result.type === 'model' ? 'View years' : 'View details'}
+                                </div>
+                            </div>
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

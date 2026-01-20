@@ -1,0 +1,140 @@
+{
+  "mini": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/bmw/bmw_infographic_professional.png",
+        "name": "BMW Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "bmw": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/bmw/bmw_infographic_professional.png",
+        "name": "BMW Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "ford": {
+    "infographics": [],
+    "guides": []
+  },
+  "mercury": {
+    "infographics": [],
+    "guides": []
+  },
+  "lincoln": {
+    "infographics": [],
+    "guides": []
+  },
+  "kia": {
+    "infographics": [],
+    "guides": []
+  },
+  "hyundai": {
+    "infographics": [],
+    "guides": []
+  },
+  "genesis": {
+    "infographics": [],
+    "guides": []
+  },
+  "mercedes-benz": {
+    "infographics": [],
+    "guides": []
+  },
+  "mercedes": {
+    "infographics": [],
+    "guides": []
+  },
+  "smart": {
+    "infographics": [],
+    "guides": []
+  },
+  "mazda": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/mazda/mazda_infographic_professional.png",
+        "name": "Mazda Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "honda": {
+    "infographics": [],
+    "guides": []
+  },
+  "acura": {
+    "infographics": [],
+    "guides": []
+  },
+  "infiniti": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/nissan/nissan_infographic_professional.png",
+        "name": "Nissan Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "nissan": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/nissan/nissan_infographic_professional.png",
+        "name": "Nissan Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "jeep": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/chrysler/chrysler_infographic_professional.png",
+        "name": "Chrysler Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "chrysler": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/chrysler/chrysler_infographic_professional.png",
+        "name": "Chrysler Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "ram": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/chrysler/chrysler_infographic_professional.png",
+        "name": "Chrysler Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "dodge": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/chrysler/chrysler_infographic_professional.png",
+        "name": "Chrysler Infographic"
+      }
+    ],
+    "guides": []
+  },
+  "fiat": {
+    "infographics": [],
+    "guides": []
+  },
+  "cdjr": {
+    "infographics": [
+      {
+        "path": "assets/vehicles/chrysler/chrysler_infographic_professional.png",
+        "name": "Chrysler Infographic"
+      }
+    ],
+    "guides": []
+  }
+}

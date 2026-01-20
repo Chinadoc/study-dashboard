@@ -346,7 +346,7 @@
         // ═══════════════════════════════════════════════════════════════════════
         // CLOUDFLARE API INTEGRATION
         // ═══════════════════════════════════════════════════════════════════════
-        const API = 'https://aski.eurokeys.app';
+        const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
         // State
         let selectedMake = null;
@@ -366,11 +366,11 @@
 
         async function loadMakes() {
             try {
-                const res = await fetch(`${API}/api/master?fields=make&limit=2000`);
+                const res = await fetch(`${API}/api/vyp/makes`);
                 const data = await res.json();
 
-                // Extract unique makes
-                allMakes = [...new Set(data.results.map(r => r.make))].filter(m => m).sort();
+                // Extract unique makes from VYP endpoint
+                allMakes = (data.makes || []).sort();
 
                 renderMakes(allMakes);
             } catch (e) {
@@ -384,10 +384,10 @@
             document.getElementById('modelOptions').innerHTML = '<div class="step-loading">Loading models...</div>';
 
             try {
-                const res = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&fields=model&limit=1000`);
+                const res = await fetch(`${API}/api/vyp/models?make=${encodeURIComponent(make)}`);
                 const data = await res.json();
 
-                const models = [...new Set(data.results.map(r => r.model))].filter(m => m).sort();
+                const models = (data.models || []).sort();
                 renderModels(models);
             } catch (e) {
                 console.error('Failed to load models:', e);
@@ -400,20 +400,11 @@
             document.getElementById('yearOptions').innerHTML = '<div class="step-loading">Loading years...</div>';
 
             try {
-                const res = await fetch(`${API}/api/master?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&fields=year_start,year_end&limit=100`);
+                const res = await fetch(`${API}/api/vyp/years?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`);
                 const data = await res.json();
 
-                // Build unique years from year_start to year_end ranges
-                const years = new Set();
-                data.results.forEach(r => {
-                    const start = r.year_start || 2015;
-                    const end = r.year_end || r.year_start || 2024;
-                    for (let y = start; y <= end; y++) {
-                        years.add(y);
-                    }
-                });
-
-                const yearArray = [...years].sort((a, b) => b - a); // Newest first
+                // VYP endpoint returns years directly as an array
+                const yearArray = (data.years || []).sort((a, b) => b - a); // Newest first
                 renderYears(yearArray);
             } catch (e) {
                 console.error('Failed to load years:', e);
@@ -550,24 +541,56 @@
                     return;
                 }
 
-                // Filter makes that match
+                // Filter makes
                 const matchingMakes = allMakes.filter(m =>
                     m.toLowerCase().includes(query)
                 ).slice(0, 5);
 
-                // Build suggestions
                 let html = '';
 
-                // Parse for year + make + model pattern
+                // Extract year if present
                 const yearMatch = query.match(/(\d{4})/);
                 const year = yearMatch ? yearMatch[1] : null;
 
+                // Better suggestions: If query has a make, show its models
+                const foundMake = allMakes.find(m => query.includes(m.toLowerCase()));
+
+                if (foundMake) {
+                    try {
+                        const mRes = await fetch(`${API}/api/vyp/models?make=${encodeURIComponent(foundMake)}`);
+                        const mData = await mRes.json();
+                        const models = mData.models || [];
+
+                        // Filter models that match the rest of the query
+                        const queryWithoutMake = query.replace(foundMake.toLowerCase(), '').trim();
+                        const matchingModels = models.filter(m =>
+                            !queryWithoutMake || m.toLowerCase().includes(queryWithoutMake)
+                        ).slice(0, 5);
+
+                        matchingModels.forEach(model => {
+                            html += `
+                                <div class="suggestion-item" onclick="selectFullSuggestion('${foundMake}', '${model}', '${year || ''}')">
+                                    <span class="suggestion-icon">🚗</span>
+                                    <div class="suggestion-text">
+                                        <div class="suggestion-title">${year || ''} ${foundMake} ${model}</div>
+                                        <div class="suggestion-subtitle">Technical specifications for ${model}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } catch (e) {
+                        console.error("Model fetch failed", e);
+                    }
+                }
+
+                // Add makes to suggestions
                 matchingMakes.forEach(make => {
+                    if (foundMake === make) return; // Skip if already showing models
                     html += `
                         <div class="suggestion-item" onclick="selectSuggestion('${make}')">
-                            <span class="suggestion-icon">🚗</span>
+                            <span class="suggestion-icon">🏢</span>
                             <div class="suggestion-text">
-                                <div class="suggestion-title">${year || ''} ${make}</div>
+                                <div class="suggestion-title">${make}</div>
                                 <div class="suggestion-subtitle">Browse all ${make} vehicles</div>
                             </div>
                         </div>
@@ -590,11 +613,23 @@
             });
         }
 
-        function selectSuggestion(make) {
+        async function selectFullSuggestion(make, model, year) {
             document.getElementById('suggestionsDropdown').classList.remove('visible');
-            selectMake(make);
+            document.getElementById('searchInput').value = `${year} ${make} ${model}`.trim();
 
-            // Scroll to wizard
+            await selectMake(make);
+
+            // Need to wait for models to render or just call selectModel directly
+            // selectModel handles model selection and triggers year load
+            setTimeout(() => {
+                selectModel(model);
+                if (year) {
+                    setTimeout(() => {
+                        selectYear(year);
+                    }, 500);
+                }
+            }, 300);
+
             document.querySelector('.wizard-container').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -602,19 +637,20 @@
             const query = document.getElementById('searchInput').value.trim();
             if (!query) return;
 
-            // Parse the search query
+            // Simple parser: [Year] Make [Model...]
             const parts = query.split(/\s+/);
-            const year = parts.find(p => /^\d{4}$/.test(p));
-            const make = allMakes.find(m =>
+            let year = parts.find(p => /^\d{4}$/.test(p));
+            let make = allMakes.find(m =>
                 parts.some(p => p.toLowerCase() === m.toLowerCase())
             );
 
             if (make) {
                 selectMake(make);
-                // If year found, we'd need to wait for models then years
-                // For now just select the make
+                // Try to find model from remainder
+                const remainder = parts.filter(p => !year && p.toLowerCase() !== make.toLowerCase()).join(' ');
+                // This is fuzzy, usually we'd want to fetch model list first
+                // But if they clicked a suggestion, selectFullSuggestion handles it better.
             } else if (parts.length > 0) {
-                // Search for partial make match
                 const partialMake = allMakes.find(m =>
                     m.toLowerCase().includes(parts[0].toLowerCase())
                 );

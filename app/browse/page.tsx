@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { WizardStep, WizardStepOption } from '@/components/WizardStep';
 import { MakeGrid } from '@/components/browse/MakeGrid';
 import { SearchBar } from '@/components/browse/SearchBar';
@@ -11,14 +11,19 @@ const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
 export default function BrowsePage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Read initial selection from URL params
+    const initialMake = searchParams?.get('make') ?? null;
+    const initialModel = searchParams?.get('model') ?? null;
 
     // State
     const [makes, setMakes] = useState<string[]>([]);
     const [models, setModels] = useState<string[]>([]);
     const [years, setYears] = useState<number[]>([]);
 
-    const [selectedMake, setSelectedMake] = useState<string | null>(null);
-    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+    const [selectedMake, setSelectedMake] = useState<string | null>(initialMake);
+    const [selectedModel, setSelectedModel] = useState<string | null>(initialModel);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
     const [loadingModels, setLoadingModels] = useState(false);
@@ -77,7 +82,8 @@ export default function BrowsePage() {
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/years?make=${encodeURIComponent(selectedMake!)}&model=${encodeURIComponent(selectedModel!)}`);
                 const data = await res.json();
-                const sortedYears = (data.years || []).map((y: any) => y.year) as number[];
+                // Handle both formats: array of numbers [1993, 1992, ...] or array of objects [{year: 1993}, ...]
+                const sortedYears = (data.years || []).map((y: any) => typeof y === 'number' ? y : y.year).filter(Boolean) as number[];
                 setYears(sortedYears);
             } catch (error) {
                 console.error('Failed to fetch years:', error);

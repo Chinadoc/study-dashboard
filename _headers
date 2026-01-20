@@ -7,6 +7,13 @@
 /index.html
   Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=60
 
+# Next.js app routes - NEVER cache browser, short edge cache
+/browse/*
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/vehicle/*
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # ALL other HTML files - Same as index.html (always revalidate)
 /*.html
   Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=60

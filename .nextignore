@@ -1,0 +1,19 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# NEXT.JS IGNORE - EuroKeys
+# ═══════════════════════════════════════════════════════════════════════════
+# Excludes large directories from Next.js file watching and processing
+# ═══════════════════════════════════════════════════════════════════════════
+
+gdrive_exports
+data
+api
+scrapers
+scripts
+resources
+research
+logs
+ios
+dist
+images
+_legacy
+.wrangler

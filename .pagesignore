@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# CLOUDFLARE PAGES IGNORE - EuroKeys
+# ═══════════════════════════════════════════════════════════════════════════
+# Controls what gets UPLOADED to Cloudflare Pages during deployment.
+# Files listed here are EXCLUDED from the deployment bundle.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ─── Large data directories ─────────────────────────────────────────────────
+data/
+gdrive_exports/
+scrapers/
+research/
+logs/
+resources/
+ios/
+_legacy/
+images/
+
+# ─── API data (not Cloudflare Functions) ────────────────────────────────────
+api/data.sql
+api/logs/
+
+# ─── Development files ──────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+.vscode/
+node_modules/
+package-lock.json
+wrangler.toml
+.DS_Store
+
+# ─── Large file types (Cloudflare 25MB limit) ───────────────────────────────
+**/*.sql
+**/*.csv
+*.pickle
+*.pdf
+*.rtf
+*.docx
+*.sqlite
+*.db
+*.log
+
+# ─── Specific large files ───────────────────────────────────────────────────
+all_keys_lost_procedures.json
+gdrive_exports/image_context_manifest.json
+resources/*.pdf

@@ -40,6 +40,14 @@
     "api",
     "data",
     "scrapers",
-    "scripts"
+    "scripts",
+    "gdrive_exports",
+    "resources",
+    "research",
+    "logs",
+    "dist",
+    "out",
+    "ios",
+    "assets"
   ]
 }

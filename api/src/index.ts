@@ -2658,6 +2658,101 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // VYP SUB-ROUTES - Makes/Models/Years with specs filter
+      // ==============================================
+      // Only returns makes/models that have spaces, depths, and macs (actual key specs)
+      // This filters out orphan entries that lead to empty vehicle pages
+
+      // GET /api/vyp/makes - Returns distinct makes that have mechanical specs
+      if (path === "/api/vyp/makes") {
+        try {
+          const sql = `
+            SELECT DISTINCT make 
+            FROM vehicle_year_products
+            WHERE spaces IS NOT NULL 
+            AND depths IS NOT NULL 
+            AND macs IS NOT NULL
+            ORDER BY make
+          `;
+          const result = await env.LOCKSMITH_DB.prepare(sql).all();
+          const makes = (result.results || []).map((r: any) => r.make);
+
+          return corsResponse(request, JSON.stringify({
+            source: "vehicle_year_products",
+            count: makes.length,
+            makes
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/vyp/models?make=X - Returns models for a make that have mechanical specs
+      if (path === "/api/vyp/models") {
+        try {
+          const make = url.searchParams.get("make") || "";
+          if (!make) {
+            return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
+          }
+
+          const sql = `
+            SELECT DISTINCT model 
+            FROM vehicle_year_products
+            WHERE LOWER(make) = LOWER(?)
+            AND spaces IS NOT NULL 
+            AND depths IS NOT NULL 
+            AND macs IS NOT NULL
+            ORDER BY model
+          `;
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
+          const models = (result.results || []).map((r: any) => r.model);
+
+          return corsResponse(request, JSON.stringify({
+            source: "vehicle_year_products",
+            make,
+            count: models.length,
+            models
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/vyp/years?make=X&model=Y - Returns years for a make/model that have mechanical specs
+      if (path === "/api/vyp/years") {
+        try {
+          const make = url.searchParams.get("make") || "";
+          const model = url.searchParams.get("model") || "";
+          if (!make || !model) {
+            return corsResponse(request, JSON.stringify({ error: "make and model parameters required" }), 400);
+          }
+
+          const sql = `
+            SELECT DISTINCT year 
+            FROM vehicle_year_products
+            WHERE LOWER(make) = LOWER(?)
+            AND LOWER(model) = LOWER(?)
+            AND spaces IS NOT NULL 
+            AND depths IS NOT NULL 
+            AND macs IS NOT NULL
+            ORDER BY year DESC
+          `;
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(make, model).all();
+          const years = (result.results || []).map((r: any) => r.year);
+
+          return corsResponse(request, JSON.stringify({
+            source: "vehicle_year_products",
+            make,
+            model,
+            count: years.length,
+            years
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // AKS PRODUCT DETAIL (battery, chips, etc)
       // ==============================================
       // Query individual products from aks_products_detail by item_number
