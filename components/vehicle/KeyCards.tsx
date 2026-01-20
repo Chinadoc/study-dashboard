@@ -56,8 +56,25 @@ function KeyCard({ config }: { config: KeyConfig }) {
 
     const typeLabel = config.type || 'prox';
 
+    // Construct Amazon Search URL
+    // Search query: FCC ID + Name (e.g., "M3N-A2C31243800 4-Button Smart Key")
+    const searchQuery = `${config.fcc || ''} ${config.name || ''}`.trim();
+    const amazonUrl = config.fcc
+        ? `https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}&tag=${AFFILIATE_TAG}`
+        : '#';
+
+    const CardWrapper = config.fcc ? 'a' : 'div';
+    const wrapperProps = config.fcc ? {
+        href: amazonUrl,
+        target: '_blank',
+        rel: 'noopener noreferrer'
+    } : {};
+
     return (
-        <div className="glass p-5 hover:border-purple-500/50 transition-all group">
+        <CardWrapper
+            {...wrapperProps}
+            className="glass p-5 hover:border-purple-500/50 transition-all group block relative"
+        >
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div>
@@ -143,17 +160,12 @@ function KeyCard({ config }: { config: KeyConfig }) {
                 </div>
             )}
 
-            {/* Shop Button */}
+            {/* Shop Button (Visual Only, parent is anchor) */}
             {config.fcc && (
-                <a
-                    href={`https://www.amazon.com/s?k=${config.fcc}&tag=${AFFILIATE_TAG}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full text-center py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20"
-                >
+                <div className="block w-full text-center py-3 bg-yellow-500/90 group-hover:bg-yellow-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20 mt-auto">
                     🛒 Shop on Amazon
-                </a>
+                </div>
             )}
-        </div>
+        </CardWrapper>
     );
 }

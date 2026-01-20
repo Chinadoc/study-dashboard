@@ -10,6 +10,7 @@ interface Procedure {
     steps?: string[];
     requirements?: string[];
     menu_path?: string;
+    pearls?: any[]; // Contextual pearls for this procedure
 }
 
 interface VehicleProceduresProps {
@@ -38,8 +39,8 @@ export default function VehicleProcedures({
                     <button
                         onClick={() => setActiveTab('addKey')}
                         className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'addKey'
-                                ? 'border-purple-500 text-purple-400 bg-purple-500/10'
-                                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                            ? 'border-purple-500 text-purple-400 bg-purple-500/10'
+                            : 'border-transparent text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
                         🔑 Add Smart Key
@@ -47,8 +48,8 @@ export default function VehicleProcedures({
                     <button
                         onClick={() => setActiveTab('akl')}
                         className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${activeTab === 'akl'
-                                ? 'border-red-500 text-red-400 bg-red-500/10'
-                                : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                            ? 'border-red-500 text-red-400 bg-red-500/10'
+                            : 'border-transparent text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
                         🚨 All Keys Lost (AKL)
@@ -139,6 +140,34 @@ export default function VehicleProcedures({
                     )}
                 </div>
             </div>
+
+            {/* Contextual Pearls (Alerts/Tips specifically for this procedure) */}
+            {procedure?.pearls && procedure.pearls.length > 0 && (
+                <div className="space-y-3">
+                    {procedure.pearls.map((pearl, i) => (
+                        <div
+                            key={i}
+                            className={`p-4 rounded-xl border flex gap-3 ${pearl.is_critical || pearl.risk === 'critical'
+                                    ? 'bg-red-900/10 border-red-500/20 text-red-200'
+                                    : 'bg-amber-900/10 border-amber-500/20 text-amber-200'
+                                }`}
+                        >
+                            <span className="text-xl shrink-0">
+                                {pearl.is_critical || pearl.risk === 'critical' ? '⚠️' : '💡'}
+                            </span>
+                            <div>
+                                <h4 className={`font-bold text-sm mb-1 ${pearl.is_critical || pearl.risk === 'critical' ? 'text-red-400' : 'text-amber-400'
+                                    }`}>
+                                    {pearl.pearl_title || 'Expert Insight'}
+                                </h4>
+                                <p className="text-sm opacity-90 leading-relaxed">
+                                    {pearl.content || pearl.pearl_content}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Steps List */}
             <div className="space-y-4">

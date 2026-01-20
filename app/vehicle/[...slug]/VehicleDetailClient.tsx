@@ -277,9 +277,12 @@ export default function VehicleDetailClient() {
     // Universal key classification system
     // Groups products by (type + button count), filters packs/shells, aggregates OEM parts
     function classifyVypProducts(vypData: any, vehicleSpecs: any): any[] {
-        if (!vypData || !vypData.product_types || vypData.product_types.length === 0) return [];
+        if (!vypData || !vypData.product_types) return [];
 
-        const productTypes: string[] = vypData.product_types || [];
+        // Extract unique product types found in VYP to cross-reference with our knowledge base
+        const productTypes = Array.from(new Set(
+            vypData.product_types.filter((t: any): t is string => typeof t === 'string')
+        ));
         const fccIds: string[] = (vypData.fcc_ids || []).map((f: string) => f.trim()).filter(Boolean);
         const oemParts: string[] = [...new Set((vypData.oem_parts || []).map((p: string) => p.trim()).filter(Boolean))];
         const chips: string[] = (vypData.chips || []).map((c: string) => c.trim()).filter(Boolean);
@@ -426,6 +429,24 @@ export default function VehicleDetailClient() {
         w.category?.toLowerCase().includes('akl') || w.title?.toLowerCase().includes('all keys lost')
     );
 
+    // Filter pearls by context
+    const addKeyPearls = pearlsList.filter((p: any) => {
+        const tags = (p.tags || []).map((t: string) => t.toLowerCase());
+        const cat = (p.category || '').toLowerCase();
+        return tags.includes('add key') || tags.includes('spare key') || cat.includes('add key');
+    });
+
+    const aklPearls = pearlsList.filter((p: any) => {
+        const tags = (p.tags || []).map((t: string) => t.toLowerCase());
+        const cat = (p.category || '').toLowerCase();
+        const risk = (p.risk || '').toLowerCase();
+        return tags.includes('akl') || tags.includes('all keys lost') || cat.includes('akl') || risk === 'critical';
+    });
+
+    // Pearls to show in the general section (exclude ones shown in procedures)
+    const procedurePearlIds = new Set([...addKeyPearls, ...aklPearls].map(p => p.id));
+    const generalPearls = pearlsList.filter((p: any) => !procedurePearlIds.has(p.id));
+
     return (
         <div className="container mx-auto px-4 py-6 max-w-7xl">
             {/* Header with title and badges */}
@@ -456,6 +477,7 @@ export default function VehicleDetailClient() {
                             time_minutes: addKeyWalkthrough.estimated_time_mins,
                             steps: addKeyWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
                             menu_path: addKeyWalkthrough.platform_code,
+                            pearls: addKeyPearls
                         } : undefined,
                         akl: aklWalkthrough ? {
                             title: aklWalkthrough.title,
@@ -463,20 +485,26 @@ export default function VehicleDetailClient() {
                             risk_level: 'high' as const,
                             steps: aklWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
                             menu_path: aklWalkthrough.platform_code,
+                            pearls: aklPearls
                         } : undefined,
                     }} />
 
                     {/* Visual References Gallery */}
                     <VisualReferences images={imagesList} />
 
-                    {/* Technical Pearls / Insights */}
-                    <TechnicalPearls pearls={pearlsList} />
+                    {/* Technical Pearls / Insights (General only) */}
+                    <TechnicalPearls pearls={generalPearls} />
                 </div>
 
                 {/* Right Column: Locksmith Sidebar (4/12) */}
                 <div className="lg:col-span-4 space-y-6">
                     <LocksmithSidebar
-                        specs={fullSpecs}
+                        specs={{
+                            ...fullSpecs,
+                            // Override battery/keyway with representative key data if available
+                            battery: mergedKeys[0]?.battery || fullSpecs.battery,
+                            keyway: mergedKeys[0]?.blade || mergedKeys[0]?.keyway || fullSpecs.keyway,
+                        }}
                         platform={header.platform}
                         architecture={header.immobilizer_system}
                         gotchaText={criticalPearl?.content}
