@@ -477,7 +477,7 @@ export default function VehicleDetailClient() {
                     <VehicleSpecs specs={fullSpecs} make={make} year={year} />
 
                     {/* Key Configuration Cards with R2 images */}
-                    <KeyCards keys={mergedKeys} />
+                    <KeyCards keys={mergedKeys} vehicleInfo={{ make, model, year }} />
 
                     {/* Programming Procedures */}
                     <VehicleProcedures procedures={{

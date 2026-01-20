@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AFFILIATE_TAG } from '@/lib/config';
 
 interface KeyConfig {
@@ -19,9 +19,10 @@ interface KeyConfig {
 
 interface KeyCardsProps {
     keys: KeyConfig[];
+    vehicleInfo?: { make: string; model: string; year: number };
 }
 
-export default function KeyCards({ keys }: KeyCardsProps) {
+export default function KeyCards({ keys, vehicleInfo }: KeyCardsProps) {
     if (!keys || keys.length === 0) {
         return (
             <div className="glass p-8 text-center text-zinc-500 mb-8">
@@ -39,14 +40,44 @@ export default function KeyCards({ keys }: KeyCardsProps) {
             {/* Fixed 3-column grid like demo, 2 on tablet, 1 on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[320px]">
                 {keys.map((key, index) => (
-                    <KeyCard key={key.fcc || index} config={key} />
+                    <KeyCard key={key.fcc || index} config={key} vehicleInfo={vehicleInfo} />
                 ))}
             </div>
         </div>
     );
 }
 
-function KeyCard({ config }: { config: KeyConfig }) {
+function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { make: string; model: string; year: number } }) {
+    const [added, setAdded] = useState(false);
+
+    const addToInventory = () => {
+        if (typeof window === 'undefined') return;
+
+        const existingRaw = localStorage.getItem('eurokeys_inventory');
+        const existing = existingRaw ? JSON.parse(existingRaw) : [];
+
+        const itemKey = config.fcc || config.name || 'Unknown Key';
+        const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
+
+        // Check if already exists
+        const existingItem = existing.find((i: any) => i.itemKey === itemKey && i.type === 'key');
+        if (existingItem) {
+            existingItem.qty += 1;
+        } else {
+            existing.push({
+                itemKey,
+                type: 'key',
+                qty: 1,
+                vehicle: vehicleStr,
+                fcc_id: config.fcc,
+            });
+        }
+
+        localStorage.setItem('eurokeys_inventory', JSON.stringify(existing));
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+    };
+
     const typeColors: Record<string, string> = {
         prox: 'bg-purple-900/40 text-purple-300 border-purple-700/30',
         blade: 'bg-blue-900/40 text-blue-300 border-blue-700/30',
@@ -160,12 +191,27 @@ function KeyCard({ config }: { config: KeyConfig }) {
                 </div>
             )}
 
-            {/* Shop Button (Visual Only, parent is anchor) */}
-            {config.fcc && (
-                <div className="block w-full text-center py-3 bg-yellow-500/90 group-hover:bg-yellow-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20 mt-auto">
-                    🛒 Shop on Amazon
-                </div>
-            )}
+            {/* Action Buttons */}
+            <div className="flex gap-2 mt-auto">
+                {/* Add to Inventory Button */}
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToInventory();
+                    }}
+                    className={`flex-1 py-3 ${added ? 'bg-green-600 text-white' : 'bg-zinc-700 hover:bg-zinc-600 text-white'} font-bold rounded-xl transition-all text-sm`}
+                >
+                    {added ? '✓ Added!' : '📦 + Inventory'}
+                </button>
+
+                {/* Shop on Amazon Button */}
+                {config.fcc && (
+                    <div className="flex-1 text-center py-3 bg-yellow-500/90 group-hover:bg-yellow-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20">
+                        🛒 Amazon
+                    </div>
+                )}
+            </div>
         </CardWrapper>
     );
 }
