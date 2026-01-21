@@ -425,12 +425,41 @@ export default function VehicleDetailClient() {
     };
 
     // Map walkthroughs to procedures format
+    // API returns: type ('add_key' or 'akl'), steps_json (array), title, time_minutes, risk_level
     const addKeyWalkthrough = data.walkthroughs?.walkthroughs?.find((w: any) =>
-        w.category?.toLowerCase().includes('add') || w.title?.toLowerCase().includes('add key')
+        w.type === 'add_key' || w.title?.toLowerCase().includes('add key')
     );
     const aklWalkthrough = data.walkthroughs?.walkthroughs?.find((w: any) =>
-        w.category?.toLowerCase().includes('akl') || w.title?.toLowerCase().includes('all keys lost')
+        w.type === 'akl' || w.title?.toLowerCase().includes('all keys lost')
     );
+
+    // Helper to parse steps from walkthroughs_v2 (steps_json is a JSON array string)
+    const parseSteps = (walkthrough: any): string[] => {
+        if (!walkthrough) return [];
+        // Try steps_json first (from walkthroughs_v2)
+        if (walkthrough.steps_json) {
+            try {
+                const parsed = typeof walkthrough.steps_json === 'string'
+                    ? JSON.parse(walkthrough.steps_json)
+                    : walkthrough.steps_json;
+                if (Array.isArray(parsed)) return parsed;
+            } catch { /* fallback */ }
+        }
+        // Fallback to content field (legacy walkthroughs table)
+        if (walkthrough.content) {
+            return walkthrough.content.split('\n').filter(Boolean).slice(0, 15);
+        }
+        // Try structured_steps_json (legacy)
+        if (walkthrough.structured_steps_json) {
+            try {
+                const parsed = typeof walkthrough.structured_steps_json === 'string'
+                    ? JSON.parse(walkthrough.structured_steps_json)
+                    : walkthrough.structured_steps_json;
+                if (Array.isArray(parsed)) return parsed.map((s: any) => s.text || s.instruction || String(s));
+            } catch { /* fallback */ }
+        }
+        return [];
+    };
 
     // Filter pearls by context - safely handle tags as string or array
     const getTags = (p: any): string[] => {
@@ -453,9 +482,81 @@ export default function VehicleDetailClient() {
         return tags.includes('akl') || tags.includes('all keys lost') || cat.includes('akl') || risk === 'critical';
     });
 
-    // Pearls to show in the general section (exclude ones shown in procedures)
-    const procedurePearlIds = new Set([...addKeyPearls, ...aklPearls].map(p => p.id));
-    const generalPearls = pearlsList.filter((p: any) => !procedurePearlIds.has(p.id));
+    // ============================================
+    // CONTEXTUAL PEARL ROUTING
+    // Route pearls to specific UI sections based on tags
+    // ============================================
+    const routedPearls = {
+        // Lishi/cutting pearls → VehicleSpecs Lishi section
+        lishi: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['lishi', 'hu100', '10-cut', '8-cut', 'cutting', 'z-series'].includes(t));
+        }),
+        // CAN-FD pearls → VehicleSpecs CAN FD section
+        canFd: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['can-fd', 'adapter', 'late-production'].includes(t));
+        }),
+        // Key configuration pearls → KeyCards section
+        keyConfig: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['5-button', '4-button', 'inventory', 'strattec', 'remote-start'].includes(t));
+        }),
+        // Frequency/FCC pearls → KeyCards (per-card context)
+        frequency: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['frequency', 'hyq2ab', 'hyq2eb', '315mhz', '433mhz', 'export', 'rcdlr'].includes(t));
+        }),
+        // Cylinder/access pearls → KeyCards blade section
+        access: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['cylinder', 'concealed', 'door-handle', 'emergency-access', 'cap'].includes(t));
+        }),
+        // Voltage/BCM pearls → Procedures (critical warning)
+        voltage: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['voltage', 'bcm', 'eeprom', 'bricking', 'power-supply'].includes(t));
+        }),
+        // Transmitter pocket pearls → Procedures
+        transmitter: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['transmitter-pocket', 'console', 'rubber-mat', 'hidden'].includes(t));
+        }),
+        // OBP/free method pearls → Procedures AKL
+        obp: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['obp', 'onboard-programming', '30-minute', 'relearn', 'free'].includes(t));
+        }),
+        // Troubleshooting pearls → Sidebar or new section
+        troubleshooting: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['troubleshooting', 'no-remote-detected', 'rf-interference', 'diagnostic'].includes(t));
+        }),
+        // Business/NASTF pearls → Procedures tool method
+        business: pearlsList.filter((p: any) => {
+            const tags = getTags(p);
+            return tags.some((t: string) => ['nastf', 'pin', 'tds', 'acdelco', 'vsp', 'backup'].includes(t));
+        }),
+    };
+
+    // Collect all routed pearl IDs to exclude from general section
+    const allRoutedPearlIds = new Set([
+        ...routedPearls.lishi,
+        ...routedPearls.canFd,
+        ...routedPearls.keyConfig,
+        ...routedPearls.frequency,
+        ...routedPearls.access,
+        ...routedPearls.voltage,
+        ...routedPearls.transmitter,
+        ...routedPearls.obp,
+        ...routedPearls.troubleshooting,
+        ...routedPearls.business,
+        ...addKeyPearls,
+        ...aklPearls,
+    ].map(p => p.id));
+
+    // General pearls = those not routed anywhere specific
+    const generalPearls = pearlsList.filter((p: any) => !allRoutedPearlIds.has(p.id));
 
     return (
         <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -475,26 +576,42 @@ export default function VehicleDetailClient() {
                 {/* Left Column: Main Content (8/12) */}
                 <div className="lg:col-span-8 space-y-8">
                     {/* Vehicle Specifications Grid */}
-                    <VehicleSpecs specs={fullSpecs} make={make} year={year} />
+                    <VehicleSpecs
+                        specs={fullSpecs}
+                        make={make}
+                        year={year}
+                        pearls={{
+                            lishi: routedPearls.lishi,
+                            canFd: routedPearls.canFd,
+                        }}
+                    />
 
                     {/* Key Configuration Cards with R2 images */}
-                    <KeyCards keys={mergedKeys} vehicleInfo={{ make, model, year }} />
+                    <KeyCards
+                        keys={mergedKeys}
+                        vehicleInfo={{ make, model, year }}
+                        pearls={{
+                            keyConfig: routedPearls.keyConfig,
+                            frequency: routedPearls.frequency,
+                            access: routedPearls.access,
+                        }}
+                    />
 
                     {/* Programming Procedures */}
                     <VehicleProcedures procedures={{
                         addKey: addKeyWalkthrough ? {
                             title: addKeyWalkthrough.title,
-                            time_minutes: addKeyWalkthrough.estimated_time_mins,
-                            steps: addKeyWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
-                            menu_path: addKeyWalkthrough.platform_code,
+                            time_minutes: addKeyWalkthrough.time_minutes || addKeyWalkthrough.estimated_time_mins,
+                            steps: parseSteps(addKeyWalkthrough),
+                            menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
                             pearls: addKeyPearls
                         } : undefined,
                         akl: aklWalkthrough ? {
                             title: aklWalkthrough.title,
-                            time_minutes: aklWalkthrough.estimated_time_mins,
-                            risk_level: 'high' as const,
-                            steps: aklWalkthrough.content?.split('\n').filter(Boolean).slice(0, 10),
-                            menu_path: aklWalkthrough.platform_code,
+                            time_minutes: aklWalkthrough.time_minutes || aklWalkthrough.estimated_time_mins,
+                            risk_level: ((aklWalkthrough.risk_level === 'moderate' ? 'medium' : aklWalkthrough.risk_level) as 'low' | 'medium' | 'high') || 'high',
+                            steps: parseSteps(aklWalkthrough),
+                            menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
                             pearls: aklPearls
                         } : undefined,
                     }} />

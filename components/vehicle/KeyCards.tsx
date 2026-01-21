@@ -17,12 +17,24 @@ interface KeyConfig {
     profile?: string;
 }
 
+interface Pearl {
+    id?: string;
+    content: string;
+    risk?: string;
+    category?: string;
+}
+
 interface KeyCardsProps {
     keys: KeyConfig[];
     vehicleInfo?: { make: string; model: string; year: number };
+    pearls?: {
+        keyConfig?: Pearl[];  // 5-button vs 4-button inventory tips
+        frequency?: Pearl[];  // Frequency mismatch warnings
+        access?: Pearl[];     // Cylinder access pearls
+    };
 }
 
-export default function KeyCards({ keys, vehicleInfo }: KeyCardsProps) {
+export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
     if (!keys || keys.length === 0) {
         return (
             <div className="glass p-8 text-center text-zinc-500 mb-8">
@@ -37,6 +49,34 @@ export default function KeyCards({ keys, vehicleInfo }: KeyCardsProps) {
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-2xl">🔐</span> Key Configurations
             </h2>
+
+            {/* Contextual Key Configuration Insights */}
+            {pearls?.keyConfig && pearls.keyConfig.length > 0 && (
+                <div className="mb-4 p-3 bg-green-900/20 border border-green-700/30 rounded-lg">
+                    <div className="text-sm text-green-300">
+                        📦 {pearls.keyConfig[0].content}
+                    </div>
+                </div>
+            )}
+
+            {/* Frequency Warning if present */}
+            {pearls?.frequency && pearls.frequency.length > 0 && (
+                <div className="mb-4 p-3 bg-red-900/20 border border-red-700/30 rounded-lg">
+                    <div className="text-sm text-red-300">
+                        ⚠️ {pearls.frequency[0].content}
+                    </div>
+                </div>
+            )}
+
+            {/* Cylinder Access Tip if present */}
+            {pearls?.access && pearls.access.length > 0 && (
+                <div className="mb-4 p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
+                    <div className="text-sm text-blue-300">
+                        🚪 {pearls.access[0].content}
+                    </div>
+                </div>
+            )}
+
             {/* Fixed 3-column grid like demo, 2 on tablet, 1 on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[320px]">
                 {keys.map((key, index) => (

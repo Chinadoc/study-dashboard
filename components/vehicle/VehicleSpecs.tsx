@@ -3,6 +3,13 @@
 import React from 'react';
 import GlossaryChipType from './GlossaryChipType';
 
+interface Pearl {
+    id?: string;
+    content: string;
+    risk?: string;
+    category?: string;
+}
+
 interface VehicleSpecsProps {
     specs: {
         architecture?: string;
@@ -24,9 +31,13 @@ interface VehicleSpecsProps {
     };
     make?: string;
     year?: number;
+    pearls?: {
+        lishi?: Pearl[];
+        canFd?: Pearl[];
+    };
 }
 
-export default function VehicleSpecs({ specs, make, year }: VehicleSpecsProps) {
+export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecsProps) {
     if (!specs || Object.keys(specs).length === 0) {
         return null;
     }
@@ -50,12 +61,20 @@ export default function VehicleSpecs({ specs, make, year }: VehicleSpecsProps) {
 
                 {/* CAN-FD Required */}
                 {specs.canFdRequired !== undefined && (
-                    <SpecItem
-                        label="CAN FD"
-                        value={specs.canFdRequired ? 'REQUIRED' : 'Not Required'}
-                        color={specs.canFdRequired ? 'text-red-400' : 'text-green-400'}
-                        isWarning={specs.canFdRequired}
-                    />
+                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                            CAN FD
+                        </div>
+                        <div className={`font-semibold ${specs.canFdRequired ? 'text-red-400' : 'text-green-400'}`}>
+                            {specs.canFdRequired ? 'REQUIRED' : 'Not Required'}
+                        </div>
+                        {/* CAN-FD contextual pearl */}
+                        {pearls?.canFd?.[0] && (
+                            <div className="mt-2 text-[11px] text-orange-300 bg-orange-900/20 p-2 rounded border border-orange-800/30">
+                                🔌 {pearls.canFd[0].content}
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 {/* Chip Type - with glossary linkage */}
@@ -111,6 +130,12 @@ export default function VehicleSpecs({ specs, make, year }: VehicleSpecsProps) {
                                     'bg-zinc-800 text-zinc-500'
                                 }`}>
                                 {specs.lishiSource === 'vyp' ? 'VYP' : specs.lishiSource}
+                            </div>
+                        )}
+                        {/* Lishi contextual pearl */}
+                        {pearls?.lishi?.[0] && (
+                            <div className="mt-2 text-[11px] text-amber-300 bg-amber-900/20 p-2 rounded border border-amber-800/30">
+                                🔑 {pearls.lishi[0].content}
                             </div>
                         )}
                     </div>
