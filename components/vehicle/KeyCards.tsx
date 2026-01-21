@@ -34,6 +34,56 @@ interface KeyCardsProps {
     };
 }
 
+// Collapsible pearl tags for key configurations
+function KeyConfigPearlTags({ pearls }: { pearls: KeyCardsProps['pearls'] }) {
+    const [expanded, setExpanded] = React.useState<string | null>(null);
+
+    if (!pearls) return null;
+
+    const allPearls = [
+        ...(pearls.frequency || []).map(p => ({ ...p, type: 'frequency', icon: '⚠️', label: 'Frequency', color: 'red' })),
+        ...(pearls.keyConfig || []).map(p => ({ ...p, type: 'inventory', icon: '📦', label: 'Inventory', color: 'green' })),
+        ...(pearls.access || []).map(p => ({ ...p, type: 'access', icon: '🚪', label: 'Access', color: 'blue' })),
+    ];
+
+    if (allPearls.length === 0) return null;
+
+    return (
+        <div className="mb-4">
+            <div className="flex flex-wrap gap-2 items-center">
+                {allPearls.map((pearl, i) => (
+                    <button
+                        key={i}
+                        onClick={() => setExpanded(expanded === `${pearl.type}-${i}` ? null : `${pearl.type}-${i}`)}
+                        className={`px-2 py-1 text-[10px] font-bold rounded-full border transition-all flex items-center gap-1 ${pearl.color === 'red' ? 'bg-red-900/30 text-red-400 border-red-700/30 hover:bg-red-900/50' :
+                                pearl.color === 'green' ? 'bg-green-900/30 text-green-400 border-green-700/30 hover:bg-green-900/50' :
+                                    'bg-blue-900/30 text-blue-400 border-blue-700/30 hover:bg-blue-900/50'
+                            }`}
+                    >
+                        {pearl.icon} {pearl.label}
+                        <span className="opacity-60">{expanded === `${pearl.type}-${i}` ? '▼' : '▶'}</span>
+                    </button>
+                ))}
+            </div>
+
+            {/* Expanded content */}
+            {expanded && allPearls.map((pearl, i) => (
+                expanded === `${pearl.type}-${i}` && (
+                    <div
+                        key={i}
+                        className={`mt-2 p-3 rounded-lg border text-xs ${pearl.color === 'red' ? 'bg-red-900/10 border-red-800/30 text-red-200' :
+                                pearl.color === 'green' ? 'bg-green-900/10 border-green-800/30 text-green-200' :
+                                    'bg-blue-900/10 border-blue-800/30 text-blue-200'
+                            }`}
+                    >
+                        {pearl.content}
+                    </div>
+                )
+            ))}
+        </div>
+    );
+}
+
 export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
     if (!keys || keys.length === 0) {
         return (
@@ -50,31 +100,9 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
                 <span className="text-2xl">🔐</span> Key Configurations
             </h2>
 
-            {/* Contextual Key Configuration Insights */}
-            {pearls?.keyConfig && pearls.keyConfig.length > 0 && (
-                <div className="mb-4 p-3 bg-green-900/20 border border-green-700/30 rounded-lg">
-                    <div className="text-sm text-green-300">
-                        📦 {pearls.keyConfig[0].content}
-                    </div>
-                </div>
-            )}
-
-            {/* Frequency Warning if present */}
-            {pearls?.frequency && pearls.frequency.length > 0 && (
-                <div className="mb-4 p-3 bg-red-900/20 border border-red-700/30 rounded-lg">
-                    <div className="text-sm text-red-300">
-                        ⚠️ {pearls.frequency[0].content}
-                    </div>
-                </div>
-            )}
-
-            {/* Cylinder Access Tip if present */}
-            {pearls?.access && pearls.access.length > 0 && (
-                <div className="mb-4 p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
-                    <div className="text-sm text-blue-300">
-                        🚪 {pearls.access[0].content}
-                    </div>
-                </div>
+            {/* Contextual Insight Tags - Compact and collapsible */}
+            {(pearls?.keyConfig?.length || pearls?.frequency?.length || pearls?.access?.length) && (
+                <KeyConfigPearlTags pearls={pearls} />
             )}
 
             {/* Fixed 3-column grid like demo, 2 on tablet, 1 on mobile */}

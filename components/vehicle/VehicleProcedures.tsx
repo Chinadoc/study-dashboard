@@ -21,6 +21,61 @@ interface VehicleProceduresProps {
     toolsToShow?: string[];
 }
 
+// Collapsible pearl tags - shows compact summary, expands on click
+function CollapsiblePearls({ pearls }: { pearls: any[] }) {
+    const [expanded, setExpanded] = useState(false);
+
+    if (!pearls || pearls.length === 0) return null;
+
+    // Separate critical from info pearls
+    const criticalPearls = pearls.filter(p => p.is_critical || p.risk === 'critical');
+    const infoPearls = pearls.filter(p => !p.is_critical && p.risk !== 'critical');
+
+    return (
+        <div className="flex flex-wrap gap-2 items-center">
+            {/* Critical warning tag - always visible as small badge */}
+            {criticalPearls.length > 0 && (
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="px-2 py-1 text-[10px] font-bold rounded-full bg-red-900/30 text-red-400 border border-red-700/30 hover:bg-red-900/50 transition-all flex items-center gap-1"
+                >
+                    ⚠️ {criticalPearls.length} Warning{criticalPearls.length > 1 ? 's' : ''}
+                    <span className="opacity-60">{expanded ? '▼' : '▶'}</span>
+                </button>
+            )}
+
+            {/* Info tips tag */}
+            {infoPearls.length > 0 && (
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="px-2 py-1 text-[10px] font-bold rounded-full bg-amber-900/30 text-amber-400 border border-amber-700/30 hover:bg-amber-900/50 transition-all flex items-center gap-1"
+                >
+                    💡 {infoPearls.length} Tip{infoPearls.length > 1 ? 's' : ''}
+                    <span className="opacity-60">{expanded ? '▼' : '▶'}</span>
+                </button>
+            )}
+
+            {/* Expanded content */}
+            {expanded && (
+                <div className="w-full mt-2 space-y-2">
+                    {pearls.map((pearl, i) => (
+                        <div
+                            key={i}
+                            className={`p-3 rounded-lg border text-xs ${pearl.is_critical || pearl.risk === 'critical'
+                                ? 'bg-red-900/10 border-red-800/30 text-red-200'
+                                : 'bg-amber-900/10 border-amber-800/30 text-amber-200'
+                                }`}
+                        >
+                            <span className="mr-1">{pearl.is_critical || pearl.risk === 'critical' ? '⚠️' : '💡'}</span>
+                            {pearl.content || pearl.pearl_content}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function VehicleProcedures({
     procedures,
     toolsToShow = ['AutoProPad', 'Autel', 'SmartPro']
@@ -141,32 +196,9 @@ export default function VehicleProcedures({
                 </div>
             </div>
 
-            {/* Contextual Pearls (Alerts/Tips specifically for this procedure) */}
+            {/* Contextual Pearls - Compact collapsible tags */}
             {procedure?.pearls && procedure.pearls.length > 0 && (
-                <div className="space-y-3">
-                    {procedure.pearls.map((pearl, i) => (
-                        <div
-                            key={i}
-                            className={`p-4 rounded-xl border flex gap-3 ${pearl.is_critical || pearl.risk === 'critical'
-                                    ? 'bg-red-900/10 border-red-500/20 text-red-200'
-                                    : 'bg-amber-900/10 border-amber-500/20 text-amber-200'
-                                }`}
-                        >
-                            <span className="text-xl shrink-0">
-                                {pearl.is_critical || pearl.risk === 'critical' ? '⚠️' : '💡'}
-                            </span>
-                            <div>
-                                <h4 className={`font-bold text-sm mb-1 ${pearl.is_critical || pearl.risk === 'critical' ? 'text-red-400' : 'text-amber-400'
-                                    }`}>
-                                    {pearl.pearl_title || 'Expert Insight'}
-                                </h4>
-                                <p className="text-sm opacity-90 leading-relaxed">
-                                    {pearl.content || pearl.pearl_content}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <CollapsiblePearls pearls={procedure.pearls} />
             )}
 
             {/* Steps List */}
