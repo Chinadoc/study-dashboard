@@ -43,7 +43,7 @@ function showTab(tabName, updateHash = true) {
 
     // 2. Update Content Visibility
     // Hide all known content areas
-    const contentIds = ['browse', 'tabFcc', 'tabGuides', 'tabInventory', 'tabDev', 'tabSubscriptions', 'premium-vehicle-detail'];
+    const contentIds = ['browse', 'tabFcc', 'tabGuides', 'tabWalkthroughs', 'tabInventory', 'tabDev', 'tabSubscriptions', 'premium-vehicle-detail'];
     contentIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -150,6 +150,11 @@ function showTab(tabName, updateHash = true) {
         if (typeof renderSubscriptionsDashboard === 'function') {
             renderSubscriptionsDashboard();
         }
+    } else if (tabName === 'walkthroughs') {
+        // Load walkthroughs from Google Drive when tab is shown
+        if (typeof GDrive !== 'undefined' && typeof GDrive.loadWalkthroughs === 'function') {
+            GDrive.loadWalkthroughs();
+        }
     }
 
     // Scroll to top
@@ -215,7 +220,7 @@ function route() {
     }
 
     // 3. Validate and switch tabs
-    const validTabs = ['browse', 'fcc', 'guides', 'inventory', 'dev', 'subscriptions'];
+    const validTabs = ['browse', 'fcc', 'guides', 'walkthroughs', 'inventory', 'dev', 'subscriptions'];
     if (validTabs.includes(tabName)) {
         showTab(tabName, false);
 

@@ -9,6 +9,65 @@
  */
 
 class VehicleDetailRenderer {
+    // Static walkthrough mappings - matches vehicle patterns to walkthrough URLs
+    static WALKTHROUGH_MAPPINGS = [
+        {
+            // 2014 VW Jetta PEPS/KESSY AKL
+            pattern: { make: 'volkswagen', model: 'jetta', yearMin: 2011, yearMax: 2018 },
+            walkthrough: {
+                title: '2014 VW Jetta PEPS/KESSY - All Keys Lost',
+                description: 'Complete 4-phase bench procedure for NEC+24C64 cluster systems',
+                url: '/assets/walkthroughs/vw_jetta_peps_akl.html',
+                type: 'AKL',
+                tags: ['PEPS', 'KESSY', 'Bench Required', 'NEC+24C64']
+            }
+        },
+        {
+            // Also applies to Golf Mk6
+            pattern: { make: 'volkswagen', model: 'golf', yearMin: 2010, yearMax: 2014 },
+            walkthrough: {
+                title: '2014 VW Jetta PEPS/KESSY - All Keys Lost',
+                description: 'Complete 4-phase bench procedure for NEC+24C64 cluster systems (same procedure)',
+                url: '/assets/walkthroughs/vw_jetta_peps_akl.html',
+                type: 'AKL',
+                tags: ['PEPS', 'KESSY', 'Bench Required', 'NEC+24C64', 'Same as Jetta']
+            }
+        },
+        {
+            // VW Beetle
+            pattern: { make: 'volkswagen', model: 'beetle', yearMin: 2012, yearMax: 2019 },
+            walkthrough: {
+                title: '2014 VW Jetta PEPS/KESSY - All Keys Lost',
+                description: 'Complete 4-phase bench procedure for NEC+24C64 cluster systems (same procedure)',
+                url: '/assets/walkthroughs/vw_jetta_peps_akl.html',
+                type: 'AKL',
+                tags: ['PEPS', 'KESSY', 'Bench Required', 'NEC+24C64', 'Same as Jetta']
+            }
+        },
+        {
+            // VW Tiguan
+            pattern: { make: 'volkswagen', model: 'tiguan', yearMin: 2009, yearMax: 2017 },
+            walkthrough: {
+                title: '2014 VW Jetta PEPS/KESSY - All Keys Lost',
+                description: 'Complete 4-phase bench procedure for NEC+24C64 cluster systems (same procedure)',
+                url: '/assets/walkthroughs/vw_jetta_peps_akl.html',
+                type: 'AKL',
+                tags: ['PEPS', 'KESSY', 'Bench Required', 'NEC+24C64', 'Same as Jetta']
+            }
+        },
+        {
+            // VW Passat (US)
+            pattern: { make: 'volkswagen', model: 'passat', yearMin: 2012, yearMax: 2015 },
+            walkthrough: {
+                title: '2014 VW Jetta PEPS/KESSY - All Keys Lost',
+                description: 'Complete 4-phase bench procedure for NEC+24C64 cluster systems (same procedure)',
+                url: '/assets/walkthroughs/vw_jetta_peps_akl.html',
+                type: 'AKL',
+                tags: ['PEPS', 'KESSY', 'Bench Required', 'NEC+24C64', 'Same as Jetta']
+            }
+        }
+    ];
+
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.currentVehicle = null;
@@ -74,6 +133,7 @@ class VehicleDetailRenderer {
             <div class="vehicle-detail-container">
                 ${this.renderHeader(data)}
                 ${this.renderTopRow(data)}
+                ${this.renderWalkthroughs(data)}
                 ${this.renderComments(data)}
                 ${this.renderKeyTypes(data)}
                 ${this.renderProcedures(data)}
@@ -103,6 +163,101 @@ class VehicleDetailRenderer {
                 <p class="vehicle-detail-subtitle">
                     <span class="badge ${architecture?.toLowerCase().replace(' ', '-')}">${architecture} Architecture</span>
                 </p>
+            </div>
+        `;
+    }
+
+    /**
+     * Find matching walkthroughs for the current vehicle
+     */
+    findMatchingWalkthroughs(data) {
+        const { year, make, model } = data;
+        const normalizedMake = make?.toLowerCase().trim();
+        const normalizedModel = model?.toLowerCase().trim();
+        const vehicleYear = parseInt(year);
+
+        return VehicleDetailRenderer.WALKTHROUGH_MAPPINGS.filter(mapping => {
+            const p = mapping.pattern;
+            const makeMatch = normalizedMake?.includes(p.make) || p.make.includes(normalizedMake);
+            const modelMatch = normalizedModel?.includes(p.model) || p.model.includes(normalizedModel);
+            const yearMatch = vehicleYear >= p.yearMin && vehicleYear <= p.yearMax;
+            return makeMatch && modelMatch && yearMatch;
+        }).map(m => m.walkthrough);
+    }
+
+    /**
+     * Render walkthroughs section if any match the current vehicle
+     */
+    renderWalkthroughs(data) {
+        const walkthroughs = this.findMatchingWalkthroughs(data);
+        if (!walkthroughs || walkthroughs.length === 0) return '';
+
+        return `
+            <div class="vd-card vd-walkthroughs-section" style="border-color: var(--vd-border-amber); background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(30, 30, 50, 0.95) 100%); margin-bottom: 20px;">
+                <div class="vd-card-title" style="color: var(--vd-amber);">
+                    <span class="icon">📚</span>
+                    Deep Research Walkthroughs
+                    <span style="margin-left: auto; font-size: 0.75rem; color: var(--vd-text-muted);">${walkthroughs.length} available</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    ${walkthroughs.map(wt => this.renderWalkthroughCard(wt)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Render a single walkthrough card
+     */
+    renderWalkthroughCard(walkthrough) {
+        return `
+            <div class="vd-walkthrough-card" onclick="window.open('${walkthrough.url}', '_blank')" style="
+                background: rgba(251, 191, 36, 0.08);
+                border: 1px solid rgba(251, 191, 36, 0.2);
+                border-radius: 12px;
+                padding: 16px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            " onmouseover="this.style.background='rgba(251, 191, 36, 0.15)'; this.style.borderColor='rgba(251, 191, 36, 0.4)'; this.style.transform='translateX(4px)';" onmouseout="this.style.background='rgba(251, 191, 36, 0.08)'; this.style.borderColor='rgba(251, 191, 36, 0.2)'; this.style.transform='none';">
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div style="
+                        width: 48px; height: 48px;
+                        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+                        border-radius: 10px;
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 1.4rem;
+                        flex-shrink: 0;
+                    ">📖</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                            <span style="font-weight: 700; color: #fbbf24; font-size: 0.95rem;">${walkthrough.title}</span>
+                            <span style="
+                                background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                                color: #000;
+                                padding: 2px 8px;
+                                border-radius: 4px;
+                                font-size: 0.65rem;
+                                font-weight: 700;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            ">${walkthrough.type}</span>
+                        </div>
+                        <p style="color: #d1d5db; font-size: 0.85rem; margin: 0 0 8px 0; line-height: 1.4;">${walkthrough.description}</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            ${walkthrough.tags.map(tag => `
+                                <span style="
+                                    background: rgba(251, 191, 36, 0.15);
+                                    color: #fcd34d;
+                                    padding: 3px 8px;
+                                    border-radius: 4px;
+                                    font-size: 0.7rem;
+                                    font-weight: 500;
+                                ">${tag}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div style="color: #f59e0b; font-size: 1.2rem;">→</div>
+                </div>
             </div>
         `;
     }

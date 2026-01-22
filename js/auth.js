@@ -545,6 +545,12 @@ function updateAuthUI(isSignedIn) {
                 renderSubscriptionsDashboard();
             }
         }
+
+        // Show walkthroughs tab (Drive integration)
+        const walkthroughsTab = document.getElementById('walkthroughsTab');
+        if (walkthroughsTab) {
+            walkthroughsTab.style.display = 'inline-flex';
+        }
     } else {
         console.log('updateAuthUI: Showing signed out state (hasValidUser: ' + hasValidUser + ')');
         // Clear invalid user data from localStorage if present
@@ -574,6 +580,12 @@ function updateAuthUI(isSignedIn) {
         const subscriptionsTab = document.getElementById('subscriptionsTab');
         if (subscriptionsTab) {
             subscriptionsTab.style.display = 'none';
+        }
+
+        // Hide walkthroughs tab (requires sign-in)
+        const walkthroughsTab = document.getElementById('walkthroughsTab');
+        if (walkthroughsTab) {
+            walkthroughsTab.style.display = 'none';
         }
     }
 

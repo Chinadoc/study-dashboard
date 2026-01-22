@@ -23,6 +23,7 @@ export interface Env {
   CF_ANALYTICS_TOKEN?: string;  // Cloudflare Global API Key
   CF_ZONE_ID?: string;          // Cloudflare Zone ID for eurokeys.app
   CF_AUTH_EMAIL?: string;       // Cloudflare account email for API auth
+  GDRIVE_FOLDER_ID?: string;    // Google Drive folder ID for walkthroughs
 }
 
 const MAKE_ASSETS: Record<string, { infographic?: string, pdf?: string, pdf_title?: string }> = {
@@ -171,6 +172,56 @@ async function getGoogleUser(accessToken: string) {
   return await res.json();
 }
 
+// Refresh Google access token using refresh token
+async function refreshGoogleToken(refreshToken: string, clientId: string, clientSecret: string): Promise<{ access_token: string; expires_in: number } | null> {
+  try {
+    const res = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        refresh_token: refreshToken,
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'refresh_token'
+      })
+    });
+    const data = await res.json() as any;
+    if (data.access_token) {
+      return { access_token: data.access_token, expires_in: data.expires_in || 3600 };
+    }
+    return null;
+  } catch (e) {
+    console.error('Failed to refresh Google token:', e);
+    return null;
+  }
+}
+
+// Get valid Google access token for a user (with auto-refresh)
+async function getValidGoogleToken(userId: string, env: Env): Promise<string | null> {
+  const user = await env.LOCKSMITH_DB.prepare(
+    "SELECT google_access_token, google_refresh_token, token_expires_at FROM users WHERE id = ?"
+  ).bind(userId).first<any>();
+
+  if (!user || !user.google_access_token) return null;
+
+  // Check if token is expired (with 5 min buffer)
+  const isExpired = user.token_expires_at && (user.token_expires_at - 300000) < Date.now();
+
+  if (isExpired && user.google_refresh_token) {
+    const newToken = await refreshGoogleToken(user.google_refresh_token, env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET);
+    if (newToken) {
+      const newExpiresAt = Date.now() + (newToken.expires_in * 1000);
+      await env.LOCKSMITH_DB.prepare(
+        "UPDATE users SET google_access_token = ?, token_expires_at = ? WHERE id = ?"
+      ).bind(newToken.access_token, newExpiresAt, userId).run();
+      return newToken.access_token;
+    }
+    return null;
+  }
+
+  return user.google_access_token;
+}
+
 // Check if email is in developer allow-list
 function isDeveloper(email: string, devEmails: string): boolean {
   const allowed = (devEmails || '').split(',').map(e => e.trim().toLowerCase());
@@ -288,7 +339,7 @@ export default {
           const redirectUri = `${url.origin}/api/auth/callback`;
           console.log("Auth: redirectUri =", redirectUri);
 
-          const scope = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
+          const scope = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.readonly";
           const redirectTarget = normalizeAuthRedirect(url.searchParams.get("redirect"));
           const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent&state=${encodeURIComponent(redirectTarget)}`;
 
@@ -318,16 +369,19 @@ export default {
           // Upsert User in D1
           const existingUser = await env.LOCKSMITH_DB.prepare("SELECT * FROM users WHERE id = ?").bind(googleUser.id).first<any>();
 
+          // Store Google tokens for Drive API access
+          const tokenExpiresAt = tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null;
+
           if (!existingUser) {
             const trialUntil = Date.now() + (14 * 24 * 60 * 60 * 1000); // 14 days trial
             await env.LOCKSMITH_DB.prepare(
-              "INSERT INTO users (id, email, name, picture, created_at, trial_until) VALUES (?, ?, ?, ?, ?, ?)"
-            ).bind(googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now(), trialUntil).run();
+              "INSERT INTO users (id, email, name, picture, created_at, trial_until, google_access_token, google_refresh_token, token_expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            ).bind(googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now(), trialUntil, tokenData.access_token, tokenData.refresh_token || null, tokenExpiresAt).run();
           } else {
-            // Update details just in case
+            // Update details and tokens
             await env.LOCKSMITH_DB.prepare(
-              "UPDATE users SET email = ?, name = ?, picture = ? WHERE id = ?"
-            ).bind(googleUser.email, googleUser.name, googleUser.picture, googleUser.id).run();
+              "UPDATE users SET email = ?, name = ?, picture = ?, google_access_token = ?, google_refresh_token = COALESCE(?, google_refresh_token), token_expires_at = ? WHERE id = ?"
+            ).bind(googleUser.email, googleUser.name, googleUser.picture, tokenData.access_token, tokenData.refresh_token || null, tokenExpiresAt, googleUser.id).run();
           }
 
           // Get final user state (checking is_pro)
@@ -472,6 +526,101 @@ export default {
         const headers = new Headers();
         headers.set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0`);
         return corsResponse(request, JSON.stringify({ success: true }), 200, headers, "application/json");
+      }
+
+      // ==============================================
+      // GOOGLE DRIVE API (Walkthroughs)
+      // ==============================================
+
+      // GET /api/drive/files - List files from configured Drive folder
+      if (path === "/api/drive/files" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const accessToken = await getValidGoogleToken(userId, env);
+
+          if (!accessToken) {
+            return corsResponse(request, JSON.stringify({ error: "Drive not connected. Please sign out and sign in again to grant Drive access." }), 403);
+          }
+
+          const folderId = url.searchParams.get('folderId') || env.GDRIVE_FOLDER_ID;
+          if (!folderId) {
+            return corsResponse(request, JSON.stringify({ error: "No folder configured" }), 400);
+          }
+
+          const query = `'${folderId}' in parents and (mimeType='text/html' or mimeType='application/zip' or mimeType='application/x-zip-compressed') and trashed=false`;
+          const driveUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,createdTime,modifiedTime,size)&orderBy=modifiedTime desc`;
+
+          const driveRes = await fetch(driveUrl, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+
+          if (!driveRes.ok) {
+            const errText = await driveRes.text();
+            console.error('Drive API error:', errText);
+            return corsResponse(request, JSON.stringify({ error: "Failed to list Drive files", details: errText }), driveRes.status);
+          }
+
+          const data = await driveRes.json() as any;
+          return corsResponse(request, JSON.stringify({ files: data.files || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/drive/file/:id - Fetch file content by ID
+      if (path.startsWith("/api/drive/file/") && request.method === "GET") {
+        try {
+          const fileId = path.replace("/api/drive/file/", "");
+          if (!fileId) return corsResponse(request, JSON.stringify({ error: "Missing file ID" }), 400);
+
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const accessToken = await getValidGoogleToken(userId, env);
+
+          if (!accessToken) {
+            return corsResponse(request, JSON.stringify({ error: "Drive not connected" }), 403);
+          }
+
+          const metaRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=id,name,mimeType,size`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+
+          if (!metaRes.ok) {
+            return corsResponse(request, JSON.stringify({ error: "File not found" }), 404);
+          }
+
+          const meta = await metaRes.json() as any;
+
+          const contentRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+
+          if (!contentRes.ok) {
+            return corsResponse(request, JSON.stringify({ error: "Failed to download file" }), contentRes.status);
+          }
+
+          if (meta.mimeType === 'text/html') {
+            const html = await contentRes.text();
+            return corsResponse(request, JSON.stringify({ id: meta.id, name: meta.name, mimeType: meta.mimeType, content: html }));
+          }
+
+          const buffer = await contentRes.arrayBuffer();
+          const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+          return corsResponse(request, JSON.stringify({ id: meta.id, name: meta.name, mimeType: meta.mimeType, content: base64, encoding: 'base64' }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
       }
 
       // 5. Sync Data (Frontend -> Cloud)
