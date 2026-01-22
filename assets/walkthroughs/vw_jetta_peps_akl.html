@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2014 VW Jetta PEPS/KESSY - All Keys Lost Procedure</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --brand-primary: #fbbf24;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .walkthrough-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .walkthrough-header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--brand-primary), #f59e0b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .walkthrough-header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .vehicle-badge {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            color: var(--brand-primary);
+            margin: 20px 0 12px;
+        }
+
+        .section h4 {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin: 16px 0 8px;
+        }
+
+        p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-left: 4px solid var(--warning);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.15);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert .icon {
+            font-size: 1.3rem;
+        }
+
+        .phase-card {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .phase-number {
+            width: 36px;
+            height: 36px;
+            background: var(--brand-primary);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .phase-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        ol,
+        ul {
+            margin: 12px 0 12px 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .tool-card {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tool-card .emoji {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .tool-card .name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tool-card .desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        .status-yes {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-no {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .status-maybe {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .pinout-diagram {
+            background: #1a1a2e;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            font-family: monospace;
+            text-align: center;
+        }
+
+        .pinout-chip {
+            display: inline-block;
+            background: #2d2d44;
+            padding: 20px 30px;
+            border-radius: 8px;
+            border: 2px solid #4a4a6a;
+        }
+
+        .pin-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+
+        .pin {
+            background: var(--bg-tertiary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .pin.vcc {
+            background: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .pin.gnd {
+            background: rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .pin.data {
+            background: rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+        }
+
+        .code-block {
+            background: #1a1a2e;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        .tip-box {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .tip-box strong {
+            color: var(--brand-primary);
+        }
+
+        .vehicle-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .vehicle-item {
+            background: var(--bg-tertiary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vehicle-item .name {
+            font-weight: 500;
+        }
+
+        .vehicle-item .years {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .section {
+                padding: 16px;
+            }
+
+            .walkthrough-header h1 {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="walkthrough-header">
+        <h1>🔑 2014 VW Jetta PEPS/KESSY</h1>
+        <p class="subtitle">All Keys Lost (AKL) Complete Procedure</p>
+        <span class="vehicle-badge">VDO NEC+24C64 • Immo 4 • Bench Required</span>
+    </div>
+
+    <!-- System Overview -->
+    <div class="section">
+        <h2>📋 System Overview</h2>
+
+        <p>The 2014 VW Jetta (Mk6, PQ35 platform) uses a <strong>NEC+24C64 (UDS)</strong> instrument cluster-based
+            immobilizer system. This applies to both standard key and KESSY (Keyless Entry/Start) versions.</p>
+
+        <div class="alert alert-warning">
+            <span class="icon">⚠️</span>
+            <div>
+                <strong>Cannot be done via OBD alone!</strong>
+                <p style="margin:4px 0 0">For All Keys Lost situations, the cluster must be put into "Service Mode" by
+                    reading/writing the EEPROM chip directly. OBD-only attempts will fail with "Security Access Denied."
+                </p>
+            </div>
+        </div>
+
+        <h3>Key System Specifications</h3>
+        <ul>
+            <li><strong>Platform:</strong> VW Jetta Mk6 (PQ35)</li>
+            <li><strong>Immobilizer:</strong> Immo 4 - Located in Instrument Cluster</li>
+            <li><strong>Cluster Type:</strong> VDO (most common for 2014)</li>
+            <li><strong>EEPROM:</strong> 24C64 (8-pin SOIC I2C chip)</li>
+            <li><strong>Key Chip:</strong> ID48 (CAN)</li>
+            <li><strong>Frequency:</strong> 315 MHz (US market)</li>
+        </ul>
+
+        <div class="tip-box">
+            <strong>💡 Note on JCI Clusters:</strong> Some 2011-2013 models use JCI (Johnson Controls) clusters with a
+            95320 EEPROM instead. The procedure is similar, but select "JCI" in your tool rather than "VDO."
+        </div>
+    </div>
+
+    <!-- Tools Required -->
+    <div class="section">
+        <h2>🛠️ Required Tools</h2>
+
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="emoji">🔧</div>
+                <div class="name">Autel IM608</div>
+                <div class="desc">With XP400 Programmer</div>
+            </div>
+            <div class="tool-card">
+                <div class="emoji">💻</div>
+                <div class="name">VVDI2</div>
+                <div class="desc">With VVDI Prog (optional)</div>
+            </div>
+            <div class="tool-card">
+                <div class="emoji">📎</div>
+                <div class="name">SOIC8 Pogo Pin Adapter</div>
+                <div class="desc">Or APA103 EEPROM Clip</div>
+            </div>
+            <div class="tool-card">
+                <div class="emoji">🪥</div>
+                <div class="name">Fiberglass Brush</div>
+                <div class="desc">For conformal coating removal</div>
+            </div>
+        </div>
+
+        <h3>Why Pogo Pins?</h3>
+        <p>The circuit board has conformal coating (varnish) over the chip legs. A pogo pin adapter has sharp
+            spring-loaded needles that pierce through this coating, eliminating the need to scrape the pins manually.
+            This saves 20+ minutes on every VW cluster job.</p>
+    </div>
+
+    <!-- 4-Phase Procedure -->
+    <div class="section">
+        <h2>📝 The 4-Phase Procedure</h2>
+
+        <!-- Phase 1 -->
+        <div class="phase-card">
+            <div class="phase-header">
+                <span class="phase-number">1</span>
+                <span class="phase-title">Remove the Cluster (In Car)</span>
+            </div>
+
+            <p><strong>Tools needed:</strong> T20 Torx screwdriver, plastic trim tool</p>
+
+            <ol>
+                <li><strong>Lower Steering Wheel:</strong> Pull the adjustment lever and move the steering wheel as far
+                    down and out as possible.</li>
+                <li><strong>Remove Lower Trim:</strong> Pop the small plastic trim piece at the bottom of the cluster
+                    using a plastic pry tool (held by clips).</li>
+                <li><strong>Remove Screws:</strong> Remove the two T20 Torx screws at the bottom of the cluster.</li>
+                <li><strong>Pull Cluster:</strong> Grip the cluster and pull straight toward the steering wheel
+                    (friction clips at top).</li>
+                <li><strong>Disconnect Plug:</strong> Push down the small tab on the blue connector, lift the pink
+                    locking arm up, and the plug will pop out.</li>
+            </ol>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-card">
+            <div class="phase-header">
+                <span class="phase-number">2</span>
+                <span class="phase-title">Expose the EEPROM Contacts</span>
+            </div>
+
+            <p>This step clears the conformal coating so electricity can flow through the chip legs.</p>
+
+            <ol>
+                <li><strong>Open the Case:</strong> Unclip the white plastic back cover to reveal the green circuit
+                    board. You do NOT need to remove the needles.</li>
+                <li><strong>Find the Chip:</strong> Look for the 8-pin chip marked "24C64" near the blue connector area.
+                </li>
+                <li><strong>Brush the Pins:</strong>
+                    <ul>
+                        <li>Use a fiberglass scratch brush (best), X-Acto knife, or 400-800 grit sandpaper</li>
+                        <li>Gently scratch the tops and sides of all 8 metal legs</li>
+                        <li>Goal: Bright silver legs, not dull/shiny plastic</li>
+                        <li>⚠️ Do NOT scratch the board or tiny resistors nearby</li>
+                    </ul>
+                </li>
+                <li><strong>Clean:</strong> Blow away dust or wipe with isopropyl alcohol.</li>
+            </ol>
+
+            <div class="alert alert-success">
+                <span class="icon">✅</span>
+                <div>
+                    <strong>Skip with Pogo Pins!</strong>
+                    <p style="margin:4px 0 0">If using a SOIC8 pogo pin adapter, the sharp needles pierce through the
+                        coating automatically. You can usually skip heavy sanding.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase-card">
+            <div class="phase-header">
+                <span class="phase-number">3</span>
+                <span class="phase-title">Bench Read/Write (Service Mode)</span>
+            </div>
+
+            <h4>24C64 EEPROM Pinout</h4>
+
+            <div class="pinout-diagram">
+                <div class="pinout-chip">
+                    <div style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.85rem;">⬆️ Pin 1 dot/dimple
+                    </div>
+                    <div class="pin-row">
+                        <span class="pin vcc">Pin 8 (VCC)</span>
+                        <span class="pin">Pin 7 (WC)</span>
+                        <span class="pin data">Pin 6 (SCL)</span>
+                        <span class="pin data">Pin 5 (SDA)</span>
+                    </div>
+                    <div style="text-align: center; padding: 10px; color: var(--text-muted);">— 24C64 TOP VIEW —</div>
+                    <div class="pin-row">
+                        <span class="pin">Pin 1 (CS)</span>
+                        <span class="pin">Pin 2 (Input)</span>
+                        <span class="pin">Pin 3 (Input)</span>
+                        <span class="pin gnd">Pin 4 (GND)</span>
+                    </div>
+                </div>
+                <p style="margin-top: 16px; color: var(--text-muted); font-size: 0.85rem;">🔴 Red wire = Pin 1 | Text
+                    upright = Pin 1 is bottom-left</p>
+            </div>
+
+            <h4>Autel IM608 Procedure</h4>
+            <ol>
+                <li><strong>Connect:</strong> Plug XP400 to IM608, attach APA103 clip or pogo adapter</li>
+                <li><strong>Position:</strong> Red wire on Pin 1 (look for dot/dimple on chip)</li>
+                <li><strong>Read:</strong> Programmer → Chip → Read/Write → EEPROM → ST → 24C64</li>
+                <li><strong>Verify:</strong> Read twice to ensure checksums match</li>
+                <li><strong>SAVE:</strong> Name it "Original_Jetta_2014.bin" — <strong>CRITICAL BACKUP!</strong></li>
+                <li><strong>Generate Service File:</strong>
+                    <ul>
+                        <li>Go to IMMO → VW → Expert Mode → Instrument Cluster → VDO NEC+24C64</li>
+                        <li>Select "Load Immo Data" (load your original file)</li>
+                        <li>Select "Prepare Service File"</li>
+                        <li>Save as "Service_Jetta_2014.bin"</li>
+                    </ul>
+                </li>
+                <li><strong>Write:</strong> Go back to Programmer, write the Service file to the chip</li>
+            </ol>
+
+            <div class="alert alert-danger">
+                <span class="icon">🚨</span>
+                <div>
+                    <strong>"Pin Detect Error"?</strong>
+                    <p style="margin:4px 0 0">You didn't scratch the coating off well enough. Go back to Phase 2 and
+                        scrub the pins again, or apply more pressure with the pogo pin adapter.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase-card">
+            <div class="phase-header">
+                <span class="phase-number">4</span>
+                <span class="phase-title">Reinstall & Program Key</span>
+            </div>
+
+            <ol>
+                <li><strong>Reinstall Cluster:</strong> Reconnect the blue plug, slide cluster back in, replace T20
+                    screws and trim.</li>
+                <li><strong>Connect OBD:</strong> Plug your tool into the OBD2 port.</li>
+                <li><strong>Read Immo Data:</strong> IMMO → System Selection → Instrument Cluster → Read Immo Data (now
+                    succeeds!)</li>
+                <li><strong>Make Dealer Key:</strong> Place blank ID48 in XP400 slot, select "Prepare Dealer Key"</li>
+                <li><strong>Key Learning:</strong> Select "Add Key" or "Learn Key", input number of keys (e.g., 2)</li>
+            </ol>
+
+            <div class="alert alert-info">
+                <span class="icon">🔑</span>
+                <div>
+                    <strong>KESSY/PEPS Key Learning Difference</strong>
+                    <p style="margin:4px 0 0">For keyless models, when prompted to "Turn Ignition ON":</p>
+                    <ul style="margin: 8px 0 0 16px;">
+                        <li>Press Start Button once to wake the car</li>
+                        <li>Hold the back of the smart key flat against the plastic cap on the steering column (where
+                            the keyhole would be)</li>
+                        <li>The cluster will detect the transponder and authorize</li>
+                        <li>Proceed with "Learn Key"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tool Comparison -->
+    <div class="section">
+        <h2>⚙️ Tool Comparison</h2>
+
+        <p>Which tools actually work for 2014 VW Jetta AKL?</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tool</th>
+                    <th>Bench EEPROM</th>
+                    <th>Service Mode</th>
+                    <th>Dealer Key</th>
+                    <th>Verdict</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Autel IM608</strong></td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Recommended</td>
+                </tr>
+                <tr>
+                    <td><strong>VVDI2</strong></td>
+                    <td class="status-yes">✓ Yes*</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Excellent</td>
+                </tr>
+                <tr>
+                    <td><strong>AVDI/Abrites</strong></td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-maybe">⚠ Overkill $$$</td>
+                </tr>
+                <tr>
+                    <td><strong>Auto Pro Pad</strong></td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Yes</td>
+                    <td class="status-yes">✓ Works</td>
+                </tr>
+                <tr>
+                    <td><strong>Smart Pro</strong></td>
+                    <td class="status-no">✗ No</td>
+                    <td class="status-no">✗ No</td>
+                    <td class="status-maybe">⚠ Add Key Only</td>
+                    <td class="status-no">✗ Won't Work AKL</td>
+                </tr>
+                <tr>
+                    <td><strong>Force Ignition</strong></td>
+                    <td class="status-no">N/A</td>
+                    <td class="status-no">✗ No</td>
+                    <td class="status-no">N/A</td>
+                    <td class="status-no">✗ Useless</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted);">* VVDI2 requires VVDI Prog or use Autel to read the
+            dump file, then load into VVDI2 software.</p>
+
+        <div class="tip-box">
+            <strong>💡 Recommendation:</strong> Use Autel IM608 to read the chip (portable tablet with XP400), then
+            optionally use VVDI2 for dealer key generation if you prefer the PC interface.
+        </div>
+    </div>
+
+    <!-- Vehicle Compatibility -->
+    <div class="section">
+        <h2>🚗 Vehicle Compatibility</h2>
+
+        <p>All vehicles using the VDO NEC+24C64 system require this same bench procedure for All Keys Lost:</p>
+
+        <div class="vehicle-list">
+            <div class="vehicle-item">
+                <span class="name">VW Jetta (Mk6)</span>
+                <span class="years">2011-2018</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">VW Golf (Mk6)</span>
+                <span class="years">2010-2014</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">VW Beetle</span>
+                <span class="years">2012-2019</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">VW Passat (US)</span>
+                <span class="years">2012-2015</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">VW Tiguan</span>
+                <span class="years">2009-2017</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">VW CC</span>
+                <span class="years">2009-2017</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">VW Eos</span>
+                <span class="years">2007-2016</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">Audi A3 (8P)</span>
+                <span class="years">2006-2013</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">Audi TT (Mk2)</span>
+                <span class="years">2007-2014</span>
+            </div>
+            <div class="vehicle-item">
+                <span class="name">Audi Q3</span>
+                <span class="years">2012-2018</span>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <span class="icon">ℹ️</span>
+            <div>
+                <strong>Why these cars?</strong>
+                <p style="margin:4px 0 0">All use Immobilizer IV (Immo 4) embedded in the Instrument Cluster with an
+                    encrypted NEC Processor and 24C64 EEPROM. The encryption prevents OBD reading without a valid key,
+                    forcing the "Service Mode" bench method.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Force Ignition Note -->
+    <div class="section">
+        <h2>❌ When Force Ignition Works (and Doesn't)</h2>
+
+        <p>The VAG Force Ignition Adapter is useful for waking up a car without keys, but it <strong>will NOT
+                help</strong> for 2014 Jetta AKL.</p>
+
+        <h3>Force Ignition is USEFUL for:</h3>
+        <ul>
+            <li>Audi A4 (B6/B7, 2001-2008) — RB4/RB8 cluster</li>
+            <li>Audi A6/Q7 (C6, 2004-2011) — Optical bus/CAN gateway</li>
+            <li>VW Passat B6/CC (2006-2014) — Some CCM situations</li>
+            <li>Older K-Line cars (Golf Mk4, Beetle pre-2010)</li>
+        </ul>
+
+        <h3>Force Ignition is USELESS for:</h3>
+        <ul>
+            <li>2014 Jetta (and Golf Mk6, Beetle 2012+)</li>
+            <li>Any NEC+24C64 encrypted cluster</li>
+            <li>MQB platform vehicles</li>
+        </ul>
+
+        <p><strong>Why?</strong> You can force the dash lights on, but when you try "Read Immo Data," the cluster's NEC
+            processor rejects the request because it's in a "Locked" state.</p>
+    </div>
+
+    <!-- Summary -->
+    <div class="section" style="background: linear-gradient(135deg, #1e293b, #0f172a);">
+        <h2>✅ Quick Summary</h2>
+
+        <ol>
+            <li><strong>Pull the cluster</strong> (2 T20 screws, 5 minutes)</li>
+            <li><strong>Expose 24C64 chip</strong> (brush conformal coating or use pogo pins)</li>
+            <li><strong>Read → Service Mode → Write</strong> the EEPROM</li>
+            <li><strong>Reinstall</strong> and program key via OBD</li>
+        </ol>
+
+        <p style="margin-top: 16px; color: var(--brand-primary); font-weight: 600;">This is the ONLY 100% reliable
+            method for this vehicle. OBD shortcuts fail 90% of the time.</p>
+    </div>
+
+</body>
+
+</html>
