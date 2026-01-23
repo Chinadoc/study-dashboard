@@ -2755,27 +2755,128 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // GET /api/vyp/models?make=X - Returns models for a make from browse_catalog
+      // Consolidates body style variants (Sedan, Hatchback, Wagon) into canonical models
       if (path === "/api/vyp/models") {
         try {
           const make = url.searchParams.get("make") || "";
+          const raw = url.searchParams.get("raw") === "true"; // Skip consolidation if raw=true
           if (!make) {
             return corsResponse(request, JSON.stringify({ error: "make parameter required" }), 400);
           }
 
-          const sql = `
-            SELECT DISTINCT model 
+          // Get all models for this make
+          const browseSQL = `
+            SELECT model, COUNT(*) as year_count
             FROM browse_catalog
             WHERE LOWER(make) = LOWER(?)
+            GROUP BY model
             ORDER BY model
           `;
-          const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
-          const models = (result.results || []).map((r: any) => r.model);
+          const browseResult = await env.LOCKSMITH_DB.prepare(browseSQL).bind(make).all();
+          const rawModels = (browseResult.results || []) as any[];
+
+          // If raw mode, return unmodified
+          if (raw) {
+            const models = rawModels.map((r: any) => r.model);
+            return corsResponse(request, JSON.stringify({
+              source: "browse_catalog",
+              make,
+              count: models.length,
+              consolidated: false,
+              models
+            }));
+          }
+
+          // Get canonical mappings for this make
+          const canonicalSQL = `
+            SELECT canonical_model, aliases 
+            FROM canonical_models 
+            WHERE LOWER(make) = LOWER(?) AND canonical_model != '_MAKE_'
+          `;
+          const canonicalResult = await env.LOCKSMITH_DB.prepare(canonicalSQL).bind(make).all();
+          const canonicals = (canonicalResult.results || []) as any[];
+
+          // Build variant -> canonical lookup
+          const variantToCanonical = new Map<string, string>();
+          for (const c of canonicals) {
+            const canonical = c.canonical_model;
+            variantToCanonical.set(canonical.toLowerCase(), canonical);
+            try {
+              const aliases = JSON.parse(c.aliases || '[]');
+              for (const alias of aliases) {
+                variantToCanonical.set(alias.toLowerCase(), canonical);
+              }
+            } catch (e) { }
+          }
+
+          // Body style patterns to consolidate (ordered longest-first for proper matching)
+          const bodyStyleSuffixes = [
+            ' Hatchback Wagon', ' Sport Wagon', ' Gran Coupe', ' Gran Turismo',
+            ' Hatchback', ' Convertible', ' Sportback', ' Touring', ' Estate', ' Avant',
+            ' Sedan', ' Wagon', ' Coupe', ' 2D', ' 4D', ' 5D'
+          ];
+
+          // Consolidate models
+          const consolidated = new Map<string, { model: string; variants: string[]; year_count: number }>();
+
+          for (const row of rawModels) {
+            const model = row.model as string;
+            let canonicalModel = model;
+            let isVariant = false;
+
+            // Check canonical_models table first
+            const lookup = variantToCanonical.get(model.toLowerCase());
+            if (lookup) {
+              canonicalModel = lookup;
+              isVariant = model.toLowerCase() !== lookup.toLowerCase();
+            } else {
+              // Fallback: strip body style suffixes
+              for (const suffix of bodyStyleSuffixes) {
+                if (model.endsWith(suffix)) {
+                  canonicalModel = model.slice(0, -suffix.length).trim();
+                  isVariant = true;
+                  break;
+                }
+              }
+            }
+
+            // Special case: if stripped model doesn't exist as a base, keep original
+            // (e.g., "Mazdaspeed3" should stay as-is, not become "Mazdaspeed")
+            const key = canonicalModel.toLowerCase();
+
+            if (consolidated.has(key)) {
+              const existing = consolidated.get(key)!;
+              existing.year_count += row.year_count;
+              if (isVariant && !existing.variants.includes(model)) {
+                existing.variants.push(model);
+              }
+            } else {
+              consolidated.set(key, {
+                model: canonicalModel,
+                variants: isVariant ? [model] : [],
+                year_count: row.year_count
+              });
+            }
+          }
+
+          // Sort consolidated models and prepare response
+          const sortedModels = Array.from(consolidated.values())
+            .sort((a, b) => a.model.localeCompare(b.model));
+
+          // Return both the simple model list and detailed info
+          const models = sortedModels.map(m => m.model);
+          const modelsWithVariants = sortedModels
+            .filter(m => m.variants.length > 0)
+            .map(m => ({ model: m.model, variants: m.variants }));
 
           return corsResponse(request, JSON.stringify({
             source: "browse_catalog",
             make,
             count: models.length,
-            models
+            consolidated: true,
+            models,
+            // Include variant details for models that have them
+            model_variants: modelsWithVariants.length > 0 ? modelsWithVariants : undefined
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
