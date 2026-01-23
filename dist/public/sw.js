@@ -1,27 +1,45 @@
-// v19 - Inventory cloud sync with Authorization header (cross-domain fix)
-const CACHE_NAME = 'euro-keys-v19';
+// v21 - Resilient caching that doesn't fail on individual asset errors
+const CACHE_NAME = 'euro-keys-v21';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/assets/icon-192.png',
-    '/assets/icon-512.png',
-    '/structured_guides.json',
-    '/public/js/tool_coverage_data.js',
-    '/public/js/programming_guides_data.js'
+    '/assets/icon-512.png'
 ];
 
-// Install: Cache static assets and skip waiting immediately
+// Helper: Cache assets one by one, tolerating individual failures
+async function cacheAssetsResiliently(cache, assets) {
+    const results = await Promise.allSettled(
+        assets.map(async (url) => {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    await cache.put(url, response);
+                    return { url, success: true };
+                }
+                return { url, success: false, status: response.status };
+            } catch (error) {
+                return { url, success: false, error: error.message };
+            }
+        })
+    );
+    const cached = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+    console.log(`Service Worker: Cached ${cached}/${assets.length} static assets`);
+}
+
+// Install: Cache static assets (tolerate failures) and skip waiting immediately
 self.addEventListener('install', (event) => {
     console.log(`Service Worker: Installing ${CACHE_NAME}`);
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('Service Worker: Caching static assets');
-            return cache.addAll(STATIC_ASSETS);
+            return cacheAssetsResiliently(cache, STATIC_ASSETS);
         })
     );
     // Skip waiting to activate immediately
     self.skipWaiting();
 });
+
 
 // Activate: Clean up old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
@@ -57,7 +75,7 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// Fetch: Network-first for main pages & API, cache-first for other assets
+// Fetch: Network-first for main pages, browse, vehicle & API, cache-first for other assets
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -73,8 +91,9 @@ self.addEventListener('fetch', (event) => {
         url.pathname.includes('/api/auth/') ||
         url.pathname.includes('/api/admin/');
 
-    // Main Page & API: Network-first (always get fresh content)
+    // Main Page, Browse, Vehicle & API: Network-first (always get fresh content)
     const isMainPage = url.pathname === '/' || url.pathname === '/index.html';
+    const isBrowseOrVehicle = url.pathname.startsWith('/browse') || url.pathname.startsWith('/vehicle');
     const isApi = url.pathname.startsWith('/api/') || url.hostname.includes('workers.dev');
 
     if (isSensitiveApi) {
@@ -82,7 +101,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    if (isMainPage || isApi) {
+    if (isMainPage || isBrowseOrVehicle || isApi) {
         event.respondWith(
             fetch(request)
                 .then((response) => {

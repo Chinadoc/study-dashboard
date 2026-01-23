@@ -649,6 +649,28 @@
                     } catch (e) {
                         console.error("Model fetch failed", e);
                     }
+                } else {
+                    // NEW: Search for models across all makes if no make found
+                    try {
+                        const searchRes = await fetch(`${API}/api/search/models?q=${encodeURIComponent(query)}`);
+                        const searchData = await searchRes.json();
+
+                        if (searchData.results && searchData.results.length > 0) {
+                            searchData.results.slice(0, 6).forEach(result => {
+                                html += `
+                                    <div class="suggestion-item" onclick="selectFullSuggestion('${result.make}', '${result.model}', '${year || ''}')">
+                                        <span class="suggestion-icon">🚗</span>
+                                        <div class="suggestion-text">
+                                            <div class="suggestion-title">${result.make} ${result.model}</div>
+                                            <div class="suggestion-subtitle">${result.years || 'View all years'}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+                    } catch (e) {
+                        console.log("Model search not available:", e);
+                    }
                 }
 
                 // Add makes to suggestions

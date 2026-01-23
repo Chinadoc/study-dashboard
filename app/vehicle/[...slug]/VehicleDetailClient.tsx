@@ -9,7 +9,6 @@ import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
-import DeepResearchWalkthroughs from '@/components/vehicle/DeepResearchWalkthroughs';
 import { API_BASE } from '@/lib/config';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
@@ -616,9 +615,6 @@ export default function VehicleDetailClient() {
                             pearls: aklPearls
                         } : undefined,
                     }} />
-
-                    {/* Deep Research Walkthroughs (local comprehensive guides) */}
-                    <DeepResearchWalkthroughs make={make} model={model} year={year} />
 
                     {/* Visual References Gallery */}
                     <VisualReferences images={imagesList} />

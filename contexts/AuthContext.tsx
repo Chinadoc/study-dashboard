@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { API_BASE } from '@/lib/config';
 
 export interface User {
     id: string;
@@ -23,10 +24,8 @@ interface AuthContextType {
     isPro: boolean;
 }
 
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 const WORKER_AUTH_URL = `${API_BASE}/api/auth/google`;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
