@@ -35,10 +35,30 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
 }
 
 // Transform products from /api/vehicle-products to include R2 image URLs
-function transformProducts(products: any[]): any[] {
+// Filters out cross-vehicle products that don't match the target model
+function transformProducts(products: any[], targetModel?: string): any[] {
     if (!products || !Array.isArray(products) || products.length === 0) return [];
 
-    return products.map(p => {
+    // Filter products that are clearly for other models
+    const filtered = products.filter(p => {
+        const title = (p.title || '').toLowerCase();
+        const model = (targetModel || '').toLowerCase();
+
+        // If title mentions specific models and doesn't include target model, skip it
+        // Pattern: "For Make Model1/Model2/Model3" - check if target model is included
+        const modelsInTitle = title.match(/(?:for\s+)?(?:honda|toyota|ford|gm|chevrolet|nissan)\s+([a-z0-9/-]+(?:\/[a-z0-9-]+)+)/);
+        if (modelsInTitle && model) {
+            const mentionedModels = modelsInTitle[1].toLowerCase().split('/');
+            // If title explicitly lists models and our model isn't in the list, skip
+            if (mentionedModels.length > 1 && !mentionedModels.some((m: string) => model.includes(m) || m.includes(model))) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    return filtered.map(p => {
         // Build a descriptive name if title is generic or missing
         let name = p.title || p.product_title || '';
         if (!name || name === 'Unknown' || name.toLowerCase().includes('remote')) {
@@ -495,7 +515,7 @@ export default function VehicleDetailClient() {
     }
 
     // Merge keys: prioritize /api/vehicle-products (has R2 images), fallback to products_by_type, then VYP
-    const keysFromProducts = transformProducts(data.products?.products || []);
+    const keysFromProducts = transformProducts(data.products?.products || [], model);
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
     const rawKeys = keysFromProducts.length > 0 ? keysFromProducts
