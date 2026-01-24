@@ -229,102 +229,84 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                 </span>
             </div>
 
-            {/* Key Image Placeholder or actual image */}
-            <div className="h-32 mb-4 rounded-lg bg-zinc-800/50 flex items-center justify-center overflow-hidden">
-                {config.image ? (
-                    <img
-                        src={config.image}
-                        alt={config.name}
-                        className="max-h-full max-w-full object-contain"
-                    />
-                ) : (
-                    <span className="text-5xl opacity-30">🔑</span>
-                )}
-            </div>
-
-            {/* Specs */}
-            <div className="space-y-2 mb-4">
-                {config.fcc && (() => {
-                    // Split and deduplicate FCC IDs (handles "YG0G20TB1 YG0G20TB1" duplication)
-                    const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
-                    return (
-                        <div className="flex justify-between text-sm gap-2">
-                            <span className="text-zinc-500 shrink-0">FCC ID</span>
-                            <span className="font-mono text-yellow-500 font-bold truncate text-right flex flex-wrap gap-1 justify-end" title={fccIds.join(', ')}>
-                                {fccIds.map((fcc, i) => (
-                                    <span key={fcc} className={i > 0 ? 'text-yellow-400' : ''}>{fcc}</span>
-                                ))}
-                            </span>
+            {/* Compact Key Image + FCC inline */}
+            <div className="flex gap-3 mb-3">
+                {/* Smaller key image */}
+                <div className="w-16 h-16 shrink-0 rounded-lg bg-zinc-800/50 flex items-center justify-center overflow-hidden">
+                    {config.image ? (
+                        <img
+                            src={config.image}
+                            alt={config.name}
+                            className="max-h-full max-w-full object-contain"
+                        />
+                    ) : (
+                        <span className="text-2xl opacity-30">🔑</span>
+                    )}
+                </div>
+                {/* Core specs inline */}
+                <div className="flex-1 min-w-0 space-y-1">
+                    {config.fcc && (() => {
+                        const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
+                        return (
+                            <div className="text-xs">
+                                <span className="text-zinc-500">FCC: </span>
+                                <span className="font-mono text-yellow-500 font-bold">{fccIds[0]}</span>
+                                {fccIds.length > 1 && <span className="text-yellow-400/60 ml-1">+{fccIds.length - 1}</span>}
+                            </div>
+                        );
+                    })()}
+                    {config.chip && (
+                        <div className="text-xs truncate">
+                            <span className="text-zinc-500">Chip: </span>
+                            <span className="text-white">{config.chip}</span>
                         </div>
-                    );
-                })()}
-                {config.chip && (
-                    <div className="flex justify-between text-sm gap-2">
-                        <span className="text-zinc-500 shrink-0">Chip</span>
-                        <span className="text-white truncate text-right" title={config.chip}>{config.chip}</span>
-                    </div>
-                )}
-                {config.battery && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-zinc-500">Battery</span>
-                        <span className="text-white">{config.battery}</span>
-                    </div>
-                )}
-                {config.blade && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-zinc-500">Blade</span>
-                        <span className="text-white">{config.blade}</span>
-                    </div>
-                )}
-                {config.priceRange && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-zinc-500">Price Range</span>
-                        <span className="text-green-400 font-bold">{config.priceRange}</span>
-                    </div>
-                )}
+                    )}
+                    {config.battery && (
+                        <div className="text-xs">
+                            <span className="text-zinc-500">Battery: </span>
+                            <span className="text-white">{config.battery}</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* OEM Parts */}
+            {/* Collapsible OEM Parts - only show first 3, expand on click */}
             {config.oem && config.oem.length > 0 && (
-                <div className="mb-4 pt-3 border-t border-zinc-800">
-                    <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2">OEM Part Numbers</div>
+                <div className="mb-3">
                     <div className="flex flex-wrap gap-1">
-                        {config.oem.slice(0, 6).map((part, i) => (
+                        {config.oem.slice(0, 3).map((part, i) => (
                             <span
                                 key={i}
-                                className="px-2 py-1 bg-zinc-800 rounded text-xs font-mono text-zinc-300"
+                                className="px-1.5 py-0.5 bg-zinc-800 rounded text-[10px] font-mono text-zinc-400"
                                 title={part.label || ''}
                             >
                                 {part.number}
                             </span>
                         ))}
-                        {config.oem.length > 6 && (
-                            <span className="px-2 py-1 text-[10px] text-zinc-600 font-bold flex items-center">
-                                +{config.oem.length - 6} more
+                        {config.oem.length > 3 && (
+                            <span className="px-1.5 py-0.5 text-[10px] text-zinc-600 font-bold">
+                                +{config.oem.length - 3}
                             </span>
                         )}
                     </div>
                 </div>
             )}
 
-            {/* Action Buttons */}
+            {/* Compact Action Buttons */}
             <div className="flex gap-2 mt-auto">
-                {/* Add to Inventory Button */}
                 <button
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         addToInventory();
                     }}
-                    className={`flex-1 py-3 ${added ? 'bg-green-600 text-white' : 'bg-zinc-700 hover:bg-zinc-600 text-white'} font-bold rounded-xl transition-all text-sm`}
+                    className={`flex-1 py-2 ${added ? 'bg-green-600 text-white' : 'bg-zinc-700 hover:bg-zinc-600 text-white'} font-bold rounded-lg transition-all text-xs`}
                 >
-                    {added ? '✓ Added!' : '📦 + Inventory'}
+                    {added ? '✓' : '📦'}
                 </button>
-
-                {/* Shop on Amazon Button */}
                 {config.fcc && (
-                    <div className="flex-1 text-center py-3 bg-yellow-500/90 group-hover:bg-yellow-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-yellow-500/20">
-                        🛒 Amazon
+                    <div className="flex-1 text-center py-2 bg-yellow-500/90 group-hover:bg-yellow-400 text-black font-bold rounded-lg transition-all text-xs">
+                        🛒 Buy
                     </div>
                 )}
             </div>
