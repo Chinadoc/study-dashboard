@@ -108,9 +108,9 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
             </h2>
 
             {/* Contextual Insight Tags - Compact and collapsible */}
-            {(pearls?.keyConfig?.length || pearls?.frequency?.length || pearls?.access?.length) && (
+            {(pearls?.keyConfig?.length ?? 0) > 0 || (pearls?.frequency?.length ?? 0) > 0 || (pearls?.access?.length ?? 0) > 0 ? (
                 <KeyConfigPearlTags pearls={pearls} />
-            )}
+            ) : null}
 
             {/* Responsive layout: fill space for 2-4 keys, horizontal scroll for 5+ */}
             {useScrollLayout ? (
