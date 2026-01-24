@@ -56,8 +56,8 @@ function KeyConfigPearlTags({ pearls }: { pearls: KeyCardsProps['pearls'] }) {
                         key={i}
                         onClick={() => setExpanded(expanded === `${pearl.type}-${i}` ? null : `${pearl.type}-${i}`)}
                         className={`px-2 py-1 text-[10px] font-bold rounded-full border transition-all flex items-center gap-1 ${pearl.color === 'red' ? 'bg-red-900/30 text-red-400 border-red-700/30 hover:bg-red-900/50' :
-                                pearl.color === 'green' ? 'bg-green-900/30 text-green-400 border-green-700/30 hover:bg-green-900/50' :
-                                    'bg-blue-900/30 text-blue-400 border-blue-700/30 hover:bg-blue-900/50'
+                            pearl.color === 'green' ? 'bg-green-900/30 text-green-400 border-green-700/30 hover:bg-green-900/50' :
+                                'bg-blue-900/30 text-blue-400 border-blue-700/30 hover:bg-blue-900/50'
                             }`}
                     >
                         {pearl.icon} {pearl.label}
@@ -72,8 +72,8 @@ function KeyConfigPearlTags({ pearls }: { pearls: KeyCardsProps['pearls'] }) {
                     <div
                         key={i}
                         className={`mt-2 p-3 rounded-lg border text-xs ${pearl.color === 'red' ? 'bg-red-900/10 border-red-800/30 text-red-200' :
-                                pearl.color === 'green' ? 'bg-green-900/10 border-green-800/30 text-green-200' :
-                                    'bg-blue-900/10 border-blue-800/30 text-blue-200'
+                            pearl.color === 'green' ? 'bg-green-900/10 border-green-800/30 text-green-200' :
+                                'bg-blue-900/10 border-blue-800/30 text-blue-200'
                             }`}
                     >
                         {pearl.content}
@@ -94,10 +94,17 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
         );
     }
 
+    // Determine layout mode based on key count
+    const keyCount = keys.length;
+    const useScrollLayout = keyCount > 4;
+
     return (
         <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-2xl">🔐</span> Key Configurations
+                {keyCount > 0 && (
+                    <span className="text-sm font-normal text-zinc-500 ml-2">({keyCount} type{keyCount !== 1 ? 's' : ''})</span>
+                )}
             </h2>
 
             {/* Contextual Insight Tags - Compact and collapsible */}
@@ -105,12 +112,45 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
                 <KeyConfigPearlTags pearls={pearls} />
             )}
 
-            {/* Fixed 3-column grid like demo, 2 on tablet, 1 on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[320px]">
-                {keys.map((key, index) => (
-                    <KeyCard key={key.fcc || index} config={key} vehicleInfo={vehicleInfo} />
-                ))}
-            </div>
+            {/* Responsive layout: fill space for 2-4 keys, horizontal scroll for 5+ */}
+            {useScrollLayout ? (
+                /* Horizontal scroll layout for 5+ keys */
+                <div className="relative">
+                    {/* Scroll container */}
+                    <div
+                        className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-zinc-800"
+                        style={{ scrollbarWidth: 'thin' }}
+                    >
+                        {keys.map((key, index) => (
+                            <div
+                                key={key.fcc || index}
+                                className="flex-shrink-0 snap-start"
+                                style={{ width: 'calc(25% - 12px)', minWidth: '220px' }}
+                            >
+                                <KeyCard config={key} vehicleInfo={vehicleInfo} />
+                            </div>
+                        ))}
+                    </div>
+                    {/* Fade indicator on right edge */}
+                    <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-zinc-900 to-transparent pointer-events-none" />
+                </div>
+            ) : (
+                /* Flex layout for 2-4 keys - equal width fill */
+                <div
+                    className="flex gap-4 min-h-[320px]"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: keyCount === 1 ? '1fr'
+                            : keyCount === 2 ? 'repeat(2, 1fr)'
+                                : keyCount === 3 ? 'repeat(3, 1fr)'
+                                    : 'repeat(4, 1fr)'
+                    }}
+                >
+                    {keys.map((key, index) => (
+                        <KeyCard key={key.fcc || index} config={key} vehicleInfo={vehicleInfo} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
