@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import imageManifest from '@/public/data/image_gallery_manifest.json';
 
 interface GalleryImage {
@@ -24,10 +24,25 @@ const TOPIC_TAGS = [
   'AKL', 'CHIP', 'ECU', 'PATS', 'Programming', 'SGW', 'Security', 'Smart Key'
 ];
 
+const YEAR_TAGS = [
+  '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'
+];
+
 export default function ImageGalleryClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+
+  // Close lightbox with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedImage) {
+        setSelectedImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage]);
 
   const images = (imageManifest as { images: GalleryImage[] }).images;
 
@@ -321,11 +336,32 @@ export default function ImageGalleryClient() {
           position: absolute;
           top: -2rem;
           right: 0;
-          background: none;
+          background: rgba(255,255,255,0.1);
           border: none;
           color: #fff;
           font-size: 2rem;
           cursor: pointer;
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s;
+        }
+
+        .lightbox-close:hover {
+          background: rgba(255,255,255,0.2);
+        }
+
+        .lightbox-hint {
+          position: absolute;
+          bottom: 1rem;
+          left: 50%;
+          transform: translateX(-50%);
+          color: rgba(255,255,255,0.5);
+          font-size: 0.8rem;
+          pointer-events: none;
         }
 
         .no-results {
@@ -404,6 +440,18 @@ export default function ImageGalleryClient() {
               </button>
             ))}
           </div>
+          <div className="tag-group">
+            <span className="tag-group-label">Years:</span>
+            {YEAR_TAGS.map((tag) => (
+              <button
+                key={tag}
+                className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -455,17 +503,20 @@ export default function ImageGalleryClient() {
         ))
       )}
 
-      {/* Lightbox */}
+      {/* Lightbox - click anywhere outside image to close, or press Escape */}
       {selectedImage && (
         <div className="lightbox-overlay" onClick={() => setSelectedImage(null)}>
+          <div className="lightbox-hint">Click anywhere or press ESC to close</div>
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <button className="lightbox-close" onClick={() => setSelectedImage(null)}>
+            <button className="lightbox-close" onClick={() => setSelectedImage(null)} title="Close (ESC)">
               ×
             </button>
             <img
               src={getImageUrl(selectedImage)}
               alt={selectedImage.id}
               className="lightbox-image"
+              onClick={() => setSelectedImage(null)}
+              style={{ cursor: 'pointer' }}
             />
             <div className="lightbox-info">
               <div className="lightbox-source">{selectedImage.source_doc.replace('.html', '')}</div>
