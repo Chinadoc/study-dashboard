@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',
+    // Remove output: 'export' to allow dynamic routes in dev
+    // For production, Cloudflare Pages handles static export via wrangler
     trailingSlash: true,
     images: {
         unoptimized: true,

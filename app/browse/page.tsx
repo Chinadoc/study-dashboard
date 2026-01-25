@@ -104,12 +104,59 @@ function BrowsePageContent() {
 
     const handleSearch = (query: string) => {
         console.log('Search:', query);
-        const parts = query.trim().split(/\s+/);
-        if (parts.length >= 3) {
-            const yearMatch = parts[0].match(/^\d{4}$/);
-            if (yearMatch) {
-                router.push(`/vehicle/${encodeURIComponent(parts[1])}/${encodeURIComponent(parts.slice(2).join(' '))}/${parts[0]}`);
+        const trimmed = query.trim();
+        const parts = trimmed.split(/\s+/);
+
+        // Pattern 1: "2018 CTS" (year + model, use selectedMake if available)
+        if (parts.length === 2) {
+            const yearMatch = parts[0].match(/^(19|20)\d{2}$/);
+            if (yearMatch && selectedMake) {
+                const year = parts[0];
+                const model = parts[1];
+                router.push(`/vehicle/${encodeURIComponent(selectedMake)}/${encodeURIComponent(model)}/${year}`);
+                return;
             }
+        }
+
+        // Pattern 2: "2018 Cadillac CTS" (year + make + model)
+        if (parts.length >= 3) {
+            const yearMatch = parts[0].match(/^(19|20)\d{2}$/);
+            if (yearMatch) {
+                const year = parts[0];
+                const make = parts[1];
+                const model = parts.slice(2).join(' ');
+                router.push(`/vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}`);
+                return;
+            }
+        }
+
+        // Pattern 3: "Cadillac CTS 2018" (make + model + year)
+        if (parts.length >= 3) {
+            const yearMatch = parts[parts.length - 1].match(/^(19|20)\d{2}$/);
+            if (yearMatch) {
+                const year = parts[parts.length - 1];
+                const make = parts[0];
+                const model = parts.slice(1, -1).join(' ');
+                router.push(`/vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}`);
+                return;
+            }
+        }
+
+        // Pattern 4: "CTS 2018" (model + year, use selectedMake if available)
+        if (parts.length === 2 && selectedMake) {
+            const yearMatch = parts[1].match(/^(19|20)\d{2}$/);
+            if (yearMatch) {
+                const model = parts[0];
+                const year = parts[1];
+                router.push(`/vehicle/${encodeURIComponent(selectedMake)}/${encodeURIComponent(model)}/${year}`);
+                return;
+            }
+        }
+
+        // If no year detected, try to select the make
+        const potentialMake = makes.find(m => m.toLowerCase() === parts[0]?.toLowerCase());
+        if (potentialMake) {
+            handleMakeSelect(potentialMake);
         }
     };
 
