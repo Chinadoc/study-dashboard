@@ -58,7 +58,7 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
 
                     return (
                         <div
-                            key={img.filename || index}
+                            key={`img-${index}-${img.filename || img.r2_key || 'unknown'}`}
                             className="bg-zinc-800/50 rounded-xl overflow-hidden border border-zinc-700/50 hover:border-purple-500/50 transition-all cursor-pointer"
                             onClick={() => setModalImage(img)}
                         >

@@ -123,7 +123,7 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
                     >
                         {keys.map((key, index) => (
                             <div
-                                key={key.fcc || index}
+                                key={`key-scroll-${index}-${key.name}`}
                                 className="flex-shrink-0 snap-start"
                                 style={{ width: 'calc(25% - 12px)', minWidth: '220px' }}
                             >
@@ -147,7 +147,7 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
                     }}
                 >
                     {keys.map((key, index) => (
-                        <KeyCard key={key.fcc || index} config={key} vehicleInfo={vehicleInfo} />
+                        <KeyCard key={`key-grid-${index}-${key.name}`} config={key} vehicleInfo={vehicleInfo} />
                     ))}
                 </div>
             )}
