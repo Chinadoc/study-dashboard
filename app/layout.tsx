@@ -43,8 +43,8 @@ export default function RootLayout({
                                     <a href="/fcc" className="text-sm text-slate-400 hover:text-white">
                                         📡 FCC Database
                                     </a>
-                                    <a href="/guides" className="text-sm text-slate-400 hover:text-white">
-                                        📚 Guides
+                                    <a href="/dossiers" className="text-sm text-slate-400 hover:text-white">
+                                        📚 Dossiers
                                     </a>
                                 </div>
 

@@ -120,10 +120,10 @@ export default function VehicleProcedures({
                         Check back soon or contribute your knowledge!
                     </p>
                     <a
-                        href="/guides"
+                        href="/dossiers"
                         className="inline-block mt-4 px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 text-sm rounded-lg transition-colors"
                     >
-                        Browse Available Guides →
+                        Browse Available Dossiers →
                     </a>
                 </div>
 

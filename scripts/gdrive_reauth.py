@@ -13,7 +13,7 @@ import urllib.parse as urlparse
 CLIENT_ID = "1057439383868-04gum028jlqtkr3sdj9bbblaf4dglmbc.apps.googleusercontent.com"
 CLIENT_SECRET = "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"
 REDIRECT_URI = "http://localhost:8888/callback"
-SCOPES = "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/documents.readonly"
+SCOPES = "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents.readonly"
 TOKEN_FILE = "gdrive_token.json"
 
 auth_code = None
