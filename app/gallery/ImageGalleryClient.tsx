@@ -92,9 +92,9 @@ export default function ImageGalleryClient() {
     // Images are served from R2 via the Worker API proxy
     const R2_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
 
-    // The image path in the manifest is like "images/folder/image1.png" or "Folder/images/image1.png"
-    // The R2 key should match the gallery path
-    return `${R2_BASE}/${encodeURIComponent(image.path)}`;
+    // Encode each path segment separately to preserve slashes
+    const encodedPath = image.path.split('/').map(encodeURIComponent).join('/');
+    return `${R2_BASE}/${encodedPath}`;
   };
 
   return (
