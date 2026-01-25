@@ -58,3 +58,4 @@ db.sqlite
 # ✓ package.json      - Dependencies
 # ✓ next.config.mjs   - Next.js config
 # ✓ tailwind.config.js
+out/
