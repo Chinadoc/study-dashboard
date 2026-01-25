@@ -87,15 +87,14 @@ export default function ImageGalleryClient() {
     );
   };
 
-  // Build image URL from the images folder
+  // Build image URL from R2 via Worker proxy
   const getImageUrl = (image: GalleryImage) => {
-    // Images are in gdrive_exports/[folder]/images/imageX.png or gdrive_exports/images/[folder]/imageX.png
-    // We symlink to public/dossier-images
-    if (image.path.startsWith('images/')) {
-      return `/dossier-images/${image.path.replace('images/', '')}`;
-    }
-    // For paths like "2018_Cadillac_CTS_Locksmith_Data/images/image1.png"
-    return `/dossier-images/${image.path}`;
+    // Images are served from R2 via the Worker API proxy
+    const R2_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
+
+    // The image path in the manifest is like "images/folder/image1.png" or "Folder/images/image1.png"
+    // The R2 key should match the gallery path
+    return `${R2_BASE}/${encodeURIComponent(image.path)}`;
   };
 
   return (
