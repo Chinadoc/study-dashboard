@@ -1,7 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "eurokeys-frontend"
+name = "study-dashboard"
+pages_build_output_dir = ".vercel/output/static"
 compatibility_date = "2024-04-03"
 compatibility_flags = ["nodejs_compat"]
-
-# next-on-pages handles the build output
-# Deploy with: npx wrangler pages deploy .vercel/output/static
