@@ -4,156 +4,174 @@ import { useState, useMemo } from 'react';
 import dossierManifest from '@/data/dossier_manifest.json';
 
 interface DossierSection {
-    heading: string;
-    level: number;
-    preview: string;
-    makes: string[];
-    topics: string[];
-    platforms: string[];
-    years: number[];
+  heading: string;
+  level: number;
+  preview: string;
+  makes: string[];
+  topics: string[];
+  platforms: string[];
+  years: number[];
 }
 
 interface Dossier {
-    id: string;
-    title: string;
-    embed_url: string;
-    view_url: string;
-    modified: string;
-    is_public: boolean;
-    makes: string[];
-    topics: string[];
-    platforms: string[];
-    years: number[];
-    sections: DossierSection[];
+  id: string;
+  title: string;
+  embed_url: string;
+  view_url: string;
+  modified: string;
+  is_public: boolean;
+  makes: string[];
+  topics: string[];
+  platforms: string[];
+  years: number[];
+  sections: DossierSection[];
 }
 
 const TOPIC_FILTERS = [
-    'AKL',
-    'Key Programming',
-    'Immobilizer',
-    'Smart Key',
-    'Security Gateway',
-    'PATS',
-    'CAN-FD',
-    'EEPROM',
+  'AKL',
+  'Key Programming',
+  'Immobilizer',
+  'Smart Key',
+  'Security Gateway',
+  'PATS',
+  'CAN-FD',
+  'EEPROM',
 ];
 
 const MAKE_OPTIONS = [
-    'All Makes',
-    'Acura',
-    'Alfa Romeo',
-    'Audi',
-    'BMW',
-    'Cadillac',
-    'Chevrolet',
-    'Chrysler',
-    'Dodge',
-    'Ford',
-    'Genesis',
-    'GMC',
-    'Honda',
-    'Hyundai',
-    'Infiniti',
-    'Jaguar',
-    'Jeep',
-    'Kia',
-    'Land Rover',
-    'Lexus',
-    'Lincoln',
-    'Mazda',
-    'Mercedes-Benz',
-    'Mini',
-    'Mitsubishi',
-    'Nissan',
-    'Porsche',
-    'Ram',
-    'Rivian',
-    'Subaru',
-    'Tesla',
-    'Toyota',
-    'Volkswagen',
-    'Volvo',
+  'All Makes',
+  'Acura',
+  'Alfa Romeo',
+  'Audi',
+  'BMW',
+  'Cadillac',
+  'Chevrolet',
+  'Chrysler',
+  'Dodge',
+  'Ford',
+  'Genesis',
+  'GMC',
+  'Honda',
+  'Hyundai',
+  'Infiniti',
+  'Jaguar',
+  'Jeep',
+  'Kia',
+  'Land Rover',
+  'Lexus',
+  'Lincoln',
+  'Mazda',
+  'Mercedes-Benz',
+  'Mini',
+  'Mitsubishi',
+  'Nissan',
+  'Porsche',
+  'Ram',
+  'Rivian',
+  'Subaru',
+  'Tesla',
+  'Toyota',
+  'Volkswagen',
+  'Volvo',
 ];
 
 export default function DossierLibraryClient() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-    const [selectedMake, setSelectedMake] = useState('All Makes');
-    const [expandedDossier, setExpandedDossier] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedMake, setSelectedMake] = useState('All Makes');
+  const [expandedDossier, setExpandedDossier] = useState<string | null>(null);
 
-    const dossiers = dossierManifest as Dossier[];
+  const dossiers = dossierManifest as Dossier[];
 
-    // Filter dossiers based on search, topics, and make
-    const filteredDossiers = useMemo(() => {
-        return dossiers.filter((dossier) => {
-            // Search filter
-            if (searchQuery) {
-                const query = searchQuery.toLowerCase();
-                const matchesTitle = dossier.title.toLowerCase().includes(query);
-                const matchesSections = dossier.sections.some(
-                    (s) =>
-                        s.heading.toLowerCase().includes(query) ||
-                        s.preview.toLowerCase().includes(query)
-                );
-                if (!matchesTitle && !matchesSections) return false;
-            }
-
-            // Topic filter
-            if (selectedTopics.length > 0) {
-                const hasMatchingTopic = selectedTopics.some((topic) =>
-                    dossier.topics.includes(topic)
-                );
-                if (!hasMatchingTopic) return false;
-            }
-
-            // Make filter
-            if (selectedMake !== 'All Makes') {
-                if (!dossier.makes.includes(selectedMake)) return false;
-            }
-
-            return true;
-        });
-    }, [dossiers, searchQuery, selectedTopics, selectedMake]);
-
-    // Group by primary make (first in list, or from title)
-    const groupedByMake = useMemo(() => {
-        const groups: Record<string, Dossier[]> = {};
-
-        filteredDossiers.forEach((dossier) => {
-            // Try to identify primary make from title
-            let primaryMake = 'General';
-            for (const make of MAKE_OPTIONS.slice(1)) {
-                if (dossier.title.includes(make) || dossier.title.includes(make.split('-')[0])) {
-                    primaryMake = make;
-                    break;
-                }
-            }
-            // Fallback to first make in list
-            if (primaryMake === 'General' && dossier.makes.length > 0) {
-                primaryMake = dossier.makes[0];
-            }
-
-            if (!groups[primaryMake]) groups[primaryMake] = [];
-            groups[primaryMake].push(dossier);
-        });
-
-        // Sort groups alphabetically
-        return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
-    }, [filteredDossiers]);
-
-    const toggleTopic = (topic: string) => {
-        setSelectedTopics((prev) =>
-            prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
+  // Filter dossiers based on search, topics, and make
+  const filteredDossiers = useMemo(() => {
+    return dossiers.filter((dossier) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesTitle = dossier.title.toLowerCase().includes(query);
+        const matchesSections = dossier.sections.some(
+          (s) =>
+            s.heading.toLowerCase().includes(query) ||
+            s.preview.toLowerCase().includes(query)
         );
-    };
+        if (!matchesTitle && !matchesSections) return false;
+      }
 
-    const openDossier = (dossier: Dossier) => {
-        window.open(dossier.embed_url, '_blank');
-    };
+      // Topic filter
+      if (selectedTopics.length > 0) {
+        const hasMatchingTopic = selectedTopics.some((topic) =>
+          dossier.topics.includes(topic)
+        );
+        if (!hasMatchingTopic) return false;
+      }
 
-    return (
-        <div className="dossier-library">
-            <style jsx>{`
+      // Make filter
+      if (selectedMake !== 'All Makes') {
+        if (!dossier.makes.includes(selectedMake)) return false;
+      }
+
+      return true;
+    });
+  }, [dossiers, searchQuery, selectedTopics, selectedMake]);
+
+  // Group by primary make (first in list, or from title)
+  const groupedByMake = useMemo(() => {
+    const groups: Record<string, Dossier[]> = {};
+
+    filteredDossiers.forEach((dossier) => {
+      // Try to identify primary make from title
+      let primaryMake = 'General';
+      for (const make of MAKE_OPTIONS.slice(1)) {
+        if (dossier.title.includes(make) || dossier.title.includes(make.split('-')[0])) {
+          primaryMake = make;
+          break;
+        }
+      }
+      // Fallback to first make in list
+      if (primaryMake === 'General' && dossier.makes.length > 0) {
+        primaryMake = dossier.makes[0];
+      }
+
+      if (!groups[primaryMake]) groups[primaryMake] = [];
+      groups[primaryMake].push(dossier);
+    });
+
+    // Sort groups - prioritize selected make or search term match
+    return Object.entries(groups).sort(([a], [b]) => {
+      // If a make is selected, put it first
+      if (selectedMake !== 'All Makes') {
+        if (a === selectedMake) return -1;
+        if (b === selectedMake) return 1;
+      }
+
+      // If searching, prioritize makes that match the search query
+      if (searchQuery) {
+        const queryLower = searchQuery.toLowerCase();
+        const aMatches = a.toLowerCase().includes(queryLower);
+        const bMatches = b.toLowerCase().includes(queryLower);
+        if (aMatches && !bMatches) return -1;
+        if (bMatches && !aMatches) return 1;
+      }
+
+      // Otherwise alphabetical
+      return a.localeCompare(b);
+    });
+  }, [filteredDossiers, selectedMake, searchQuery]);
+
+  const toggleTopic = (topic: string) => {
+    setSelectedTopics((prev) =>
+      prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
+    );
+  };
+
+  const openDossier = (dossier: Dossier) => {
+    window.open(dossier.embed_url, '_blank');
+  };
+
+  return (
+    <div className="dossier-library">
+      <style jsx>{`
         .dossier-library {
           min-height: 100vh;
           background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
@@ -402,149 +420,149 @@ export default function DossierLibraryClient() {
         }
       `}</style>
 
-            <div className="header">
-                <h1>📚 Dossier Library</h1>
-                <p className="subtitle">{dossiers.length} Technical Documents</p>
-            </div>
+      <div className="header">
+        <h1>📚 Dossier Library</h1>
+        <p className="subtitle">{dossiers.length} Technical Documents</p>
+      </div>
 
-            <div className="stats">
-                <div className="stat">
-                    <div className="stat-value">{filteredDossiers.length}</div>
-                    <div className="stat-label">Documents</div>
-                </div>
-                <div className="stat">
-                    <div className="stat-value">
-                        {filteredDossiers.reduce((sum, d) => sum + d.sections.length, 0).toLocaleString()}
-                    </div>
-                    <div className="stat-label">Sections</div>
-                </div>
-                <div className="stat">
-                    <div className="stat-value">{groupedByMake.length}</div>
-                    <div className="stat-label">Makes</div>
-                </div>
-            </div>
-
-            <div className="filters">
-                <input
-                    type="text"
-                    className="search-bar"
-                    placeholder="Search dossiers..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-
-                <div className="topic-chips">
-                    {TOPIC_FILTERS.map((topic) => (
-                        <button
-                            key={topic}
-                            className={`topic-chip ${selectedTopics.includes(topic) ? 'active' : ''}`}
-                            onClick={() => toggleTopic(topic)}
-                        >
-                            {topic}
-                        </button>
-                    ))}
-                </div>
-
-                <select
-                    className="make-select"
-                    value={selectedMake}
-                    onChange={(e) => setSelectedMake(e.target.value)}
-                >
-                    {MAKE_OPTIONS.map((make) => (
-                        <option key={make} value={make}>
-                            {make}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {filteredDossiers.length === 0 ? (
-                <div className="no-results">
-                    <p>No dossiers match your filters.</p>
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() => {
-                            setSearchQuery('');
-                            setSelectedTopics([]);
-                            setSelectedMake('All Makes');
-                        }}
-                    >
-                        Clear Filters
-                    </button>
-                </div>
-            ) : (
-                groupedByMake.map(([make, makeDossiers]) => (
-                    <div key={make} className="make-section">
-                        <div className="make-header">
-                            <h2>{make}</h2>
-                            <span className="make-count">{makeDossiers.length} docs</span>
-                        </div>
-
-                        <div className="dossier-grid">
-                            {makeDossiers.map((dossier) => (
-                                <div key={dossier.id} className="dossier-card">
-                                    <div className="card-header">
-                                        <h3 className="card-title">{dossier.title}</h3>
-                                        <span className="section-count">
-                                            {dossier.sections.length} sections
-                                        </span>
-                                    </div>
-
-                                    <div className="card-tags">
-                                        {dossier.topics.slice(0, 3).map((topic) => (
-                                            <span key={topic} className="tag topic">
-                                                {topic}
-                                            </span>
-                                        ))}
-                                        {dossier.platforms.slice(0, 2).map((platform) => (
-                                            <span key={platform} className="tag platform">
-                                                {platform}
-                                            </span>
-                                        ))}
-                                    </div>
-
-                                    <div className="card-actions">
-                                        <button
-                                            className="btn btn-primary"
-                                            onClick={() => openDossier(dossier)}
-                                        >
-                                            Open
-                                        </button>
-                                        <button
-                                            className="btn btn-secondary"
-                                            onClick={() =>
-                                                setExpandedDossier(
-                                                    expandedDossier === dossier.id ? null : dossier.id
-                                                )
-                                            }
-                                        >
-                                            {expandedDossier === dossier.id ? 'Hide' : 'Sections'}
-                                        </button>
-                                    </div>
-
-                                    {expandedDossier === dossier.id && (
-                                        <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#888' }}>
-                                            {dossier.sections.slice(0, 5).map((section, i) => (
-                                                <div key={i} style={{ marginBottom: '0.5rem' }}>
-                                                    <strong style={{ color: '#aaa' }}>{section.heading}</strong>
-                                                    <p style={{ margin: '0.25rem 0', opacity: 0.7 }}>
-                                                        {section.preview.slice(0, 100)}...
-                                                    </p>
-                                                </div>
-                                            ))}
-                                            {dossier.sections.length > 5 && (
-                                                <p style={{ fontStyle: 'italic' }}>
-                                                    +{dossier.sections.length - 5} more sections...
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))
-            )}
+      <div className="stats">
+        <div className="stat">
+          <div className="stat-value">{filteredDossiers.length}</div>
+          <div className="stat-label">Documents</div>
         </div>
-    );
+        <div className="stat">
+          <div className="stat-value">
+            {filteredDossiers.reduce((sum, d) => sum + d.sections.length, 0).toLocaleString()}
+          </div>
+          <div className="stat-label">Sections</div>
+        </div>
+        <div className="stat">
+          <div className="stat-value">{groupedByMake.length}</div>
+          <div className="stat-label">Makes</div>
+        </div>
+      </div>
+
+      <div className="filters">
+        <input
+          type="text"
+          className="search-bar"
+          placeholder="Search dossiers..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        <div className="topic-chips">
+          {TOPIC_FILTERS.map((topic) => (
+            <button
+              key={topic}
+              className={`topic-chip ${selectedTopics.includes(topic) ? 'active' : ''}`}
+              onClick={() => toggleTopic(topic)}
+            >
+              {topic}
+            </button>
+          ))}
+        </div>
+
+        <select
+          className="make-select"
+          value={selectedMake}
+          onChange={(e) => setSelectedMake(e.target.value)}
+        >
+          {MAKE_OPTIONS.map((make) => (
+            <option key={make} value={make}>
+              {make}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {filteredDossiers.length === 0 ? (
+        <div className="no-results">
+          <p>No dossiers match your filters.</p>
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedTopics([]);
+              setSelectedMake('All Makes');
+            }}
+          >
+            Clear Filters
+          </button>
+        </div>
+      ) : (
+        groupedByMake.map(([make, makeDossiers]) => (
+          <div key={make} className="make-section">
+            <div className="make-header">
+              <h2>{make}</h2>
+              <span className="make-count">{makeDossiers.length} docs</span>
+            </div>
+
+            <div className="dossier-grid">
+              {makeDossiers.map((dossier) => (
+                <div key={dossier.id} className="dossier-card">
+                  <div className="card-header">
+                    <h3 className="card-title">{dossier.title}</h3>
+                    <span className="section-count">
+                      {dossier.sections.length} sections
+                    </span>
+                  </div>
+
+                  <div className="card-tags">
+                    {dossier.topics.slice(0, 3).map((topic) => (
+                      <span key={topic} className="tag topic">
+                        {topic}
+                      </span>
+                    ))}
+                    {dossier.platforms.slice(0, 2).map((platform) => (
+                      <span key={platform} className="tag platform">
+                        {platform}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="card-actions">
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => openDossier(dossier)}
+                    >
+                      Open
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() =>
+                        setExpandedDossier(
+                          expandedDossier === dossier.id ? null : dossier.id
+                        )
+                      }
+                    >
+                      {expandedDossier === dossier.id ? 'Hide' : 'Sections'}
+                    </button>
+                  </div>
+
+                  {expandedDossier === dossier.id && (
+                    <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#888' }}>
+                      {dossier.sections.slice(0, 5).map((section, i) => (
+                        <div key={i} style={{ marginBottom: '0.5rem' }}>
+                          <strong style={{ color: '#aaa' }}>{section.heading}</strong>
+                          <p style={{ margin: '0.25rem 0', opacity: 0.7 }}>
+                            {section.preview.slice(0, 100)}...
+                          </p>
+                        </div>
+                      ))}
+                      {dossier.sections.length > 5 && (
+                        <p style={{ fontStyle: 'italic' }}>
+                          +{dossier.sections.length - 5} more sections...
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
 }
