@@ -46,6 +46,9 @@ export default function RootLayout({
                                     <a href="/dossiers" className="text-sm text-slate-400 hover:text-white">
                                         📚 Dossiers
                                     </a>
+                                    <a href="/gallery" className="text-sm text-slate-400 hover:text-white">
+                                        📷 Gallery
+                                    </a>
                                 </div>
 
                                 {/* Right - Search & Auth */}
