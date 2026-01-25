@@ -1,5 +1,0 @@
-# Cloudflare Pages - SPA Redirects for Dynamic Routes
-# Vehicle detail pages - serve fallback for client-side routing
-/vehicle/*  /vehicle/fallback/index.html  200
-
-# Browse page - already has index.html
