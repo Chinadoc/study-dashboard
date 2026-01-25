@@ -75,6 +75,16 @@ const MAKE_OPTIONS = [
   'Volvo',
 ];
 
+// Helper to format years as a range
+const formatYearRange = (years: number[]): string => {
+  if (!years || years.length === 0) return '';
+  const sorted = [...years].sort((a, b) => a - b);
+  const min = sorted[0];
+  const max = sorted[sorted.length - 1];
+  if (min === max) return `${min}`;
+  return `${min}–${max}`;
+};
+
 export default function DossierLibraryClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -319,6 +329,15 @@ export default function DossierLibraryClient() {
           flex: 1;
         }
 
+        .card-meta {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 0.25rem;
+          margin-left: 0.5rem;
+          flex-shrink: 0;
+        }
+
         .section-count {
           background: #333;
           padding: 0.25rem 0.5rem;
@@ -326,7 +345,16 @@ export default function DossierLibraryClient() {
           font-size: 0.7rem;
           color: #888;
           white-space: nowrap;
-          margin-left: 0.5rem;
+        }
+
+        .year-range {
+          background: rgba(16, 185, 129, 0.2);
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.7rem;
+          color: #10b981;
+          white-space: nowrap;
+          font-weight: 500;
         }
 
         .card-tags {
@@ -503,9 +531,16 @@ export default function DossierLibraryClient() {
                 <div key={dossier.id} className="dossier-card">
                   <div className="card-header">
                     <h3 className="card-title">{dossier.title}</h3>
-                    <span className="section-count">
-                      {dossier.sections.length} sections
-                    </span>
+                    <div className="card-meta">
+                      <span className="section-count">
+                        {dossier.sections.length} sections
+                      </span>
+                      {formatYearRange(dossier.years) && (
+                        <span className="year-range">
+                          {formatYearRange(dossier.years)}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="card-tags">
