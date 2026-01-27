@@ -325,12 +325,13 @@ export default function VehicleDetailClient() {
                 const makeOnlyParams = `make=${encodeURIComponent(make)}`;
 
                 // First batch: vehicle-specific data
-                const [detailRes, productsRes, walkthroughsRes, pearlsRes, imagesRes] = await Promise.all([
+                const [detailRes, productsRes, walkthroughsRes, pearlsRes, imagesRes, proceduresRes] = await Promise.all([
                     fetch(`${API_BASE}/api/vehicle-detail?${queryParams}`).catch(() => null),
                     fetch(`${API_BASE}/api/vehicle-products?${queryParams}`).catch(() => null),
                     fetch(`${API_BASE}/api/walkthroughs?${queryParams}`).catch(() => null),
                     fetch(`${API_BASE}/api/pearls?${queryParams}`).catch(() => null),
                     fetch(`${API_BASE}/api/images?${makeOnlyParams}`).catch(() => null), // Images at make level (cross-pollinated)
+                    fetch(`${API_BASE}/api/procedures?${queryParams}`).catch(() => null), // New procedure packages
                 ]);
 
                 const detail = detailRes?.ok ? await detailRes.json() : {};
@@ -338,6 +339,7 @@ export default function VehicleDetailClient() {
                 const walkthroughs = walkthroughsRes?.ok ? await walkthroughsRes.json() : { walkthroughs: [] };
                 let pearls = pearlsRes?.ok ? await pearlsRes.json() : { pearls: [] };
                 const images = imagesRes?.ok ? await imagesRes.json() : { images: [] };
+                const procedurePackages = proceduresRes?.ok ? await proceduresRes.json() : { procedures: [] };
 
                 // Fallback: If no model-specific pearls, fetch make-level pearls
                 if (!pearls.pearls?.length) {
@@ -371,7 +373,7 @@ export default function VehicleDetailClient() {
                     }
                 }
 
-                setData({ detail, products, walkthroughs, pearls, images });
+                setData({ detail, products, walkthroughs, pearls, images, procedurePackages });
             } catch (err) {
                 console.error('Failed to fetch vehicle data:', err);
                 setError('Failed to load vehicle data.');
@@ -543,6 +545,7 @@ export default function VehicleDetailClient() {
         canFdRequired: header.can_fd_required === 1 || header.can_fd_required === true,
         chipType: specs.chip,
         fccId: specs.fcc_id,
+        allFccs: specs.all_fccs,
         frequency: specs.frequency,
         battery: specs.battery,
         keyway: specs.keyway,
@@ -563,6 +566,12 @@ export default function VehicleDetailClient() {
     const aklWalkthrough = data.walkthroughs?.walkthroughs?.find((w: any) =>
         w.type === 'akl' || w.title?.toLowerCase().includes('all keys lost')
     );
+
+    // NEW: Get procedure packages from /api/procedures (preferred over walkthroughs)
+    const proceduresList = data.procedurePackages?.procedures || [];
+    const addKeyProcedure = proceduresList.find((p: any) => p.scenario === 'add_key');
+    const aklProcedure = proceduresList.find((p: any) => p.scenario === 'akl');
+    const generalProcedure = proceduresList.find((p: any) => p.scenario === 'general');
 
     // Helper to parse steps from walkthroughs_v2 (steps_json is a JSON array string)
     const parseSteps = (walkthrough: any): string[] => {
@@ -615,75 +624,88 @@ export default function VehicleDetailClient() {
 
     // ============================================
     // CONTEXTUAL PEARL ROUTING
-    // Route pearls to specific UI sections based on tags
+    // Route pearls by target_section from API (Phase 3 data)
     // ============================================
     const routedPearls = {
-        // Lishi/cutting pearls → VehicleSpecs Lishi section
-        lishi: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['lishi', 'hu100', '10-cut', '8-cut', 'cutting', 'z-series'].includes(t));
-        }),
-        // CAN-FD pearls → VehicleSpecs CAN FD section
-        canFd: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['can-fd', 'adapter', 'late-production'].includes(t));
-        }),
+        // Lishi/mechanical pearls → VehicleSpecs Lishi section
+        lishi: pearlsList.filter((p: any) =>
+            p.target_section === 'mechanical' ||
+            getTags(p).some((t: string) => ['lishi', 'hu100', '10-cut', '8-cut', 'cutting'].includes(t))
+        ),
+        // CAN-FD/tool requirement pearls → VehicleSpecs CAN FD section
+        canFd: pearlsList.filter((p: any) =>
+            p.target_section === 'tool_requirement' ||
+            getTags(p).some((t: string) => ['can-fd', 'adapter'].includes(t))
+        ),
+        // Chip/security pearls → VehicleSpecs chip section
+        chip: pearlsList.filter((p: any) =>
+            p.target_section === 'chip_security' ||
+            (p.pearl_content || '').toLowerCase().match(/\b(8a-ba|8a|h-chip|g-chip|id47|fbb|fla)\b/)
+        ),
+        // FCC/hardware pearls → VehicleSpecs FCC section
+        fcc: pearlsList.filter((p: any) =>
+            p.target_section === 'fcc_hardware' ||
+            (p.pearl_content || '').toLowerCase().match(/\b(hyq|m3n|fcc|315\s*mhz|433\s*mhz)\b/)
+        ),
         // Key configuration pearls → KeyCards section
-        keyConfig: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['5-button', '4-button', 'inventory', 'strattec', 'remote-start'].includes(t));
-        }),
-        // Frequency/FCC pearls → KeyCards (per-card context)
-        frequency: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['frequency', 'hyq2ab', 'hyq2eb', '315mhz', '433mhz', 'export', 'rcdlr'].includes(t));
-        }),
+        keyConfig: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['5-button', '4-button', 'inventory', 'strattec', 'remote-start'].includes(t))
+        ),
+        // Frequency pearls → KeyCards (per-card context)
+        frequency: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['frequency', 'hyq2ab', 'hyq2eb', '315mhz', '433mhz'].includes(t))
+        ),
         // Cylinder/access pearls → KeyCards blade section
-        access: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['cylinder', 'concealed', 'door-handle', 'emergency-access', 'cap'].includes(t));
-        }),
+        access: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['cylinder', 'concealed', 'door-handle', 'emergency-access'].includes(t))
+        ),
         // Voltage/BCM pearls → Procedures (critical warning)
-        voltage: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['voltage', 'bcm', 'eeprom', 'bricking', 'power-supply'].includes(t));
-        }),
+        voltage: pearlsList.filter((p: any) =>
+            p.target_section === 'warning_alert' ||
+            getTags(p).some((t: string) => ['voltage', 'bcm', 'eeprom', 'bricking'].includes(t))
+        ),
         // Transmitter pocket pearls → Procedures
-        transmitter: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['transmitter-pocket', 'console', 'rubber-mat', 'hidden'].includes(t));
-        }),
+        transmitter: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['transmitter-pocket', 'console', 'hidden'].includes(t))
+        ),
+        // AKL procedure pearls
+        akl: pearlsList.filter((p: any) =>
+            p.target_section === 'akl_procedure'
+        ),
+        // Add key procedure pearls
+        addKey: pearlsList.filter((p: any) =>
+            p.target_section === 'add_key_procedure'
+        ),
         // OBP/free method pearls → Procedures AKL
-        obp: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['obp', 'onboard-programming', '30-minute', 'relearn', 'free'].includes(t));
-        }),
+        obp: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['obp', 'onboard-programming', '30-minute', 'relearn'].includes(t))
+        ),
         // Troubleshooting pearls → Sidebar or new section
-        troubleshooting: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['troubleshooting', 'no-remote-detected', 'rf-interference', 'diagnostic'].includes(t));
-        }),
+        troubleshooting: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['troubleshooting', 'no-remote-detected', 'rf-interference'].includes(t))
+        ),
         // Business/NASTF pearls → Procedures tool method
-        business: pearlsList.filter((p: any) => {
-            const tags = getTags(p);
-            return tags.some((t: string) => ['nastf', 'pin', 'tds', 'acdelco', 'vsp', 'backup'].includes(t));
-        }),
+        business: pearlsList.filter((p: any) =>
+            getTags(p).some((t: string) => ['nastf', 'pin', 'tds', 'acdelco'].includes(t))
+        ),
     };
 
     // Collect all routed pearl IDs to exclude from general section
     const allRoutedPearlIds = new Set([
         ...routedPearls.lishi,
         ...routedPearls.canFd,
+        ...routedPearls.chip,
+        ...routedPearls.fcc,
         ...routedPearls.keyConfig,
         ...routedPearls.frequency,
         ...routedPearls.access,
         ...routedPearls.voltage,
         ...routedPearls.transmitter,
+        ...routedPearls.akl,
+        ...routedPearls.addKey,
         ...routedPearls.obp,
         ...routedPearls.troubleshooting,
         ...routedPearls.business,
-        ...addKeyPearls,
-        ...aklPearls,
     ].map(p => p.id));
 
     // General pearls = those not routed anywhere specific
@@ -714,6 +736,8 @@ export default function VehicleDetailClient() {
                         pearls={{
                             lishi: routedPearls.lishi,
                             canFd: routedPearls.canFd,
+                            chip: routedPearls.chip,
+                            fcc: routedPearls.fcc,
                         }}
                     />
 
@@ -730,20 +754,33 @@ export default function VehicleDetailClient() {
 
                     {/* Programming Procedures */}
                     <VehicleProcedures procedures={{
-                        addKey: addKeyWalkthrough ? {
+                        addKey: addKeyProcedure ? {
+                            title: addKeyProcedure.title,
+                            time_minutes: parseInt(addKeyProcedure.time_estimate) || 30,
+                            steps: addKeyProcedure.steps?.map((s: any) => s.action || s) || [],
+                            requirements: addKeyProcedure.tools || [],
+                            pearls: routedPearls.addKey
+                        } : addKeyWalkthrough ? {
                             title: addKeyWalkthrough.title,
                             time_minutes: addKeyWalkthrough.time_minutes || addKeyWalkthrough.estimated_time_mins,
                             steps: parseSteps(addKeyWalkthrough),
                             menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
-                            pearls: addKeyPearls
+                            pearls: routedPearls.addKey
                         } : undefined,
-                        akl: aklWalkthrough ? {
+                        akl: aklProcedure ? {
+                            title: aklProcedure.title,
+                            time_minutes: parseInt(aklProcedure.time_estimate) || 45,
+                            risk_level: 'high' as const,
+                            steps: aklProcedure.steps?.map((s: any) => s.action || s) || [],
+                            requirements: aklProcedure.tools || [],
+                            pearls: routedPearls.akl
+                        } : aklWalkthrough ? {
                             title: aklWalkthrough.title,
                             time_minutes: aklWalkthrough.time_minutes || aklWalkthrough.estimated_time_mins,
                             risk_level: ((aklWalkthrough.risk_level === 'moderate' ? 'medium' : aklWalkthrough.risk_level) as 'low' | 'medium' | 'high') || 'high',
                             steps: parseSteps(aklWalkthrough),
                             menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
-                            pearls: aklPearls
+                            pearls: routedPearls.akl
                         } : undefined,
                     }} />
 

@@ -3457,6 +3457,98 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
+      // ==============================================
+      // PROCEDURES ENDPOINT - Structured procedure packages
+      // ==============================================
+      // Returns Add Key and AKL procedures from procedure_packages table
+      // Filters by make/model and year range
+      if (path === "/api/procedures") {
+        try {
+          const make = url.searchParams.get("make")?.toLowerCase() || "";
+          const model = url.searchParams.get("model")?.toLowerCase() || "";
+          const year = parseInt(url.searchParams.get("year") || "0", 10);
+          const scenario = url.searchParams.get("scenario") || ""; // 'add_key', 'akl', 'general', or '' for all
+
+          const conditions: string[] = [];
+          const params: (string | number)[] = [];
+
+          if (make) {
+            conditions.push("LOWER(make) = ?");
+            params.push(make);
+          }
+          if (model) {
+            conditions.push("(LOWER(model) = ? OR model IS NULL OR model = 'None')");
+            params.push(model);
+          }
+          if (year) {
+            // Year-range filtering: year_start <= year AND year_end >= year
+            conditions.push("(year_start IS NULL OR year_start <= ?)");
+            conditions.push("(year_end IS NULL OR year_end >= ?)");
+            params.push(year, year);
+          }
+          if (scenario) {
+            conditions.push("scenario = ?");
+            params.push(scenario);
+          }
+
+          const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+          const sql = `
+            SELECT 
+              id, make, model, year_start, year_end, scenario, title,
+              difficulty, time_estimate, prerequisites, steps, tools,
+              warnings, post_procedure, source_dossier
+            FROM procedure_packages
+            ${whereClause}
+            ORDER BY 
+              CASE scenario WHEN 'add_key' THEN 1 WHEN 'akl' THEN 2 ELSE 3 END,
+              year_start DESC
+            LIMIT 20
+          `;
+
+          const result = await env.LOCKSMITH_DB.prepare(sql).bind(...params).all();
+
+          // Parse JSON fields
+          const procedures = (result.results || []).map((p: any) => {
+            const parseJson = (val: any) => {
+              if (!val) return [];
+              try {
+                return typeof val === 'string' ? JSON.parse(val) : val;
+              } catch {
+                return [];
+              }
+            };
+
+            return {
+              id: p.id,
+              make: p.make,
+              model: p.model,
+              year_start: p.year_start,
+              year_end: p.year_end,
+              scenario: p.scenario,
+              title: p.title,
+              difficulty: p.difficulty,
+              time_estimate: p.time_estimate,
+              prerequisites: parseJson(p.prerequisites),
+              steps: parseJson(p.steps),
+              tools: parseJson(p.tools),
+              warnings: parseJson(p.warnings),
+              post_procedure: parseJson(p.post_procedure),
+              source_dossier: p.source_dossier
+            };
+          });
+
+          return corsResponse(request, JSON.stringify({
+            source: "procedure_packages",
+            count: procedures.length,
+            query: { make, model, year: year || null, scenario: scenario || null },
+            procedures
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // Browse Database endpoint - uses unified schema
       if (path === "/api/browse") {
         const tStart = performance.now();
@@ -3817,6 +3909,66 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }
           }
 
+          // 1.5. Get AKS vehicles data (Priority 1.5 - source for keyway/lishi/bitting with better coverage)
+          // Join aks_vehicles_by_year (exact year) → aks_vehicles (bitting specs) via page_id
+          let aksVehicleData: any = null;
+          if (year) {
+            aksVehicleData = await env.LOCKSMITH_DB.prepare(`
+              SELECT v.mechanical_key, v.transponder_key, v.lishi_tool, v.chip_type, v.code_series,
+                     v.spaces, v.depths, v.macs
+              FROM aks_vehicles_by_year vy
+              JOIN aks_vehicles v ON vy.page_id = v.page_id
+              WHERE LOWER(vy.make) = ? AND LOWER(vy.model) LIKE LOWER(?) AND vy.year = ?
+              LIMIT 1
+            `).bind(make, `%${model}%`, year).first<any>();
+          }
+
+          // 1.6. Get ALL FCCs from aks_vehicle_products → aks_products (for FCC breakdown popup)
+          interface FccEntry {
+            fcc: string;
+            keyType: string;
+            buttons: string | null;
+          }
+          let allFccs: FccEntry[] = [];
+
+          if (year) {
+            const fccResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT DISTINCT p.fcc_id, p.product_type, p.buttons, p.title
+              FROM aks_vehicle_products vp
+              JOIN aks_products p ON vp.product_page_id = p.page_id
+              WHERE LOWER(vp.make) = ? AND LOWER(vp.model) LIKE LOWER(?) AND vp.year = ?
+                AND p.fcc_id IS NOT NULL AND p.fcc_id != ''
+            `).bind(make, `%${model}%`, year).all<any>();
+
+            // Parse and dedupe FCCs, tracking which key types use each
+            const fccMap = new Map<string, Set<string>>();
+
+            for (const row of (fccResult.results || [])) {
+              // Handle comma-separated FCC IDs (e.g., "YGOG21TB2, YG0G21TB2")
+              const fccIds = (row.fcc_id || '').split(',').map((f: string) => f.trim()).filter((f: string) => f);
+
+              // Build a readable key type description
+              const keyType = row.product_type || 'Key';
+              const btnMatch = (row.title || '').match(/(\d)-(?:Btn|Button)/i);
+              const btnCount = btnMatch ? btnMatch[1] : null;
+              const description = btnCount ? `${btnCount}-Button ${keyType}` : keyType;
+
+              for (const fcc of fccIds) {
+                if (!fccMap.has(fcc)) {
+                  fccMap.set(fcc, new Set());
+                }
+                fccMap.get(fcc)!.add(description);
+              }
+            }
+
+            // Convert to array format grouped by key type
+            allFccs = Array.from(fccMap.entries()).map(([fcc, types]) => ({
+              fcc,
+              keyType: Array.from(types).join(', '),
+              buttons: null // Could extract if needed
+            }));
+          }
+
           // 2. Get vehicles table data (Priority 3 - fallback for immobilizer, platform, etc.)
           let vehicleData: any = null;
           const vehicleQuery = year
@@ -4045,22 +4197,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               architecture_tags: vehicleData?.architecture_tags_json ? JSON.parse(vehicleData.architecture_tags_json) : []
             },
 
-            // Specs data - Priority: enrichments > VYP > vehicles
+            // Specs data - Priority: enrichments > AKS vehicles > VYP > vehicles
             specs: {
-              // Priority 0: enrichments > VYP for Lishi
-              lishi: enrichmentData?.lishi || vypData?.lishi || vehicleData?.lishi_tool || null,
-              lishi_source: enrichmentData?.lishi ? "enrichments" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles" : null)),
+              // Priority: enrichments > AKS vehicles (38% lishi) > VYP > vehicles
+              lishi: enrichmentData?.lishi || aksVehicleData?.lishi_tool || vypData?.lishi || vehicleData?.lishi_tool || null,
+              lishi_source: enrichmentData?.lishi ? "enrichments" : (aksVehicleData?.lishi_tool ? "aks_vehicles" : (vypData?.lishi ? "vyp" : (vehicleData?.lishi_tool ? "vehicles" : null))),
 
-              // Mechanical specs - VYP primary, vehicles fallback with source tracking
-              spaces: parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
-              depths: vypData?.depths || vehicleData?.depths || null,
-              macs: parseInt(vypData?.macs, 10) || vehicleData?.macs || null,
-              // Track source for accuracy warnings when data comes from vehicles table
-              mechanical_source: vypData?.spaces ? "vyp" : (vehicleData?.spaces ? "vehicles" : null),
-              code_series: vypData?.code_series || vehicleData?.code_series || null,
-              mechanical_key: vypData?.mechanical_key || vehicleData?.mechanical_spec || null,
-              transponder_key: vypData?.transponder_key || vehicleData?.blade_type || null,
-              keyway: enrichmentData?.keyway || aksConsensus.keyway || vehicleData?.keyway || null,
+              // Bitting specs - Priority: AKS vehicles (74.5%) > VYP > vehicles
+              spaces: parseInt(aksVehicleData?.spaces, 10) || parseInt(vypData?.spaces, 10) || vehicleData?.spaces || null,
+              depths: aksVehicleData?.depths || vypData?.depths || vehicleData?.depths || null,
+              macs: parseInt(aksVehicleData?.macs, 10) || parseInt(vypData?.macs, 10) || vehicleData?.macs || null,
+              // Track source for accuracy/debugging
+              mechanical_source: aksVehicleData?.spaces ? "aks_vehicles" : (vypData?.spaces ? "vyp" : (vehicleData?.spaces ? "vehicles" : null)),
+              code_series: aksVehicleData?.code_series || vypData?.code_series || vehicleData?.code_series || null,
+              mechanical_key: aksVehicleData?.mechanical_key || vypData?.mechanical_key || vehicleData?.mechanical_spec || null,
+              transponder_key: aksVehicleData?.transponder_key || vypData?.transponder_key || vehicleData?.blade_type || null,
+              // Priority: enrichments > AKS vehicles (83% coverage) > AKS consensus > vehicles
+              keyway: enrichmentData?.keyway || aksVehicleData?.mechanical_key || aksConsensus.keyway || vehicleData?.keyway || null,
+              keyway_source: enrichmentData?.keyway ? "enrichments" : (aksVehicleData?.mechanical_key ? "aks_vehicles" : (aksConsensus.keyway ? "aks_products" : (vehicleData?.keyway ? "vehicles" : null))),
 
               // Priority: enrichments (override) > AKS (primary hardware authority) > vehicles (fallback)
               chip: enrichmentData?.chip || aksConsensus.chip || vehicleData?.chip || null,
@@ -4071,7 +4225,10 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
               // Transition year variance detection (60% Mode Rule)
               hasVariance: aksConsensus.hasVariance,
-              varianceDetails: aksConsensus.hasVariance ? aksConsensus.varianceDetails : null
+              varianceDetails: aksConsensus.hasVariance ? aksConsensus.varianceDetails : null,
+
+              // All FCCs grouped by key type (for popup display)
+              all_fccs: allFccs.length > 0 ? allFccs : null
             },
 
             // Enrichment data (if available)
@@ -4246,6 +4403,208 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               "Access-Control-Allow-Headers": "*",
             },
           });
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // VEHICLE PRODUCTS V2 ENDPOINT - Using New Normalized AKS Tables
+      // ==============================================
+      // Uses: aks_vehicles_by_year + aks_vehicle_products (junction) + aks_products
+      // Returns: Products grouped by type (Smart Key 4-btn, Emergency Blade, etc.)
+      //          with aggregated OEM parts per type
+
+      if (path === "/api/vehicle-products-v2") {
+        try {
+          const make = url.searchParams.get("make") || "";
+          const model = url.searchParams.get("model") || "";
+          const year = parseInt(url.searchParams.get("year") || "0", 10);
+
+          if (!make || !model || !year) {
+            return corsResponse(request, JSON.stringify({ error: "make, model, and year required" }), 400);
+          }
+
+          // 1. Get vehicle specs from expanded table
+          const vehicleSpecs = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM aks_vehicles_by_year 
+            WHERE LOWER(make) = ? AND LOWER(model) LIKE ? AND year = ?
+            LIMIT 1
+          `).bind(make.toLowerCase(), `%${model.toLowerCase()}%`, year).first<any>();
+
+          // 2. Get all products for this vehicle via junction table
+          const productsResult = await env.LOCKSMITH_DB.prepare(`
+            SELECT p.*, vp.section
+            FROM aks_vehicle_products vp
+            JOIN aks_products p ON vp.product_page_id = p.page_id
+            WHERE LOWER(vp.make) = ? 
+              AND LOWER(vp.model) LIKE ? 
+              AND vp.year = ?
+            ORDER BY p.product_type, p.buttons DESC
+          `).bind(make.toLowerCase(), `%${model.toLowerCase()}%`, year).all();
+
+          const rawProducts = (productsResult.results || []) as any[];
+
+          // 3. Group products by TYPE (Smart Key 4-btn, Smart Key 5-btn, Emergency Blade, etc.)
+          // One card per type with aggregated OEM parts
+          const productsByType: Record<string, {
+            type_name: string;
+            product_type: string;
+            buttons: string | null;
+            fcc_ids: Set<string>;
+            ic_numbers: Set<string>;
+            oem_parts: Set<string>;
+            cross_refs: Set<string>;
+            batteries: Set<string>;
+            frequencies: Set<string>;
+            keyways: Set<string>;
+            price_min: number;
+            price_max: number;
+            images: string[];
+            product_count: number;
+            condition_types: Set<string>;
+          }> = {};
+
+          for (const p of rawProducts) {
+            // Skip packs, shells, and tools
+            const title = (p.title || '').toLowerCase();
+            if (title.includes('-pack') || title.includes(' pack')) continue;
+            if (title.includes('shell') && !title.includes('key')) continue;
+            if (p.product_type === 'Tool' || p.product_type === 'Lishi Pick/Decoder') continue;
+
+            // Extract button count
+            let buttons: string | null = null;
+            const btnMatch = title.match(/(\d)-btn/) || title.match(/(\d)-button/) || title.match(/(\d) btn/);
+            if (btnMatch) {
+              buttons = btnMatch[1];
+            } else if (p.buttons) {
+              // Count buttons from L/U/T/RS/P format
+              const btnParts = String(p.buttons).split('/');
+              buttons = String(btnParts.length);
+            }
+
+            // Build type key: "Smart Key 4-Button" or "Emergency Blade" or "Transponder Key"
+            const baseType = p.product_type || 'Key';
+            let typeKey: string;
+
+            if (baseType === 'Emergency Key' || baseType.includes('Blade') || title.includes('blade') || title.includes('emergency')) {
+              typeKey = 'Emergency Blade';
+            } else if (baseType === 'Mechanical Key' || title.includes('mechanical')) {
+              typeKey = 'Mechanical Key';
+            } else if (baseType === 'Transponder Key' || title.includes('transponder')) {
+              typeKey = 'Transponder Key';
+            } else if (baseType === 'Smart Key' || baseType === 'Remote Keyless Entry' || baseType === 'Remote Head Key') {
+              typeKey = buttons ? `${buttons}-Button ${baseType}` : baseType;
+            } else if (buttons) {
+              typeKey = `${buttons}-Button ${baseType}`;
+            } else {
+              typeKey = baseType;
+            }
+
+            // Initialize group
+            if (!productsByType[typeKey]) {
+              productsByType[typeKey] = {
+                type_name: typeKey,
+                product_type: baseType,
+                buttons: buttons,
+                fcc_ids: new Set(),
+                ic_numbers: new Set(),
+                oem_parts: new Set(),
+                cross_refs: new Set(),
+                batteries: new Set(),
+                frequencies: new Set(),
+                keyways: new Set(),
+                price_min: Infinity,
+                price_max: 0,
+                images: [],
+                product_count: 0,
+                condition_types: new Set()
+              };
+            }
+
+            const group = productsByType[typeKey];
+
+            // Aggregate data
+            if (p.fcc_id) group.fcc_ids.add(p.fcc_id);
+            if (p.ic) group.ic_numbers.add(p.ic);
+            if (p.oem_part_number) group.oem_parts.add(p.oem_part_number);
+            if (p.cross_ref) {
+              // Parse cross refs: "CHRY-1678 (MWK) / RSK-DDG-4205"
+              const refs = String(p.cross_ref).split('/').map((r: string) => r.trim());
+              refs.forEach((r: string) => group.cross_refs.add(r));
+            }
+            if (p.battery) group.batteries.add(p.battery);
+            if (p.frequency) group.frequencies.add(p.frequency + ' MHz');
+            if (p.product_condition) group.condition_types.add(p.product_condition);
+
+            // Price range
+            const price = parseFloat(p.price);
+            if (!isNaN(price) && price > 0) {
+              group.price_min = Math.min(group.price_min, price);
+              group.price_max = Math.max(group.price_max, price);
+            }
+
+            // Collect images (first 3 per type)
+            if (p.image_url && group.images.length < 3) {
+              group.images.push(p.image_url);
+            }
+
+            group.product_count++;
+          }
+
+          // 4. Convert to array and format for frontend
+          const groupedProducts = Object.values(productsByType).map(g => ({
+            type: g.type_name,
+            product_type: g.product_type,
+            buttons: g.buttons,
+            fcc_ids: Array.from(g.fcc_ids).slice(0, 5),
+            ic_numbers: Array.from(g.ic_numbers).slice(0, 3),
+            oem_parts: Array.from(g.oem_parts).slice(0, 10),
+            cross_refs: Array.from(g.cross_refs).slice(0, 5),
+            battery: Array.from(g.batteries)[0] || null,
+            frequency: Array.from(g.frequencies)[0] || null,
+            price_range: g.price_min < Infinity ? {
+              min: g.price_min,
+              max: g.price_max,
+              display: g.price_min === g.price_max
+                ? `$${g.price_min.toFixed(2)}`
+                : `$${g.price_min.toFixed(2)} - $${g.price_max.toFixed(2)}`
+            } : null,
+            images: g.images,
+            product_count: g.product_count,
+            conditions: Array.from(g.condition_types)
+          }));
+
+          // Sort: Smart Keys first (by button count desc), then blades/mechanical last
+          const typeOrder: Record<string, number> = {
+            'Smart Key': 1, 'Remote Head Key': 2, 'Remote Keyless Entry': 3,
+            'Flip Blade': 4, 'Transponder Key': 5, 'Mechanical Key': 6, 'Emergency Blade': 7
+          };
+          groupedProducts.sort((a, b) => {
+            const orderA = typeOrder[a.product_type] || 10;
+            const orderB = typeOrder[b.product_type] || 10;
+            if (orderA !== orderB) return orderA - orderB;
+            // Within same type, sort by button count descending
+            return (parseInt(b.buttons || '0') || 0) - (parseInt(a.buttons || '0') || 0);
+          });
+
+          // 5. Build response
+          const response = {
+            query: { make, model, year },
+            vehicle_specs: vehicleSpecs ? {
+              code_series: vehicleSpecs.code_series,
+              mechanical_key: vehicleSpecs.mechanical_key,
+              transponder_key: vehicleSpecs.transponder_key,
+              lishi_tool: vehicleSpecs.lishi_tool,
+              chip_type: vehicleSpecs.chip_type,
+              image_url: vehicleSpecs.image_url
+            } : null,
+            product_types: groupedProducts.length,
+            total_products: rawProducts.length,
+            products: groupedProducts
+          };
+
+          return corsResponse(request, JSON.stringify(response));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }

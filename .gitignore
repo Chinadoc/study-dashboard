@@ -59,3 +59,6 @@ db.sqlite
 # ✓ next.config.mjs   - Next.js config
 # ✓ tailwind.config.js
 out/
+
+# Deleted pearl archive
+data/pearl_extraction/deleted_archive/

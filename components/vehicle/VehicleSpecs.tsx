@@ -1,7 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import GlossaryChipType from './GlossaryChipType';
+
+interface FccEntry {
+    fcc: string;
+    keyType: string;
+    buttons: string | null;
+}
 
 interface Pearl {
     id?: string;
@@ -18,6 +24,7 @@ interface VehicleSpecsProps {
         canFdRequired?: boolean;
         chipType?: string;
         fccId?: string;
+        allFccs?: FccEntry[];
         frequency?: string;
         battery?: string;
         keyway?: string;
@@ -34,6 +41,8 @@ interface VehicleSpecsProps {
     pearls?: {
         lishi?: Pearl[];
         canFd?: Pearl[];
+        chip?: Pearl[];
+        fcc?: Pearl[];
     };
 }
 
@@ -77,7 +86,7 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                     </div>
                 )}
 
-                {/* Chip Type - with glossary linkage */}
+                {/* Chip Type - with glossary linkage and contextual pearls */}
                 {specs.chipType && (
                     <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
                         <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
@@ -86,16 +95,21 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                         <div className="font-semibold text-white">
                             <GlossaryChipType chipType={specs.chipType} make={make} year={year} />
                         </div>
+                        {/* Chip contextual pearl */}
+                        {pearls?.chip?.[0] && (
+                            <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
+                                💡 {pearls.chip[0].content}
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {/* FCC ID */}
+                {/* FCC ID with popup for multiple FCCs */}
                 {specs.fccId && (
-                    <SpecItem
-                        label="FCC ID"
-                        value={specs.fccId}
-                        isMono
-                        icon="📡"
+                    <FccIdWithPopup
+                        primaryFcc={specs.fccId}
+                        allFccs={specs.allFccs}
+                        pearl={pearls?.fcc?.[0]}
                     />
                 )}
 
@@ -216,6 +230,113 @@ function BittingItem({ label, value }: { label: string; value: string | number }
         <div className="flex justify-between items-center bg-zinc-900/50 px-3 py-2 rounded-lg">
             <span className="text-xs text-zinc-400">{label}</span>
             <span className="font-mono font-bold text-white">{value}</span>
+        </div>
+    );
+}
+
+// FCC ID display with popup for multiple FCCs
+function FccIdWithPopup({
+    primaryFcc,
+    allFccs,
+    pearl
+}: {
+    primaryFcc: string;
+    allFccs?: FccEntry[];
+    pearl?: Pearl;
+}) {
+    const [showPopup, setShowPopup] = useState(false);
+
+    // Count additional FCCs (excluding primary if it's in the list)
+    const additionalCount = allFccs ? allFccs.length - 1 : 0;
+    const hasMultiple = additionalCount > 0;
+
+    // Group FCCs by key type category (Smart Key vs Remote Head Key)
+    const groupedFccs = allFccs?.reduce((acc, entry) => {
+        const category = entry.keyType.includes('Smart') ? 'Smart Keys' :
+            entry.keyType.includes('Remote Head') ? 'Remote Head Keys' :
+                entry.keyType.includes('Remote') ? 'Remote Keys' : 'Keys';
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(entry);
+        return acc;
+    }, {} as Record<string, FccEntry[]>);
+
+    return (
+        <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                FCC ID
+            </div>
+
+            {/* Clickable FCC display */}
+            <button
+                onClick={() => hasMultiple && setShowPopup(!showPopup)}
+                className={`font-semibold font-mono text-sm text-white flex items-center gap-2 ${hasMultiple ? 'cursor-pointer hover:text-blue-400 transition-colors' : 'cursor-default'}`}
+            >
+                📡 {primaryFcc}
+                {hasMultiple && (
+                    <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full font-sans">
+                        +{additionalCount}
+                    </span>
+                )}
+            </button>
+
+            {/* Pearl display */}
+            {pearl && (
+                <div className="mt-2 text-[11px] text-blue-300 bg-blue-900/20 p-2 rounded border border-blue-800/30">
+                    📶 {pearl.content}
+                </div>
+            )}
+
+            {/* Popup overlay - mobile friendly */}
+            {showPopup && (
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/50 z-40"
+                        onClick={() => setShowPopup(false)}
+                    />
+
+                    {/* Popup modal */}
+                    <div className="fixed left-4 right-4 top-1/2 -translate-y-1/2 sm:absolute sm:left-0 sm:right-auto sm:top-full sm:translate-y-0 sm:mt-2 sm:min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+                            <h4 className="font-bold text-white">All FCC IDs</h4>
+                            <button
+                                onClick={() => setShowPopup(false)}
+                                className="text-zinc-400 hover:text-white text-xl leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* FCC list grouped by category */}
+                        <div className="p-4 space-y-4">
+                            {groupedFccs && Object.entries(groupedFccs).map(([category, fccs]) => (
+                                <div key={category}>
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : '📶'}
+                                        {category}
+                                    </div>
+                                    <div className="space-y-2">
+                                        {fccs.map((entry, idx) => (
+                                            <div
+                                                key={`${entry.fcc}-${idx}`}
+                                                className="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/50"
+                                            >
+                                                <div className="font-mono font-bold text-white text-sm">
+                                                    {entry.fcc}
+                                                </div>
+                                                <div className="text-[11px] text-zinc-400 mt-1">
+                                                    {entry.keyType}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 }
