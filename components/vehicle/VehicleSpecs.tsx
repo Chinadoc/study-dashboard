@@ -291,25 +291,30 @@ function FccIdWithPopup({
                 <>
                     {/* Backdrop */}
                     <div
-                        className="fixed inset-0 bg-black/50 z-40"
+                        className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
                         onClick={() => setShowPopup(false)}
                     />
 
-                    {/* Popup modal */}
-                    <div className="fixed left-4 right-4 top-1/2 -translate-y-1/2 sm:absolute sm:left-0 sm:right-auto sm:top-full sm:translate-y-0 sm:mt-2 sm:min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto">
+                    {/* Bottom Sheet for mobile, dropdown for desktop */}
+                    <div className="fixed bottom-0 left-0 right-0 sm:absolute sm:bottom-auto sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-t-2xl sm:rounded-xl shadow-2xl z-50 max-h-[70vh] sm:max-h-[60vh] overflow-hidden animate-slide-up sm:animate-none">
+                        {/* Drag handle for mobile */}
+                        <div className="sm:hidden flex justify-center py-2">
+                            <div className="w-10 h-1 bg-zinc-600 rounded-full" />
+                        </div>
+
                         {/* Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-                            <h4 className="font-bold text-white">All FCC IDs</h4>
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
+                            <h4 className="font-bold text-white text-lg">All FCC IDs</h4>
                             <button
                                 onClick={() => setShowPopup(false)}
-                                className="text-zinc-400 hover:text-white text-xl leading-none"
+                                className="text-zinc-400 hover:text-white text-2xl leading-none p-1"
                             >
                                 ×
                             </button>
                         </div>
 
-                        {/* FCC list grouped by category */}
-                        <div className="p-4 space-y-4">
+                        {/* FCC list grouped by category - scrollable */}
+                        <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(70vh-80px)] sm:max-h-[calc(60vh-60px)]">
                             {groupedFccs && Object.entries(groupedFccs).map(([category, fccs]) => (
                                 <div key={category}>
                                     <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">

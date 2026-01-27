@@ -48,3 +48,19 @@ body {
     background: var(--accent-purple);
     border-radius: 3px;
 }
+
+/* Bottom sheet slide-up animation for mobile */
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.25s ease-out;
+}

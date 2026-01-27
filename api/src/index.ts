@@ -3938,12 +3938,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               JOIN aks_products p ON vp.product_page_id = p.page_id
               WHERE LOWER(vp.make) = ? AND LOWER(vp.model) LIKE LOWER(?) AND vp.year = ?
                 AND p.fcc_id IS NOT NULL AND p.fcc_id != ''
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%shell%'
             `).bind(make, `%${model}%`, year).all<any>();
+
+            // Normalize FCC IDs: replace common O/0 typos (letter O → number 0)
+            const normalizeFcc = (fcc: string): string => {
+              // Common pattern: N5F-AO8TAA should be N5F-A08TAA (letter O vs zero)
+              // Replace letter O that's followed by a digit with 0
+              return fcc.replace(/O(\d)/g, '0$1');
+            };
 
             // Parse and dedupe FCCs, tracking which key types use each
             const fccMap = new Map<string, Set<string>>();
 
             for (const row of (fccResult.results || [])) {
+              // Skip shell products (double-check in case SQL filter missed)
+              const productType = (row.product_type || '').toLowerCase();
+              const title = (row.title || '').toLowerCase();
+              if (productType.includes('shell') || title.includes('shell only') || title.includes('case only')) {
+                continue;
+              }
+
               // Handle comma-separated FCC IDs (e.g., "YGOG21TB2, YG0G21TB2")
               const fccIds = (row.fcc_id || '').split(',').map((f: string) => f.trim()).filter((f: string) => f);
 
@@ -3953,7 +3968,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               const btnCount = btnMatch ? btnMatch[1] : null;
               const description = btnCount ? `${btnCount}-Button ${keyType}` : keyType;
 
-              for (const fcc of fccIds) {
+              for (const rawFcc of fccIds) {
+                // Skip combined FCC entries that have spaces (malformed data)
+                if (rawFcc.includes(' ')) continue;
+
+                const fcc = normalizeFcc(rawFcc.trim());
                 if (!fccMap.has(fcc)) {
                   fccMap.set(fcc, new Set());
                 }
