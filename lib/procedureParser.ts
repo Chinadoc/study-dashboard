@@ -45,7 +45,7 @@ const TOOL_PATTERNS: Record<string, RegExp> = {
 
 // Section type detection
 const SECTION_PATTERNS = {
-    add_key: /add\s*(a\s*)?key|spare\s*key|duplicate|proximity|smart\s*key/i,
+    add_key: /add\s*(a\s*)?key|spare\s*key|duplicate|proximity|smart\s*key|bladed\s*key/i,
     akl: /all\s*keys?\s*lost|akl|keys?\s*lost/i,
 };
 

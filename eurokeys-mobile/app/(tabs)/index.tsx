@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { api, Vehicle } from '@/lib/api';
 
 export default function SearchScreen() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,6 +35,11 @@ export default function SearchScreen() {
     }
   };
 
+  const handleVehiclePress = (vehicle: Vehicle) => {
+    const year = vehicle.year_start || 2020;
+    router.push(`/vehicle/${encodeURIComponent(vehicle.make)}/${encodeURIComponent(vehicle.model)}/${year}`);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🔑 EuroKeys</Text>
@@ -52,10 +58,13 @@ export default function SearchScreen() {
       {results.length > 0 ? (
         <FlatList
           data={results}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.id || index}`}
           style={styles.list}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.resultCard}>
+            <TouchableOpacity
+              style={styles.resultCard}
+              onPress={() => handleVehiclePress(item)}
+            >
               <Text style={styles.vehicleName}>
                 {item.year_start === item.year_end
                   ? item.year_start
@@ -64,6 +73,7 @@ export default function SearchScreen() {
               <Text style={styles.vehicleDetails}>
                 {item.key_type || 'Smart Key'} • {item.chip || 'Transponder'}
               </Text>
+              <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
           )}
         />
@@ -126,16 +136,23 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.2)',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   vehicleName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#f8fafc',
+    flex: 1,
   },
   vehicleDetails: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#94a3b8',
-    marginTop: 4,
+    marginRight: 8,
+  },
+  arrow: {
+    fontSize: 20,
+    color: '#64748b',
   },
   quickLinks: {
     marginTop: 32,

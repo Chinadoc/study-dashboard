@@ -200,8 +200,13 @@ export default function VehicleProcedures({
     const parsedAddKey = useParsedProcedure(procedures?.addKey, 'add_key');
     const parsedAkl = useParsedProcedure(procedures?.akl, 'akl');
 
-    const hasAddKey = parsedAddKey && parsedAddKey.sections.length > 0;
-    const hasAkl = parsedAkl && parsedAkl.sections.length > 0;
+    // Check if we have relevant sections for each tab (matching type OR general)
+    const hasAddKey = parsedAddKey && parsedAddKey.sections.some(
+        s => s.type === 'add_key' || s.type === 'general'
+    );
+    const hasAkl = parsedAkl && parsedAkl.sections.some(
+        s => s.type === 'akl' || s.type === 'general'
+    );
 
     // Get current parsed procedure based on active tab
     const currentParsed = activeTab === 'addKey' ? parsedAddKey : parsedAkl;

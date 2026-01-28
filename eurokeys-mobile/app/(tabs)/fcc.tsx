@@ -1,40 +1,109 @@
-import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
+import Colors from '@/constants/Colors';
+
+const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+
+interface FCCEntry {
+    fcc_id: string;
+    make?: string;
+    model?: string;
+    frequency?: string;
+    button_count?: number;
+    key_type?: string;
+}
 
 export default function FCCScreen() {
-    // Sample FCC data - would come from API in production
-    const fccSamples = [
-        { id: 'M3N-A2C93142300', make: 'Ford', freq: '902 MHz', type: 'Smart Key' },
-        { id: 'HYQ14FBN', make: 'Toyota', freq: '314.3 MHz', type: 'Smart Key' },
-        { id: 'KR5V2X', make: 'Honda', freq: '433 MHz', type: 'Smart Key' },
-        { id: 'NBGIDGNG', make: 'Chevrolet', freq: '315 MHz', type: 'Smart Key' },
-        { id: 'YGOHUF14FBX', make: 'BMW', freq: '868 MHz', type: 'Smart Key' },
-    ];
+    const [fccData, setFccData] = useState<FCCEntry[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [query, setQuery] = useState('');
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchFCCData();
+    }, []);
+
+    const fetchFCCData = async (search?: string) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const url = search
+                ? `${API_BASE}/api/fcc?search=${encodeURIComponent(search)}&limit=50`
+                : `${API_BASE}/api/fcc?limit=50`;
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to fetch FCC data');
+
+            const data = await response.json();
+            setFccData(data.entries || data.rows || []);
+        } catch (err) {
+            setError('Failed to load FCC data');
+            console.error('FCC fetch error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = (text: string) => {
+        setQuery(text);
+        if (text.length >= 2) {
+            fetchFCCData(text);
+        } else if (text.length === 0) {
+            fetchFCCData();
+        }
+    };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>📡 FCC Database</Text>
             <Text style={styles.subtitle}>Remote & Smart Key Identification</Text>
 
-            <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-                {fccSamples.map((fcc) => (
-                    <TouchableOpacity key={fcc.id} style={styles.card}>
-                        <View style={styles.cardHeader}>
-                            <Text style={styles.fccId}>{fcc.id}</Text>
-                            <Text style={styles.freq}>{fcc.freq}</Text>
-                        </View>
-                        <Text style={styles.make}>{fcc.make} • {fcc.type}</Text>
-                    </TouchableOpacity>
-                ))}
+            <TextInput
+                style={styles.searchInput}
+                placeholder="Search by FCC ID or make..."
+                placeholderTextColor="#64748b"
+                value={query}
+                onChangeText={handleSearch}
+            />
 
-                <View style={styles.comingSoon}>
-                    <Text style={styles.comingSoonText}>
-                        Full FCC database with 10,000+ entries coming soon
-                    </Text>
-                </View>
-            </ScrollView>
+            {loading ? (
+                <ActivityIndicator style={styles.loader} color={Colors.dark.tint} />
+            ) : error ? (
+                <Text style={styles.error}>{error}</Text>
+            ) : (
+                <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+                    {fccData.length === 0 ? (
+                        <Text style={styles.noResults}>No FCC entries found</Text>
+                    ) : (
+                        fccData.map((fcc, index) => (
+                            <TouchableOpacity key={`${fcc.fcc_id}-${index}`} style={styles.card}>
+                                <View style={styles.cardHeader}>
+                                    <Text style={styles.fccId}>{fcc.fcc_id}</Text>
+                                    {fcc.frequency && (
+                                        <Text style={styles.freq}>{fcc.frequency}</Text>
+                                    )}
+                                </View>
+                                <Text style={styles.make}>
+                                    {fcc.make || 'Unknown'}
+                                    {fcc.model ? ` • ${fcc.model}` : ''}
+                                    {fcc.button_count ? ` • ${fcc.button_count}-Button` : ''}
+                                </Text>
+                                {fcc.key_type && (
+                                    <Text style={styles.keyType}>{fcc.key_type}</Text>
+                                )}
+                            </TouchableOpacity>
+                        ))
+                    )}
+
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>
+                            Showing {fccData.length} entries
+                        </Text>
+                    </View>
+                </ScrollView>
+            )}
         </View>
     );
 }
@@ -54,7 +123,30 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 14,
         color: '#94a3b8',
-        marginBottom: 24,
+        marginBottom: 16,
+    },
+    searchInput: {
+        backgroundColor: 'rgba(20, 20, 30, 0.8)',
+        borderRadius: 12,
+        padding: 14,
+        fontSize: 15,
+        color: '#f8fafc',
+        borderWidth: 1,
+        borderColor: 'rgba(139, 92, 246, 0.3)',
+        marginBottom: 16,
+    },
+    loader: {
+        marginTop: 40,
+    },
+    error: {
+        color: '#ef4444',
+        textAlign: 'center',
+        marginTop: 40,
+    },
+    noResults: {
+        color: '#64748b',
+        textAlign: 'center',
+        marginTop: 40,
     },
     list: {
         flex: 1,
@@ -80,27 +172,32 @@ const styles = StyleSheet.create({
         fontFamily: 'monospace',
     },
     freq: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#22c55e',
         backgroundColor: 'rgba(34, 197, 94, 0.15)',
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 6,
+        overflow: 'hidden',
     },
     make: {
         fontSize: 14,
-        color: '#94a3b8',
+        color: '#f8fafc',
         marginTop: 8,
     },
-    comingSoon: {
-        marginTop: 20,
-        padding: 20,
+    keyType: {
+        fontSize: 12,
+        color: '#94a3b8',
+        marginTop: 4,
+    },
+    footer: {
+        marginTop: 12,
+        marginBottom: 40,
         alignItems: 'center',
         backgroundColor: 'transparent',
     },
-    comingSoonText: {
+    footerText: {
         color: '#64748b',
-        fontSize: 14,
-        textAlign: 'center',
+        fontSize: 12,
     },
 });

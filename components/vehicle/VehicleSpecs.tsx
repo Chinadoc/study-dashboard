@@ -234,7 +234,7 @@ function BittingItem({ label, value }: { label: string; value: string | number }
     );
 }
 
-// FCC ID display with INLINE EXPANSION (no overlay popup)
+// FCC ID display with tooltip popup ABOVE (conversation style)
 function FccIdWithPopup({
     primaryFcc,
     allFccs,
@@ -244,7 +244,7 @@ function FccIdWithPopup({
     allFccs?: FccEntry[];
     pearl?: Pearl;
 }) {
-    const [expanded, setExpanded] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
 
     // Count additional FCCs (excluding primary if it's in the list)
     const additionalCount = allFccs ? allFccs.length - 1 : 0;
@@ -261,56 +261,75 @@ function FccIdWithPopup({
     }, {} as Record<string, FccEntry[]>);
 
     return (
-        <div className={`bg-zinc-800/60 rounded-xl border border-zinc-700/50 transition-all duration-300 ${expanded ? 'p-4 col-span-2 lg:col-span-3' : 'p-4'}`}>
+        <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
                 FCC ID
             </div>
 
-            {/* Clickable FCC display - toggles inline expansion */}
+            {/* Clickable FCC display - toggles tooltip popup */}
             <button
-                onClick={() => hasMultiple && setExpanded(!expanded)}
+                onClick={() => hasMultiple && setShowPopup(!showPopup)}
                 className={`font-semibold font-mono text-sm text-white flex items-center gap-2 ${hasMultiple ? 'cursor-pointer hover:text-blue-400 transition-colors' : 'cursor-default'}`}
             >
                 📡 {primaryFcc}
                 {hasMultiple && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${expanded ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}>
-                        {expanded ? '−' : `+${additionalCount}`}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}>
+                        {showPopup ? '×' : `+${additionalCount}`}
                     </span>
                 )}
             </button>
 
-            {/* Pearl display - hide when expanded */}
-            {pearl && !expanded && (
+            {/* Pearl display */}
+            {pearl && (
                 <div className="mt-2 text-[11px] text-blue-300 bg-blue-900/20 p-2 rounded border border-blue-800/30">
                     📶 {pearl.content}
                 </div>
             )}
 
-            {/* INLINE EXPANSION - shows all FCCs grouped by key type */}
-            {expanded && groupedFccs && (
-                <div className="mt-4 pt-3 border-t border-zinc-700/50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Object.entries(groupedFccs).map(([category, fccs]) => (
-                        <div key={category} className="bg-zinc-900/50 p-3 rounded-lg">
-                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : '📶'}
-                                {category}
-                            </div>
-                            <div className="space-y-1">
-                                {fccs.map((entry, idx) => (
-                                    <div key={`${entry.fcc}-${idx}`} className="text-sm">
-                                        <span className="font-mono text-white font-medium">{entry.fcc}</span>
-                                    </div>
-                                ))}
-                            </div>
+            {/* Tooltip popup ABOVE - conversation style */}
+            {showPopup && (
+                <>
+                    {/* Click-away backdrop (transparent) */}
+                    <div className="fixed inset-0 z-40" onClick={() => setShowPopup(false)} />
+
+                    {/* Tooltip panel - positioned ABOVE the element */}
+                    <div className="absolute bottom-full left-0 mb-2 w-72 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        {/* Arrow pointer */}
+                        <div className="absolute -bottom-2 left-6 w-4 h-4 bg-zinc-900 border-r border-b border-zinc-700 transform rotate-45" />
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-zinc-800/50">
+                            <h4 className="font-bold text-white text-sm">All FCC IDs</h4>
+                            <button onClick={() => setShowPopup(false)} className="text-zinc-400 hover:text-white text-lg leading-none">×</button>
                         </div>
-                    ))}
-                </div>
+
+                        {/* FCC list grouped by category */}
+                        <div className="p-3 max-h-64 overflow-y-auto space-y-3">
+                            {groupedFccs && Object.entries(groupedFccs).map(([category, fccs]) => (
+                                <div key={category}>
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                        {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : '📶'}
+                                        {category}
+                                    </div>
+                                    <div className="space-y-1">
+                                        {fccs.map((entry, idx) => (
+                                            <div key={`${entry.fcc}-${idx}`} className="bg-zinc-800/60 p-2 rounded-lg">
+                                                <div className="font-mono text-white text-sm">{entry.fcc}</div>
+                                                <div className="text-[10px] text-zinc-400">{entry.keyType}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );
 }
 
-// Chip Type display with INLINE EXPANSION (no overlay popup)
+// Chip Type display with tooltip popup ABOVE (conversation style)
 function ChipTypeWithPopup({
     primaryChip,
     allChips,
@@ -324,7 +343,7 @@ function ChipTypeWithPopup({
     year?: number;
     pearl?: Pearl;
 }) {
-    const [expanded, setExpanded] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
 
     // Count additional chips (excluding duplicates)
     const uniqueChips = allChips ? [...new Set(allChips.map(c => c.chip))] : [primaryChip];
@@ -346,50 +365,69 @@ function ChipTypeWithPopup({
     }, {} as Record<string, ChipEntry[]>);
 
     return (
-        <div className={`bg-zinc-800/60 rounded-xl border border-zinc-700/50 transition-all duration-300 ${expanded ? 'p-4 col-span-2 lg:col-span-3' : 'p-4'}`}>
+        <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
                 Chip Type
             </div>
 
-            {/* Clickable chip display - toggles inline expansion */}
+            {/* Clickable chip display - toggles tooltip popup */}
             <button
-                onClick={() => hasMultiple && setExpanded(!expanded)}
+                onClick={() => hasMultiple && setShowPopup(!showPopup)}
                 className={`font-semibold text-white flex items-center gap-2 text-left ${hasMultiple ? 'cursor-pointer hover:text-purple-400 transition-colors' : 'cursor-default'}`}
             >
                 <GlossaryChipType chipType={primaryChip} make={make} year={year} />
                 {hasMultiple && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${expanded ? 'bg-purple-500 text-white' : 'bg-purple-600 text-white'}`}>
-                        {expanded ? '−' : `+${additionalCount}`}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-purple-500 text-white' : 'bg-purple-600 text-white'}`}>
+                        {showPopup ? '×' : `+${additionalCount}`}
                     </span>
                 )}
             </button>
 
             {/* Pearl display */}
-            {pearl && !expanded && (
+            {pearl && (
                 <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
                     💡 {pearl.content}
                 </div>
             )}
 
-            {/* INLINE EXPANSION - shows all chips grouped by key type */}
-            {expanded && groupedChips && (
-                <div className="mt-4 pt-3 border-t border-zinc-700/50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Object.entries(groupedChips).map(([category, chips]) => (
-                        <div key={category} className="bg-zinc-900/50 p-3 rounded-lg">
-                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : category.includes('Transponder') ? '🔒' : '📶'}
-                                {category}
-                            </div>
-                            <div className="space-y-1">
-                                {chips.map((entry, idx) => (
-                                    <div key={`${entry.chip}-${idx}`} className="text-sm">
-                                        <span className="text-white font-medium">🔒 {entry.chip}</span>
-                                    </div>
-                                ))}
-                            </div>
+            {/* Tooltip popup ABOVE - conversation style */}
+            {showPopup && (
+                <>
+                    {/* Click-away backdrop (transparent) */}
+                    <div className="fixed inset-0 z-40" onClick={() => setShowPopup(false)} />
+
+                    {/* Tooltip panel - positioned ABOVE the element */}
+                    <div className="absolute bottom-full left-0 mb-2 w-72 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        {/* Arrow pointer */}
+                        <div className="absolute -bottom-2 left-6 w-4 h-4 bg-zinc-900 border-r border-b border-zinc-700 transform rotate-45" />
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-zinc-800/50">
+                            <h4 className="font-bold text-white text-sm">All Chip Types</h4>
+                            <button onClick={() => setShowPopup(false)} className="text-zinc-400 hover:text-white text-lg leading-none">×</button>
                         </div>
-                    ))}
-                </div>
+
+                        {/* Chip list grouped by category */}
+                        <div className="p-3 max-h-64 overflow-y-auto space-y-3">
+                            {groupedChips && Object.entries(groupedChips).map(([category, chips]) => (
+                                <div key={category}>
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                        {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : category.includes('Transponder') ? '🔒' : '📶'}
+                                        {category}
+                                    </div>
+                                    <div className="space-y-1">
+                                        {chips.map((entry, idx) => (
+                                            <div key={`${entry.chip}-${idx}`} className="bg-zinc-800/60 p-2 rounded-lg">
+                                                <div className="text-white text-sm">🔒 {entry.chip}</div>
+                                                <div className="text-[10px] text-zinc-400">{entry.keyType}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );
