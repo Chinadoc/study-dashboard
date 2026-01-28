@@ -9,6 +9,12 @@ interface FccEntry {
     buttons: string | null;
 }
 
+interface ChipEntry {
+    chip: string;
+    keyType: string;
+    buttons: string | null;
+}
+
 interface Pearl {
     id?: string;
     content: string;
@@ -23,6 +29,7 @@ interface VehicleSpecsProps {
         immobilizerSystem?: string;
         canFdRequired?: boolean;
         chipType?: string;
+        allChips?: ChipEntry[];
         fccId?: string;
         allFccs?: FccEntry[];
         frequency?: string;
@@ -88,20 +95,13 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
 
                 {/* Chip Type - with glossary linkage and contextual pearls */}
                 {specs.chipType && (
-                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
-                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
-                            Chip Type
-                        </div>
-                        <div className="font-semibold text-white">
-                            <GlossaryChipType chipType={specs.chipType} make={make} year={year} />
-                        </div>
-                        {/* Chip contextual pearl */}
-                        {pearls?.chip?.[0] && (
-                            <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
-                                💡 {pearls.chip[0].content}
-                            </div>
-                        )}
-                    </div>
+                    <ChipTypeWithPopup
+                        primaryChip={specs.chipType}
+                        allChips={specs.allChips}
+                        make={make}
+                        year={year}
+                        pearl={pearls?.chip?.[0]}
+                    />
                 )}
 
                 {/* FCC ID with popup for multiple FCCs */}
@@ -329,6 +329,127 @@ function FccIdWithPopup({
                                             >
                                                 <div className="font-mono font-bold text-white text-sm">
                                                     {entry.fcc}
+                                                </div>
+                                                <div className="text-[11px] text-zinc-400 mt-1">
+                                                    {entry.keyType}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+// Chip Type display with popup for multiple chips
+function ChipTypeWithPopup({
+    primaryChip,
+    allChips,
+    make,
+    year,
+    pearl
+}: {
+    primaryChip: string;
+    allChips?: ChipEntry[];
+    make?: string;
+    year?: number;
+    pearl?: Pearl;
+}) {
+    const [showPopup, setShowPopup] = useState(false);
+
+    // Count additional chips (excluding duplicates)
+    const uniqueChips = allChips ? [...new Set(allChips.map(c => c.chip))] : [primaryChip];
+    const additionalCount = uniqueChips.length - 1;
+    const hasMultiple = additionalCount > 0;
+
+    // Group chips by key type category
+    const groupedChips = allChips?.reduce((acc, entry) => {
+        const category = entry.keyType.includes('Smart') ? 'Smart Keys' :
+            entry.keyType.includes('Remote Head') ? 'Remote Head Keys' :
+                entry.keyType.includes('Transponder') ? 'Transponder Keys' :
+                    entry.keyType.includes('Remote') ? 'Remote Keys' : 'Keys';
+        if (!acc[category]) acc[category] = [];
+        // Only add if not already present
+        if (!acc[category].some(c => c.chip === entry.chip)) {
+            acc[category].push(entry);
+        }
+        return acc;
+    }, {} as Record<string, ChipEntry[]>);
+
+    return (
+        <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                Chip Type
+            </div>
+
+            {/* Clickable chip display */}
+            <button
+                onClick={() => hasMultiple && setShowPopup(!showPopup)}
+                className={`font-semibold text-white flex items-center gap-2 text-left ${hasMultiple ? 'cursor-pointer hover:text-purple-400 transition-colors' : 'cursor-default'}`}
+            >
+                <GlossaryChipType chipType={primaryChip} make={make} year={year} />
+                {hasMultiple && (
+                    <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full font-sans">
+                        +{additionalCount}
+                    </span>
+                )}
+            </button>
+
+            {/* Pearl display */}
+            {pearl && (
+                <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
+                    💡 {pearl.content}
+                </div>
+            )}
+
+            {/* Popup overlay - mobile friendly */}
+            {showPopup && (
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
+                        onClick={() => setShowPopup(false)}
+                    />
+
+                    {/* Bottom Sheet for mobile, dropdown for desktop */}
+                    <div className="fixed bottom-0 left-0 right-0 sm:absolute sm:bottom-auto sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-t-2xl sm:rounded-xl shadow-2xl z-50 max-h-[70vh] sm:max-h-[60vh] overflow-hidden animate-slide-up sm:animate-none">
+                        {/* Drag handle for mobile */}
+                        <div className="sm:hidden flex justify-center py-2">
+                            <div className="w-10 h-1 bg-zinc-600 rounded-full" />
+                        </div>
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
+                            <h4 className="font-bold text-white text-lg">All Chip Types</h4>
+                            <button
+                                onClick={() => setShowPopup(false)}
+                                className="text-zinc-400 hover:text-white text-2xl leading-none p-1"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* Chip list grouped by category - scrollable */}
+                        <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(70vh-80px)] sm:max-h-[calc(60vh-60px)]">
+                            {groupedChips && Object.entries(groupedChips).map(([category, chips]) => (
+                                <div key={category}>
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : category.includes('Transponder') ? '🔒' : '📶'}
+                                        {category}
+                                    </div>
+                                    <div className="space-y-2">
+                                        {chips.map((entry, idx) => (
+                                            <div
+                                                key={`${entry.chip}-${idx}`}
+                                                className="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/50"
+                                            >
+                                                <div className="font-semibold text-white text-sm">
+                                                    🔒 {entry.chip}
                                                 </div>
                                                 <div className="text-[11px] text-zinc-400 mt-1">
                                                     {entry.keyType}

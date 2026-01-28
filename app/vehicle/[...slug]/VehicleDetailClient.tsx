@@ -593,6 +593,15 @@ export default function VehicleDetailClient() {
     const aksKeyway = keysFromAks.find((k: any) => k.keyway)?.keyway || null;
     const aksBattery = keysFromAks.find((k: any) => k.battery)?.battery || null;
 
+    // Build allChips array with key type context
+    const allChips = keysFromAks
+        .filter((k: any) => k.chip)
+        .map((k: any) => ({
+            chip: k.chip,
+            keyType: k.name || 'Key',
+            buttons: k.buttons || null
+        }));
+
     // Build complete specs object for VehicleSpecs component
     const fullSpecs = {
         architecture: header.immobilizer_system,
@@ -600,6 +609,7 @@ export default function VehicleDetailClient() {
         immobilizerSystem: header.immobilizer_system,
         canFdRequired: header.can_fd_required === 1 || header.can_fd_required === true,
         chipType: aksChip || specs.chip,  // AKS first, fallback to legacy
+        allChips: allChips.length > 0 ? allChips : undefined,
         fccId: specs.fcc_id,
         allFccs: specs.all_fccs,
         frequency: specs.frequency,

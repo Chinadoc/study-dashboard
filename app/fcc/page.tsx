@@ -17,6 +17,8 @@ interface FccRow {
     has_image?: boolean;
     confidence_score?: number;
     verified_context?: string;
+    image_url?: string;
+    image_r2_key?: string;
 }
 
 interface InventoryItem {
@@ -379,80 +381,102 @@ function FccContent() {
                         const currentKeyType = getKeyType(row);
                         const stock = getStock(row.fcc_id);
                         return (
-                            <div key={row.fcc_id} className="glass group relative p-6 transition-all hover:-translate-y-1 hover:border-zinc-700 flex flex-col h-full">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">FCC IDENTIFIER</span>
-                                        <h2 className="text-2xl font-mono font-black text-yellow-500 group-hover:text-yellow-400 transition-colors">
-                                            {row.fcc_id}
-                                        </h2>
+                            <div key={row.fcc_id} className="glass group relative transition-all hover:-translate-y-1 hover:border-zinc-700 flex flex-col h-full overflow-hidden">
+                                {/* Product Image */}
+                                {row.image_url ? (
+                                    <div className="relative h-40 bg-zinc-800/50">
+                                        <img
+                                            src={row.image_url}
+                                            alt={`${row.fcc_id} key fob`}
+                                            className="w-full h-full object-contain p-4"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                        />
+                                        <div className="hidden absolute inset-0 flex items-center justify-center text-4xl text-zinc-600">🔑</div>
                                     </div>
-                                    <div className="flex flex-col items-end gap-2">
-                                        <Tag label={currentKeyType.replace('-', ' ')} type={currentKeyType} clickable={false} />
-                                        {stock > 0 && (
-                                            <span className="px-2 py-1 rounded-lg bg-green-500/20 text-green-400 text-xs font-bold">
-                                                {stock} in stock
-                                            </span>
-                                        )}
+                                ) : (
+                                    <div className="h-32 bg-zinc-800/30 flex items-center justify-center">
+                                        <span className="text-4xl text-zinc-700">🔑</span>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="space-y-4 flex-1">
-                                    <div>
-                                        <span className="text-[10px] font-bold text-zinc-600 uppercase mb-2 block">Compatible Vehicles</span>
-                                        <div className="flex flex-wrap gap-2">
-                                            {row.vehicles.split(',').slice(0, 4).map((v, i) => (
-                                                <Tag key={i} label={v.trim()} type="platform" />
-                                            ))}
-                                            {row.vehicles.split(',').length > 4 && (
-                                                <span className="text-[10px] text-zinc-600 bg-zinc-800/50 px-2 py-1 rounded-md">
-                                                    +{row.vehicles.split(',').length - 4} more
+                                <div className="p-6 flex flex-col flex-1">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">FCC IDENTIFIER</span>
+                                            <h2 className="text-2xl font-mono font-black text-yellow-500 group-hover:text-yellow-400 transition-colors">
+                                                {row.fcc_id}
+                                            </h2>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <Tag label={currentKeyType.replace('-', ' ')} type={currentKeyType} clickable={false} />
+                                            {stock > 0 && (
+                                                <span className="px-2 py-1 rounded-lg bg-green-500/20 text-green-400 text-xs font-bold">
+                                                    {stock} in stock
                                                 </span>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 border-t border-zinc-800/50 pt-4">
+                                    <div className="space-y-4 flex-1">
                                         <div>
-                                            <span className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">Frequency</span>
-                                            <span className="text-sm font-bold text-zinc-200">{row.frequency}</span>
+                                            <span className="text-[10px] font-bold text-zinc-600 uppercase mb-2 block">Compatible Vehicles</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {row.vehicles.split(',').slice(0, 4).map((v, i) => (
+                                                    <Tag key={i} label={v.trim()} type="platform" />
+                                                ))}
+                                                {row.vehicles.split(',').length > 4 && (
+                                                    <span className="text-[10px] text-zinc-600 bg-zinc-800/50 px-2 py-1 rounded-md">
+                                                        +{row.vehicles.split(',').length - 4} more
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">Transponder</span>
-                                            <span className="text-sm font-bold text-zinc-200 truncate block" title={row.chip}>{row.chip || 'N/A'}</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="mt-6 flex gap-2">
-                                    <div className="flex gap-1">
-                                        <button
-                                            onClick={() => updateStock(row.fcc_id, -1, row.vehicles)}
-                                            disabled={stock === 0}
-                                            className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 text-lg font-bold transition-colors"
-                                        >
-                                            −
-                                        </button>
-                                        <button
-                                            onClick={() => updateStock(row.fcc_id, 1, row.vehicles)}
-                                            className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-green-600 text-lg font-bold transition-colors"
-                                        >
-                                            +
-                                        </button>
+                                        <div className="grid grid-cols-2 gap-4 border-t border-zinc-800/50 pt-4">
+                                            <div>
+                                                <span className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">Frequency</span>
+                                                <span className="text-sm font-bold text-zinc-200">{row.frequency}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">Transponder</span>
+                                                <span className="text-sm font-bold text-zinc-200 truncate block" title={row.chip}>{row.chip || 'N/A'}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleLogJob(row)}
-                                        className="flex-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 py-2.5 rounded-xl text-xs font-black transition-all"
-                                    >
-                                        📝 LOG JOB
-                                    </button>
-                                    <a
-                                        href={`https://www.amazon.com/s?k=${row.fcc_id}&tag=${AFFILIATE_TAG}`}
-                                        target="_blank"
-                                        className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-bold transition-all"
-                                    >
-                                        🛒
-                                    </a>
+
+                                    <div className="mt-6 flex gap-2">
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => updateStock(row.fcc_id, -1, row.vehicles)}
+                                                disabled={stock === 0}
+                                                className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 text-lg font-bold transition-colors"
+                                            >
+                                                −
+                                            </button>
+                                            <button
+                                                onClick={() => updateStock(row.fcc_id, 1, row.vehicles)}
+                                                className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-green-600 text-lg font-bold transition-colors"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => handleLogJob(row)}
+                                            className="flex-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 py-2.5 rounded-xl text-xs font-black transition-all"
+                                        >
+                                            📝 LOG JOB
+                                        </button>
+                                        <a
+                                            href={`https://www.amazon.com/s?k=${row.fcc_id}&tag=${AFFILIATE_TAG}`}
+                                            target="_blank"
+                                            className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-bold transition-all"
+                                        >
+                                            🛒
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         );

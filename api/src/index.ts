@@ -5026,9 +5026,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             r.fcc_id,
             r.frequency,
             r.image_r2_key,
-            (SELECT GROUP_CONCAT(DISTINCT x.make || ' ' || x.model || ' (' || x.year_start || '-' || x.year_end || ')')
-             FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)) as vehicles,
-            (SELECT x.chip FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id) LIMIT 1) as chip,
+            COALESCE((SELECT GROUP_CONCAT(DISTINCT x.make || ' ' || x.model || ' (' || x.year_start || '-' || x.year_end || ')')
+             FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)), '') as vehicles,
+            COALESCE((SELECT x.chip FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id) LIMIT 1), '') as chip,
             (SELECT COUNT(*) FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)) as vehicle_count
           FROM fcc_registry r
           ${whereClause}
