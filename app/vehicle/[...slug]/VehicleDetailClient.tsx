@@ -40,10 +40,13 @@ function transformAksKeyConfigs(configs: any[]): any[] {
     if (!configs || !Array.isArray(configs) || configs.length === 0) return [];
 
     return configs
-        // Filter out tools and miscellaneous items
+        // Filter out tools, miscellaneous items, and sets (multiple keys in one image)
         .filter(c => {
             const keyType = (c.keyType || '').toLowerCase();
-            return !keyType.includes('lishi') && !keyType.includes('tool') && keyType !== 'key';
+            const name = (c.name || '').toLowerCase();
+            const partNumber = (c.partNumber || '').toLowerCase();
+            return !keyType.includes('lishi') && !keyType.includes('tool') && keyType !== 'key'
+                && !keyType.includes('set') && !name.includes('set') && !partNumber.includes('set');
         })
         .map(c => {
             // Build display name: "3-Button Smart Key" or "Smart Key" or "Emergency Key"
@@ -52,11 +55,14 @@ function transformAksKeyConfigs(configs: any[]): any[] {
 
             // Determine type for styling
             const keyTypeLower = (c.keyType || '').toLowerCase();
+            // Determine type for styling - transponder keys are distinct from prox/smart
             const type = keyTypeLower.includes('smart') || keyTypeLower.includes('prox') ? 'prox'
                 : keyTypeLower.includes('flip') ? 'flip'
                     : keyTypeLower.includes('blade') || keyTypeLower.includes('emergency') ? 'blade'
-                        : keyTypeLower.includes('transponder') ? 'remote'
-                            : 'prox';
+                        : keyTypeLower.includes('transponder') ? 'transponder'
+                            : keyTypeLower.includes('remote') && !keyTypeLower.includes('smart') ? 'remote'
+                                : keyTypeLower.includes('mechanical') ? 'blade'
+                                    : 'prox';
 
             // Parse OEM parts - handle both array and comma-separated string formats
             const oemParts = (c.oemParts || []).flatMap((p: string) =>
@@ -602,6 +608,32 @@ export default function VehicleDetailClient() {
             buttons: k.buttons || null
         }));
 
+    // Build allFccs array with key type context for +1 display
+    const allFccs = keysFromAks
+        .filter((k: any) => k.fcc)
+        .flatMap((k: any) =>
+            String(k.fcc).split(/[,\s]+/).filter(Boolean).map((fcc: string) => ({
+                fcc: fcc.trim(),
+                keyType: k.name || 'Key',
+                buttons: k.buttons || null
+            }))
+        );
+
+    // Build allFccs - prefer key configs, fallback to parsing legacy fcc_id
+    let finalAllFccs = allFccs.length > 0 ? allFccs : specs.all_fccs;
+
+    // If still no allFccs but specs.fcc_id has multiple IDs, parse them
+    if ((!finalAllFccs || finalAllFccs.length === 0) && specs.fcc_id) {
+        const fccIds = String(specs.fcc_id).split(/[,\s]+/).filter(Boolean);
+        if (fccIds.length > 0) {
+            finalAllFccs = fccIds.map((fcc: string) => ({
+                fcc: fcc.trim(),
+                keyType: 'Key',
+                buttons: null
+            }));
+        }
+    }
+
     // Build complete specs object for VehicleSpecs component
     const fullSpecs = {
         architecture: header.immobilizer_system,
@@ -611,7 +643,7 @@ export default function VehicleDetailClient() {
         chipType: aksChip || specs.chip,  // AKS first, fallback to legacy
         allChips: allChips.length > 0 ? allChips : undefined,
         fccId: specs.fcc_id,
-        allFccs: specs.all_fccs,
+        allFccs: finalAllFccs,
         frequency: specs.frequency,
         battery: aksBattery || specs.battery,  // AKS first, fallback to legacy
         keyway: aksKeyway || specs.keyway,  // AKS first, fallback to legacy

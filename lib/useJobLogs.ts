@@ -20,8 +20,13 @@ export interface JobStats {
     avgJobValue: number;
     thisWeekJobs: number;
     thisWeekRevenue: number;
+    thisMonthJobs: number;
+    thisMonthRevenue: number;
+    lastMonthJobs: number;
+    lastMonthRevenue: number;
     topVehicles: { vehicle: string; count: number }[];
     topKeys: { fccId: string; count: number }[];
+    jobsByType: Record<string, { count: number; revenue: number }>;
 }
 
 const STORAGE_KEY = 'eurokeys_job_logs';
@@ -80,11 +85,20 @@ export function useJobLogs() {
         const now = Date.now();
         const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
+        // Get start of current month and last month
+        const today = new Date();
+        const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1).getTime();
+        const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1).getTime();
+        const lastMonthEnd = thisMonthStart - 1;
+
         const thisWeekLogs = jobLogs.filter(log => log.createdAt >= oneWeekAgo);
+        const thisMonthLogs = jobLogs.filter(log => log.createdAt >= thisMonthStart);
+        const lastMonthLogs = jobLogs.filter(log => log.createdAt >= lastMonthStart && log.createdAt <= lastMonthEnd);
 
         // Count vehicles
         const vehicleCounts: Record<string, number> = {};
         const keyCounts: Record<string, number> = {};
+        const jobsByType: Record<string, { count: number; revenue: number }> = {};
 
         jobLogs.forEach(log => {
             if (log.vehicle) {
@@ -93,6 +107,12 @@ export function useJobLogs() {
             if (log.fccId) {
                 keyCounts[log.fccId] = (keyCounts[log.fccId] || 0) + 1;
             }
+            // Track by job type
+            if (!jobsByType[log.jobType]) {
+                jobsByType[log.jobType] = { count: 0, revenue: 0 };
+            }
+            jobsByType[log.jobType].count += 1;
+            jobsByType[log.jobType].revenue += log.price || 0;
         });
 
         const topVehicles = Object.entries(vehicleCounts)
@@ -107,6 +127,8 @@ export function useJobLogs() {
 
         const totalRevenue = jobLogs.reduce((sum, log) => sum + (log.price || 0), 0);
         const thisWeekRevenue = thisWeekLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const thisMonthRevenue = thisMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const lastMonthRevenue = lastMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
 
         return {
             totalJobs: jobLogs.length,
@@ -114,8 +136,13 @@ export function useJobLogs() {
             avgJobValue: jobLogs.length > 0 ? totalRevenue / jobLogs.length : 0,
             thisWeekJobs: thisWeekLogs.length,
             thisWeekRevenue,
+            thisMonthJobs: thisMonthLogs.length,
+            thisMonthRevenue,
+            lastMonthJobs: lastMonthLogs.length,
+            lastMonthRevenue,
             topVehicles,
             topKeys,
+            jobsByType,
         };
     }, [jobLogs]);
 

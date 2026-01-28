@@ -75,8 +75,8 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                     />
                 )}
 
-                {/* CAN-FD Required */}
-                {specs.canFdRequired !== undefined && (
+                {/* CAN-FD Required - only show for 2016+ vehicles where it's relevant */}
+                {specs.canFdRequired !== undefined && year && year >= 2016 && (
                     <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
                         <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
                             CAN FD
@@ -246,8 +246,13 @@ function FccIdWithPopup({
 }) {
     const [showPopup, setShowPopup] = useState(false);
 
-    // Count additional FCCs (excluding primary if it's in the list)
-    const additionalCount = allFccs ? allFccs.length - 1 : 0;
+    // Parse primaryFcc - it may contain multiple FCC IDs separated by commas/spaces
+    const parsedFccs = primaryFcc.split(/[,\s]+/).filter(Boolean).map(f => f.trim());
+    const displayFcc = parsedFccs[0] || primaryFcc;  // Show first FCC ID
+
+    // Count additional FCCs from both parsed primary and allFccs array
+    const allFccCount = Math.max(parsedFccs.length, allFccs?.length || 0);
+    const additionalCount = allFccCount - 1;
     const hasMultiple = additionalCount > 0;
 
     // Group FCCs by key type category (Smart Key vs Remote Head Key)
@@ -271,7 +276,7 @@ function FccIdWithPopup({
                 onClick={() => hasMultiple && setShowPopup(!showPopup)}
                 className={`font-semibold font-mono text-sm text-white flex items-center gap-2 ${hasMultiple ? 'cursor-pointer hover:text-blue-400 transition-colors' : 'cursor-default'}`}
             >
-                📡 {primaryFcc}
+                📡 {displayFcc}
                 {hasMultiple && (
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${showPopup ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}>
                         {showPopup ? '×' : `+${additionalCount}`}
@@ -344,6 +349,50 @@ function ChipTypeWithPopup({
     pearl?: Pearl;
 }) {
     const [showPopup, setShowPopup] = useState(false);
+    const [showVatsDetails, setShowVatsDetails] = useState(false);
+
+    // Detect VATS (Vehicle Anti-Theft System) - uses resistor pellets, not transponder chips
+    // VATS chip fields often contain resistor value tables which stretch the layout
+    const isVATS = primaryChip.toLowerCase().includes('vats') ||
+        primaryChip.toLowerCase().includes('resistor') ||
+        primaryChip.toLowerCase().includes('resister') ||  // common typo
+        (primaryChip.includes('Ohms') && primaryChip.includes('Value'));
+
+    // Extract VATS resistor values if present (for expandable display)
+    const vatsValues = isVATS ? primaryChip : null;
+
+    // For VATS systems, display a clean label with expandable details
+    if (isVATS) {
+        return (
+            <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-amber-700/50">
+                <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                    Immobilizer Type
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="font-semibold text-amber-400">🔐 VATS (Resistor)</span>
+                    <button
+                        onClick={() => setShowVatsDetails(!showVatsDetails)}
+                        className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-600 text-white hover:bg-amber-500 transition-all"
+                    >
+                        {showVatsDetails ? '×' : 'Values ▶'}
+                    </button>
+                </div>
+                {showVatsDetails && vatsValues && (
+                    <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/30 rounded text-xs text-amber-200 max-h-32 overflow-y-auto">
+                        <div className="font-bold mb-1">Resistor Values (Ohms):</div>
+                        <div className="font-mono text-[10px] whitespace-pre-wrap">
+                            {vatsValues.replace(/Resister Values?/i, '').replace(/\(see below\)/i, '').trim()}
+                        </div>
+                    </div>
+                )}
+                {pearl && (
+                    <div className="mt-2 text-[11px] text-amber-300 bg-amber-900/20 p-2 rounded border border-amber-800/30">
+                        💡 {pearl.content}
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     // Count additional chips (excluding duplicates)
     const uniqueChips = allChips ? [...new Set(allChips.map(c => c.chip))] : [primaryChip];

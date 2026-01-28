@@ -58,6 +58,9 @@ export default function RootLayout({
                                     <a href="/gallery" className="text-sm text-slate-400 hover:text-white">
                                         📷 Gallery
                                     </a>
+                                    <a href="/inventory" className="text-sm text-slate-400 hover:text-white">
+                                        📦 Business
+                                    </a>
                                 </div>
 
                                 {/* Right - Search & Auth */}

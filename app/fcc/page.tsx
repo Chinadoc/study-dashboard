@@ -245,7 +245,7 @@ function FccContent() {
 
                     {/* Key Type Filter */}
                     <div className="flex p-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm overflow-x-auto max-w-full">
-                        {['all', 'smart', 'flip', 'remote-head', 'transponder', 'mechanical'].map((type) => (
+                        {['all', 'smart', 'remote-head', 'transponder'].map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setKeyType(type)}

@@ -6,7 +6,7 @@ import { AFFILIATE_TAG } from '@/lib/config';
 interface KeyConfig {
     name: string;
     fcc?: string;
-    type?: 'prox' | 'blade' | 'flip' | 'remote';
+    type?: 'prox' | 'blade' | 'flip' | 'remote' | 'transponder';
     buttons?: string;
     battery?: string;
     chip?: string;
@@ -193,6 +193,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
         blade: 'bg-blue-900/40 text-blue-300 border-blue-700/30',
         flip: 'bg-green-900/40 text-green-300 border-green-700/30',
         remote: 'bg-yellow-900/40 text-yellow-300 border-yellow-700/30',
+        transponder: 'bg-cyan-900/40 text-cyan-300 border-cyan-700/30',
     };
 
     const typeLabel = config.type || 'prox';
@@ -235,9 +236,14 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         if (name.includes('smart')) return 'SMART';
                         if (name.includes('remote head')) return 'RHK';
                         if (name.includes('transponder')) return 'TPK';
-                        if (name.includes('emergency')) return 'BLADE';
+                        if (name.includes('emergency') || name.includes('blade')) return 'BLADE';
                         if (name.includes('flip')) return 'FLIP';
-                        return typeLabel;
+                        if (name.includes('mechanical')) return 'MECH';
+                        // For remote keyless entry / remote fobs
+                        if (name.includes('remote') && !name.includes('smart')) return 'REMOTE';
+                        if (typeLabel === 'remote') return 'REMOTE';
+                        if (typeLabel === 'transponder') return 'TPK';
+                        return typeLabel.toUpperCase();
                     })()}
                 </span>
             </div>
@@ -275,12 +281,20 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         <span className="text-white font-mono">{config.partNumber}</span>
                     </div>
                 )}
-                {config.chip && (
-                    <div className="text-xs truncate">
-                        <span className="text-zinc-500">Chip: </span>
-                        <span className="text-white">{config.chip}</span>
-                    </div>
-                )}
+                {config.chip && (() => {
+                    // Detect VATS (resistor values) and display abbreviated
+                    const chipLower = config.chip.toLowerCase();
+                    const isVATS = chipLower.includes('vats') || chipLower.includes('resistor') ||
+                        chipLower.includes('resister') || chipLower.includes('ohms');
+                    return (
+                        <div className="text-xs truncate">
+                            <span className="text-zinc-500">Chip: </span>
+                            <span className={isVATS ? 'text-amber-400' : 'text-white'}>
+                                {isVATS ? 'VATS (Resistor)' : config.chip}
+                            </span>
+                        </div>
+                    );
+                })()}
                 {config.keyway && (
                     <div className="text-xs truncate">
                         <span className="text-zinc-500">Blade: </span>

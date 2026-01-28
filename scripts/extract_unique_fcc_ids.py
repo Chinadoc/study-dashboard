@@ -72,6 +72,14 @@ def normalize_fcc(fcc_id):
     if fcc_id.startswith('('):
         return None
     
+    # Skip entries ending with ) or ( (fragments from parenthetical notes)
+    if fcc_id.endswith(')') or fcc_id.endswith('('):
+        return None
+    
+    # Skip pure numeric entries (these are item/model numbers, not FCC IDs)
+    if fcc_id.isdigit():
+        return None
+    
     return fcc_id
 
 

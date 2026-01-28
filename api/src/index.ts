@@ -5011,52 +5011,33 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
           const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-          // Build where clause for fcc_registry
-          // Exclude malformed FCC IDs:
-          // - Starting with ( or * (truncated or variant markers)
-          // - Too short (less than 5 chars)
-          // - Containing spaces (notes/descriptions)
-          // - Known board ID patterns (KFOB, GNE)
-          let whereClause = `WHERE r.fcc_id NOT LIKE '(%' 
-            AND r.fcc_id NOT LIKE '*%' 
-            AND r.fcc_id NOT LIKE '% %' 
-            AND r.fcc_id NOT LIKE '%KFOB%'
-            AND r.fcc_id NOT LIKE '%GNE%'
-            AND LENGTH(r.fcc_id) >= 5`;
+          // Build where clause for fcc_complete (pre-computed table)
+          let whereClause = `WHERE 1=1`;
           const params: string[] = [];
 
           if (q) {
-            whereClause += " AND (LOWER(r.fcc_id) LIKE ? OR LOWER(r.frequency) LIKE ?)";
-            params.push(`%${q}%`, `%${q}%`);
+            whereClause += ` AND (LOWER(fcc_id) LIKE ? OR LOWER(vehicles) LIKE ? OR LOWER(chip) LIKE ?)`;
+            params.push(`%${q}%`, `%${q}%`, `%${q}%`);
           }
 
-          // Main query: fcc_registry joined with aks_products/aks_products_detail for chip
-          // and fcc_cross_reference for vehicle info
+          // Simple query from pre-computed fcc_complete table
           const sql = `
           SELECT 
-            r.fcc_id,
-            r.frequency,
-            r.image_r2_key,
-            COALESCE(
-              (SELECT d.chip FROM aks_products p 
-               JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
-               WHERE UPPER(p.fcc_id) LIKE '%' || UPPER(r.fcc_id) || '%' 
-               AND d.chip IS NOT NULL AND d.chip != ''
-               LIMIT 1),
-              r.chip,
-              ''
-            ) as chip,
-            COALESCE((SELECT GROUP_CONCAT(DISTINCT x.make || ' ' || x.model || ' (' || x.year_start || '-' || x.year_end || ')')
-             FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)), '') as vehicles,
-            (SELECT COUNT(*) FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)) as vehicle_count
-          FROM fcc_registry r
+            fcc_id,
+            frequency,
+            chip,
+            key_type,
+            vehicles,
+            vehicle_count,
+            image_r2_key
+          FROM fcc_complete
           ${whereClause}
-          ORDER BY r.fcc_id
+          ORDER BY fcc_id
           LIMIT ? OFFSET ?
         `;
 
           // Count query
-          const countSql = `SELECT COUNT(*) as cnt FROM fcc_registry r ${whereClause}`;
+          const countSql = `SELECT COUNT(*) as cnt FROM fcc_complete ${whereClause}`;
           const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
           const total = countResult?.cnt || 0;
 

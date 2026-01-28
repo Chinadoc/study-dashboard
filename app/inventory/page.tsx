@@ -1,10 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ToolStatusBadge from '@/components/shared/ToolStatusBadge';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import { API_BASE } from '@/lib/config';
+import {
+    KEY_CATEGORIES,
+    KeyCategory,
+    getInventoryByCategory,
+    getLowStockItems,
+    detectKeyCategory
+} from '@/lib/inventoryTypes';
+import { hasCompletedSetup, loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
+import ToolSetupWizard from '@/components/business/ToolSetupWizard';
+import CoverageMap from '@/components/business/CoverageMap';
+import SubscriptionDashboard from '@/components/business/SubscriptionDashboard';
 
 interface InventoryItem {
     id?: string;
@@ -16,7 +27,7 @@ interface InventoryItem {
     link?: string;
 }
 
-type TabType = 'inventory' | 'jobs';
+type TabType = 'inventory' | 'jobs' | 'coverage' | 'subscriptions';
 
 export default function InventoryPage() {
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -25,9 +36,22 @@ export default function InventoryPage() {
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<TabType>('inventory');
     const [jobModalOpen, setJobModalOpen] = useState(false);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    const [businessProfile, setBusinessProfile] = useState(() => loadBusinessProfile());
 
     const { jobLogs, addJobLog, deleteJobLog, getJobStats } = useJobLogs();
     const stats = getJobStats();
+
+    // Check for first-time user on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const profile = loadBusinessProfile();
+            setBusinessProfile(profile);
+            if (!profile.setupComplete) {
+                setShowOnboarding(true);
+            }
+        }
+    }, []);
 
     // Fetch from Cloudflare API with localStorage fallback
     const loadInventory = useCallback(async () => {
@@ -133,32 +157,67 @@ export default function InventoryPage() {
     const keys = inventory.filter(i => i.type === 'key');
     const blanks = inventory.filter(i => i.type === 'blank');
 
+    // Show onboarding wizard for first-time users
+    if (showOnboarding) {
+        return (
+            <div className="container mx-auto px-4 py-6">
+                <ToolSetupWizard
+                    onComplete={() => {
+                        setShowOnboarding(false);
+                        setBusinessProfile(loadBusinessProfile());
+                    }}
+                    onSkip={() => {
+                        const profile = { tools: [], setupComplete: true, setupStep: 'complete' as const };
+                        saveBusinessProfile(profile);
+                        setShowOnboarding(false);
+                        setBusinessProfile(profile);
+                    }}
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold">Inventory & Jobs</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                        Business Dashboard
+                    </h1>
                     <p className="text-gray-400 mt-1">
-                        Track your stock and log completed jobs.
+                        Track inventory, jobs, and tool subscriptions.
                         {syncing && <span className="ml-2 text-yellow-500 animate-pulse">Syncing...</span>}
                     </p>
                     {error && <p className="text-yellow-500 text-sm mt-1">{error}</p>}
                 </div>
 
-                {/* Tool Subscription Badges */}
+                {/* User's Selected Tools */}
                 <div className="flex flex-wrap gap-2">
-                    <ToolStatusBadge toolName="AutoProPad" />
-                    <ToolStatusBadge toolName="Autel" />
+                    {businessProfile.tools.slice(0, 3).map(toolId => {
+                        const tool = AVAILABLE_TOOLS.find(t => t.id === toolId);
+                        if (!tool) return null;
+                        return (
+                            <ToolStatusBadge key={toolId} toolName={tool.shortName} />
+                        );
+                    })}
+                    {businessProfile.tools.length === 0 && (
+                        <button
+                            onClick={() => setShowOnboarding(true)}
+                            className="text-sm text-yellow-500 hover:text-yellow-400"
+                        >
+                            + Add Tools
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex gap-2 mb-6 border-b border-gray-800 pb-2">
+            <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-800 pb-2">
                 <button
                     onClick={() => setActiveTab('inventory')}
                     className={`px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'inventory'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                         }`}
                 >
                     📦 Inventory ({inventory.length})
@@ -166,11 +225,29 @@ export default function InventoryPage() {
                 <button
                     onClick={() => setActiveTab('jobs')}
                     className={`px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'jobs'
-                            ? 'bg-yellow-500 text-black'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        ? 'bg-yellow-500 text-black'
+                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                         }`}
                 >
                     📝 Jobs ({jobLogs.length})
+                </button>
+                <button
+                    onClick={() => setActiveTab('coverage')}
+                    className={`px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'coverage'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        }`}
+                >
+                    🗺️ Coverage
+                </button>
+                <button
+                    onClick={() => setActiveTab('subscriptions')}
+                    className={`px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'subscriptions'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        }`}
+                >
+                    🔔 Subscriptions
                 </button>
             </div>
 
@@ -190,56 +267,41 @@ export default function InventoryPage() {
                         </a>
                     </div>
                 ) : (
-                    <div className="space-y-12">
-                        {/* Stats summary */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Items</div>
-                                <div className="text-2xl font-bold">{inventory.length}</div>
-                            </div>
-                            <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">In Stock</div>
-                                <div className="text-2xl font-bold text-green-500">
-                                    {inventory.reduce((acc, curr) => acc + curr.qty, 0)}
-                                </div>
-                            </div>
-                            <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Key Fobs</div>
-                                <div className="text-2xl font-bold text-purple-400">{keys.length}</div>
-                            </div>
-                            <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Key Blanks</div>
-                                <div className="text-2xl font-bold text-blue-400">{blanks.length}</div>
-                            </div>
-                        </div>
-
-                        {keys.length > 0 && (
-                            <section>
-                                <h2 className="text-xl font-semibold mb-6 pb-2 border-b border-gray-800">Remote Keys & Fobs</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {keys.map(item => (
-                                        <InventoryCard key={`${item.itemKey}-${item.type}`} item={item} onUpdate={updateQty} />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-
-                        {blanks.length > 0 && (
-                            <section>
-                                <h2 className="text-xl font-semibold mb-6 pb-2 border-b border-gray-800">Key Blanks & Blades</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {blanks.map(item => (
-                                        <InventoryCard key={`${item.itemKey}-${item.type}`} item={item} onUpdate={updateQty} />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-                    </div>
+                    <InventoryDashboard
+                        inventory={inventory}
+                        keys={keys}
+                        blanks={blanks}
+                        updateQty={updateQty}
+                    />
                 )
             ) : (
                 /* JOBS TAB */
                 <div className="space-y-8">
-                    {/* Job Stats */}
+                    {/* Monthly Stats Comparison */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gradient-to-br from-emerald-900/30 to-green-800/10 p-5 rounded-xl border border-green-700/30">
+                            <div className="text-xs text-green-600 uppercase tracking-wider mb-2">This Month</div>
+                            <div className="flex items-baseline gap-3">
+                                <div className="text-4xl font-black text-green-400">${stats.thisMonthRevenue.toFixed(0)}</div>
+                                <div className="text-sm text-green-500">{stats.thisMonthJobs} jobs</div>
+                            </div>
+                            {stats.lastMonthRevenue > 0 && (
+                                <div className={`text-xs mt-2 ${stats.thisMonthRevenue >= stats.lastMonthRevenue ? 'text-green-400' : 'text-red-400'}`}>
+                                    {stats.thisMonthRevenue >= stats.lastMonthRevenue ? '↑' : '↓'}
+                                    {Math.abs(((stats.thisMonthRevenue - stats.lastMonthRevenue) / stats.lastMonthRevenue) * 100).toFixed(0)}% vs last month
+                                </div>
+                            )}
+                        </div>
+                        <div className="bg-gradient-to-br from-slate-900/50 to-gray-800/30 p-5 rounded-xl border border-gray-700/30">
+                            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Last Month</div>
+                            <div className="flex items-baseline gap-3">
+                                <div className="text-4xl font-black text-gray-400">${stats.lastMonthRevenue.toFixed(0)}</div>
+                                <div className="text-sm text-gray-500">{stats.lastMonthJobs} jobs</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Quick Stats Row */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/10 p-4 rounded-xl border border-yellow-700/30">
                             <div className="text-xs text-yellow-600 uppercase tracking-wider mb-1">Total Jobs</div>
@@ -326,12 +388,173 @@ export default function InventoryPage() {
                 </div>
             )}
 
+            {activeTab === 'coverage' && (
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold">Vehicle Coverage Map</h2>
+                            <p className="text-sm text-gray-500">
+                                See which vehicles you can program based on your tools
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setShowOnboarding(true)}
+                            className="text-sm text-yellow-500 hover:text-yellow-400"
+                        >
+                            ⚙️ Edit Tools
+                        </button>
+                    </div>
+                    <CoverageMap tools={businessProfile.tools} />
+                </div>
+            )}
+
+            {activeTab === 'subscriptions' && (
+                <SubscriptionDashboard />
+            )}
+
             {/* Job Log Modal */}
             <JobLogModal
                 isOpen={jobModalOpen}
                 onClose={() => setJobModalOpen(false)}
                 onSubmit={handleJobSubmit}
             />
+        </div>
+    );
+}
+
+// ============ INVENTORY DASHBOARD ============
+function InventoryDashboard({
+    inventory,
+    keys,
+    blanks,
+    updateQty
+}: {
+    inventory: InventoryItem[];
+    keys: InventoryItem[];
+    blanks: InventoryItem[];
+    updateQty: (k: string, t: string, d: number) => void;
+}) {
+    // Get inventory breakdown by category
+    const categoryBreakdown = useMemo(() => getInventoryByCategory(inventory), [inventory]);
+    const lowStockItems = useMemo(() => getLowStockItems(inventory, 3), [inventory]);
+    const totalStock = inventory.reduce((acc, curr) => acc + curr.qty, 0);
+
+    // Filter to only show categories with items
+    const activeCategories = (Object.keys(categoryBreakdown) as KeyCategory[])
+        .filter(cat => categoryBreakdown[cat].items.length > 0);
+
+    return (
+        <div className="space-y-8">
+            {/* Key Category Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {(Object.keys(KEY_CATEGORIES) as KeyCategory[]).map(category => {
+                    const catInfo = KEY_CATEGORIES[category];
+                    const catData = categoryBreakdown[category];
+                    const hasItems = catData.items.length > 0;
+
+                    return (
+                        <div
+                            key={category}
+                            className={`p-4 rounded-xl border transition-all ${hasItems
+                                ? `${catInfo.bgClass} border-${catInfo.color}-700/30`
+                                : 'bg-gray-900/50 border-gray-800/50 opacity-50'
+                                }`}
+                        >
+                            <div className="text-2xl mb-1">{catInfo.icon}</div>
+                            <div className={`text-2xl font-black ${hasItems ? catInfo.textClass : 'text-gray-600'}`}>
+                                {catData.totalQty}
+                            </div>
+                            <div className="text-xs text-gray-500 uppercase tracking-wider">
+                                {catInfo.label}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                                {catData.items.length} type{catData.items.length !== 1 ? 's' : ''}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Quick Stats Row */}
+            <div className="grid grid-cols-3 gap-4">
+                <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Items</div>
+                    <div className="text-2xl font-bold">{inventory.length}</div>
+                </div>
+                <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Total In Stock</div>
+                    <div className="text-2xl font-bold text-green-500">{totalStock}</div>
+                </div>
+                <div className={`p-4 rounded-xl border ${lowStockItems.length > 0 ? 'bg-red-900/20 border-red-700/30' : 'bg-gray-900 border-gray-800'}`}>
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Low Stock</div>
+                    <div className={`text-2xl font-bold ${lowStockItems.length > 0 ? 'text-red-400' : 'text-gray-600'}`}>
+                        {lowStockItems.length}
+                    </div>
+                </div>
+            </div>
+
+            {/* Low Stock Alerts */}
+            {lowStockItems.length > 0 && (
+                <div className="bg-gradient-to-r from-red-900/20 to-orange-900/20 border border-red-700/30 rounded-xl p-5">
+                    <h3 className="font-bold text-red-400 mb-4 flex items-center gap-2">
+                        ⚠️ Low Inventory Alert
+                        <span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-xs">
+                            {lowStockItems.length} item{lowStockItems.length !== 1 ? 's' : ''}
+                        </span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {lowStockItems.slice(0, 6).map(item => (
+                            <div
+                                key={`${item.itemKey}-${item.type}`}
+                                className="flex items-center justify-between bg-gray-900/50 rounded-lg p-3 border border-gray-800"
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-sm truncate">{item.itemKey}</div>
+                                    <div className="text-xs text-gray-500">
+                                        {KEY_CATEGORIES[detectKeyCategory(item)]?.label || 'Other'}
+                                    </div>
+                                </div>
+                                <div className={`ml-2 px-2 py-1 rounded text-xs font-bold ${item.qty === 1 ? 'bg-orange-900/40 text-orange-400' : 'bg-yellow-900/40 text-yellow-400'
+                                    }`}>
+                                    {item.qty} left
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {lowStockItems.length > 6 && (
+                        <div className="text-center mt-3 text-sm text-gray-500">
+                            +{lowStockItems.length - 6} more items need restocking
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Inventory by Category */}
+            {activeCategories.map(category => {
+                const catInfo = KEY_CATEGORIES[category];
+                const catData = categoryBreakdown[category];
+
+                return (
+                    <section key={category}>
+                        <h2 className="text-xl font-semibold mb-4 pb-2 border-b border-gray-800 flex items-center gap-2">
+                            <span>{catInfo.icon}</span>
+                            {catInfo.label}
+                            <span className="text-sm font-normal text-gray-500">
+                                ({catData.items.length} type{catData.items.length !== 1 ? 's' : ''}, {catData.totalQty} total)
+                            </span>
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {catData.items.map(item => (
+                                <InventoryCard
+                                    key={`${item.itemKey}-${item.type}`}
+                                    item={item as InventoryItem}
+                                    onUpdate={updateQty}
+                                />
+                            ))}
+                        </div>
+                    </section>
+                );
+            })}
         </div>
     );
 }
