@@ -12,6 +12,7 @@ interface FccRow {
     vehicles: string;
     frequency: string;
     chip: string;
+    key_type?: string;  // smart, remote-head, flip, transponder, mechanical
     primary_oem_part?: string;
     primary_make?: string;
     has_image?: boolean;
@@ -152,6 +153,12 @@ function FccContent() {
     };
 
     const getKeyType = (row: FccRow): TagType => {
+        // Prefer server-provided key_type from fcc_complete table
+        if (row.key_type && ['smart', 'flip', 'remote-head', 'transponder', 'mechanical'].includes(row.key_type)) {
+            return row.key_type as TagType;
+        }
+
+        // Fallback to client-side guessing for older data without key_type
         const vehicles = (row.vehicles || '').toLowerCase();
         const chip = (row.chip || '').toLowerCase();
         const freqString = String(row.frequency || '');
