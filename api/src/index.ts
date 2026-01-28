@@ -5012,8 +5012,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
           // Build where clause for fcc_registry
-          // Exclude malformed FCC IDs (starting with parenthesis or too short)
-          let whereClause = "WHERE r.fcc_id NOT LIKE '(%' AND LENGTH(r.fcc_id) >= 5";
+          // Exclude malformed FCC IDs:
+          // - Starting with ( or * (truncated or variant markers)
+          // - Too short (less than 5 chars)
+          // - Containing spaces (notes/descriptions)
+          // - Known board ID patterns (KFOB, GNE)
+          let whereClause = `WHERE r.fcc_id NOT LIKE '(%' 
+            AND r.fcc_id NOT LIKE '*%' 
+            AND r.fcc_id NOT LIKE '% %' 
+            AND r.fcc_id NOT LIKE '%KFOB%'
+            AND r.fcc_id NOT LIKE '%GNE%'
+            AND LENGTH(r.fcc_id) >= 5`;
           const params: string[] = [];
 
           if (q) {

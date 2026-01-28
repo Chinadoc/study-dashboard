@@ -53,6 +53,25 @@ def normalize_fcc(fcc_id):
     if not fcc_id or fcc_id == '--' or len(fcc_id) < 3:
         return None
     
+    # Skip entries with spaces (likely notes or descriptions, not FCC IDs)
+    # Real FCC IDs are alphanumeric with dashes, no spaces
+    if ' ' in fcc_id:
+        return None
+    
+    # Skip known board ID patterns (not FCC IDs)
+    board_patterns = ['KFOB', 'GNE', '_BT', '3G_', '4G_', '5G_']
+    for pattern in board_patterns:
+        if pattern in fcc_id.upper():
+            return None
+    
+    # Skip entries starting with * (variant markers)
+    if fcc_id.startswith('*'):
+        return None
+    
+    # Skip entries starting with ( (truncated or malformed)
+    if fcc_id.startswith('('):
+        return None
+    
     return fcc_id
 
 
