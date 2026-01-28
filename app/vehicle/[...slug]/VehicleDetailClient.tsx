@@ -34,6 +34,49 @@ function transformProductsByType(pbt: Record<string, any>): any[] {
     }));
 }
 
+// Transform aks_key_configs from API into KeyConfig[] for KeyCards
+// New format: grouped by keyType → buttonCount with R2 images
+function transformAksKeyConfigs(configs: any[]): any[] {
+    if (!configs || !Array.isArray(configs) || configs.length === 0) return [];
+
+    return configs
+        // Filter out tools and miscellaneous items
+        .filter(c => {
+            const keyType = (c.keyType || '').toLowerCase();
+            return !keyType.includes('lishi') && !keyType.includes('tool') && keyType !== 'key';
+        })
+        .map(c => {
+            // Build display name: "3-Button Smart Key" or "Smart Key" or "Emergency Key"
+            const buttonPart = c.buttonCount ? `${c.buttonCount}-Button ` : '';
+            const name = `${buttonPart}${c.keyType}`;
+
+            // Determine type for styling
+            const keyTypeLower = (c.keyType || '').toLowerCase();
+            const type = keyTypeLower.includes('smart') || keyTypeLower.includes('prox') ? 'prox'
+                : keyTypeLower.includes('flip') ? 'flip'
+                    : keyTypeLower.includes('blade') || keyTypeLower.includes('emergency') ? 'blade'
+                        : keyTypeLower.includes('transponder') ? 'remote'
+                            : 'prox';
+
+            // Parse OEM parts - handle both array and comma-separated string formats
+            const oemParts = (c.oemParts || []).flatMap((p: string) =>
+                p.split(',').map((part: string) => ({ number: part.trim() }))
+            );
+
+            return {
+                name,
+                fcc: (c.fccIds || []).join(', ') || undefined,
+                chip: c.chip || undefined,
+                battery: c.battery || undefined,
+                frequency: c.frequency ? `${c.frequency} MHz` : undefined,
+                buttons: c.buttonCount || undefined,
+                image: c.imageUrl || undefined,
+                oem: oemParts,
+                type,
+            };
+        });
+}
+
 // Transform products from /api/vehicle-products to include R2 image URLs
 // Filters out cross-vehicle products that don't match the target model
 function transformProducts(products: any[], targetModel?: string): any[] {
@@ -516,16 +559,21 @@ export default function VehicleDetailClient() {
         return keys;
     }
 
-    // Merge keys: prioritize /api/vehicle-products (has R2 images), fallback to products_by_type, then VYP
+    // Merge keys: prioritize aks_key_configs (AKS with R2 images), fallback to products, then products_by_type, then VYP
+    const keysFromAks = transformAksKeyConfigs(data.detail?.aks_key_configs || []);
     const keysFromProducts = transformProducts(data.products?.products || [], model);
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
-    const rawKeys = keysFromProducts.length > 0 ? keysFromProducts
-        : keysFromPBT.length > 0 ? keysFromPBT
-            : keysFromVYP;
 
-    // Deduplicate keys by type (3-btn, 4-btn, blade) to avoid showing all product variants
-    const mergedKeys = consolidateKeysByButtonCount(rawKeys, specs);
+    // aks_key_configs is already grouped by key type → button count, so use directly if available
+    // Otherwise fallback to legacy sources with consolidation
+    const rawKeys = keysFromAks.length > 0 ? keysFromAks
+        : keysFromProducts.length > 0 ? keysFromProducts
+            : keysFromPBT.length > 0 ? keysFromPBT
+                : keysFromVYP;
+
+    // Deduplicate keys by type (3-btn, 4-btn, blade) - only needed for legacy sources
+    const mergedKeys = keysFromAks.length > 0 ? keysFromAks : consolidateKeysByButtonCount(rawKeys, specs);
 
     // Extract pearls and images - ensure they are arrays
     const rawPearls = data.pearls?.pearls;

@@ -3988,6 +3988,148 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }));
           }
 
+          // 1.7. Get AKS key configurations grouped by key type → button count
+          // Uses: aks_vehicle_products → aks_products → aks_products_detail (for R2 images)
+          interface AksKeyConfig {
+            keyType: string;
+            buttonCount: string | null;
+            fccIds: string[];
+            oemParts: string[];
+            chip: string | null;
+            battery: string | null;
+            frequency: string | null;
+            imageUrl: string | null;
+            productCount: number;
+          }
+          let aksKeyConfigs: AksKeyConfig[] = [];
+          const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
+
+          if (year) {
+            const keyConfigResult = await env.LOCKSMITH_DB.prepare(`
+              SELECT 
+                p.page_id,
+                p.title,
+                p.product_type,
+                p.buttons,
+                p.fcc_id,
+                p.oem_part_number,
+                p.battery,
+                p.frequency,
+                p.image_url as cdn_image,
+                d.image_r2_key,
+                d.chip
+              FROM aks_vehicle_products vp
+              JOIN aks_products p ON vp.product_page_id = p.page_id
+              LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
+              WHERE LOWER(vp.make) = ? 
+                AND LOWER(vp.model) LIKE LOWER(?) 
+                AND vp.year = ?
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%shell%'
+                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%shell only%'
+                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%case only%'
+                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%-pack%'
+              ORDER BY p.product_type, p.buttons DESC
+            `).bind(make, `%${model}%`, year).all<any>();
+
+            // Group by key type → button count
+            const keyTypeGroups: Record<string, Record<string, {
+              fccIds: Set<string>;
+              oemParts: Set<string>;
+              chips: Set<string>;
+              batteries: Set<string>;
+              frequencies: Set<string>;
+              images: string[];
+              productCount: number;
+            }>> = {};
+
+            for (const row of (keyConfigResult.results || [])) {
+              // Determine key type
+              const baseType = row.product_type || 'Key';
+
+              // Extract button count
+              let buttonCount: string | null = null;
+              const btnMatch = (row.title || '').match(/(\d)-(?:Btn|Button)/i);
+              if (btnMatch) {
+                buttonCount = btnMatch[1];
+              } else if (row.buttons) {
+                const btnParts = String(row.buttons).split('/');
+                buttonCount = String(btnParts.length);
+              }
+
+              // Initialize key type group
+              if (!keyTypeGroups[baseType]) {
+                keyTypeGroups[baseType] = {};
+              }
+
+              const btnKey = buttonCount || 'other';
+              if (!keyTypeGroups[baseType][btnKey]) {
+                keyTypeGroups[baseType][btnKey] = {
+                  fccIds: new Set(),
+                  oemParts: new Set(),
+                  chips: new Set(),
+                  batteries: new Set(),
+                  frequencies: new Set(),
+                  images: [],
+                  productCount: 0
+                };
+              }
+
+              const group = keyTypeGroups[baseType][btnKey];
+
+              // Aggregate data
+              if (row.fcc_id) {
+                row.fcc_id.split(',').map((f: string) => f.trim()).filter((f: string) => f).forEach((f: string) => {
+                  // Normalize O→0 typos
+                  group.fccIds.add(f.replace(/O(\d)/g, '0$1'));
+                });
+              }
+              if (row.oem_part_number) group.oemParts.add(row.oem_part_number);
+              if (row.chip) group.chips.add(row.chip);
+              if (row.battery) group.batteries.add(row.battery);
+              if (row.frequency) group.frequencies.add(row.frequency);
+
+              // Collect images (prefer R2, fallback to CDN) - max 1 per group
+              if (group.images.length === 0) {
+                if (row.image_r2_key) {
+                  group.images.push(`${WORKER_BASE}/api/r2/${encodeURIComponent(row.image_r2_key)}`);
+                } else if (row.cdn_image) {
+                  group.images.push(row.cdn_image);
+                }
+              }
+
+              group.productCount++;
+            }
+
+            // Flatten to array format
+            for (const [keyType, buttonGroups] of Object.entries(keyTypeGroups)) {
+              for (const [btnKey, group] of Object.entries(buttonGroups)) {
+                aksKeyConfigs.push({
+                  keyType,
+                  buttonCount: btnKey === 'other' ? null : btnKey,
+                  fccIds: Array.from(group.fccIds).slice(0, 5),
+                  oemParts: Array.from(group.oemParts).slice(0, 10),
+                  chip: Array.from(group.chips)[0] || null,
+                  battery: Array.from(group.batteries)[0] || null,
+                  frequency: Array.from(group.frequencies)[0] || null,
+                  imageUrl: group.images[0] || null,
+                  productCount: group.productCount
+                });
+              }
+            }
+
+            // Sort: Smart Keys first, then by button count descending
+            const typeOrder: Record<string, number> = {
+              'Smart Key': 1, 'Remote Head Key': 2, 'Remote Keyless Entry': 3,
+              'Flip Key': 4, 'Transponder Key': 5, 'Mechanical Key': 6, 'Emergency Key': 7
+            };
+            aksKeyConfigs.sort((a, b) => {
+              const orderA = typeOrder[a.keyType] || 10;
+              const orderB = typeOrder[b.keyType] || 10;
+              if (orderA !== orderB) return orderA - orderB;
+              return (parseInt(b.buttonCount || '0') || 0) - (parseInt(a.buttonCount || '0') || 0);
+            });
+          }
+
           // 2. Get vehicles table data (Priority 3 - fallback for immobilizer, platform, etc.)
           let vehicleData: any = null;
           const vehicleQuery = year
@@ -4271,6 +4413,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
             // AKS products by type (Priority 1 for OEM/FCC/IC/chip/keyway/prices)
             products_by_type: productsByType,
+
+            // AKS key configs grouped by key type → button count (with R2 images)
+            aks_key_configs: aksKeyConfigs.length > 0 ? aksKeyConfigs : null,
 
             // Programming info from vehicles table
             programming: vehicleData ? {
