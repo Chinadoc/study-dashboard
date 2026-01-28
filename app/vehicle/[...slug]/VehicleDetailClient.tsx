@@ -835,6 +835,11 @@ export default function VehicleDetailClient() {
                             steps: parseSteps(addKeyWalkthrough),
                             menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
                             pearls: routedPearls.addKey
+                        } : routedPearls.addKey.length > 0 ? {
+                            // Third fallback: Build procedure from pearls
+                            title: 'Add Key Procedure',
+                            steps: routedPearls.addKey.map((p: any) => p.content || p.pearl_content || '').filter(Boolean),
+                            pearls: routedPearls.addKey
                         } : undefined,
                         akl: aklProcedure ? {
                             title: aklProcedure.title,
@@ -849,6 +854,12 @@ export default function VehicleDetailClient() {
                             risk_level: ((aklWalkthrough.risk_level === 'moderate' ? 'medium' : aklWalkthrough.risk_level) as 'low' | 'medium' | 'high') || 'high',
                             steps: parseSteps(aklWalkthrough),
                             menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
+                            pearls: routedPearls.akl
+                        } : routedPearls.akl.length > 0 ? {
+                            // Third fallback: Build procedure from pearls
+                            title: 'All Keys Lost (AKL) Procedure',
+                            risk_level: 'high' as const,
+                            steps: routedPearls.akl.map((p: any) => p.content || p.pearl_content || '').filter(Boolean),
                             pearls: routedPearls.akl
                         } : undefined,
                     }} />
