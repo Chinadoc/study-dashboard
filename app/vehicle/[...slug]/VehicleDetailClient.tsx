@@ -588,18 +588,23 @@ export default function VehicleDetailClient() {
     const criticalPearl = pearlsList.find((p: any) => (p.risk || '').toLowerCase() === 'critical');
     const proTipPearl = pearlsList.find((p: any) => (p.risk || '').toLowerCase() === 'important' || (p.risk || '').toLowerCase() === 'info');
 
+    // Extract chip from AKS key configs (prioritize over legacy specs)
+    const aksChip = keysFromAks.find((k: any) => k.chip)?.chip || null;
+    const aksKeyway = keysFromAks.find((k: any) => k.keyway)?.keyway || null;
+    const aksBattery = keysFromAks.find((k: any) => k.battery)?.battery || null;
+
     // Build complete specs object for VehicleSpecs component
     const fullSpecs = {
         architecture: header.immobilizer_system,
         platform: header.platform,
         immobilizerSystem: header.immobilizer_system,
         canFdRequired: header.can_fd_required === 1 || header.can_fd_required === true,
-        chipType: specs.chip,
+        chipType: aksChip || specs.chip,  // AKS first, fallback to legacy
         fccId: specs.fcc_id,
         allFccs: specs.all_fccs,
         frequency: specs.frequency,
-        battery: specs.battery,
-        keyway: specs.keyway,
+        battery: aksBattery || specs.battery,  // AKS first, fallback to legacy
+        keyway: aksKeyway || specs.keyway,  // AKS first, fallback to legacy
         lishi: specs.lishi,
         lishiSource: specs.lishi_source,
         spaces: specs.spaces,

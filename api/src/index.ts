@@ -5004,50 +5004,55 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
         }
       }
 
-      // FCC Database endpoint - uses unified vehicles table
+      // FCC Database endpoint - uses fcc_registry (with AKS images) + fcc_cross_reference for vehicles
       if (path === "/api/fcc") {
         try {
           const q = url.searchParams.get("q")?.toLowerCase() || "";
           const limit = Math.min(parseInt(url.searchParams.get("limit") || "100", 10) || 100, 500);
           const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
-          let whereClause = "WHERE fcc_id IS NOT NULL AND fcc_id != ''";
+          // Build where clause for fcc_registry
+          let whereClause = "WHERE 1=1";
           const params: string[] = [];
 
           if (q) {
-            whereClause += " AND (LOWER(fcc_id) LIKE ? OR LOWER(make) LIKE ? OR LOWER(model) LIKE ? OR LOWER(chip) LIKE ?)";
-            params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+            whereClause += " AND (LOWER(r.fcc_id) LIKE ? OR LOWER(r.frequency) LIKE ?)";
+            params.push(`%${q}%`, `%${q}%`);
           }
 
-          // Get unique FCC IDs with aggregated data from unified vehicles table
+          // Main query: fcc_registry joined with fcc_cross_reference for vehicle info
           const sql = `
           SELECT 
-            fcc_id,
-            MIN(frequency) as frequency,
-            MIN(chip) as chip,
-            GROUP_CONCAT(DISTINCT make || ' ' || model || ' (' || year_start || '-' || year_end || ')') as vehicles,
-            MIN(oem_part_number) as primary_oem_part,
-            MIN(make) as primary_make,
-            MAX(has_image) as has_image,
-            COUNT(*) as vehicle_count
-          FROM vehicles
+            r.fcc_id,
+            r.frequency,
+            r.image_r2_key,
+            (SELECT GROUP_CONCAT(DISTINCT x.make || ' ' || x.model || ' (' || x.year_start || '-' || x.year_end || ')')
+             FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)) as vehicles,
+            (SELECT x.chip FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id) LIMIT 1) as chip,
+            (SELECT COUNT(*) FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)) as vehicle_count
+          FROM fcc_registry r
           ${whereClause}
-          GROUP BY fcc_id
-          ORDER BY fcc_id
+          ORDER BY r.fcc_id
           LIMIT ? OFFSET ?
         `;
 
-          const countSql = `
-          SELECT COUNT(DISTINCT fcc_id) as cnt 
-          FROM vehicles
-          ${whereClause}
-        `;
+          // Count query
+          const countSql = `SELECT COUNT(*) as cnt FROM fcc_registry r ${whereClause}`;
           const countResult = await env.LOCKSMITH_DB.prepare(countSql).bind(...params).first<{ cnt: number }>();
           const total = countResult?.cnt || 0;
 
           const dataResult = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit, offset).all();
 
-          return new Response(JSON.stringify({ total, rows: dataResult.results || [] }), {
+          // Transform to include image URLs
+          const WORKER_BASE = "https://locksmith-api.eurokeys.workers.dev";
+          const rows = ((dataResult.results || []) as any[]).map(row => ({
+            ...row,
+            image_url: row.image_r2_key
+              ? `${WORKER_BASE}/api/r2/${encodeURIComponent(row.image_r2_key)}`
+              : null
+          }));
+
+          return new Response(JSON.stringify({ total, rows }), {
             headers: {
               "content-type": "application/json",
               "Cache-Control": "public, max-age=300",
@@ -5060,6 +5065,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }
       }
+
 
       // FCC Detail endpoint - returns all OEM parts with ASINs for a specific FCC ID
       if (path.startsWith("/api/fcc-detail/")) {
