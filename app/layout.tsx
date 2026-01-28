@@ -3,6 +3,7 @@ import './globals.css';
 
 import { Providers } from '@/components/Providers';
 import { GoogleSignInButton } from '@/components/shared/GoogleSignInButton';
+import MobileNavBar from '@/components/layout/MobileNavBar';
 
 export const metadata: Metadata = {
     title: 'EuroKeys - Locksmith Database',
@@ -22,6 +23,13 @@ export default function RootLayout({
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
                     rel="stylesheet"
                 />
+                {/* PWA meta tags */}
+                <meta name="theme-color" content="#0a0a0f" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+                <link rel="manifest" href="/manifest.json" />
+                <link rel="apple-touch-icon" href="/icon-192.png" />
             </head>
             <body>
                 <Providers>
@@ -32,11 +40,12 @@ export default function RootLayout({
                                 {/* Logo */}
                                 <a href="/" className="flex items-center gap-2 text-xl font-bold text-eurokeys-purple-light">
                                     <span>🔑</span>
-                                    EURO KEYS
+                                    <span className="hidden sm:inline">EURO KEYS</span>
+                                    <span className="sm:hidden">EK</span>
                                 </a>
 
-                                {/* Center Navigation */}
-                                <div className="flex gap-6">
+                                {/* Center Navigation - Hidden on mobile */}
+                                <div className="hidden lg:flex gap-6">
                                     <a href="/browse" className="text-sm text-slate-400 hover:text-white">
                                         📁 Browse Database
                                     </a>
@@ -66,11 +75,14 @@ export default function RootLayout({
                         </div>
                     </nav>
 
-                    {/* Main Content */}
-                    <main className="min-h-screen">{children}</main>
+                    {/* Main Content - Add bottom padding on mobile for nav bar */}
+                    <main className="min-h-screen pb-20 lg:pb-0">{children}</main>
 
-                    {/* Footer */}
-                    <footer className="border-t border-eurokeys-border py-6 text-center text-sm text-slate-500">
+                    {/* Mobile Bottom Nav Bar */}
+                    <MobileNavBar />
+
+                    {/* Footer - Hidden on mobile */}
+                    <footer className="hidden lg:block border-t border-eurokeys-border py-6 text-center text-sm text-slate-500">
                         © 2026 Euro Keys - Professional Automotive Locksmith
                     </footer>
                 </Providers>
@@ -78,3 +90,4 @@ export default function RootLayout({
         </html>
     );
 }
+

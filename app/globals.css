@@ -55,6 +55,7 @@ body {
         transform: translateY(100%);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -63,4 +64,76 @@ body {
 
 .animate-slide-up {
     animation: slide-up 0.25s ease-out;
+}
+
+/* ================================
+   MOBILE APP-LIKE STYLES
+   ================================ */
+
+/* Safe area padding for notched phones */
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Touch optimization */
+@media (max-width: 1023px) {
+
+    /* Faster touch response */
+    button,
+    a,
+    [role="button"] {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Minimum touch target size */
+    .touch-target {
+        min-height: 48px;
+        min-width: 48px;
+    }
+
+    /* Prevent text selection on nav items */
+    nav a,
+    nav button {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+/* Pull to refresh indicator */
+@keyframes pull-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.pull-refresh-spinner {
+    animation: pull-spin 1s linear infinite;
+}
+
+/* Active state for touch feedback */
+@media (hover: none) and (pointer: coarse) {
+    .glass:active {
+        background: rgba(30, 30, 45, 0.9);
+        transform: scale(0.98);
+        transition: all 0.1s ease;
+    }
+}
+
+/* Hide scrollbar on mobile for horizontal scroll areas */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
 }
