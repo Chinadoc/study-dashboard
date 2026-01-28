@@ -4088,13 +4088,12 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (row.battery) group.batteries.add(row.battery);
               if (row.frequency) group.frequencies.add(row.frequency);
 
-              // Collect images (prefer R2, fallback to CDN) - max 1 per group
-              if (group.images.length === 0) {
-                if (row.image_r2_key) {
-                  group.images.push(`${WORKER_BASE}/api/r2/${encodeURIComponent(row.image_r2_key)}`);
-                } else if (row.cdn_image) {
-                  group.images.push(row.cdn_image);
-                }
+
+              // Collect images - gather R2 and CDN separately for best selection
+              if (row.image_r2_key) {
+                group.images.push(`r2:${row.image_r2_key}`);
+              } else if (row.cdn_image) {
+                group.images.push(`cdn:${row.cdn_image}`);
               }
 
               group.productCount++;
@@ -4103,6 +4102,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             // Flatten to array format
             for (const [keyType, buttonGroups] of Object.entries(keyTypeGroups)) {
               for (const [btnKey, group] of Object.entries(buttonGroups)) {
+                // Pick best image: prefer R2 (any), then CDN (any)
+                const r2Image = group.images.find(img => img.startsWith('r2:'));
+                const cdnImage = group.images.find(img => img.startsWith('cdn:'));
+                let imageUrl: string | null = null;
+                if (r2Image) {
+                  const r2Key = r2Image.substring(3);
+                  imageUrl = `${WORKER_BASE}/api/r2/${encodeURIComponent(r2Key)}`;
+                } else if (cdnImage) {
+                  imageUrl = cdnImage.substring(4);
+                }
+
                 aksKeyConfigs.push({
                   keyType,
                   buttonCount: btnKey === 'other' ? null : btnKey,
@@ -4111,7 +4121,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   chip: Array.from(group.chips)[0] || null,
                   battery: Array.from(group.batteries)[0] || null,
                   frequency: Array.from(group.frequencies)[0] || null,
-                  imageUrl: group.images[0] || null,
+                  imageUrl,
                   productCount: group.productCount
                 });
               }
