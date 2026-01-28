@@ -4030,6 +4030,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND vp.year = ?
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%shell%'
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%flip%'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%tool%'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lishi%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%shell only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%-pack%'
