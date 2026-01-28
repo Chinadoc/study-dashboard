@@ -47,6 +47,91 @@ function saveInventoryToStorage(items: InventoryItem[]) {
     localStorage.setItem(INVENTORY_KEY, JSON.stringify(items));
 }
 
+// Click-to-expand vehicles popover component
+function VehiclesPopover({
+    vehicles,
+    maxVisible = 2,
+    variant = 'list'
+}: {
+    vehicles: string;
+    maxVisible?: number;
+    variant?: 'list' | 'card'
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const vehicleList = vehicles ? vehicles.split(',').map(v => v.trim()).filter(Boolean) : [];
+    const visibleVehicles = vehicleList.slice(0, maxVisible);
+    const hiddenCount = vehicleList.length - maxVisible;
+
+    if (vehicleList.length === 0) {
+        return <span className="text-zinc-500 text-sm italic">No vehicles</span>;
+    }
+
+    return (
+        <div className="relative">
+            {variant === 'list' ? (
+                // List view - inline text with clickable +N
+                <span className="text-sm text-zinc-300">
+                    {visibleVehicles.join(', ')}
+                    {hiddenCount > 0 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                            className="ml-1 text-yellow-500 hover:text-yellow-400 font-medium transition-colors"
+                        >
+                            +{hiddenCount}
+                        </button>
+                    )}
+                </span>
+            ) : (
+                // Card view - tags with clickable +N
+                <div className="flex flex-wrap gap-2">
+                    {visibleVehicles.map((v, i) => (
+                        <Tag key={i} label={v} type="platform" />
+                    ))}
+                    {hiddenCount > 0 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                            className="text-[10px] text-yellow-500 hover:text-yellow-400 bg-zinc-800/50 hover:bg-zinc-700/50 px-2 py-1 rounded-md font-medium transition-all"
+                        >
+                            +{hiddenCount} more
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Expanded popover */}
+            {isOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsOpen(false)}
+                    />
+                    <div className="absolute z-50 left-0 top-full mt-2 w-80 max-h-64 overflow-y-auto bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl p-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">All Compatible Vehicles ({vehicleList.length})</span>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="text-zinc-500 hover:text-zinc-300 transition-colors text-lg leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {vehicleList.map((v, i) => (
+                                <span
+                                    key={i}
+                                    className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-lg"
+                                >
+                                    {v}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
 function FccContent() {
     const [data, setData] = useState<FccRow[]>([]);
     const [loading, setLoading] = useState(true);
@@ -341,10 +426,7 @@ function FccContent() {
                                                 <span className="font-mono font-bold text-yellow-500">{row.fcc_id}</span>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="text-sm text-zinc-300 line-clamp-1" title={row.vehicles}>
-                                                    {row.vehicles.split(',').slice(0, 2).join(', ')}
-                                                    {row.vehicles.split(',').length > 2 && ` +${row.vehicles.split(',').length - 2}`}
-                                                </span>
+                                                <VehiclesPopover vehicles={row.vehicles} maxVisible={2} variant="list" />
                                             </td>
                                             <td className="px-4 py-3 hidden md:table-cell">
                                                 <span className="text-sm text-zinc-400">{row.frequency}</span>
@@ -445,16 +527,7 @@ function FccContent() {
                                     <div className="space-y-4 flex-1">
                                         <div>
                                             <span className="text-[10px] font-bold text-zinc-600 uppercase mb-2 block">Compatible Vehicles</span>
-                                            <div className="flex flex-wrap gap-2">
-                                                {row.vehicles.split(',').slice(0, 4).map((v, i) => (
-                                                    <Tag key={i} label={v.trim()} type="platform" />
-                                                ))}
-                                                {row.vehicles.split(',').length > 4 && (
-                                                    <span className="text-[10px] text-zinc-600 bg-zinc-800/50 px-2 py-1 rounded-md">
-                                                        +{row.vehicles.split(',').length - 4} more
-                                                    </span>
-                                                )}
-                                            </div>
+                                            <VehiclesPopover vehicles={row.vehicles} maxVisible={4} variant="card" />
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4 border-t border-zinc-800/50 pt-4">
