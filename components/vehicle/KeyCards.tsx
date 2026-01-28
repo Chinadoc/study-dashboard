@@ -10,6 +10,7 @@ interface KeyConfig {
     buttons?: string;
     battery?: string;
     chip?: string;
+    keyway?: string;
     priceRange?: string;
     oem?: Array<{ number: string; label?: string }>;
     image?: string;
@@ -259,6 +260,12 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         <div className="text-xs truncate">
                             <span className="text-zinc-500">Chip: </span>
                             <span className="text-white">{config.chip}</span>
+                        </div>
+                    )}
+                    {config.keyway && (
+                        <div className="text-xs truncate">
+                            <span className="text-zinc-500">Blade: </span>
+                            <span className="text-white font-mono">{config.keyway}</span>
                         </div>
                     )}
                     {config.battery && (

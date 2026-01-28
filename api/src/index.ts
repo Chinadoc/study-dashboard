@@ -3998,6 +3998,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             chip: string | null;
             battery: string | null;
             frequency: string | null;
+            keyway: string | null;
             imageUrl: string | null;
             productCount: number;
           }
@@ -4017,7 +4018,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 p.frequency,
                 p.image_url as cdn_image,
                 d.image_r2_key,
-                d.chip
+                d.chip,
+                d.keyway
               FROM aks_vehicle_products vp
               JOIN aks_products p ON vp.product_page_id = p.page_id
               LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
@@ -4038,6 +4040,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               chips: Set<string>;
               batteries: Set<string>;
               frequencies: Set<string>;
+              keyways: Set<string>;
               images: string[];
               productCount: number;
             }>> = {};
@@ -4069,6 +4072,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   chips: new Set(),
                   batteries: new Set(),
                   frequencies: new Set(),
+                  keyways: new Set(),
                   images: [],
                   productCount: 0
                 };
@@ -4087,6 +4091,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (row.chip) group.chips.add(row.chip);
               if (row.battery) group.batteries.add(row.battery);
               if (row.frequency) group.frequencies.add(row.frequency);
+              if (row.keyway) group.keyways.add(row.keyway);
 
 
               // Collect images - gather R2 and CDN separately for best selection
@@ -4121,6 +4126,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   chip: Array.from(group.chips)[0] || null,
                   battery: Array.from(group.batteries)[0] || null,
                   frequency: Array.from(group.frequencies)[0] || null,
+                  keyway: Array.from(group.keyways)[0] || null,
                   imageUrl,
                   productCount: group.productCount
                 });

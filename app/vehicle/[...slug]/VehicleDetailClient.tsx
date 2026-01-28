@@ -67,6 +67,7 @@ function transformAksKeyConfigs(configs: any[]): any[] {
                 name,
                 fcc: (c.fccIds || []).join(', ') || undefined,
                 chip: c.chip || undefined,
+                keyway: c.keyway || undefined,
                 battery: c.battery || undefined,
                 frequency: c.frequency ? `${c.frequency} MHz` : undefined,
                 buttons: c.buttonCount || undefined,
