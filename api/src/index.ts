@@ -3999,6 +3999,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             battery: string | null;
             frequency: string | null;
             keyway: string | null;
+            partNumber: string | null;
             imageUrl: string | null;
             productCount: number;
           }
@@ -4019,7 +4020,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 p.image_url as cdn_image,
                 d.image_r2_key,
                 d.chip,
-                d.keyway
+                d.keyway,
+                d.model_num
               FROM aks_vehicle_products vp
               JOIN aks_products p ON vp.product_page_id = p.page_id
               LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
@@ -4027,9 +4029,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(vp.model) LIKE LOWER(?) 
                 AND vp.year = ?
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%shell%'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%flip%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%shell only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%-pack%'
+                AND LOWER(COALESCE(p.title, '')) NOT LIKE '%flip blade%'
               ORDER BY p.product_type, p.buttons DESC
             `).bind(make, `%${model}%`, year).all<any>();
 
@@ -4041,6 +4045,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               batteries: Set<string>;
               frequencies: Set<string>;
               keyways: Set<string>;
+              modelNums: Set<string>;
               images: string[];
               productCount: number;
             }>> = {};
@@ -4073,6 +4078,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   batteries: new Set(),
                   frequencies: new Set(),
                   keyways: new Set(),
+                  modelNums: new Set(),
                   images: [],
                   productCount: 0
                 };
@@ -4092,6 +4098,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               if (row.battery) group.batteries.add(row.battery);
               if (row.frequency) group.frequencies.add(row.frequency);
               if (row.keyway) group.keyways.add(row.keyway);
+              if (row.model_num) group.modelNums.add(row.model_num);
 
 
               // Collect images - gather R2 and CDN separately for best selection
@@ -4127,6 +4134,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                   battery: Array.from(group.batteries)[0] || null,
                   frequency: Array.from(group.frequencies)[0] || null,
                   keyway: Array.from(group.keyways)[0] || null,
+                  partNumber: Array.from(group.modelNums)[0] || null,
                   imageUrl,
                   productCount: group.productCount
                 });
@@ -4143,6 +4151,60 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               const orderB = typeOrder[b.keyType] || 10;
               if (orderA !== orderB) return orderA - orderB;
               return (parseInt(b.buttonCount || '0') || 0) - (parseInt(a.buttonCount || '0') || 0);
+            });
+          }
+
+          // Query for Tools (Lishi) based on keyways found in the keys
+          interface AksTool {
+            name: string;
+            partNumber: string | null;
+            imageUrl: string | null;
+            keyways: string[];
+          }
+          let aksTools: AksTool[] = [];
+
+          // Collect keyways from the key configs to match tools
+          const vehicleKeyways = new Set<string>();
+          aksKeyConfigs.forEach(kc => {
+            if (kc.keyway) {
+              // Split keyway like "H128-PT/HU101" into individual parts
+              kc.keyway.split(/[\/;,]/).forEach(k => vehicleKeyways.add(k.trim()));
+            }
+          });
+
+          if (vehicleKeyways.size > 0) {
+            // Query tools that match any of the keyways
+            const keywayPatterns = Array.from(vehicleKeyways).map(k => `%${k}%`);
+            const toolsQuery = `
+              SELECT DISTINCT
+                p.title,
+                p.image_url as cdn_image,
+                d.model_num,
+                d.image_r2_key,
+                d.keyway
+              FROM aks_products p
+              LEFT JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
+              WHERE (LOWER(p.product_type) LIKE '%tool%' OR LOWER(p.product_type) LIKE '%lishi%')
+                AND (${keywayPatterns.map(() => `LOWER(p.title) LIKE ?`).join(' OR ')})
+              LIMIT 5
+            `;
+            const toolsResult = await env.LOCKSMITH_DB.prepare(toolsQuery)
+              .bind(...keywayPatterns.map(k => k.toLowerCase()))
+              .all<any>();
+
+            aksTools = (toolsResult.results || []).map(row => {
+              let imageUrl: string | null = null;
+              if (row.image_r2_key) {
+                imageUrl = `${WORKER_BASE}/api/r2/${encodeURIComponent(row.image_r2_key)}`;
+              } else if (row.cdn_image) {
+                imageUrl = row.cdn_image;
+              }
+              return {
+                name: row.title,
+                partNumber: row.model_num || null,
+                imageUrl,
+                keyways: row.keyway ? row.keyway.split(/[\/;,]/).map((k: string) => k.trim()) : []
+              };
             });
           }
 
@@ -4432,6 +4494,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
             // AKS key configs grouped by key type → button count (with R2 images)
             aks_key_configs: aksKeyConfigs.length > 0 ? aksKeyConfigs : null,
+
+            // Tools (Lishi) matched by keyway
+            aks_tools: aksTools.length > 0 ? aksTools : null,
 
             // Programming info from vehicles table
             programming: vehicleData ? {

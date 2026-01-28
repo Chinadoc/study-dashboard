@@ -68,6 +68,7 @@ function transformAksKeyConfigs(configs: any[]): any[] {
                 fcc: (c.fccIds || []).join(', ') || undefined,
                 chip: c.chip || undefined,
                 keyway: c.keyway || undefined,
+                partNumber: c.partNumber || undefined,
                 battery: c.battery || undefined,
                 frequency: c.frequency ? `${c.frequency} MHz` : undefined,
                 buttons: c.buttonCount || undefined,
@@ -562,6 +563,7 @@ export default function VehicleDetailClient() {
 
     // Merge keys: prioritize aks_key_configs (AKS with R2 images), fallback to products, then products_by_type, then VYP
     const keysFromAks = transformAksKeyConfigs(data.detail?.aks_key_configs || []);
+    const aksTools = data.detail?.aks_tools || [];
     const keysFromProducts = transformProducts(data.products?.products || [], model);
     const keysFromPBT = transformProductsByType(productsByType);
     const keysFromVYP = classifyVypProducts(vyp, specs);
@@ -820,6 +822,47 @@ export default function VehicleDetailClient() {
                             access: routedPearls.access,
                         }}
                     />
+
+                    {/* Tools Section - Lishi picks matched by keyway */}
+                    {aksTools.length > 0 && (
+                        <section className="glass p-6 mb-6">
+                            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <span>🔧</span> Tools
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {aksTools.map((tool: any, idx: number) => (
+                                    <div key={idx} className="bg-zinc-800/50 rounded-lg p-4 hover:border-purple-500/50 border border-transparent transition-all">
+                                        <div className="flex gap-3">
+                                            {tool.imageUrl && (
+                                                <div className="w-20 h-20 shrink-0 rounded bg-zinc-700/50 flex items-center justify-center overflow-hidden">
+                                                    <img
+                                                        src={tool.imageUrl}
+                                                        alt={tool.name}
+                                                        className="max-h-full max-w-full object-contain"
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-white text-sm truncate">{tool.name}</h3>
+                                                {tool.partNumber && (
+                                                    <p className="text-xs text-zinc-400 font-mono mt-1">{tool.partNumber}</p>
+                                                )}
+                                                {tool.keyways?.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1 mt-2">
+                                                        {tool.keyways.map((kw: string, i: number) => (
+                                                            <span key={i} className="px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded text-[10px] font-mono">
+                                                                {kw}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {/* Programming Procedures */}
                     <VehicleProcedures procedures={{

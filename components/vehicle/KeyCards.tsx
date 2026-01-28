@@ -11,6 +11,7 @@ interface KeyConfig {
     battery?: string;
     chip?: string;
     keyway?: string;
+    partNumber?: string;
     priceRange?: string;
     oem?: Array<{ number: string; label?: string }>;
     image?: string;
@@ -268,6 +269,12 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
 
             {/* Specs Grid */}
             <div className="space-y-1 mb-3">
+                {config.partNumber && (
+                    <div className="text-xs truncate">
+                        <span className="text-zinc-500">Part#: </span>
+                        <span className="text-white font-mono">{config.partNumber}</span>
+                    </div>
+                )}
                 {config.chip && (
                     <div className="text-xs truncate">
                         <span className="text-zinc-500">Chip: </span>
