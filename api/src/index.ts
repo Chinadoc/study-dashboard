@@ -5012,7 +5012,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const offset = parseInt(url.searchParams.get("offset") || "0", 10) || 0;
 
           // Build where clause for fcc_registry
-          let whereClause = "WHERE 1=1";
+          // Exclude malformed FCC IDs (starting with parenthesis or too short)
+          let whereClause = "WHERE r.fcc_id NOT LIKE '(%' AND LENGTH(r.fcc_id) >= 5";
           const params: string[] = [];
 
           if (q) {
@@ -5044,7 +5045,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const dataResult = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit, offset).all();
 
           // Transform to include image URLs
-          const WORKER_BASE = "https://locksmith-api.eurokeys.workers.dev";
+          const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
           const rows = ((dataResult.results || []) as any[]).map(row => ({
             ...row,
             image_url: row.image_r2_key

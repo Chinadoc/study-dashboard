@@ -234,7 +234,7 @@ function BittingItem({ label, value }: { label: string; value: string | number }
     );
 }
 
-// FCC ID display with popup for multiple FCCs
+// FCC ID display with INLINE EXPANSION (no overlay popup)
 function FccIdWithPopup({
     primaryFcc,
     allFccs,
@@ -244,7 +244,7 @@ function FccIdWithPopup({
     allFccs?: FccEntry[];
     pearl?: Pearl;
 }) {
-    const [showPopup, setShowPopup] = useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     // Count additional FCCs (excluding primary if it's in the list)
     const additionalCount = allFccs ? allFccs.length - 1 : 0;
@@ -261,92 +261,56 @@ function FccIdWithPopup({
     }, {} as Record<string, FccEntry[]>);
 
     return (
-        <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+        <div className={`bg-zinc-800/60 rounded-xl border border-zinc-700/50 transition-all duration-300 ${expanded ? 'p-4 col-span-2 lg:col-span-3' : 'p-4'}`}>
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
                 FCC ID
             </div>
 
-            {/* Clickable FCC display */}
+            {/* Clickable FCC display - toggles inline expansion */}
             <button
-                onClick={() => hasMultiple && setShowPopup(!showPopup)}
+                onClick={() => hasMultiple && setExpanded(!expanded)}
                 className={`font-semibold font-mono text-sm text-white flex items-center gap-2 ${hasMultiple ? 'cursor-pointer hover:text-blue-400 transition-colors' : 'cursor-default'}`}
             >
                 📡 {primaryFcc}
                 {hasMultiple && (
-                    <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full font-sans">
-                        +{additionalCount}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${expanded ? 'bg-blue-500 text-white' : 'bg-blue-600 text-white'}`}>
+                        {expanded ? '−' : `+${additionalCount}`}
                     </span>
                 )}
             </button>
 
-            {/* Pearl display */}
-            {pearl && (
+            {/* Pearl display - hide when expanded */}
+            {pearl && !expanded && (
                 <div className="mt-2 text-[11px] text-blue-300 bg-blue-900/20 p-2 rounded border border-blue-800/30">
                     📶 {pearl.content}
                 </div>
             )}
 
-            {/* Popup overlay - mobile friendly */}
-            {showPopup && (
-                <>
-                    {/* Backdrop */}
-                    <div
-                        className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
-                        onClick={() => setShowPopup(false)}
-                    />
-
-                    {/* Bottom Sheet for mobile, dropdown for desktop */}
-                    <div className="fixed bottom-0 left-0 right-0 sm:absolute sm:bottom-auto sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-t-2xl sm:rounded-xl shadow-2xl z-50 max-h-[70vh] sm:max-h-[60vh] overflow-hidden animate-slide-up sm:animate-none">
-                        {/* Drag handle for mobile */}
-                        <div className="sm:hidden flex justify-center py-2">
-                            <div className="w-10 h-1 bg-zinc-600 rounded-full" />
-                        </div>
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-                            <h4 className="font-bold text-white text-lg">All FCC IDs</h4>
-                            <button
-                                onClick={() => setShowPopup(false)}
-                                className="text-zinc-400 hover:text-white text-2xl leading-none p-1"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        {/* FCC list grouped by category - scrollable */}
-                        <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(70vh-80px)] sm:max-h-[calc(60vh-60px)]">
-                            {groupedFccs && Object.entries(groupedFccs).map(([category, fccs]) => (
-                                <div key={category}>
-                                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                        {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : '📶'}
-                                        {category}
+            {/* INLINE EXPANSION - shows all FCCs grouped by key type */}
+            {expanded && groupedFccs && (
+                <div className="mt-4 pt-3 border-t border-zinc-700/50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {Object.entries(groupedFccs).map(([category, fccs]) => (
+                        <div key={category} className="bg-zinc-900/50 p-3 rounded-lg">
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : '📶'}
+                                {category}
+                            </div>
+                            <div className="space-y-1">
+                                {fccs.map((entry, idx) => (
+                                    <div key={`${entry.fcc}-${idx}`} className="text-sm">
+                                        <span className="font-mono text-white font-medium">{entry.fcc}</span>
                                     </div>
-                                    <div className="space-y-2">
-                                        {fccs.map((entry, idx) => (
-                                            <div
-                                                key={`${entry.fcc}-${idx}`}
-                                                className="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/50"
-                                            >
-                                                <div className="font-mono font-bold text-white text-sm">
-                                                    {entry.fcc}
-                                                </div>
-                                                <div className="text-[11px] text-zinc-400 mt-1">
-                                                    {entry.keyType}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </>
+                    ))}
+                </div>
             )}
         </div>
     );
 }
 
-// Chip Type display with popup for multiple chips
+// Chip Type display with INLINE EXPANSION (no overlay popup)
 function ChipTypeWithPopup({
     primaryChip,
     allChips,
@@ -360,7 +324,7 @@ function ChipTypeWithPopup({
     year?: number;
     pearl?: Pearl;
 }) {
-    const [showPopup, setShowPopup] = useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     // Count additional chips (excluding duplicates)
     const uniqueChips = allChips ? [...new Set(allChips.map(c => c.chip))] : [primaryChip];
@@ -382,86 +346,50 @@ function ChipTypeWithPopup({
     }, {} as Record<string, ChipEntry[]>);
 
     return (
-        <div className="relative bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+        <div className={`bg-zinc-800/60 rounded-xl border border-zinc-700/50 transition-all duration-300 ${expanded ? 'p-4 col-span-2 lg:col-span-3' : 'p-4'}`}>
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
                 Chip Type
             </div>
 
-            {/* Clickable chip display */}
+            {/* Clickable chip display - toggles inline expansion */}
             <button
-                onClick={() => hasMultiple && setShowPopup(!showPopup)}
+                onClick={() => hasMultiple && setExpanded(!expanded)}
                 className={`font-semibold text-white flex items-center gap-2 text-left ${hasMultiple ? 'cursor-pointer hover:text-purple-400 transition-colors' : 'cursor-default'}`}
             >
                 <GlossaryChipType chipType={primaryChip} make={make} year={year} />
                 {hasMultiple && (
-                    <span className="text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded-full font-sans">
-                        +{additionalCount}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all ${expanded ? 'bg-purple-500 text-white' : 'bg-purple-600 text-white'}`}>
+                        {expanded ? '−' : `+${additionalCount}`}
                     </span>
                 )}
             </button>
 
             {/* Pearl display */}
-            {pearl && (
+            {pearl && !expanded && (
                 <div className="mt-2 text-[11px] text-purple-300 bg-purple-900/20 p-2 rounded border border-purple-800/30">
                     💡 {pearl.content}
                 </div>
             )}
 
-            {/* Popup overlay - mobile friendly */}
-            {showPopup && (
-                <>
-                    {/* Backdrop */}
-                    <div
-                        className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
-                        onClick={() => setShowPopup(false)}
-                    />
-
-                    {/* Bottom Sheet for mobile, dropdown for desktop */}
-                    <div className="fixed bottom-0 left-0 right-0 sm:absolute sm:bottom-auto sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-t-2xl sm:rounded-xl shadow-2xl z-50 max-h-[70vh] sm:max-h-[60vh] overflow-hidden animate-slide-up sm:animate-none">
-                        {/* Drag handle for mobile */}
-                        <div className="sm:hidden flex justify-center py-2">
-                            <div className="w-10 h-1 bg-zinc-600 rounded-full" />
-                        </div>
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-                            <h4 className="font-bold text-white text-lg">All Chip Types</h4>
-                            <button
-                                onClick={() => setShowPopup(false)}
-                                className="text-zinc-400 hover:text-white text-2xl leading-none p-1"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        {/* Chip list grouped by category - scrollable */}
-                        <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(70vh-80px)] sm:max-h-[calc(60vh-60px)]">
-                            {groupedChips && Object.entries(groupedChips).map(([category, chips]) => (
-                                <div key={category}>
-                                    <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                        {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : category.includes('Transponder') ? '🔒' : '📶'}
-                                        {category}
+            {/* INLINE EXPANSION - shows all chips grouped by key type */}
+            {expanded && groupedChips && (
+                <div className="mt-4 pt-3 border-t border-zinc-700/50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {Object.entries(groupedChips).map(([category, chips]) => (
+                        <div key={category} className="bg-zinc-900/50 p-3 rounded-lg">
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                {category.includes('Smart') ? '📡' : category.includes('Remote Head') ? '🔑' : category.includes('Transponder') ? '🔒' : '📶'}
+                                {category}
+                            </div>
+                            <div className="space-y-1">
+                                {chips.map((entry, idx) => (
+                                    <div key={`${entry.chip}-${idx}`} className="text-sm">
+                                        <span className="text-white font-medium">🔒 {entry.chip}</span>
                                     </div>
-                                    <div className="space-y-2">
-                                        {chips.map((entry, idx) => (
-                                            <div
-                                                key={`${entry.chip}-${idx}`}
-                                                className="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/50"
-                                            >
-                                                <div className="font-semibold text-white text-sm">
-                                                    🔒 {entry.chip}
-                                                </div>
-                                                <div className="text-[11px] text-zinc-400 mt-1">
-                                                    {entry.keyType}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </>
+                    ))}
+                </div>
             )}
         </div>
     );

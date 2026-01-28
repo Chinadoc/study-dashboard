@@ -894,9 +894,9 @@ export default function VehicleDetailClient() {
                             menu_path: addKeyWalkthrough.menu_path || addKeyWalkthrough.platform_code,
                             pearls: routedPearls.addKey
                         } : routedPearls.addKey.length > 0 ? {
-                            // Third fallback: Build procedure from pearls
+                            // Third fallback: Build procedure from pearls (pass as rawText for parsing)
                             title: 'Add Key Procedure',
-                            steps: routedPearls.addKey.map((p: any) => p.content || p.pearl_content || '').filter(Boolean),
+                            rawText: routedPearls.addKey.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
                             pearls: routedPearls.addKey
                         } : undefined,
                         akl: aklProcedure ? {
@@ -914,10 +914,10 @@ export default function VehicleDetailClient() {
                             menu_path: aklWalkthrough.menu_path || aklWalkthrough.platform_code,
                             pearls: routedPearls.akl
                         } : routedPearls.akl.length > 0 ? {
-                            // Third fallback: Build procedure from pearls
+                            // Third fallback: Build procedure from pearls (pass as rawText for parsing)
                             title: 'All Keys Lost (AKL) Procedure',
                             risk_level: 'high' as const,
-                            steps: routedPearls.akl.map((p: any) => p.content || p.pearl_content || '').filter(Boolean),
+                            rawText: routedPearls.akl.map((p: any) => p.content || p.pearl_content || '').filter(Boolean).join('\n'),
                             pearls: routedPearls.akl
                         } : undefined,
                     }} />
