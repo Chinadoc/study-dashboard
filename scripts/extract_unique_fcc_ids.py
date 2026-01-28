@@ -228,8 +228,8 @@ def main():
     ]
     
     for entry in fcc_entries:
-        sql = f"""INSERT OR REPLACE INTO fcc_registry (fcc_id, frequency, image_r2_key)
-VALUES ({escape_sql(entry['fcc_id'])}, {escape_sql(entry['frequency'])}, {escape_sql(entry['image_r2_key'])});"""
+        sql = f"""INSERT OR REPLACE INTO fcc_registry (fcc_id, frequency, chip, image_r2_key)
+VALUES ({escape_sql(entry['fcc_id'])}, {escape_sql(entry['frequency'])}, {escape_sql(entry['chip'])}, {escape_sql(entry['image_r2_key'])});"""
         sql_lines.append(sql)
     
     # Write output

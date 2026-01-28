@@ -5030,15 +5030,24 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             params.push(`%${q}%`, `%${q}%`);
           }
 
-          // Main query: fcc_registry joined with fcc_cross_reference for vehicle info
+          // Main query: fcc_registry joined with aks_products/aks_products_detail for chip
+          // and fcc_cross_reference for vehicle info
           const sql = `
           SELECT 
             r.fcc_id,
             r.frequency,
             r.image_r2_key,
+            COALESCE(
+              (SELECT d.chip FROM aks_products p 
+               JOIN aks_products_detail d ON CAST(p.item_id AS TEXT) = d.item_number
+               WHERE UPPER(p.fcc_id) LIKE '%' || UPPER(r.fcc_id) || '%' 
+               AND d.chip IS NOT NULL AND d.chip != ''
+               LIMIT 1),
+              r.chip,
+              ''
+            ) as chip,
             COALESCE((SELECT GROUP_CONCAT(DISTINCT x.make || ' ' || x.model || ' (' || x.year_start || '-' || x.year_end || ')')
              FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)), '') as vehicles,
-            COALESCE((SELECT x.chip FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id) LIMIT 1), '') as chip,
             (SELECT COUNT(*) FROM fcc_cross_reference x WHERE UPPER(x.fcc_id) = UPPER(r.fcc_id)) as vehicle_count
           FROM fcc_registry r
           ${whereClause}

@@ -302,6 +302,7 @@ function FccContent() {
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-zinc-800 bg-zinc-900/80">
+                                    <th className="text-left px-2 py-3 text-xs font-bold text-zinc-500 uppercase w-12"></th>
                                     <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase">FCC ID</th>
                                     <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase">Vehicles</th>
                                     <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase hidden md:table-cell">Freq</th>
@@ -315,6 +316,20 @@ function FccContent() {
                                     const stock = getStock(row.fcc_id);
                                     return (
                                         <tr key={row.fcc_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                                            <td className="px-2 py-2 w-12">
+                                                {row.image_url ? (
+                                                    <img
+                                                        src={row.image_url}
+                                                        alt={row.fcc_id}
+                                                        className="w-10 h-10 object-contain rounded-lg bg-zinc-800"
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).style.display = 'none';
+                                                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                        }}
+                                                    />
+                                                ) : null}
+                                                <span className={row.image_url ? 'hidden' : 'text-xl'}>🔑</span>
+                                            </td>
                                             <td className="px-4 py-3">
                                                 <span className="font-mono font-bold text-yellow-500">{row.fcc_id}</span>
                                             </td>
