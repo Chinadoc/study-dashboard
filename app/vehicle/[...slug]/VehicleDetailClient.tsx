@@ -717,14 +717,34 @@ export default function VehicleDetailClient() {
         transmitter: pearlsList.filter((p: any) =>
             getTags(p).some((t: string) => ['transmitter-pocket', 'console', 'hidden'].includes(t))
         ),
-        // AKL procedure pearls
-        akl: pearlsList.filter((p: any) =>
-            p.target_section === 'akl_procedure'
-        ),
-        // Add key procedure pearls
-        addKey: pearlsList.filter((p: any) =>
-            p.target_section === 'add_key_procedure'
-        ),
+        // AKL procedure pearls - match by target_section OR category/tags
+        akl: pearlsList.filter((p: any) => {
+            if (p.target_section === 'akl_procedure') return true;
+            const cat = (p.category || '').toLowerCase();
+            const content = (p.content || p.pearl_content || '').toLowerCase();
+            const tags = getTags(p);
+            // Include procedure pearls that mention AKL/all keys lost
+            return (cat === 'procedure' && (
+                content.includes('all keys lost') ||
+                content.includes('akl') ||
+                tags.includes('akl')
+            ));
+        }),
+        // Add key procedure pearls - match by target_section OR category/tags
+        addKey: pearlsList.filter((p: any) => {
+            if (p.target_section === 'add_key_procedure') return true;
+            const cat = (p.category || '').toLowerCase();
+            const content = (p.content || p.pearl_content || '').toLowerCase();
+            const tags = getTags(p);
+            // Include procedure pearls that mention add key/spare key
+            return (cat === 'procedure' && (
+                content.includes('add a key') ||
+                content.includes('add key') ||
+                content.includes('spare key') ||
+                tags.includes('add_key') ||
+                tags.includes('add key')
+            ));
+        }),
         // OBP/free method pearls → Procedures AKL
         obp: pearlsList.filter((p: any) =>
             getTags(p).some((t: string) => ['obp', 'onboard-programming', '30-minute', 'relearn'].includes(t))

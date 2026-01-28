@@ -215,66 +215,77 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
             {...wrapperProps}
             className="glass p-5 hover:border-purple-500/50 transition-all group block relative"
         >
-            {/* Header */}
-            <div className="flex justify-between items-start mb-4">
-                <div>
-                    <h3 className="font-bold text-lg text-white group-hover:text-purple-300 transition-colors">
-                        {config.name || 'Smart Key'}
+            {/* Header with Key Type Badge */}
+            <div className="flex justify-between items-start mb-3">
+                <div className="flex-1 min-w-0">
+                    {/* Button count as title */}
+                    <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors">
+                        {config.buttons ? `${config.buttons}-Button` : config.name?.split(' ')[0] || 'Key'}
                     </h3>
-                    {config.buttons && (
-                        <p className="text-xs text-zinc-500 mt-1">{config.buttons}</p>
-                    )}
+                    {/* Key type as subtitle */}
+                    <p className="text-sm text-zinc-400 mt-0.5">
+                        {config.name?.replace(/^\d+-Button\s*/i, '') || 'Key'}
+                    </p>
                 </div>
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${typeColors[typeLabel] || typeColors.prox}`}>
-                    {typeLabel}
+                {/* Key Type Badge - Smart Key, Remote Head, etc. */}
+                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border whitespace-nowrap ${typeColors[typeLabel] || typeColors.prox}`}>
+                    {(() => {
+                        const name = config.name?.toLowerCase() || '';
+                        if (name.includes('smart')) return 'SMART';
+                        if (name.includes('remote head')) return 'RHK';
+                        if (name.includes('transponder')) return 'TPK';
+                        if (name.includes('emergency')) return 'BLADE';
+                        if (name.includes('flip')) return 'FLIP';
+                        return typeLabel;
+                    })()}
                 </span>
             </div>
 
-            {/* Compact Key Image + FCC inline */}
-            <div className="flex gap-3 mb-3">
-                {/* Smaller key image */}
-                <div className="w-16 h-16 shrink-0 rounded-lg bg-zinc-800/50 flex items-center justify-center overflow-hidden">
-                    {config.image ? (
-                        <img
-                            src={config.image}
-                            alt={config.name}
-                            className="max-h-full max-w-full object-contain"
-                        />
-                    ) : (
-                        <span className="text-2xl opacity-30">🔑</span>
-                    )}
-                </div>
-                {/* Core specs inline */}
-                <div className="flex-1 min-w-0 space-y-1">
-                    {config.fcc && (() => {
-                        const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
-                        return (
-                            <div className="text-xs">
-                                <span className="text-zinc-500">FCC: </span>
-                                <span className="font-mono text-yellow-500 font-bold">{fccIds[0]}</span>
-                                {fccIds.length > 1 && <span className="text-yellow-400/60 ml-1">+{fccIds.length - 1}</span>}
-                            </div>
-                        );
-                    })()}
-                    {config.chip && (
-                        <div className="text-xs truncate">
-                            <span className="text-zinc-500">Chip: </span>
-                            <span className="text-white">{config.chip}</span>
-                        </div>
-                    )}
-                    {config.keyway && (
-                        <div className="text-xs truncate">
-                            <span className="text-zinc-500">Blade: </span>
-                            <span className="text-white font-mono">{config.keyway}</span>
-                        </div>
-                    )}
-                    {config.battery && (
-                        <div className="text-xs">
-                            <span className="text-zinc-500">Battery: </span>
-                            <span className="text-white">{config.battery}</span>
-                        </div>
-                    )}
-                </div>
+            {/* Large Key Image - Hero Style */}
+            <div className="w-full h-28 rounded-lg bg-zinc-800/50 flex items-center justify-center overflow-hidden mb-3">
+                {config.image ? (
+                    <img
+                        src={config.image}
+                        alt={config.name}
+                        className="max-h-full max-w-full object-contain"
+                    />
+                ) : (
+                    <span className="text-4xl opacity-30">🔑</span>
+                )}
+            </div>
+
+            {/* Prominent FCC ID */}
+            {config.fcc && (() => {
+                const fccIds = [...new Set(config.fcc.split(/[\s,]+/).filter(Boolean))];
+                return (
+                    <div className="text-center mb-3 py-2 bg-zinc-800/70 rounded-lg">
+                        <span className="text-[10px] text-zinc-500 block">FCC ID</span>
+                        <span className="font-mono text-yellow-500 font-bold text-lg">{fccIds[0]}</span>
+                        {fccIds.length > 1 && <span className="text-yellow-400/60 text-sm ml-1">+{fccIds.length - 1}</span>}
+                    </div>
+                );
+            })()}
+
+            {/* Specs Grid */}
+            <div className="space-y-1 mb-3">
+                {config.chip && (
+                    <div className="text-xs truncate">
+                        <span className="text-zinc-500">Chip: </span>
+                        <span className="text-white">{config.chip}</span>
+                    </div>
+                )}
+                {config.keyway && (
+                    <div className="text-xs truncate">
+                        <span className="text-zinc-500">Blade: </span>
+                        <span className="text-white font-mono">{config.keyway}</span>
+                    </div>
+                )}
+                {config.battery && (
+                    <div className="text-xs">
+                        <span className="text-zinc-500">Battery: </span>
+                        <span className="text-white">{config.battery}</span>
+                    </div>
+                )}
             </div>
 
             {/* Collapsible OEM Parts - only show first 3, expand on click */}
