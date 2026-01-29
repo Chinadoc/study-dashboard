@@ -2771,7 +2771,22 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             ORDER BY model
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
-          const models = (result.results || []).map((r: any) => r.model);
+          let models = (result.results || []).map((r: any) => r.model);
+
+          // Filter out motorcycle models for BMW (clutters automotive locksmith browse)
+          if (make.toLowerCase() === 'bmw') {
+            const motorcyclePatterns = [
+              /^F\d{3}/i,     // F650, F900, etc.
+              /^G\d{3}/i,     // G650, etc.
+              /^K\d{2,4}/i,   // K75, K100, K1100, K1200, etc.
+              /^R\d{2,4}/i,   // R45, R65, R80, R90, R100, R1100, R1200, etc.
+              /^S\d{4}/i,     // S1000RR, etc.
+              /^C\d{3}/i,     // C650, etc.
+            ];
+            models = models.filter((model: string) =>
+              !motorcyclePatterns.some(pattern => pattern.test(model))
+            );
+          }
 
           return corsResponse(request, JSON.stringify({
             source: "aks_vehicles_by_year",
