@@ -17,6 +17,7 @@ import { hasCompletedSetup, loadBusinessProfile, saveBusinessProfile, AVAILABLE_
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
 import CoverageMap from '@/components/business/CoverageMap';
 import SubscriptionDashboard from '@/components/business/SubscriptionDashboard';
+import JobsDashboard from '@/components/business/JobsDashboard';
 
 interface InventoryItem {
     id?: string;
@@ -40,7 +41,7 @@ export default function InventoryPage() {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [businessProfile, setBusinessProfile] = useState(() => loadBusinessProfile());
 
-    const { jobLogs, addJobLog, deleteJobLog, getJobStats } = useJobLogs();
+    const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats } = useJobLogs();
     const stats = getJobStats();
 
     // Check for first-time user on mount
@@ -142,6 +143,12 @@ export default function InventoryPage() {
             price: job.price,
             date: job.date,
             notes: job.notes,
+            customerName: job.customerName,
+            customerPhone: job.customerPhone,
+            customerAddress: job.customerAddress,
+            partsCost: job.partsCost,
+            referralSource: job.referralSource,
+            status: job.status || 'completed',
         });
 
         // Auto-decrement inventory if FCC ID matches
@@ -283,116 +290,13 @@ export default function InventoryPage() {
                 )
             ) : (
                 /* JOBS TAB */
-                <div className="space-y-8">
-                    {/* Monthly Stats Comparison */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-gradient-to-br from-emerald-900/30 to-green-800/10 p-5 rounded-xl border border-green-700/30">
-                            <div className="text-xs text-green-600 uppercase tracking-wider mb-2">This Month</div>
-                            <div className="flex items-baseline gap-3">
-                                <div className="text-4xl font-black text-green-400">${stats.thisMonthRevenue.toFixed(0)}</div>
-                                <div className="text-sm text-green-500">{stats.thisMonthJobs} jobs</div>
-                            </div>
-                            {stats.lastMonthRevenue > 0 && (
-                                <div className={`text-xs mt-2 ${stats.thisMonthRevenue >= stats.lastMonthRevenue ? 'text-green-400' : 'text-red-400'}`}>
-                                    {stats.thisMonthRevenue >= stats.lastMonthRevenue ? '↑' : '↓'}
-                                    {Math.abs(((stats.thisMonthRevenue - stats.lastMonthRevenue) / stats.lastMonthRevenue) * 100).toFixed(0)}% vs last month
-                                </div>
-                            )}
-                        </div>
-                        <div className="bg-gradient-to-br from-slate-900/50 to-gray-800/30 p-5 rounded-xl border border-gray-700/30">
-                            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Last Month</div>
-                            <div className="flex items-baseline gap-3">
-                                <div className="text-4xl font-black text-gray-400">${stats.lastMonthRevenue.toFixed(0)}</div>
-                                <div className="text-sm text-gray-500">{stats.lastMonthJobs} jobs</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Quick Stats Row */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/10 p-4 rounded-xl border border-yellow-700/30">
-                            <div className="text-xs text-yellow-600 uppercase tracking-wider mb-1">Total Jobs</div>
-                            <div className="text-3xl font-black text-yellow-500">{stats.totalJobs}</div>
-                        </div>
-                        <div className="bg-gradient-to-br from-green-900/30 to-green-800/10 p-4 rounded-xl border border-green-700/30">
-                            <div className="text-xs text-green-600 uppercase tracking-wider mb-1">Total Revenue</div>
-                            <div className="text-3xl font-black text-green-400">${stats.totalRevenue.toFixed(0)}</div>
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/10 p-4 rounded-xl border border-purple-700/30">
-                            <div className="text-xs text-purple-600 uppercase tracking-wider mb-1">Avg Job Value</div>
-                            <div className="text-3xl font-black text-purple-400">${stats.avgJobValue.toFixed(0)}</div>
-                        </div>
-                        <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/10 p-4 rounded-xl border border-blue-700/30">
-                            <div className="text-xs text-blue-600 uppercase tracking-wider mb-1">This Week</div>
-                            <div className="text-3xl font-black text-blue-400">{stats.thisWeekJobs}</div>
-                            <div className="text-xs text-blue-500">${stats.thisWeekRevenue.toFixed(0)}</div>
-                        </div>
-                    </div>
-
-                    {/* Log New Job Button */}
-                    <button
-                        onClick={() => setJobModalOpen(true)}
-                        className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black text-lg rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all shadow-lg shadow-yellow-500/20"
-                    >
-                        📝 Log New Job
-                    </button>
-
-                    {/* Top Stats Side by Side */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Top Vehicles */}
-                        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-                            <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider mb-4">🚗 Top Vehicles</h3>
-                            {stats.topVehicles.length > 0 ? (
-                                <div className="space-y-2">
-                                    {stats.topVehicles.map((v, i) => (
-                                        <div key={v.vehicle} className="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
-                                            <span className="text-gray-300 truncate flex-1 mr-2">{v.vehicle}</span>
-                                            <span className="text-yellow-500 font-bold">{v.count}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-gray-600 text-sm">No jobs logged yet</p>
-                            )}
-                        </div>
-
-                        {/* Top Keys */}
-                        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-                            <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider mb-4">🔑 Top Keys Used</h3>
-                            {stats.topKeys.length > 0 ? (
-                                <div className="space-y-2">
-                                    {stats.topKeys.map((k, i) => (
-                                        <div key={k.fccId} className="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
-                                            <span className="text-yellow-500 font-mono">{k.fccId}</span>
-                                            <span className="text-gray-400 font-bold">{k.count}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-gray-600 text-sm">No jobs logged yet</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Recent Jobs */}
-                    <div className="bg-gray-900 rounded-xl border border-gray-800">
-                        <div className="p-5 border-b border-gray-800">
-                            <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">Recent Jobs</h3>
-                        </div>
-                        {jobLogs.length > 0 ? (
-                            <div className="divide-y divide-gray-800">
-                                {jobLogs.slice(0, 20).map((job) => (
-                                    <JobRow key={job.id} job={job} onDelete={deleteJobLog} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="p-10 text-center text-gray-600">
-                                <div className="text-4xl mb-2">📝</div>
-                                <p>No jobs logged yet. Click &quot;Log New Job&quot; to get started!</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <JobsDashboard
+                    jobLogs={jobLogs}
+                    stats={stats}
+                    onAddJob={() => setJobModalOpen(true)}
+                    onDeleteJob={deleteJobLog}
+                    onUpdateJob={updateJobLog}
+                />
             )}
 
             {activeTab === 'coverage' && (
@@ -622,49 +526,3 @@ function InventoryCard({ item, onUpdate }: { item: InventoryItem, onUpdate: (k: 
     );
 }
 
-const JOB_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
-    'add_key': { label: 'Add Key', icon: '🔑' },
-    'akl': { label: 'All Keys Lost', icon: '🚨' },
-    'remote': { label: 'Remote Only', icon: '📡' },
-    'blade': { label: 'Blade Cut', icon: '✂️' },
-};
-
-function JobRow({ job, onDelete }: { job: JobLog; onDelete: (id: string) => void }) {
-    const typeInfo = JOB_TYPE_LABELS[job.jobType] || { label: job.jobType, icon: '🔧' };
-    const dateStr = new Date(job.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-    return (
-        <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:bg-gray-800/30 transition-colors">
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">{typeInfo.icon}</span>
-                    <span className="font-bold text-white truncate">{job.vehicle}</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                    {job.fccId && <span className="text-yellow-500 font-mono">{job.fccId}</span>}
-                    <span className="text-gray-600">•</span>
-                    <span className="text-gray-400">{typeInfo.label}</span>
-                    {job.notes && (
-                        <>
-                            <span className="text-gray-600">•</span>
-                            <span className="text-gray-500 truncate max-w-[150px]" title={job.notes}>{job.notes}</span>
-                        </>
-                    )}
-                </div>
-            </div>
-            <div className="flex items-center gap-4 sm:flex-shrink-0">
-                <div className="text-right">
-                    <div className="text-green-400 font-bold">${job.price.toFixed(0)}</div>
-                    <div className="text-xs text-gray-500">{dateStr}</div>
-                </div>
-                <button
-                    onClick={() => onDelete(job.id)}
-                    className="text-gray-600 hover:text-red-400 transition-colors p-1"
-                    title="Delete job"
-                >
-                    🗑️
-                </button>
-            </div>
-        </div>
-    );
-}

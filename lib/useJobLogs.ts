@@ -7,11 +7,28 @@ export interface JobLog {
     vehicle: string;
     fccId?: string;
     keyType?: string;
-    jobType: 'add_key' | 'akl' | 'remote' | 'blade';
+    jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'safe' | 'other';
     price: number;
     date: string; // ISO string
     notes?: string;
     createdAt: number; // timestamp
+
+    // Customer info
+    customerName?: string;
+    customerPhone?: string;
+    customerAddress?: string;
+
+    // Job tracking
+    status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+    startTime?: string;
+    endTime?: string;
+    laborMinutes?: number;
+
+    // Cost tracking
+    partsCost?: number;
+
+    // Additional details
+    referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
 }
 
 export interface JobStats {
@@ -27,6 +44,25 @@ export interface JobStats {
     topVehicles: { vehicle: string; count: number }[];
     topKeys: { fccId: string; count: number }[];
     jobsByType: Record<string, { count: number; revenue: number }>;
+
+    // NEW: Profit tracking
+    totalPartsCost: number;
+    totalProfit: number;
+    avgProfit: number;
+    thisMonthProfit: number;
+
+    // NEW: Job status counts
+    pendingJobs: number;
+    completedJobs: number;
+
+    // NEW: Labor metrics
+    avgLaborMinutes: number;
+
+    // NEW: Referral breakdown
+    referralSources: Record<string, number>;
+
+    // NEW: Top customers
+    topCustomers: { name: string; count: number; revenue: number }[];
 }
 
 const STORAGE_KEY = 'eurokeys_job_logs';
@@ -95,10 +131,17 @@ export function useJobLogs() {
         const thisMonthLogs = jobLogs.filter(log => log.createdAt >= thisMonthStart);
         const lastMonthLogs = jobLogs.filter(log => log.createdAt >= lastMonthStart && log.createdAt <= lastMonthEnd);
 
-        // Count vehicles
+        // Count vehicles, keys, customers
         const vehicleCounts: Record<string, number> = {};
         const keyCounts: Record<string, number> = {};
         const jobsByType: Record<string, { count: number; revenue: number }> = {};
+        const customerStats: Record<string, { count: number; revenue: number }> = {};
+        const referralSources: Record<string, number> = {};
+
+        let totalLaborMinutes = 0;
+        let laborJobCount = 0;
+        let pendingJobs = 0;
+        let completedJobs = 0;
 
         jobLogs.forEach(log => {
             if (log.vehicle) {
@@ -113,6 +156,36 @@ export function useJobLogs() {
             }
             jobsByType[log.jobType].count += 1;
             jobsByType[log.jobType].revenue += log.price || 0;
+
+            // Track customers
+            if (log.customerName) {
+                if (!customerStats[log.customerName]) {
+                    customerStats[log.customerName] = { count: 0, revenue: 0 };
+                }
+                customerStats[log.customerName].count += 1;
+                customerStats[log.customerName].revenue += log.price || 0;
+            }
+
+            // Track referral sources
+            if (log.referralSource) {
+                referralSources[log.referralSource] = (referralSources[log.referralSource] || 0) + 1;
+            }
+
+            // Track labor
+            if (log.laborMinutes && log.laborMinutes > 0) {
+                totalLaborMinutes += log.laborMinutes;
+                laborJobCount += 1;
+            }
+
+            // Track status
+            if (log.status === 'pending' || log.status === 'in_progress') {
+                pendingJobs += 1;
+            } else if (log.status === 'completed') {
+                completedJobs += 1;
+            } else {
+                // Default: treat jobs without status as completed
+                completedJobs += 1;
+            }
         });
 
         const topVehicles = Object.entries(vehicleCounts)
@@ -125,9 +198,19 @@ export function useJobLogs() {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
+        const topCustomers = Object.entries(customerStats)
+            .map(([name, stats]) => ({ name, ...stats }))
+            .sort((a, b) => b.count - a.count || b.revenue - a.revenue)
+            .slice(0, 5);
+
         const totalRevenue = jobLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const totalPartsCost = jobLogs.reduce((sum, log) => sum + (log.partsCost || 0), 0);
+        const totalProfit = totalRevenue - totalPartsCost;
+
         const thisWeekRevenue = thisWeekLogs.reduce((sum, log) => sum + (log.price || 0), 0);
         const thisMonthRevenue = thisMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const thisMonthPartsCost = thisMonthLogs.reduce((sum, log) => sum + (log.partsCost || 0), 0);
+        const thisMonthProfit = thisMonthRevenue - thisMonthPartsCost;
         const lastMonthRevenue = lastMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
 
         return {
@@ -143,13 +226,34 @@ export function useJobLogs() {
             topVehicles,
             topKeys,
             jobsByType,
+            // New stats
+            totalPartsCost,
+            totalProfit,
+            avgProfit: jobLogs.length > 0 ? totalProfit / jobLogs.length : 0,
+            thisMonthProfit,
+            pendingJobs,
+            completedJobs,
+            avgLaborMinutes: laborJobCount > 0 ? totalLaborMinutes / laborJobCount : 0,
+            referralSources,
+            topCustomers,
         };
     }, [jobLogs]);
+
+    const updateJobLog = useCallback((id: string, updates: Partial<Omit<JobLog, 'id' | 'createdAt'>>) => {
+        setJobLogs(prev => {
+            const updated = prev.map(log =>
+                log.id === id ? { ...log, ...updates } : log
+            );
+            saveToStorage(updated);
+            return updated;
+        });
+    }, [saveToStorage]);
 
     return {
         jobLogs,
         loading,
         addJobLog,
+        updateJobLog,
         deleteJobLog,
         getJobStats,
     };
