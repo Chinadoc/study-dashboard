@@ -247,15 +247,15 @@ function AnalyticsView({ stats }: { stats: ReturnType<ReturnType<typeof useJobLo
                     <h3 className="font-bold text-xs text-gray-400 uppercase tracking-wider mb-3">📊 By Job Type</h3>
                     {Object.entries(stats.jobsByType || {}).length > 0 ? (
                         <div className="space-y-2">
-                            {Object.entries(stats.jobsByType || {}).slice(0, 5).map(([type, data]) => {
-                                if (!data || typeof data.count !== 'number') return null;
-                                return (
+                            {Object.entries(stats.jobsByType || {})
+                                .filter(([, data]) => data && typeof data === 'object' && typeof data.count === 'number')
+                                .slice(0, 5)
+                                .map(([type, data]) => (
                                     <div key={type} className="flex justify-between text-sm">
                                         <span className="text-gray-300 capitalize">{type.replace('_', ' ')}</span>
                                         <span className="text-yellow-500 font-bold">{data.count}</span>
                                     </div>
-                                );
-                            })}
+                                ))}
                         </div>
                     ) : (
                         <p className="text-gray-600 text-sm">No data yet</p>

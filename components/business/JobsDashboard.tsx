@@ -155,27 +155,31 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
 
             {/* Job Type Breakdown */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Object.entries(stats.jobsByType || {}).map(([type, data]) => {
-                    // Defensive check for corrupted data
-                    if (!data || typeof data !== 'object' || typeof data.count !== 'number') {
-                        return null;
-                    }
-                    const typeInfo = JOB_TYPE_LABELS[type] || { label: type, icon: '🔧' };
-                    return (
-                        <div
-                            key={type}
-                            className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 cursor-pointer hover:border-zinc-700 transition-colors"
-                            onClick={() => setFilterJobType(filterJobType === type ? 'all' : type)}
-                        >
-                            <div className="flex items-center gap-2 mb-1">
-                                <span>{typeInfo.icon}</span>
-                                <span className="text-sm font-bold text-zinc-300">{typeInfo.label}</span>
+                {Object.entries(stats.jobsByType || {})
+                    .filter(([type, data]) => {
+                        // Filter out any corrupted entries
+                        return data &&
+                            typeof data === 'object' &&
+                            typeof data.count === 'number' &&
+                            typeof data.revenue === 'number';
+                    })
+                    .map(([type, data]) => {
+                        const typeInfo = JOB_TYPE_LABELS[type] || { label: type, icon: '🔧' };
+                        return (
+                            <div
+                                key={type}
+                                className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 cursor-pointer hover:border-zinc-700 transition-colors"
+                                onClick={() => setFilterJobType(filterJobType === type ? 'all' : type)}
+                            >
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span>{typeInfo.icon}</span>
+                                    <span className="text-sm font-bold text-zinc-300">{typeInfo.label}</span>
+                                </div>
+                                <div className="text-lg font-black text-yellow-500">{data.count}</div>
+                                <div className="text-xs text-green-500">${(data.revenue || 0).toFixed(0)}</div>
                             </div>
-                            <div className="text-lg font-black text-yellow-500">{data.count}</div>
-                            <div className="text-xs text-green-500">${(data.revenue || 0).toFixed(0)}</div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
             </div>
 
             {/* Top Stats Row */}
