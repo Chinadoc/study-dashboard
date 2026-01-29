@@ -20,6 +20,27 @@ export interface ToolInfo {
     description: string;
 }
 
+export interface LicenseItem {
+    id: string;
+    name: string;
+    type: 'license' | 'certification' | 'insurance' | 'bond' | 'subscription';
+    icon: string;
+    description: string;
+    typicalDuration: number; // days
+    renewalUrl?: string;
+}
+
+export const LOCKSMITH_REQUIREMENTS: LicenseItem[] = [
+    { id: 'state_license', name: 'State Locksmith License', type: 'license', icon: '📜', description: 'State-issued locksmith license', typicalDuration: 365 },
+    { id: 'business_license', name: 'Business License', type: 'license', icon: '🏪', description: 'Local business operating permit', typicalDuration: 365 },
+    { id: 'aloa_cert', name: 'ALOA Certification', type: 'certification', icon: '🎓', description: 'Associated Locksmiths of America certification', typicalDuration: 730 },
+    { id: 'savta_cert', name: 'SAVTA Certification', type: 'certification', icon: '🔐', description: 'Safe & Vault Technicians Association', typicalDuration: 730 },
+    { id: 'liability_insurance', name: 'Liability Insurance', type: 'insurance', icon: '🛡️', description: 'General liability coverage', typicalDuration: 365 },
+    { id: 'surety_bond', name: 'Surety Bond', type: 'bond', icon: '📋', description: 'Required surety bond', typicalDuration: 365 },
+    { id: 'nastf_access', name: 'NASTF Registry', type: 'subscription', icon: '🚗', description: 'Vehicle security access', typicalDuration: 365 },
+    { id: 'awr_subscription', name: 'AWR Subscription', type: 'subscription', icon: '📡', description: 'Auto Watch Retrieval service', typicalDuration: 365 },
+];
+
 export const AVAILABLE_TOOLS: ToolInfo[] = [
     {
         id: 'autel_im608',

@@ -4032,6 +4032,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%flip%'
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%tool%'
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lishi%'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%ignition%'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lock%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%shell only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%-pack%'
@@ -4089,7 +4091,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               const group = keyTypeGroups[baseType][btnKey];
 
               // Aggregate data
-              if (row.fcc_id) {
+              // Skip FCC aggregation for blade/emergency/mechanical keys (no RF transmitter)
+              const isBladeType = ['Emergency Key', 'Mechanical Key', 'Blade'].includes(baseType);
+              if (row.fcc_id && !isBladeType) {
                 row.fcc_id.split(',').map((f: string) => f.trim()).filter((f: string) => f).forEach((f: string) => {
                   // Normalize O→0 typos
                   group.fccIds.add(f.replace(/O(\d)/g, '0$1'));

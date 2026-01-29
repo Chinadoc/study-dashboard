@@ -110,9 +110,13 @@ function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
                 </div>
             </div>
 
-            {/* Limitations - dedupe by category */}
+            {/* 
+              TEMPORARILY HIDDEN: Limitations & Cables sections disabled
+              - Currently attached by make only (not vehicle/year/platform specific)
+              - Shows "bench_required" for OBD-programmable vehicles like 2016 CTS
+              - Will re-enable after merge script ties to specific year/platform ranges
+              
             {hasLimitations && (() => {
-                // Dedupe by category, keeping first occurrence
                 const seen = new Set<string>();
                 const uniqueLimitations = tool.limitations.filter(lim => {
                     if (seen.has(lim.category)) return false;
@@ -135,13 +139,13 @@ function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
                 );
             })()}
 
-            {/* Cables */}
             {hasCables && (
                 <div className="mt-2 text-xs text-gray-500">
                     📦 Cables: {tool.cables.slice(0, 2).join(', ')}
                     {tool.cables.length > 2 && ` +${tool.cables.length - 2} more`}
                 </div>
             )}
+            */}
 
             {/* Flags/Warnings */}
             {tool.flags.length > 0 && (

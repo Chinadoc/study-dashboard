@@ -22,6 +22,9 @@ const ToolStatusBadge: React.FC<ToolStatusBadgeProps> = ({ toolName }) => {
 
     if (status === 'none') return null;
 
+    // Defensive check - ensure text is a string
+    const displayText = typeof text === 'string' ? text : 'Unknown';
+
     const statusStyles = {
         active: 'bg-green-900/30 text-green-400 border-green-800',
         warning: 'bg-yellow-900/30 text-yellow-500 border-yellow-800',
@@ -37,7 +40,7 @@ const ToolStatusBadge: React.FC<ToolStatusBadgeProps> = ({ toolName }) => {
     return (
         <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-sm font-semibold ${statusStyles[status as keyof typeof statusStyles]}`}>
             <span>{statusIcons[status as keyof typeof statusIcons]}</span>
-            <span>{toolName}: {text}</span>
+            <span>{toolName}: {displayText}</span>
         </div>
     );
 };
