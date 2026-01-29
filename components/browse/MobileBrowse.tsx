@@ -2,26 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { HorizontalScroller } from './HorizontalScroller';
-import { VehicleCard } from './VehicleCard';
 import { SearchBar } from './SearchBar';
-import { POPULAR_MAKES } from '@/lib/make-data';
+import { POPULAR_MAKES, getMakeLogo, getBrandColor, getMakeInitials } from '@/lib/make-data';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
-
-// Map of known model images - we'll add more as available
-const MODEL_IMAGES: Record<string, Record<string, string>> = {
-    'Chevrolet': {
-        'Silverado': '/assets/vehicles/chevrolet/chevrolet_silverado.png',
-        // Add more as we have them
-    },
-    // Add more makes
-};
 
 interface MobileBrowseProps {
     onSearch: (query: string) => void;
 }
 
+/**
+ * Mobile-optimized browse with 3-column grid of make logos,
+ * then 3-column grid of models (with images when available),
+ * and 3-column grid of years.
+ */
 export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const router = useRouter();
 
@@ -37,8 +31,9 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const [loadingModels, setLoadingModels] = useState(false);
     const [loadingYears, setLoadingYears] = useState(false);
 
-    // Animation state for make→model transition
-    const [isTransitioning, setIsTransitioning] = useState(false);
+    // Image error tracking
+    const [makeImageErrors, setMakeImageErrors] = useState<Set<string>>(new Set());
+    const [modelImageErrors, setModelImageErrors] = useState<Set<string>>(new Set());
 
     // Fetch makes on mount
     useEffect(() => {
@@ -73,7 +68,6 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 console.error('Failed to fetch models:', error);
             } finally {
                 setLoadingModels(false);
-                setIsTransitioning(false);
             }
         }
         fetchModels();
@@ -103,7 +97,6 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     }, [selectedModel, selectedMake]);
 
     const handleMakeSelect = (make: string) => {
-        setIsTransitioning(true);
         setSelectedMake(make);
         setSelectedModel(null);
         setSelectedYear(null);
@@ -134,8 +127,11 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
         }
     };
 
-    const getModelImage = (make: string, model: string): string | undefined => {
-        return MODEL_IMAGES[make]?.[model];
+    // Get model image path - try to find in assets/vehicles/{make}/{model}.png
+    const getModelImage = (make: string, model: string): string => {
+        const makeLower = make.toLowerCase().replace(/\s+/g, '_');
+        const modelLower = model.toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+        return `/assets/vehicles/${makeLower}/${makeLower}_${modelLower}.png`;
     };
 
     return (
@@ -170,28 +166,51 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 </div>
             )}
 
-            {/* Make Selection - horizontal scroll */}
+            {/* Make Selection - 3 column grid with logos */}
             {!selectedMake && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
                         Select Make
                     </h2>
-                    <HorizontalScroller>
-                        {makes.map(make => (
-                            <VehicleCard
-                                key={make}
-                                label={make}
-                                variant="make"
-                                onClick={() => handleMakeSelect(make)}
-                            />
-                        ))}
-                    </HorizontalScroller>
+                    <div className="grid grid-cols-3 gap-3">
+                        {makes.map(make => {
+                            const logoUrl = getMakeLogo(make);
+                            const brandColor = getBrandColor(make);
+                            const initials = getMakeInitials(make);
+                            const hasError = makeImageErrors.has(make);
+
+                            return (
+                                <button
+                                    key={make}
+                                    onClick={() => handleMakeSelect(make)}
+                                    className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                >
+                                    {!hasError ? (
+                                        <img
+                                            src={logoUrl}
+                                            alt={make}
+                                            className="w-12 h-12 object-contain rounded-full bg-white p-1"
+                                            onError={() => setMakeImageErrors(prev => new Set(prev).add(make))}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                            style={{ backgroundColor: brandColor }}
+                                        >
+                                            {initials}
+                                        </div>
+                                    )}
+                                    <span className="text-xs text-gray-300 font-medium text-center">{make}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </section>
             )}
 
-            {/* Model Selection - horizontal scroll with transition */}
-            {selectedMake && (
-                <section className={`transition-all duration-300 ${isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}>
+            {/* Model Selection - 3 column grid with images when available */}
+            {selectedMake && !selectedModel && (
+                <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
                         Select Model
                     </h2>
@@ -200,23 +219,37 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading models...
                         </div>
                     ) : (
-                        <HorizontalScroller>
-                            {models.map(model => (
-                                <VehicleCard
-                                    key={model}
-                                    label={model}
-                                    imageSrc={getModelImage(selectedMake, model)}
-                                    variant="model"
-                                    isSelected={selectedModel === model}
-                                    onClick={() => handleModelSelect(model)}
-                                />
-                            ))}
-                        </HorizontalScroller>
+                        <div className="grid grid-cols-3 gap-3">
+                            {models.map(model => {
+                                const imageSrc = getModelImage(selectedMake, model);
+                                const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
+
+                                return (
+                                    <button
+                                        key={model}
+                                        onClick={() => handleModelSelect(model)}
+                                        className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all min-h-[80px]"
+                                    >
+                                        {!hasError ? (
+                                            <img
+                                                src={imageSrc}
+                                                alt={model}
+                                                className="w-full h-12 object-contain"
+                                                onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
+                                            />
+                                        ) : null}
+                                        <span className={`text-center font-medium ${hasError ? 'text-white text-sm' : 'text-xs text-gray-300'}`}>
+                                            {model}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
                     )}
                 </section>
             )}
 
-            {/* Year Selection - horizontal scroll */}
+            {/* Year Selection - 3 column grid */}
             {selectedModel && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -227,17 +260,22 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading years...
                         </div>
                     ) : (
-                        <HorizontalScroller>
+                        <div className="grid grid-cols-3 gap-3">
                             {years.map(year => (
-                                <VehicleCard
+                                <button
                                     key={year}
-                                    label={String(year)}
-                                    variant="year"
-                                    isSelected={selectedYear === year}
                                     onClick={() => handleYearSelect(year)}
-                                />
+                                    className={`p-3 rounded-xl border transition-all text-center font-bold text-lg
+                                        ${selectedYear === year
+                                            ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                                            : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
+                                        }
+                                    `}
+                                >
+                                    {year}
+                                </button>
                             ))}
-                        </HorizontalScroller>
+                        </div>
                     )}
                 </section>
             )}
