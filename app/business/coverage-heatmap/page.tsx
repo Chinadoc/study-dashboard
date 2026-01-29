@@ -5,58 +5,24 @@ import CriticalWarnings from '@/components/business/CriticalWarnings';
 import PearlProcedures from '@/components/business/PearlProcedures';
 import ToolRankings from '@/components/business/ToolRankings';
 import CrossVehicleRelationships from '@/components/business/CrossVehicleRelationships';
+import vehicleCoverageData from '../../../src/data/vehicle_coverage_timeline.json';
 
-// Inline extracted data (48 records from Google Drive docs)
-const COVERAGE_DATA = [
-    { make: "Chevrolet", model: "Corvette C8", yearStart: 2020, yearEnd: 2024, autel: "Yes (Add Key)", smartPro: "Yes (Add Key)", vvdi: "No", lonsdor: "", platform: "CAN FD" },
-    { make: "Chevrolet", model: "Silverado", yearStart: 2014, yearEnd: 2018, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Yes (OBD)", lonsdor: "", platform: "CAN" },
-    { make: "Chevrolet", model: "Silverado", yearStart: 2019, yearEnd: 2021, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Yes (OBD)", lonsdor: "", platform: "Legacy" },
-    { make: "Chevrolet", model: "Silverado", yearStart: 2022, yearEnd: 2026, autel: "Limited", smartPro: "Limited", vvdi: "No", lonsdor: "", platform: "CAN FD/VIP" },
-    { make: "Chevrolet", model: "Tahoe", yearStart: 2015, yearEnd: 2020, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Yes (OBD)", lonsdor: "", platform: "CAN" },
-    { make: "Chevrolet", model: "Tahoe", yearStart: 2021, yearEnd: 2024, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Limited", lonsdor: "", platform: "CAN FD" },
-    { make: "Ford", model: "Bronco", yearStart: 2021, yearEnd: 2024, autel: "Medium", smartPro: "High", vvdi: "", lonsdor: "", platform: "Active Alarm" },
-    { make: "Ford", model: "F-150", yearStart: 2015, yearEnd: 2020, autel: "High", smartPro: "High", vvdi: "", lonsdor: "", platform: "Prox" },
-    { make: "Ford", model: "F-150", yearStart: 2021, yearEnd: 2024, autel: "Medium", smartPro: "High", vvdi: "", lonsdor: "", platform: "Active Alarm" },
-    { make: "Ford", model: "Mach-E", yearStart: 2021, yearEnd: 2024, autel: "Low/Medium", smartPro: "Medium", vvdi: "", lonsdor: "", platform: "EV" },
-    { make: "Ford", model: "Mustang", yearStart: 2015, yearEnd: 2020, autel: "High", smartPro: "High", vvdi: "", lonsdor: "", platform: "Prox" },
-    { make: "Jaguar", model: "E-Pace", yearStart: 2018, yearEnd: 2023, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "J9C3 DoIP" },
-    { make: "Jaguar", model: "F-Pace", yearStart: 2017, yearEnd: 2020, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "HPLA/JPLA" },
-    { make: "Jaguar", model: "F-Type", yearStart: 2015, yearEnd: 2018, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "FK72/HPLA" },
-    { make: "Jaguar", model: "XE", yearStart: 2016, yearEnd: 2019, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "HPLA/JPLA" },
-    { make: "Jeep", model: "Grand Cherokee", yearStart: 2014, yearEnd: 2021, autel: "Yes", smartPro: "Yes", vvdi: "", lonsdor: "Yes", platform: "SGW (18+)" },
-    { make: "Jeep", model: "Grand Cherokee L", yearStart: 2021, yearEnd: 2024, autel: "No (OBD)", smartPro: "No (OBD)", vvdi: "", lonsdor: "No (OBD)", platform: "RF Hub Lock" },
-    { make: "Jeep", model: "Wagoneer", yearStart: 2022, yearEnd: 2024, autel: "No (OBD)", smartPro: "No (OBD)", vvdi: "", lonsdor: "No (OBD)", platform: "RF Hub Lock" },
-    { make: "Land Rover", model: "Defender L663", yearStart: 2020, yearEnd: 2023, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "K8D2 UWB" },
-    { make: "Land Rover", model: "Defender L663", yearStart: 2024, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "M9R3 UWB" },
-    { make: "Land Rover", model: "Discovery", yearStart: 2017, yearEnd: 2020, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "HPLA/JPLA" },
-    { make: "Land Rover", model: "Range Rover L405", yearStart: 2015, yearEnd: 2017, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "FK72 CAN" },
-    { make: "Land Rover", model: "Range Rover L405", yearStart: 2018, yearEnd: 2021, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "JPLA DoIP" },
-    { make: "Land Rover", model: "Range Rover L460", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "M9R3 UWB" },
-    { make: "Land Rover", model: "Range Rover Sport L461", yearStart: 2023, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "M9R3 UWB" },
-    { make: "Land Rover", model: "Range Rover Sport L494", yearStart: 2015, yearEnd: 2017, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "FK72 CAN" },
-    { make: "Land Rover", model: "Range Rover Sport L494", yearStart: 2018, yearEnd: 2022, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "JPLA DoIP" },
-    { make: "Lexus", model: "NX350", yearStart: 2022, yearEnd: 2025, autel: "Dealer/SP", smartPro: "", vvdi: "", lonsdor: "SP+Cable", platform: "BA-Prox" },
-    { make: "Lexus", model: "RX350", yearStart: 2010, yearEnd: 2015, autel: "Autel/SP", smartPro: "", vvdi: "", lonsdor: "Reset", platform: "Prox" },
-    { make: "RAM", model: "RAM 1500", yearStart: 2013, yearEnd: 2017, autel: "Yes", smartPro: "Yes", vvdi: "", lonsdor: "Yes", platform: "Standard" },
-    { make: "RAM", model: "RAM 1500", yearStart: 2018, yearEnd: 2018, autel: "Yes (AutoAuth)", smartPro: "Yes (AutoAuth)", vvdi: "", lonsdor: "Yes (12+8)", platform: "SGW" },
-    { make: "RAM", model: "RAM 1500 (DT)", yearStart: 2019, yearEnd: 2024, autel: "Yes (AutoAuth)", smartPro: "Yes (AutoAuth)", vvdi: "", lonsdor: "Yes (12+8)", platform: "SGW" },
-    { make: "Toyota", model: "Camry", yearStart: 2012, yearEnd: 2017, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "H-Chip", difficulty: "Medium" },
-    { make: "Toyota", model: "Camry", yearStart: 2018, yearEnd: 2023, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "8A Smart", difficulty: "Medium" },
-    { make: "Toyota", model: "Corolla Cross", yearStart: 2022, yearEnd: 2024, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "4A", difficulty: "Very High" },
-    { make: "Toyota", model: "Sienna", yearStart: 2021, yearEnd: 2024, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "8A BA", difficulty: "High" },
-    { make: "Toyota", model: "Tundra", yearStart: 2022, yearEnd: 2024, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "8A-BA", difficulty: "Very High" },
-    { make: "Volvo", model: "C40 Recharge", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "Very High" },
-    { make: "Volvo", model: "S60/V60", yearStart: 2019, yearEnd: 2022, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
-    { make: "Volvo", model: "S60/V60", yearStart: 2023, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "Very High" },
-    { make: "Volvo", model: "S90/V90", yearStart: 2017, yearEnd: 2021, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
-    { make: "Volvo", model: "S90/V90", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "High" },
-    { make: "Volvo", model: "XC40", yearStart: 2018, yearEnd: 2020, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Low" },
-    { make: "Volvo", model: "XC40", yearStart: 2021, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "High" },
-    { make: "Volvo", model: "XC60", yearStart: 2018, yearEnd: 2021, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
-    { make: "Volvo", model: "XC60", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "Very High" },
-    { make: "Volvo", model: "XC90", yearStart: 2016, yearEnd: 2020, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
-    { make: "Volvo", model: "XC90", yearStart: 2021, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "High" },
-];
+// Import full coverage data (1,252 vehicles from master_coverage_matrix.json)
+interface VehicleCoverage {
+    make: string;
+    model: string;
+    yearStart: number;
+    yearEnd: number;
+    autel: string;
+    smartPro: string;
+    lonsdor: string;
+    vvdi: string;
+    platform: string;
+    chip?: string;
+}
+
+const COVERAGE_DATA: VehicleCoverage[] = vehicleCoverageData.vehicles as VehicleCoverage[];
+const COVERAGE_STATS = vehicleCoverageData.stats;
 
 const TOOLS = ['autel', 'smartPro', 'lonsdor', 'vvdi'] as const;
 const TOOL_LABELS: Record<string, string> = {
