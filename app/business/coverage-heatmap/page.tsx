@@ -92,8 +92,13 @@ const LEVEL_LABELS = {
 export default function CoverageHeatMap() {
     const [selectedMake, setSelectedMake] = useState<string>('all');
     const [activeTab, setActiveTab] = useState<'heatmap' | 'warnings' | 'pearls' | 'rankings' | 'relationships'>('heatmap');
-    const [viewMode, setViewMode] = useState<'vehicle' | 'tool'>('vehicle');
+    const [viewMode, setViewMode] = useState<'vehicle' | 'tool' | 'timeline'>('vehicle');
     const [selectedTool, setSelectedTool] = useState<typeof TOOLS[number]>('autel');
+
+    // Year range for timeline view (1980-2026, defaulting to show recent years)
+    const YEAR_START = 1990;
+    const YEAR_END = 2026;
+    const years = useMemo(() => Array.from({ length: YEAR_END - YEAR_START + 1 }, (_, i) => YEAR_START + i), []);
 
     const makes = useMemo(() => {
         const uniqueMakes = [...new Set(COVERAGE_DATA.map(r => r.make))].sort();
@@ -142,6 +147,49 @@ export default function CoverageHeatMap() {
 
         return { full, partial, none, unknown };
     }, [selectedTool]);
+
+    // Timeline view: for each make, compute coverage by year
+    const timelineData = useMemo(() => {
+        const data: Record<string, Record<number, { level: 'full' | 'partial' | 'none' | 'unknown', models: string[], status: string }>> = {};
+
+        makes.forEach(make => {
+            data[make] = {};
+            years.forEach(year => {
+                // Find records for this make that cover this year
+                const records = COVERAGE_DATA.filter(r =>
+                    r.make === make && year >= r.yearStart && year <= r.yearEnd
+                );
+
+                if (records.length === 0) {
+                    data[make][year] = { level: 'unknown', models: [], status: 'No data' };
+                } else {
+                    // Get best coverage level across all tools for these records
+                    let bestLevel: 'full' | 'partial' | 'none' | 'unknown' = 'unknown';
+                    const models = [...new Set(records.map(r => r.model))];
+                    const statuses: string[] = [];
+
+                    records.forEach(r => {
+                        TOOLS.forEach(tool => {
+                            const status = r[tool] as string || '';
+                            if (status) statuses.push(`${TOOL_LABELS[tool]}: ${status}`);
+                            const level = getCoverageLevel(status);
+                            if (level === 'full') bestLevel = 'full';
+                            else if (level === 'partial' && bestLevel !== 'full') bestLevel = 'partial';
+                            else if (level === 'none' && bestLevel === 'unknown') bestLevel = 'none';
+                        });
+                    });
+
+                    data[make][year] = {
+                        level: bestLevel,
+                        models,
+                        status: statuses.length > 0 ? statuses.join('\n') : 'No tool data'
+                    };
+                }
+            });
+        });
+
+        return data;
+    }, [makes, years]);
 
     return (
         <div className="min-h-screen bg-gray-950 text-white p-6">
@@ -226,6 +274,15 @@ export default function CoverageHeatMap() {
                                         }`}
                                 >
                                     🔧 By Tool
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('timeline')}
+                                    className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${viewMode === 'timeline'
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'text-gray-400 hover:text-white'
+                                        }`}
+                                >
+                                    📅 Timeline
                                 </button>
                             </div>
 
@@ -487,6 +544,110 @@ export default function CoverageHeatMap() {
                                         </div>
                                     </div>
                                 )}
+                            </>
+                        )}
+
+                        {/* TIMELINE VIEW */}
+                        {viewMode === 'timeline' && (
+                            <>
+                                {/* Data Coverage Notice */}
+                                <div className="mb-6 bg-amber-900/20 border border-amber-700/30 rounded-xl p-4">
+                                    <div className="flex items-start gap-3">
+                                        <span className="text-2xl">⚠️</span>
+                                        <div>
+                                            <h3 className="font-bold text-amber-400">Partial Coverage Data</h3>
+                                            <p className="text-sm text-gray-300">
+                                                This heatmap shows <strong>{COVERAGE_DATA.length} vehicle records</strong> from {makes.length} makes
+                                                extracted from research documents. Many vehicles are not yet in our database.
+                                                Gray cells indicate no data available — not necessarily no tool coverage.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Legend */}
+                                <div className="mb-4 flex flex-wrap gap-4">
+                                    {Object.entries(LEVEL_COLORS).map(([level, color]) => (
+                                        <div key={level} className="flex items-center gap-2">
+                                            <div className={`w-4 h-4 rounded ${color}`} />
+                                            <span className="text-sm text-gray-400">{LEVEL_LABELS[level as keyof typeof LEVEL_LABELS]}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Timeline Grid - horizontally scrollable */}
+                                <div className="bg-gray-900/30 border border-gray-800 rounded-2xl overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <div style={{ minWidth: `${100 + years.length * 40}px` }}>
+                                            {/* Header Row - Years */}
+                                            <div className="flex bg-gray-900/70 border-b border-gray-800 sticky top-0 z-10">
+                                                <div className="w-32 shrink-0 p-3 font-bold text-gray-400 border-r border-gray-800">
+                                                    Make
+                                                </div>
+                                                {years.map(year => (
+                                                    <div
+                                                        key={year}
+                                                        className={`w-10 shrink-0 p-2 text-center text-xs font-medium ${year % 5 === 0 ? 'text-white bg-gray-800/50' : 'text-gray-500'
+                                                            }`}
+                                                    >
+                                                        {year % 5 === 0 ? year.toString().slice(-2) : '·'}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Data Rows - Makes */}
+                                            {makes.map(make => (
+                                                <div key={make} className="flex border-b border-gray-800/50 hover:bg-gray-800/20">
+                                                    <div className="w-32 shrink-0 p-3 font-medium text-white border-r border-gray-800 flex items-center">
+                                                        {make}
+                                                    </div>
+                                                    {years.map(year => {
+                                                        const cellData = timelineData[make]?.[year];
+                                                        const level = cellData?.level || 'unknown';
+                                                        const models = cellData?.models || [];
+                                                        const status = cellData?.status || 'No data';
+
+                                                        return (
+                                                            <div
+                                                                key={year}
+                                                                className="w-10 shrink-0 p-1 flex items-center justify-center"
+                                                                title={`${make} ${year}\n${models.length > 0 ? `Models: ${models.join(', ')}\n` : ''}${status}`}
+                                                            >
+                                                                <div
+                                                                    className={`w-6 h-6 rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125`}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Quick Stats */}
+                                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
+                                        <div className="text-3xl font-bold text-cyan-400">{COVERAGE_DATA.length}</div>
+                                        <div className="text-sm text-gray-400">Vehicle Records</div>
+                                    </div>
+                                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
+                                        <div className="text-3xl font-bold text-purple-400">{makes.length}</div>
+                                        <div className="text-sm text-gray-400">Makes Covered</div>
+                                    </div>
+                                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
+                                        <div className="text-3xl font-bold text-emerald-400">
+                                            {Math.min(...COVERAGE_DATA.map(r => r.yearStart))}-{Math.max(...COVERAGE_DATA.map(r => r.yearEnd))}
+                                        </div>
+                                        <div className="text-sm text-gray-400">Year Range</div>
+                                    </div>
+                                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
+                                        <div className="text-3xl font-bold text-amber-400">
+                                            {[...new Set(COVERAGE_DATA.map(r => r.platform))].length}
+                                        </div>
+                                        <div className="text-sm text-gray-400">Platforms</div>
+                                    </div>
+                                </div>
                             </>
                         )}
                     </>
