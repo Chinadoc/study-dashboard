@@ -213,32 +213,58 @@ def main():
             if not tool_key:
                 continue
             
-            # Get makes and years from this limitation
+            # Get makes, years, models from this limitation
             makes = [normalize_make(m) for m in limitation.get('makes', [])]
             years = limitation.get('years', [])
+            models = [m.lower() for m in limitation.get('models', [])]
             cables = limitation.get('cables_required', [])
             context = limitation.get('context', '')[:100]
             source = limitation.get('source_file', '')
             
-            # Attach to matching vehicles
+            # MEDIUM-TERM FIX: Only attach limitations that have specificity
+            # If no makes, years, or models are specified, skip (too broad)
+            if not makes and not years and not models:
+                continue  # Skip generic limitations - they apply too broadly
+            
+            # Attach to matching vehicles with specificity checks
             for key, vdata in vehicles.items():
                 v_make, v_model, v_year_start, v_year_end = key
                 
-                # Check if this limitation applies
-                make_match = not makes or v_make in makes
-                year_match = True  # Always attach if make matches (limitations often don't specify years)
+                # Make match (required if makes specified, else skip)
+                if makes and v_make not in makes:
+                    continue
                 
-                if make_match and year_match:
-                    lim = {
-                        'category': category,
-                        'cables': cables,
-                        'context': context,
-                        'source': source,
-                    }
-                    if lim not in vdata[tool_key]['limitations']:
-                        vdata[tool_key]['limitations'].append(lim)
-                        vdata[tool_key]['cables'].extend(cables)
-                        limitations_attached += 1
+                # Year match (if years specified, vehicle must overlap)
+                year_match = True
+                if years:
+                    year_match = any(
+                        v_year_start <= y <= v_year_end 
+                        for y in years if isinstance(y, int)
+                    )
+                    if not year_match:
+                        continue
+                
+                # Model match (if models specified, vehicle model must match)
+                if models:
+                    v_model_lower = v_model.lower()
+                    model_match = any(
+                        m in v_model_lower or v_model_lower in m 
+                        for m in models
+                    )
+                    if not model_match:
+                        continue
+                
+                # Only attach if we have at least one specificity check
+                lim = {
+                    'category': category,
+                    'cables': cables,
+                    'context': context,
+                    'source': source,
+                }
+                if lim not in vdata[tool_key]['limitations']:
+                    vdata[tool_key]['limitations'].append(lim)
+                    vdata[tool_key]['cables'].extend(cables)
+                    limitations_attached += 1
     
     print(f"   Attached {limitations_attached} limitations")
     
