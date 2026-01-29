@@ -610,15 +610,24 @@ export default function VehicleDetailClient() {
         }));
 
     // Build allFccs array with key type context for +1 display
-    const allFccs = keysFromAks
+    const allFccsRaw = keysFromAks
         .filter((k: any) => k.fcc)
         .flatMap((k: any) =>
             String(k.fcc).split(/[,\s]+/).filter(Boolean).map((fcc: string) => ({
-                fcc: fcc.trim(),
+                fcc: fcc.trim().replace(/O(\d)/g, '0$1'), // Normalize O→0 typos
                 keyType: k.name || 'Key',
                 buttons: k.buttons || null
             }))
         );
+
+    // Deduplicate FCCs - keep only unique FCC values
+    const fccMap = new Map<string, { fcc: string; keyType: string; buttons: string | null }>();
+    for (const entry of allFccsRaw) {
+        if (!fccMap.has(entry.fcc)) {
+            fccMap.set(entry.fcc, entry);
+        }
+    }
+    const allFccs = Array.from(fccMap.values());
 
     // Build allFccs - prefer key configs, fallback to parsing legacy fcc_id
     let finalAllFccs = allFccs.length > 0 ? allFccs : specs.all_fccs;
@@ -837,6 +846,8 @@ export default function VehicleDetailClient() {
                 make={make}
                 model={model}
                 year={year}
+                prevYear={year > 1990 ? year - 1 : null}
+                nextYear={year < new Date().getFullYear() + 1 ? year + 1 : null}
                 platform={header.platform}
                 architecture={header.immobilizer_system}
                 canFd={header.can_fd_required === 1 || header.can_fd_required === true}

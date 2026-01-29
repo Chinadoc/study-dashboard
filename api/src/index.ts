@@ -3935,6 +3935,9 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lishi%'
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%ignition%'
                 AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%lock%'
+                AND COALESCE(p.product_type, '') != 'Key'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%chip%'
+                AND LOWER(COALESCE(p.product_type, '')) NOT LIKE '%other%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%shell only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%case only%'
                 AND LOWER(COALESCE(p.title, '')) NOT LIKE '%-pack%'
@@ -3956,8 +3959,16 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             }>> = {};
 
             for (const row of (keyConfigResult.results || [])) {
+              // Skip products with no product_type (usually accessories like batteries)
+              if (!row.product_type) continue;
+
               // Determine key type
-              const baseType = row.product_type || 'Key';
+              let baseType = row.product_type;
+
+              // Normalize malformed key type names
+              if (baseType === 'Emergency Key_Blade') {
+                baseType = 'Emergency Key';
+              }
 
               // Extract button count
               let buttonCount: string | null = null;
