@@ -129,7 +129,7 @@ function BrowsePageContent() {
         }
     };
 
-    const handleSearch = (query: string) => {
+    const handleSearch = async (query: string) => {
         console.log('Search:', query);
 
         // Use smart parser for natural language queries like "f150 2018"
@@ -145,15 +145,64 @@ function BrowsePageContent() {
             }
         }
 
-        // If we have model + make but no year, select the make and show models
+        // If we have model + make, select both and show years
         if (parsed.make && parsed.model) {
-            handleMakeSelect(parsed.make);
-            // Model selection will happen via the UI
+            setSelectedMake(parsed.make);
+            setSelectedModel(parsed.model);
+            setSelectedYear(null);
             return;
         }
 
-        // If we just have a make, select it
+        // If we have a make identified, check if remaining parts could be a model
         if (parsed.make) {
+            const queryLower = query.toLowerCase();
+            const makeLower = parsed.make.toLowerCase();
+            // Extract potential model from query (everything except the make and year)
+            const remainingParts = queryLower
+                .replace(makeLower, '')
+                .replace(/\b20[0-3]\d\b/, '')  // Remove year
+                .trim()
+                .split(/\s+/)
+                .filter(p => p.length > 0);
+
+            if (remainingParts.length > 0) {
+                const potentialModel = remainingParts.join(' ');
+                // Try to match against API models
+                try {
+                    const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(parsed.make)}`);
+                    const data = await res.json();
+                    const apiModels = (data.models || []) as string[];
+
+                    // Case-insensitive model matching
+                    const matchedModel = apiModels.find(m =>
+                        m.toLowerCase() === potentialModel ||
+                        m.toLowerCase().includes(potentialModel) ||
+                        potentialModel.includes(m.toLowerCase())
+                    );
+
+                    if (matchedModel) {
+                        setSelectedMake(parsed.make);
+                        setSelectedModel(matchedModel);
+                        setSelectedYear(null);
+
+                        // If we also have a year, check if it's valid and navigate
+                        if (parsed.year) {
+                            const yearsRes = await fetch(`${API_BASE}/api/vyp/years?make=${encodeURIComponent(parsed.make)}&model=${encodeURIComponent(matchedModel)}`);
+                            const yearsData = await yearsRes.json();
+                            const validYears = (yearsData.years || []) as number[];
+                            if (validYears.includes(parsed.year)) {
+                                router.push(`/vehicle/${encodeURIComponent(parsed.make)}/${encodeURIComponent(matchedModel)}/${parsed.year}`);
+                                return;
+                            }
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Failed to validate model:', error);
+                }
+            }
+
+            // Just select the make if no model match
             handleMakeSelect(parsed.make);
             return;
         }
@@ -162,6 +211,27 @@ function BrowsePageContent() {
         const parts = query.trim().split(/\s+/);
         const potentialMake = makes.find(m => m.toLowerCase() === parts[0]?.toLowerCase());
         if (potentialMake) {
+            // Check if second part is a model
+            if (parts[1]) {
+                const potentialModel = parts.slice(1).join(' ');
+                try {
+                    const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(potentialMake)}`);
+                    const data = await res.json();
+                    const apiModels = (data.models || []) as string[];
+                    const matchedModel = apiModels.find(m =>
+                        m.toLowerCase() === potentialModel.toLowerCase() ||
+                        m.toLowerCase().startsWith(potentialModel.toLowerCase())
+                    );
+                    if (matchedModel) {
+                        setSelectedMake(potentialMake);
+                        setSelectedModel(matchedModel);
+                        setSelectedYear(null);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Failed to validate model:', error);
+                }
+            }
             handleMakeSelect(potentialMake);
         }
     };
