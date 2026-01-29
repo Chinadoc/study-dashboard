@@ -1,0 +1,328 @@
+'use client';
+
+import React, { useState, useMemo } from 'react';
+import CriticalWarnings from '@/components/business/CriticalWarnings';
+import PearlProcedures from '@/components/business/PearlProcedures';
+import ToolRankings from '@/components/business/ToolRankings';
+import CrossVehicleRelationships from '@/components/business/CrossVehicleRelationships';
+
+// Inline extracted data (48 records from Google Drive docs)
+const COVERAGE_DATA = [
+    { make: "Chevrolet", model: "Corvette C8", yearStart: 2020, yearEnd: 2024, autel: "Yes (Add Key)", smartPro: "Yes (Add Key)", vvdi: "No", lonsdor: "", platform: "CAN FD" },
+    { make: "Chevrolet", model: "Silverado", yearStart: 2014, yearEnd: 2018, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Yes (OBD)", lonsdor: "", platform: "CAN" },
+    { make: "Chevrolet", model: "Silverado", yearStart: 2019, yearEnd: 2021, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Yes (OBD)", lonsdor: "", platform: "Legacy" },
+    { make: "Chevrolet", model: "Silverado", yearStart: 2022, yearEnd: 2026, autel: "Limited", smartPro: "Limited", vvdi: "No", lonsdor: "", platform: "CAN FD/VIP" },
+    { make: "Chevrolet", model: "Tahoe", yearStart: 2015, yearEnd: 2020, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Yes (OBD)", lonsdor: "", platform: "CAN" },
+    { make: "Chevrolet", model: "Tahoe", yearStart: 2021, yearEnd: 2024, autel: "Yes (OBD)", smartPro: "Yes (OBD)", vvdi: "Limited", lonsdor: "", platform: "CAN FD" },
+    { make: "Ford", model: "Bronco", yearStart: 2021, yearEnd: 2024, autel: "Medium", smartPro: "High", vvdi: "", lonsdor: "", platform: "Active Alarm" },
+    { make: "Ford", model: "F-150", yearStart: 2015, yearEnd: 2020, autel: "High", smartPro: "High", vvdi: "", lonsdor: "", platform: "Prox" },
+    { make: "Ford", model: "F-150", yearStart: 2021, yearEnd: 2024, autel: "Medium", smartPro: "High", vvdi: "", lonsdor: "", platform: "Active Alarm" },
+    { make: "Ford", model: "Mach-E", yearStart: 2021, yearEnd: 2024, autel: "Low/Medium", smartPro: "Medium", vvdi: "", lonsdor: "", platform: "EV" },
+    { make: "Ford", model: "Mustang", yearStart: 2015, yearEnd: 2020, autel: "High", smartPro: "High", vvdi: "", lonsdor: "", platform: "Prox" },
+    { make: "Jaguar", model: "E-Pace", yearStart: 2018, yearEnd: 2023, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "J9C3 DoIP" },
+    { make: "Jaguar", model: "F-Pace", yearStart: 2017, yearEnd: 2020, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "HPLA/JPLA" },
+    { make: "Jaguar", model: "F-Type", yearStart: 2015, yearEnd: 2018, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "FK72/HPLA" },
+    { make: "Jaguar", model: "XE", yearStart: 2016, yearEnd: 2019, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "HPLA/JPLA" },
+    { make: "Jeep", model: "Grand Cherokee", yearStart: 2014, yearEnd: 2021, autel: "Yes", smartPro: "Yes", vvdi: "", lonsdor: "Yes", platform: "SGW (18+)" },
+    { make: "Jeep", model: "Grand Cherokee L", yearStart: 2021, yearEnd: 2024, autel: "No (OBD)", smartPro: "No (OBD)", vvdi: "", lonsdor: "No (OBD)", platform: "RF Hub Lock" },
+    { make: "Jeep", model: "Wagoneer", yearStart: 2022, yearEnd: 2024, autel: "No (OBD)", smartPro: "No (OBD)", vvdi: "", lonsdor: "No (OBD)", platform: "RF Hub Lock" },
+    { make: "Land Rover", model: "Defender L663", yearStart: 2020, yearEnd: 2023, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "K8D2 UWB" },
+    { make: "Land Rover", model: "Defender L663", yearStart: 2024, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "M9R3 UWB" },
+    { make: "Land Rover", model: "Discovery", yearStart: 2017, yearEnd: 2020, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "HPLA/JPLA" },
+    { make: "Land Rover", model: "Range Rover L405", yearStart: 2015, yearEnd: 2017, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "FK72 CAN" },
+    { make: "Land Rover", model: "Range Rover L405", yearStart: 2018, yearEnd: 2021, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "JPLA DoIP" },
+    { make: "Land Rover", model: "Range Rover L460", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "M9R3 UWB" },
+    { make: "Land Rover", model: "Range Rover Sport L461", yearStart: 2023, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "M9R3 UWB" },
+    { make: "Land Rover", model: "Range Rover Sport L494", yearStart: 2015, yearEnd: 2017, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "FK72 CAN" },
+    { make: "Land Rover", model: "Range Rover Sport L494", yearStart: 2018, yearEnd: 2022, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "JPLA DoIP" },
+    { make: "Lexus", model: "NX350", yearStart: 2022, yearEnd: 2025, autel: "Dealer/SP", smartPro: "", vvdi: "", lonsdor: "SP+Cable", platform: "BA-Prox" },
+    { make: "Lexus", model: "RX350", yearStart: 2010, yearEnd: 2015, autel: "Autel/SP", smartPro: "", vvdi: "", lonsdor: "Reset", platform: "Prox" },
+    { make: "RAM", model: "RAM 1500", yearStart: 2013, yearEnd: 2017, autel: "Yes", smartPro: "Yes", vvdi: "", lonsdor: "Yes", platform: "Standard" },
+    { make: "RAM", model: "RAM 1500", yearStart: 2018, yearEnd: 2018, autel: "Yes (AutoAuth)", smartPro: "Yes (AutoAuth)", vvdi: "", lonsdor: "Yes (12+8)", platform: "SGW" },
+    { make: "RAM", model: "RAM 1500 (DT)", yearStart: 2019, yearEnd: 2024, autel: "Yes (AutoAuth)", smartPro: "Yes (AutoAuth)", vvdi: "", lonsdor: "Yes (12+8)", platform: "SGW" },
+    { make: "Toyota", model: "Camry", yearStart: 2012, yearEnd: 2017, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "H-Chip", difficulty: "Medium" },
+    { make: "Toyota", model: "Camry", yearStart: 2018, yearEnd: 2023, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "8A Smart", difficulty: "Medium" },
+    { make: "Toyota", model: "Corolla Cross", yearStart: 2022, yearEnd: 2024, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "4A", difficulty: "Very High" },
+    { make: "Toyota", model: "Sienna", yearStart: 2021, yearEnd: 2024, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "8A BA", difficulty: "High" },
+    { make: "Toyota", model: "Tundra", yearStart: 2022, yearEnd: 2024, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "8A-BA", difficulty: "Very High" },
+    { make: "Volvo", model: "C40 Recharge", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "Very High" },
+    { make: "Volvo", model: "S60/V60", yearStart: 2019, yearEnd: 2022, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
+    { make: "Volvo", model: "S60/V60", yearStart: 2023, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "Very High" },
+    { make: "Volvo", model: "S90/V90", yearStart: 2017, yearEnd: 2021, autel: "", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
+    { make: "Volvo", model: "S90/V90", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "High" },
+    { make: "Volvo", model: "XC40", yearStart: 2018, yearEnd: 2020, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Low" },
+    { make: "Volvo", model: "XC40", yearStart: 2021, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "High" },
+    { make: "Volvo", model: "XC60", yearStart: 2018, yearEnd: 2021, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
+    { make: "Volvo", model: "XC60", yearStart: 2022, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "Very High" },
+    { make: "Volvo", model: "XC90", yearStart: 2016, yearEnd: 2020, autel: "Supported", smartPro: "", vvdi: "", lonsdor: "", platform: "CEM4", difficulty: "Medium" },
+    { make: "Volvo", model: "XC90", yearStart: 2021, yearEnd: 2026, autel: "", smartPro: "", vvdi: "", lonsdor: "Supported", platform: "CEM5", difficulty: "High" },
+];
+
+const TOOLS = ['autel', 'smartPro', 'lonsdor', 'vvdi'] as const;
+const TOOL_LABELS = {
+    autel: 'Autel IM608',
+    smartPro: 'Smart Pro',
+    lonsdor: 'Lonsdor K518',
+    vvdi: 'VVDI',
+};
+
+function getCoverageLevel(status: string): 'full' | 'partial' | 'none' | 'unknown' {
+    if (!status) return 'unknown';
+    const s = status.toLowerCase();
+    if (s.includes('yes') || s.includes('high') || s.includes('supported')) return 'full';
+    if (s.includes('limited') || s.includes('medium') || s.includes('partial') || s.includes('dealer')) return 'partial';
+    if (s.includes('no') || s.includes('low')) return 'none';
+    return 'unknown';
+}
+
+const LEVEL_COLORS = {
+    full: 'bg-emerald-500',
+    partial: 'bg-amber-500',
+    none: 'bg-red-500',
+    unknown: 'bg-gray-700',
+};
+
+const LEVEL_LABELS = {
+    full: '✓ Full',
+    partial: '◐ Partial',
+    none: '✗ None',
+    unknown: '? Unknown',
+};
+
+export default function CoverageHeatMap() {
+    const [selectedMake, setSelectedMake] = useState<string>('all');
+    const [activeTab, setActiveTab] = useState<'heatmap' | 'warnings' | 'pearls' | 'rankings' | 'relationships'>('heatmap');
+
+    const makes = useMemo(() => {
+        const uniqueMakes = [...new Set(COVERAGE_DATA.map(r => r.make))].sort();
+        return uniqueMakes;
+    }, []);
+
+    const filteredData = useMemo(() => {
+        if (selectedMake === 'all') return COVERAGE_DATA;
+        return COVERAGE_DATA.filter(r => r.make === selectedMake);
+    }, [selectedMake]);
+
+    // Calculate summary stats
+    const stats = useMemo(() => {
+        const toolStats: Record<string, { full: number; partial: number; none: number; unknown: number }> = {};
+        TOOLS.forEach(tool => {
+            toolStats[tool] = { full: 0, partial: 0, none: 0, unknown: 0 };
+        });
+
+        filteredData.forEach(record => {
+            TOOLS.forEach(tool => {
+                const status = record[tool] as string || '';
+                const level = getCoverageLevel(status);
+                toolStats[tool][level]++;
+            });
+        });
+
+        return toolStats;
+    }, [filteredData]);
+
+    return (
+        <div className="min-h-screen bg-gray-950 text-white p-6">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                        Business Intelligence Hub
+                    </h1>
+                    <p className="text-gray-400 mt-2">
+                        Comprehensive tool coverage, warnings, and procedural intelligence
+                    </p>
+                </div>
+
+                {/* Tab Navigation */}
+                <div className="flex gap-1 mb-8 border-b border-gray-800 pb-4">
+                    {[
+                        { id: 'heatmap', label: '🗺️ Heat Map', count: COVERAGE_DATA.length },
+                        { id: 'warnings', label: '🚨 Warnings', count: 22 },
+                        { id: 'pearls', label: '💎 Pearls', count: 12 },
+                        { id: 'rankings', label: '🏆 Tool Rankings', count: 9 },
+                        { id: 'relationships', label: '🔗 Platform Groups', count: 13 },
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === tab.id
+                                ? 'bg-gradient-to-r from-cyan-600 to-purple-600 text-white shadow-lg'
+                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                                }`}
+                        >
+                            {tab.label}
+                            <span className={`px-1.5 py-0.5 rounded text-xs ${activeTab === tab.id ? 'bg-white/20' : 'bg-gray-700'
+                                }`}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Warnings Tab */}
+                {activeTab === 'warnings' && (
+                    <CriticalWarnings />
+                )}
+
+                {/* Pearls Tab */}
+                {activeTab === 'pearls' && (
+                    <PearlProcedures />
+                )}
+
+                {/* Tool Rankings Tab */}
+                {activeTab === 'rankings' && (
+                    <ToolRankings />
+                )}
+
+                {/* Relationships Tab */}
+                {activeTab === 'relationships' && (
+                    <CrossVehicleRelationships />
+                )}
+
+                {/* Heat Map Tab */}
+                {activeTab === 'heatmap' && (
+                    <>
+
+                        {/* Filter */}
+                        <div className="mb-6 flex items-center gap-4">
+                            <label className="text-sm text-gray-400">Filter by Make:</label>
+                            <select
+                                value={selectedMake}
+                                onChange={(e) => setSelectedMake(e.target.value)}
+                                className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white"
+                            >
+                                <option value="all">All Makes ({COVERAGE_DATA.length})</option>
+                                {makes.map(make => (
+                                    <option key={make} value={make}>
+                                        {make} ({COVERAGE_DATA.filter(r => r.make === make).length})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Legend */}
+                        <div className="mb-6 flex flex-wrap gap-4">
+                            {Object.entries(LEVEL_COLORS).map(([level, color]) => (
+                                <div key={level} className="flex items-center gap-2">
+                                    <div className={`w-4 h-4 rounded ${color}`} />
+                                    <span className="text-sm text-gray-400">{LEVEL_LABELS[level as keyof typeof LEVEL_LABELS]}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Summary Stats */}
+                        <div className="grid grid-cols-4 gap-4 mb-8">
+                            {TOOLS.map(tool => (
+                                <div key={tool} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                                    <h3 className="font-bold text-white mb-3">{TOOL_LABELS[tool]}</h3>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-emerald-400">Full:</span>
+                                            <span className="font-bold">{stats[tool].full}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-amber-400">Partial:</span>
+                                            <span className="font-bold">{stats[tool].partial}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-red-400">None:</span>
+                                            <span className="font-bold">{stats[tool].none}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Unknown:</span>
+                                            <span className="font-bold">{stats[tool].unknown}</span>
+                                        </div>
+                                    </div>
+                                    {/* Mini progress bar */}
+                                    <div className="mt-3 h-2 rounded-full bg-gray-800 overflow-hidden flex">
+                                        <div
+                                            className="bg-emerald-500"
+                                            style={{ width: `${(stats[tool].full / filteredData.length) * 100}%` }}
+                                        />
+                                        <div
+                                            className="bg-amber-500"
+                                            style={{ width: `${(stats[tool].partial / filteredData.length) * 100}%` }}
+                                        />
+                                        <div
+                                            className="bg-red-500"
+                                            style={{ width: `${(stats[tool].none / filteredData.length) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Heat Map Grid */}
+                        <div className="bg-gray-900/30 border border-gray-800 rounded-2xl overflow-hidden">
+                            {/* Header Row */}
+                            <div className="grid grid-cols-[200px_120px_repeat(4,80px)] bg-gray-900/50 border-b border-gray-800">
+                                <div className="p-3 font-bold text-gray-400">Vehicle</div>
+                                <div className="p-3 font-bold text-gray-400 text-center">Years</div>
+                                {TOOLS.map(tool => (
+                                    <div key={tool} className="p-3 font-bold text-gray-400 text-center text-xs">
+                                        {TOOL_LABELS[tool].split(' ')[0]}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Data Rows */}
+                            <div className="divide-y divide-gray-800/50">
+                                {filteredData.map((record, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="grid grid-cols-[200px_120px_repeat(4,80px)] hover:bg-gray-800/30 transition-colors"
+                                    >
+                                        <div className="p-3">
+                                            <div className="font-medium text-white">{record.make}</div>
+                                            <div className="text-sm text-gray-500">{record.model}</div>
+                                        </div>
+                                        <div className="p-3 text-center text-sm text-gray-400">
+                                            {record.yearStart}-{record.yearEnd.toString().slice(-2)}
+                                        </div>
+                                        {TOOLS.map(tool => {
+                                            const status = record[tool] as string || '';
+                                            const level = getCoverageLevel(status);
+                                            return (
+                                                <div key={tool} className="p-3 flex items-center justify-center">
+                                                    <div
+                                                        className={`w-6 h-6 rounded ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-lg' : ''}`}
+                                                        title={status || 'No data'}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Platform Distribution */}
+                        <div className="mt-8 bg-gray-900/30 border border-gray-800 rounded-2xl p-6">
+                            <h2 className="text-xl font-bold mb-4">Platforms by Make</h2>
+                            <div className="grid grid-cols-3 gap-4">
+                                {makes.map(make => {
+                                    const makeRecords = COVERAGE_DATA.filter(r => r.make === make);
+                                    const platforms = [...new Set(makeRecords.map(r => r.platform))];
+                                    return (
+                                        <div key={make} className="bg-gray-800/50 rounded-xl p-4">
+                                            <h3 className="font-bold text-cyan-400 mb-2">{make}</h3>
+                                            <div className="text-sm text-gray-400 space-y-1">
+                                                {platforms.map(p => (
+                                                    <div key={p} className="flex items-center gap-2">
+                                                        <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                                                        {p}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}

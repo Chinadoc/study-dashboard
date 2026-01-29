@@ -1,126 +1,43 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { loadBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
+import React, { useMemo, useState } from 'react';
+import { loadBusinessProfile } from '@/lib/businessTypes';
+import {
+    coverageMatrix,
+    type CoverageGroup,
+    type CoverageTool
+} from '@/src/data/coverageMatrixLoader';
 
-// Protocol coverage data based on selected tools
-const PROTOCOL_COVERAGE = [
-    {
-        make: 'Toyota / Lexus',
-        system: '8A-BA (2018-2024)',
-        coverage: {
-            autel_im608: { status: 'Medium', note: 'APB112 + Server Calc' },
-            lonsdor_k518: { status: 'High', note: 'OFFLINE (Free)' },
-            xhorse_keytool_plus: { status: 'Medium', note: 'KS-01 Simulator' },
-            obdstar_g3: { status: 'High', note: 'Toyota-30 Cable' },
-            autopropad: { status: 'Medium', note: 'Standard coverage' },
-            smart_pro: { status: 'Medium', note: 'Token-based' },
-        },
+// Status styling mapping
+const STATUS_STYLES: Record<string, { bg: string; border: string; text: string; icon: string; label: string }> = {
+    RED: {
+        bg: 'bg-red-950/20',
+        border: 'border-red-900/50',
+        text: 'text-red-400',
+        icon: '🚫',
+        label: 'Critical Gap'
     },
-    {
-        make: 'Nissan',
-        system: 'Gateway (2019+)',
-        coverage: {
-            autel_im608: { status: 'Risky', note: 'Check BCM first!' },
-            lonsdor_k518: { status: 'High', note: '40-Pin bypass' },
-            xhorse_keytool_plus: { status: 'Low', note: 'Adapter needed' },
-            obdstar_g3: { status: 'High', note: 'Blacklist detect' },
-            autopropad: { status: 'Medium', note: 'OBD route' },
-            smart_pro: { status: 'Medium', note: 'Standard' },
-        },
+    ORANGE: {
+        bg: 'bg-orange-950/20',
+        border: 'border-orange-900/50',
+        text: 'text-orange-400',
+        icon: '⚠️',
+        label: 'High Risk'
     },
-    {
-        make: 'Honda / Acura',
-        system: 'Keihin IMMO',
-        coverage: {
-            autel_im608: { status: 'High', note: 'PIN auto-calc' },
-            lonsdor_k518: { status: 'High', note: 'OBD + PIN' },
-            xhorse_keytool_plus: { status: 'Medium', note: 'Add key OBD' },
-            obdstar_g3: { status: 'High', note: 'Strong coverage' },
-            autopropad: { status: 'High', note: 'Excellent' },
-            smart_pro: { status: 'High', note: 'Full support' },
-        },
+    YELLOW: {
+        bg: 'bg-yellow-950/20',
+        border: 'border-yellow-900/50',
+        text: 'text-yellow-400',
+        icon: '⚡',
+        label: 'Procedural Warning'
     },
-    {
-        make: 'FCA (Jeep/Ram)',
-        system: 'SGW (2018+)',
-        coverage: {
-            autel_im608: { status: 'High', note: 'AutoAuth cloud' },
-            lonsdor_k518: { status: 'High', note: '12+8 bypass' },
-            xhorse_keytool_plus: { status: 'Medium', note: '12+8 cable' },
-            obdstar_g3: { status: 'High', note: '12+8 bypass' },
-            autopropad: { status: 'High', note: 'NASTF unlock' },
-            smart_pro: { status: 'High', note: 'Dealer access' },
-        },
+    GREEN: {
+        bg: 'bg-green-950/20',
+        border: 'border-green-900/50',
+        text: 'text-green-400',
+        icon: '✅',
+        label: 'Verified Coverage'
     },
-    {
-        make: 'VAG (VW/Audi)',
-        system: 'MQB / MQB48',
-        coverage: {
-            autel_im608: { status: 'High', note: 'Cluster data' },
-            lonsdor_k518: { status: 'Medium', note: 'OBD + Cluster' },
-            xhorse_keytool_plus: { status: 'High', note: 'MQB specialist' },
-            obdstar_g3: { status: 'Medium', note: 'Add key OBD' },
-            autopropad: { status: 'Low', note: 'Limited' },
-            smart_pro: { status: 'Medium', note: 'Partial support' },
-        },
-    },
-    {
-        make: 'BMW',
-        system: 'CAS3/4 & FEM',
-        coverage: {
-            autel_im608: { status: 'High', note: 'XP400 Pro' },
-            lonsdor_k518: { status: 'Medium', note: 'OBD Add' },
-            xhorse_keytool_plus: { status: 'High', note: 'ISN specialist' },
-            obdstar_g3: { status: 'Medium', note: 'P001 bench' },
-            autopropad: { status: 'Low', note: 'Limited' },
-            smart_pro: { status: 'Medium', note: 'ISN reading' },
-        },
-    },
-    {
-        make: 'Mercedes-Benz',
-        system: 'FBS3 (Pre-2019)',
-        coverage: {
-            autel_im608: { status: 'High', note: 'G-Box3 server' },
-            lonsdor_k518: { status: 'Low', note: 'Token purchase' },
-            xhorse_keytool_plus: { status: 'High', note: 'VVDI MB' },
-            obdstar_g3: { status: 'Low', note: 'Limited' },
-            autopropad: { status: 'Low', note: 'Minimal' },
-            smart_pro: { status: 'Medium', note: 'Token-based' },
-        },
-    },
-    {
-        make: 'GM (2019+)',
-        system: 'CAN-FD',
-        coverage: {
-            autel_im608: { status: 'High', note: 'Built-in CAN-FD' },
-            lonsdor_k518: { status: 'Medium', note: 'Limited 2022+' },
-            xhorse_keytool_plus: { status: 'Low', note: 'Adapter needed' },
-            obdstar_g3: { status: 'Medium', note: 'Latest update' },
-            autopropad: { status: 'High', note: 'Full coverage' },
-            smart_pro: { status: 'High', note: 'Full support' },
-        },
-    },
-    {
-        make: 'Hyundai / Kia',
-        system: 'SMARTRA',
-        coverage: {
-            autel_im608: { status: 'High', note: 'Strong Korean' },
-            lonsdor_k518: { status: 'High', note: 'PIN auto' },
-            xhorse_keytool_plus: { status: 'Medium', note: 'Add key' },
-            obdstar_g3: { status: 'High', note: 'Excellent' },
-            autopropad: { status: 'High', note: 'Full support' },
-            smart_pro: { status: 'High', note: 'Full support' },
-        },
-    },
-];
-
-const STATUS_COLORS = {
-    High: { bg: 'bg-green-900/30', text: 'text-green-400', border: 'border-green-700/30' },
-    Medium: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', border: 'border-yellow-700/30' },
-    Low: { bg: 'bg-red-900/30', text: 'text-red-400', border: 'border-red-700/30' },
-    Risky: { bg: 'bg-red-900/50', text: 'text-red-500', border: 'border-red-600/50' },
-    None: { bg: 'bg-gray-900/50', text: 'text-gray-600', border: 'border-gray-800' },
 };
 
 interface CoverageMapProps {
@@ -128,99 +45,156 @@ interface CoverageMapProps {
 }
 
 export default function CoverageMap({ tools }: CoverageMapProps) {
-    const userTools = tools || loadBusinessProfile().tools;
+    // In a real app, we would filter coverageMatrix based on the 'tools' prop
+    // For now, we show the matrix as calculated against the "inventory" defined in the gap analysis script
 
-    const coverageStats = useMemo(() => {
-        let high = 0, medium = 0, low = 0;
-
-        PROTOCOL_COVERAGE.forEach(protocol => {
-            const bestCoverage = userTools.reduce((best, toolId) => {
-                const coverage = protocol.coverage[toolId as keyof typeof protocol.coverage];
-                if (!coverage) return best;
-                if (coverage.status === 'High' || coverage.status === 'Medium' && best !== 'High') {
-                    return coverage.status;
-                }
-                return best;
-            }, 'None');
-
-            if (bestCoverage === 'High') high++;
-            else if (bestCoverage === 'Medium') medium++;
-            else if (bestCoverage === 'Low' || bestCoverage === 'Risky') low++;
+    // Group by status for display sections
+    const groupsByStatus = useMemo(() => {
+        const groups: Record<string, CoverageGroup[]> = { RED: [], ORANGE: [], YELLOW: [], GREEN: [] };
+        coverageMatrix.forEach(g => {
+            if (groups[g.status]) {
+                groups[g.status].push(g);
+            }
         });
+        return groups;
+    }, []);
 
-        return { high, medium, low, total: PROTOCOL_COVERAGE.length };
-    }, [userTools]);
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-    if (userTools.length === 0) {
-        return (
-            <div className="text-center py-12 bg-gray-900/50 rounded-xl border border-gray-800">
-                <div className="text-4xl mb-4">🔧</div>
-                <h3 className="text-xl font-bold mb-2">No Tools Selected</h3>
-                <p className="text-gray-500">Add your tools to see vehicle coverage</p>
-            </div>
-        );
-    }
+    const toggleExpand = (id: string) => {
+        const newSet = new Set(expandedIds);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setExpandedIds(newSet);
+    };
 
     return (
-        <div className="space-y-6">
-            {/* Coverage Summary */}
-            <div className="grid grid-cols-3 gap-4">
-                <div className="bg-green-900/20 border border-green-700/30 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-black text-green-400">{coverageStats.high}</div>
-                    <div className="text-xs text-green-600 uppercase tracking-wider">High Coverage</div>
+        <div className="space-y-8">
+            {/* Summary Headers */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(STATUS_STYLES).map(([status, style]) => (
+                    <div key={status} className={`p-4 rounded-xl border ${style.border} ${style.bg} text-center`}>
+                        <div className="text-2xl mb-1">{style.icon}</div>
+                        <div className={`text-2xl font-black ${style.text}`}>
+                            {groupsByStatus[status]?.length || 0}
+                        </div>
+                        <div className="text-xs uppercase tracking-wider text-gray-500 font-semibold">
+                            {style.label}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Sections */}
+            {['RED', 'ORANGE', 'YELLOW', 'GREEN'].map(status => {
+                const groups = groupsByStatus[status];
+                if (!groups || groups.length === 0) return null;
+                const style = STATUS_STYLES[status];
+
+                return (
+                    <div key={status} className="space-y-4">
+                        <h3 className={`text-lg font-bold flex items-center gap-2 ${style.text}`}>
+                            {style.icon} {style.label}s
+                        </h3>
+                        <div className="grid gap-4">
+                            {groups.map(group => (
+                                <CoverageCard
+                                    key={group.id}
+                                    group={group}
+                                    style={style}
+                                    isExpanded={expandedIds.has(group.id)}
+                                    onToggle={() => toggleExpand(group.id)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+function CoverageCard({ group, style, isExpanded, onToggle }: { group: CoverageGroup, style: any, isExpanded: boolean, onToggle: () => void }) {
+    const toolCount = group.tools_claiming_coverage.length;
+
+    return (
+        <div
+            className={`rounded-lg border ${style.border} bg-gray-900/40 overflow-hidden transition-all hover:border-gray-700`}
+        >
+            <div
+                className="p-4 flex items-start justify-between cursor-pointer"
+                onClick={onToggle}
+            >
+                <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                        <h4 className="font-bold text-gray-100 text-lg">{group.vehicle_group}</h4>
+                        <span className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full border border-gray-700 font-mono">
+                            {group.years}
+                        </span>
+                    </div>
+                    <div className="text-sm text-gray-400 flex items-center gap-2">
+                        <span className="font-semibold text-gray-500">Barrier:</span>
+                        {group.barrier}
+                    </div>
+                    {!isExpanded && (
+                        <div className={`text-xs mt-2 font-medium ${style.text}`}>
+                            {group.gap_assessment}
+                        </div>
+                    )}
                 </div>
-                <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-black text-yellow-400">{coverageStats.medium}</div>
-                    <div className="text-xs text-yellow-600 uppercase tracking-wider">Medium</div>
-                </div>
-                <div className="bg-red-900/20 border border-red-700/30 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-black text-red-400">{coverageStats.low}</div>
-                    <div className="text-xs text-red-600 uppercase tracking-wider">Limited</div>
+
+                <div className="flex items-center gap-4">
+                    <div className="text-right hidden md:block">
+                        <div className="text-xs text-gray-500 uppercase font-semibold">Tool Coverage</div>
+                        <div className={`font-mono font-bold ${toolCount === 0 ? 'text-red-500' : 'text-gray-300'}`}>
+                            {toolCount} Tools
+                        </div>
+                    </div>
+                    <div className="text-gray-600">
+                        {isExpanded ? '▲' : '▼'}
+                    </div>
                 </div>
             </div>
 
-            {/* Protocol Grid */}
-            <div className="space-y-3">
-                {PROTOCOL_COVERAGE.map((protocol, idx) => {
-                    // Get best tool for this protocol
-                    let bestTool = null;
-                    let bestStatus = 'None';
+            {isExpanded && (
+                <div className="border-t border-gray-800 bg-black/20 p-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                    <div className="p-3 rounded bg-red-950/10 border border-red-900/20 text-sm">
+                        <span className="text-red-400 font-bold block mb-1">⚠️ Gap Analysis:</span>
+                        <span className="text-gray-300">{group.gap_assessment}</span>
+                    </div>
 
-                    for (const toolId of userTools) {
-                        const coverage = protocol.coverage[toolId as keyof typeof protocol.coverage];
-                        if (coverage && (coverage.status === 'High' || (coverage.status === 'Medium' && bestStatus !== 'High'))) {
-                            bestTool = AVAILABLE_TOOLS.find(t => t.id === toolId);
-                            bestStatus = coverage.status;
-                            if (bestStatus === 'High') break;
-                        }
-                    }
-
-                    const colors = STATUS_COLORS[bestStatus as keyof typeof STATUS_COLORS] || STATUS_COLORS.None;
-
-                    return (
-                        <div
-                            key={idx}
-                            className={`p-4 rounded-xl border ${colors.border} ${colors.bg} flex items-center justify-between`}
-                        >
-                            <div>
-                                <div className="font-bold text-white">{protocol.make}</div>
-                                <div className="text-sm text-gray-400">{protocol.system}</div>
-                            </div>
-                            <div className="text-right">
-                                <div className={`font-bold ${colors.text}`}>
-                                    {bestStatus}
-                                    {bestStatus === 'Risky' && <span className="ml-1">⚠️</span>}
-                                </div>
-                                {bestTool && (
-                                    <div className="text-xs text-gray-500">
-                                        via {bestTool.shortName}
+                    {group.tools_claiming_coverage.length > 0 ? (
+                        <div>
+                            <div className="text-xs text-gray-500 uppercase font-bold mb-2">Claimed Coverage (Via Chip/Function):</div>
+                            <div className="space-y-2">
+                                {group.tools_claiming_coverage.slice(0, 5).map((tool, i) => (
+                                    <div key={i} className="flex items-center justify-between text-sm bg-gray-800/50 p-2 rounded border border-gray-700/50">
+                                        <div className="font-medium text-gray-300 truncate max-w-[300px]" title={tool.tool_name}>
+                                            {tool.tool_name}
+                                        </div>
+                                        <div className="flex gap-2 text-xs">
+                                            {tool.via_chips.map(chip => (
+                                                <span key={chip} className="bg-blue-900/30 text-blue-400 px-1.5 rounded border border-blue-800/50">
+                                                    {chip}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {group.tools_claiming_coverage.length > 5 && (
+                                    <div className="text-xs text-center text-gray-500 italic">
+                                        + {group.tools_claiming_coverage.length - 5} more tools...
                                     </div>
                                 )}
                             </div>
                         </div>
-                    );
-                })}
-            </div>
+                    ) : (
+                        <div className="text-sm text-gray-500 italic">
+                            No tools in your current inventory claim to support this vehicle architecture.
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
