@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { SearchBar } from './SearchBar';
 import { POPULAR_MAKES, getMakeLogo, getBrandColor, getMakeInitials } from '@/lib/make-data';
@@ -12,9 +12,11 @@ interface MobileBrowseProps {
 }
 
 /**
- * Mobile-optimized browse with 3-column grid of make logos,
- * then 3-column grid of models (with images when available),
- * and 3-column grid of years.
+ * Mobile-optimized browse with:
+ * - Horizontal scrolling 3-column grid (swipe left-to-right)
+ * - Dropdown selectors at top
+ * - Clickable breadcrumb navigation
+ * - Go button at top and bottom
  */
 export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const router = useRouter();
@@ -42,7 +44,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 const res = await fetch(`${API_BASE}/api/vyp/makes`);
                 const data = await res.json();
                 const apiMakes = (data.makes || []) as string[];
-                const allMakes = [...new Set([...POPULAR_MAKES, ...apiMakes])];
+                const allMakes = [...new Set([...POPULAR_MAKES.filter(m => apiMakes.includes(m)), ...apiMakes])];
                 setMakes(allMakes);
             } catch {
                 setMakes([...POPULAR_MAKES]);
@@ -117,98 +119,175 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
         }
     };
 
-    const handleBack = () => {
-        if (selectedModel) {
-            setSelectedModel(null);
-            setSelectedYear(null);
-        } else if (selectedMake) {
-            setSelectedMake(null);
-            setModels([]);
-        }
-    };
+    const canNavigate = selectedMake && selectedModel && selectedYear;
 
-    // Get model image path - try to find in assets/vehicles/{make}/{model}.png
+    // Get model image path
     const getModelImage = (make: string, model: string): string => {
         const makeLower = make.toLowerCase().replace(/\s+/g, '_');
         const modelLower = model.toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
         return `/assets/vehicles/${makeLower}/${makeLower}_${modelLower}.png`;
     };
 
+    // Group items into rows of 3 for horizontal scroll
+    const groupIntoRows = <T,>(items: T[], rowSize: number = 3): T[][] => {
+        const rows: T[][] = [];
+        for (let i = 0; i < items.length; i += rowSize) {
+            rows.push(items.slice(i, i + rowSize));
+        }
+        return rows;
+    };
+
+    // Go Button component
+    const GoButton = () => (
+        <button
+            onClick={handleNavigate}
+            disabled={!canNavigate}
+            className={`w-full px-6 py-3 rounded-xl font-bold transition-all text-lg
+                ${canNavigate
+                    ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white shadow-lg shadow-purple-500/30'
+                    : 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                }
+            `}
+        >
+            {canNavigate ? `View ${selectedYear} ${selectedMake} ${selectedModel} →` : 'Select Year, Make & Model'}
+        </button>
+    );
+
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             {/* Search Bar */}
             <SearchBar onSearch={onSearch} />
 
-            {/* Breadcrumb Header */}
+            {/* Dropdown Selectors Row */}
+            <div className="grid grid-cols-3 gap-2">
+                {/* Year Dropdown */}
+                <select
+                    value={selectedYear || ''}
+                    onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+                    disabled={!selectedModel || years.length === 0}
+                    className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <option value="">Year</option>
+                    {years.map(year => (
+                        <option key={year} value={year}>{year}</option>
+                    ))}
+                </select>
+
+                {/* Make Dropdown */}
+                <select
+                    value={selectedMake || ''}
+                    onChange={(e) => handleMakeSelect(e.target.value)}
+                    className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-2 text-sm text-white"
+                >
+                    <option value="">Make</option>
+                    {makes.map(make => (
+                        <option key={make} value={make}>{make}</option>
+                    ))}
+                </select>
+
+                {/* Model Dropdown */}
+                <select
+                    value={selectedModel || ''}
+                    onChange={(e) => handleModelSelect(e.target.value)}
+                    disabled={!selectedMake || models.length === 0}
+                    className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-2 text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <option value="">Model</option>
+                    {models.map(model => (
+                        <option key={model} value={model}>{model}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Top Go Button */}
+            <GoButton />
+
+            {/* Clickable Breadcrumb */}
             {selectedMake && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-sm">
                     <button
-                        onClick={handleBack}
-                        className="text-gray-400 hover:text-purple-400 transition-colors text-lg"
+                        onClick={() => { setSelectedMake(null); setSelectedModel(null); setSelectedYear(null); }}
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
                     >
-                        ←
+                        ← Makes
                     </button>
-                    <div className="flex items-center gap-2 text-white/80">
-                        <span className="font-semibold">{selectedMake}</span>
-                        {selectedModel && (
-                            <>
-                                <span className="text-purple-400">›</span>
-                                <span className="font-semibold">{selectedModel}</span>
-                            </>
-                        )}
-                        {selectedYear && (
-                            <>
-                                <span className="text-purple-400">›</span>
-                                <span className="font-bold text-purple-300">{selectedYear}</span>
-                            </>
-                        )}
-                    </div>
+                    <span className="text-purple-400">›</span>
+                    <button
+                        onClick={() => { setSelectedModel(null); setSelectedYear(null); }}
+                        className="font-semibold text-white hover:text-purple-300 transition-colors"
+                    >
+                        {selectedMake}
+                    </button>
+                    {selectedModel && (
+                        <>
+                            <span className="text-purple-400">›</span>
+                            <button
+                                onClick={() => setSelectedYear(null)}
+                                className="font-semibold text-white hover:text-purple-300 transition-colors"
+                            >
+                                {selectedModel}
+                            </button>
+                        </>
+                    )}
+                    {selectedYear && (
+                        <>
+                            <span className="text-purple-400">›</span>
+                            <span className="font-bold text-purple-300">{selectedYear}</span>
+                        </>
+                    )}
                 </div>
             )}
 
-            {/* Make Selection - 3 column grid with logos */}
+            {/* Horizontal Scroll Grid - Makes */}
             {!selectedMake && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
                         Select Make
                     </h2>
-                    <div className="grid grid-cols-3 gap-3">
-                        {makes.map(make => {
-                            const logoUrl = getMakeLogo(make);
-                            const brandColor = getBrandColor(make);
-                            const initials = getMakeInitials(make);
-                            const hasError = makeImageErrors.has(make);
+                    <div className="overflow-x-auto pb-2 -mx-4 px-4">
+                        <div className="flex gap-3" style={{ width: 'max-content' }}>
+                            {groupIntoRows(makes, 3).map((row, rowIndex) => (
+                                <div key={rowIndex} className="flex flex-col gap-3" style={{ minWidth: '300px' }}>
+                                    {row.map(make => {
+                                        const logoUrl = getMakeLogo(make);
+                                        const brandColor = getBrandColor(make);
+                                        const initials = getMakeInitials(make);
+                                        const hasError = makeImageErrors.has(make);
 
-                            return (
-                                <button
-                                    key={make}
-                                    onClick={() => handleMakeSelect(make)}
-                                    className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
-                                >
-                                    {!hasError ? (
-                                        <img
-                                            src={logoUrl}
-                                            alt={make}
-                                            className="w-12 h-12 object-contain rounded-full bg-white p-1"
-                                            onError={() => setMakeImageErrors(prev => new Set(prev).add(make))}
-                                        />
-                                    ) : (
-                                        <div
-                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                                            style={{ backgroundColor: brandColor }}
-                                        >
-                                            {initials}
-                                        </div>
-                                    )}
-                                    <span className="text-xs text-gray-300 font-medium text-center">{make}</span>
-                                </button>
-                            );
-                        })}
+                                        return (
+                                            <button
+                                                key={make}
+                                                onClick={() => handleMakeSelect(make)}
+                                                className="flex items-center gap-3 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                            >
+                                                {!hasError ? (
+                                                    <img
+                                                        src={logoUrl}
+                                                        alt={make}
+                                                        className="w-10 h-10 object-contain rounded-full bg-white p-1 flex-shrink-0"
+                                                        onError={() => setMakeImageErrors(prev => new Set(prev).add(make))}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                                                        style={{ backgroundColor: brandColor }}
+                                                    >
+                                                        {initials}
+                                                    </div>
+                                                )}
+                                                <span className="text-sm text-gray-200 font-medium">{make}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
                     </div>
                 </section>
             )}
 
-            {/* Model Selection - 3 column grid with images when available */}
+            {/* Horizontal Scroll Grid - Models */}
             {selectedMake && !selectedModel && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -219,37 +298,44 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading models...
                         </div>
                     ) : (
-                        <div className="grid grid-cols-3 gap-3">
-                            {models.map(model => {
-                                const imageSrc = getModelImage(selectedMake, model);
-                                const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
+                        <div className="overflow-x-auto pb-2 -mx-4 px-4">
+                            <div className="flex gap-3" style={{ width: 'max-content' }}>
+                                {groupIntoRows(models, 3).map((row, rowIndex) => (
+                                    <div key={rowIndex} className="flex flex-col gap-3" style={{ minWidth: '300px' }}>
+                                        {row.map(model => {
+                                            const imageSrc = getModelImage(selectedMake, model);
+                                            const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
 
-                                return (
-                                    <button
-                                        key={model}
-                                        onClick={() => handleModelSelect(model)}
-                                        className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all min-h-[80px]"
-                                    >
-                                        {!hasError ? (
-                                            <img
-                                                src={imageSrc}
-                                                alt={model}
-                                                className="w-full h-12 object-contain"
-                                                onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
-                                            />
-                                        ) : null}
-                                        <span className={`text-center font-medium ${hasError ? 'text-white text-sm' : 'text-xs text-gray-300'}`}>
-                                            {model}
-                                        </span>
-                                    </button>
-                                );
-                            })}
+                                            return (
+                                                <button
+                                                    key={model}
+                                                    onClick={() => handleModelSelect(model)}
+                                                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                                >
+                                                    {!hasError ? (
+                                                        <img
+                                                            src={imageSrc}
+                                                            alt={model}
+                                                            className="w-12 h-8 object-contain flex-shrink-0"
+                                                            onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
+                                                        />
+                                                    ) : null}
+                                                    <span className={`font-medium ${hasError ? 'text-white' : 'text-gray-200 text-sm'}`}>
+                                                        {model}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
                         </div>
                     )}
                 </section>
             )}
 
-            {/* Year Selection - 3 column grid */}
+            {/* Horizontal Scroll Grid - Years */}
             {selectedModel && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -260,35 +346,35 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading years...
                         </div>
                     ) : (
-                        <div className="grid grid-cols-3 gap-3">
-                            {years.map(year => (
-                                <button
-                                    key={year}
-                                    onClick={() => handleYearSelect(year)}
-                                    className={`p-3 rounded-xl border transition-all text-center font-bold text-lg
-                                        ${selectedYear === year
-                                            ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                                            : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
-                                        }
-                                    `}
-                                >
-                                    {year}
-                                </button>
-                            ))}
+                        <div className="overflow-x-auto pb-2 -mx-4 px-4">
+                            <div className="flex gap-3" style={{ width: 'max-content' }}>
+                                {groupIntoRows(years, 3).map((row, rowIndex) => (
+                                    <div key={rowIndex} className="flex flex-col gap-3" style={{ minWidth: '300px' }}>
+                                        {row.map(year => (
+                                            <button
+                                                key={year}
+                                                onClick={() => handleYearSelect(year)}
+                                                className={`p-3 rounded-xl border transition-all text-center font-bold
+                                                    ${selectedYear === year
+                                                        ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                                                        : 'border-gray-700 bg-gray-800/50 hover:border-purple-400 text-white/80'
+                                                    }
+                                                `}
+                                            >
+                                                {year}
+                                            </button>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
                         </div>
                     )}
                 </section>
             )}
 
-            {/* Action Button */}
-            {selectedYear && (
-                <button
-                    onClick={handleNavigate}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 transition-all hover:-translate-y-1 active:scale-95 text-lg"
-                >
-                    View {selectedYear} {selectedMake} {selectedModel} →
-                </button>
-            )}
+            {/* Bottom Go Button */}
+            <GoButton />
         </div>
     );
 }

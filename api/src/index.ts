@@ -2742,7 +2742,17 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             ORDER BY make
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).all();
-          const makes = (result.results || []).map((r: any) => r.make);
+          let makes = (result.results || []).map((r: any) => r.make);
+
+          // Filter out motorcycle-only makes (keeps automotive focus)
+          const motorcycleOnlyMakes = new Set([
+            'Aprilia', 'Beta', 'Buell', 'CAN-AM', 'Cagiva', 'Cimatti', 'Derbi',
+            'Ducati', 'Fantic', 'Garelli', 'Gilera', 'Harley-Davidson', 'Husqvarna',
+            'Indian', 'Italjet', 'KTM', 'Kawasaki', 'Kymco', 'MBK', 'MZ', 'MV Agusta',
+            'Malaguti', 'Moto Guzzi', 'Norton', 'Piaggio', 'Polaris', 'Vespa',
+            'Victory', 'Yamaha', 'Atala', 'Evinrude', 'Sea'
+          ]);
+          makes = makes.filter((m: string) => !motorcycleOnlyMakes.has(m));
 
           return corsResponse(request, JSON.stringify({
             source: "aks_vehicles_by_year",
