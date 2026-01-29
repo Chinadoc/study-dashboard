@@ -59,12 +59,22 @@ const COVERAGE_DATA = [
 ];
 
 const TOOLS = ['autel', 'smartPro', 'lonsdor', 'vvdi'] as const;
-const TOOL_LABELS = {
+const TOOL_LABELS: Record<string, string> = {
     autel: 'Autel IM608',
     smartPro: 'Smart Pro',
     lonsdor: 'Lonsdor K518',
     vvdi: 'VVDI',
+    all: 'All Tools',
 };
+
+// Helper to get status text for a vehicle given current tool selection
+function getVehicleStatusText(v: typeof COVERAGE_DATA[0], tool: typeof TOOLS[number] | 'all'): string {
+    if (tool === 'all') {
+        const statuses = TOOLS.map(t => v[t] as string).filter(s => s);
+        return statuses.length > 0 ? statuses.join(' | ') : 'No data';
+    }
+    return v[tool] as string || '';
+}
 
 function getCoverageLevel(status: string): 'full' | 'partial' | 'none' | 'unknown' {
     if (!status) return 'unknown';
@@ -93,7 +103,7 @@ export default function CoverageHeatMap() {
     const [selectedMake, setSelectedMake] = useState<string>('all');
     const [activeTab, setActiveTab] = useState<'heatmap' | 'warnings' | 'pearls' | 'rankings' | 'relationships'>('heatmap');
     const [viewMode, setViewMode] = useState<'vehicle' | 'tool' | 'timeline'>('vehicle');
-    const [selectedTool, setSelectedTool] = useState<typeof TOOLS[number]>('autel');
+    const [selectedTool, setSelectedTool] = useState<typeof TOOLS[number] | 'all'>('all');
 
     // Year range for timeline view (1980-2026, defaulting to show recent years)
     const YEAR_START = 1990;
@@ -130,15 +140,28 @@ export default function CoverageHeatMap() {
 
     // Tool-centric view: vehicles this tool can handle
     const toolCoverage = useMemo(() => {
-        const tool = selectedTool;
         const full: typeof COVERAGE_DATA = [];
         const partial: typeof COVERAGE_DATA = [];
         const none: typeof COVERAGE_DATA = [];
         const unknown: typeof COVERAGE_DATA = [];
 
         COVERAGE_DATA.forEach(record => {
-            const status = record[tool] as string || '';
-            const level = getCoverageLevel(status);
+            let level: 'full' | 'partial' | 'none' | 'unknown' = 'unknown';
+
+            if (selectedTool === 'all') {
+                // Get best coverage across all tools
+                TOOLS.forEach(tool => {
+                    const status = record[tool] as string || '';
+                    const toolLevel = getCoverageLevel(status);
+                    if (toolLevel === 'full') level = 'full';
+                    else if (toolLevel === 'partial' && level !== 'full') level = 'partial';
+                    else if (toolLevel === 'none' && level === 'unknown') level = 'none';
+                });
+            } else {
+                const status = record[selectedTool] as string || '';
+                level = getCoverageLevel(status);
+            }
+
             if (level === 'full') full.push(record);
             else if (level === 'partial') partial.push(record);
             else if (level === 'none') none.push(record);
@@ -148,9 +171,12 @@ export default function CoverageHeatMap() {
         return { full, partial, none, unknown };
     }, [selectedTool]);
 
-    // Timeline view: for each make, compute coverage by year
+    // Timeline view: for each make, compute coverage by year (respecting selected tool)
     const timelineData = useMemo(() => {
         const data: Record<string, Record<number, { level: 'full' | 'partial' | 'none' | 'unknown', models: string[], status: string }>> = {};
+
+        // Which tools to check - either all or just the selected one
+        const toolsToCheck = selectedTool === 'all' ? TOOLS : [selectedTool];
 
         makes.forEach(make => {
             data[make] = {};
@@ -169,7 +195,7 @@ export default function CoverageHeatMap() {
                     const statuses: string[] = [];
 
                     records.forEach(r => {
-                        TOOLS.forEach(tool => {
+                        toolsToCheck.forEach(tool => {
                             const status = r[tool] as string || '';
                             if (status) statuses.push(`${TOOL_LABELS[tool]}: ${status}`);
                             const level = getCoverageLevel(status);
@@ -189,7 +215,7 @@ export default function CoverageHeatMap() {
         });
 
         return data;
-    }, [makes, years]);
+    }, [makes, years, selectedTool]);
 
     return (
         <div className="min-h-screen bg-gray-950 text-white p-6">
@@ -308,9 +334,10 @@ export default function CoverageHeatMap() {
                                     <label className="text-sm text-gray-400">Select Tool:</label>
                                     <select
                                         value={selectedTool}
-                                        onChange={(e) => setSelectedTool(e.target.value as typeof TOOLS[number])}
+                                        onChange={(e) => setSelectedTool(e.target.value as typeof TOOLS[number] | 'all')}
                                         className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white"
                                     >
+                                        <option value="all">All Tools</option>
                                         {TOOLS.map(tool => (
                                             <option key={tool} value={tool}>
                                                 {TOOL_LABELS[tool]}
@@ -482,7 +509,7 @@ export default function CoverageHeatMap() {
                                                 <div key={i} className="bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-3">
                                                     <div className="font-semibold text-white">{v.make} {v.model}</div>
                                                     <div className="text-sm text-gray-400">{v.yearStart}-{v.yearEnd}</div>
-                                                    <div className="text-xs text-emerald-400 mt-1">{v[selectedTool]}</div>
+                                                    <div className="text-xs text-emerald-400 mt-1">{getVehicleStatusText(v, selectedTool)}</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -501,7 +528,7 @@ export default function CoverageHeatMap() {
                                                 <div key={i} className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3">
                                                     <div className="font-semibold text-white">{v.make} {v.model}</div>
                                                     <div className="text-sm text-gray-400">{v.yearStart}-{v.yearEnd}</div>
-                                                    <div className="text-xs text-amber-400 mt-1">{v[selectedTool]}</div>
+                                                    <div className="text-xs text-amber-400 mt-1">{getVehicleStatusText(v, selectedTool)}</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -520,7 +547,7 @@ export default function CoverageHeatMap() {
                                                 <div key={i} className="bg-red-900/20 border border-red-700/30 rounded-lg p-3">
                                                     <div className="font-semibold text-white">{v.make} {v.model}</div>
                                                     <div className="text-sm text-gray-400">{v.yearStart}-{v.yearEnd}</div>
-                                                    <div className="text-xs text-red-400 mt-1">{v[selectedTool]}</div>
+                                                    <div className="text-xs text-red-400 mt-1">{getVehicleStatusText(v, selectedTool)}</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -575,53 +602,56 @@ export default function CoverageHeatMap() {
                                     ))}
                                 </div>
 
-                                {/* Timeline Grid - horizontally scrollable */}
+                                {/* Timeline Grid - horizontally scrollable with sticky Make column */}
                                 <div className="bg-gray-900/30 border border-gray-800 rounded-2xl overflow-hidden">
                                     <div className="overflow-x-auto">
-                                        <div style={{ minWidth: `${100 + years.length * 40}px` }}>
+                                        <table className="w-full" style={{ minWidth: `${130 + years.length * 40}px` }}>
                                             {/* Header Row - Years */}
-                                            <div className="flex bg-gray-900/70 border-b border-gray-800 sticky top-0 z-10">
-                                                <div className="w-32 shrink-0 p-3 font-bold text-gray-400 border-r border-gray-800">
-                                                    Make
-                                                </div>
-                                                {years.map(year => (
-                                                    <div
-                                                        key={year}
-                                                        className={`w-10 shrink-0 p-2 text-center text-xs font-medium ${year % 5 === 0 ? 'text-white bg-gray-800/50' : 'text-gray-500'
-                                                            }`}
-                                                    >
-                                                        {year % 5 === 0 ? year.toString().slice(-2) : '·'}
-                                                    </div>
-                                                ))}
-                                            </div>
+                                            <thead>
+                                                <tr className="bg-gray-900/70 border-b border-gray-800">
+                                                    <th className="sticky left-0 z-20 w-32 p-3 font-bold text-gray-400 text-left bg-gray-900 border-r border-gray-800">
+                                                        Make
+                                                    </th>
+                                                    {years.map(year => (
+                                                        <th
+                                                            key={year}
+                                                            className={`w-10 p-2 text-center text-xs font-medium ${year % 5 === 0 ? 'text-white bg-gray-800/50' : 'text-gray-500'}`}
+                                                        >
+                                                            {year % 5 === 0 ? year.toString().slice(-2) : '·'}
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
 
                                             {/* Data Rows - Makes */}
-                                            {makes.map(make => (
-                                                <div key={make} className="flex border-b border-gray-800/50 hover:bg-gray-800/20">
-                                                    <div className="w-32 shrink-0 p-3 font-medium text-white border-r border-gray-800 flex items-center">
-                                                        {make}
-                                                    </div>
-                                                    {years.map(year => {
-                                                        const cellData = timelineData[make]?.[year];
-                                                        const level = cellData?.level || 'unknown';
-                                                        const models = cellData?.models || [];
-                                                        const status = cellData?.status || 'No data';
+                                            <tbody>
+                                                {makes.map(make => (
+                                                    <tr key={make} className="border-b border-gray-800/50 hover:bg-gray-800/20">
+                                                        <td className="sticky left-0 z-10 w-32 p-3 font-medium text-white bg-gray-950 border-r border-gray-800">
+                                                            {make}
+                                                        </td>
+                                                        {years.map(year => {
+                                                            const cellData = timelineData[make]?.[year];
+                                                            const level = cellData?.level || 'unknown';
+                                                            const models = cellData?.models || [];
+                                                            const status = cellData?.status || 'No data';
 
-                                                        return (
-                                                            <div
-                                                                key={year}
-                                                                className="w-10 shrink-0 p-1 flex items-center justify-center"
-                                                                title={`${make} ${year}\n${models.length > 0 ? `Models: ${models.join(', ')}\n` : ''}${status}`}
-                                                            >
-                                                                <div
-                                                                    className={`w-6 h-6 rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125`}
-                                                                />
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            ))}
-                                        </div>
+                                                            return (
+                                                                <td
+                                                                    key={year}
+                                                                    className="w-10 p-1 text-center"
+                                                                    title={`${make} ${year}\n${models.length > 0 ? `Models: ${models.join(', ')}\n` : ''}${status}`}
+                                                                >
+                                                                    <div
+                                                                        className={`w-6 h-6 mx-auto rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125`}
+                                                                    />
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
