@@ -63,23 +63,57 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                 const parsed = parseVehicleQuery(query);
                 const smartSuggestions = generateSuggestions(parsed);
 
-                // Add smart suggestions to the top
+                // Validate smart suggestions against AKS data
                 for (const suggestion of smartSuggestions) {
-                    if (suggestion.type === 'vehicle' && suggestion.year && suggestion.model) {
-                        suggestions.push({
-                            type: 'vehicle',
-                            make: suggestion.make,
-                            model: suggestion.model,
-                            year: suggestion.year,
-                            display: suggestion.display
-                        });
-                    } else if (suggestion.type === 'model' && suggestion.model) {
-                        suggestions.push({
-                            type: 'model',
-                            make: suggestion.make,
-                            model: suggestion.model,
-                            display: suggestion.display
-                        });
+                    if (suggestion.make && suggestion.model) {
+                        // Validate that this model actually exists in AKS data
+                        try {
+                            const validateRes = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(suggestion.make)}`);
+                            const validateData = await validateRes.json();
+                            const aksModels = (validateData.models || []) as string[];
+
+                            // Check if model exists (case-insensitive match)
+                            const modelExists = aksModels.some(m =>
+                                m.toLowerCase() === suggestion.model!.toLowerCase()
+                            );
+
+                            if (modelExists) {
+                                if (suggestion.type === 'vehicle' && suggestion.year) {
+                                    suggestions.push({
+                                        type: 'vehicle',
+                                        make: suggestion.make,
+                                        model: suggestion.model,
+                                        year: suggestion.year,
+                                        display: suggestion.display
+                                    });
+                                } else if (suggestion.type === 'model') {
+                                    suggestions.push({
+                                        type: 'model',
+                                        make: suggestion.make,
+                                        model: suggestion.model,
+                                        display: suggestion.display
+                                    });
+                                }
+                            }
+                        } catch (validateError) {
+                            // On validation error, still show the suggestion
+                            if (suggestion.type === 'vehicle' && suggestion.year && suggestion.model) {
+                                suggestions.push({
+                                    type: 'vehicle',
+                                    make: suggestion.make,
+                                    model: suggestion.model,
+                                    year: suggestion.year,
+                                    display: suggestion.display
+                                });
+                            } else if (suggestion.type === 'model' && suggestion.model) {
+                                suggestions.push({
+                                    type: 'model',
+                                    make: suggestion.make,
+                                    model: suggestion.model,
+                                    display: suggestion.display
+                                });
+                            }
+                        }
                     } else if (suggestion.type === 'make') {
                         suggestions.push({
                             type: 'make',
