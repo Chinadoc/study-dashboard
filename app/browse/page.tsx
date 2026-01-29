@@ -36,6 +36,12 @@ function BrowsePageContent() {
     const [popularMakes, setPopularMakes] = useState<string[]>([]);
     const [hasMoreMakes, setHasMoreMakes] = useState(false);
 
+    // EV filter toggle
+    const [evModels, setEvModels] = useState<string[]>([]);
+    const [mainModels, setMainModels] = useState<string[]>([]);
+    const [hasEV, setHasEV] = useState(false);
+    const [showEVOnly, setShowEVOnly] = useState(false);
+
     // Mobile detection
     const [isMobile, setIsMobile] = useState(false);
 
@@ -77,11 +83,14 @@ function BrowsePageContent() {
 
         async function fetchModels() {
             setLoadingModels(true);
+            setShowEVOnly(false);  // Reset filter when changing make
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
                 const data = await res.json();
-                const uniqueModels = (data.models || []) as string[];
-                setModels(uniqueModels);
+                setModels((data.models || []) as string[]);
+                setEvModels((data.evModels || []) as string[]);
+                setMainModels((data.mainModels || []) as string[]);
+                setHasEV(data.hasEV || false);
             } catch (error) {
                 console.error('Failed to fetch models:', error);
             } finally {
@@ -220,17 +229,38 @@ function BrowsePageContent() {
                                     {loadingModels ? (
                                         <div className="p-4 text-center text-purple-400 animate-pulse">Loading models...</div>
                                     ) : (
-                                        models.map(model => (
-                                            <WizardStepOption
-                                                key={model}
-                                                label={model}
-                                                isSelected={selectedModel === model}
-                                                onClick={() => {
-                                                    setSelectedModel(model);
-                                                    setSelectedYear(null);
-                                                }}
-                                            />
-                                        ))
+                                        <>
+                                            {/* EV Toggle */}
+                                            {hasEV && (
+                                                <div className="flex gap-1 mb-3 p-1 bg-gray-800/50 rounded-lg">
+                                                    <button
+                                                        onClick={() => setShowEVOnly(false)}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${!showEVOnly ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'
+                                                            }`}
+                                                    >
+                                                        All ({models.length})
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setShowEVOnly(true)}
+                                                        className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${showEVOnly ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-white'
+                                                            }`}
+                                                    >
+                                                        ⚡ EV ({evModels.length})
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {(showEVOnly ? evModels : models).map(model => (
+                                                <WizardStepOption
+                                                    key={model}
+                                                    label={model}
+                                                    isSelected={selectedModel === model}
+                                                    onClick={() => {
+                                                        setSelectedModel(model);
+                                                        setSelectedYear(null);
+                                                    }}
+                                                />
+                                            ))}
+                                        </>
                                     )}
                                 </WizardStep>
 

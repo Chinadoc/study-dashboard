@@ -2833,11 +2833,61 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             );
           }
 
+          // EV model detection patterns
+          const isEVModel = (make: string, model: string): boolean => {
+            const makeLower = make.toLowerCase();
+            const modelLower = model.toLowerCase();
+
+            // Tesla is all EV
+            if (makeLower === 'tesla') return true;
+
+            // Polestar is all EV
+            if (makeLower === 'polestar') return true;
+
+            // Known EV model patterns
+            const evPatterns = [
+              /\bev\b/i,           // Contains "EV" as word (Bolt EV, Blazer EV)
+              /\beuv\b/i,          // EUV (Bolt EUV)
+              /\belectric/i,       // Contains "Electric"
+              /\blightning\b/i,    // F-150 Lightning
+              /\bmach-e\b/i,       // Mustang Mach-E
+              /^i\d$/i,            // BMW i3, i4, i7, i8
+              /^ix/i,              // BMW iX
+              /\bvolt\b/i,         // Chevy Volt (PHEV but EV-ish)
+              /\bioniq/i,          // Hyundai Ioniq
+              /\bkona ev/i,        // Hyundai Kona EV
+              /\bniro ev/i,        // Kia Niro EV
+              /\bev6\b/i,          // Kia EV6
+              /\be-tron/i,         // Audi e-tron
+              /\bq4 e-tron/i,      // Audi Q4 e-tron
+              /\bid\./i,           // VW ID.4, ID.Buzz
+              /\bleaf\b/i,         // Nissan Leaf
+              /\bariya\b/i,        // Nissan Ariya
+              /\btaycan\b/i,       // Porsche Taycan
+              /\beqs\b/i,          // Mercedes EQS
+              /\beqe\b/i,          // Mercedes EQE
+              /\beqb\b/i,          // Mercedes EQB
+              /\blyriq\b/i,        // Cadillac Lyriq
+              /\bhummer ev/i,      // GMC Hummer EV
+              /\bsolterra\b/i,     // Subaru Solterra
+              /\bbz4x\b/i,         // Toyota bZ4X
+            ];
+
+            return evPatterns.some(pattern => pattern.test(model));
+          };
+
+          // Categorize models
+          const evModels = models.filter((m: string) => isEVModel(make, m));
+          const mainModels = models.filter((m: string) => !isEVModel(make, m));
+
           return corsResponse(request, JSON.stringify({
             source: "aks_vehicles_by_year",
             make,
             count: models.length,
-            models
+            models,
+            evModels,
+            mainModels,
+            hasEV: evModels.length > 0
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
