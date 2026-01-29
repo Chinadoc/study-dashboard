@@ -6,6 +6,7 @@ import { WizardStep, WizardStepOption } from '@/components/WizardStep';
 import { MakeGrid } from '@/components/browse/MakeGrid';
 import { SearchBar } from '@/components/browse/SearchBar';
 import { POPULAR_MAKES } from '@/lib/make-data';
+import { parseVehicleQuery } from '@/lib/vehicle-search';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
@@ -104,56 +105,35 @@ function BrowsePageContent() {
 
     const handleSearch = (query: string) => {
         console.log('Search:', query);
-        const trimmed = query.trim();
-        const parts = trimmed.split(/\s+/);
 
-        // Pattern 1: "2018 CTS" (year + model, use selectedMake if available)
-        if (parts.length === 2) {
-            const yearMatch = parts[0].match(/^(19|20)\d{2}$/);
-            if (yearMatch && selectedMake) {
-                const year = parts[0];
-                const model = parts[1];
-                router.push(`/vehicle/${encodeURIComponent(selectedMake)}/${encodeURIComponent(model)}/${year}`);
+        // Use smart parser for natural language queries like "f150 2018"
+        const parsed = parseVehicleQuery(query);
+        console.log('Parsed query:', parsed);
+
+        // If we have a full vehicle match (year + make + model), navigate directly
+        if (parsed.year && parsed.model) {
+            const make = parsed.make || selectedMake;
+            if (make) {
+                router.push(`/vehicle/${encodeURIComponent(make)}/${encodeURIComponent(parsed.model)}/${parsed.year}`);
                 return;
             }
         }
 
-        // Pattern 2: "2018 Cadillac CTS" (year + make + model)
-        if (parts.length >= 3) {
-            const yearMatch = parts[0].match(/^(19|20)\d{2}$/);
-            if (yearMatch) {
-                const year = parts[0];
-                const make = parts[1];
-                const model = parts.slice(2).join(' ');
-                router.push(`/vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}`);
-                return;
-            }
+        // If we have model + make but no year, select the make and show models
+        if (parsed.make && parsed.model) {
+            handleMakeSelect(parsed.make);
+            // Model selection will happen via the UI
+            return;
         }
 
-        // Pattern 3: "Cadillac CTS 2018" (make + model + year)
-        if (parts.length >= 3) {
-            const yearMatch = parts[parts.length - 1].match(/^(19|20)\d{2}$/);
-            if (yearMatch) {
-                const year = parts[parts.length - 1];
-                const make = parts[0];
-                const model = parts.slice(1, -1).join(' ');
-                router.push(`/vehicle/${encodeURIComponent(make)}/${encodeURIComponent(model)}/${year}`);
-                return;
-            }
+        // If we just have a make, select it
+        if (parsed.make) {
+            handleMakeSelect(parsed.make);
+            return;
         }
 
-        // Pattern 4: "CTS 2018" (model + year, use selectedMake if available)
-        if (parts.length === 2 && selectedMake) {
-            const yearMatch = parts[1].match(/^(19|20)\d{2}$/);
-            if (yearMatch) {
-                const model = parts[0];
-                const year = parts[1];
-                router.push(`/vehicle/${encodeURIComponent(selectedMake)}/${encodeURIComponent(model)}/${year}`);
-                return;
-            }
-        }
-
-        // If no year detected, try to select the make
+        // Fallback: try to match the first word as a make
+        const parts = query.trim().split(/\s+/);
         const potentialMake = makes.find(m => m.toLowerCase() === parts[0]?.toLowerCase());
         if (potentialMake) {
             handleMakeSelect(potentialMake);

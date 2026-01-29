@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import ToolStatusBadge from '@/components/shared/ToolStatusBadge';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
@@ -249,6 +250,12 @@ export default function InventoryPage() {
                 >
                     🔔 Subscriptions
                 </button>
+                <Link
+                    href="/business/coverage-heatmap"
+                    className="px-4 py-2 rounded-lg font-bold transition-all bg-gradient-to-r from-cyan-600 to-purple-600 text-white hover:opacity-90"
+                >
+                    🧠 Intel Hub
+                </Link>
             </div>
 
             {activeTab === 'inventory' ? (

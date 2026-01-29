@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { parseVehicleQuery, generateSuggestions } from '@/lib/vehicle-search';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+
 
 interface SearchResult {
     type: 'make' | 'model' | 'vehicle';
@@ -43,7 +45,7 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
         fetchMakes();
     }, []);
 
-    // Debounced search with local filtering + model fetching + global model search
+    // Debounced search with smart parsing + local filtering + model fetching
     useEffect(() => {
         if (!query.trim() || query.length < 2) {
             setResults([]);
@@ -57,23 +59,56 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
             const lowerQuery = query.toLowerCase().trim();
 
             try {
-                // Filter makes locally
+                // NEW: Try smart parsing first (handles "f150 2018", "camry 2020", etc.)
+                const parsed = parseVehicleQuery(query);
+                const smartSuggestions = generateSuggestions(parsed);
+
+                // Add smart suggestions to the top
+                for (const suggestion of smartSuggestions) {
+                    if (suggestion.type === 'vehicle' && suggestion.year && suggestion.model) {
+                        suggestions.push({
+                            type: 'vehicle',
+                            make: suggestion.make,
+                            model: suggestion.model,
+                            year: suggestion.year,
+                            display: suggestion.display
+                        });
+                    } else if (suggestion.type === 'model' && suggestion.model) {
+                        suggestions.push({
+                            type: 'model',
+                            make: suggestion.make,
+                            model: suggestion.model,
+                            display: suggestion.display
+                        });
+                    } else if (suggestion.type === 'make') {
+                        suggestions.push({
+                            type: 'make',
+                            make: suggestion.make,
+                            display: suggestion.display
+                        });
+                    }
+                }
+
+                // Filter makes locally (fallback if smart parsing didn't match)
                 const matchingMakes = allMakes
                     .filter(make => make.toLowerCase().includes(lowerQuery))
                     .slice(0, 5);
 
-                matchingMakes.forEach(make => {
-                    suggestions.push({
-                        type: 'make',
-                        make,
-                        display: make
+                // Only add make suggestions if smart parsing didn't find anything
+                if (suggestions.length === 0) {
+                    matchingMakes.forEach(make => {
+                        suggestions.push({
+                            type: 'make',
+                            make,
+                            display: make
+                        });
                     });
-                });
+                }
 
                 // If query exactly or closely matches a make, fetch its models too
                 const exactMake = allMakes.find(m => m.toLowerCase() === lowerQuery);
                 const partialMake = !exactMake && matchingMakes.length === 1 ? matchingMakes[0] : null;
-                const targetMake = exactMake || partialMake;
+                const targetMake = parsed.make || exactMake || partialMake;
 
                 if (targetMake) {
                     const modelsRes = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(targetMake)}`);
