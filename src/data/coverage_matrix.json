@@ -1,0 +1,2461 @@
+[
+  {
+    "id": "bmw_fem_bdc",
+    "vehicle_group": "BMW 3 Series (F30)",
+    "years": "2013-2019",
+    "barrier": {
+      "akl": "Bench Mode required. Must read ISN from ECU (DME) to pair with FEM/BDC.",
+      "add_key": "Possible via OBD if FEM is 'unlocked' (preprocess required)."
+    },
+    "risk": "Flashing FEM/BDC can kill headlights/windows if voltage drops.",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "toyota_smart_box_reset",
+    "vehicle_group": "Toyota Camry",
+    "years": "2018-2023",
+    "barrier": "Smart Box Reset (Bypasses NASTF)",
+    "risk": "Standard",
+    "tools_claiming_coverage": [
+      {
+        "tool_name": "Autel MaxiIM IM508S IMMO and Key Programming Tool Plus GBOX3 & XP200 with 40+ Services Functions (No IP Restriction)",
+        "matched_models": 11,
+        "via_chips": [
+          "G_CHIP",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "renew",
+          "read",
+          "odometer",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "unlock",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "CGDI A2 Key Programmer Full Version with Benz Authorization Software for EIS/ Password Calculation/ Read and Write Key/ Generate Key File",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "adapt",
+          "read",
+          "odometer",
+          "write",
+          "immo",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "US EU SHIP NO TAX EONEBOSS TLK1 TLK 1 Key Unlocking Device for Toyota/Lexus 8A-AA BA B9 B8 Keys",
+        "matched_models": 11,
+        "via_chips": [
+          "8A",
+          "G_CHIP"
+        ],
+        "functions": [
+          "flash",
+          "renew",
+          "write",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OEM JLR Jaguar Land rover RFA Module CPU SPC560B Blank Chip with Data for Yanhua Mini ACDP Module 24 and Keydiy KD-X4",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "write",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-MATE Toyota 4A 4D 8A, BYD and VAG IMMO4 Key Programmer Compatible with KD-X2 and KD-MAX",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "pin code",
+          "read",
+          "immobilizer",
+          "immo",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "FLASH SALE Keydiy KD-MP Program Kit with KD-MATE, KD-MP MLB/MQB Tool, MLB26 MLB09 MLB08 MLB Keys",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "add key",
+          "odometer",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Combo Kit]  KEYDIY KD-MAX + KD-MATE Toyota Key Programmer Bundle",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "immo",
+          "all key lost",
+          "clone",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-X2 Remote Maker Unlocker with Free ID48 96bit Transponder Copy Function English Version",
+        "matched_models": 1,
+        "via_chips": [
+          "G_CHIP"
+        ],
+        "functions": [
+          "reset",
+          "odometer",
+          "unlock",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-X4 5-in-1 Key Programmer Combines KD Max, KD Mate and KD Mini Prog Supports MQB48 MQB49 5C 5D MLB BMW BDC2 BDC3 IMMO",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "pin code",
+          "odometer",
+          "read",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-TB Phone As Key for 8A Chip Type",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-TIB Phone As Key Exclusive for Toyota Lexus 4D, 8A (BA, A9) Chip Types",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "adapt",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY Phone as Key PAK06-TB for 8A Chip Type",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[10Pcs/Set] KEYDIY D26 Super Chip Supports Generating 8A 8C PCF7935 PCF7936 ID46 ID47 ID48 ID49 ID4D For KD-X2 KD-X4 KD-MAX Tango",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "immobilizer",
+          "immo",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2024 Lonsdor K518 PRO All-in-One Key Programmer Basic Version Full Functions IMMO Matching Support Multi-language",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "mileage",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "write",
+          "immo",
+          "all key lost",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor LKE Smart Key Emulator 5 in 1 for Lonsdor K518ISE K518S Key Programmer Supports Offline Calculation",
+        "matched_models": 1,
+        "via_chips": [
+          "G_CHIP"
+        ],
+        "functions": [
+          "flash",
+          "pin code",
+          "odometer",
+          "all key lost",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "LONSDOR K518ISE Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in1 Supports Toyota Lexus Smart Key All keys Lost by OBD with Free LT20-01 01J0",
+        "matched_models": 1,
+        "via_chips": [
+          "G_CHIP"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "immo",
+          "reset",
+          "all key lost",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[US SHIP] LONSDOR K518S Auto Key Programmer Basic Version No Tokens Limitation Supports All Makes, Odometer Adjustment [Buy K518 Pro Instead]",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor K518S Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in 1 Supports VW 4th&5th IMMO and BMW FEM/BDC",
+        "matched_models": 11,
+        "via_chips": [
+          "G_CHIP",
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "all keys lost",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor KW100 Suite with 2 Pieces of LT20 Universal Keys Support All Keys Lost & Adding Keys",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Pack of 5] Lonsdor LT20 8A+4D Toyota & Lexus Smart Key PCBs 5Pcs for K518ISE K518S K518 Pro KH100+ Frequency Switchable",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "read",
+          "copy",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDEMOTO 900PRO BMW Ducat Harley Honda Motorcycle Key Programmer Diagnosis Tool and Odometer Correction 3 in 1 with Free Tokens",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "mileage",
+          "pin code",
+          "read",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR CAN DIRECT Kit for X300 DP Plus/ X300 Pro4 Toyota Corolla Levin Gateway Vehicles 4A Proximity Key Programming Free Pin Code",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "akl",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 DP PLUS X300 PAD2 B Configuration Immobilizer+Special Function +Mileage Correction",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "mileage",
+          "adapt",
+          "eeprom",
+          "renew",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 Pro4 Key Programmer Key Master 5 Full Version",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "renew",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "akl",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Newest OBDSTAR X300 PRO 4 Key Programmer Key Master 5 EU Version",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "eeprom",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "$1954 OTOFIX IM2 Auto Bi-Directional Diagnostic Scanner IMMO Programer ECU Coding Supports CAN FD DoIP 40+ Service Functions Same Function as IM608 II",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "akl",
+          "all keys lost",
+          "eeprom",
+          "immo",
+          "clone",
+          "key program",
+          "write",
+          "renew",
+          "immobilizer",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset",
+          "pin code",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "Purchase KD Car Remotes worth $1,500 and Contact us to get a KEYDIY KD-X4 Locksmith's Universal Tool for free",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "mileage",
+          "adapt",
+          "read",
+          "odometer",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[FREE EXPRESS SHIPPING] Original Scorpio-LK Tango Key Programmer with Basic Software V1.127 Supports Daihatsu G Chip /Toyota H 128 Bit Copy Function",
+        "matched_models": 11,
+        "via_chips": [
+          "G_CHIP",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "add key",
+          "eeprom",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Original Scorpio-LK Tango SLK-06 Emulator LKP-04 Toyota H 128 Bit Immobilizer All Keys Lost Solution Package",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "flash",
+          "eeprom",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "unlock",
+          "akl",
+          "reflash",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "(EU US UK Ship No Tax) Xhorse VVDI MINI OBD Tool Works with Mobile Phone or Key Tool Max Supports IMMO Programming by OBD",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "odometer",
+          "immobilizer",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "US SHIP [Value Bundle] Xhorse VVDI2 Full 13 Software Activated + VVDI Multi Prog Global Version Get Free MQB48 Authorization",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "adapt",
+          "eeprom",
+          "renew",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "odometer",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Prepare Toyota H Chip Authorization for Xhorse VVDI2",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Yanhua Mini ACDP2 Complete Set from Module 1 to Module 41",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "renew",
+          "read",
+          "odometer",
+          "reflash",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2nd Generation New Yanhua Mini ACDP 2 Key Programming Master Basic Module Supports USB and Wireless Connection No Need Soldering",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "copy",
+          "all keys lost",
+          "mileage",
+          "eeprom",
+          "immo",
+          "clone",
+          "reflash",
+          "write",
+          "key program",
+          "renew",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset"
+        ]
+      },
+      {
+        "tool_name": "Yanhua JLR KVM Soldering Assisted Package Help Replace JLR 2018+ KVM RFA MCU",
+        "matched_models": 1,
+        "via_chips": [
+          "G_CHIP"
+        ],
+        "functions": [
+          "odometer",
+          "adapt",
+          "mcu",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Yanhua JLR KVM Soldering Toolkit Full Package Solder New JLR KVM RFA MCU Easy Soldering Tool for JLR 2018+",
+        "matched_models": 1,
+        "via_chips": [
+          "G_CHIP"
+        ],
+        "functions": [
+          "adapt",
+          "mcu",
+          "immo",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Yanhua Mini ACDP Key Programming Master Full Package with Total 12 Authorizations No need Soldering",
+        "matched_models": 10,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "mileage",
+          "renew",
+          "read",
+          "odometer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "reflash",
+          "isn read"
+        ]
+      }
+    ],
+    "gap_assessment": "OK: 37 tools claim coverage. Verify procedural support.",
+    "status": "GREEN"
+  },
+  {
+    "id": "subaru_sgw_2020",
+    "vehicle_group": "Subaru Outback",
+    "years": "2020-2024",
+    "barrier": "Security Gateway (SGW)",
+    "risk": "Standard",
+    "tools_claiming_coverage": [
+      {
+        "tool_name": "Autel MaxiIM IM508S IMMO and Key Programming Tool Plus GBOX3 & XP200 with 40+ Services Functions (No IP Restriction)",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "renew",
+          "read",
+          "odometer",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "unlock",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "CGDI A2 Key Programmer Full Version with Benz Authorization Software for EIS/ Password Calculation/ Read and Write Key/ Generate Key File",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "adapt",
+          "read",
+          "odometer",
+          "write",
+          "immo",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "US EU SHIP NO TAX EONEBOSS TLK1 TLK 1 Key Unlocking Device for Toyota/Lexus 8A-AA BA B9 B8 Keys",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "renew",
+          "write",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OEM JLR Jaguar Land rover RFA Module CPU SPC560B Blank Chip with Data for Yanhua Mini ACDP Module 24 and Keydiy KD-X4",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "write",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-MATE Toyota 4A 4D 8A, BYD and VAG IMMO4 Key Programmer Compatible with KD-X2 and KD-MAX",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "pin code",
+          "read",
+          "immobilizer",
+          "immo",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "FLASH SALE Keydiy KD-MP Program Kit with KD-MATE, KD-MP MLB/MQB Tool, MLB26 MLB09 MLB08 MLB Keys",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "add key",
+          "odometer",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Combo Kit]  KEYDIY KD-MAX + KD-MATE Toyota Key Programmer Bundle",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "immo",
+          "all key lost",
+          "clone",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-X4 5-in-1 Key Programmer Combines KD Max, KD Mate and KD Mini Prog Supports MQB48 MQB49 5C 5D MLB BMW BDC2 BDC3 IMMO",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "pin code",
+          "odometer",
+          "read",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-TB Phone As Key for 8A Chip Type",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-TIB Phone As Key Exclusive for Toyota Lexus 4D, 8A (BA, A9) Chip Types",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "adapt",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY Phone as Key PAK06-TB for 8A Chip Type",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[10Pcs/Set] KEYDIY D26 Super Chip Supports Generating 8A 8C PCF7935 PCF7936 ID46 ID47 ID48 ID49 ID4D For KD-X2 KD-X4 KD-MAX Tango",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "immobilizer",
+          "immo",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2024 Lonsdor K518 PRO All-in-One Key Programmer Basic Version Full Functions IMMO Matching Support Multi-language",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "mileage",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "write",
+          "immo",
+          "all key lost",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[US SHIP] LONSDOR K518S Auto Key Programmer Basic Version No Tokens Limitation Supports All Makes, Odometer Adjustment [Buy K518 Pro Instead]",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor K518S Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in 1 Supports VW 4th&5th IMMO and BMW FEM/BDC",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "all keys lost",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor KW100 Suite with 2 Pieces of LT20 Universal Keys Support All Keys Lost & Adding Keys",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Pack of 5] Lonsdor LT20 8A+4D Toyota & Lexus Smart Key PCBs 5Pcs for K518ISE K518S K518 Pro KH100+ Frequency Switchable",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "read",
+          "copy",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDEMOTO 900PRO BMW Ducat Harley Honda Motorcycle Key Programmer Diagnosis Tool and Odometer Correction 3 in 1 with Free Tokens",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "mileage",
+          "pin code",
+          "read",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR CAN DIRECT Kit for X300 DP Plus/ X300 Pro4 Toyota Corolla Levin Gateway Vehicles 4A Proximity Key Programming Free Pin Code",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "akl",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 DP PLUS X300 PAD2 B Configuration Immobilizer+Special Function +Mileage Correction",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "mileage",
+          "adapt",
+          "eeprom",
+          "renew",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 Pro4 Key Programmer Key Master 5 Full Version",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "renew",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "akl",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Newest OBDSTAR X300 PRO 4 Key Programmer Key Master 5 EU Version",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "eeprom",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "$1954 OTOFIX IM2 Auto Bi-Directional Diagnostic Scanner IMMO Programer ECU Coding Supports CAN FD DoIP 40+ Service Functions Same Function as IM608 II",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "akl",
+          "all keys lost",
+          "eeprom",
+          "immo",
+          "clone",
+          "key program",
+          "write",
+          "renew",
+          "immobilizer",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset",
+          "pin code",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "Purchase KD Car Remotes worth $1,500 and Contact us to get a KEYDIY KD-X4 Locksmith's Universal Tool for free",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "mileage",
+          "adapt",
+          "read",
+          "odometer",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[FREE EXPRESS SHIPPING] Original Scorpio-LK Tango Key Programmer with Basic Software V1.127 Supports Daihatsu G Chip /Toyota H 128 Bit Copy Function",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "add key",
+          "eeprom",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Original Scorpio-LK Tango SLK-06 Emulator LKP-04 Toyota H 128 Bit Immobilizer All Keys Lost Solution Package",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "flash",
+          "eeprom",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "unlock",
+          "akl",
+          "reflash",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "(EU US UK Ship No Tax) Xhorse VVDI MINI OBD Tool Works with Mobile Phone or Key Tool Max Supports IMMO Programming by OBD",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "odometer",
+          "immobilizer",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "US SHIP [Value Bundle] Xhorse VVDI2 Full 13 Software Activated + VVDI Multi Prog Global Version Get Free MQB48 Authorization",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "adapt",
+          "eeprom",
+          "renew",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "odometer",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Prepare Toyota H Chip Authorization for Xhorse VVDI2",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Yanhua Mini ACDP2 Complete Set from Module 1 to Module 41",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "renew",
+          "read",
+          "odometer",
+          "reflash",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2nd Generation New Yanhua Mini ACDP 2 Key Programming Master Basic Module Supports USB and Wireless Connection No Need Soldering",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "copy",
+          "all keys lost",
+          "mileage",
+          "eeprom",
+          "immo",
+          "clone",
+          "reflash",
+          "write",
+          "key program",
+          "renew",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset"
+        ]
+      },
+      {
+        "tool_name": "Yanhua Mini ACDP Key Programming Master Full Package with Total 12 Authorizations No need Soldering",
+        "matched_models": 7,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "mileage",
+          "renew",
+          "read",
+          "odometer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "reflash",
+          "isn read"
+        ]
+      }
+    ],
+    "gap_assessment": "WARNING: Tools claim coverage but 'SGW' bypass capability not verified in tool descriptions.",
+    "status": "YELLOW"
+  },
+  {
+    "id": "audi_q7_bcm2_2017",
+    "vehicle_group": "Audi ",
+    "years": "2017-2024",
+    "barrier": "Read P-Flash/D-Flash on bench --> Server Sync Data Calc --> Write Key.",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "ram_dt_2019",
+    "vehicle_group": "RAM ",
+    "years": "2019-2024",
+    "barrier": "SGW + RF Hub Lock",
+    "risk": "RF Hub 'Soft Lock' from water leaks can block key programming.",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "hyundai_kia_active_alarm",
+    "vehicle_group": "Hyundai/Kia Legacy Key Models",
+    "years": "Unknown",
+    "barrier": "Unknown",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "gm_global_b_vip",
+    "vehicle_group": "GM Silverado",
+    "years": "2022.5+",
+    "barrier": "24-Digit Token + CAN FD",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "ford_f150_gen14_active_alarm",
+    "vehicle_group": "Ford ",
+    "years": "2021+",
+    "barrier": "Active Alarm Firewall (GWM)",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "nissan_sgw_16_32",
+    "vehicle_group": "Nissan Rogue (T33)",
+    "years": "2020+",
+    "barrier": "SGW integrated in BCM",
+    "risk": "BCM Bricking if 'All Keys Lost' used without stable voltage (Use 'Add Key').",
+    "tools_claiming_coverage": [
+      {
+        "tool_name": "OBDSTAR X300 MINI Renault Dacia Key Programmer and Odometer Correction Tool Support Oil Service Reset as X200 PRO2",
+        "matched_models": 6,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "mileage",
+          "add key",
+          "read",
+          "immo",
+          "reset",
+          "odometer",
+          "akl",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Autel MaxiIM IM508S IMMO and Key Programming Tool Plus GBOX3 & XP200 with 40+ Services Functions (No IP Restriction)",
+        "matched_models": 6,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "renew",
+          "read",
+          "odometer",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "unlock",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "CGDI A2 Key Programmer Full Version with Benz Authorization Software for EIS/ Password Calculation/ Read and Write Key/ Generate Key File",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "adapt",
+          "read",
+          "odometer",
+          "write",
+          "immo",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "US EU SHIP NO TAX EONEBOSS TLK1 TLK 1 Key Unlocking Device for Toyota/Lexus 8A-AA BA B9 B8 Keys",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "renew",
+          "write",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OEM JLR Jaguar Land rover RFA Module CPU SPC560B Blank Chip with Data for Yanhua Mini ACDP Module 24 and Keydiy KD-X4",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "write",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-MATE Toyota 4A 4D 8A, BYD and VAG IMMO4 Key Programmer Compatible with KD-X2 and KD-MAX",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "pin code",
+          "read",
+          "immobilizer",
+          "immo",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "FLASH SALE Keydiy KD-MP Program Kit with KD-MATE, KD-MP MLB/MQB Tool, MLB26 MLB09 MLB08 MLB Keys",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "add key",
+          "odometer",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Combo Kit]  KEYDIY KD-MAX + KD-MATE Toyota Key Programmer Bundle",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "immo",
+          "all key lost",
+          "clone",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-X4 5-in-1 Key Programmer Combines KD Max, KD Mate and KD Mini Prog Supports MQB48 MQB49 5C 5D MLB BMW BDC2 BDC3 IMMO",
+        "matched_models": 2,
+        "via_chips": [
+          "8A",
+          "ID47"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "pin code",
+          "odometer",
+          "read",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-TB Phone As Key for 8A Chip Type",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-TIB Phone As Key Exclusive for Toyota Lexus 4D, 8A (BA, A9) Chip Types",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "adapt",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-ZB Phone As Key for 46, 47, 48, 49, 4A Chip Types",
+        "matched_models": 6,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY Phone as Key PAK06-TB for 8A Chip Type",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[10Pcs/Set] KEYDIY D26 Super Chip Supports Generating 8A 8C PCF7935 PCF7936 ID46 ID47 ID48 ID49 ID4D For KD-X2 KD-X4 KD-MAX Tango",
+        "matched_models": 2,
+        "via_chips": [
+          "8A",
+          "ID47"
+        ],
+        "functions": [
+          "immobilizer",
+          "immo",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2024 Lonsdor K518 PRO All-in-One Key Programmer Basic Version Full Functions IMMO Matching Support Multi-language",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "mileage",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "write",
+          "immo",
+          "all key lost",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[US SHIP] LONSDOR K518S Auto Key Programmer Basic Version No Tokens Limitation Supports All Makes, Odometer Adjustment [Buy K518 Pro Instead]",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor K518S Key Programmer Plus Lonsdor LKE Smart Key Emulator 5 in 1 Supports VW 4th&5th IMMO and BMW FEM/BDC",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "all keys lost",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Lonsdor KW100 Suite with 2 Pieces of LT20 Universal Keys Support All Keys Lost & Adding Keys",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Pack of 5] Lonsdor LT20 8A+4D Toyota & Lexus Smart Key PCBs 5Pcs for K518ISE K518S K518 Pro KH100+ Frequency Switchable",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "read",
+          "copy",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDEMOTO 900PRO BMW Ducat Harley Honda Motorcycle Key Programmer Diagnosis Tool and Odometer Correction 3 in 1 with Free Tokens",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "mileage",
+          "pin code",
+          "read",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR CAN DIRECT Kit for X300 DP Plus/ X300 Pro4 Toyota Corolla Levin Gateway Vehicles 4A Proximity Key Programming Free Pin Code",
+        "matched_models": 6,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "akl",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 DP PLUS X300 PAD2 B Configuration Immobilizer+Special Function +Mileage Correction",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "mileage",
+          "adapt",
+          "eeprom",
+          "renew",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 Pro4 Key Programmer Key Master 5 Full Version",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "renew",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "akl",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Newest OBDSTAR X300 PRO 4 Key Programmer Key Master 5 EU Version",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "eeprom",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "$1954 OTOFIX IM2 Auto Bi-Directional Diagnostic Scanner IMMO Programer ECU Coding Supports CAN FD DoIP 40+ Service Functions Same Function as IM608 II",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "akl",
+          "all keys lost",
+          "eeprom",
+          "immo",
+          "clone",
+          "key program",
+          "write",
+          "renew",
+          "immobilizer",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset",
+          "pin code",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "Purchase KD Car Remotes worth $1,500 and Contact us to get a KEYDIY KD-X4 Locksmith's Universal Tool for free",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "mileage",
+          "adapt",
+          "read",
+          "odometer",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[FREE EXPRESS SHIPPING] Original Scorpio-LK Tango Key Programmer with Basic Software V1.127 Supports Daihatsu G Chip /Toyota H 128 Bit Copy Function",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "add key",
+          "eeprom",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Original Scorpio-LK Tango SLK-06 Emulator LKP-04 Toyota H 128 Bit Immobilizer All Keys Lost Solution Package",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "flash",
+          "eeprom",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "unlock",
+          "akl",
+          "reflash",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "(EU US UK Ship No Tax) Xhorse VVDI MINI OBD Tool Works with Mobile Phone or Key Tool Max Supports IMMO Programming by OBD",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "odometer",
+          "immobilizer",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "US SHIP [Value Bundle] Xhorse VVDI2 Full 13 Software Activated + VVDI Multi Prog Global Version Get Free MQB48 Authorization",
+        "matched_models": 6,
+        "via_chips": [
+          "4A",
+          "8A"
+        ],
+        "functions": [
+          "adapt",
+          "eeprom",
+          "renew",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "odometer",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Prepare Toyota H Chip Authorization for Xhorse VVDI2",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Yanhua Mini ACDP2 Complete Set from Module 1 to Module 41",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "renew",
+          "read",
+          "odometer",
+          "reflash",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2nd Generation New Yanhua Mini ACDP 2 Key Programming Master Basic Module Supports USB and Wireless Connection No Need Soldering",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "copy",
+          "all keys lost",
+          "mileage",
+          "eeprom",
+          "immo",
+          "clone",
+          "reflash",
+          "write",
+          "key program",
+          "renew",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset"
+        ]
+      },
+      {
+        "tool_name": "Yanhua Mini ACDP Key Programming Master Full Package with Total 12 Authorizations No need Soldering",
+        "matched_models": 1,
+        "via_chips": [
+          "8A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "mileage",
+          "renew",
+          "read",
+          "odometer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "clone",
+          "reflash",
+          "isn read"
+        ]
+      }
+    ],
+    "gap_assessment": "WARNING: Tools claim coverage but 'SGW' bypass capability not verified in tool descriptions.",
+    "status": "YELLOW"
+  },
+  {
+    "id": "volvo_spa_cma_cem",
+    "vehicle_group": "Volvo XC90",
+    "years": "2016-2024",
+    "barrier": "CEM Bench Read (Solder-free adapter essential).",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "jlr_jpla_otp",
+    "vehicle_group": "JLR Range Rover",
+    "years": "2018+",
+    "barrier": "OTP (One-Time Programmable) KVM",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  },
+  {
+    "id": "honda_11th_gen_alarm",
+    "vehicle_group": "Honda Civic",
+    "years": "2022+",
+    "barrier": "Alarm Active Lockout (BCM)",
+    "risk": "Standard",
+    "tools_claiming_coverage": [
+      {
+        "tool_name": "OBDSTAR X300 MINI Renault Dacia Key Programmer and Odometer Correction Tool Support Oil Service Reset as X200 PRO2",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "mileage",
+          "add key",
+          "read",
+          "immo",
+          "reset",
+          "odometer",
+          "akl",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Autel MaxiIM IM508S IMMO and Key Programming Tool Plus GBOX3 & XP200 with 40+ Services Functions (No IP Restriction)",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "key program",
+          "renew",
+          "read",
+          "odometer",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "unlock",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "CGDI A2 Key Programmer Full Version with Benz Authorization Software for EIS/ Password Calculation/ Read and Write Key/ Generate Key File",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "adapt",
+          "read",
+          "odometer",
+          "write",
+          "immo",
+          "all key lost",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-MATE Toyota 4A 4D 8A, BYD and VAG IMMO4 Key Programmer Compatible with KD-X2 and KD-MAX",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "pin code",
+          "read",
+          "immobilizer",
+          "immo",
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "FLASH SALE Keydiy KD-MP Program Kit with KD-MATE, KD-MP MLB/MQB Tool, MLB26 MLB09 MLB08 MLB Keys",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "add key",
+          "odometer",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[Combo Kit]  KEYDIY KD-MAX + KD-MATE Toyota Key Programmer Bundle",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "immo",
+          "all key lost",
+          "clone",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY KD-X4 5-in-1 Key Programmer Combines KD Max, KD Mate and KD Mini Prog Supports MQB48 MQB49 5C 5D MLB BMW BDC2 BDC3 IMMO",
+        "matched_models": 1,
+        "via_chips": [
+          "ID47"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "eeprom",
+          "mileage",
+          "pin code",
+          "odometer",
+          "read",
+          "immo",
+          "all key lost",
+          "unlock",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "KEYDIY PAK01-ZB Phone As Key for 46, 47, 48, 49, 4A Chip Types",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "odometer",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[10Pcs/Set] KEYDIY D26 Super Chip Supports Generating 8A 8C PCF7935 PCF7936 ID46 ID47 ID48 ID49 ID4D For KD-X2 KD-X4 KD-MAX Tango",
+        "matched_models": 1,
+        "via_chips": [
+          "ID47"
+        ],
+        "functions": [
+          "immobilizer",
+          "immo",
+          "odometer",
+          "clone",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "2024 Lonsdor K518 PRO All-in-One Key Programmer Basic Version Full Functions IMMO Matching Support Multi-language",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "flash",
+          "adapt",
+          "mileage",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "write",
+          "immo",
+          "all key lost",
+          "copy",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "[US SHIP] LONSDOR K518S Auto Key Programmer Basic Version No Tokens Limitation Supports All Makes, Odometer Adjustment [Buy K518 Pro Instead]",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "pin code",
+          "odometer",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "reset",
+          "all key lost",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR CAN DIRECT Kit for X300 DP Plus/ X300 Pro4 Toyota Corolla Levin Gateway Vehicles 4A Proximity Key Programming Free Pin Code",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "flash",
+          "add key",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "akl",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "OBDSTAR X300 Pro4 Key Programmer Key Master 5 Full Version",
+        "matched_models": 5,
+        "via_chips": [
+          "4A",
+          "ID47"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "add key",
+          "eeprom",
+          "renew",
+          "pin code",
+          "read",
+          "immobilizer",
+          "write",
+          "immo",
+          "reset",
+          "odometer",
+          "clone",
+          "akl",
+          "unlock",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "Newest OBDSTAR X300 PRO 4 Key Programmer Key Master 5 EU Version",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "all keys lost",
+          "adapt",
+          "eeprom",
+          "pin code",
+          "read",
+          "immo",
+          "odometer",
+          "key program"
+        ]
+      },
+      {
+        "tool_name": "$1954 OTOFIX IM2 Auto Bi-Directional Diagnostic Scanner IMMO Programer ECU Coding Supports CAN FD DoIP 40+ Service Functions Same Function as IM608 II",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "flash",
+          "add key",
+          "read",
+          "odometer",
+          "all key lost",
+          "akl",
+          "all keys lost",
+          "eeprom",
+          "immo",
+          "clone",
+          "key program",
+          "write",
+          "renew",
+          "immobilizer",
+          "unlock",
+          "adapt",
+          "mcu",
+          "reset",
+          "pin code",
+          "isn read"
+        ]
+      },
+      {
+        "tool_name": "US SHIP [Value Bundle] Xhorse VVDI2 Full 13 Software Activated + VVDI Multi Prog Global Version Get Free MQB48 Authorization",
+        "matched_models": 4,
+        "via_chips": [
+          "4A"
+        ],
+        "functions": [
+          "adapt",
+          "eeprom",
+          "renew",
+          "dump",
+          "pin code",
+          "read",
+          "immobilizer",
+          "mcu",
+          "write",
+          "immo",
+          "odometer",
+          "clone",
+          "copy",
+          "key program"
+        ]
+      }
+    ],
+    "gap_assessment": "OK: 16 tools claim coverage. Verify procedural support.",
+    "status": "GREEN"
+  },
+  {
+    "id": "lexus_rx350_2022_rolling",
+    "vehicle_group": "Lexus ",
+    "years": "Unknown",
+    "barrier": "12-Digit Rolling Passcode + SGW",
+    "risk": "Standard",
+    "tools_claiming_coverage": [],
+    "gap_assessment": "CRITICAL GAP: No tools in inventory claim coverage for this architecture.",
+    "status": "RED"
+  }
+]

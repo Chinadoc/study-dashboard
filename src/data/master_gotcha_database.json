@@ -1,0 +1,549 @@
+{
+  "metadata": {
+    "extraction_timestamp": "2026-01-28T19:50:00",
+    "extraction_method": "LLM Fourth Pass - Deep Semantic Analysis",
+    "files_analyzed": [
+      "GM_Global_B_Key_Programming_Research.txt",
+      "GM_T1XX_Platform_Key_Programming_Dossier.txt",
+      "Locksmith_Tool_Vehicle_Coverage.txt",
+      "Honda_11th_Gen_Key_Programming_Research.txt",
+      "Volvo_Locksmith_Survival_Guide.txt",
+      "JLR_Security_System_Evolution_Research.txt"
+    ],
+    "totals": {
+      "cross_vehicle_relationships": 13,
+      "tool_preference_rankings": 9,
+      "critical_warnings": 22,
+      "pearl_procedures": 12
+    }
+  },
+  "cross_vehicle_relationships": [
+    {
+      "id": "gm_t1xx_full_size_suv_shared",
+      "description": "2021+ Tahoe, Suburban, Yukon, and Escalade share IDENTICAL Global B architecture",
+      "vehicles": [
+        "Chevrolet Tahoe 2021+",
+        "Chevrolet Suburban 2021+",
+        "GMC Yukon 2021+",
+        "Cadillac Escalade 2021+"
+      ],
+      "implication": "Same procedure, cables, and tool support applies to all four."
+    },
+    {
+      "id": "gm_silverado_sierra_1500_twins",
+      "description": "Silverado 1500 and Sierra 1500 are platform twins with identical IMMO logic",
+      "vehicles": [
+        "Chevrolet Silverado 1500 2019-2025",
+        "GMC Sierra 1500 2019-2025"
+      ],
+      "implication": "All procedures, VIN rules (12th digit), and tool support are identical."
+    },
+    {
+      "id": "gm_hd_2024_transition",
+      "description": "2500/3500 HD trucks stayed Global A through 2023, switched to Global B in 2024",
+      "vehicles": [
+        "Chevrolet Silverado 2500/3500 HD 2020-2023 (Global A)",
+        "Chevrolet Silverado 2500/3500 HD 2024+ (Global B)"
+      ],
+      "implication": "CRITICAL: A 2023 HD is easy (legacy tools). A 2024 HD is locked."
+    },
+    {
+      "id": "stellantis_rf_hub_lock_family",
+      "description": "2022+ Grand Cherokee L, Wagoneer, and Grand Wagoneer use 'Write Once' RF Hubs",
+      "vehicles": [
+        "Jeep Grand Cherokee L 2021+",
+        "Jeep Wagoneer 2022+",
+        "Jeep Grand Wagoneer 2022+"
+      ],
+      "implication": "AKL via OBD is IMPOSSIBLE. Hub must be replaced with virgin unit."
+    },
+    {
+      "id": "toyota_8a_ba_family",
+      "description": "2022+ Tundra, 2023+ Sequoia, 2024 Grand Highlander, 2023+ Prius share the 8A-BA chip and TMLF19 Smart Box",
+      "vehicles": [
+        "Toyota Tundra 2022+",
+        "Toyota Sequoia 2023+",
+        "Toyota Grand Highlander 2024+",
+        "Toyota Prius 2023+"
+      ],
+      "implication": "All require the 30-Pin Cable + G-Box3 for AKL."
+    },
+    {
+      "id": "nissan_16_32_gateway_family",
+      "description": "2020+ Nissan Sentra (B18), 2021+ Rogue, 2021+ Pathfinder share the 16+32 Gateway",
+      "vehicles": [
+        "Nissan Sentra 2020+",
+        "Nissan Rogue 2021+",
+        "Nissan Pathfinder 2022+",
+        "Nissan Versa 2021+"
+      ],
+      "implication": "All require the 16+32 Bypass Cable."
+    },
+    {
+      "id": "honda_11th_gen_shared_platform",
+      "description": "2022+ Civic, 2023+ Accord, 2023+ CR-V, and 2023+ Pilot share the 11th Gen 4A (Hitag AES) architecture",
+      "vehicles": [
+        "Honda Civic 2022+",
+        "Honda Accord 2023+",
+        "Honda CR-V 2023+",
+        "Honda Pilot 2023+"
+      ],
+      "implication": "Same 4A chip (KR5TP-4), same BCM alarm lockout behavior."
+    },
+    {
+      "id": "acura_integra_different_fcc",
+      "description": "Acura Integra uses KR5TP-2 (different from Honda's KR5TP-4) despite shared platform",
+      "vehicles": [
+        "Acura Integra 2023+"
+      ],
+      "implication": "CANNOT use Civic/Accord keys on Integra."
+    },
+    {
+      "id": "volvo_spa_platform_family",
+      "description": "XC90, XC60, S90, V90, S60, V60 (2016+) share Scalable Product Architecture (SPA)",
+      "vehicles": [
+        "Volvo XC90 2016+",
+        "Volvo XC60 2018+",
+        "Volvo S90 2017+",
+        "Volvo V90 2017+",
+        "Volvo S60 2019+",
+        "Volvo V60 2019+"
+      ],
+      "implication": "Same CEM architecture. Same OBD PIN decode procedure."
+    },
+    {
+      "id": "volvo_cma_platform_family",
+      "description": "XC40, C40, XC40 Recharge share Compact Modular Architecture (CMA)",
+      "vehicles": [
+        "Volvo XC40 2018+",
+        "Volvo C40 2022+",
+        "Volvo XC40 Recharge 2021+"
+      ],
+      "implication": "Same CEM logic as SPA but physically on driver's side."
+    },
+    {
+      "id": "volvo_aaos_transition",
+      "description": "2022+ XC60/S90/V90, 2023+ XC90/S60/V60 transitioned to Google AAOS OS from Sensus",
+      "vehicles": [
+        "Volvo XC60 2022+",
+        "Volvo S90 2022+",
+        "Volvo V90 2022+",
+        "Volvo XC90 2023+"
+      ],
+      "implication": "AAOS models = Server/Bench only. Different gateway security."
+    },
+    {
+      "id": "jlr_otp_locked_family",
+      "description": "2018+ Range Rover, Velar, Defender use OTP-locked KVM (SPC560B60L3 MCU)",
+      "vehicles": [
+        "Range Rover L405 2018+",
+        "Range Rover Sport L494 2018+",
+        "Range Rover Velar 2018+",
+        "Land Rover Defender L663 2020+"
+      ],
+      "implication": "Traditional OBD 'Add Key' is BLOCKED."
+    },
+    {
+      "id": "jlr_uwb_required_family",
+      "description": "2018+ Range Rover flagship models require UWB keys (KOBJXF18A) for Passive Entry",
+      "vehicles": [
+        "Range Rover L405 2018+",
+        "Range Rover Sport L494 2018+",
+        "Land Rover Defender L663 2020+"
+      ],
+      "implication": "Non-UWB keys will NOT work for passive entry."
+    }
+  ],
+  "tool_preference_rankings": [
+    {
+      "category": "GM Global B (CAN FD + 24-Digit Token)",
+      "rankings": [
+        {
+          "rank": 1,
+          "tool": "GM SPS2 / Techline Connect",
+          "reason": "Only guaranteed method."
+        },
+        {
+          "rank": 2,
+          "tool": "Autel IM608 Pro II",
+          "reason": "Server-dependent. Most reliable aftermarket."
+        },
+        {
+          "rank": 3,
+          "tool": "OBDSTAR X300 DP Plus / G3",
+          "reason": "Fast update cycle."
+        }
+      ]
+    },
+    {
+      "category": "Ford Active Alarm (2021+ F-150, Bronco)",
+      "rankings": [
+        {
+          "rank": 1,
+          "tool": "Advanced Diagnostics Smart Pro",
+          "reason": "Software exploit to silence alarm via OBD."
+        },
+        {
+          "rank": 2,
+          "tool": "Autel IM608",
+          "reason": "Requires Ford Active Alarm Bypass Cable."
+        }
+      ]
+    },
+    {
+      "category": "Toyota 8A-BA / TMLF19 (2022+ Tundra, Prius)",
+      "rankings": [
+        {
+          "rank": 1,
+          "tool": "Lonsdor K518 Pro",
+          "reason": "Best coverage. Often no PIN code required."
+        },
+        {
+          "rank": 2,
+          "tool": "Autel IM608 Pro",
+          "reason": "Requires G-Box3 + 30-Pin Cable + APB112 Emulator."
+        },
+        {
+          "rank": 3,
+          "tool": "OBDSTAR X300 DP Plus",
+          "reason": "Excellent support with Toyota-30 cable."
+        }
+      ]
+    },
+    {
+      "category": "Volvo SPA/CMA (2016-2021 Sensus)",
+      "rankings": [
+        {
+          "rank": 1,
+          "tool": "VDASH (D5T5)",
+          "reason": "Server farm guarantees PIN decode within 24 hours."
+        },
+        {
+          "rank": 2,
+          "tool": "Lonsdor K518 Pro",
+          "reason": "Often faster at Volvo PIN calculation."
+        }
+      ]
+    },
+    {
+      "category": "Honda 11th Gen (4A Chip) - 2022+ Civic/Accord",
+      "rankings": [
+        {
+          "rank": 1,
+          "tool": "Advanced Diagnostics Smart Pro (ADS2336)",
+          "reason": "Server-side BCM calculation. >95% success."
+        },
+        {
+          "rank": 2,
+          "tool": "Lonsdor K518 Pro",
+          "reason": "Strong 4A support. Built-in LKE emulator."
+        }
+      ]
+    },
+    {
+      "category": "JLR OTP Locked (2018+ Range Rover/Velar/Defender)",
+      "rankings": [
+        {
+          "rank": 1,
+          "tool": "Lock50 HW04 + Emulator Key",
+          "reason": "Bypasses OTP lock entirely."
+        },
+        {
+          "rank": 2,
+          "tool": "JLR Pathfinder (Dealer)",
+          "reason": "Authorized method. New virgin KVM required."
+        }
+      ]
+    }
+  ],
+  "critical_warnings_and_gotchas": [
+    {
+      "id": "gm_12th_digit_rule",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "Chevrolet Silverado 1500 2022",
+        "GMC Sierra 1500 2022"
+      ],
+      "warning": "The 10th VIN digit (year) is USELESS. The 12th digit determines architecture: <=4 = Global A, >=5 = Global B."
+    },
+    {
+      "id": "gm_voltage_brick",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "All GM Global B vehicles 2020+"
+      ],
+      "warning": "BCM flashing requires a 50-70 Amp battery maintainer. Voltage drop during SPS2 flash will BRICK the BCM."
+    },
+    {
+      "id": "gm_can_fd_adapter_mandatory",
+      "severity": "HIGH",
+      "applies_to": [
+        "All GM 2021+ Full-Size SUVs",
+        "Corvette C8 2020+"
+      ],
+      "warning": "Without the CAN FD Adapter, all aftermarket tools receive 'Communication Error' on half the modules."
+    },
+    {
+      "id": "gm_active_alarm_blocks_obd",
+      "severity": "HIGH",
+      "applies_to": [
+        "All GM Global B vehicles in AKL state"
+      ],
+      "warning": "Active alarm can lock down OBDII port communication."
+    },
+    {
+      "id": "gm_2025_software_lock",
+      "severity": "EMERGING",
+      "applies_to": [
+        "GM vehicles with late-2024/2025 firmware updates"
+      ],
+      "warning": "GM is actively closing backdoor exploits. Aftermarket tools may fail on newest firmware."
+    },
+    {
+      "id": "stellantis_rf_hub_write_once",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "Jeep Grand Cherokee L 2021+",
+        "Jeep Wagoneer/Grand Wagoneer 2022+"
+      ],
+      "warning": "The RF Hub is 'Write Once'. AKL via OBD is IMPOSSIBLE."
+    },
+    {
+      "id": "toyota_30_pin_mandatory",
+      "severity": "HIGH",
+      "applies_to": [
+        "Toyota Tundra 2022+",
+        "Toyota Sequoia 2023+",
+        "Toyota Corolla Cross 2023+",
+        "Toyota Prius 2023+"
+      ],
+      "warning": "Standard OBD programming is BLOCKED for AKL. The 30-Pin Cable is MANDATORY."
+    },
+    {
+      "id": "honda_civic_integra_brick",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "Honda Civic 2022+",
+        "Acura Integra 2023+"
+      ],
+      "warning": "BCM is EXTREMELY sensitive to voltage fluctuations. Early attempts resulted in BRICKED BCMs."
+    },
+    {
+      "id": "ford_active_alarm_blocks_obd",
+      "severity": "HIGH",
+      "applies_to": [
+        "Ford F-150 2021+",
+        "Ford Bronco 2021+",
+        "Ford Mustang Mach-E 2021+"
+      ],
+      "warning": "In AKL, the BCM cuts OBD port communication when alarm is active."
+    },
+    {
+      "id": "nissan_bcm_bricking_akl",
+      "severity": "HIGH",
+      "applies_to": [
+        "Nissan Rogue 2021+",
+        "Nissan Sentra 2020+"
+      ],
+      "warning": "Using 'All Keys Lost' procedure without 16+32 cable can BRICK the BCM."
+    },
+    {
+      "id": "gmc_yukon_frequency_trap",
+      "severity": "MEDIUM",
+      "applies_to": [
+        "GMC Yukon 2021+",
+        "Chevy Tahoe 2021+",
+        "Cadillac Escalade 2021+"
+      ],
+      "warning": "2021+ SUVs are EXCLUSIVELY 433MHz. 315MHz fob will result in programming failure."
+    },
+    {
+      "id": "gm_escalade_dead_obd_port",
+      "severity": "MEDIUM",
+      "applies_to": [
+        "Cadillac Escalade 2021+"
+      ],
+      "warning": "'Dead OBDII Port' is almost always a blown fuse (Fuse 53). Pin 16 shares 12V accessory circuit."
+    },
+    {
+      "id": "honda_alarm_active_lockout",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "Honda Civic 2022+",
+        "Honda Accord 2023+",
+        "Honda CR-V 2023+",
+        "Acura Integra 2023+"
+      ],
+      "warning": "In AKL, the BCM REJECTS diagnostic requests while alarm is active. Use battery hard reset for 30-60 second window."
+    },
+    {
+      "id": "honda_key_isolation_40_seconds",
+      "severity": "HIGH",
+      "applies_to": [
+        "All Honda 11th Gen vehicles"
+      ],
+      "warning": "ALL other keys must be 10+ feet away. When prompted, bring ONE new key within 40-SECOND WINDOW."
+    },
+    {
+      "id": "honda_driver_1_2_memory_trap",
+      "severity": "MEDIUM",
+      "applies_to": [
+        "Honda Accord Touring 2023+"
+      ],
+      "warning": "Driver 1 and Driver 2 keys have different part numbers. Wrong slot can cause memory seat conflicts."
+    },
+    {
+      "id": "volvo_cem_voltage_brick",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "All Volvo SPA/CMA 2016+"
+      ],
+      "warning": "CEM PIN decode takes 2-24 hours. If battery drops below 12V, CEM D-Flash CORRUPTS = BRICKED module."
+    },
+    {
+      "id": "volvo_aaos_danger_zone",
+      "severity": "HIGH",
+      "applies_to": [
+        "Volvo XC60/S90/V90 2022",
+        "Volvo XC90/S60/V60 2023"
+      ],
+      "warning": "Transition years: Some 2022 XC60s have AAOS, some have Sensus. Tools for Sensus FAIL on AAOS."
+    },
+    {
+      "id": "volvo_ev_12v_frunk_lockout",
+      "severity": "HIGH",
+      "applies_to": [
+        "Volvo C40 2022+",
+        "Volvo XC40 Recharge 2021+"
+      ],
+      "warning": "On Volvo EVs, if 12V battery dies, you CANNOT open frunk. Find manual release cable behind tow-eye cover."
+    },
+    {
+      "id": "volvo_key_tag_disposable",
+      "severity": "MEDIUM",
+      "applies_to": [
+        "Volvo Sport Key Tag (any year)"
+      ],
+      "warning": "Key Tag has NON-REPLACEABLE sealed battery (dies 2-3 years). VIN-locked. Sell new full-size fob instead."
+    },
+    {
+      "id": "jlr_otp_kvm_write_block",
+      "severity": "CRITICAL",
+      "applies_to": [
+        "Range Rover L405 2018+",
+        "Velar 2018+",
+        "Defender L663 2020+"
+      ],
+      "warning": "KVM uses OTP-locked MCU. Standard 'Add Key' via OBD is BLOCKED once initial keys programmed."
+    },
+    {
+      "id": "jlr_uwb_key_required",
+      "severity": "HIGH",
+      "applies_to": [
+        "Range Rover 2018+",
+        "Defender 2020+"
+      ],
+      "warning": "UWB keys (KOBJXF18A) are MANDATORY for passive entry on 2018+ flagships."
+    },
+    {
+      "id": "jlr_sgw_blocks_obd_writes",
+      "severity": "HIGH",
+      "applies_to": [
+        "Range Rover L405 2018+",
+        "Defender L663 2020+",
+        "Discovery 5 2017+"
+      ],
+      "warning": "Security Gateway blocks OBD writes. Must use Pathfinder with TOPIx Cloud OR Star Connector bypass cable."
+    }
+  ],
+  "pearl_procedures": [
+    {
+      "id": "gm_escalade_hmi_reboot",
+      "applies_to": [
+        "Cadillac Escalade 2021+"
+      ],
+      "procedure": "OLED screen black but audio plays: Hold End Call button on steering wheel for 15 seconds to force HMI reboot."
+    },
+    {
+      "id": "gm_diesel_high_idle_brake_trap",
+      "applies_to": [
+        "Duramax 3.0L LM2/LZ0",
+        "Duramax 6.6L L5P"
+      ],
+      "procedure": "High Idle won't engage: Check Brake Pedal Position Sensor. 1% applied signal inhibits High Idle. No DTC set."
+    },
+    {
+      "id": "gm_diesel_30_minute_relearn",
+      "applies_to": [
+        "GM Duramax Diesel (any)"
+      ],
+      "procedure": "Manual IMMO relearn: Ignition ON -> Wait for Security light OFF (10 min) -> Ignition OFF 5 sec -> Repeat 3x. 4th attempt learns key."
+    },
+    {
+      "id": "gm_tailgate_hitch_logic_bypass",
+      "applies_to": [
+        "GMC Sierra 2019+",
+        "Chevy Silverado 2019+",
+        "GMC Yukon 2021+"
+      ],
+      "procedure": "Inner Multi-Pro/Multi-Flex tailgate stuck: BCM thinks hitch installed. Hold upper touchpad for 3-7 seconds."
+    },
+    {
+      "id": "gm_yukon_emergency_key_pocket",
+      "applies_to": [
+        "GMC Yukon 2021+"
+      ],
+      "procedure": "Dead fob battery: Emergency start pocket is in CUPHOLDER under rubber mat. On Silverado bench seat, lower storage."
+    },
+    {
+      "id": "honda_battery_reset_window",
+      "applies_to": [
+        "Honda 11th Gen (all)"
+      ],
+      "procedure": "AKL with alarm: Disconnect 12V for 10-15 min. Reconnect -> 30-60 second window before alarm re-arms. Connect tool immediately."
+    },
+    {
+      "id": "honda_backup_slot_location",
+      "applies_to": [
+        "Honda Civic 2022+"
+      ],
+      "procedure": "Dead fob battery: Place fob on marked symbol in cupholder (under rubber mat) or center console. Press brake. Press Start."
+    },
+    {
+      "id": "volvo_double_lock_resync_trick",
+      "applies_to": [
+        "Volvo SPA/CMA (all)"
+      ],
+      "procedure": "Remote works but car won't start: Lock and unlock car 3 TIMES RAPIDLY with remote. Forces rolling code resync."
+    },
+    {
+      "id": "volvo_sleeping_bus_keepalive",
+      "applies_to": [
+        "Volvo SPA/CMA (all)"
+      ],
+      "procedure": "Long OBD PIN read hangs at 'Connecting': Flash high beams or tap brake every 2 minutes to keep CAN gateway active."
+    },
+    {
+      "id": "volvo_emergency_start_coil",
+      "applies_to": [
+        "Volvo XC90/XC60/S90"
+      ],
+      "procedure": "Dead fob or 'Smart Key Not Found': Place fob on marked 'Key' symbol in center console (under cup holder mat). Uses inductive coil for emergency start."
+    },
+    {
+      "id": "jlr_emergency_start_coil",
+      "applies_to": [
+        "Range Rover 2010+",
+        "Discovery 4"
+      ],
+      "procedure": "KVM failure ('Smart Key Not Found'): Hold fob against steering column shroud 'sweet spot'. Bypasses RF/LF, uses passive transponder induction."
+    },
+    {
+      "id": "jlr_lock50_emulator_bypass",
+      "applies_to": [
+        "JLR 2018+ OTP-locked vehicles"
+      ],
+      "procedure": "Bypass OTP lock: Use Lock50 HW04 to read config. Program Emulator Key (HW14/HW18) to mimic existing Key ID. Car thinks original key found."
+    }
+  ]
+}
