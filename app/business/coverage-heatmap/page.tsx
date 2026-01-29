@@ -5,24 +5,40 @@ import CriticalWarnings from '@/components/business/CriticalWarnings';
 import PearlProcedures from '@/components/business/PearlProcedures';
 import ToolRankings from '@/components/business/ToolRankings';
 import CrossVehicleRelationships from '@/components/business/CrossVehicleRelationships';
-import vehicleCoverageData from '../../../src/data/vehicle_coverage_timeline.json';
+import vehicleCoverageData from '../../../src/data/unified_vehicle_coverage.json';
 
-// Import full coverage data (1,252 vehicles from master_coverage_matrix.json)
+// Unified coverage data with rich limitation/cable/flag data
+interface ToolCoverageDetail {
+    status: string;
+    confidence: string;
+    limitations: Array<{
+        category: string;
+        cables: string[];
+        context: string;
+        source: string;
+    }>;
+    cables: string[];
+}
+
 interface VehicleCoverage {
     make: string;
     model: string;
     yearStart: number;
     yearEnd: number;
-    autel: string;
-    smartPro: string;
-    lonsdor: string;
-    vvdi: string;
+    autel: ToolCoverageDetail;
+    smartPro: ToolCoverageDetail;
+    lonsdor: ToolCoverageDetail;
+    vvdi: ToolCoverageDetail;
     platform: string;
-    chip?: string;
+    chips: string[];
+    flags: Array<{ tool: string; year: number; reason: string }>;
+    dossierMentions: number;
 }
 
-const COVERAGE_DATA: VehicleCoverage[] = vehicleCoverageData.vehicles as VehicleCoverage[];
-const COVERAGE_STATS = vehicleCoverageData.stats;
+// Type assertion for JSON import
+const COVERAGE_DATA = vehicleCoverageData.vehicles as unknown as VehicleCoverage[];
+const COVERAGE_STATS = vehicleCoverageData.stats as { total_vehicles: number; makes: number; year_range: string; vehicles_with_limitations: number; vehicles_with_flags: number };
+
 
 const TOOLS = ['autel', 'smartPro', 'lonsdor', 'vvdi'] as const;
 const TOOL_LABELS: Record<string, string> = {
@@ -34,12 +50,31 @@ const TOOL_LABELS: Record<string, string> = {
 };
 
 // Helper to get status text for a vehicle given current tool selection
-function getVehicleStatusText(v: typeof COVERAGE_DATA[0], tool: typeof TOOLS[number] | 'all'): string {
+function getVehicleStatusText(v: VehicleCoverage, tool: typeof TOOLS[number] | 'all'): string {
     if (tool === 'all') {
-        const statuses = TOOLS.map(t => v[t] as string).filter(s => s);
+        const statuses = TOOLS.map(t => v[t].status).filter(s => s);
         return statuses.length > 0 ? statuses.join(' | ') : 'No data';
     }
-    return v[tool] as string || '';
+    return v[tool].status || '';
+}
+
+// Helper to get limitation badges for a vehicle/tool
+function getLimitationBadges(v: VehicleCoverage, tool: typeof TOOLS[number] | 'all'): string[] {
+    const badges: Set<string> = new Set();
+    const toolsToCheck = tool === 'all' ? [...TOOLS] : [tool];
+
+    toolsToCheck.forEach(t => {
+        v[t].limitations.forEach(lim => {
+            if (lim.category === 'bench_required') badges.add('🔧 Bench');
+            if (lim.category === 'server_required') badges.add('🌐 Server');
+            if (lim.category === 'dealer_only') badges.add('🏢 Dealer');
+            if (lim.category === 'high_risk') badges.add('⚠️ Risk');
+            if (lim.category === 'adapter_required') badges.add('🔌 Cable');
+            if (lim.category === 'akl_blocked') badges.add('🚫 AKL');
+        });
+    });
+
+    return Array.from(badges);
 }
 
 function getCoverageLevel(status: string): 'full' | 'partial' | 'none' | 'unknown' {
@@ -95,7 +130,7 @@ export default function CoverageHeatMap() {
 
         filteredData.forEach(record => {
             TOOLS.forEach(tool => {
-                const status = record[tool] as string || '';
+                const status = record[tool].status || '';
                 const level = getCoverageLevel(status);
                 toolStats[tool][level]++;
             });
@@ -117,14 +152,14 @@ export default function CoverageHeatMap() {
             if (selectedTool === 'all') {
                 // Get best coverage across all tools
                 TOOLS.forEach(tool => {
-                    const status = record[tool] as string || '';
+                    const status = record[tool].status || '';
                     const toolLevel = getCoverageLevel(status);
                     if (toolLevel === 'full') level = 'full';
                     else if (toolLevel === 'partial' && level !== 'full') level = 'partial';
                     else if (toolLevel === 'none' && level === 'unknown') level = 'none';
                 });
             } else {
-                const status = record[selectedTool] as string || '';
+                const status = record[selectedTool].status || '';
                 level = getCoverageLevel(status);
             }
 
@@ -162,7 +197,8 @@ export default function CoverageHeatMap() {
 
                     records.forEach(r => {
                         toolsToCheck.forEach(tool => {
-                            const status = r[tool] as string || '';
+                            const toolData = r[tool];
+                            const status = toolData.status || '';
                             if (status) statuses.push(`${TOOL_LABELS[tool]}: ${status}`);
                             const level = getCoverageLevel(status);
                             if (level === 'full') bestLevel = 'full';
@@ -397,13 +433,16 @@ export default function CoverageHeatMap() {
                                                     {record.yearStart}-{record.yearEnd.toString().slice(-2)}
                                                 </div>
                                                 {TOOLS.map(tool => {
-                                                    const status = record[tool] as string || '';
+                                                    const toolData = record[tool];
+                                                    const status = toolData.status || '';
                                                     const level = getCoverageLevel(status);
+                                                    const badges = toolData.limitations.length > 0 ?
+                                                        toolData.limitations.slice(0, 2).map(l => l.category.replace('_', ' ')).join(', ') : '';
                                                     return (
                                                         <div key={tool} className="p-3 flex items-center justify-center">
                                                             <div
                                                                 className={`w-6 h-6 rounded ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-lg' : ''}`}
-                                                                title={status || 'No data'}
+                                                                title={`${status || 'No data'}${badges ? `\n⚠️ ${badges}` : ''}`}
                                                             />
                                                         </div>
                                                     );
