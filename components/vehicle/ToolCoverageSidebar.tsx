@@ -86,8 +86,8 @@ function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
 
     return (
         <div className={`p-3 rounded-xl border transition-all ${tool.isOwned
-                ? 'bg-green-900/20 border-green-700/30'
-                : 'bg-gray-800/30 border-gray-700/30'
+            ? 'bg-green-900/20 border-green-700/30'
+            : 'bg-gray-800/30 border-gray-700/30'
             }`}>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -110,20 +110,30 @@ function ToolCard({ tool }: { tool: VehicleToolCoverage }) {
                 </div>
             </div>
 
-            {/* Limitations */}
-            {hasLimitations && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                    {tool.limitations.slice(0, 3).map((lim, idx) => (
-                        <span
-                            key={idx}
-                            className="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full"
-                            title={lim.category}
-                        >
-                            {lim.label}
-                        </span>
-                    ))}
-                </div>
-            )}
+            {/* Limitations - dedupe by category */}
+            {hasLimitations && (() => {
+                // Dedupe by category, keeping first occurrence
+                const seen = new Set<string>();
+                const uniqueLimitations = tool.limitations.filter(lim => {
+                    if (seen.has(lim.category)) return false;
+                    seen.add(lim.category);
+                    return true;
+                });
+
+                return (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                        {uniqueLimitations.slice(0, 3).map((lim, idx) => (
+                            <span
+                                key={idx}
+                                className="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full"
+                                title={lim.category}
+                            >
+                                {lim.label}
+                            </span>
+                        ))}
+                    </div>
+                );
+            })()}
 
             {/* Cables */}
             {hasCables && (
