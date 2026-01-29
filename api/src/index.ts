@@ -2732,17 +2732,22 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       // Uses browse_catalog for clean, normalized makes/models/years
       // Extracted from aks_products_detail compatible_vehicles
 
-      // GET /api/vyp/makes - Returns distinct makes from aks_vehicles_by_year (cleaner data)
+      // GET /api/vyp/makes - Returns makes sorted by popularity (model count)
+      // ?popular=true returns only top 27, otherwise returns all
       if (path === "/api/vyp/makes") {
         try {
+          const popularOnly = url.searchParams.get("popular") === "true";
+
+          // Get makes with model count for popularity sorting
           const sql = `
-            SELECT DISTINCT make 
+            SELECT make, COUNT(DISTINCT model) as model_count
             FROM aks_vehicles_by_year
             WHERE make IS NOT NULL
-            ORDER BY make
+            GROUP BY make
+            HAVING model_count >= 2
+            ORDER BY model_count DESC, make ASC
           `;
           const result = await env.LOCKSMITH_DB.prepare(sql).all();
-          let makes = (result.results || []).map((r: any) => r.make);
 
           // Filter out motorcycle-only makes (keeps automotive focus)
           const motorcycleOnlyMakes = new Set([
@@ -2750,14 +2755,44 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             'Ducati', 'Fantic', 'Garelli', 'Gilera', 'Harley-Davidson', 'Husqvarna',
             'Indian', 'Italjet', 'KTM', 'Kawasaki', 'Kymco', 'MBK', 'MZ', 'MV Agusta',
             'Malaguti', 'Moto Guzzi', 'Norton', 'Piaggio', 'Polaris', 'Vespa',
-            'Victory', 'Yamaha', 'Atala', 'Evinrude', 'Sea'
+            'Victory', 'Yamaha', 'Atala', 'Evinrude', 'Sea', 'Arctic Cat', 'Bombardier'
           ]);
-          makes = makes.filter((m: string) => !motorcycleOnlyMakes.has(m));
+
+          // Also filter obscure/non-consumer makes
+          const obscureMakes = new Set([
+            'American', 'Brockway', 'Golf', 'Vehicle', 'Misc Models',
+            'Hino', 'IVECO', 'Navistar', 'Sterling', 'Studebaker'
+          ]);
+
+          let filteredResults = (result.results || []).filter((r: any) =>
+            !motorcycleOnlyMakes.has(r.make) && !obscureMakes.has(r.make)
+          );
+
+          // Curated list of major automotive brands (priority order for locksmiths)
+          const priorityMakes = [
+            'Acura', 'Audi', 'BMW', 'Buick', 'Cadillac', 'Chevrolet', 'Chrysler',
+            'Dodge', 'Fiat', 'Ford', 'GMC', 'Honda', 'Hyundai', 'Infiniti',
+            'Jaguar', 'Jeep', 'Kia', 'Land Rover', 'Lexus', 'Lincoln', 'Mazda',
+            'Mercedes', 'Mini', 'Mitsubishi', 'Nissan', 'Porsche', 'RAM', 'Subaru',
+            'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+          ];
+
+          const allMakes = filteredResults.map((r: any) => r.make);
+
+          // Popular = intersection of priority makes with available makes
+          const popularMakes = priorityMakes.filter(m => allMakes.includes(m));
+
+          // Sort alphabetically for display
+          popularMakes.sort((a: string, b: string) => a.localeCompare(b));
+          allMakes.sort((a: string, b: string) => a.localeCompare(b));
 
           return corsResponse(request, JSON.stringify({
             source: "aks_vehicles_by_year",
-            count: makes.length,
-            makes
+            popularCount: popularMakes.length,
+            totalCount: allMakes.length,
+            makes: popularOnly ? popularMakes : allMakes,
+            popularMakes,  // Always include for client-side filtering
+            hasMore: allMakes.length > popularMakes.length
           }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);

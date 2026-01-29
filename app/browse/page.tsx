@@ -31,6 +31,11 @@ function BrowsePageContent() {
     const [loadingModels, setLoadingModels] = useState(false);
     const [loadingYears, setLoadingYears] = useState(false);
 
+    // Show all makes toggle for desktop
+    const [showAllMakes, setShowAllMakes] = useState(false);
+    const [popularMakes, setPopularMakes] = useState<string[]>([]);
+    const [hasMoreMakes, setHasMoreMakes] = useState(false);
+
     // Mobile detection
     const [isMobile, setIsMobile] = useState(false);
 
@@ -50,13 +55,14 @@ function BrowsePageContent() {
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/makes`);
                 const data = await res.json();
-                const apiMakes = (data.makes || []) as string[];
-                // Merge: show POPULAR_MAKES first, then any additional from API
-                const allMakes = [...new Set([...POPULAR_MAKES, ...apiMakes])];
-                setMakes(allMakes);
+                // API returns: makes (all), popularMakes (top 27), hasMore
+                setMakes((data.makes || []) as string[]);
+                setPopularMakes((data.popularMakes || []) as string[]);
+                setHasMoreMakes(data.hasMore || false);
             } catch (error) {
                 console.error('Failed to fetch makes:', error);
                 setMakes([...POPULAR_MAKES]); // Fallback to static list
+                setPopularMakes([...POPULAR_MAKES]);
             }
         }
         fetchMakes();
@@ -174,7 +180,23 @@ function BrowsePageContent() {
                     <SearchBar onSearch={handleSearch} />
 
                     {!selectedMake ? (
-                        <MakeGrid makes={makes.length > 0 ? makes : (POPULAR_MAKES as unknown as string[])} selectedMake={selectedMake} onSelect={handleMakeSelect} />
+                        <>
+                            <MakeGrid
+                                makes={showAllMakes ? makes : (popularMakes.length > 0 ? popularMakes : POPULAR_MAKES as unknown as string[])}
+                                selectedMake={selectedMake}
+                                onSelect={handleMakeSelect}
+                            />
+                            {hasMoreMakes && (
+                                <div className="text-center mt-6">
+                                    <button
+                                        onClick={() => setShowAllMakes(!showAllMakes)}
+                                        className="px-6 py-2 rounded-lg border border-gray-600 text-gray-400 hover:text-purple-400 hover:border-purple-400 transition-colors"
+                                    >
+                                        {showAllMakes ? '← Show Popular Makes Only' : `Show ${makes.length - popularMakes.length} More Makes →`}
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <>
                             <div className="flex items-center gap-4 mb-6">
