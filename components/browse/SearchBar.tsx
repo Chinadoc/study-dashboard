@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseVehicleQuery, generateSuggestions } from '@/lib/vehicle-search';
+import { trackSearch } from '@/lib/analytics';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
@@ -219,6 +220,9 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
     }, []);
 
     const handleSelect = (result: SearchResult) => {
+        // Track the search selection
+        trackSearch(result.display, results.length);
+
         if (result.type === 'make') {
             // Navigate to browse with make pre-selected
             window.location.href = `/browse?make=${encodeURIComponent(result.make)}`;
