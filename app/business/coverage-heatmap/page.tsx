@@ -105,6 +105,9 @@ export default function CoverageHeatMap() {
     const [activeTab, setActiveTab] = useState<'heatmap' | 'warnings' | 'pearls' | 'rankings' | 'relationships'>('heatmap');
     const [viewMode, setViewMode] = useState<'vehicle' | 'tool' | 'timeline'>('vehicle');
     const [selectedTool, setSelectedTool] = useState<typeof TOOLS[number] | 'all'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showAllVehicles, setShowAllVehicles] = useState(false);
+    const MAX_VISIBLE_VEHICLES = 50;
 
     // Year range for timeline view (1980-2026, defaulting to show recent years)
     const YEAR_START = 1990;
@@ -117,9 +120,26 @@ export default function CoverageHeatMap() {
     }, []);
 
     const filteredData = useMemo(() => {
-        if (selectedMake === 'all') return COVERAGE_DATA;
-        return COVERAGE_DATA.filter(r => r.make === selectedMake);
-    }, [selectedMake]);
+        let data = COVERAGE_DATA;
+
+        // Filter by make
+        if (selectedMake !== 'all') {
+            data = data.filter(r => r.make === selectedMake);
+        }
+
+        // Filter by search query
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            data = data.filter(r =>
+                r.make.toLowerCase().includes(q) ||
+                r.model.toLowerCase().includes(q) ||
+                String(r.yearStart).includes(q) ||
+                String(r.yearEnd).includes(q)
+            );
+        }
+
+        return data;
+    }, [selectedMake, searchQuery]);
 
     // Calculate summary stats
     const stats = useMemo(() => {
@@ -407,6 +427,19 @@ export default function CoverageHeatMap() {
 
                                 {/* Heat Map Grid */}
                                 <div className="bg-gray-900/30 border border-gray-800 rounded-2xl overflow-hidden">
+                                    {/* Search Bar */}
+                                    <div className="p-4 border-b border-gray-800 bg-gray-900/50">
+                                        <input
+                                            type="text"
+                                            placeholder="Search by make, model, or year..."
+                                            value={searchQuery}
+                                            onChange={(e) => { setSearchQuery(e.target.value); setShowAllVehicles(false); }}
+                                            className="w-full max-w-md px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                        />
+                                        <span className="ml-4 text-sm text-gray-500">
+                                            {filteredData.length} vehicles found
+                                        </span>
+                                    </div>
                                     {/* Header Row */}
                                     <div className="grid grid-cols-[200px_120px_repeat(4,80px)] bg-gray-900/50 border-b border-gray-800">
                                         <div className="p-3 font-bold text-gray-400">Vehicle</div>
@@ -420,7 +453,7 @@ export default function CoverageHeatMap() {
 
                                     {/* Data Rows */}
                                     <div className="divide-y divide-gray-800/50">
-                                        {filteredData.map((record, idx) => (
+                                        {(showAllVehicles ? filteredData : filteredData.slice(0, MAX_VISIBLE_VEHICLES)).map((record, idx) => (
                                             <div
                                                 key={idx}
                                                 className="grid grid-cols-[200px_120px_repeat(4,80px)] hover:bg-gray-800/30 transition-colors"
@@ -450,6 +483,18 @@ export default function CoverageHeatMap() {
                                             </div>
                                         ))}
                                     </div>
+
+                                    {/* Show More Button */}
+                                    {!showAllVehicles && filteredData.length > MAX_VISIBLE_VEHICLES && (
+                                        <div className="p-4 border-t border-gray-800 bg-gray-900/50 text-center">
+                                            <button
+                                                onClick={() => setShowAllVehicles(true)}
+                                                className="px-6 py-2 bg-amber-500/20 border border-amber-500/50 text-amber-400 rounded-lg hover:bg-amber-500/30 transition-colors"
+                                            >
+                                                Show all {filteredData.length} vehicles
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Platform Distribution */}
