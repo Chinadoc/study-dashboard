@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SubTabBar from '@/components/shared/SubTabBar';
 import { API_BASE } from '@/lib/config';
+import { useAuth } from '@/contexts/AuthContext';
 import {
     KEY_CATEGORIES,
     KeyCategory,
@@ -26,6 +27,7 @@ interface InventoryItem {
 type InventorySubTab = 'all' | 'keys' | 'blanks' | 'low';
 
 export default function InventoryPage() {
+    const { user, isAuthenticated, login, loading: authLoading } = useAuth();
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -50,16 +52,64 @@ export default function InventoryPage() {
         setLoading(true);
         setError(null);
 
+        // Get session token from localStorage
+        const token = localStorage.getItem('session_token');
+
+        if (!token) {
+            // Not authenticated - use localStorage only
+            const cached = localStorage.getItem('eurokeys_inventory');
+            if (cached) {
+                setInventory(JSON.parse(cached));
+            }
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch(`${API_BASE}/api/user/inventory`, {
-                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
             });
 
             if (res.ok) {
                 const data = await res.json();
-                const items = data.items || data.inventory || [];
+                // API returns { keys: { itemKey: {qty, ...} }, blanks: { itemKey: {qty, ...} } }
+                // Transform to array format
+                const items: InventoryItem[] = [];
+
+                if (data.keys) {
+                    Object.entries(data.keys).forEach(([itemKey, item]: [string, any]) => {
+                        items.push({
+                            itemKey,
+                            type: 'key',
+                            qty: item.qty || 0,
+                            vehicle: item.vehicle,
+                            link: item.amazonLink,
+                        });
+                    });
+                }
+
+                if (data.blanks) {
+                    Object.entries(data.blanks).forEach(([itemKey, item]: [string, any]) => {
+                        items.push({
+                            itemKey,
+                            type: 'blank',
+                            qty: item.qty || 0,
+                            vehicle: item.vehicle,
+                            link: item.amazonLink,
+                        });
+                    });
+                }
+
                 setInventory(items);
                 localStorage.setItem('eurokeys_inventory', JSON.stringify(items));
+            } else if (res.status === 401) {
+                // Token invalid - clear and fall back to localStorage
+                const cached = localStorage.getItem('eurokeys_inventory');
+                if (cached) {
+                    setInventory(JSON.parse(cached));
+                }
             } else {
                 throw new Error('API returned error');
             }
@@ -76,8 +126,10 @@ export default function InventoryPage() {
     }, []);
 
     useEffect(() => {
-        loadInventory();
-    }, [loadInventory]);
+        if (!authLoading) {
+            loadInventory();
+        }
+    }, [loadInventory, authLoading]);
 
     // Update quantity
     const updateQty = useCallback(async (itemKey: string, delta: number) => {
@@ -162,7 +214,23 @@ export default function InventoryPage() {
                 </button>
             </div>
 
-            {error && (
+            {/* Sign-in prompt or offline warning */}
+            {!isAuthenticated && !authLoading ? (
+                <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-4 py-4 rounded-lg">
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <p className="font-medium">📱 Sign in to sync your inventory</p>
+                            <p className="text-sm opacity-75 mt-1">Your data will be saved to the cloud and accessible across devices</p>
+                        </div>
+                        <button
+                            onClick={login}
+                            className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-lg whitespace-nowrap transition-colors"
+                        >
+                            Sign In
+                        </button>
+                    </div>
+                </div>
+            ) : error && (
                 <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-4 py-3 rounded-lg text-sm">
                     {error}
                 </div>

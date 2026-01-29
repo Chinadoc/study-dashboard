@@ -7,6 +7,7 @@ export type TagType =
     | 'smart'
     | 'flip'
     | 'remote-head'
+    | 'remote'
     | 'mechanical'
     | 'transponder'
     | 'fcc'
@@ -34,6 +35,8 @@ const Tag: React.FC<TagProps> = ({ label, type = 'other', clickable = true }) =>
                 return 'bg-purple-900/30 text-purple-400 border-purple-800';
             case 'remote-head':
                 return 'bg-blue-900/30 text-blue-400 border-blue-800';
+            case 'remote':
+                return 'bg-cyan-900/30 text-cyan-400 border-cyan-800';
             case 'mechanical':
                 return 'bg-gray-800 text-gray-400 border-gray-700';
             case 'transponder':

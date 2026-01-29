@@ -137,6 +137,8 @@ function FccContent() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [keyType, setKeyType] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 100;
     const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
     const [jobModalOpen, setJobModalOpen] = useState(false);
@@ -239,7 +241,7 @@ function FccContent() {
 
     const getKeyType = (row: FccRow): TagType => {
         // Prefer server-provided key_type from fcc_complete table
-        if (row.key_type && ['smart', 'flip', 'remote-head', 'transponder', 'mechanical'].includes(row.key_type)) {
+        if (row.key_type && ['smart', 'flip', 'remote-head', 'remote', 'transponder', 'mechanical'].includes(row.key_type)) {
             return row.key_type as TagType;
         }
 
@@ -264,7 +266,13 @@ function FccContent() {
             return 'remote-head';
         }
 
-        if (chip.includes('non-transponder') || chip === 'na' || chip === '') {
+        // Remote-only keys: have FCC ID + frequency but no transponder chip
+        if ((chip.includes('non-transponder') || chip === 'na' || chip === '' || chip === 'n/a') && freq > 0) {
+            return 'remote';
+        }
+
+        // Mechanical keys: no chip AND no frequency (pure blade)
+        if ((chip.includes('non-transponder') || chip === 'na' || chip === '' || chip === 'n/a') && freq === 0) {
             return 'mechanical';
         }
 
@@ -293,6 +301,11 @@ function FccContent() {
             return true;
         });
     }, [data, search, keyType, searchParams]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, keyType, searchParams]);
 
     return (
         <div className="space-y-8 py-6">
@@ -330,7 +343,7 @@ function FccContent() {
 
                     {/* Key Type Filter */}
                     <div className="flex p-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm overflow-x-auto max-w-full">
-                        {['all', 'smart', 'remote-head', 'transponder'].map((type) => (
+                        {['all', 'smart', 'remote-head', 'remote', 'transponder'].map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setKeyType(type)}
@@ -404,7 +417,7 @@ function FccContent() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredData.slice(0, 100).map((row) => {
+                                {filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
                                     const stock = getStock(row.fcc_id);
                                     return (
                                         <tr key={row.fcc_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
@@ -472,16 +485,38 @@ function FccContent() {
                             </tbody>
                         </table>
                     </div>
-                    {filteredData.length > 100 && (
-                        <div className="p-4 text-center text-zinc-500 text-sm border-t border-zinc-800">
-                            Showing 100 of {filteredData.length} results. Use search to narrow down.
+                    {/* Pagination Controls */}
+                    {filteredData.length > ITEMS_PER_PAGE && (
+                        <div className="p-4 flex items-center justify-between border-t border-zinc-800">
+                            <span className="text-zinc-500 text-sm">
+                                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} of {filteredData.length} results
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold transition-colors"
+                                >
+                                    ← Previous
+                                </button>
+                                <span className="text-zinc-400 text-sm px-3">
+                                    Page {currentPage} of {Math.ceil(filteredData.length / ITEMS_PER_PAGE)}
+                                </span>
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / ITEMS_PER_PAGE), p + 1))}
+                                    disabled={currentPage >= Math.ceil(filteredData.length / ITEMS_PER_PAGE)}
+                                    className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold transition-colors"
+                                >
+                                    Next →
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
             ) : (
                 /* CARD VIEW */
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredData.slice(0, 48).map((row) => {
+                    {filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
                         const currentKeyType = getKeyType(row);
                         const stock = getStock(row.fcc_id);
                         return (
@@ -576,6 +611,29 @@ function FccContent() {
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Card View Pagination */}
+            {!loading && viewMode === 'card' && filteredData.length > ITEMS_PER_PAGE && (
+                <div className="mt-6 p-4 flex items-center justify-center gap-4 glass">
+                    <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold transition-colors"
+                    >
+                        ← Previous
+                    </button>
+                    <span className="text-zinc-400 text-sm">
+                        Page {currentPage} of {Math.ceil(filteredData.length / ITEMS_PER_PAGE)} ({filteredData.length} total)
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / ITEMS_PER_PAGE), p + 1))}
+                        disabled={currentPage >= Math.ceil(filteredData.length / ITEMS_PER_PAGE)}
+                        className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-bold transition-colors"
+                    >
+                        Next →
+                    </button>
                 </div>
             )}
 
