@@ -9,6 +9,7 @@ import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
+import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import { API_BASE } from '@/lib/config';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
@@ -963,6 +964,9 @@ export default function VehicleDetailClient() {
 
                 {/* Right Column: Locksmith Sidebar (4/12) */}
                 <div className="lg:col-span-4 space-y-6">
+                    {/* Tool Coverage - Show which tools cover this vehicle */}
+                    <ToolCoverageSidebar make={make} model={model} year={year} />
+
                     <LocksmithSidebar
                         specs={{
                             ...fullSpecs,
