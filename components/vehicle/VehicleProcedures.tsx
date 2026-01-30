@@ -87,7 +87,7 @@ function ToolBadge({ tool }: { tool: string }) {
         'Lonsdor': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
     };
 
-    const colorClass = Object.entries(colors).find(([key]) => tool.includes(key))?.[1] || 'bg-zinc-700/50 text-zinc-400 border-zinc-600/30';
+    const colorClass = Object.entries(colors).find(([key]) => typeof tool === 'string' && tool.includes(key))?.[1] || 'bg-zinc-700/50 text-zinc-400 border-zinc-600/30';
 
     return (
         <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded-full border ${colorClass}`}>
@@ -160,7 +160,7 @@ function useParsedProcedure(procedure: Procedure | undefined, type: 'add_key' | 
         // If we have steps as flat array, convert to sections
         if (procedure.steps && procedure.steps.length > 0) {
             // Check if steps are raw text (long strings) or already parsed
-            const isRawText = procedure.steps.some(s => s.length > 200 || s.includes('Section'));
+            const isRawText = procedure.steps.some(s => typeof s === 'string' && (s.length > 200 || s.includes('Section')));
 
             if (isRawText) {
                 // Parse the concatenated steps
