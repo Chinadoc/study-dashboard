@@ -1,5 +1,5 @@
-// v21 - Resilient caching that doesn't fail on individual asset errors
-const CACHE_NAME = 'euro-keys-v21';
+// v22 - Resilient caching that doesn't fail on individual asset errors
+const CACHE_NAME = 'euro-keys-v22';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
