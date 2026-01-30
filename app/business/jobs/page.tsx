@@ -5,6 +5,7 @@ import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import JobsDashboard from '@/components/business/JobsDashboard';
 import CalendarView from '@/components/business/CalendarView';
+import GoalProgress from '@/components/business/GoalProgress';
 
 type JobsSubTab = 'all' | 'calendar' | 'pending' | 'analytics';
 
@@ -196,6 +197,12 @@ function PendingJobCard({
 function AnalyticsView({ stats }: { stats: ReturnType<ReturnType<typeof useJobLogs>['getJobStats']> }) {
     return (
         <div className="space-y-6">
+            {/* Profit Goal Progress */}
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
+                <h3 className="text-lg font-bold mb-4">🎯 Monthly Goal</h3>
+                <GoalProgress />
+            </div>
+
             {/* Revenue Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard label="Total Revenue" value={`$${stats.totalRevenue.toFixed(0)}`} color="green" />

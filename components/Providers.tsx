@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { AnalyticsProvider } from '@/contexts/AnalyticsProvider';
 import { InventoryProvider } from '@/contexts/InventoryContext';
+import { GoalProvider } from '@/contexts/GoalContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -13,8 +14,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <SubscriptionProvider>
                 <AnalyticsProvider>
                     <InventoryProvider>
-                        {children}
-                        <InventoryLoginPrompt />
+                        <GoalProvider>
+                            {children}
+                            <InventoryLoginPrompt />
+                        </GoalProvider>
                     </InventoryProvider>
                 </AnalyticsProvider>
             </SubscriptionProvider>

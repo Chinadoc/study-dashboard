@@ -5,11 +5,13 @@
 
 export interface InventoryCSVRow {
     itemKey: string;
-    type: 'key' | 'blank';
+    type: 'key' | 'blank' | 'tool' | 'consumable';
     qty: number;
     vehicle?: string;
     fcc_id?: string;
     buyLink?: string;
+    toolType?: string;
+    serialNumber?: string;
 }
 
 /**

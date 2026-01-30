@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInventory } from '@/contexts/InventoryContext';
-import { getLowStockItems } from '@/lib/inventoryTypes';
+import { getLowStockItems, TOOL_CATEGORIES, ToolType } from '@/lib/inventoryTypes';
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
@@ -59,7 +59,7 @@ function VehiclesPopover({
     );
 }
 
-type InventorySubTab = 'all' | 'keys' | 'blanks' | 'low';
+type InventorySubTab = 'all' | 'keys' | 'blanks' | 'tools' | 'consumables' | 'low';
 
 export default function InventoryPage() {
     const { isAuthenticated, login, loading: authLoading } = useAuth();
@@ -121,6 +121,8 @@ export default function InventoryPage() {
     // Filter inventory based on subtab and search
     const keys = useMemo(() => inventory.filter(i => i.type === 'key'), [inventory]);
     const blanks = useMemo(() => inventory.filter(i => i.type === 'blank'), [inventory]);
+    const tools = useMemo(() => inventory.filter(i => i.type === 'tool'), [inventory]);
+    const consumables = useMemo(() => inventory.filter(i => i.type === 'consumable'), [inventory]);
     const lowStock = useMemo(() => getLowStockItems(inventory), [inventory]);
 
     const displayItems = useMemo(() => {
@@ -128,6 +130,8 @@ export default function InventoryPage() {
         switch (activeSubTab) {
             case 'keys': items = keys; break;
             case 'blanks': items = blanks; break;
+            case 'tools': items = tools; break;
+            case 'consumables': items = consumables; break;
             case 'low': items = lowStock; break;
         }
 
@@ -137,12 +141,13 @@ export default function InventoryPage() {
             items = items.filter(item =>
                 item.itemKey.toLowerCase().includes(q) ||
                 (item.vehicle && item.vehicle.toLowerCase().includes(q)) ||
-                (item.fcc_id && item.fcc_id.toLowerCase().includes(q))
+                (item.fcc_id && item.fcc_id.toLowerCase().includes(q)) ||
+                (item.serialNumber && item.serialNumber.toLowerCase().includes(q))
             );
         }
 
         return items;
-    }, [activeSubTab, inventory, keys, blanks, lowStock, searchQuery]);
+    }, [activeSubTab, inventory, keys, blanks, tools, consumables, lowStock, searchQuery]);
 
     // Stats
     const totalItems = inventory.length;
@@ -153,6 +158,8 @@ export default function InventoryPage() {
         { id: 'all', label: 'All', count: inventory.length },
         { id: 'keys', label: 'Keys', icon: '🔑', count: keys.length },
         { id: 'blanks', label: 'Blanks', icon: '🔧', count: blanks.length },
+        { id: 'tools', label: 'Tools', icon: '💻', count: tools.length },
+        { id: 'consumables', label: 'Supplies', icon: '📦', count: consumables.length },
         { id: 'low', label: 'Low Stock', icon: '⚠️', count: lowStock.length },
     ];
 
@@ -294,14 +301,27 @@ export default function InventoryPage() {
                             <div key={item.itemKey} className="p-4 flex items-center gap-4 hover:bg-gray-800/30 transition-colors">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className={`text-xs px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                                            {item.type === 'key' ? '🔑 Key' : '🔧 Blank'}
+                                        <span className={`text-xs px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
+                                                    item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
+                                                        'bg-green-500/20 text-green-400'
+                                            }`}>
+                                            {item.type === 'key' ? '🔑 Key' :
+                                                item.type === 'blank' ? '🔧 Blank' :
+                                                    item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
+                                                        '📦 Supply'}
                                         </span>
                                         {item.qty <= 2 && (
                                             <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low Stock</span>
                                         )}
+                                        {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
+                                            <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">In Warranty</span>
+                                        )}
                                     </div>
                                     <div className="font-bold text-white truncate">{item.itemKey}</div>
+                                    {item.serialNumber && (
+                                        <div className="text-xs text-zinc-500">S/N: {item.serialNumber}</div>
+                                    )}
                                     {item.vehicle && <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />}
                                 </div>
 

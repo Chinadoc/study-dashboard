@@ -35,7 +35,7 @@ def update_manifest():
         },
         
         # Nissan Rogue T32 (2020)
-        "2020_nissan_rogue_t32_forensic_locksmith_intelligence_dossier": {
+        "2020_Nissan_Rogue_T32_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER": {
             "image1.png": {
                 "year": "2020-2021",
                 "description": "T32 vs T33 Platform Identification: Grille, shifter, and key fob visual forensic markers.",
@@ -45,7 +45,7 @@ def update_manifest():
         },
         
         # Ram 1500 DT 5th Gen (2019)
-        "2019_ram_1500_dt_5th_gen_locksmith_forensic_intelligence_report": {
+        "2019_Ram_1500_DT_5th_Gen_Locksmith_Forensic_Intelligence_Report": {
             "image1.png": {
                 "year": "2019-2024",
                 "description": "DS vs DT Architectural Divergence: Split Year Crisis with SGW firewall and 315/433 MHz frequency evolution.",
@@ -61,7 +61,7 @@ def update_manifest():
         },
         
         # BMW X5 G05 (2022)
-        "2022_bmw_x5_g05_forensic_locksmith_intelligence_dossier": {
+        "2022_BMW_X5_G05_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER": {
             "image1.png": {
                 "year": "2019-2025",
                 "description": "G05 Chain of Trust Architecture: BDC3 central gateway with 128-bit ISN exchange to DME.",
@@ -77,7 +77,7 @@ def update_manifest():
         },
         
         # Lexus RX 350 AL20 (2022)
-        "2022_lexus_rx_350rx_350l_al20_forensic_locksmith_intelligence_dossier": {
+        "2022_Lexus_RX_350RX_350L_AL20_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER": {
             "image1.png": {
                 "year": "2016-2022",
                 "description": "AL20 Security Topology & Signal Flow: SGW positioned between OBD-II and CAN bus requiring bypass.",
@@ -93,7 +93,7 @@ def update_manifest():
         },
         
         # Porsche Cayenne E3 MLB-Evo (2020)
-        "2020_porsche_cayenne_e3po536__vag_mlb-evo_platform_dossier_comprehensive_securit": {
+        "2020_Porsche_Cayenne_E3PO536__VAG_MLB-Evo_Platform_Dossier_Comprehensive_Securit": {
             "image1.png": {
                 "year": "2018-2024",
                 "description": "Legacy BCM2 vs MLB-Evo 5M Security Topology: Online server calculation requirement for E3 platform.",
@@ -109,7 +109,7 @@ def update_manifest():
         },
         
         # Audi Q7 4M Facelift (2021)
-        "2021_audi_q7_4m_facelift_forensic_locksmith_intelligence_dossier_vag-specific_de": {
+        "2021_Audi_Q7_4M_Facelift_Forensic_Locksmith_Intelligence_Dossier_VAG-Specific_De": {
             "image1.png": {
                 "year": "2007-2021",
                 "description": "Audi Q7 Security Evolution: 4L (Immo IV) → 4M (Immo V + CS) → 4M Facelift (SFD + Locked BCM2).",
@@ -125,7 +125,7 @@ def update_manifest():
         },
         
         # Hyundai 2024 Vehicle Access Systems
-        "2024_hyundai_vehicle_access_and_immobilizer_systems_a_comprehensive_technical_re": {
+        "2024_Hyundai_Vehicle_Access_and_Immobilizer_Systems_A_Comprehensive_Technical_Re": {
             "image1.png": {
                 "year": "2024-2025",
                 "description": "2024 Hyundai Lishi Tool Selection Matrix: K9, KK12, HY18R keyway profiles by model with V4 architecture notes.",
@@ -135,7 +135,7 @@ def update_manifest():
         },
         
         # Chevrolet Silverado 2024 Global B
-        "2024_chevrolet_silverado_smart_key_system_global_b_the_definitive_technical_lock": {
+        "2024_Chevrolet_Silverado_Smart_Key_System_Global_B_The_Definitive_Technical_Lock": {
             "image1.png": {
                 "year": "2022-2025",
                 "description": "GM Global A vs Global B (VIP) Architecture: SDGM gateway firewall with CAN-FD topology comparison.",
@@ -151,7 +151,7 @@ def update_manifest():
         },
         
         # Ford Transit VN (2021)
-        "2021_ford_transit_vn__ford_commercial_platform_dossier_technical_architecture_pr": {
+        "2021_Ford_Transit_VN__Ford_Commercial_Platform_Dossier_Technical_Architecture_Pr": {
             "image1.png": {
                 "year": "2015-2024",
                 "description": "Ford Platform Genealogy: C2 vs T6 Security Divide showing Transit VN, Bronco, Maverick separation.",
@@ -167,7 +167,7 @@ def update_manifest():
         },
         
         # GMC Sierra 1500 (2019)
-        "2019_gmc_sierra_1500_locksmith_intelligence_report_platform_transition_security_": {
+        "2019_GMC_Sierra_1500_Locksmith_Intelligence_Report_Platform_Transition_Security_": {
             "image1.png": {
                 "year": "2019-2024",
                 "description": "Sierra Platform Identification: K2XX (Limited) vs T1XX (New Body) visual markers - mirror mount and wheel well.",
@@ -177,7 +177,7 @@ def update_manifest():
         },
         
         # Volkswagen Atlas CA1 (2019)
-        "2019_volkswagen_atlas_ca1_forensic_locksmith_intelligence_dossier": {
+        "2019_Volkswagen_Atlas_CA1_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER": {
             "image1.png": {
                 "year": "2018-2024",
                 "description": "MQB Security Topology: Component Security (CS) trust chain with J285 Cluster, J533 Gateway, J518 Kessy flow.",
@@ -187,7 +187,7 @@ def update_manifest():
         },
         
         # Ford Escape (2020)
-        "2020_ford_escape_locksmith_intelligence": {
+        "2020_Ford_Escape_Locksmith_Intelligence": {
             "image1.png": {
                 "year": "2020-2024",
                 "description": "Ford Escape Key Frequency & Part Matrix: Trim-level FCC ID and 315/902 MHz split by Remote Start capability.",
@@ -197,7 +197,7 @@ def update_manifest():
         },
         
         # Chevrolet Equinox (2020)
-        "2020_chevrolet_equinox_locksmith_intelligence_report_comprehensive_security_arch": {
+        "2020_Chevrolet_Equinox_Locksmith_Intelligence_Report_Comprehensive_Security_Arch": {
             "image1.png": {
                 "year": "2018-2024",
                 "description": "Equinox Security Ecosystem: HF/LF signal flow through BCM gateway with CAN FD adapter requirement at OBD-II.",
@@ -207,7 +207,7 @@ def update_manifest():
         },
         
         # Honda Civic FE / Accord CV 11th Gen (2022)
-        "2022_honda_civic_fe__accord_cv11th_gen_forensic_locksmith_dossier_platform_archi": {
+        "2022_Honda_Civic_FE__Accord_CV11th_Gen_Forensic_Locksmith_Dossier_Platform_Archi": {
             "image1.png": {
                 "year": "2021-2025",
                 "description": "BCM Corruption Decision Tree: Critical 'Is this a New System?' selection warning with recovery paths.",
@@ -223,7 +223,7 @@ def update_manifest():
         },
         
         # Toyota 4Runner N280 / Tacoma N300 / GX 460 (2021)
-        "2021_toyota_4runner_n280__tacoma_n300__gx_460_forensic_dossier": {
+        "2021_Toyota_4Runner_N280__Tacoma_N300__GX_460_FORENSIC_DOSSIER": {
             "image1.png": {
                 "year": "2010-2024",
                 "description": "Security Architecture Evolution: Smart Key vs Keyed (H-Chip/G-Chip) timeline for N280/N300/J150 platforms.",
@@ -239,7 +239,7 @@ def update_manifest():
         },
         
         # Toyota Grand Highlander TNGA-K (2024)
-        "2024_toyota_grand_highlander_tnga-k_security_architecture_forensic_analysis__imm": {
+        "2024_Toyota_Grand_Highlander_TNGA-K_Security_Architecture_Forensic_Analysis__Imm": {
             "image1.png": {
                 "year": "2024-2025",
                 "description": "8A-BA vs Legacy 8A Identification: Page 4 transponder value check workflow - AA=Legacy (fail), BA=Correct (success).",
@@ -255,7 +255,7 @@ def update_manifest():
         },
         
         # Kia Telluride (2023)
-        "2023_kia_telluride_locksmith_forensic_intelligence_report": {
+        "2023_Kia_Telluride_Locksmith_Forensic_Intelligence_Report": {
             "image1.png": {
                 "year": "2020-2024",
                 "description": "Divergent Security Timelines: Legacy vs 2023 IBU updates with TSB ELE302 firmware risk correlation.",
@@ -271,7 +271,7 @@ def update_manifest():
         },
         
         # Ford Super Duty F-250/F-350 P702/P558 (2022)
-        "2022_ford_super_duty_f-250f-350_p702p558_forensic_locksmith_dossier": {
+        "2022_Ford_Super_Duty_F-250F-350_P702P558_Forensic_Locksmith_Dossier": {
             "image1.png": {
                 "year": "2017-2024",
                 "description": "RF Signature Analysis: P558 (902 MHz) vs P703 (433 MHz) key fob spec shift with RTM rejection warning.",
@@ -287,7 +287,7 @@ def update_manifest():
         },
         
         # Jeep Grand Cherokee L WL (2021)
-        "2021_jeep_grand_cherokee_l_wl_security_architecture__forensic_locksmithing_dossi": {
+        "2021_Jeep_Grand_Cherokee_L_WL_Security_Architecture__Forensic_Locksmithing_Dossi": {
             "image1.png": {
                 "year": "2011-2025",
                 "description": "WK2 vs WL Security Topography: RF Hub roof migration and Y160→SIP22 keyway transition visual comparison.",
