@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInventory } from '@/contexts/InventoryContext';
 import { getLowStockItems } from '@/lib/inventoryTypes';
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
+import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
 
 // Click-to-expand vehicles popover component
@@ -68,6 +69,43 @@ export default function InventoryPage() {
     const [businessProfile, setBusinessProfile] = useState(() => loadBusinessProfile());
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+    const [importError, setImportError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Export handler
+    const handleExport = () => {
+        const exportData = inventory.map(item => ({
+            itemKey: item.itemKey,
+            type: item.type,
+            qty: item.qty,
+            vehicle: item.vehicle,
+            fcc_id: item.fcc_id,
+        }));
+        exportInventoryToCSV(exportData);
+    };
+
+    // Import handler
+    const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImportError(null);
+        const { items, errors } = await parseInventoryCSV(file);
+
+        if (errors.length > 0) {
+            setImportError(`${errors.length} rows had issues`);
+        }
+
+        // Add each item to inventory
+        items.forEach(item => {
+            updateQuantity(item.itemKey, item.qty, item.vehicle);
+        });
+
+        // Reset file input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
 
     // Check for first-time user
     useEffect(() => {
@@ -198,7 +236,36 @@ export default function InventoryPage() {
                         >×</button>
                     )}
                 </div>
+
+                {/* Export/Import Buttons */}
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleExport}
+                        className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium transition-colors"
+                        title="Export to CSV"
+                    >
+                        📤 Export
+                    </button>
+                    <label className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium cursor-pointer transition-colors">
+                        📥 Import
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".csv"
+                            onChange={handleImport}
+                            className="hidden"
+                        />
+                    </label>
+                </div>
             </div>
+
+            {/* Import Error Alert */}
+            {importError && (
+                <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-4 py-2 rounded-lg text-sm flex justify-between items-center">
+                    <span>⚠️ {importError}</span>
+                    <button onClick={() => setImportError(null)} className="text-yellow-400 hover:text-yellow-300">×</button>
+                </div>
+            )}
 
             {/* Sign-in prompt */}
             {!isAuthenticated && !authLoading && (
@@ -271,6 +338,18 @@ export default function InventoryPage() {
                                         className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
                                         title="Delete item"
                                     >🗑️</button>
+                                )}
+
+                                {/* Buy Link for Low Stock */}
+                                {item.qty <= 2 && (
+                                    <a
+                                        href={generateAmazonSearchUrl(item.itemKey)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap"
+                                    >
+                                        🛒 Buy
+                                    </a>
                                 )}
                             </div>
                         ))}

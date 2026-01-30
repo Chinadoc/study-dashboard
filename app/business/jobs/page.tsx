@@ -4,8 +4,9 @@ import React, { useState, useMemo } from 'react';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import JobsDashboard from '@/components/business/JobsDashboard';
+import CalendarView from '@/components/business/CalendarView';
 
-type JobsSubTab = 'all' | 'pending' | 'analytics';
+type JobsSubTab = 'all' | 'calendar' | 'pending' | 'analytics';
 
 export default function JobsPage() {
     const [activeSubTab, setActiveSubTab] = useState<JobsSubTab>('all');
@@ -41,6 +42,7 @@ export default function JobsPage() {
 
     const subtabs = [
         { id: 'all', label: 'All Jobs', icon: '📝', count: jobLogs.length },
+        { id: 'calendar', label: 'Calendar', icon: '📅' },
         { id: 'pending', label: 'Pending', icon: '⏳', count: pendingJobs.length },
         { id: 'analytics', label: 'Analytics', icon: '📊' },
     ];
@@ -83,6 +85,13 @@ export default function JobsPage() {
                     onAddJob={() => setJobModalOpen(true)}
                     onDeleteJob={deleteJobLog}
                     onUpdateJob={updateJobLog}
+                />
+            )}
+
+            {activeSubTab === 'calendar' && (
+                <CalendarView
+                    jobLogs={jobLogs}
+                    onAddJob={() => setJobModalOpen(true)}
                 />
             )}
 

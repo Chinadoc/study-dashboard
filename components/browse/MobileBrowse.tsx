@@ -37,15 +37,15 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
     const [makeImageErrors, setMakeImageErrors] = useState<Set<string>>(new Set());
     const [modelImageErrors, setModelImageErrors] = useState<Set<string>>(new Set());
 
-    // Fetch makes on mount
+    // Fetch makes on mount - show only popular makes (top 27) to match desktop
     useEffect(() => {
         async function fetchMakes() {
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/makes`);
                 const data = await res.json();
-                const apiMakes = (data.makes || []) as string[];
-                const allMakes = [...new Set([...POPULAR_MAKES.filter(m => apiMakes.includes(m)), ...apiMakes])];
-                setMakes(allMakes);
+                // Use popularMakes from API (top 27) to match desktop, not all makes
+                const popularMakes = (data.popularMakes || []) as string[];
+                setMakes(popularMakes.length > 0 ? popularMakes : [...POPULAR_MAKES]);
             } catch {
                 setMakes([...POPULAR_MAKES]);
             }
@@ -238,51 +238,44 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 </div>
             )}
 
-            {/* Horizontal Scroll Grid - Makes */}
+            {/* 3x3 Grid - Makes (Square Cards) */}
             {!selectedMake && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
                         Select Make
                     </h2>
-                    <div className="overflow-x-auto pb-2 -mx-4 px-4">
-                        <div className="flex gap-3" style={{ width: 'max-content' }}>
-                            {groupIntoRows(makes, 3).map((row, rowIndex) => (
-                                <div key={rowIndex} className="flex flex-col gap-3" style={{ minWidth: '300px' }}>
-                                    {row.map(make => {
-                                        const logoUrl = getMakeLogo(make);
-                                        const brandColor = getBrandColor(make);
-                                        const initials = getMakeInitials(make);
-                                        const hasError = makeImageErrors.has(make);
+                    <div className="grid grid-cols-3 gap-2">
+                        {makes.map(make => {
+                            const logoUrl = getMakeLogo(make);
+                            const brandColor = getBrandColor(make);
+                            const initials = getMakeInitials(make);
+                            const hasError = makeImageErrors.has(make);
 
-                                        return (
-                                            <button
-                                                key={make}
-                                                onClick={() => handleMakeSelect(make)}
-                                                className="flex items-center gap-3 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
-                                            >
-                                                {!hasError ? (
-                                                    <img
-                                                        src={logoUrl}
-                                                        alt={make}
-                                                        className="w-10 h-10 object-contain rounded-full bg-white p-1 flex-shrink-0"
-                                                        onError={() => setMakeImageErrors(prev => new Set(prev).add(make))}
-                                                    />
-                                                ) : (
-                                                    <div
-                                                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
-                                                        style={{ backgroundColor: brandColor }}
-                                                    >
-                                                        {initials}
-                                                    </div>
-                                                )}
-                                                <span className="text-sm text-gray-200 font-medium">{make}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-2 text-center">swipe →</div>
+                            return (
+                                <button
+                                    key={make}
+                                    onClick={() => handleMakeSelect(make)}
+                                    className="aspect-square flex flex-col items-center justify-center gap-2 p-2 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                >
+                                    {!hasError ? (
+                                        <img
+                                            src={logoUrl}
+                                            alt={make}
+                                            className="w-12 h-12 object-contain rounded-full bg-white p-1"
+                                            onError={() => setMakeImageErrors(prev => new Set(prev).add(make))}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                            style={{ backgroundColor: brandColor }}
+                                        >
+                                            {initials}
+                                        </div>
+                                    )}
+                                    <span className="text-xs text-gray-200 font-medium text-center leading-tight line-clamp-2">{make}</span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </section>
             )}
