@@ -6,6 +6,7 @@ import Tag, { TagType } from '@/components/shared/Tag';
 import { API_BASE, AFFILIATE_TAG } from '@/lib/config';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { addJobLogToStorage } from '@/lib/useJobLogs';
+import { trackFCCView, trackAffiliateClick, trackEvent } from '@/lib/analytics';
 
 interface FccRow {
     fcc_id: string;
@@ -217,6 +218,7 @@ function FccContent() {
     }, []);
 
     const handleLogJob = (row: FccRow) => {
+        trackFCCView(row.fcc_id);  // Track FCC engagement
         setSelectedFcc(row);
         setJobModalOpen(true);
     };
@@ -599,13 +601,16 @@ function FccContent() {
                                         >
                                             📝 LOG JOB
                                         </button>
-                                        <a
-                                            href={`https://www.amazon.com/s?k=${row.fcc_id}&tag=${AFFILIATE_TAG}`}
-                                            target="_blank"
+                                        <button
+                                            onClick={() => {
+                                                const url = `https://www.amazon.com/s?k=${row.fcc_id}&tag=${AFFILIATE_TAG}`;
+                                                trackAffiliateClick(row.fcc_id, url, 'fcc_page');
+                                                window.open(url, '_blank');
+                                            }}
                                             className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-bold transition-all"
                                         >
                                             🛒
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
