@@ -9,6 +9,7 @@ interface JobsDashboardProps {
     onAddJob: () => void;
     onDeleteJob: (id: string) => void;
     onUpdateJob?: (id: string, updates: Partial<JobLog>) => void;
+    onGenerateInvoice?: (job: JobLog) => void;
 }
 
 const JOB_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
@@ -29,7 +30,7 @@ const STATUS_COLORS = {
     cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
 };
 
-export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, onUpdateJob }: JobsDashboardProps) {
+export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, onUpdateJob, onGenerateInvoice }: JobsDashboardProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterJobType, setFilterJobType] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -281,6 +282,7 @@ export default function JobsDashboard({ jobLogs, stats, onAddJob, onDeleteJob, o
                                 onToggle={() => toggleJobExpand(job.id)}
                                 onDelete={() => onDeleteJob(job.id)}
                                 onMarkComplete={() => markComplete(job)}
+                                onGenerateInvoice={onGenerateInvoice ? () => onGenerateInvoice(job) : undefined}
                             />
                         ))}
                     </div>
@@ -305,13 +307,15 @@ function JobCard({
     expanded,
     onToggle,
     onDelete,
-    onMarkComplete
+    onMarkComplete,
+    onGenerateInvoice
 }: {
     job: JobLog;
     expanded: boolean;
     onToggle: () => void;
     onDelete: () => void;
     onMarkComplete: () => void;
+    onGenerateInvoice?: () => void;
 }) {
     const typeInfo = JOB_TYPE_LABELS[job.jobType] || { label: job.jobType, icon: '🔧' };
     const dateStr = new Date(job.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
@@ -421,6 +425,14 @@ function JobCard({
                                 className="flex-1 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm font-bold hover:bg-green-500/30 transition-colors"
                             >
                                 ✓ Mark Complete
+                            </button>
+                        )}
+                        {onGenerateInvoice && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onGenerateInvoice(); }}
+                                className="flex-1 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm font-bold hover:bg-yellow-500/30 transition-colors"
+                            >
+                                📄 Invoice
                             </button>
                         )}
                         <button

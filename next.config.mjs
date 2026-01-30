@@ -7,6 +7,9 @@ const nextConfig = {
         unoptimized: true,
     },
 
+    // Transpile ESM packages for Next.js compatibility
+    transpilePackages: ['@react-pdf/renderer'],
+
     // Performance: Ignore ESLint and TypeScript during builds for speed
     // (We rely on editor lints and local checks)
     eslint: {

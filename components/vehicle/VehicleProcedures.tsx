@@ -127,7 +127,13 @@ function ProcedureSectionView({
                             <div className="flex flex-wrap items-start gap-2">
                                 {step.tool && <ToolBadge tool={step.tool} />}
                             </div>
-                            <p className="text-zinc-200 text-sm leading-relaxed mt-1">{step.content}</p>
+                            <p className="text-zinc-200 text-sm leading-relaxed mt-1">
+                                {typeof step.content === 'string'
+                                    ? step.content
+                                    : typeof step.content === 'object' && step.content !== null
+                                        ? (step.content as any).content || (step.content as any).text || JSON.stringify(step.content)
+                                        : String(step.content ?? '')}
+                            </p>
                         </div>
                     </div>
                 ))}

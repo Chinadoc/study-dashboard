@@ -6,12 +6,15 @@ import { useJobLogs, JobLog } from '@/lib/useJobLogs';
 import JobsDashboard from '@/components/business/JobsDashboard';
 import CalendarView from '@/components/business/CalendarView';
 import GoalProgress from '@/components/business/GoalProgress';
+import InvoiceBuilder from '@/components/business/InvoiceBuilder';
 
 type JobsSubTab = 'all' | 'calendar' | 'pending' | 'analytics';
 
 export default function JobsPage() {
     const [activeSubTab, setActiveSubTab] = useState<JobsSubTab>('all');
     const [jobModalOpen, setJobModalOpen] = useState(false);
+    const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+    const [invoiceJob, setInvoiceJob] = useState<JobLog | undefined>(undefined);
 
     const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats } = useJobLogs();
     const stats = getJobStats();
@@ -86,6 +89,10 @@ export default function JobsPage() {
                     onAddJob={() => setJobModalOpen(true)}
                     onDeleteJob={deleteJobLog}
                     onUpdateJob={updateJobLog}
+                    onGenerateInvoice={(job) => {
+                        setInvoiceJob(job);
+                        setInvoiceModalOpen(true);
+                    }}
                 />
             )}
 
@@ -138,6 +145,16 @@ export default function JobsPage() {
                     onSubmit={handleJobSubmit}
                 />
             )}
+
+            {/* Invoice Builder Modal */}
+            <InvoiceBuilder
+                isOpen={invoiceModalOpen}
+                onClose={() => {
+                    setInvoiceModalOpen(false);
+                    setInvoiceJob(undefined);
+                }}
+                job={invoiceJob}
+            />
         </div>
     );
 }
