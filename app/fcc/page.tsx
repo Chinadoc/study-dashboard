@@ -312,7 +312,7 @@ function FccContent() {
     return (
         <div className="space-y-8 py-6">
             {/* Header with View Toggle */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">
                         FCC ID Intelligence
@@ -320,7 +320,8 @@ function FccContent() {
                     <p className="text-zinc-400 mt-2">Verified frequency and chip database for locksmiths.</p>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* Controls - Stack on mobile */}
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                     {/* View Toggle */}
                     <div className="flex p-1 rounded-lg bg-zinc-900/50 border border-zinc-800">
                         <button
@@ -343,13 +344,13 @@ function FccContent() {
                         </button>
                     </div>
 
-                    {/* Key Type Filter */}
-                    <div className="flex p-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm overflow-x-auto max-w-full">
+                    {/* Key Type Filter - Scrollable on mobile */}
+                    <div className="flex p-1 rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm overflow-x-auto scrollbar-hide flex-1 md:flex-auto min-w-0">
                         {['all', 'smart', 'remote-head', 'transponder'].map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setKeyType(type)}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all whitespace-nowrap ${keyType === type
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all whitespace-nowrap flex-shrink-0 ${keyType === type
                                     ? 'bg-zinc-800 text-white shadow-lg'
                                     : 'text-zinc-500 hover:text-zinc-300'
                                     }`}
@@ -405,14 +406,15 @@ function FccContent() {
             ) : viewMode === 'list' ? (
                 /* LIST VIEW */
                 <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden">
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table - Hidden on Mobile */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-zinc-800 bg-zinc-900/80">
-                                    <th className="text-left px-2 py-3 text-xs font-bold text-zinc-500 uppercase w-12"></th>
+                                    <th className="text-left px-3 py-3 text-xs font-bold text-zinc-500 uppercase w-20">Image</th>
                                     <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase">FCC ID</th>
                                     <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase">Vehicles</th>
-                                    <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase hidden md:table-cell">Freq</th>
+                                    <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase hidden lg:table-cell">Freq</th>
                                     <th className="text-left px-4 py-3 text-xs font-bold text-zinc-500 uppercase hidden lg:table-cell">Chip</th>
                                     <th className="text-center px-4 py-3 text-xs font-bold text-zinc-500 uppercase">Stock</th>
                                     <th className="text-center px-4 py-3 text-xs font-bold text-zinc-500 uppercase">Actions</th>
@@ -423,19 +425,19 @@ function FccContent() {
                                     const stock = getStock(row.fcc_id);
                                     return (
                                         <tr key={row.fcc_id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
-                                            <td className="px-2 py-2 w-12">
+                                            <td className="px-3 py-3">
                                                 {row.image_url ? (
                                                     <img
                                                         src={row.image_url}
                                                         alt={row.fcc_id}
-                                                        className="w-10 h-10 object-contain rounded-lg bg-zinc-800"
+                                                        className="w-14 h-14 object-contain rounded-lg bg-zinc-800"
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).style.display = 'none';
                                                             (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                                                         }}
                                                     />
                                                 ) : null}
-                                                <span className={row.image_url ? 'hidden' : 'text-xl'}>🔑</span>
+                                                <span className={row.image_url ? 'hidden' : 'text-2xl'}>🔑</span>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span className="font-mono font-bold text-yellow-500">{row.fcc_id}</span>
@@ -443,7 +445,7 @@ function FccContent() {
                                             <td className="px-4 py-3">
                                                 <VehiclesPopover vehicles={row.vehicles} maxVisible={2} variant="list" />
                                             </td>
-                                            <td className="px-4 py-3 hidden md:table-cell">
+                                            <td className="px-4 py-3 hidden lg:table-cell">
                                                 <span className="text-sm text-zinc-400">{row.frequency}</span>
                                             </td>
                                             <td className="px-4 py-3 hidden lg:table-cell">
@@ -487,7 +489,81 @@ function FccContent() {
                             </tbody>
                         </table>
                     </div>
-                    {/* Pagination Controls */}
+
+                    {/* Mobile List View - Stacked Cards */}
+                    <div className="md:hidden divide-y divide-zinc-800">
+                        {filteredData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((row) => {
+                            const stock = getStock(row.fcc_id);
+                            return (
+                                <div key={row.fcc_id} className="p-4">
+                                    <div className="flex gap-4">
+                                        {/* Large Image with FCC ID below */}
+                                        <div className="flex-shrink-0 flex flex-col items-center w-24">
+                                            {row.image_url ? (
+                                                <img
+                                                    src={row.image_url}
+                                                    alt={row.fcc_id}
+                                                    className="w-20 h-20 object-contain rounded-xl bg-zinc-800"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                        (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="w-20 h-20 rounded-xl bg-zinc-800 flex items-center justify-center">
+                                                    <span className="text-3xl">🔑</span>
+                                                </div>
+                                            )}
+                                            {/* FCC ID under image */}
+                                            <span className="mt-2 font-mono font-bold text-yellow-500 text-xs text-center break-all leading-tight">{row.fcc_id}</span>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            {/* Vehicles */}
+                                            <div className="mb-2">
+                                                <VehiclesPopover vehicles={row.vehicles} maxVisible={2} variant="list" />
+                                            </div>
+                                            {/* Frequency */}
+                                            <div className="text-sm text-zinc-400 mb-3">{row.frequency}</div>
+
+                                            {/* Actions Row */}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                {/* Stock */}
+                                                <span className={`px-2.5 py-1 rounded-lg text-sm font-bold ${stock > 0
+                                                    ? 'bg-green-500/20 text-green-400'
+                                                    : 'bg-zinc-800 text-zinc-500'
+                                                    }`}>
+                                                    {stock}
+                                                </span>
+                                                {/* +/- buttons */}
+                                                <button
+                                                    onClick={() => updateStock(row.fcc_id, -1, row.vehicles)}
+                                                    disabled={stock === 0}
+                                                    className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-lg font-bold transition-colors"
+                                                >
+                                                    −
+                                                </button>
+                                                <button
+                                                    onClick={() => updateStock(row.fcc_id, 1, row.vehicles)}
+                                                    className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-green-600 text-lg font-bold transition-colors"
+                                                >
+                                                    +
+                                                </button>
+                                                {/* Log button */}
+                                                <button
+                                                    onClick={() => handleLogJob(row)}
+                                                    className="px-3 py-1.5 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 text-xs font-bold transition-colors"
+                                                >
+                                                    📝 Log
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                     {filteredData.length > ITEMS_PER_PAGE && (
                         <div className="p-4 flex items-center justify-between border-t border-zinc-800">
                             <span className="text-zinc-500 text-sm">

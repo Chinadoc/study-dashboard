@@ -11,6 +11,7 @@ import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import { API_BASE } from '@/lib/config';
+import { trackVehicleView } from '@/lib/analytics';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
 function transformProductsByType(pbt: Record<string, any>): any[] {
@@ -426,6 +427,9 @@ export default function VehicleDetailClient() {
                 }
 
                 setData({ detail, products, walkthroughs, pearls, images, procedurePackages });
+
+                // Track vehicle view for analytics
+                trackVehicleView(make, model, String(year));
             } catch (err) {
                 console.error('Failed to fetch vehicle data:', err);
                 setError('Failed to load vehicle data.');
