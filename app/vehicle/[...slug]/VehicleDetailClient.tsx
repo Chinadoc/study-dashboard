@@ -11,6 +11,7 @@ import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
+import FloatingCommentTab from '@/components/FloatingCommentTab';
 import { API_BASE } from '@/lib/config';
 import { trackVehicleView } from '@/lib/analytics';
 
@@ -1000,6 +1001,9 @@ export default function VehicleDetailClient() {
                     />
                 </div>
             </div>
+
+            {/* Floating Community Tab for Mobile */}
+            <FloatingCommentTab make={make} model={model} />
         </div>
     );
 }

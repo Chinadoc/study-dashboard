@@ -1478,6 +1478,67 @@ export default {
       }
 
       // ==============================================
+      // COMMUNITY HUB ENDPOINTS
+      // ==============================================
+
+      // GET /api/community/recent - Get recent comments across all vehicles
+      if (path === "/api/community/recent" && request.method === "GET") {
+        try {
+          const limit = parseInt(url.searchParams.get('limit') || '50');
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              vc.id, vc.vehicle_key, vc.user_id, vc.user_name, vc.user_picture,
+              vc.content, vc.upvotes, vc.is_verified, vc.verified_type, vc.created_at,
+              ur.rank_level
+            FROM vehicle_comments vc
+            LEFT JOIN user_reputation ur ON vc.user_id = ur.user_id
+            WHERE vc.is_deleted = 0 AND vc.parent_id IS NULL
+            ORDER BY vc.created_at DESC
+            LIMIT ?
+          `).bind(Math.min(limit, 100)).all();
+
+          return corsResponse(request, JSON.stringify({
+            comments: result.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/community/leaderboard - Get top contributors
+      if (path === "/api/community/leaderboard" && request.method === "GET") {
+        try {
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+
+          // Get top users by reputation score
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              ur.user_id, ur.reputation_score, ur.pearls_validated, ur.rank_level,
+              u.name as user_name, u.picture as user_picture
+            FROM user_reputation ur
+            LEFT JOIN users u ON ur.user_id = u.id
+            WHERE ur.reputation_score > 0
+            ORDER BY ur.reputation_score DESC, ur.pearls_validated DESC
+            LIMIT ?
+          `).bind(Math.min(limit, 50)).all();
+
+          // Calculate rank names
+          const rankNames = ['Apprentice', 'Journeyman', 'Master Tech', 'Legend'];
+          const leaderboard = (result.results || []).map((entry: any) => ({
+            ...entry,
+            rank_name: rankNames[(entry.rank_level || 1) - 1] || 'Apprentice'
+          }));
+
+          return corsResponse(request, JSON.stringify({
+            leaderboard
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // USER PREFERENCES ENDPOINTS
       // ==============================================
 
