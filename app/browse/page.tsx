@@ -11,6 +11,14 @@ import { parseVehicleQuery } from '@/lib/vehicle-search';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 
+// Type for merged model from API
+interface MergedModel {
+    name: string;
+    display: string;
+    baseModel: string;
+    variants: string[];
+}
+
 function BrowsePageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -41,6 +49,9 @@ function BrowsePageContent() {
     const [mainModels, setMainModels] = useState<string[]>([]);
     const [hasEV, setHasEV] = useState(false);
     const [showEVOnly, setShowEVOnly] = useState(false);
+
+    // Merged models for display (with variant indicators)
+    const [mergedModels, setMergedModels] = useState<MergedModel[]>([]);
 
     // Mobile detection
     const [isMobile, setIsMobile] = useState(false);
@@ -88,6 +99,7 @@ function BrowsePageContent() {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
                 const data = await res.json();
                 setModels((data.models || []) as string[]);
+                setMergedModels((data.mergedModels || []) as MergedModel[]);
                 setEvModels((data.evModels || []) as string[]);
                 setMainModels((data.mainModels || []) as string[]);
                 setHasEV(data.hasEV || false);
@@ -319,13 +331,17 @@ function BrowsePageContent() {
                                                     </button>
                                                 </div>
                                             )}
-                                            {(showEVOnly ? evModels : models).map(model => (
+                                            {/* Use merged models for cleaner display */}
+                                            {(showEVOnly
+                                                ? mergedModels.filter(m => evModels.includes(m.name))
+                                                : mergedModels
+                                            ).map(model => (
                                                 <WizardStepOption
-                                                    key={model}
-                                                    label={model}
-                                                    isSelected={selectedModel === model}
+                                                    key={model.name}
+                                                    label={model.display}
+                                                    isSelected={selectedModel === model.name}
                                                     onClick={() => {
-                                                        setSelectedModel(model);
+                                                        setSelectedModel(model.name);
                                                         setSelectedYear(null);
                                                     }}
                                                 />

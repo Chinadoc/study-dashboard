@@ -2876,7 +2876,96 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             return evPatterns.some(pattern => pattern.test(model));
           };
 
-          // Categorize models
+          // Merge model variants (G35 + G35 Coupe → G35 with variants indicator)
+          const variantSuffixes = [
+            'Coupe', 'Sedan', 'Convertible', 'Wagon', 'Hatchback',
+            'Sport', 'Sports', 'Touring', 'Limited', 'Premium',
+            'AWD', '4WD', '2WD', 'FWD', 'RWD', 'Quattro', 'xDrive', '4Matic',
+            'Hybrid', 'PHEV', 'Sport Sedan', 'Gran Coupe', 'Gran Turismo',
+            'Cross Country', 'Sportback', 'Avant', 'Allroad'
+          ];
+
+          // Build a map of base model → variants
+          const modelVariantMap = new Map<string, Set<string>>();
+          const processedModels = new Set<string>();
+
+          for (const model of models) {
+            let baseModel = model;
+            let foundVariant: string | null = null;
+
+            // Check if this model ends with a variant suffix
+            for (const suffix of variantSuffixes) {
+              const pattern = new RegExp(`\\s+${suffix}$`, 'i');
+              if (pattern.test(model)) {
+                baseModel = model.replace(pattern, '').trim();
+                foundVariant = suffix;
+                break;
+              }
+            }
+
+            // Only merge if the base model also exists independently
+            if (foundVariant && models.includes(baseModel)) {
+              if (!modelVariantMap.has(baseModel)) {
+                modelVariantMap.set(baseModel, new Set());
+              }
+              modelVariantMap.get(baseModel)!.add(foundVariant);
+            } else if (!foundVariant) {
+              // This is a base model or standalone model
+              if (!modelVariantMap.has(model)) {
+                modelVariantMap.set(model, new Set());
+              }
+            } else {
+              // Variant without base model - keep as-is
+              processedModels.add(model);
+            }
+          }
+
+          // Build merged models list with indicators
+          interface MergedModel {
+            name: string;
+            display: string;
+            baseModel: string;
+            variants: string[];
+          }
+
+          const mergedModels: MergedModel[] = [];
+
+          for (const [baseModel, variants] of modelVariantMap) {
+            const variantArray = Array.from(variants).sort();
+            let display = baseModel;
+
+            if (variantArray.length > 0) {
+              if (variantArray.length === 1) {
+                display = `${baseModel} (incl. ${variantArray[0]})`;
+              } else if (variantArray.length <= 3) {
+                display = `${baseModel} (incl. ${variantArray.join(', ')})`;
+              } else {
+                display = `${baseModel} (+${variantArray.length} variants)`;
+              }
+            }
+
+            mergedModels.push({
+              name: baseModel,
+              display,
+              baseModel,
+              variants: variantArray
+            });
+          }
+
+          // Add standalone models (variants without base)
+          for (const model of processedModels) {
+            mergedModels.push({
+              name: model,
+              display: model,
+              baseModel: model,
+              variants: []
+            });
+          }
+
+          // Sort merged models alphabetically
+          mergedModels.sort((a, b) => a.name.localeCompare(b.name));
+
+          // Categorize models (using original list for EV detection)
           const evModels = models.filter((m: string) => isEVModel(make, m));
           const mainModels = models.filter((m: string) => !isEVModel(make, m));
 
@@ -2884,7 +2973,8 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
             source: "aks_vehicles_by_year",
             make,
             count: models.length,
-            models,
+            models,              // Original full list (for search/validation)
+            mergedModels,        // Consolidated list with variant indicators (for browse display)
             evModels,
             mainModels,
             hasEV: evModels.length > 0
