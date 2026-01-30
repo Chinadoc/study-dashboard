@@ -5137,18 +5137,23 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           }
 
           // Simple query from pre-computed fcc_complete table
+          // Includes fallback to aks_products.image_url when R2 image is missing
           const sql = `
           SELECT 
-            fcc_id,
-            frequency,
-            chip,
-            key_type,
-            vehicles,
-            vehicle_count,
-            image_r2_key
-          FROM fcc_complete
+            fc.fcc_id,
+            fc.frequency,
+            fc.chip,
+            fc.key_type,
+            fc.vehicles,
+            fc.vehicle_count,
+            fc.image_r2_key,
+            (SELECT p.image_url FROM aks_products p 
+             WHERE p.fcc_id LIKE '%' || fc.fcc_id || '%' 
+             AND p.image_url IS NOT NULL AND p.image_url != '' 
+             LIMIT 1) as fallback_image
+          FROM fcc_complete fc
           ${whereClause}
-          ORDER BY fcc_id
+          ORDER BY fc.fcc_id
           LIMIT ? OFFSET ?
         `;
 
@@ -5159,13 +5164,13 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           const dataResult = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit, offset).all();
 
-          // Transform to include image URLs
+          // Transform to include image URLs (R2 preferred, fallback to AKS CDN)
           const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
           const rows = ((dataResult.results || []) as any[]).map(row => ({
             ...row,
             image_url: row.image_r2_key
               ? `${WORKER_BASE}/api/r2/${encodeURIComponent(row.image_r2_key)}`
-              : null
+              : row.fallback_image || null
           }));
 
           return new Response(JSON.stringify({ total, rows }), {
