@@ -1146,8 +1146,341 @@ export default {
         }
       }
       // ==============================================
+      // ENHANCED COMMUNITY SYSTEM ENDPOINTS
+      // ==============================================
+
+      // POST /api/vehicle-comments/flag - Report a comment for moderation
+      if (path === "/api/vehicle-comments/flag" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to report" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { comment_id, reason, details } = body;
+
+          if (!comment_id || !reason) {
+            return corsResponse(request, JSON.stringify({ error: "Missing comment_id or reason" }), 400);
+          }
+
+          const validReasons = ['spam', 'misinformation', 'offensive', 'off_topic', 'other'];
+          if (!validReasons.includes(reason)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid reason" }), 400);
+          }
+
+          // Check if user already flagged this comment
+          const existingFlag = await env.LOCKSMITH_DB.prepare(
+            `SELECT id FROM comment_flags WHERE comment_id = ? AND reporter_id = ?`
+          ).bind(comment_id, userId).first();
+
+          if (existingFlag) {
+            return corsResponse(request, JSON.stringify({ error: "You already reported this comment" }), 400);
+          }
+
+          const flagId = `flag_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO comment_flags (id, comment_id, reporter_id, reason, details, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+          `).bind(flagId, comment_id, userId, reason, details || null, Date.now()).run();
+
+          // Update flag_count on comment
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE vehicle_comments SET flag_count = COALESCE(flag_count, 0) + 1 WHERE id = ?
+          `).bind(comment_id).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, message: "Comment reported" }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/moderation/queue - Get flagged comments (admin only)
+      if (path === "/api/moderation/queue" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              cf.id as flag_id, cf.comment_id, cf.reason, cf.details, cf.created_at as flag_created,
+              cf.reporter_id,
+              vc.content, vc.vehicle_key, vc.user_id as comment_author_id, vc.user_name as comment_author_name,
+              vc.flag_count, vc.created_at as comment_created,
+              u.name as reporter_name, u.email as reporter_email
+            FROM comment_flags cf
+            JOIN vehicle_comments vc ON cf.comment_id = vc.id
+            LEFT JOIN users u ON cf.reporter_id = u.id
+            WHERE cf.resolved = 0
+            ORDER BY cf.created_at DESC
+            LIMIT 100
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ flags: result.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/moderation/resolve - Resolve a flag (admin only)
+      if (path === "/api/moderation/resolve" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const body: any = await request.json();
+          const { flag_id, resolution, delete_comment } = body;
+
+          if (!flag_id || !resolution) {
+            return corsResponse(request, JSON.stringify({ error: "Missing flag_id or resolution" }), 400);
+          }
+
+          const validResolutions = ['dismissed', 'deleted', 'warning_issued'];
+          if (!validResolutions.includes(resolution)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid resolution" }), 400);
+          }
+
+          // Get the flag to find the comment
+          const flag = await env.LOCKSMITH_DB.prepare(
+            `SELECT comment_id FROM comment_flags WHERE id = ?`
+          ).bind(flag_id).first<any>();
+
+          if (!flag) {
+            return corsResponse(request, JSON.stringify({ error: "Flag not found" }), 404);
+          }
+
+          // Resolve the flag
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE comment_flags SET resolved = 1, resolution = ?, resolved_by = ?, resolved_at = ?
+            WHERE id = ?
+          `).bind(resolution, userId, Date.now(), flag_id).run();
+
+          // If delete_comment is true, soft-delete the comment
+          if (delete_comment) {
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE vehicle_comments SET is_deleted = 1, content = '[removed by moderator]', updated_at = ?
+              WHERE id = ?
+            `).bind(Date.now(), flag.comment_id).run();
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/vehicle-comments/verify - Mark comment as verified pearl (admin/field lead)
+      if (path === "/api/vehicle-comments/verify" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const body: any = await request.json();
+          const { comment_id, verification_type, notes } = body;
+
+          if (!comment_id || !verification_type) {
+            return corsResponse(request, JSON.stringify({ error: "Missing comment_id or verification_type" }), 400);
+          }
+
+          const validTypes = ['confirmed', 'integrated', 'expert_verified'];
+          if (!validTypes.includes(verification_type)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid verification_type" }), 400);
+          }
+
+          // Get comment to find author
+          const comment = await env.LOCKSMITH_DB.prepare(
+            `SELECT user_id FROM vehicle_comments WHERE id = ?`
+          ).bind(comment_id).first<any>();
+
+          if (!comment) {
+            return corsResponse(request, JSON.stringify({ error: "Comment not found" }), 404);
+          }
+
+          // Add to verified_pearls
+          const pearlId = `pearl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO verified_pearls (id, comment_id, verified_by, verification_type, notes, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(comment_id) DO UPDATE SET
+              verified_by = excluded.verified_by,
+              verification_type = excluded.verification_type,
+              notes = excluded.notes,
+              created_at = excluded.created_at
+          `).bind(pearlId, comment_id, userId, verification_type, notes || null, Date.now()).run();
+
+          // Update comment's verification status
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE vehicle_comments SET is_verified = 1, verified_type = ? WHERE id = ?
+          `).bind(verification_type, comment_id).run();
+
+          // Increment author's pearls_validated count in user_reputation
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO user_reputation (user_id, pearls_validated, member_since, updated_at)
+            VALUES (?, 1, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+              pearls_validated = pearls_validated + 1,
+              updated_at = excluded.updated_at
+          `).bind(comment.user_id, Date.now(), Date.now()).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, message: "Comment verified as pearl" }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/user/reputation - Get user's reputation and badges
+      if (path.startsWith("/api/user/reputation") && request.method === "GET") {
+        try {
+          // Extract userId from path or query
+          const pathUserId = path.split('/').pop();
+          const queryUserId = url.searchParams.get('user_id');
+          let targetUserId = (pathUserId !== 'reputation' ? pathUserId : queryUserId);
+
+          // If no target user specified, get current user
+          if (!targetUserId) {
+            const sessionToken = getSessionToken(request);
+            if (sessionToken) {
+              const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+              if (payload?.sub) targetUserId = payload.sub as string;
+            }
+          }
+
+          if (!targetUserId) {
+            return corsResponse(request, JSON.stringify({ error: "Missing user_id" }), 400);
+          }
+
+          // Get reputation
+          const reputation = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM user_reputation WHERE user_id = ?
+          `).bind(targetUserId).first<any>();
+
+          // Get badges
+          const badges = await env.LOCKSMITH_DB.prepare(`
+            SELECT badge_type, badge_name, badge_icon, badge_tier, earned_at
+            FROM user_badges WHERE user_id = ?
+            ORDER BY earned_at DESC
+          `).bind(targetUserId).all();
+
+          // Get user info
+          const user = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, name, picture, created_at FROM users WHERE id = ?
+          `).bind(targetUserId).first<any>();
+
+          // Calculate rank name
+          const rankNames = ['Apprentice', 'Journeyman', 'Master Tech', 'Legend'];
+          const rankLevel = reputation?.rank_level || 1;
+
+          return corsResponse(request, JSON.stringify({
+            user: user || { id: targetUserId },
+            reputation: reputation || { total_score: 0, pearls_validated: 0, comments_count: 0, rank_level: 1 },
+            rank_name: rankNames[rankLevel - 1] || 'Apprentice',
+            badges: badges.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/user/mentions - Get unread mentions for current user
+      if (path === "/api/user/mentions" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const unreadOnly = url.searchParams.get('unread_only') !== 'false';
+
+          const whereClause = unreadOnly ? 'AND cm.is_read = 0' : '';
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              cm.id, cm.comment_id, cm.is_read, cm.created_at,
+              vc.content, vc.vehicle_key,
+              u.name as mentioner_name, u.picture as mentioner_picture
+            FROM comment_mentions cm
+            JOIN vehicle_comments vc ON cm.comment_id = vc.id
+            LEFT JOIN users u ON cm.mentioner_id = u.id
+            WHERE cm.mentioned_user_id = ? ${whereClause}
+            ORDER BY cm.created_at DESC
+            LIMIT 50
+          `).bind(userId).all();
+
+          const unreadCount = await env.LOCKSMITH_DB.prepare(`
+            SELECT COUNT(*) as count FROM comment_mentions WHERE mentioned_user_id = ? AND is_read = 0
+          `).bind(userId).first<any>();
+
+          return corsResponse(request, JSON.stringify({
+            mentions: result.results || [],
+            unread_count: unreadCount?.count || 0
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/mentions/read - Mark mentions as read
+      if (path === "/api/user/mentions/read" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { mention_ids } = body; // Optional: specific IDs, or mark all if not provided
+
+          if (mention_ids && Array.isArray(mention_ids) && mention_ids.length > 0) {
+            // Mark specific mentions as read
+            const placeholders = mention_ids.map(() => '?').join(',');
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE comment_mentions SET is_read = 1 
+              WHERE mentioned_user_id = ? AND id IN (${placeholders})
+            `).bind(userId, ...mention_ids).run();
+          } else {
+            // Mark all as read
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE comment_mentions SET is_read = 1 WHERE mentioned_user_id = ?
+            `).bind(userId).run();
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // USER PREFERENCES ENDPOINTS
       // ==============================================
+
 
       // GET /api/user/preferences - Fetch user preferences
       if (path === "/api/user/preferences" && request.method === "GET") {

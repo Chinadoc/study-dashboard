@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import styles from './CommentSection.module.css';
 
 interface Comment {
@@ -16,6 +18,11 @@ interface Comment {
     user_vote: number;
     created_at: number;
     is_deleted: boolean;
+    is_verified?: boolean;
+    verified_type?: string;
+    rank_level?: number;
+    rank_name?: string;
+    badges?: { badge_icon: string; badge_name: string }[];
     replies: Comment[];
 }
 
@@ -33,6 +40,8 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [replyContent, setReplyContent] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [reportingComment, setReportingComment] = useState<string | null>(null);
+    const [reportReason, setReportReason] = useState<string>('misinformation');
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
 
@@ -242,6 +251,48 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         }
     };
 
+    // Handle reporting a comment
+    const handleReport = async (commentId: string) => {
+        if (!isAuthenticated) {
+            setError('Please sign in to report');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments/flag`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                },
+                body: JSON.stringify({ comment_id: commentId, reason: reportReason })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setReportingComment(null);
+                setError(null);
+                alert('Comment reported. Thank you for helping maintain quality.');
+            } else {
+                setError(data.error || 'Failed to report comment');
+            }
+        } catch (err) {
+            setError('Failed to report comment');
+        }
+    };
+
+    // Get rank badge
+    const getRankBadge = (rankLevel?: number) => {
+        const ranks = [
+            { level: 1, name: 'Apprentice', icon: '🔧' },
+            { level: 2, name: 'Journeyman', icon: '⚙️' },
+            { level: 3, name: 'Master Tech', icon: '🔑' },
+            { level: 4, name: 'Legend', icon: '👑' }
+        ];
+        const rank = ranks.find(r => r.level === rankLevel) || ranks[0];
+        return rank;
+    };
+
     // Format relative time
     const formatTime = (timestamp: number) => {
         const diff = Date.now() - timestamp;
@@ -257,77 +308,128 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     };
 
     // Render a single comment
-    const renderComment = (comment: Comment, isReply = false) => (
-        <div key={comment.id} className={`${styles.comment} ${isReply ? styles.reply : ''}`}>
-            <div className={styles.voteColumn}>
-                <button
-                    className={`${styles.voteBtn} ${comment.user_vote === 1 ? styles.upvoted : ''}`}
-                    onClick={() => handleVote(comment.id, 1, isReply)}
-                    aria-label="Upvote"
-                >
-                    ▲
-                </button>
-                <span className={styles.score}>{comment.score}</span>
-                <button
-                    className={`${styles.voteBtn} ${comment.user_vote === -1 ? styles.downvoted : ''}`}
-                    onClick={() => handleVote(comment.id, -1, isReply)}
-                    aria-label="Downvote"
-                >
-                    ▼
-                </button>
-            </div>
+    const renderComment = (comment: Comment, isReply = false) => {
+        const rank = getRankBadge(comment.rank_level);
 
-            <div className={styles.commentBody}>
-                <div className={styles.commentHeader}>
-                    {comment.user_picture && (
-                        <img src={comment.user_picture} alt="" className={styles.avatar} />
-                    )}
-                    <span className={styles.userName}>
-                        {comment.is_deleted ? '[deleted]' : (comment.user_name || 'Anonymous')}
-                    </span>
-                    <span className={styles.timestamp}>{formatTime(comment.created_at)}</span>
+        return (
+            <div key={comment.id} className={`${styles.comment} ${isReply ? styles.reply : ''} ${comment.is_verified ? styles.verified : ''}`}>
+                <div className={styles.voteColumn}>
+                    <button
+                        className={`${styles.voteBtn} ${comment.user_vote === 1 ? styles.upvoted : ''}`}
+                        onClick={() => handleVote(comment.id, 1, isReply)}
+                        aria-label="Upvote"
+                    >
+                        ▲
+                    </button>
+                    <span className={styles.score}>{comment.score}</span>
+                    <button
+                        className={`${styles.voteBtn} ${comment.user_vote === -1 ? styles.downvoted : ''}`}
+                        onClick={() => handleVote(comment.id, -1, isReply)}
+                        aria-label="Downvote"
+                    >
+                        ▼
+                    </button>
                 </div>
 
-                <p className={styles.commentContent}>{comment.content}</p>
-
-                {!comment.is_deleted && !isReply && (
-                    <div className={styles.commentActions}>
-                        <button
-                            className={styles.replyBtn}
-                            onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                        >
-                            {replyingTo === comment.id ? 'Cancel' : 'Reply'}
-                        </button>
+                <div className={styles.commentBody}>
+                    <div className={styles.commentHeader}>
+                        {comment.user_picture && (
+                            <img src={comment.user_picture} alt="" className={styles.avatar} />
+                        )}
+                        <span className={styles.userName}>
+                            {comment.is_deleted ? '[deleted]' : (comment.user_name || 'Anonymous')}
+                        </span>
+                        {!comment.is_deleted && comment.rank_level && (
+                            <span className={styles.rankBadge} title={rank.name}>
+                                {rank.icon}
+                            </span>
+                        )}
+                        {comment.is_verified && (
+                            <span className={styles.verifiedBadge} title={`Verified: ${comment.verified_type}`}>
+                                ✓ Pearl
+                            </span>
+                        )}
+                        <span className={styles.timestamp}>{formatTime(comment.created_at)}</span>
                     </div>
-                )}
 
-                {replyingTo === comment.id && (
-                    <div className={styles.replyForm}>
-                        <textarea
-                            value={replyContent}
-                            onChange={(e) => setReplyContent(e.target.value)}
-                            placeholder="Write a reply..."
-                            className={styles.replyInput}
-                            maxLength={2000}
-                        />
-                        <button
-                            onClick={() => handleSubmitReply(comment.id)}
-                            disabled={submitting || !replyContent.trim()}
-                            className={styles.submitBtn}
-                        >
-                            {submitting ? 'Posting...' : 'Reply'}
-                        </button>
+                    <div className={styles.commentContent}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {comment.content}
+                        </ReactMarkdown>
                     </div>
-                )}
 
-                {comment.replies.length > 0 && (
-                    <div className={styles.replies}>
-                        {comment.replies.map(reply => renderComment(reply, true))}
-                    </div>
-                )}
+                    {!comment.is_deleted && (
+                        <div className={styles.commentActions}>
+                            {!isReply && (
+                                <button
+                                    className={styles.replyBtn}
+                                    onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                >
+                                    {replyingTo === comment.id ? 'Cancel' : 'Reply'}
+                                </button>
+                            )}
+                            {isAuthenticated && user?.id !== comment.user_id && (
+                                <button
+                                    className={styles.reportBtn}
+                                    onClick={() => setReportingComment(reportingComment === comment.id ? null : comment.id)}
+                                >
+                                    {reportingComment === comment.id ? 'Cancel' : '⚑ Report'}
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {reportingComment === comment.id && (
+                        <div className={styles.reportForm}>
+                            <select
+                                value={reportReason}
+                                onChange={(e) => setReportReason(e.target.value)}
+                                className={styles.reportSelect}
+                            >
+                                <option value="misinformation">Inaccurate Information</option>
+                                <option value="spam">Spam</option>
+                                <option value="offensive">Offensive Content</option>
+                                <option value="off_topic">Off Topic</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <button
+                                onClick={() => handleReport(comment.id)}
+                                className={styles.reportSubmitBtn}
+                            >
+                                Submit Report
+                            </button>
+                        </div>
+                    )}
+
+                    {replyingTo === comment.id && (
+                        <div className={styles.replyForm}>
+                            <textarea
+                                value={replyContent}
+                                onChange={(e) => setReplyContent(e.target.value)}
+                                placeholder="Write a reply... (Markdown supported)"
+                                className={styles.replyInput}
+                                maxLength={2000}
+                            />
+                            <button
+                                onClick={() => handleSubmitReply(comment.id)}
+                                disabled={submitting || !replyContent.trim()}
+                                className={styles.submitBtn}
+                            >
+                                {submitting ? 'Posting...' : 'Reply'}
+                            </button>
+                        </div>
+                    )}
+
+                    {comment.replies.length > 0 && (
+                        <div className={styles.replies}>
+                            {comment.replies.map(reply => renderComment(reply, true))}
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
+
 
     if (loading) {
         return <div className={styles.loading}>Loading comments...</div>;
