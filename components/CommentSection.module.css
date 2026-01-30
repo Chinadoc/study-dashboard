@@ -1,0 +1,283 @@
+.commentSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card-bg, rgba(30, 30, 40, 0.6));
+    border-radius: 12px;
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.error {
+    background: rgba(255, 87, 87, 0.15);
+    border: 1px solid rgba(255, 87, 87, 0.3);
+    color: #ff5757;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.loading {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+    text-align: center;
+    padding: 2rem;
+}
+
+/* New comment form */
+.newCommentForm {
+    margin-bottom: 1.5rem;
+}
+
+.commentInput,
+.replyInput {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-primary, #fff);
+    font-size: 0.95rem;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.commentInput:focus,
+.replyInput:focus {
+    outline: none;
+    border-color: var(--accent-color, #6366f1);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.commentInput::placeholder,
+.replyInput::placeholder {
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.formFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.charCount {
+    font-size: 0.8rem;
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.submitBtn {
+    padding: 0.5rem 1.25rem;
+    background: var(--accent-color, #6366f1);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+    background: var(--accent-hover, #818cf8);
+    transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Sign in prompt */
+.signInPrompt {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+/* Comments list */
+.commentsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.noComments {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Individual comment */
+.comment {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.comment:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.reply {
+    margin-left: 2rem;
+    border-left: 2px solid rgba(99, 102, 241, 0.3);
+    padding-left: 1rem;
+}
+
+/* Vote column */
+.voteColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 32px;
+}
+
+.voteBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    transition: all 0.15s ease;
+    border-radius: 4px;
+}
+
+.voteBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.voteBtn.upvoted {
+    color: #22c55e;
+}
+
+.voteBtn.downvoted {
+    color: #ef4444;
+}
+
+.score {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+
+/* Comment body */
+.commentBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.commentHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.userName {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary, #fff);
+}
+
+.timestamp {
+    font-size: 0.8rem;
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.commentContent {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.85));
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+    word-wrap: break-word;
+}
+
+/* Comment actions */
+.commentActions {
+    margin-top: 0.5rem;
+}
+
+.replyBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted, rgba(255, 255, 255, 0.5));
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.replyBtn:hover {
+    color: var(--accent-color, #6366f1);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+/* Reply form */
+.replyForm {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.replyInput {
+    min-height: 60px;
+}
+
+/* Nested replies */
+.replies {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .commentSection {
+        padding: 1rem;
+    }
+
+    .reply {
+        margin-left: 0.5rem;
+    }
+
+    .voteColumn {
+        min-width: 28px;
+    }
+}

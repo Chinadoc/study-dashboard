@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import VehicleHeader from '@/components/vehicle/VehicleHeader';
 import VehicleSpecs from '@/components/vehicle/VehicleSpecs';
+import CommentSection from '@/components/CommentSection';
 import KeyCards from '@/components/vehicle/KeyCards';
 import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
@@ -975,6 +976,9 @@ export default function VehicleDetailClient() {
 
                     {/* Technical Pearls / Insights (General only) */}
                     <TechnicalPearls pearls={generalPearls} />
+
+                    {/* Community Discussion Section */}
+                    <CommentSection make={make} model={model} />
                 </div>
 
                 {/* Right Column: Locksmith Sidebar (4/12) */}

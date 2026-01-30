@@ -10,12 +10,18 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export interface InventoryItem {
     itemKey: string;
-    type: 'key' | 'blank';
+    type: 'key' | 'blank' | 'tool' | 'consumable';
     qty: number;
     vehicle?: string;
     fcc_id?: string;
     link?: string;
     updated_at?: number;
+    // Tool-specific fields
+    toolType?: 'programmer' | 'lishi' | 'pinning' | 'decoder' | 'other';
+    serialNumber?: string;
+    purchaseDate?: string;
+    warrantyExpiry?: string;
+    notes?: string;
 }
 
 interface InventoryContextType {

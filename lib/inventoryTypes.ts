@@ -12,6 +12,60 @@ export type KeyCategory =
     | 'blade'
     | 'other';
 
+export type ToolType = 'programmer' | 'lishi' | 'pinning' | 'decoder' | 'other';
+
+export interface ToolCategoryInfo {
+    label: string;
+    icon: string;
+    color: string;
+    bgClass: string;
+    textClass: string;
+    description: string;
+}
+
+export const TOOL_CATEGORIES: Record<ToolType, ToolCategoryInfo> = {
+    programmer: {
+        label: 'Programmer',
+        icon: '💻',
+        color: 'blue',
+        bgClass: 'bg-blue-900/30',
+        textClass: 'text-blue-400',
+        description: 'Key programming device',
+    },
+    lishi: {
+        label: 'Lishi Tool',
+        icon: '🔧',
+        color: 'purple',
+        bgClass: 'bg-purple-900/30',
+        textClass: 'text-purple-400',
+        description: '2-in-1 pick and decoder',
+    },
+    pinning: {
+        label: 'Pinning Kit',
+        icon: '📍',
+        color: 'green',
+        bgClass: 'bg-green-900/30',
+        textClass: 'text-green-400',
+        description: 'Pins, springs, and rekeying supplies',
+    },
+    decoder: {
+        label: 'Decoder',
+        icon: '🔍',
+        color: 'yellow',
+        bgClass: 'bg-yellow-900/30',
+        textClass: 'text-yellow-400',
+        description: 'Key depth/spacing reader',
+    },
+    other: {
+        label: 'Other Tool',
+        icon: '🛠️',
+        color: 'gray',
+        bgClass: 'bg-gray-800/50',
+        textClass: 'text-gray-400',
+        description: 'Miscellaneous tool',
+    },
+};
+
 export interface KeyCategoryInfo {
     label: string;
     icon: string;
