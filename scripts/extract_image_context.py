@@ -2,15 +2,12 @@
 """
 Extract Image Context from HTML Documents
 
-Parses each HTML file to find:
+Parses each HTML file in dossier directories to find:
 1. The heading/section preceding each image
 2. The paragraph text immediately before the image
-3. Any figure caption below the image
+3. Vehicle info from dossier name
 
-This creates a rich context for each image that can be:
-- Used for tagging
-- Associated with related pearls
-- Displayed as alt-text or hover info
+Updates image_gallery_manifest.json with extracted context.
 """
 
 import os
@@ -19,10 +16,11 @@ import json
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-HTML_DIR = Path("gdrive_exports/html")
-IMAGE_DIR = Path("gdrive_exports/images")
-OUTPUT_JSON = Path("gdrive_exports/image_context_manifest.json")
-
+# Use correct paths based on actual directory structure
+BASE_DIR = Path(__file__).parent.parent
+GDRIVE_EXPORTS = BASE_DIR / "gdrive_exports"
+MANIFEST_PATH = BASE_DIR / "data" / "image_gallery_manifest.json"
+OUTPUT_MANIFEST = BASE_DIR / "data" / "image_gallery_manifest_with_context.json"
 
 def sanitize_slug(name):
     """Convert name to URL-safe slug."""
@@ -32,6 +30,25 @@ def sanitize_slug(name):
     return slug[:50]
 
 
+def extract_vehicle_from_dossier_name(dossier_name):
+    """Parse vehicle info from dossier name like '2014_VW_Golf_Key_Programming_Research'."""
+    parts = dossier_name.split('_')
+    
+    result = {"year": None, "make": None, "model": None}
+    
+    # Look for year (4-digit number starting with 19 or 20)
+    for i, part in enumerate(parts):
+        if re.match(r'^(19|20)\d{2}$', part):
+            result["year"] = part
+            if i + 1 < len(parts):
+                result["make"] = parts[i + 1]
+            if i + 2 < len(parts):
+                result["model"] = parts[i + 2]
+            break
+    
+    return result
+
+
 def extract_image_context(soup, img_tag):
     """Extract rich context for an image from surrounding content."""
     context = {
@@ -39,7 +56,6 @@ def extract_image_context(soup, img_tag):
         'preceding_text': None,
         'caption': None,
         'alt': None,
-        'description': None
     }
     
     # 1. Get alt text
@@ -47,14 +63,9 @@ def extract_image_context(soup, img_tag):
     if alt and alt.lower() not in ['image', '', 'img']:
         context['alt'] = alt.strip()
     
-    # 2. Get title attribute
-    title = img_tag.get('title', '')
-    if title:
-        context['description'] = title.strip()
-    
-    # 3. Find the nearest preceding heading
+    # 2. Find the nearest preceding heading
     prev = img_tag
-    for _ in range(10):  # Walk up/back up to 10 elements
+    for _ in range(10):
         prev = prev.find_previous(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
         if prev:
             heading_text = prev.get_text(strip=True)
@@ -62,188 +73,148 @@ def extract_image_context(soup, img_tag):
                 context['heading'] = heading_text[:150]
                 break
     
-    # 4. Find preceding paragraph (the text right before the image)
+    # 3. Find preceding paragraph
     prev_p = img_tag.find_previous(['p', 'li', 'div'])
     if prev_p:
         para_text = prev_p.get_text(strip=True)
         if para_text and len(para_text) > 20:
             context['preceding_text'] = para_text[:300]
     
-    # 5. Find caption (usually in next sibling or nearby p/figcaption)
-    # Look for "Figure X:" pattern
+    # 4. Find caption
     next_elem = img_tag.find_next(['p', 'figcaption', 'span', 'div'])
     if next_elem:
         caption_text = next_elem.get_text(strip=True)
         if caption_text and (
             caption_text.lower().startswith('figure') or
-            caption_text.lower().startswith('image') or
-            'caption' in str(next_elem.get('class', [])).lower()
+            caption_text.lower().startswith('image')
         ):
             context['caption'] = caption_text[:200]
-    
-    # 6. Build full description from available context
-    parts = []
-    if context['heading']:
-        parts.append(f"Section: {context['heading']}")
-    if context['alt'] and context['alt'] != 'Image':
-        parts.append(context['alt'])
-    if context['caption']:
-        parts.append(context['caption'])
-    elif context['preceding_text']:
-        # Truncate preceding text to key insight
-        short_text = context['preceding_text'][:150]
-        if '.' in short_text:
-            short_text = short_text[:short_text.rindex('.') + 1]
-        parts.append(short_text)
-    
-    context['full_description'] = ' | '.join(parts) if parts else None
     
     return context
 
 
-def extract_tags_from_context(context, filename):
-    """Generate tags from image context."""
-    tags = []
-    full_text = ' '.join([
-        context.get('heading') or '',
-        context.get('preceding_text') or '',
-        context.get('caption') or '',
-        filename or ''
-    ]).lower()
-    
-    # Makes
-    makes = ['ford', 'toyota', 'chevrolet', 'gmc', 'honda', 'nissan', 'bmw', 
-             'mercedes', 'audi', 'jeep', 'ram', 'kia', 'hyundai', 'lexus', 'tesla']
-    for make in makes:
-        if make in full_text:
-            tags.append(make.title())
-    
-    # Years
-    years = re.findall(r'\b(20[12]\d)\b', full_text)
-    tags.extend(years[:3])  # Max 3 years
-    
-    # Topics
-    topics = {
-        'akl': ['all keys lost', 'akl'],
-        'lishi': ['lishi', 'hu100', 'hu92', 'toy48'],
-        'programming': ['programming', 'program key', 'key learn'],
-        'obd': ['obd', 'obd-ii', 'diagnostic'],
-        'slot': ['slot', 'pocket', 'location'],
-        'fob': ['fob', 'remote', 'key fob'],
-        'diagram': ['diagram', 'chart', 'graph', 'figure'],
-    }
-    for topic, keywords in topics.items():
-        if any(kw in full_text for kw in keywords):
-            tags.append(topic.upper())
-    
-    return list(set(tags))
-
-
-def process_html_file(filepath):
-    """Process a single HTML file and extract all image contexts."""
-    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+def process_dossier_html(html_path, dossier_name):
+    """Process HTML file and return dict mapping image filename to context."""
+    with open(html_path, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
     
     soup = BeautifulSoup(content, 'html.parser')
-    
-    # Get document title
-    doc_title = soup.title.string if soup.title else filepath.stem
-    doc_slug = sanitize_slug(filepath.stem)
+    vehicle_info = extract_vehicle_from_dossier_name(dossier_name)
     
     # Find all images
     img_tags = soup.find_all('img')
     
-    images = []
+    contexts = {}
     for idx, img in enumerate(img_tags, 1):
         src = img.get('src', '')
+        filename = Path(src).name if src else f"image{idx}.png"
         
         # Extract context
-        context = extract_image_context(soup, img)
+        ctx = extract_image_context(soup, img)
         
-        # Generate tags
-        tags = extract_tags_from_context(context, filepath.name)
+        # Build description string
+        parts = []
         
-        # Build image record
-        image_record = {
-            'id': f"{doc_slug}_img{idx}",
-            'filename': f"image{idx}.png",
-            'path': f"images/{doc_slug}/image{idx}.png",
-            'source_doc': filepath.name,
-            'doc_title': doc_title,
-            'original_src': src,
-            'heading': context.get('heading'),
-            'preceding_text': context.get('preceding_text'),
-            'caption': context.get('caption'),
-            'alt': context.get('alt'),
-            'description': context.get('full_description'),
-            'tags': tags
-        }
+        # Vehicle info
+        if vehicle_info["year"] and vehicle_info["make"]:
+            parts.append(f"{vehicle_info['year']} {vehicle_info['make']} {vehicle_info['model'] or ''}".strip())
         
-        images.append(image_record)
+        # Section heading
+        if ctx.get('heading'):
+            parts.append(f"Section: {ctx['heading'][:80]}")
+        
+        # Preceding text snippet
+        if ctx.get('preceding_text'):
+            text_snippet = ctx['preceding_text'][:100]
+            if '.' in text_snippet:
+                text_snippet = text_snippet[:text_snippet.rindex('.') + 1]
+            parts.append(text_snippet)
+        
+        contexts[filename] = ' | '.join(parts) if parts else dossier_name
     
-    return images
+    return contexts
 
 
 def main():
     print("=" * 70)
-    print("🖼️  EXTRACT IMAGE CONTEXT FROM HTML")
+    print("🖼️  EXTRACTING IMAGE CONTEXT FROM DOSSIER HTML FILES")
     print("=" * 70)
     
-    html_files = list(HTML_DIR.glob("*.html"))
-    print(f"\n📂 Processing {len(html_files)} HTML files...")
+    # Load manifest
+    print(f"\n📂 Loading manifest from: {MANIFEST_PATH}")
+    with open(MANIFEST_PATH, 'r') as f:
+        manifest = json.load(f)
     
-    all_images = []
-    files_with_images = 0
+    images = manifest.get("images", [])
+    print(f"   Found {len(images)} images in manifest")
     
-    for filepath in html_files:
-        images = process_html_file(filepath)
-        if images:
-            files_with_images += 1
-            all_images.extend(images)
-            print(f"  ✅ {filepath.name}: {len(images)} images with context")
+    # Process each dossier
+    dossier_dirs = [d for d in GDRIVE_EXPORTS.iterdir() if d.is_dir()]
+    print(f"\n📁 Found {len(dossier_dirs)} dossier directories")
     
-    print("\n" + "=" * 70)
-    print("📊 RESULTS")
-    print("=" * 70)
+    # Build dossier context cache
+    dossier_contexts = {}
+    processed = 0
     
-    print(f"\n  Files with images: {files_with_images}")
-    print(f"  Total images: {len(all_images)}")
+    for dossier_dir in dossier_dirs:
+        dossier_name = dossier_dir.name
+        html_files = list(dossier_dir.glob("*.html"))
+        
+        if html_files:
+            try:
+                contexts = process_dossier_html(html_files[0], dossier_name)
+                dossier_contexts[dossier_name] = contexts
+                processed += 1
+                if processed <= 5:
+                    print(f"   ✅ {dossier_name}: {len(contexts)} images")
+            except Exception as e:
+                print(f"   ❌ {dossier_name}: {e}")
     
-    # Count images with good context
-    with_heading = sum(1 for i in all_images if i.get('heading'))
-    with_caption = sum(1 for i in all_images if i.get('caption'))
-    with_preceding = sum(1 for i in all_images if i.get('preceding_text'))
-    with_description = sum(1 for i in all_images if i.get('description'))
+    if processed > 5:
+        print(f"   ... and {processed - 5} more")
     
-    print(f"  With heading: {with_heading}")
-    print(f"  With caption: {with_caption}")
-    print(f"  With preceding text: {with_preceding}")
-    print(f"  With full description: {with_description}")
+    # Update manifest images with context
+    print(f"\n🔄 Updating manifest with extracted contexts...")
+    updated_count = 0
     
-    # Sample output
-    print("\n" + "=" * 70)
-    print("📷 SAMPLE IMAGES WITH CONTEXT")
-    print("=" * 70)
+    for img in images:
+        # Extract dossier name from path field (uses underscores, matches filesystem)
+        img_path = img.get("path", "")
+        # Path format: "images/dossier_name/image1.png" 
+        path_parts = img_path.split("/")
+        dossier_name = path_parts[1] if len(path_parts) > 1 else ""
+        
+        filename = img.get("filename", "")
+        
+        if dossier_name in dossier_contexts:
+            contexts = dossier_contexts[dossier_name]
+            if filename in contexts:
+                img["context"] = contexts[filename]
+                updated_count += 1
+            else:
+                # Fallback: use vehicle info from dossier name
+                vehicle = extract_vehicle_from_dossier_name(dossier_name)
+                if vehicle["year"]:
+                    img["context"] = f"{vehicle['year']} {vehicle['make'] or ''} {vehicle['model'] or ''}".strip()
+                    updated_count += 1
     
-    samples = [i for i in all_images if i.get('description')][:3]
-    for img in samples:
-        print(f"\n  📷 {img['id']}")
-        print(f"  Source: {img['source_doc']}")
-        print(f"  Tags: {img['tags']}")
-        print(f"  Heading: {img.get('heading', 'N/A')[:80]}")
-        print(f"  Description: {img.get('description', 'N/A')[:150]}")
+    print(f"   Updated context for {updated_count} images")
     
-    # Save manifest
-    manifest = {
-        'total': len(all_images),
-        'with_description': with_description,
-        'images': all_images
-    }
-    
-    with open(OUTPUT_JSON, 'w') as f:
+    # Save updated manifest
+    with open(OUTPUT_MANIFEST, 'w') as f:
         json.dump(manifest, f, indent=2)
     
-    print(f"\n✅ Saved to: {OUTPUT_JSON}")
+    print(f"\n✅ Saved to: {OUTPUT_MANIFEST}")
+    
+    # Show samples
+    print("\n" + "=" * 70)
+    print("📷 SAMPLE EXTRACTED CONTEXTS")
+    print("=" * 70)
+    
+    samples = [i for i in images if i.get("context")][:5]
+    for img in samples:
+        print(f"\n  📷 {img['filename']}")
+        print(f"     Context: {img.get('context', 'N/A')[:100]}...")
 
 
 if __name__ == "__main__":

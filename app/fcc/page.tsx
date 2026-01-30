@@ -7,6 +7,8 @@ import { API_BASE, AFFILIATE_TAG } from '@/lib/config';
 import JobLogModal, { JobFormData } from '@/components/shared/JobLogModal';
 import { addJobLogToStorage } from '@/lib/useJobLogs';
 import { trackFCCView, trackAffiliateClick, trackEvent } from '@/lib/analytics';
+import { useInventory } from '@/contexts/InventoryContext';
+import OwnedBadge from '@/components/shared/OwnedBadge';
 
 interface FccRow {
     fcc_id: string;
@@ -23,30 +25,7 @@ interface FccRow {
     image_r2_key?: string;
 }
 
-interface InventoryItem {
-    itemKey: string;
-    type: 'key' | 'blank';
-    qty: number;
-    vehicle?: string;
-    fcc_id?: string;
-}
-
-const INVENTORY_KEY = 'eurokeys_inventory';
 const VIEW_PREF_KEY = 'eurokeys_fcc_view';
-
-function getInventoryFromStorage(): InventoryItem[] {
-    if (typeof window === 'undefined') return [];
-    try {
-        return JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
-    } catch {
-        return [];
-    }
-}
-
-function saveInventoryToStorage(items: InventoryItem[]) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(INVENTORY_KEY, JSON.stringify(items));
-}
 
 // Click-to-expand vehicles popover component
 function VehiclesPopover({
@@ -141,20 +120,30 @@ function FccContent() {
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 100;
     const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
-    const [inventory, setInventory] = useState<InventoryItem[]>([]);
     const [jobModalOpen, setJobModalOpen] = useState(false);
     const [selectedFcc, setSelectedFcc] = useState<FccRow | null>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // Load view preference and inventory
+    // Use shared inventory context
+    const { getQuantity, updateQuantity } = useInventory();
+
+    // Wrapper for compatibility with existing usage
+    const getStock = useCallback((fccId: string): number => {
+        return getQuantity(fccId);
+    }, [getQuantity]);
+
+    const updateStock = useCallback((fccId: string, delta: number, vehicles: string = '') => {
+        updateQuantity(fccId, delta, vehicles);
+    }, [updateQuantity]);
+
+    // Load view preference
     useEffect(() => {
         if (typeof window === 'undefined') return;
         const savedView = localStorage.getItem(VIEW_PREF_KEY);
         if (savedView === 'list' || savedView === 'card') {
             setViewMode(savedView);
         }
-        setInventory(getInventoryFromStorage());
     }, []);
 
     // Save view preference
@@ -177,44 +166,6 @@ function FccContent() {
             }
         }
         fetchData();
-    }, []);
-
-    const getStock = useCallback((fccId: string): number => {
-        const item = inventory.find(i => i.itemKey === fccId && i.type === 'key');
-        return item?.qty || 0;
-    }, [inventory]);
-
-    const updateStock = useCallback((fccId: string, delta: number, vehicles: string = '') => {
-        setInventory(prev => {
-            const existing = prev.find(i => i.itemKey === fccId && i.type === 'key');
-            let updated: InventoryItem[];
-
-            if (existing) {
-                const newQty = Math.max(0, existing.qty + delta);
-                if (newQty === 0) {
-                    updated = prev.filter(i => !(i.itemKey === fccId && i.type === 'key'));
-                } else {
-                    updated = prev.map(i =>
-                        i.itemKey === fccId && i.type === 'key'
-                            ? { ...i, qty: newQty }
-                            : i
-                    );
-                }
-            } else if (delta > 0) {
-                updated = [...prev, {
-                    itemKey: fccId,
-                    type: 'key',
-                    qty: delta,
-                    vehicle: vehicles,
-                    fcc_id: fccId
-                }];
-            } else {
-                updated = prev;
-            }
-
-            saveInventoryToStorage(updated);
-            return updated;
-        });
     }, []);
 
     const handleLogJob = (row: FccRow) => {

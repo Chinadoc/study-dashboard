@@ -5164,13 +5164,33 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
 
           const dataResult = await env.LOCKSMITH_DB.prepare(sql).bind(...params, limit, offset).all();
 
-          // Transform to include image URLs (R2 preferred, fallback to AKS CDN)
+          // Transform to include image URLs (R2 preferred, fallback to AKS CDN, then orphan map)
           const WORKER_BASE = "https://euro-keys.jeremy-samuels17.workers.dev";
+
+          // Hardcoded fallback for orphan FCC IDs not in AKS catalog (from research docs)
+          const ORPHAN_IMAGE_FALLBACKS: Record<string, string> = {
+            'IYZ-AK2': 'https://i.ebayimg.com/images/g/ZX4AAOSwBIxnnykc/s-l1600.jpg',
+            'IYZ-MS2': 'https://i.ebayimg.com/images/g/a0wAAOSwW55hyPhf/s-l1600.jpg',
+            'IYZ-MS5': 'https://i.ebayimg.com/images/g/C7IAAOSwAhpnV6F1/s-l1600.jpg',
+            'IYZDC07': 'https://i.ebayimg.com/images/g/ZhkAAOSwR1VbLh0O/s-l1600.jpg',
+            'NBGDM3': 'https://i.ebayimg.com/images/g/qbsAAOSwFQhnrBns/s-l1600.jpg',
+            'HUF5661': 'https://i.ebayimg.com/images/g/rMgAAOxy0xBMEknQ/s-l1600.jpg',
+            'CWTWBU619': 'https://i.ebayimg.com/images/g/hkcAAOSwU~VnBnfj/s-l1600.jpg',
+            'AB01602T': 'https://i.ebayimg.com/images/g/y84AAOSwK6RkT80f/s-l1600.jpg',
+            'L2C0005T': 'https://i.ebayimg.com/images/g/fToAAOSwNTZmNdmq/s-l1600.jpg',
+            'LHJ009': 'https://i.ebayimg.com/images/g/4REAAOSW1LxmhJXg/s-l1600.jpg',
+            'KBRASTU10': 'https://i.ebayimg.com/images/g/DZ4AAOSwQixeOxrL/s-l1600.jpg',
+            'GOH-PCGEN2': 'https://i.ebayimg.com/images/g/k8oAAOSwKTRlQM8n/s-l1600.jpg',
+            'G0H-PCGEN2': 'https://i.ebayimg.com/images/g/k8oAAOSwKTRlQM8n/s-l1600.jpg',
+            'MLBHLIK-1TA': 'https://i.ebayimg.com/images/g/NjkAAOSw3dBeUtLs/s-l1600.jpg',
+            'KR5V2X-V44': 'https://i.ebayimg.com/images/g/7fIAAOSwX6VlAlmN/s-l1600.jpg',
+          };
+
           const rows = ((dataResult.results || []) as any[]).map(row => ({
             ...row,
             image_url: row.image_r2_key
               ? `${WORKER_BASE}/api/r2/${encodeURIComponent(row.image_r2_key)}`
-              : row.fallback_image || null
+              : row.fallback_image || ORPHAN_IMAGE_FALLBACKS[row.fcc_id] || null
           }));
 
           return new Response(JSON.stringify({ total, rows }), {

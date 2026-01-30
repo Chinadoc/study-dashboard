@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { AFFILIATE_TAG } from '@/lib/config';
+import { useInventory } from '@/contexts/InventoryContext';
+import OwnedBadge from '@/components/shared/OwnedBadge';
 
 interface KeyConfig {
     name: string;
@@ -159,31 +161,13 @@ export default function KeyCards({ keys, vehicleInfo, pearls }: KeyCardsProps) {
 
 function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { make: string; model: string; year: number } }) {
     const [added, setAdded] = useState(false);
+    const { addToInventory: contextAddToInventory } = useInventory();
 
-    const addToInventory = () => {
-        if (typeof window === 'undefined') return;
-
-        const existingRaw = localStorage.getItem('eurokeys_inventory');
-        const existing = existingRaw ? JSON.parse(existingRaw) : [];
-
+    const handleAddToInventory = () => {
         const itemKey = config.fcc || config.name || 'Unknown Key';
         const vehicleStr = vehicleInfo ? `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}` : undefined;
 
-        // Check if already exists
-        const existingItem = existing.find((i: any) => i.itemKey === itemKey && i.type === 'key');
-        if (existingItem) {
-            existingItem.qty += 1;
-        } else {
-            existing.push({
-                itemKey,
-                type: 'key',
-                qty: 1,
-                vehicle: vehicleStr,
-                fcc_id: config.fcc,
-            });
-        }
-
-        localStorage.setItem('eurokeys_inventory', JSON.stringify(existing));
+        contextAddToInventory(itemKey, vehicleStr, 1);
         setAdded(true);
         setTimeout(() => setAdded(false), 2000);
     };
@@ -229,23 +213,28 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                         {config.name?.replace(/^\d+-Button\s*/i, '') || 'Key'}
                     </p>
                 </div>
-                {/* Key Type Badge - Smart Key, Remote Head, etc. */}
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border whitespace-nowrap ${typeColors[typeLabel] || typeColors.prox}`}>
-                    {(() => {
-                        const name = config.name?.toLowerCase() || '';
-                        if (name.includes('smart')) return 'SMART';
-                        if (name.includes('remote head')) return 'RHK';
-                        if (name.includes('transponder')) return 'TPK';
-                        if (name.includes('emergency') || name.includes('blade')) return 'BLADE';
-                        if (name.includes('flip')) return 'FLIP';
-                        if (name.includes('mechanical')) return 'MECH';
-                        // For remote keyless entry / remote fobs
-                        if (name.includes('remote') && !name.includes('smart')) return 'REMOTE';
-                        if (typeLabel === 'remote') return 'REMOTE';
-                        if (typeLabel === 'transponder') return 'TPK';
-                        return typeLabel.toUpperCase();
-                    })()}
-                </span>
+                {/* Badges container */}
+                <div className="flex flex-col items-end gap-1">
+                    {/* Key Type Badge - Smart Key, Remote Head, etc. */}
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border whitespace-nowrap ${typeColors[typeLabel] || typeColors.prox}`}>
+                        {(() => {
+                            const name = config.name?.toLowerCase() || '';
+                            if (name.includes('smart')) return 'SMART';
+                            if (name.includes('remote head')) return 'RHK';
+                            if (name.includes('transponder')) return 'TPK';
+                            if (name.includes('emergency') || name.includes('blade')) return 'BLADE';
+                            if (name.includes('flip')) return 'FLIP';
+                            if (name.includes('mechanical')) return 'MECH';
+                            // For remote keyless entry / remote fobs
+                            if (name.includes('remote') && !name.includes('smart')) return 'REMOTE';
+                            if (typeLabel === 'remote') return 'REMOTE';
+                            if (typeLabel === 'transponder') return 'TPK';
+                            return typeLabel.toUpperCase();
+                        })()}
+                    </span>
+                    {/* Owned Badge */}
+                    <OwnedBadge fcc={config.fcc} compact />
+                </div>
             </div>
 
             {/* Large Key Image - Hero Style */}
@@ -337,7 +326,7 @@ function KeyCard({ config, vehicleInfo }: { config: KeyConfig; vehicleInfo?: { m
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        addToInventory();
+                        handleAddToInventory();
                     }}
                     className={`flex-1 py-2 ${added ? 'bg-green-600 text-white' : 'bg-zinc-700 hover:bg-zinc-600 text-white'} font-bold rounded-lg transition-all text-xs`}
                 >
