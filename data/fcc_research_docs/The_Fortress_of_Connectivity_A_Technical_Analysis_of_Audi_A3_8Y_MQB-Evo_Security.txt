@@ -1,0 +1,166 @@
+﻿The Fortress of Connectivity: A Technical Analysis of Audi A3 8Y (MQB-Evo) Security Architecture and Aftermarket Programming Capabilities (January 2026)
+1. Introduction: The Evolution of Automotive Cybersecurity
+The automotive industry is currently navigating a pivotal transition in electronic architecture, driven not merely by functionality but by an urgent mandate for cybersecurity. The Audi A3 8Y, introduced for the 2021 model year and continuing through 2025, serves as a primary case study for this shift. Built upon the MQB-Evo platform, this vehicle represents a definitive departure from the relatively accessible "MQB" architecture that defined the Volkswagen Group's (VAG) compact offerings for the preceding decade. For the security professional, research analyst, and specialized automotive locksmith, the A3 8Y is not simply a model refresh; it is the manifestation of a new, defense-in-depth security paradigm compliant with UNECE R155 (Cybersecurity) and R156 (Software Update) regulations.
+These regulations have necessitated a move away from static, hardware-based security toward dynamic, server-verified authentication. In previous generations, access to the vehicle's immobilizer system was gated largely by obscurity—proprietary algorithms and unverified diagnostic sessions. The MQB-Evo platform dismantles this model, introducing authorized gateways, encrypted high-speed communication buses (CAN-FD and Ethernet), and hardware-locked microcontrollers that resist traditional manipulation. As of January 2026, the aftermarket landscape has stabilized into a "hybrid" operational model, requiring a synthesis of bench-level electronics work, cloud-based cryptographic calculation, and officially sanctioned diagnostic credentials.
+This report provides an exhaustive technical analysis of the Audi A3 8Y's security posture. It examines the architectural "choke points" introduced by MQB-Evo, evaluates the maturity of aftermarket tooling as of early 2026, and dissects the specific challenges imposed by the high-performance S3 and RS3 variants. The analysis indicates that while the "All Keys Lost" (AKL) scenario remains solvable, the barrier to entry has shifted from capital equipment costs to intellectual property access—specifically, the acquisition of "Sync Data."
+
+
+  
+
+
+
+________________
+2. MQB-Evo Security Enhancements: A Multi-Layered Defense (Gap 1)
+The distinction between the "Legacy MQB" (used in the Audi A3 8V) and "MQB-Evo" (A3 8Y) is foundational. While legacy systems relied primarily on the Immobilizer Generation 5 protocol—which distributed security data across the cluster, ECU, and BCM—the access methods remained rooted in standard UDS (Unified Diagnostic Services) commands. An attacker or locksmith could, with sufficient time, brute-force security access codes or read EEPROM data directly from the port. MQB-Evo introduces three specific hardening layers that fundamentally alter this equation: the SFD Gateway, the Locked Processor Architecture, and the Distributed Sync Data requirement.
+2.1 The SFD Gateway: Ending Anonymous Access
+The most visible barrier in the A3 8Y is the Schutz Fahrzeug Diagnose (SFD), or "Vehicle Diagnostic Protection." This system replaces the legacy 5-digit security access codes (e.g., 20103) with a challenge-response authentication protocol tied to a central VAG server.
+Unlike standard gateways that act as traffic cops for data, the SFD gateway functions as a firewall. It defaults to a "locked" state for all writing, coding, and adaptation functions.1 When a diagnostic tool attempts to perform a protected function—such as adapting a new key or changing a configuration in the Central Electrics (Module 09)—the vehicle generates a challenge token. This token must be sent to a registered server (either the official GeKo system or an authorized aftermarket provider) which then returns a signed response token. If the signature is invalid or the user's credentials are not authorized for that specific VIN or function, the gateway silently drops the write request.
+For locksmith procedures, this has two immediate implications. First, the "smash and grab" method of key programming via OBD-II exploit is neutralized; the tool cannot even initiate the conversation with the immobilizer block without first authenticating its identity. Second, it imposes a requirement for internet connectivity. The diagnostic tool must be online to request the token, creating a digital breadcrumb trail of every access attempt.2 As of 2026, major tool manufacturers like Autel and OBDSTAR have integrated "SFD Unlock" capabilities into their software suites, utilizing API agreements with VAG to automate this token exchange, yet the reliance on a third-party server remains a point of vulnerability.3
+2.2 The Renesas RH850/V850 Locked Processors: The Hardware Vault
+In the legacy A3 8V, the instrument cluster—the primary repository for immobilizer data—typically utilized NEC35xx or Micronas microcontrollers. While secured, these chips were vulnerable to known exploits, allowing tools to read the EEPROM and Immo Data via the OBD port or through simple clip-on adapters.
+The A3 8Y transitions to the Renesas RH850 and V850 families of automotive microcontrollers.4 These processors are designed with hardware-enforced "Secure Boot" and "Read Protection" flags.
+* Secure Boot: The processor verifies the digital signature of its firmware upon every startup. Any modification to the code (e.g., injecting a "loader" to read memory) triggers a boot failure, often rendering the cluster permanently inoperative ("bricked").
+* Debug Port Lock: The JTAG/UART debug ports, traditionally used by engineers to inspect the chip's memory, are fused shut at the factory or protected by 128-bit passwords.
+This architecture forces the aftermarket to abandon the OBD port for data extraction in All Keys Lost scenarios. The only viable method to extract the Component Security (CS) bytes—the 16-byte cryptographic key required to authorize a transponder—is to physically connect to specific test points on the dashboard circuit board. However, traditional soldering is risky due to the density of the multi-layer PCB. This has led to the proliferation of "solder-free" adapters utilizing pogo pins that align with microscopic test points, allowing tools to exploit voltage glitching or proprietary backdoor commands to read the encrypted sectors without technically "opening" the processor via standard debug methods.5
+2.3 Distributed Component Security & "Sync Data": The Mathematical Barrier
+Perhaps the most sophisticated enhancement in MQB-Evo is the concept of Synchronization Data or "Sync Data." In previous generations, if a locksmith could extract the CS bytes from the dashboard, they could program a dealer key. The CS was the "master key."
+On the A3 8Y, the CS is necessary but insufficient. The immobilizer system utilizes a distributed validation scheme where the key, the cluster, the BCM, and the Gateway must all agree on a rolling dynamic code. This synchronization logic is not stored as a static hexadecimal string in the cluster's EEPROM. Instead, it is derived from a complex interaction of the CS, the Power Class, and the specific brand/model coding.
+When a tool reads the RH850 processor in the dashboard, it extracts the CS and the PIN, but it cannot extract the pre-calculated Sync Data required to initialize a blank key because that data is functionally "incomplete" inside the cluster until a valid key is presented. To generate a working key from scratch (All Keys Lost), the partial data read from the dashboard must be uploaded to a calculation server.7 This server uses the partial data to reconstruct the missing Sync Data blocks, effectively simulating the "handshake" that would occur if a valid key were present. This creates a dependency on "Calculation Services"—a topic explored deeply in Section 3.
+2.4 BCM Hardware Evolution: CAN-FD and FlexRay
+The Body Control Module (BCM) in the A3 8Y has also evolved, shifting to the 5H0 (Golf 8) and 8Y0 (A3) part number series. While the BCM is less critical for the initial "key make" process than the cluster, it serves as the gatekeeper for remote functions and central locking.
+* CAN-FD Protocol: The A3 8Y utilizes CAN-FD (Controller Area Network with Flexible Data-rate) for communication between the BCM and the OBD port. Legacy tools lacking CAN-FD transceivers cannot even communicate with the vehicle modules, necessitating hardware upgrades (e.g., Autel VCI V200 or newer).8
+* Component Protection: The BCM is tightly integrated into the Component Protection (CP) network. Replacing a BCM requires online adaptation via ODIS; unlike older models, cloning a BCM on MQB-Evo is exceptionally difficult due to the inability to fully extract the encrypted processor data that binds it to the Gateway.1
+
+
+  
+
+
+
+________________
+3. Aftermarket Tool Ecosystem: The 2026 Landscape (Gap 2)
+As of January 2026, the aftermarket tool industry has successfully "caught up" to the MQB-Evo platform, but the operational model has shifted. The "push-button" convenience of OBD programming has been replaced by a workflow that demands hardware disassembly, server-side data processing, and subscription-based licensing. The market is currently dominated by four major players, each offering a distinct approach to the A3 8Y problem.
+3.1 Xhorse (VVDI Key Tool Plus / VVDI2): The Hardware-Centric Leader
+Xhorse remains the most capable platform for the deep hardware manipulation required by MQB-Evo, positioning itself as the tool of choice for advanced locksmiths comfortable with circuit board work.
+* Capability Status: Fully Supported (Add Key & AKL) via Bench connection.
+* The Hardware Ecosystem: Xhorse has released the XDNPR8GL MQB-RH850/V850 Adapter, a specialized pogo-pin harness that clamps onto the dashboard PCB.5 This adapter is critical as it eliminates the need to cut traces or lift processor pins—a high-risk procedure that frequently destroyed clusters in the early days of MQB-Evo research.
+* The Workflow: To program an A3 8Y key, the user must remove the dashboard, connect the adapter, and use the "Key Tool Plus" tablet to read the Immo Data.
+* The Critical Caveat: Xhorse's software explicitly states that "AKL requires sync data from 3rd party".7 While the tool can read the dashboard and write the key, it cannot calculate the missing Sync Data internally for an AKL situation. The user must export the dashboard file, purchase the Sync Data from a broker (a gray market service), and then import it back into the tool. This effectively splits the solution: Xhorse provides the hardware access, but the user must source the cryptographic logic elsewhere.
+3.2 Autel (MaxiIM IM508S / IM608 PRO II): The Integrated Software Solution
+Autel has focused on streamlining the user experience, particularly regarding the SFD gateway, but lags slightly in raw hardware reading capabilities compared to Xhorse.
+* Capability Status: Strong Support for Add Key; Variable Support for AKL.
+* SFD Integration: Autel's primary strength is its native integration of the SFD Unlock token system.2 With a valid subscription, the tool automatically authenticates with VAG servers to open the diagnostic session, removing a significant friction point.
+* Processor Support: Autel supports the "MQB48 V850-type" clusters via the XP400 Pro programmer and the APB131 adapter.11 However, reports indicate that Autel's ability to calculate Sync Data without a working key is inconsistent. In "Add Key" scenarios (where a working key is present), Autel can "sniff" the ISK from the existing key via the ignition coil, making the process relatively smooth. In AKL, users often face "Calculation Failed" errors unless they also possess third-party data files to supplement the read.11
+3.3 OBDSTAR (Key Master G3): The Calculation Specialist
+OBDSTAR has emerged as a disruptive force in 2025/2026 by attacking the specific bottleneck of Sync Data.
+* Capability Status: Strong Contender for AKL.
+* The "Unlimited" Proposition: The Key Master G3 is marketed with a built-in "MQB all keys lost" calculation capability that claims to resolve the Sync Data internally without requiring per-transaction payments to third-party brokers.13
+* Hardware Architecture: The G3 utilizes a high-performance STM32H723 processor 14, giving it the onboard computational overhead to handle complex decryption tasks that older Android-based tablets might offload to the cloud. This positions OBDSTAR as a potentially more self-contained solution for high-volume shops that want to avoid the variable costs of data brokers.
+3.4 Lonsdor (K518 Pro): The "OBD-Only" Challenger
+Lonsdor continues to pursue "solder-free, disassembly-free" solutions, though their success on the A3 8Y is mixed.
+* Capability Status: Emerging/Partial Support.
+* Methodology: Lonsdor's "K518 Pro" advertises support for MQB-Evo without disassembly for specific software versions.15 They utilize a method of injecting a temporary "loader" file via the OBD port to gain memory access.
+* Limitations: This method is highly dependent on the specific "SW" version of the cluster. If the A3 8Y has been updated by the dealer to the latest 2025 firmware, the Lonsdor OBD exploit is often patched, reverting the user to the bench-mode requirement. Consequently, it serves as a robust "Plan A" tool but cannot be relied upon as the sole solution for a professional service.16
+3.5 The "Sync Data" Economy: A Critical Dependency
+The 2026 landscape is defined by the commoditization of Sync Data. Because the dashboard read is partial, the missing synchronization bytes must be reconstructed. This has birthed a secondary market of data brokers—often reachable via specialized forums or integrated tool plugins—who sell "Calculation Services."
+* Cost: The market rate for an A3 8Y Sync Data calculation ranges from $50 to $150 USD per vehicle.17
+* Process: The locksmith reads the dash, sends the binary file to the broker, and receives a "Matrix" or "Sync" file in return.
+* Risk: This introduces a data privacy and reliability risk. If the broker's server is down, or if the calculation is flawed, the generated key will fail to synchronize, potentially leaving the vehicle in a "defective" state with a corrupted immobilizer table.
+
+
+  
+
+
+
+________________
+4. S3 and RS3 8Y: The Performance Security Tier (Gap 3)
+The high-performance variants of the 8Y platform—specifically the S3 (2.0 TFSI) and the RS3 (2.5 TFSI 5-cylinder)—introduce a "Performance Tier" of security that effectively bifurcates the market. While the body electronics (BCM, Gateway) are shared with the standard A3, the powertrain control modules introduce a secondary, often insurmountable, barrier for aftermarket programming.
+4.1 Bosch MG1CS163 ECU Locking: The "H80" Wall
+The RS3 8Y utilizes the Bosch MG1CS163 Engine Control Unit (ECU). This unit features a sophisticated bootloader protection mechanism, colloquially known in the tuning industry as the "H80 Lock".18
+* The Mechanism: The ECU's TriCore Aurix processor is configured to reject all read/write attempts via the OBD port that do not possess a cryptographic RSA signature from the factory. Furthermore, the "Bench" pins typically used to bypass OBD locks are also disabled via firmware.
+* Immobilizer Implications: In legacy VAG architectures, the ECU stored a redundant copy of the Component Security (CS) data. In a scenario where the dashboard was destroyed (e.g., fire, flood, or theft damage), a locksmith could read the ECU to recover the CS and program a new cluster/key. On the RS3 8Y, this is impossible. The inability to read the MG1CS163 means there is no redundancy. If the dashboard is unreadable, there is no "backdoor" through the engine computer.
+* Unlock Services: While companies like Unitronic and APR offer "ECU Unlock" services for tuning purposes, these require physically shipping the ECU to their headquarters for proprietary bench unlocking.18 This workflow is viable for a performance enthusiast waiting weeks for a turbo upgrade, but it is wholly impractical for a locksmith attempting to resolve an AKL situation on the roadside.
+4.2 Component Protection and the DQ381 Transmission
+The integration of the DQ381 Gen 2 transmission (TCU) in the S3 and RS3 adds another layer of complexity.
+* Serialized Association: The TCU is cryptographically bound to the ECU and the Cluster. In standard A3 models, replacing a transmission might require a simple "Basic Settings" adaptation. In the RS3, the TCU is under strict Component Protection.
+* Impact on Repairs: If a locksmith attempts to swap a used dashboard into an RS3 to solve a lost key situation (a common tactic on older cars), the locked MG1 ECU and locked DQ381 TCU will likely reject the donor cluster's Immo credentials even if the adaptation seems successful. The vehicle will enter "Safe Mode" (immobilizer active) because the three-way handshake between Dash, ECU, and TCU fails. The "Performance Tier" vehicles effectively require that the original hardware be intact and functional; substitution is exponentially more difficult than on a base A3 8Y.
+4.3 The "Dealer-Only" Reality for RS Models
+Due to these constraints, the RS3 8Y largely remains a "Dealer-Only" vehicle for All Keys Lost scenarios if the dashboard cannot be read.
+* The Only Path: If the RH850 processor in the RS3 dashboard is damaged or resists the aftermarket adapter reading methods, the only recovery path is the official ODIS diagnostic tool.
+* Wolfsburg Connection: The dealer tool connects directly to the VAG FAZIT database in Wolfsburg, downloads the vehicle's identity, and authorizes a pre-ordered dealer key. The aftermarket cannot reconstruct this identity because the secondary node (the ECU) is a cryptographic black hole.
+________________
+5. Technical Workflow: All Keys Lost on A3 8Y
+Based on the capabilities of 2026 tools, the following is the definitive technical workflow for an All Keys Lost situation on an Audi A3 8Y. This procedure assumes the use of an Xhorse or Autel platform with the requisite hardware adapters.
+Step 1: Pre-Scan and Assessment
+* Action: Connect an OBD diagnostic tool to the vehicle.
+* Verification: Confirm the vehicle is indeed an MQB-Evo platform (look for "5H" or "8Y" identifiers in the module scan).
+* Battery Support: Connect a high-quality battery maintainer (min 30A). MQB-Evo modules are extremely sensitive to voltage fluctuation; a drop below 12.0V during reading can permanently corrupt the BCM or Gateway.
+Step 2: Component Removal (Dashboard)
+* Requirement: There is no reliable OBD-II solution for reading the Immo Data in an AKL scenario. The instrument cluster must be removed.
+* Procedure: Carefully remove the trim surrounding the Virtual Cockpit. Extract the cluster unit.
+* Identification: Identify the processor type. It will be a Renesas RH850 (R7F7 series).
+Step 3: Data Extraction (Bench Mode)
+* Hardware: Setup the programmer (e.g., Xhorse Key Tool Plus) with the XDNPR8GL MQB-RH850 Adapter.
+* Connection: Position the solder-free pogo pin adapter over the specific test points on the dashboard PCB. Apply even pressure and lock the adapter.
+* Execution: Select "MQB-Evo -> Dashboard -> Read Immo Data." The tool will perform a voltage glitch or backdoor injection to read the encrypted sectors.
+* Output: You will obtain a binary file containing the CS, MAC, PIN, and Power Class. Crucially, this data is incomplete for key generation.
+Step 4: Sync Data Acquisition
+* Analysis: The tool will likely prompt: "Sync Data missing."
+* Action (Option A - OBDSTAR/Advanced Tools): If the tool supports internal calculation, run the "Calculate Sync Data" function. This may consume "tokens" or require a specific license.
+* Action (Option B - Third Party): Export the "Immo Data" file. Upload this file to a third-party Sync Data broker. Pay the fee. Receive the calculated "Sync File" (usually a small bin file).
+Step 5: Dealer Key Generation
+* Hardware: Place a blank MQB-Evo compatible key (typically ID49/5C transponder, often requiring specific "Aftermarket" or "OEM" status depending on the tool) into the programmer's coil.
+* Input: Load both the Dashboard Immo Data file and the calculated Sync Data file into the "Make Dealer Key" function.
+* Write: The tool writes the synthesized identity onto the key transponder. The key is now "pre-coded" for this specific vehicle.
+Step 6: Key Learning (In-Vehicle)
+* Reassembly: Reinstall the dashboard into the vehicle.
+* Connection: Connect the programmer to the OBD port.
+* Authentication: Initiate the "Key Learning" function. The tool will request SFD authorization (Autel does this automatically; others may need a token).
+* Learning: When prompted, hold the newly generated key against the "Emergency Start Coil" (marked with a key symbol on the steering column shroud).
+* Confirmation: The dashboard screen should update from "0/2 Keys" to "1/2 Keys" (or "1/1").
+* Finalization: Cycle the ignition. Test the remote functions and engine start.
+
+
+  
+
+
+
+________________
+6. Distinguishing MQB-Evo from MLB: A Critical Note on Tool Selection
+A significant source of confusion in the 2026 aftermarket—exacerbated by ambiguous product marketing—is the distinction between MQB-Evo (A3 8Y, Golf 8) and MLB-Evo (A4 B9, Q5, Q7, A8). This confusion can lead to costly equipment errors.
+6.1 The "MLB Tool" Misconception
+Tools marketed as "Audi MLB Key Programmers" (such as the Xhorse VVDI MLB Tool or KYDZ MLB Tool) are specifically engineered for the longitudinal engine platform (MLB) vehicles.
+* Function: These tools interact with the BCM2 module found in the trunk of an A4 or Q5. They generate a key by manipulating the BCM2's specialized locking mechanism.
+* Incompatibility: The A3 8Y is a transverse engine platform (MQB-Evo). It does not have a BCM2. Its immobilizer is in the dashboard.
+* The Risk: A locksmith who purchases an "MLB Tool" expecting it to program "New Audis" including the A3 8Y will find the tool useless for this specific car. The protocols, data locations, and key transponder logic are fundamentally different.20
+6.2 Correct Categorization
+For the purpose of tool selection, the A3 8Y must always be grouped with the VW Golf 8 and Skoda Octavia IV. It shares no immobilizer DNA with the Audi A4 (B9) or Q5, despite sharing the badge. The correct tool license is always "MQB48/V850" or "MQB-Evo," never "MLB."
+________________
+7. Conclusion
+The Audi A3 8Y (2021-2024) stands as a testament to the escalating complexity of automotive security. The transition to MQB-Evo has successfully eradicated the "low-skill" attack vectors of the past. The simple OBD-II dongles that could program a key in minutes on an A3 8V are obsolete on this platform.
+In their place, a professionalized, capital-intensive ecosystem has emerged. Success in programming the A3 8Y now requires a tripod of capabilities:
+1. Precision Hardware: The ability to perform bench-level electronics work with solder-free adapters to read locked RH850 processors.
+2. Data Access: A reliable subscription or supply chain for "Sync Data," acknowledging that the hardware read alone is insufficient.
+3. Regulatory Compliance: The capacity to authenticate with the SFD gateway via legitimate tokens.
+For the RS3 and S3, the "H80" locked MG1 ECU creates a ceiling for the aftermarket. In cases of total dashboard failure, these performance models effectively revert to a "Dealer-Only" repair status, proving that while the aftermarket is resilient, the manufacturers retain the ultimate trump card in the form of hardware-level encryption. As 2026 progresses, we anticipate further integration of "Sync Data" calculation directly into tool firmware, potentially lowering costs, but the physical barrier of the locked dashboard processor will likely remain the defining characteristic of the A3 8Y's lifecycle.
+Works cited
+1. OBDeleven for Audi | Diagnostic & customization tool, accessed January 26, 2026, https://obdeleven.com/audi
+2. AUTEL VAG SFD Authorization 1 Time: Serial Number Required - AutelTool.us, accessed January 26, 2026, https://www.auteltool.us/products/autel-vag-sfd-authorization-1-time
+3. Autel VAG SFD Security Gateway Unlock Guide & Instruction, accessed January 26, 2026, http://www.autelscanner.org/autel-vag-sfd-security-gateway-unlock-guide-instruction/
+4. MQB – Past, Present, and future. Key programming IMMO V - Abrites, accessed January 26, 2026, https://abrites.com/blog/mqb-past-present-and-future-key-programming-immo-v
+5. XDNPR8GL - MQB - RH850 / V850 Adapter - For VVDI Key Tool Plus (Xhorse, accessed January 26, 2026, https://www.uhs-hardware.com/products/xdnpr8gl-mqb-rh850-v850-adapter-for-key-tool-plus-xhorse
+6. RH850/V850 Programmer for Locked ECUs Abrites, accessed January 26, 2026, https://abrites.com/products/abrites-rh850-v850-programmer
+7. Xhorse VAG MQB Add Key and All Keys Lost License for VVDI Key Tool Plu - Locksmith Keyless, accessed January 26, 2026, https://www.locksmithkeyless.com/products/xhorse-vag-mqb-add-key-and-all-keys-lost-license-for-vvdi-key-tool-plus-vvdi2-vvdi-prog
+8. 2025 Autel MaxiIM IM508S IMMO Key Programmer Tool All System Diagnostic Scanner | eBay, accessed January 26, 2026, https://www.ebay.com/itm/126926616712
+9. MQB-RH850V850 Adapter Read 3426 Dashboard Using KEY TOOL PLUS | Xhorse, accessed January 26, 2026, https://www.youtube.com/watch?v=5bXVdhJMpMo
+10. Jual Xhorse VAG MQB Add Key and All Keys Lost License for VVDI Key Tool Plus Pad, VVDI2 + VVDI Prog - Kab. Badung - Angsoetrakbit83 | Tokopedia, accessed January 26, 2026, https://www.tokopedia.com/angsoetrakbit83/xhorse-vag-mqb-add-key-and-all-keys-lost-license-for-vvdi-key-tool-plus-pad-vvdi2-vvdi-prog-1731557583412037030
+11. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 26, 2026, https://autel.us/autel-adds-24-25-immo-key/
+12. How to Calculate VAG MQB AKL Sync Data with Autel IM508 IM608?, accessed January 26, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/how-to-calculate-vag-mqb-akl-sync-data-with-autel-im508-im608
+13. KEYMASTER G3 IMMO Tool - OBDSTAR.com, accessed January 26, 2026, https://www.obdstar.com/Products_362.html
+14. OBDSTAR KeyMaster G3 Key Programmer - 2 Year License Subscription INCL, accessed January 26, 2026, https://yourcarkeyguys.com/products/obdstar-key-master-5-key-programmer-2-year-license-subscription-included-copy
+15. 2024 Lonsdor K518 Pro Full Version Key Programmer | 2 Years of Free Update, accessed January 26, 2026, https://yourcarkeyguys.com/products/2024-lonsdor-k518-pro-full-version-key-programmer-2-years-of-free-update
+16. K518 PRO Product Overview K518 Vehicle Compatibility List of K518 PRO - Key4, accessed January 26, 2026, https://www.key4.com/uploads/files/products/key_programming_devices/PD-LON-K518PRO/LON-K518PRO_Compatibility.pdf
+17. Auto Locksmiths - 3rd party Source for mqb data, volvo pin, etc. - Reddit, accessed January 26, 2026, https://www.reddit.com/r/Locksmith/comments/1o6snn6/auto_locksmiths_3rd_party_source_for_mqb_data/
+18. Unitronic Performance Software for 8Y RS3 (ROW Vehicles) - NOW AVAILABLE, accessed January 26, 2026, https://www.getunitronic.com/news/8y-rs3-software-row
+19. Unitronic Bosch MG1CS163 Unlocked ECU For 8Y Audi RS3 2.5TFSI - USP Motorsport, accessed January 26, 2026, https://www.uspmotorsports.com/product/unitronic-bosch-mg1cs163-unlocked-ecu-for-8y-audi-rs3-25tfsi-75772072
+20. Xhorse - VVDI Key Tool PLUS Tablet - All In One Key Tool - VW, Audi, Porsche - VAG Edition for Sale | UHS Hardware, accessed January 26, 2026, https://www.uhs-hardware.com/products/xhorse-vvdi-key-tool-plus-tablet-all-in-one-key-tool-vw-audi-porsche-vag-edition
+21. Xhorse - VVDI MLB Tool for VW Audi Key Adapter - Works with VVDI2, VVDI Key Tool Plus - UHS Hardware, accessed January 26, 2026, https://www.uhs-hardware.com/products/xhorse-vvdi-mlb-tool-for-vw-audi-key-adapter-works-with-vvdi2-vvdi-key-tool-plus

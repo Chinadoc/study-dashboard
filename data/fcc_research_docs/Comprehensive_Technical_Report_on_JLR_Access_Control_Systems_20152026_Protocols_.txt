@@ -1,0 +1,207 @@
+﻿Comprehensive Technical Report on JLR Access Control Systems (2015–2026): Protocols, Architectures, and Programming Methodologies
+1. Executive Summary: The Strategic Evolution of Vehicle Security
+The landscape of Jaguar Land Rover (JLR) access control has undergone a systemic metamorphosis over the decade spanning 2015 to 2026. This transformation has not been merely incremental but architectural, shifting from localized, Controller Area Network (CAN) based interactions to high-bandwidth, server-authenticated exchanges utilizing Diagnostics over Internet Protocol (DoIP) and Ultra-Wideband (UWB) time-of-flight metrics. For the automotive security professional, the implications of this shift are profound. The era of static key cloning is effectively over, replaced by a complex environment of cryptographic handshakes, secure gateway modules, and real-time cloud verification.
+This report provides an exhaustive analysis of the Keyless Vehicle Module (KVM) and Remote Function Actuator (RFA) ecosystems. It serves as a definitive technical reference for programming methodologies across the Land Rover (Range Rover, Defender, Discovery) and Jaguar (F-Pace, E-Pace, XE, XF, F-Type) platforms. The analysis identifies a critical divergence in serviceability: while pre-2018 vehicles remain accessible via direct EEPROM manipulation and standard OBD-II protocols, the post-2020 architectures—anchored by the K8D2 and M9R3 module generations—mandate a fundamental change in approach, often necessitating hardware replacement or sophisticated bus-injection techniques to bypass the "Secure" flags inherent in the Body Control Module (BCM) firmware.
+
+
+  
+
+
+
+The succeeding sections dissect the interplay between the Remote Function Actuator (RFA) and the vehicle's immobilization network, detailing the specific vulnerabilities and authorized service paths for each generation of hardware.
+2. Architectural Fundamentals of JLR PEPS Systems
+To master the programming of JLR keys, one must first comprehend the underlying hardware logic of the Passive Entry Passive Start (PEPS) system. Unlike earlier immobilizer systems where the key transponder communicated directly with an instrument cluster or a standalone immobilizer unit, the modern JLR architecture utilizes a distributed trust model.
+2.1 The Remote Function Actuator (RFA) vs. KVM
+Terminology in this sector is frequently conflated. The Keyless Vehicle Module (KVM) was the nomenclature used during the Ford-ownership era and carried over into the early Tata years (2010–2014), characterized by DPLA-prefixed modules.1 However, starting with the 2015 model year and the introduction of the FK72 architecture, the industry terminology shifted toward Remote Function Actuator (RFA). For the purpose of this report, RFA and KVM describe the same functional unit: the ECU responsible for receiving 315MHz or 433MHz signals from the remote fob and managing the Low Frequency (LF) antennas that detect the key's proximity.3
+The RFA does not act alone. It operates in strict coordination with the Body Control Module (BCM), also known as the Gateway Module (GWM) in newer architectures. The RFA validates the key's cryptographic signature, but it is the BCM that ultimately grants the "Start Authorization" via the High-Speed CAN or FlexRay bus. This distinction is vital because recent security updates (notably the L8B2 BCM update) have hardened the BCM against accepting "Add Key" commands from the RFA if the RFA is detected as being in an unsecured state.4
+2.2 Microcontroller Evolution and Memory Security
+The primary obstacle to aftermarket programming is the security architecture of the Microcontroller Unit (MCU) embedded within the RFA.
+The NXP/Freescale Era (2015–2018):
+The FK72 and HPLA modules utilize the MC9S12XEP100 or MC9S12XEQ384 microcontrollers from the Freescale (now NXP) S12X family.2 These chips contain partitioned memory: D-Flash (Data Flash) for storing key IDs and configuration data, P-Flash (Program Flash) for the operating system, and Emulated EEPROM (EEE).
+* Vulnerability: The earlier FK72 variants often left the Background Debug Mode (BDM) or secured reading ports accessible. This allowed tools to clip directly onto the MCU and read the D-Flash to extract the "Secret Key" (SK) required to program a new fob.2
+* Countermeasure: The HPLA generation introduced the "Secure" bit. While physically identical to FK72, the firmware locks the BDM port, preventing simple reading. Attempting to force a read without the correct un-securing algorithm can corrupt the P-Flash, resulting in a "bricked" module that renders the vehicle unresponsive.7
+The STMicroelectronics Era (2018–Present):
+With the shift to JPLA and K8D2 modules, JLR transitioned to the SPC560B60L3 MCU from STMicroelectronics.2 This architecture supports the faster DoIP protocol but introduces a different security paradigm. The memory layout is different, and the "Secure" status is more robust.
+* The OTP Trap: These MCUs utilize One-Time Programmable (OTP) sectors for storing the vehicle's unique security keys. Once an RFA is programmed to a specific VIN, these sectors are locked permanently. This explains why used JPLA/K8D2 modules cannot simply be "reflashed" for another car without replacing the MCU itself or utilizing specialized "virginizing" software that attempts to bypass the OTP check.8
+2.3 The UWB Paradigm Shift (2020+)
+The most significant recent development is the integration of Ultra-Wideband (UWB) technology, specifically in the K8D2 and M9R3 modules found in the Defender L663 and Range Rover L460. UWB acts as a "security layer" on top of the standard RF transmission. It measures the "Time of Flight"—the precise nanoseconds it takes for the signal to travel from the key to the car.
+* Relay Attack Mitigation: If a thief amplifies the signal from a key inside a house to a car in the driveway (a relay attack), the signal strength may be sufficient, but the time delay introduced by the amplification and the physical distance will be too high. The UWB system detects this discrepancy and rejects the start request.3
+* Programming Consequence: Aftermarket keys must possess UWB hardware to function correctly with these modules. Standard "Universal" smart keys often lack the UWB chip, meaning they might start the car if placed in the emergency slot (inductive coupling) but will fail to support Passive Entry (keyless access).11
+3. Module Taxonomy: A Definitive Identification Guide
+Navigating the JLR parts catalog requires a precise understanding of module prefixes. The following taxonomy is constructed from cross-referenced part numbers and engineering specifications found in the research data.
+3.1 FK72 Series (Legacy CAN)
+* Production Window: 2015 – Mid-2017.
+* Core Technology: CAN Bus communication.
+* Identification: Label starts with FK72-19H440.
+* Variants: 2-Plug (AG/AH suffixes) and 3-Plug (BC/BF suffixes). The 3-Plug variant typically supports Passive Entry (PEPS), while 2-Plug is for standard Remote Keyless Entry (RKE).2
+* Aftermarket Status: Highly accessible. Most tools (Autel IM608, Lonsdor K518) can program these via OBDII without removing the module, provided the alarm is not active.
+3.2 HPLA Series (Transitional DoIP)
+* Production Window: Mid-2017 – 2018.
+* Core Technology: DoIP enabled, but often retains legacy CAN backup.
+* Identification: Label starts with HPLA-19H440.
+* Security: This is the first "Secured" generation. The MCU is locked against reading.
+* Service Implication: Programming often requires removing the module to read the D-Flash on a bench programmer (e.g., XP400 Pro, Lock50 HW01) to generate a "Dealer Key" file before writing it back.2
+3.3 JPLA Series (Full DoIP)
+* Production Window: 2018 – 2020.
+* Core Technology: SPC560 MCU with full DoIP.
+* Identification: Label starts with JPLA-19H440.
+* Key Compatibility: Requires the newer style keys (often 315MHz for USA, 433MHz for EU).
+* Service Implication: High risk of data collision if programmed via OBD with an active alarm. The standard procedure for "All Keys Lost" involves replacing the RFA with a virgin module, as the locked MCU rejects new key IDs if the alarm state is "Armed".1
+3.4 K8D2 & J9C3 Series (UWB Enabled)
+* Production Window: 2020 – 2023.
+* Core Technology: UWB integration for Defender and new Range Rover.
+* Identification: Label starts with K8D2-19H440 or J9C3-19H440 (Jaguar E-Pace specific).
+* Security: Very High. The BCM (L8B2 version) aggressively polices the RFA. If the RFA is replaced, the BCM may refuse to synchronize unless the replacement is performed via the official TOPIx Cloud tool.4
+3.5 M9R3 Series (Next-Gen Architecture)
+* Production Window: 2024 – 2026.
+* Identification: Label starts with M9R3-19H440.
+* Core Technology: Enhanced UWB and hardened PEPS protocols.
+* Service Implication: Currently the frontier of research. While Lock50 claims OBD support for these, the primary reliable method remains the OEM TOPIx Cloud. The OTP sectors are heavily utilized, making "unlocking" used modules nearly impossible with current public methods.4
+4. The OEM Ecosystem: From Offline SDD to Cloud Control
+The methodology for programming JLR keys has shifted from software that lived on a technician's laptop to software that lives on the manufacturer's server. This transition is designed to enforce authorization and prevent the use of stolen or grey-market parts.
+4.1 Symptom Driven Diagnostics (SDD)
+For vehicles produced before the DoIP cut-over (roughly 2017), SDD remains the tool of record.
+* Offline Capability: SDD can function offline for basic diagnostics, but key programming often requires a "Seed-Key" calculator. In the past, technicians could use independent calculators to generate the response codes required to enter "Engineering Mode" and program keys.
+* Relevance: It remains essential for servicing the L322 Range Rover and early L405/L494 models. It natively supports the FK72 modules and can often recover a module that has been "bricked" by aftermarket tools by forcing a firmware update.14
+4.2 Pathfinder: The Brief DoIP Bridge
+Introduced for the 2017 L405 Facelift and the L462 Discovery, Pathfinder was built to handle the new DoIP architecture that SDD could not speed-match.
+* Architecture: It requires a DoIP-compliant VCI (such as the Bosch JLR VCI). Unlike SDD, Pathfinder was designed with more server dependencies.
+* Obsolescence: As of 2022, JLR has deprecated Pathfinder in favor of TOPIx Cloud. While it can still be used for diagnostics on 2017-2021 vehicles, its ability to download fresh firmware or security keys is severely limited without an active, legacy-supported account.19
+4.3 TOPIx Cloud: The Secure Fortress
+For all 2022+ vehicles (and recommended for all 2018+ DoIP models), JLR mandates TOPIx Cloud Diagnostics.
+* The Diagnostic Device Agent (DDA): The technician installs a lightweight client (DDA) that connects to the car via the VCI. However, the logic engine resides on JLR servers.
+* Security Check: Before allowing the "Add Key" routine, the Cloud checks the VIN against a central database. It verifies if the RFA module's serial number matches the build sheet. If a used RFA from another vehicle is detected (VIN Mismatch), the Cloud will reject the programming, often flagging the vehicle as "Tampered".19
+* Process: The process is strictly guided. The user must authenticate via 2-Factor Authentication, ensuring that every key programming event is logged to a specific technician's ID. This is the only method that guarantees the UWB parameters are correctly written to the new key, ensuring full Passive Entry functionality.10
+5. Aftermarket Support Methodologies and Risk Analysis
+The aftermarket sector has developed parallel methodologies to circumvent the restrictions imposed by the OEM ecosystem. These methods range from EEPROM cloning to brute-force CAN injection.
+5.1 The "All Keys Lost" (AKL) Active Alarm Problem
+The single biggest hurdle in aftermarket programming is the Active Alarm state. On JPLA and K8D2 vehicles, if the car is locked and the alarm is armed, the BCM effectively shuts down the OBDII port's diagnostic capabilities. It will not respond to "Wake Up" commands from a scan tool.
+* Divergent Workflows:
+   * OEM Method: The dealer orders a new "Blue Key" (Start Key) from the factory based on the VIN. When this key arrives, it can mechanically unlock the door (if cut correctly) and possesses a pre-programmed ID that the BCM might recognize for emergency start, allowing the alarm to be disarmed.
+   * Aftermarket Method 1 (Bus Injection): Tools like the Lock50 HW04 or Lonsdor JLR Cable utilize a technique known as CAN/DoIP Injection. By connecting to the CAN bus wires (often accessible via the headlight connector or a bundle in the trunk), the tool injects a "Disarm" frame that spoof's a valid key signal. This forces the BCM to wake up and disarm the alarm, re-enabling the OBD port for programming.5
+   * Aftermarket Method 2 (RFA Replacement): If injection fails, the technician must locate the RFA, unplug it, and replace it with a "Virgin" unit. Upon connecting the new unit, the BCM detects an unconfigured module and enters a "Learning Mode," which allows the programming of new keys. This is the preferred method for high-security 2023+ models where injection is patched.1
+
+
+  
+
+
+
+5.2 Tool-Specific Analysis
+Lonsdor (K518 Pro/ISE):
+Lonsdor has carved a niche by focusing heavily on JLR. Their proprietary "JLR License" allows for OBD programming of FK72 and HPLA modules. For JPLA/K8D2, they utilize a special "JLR Smart Key" that can be modified to emulate the specific response required by the RFA.
+* Strength: Excellent for 2015-2021 models. The "Write-to-Start" feature avoids module removal for many HPLA cars.
+* Weakness: Requires the specific Lonsdor key hardware; cannot always program OEM keys. Struggling with the active alarm on 2024+ models.23
+Autel (IM608 II / IM508S):
+Autel provides broad coverage but has faced setbacks with the 2024 security updates. The removal of explicit coverage lists for newer JLR models in 2024 suggests reliability issues.
+* Strength: Interface familiarity and strong support for bench reading (XP400 Pro) of removed HPLA modules.
+* Weakness: Recent updates to the BCM (L8B2) often block Autel's OBD attempts, leading to failed communications. It lacks the advanced bus-injection hardware found in Lock50.26
+Lock50 (HW04-C):
+A UK-based specialist tool designed specifically for the "Active Alarm" scenario. It claims the ability to program M9R3 modules and "Locked" RFAs without replacement by utilizing advanced emulation and alarm-bypass adapters (HW03C).
+* Strength: The only aftermarket tool explicitly claiming full OBD support for 2024+ M9R3 with active alarms.
+* Weakness: High cost and specialized interface. It relies on a "Token" or license model for advanced functions.4
+Abrites (AVDI):
+The engineering choice. Abrites uses a method of replacing the RFA logic with their own proprietary data structure, requiring the use of Abrites-specific keys (TA57/TA58/TA62).
+* Strength: Extremely high success rate because it fundamentally rewrites the module's operation to accept Abrites keys.
+* Weakness: Locks the customer into the Abrites ecosystem. You cannot use an OEM key once the system is converted.28
+6. Model-Specific Programming Guides
+The following sections detail the location of the KVM/RFA and the specific procedural nuances for each model family.
+6.1 Land Rover Defender (L663) (2020–2026)
+The Defender L663 is the flagship for the new architecture. It exclusively uses the K8D2 (early) and M9R3 (late) modules with UWB.
+* RFA Location:
+   * LHD Models: Typically located under the front passenger seat (North America/Europe Left-Hand Drive). It requires unbolting the seat to access the black plastic housing containing the module.
+   * RHD Models: Often found behind the glovebox or near the A-pillar kick panel.30
+* Key Profile: HU101 Emergency Blade.
+* Procedure (AKL with Active Alarm):
+   1. Access: Use Lishi HU101 to pick the door lock. Alarm will trigger.
+   2. Silence: Disconnect the battery negative terminal, wait 2 minutes, then reconnect. (Note: On M9R3 cars with backup sirens, this may not silence the sounder).
+   3. Connection: Connect the Lock50 HW04 tool with the "Alarm OFF" adapter bridging the CAN lines at the BCM (located in the passenger footwell).
+   4. Injection: Execute "Alarm Off" function. The hazards should stop flashing.
+   5. Programming: Once the alarm is off, proceed with "Add Key" via OBD. If the tool reports "RFA Locked," you must replace the K8D2 module with a virgin unit and run the "Replace RFA" routine.10
+6.2 Range Rover (L405 / L460) & Sport (L494 / L461)
+L405 / L494 (2015–2021):
+* 2015-2017 (FK72): Located in the rear left quarter panel (L405) or right rear (L494). Accessible via the access panel. Simple OBD programming is standard.
+* 2018-2021 (JPLA): Module location remains similar. Requires the 2018+ Key (ID49/Hitag Pro). Do not attempt to force flash via OBD if the alarm is active; brick risk is high. Use the "JLR Cable" method to wake the bus first.13
+L460 / L461 (2022–2026):
+* Architecture: Fully UWB dependent. M9R3 Modules.
+* Procedure: These vehicles are almost exclusively serviced via TOPIx Cloud. The aftermarket success rate is low without RFA replacement. The RFA is deeply buried in the rear loadspace electronics bay, requiring significant trim removal.
+* Key Note: The key fob must be the new "pebble" style (2022+ design). Older keys are physically incompatible with the LF/UWB antennas.33
+6.3 Jaguar F-Pace (X761) & E-Pace (X540)
+F-Pace X761:
+* KVM Location: Right side of the trunk, under the fuse box assembly. It is often mounted vertically.32
+* Module Type: FK72 (Early) -> JPLA (Late).
+* Risk: The F-Pace is notorious for water ingress in the rear module area. Always inspect the KVM connector for corrosion (blue/green crust) before attempting to program. Programming a water-damaged module will permanently brick it.35
+E-Pace X540:
+* KVM Location: Rear quarter panel.
+* Engineer Number: J9C3.
+* Nuance: The E-Pace often uses a specific "One Plug" or "Three Plug" variant of the J9C3 module depending on whether it has Passive Entry or just Remote Entry. Ensure the replacement module matches the plug configuration exactly.8
+7. Master Programming Database
+The following section provides the requested structured data in CSV format, encapsulating the model-year-module relationships and the associated programming logic.
+7.1 Database Specification
+* Model: Vehicle Model Code.
+* Year_Start / Year_End: Production range.
+* Module_Type: The RFA generation.
+* Protocol: Communication standard.
+* Procedure_Steps: A JSON object defining the high-level workflow.
+
+
+Code snippet
+
+
+
+
+Model,Year_Start,Year_End,Module_Family,Protocol,Key_Blade,Procedure_Steps_JSON
+"Range Rover L405",2015,2017,"FK72",CAN,"HU101","{""step1"": ""Connect OBD Tool"", ""step2"": ""Select Immo Status Scan"", ""step3"": ""Add Key (Alarm Independent)"", ""step4"": ""Place key on Shifter Coil"", ""step5"": ""Verify Lock/Unlock""}"
+"Range Rover L405",2018,2021,"JPLA",DoIP,"HU101","{""step1"": ""Check Alarm State"", ""step2"": ""If Alarm Active: Use Lonsdor JLR Cable or Lock50 to Disarm"", ""step3"": ""Connect OBD"", ""step4"": ""Execute JPLA Add Key"", ""step5"": ""If Locked: Replace RFA with Virgin Unit""}"
+"Range Rover L460",2022,2026,"M9R3",DoIP_UWB,"HU101_New","{""step1"": ""Authenticate TOPIx Cloud"", ""step2"": ""Connect Bosch VCI"", ""step3"": ""Select Key Programming -> Add Key"", ""step4"": ""Server Validates VIN/Module"", ""step5"": ""Write UWB Data to New Pebble Key""}"
+"Range Rover Sport L494",2015,2017,"FK72",CAN,"HU101","{""step1"": ""Connect OBD Tool"", ""step2"": ""Read D-Flash (Optional for AKL)"", ""step3"": ""Program Key via OBD"", ""step4"": ""Test Start""}"
+"Range Rover Sport L494",2018,2022,"JPLA",DoIP,"HU101","{""step1"": ""Identify Connector (2-Plug vs 3-Plug)"", ""step2"": ""If Alarm Active: Bench Unlock RFA or Replace"", ""step3"": ""Program via OBD w/ Adapter"", ""step4"": ""Verify Passive Entry""}"
+"Range Rover Sport L461",2023,2026,"M9R3",DoIP_UWB,"HU101_New","{""step1"": ""Method: TOPIx Cloud Only (Recommended)"", ""step2"": ""Verify BCM Status (L8B2 Update)"", ""step3"": ""If BCM Locked: Replace RFA & BCM (High Cost) or Use Lock50 HW04-C"", ""step4"": ""Program UWB Key""}"
+"Discovery L462",2017,2020,"HPLA/JPLA",DoIP,"HU101","{""step1"": ""Locate KVM (Rear Right)"", ""step2"": ""Determine HPLA (Bench Read) or JPLA (OBD)"", ""step3"": ""Unlock MCU if HPLA"", ""step4"": ""Write Dealer Key File"", ""step5"": ""Reinstall & Test""}"
+"Defender L663",2020,2023,"K8D2",DoIP_UWB,"HU101","{""step1"": ""Access RFA (Under Passenger Seat)"", ""step2"": ""If AKL: Force Ignition ON via Fuse Jump or Lock50 Adapter"", ""step3"": ""Program Virgin K8D2 RFA"", ""step4"": ""Sync with BCM"", ""step5"": ""Write UWB Key""}"
+"Defender L663",2024,2026,"M9R3",DoIP_UWB,"HU101","{""step1"": ""Check for 2024 Security Patch"", ""step2"": ""If Patched: Aftermarket OBD Failed. Use TOPIx"", ""step3"": ""Alternative: Lock50 HW04-C with Alarm-Off Cable"", ""step4"": ""Program New M9R3 Module""}"
+"Jaguar F-Pace X761",2017,2020,"HPLA/JPLA",DoIP,"HU101","{""step1"": ""Inspect KVM for Water Damage"", ""step2"": ""If HPLA: Use XP400 Pro to Read MCU"", ""step3"": ""Generate Key from Dump"", ""step4"": ""Write back to Module""}"
+"Jaguar E-Pace X540",2018,2023,"J9C3",DoIP,"HU101","{""step1"": ""Identify Passive vs Non-Passive (3-Plug vs 1-Plug)"", ""step2"": ""Replace J9C3 Module if Locked"", ""step3"": ""Program using JLR Path (Lonsdor/Autel)"", ""step4"": ""Verify Remote Functions""}"
+"Jaguar F-Type X152",2015,2018,"FK72/HPLA",CAN,"HU101","{""step1"": ""KVM Location: Footwell or Rear Bulkhead"", ""step2"": ""FK72: Direct OBD"", ""step3"": ""HPLA: Bench Unlock"", ""step4"": ""Program Key""}"
+"Jaguar XE X760",2016,2019,"HPLA/JPLA",DoIP,"HU101","{""step1"": ""KVM Location: Right Rear Quarter"", ""step2"": ""Standard DoIP Procedure"", ""step3"": ""Caution: Voltage Sensitivity - Use Power Supply""}"
+
+8. Conclusion and Future Outlook
+The trajectory of JLR's access control strategy is clear: total centralization. The introduction of the M9R3 module in 2024, coupled with the rigorous enforcement of TOPIx Cloud authentication, signals the end of the "casual" automotive locksmithing era for this brand.
+The industry is currently bifurcated. For pre-2020 vehicles, aftermarket tools like Lonsdor and Autel offer robust, cost-effective solutions that often surpass the OEM dealer service in speed and convenience. However, for the post-2022 fleet—specifically the UWB-equipped L663 and L460—the reliance on specialized, expensive hardware (Lock50) or the official OEM channel (TOPIx) is mandatory.
+Technicians must adapt by investing in DoIP-capable interfaces, maintaining valid security credentials (LSID/VSP), and stocking "virgin" RFA modules, as the ability to simply "add a key" to an existing, locked module is rapidly vanishing. The future of JLR key programming is not in cracking the code, but in obtaining the authorized credentials to write it.
+Works cited
+1. Land Rover / Jaguar KVM Key Programming - VEPro.ca, accessed January 8, 2026, https://vepro.ca/product/land-rover-jaguar-kvm-key-programming/
+2. KVM & BCM Programming - Land Rover, accessed January 8, 2026, https://www.jlridssddmongoose.com/land-rover-jaguar-kvm-programmer/?sort_by=price&sort_order=asc&layout=products_without_options&items_per_page=12¤cy=GBP
+3. THE ULTIMATE GUIDE TO MODERN JAGUAR/LAND ROVER KEY PROGRAMMING FROM AN ABRITES PERSPECTIVE. Abrites, accessed January 8, 2026, https://abrites.com/blog/the-ultimate-guide-to-modern-jaguar-land-rover-key-programming-from-an-abrites-perspective
+4. Range Rover key programming tool JLR Key Programming Services & Software & Tools, accessed January 8, 2026, https://lock50.co.uk/
+5. Release of the HW03C Alarm OFF All Keys Lost PEPS Locked RFA Keys Adapter kit 2017 TO 2024+ - Land Rover, accessed January 8, 2026, https://www.jlridssddmongoose.com/release-of-the-hw03c-alarm-off-all-keys-lost-peps-locked-rfa-keys-adapter-kit-2017-to-2024/
+6. SW 03 - FREE with Lock50 HW01 & HW04 Jaguar Land Rover Precoding Dealer Key Dump Tool FK72 HPLA DPLA for MCU MC9S12XEP100, accessed January 8, 2026, https://lock50.co.uk/home/sw-03-jlr-dump-tool-fk72-hpla-dpla-for-mcu-mc9s12xep100/
+7. JLR Remote Repair: Expert Support & 72hr Pro License - SX-Tool, accessed January 8, 2026, https://sx-tool.com/ar/jlr-remote-repair/
+8. Genuine Jaguar E-Pace KVM (RFA Module) - Without Passive Entry (J9C2796), accessed January 8, 2026, https://www.car-keys-online.com/genuine-jaguar-e-pace-kvm-rfa-module-without-passive-entry-j9c2796.html
+9. THE ULTIMATE GUIDE TO MODERN JAGUAR/LAND ROVER KEY PROGRAMMING FROM AN ABRITES PERSPECTIVE., accessed January 8, 2026, https://www.abritesusa.com/the-ultimate-guide-to-modern-jaguar-land-rover-key-programming-from-an-abrites-perspective
+10. How To Program 2022 Land Rover Defender Active Alarm All Keys Lost USA HW01 HW04 w Lock50 JLR Tool - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=dDYDh-mbfNs
+11. How To Program Spare or All keys Lost 2023 Land Rover Defender USA HW04 w Lock50 Fastest JLR Tool - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=JolOgDUjbIw
+12. TOPIX cloud JLR Accounts Avialble how To add Keys in Could software for PEPs cars after Alarm off - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=lrkmF-FPECw
+13. JLR Doctor KVM Module Range Rover Jaguar Key Programmer device - Simon Touch, accessed January 8, 2026, https://www.keyprogtools.com/key-programming/range-jaguar-key-programming/range-jaguar-key-programmer
+14. NEW Virgin KVM RFA Modules - Land Rover, accessed January 8, 2026, https://www.jlridssddmongoose.com/land-rover-jaguar-kvm-programmer/new-virgin-kvm-rfa-modules/?sort_by=timestamp&sort_order=desc&layout=products_without_options&items_per_page=48
+15. Lonsdor JLR 2015-2021 and Rover Jaguar License Software Activation - Key4, accessed January 8, 2026, https://www.key4.com/lonsdor-jlr-license-2015-2021-jaguar-land-rover-key-programming
+16. Genuine Jaguar Land Rover KVM (RFA Module) - New Type - PARTS NUMBER: J9C3-19H440-DF PEPS, accessed January 8, 2026, https://www.jlridssddmongoose.com/home/genuine-jaguar-land-rover-kvm-rfa-module-j9c3-19h440-df/
+17. English TOPIX cloud how To add Keys in Could software for PEPs cars after Alarm off and Ignition On, accessed January 8, 2026, https://landrover-jaguar-key-replacement.com/english-topix-cloud-how-to-add-keys-in-could-software-for-peps-cars-after-alarm-off-and-ignition-on/
+18. Can someone help me with SDD software? Can't figure out how to use it without logging into TOPix : r/LandRover - Reddit, accessed January 8, 2026, https://www.reddit.com/r/LandRover/comments/18m3lfq/can_someone_help_me_with_sdd_software_cant_figure/
+19. General Diagnostic FAQ's (G4142441) - TOPIx, accessed January 8, 2026, https://topix.jlrext.com/topix/service/procedure/1700886/ODYSSEY_GENERIC/G4142441/en_US?uid=G4142440
+20. How to Set Up Jaguar / Land Rover Factory Diagnostic TOPIx Cloud Diagnostics using IMS2, accessed January 8, 2026, https://www.youtube.com/watch?v=cjL8SEaILDA
+21. TOPIx Diagnostic Device Agent Topix cloud - Land Rover, accessed January 8, 2026, https://www.jlridssddmongoose.com/home/topix-vehicle-diagnostics-topix-cloud-diagnostics-account/
+22. 6.3 Integrated diagnostics (G3345251) - TOPIx, accessed January 8, 2026, https://topix.jlrext.com/topix/service/procedure/1694991/ODYSSEY_GENERIC/G3345251/en_US?uid=G3345249
+23. Lonsdor - JLR License - 2015–2021 Jaguar/Land Rover Key Programming vi, accessed January 8, 2026, https://royalkeysupply.com/products/lonsdor-jlr-license-2015-2021-jaguar-land-rover-key-programming-via-obd-write-to-start
+24. Lonsdor Range Rover 2015-2018 Smart Key 315MHz 5Pcs Bundle - ABKEYS, accessed January 8, 2026, https://abkeys.com/products/lonsdor-range-rover-jlr-2015-2018-smart-key-pcb-315mhz-5pcs-bundle
+25. Lonsdor JLR Land Rover & Jaguar License Software Activation - MK3, accessed January 8, 2026, https://www.mk3.com/lonsdor-jlr-land-rover-jaguar-license-software-activation
+26. Autel IM608 II Update New Update on Land rover Jaguar RFA/KVM Key Prog - AutelShop.us, accessed January 8, 2026, https://www.autelshop.us/blogs/autel-update-information/autel-im608-ii-update-new-update-on-land-rover-jaguar-rfa-kvm-key-programming
+27. Autel Website Removed KM100 IM508 IM608 Vehicle Coverage List?, accessed January 8, 2026, https://www.auteltool.us/blogs/autel-tech-solutions/autel-website-removed-km100-im508-im608-vehicle-coverage-list
+28. abrites key programming solutions for jlr vehicles, accessed January 8, 2026, https://abrites.com/news/abrites-key-programming-solutions-for-jlr-vehicles
+29. Jaguar & Land Rover Diagnostic Software & Tools Abrites, accessed January 8, 2026, https://abrites.com/page/abrites-diagnostics-for-jaguar-land-rover
+30. Unlocking the Defender L663: Top Remote Coding and Upgrades Available - SX-Tool, accessed January 8, 2026, https://sx-tool.com/en/unlocking-the-defender-l663-top-remote-coding-and-upgrades-available/
+31. L663 Add additional key fob - Autosvs Technology, accessed January 8, 2026, https://autosvs.com/en/product/l663-add-additional-key-fob/
+32. Jaguar Land Rover KVM Location Quick Guide - Yanhua Mini ACDP Tech Suport, accessed January 8, 2026, http://blog.yanhuaacdp.com/jaguar-land-rover-kvm-location-quick-guide/
+33. How To Program A 2025 Range Rover Key - Land Rover Solon, accessed January 8, 2026, https://www.landroversolon.com/how-to-program-a-2025-range-rover-key.htm
+34. Land Rover, Range Rover, Mk5 (L460) (2022-), Smart Key - Key Programming, accessed January 8, 2026, https://carkeyhelper.com/keys/land-rover/range-rover/mk5-l460-2022/a43bb048-a663-47a3-8c5c-b63c25799828/key-programming
+35. Jaguar F-Type F-Pace Spare Key Programming a Breeze using HW04-B Tools, accessed January 8, 2026, https://landrover-jaguar-key-replacement.com/jaguar-f-type-f-pace-spare-key-programming-a-breeze-using-hw04-b-tools/
+36. Genuine Jaguar E-Pace KVM (RFA Module) - Without Passive Entry (J9C2796) ENGINEER NUMBER J9C3 - Land Rover, accessed January 8, 2026, https://www.jlridssddmongoose.com/home/genuine-jaguar-e-pace-kvm-rfa-module-without-passive-entry-j9c2796-engineer-number-j9c3/

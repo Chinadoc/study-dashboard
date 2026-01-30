@@ -1,0 +1,166 @@
+﻿Technical Dossier: 2019 Alfa Romeo Stelvio (949) & Stellantis Giorgio Platform Security Architecture
+1. Introduction: The Giorgio Paradigm and the Security Shift
+The automotive landscape of the late 2010s marked a definitive transition from purely mechanical engineering to software-defined vehicle architectures. At the forefront of this shift within the Fiat Chrysler Automobiles (FCA)—now Stellantis—portfolio was the Giorgio platform. Codenamed during its development, the Giorgio architecture was designed to resurrect the sporting soul of Alfa Romeo, debuting first in the Giulia (Type 952) and subsequently in the Stelvio (Type 949). While the platform is celebrated for its rigid chassis, 50/50 weight distribution, and carbon-fiber driveshafts, its electronic architecture represents an equally radical departure from its predecessors.
+The 2019 Alfa Romeo Stelvio serves as a primary case study for the modern "connected but secured" vehicle. Unlike previous generations of FCA vehicles (such as those on the CUSW or Small Wide platforms), the Giorgio platform was engineered in an era of heightened cybersecurity awareness. The defining feature of this era is the Security Gateway Module (SGW). This hardware firewall fundamentally alters the relationship between the independent repair industry and the vehicle. It signals the end of open Controller Area Network (CAN) access and introduces a regime of authenticated diagnostics.
+For the security researcher, locksmith, or advanced technician, the 2019 Stelvio presents a complex lattice of interdependent modules: the Body Control Module (BCM), the Radio Frequency Hub (RFHub), and the Engine Control Module (ECM). These are not merely connected; they are cryptographically bound. The transition to 128-bit Hitag-AES encryption for immobilizer keys, replacing the older and more vulnerable ID46 standards, renders traditional cloning tools obsolete. Furthermore, the physical disposition of these modules—buried behind reinforced trim panels and integrated into sub-assemblies—demands a level of mechanical intimacy with the vehicle that matches the electronic expertise required to service it.
+This dossier provides an exhaustive technical analysis of the security topology of the Type 949 Stelvio. It explores the mechanisms of the SGW, the vulnerabilities of the RFHub during programming, and the precise, often undocumented procedures required to bypass these defenses for legitimate service. It also conducts a rigorous cross-platform analysis, distinguishing the "true" Giorgio architecture from the often-confused Maserati M156 platform (Levante/Ghibli), clearing the fog of war that often surrounds high-end Italian diagnostic procedures.
+2. Network Topology and the Security Gateway (SGW)
+To understand the security logic of the 2019 Stelvio, one must first visualize its nervous system. The vehicle does not utilize a single, monolithic network. Instead, it employs a segmented architecture where critical control domains are isolated from external interfaces.
+
+
+  
+
+
+
+2.1. The Firewall Architecture
+In pre-2018 FCA architectures, the OBD-II Data Link Connector (DLC) was wired in parallel with the vehicle's primary CAN bus. Pins 6 (CAN High) and 14 (CAN Low) provided a direct physical tap into the stream of data flowing between the BCM and ECM. Any device plugged into the port could not only listen (sniff) to traffic but also inject messages (spoofing) to unlock doors, lower windows, or start the engine, provided the encryption keys were known or the protocol was vulnerable.
+The Giorgio platform introduces a physical segregation. The wires from the OBD-II port terminate immediately at the Security Gateway Module (SGW). The SGW effectively splits the vehicle into two domains:
+1. The Public Domain: The OBD-II port itself and the short wiring run to the SGW.
+2. The Private Domain: The internal vehicle networks, including the C-CAN (Chassis/Powertrain High Speed) and B-CAN (Body/Interior Low Speed).
+The SGW functions as a packet filter. It maintains an Access Control List (ACL) that dictates what traffic can cross the bridge from Public to Private.
+* Read Access (Allowed): Standard diagnostic queries (Mode $01, Mode $03) are typically permitted. This ensures that emissions testing stations and basic code readers can still function for state inspections.1
+* Write Access (Blocked): Active commands are strictly prohibited by default. This includes "Clear DTCs," "Actuation Tests," "Proxi Alignment," and crucially, "Key Programming".1
+2.2. The Authentication Mechanism
+When a technician attempts to perform a write action—such as clearing a Check Engine Light or programming a key—the diagnostic tool sends a request to the SGW. The SGW responds with a cryptographic challenge (a "seed"). The tool must then calculate the correct "key" based on a proprietary algorithm held by Stellantis.
+This "seed-key" exchange is the heart of the security. In the 2019 Stelvio, the algorithms are robust enough that they cannot be brute-forced in a reasonable timeframe. Authorized tools, such as the dealership's wiTECH 2.0, connect via the internet to Stellantis' central servers (DealerCONNECT). The tool sends the seed to the server, the server calculates the key using the master database, and sends it back to the tool, which then unlocks the gateway. This entire loop is known as the AutoAuth protocol in the aftermarket world.3
+2.3. The Physical Reality: Bypass vs. Software
+For the independent professional, the existence of the SGW creates a binary decision tree: either authenticate digitally or bypass physically.
+Route A: The Digital Path (AutoAuth)
+Modern aftermarket scanners (Autel IM608, Snap-on Zeus, etc.) have integrated AutoAuth capability. The user registers with AutoAuth, pays an annual subscription, and the scanner performs the handshake over Wi-Fi.
+* Limitation: While effective for maintenance resets (e.g., oil lights), experience in the field suggests that the AutoAuth protocol on aftermarket tools is not always stable for high-risk operations like immobilizer programming.4 The latency in the server challenge-response can cause timeouts during delicate timing windows required by the RFHub. Consequently, many locksmiths view AutoAuth as a convenience for diagnostics but a liability for key programming.
+Route B: The Physical Path (12+8 Bypass)
+The "12+8" bypass is the industry standard for 2019+ FCA vehicles. It involves physically disconnecting the SGW and replacing it with a jumper harness that connects the "Public" side directly to the "Private" side, effectively removing the firewall from the circuit.
+* The "12+8" Nomenclature: The SGW on the Giorgio platform utilizes two primary connectors: a 12-pin connector (carrying power and some network lines) and an 8-pin connector (carrying the primary diagnostic CAN lines). The bypass cable mimics these male/female connectors to create a bridge.2
+2.4. Locating the SGW in the Stelvio
+The location of the SGW is a frequent point of frustration, described colloquially by technicians as a "PITA" (Pain In The Ass).6
+* Position: In the 2019 Stelvio, the SGW is mounted high under the dashboard on the driver's side (for LHD vehicles), specifically attached to the steering column support structure or the body control stack to the left of the column.7
+* Access Procedure: It is not immediately visible. Access typically requires removing the lower dash trim or the small storage compartment (sometimes called the "cubby") to the left of the steering wheel. This usually involves removing a Torx screw inside the compartment and popping the clips.7
+* Technique: The connectors are often mounted "blind," meaning the technician must reach up, feel for the module—identifiable by its shape and the two distinct plugs—and release the locking tabs by feel. The 12-pin and 8-pin connectors are keyed differently to prevent cross-connection, but the tight space makes leverage difficult.7
+3. Immobilizer Architecture: The RFHub and BCM
+Once the network security (SGW) is navigated, the technician encounters the vehicle's immobilizer system. The 2019 Stelvio does not use a traditional "Immobilizer Box" or instrument cluster-based system. Instead, security is orchestrated by the Radio Frequency Hub (RFHub).
+3.1. The RFHub: The Master of Keys
+The RFHub is a dedicated ECU responsible for all remote frequency communications. It handles the signals from the Tire Pressure Monitoring System (TPMS) and, critically, the Keyless Entry/Go system.
+* Role: When the "Start" button is pressed, the RFHub polls the cabin antennas. If a valid key is detected, the RFHub validates the key's cryptographic signature. If valid, it sends a "Start Authorized" message over the secure CAN bus to the BCM and ECM.
+* Physical Location: Unlike the SGW, the RFHub is located in the rear of the vehicle. It is mounted behind the rear seat backrest or in the trunk area, often requiring the removal of the rear bench seat or the trunk side paneling to access.8
+* Vulnerability (The "Brick" Risk): The RFHub in the Giorgio platform is notoriously sensitive to voltage fluctuations and data interruptions. A specific failure mode, identified by DTC B1042-42 (General Memory Failure), has plagued the aftermarket.10 This error typically occurs during the "Read PIN" or "Program Key" phase if the battery voltage drops below 12.5V or if the programming tool's timing is off.
+   * Consequence: Once B1042-42 is set, the module is effectively "bricked." The vehicle may enter a lockout state, the odometer may flash (indicating a Proxi misalignment), and the TPMS system will fail. The only reliable fix is module replacement.10
+3.2. Body Control Module (BCM) Characteristics
+The BCM acts as the central gateway for body electronics (lights, locks, windows) and stores the vehicle's configuration data (Proxi configuration).
+* Part Numbers: The 2019 Stelvio typically uses BCM part number 50552982 (and its supersessions).11
+* Variant Coding: It is critical to note that the BCM hardware is often shared between the base 2.0L Stelvio and the high-performance Quadrifoglio (2.9L), but the software configuration is drastically different. The Quadrifoglio BCM manages complex active aerodynamics (the active front splitter) and the torque-vectoring rear differential. Swapping a BCM from a donor vehicle requires a comprehensive Proxi Alignment to synchronize the CAN bus node list. Failure to do so will result in a "Christmas tree" dashboard with errors for missing or unexpected modules.12
+3.3. Key Fob Technology: Hitag-AES
+The 2019 Stelvio abandoned the older Philips Crypto 2 (ID46) transponder technology found in older FCA vehicles (and the Maserati Levante).
+* Transponder: The key utilizes an NXP Hitag-AES (128-bit) chip. In locksmith nomenclature, this is often referred to as an ID4A or "4A" chip.14
+* Encryption: The AES (Advanced Encryption Standard) algorithm means that the communication between the key and the car is highly secure. Unlike older 40-bit or 80-bit systems, AES keys cannot be "cloned" (copied from an existing key to a blank). Every key must be cryptographically paired to the RFHub via the OBD programming process.17
+* Frequency: The Stelvio uses 433.92 MHz for its remote functions.
+   * Anomaly: In the North American market, most manufacturers (including legacy FCA) use 315 MHz. However, the Giorgio platform (Stelvio/Giulia) utilizes 433 MHz globally, including in the United States.15 This is a crucial detail for procuring aftermarket keys; buying a "US Spec" 315 MHz key generic to Dodge/Jeep will result in failure. The FCC ID for the correct US key is KR5ALFA434.18
+4. Comprehensive Key Programming Procedures
+Programming keys to the 2019 Stelvio is a high-stakes operation due to the RFHub's sensitivity. The following procedure synthesizes best practices from the field to minimize the risk of module corruption.
+4.1. Preparation and Safety
+Before connecting any tool, the technician must secure the vehicle's power supply.
+* Voltage Stabilization: Connect a high-quality battery maintainer (not just a trickle charger) capable of supplying at least 13V constant. The "Read PIN" process involves the RFHub performing intensive calculations and writing to its EEPROM; a voltage sag during this write cycle is the primary cause of the B1042-42 corruption.10
+
+
+  
+
+
+
+4.2. Step-by-Step Programming Narrative
+Phase 1: Establishing Connection
+1. Bypass Installation: Locate the SGW under the steering column. Disconnect the 12-pin and 8-pin connectors and plug them into the "12+8" Bypass Cable. Connect the OBD-II end of the cable to your programmer (e.g., Autel IM608, Smart Pro).
+2. Vehicle Selection: Select "Alfa Romeo" -> "Stelvio" -> "2017-2019" -> "Smart Key". Note: Even if the car is a 2019, selecting the 2017-2019 menu is often more stable than the 2020+ menu unless the software specifically guides otherwise.
+Phase 2: PIN Code Extraction
+1. Select "Read Immo Data" or "Read PIN".
+2. The tool will communicate with the RFHub. This process is slow. It may take 5 to 10 minutes. The dashboard may flash or go dark. Do not interrupt this process.
+3. Upon success, the tool will display a 4-digit or 5-digit PIN code. Write this down immediately.
+Phase 3: Key Learning
+1. Select "Add Smart Key".
+2. The tool will verify the PIN (either auto-filled or manually entered).
+3. Key Placement: The tool will prompt to "Place the Smart Key on the Start Button" or "In the Console Slot".
+   * The Sweet Spot: In the Stelvio, the emergency detection coil is located in the center console. It is often at the bottom of the forward cup holder or a marked symbol in the storage bin. For programming, it is best to place the key flat against this symbol.21
+4. Trigger the learning command. The vehicle will write the Key ID to the RFHub and the Vehicle ID to the Key.
+5. Verification: Once the "Learning Successful" message appears, exit the software before testing the remote. Test Lock, Unlock, and Trunk. Finally, test the Proximity Start by keeping the key in your pocket and pressing the Start button.
+4.3. Emergency Start Procedure (Dead Battery)
+If a user is stranded with a dead key fob battery, the 2019 Stelvio has a robust contingency.
+1. Entry: Press the small button on the side of the key fob to release the mechanical emergency blade (SIP22). Use this blade in the driver's door lock cylinder to gain entry.21
+2. Start: The dashboard will display "Key Fob Not Detected." Place the nose (non-key-ring end) of the fob directly against the Start/Stop button, or more reliably, place the entire fob into the center console emergency slot (often located in the cup holder base). The passive RFID coil will energize the transponder chip even without a battery, allowing the engine to start.22
+4.4. Dealing with "All Keys Lost" (AKL)
+In an AKL situation where the alarm is active, the OBD port (even with SGW bypass) may be unresponsive because the BCM has locked down communication to prevent theft.
+* The Star Connector Method: In these cases, technicians may need to tap directly into the CAN bus. While less common on the Stelvio than the Maserati, accessing the Star Connector (CAN distribution block) or connecting directly to the RFHub connectors in the trunk can bypass the alarm lockdown.
+* The RFHub Replacement: If communication is impossible, or if the RFHub is corrupted (B1042-42), the module must be replaced. A new "virgin" RFHub allows for a fresh start. The programming tool will perform a "Replace RFHub" function, which burns the vehicle's VIN into the new unit. Warning: This is a one-time event. Once a VIN is written to an RFHub, it cannot be overwritten. Used RFHubs are generally useless unless they have been "virginized" by a specialist on a bench.8
+5. Cross-Platform Analysis: Giorgio vs. Maserati
+A critical requirement of this dossier is to clarify the relationship between the Stelvio and its corporate cousins in the Maserati lineup. Confusion here is dangerous; using Stelvio procedures on a Maserati Levante can lead to diagnostic failures or module lockouts.
+5.1. The Platform Divergence
+Despite sharing the "Italian Luxury SUV" market segment and parent company, the 2019 Alfa Romeo Stelvio and the 2019 Maserati Levante sit on fundamentally different architectures.
+* Stelvio (Type 949): Built on the Giorgio Platform. This is a clean-sheet design developed specifically for Alfa Romeo (and later Jeep/Maserati Grecale). It features the 12+8 SGW, RFHub-centric immobilizer, and Hitag-AES keys.
+* Maserati Levante (M161) & Ghibli (M157): These vehicles are built on a highly evolved version of the Chrysler LX platform (sometimes called M156 architecture). Their electronic lineage traces back to the Chrysler 300 and Mercedes-Benz E-Class (W211) era.26
+5.2. Procedural Differences
+The diagnostic approach for these two platforms is distinct.
+* Diagnostic Connection:
+   * Stelvio: Requires the 12+8 Bypass Cable at the SGW module under the dash.
+   * Levante: While 2018+ Levantes do have an SGW, key programming often utilizes a Star Connector bypass. The Star Connector is a CAN bus junction block, often located in the passenger footwell (under the carpet or behind the glovebox). Technicians plug a specific adapter (like the ADC-2011) into an open port on this block to communicate directly with the CAN-C bus, bypassing the gateway entirely.28
+* Key Technology:
+   * Stelvio: Hitag-AES (ID4A). 433 MHz.
+   * Levante: ID46 (PCF7953). This is the older "Hitag 2" extended protocol. It operates on 433 MHz (or 315 MHz in some older markets, though 433 is standard for European-derived Maserati). You cannot program a Stelvio key to a Levante.30
+
+
+  
+
+
+
+6. Maintenance and Service Resets
+The SGW's influence extends beyond keys. Routine maintenance on the 2019 Stelvio is also gated.
+6.1. The Oil Life Trap
+A common issue for owners and quick-lube shops is the "Oil Change Required" message.
+* The Trap: Resetting the oil life in the infotainment menu does not clear the message on the dashboard or the ECU's internal counter.
+* The Solution: A diagnostic tool with SGW access is required to perform a "Service Interval Reset" in the Instrument Panel Cluster (IPC) and an "Oil Change Reset" in the Engine Control Module (ECM). Both must be done. If the SGW bypass is not used, the tool will report "Success" but the light will remain on because the Write command was silently blocked by the gateway.1
+6.2. Battery Replacement and IBS
+The Stelvio uses an AGM battery with an Intelligent Battery Sensor (IBS) on the negative terminal.
+* Procedure: When replacing the battery, the IBS usually self-calibrates after a few hours of sleep/drive cycles. However, forcing a BMS (Battery Management System) reset via a diagnostic tool is recommended to ensure the Alternator charges at the correct rate immediately.
+* Relevance to Security: A failing battery or poor IBS connection causes voltage spikes that can wake up the alarm system or corrupt the RFHub. Keeping the battery terminals clean and the IBS intact is a preventative security measure.20
+7. Aftermarket Considerations
+7.1. Key Fob Durability and Shells
+The OEM Stelvio key is often criticized for its bulk and the sensitivity of the panic button.
+* Panic Button: The panic button is large and easily triggered in a pocket. Many users modify the fob or use silicone covers to recess the button.33
+* Shell Replacement: The market is flooded with aftermarket shells, including "Real Carbon Fiber" options. While aesthetically pleasing, technicians should be wary of shells containing real carbon fiber as it can attenuate the RF signal, reducing range and potentially interfering with the passive entry handshake.34
+* Battery Access: The battery (CR2032) is accessible by sliding the mechanical latch and removing the back cover. No tools are required, making it easy for owners to service.35
+8. Conclusion
+The 2019 Alfa Romeo Stelvio represents a watershed moment in automotive security design. By integrating the Security Gateway Module (SGW) on the Giorgio platform, Stellantis effectively deprecated the era of open-access diagnostics. For the security professional, servicing this vehicle requires a shift in mindset: from "plug and play" to "authenticate and authorize."
+The technical demands are high. The RFHub's vulnerability to voltage fluctuation 10, the strict requirement for Hitag-AES transponders 17, and the physical necessity of the 12+8 bypass 2 create a narrow path to success. Furthermore, the distinction between the Giorgio-based Stelvio/Giulia and the legacy-based Maserati Levante 26 is paramount to avoiding costly diagnostic errors.
+As these vehicles exit their warranty periods, the aftermarket's ability to navigate the SGW architecture—whether through physical bypasses or the maturation of the AutoAuth ecosystem—will define the repairability of the Giorgio fleet. The 2019 Stelvio is not just a car; it is a secured network on wheels, and it demands to be treated as such.
+Works cited
+1. Alfa Romeo Stelvio/Giulia SGW Bypass install & maintenance reset - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=xwmxSoOTtTs
+2. FCA SGW MODULE | Bypass, Installation, & Info - eurocompulsion, accessed January 3, 2026, https://shopeurocompulsion.net/blogs/installation-database/fca-sgw-module-bypass-installation-info
+3. AutoAuth: Homepage, accessed January 3, 2026, https://info.autoauth.com/
+4. Autoauth : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1j6y6e7/autoauth/
+5. 2018-2023 ALFA ROMEO STELVIO BYPASS CABLE LOCATION FOR KEY PROGRAMMING USING 2 PIN BYPASS CABLE - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=SsnipfAGUjc
+6. Alfa Romeo stelvio/gulia SGW install - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=p3c5N2ZrnNY
+7. SGW bridge - Squadra Tuning, accessed January 3, 2026, https://squadra-tuning.com/obd-tools/sgw-bridge/
+8. RF hub, question in comments. : r/ram_trucks - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ram_trucks/comments/11ut59k/rf_hub_question_in_comments/
+9. RF Hub Installation Location / Seat Removal - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=ZGDYekifYAc
+10. Recovering from key programming error - Autel Support Communities, accessed January 3, 2026, https://bbs.autel.com/autelsupport/Diagnostics/36996.jhtml
+11. 2017-2023 Alfa Romeo Stelvio Bcm Body Control Module OEM - SH Motors, accessed January 3, 2026, https://www.shcarparts.com/products/2017-2023-alfa-romeo-stelvio-body-control-module-unit-bcm-bcu-oem
+12. 2018 - 2025 ALFA ROMEO STELVIO BCM BODY CONTROL ... - eBay, accessed January 3, 2026, https://www.ebay.com/itm/389277065267
+13. 2018 2024 Alfa Romeo Stelvio OEM BCM Body Control Module, accessed January 3, 2026, https://www.ebay.com/itm/177712531938
+14. Alfa Romeo Giulia Stelvio Keyless Smart Remote Key 3 buttons 433Mhz FCCID: KR5ALFA434 - MK3, accessed January 3, 2026, https://www.mk3.com/alfa-romeo-giulia-remote-key-3-button-433mhz-kr5alfa434
+15. 2017-2024 Alfa Romeo Giulia | Stelvio 5B Smart Key KR5ALFA434 - Your Car Key Guys, accessed January 3, 2026, https://yourcarkeyguys.com/products/2017-2022-alfa-romeo-giulia-stelvio-5b-smart-key-kr5alfa434
+16. OEM Smart Key for Alfa Romeo Giulia/Stelvio Buttons:3 / Frequency: 433MHz / Trasnponder: HITAG 128-Bit AES / Blade signature: SIP22 / Immobiliser System: BCM / Keyless Go - SOS Autokeys, accessed January 3, 2026, https://auto-keys.eu/oem-smart-key-for-alfa-romeo-giulia-stelvio-buttons-3-frequency-433mhz-trasnponder-hitag-128-bit-aes-blade-signature-sip22-immobiliser-system-bcm-keyless-go-565629457
+17. Alfa Romeo Stelvio Car Key – Smart Key AES, Remote & Replacement | KeyFirst, accessed January 3, 2026, https://www.keyfirst.eu/en/6100-stelvio
+18. 2022 Alfa Romeo Giulia Stelvio Smart Key 5B Trunk / Remote Star - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2017-2022-alfa-romeo-giulia-stelvio-smart-key-5b-trunk-remote-start-fcc-kr5alfa434
+19. Remote Keyless Entry Systems Overview - Analog Devices, accessed January 3, 2026, https://www.analog.com/en/resources/app-notes/remote-keyless-entry-systems-overview.html
+20. Alfa Romeo Giulia/Stelvio Battery Post Cleaning and Starter Relay Location - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=1gvideReALA
+21. Unlock, Open & Start 2017 - 2022 Alfa Romeo Stelvio With A Dead Remote Key Fob Battery, accessed January 3, 2026, https://www.youtube.com/shorts/dD-xRyI_0qg
+22. How To Start Your Alfa Romeo Giulia and Stelvio When Your Key Fob Battery Dies! #shorts, accessed January 3, 2026, https://www.youtube.com/shorts/au3k9Rvirks
+23. 2018 Alfa Romeo Stelvio Owner's Manual, accessed January 3, 2026, https://www.alfaromeo.ca/documents/alfaromeo/stelvio/2018/2018-Alfa_Romeo-Stelvio_Base-OM-3rd_R1.pdf
+24. 2022 Alfa Romeo Stelvio - KEY FOB NOT DETECTED - How To Start With Dead Remote Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/shorts/vaco8UaFIhY
+25. Resetting your RF Hub after a Push Button Conversion (or you just had to replace the hub), accessed January 3, 2026, https://www.youtube.com/watch?v=CNwWHbK4bJk
+26. FCA Giorgio platform - Wikipedia, accessed January 3, 2026, https://en.wikipedia.org/wiki/FCA_Giorgio_platform
+27. 2022 Alfa Romeo Stelvio programming a proximity key with Gateway Security - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=aUwKJcUuulM
+28. STAR CONNECTOR LOCATION(bypass cable for key programming) FOR 2018 - 2020 MASERATI GHIBLI - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=pnuHJcd-tvo
+29. Rock'n with the Rock presents 2020 Maserati Levante smart key programming via Smart Pro, accessed January 3, 2026, https://www.youtube.com/watch?v=g89d8u9buHA
+30. 4 Button Smart Keyless Go Remote Key 433MHz ID46 Chip for Maserati Quattroporte President Ghibli Levant 2012-2015 M3N-7393490 - AliExpress, accessed January 3, 2026, https://www.aliexpress.com/item/1005004305260515.html
+31. Genuine Maserati Quattroporte, Ghibli 2012-2021 Smart Key, 4Buttons 5923335AG 433MHz, M3N-7393490 - ABKEYS, accessed January 3, 2026, https://abkeys.com/products/maserati-quattroporte-ghibli-smart-key-4buttons-433mhz-m3n-7393490-2267
+32. Alfa Romeo Stelvio DIY Battery Replacement | Electrical Problems Solved - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=cjPr4TU-3wI
+33. Alternative (slimmer) key fobs? : r/AlfaRomeo - Reddit, accessed January 3, 2026, https://www.reddit.com/r/AlfaRomeo/comments/1jk5qdu/alternative_slimmer_key_fobs/
+34. Gloss Real Carbon Fiber Key Fob Shell Cover For Alfa Romeo Giulia Stelvio 2017+ | eBay, accessed January 3, 2026, https://www.ebay.com/itm/355606423817
+35. Key Fob Battery Replacement | How To | 2023 Alfa Romeo Stelvio - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=TcnIPZUlxKY

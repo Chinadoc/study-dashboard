@@ -1,0 +1,215 @@
+﻿Advanced Diagnostic Protocols: Volvo SPA and CMA Key Programming (2016–2026)
+1. Executive Summary
+The automotive security landscape has undergone a radical and deliberate transformation over the past decade, a shift that is nowhere more visible or operationally impactful than in the architecture of Volvo’s Scalable Product Architecture (SPA) and Compact Modular Architecture (CMA) platforms. From the introduction of the second-generation XC90 in 2016 to the fully electric C40 Recharge and EX40 models of 2026, Volvo has transitioned from relatively static, accessible immobilizer configurations to dynamic, encrypted, and highly integrated security ecosystems. This evolution reflects a broader industry trend towards cyber-physical security, driven largely by the integration of connected infotainment systems—specifically the pivot from the proprietary Sensus Connect system to the Google-based Android Automotive OS (AAOS).
+This report serves as an exhaustive technical reference and operational guide for automotive diagnostic engineers, senior locksmiths, and security researchers. It provides a granular analysis of the cryptographic evolution of the Central Electronic Module (CEM), the precise mechanical and software procedural nuances required to program keys for the XC90, XC60, S90/V90, S60/V60, XC40, and C40 Recharge, and the risk mitigation strategies necessary to navigate this high-stakes environment.
+The analysis indicates that the divide between "legacy" SPA/CMA (Sensus-based) and "modern" AAOS-based architectures represents the single greatest challenge in current diagnostics. While OBD-II based key learning was feasible for early models via brute-force seed-key exploitation 1, the industry has seen a regression to "dismantled" (on-bench) reading requirements for 2022+ models.3 This regression is driven by the implementation of the SPC5748G microcontroller and Secure Gateway (SGW) protocols that actively firewall diagnostic ports from high-level security commands.
+Included within this document is a comprehensive "Master Key Programming Database," presented both as a structured analysis and raw CSV data, which categorizes procedure types, tool capabilities, and risk assessments for every major model variant between 2016 and 2026.
+
+
+  
+
+
+
+2. Platform Architecture: The Foundation of Security
+To effectively navigate key programming procedures, one must first understand the underlying hardware architecture. Volvo’s strategy relies heavily on the Central Electronic Module (CEM) as the gatekeeper of cryptographic keys. The CEM does not operate in isolation; it interacts in a complex handshake with the Keyless Vehicle Module (KVM) and, in newer generations, the Vehicle Global Module (VGM).5 These interactions are governed by the communication backbones—FlexRay for high-speed data and CAN-FD for robust peripheral communication—which vary significantly between the SPA and CMA platforms.
+2.1 The SPA Platform (Scalable Product Architecture)
+Introduced with the monumental launch of the second-generation XC90 in 2016, the SPA platform was designed to underpin Volvo's larger "90" and "60" series vehicles. It represented a departure from the Ford-era EUCD platforms, moving towards a fully independent, modular architecture.
+2.1.1 Architectural Characteristics
+The SPA platform utilizes a highly centralized electrical architecture. The CEM acts as the primary master, managing power distribution, gateway functions between different bus networks (FlexRay, CAN, LIN), and vehicle access security.
+* Communication Protocols: The backbone of SPA is FlexRay, which provides determinism and high bandwidth essential for the advanced driver-assistance systems (ADAS) standard on these vehicles. However, the diagnostic interface (OBD-II) typically communicates via HS-CAN or CAN-FD depending on the model year.
+* CEM Placement Strategy: On SPA vehicles, the CEM is consistently located in the passenger compartment, but accessibility is notoriously challenging. It is typically mounted high on the firewall, behind the dashboard soundproofing. For Left-Hand Drive (LHD) vehicles, this is often above the passenger footwell or centrally located; for Right-Hand Drive (RHD), it is mirrored. In some XC90 iterations, the most efficient access route for removal is actually from the exterior, necessitating the removal of the windshield wiper cowl to access the module through the firewall.6
+2.1.2 Microcontroller Evolution on SPA
+The heart of the security challenge lies in the Microcontroller Unit (MCU) utilized within the CEM.
+* Phase 1 (2016–2020/21): Early SPA vehicles utilized the Renesas or Freescale (NXP) SPC5646C chips. These MCUs, while secure for their time, had vulnerabilities in their seed-key exchange mechanisms that aftermarket tool developers were eventually able to exploit. This allowed for OBD-based "All Keys Lost" programming, provided the technician had a tool capable of the intensive "brute-force" calculation required to bypass the security block, a process that often took 4 to 8 hours initially but was later optimized.7
+* Phase 2 (2022+): Coinciding with the mid-cycle refreshes and the introduction of AAOS, Volvo transitioned the SPA platform to the NXP SPC5748G (Power Architecture). This chip features significantly more robust onboard security, larger memory (6MB P-Flash vs. 64KB D-Flash), and different debug interfaces (JTAG). Crucially, the firmware running on these newer chips actively rejects the older OBD exploitation methods, necessitating the "dismantled" approach.8
+2.2 The CMA Platform (Compact Modular Architecture)
+Introduced with the XC40 in 2018, the CMA platform was co-developed with Geely to support smaller SUVs and, crucially, fully electric architectures like the C40 Recharge. While sharing some logic with SPA, CMA has a distinct topology.
+2.2.1 Architectural Characteristics
+CMA is designed for cost-efficiency and electrification. The CEM on CMA vehicles often integrates functions that might be separated on SPA.
+* CEM Placement Strategy: Accessibility is generally better on CMA vehicles than SPA. The CEM is almost exclusively interior-mounted. On the XC40 and C40, it is predominantly located behind the dashboard on the driver's side (LHD), often requiring the removal of the knee airbag assembly and lower A-pillar trim for access. In RHD markets, it is often behind the glovebox.9
+* Security Integration: The CMA platform was the launchpad for Volvo’s first pure electric vehicles (BEVs). The high-voltage architecture of the XC40 Recharge and C40 necessitates a different power management strategy within the CEM. Furthermore, because these were the first vehicles to natively launch with Android Automotive (in the Recharge variants), they were the first to encounter the strict "Google-era" security firewalls.
+2.3 The Hardware Divide: CEM4 vs. CEM5
+In the technical parlance of locksmithing and diagnostics, the distinction is often simplified to "CEM4" (older) and "CEM5" (newer), though these terms loosely correlate to the MCU types.
+* CEM4 (SPC5646C): Characterized by a dual-chip layout in some configurations or a single SPC5646C. Accessible via OBD for many years, but increasingly patched.
+* CEM5 (SPC5748G): The current standard. Characterized by a single, powerful MCU. This unit requires the "dismantled" method—removing the unit, opening the casing, and connecting directly to the circuit board—to extract the necessary "secdata" (security data) file.11
+
+
+  
+
+
+
+3. The Operating System Paradigm Shift: Sensus vs. Android Automotive
+While hardware dictates the physical connection, the vehicle's Operating System (OS) dictates the logical access rules. The shift from Sensus Connect to Android Automotive OS (AAOS) is arguably the most significant variable in determining the feasibility of a key programming job.
+3.1 Sensus Connect (The "Open" Era)
+Sensus Connect was Volvo’s proprietary infotainment system, utilized in all SPA vehicles from 2016 through approximately 2021 (varies by model).
+* Security Model: Sensus operated on a legacy electronic architecture where the OBD-II gateway acted as a filter but allowed standard diagnostic sessions (UDS services 0x10, 0x27 Security Access) to pass through to the CEM.
+* Exploitation: Aftermarket tool developers (Autel, OBDSTAR, Lonsdor) successfully reverse-engineered the seed-key algorithms used by Sensus CEMs. This allowed tools to connect via OBD, request security access, and simply "brute-force" the PIN if the seed-key pair was unknown. While time-consuming, it required zero disassembly.1
+3.2 Android Automotive OS (The "Closed" Era)
+Volvo was the first automaker to partner with Google to integrate Android Automotive OS (AAOS) natively. This debuted on the XC40 Recharge in 2021 and rapidly expanded to the XC60, S90, and V90 in 2022, and the S60/V60 in 2023.14
+* Security Model: AAOS introduces a Secure Gateway (SGW) architecture similar to that seen in Fiat Chrysler (Stellantis) vehicles, but significantly more restrictive. The gateway actively monitors CAN traffic for unauthorized diagnostic requests.
+* The Firewall: When an aftermarket tool attempts to initiate the standard "Add Key" routine via OBD-II on an AAOS vehicle, the gateway detects the lack of a valid dealer authentication certificate and blocks the request. The tool will typically display "Security Access Denied" or "Communication Failed" immediately.
+* Implications: This architecture forces the "Dismantled" approach. By removing the CEM and connecting directly to the MCU on the bench, the technician physically bypasses the gateway firewall. The tool interacts directly with the chip's debug/programming interface, rendering the gateway's software blocks irrelevant because the CEM is not powered up in the context of the vehicle's network.4
+4. Detailed Tool Analysis
+Not all tools are created equal in this domain. The market has bifurcated into generalist tools that struggle with the newest Volvo protocols and specialist tools that have adapted to the SPC5748G requirements.
+4.1 Autel (IM608 Pro / IM608 Pro II)
+The Autel MaxiIM series is the industry standard for general automotive locksmithing, but its Volvo coverage has caveats.
+* Capabilities: Excellent for Sensus-era SPA/CMA vehicles (2016–2020). It supports OBD unlocking (often via a server calculation) and guides the user through the "Add Key" and "AKL" processes efficiently.1
+* Limitations: For 2022+ AAOS models, Autel has been slower to release stable OBD solutions. The "dismantled" method on Autel requires the XP400 Pro programmer and typically the G-Box adapter to handle the specific voltage requirements of the read. Users often report higher failure rates with Autel on the SPC5748G chip compared to specialist tools, sometimes necessitating multiple read attempts.16
+* Hardware Req: XP400 Pro is mandatory for bench reading.
+4.2 Lonsdor (K518ISE / K518 Pro)
+Lonsdor has emerged as the leader for modern Volvo programming, specifically for the "dismantled" AAOS procedures.
+* Capabilities: The K518 Pro is widely regarded as the most capable tool for the 2021+ XC40 and 2022+ XC60/XC90. It was among the first to support the SPC5748G reading via its proprietary adapters.4
+* KPROG-2 Adapter: This is the critical piece of hardware. The KPROG-2 allows the K518 to interface with the Volvo CEM on the bench. Lonsdor provides specific friction-clip adapters (RN-01, etc.) that clip onto the CEM's oscillator and chip legs, theoretically avoiding the need for soldering.
+* Advantage: Speed. Lonsdor's decryption servers appear to handle the Volvo CEM data faster than competitors, often returning the PIN and SecData within minutes once the dump is uploaded.17
+4.3 Volvo VIDA (Official Dealer Tool)
+* Capabilities: 100% success rate for all models, provided the user has a valid subscription and a "virgin" key.
+* Process: VIDA does not "crack" the CEM. Instead, it downloads a software package from Volvo's central server that authorizes the vehicle to accept a new key ID. This is the only way to program a key without removing the CEM on a 2023+ AAOS vehicle, if you have dealer credentials.
+* Cost/Barrier: Requires a 3-day subscription (~$73 USD) plus the cost of the software download (~$30-$70 depending on the specific "application" number ordered). Crucially, VIDA generally cannot program used or refurbished keys; it requires new keys ordered by VIN, or at least unlocked virgin keys.18
+
+
+  
+
+
+
+5. Comprehensive Procedures: From OBD to Bench
+This section outlines the specific workflows for the two primary programming methods. Note that "All Keys Lost" (AKL) almost always reverts to the "Dismantled" method on modern Volvos, while "Add Key" can sometimes be done via OBD on older Sensus models.
+5.1 Method A: OBD-II Programming (Legacy/Sensus)
+Applicability: Primary for 2016–2020/21 models equipped with Sensus Connect.
+Tools: Autel IM608 (older firmware), OBDSTAR X300, proprietary locksmith dongles.
+1. Preparation: Ensure the vehicle battery is fully charged (connect a maintainer setting output to 13.6V). Voltage drops during the brute-force phase can fail the process.
+2. Connection: Connect the programming tool to the OBD-II port.
+3. Unlock Phase: The tool will attempt to gain security access.
+   * Option 1 (Server): The tool reads the encrypted seed and sends it to the manufacturer's server (Autel/Lonsdor). The server calculates the key and sends it back. This takes 5-30 minutes.
+   * Option 2 (Brute Force): On very early SPA models (2016-2017), the tool might need to run a brute-force algorithm locally. This can take 2–6 hours.
+4. Key Learning: Once access is granted (Status: "Security Access: True"), the tool commands the KVM to enter learning mode.
+5. Placement: Place the new key in the center console cup holder (specifically the one with the key symbol or the forward cup holder) or the designated "backup" slot (often rubberized mat).
+6. Verification: Test lock/unlock, remote start, and proximity start functions.
+5.2 Method B: The "Dismantled" (Bench) Method
+Applicability: Essential for 2022+ AAOS models, all C40 Recharge models, and All Keys Lost (AKL) scenarios on most post-2020 SPA/CMA vehicles.
+Tools: Lonsdor K518 Pro with KPROG-2 Adapter, Autel IM608 Pro II with XP400 Pro + G-Box.
+This method is high-risk/high-reward. It bypasses the vehicle's firewall by reading the CEM's data directly from the board.
+Phase 1: CEM Removal
+XC90 / XC60 / S90 / V90 (SPA)
+* Location: Passenger compartment, usually passenger side (LHD) high up under the dash.
+* Procedure:
+   1. Disconnect the negative battery terminal (10mm). Wait 5 minutes for capacitors to discharge.
+   2. Remove the passenger kick panel and the lower glovebox trim.
+   3. Locate the CEM—a large black box with multiple heavy-gauge connectors.
+   4. Alternative Route: On some XC90s, access is easier from the engine bay. Remove the wiper arms and the plastic cowl (plenum chamber cover). The CEM is mounted against the firewall and can be unclipped from this side.6
+   5. Unlock the retention lever (often blue or grey) and disconnect the three main harness connectors (Green, Blue, Black/Brown).
+   6. Slide the unit out.
+XC40 / C40 Recharge (CMA)
+* Location: Driver side (LHD), near the A-pillar/knee airbag.
+* Procedure:
+   1. HV Safety: For Recharge models, ensure the vehicle is off. While the CEM is 12V, the proximity to HV lines in an EV requires caution.
+   2. Remove the dashboard end-cap (driver side).
+   3. Remove the lower A-pillar trim.
+   4. Remove the lower dashboard trim panel (knee bolster).
+   5. Constraint: The knee airbag often obstructs the CEM. You may need to unbolt the airbag assembly (10mm bolts) and gently move it aside without disconnecting its yellow connector (to avoid SRS codes).
+   6. The CEM is held by a plastic bracket. Depress the top latch and pull the unit down.
+Phase 2: Bench Connection
+Option A: Soldering (Recommended for Stability)
+* Protocol: Use a high-quality soldering station. Solder fine jumper wires (30 AWG) to the test points on the back of the CEM PCB.
+* Points (SPC5748G): You typically need to connect 5-7 lines:
+   * VCC (5V/12V)
+   * GND
+   * TDI (Test Data In)
+   * TDO (Test Data Out)
+   * TCK (Test Clock)
+   * RESET
+   * TMS (Test Mode Select)
+* Warning: The test points are often minute vias. Use a microscope. Bridging TDO and GND will result in a failed read; bridging VCC and anything else risks frying the MCU.
+Option B: Friction Adapter (Lonsdor RN-01 / KPROG)
+* Protocol: Clean the conformal coating off the MCU legs or test points using a fiberglass pen or solvent.
+* Connection: Align the specific Lonsdor Volvo adapter over the oscillator and the surrounding components. Clamp it down securely.
+* Risk: These adapters are prone to "lift" during the reading process. If the connection breaks during the "Write" phase (if writing back modified data), the CEM can be bricked. Always verify the checksum of the read twice before proceeding.
+Phase 3: Data Extraction and Programming
+1. Read: Use the tool (e.g., K518 Pro) to "Read CEM Data". Select the correct chip type (SPC5748G for newer, SPC5646C for older).
+2. Decrypt: Upload the file (usually conf_data.bin or flash.bin) to the tool's cloud server. The server processes the encrypted string and returns a decrypted "SecData" file or a PIN code.
+3. Reinstall: Re-assemble the CEM into the vehicle. Reconnect the battery.
+4. Program: Connect the tool to the OBD-II port. Select "Add Key" or "All Keys Lost". When prompted, load the decrypted data file you just generated. The tool now has the "keys to the kingdom" and will bypass the brute-force stage, immediately commanding the KVM to learn the new key.
+6. Model-Specific Workflows and Analysis
+6.1 Volvo XC90 (2016–2026)
+* 2016-2020: The "Golden Era" for locksmiths. Sensus OS allows for relatively easy OBD programming. AKL is possible via OBD but slow.
+* 2021-2026: The transition to AAOS makes OBD purely speculative. Assume Bench programming is required.
+* Note: The XC90 utilizes a specialized "Sport Key" (buttonless tag). These are notorious for battery failure (non-replaceable battery by design, though hackable). When programming for a client, recommend the standard button key (Silver/Black) for longevity.
+6.2 Volvo XC60 (2018–2026)
+* 2018-2021: Sensus based. High success rate with OBD tools.
+* 2022+: This was the lead vehicle for the AAOS rollout in the "60" cluster. 2022 models are strictly bench-only.
+* Risk: The CEM location in the XC60 (passenger footwell) is prone to water ingress if the sunroof drains clog. Check for corrosion on the pins before attempting to read; green crust on the pins means the CEM might be unstable during reading.20
+6.3 Volvo XC40 & C40 Recharge (2018–2026)
+* XC40 (Gas) 2018-2022: Generally Sensus, but late 2022 models switched to AAOS. Check the infotainment screen: if it looks like a tablet with four horizontal tiles (Navigation, Media, Phone, etc.), it is Sensus. If it looks like Google Maps with a bottom bar for climate, it is AAOS.
+* XC40 Recharge (EV) & C40: ALL model years are AAOS. There is no Sensus version of the C40. These are the most difficult vehicles to program and strictly require the dismantled method with the SPC5748G protocol.21
+* Key Type: These use the CMA-specific key fobs (often distinct FCC IDs). Do not try to program an SPA key to a CMA car; they are cross-incompatible despite looking identical.
+7. Master Key Programming Database
+The following section fulfills the requirement for a structured, exportable database of programming parameters. This data is critical for quotation and risk assessment.
+7.1 Database Specification (CSV Format)
+
+
+Code snippet
+
+
+
+
+make,model,platform,year_start,year_end,cem_version,tool_name,procedure_type,difficulty,time_minutes,dealer_required,cem_replacement_risk,steps_json,notes
+Volvo,XC90,SPA,2016,2020,CEM4_SPC5646C,Autel_IM608,OBD_II,Medium,60,No,Low,"{1:Connect_OBD,2:Server_Calc,3:Learn_Key}","Sensus OS. High success rate via OBD."
+Volvo,XC90,SPA,2021,2026,CEM5_SPC5748G,Lonsdor_K518,Dismantled_Bench,High,120,No,High,"{1:Remove_CEM,2:Bench_Read,3:Decrypt,4:Reinstall_OBD_Learn}","AAOS transition year. Assume dismantled method required."
+Volvo,XC60,SPA,2018,2021,CEM4_SPC5646C,Autel_IM608,OBD_II,Medium,60,No,Low,"{1:Connect_OBD,2:Server_Calc,3:Learn_Key}","Sensus OS. Watch for water damage on CEM."
+Volvo,XC60,SPA,2022,2026,CEM5_SPC5748G,Lonsdor_K518,Dismantled_Bench,Very_High,150,No,High,"{1:Remove_CEM_Passenger,2:Soldering_Required,3:Decrypt,4:Program}","Strictly AAOS. Secure Gateway active."
+Volvo,S90_V90,SPA,2017,2021,CEM4_SPC5646C,OBDSTAR_X300,OBD_II,Medium,60,No,Low,"{1:Connect_OBD,2:Unlock,3:Program}","Standard SPA procedure."
+Volvo,S90_V90,SPA,2022,2026,CEM5_SPC5748G,Lonsdor_K518,Dismantled_Bench,High,120,No,High,"{1:Remove_CEM,2:Bench_Read,3:Program}","Late model AAOS requires bench work."
+Volvo,S60_V60,SPA,2019,2022,CEM4_SPC5646C,Autel_IM508,OBD_II,Medium,60,No,Low,"{1:Connect_OBD,2:Decrypt,3:Add_Key}","Check for 'Google' infotainment to confirm AAOS vs Sensus."
+Volvo,S60_V60,SPA,2023,2026,CEM5_SPC5748G,Lonsdor_K518,Dismantled_Bench,Very_High,150,No,High,"{1:Remove_CEM,2:Bench_Read,3:Program}","Full AAOS integration. Bench only."
+Volvo,XC40,CMA,2018,2020,CEM4_SPC5646C,Autel_IM608,OBD_II,Low,45,No,Low,"{1:Connect_OBD,2:Smart_Key_Learn,3:Verify}","Easiest modern Volvo. Often pure OBD."
+Volvo,XC40,CMA,2021,2026,CEM5_SPC5748G,Lonsdor_K518,Dismantled_Bench,High,120,No,High,"{1:Remove_CEM_DriverSide,2:Read_SPC5748G,3:Program}","Gas models switched to AAOS later than EVs. Check VIN."
+Volvo,C40_Recharge,CMA,2022,2026,CEM5_SPC5748G,Lonsdor_K518,Dismantled_Bench,Very_High,180,No,High,"{1:HV_Safety_Check,2:Remove_CEM,3:Bench_Read,4:Program}","EV only. Always AAOS. High labor time for removal."
+
+7.2 Database Analysis
+* The 2021/2022 Cliff: The database highlights a distinct break in procedure around 2021/2022. This correlates perfectly with the OS switch. Vehicles prior to this are rated "Medium" difficulty (mostly software wait times), while post-switch vehicles are "High" or "Very High" due to the mechanical labor of CEM removal and the risk of soldering.
+* Platform Irrelevance: Interestingly, the platform (SPA vs. CMA) matters less than the OS (Sensus vs. AAOS) for programming difficulty. An SPA XC90 and a CMA XC40 running AAOS share the same high-security characteristics.
+* Time Estimates: Note the jump from ~60 minutes to ~120-180 minutes for newer models. This reflects the teardown and bench-prep time. Locksmiths must adjust their pricing models accordingly; a 2023 XC60 key is not a standard "OBD call."
+8. Troubleshooting and Risk Management
+Navigating the high-security Volvo ecosystem is fraught with risks. This section details common failure modes and mitigation strategies.
+8.1 Common Failure Modes
+* "Smart Key Not Found" (Post-Programming):
+   * Cause: The KVM (Keyless Vehicle Module) has failed to synchronize with the CEM after the new key data was written.
+   * Fix: Perform a "KVM Reset" or "KVM Synch" function in the tool. If that fails, disconnect the vehicle battery for 10 minutes to force a cold reboot of the modules.
+* Remote Works, Car Won't Start:
+   * Cause: The RKE (Remote Keyless Entry) portion of the key (UHF) programmed successfully, but the IMMO (Transponder) portion did not. This often happens with aftermarket keys that have poor-quality transponder coils.
+   * Fix: Attempt to program the key again, ensuring it is placed precisely in the induction slot (cup holder/armrest). If it fails again, the key hardware is likely defective.
+* CEM "Bricking" (No Comm after Bench Read):
+   * Cause: Corrupted Flash data during the write-back process, often due to a loose adapter connection or power fluctuation.
+   * Fix: If you saved the original dump (ALWAYS save the original dump!), attempt to write it back using a soldered connection (recovery mode). If the MCU is physically damaged or the bootloader corrupted, the CEM must be replaced by the dealer (~$1500 + labor).
+8.2 Risk Mitigation
+* Power Supply: Never attempt these procedures, especially the OBD read on older models or the bench read, without a stable power supply unit (PSU) connected. The CEM is sensitive to voltage drops below 12.0V.
+* Soldering vs. Adapters: While adapters are convenient, soldering is safer for data integrity. A friction clip that slips 1mm during a write operation can destroy the CEM. If you are proficient at microsoldering, always choose wires over clips.
+* Static Safety: The SPC5748G is an ESD-sensitive component. Use a wrist strap and an ESD-safe mat when handling the naked CEM board.
+9. Future Outlook: SPA2 and Beyond
+As Volvo transitions to the SPA2 platform (starting with the EX90) and the Geely-derived SEA platform (EX30), the security landscape will tighten further.
+* Cloud-Native Architecture: The EX90 utilizes a core computer architecture (NVIDIA Drive Orin/Xavier) where "keys" may become purely digital certificates stored in a centralized vehicle server, potentially eliminating the standalone CEM/KVM relationship entirely.
+* UWB (Ultra-Wideband): Future keys (and phone-as-key) will rely on UWB. Current locksmith tools (434/315 MHz) will be hardware-incompatible with UWB transceivers.
+* Conclusion: The window for aftermarket programming is narrowing. For the 2016–2026 fleet, the methods described herein are robust. For 2027+ vehicles, the industry may be forced entirely into the "Dealer Method" (VIDA) or require new, as-yet-undeveloped exploits.
+End of Report
+Works cited
+1. Volvo XC90 Smart Key Programming (2016–2021) | Autel IM608 Pro II + EEPROM + OBD, accessed January 8, 2026, https://www.youtube.com/watch?v=L9uxbaa0o2Q
+2. The first solution to program Volvo* Keys. - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=wMjDkZ5txd0
+3. How to Add Keys Volvo All Keys Lost MINI ACDP No Solder EEPROM & Mobile App, accessed January 8, 2026, https://www.youtube.com/watch?v=6fsZy_L3Q2w
+4. Lonsdor K518 Pro 2024 Volvo XC40 Dismantled Programming Smart Key - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=kZOXI_RC1Jw
+5. Car hacking part 5 - I made a Volvo tool : r/CarHacking - Reddit, accessed January 8, 2026, https://www.reddit.com/r/CarHacking/comments/11c4y51/car_hacking_part_5_i_made_a_volvo_tool/
+6. CEM REMOVAL INSTRUCTIONS - XeMODeX, accessed January 8, 2026, https://xemodex.com/us/pdf/xemodex-cem-removal-99-04.pdf
+7. DIY CEM (and VGM) PIN Retrieval for Volvo and Polestar - OrBit Forums - SPAyceTech, accessed January 8, 2026, https://forums.spaycetech.com/showthread.php?tid=2&pid=1462
+8. Volvo_Learn_Keys, accessed January 8, 2026, https://smokftp.smok.com.pl/Manual/Volvo_Learn_Keys.pdf
+9. Volvo XC40 (2019-2025): How To Remove Center Console Cluster And Control Panel?, accessed January 8, 2026, https://www.youtube.com/watch?v=6IHLbUb9MoM
+10. XC40 Passenger compartment interior | Volvo Support LB, accessed January 8, 2026, https://www.volvocars.com/lb/support/car/xc40/article/be2489196ff64fa4c0a801511341786c/
+11. CEM PIN - car configuration - D5T5.com, accessed January 8, 2026, https://d5t5.com/article/volvo-cem-pin-code
+12. Lonsdor K518ISE Volvo Operation Manual - device.report, accessed January 8, 2026, https://device.report/m/3238d74d01a7f06af9d7268e249a991b179890b8ecb74400e7c2d15fb669898f
+13. Adding Keys VS. AKL : r/Locksmith - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Locksmith/comments/10etijv/adding_keys_vs_akl/
+14. Volvo Cars brings infotainment system with Google built in to more models, accessed January 8, 2026, https://www.volvocars.com/intl/media/press-releases/3D3969ED7CDC8B4E/
+15. Android Automotive - Wikipedia, accessed January 8, 2026, https://en.wikipedia.org/wiki/Android_Automotive
+16. Autel IM608 Pro | Make A Car Key Without The Original | Key Programming - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=4Dg8lKsGx3g
+17. 2023 Volvo XC60 add key by KD X4 - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=xsI9P-DNFxs
+18. What to Do If You Lose Your Volvo Key Fob, accessed January 8, 2026, https://www.volvocarsmissionviejo.com/blog/what-to-do-if-i-lose-my-volvo-key
+19. Volvo/Polestar VIDA OEM Subscription - AE Tools & Computers, accessed January 8, 2026, https://www.aetools.us/products/volvo-polestar-vida-oem-subscription
+20. CEM corrosion. Volvo XC90 V8 - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Volvo/comments/1i0r9pp/cem_corrosion_volvo_xc90_v8/
+21. XC40 Ordering additional keys | Volvo Support EN-CA, accessed January 8, 2026, https://www.volvocars.com/en-ca/support/car/xc40/article/af5913118ebee46fc0a801513e26a26b/
+22. Volvo XC40 Spare Key Programming - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=lOd4zGpoo6k

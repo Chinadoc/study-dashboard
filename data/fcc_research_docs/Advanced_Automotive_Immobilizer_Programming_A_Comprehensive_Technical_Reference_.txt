@@ -1,0 +1,294 @@
+﻿Advanced Automotive Immobilizer Programming: A Comprehensive Technical Reference for Modern Platforms
+1. Introduction: The Evolution of Automotive Security Architectures
+The landscape of automotive locksmithing has undergone a radical transformation over the last decade, shifting from relatively static, transponder-based systems to highly integrated, encrypted, and networked vehicle intelligence platforms. This report provides an exhaustive technical analysis of seven critical vehicle platforms that represent the current frontier of automotive security: General Motors’ legacy PK3+ and modern CAN-FD architectures, Honda’s high-risk ID4A Body Control Modules, Hyundai and Kia’s evolving PIN-based cryptology, the multi-layered defense of Stellantis Security Gateways and RF Hubs, Subaru’s integrated BIU systems, and Mazda’s 7th Generation BHA architecture.
+For the modern field technician, possession of a programming tool is no longer sufficient. Success now requires a "Level 3" diagnostic understanding—a deep comprehension of the underlying digital architecture, power requirements, and communication protocols (CAN, CAN-FD, LIN, K-Line). The distinction between a successful key programming event and a catastrophic module failure often lies in the operator's understanding of these invisible variables. This document serves as a definitive reference database, bridging the gap between raw vehicle metadata and actionable, field-verified programming procedures. It is designed not merely to instruct how to program a key, but to explain why specific procedures function as they do, the architectural vulnerabilities inherent in each system, and the contingency strategies required when standard protocols fail.
+1.1 The Criticality of Voltage Stabilization
+Before examining specific platforms, a universal operational prerequisite must be established. Across all modern platforms discussed in this report—most notably the Honda ID4A and GM CAN-FD systems—voltage stability has emerged as the single most significant variable determining programming success or failure. Modern Body Control Modules (BCMs) and Radio Frequency Hubs (RFH) perform complex EEPROM read/write operations that are highly sensitive to voltage fluctuation.
+Field data indicates that attempting "All Keys Lost" (AKL) procedures on battery power alone frequently results in voltage dips below 11.8V. These dips often occur during high-load processes, such as the activation of latch mechanisms or the execution of cryptographic calculations by the processor. When voltage drops during a write cycle, data corruption is a high probability outcome.1 Consequently, a continuous power supply unit (PSU) capable of maintaining a stable output of 13.5V to 14.2V at up to 50 Amps is not optional; it is a mandatory safety protocol for interacting with these architectures. The integration of a PSU protects the integrity of the vehicle’s firmware and ensures that the diagnostic tool maintains a consistent communication stream with the vehicle’s gateway.
+________________
+2. General Motors: Legacy to Transitional Systems (PK3+ and PEPS)
+2.1 Immobilizer System Identification and Architecture
+The General Motors Pass-Key III+ (PK3+), often referred to in the industry as "Circle Plus" due to the identifying stamp on the key blade, represents the bridge between early fixed-code transponders and the networked complexity of modern CAN systems. While considered a legacy system, it remains ubiquitous in the North American market, underpinning millions of vehicles from the mid-2000s through the late 2010s.
+The PK3+ system utilizes the Philips ID46 transponder chip, a robust encryptable transponder operating on the 125 kHz frequency.2 In its Passive Entry Passive Start (PEPS) iteration found in push-to-start vehicles, the system utilizes an extended version of the ID46 (Hitag 2) protocol, adapted to support proximity detection and bi-directional challenge-response sequences required for keyless ignition. The encryption level typically involves a 40-bit key, which, while cryptographically weak by modern standards (such as AES), relies heavily on the physical pairing of the key's ID to the vehicle's Theft Deterrent Module (TDM) or BCM.
+The "Circle Plus" designation is critical for identification. Technicians identify these keys by a small circle containing a plus sign (+) stamped into the metal blade near the plastic head. This visual identifier confirms the presence of the PK3+ logic, distinguishing it from the older PK3 (non-plus) or Passlock systems which require different interrogation methods.
+2.2 On-Board Programming (OBP) Procedures
+A defining characteristic of the GM PK3+ architecture is its robust On-Board Programming (OBP) protocol. Unlike many European or Asian manufacturers that mandate proprietary diagnostic tools for all key programming functions, GM engineered a native "Add Key" and "All Keys Lost" capability directly into the vehicle's firmware. This feature was originally intended to allow customers to self-service key replacements, but for the professional locksmith, it serves as an invaluable "Plan B" when diagnostic communication fails or when server-based programming is unavailable.
+2.2.1 The "Add Key" Cloning Procedure
+When a working master key is available, the PK3+ system allows for a rapid "Add Key" procedure. This process essentially permits the new key to inherit the trusted status of the master key through a timed authorization window.
+Operational Sequence:
+1. Authorization: The technician inserts the working Master Key into the ignition cylinder and turns it to the ON/RUN position. The engine must not be started. The technician waits for the security light on the dashboard to extinguish, a signal that the TDM has successfully authenticated the master key's transponder.
+2. The Learning Window: Once the light extinguishes, the ignition is turned OFF, and the Master Key is removed. The system then opens a strict 10-second learning window.
+3. Registration: Within this 10-second window, the New (Unprogrammed) Key must be inserted and turned to ON/RUN.
+4. Verification: The security light will illuminate briefly as the TDM interrogates the new chip. Upon successful registration of the new ID46 chip ID into the authorized key table, the light will turn off.
+5. Finalization: The key is turned OFF and removed. Testing involves starting the engine and verifying that the security light remains off.3
+This procedure is highly reliable because it operates entirely within the local vehicle network, requiring no external tools or server connections.
+2.2.2 The "All Keys Lost" 30-Minute Relearn Procedure
+In scenarios where no working keys are available, the system must be forced into a "relearn" state. This brute-force method clears the existing trusted key table and accepts new keys. However, to prevent unauthorized theft (e.g., hot-wiring), GM implemented a strict time-delay mechanism—the famous "30-Minute Relearn."
+The Mechanics of the Timer:
+The procedure forces the technician to verify physical presence and intent by cycling the ignition through three distinct 10-minute wait periods. This 30-minute duration is hard-coded into the BCM as a theft deterrent, operating on the assumption that a thief cannot afford to wait half an hour with the ignition on.
+Step-by-Step Execution:
+1. Initiation: The technician inserts the Unprogrammed Key and turns the ignition to ON/RUN. Attempting to crank the engine will result in a "start and stall" or no-crank condition, confirming the immobilizer is active. The key is left in the ON position.
+2. Cycle 1 (The First Wait): The security light (or a "Service Theft Deterrent" message) will remain illuminated. The technician must wait exactly 10 minutes. The visual cue for completion is the security light turning off.4
+3. The Reset: Once the light turns off, the ignition must be turned OFF for a mandatory 5-second interval. This pause allows the BCM processors to latch the state change.
+4. Cycle 2 (The Second Wait): The ignition is turned back to ON/RUN. The security light illuminates again. Another 10-minute wait ensues until the light extinguishes.
+5. The Reset: Ignition is turned OFF for 5 seconds.
+6. Cycle 3 (The Final Wait): The ignition is turned to ON/RUN for the third time. The security light illuminates. A final 10-minute wait is observed until the light extinguishes.5
+7. Finalization: The ignition is turned OFF. The BCM now erases the old key data and writes the transponder ID of the key currently in the ignition as the new Master Key.
+8. Verification: The ignition is turned ON, and the vehicle is started.
+
+
+  
+
+
+
+Critical Dependency: Power Supply
+It is impossible to overstate the importance of battery support during this 30-minute process. With the ignition in the ON/RUN position, the vehicle's fuel pump, HVAC blower, infotainment system, and multiple ECUs are active. This load can easily drain a standard lead-acid battery below 11.5V within 20 minutes. If the voltage drops below the BCM's logic threshold, the timer will silently reset or the procedure will fail at the final write step. A battery maintainer is strictly required.4
+2.3 Tool Compatibility and Acceleration
+While the OBP method is reliable and requires zero equipment, professional locksmiths prioritize efficiency. Waiting 30 minutes is often operationally inefficient. Consequently, aftermarket tools have been developed to bypass this timer.
+* Autel IM608 / IM508: These tools are highly effective for PK3+ systems. Through the OBD port, the Autel unit can communicate directly with the BCM to calculate the challenge-response. In many models (though not all), this allows the tool to bypass the 30-minute wait, reducing the programming time to under 5 minutes. The tool supports both "Add Key" (preserving existing keys) and "All Keys Lost" (erasing and adding).
+* Xhorse Key Tool Plus: This platform offers a unique advantage in cloning. Using the "Super Chip" (XT27), the Xhorse tool can clone the ID46 data from a working key directly onto a new chip. This creates a digital duplicate that the vehicle cannot distinguish from the original, requiring no interaction with the vehicle's OBD port at all.
+* Lonsdor K518: The Lonsdor platform provides standard support for the PK3+ menu, with capabilities similar to Autel, guiding the user through the ignition cycling if the bypass is not supported for a specific ECU variant.
+2.4 Common Failure Points and Diagnostic Indicators
+The "3x10" procedure, while robust, is prone to specific failure modes that the technician must recognize.
+* Battery Drain: As noted, this is the primary cause of failure. A technician attempting this without a jump pack or maintainer is inviting failure.
+* Aftermarket Remote Start Interference: Vehicles equipped with aftermarket remote start systems often utilize a bypass module that interrupts the immobilizer data wire. If this module is active, it can introduce noise or block the programming signal. It is standard protocol to locate and disconnect any aftermarket remote start modules before attempting an AKL procedure.6
+* The "Security Light" Diagnostic: The behavior of the security light is the technician's primary feedback mechanism. If the light does not turn off after 10 minutes, the timer has paused. This pause is triggered by faults such as a door being opened (breaking the "secure environment" logic), low voltage, or the detection of an incompatible chip type (e.g., trying to program a non-Plus PK3 key).
+________________
+3. General Motors: The Global B and CAN-FD Era
+3.1 Architecture Shift: From CAN to CAN-FD
+Around 2020, General Motors began a comprehensive migration to a new electrical architecture known as "Global B" or the Vehicle Intelligence Platform (VIP). This shift introduced the Controller Area Network with Flexible Data-rate (CAN-FD) protocol. Unlike standard CAN, which is capped at 1 Mbps with a payload of 8 bytes, CAN-FD supports data rates up to 5-8 Mbps with payloads up to 64 bytes. This increased bandwidth is necessary for modern features like Over-the-Air (OTA) updates and advanced driver-assistance systems (ADAS), but it renders legacy OBD tools obsolete.
+Affected Vehicle Platforms:
+This architecture is found in high-value assets including the 2020+ Corvette C8, 2021+ Tahoe, Suburban, Yukon, and Escalade, as well as the 2021+ Silverado, Sierra, CT4, and CT5.7 The transponder technology also evolved to a high-security rolling code system (Hitag AES / NCF29A1), making the older ID46 chips incompatible.
+3.2 OBD Programming: The Online Requirement
+A critical distinction of the Global B architecture is the removal of On-Board Programming (OBP). There is no manual "ignition cycling" method to add keys. All programming commands must be authenticated via a server connection.
+3.2.1 The "All Keys Lost" Procedure
+The AKL procedure for CAN-FD vehicles is a server-dependent process that requires a stable internet connection.
+1. Hardware Connection: The technician must connect a CAN-FD compatible programmer to the OBD port. (See Section 3.3 for hardware specifics). A stable power supply (13.5V+) is critical, as the high-speed bus is sensitive to voltage noise.
+2. Server Calculation: Upon initiating the AKL function, the diagnostic tool reads encrypted data from the BCM and transmits it to a server.
+   * OEM Path: Using GM's Techline Connect (SPS2) software requires a subscription (approx. $45 per VIN). The software authenticates the user and calculates the security seed.10
+   * Aftermarket Path: Tools like Autel and OBDStar utilize their own proprietary cloud servers to perform this calculation. This process is opaque to the user but usually takes several minutes.11
+3. The Security Wait: Once the security calculation is verified, the vehicle imposes a mandatory wait period, typically 10 to 12 minutes. This is a security feature to prevent rapid unauthorized key programming.11
+4. Key Learning Sequence:
+   * The vehicle's cluster will display a prompt such as "Ready for Remote #1".
+   * Critical Action: The technician must place the First Smart Key into the designated Dead Key Slot (also known as the programming pocket).
+   * The Start/Stop button is pressed. The cluster should update the key count (e.g., "Key 1 Learned").
+   * To add a second key, the first is removed, the Second Smart Key is inserted into the pocket, and the Start/Stop button is pressed again.
+   * Finalization requires pressing and holding the Start/Stop button for 12-16 seconds to close the learning session.10
+3.3 Hardware Compatibility: The CAN-FD Adapter Ecosystem
+The primary operational hurdle for technicians is ensuring their hardware can physically interpret the CAN-FD signal. Using a standard OBDII interface on a CAN-FD vehicle will result in communication errors.
+* Autel Ecosystem:
+   * Legacy VCI (J2534 / MaxiFlash Elite): Technicians using the first-generation IM608 or IM508 with the standard VCI must use the Autel CAN-FD Adapter. This physical dongle plugs inline between the OBD cable and the vehicle port, translating the CAN-FD signal into a format the older VCI can process.7
+   * Modern VCI (V200 / Ultra / IM608 Pro II): The newer VCI units included with the IM608 Pro II and KM100 have native CAN-FD support built into the hardware. No external adapter is required.13
+* OBDStar Ecosystem:
+   * Key Master G3: This unit features built-in CAN-FD support, requiring no additional hardware.15
+   * X300 DP Plus: This older unit requires a specialized CAN-FD Adapter cable to function.9
+* Lonsdor K518 Pro: This tool includes built-in CAN-FD and DoIP (Diagnostics over IP) support, offering a seamless connection without adapters.17
+* Xhorse Key Tool Plus: Despite being a flagship tablet, this unit currently requires the XDNP34GL CAN-FD Adapter to communicate with these GM vehicles.19
+
+
+  
+
+
+
+3.4 Operational Risks and Contingencies
+The reliance on server-side calculation introduces a new point of failure: server outages. Aftermarket tool servers are known to experience downtime or high latency, with technicians reporting wait times of up to two hours during peak usage.21
+A frequent operational failure point is the inability to locate the Dead Key Slot. Unlike older models with clearly marked pockets, modern GM interiors often conceal these slots.
+* Silverado/Sierra (2021+): The slot is often located in the center console cup holder or inside a specific pocket beneath the removable rubber mat.
+* Tahoe/Yukon: The slot is typically a vertical pocket inside the center console storage bin.10
+Failure to place the key in the exact position results in a "Key Not Detected" error during the critical learning phase.22
+Emergency Plan B:
+When aftermarket servers are unavailable, the only reliable fallback is the OEM Software. Technicians should maintain a laptop with GM Techline Connect (SPS2) installed. By purchasing a short-term VIN subscription (approx. $45) and using a J2534 passthrough device (the Autel VCI can often function in this capacity), the technician can program keys directly through GM's official portal. This method bypasses aftermarket cloud servers and is the gold standard for reliability.10
+________________
+4. Honda & Acura: The ID4A "Bricking" Phenomenon
+4.1 The ID4A Architecture and the BCM Vulnerability
+Between 2018 and 2022, Honda transitioned its security platform for core models (Accord, Civic, CR-V, TLX) to the ID4A (Hitag AES) system. In this architecture, the immobilizer logic is integrated directly into the Body Control Module (BCM) rather than residing in a separate immobilizer unit. This integration has created a high-risk scenario for locksmiths.
+The BCM in these vehicles has demonstrated a critical vulnerability to data corruption during the programming process. This phenomenon, widely known in the industry as "bricking," renders the vehicle completely inoperable—a "no crank, no start" condition often accompanied by the alarm sounding continuously.
+4.2 Mechanism of Failure: Why BCMs Brick
+The failure mechanism is twofold, involving software logic and power stability.
+1. The "New System" Query:
+When an aftermarket tool (such as the Autel IM608 or Xhorse Key Tool Plus) initiates communication with the BCM, it often presents the technician with a query: "Is this a new system (2020+)?" or similar. If the technician incorrectly selects "Yes" for a vehicle running older firmware, or "No" for a newer system, the tool may attempt to write data to the wrong memory address blocks in the BCM's EEPROM. This misdirected write operation corrupts the bootloader or key data table, effectively locking the module.24
+2. Voltage Instability:
+The ID4A BCM is extremely sensitive to voltage drops during the write cycle. If the vehicle battery voltage dips below 12.5V while the tool is writing key data, the write process aborts incompletely, leaving the EEPROM in a corrupted state.
+Official Acknowledgment:
+Honda Service Bulletin 22-193 explicitly identifies the use of third-party programming tools as the cause of these BCM failures, noting that incorrect key code writing permanently damages the module's logic.24
+4.3 Risk Mitigation and Programming Procedures
+To program these vehicles safely, a strict protocol must be followed.
+   1. Mandatory Voltage Support: A PSU must be connected to maintain 13.6V. Relying on the vehicle's battery or simple jumper cables is insufficient.
+   2. Selection Precision: Technicians must cross-reference the exact model year and system generation before making a selection on the tool.
+   3. Procedure Preference: Whenever possible, use "Add Key" functions rather than "All Keys Lost." "All Keys Lost" often involves wiping the entire key table, which is a more invasive and risky operation than simply appending a new key to an open slot.
+OBD Programming Steps (AKL):
+   1. Read PIN: Tools like the Autel IM608 and Lonsdor K518 utilize the OBD connection to read the PIN code required for access.27
+   2. Force Ignition: Since the vehicle has no working keys, the ignition cannot be turned ON. The programming tool will simulate an "Ignition ON" state via CAN bus commands or instruct the user to hold the Start/Stop button to wake the BCM.
+   3. Key Writing: The tool writes the new key ID to the BCM. The technician must rigorously follow prompts to turn the ignition OFF when instructed. Failure to cycle the ignition correctly prevents the BCM from finalizing the data write.
+   4. Synchronization: The final step involves synchronizing the BCM's new key data with the PCM (Engine Computer) to allow engine start.
+4.4 Emergency Recovery: The Xhorse Bypass
+If a BCM becomes "bricked" and refuses to accept OEM keys, field technicians have discovered a specific recovery method using the Xhorse Universal Smart Key (XM38).
+The firmware on the Xhorse universal remote appears to be more flexible than rigid OEM key firmware. Reports confirm that generating an XM38 remote with the correct ID4A configuration and attempting to program it into the bricked BCM can sometimes succeed where OEM keys fail. The universal key is able to handshake with the corrupted BCM and restore functionality.28 If this method fails, the only remaining recourse is the replacement of the BCM unit (approx. $700 hardware cost) and reprogramming using the official Honda HDS (i-HDS) dealer software.24
+Risk Comparison:
+It is crucial to contextualize this risk. While the Stellantis RF Hub (discussed in Section 6) presents a significant barrier to entry due to its hardware lockout, the risk of permanent module damage is relatively low—the tool simply fails to access the system. In contrast, the Honda ID4A system presents a destructive risk. The barrier to entry is low (the tool easily connects), but the penalty for failure is a disabled vehicle.
+________________
+5. Hyundai & Kia: The Evolution of PINs and Proximity
+5.1 Immobilizer System Identification
+Hyundai and Kia utilize a diverse ecosystem of transponders, complicating the landscape for technicians. The modern fleet (2021+) utilizes Smart Key systems based on ID4A, ID47, or 8A transponders.
+A universal constant in Hyundai/Kia security is the PIN Code. Every key programming event requires a 6-digit PIN specific to the vehicle's VIN.
+The 2021+ Shift: Newer models, such as the Hyundai Elantra (CN7) and Kia K5 (DL3), have transitioned to a secure system where the PIN cannot be easily read via OBD by older tools. This system often requires a "dealer code" or an advanced online calculation by the programming tool.30
+5.2 OBD Programming and the "Fob-to-Button" Method
+The programming procedure for modern Hyundai/Kia vehicles follows a standard logic but introduces a unique physical interaction method.
+   1. PIN Acquisition:
+   * Pre-2020 Models: Most advanced tools (Autel, OBDStar, Xhorse) can read the PIN instantly via OBD.
+   * 2021+ Models (4A/47): Reading the PIN on these newer platforms requires a tool with online calculation capabilities. The Autel IM608/508 and OBDStar G3 excel here, reading the 4A PIN via OBD by querying a cloud server.31 If OBD reading fails, the PIN must be purchased from a dealer or a NASTF-certified locksmith service using the VIN.
+   2. Smart Key Programming:
+   * The technician selects "Program Smart Keys" and enters the 6-digit PIN.
+   * The Physical Interaction: The most critical deviation in modern models (e.g., Elantra, K5) is the absence of a physical key slot in the glovebox or center console. Instead, the vehicle utilizes a "Fob-to-Button" limp home antenna.
+   * Procedure: When prompted by the tool to "Press Start Button with Key," the technician must hold the top (or back, depending on the specific fob design) of the smart key directly against the Start/Stop Button for 5 seconds. The tool communicates with the key through the Near Field Communication (NFC) coil located inside the start button assembly.31
+   * Warning: This process relies on the passive induction of the key. However, unlike older systems that could power a dead key, this programming sequence often requires the new fob to have a healthy battery to respond quickly enough to the BCM's request.
+
+
+  
+
+
+
+5.3 Tool Compatibility
+   * OBDStar G3: Currently widely regarded as the leader for Korean vehicles. It boasts the highest success rate for reading PINs on 2022+ models and covers the widest range of software variants.
+   * Autel IM508/608: Excellent coverage for reading PINs on ID46/47/8A systems and has recently added strong support for the new 4A (i10/Elantra) systems.31
+   * Lonsdor K518: A strong contender, supporting 4A/47 smart keys and capable of reading PINs reliably.18
+________________
+6. Stellantis: The Escalating War on OBD Access
+6.1 The Security Gateway (SGW) to RF Hub Lock
+Stellantis (formerly FCA—Jeep, Dodge, Ram, Chrysler) has been at the forefront of restricting aftermarket OBD access. This restriction has evolved through two distinct phases.
+Phase 1: The Security Gateway (SGW) (2018–2021)
+In 2018, Stellantis introduced the SGW module. This firewall sits between the OBD port and the vehicle's CAN bus. It allows read-only access (diagnostics) but blocks write commands (clearing codes, programming keys) from any unauthorized tool.
+Phase 2: The Locked RF Hub (2022+)
+Starting in 2022, models like the Ram 1500 and Jeep Grand Cherokee (WL) introduced a hardware-level lockout. The Radio Frequency Hub (RFH), the module responsible for storing key data, is now "write-locked" from the factory. Even with an authorized SGW bypass, the RF Hub itself will reject commands to add new keys via OBD.33
+6.2 Bypass Procedures
+6.2.1 2018–2021 (SGW Bypass)
+For vehicles in the SGW era, technicians have two primary bypass methods:
+   * Method A: AutoAuth (Digital Bypass): Tools like the Autel IM608 and AutoProPad support the "AutoAuth" service. The technician registers their tool and shop with AutoAuth. When the tool connects to an SGW-equipped vehicle, it authenticates over Wi-Fi, and the SGW grants a digital token allowing write access.
+   * Method B: The 12+8 Bypass Cable (Physical Bypass): If internet access is unavailable, the technician must physically bypass the SGW. This involves locating the SGW module, unplugging its 12-pin and 8-pin connectors, and plugging them into a "Star Connector" or "12+8" bypass cable connected to the diagnostic tool.
+   * Locations:
+   * Ram 1500: Above the driver's kick panel or behind the radio head unit.35
+   * Jeep Wrangler JL: Difficult access behind the radio/climate control stack.36
+   * Dodge Charger: Under the dash, near the steering column.
+6.2.2 2022+ (RF Hub Lock Solution)
+For 2022+ vehicles with the Locked RF Hub, standard OBD programming is often impossible.
+   * Plan A: RF Hub Replacement: The most reliable method is to replace the RF Hub with a "Virgin" or unlocked unit. Dealers and specialized locksmith suppliers sell kits containing a new RF Hub and keys pre-programmed to it. The technician must physically remove the old RF Hub (often located behind the rear seat in Ram trucks) and install the new unit.37
+   * Plan B: Advanced Unlock Tools: Some advanced proprietary tools (like the Smart Pro or specialized Jeep programmers) utilize specific cables to force-write to the RF Hub. However, this carries a risk of data corruption.33
+________________
+7. Subaru: The Integrated BIU Challenge
+7.1 Immobilizer System Identification (G-Chip)
+The Subaru "G-Chip" system (2012–2017) utilizes a Texas Instruments 4D-60/62 transponder logic, customized as the Toyota G-chip (ID82). The primary challenge for locksmiths is the system architecture: Subaru does not use a separate immobilizer box. Instead, the immobilizer logic is deeply integrated into the Body Integrated Unit (BIU).
+In an "All Keys Lost" scenario on a bladed G-chip vehicle, the BIU cannot be easily reset via OBD because the reset command requires authentication from a master key—which is missing.
+7.2 Programming Procedures
+Add Key (OBD):
+If one working master key is present, the process is trivial. The working key authorizes the BIU to open the registration window for a new key.
+All Keys Lost (AKL):
+   * Method A: Lonsdor K518 (Preferred): The Lonsdor K518 is widely considered the superior tool for this platform. It features specific software that can calculate the required data to program a new key via OBD without removing any modules.18
+   * Method B: Emulator (Autel APB112): Autel tools typically cannot program G-Chip AKL directly. They require the APB112 Smart Key Emulator. The tool reads the BIU data (if the software version allows), creates a "simulated" master key on the APB112 dongle, and then uses that simulator to authorize the addition of a real key.40
+   * Method C: EEPROM (The Hard Way): If OBD methods fail, the only option is to physically remove the BIU (often buried under the dashboard), desolder the EEPROM chip (typically a 93C86), read the binary data, and manually write a new key ID into the dump.42
+________________
+8. Mazda: 7th Generation BHA Architecture
+8.1 System Identification
+Mazda's "7th Generation" vehicles (Mazda 3 BP, CX-30, CX-50, CX-90) utilize a new, highly secure architecture known as BHA. This system moves away from the older Ford-based logic and introduces a distinct online verification system. These vehicles use a new style of smart fob, typically with buttons located on the side of the casing.
+8.2 Programming Procedure: Online Calculation
+There is currently no offline bypass for the BHA architecture. Programming requires a tool capable of connecting to a server to calculate the Incode/Outcode security response.
+   1. Online Calculation: The technician connects the tool (Autel, Lonsdor, or OBDStar). The tool reads the BCM's challenge code and queries a server to retrieve the response.
+   2. The 7-Minute Wait: Once the calculation is verified, the vehicle initiates a security wait state, typically lasting approximately 7 minutes. This cannot be bypassed.44
+   3. The Active Alarm Hurdle: A common complication is the vehicle alarm. If the vehicle is locked and the alarm is active, the BCM may reject communication attempts. The technician must silence the alarm or use software capable of an "Active Alarm" bypass mode.45
+Tool Compatibility:
+   * Autel IM608/KM100: The KM100 has proven surprisingly effective for these specific models, often performing the calculation faster than the larger tablets. The VCI V200 is recommended for stable communication.46
+   * Lonsdor K518 Pro: Supports Mazda 7th Gen AKL natively, with built-in server calculation capabilities that do not require an external PIN code purchase.18
+________________
+9. Comparative Tool Analysis and Conclusion
+The following table summarizes the capabilities of the four primary aftermarket tools across the high-priority vehicle platforms discussed.
+Vehicle Platform
+	Autel IM608 Pro II
+	Lonsdor K518 Pro
+	Xhorse Key Tool Plus
+	OBDStar G3
+	GM PK3+
+	High (OBD Support)
+	High (OBD Support)
+	High (Cloning & OBD)
+	High
+	GM CAN-FD
+	Native (Built-in CAN-FD)
+	Native (Built-in CAN-FD)
+	Medium (Adapter Req.)
+	Native (Built-in CAN-FD)
+	Honda ID4A
+	Medium (Risk of Bricking)
+	High (Stable)
+	High (Universal Key Fix)
+	Medium
+	Hyundai/Kia PIN
+	High (Reads 4A PINs)
+	High (Reads 4A PINs)
+	Medium (Some PINs fail)
+	Very High (Best for Kia)
+	Stellantis SGW
+	High (AutoAuth)
+	Medium (Some bypass req.)
+	Medium (Cable req.)
+	High (FCA Adapter)
+	Subaru G-Chip
+	Medium (Emulator req.)
+	Very High (Best AKL OBD)
+	Medium
+	Medium
+	Mazda 7th Gen
+	High (Online Calc)
+	High (No PIN req.)
+	Medium
+	High
+	9.1 Analyst Recommendations
+   * The Generalist: The Autel IM608 Pro II remains the most versatile tool, offering the broadest coverage. However, its power comes with the responsibility of understanding risks, particularly with the Honda BCM vulnerability.
+   * The Specialist: For Asian imports, particularly Subaru and Hyundai, the Lonsdor K518 Pro and OBDStar G3 offer superior, often safer, solutions than the Autel platform. The Lonsdor is the clear winner for Subaru AKL, while the OBDStar G3 leads in Korean vehicle support.
+   * The Fixer: The Xhorse Key Tool Plus, while sometimes lagging in direct OBD coverage (requiring adapters for CAN-FD), is indispensable for its cloning capabilities and its unique ability to recover "bricked" Honda systems using universal remotes.
+In conclusion, the modern automotive locksmith cannot rely on a single tool or a rote set of instructions. Success requires a toolkit of multiple platforms, a stable power supply, and a deep, specific knowledge of each vehicle's architectural quirks.
+Works cited
+   1. 10 Steps for 100% Safe Car Key Programming (AVOID BRICKING!) - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=lR9jv9WjwGk
+   2. HOW TO PROGRAM A GM/CHEVY CODED/ANTI THEFT KEY FOR FREE! SAVE MONEY!!!, accessed December 20, 2025, https://www.youtube.com/watch?v=aIymmCzCijI
+   3. pk3 & “circle-plus” - ON-BOARD PROGRAMMING, accessed December 20, 2025, https://aftermarket.strattec.com/download_file/106/258
+   4. GM Vehicle Theft Deterrent (VTD) Relearn Procedures - CARDONE Industries, accessed December 20, 2025, https://www.cardone.com/content/Products/PT77-0011.pdf
+   5. HOW TO PROGRAM KEY FOR GM/CHEVY ANTI-THEFT - ECU REPLACEMENT PK3+ / PASSLOCK - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=KkJALLMxayc
+   6. HOW TO PROGRAM KEY FOR GM/CHEVY PK3 or Passkey Anti-theft - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=pmtFD_y4EY0
+   7. CAN FD Adapter for Autel IM508 and IM608 From Autel - Key4, accessed December 20, 2025, https://www.key4.com/autel-maxisys-can-fd-adapter
+   8. Autel - CAN FD Adapter for 2018-2020 Ford / GM Vehicles for Sale | UHS Hardware, accessed December 20, 2025, https://www.uhs-hardware.com/products/autel-can-fd-adapter
+   9. How to Program GMC YUKON 2021+ Smart Key All Keys Lost by the OBDSTAR - ABKEYS, accessed December 20, 2025, https://abkeys.com/blogs/news/how-to-program-gmc-yukon-2021-smart-key-all-keys-lost-by-the-obdstar-x300-dp-plus-can-fd-adapter
+   10. How to program Chevy Tahoe 2021/2022 NEW Smart Key- Autel V200 and Tech Connect, accessed December 20, 2025, https://www.youtube.com/watch?v=77NLfdQ-18A
+   11. How To Program keys All Keys Lost for Ford Fusionusing Autel IM608 Key Programmer, accessed December 20, 2025, https://www.youtube.com/watch?v=TimNTo5l5JE
+   12. AUTEL CAN FD Adapter for MaxiSys Series IM508 IM608 Supports GM Ford 2020 | eBay, accessed December 20, 2025, https://www.ebay.com/itm/157334590300
+   13. Autel IM608 PRO II and XP-005L Dolphin II Bundle with G-BOX3, APB112, accessed December 20, 2025, https://www.locksmithkeyless.com/products/autel-im608-pro-ii-and-xp-005l-dolphin-ii-bundle-with-g-box3-apb112-imkpa-can-fd-adapter-and-chrysler-12-8-cable-adaptor
+   14. MaxiIM IM608 II & IM608 Pro II_User Manual_EN - Autel, accessed December 20, 2025, https://www.autel.com/u/cms/www/202307/27074754wqj0.pdf
+   15. OBDSTAR KeyMaster G3 - Best Key Supply, accessed December 20, 2025, https://www.bestkeysupply.com/products/obdstar-keymaster-g3-programmer-p727
+   16. OBDSTAR X300 Classic G3 with Built-in CAN FD DoIP Get Free Key Sim&Motor Adapter, accessed December 20, 2025, https://www.ebay.com/itm/116323788420
+   17. Lonsdor - K518 Pro Key Programmer Full Configuration (With 2 Years Software), accessed December 20, 2025, https://royalkeysupply.com/products/lonsdor-k518-pro-key-programmer-full-configuration
+   18. Lonsdor K518 PRO USA Key Programmer - Full Configuration - New USA Version, accessed December 20, 2025, https://www.uhs-hardware.com/products/lonsdor-k518-pro-usa-key-programmer-new-usa-version
+   19. Xhorse Can-FD Adapter for VVDI Key Tool Plus XDKP34GL ABK-2160 - ABKEYS, accessed December 20, 2025, https://abkeys.com/products/xhorse-can-fd-adapter-for-vvdi-key-tool-plus-xdkp34gl-2160
+   20. Xhorse XDKP34GL CANFD Adapter Work with Key Tool Plus For Ford & GM Vehicles, accessed December 20, 2025, https://www.mk3.com/xhorse-xdkp34gl-canfd-adapter-work-with-key-tool-plus
+   21. 2020+ GM CANFD Servers : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1ar3ib5/2020_gm_canfd_servers/
+   22. 2022 Chevy Silverado Smart Key Programming | IM608 Pro II + Slot Location Tip - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=WeQCG22YVLU
+   23. 2020 Silverado All Keys Lost Programmed With TechLine Dealer Tool - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=R7699d7V5qQ
+   24. ServiceNews Article - nhtsa, accessed December 20, 2025, https://static.nhtsa.gov/odi/tsbs/2022/MC-10228193-0001.pdf
+   25. Car locksmith messed up programming another key fob and cost me $2000 worth of repair. How can I win this lawsuit? - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1dk1vop/car_locksmith_messed_up_programming_another_key/
+   26. Honda accord locked bcm : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1fc7yoe/honda_accord_locked_bcm/
+   27. Autel IM608S II Program 2022 Honda Civic All Keys Lost - obdprice, accessed December 20, 2025, https://www.obdprice.com/blogs/news/autel-im608s-ii-program-2022-honda-civic-all-keys-lost
+   28. HONDA ACCORD NO CRANK DEAD BRICKED BCM KEY PROGRAM FIX - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=mBUUWfHNcd0
+   29. Honda Civic BCM failure : r/hondacivic - Reddit, accessed December 20, 2025, https://www.reddit.com/r/hondacivic/comments/11f6h8q/honda_civic_bcm_failure/
+   30. hyundai elantra 2021 : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/szmbhx/hyundai_elantra_2021/
+   31. Autel IM508 Program 2022 Hyundai i10 ID4A All Keys Lost - AutelShop.de Official Blog, accessed December 20, 2025, http://blog.autelshop.de/autel-im508-program-2022-hyundai-i10-id4a-all-keys-lost/
+   32. 2023 Hyundai Elantra With Dead Remote Key Fob Battery "Key Not Detected" - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=T7UZVvqDkQ4
+   33. Locked RF Hub 22 Renegade : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1m3kvyj/locked_rf_hub_22_renegade/
+   34. STOP! Jeep® Tells Dealers To Suspend Sales Of Its All-New Grand Cherokee (WL)!, accessed December 20, 2025, https://moparinsiders.com/stop-jeep-tells-dealers-to-suspend-sales-of-its-all-new-grand-cherokee-wl/
+   35. Bypass the Pesky RAM Security Gateway - HERE'S HOW! - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=-u3Rtx7mThY
+   36. 2018 JEEP WRANGLER / GLADIATOR 12+8 LOCATIONS (SGM LOCATION) - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=D072R88XJdc
+   37. 2022 RAM 1500 RF Hub Module Part# 56029943AA w/ programmed keys | eBay, accessed December 20, 2025, https://www.ebay.com/itm/116575842646
+   38. OEM RF Hub Replacement Kit with POD Keys - Auto Tech Electronic, accessed December 20, 2025, https://www.autotechelectronic.com/rf-hub-kits/oem-rf-hub-replacement-kit-with-pod-keys/
+   39. Subaru Smart Pro Key Programming For Models With Bladed (G key type) Ignition - Software ADS2255 - Key Innovations, accessed December 20, 2025, https://keyinnovations.com/products/subaru-smart-pro-key-programming-for-models-with-bladed-g-key-type-ignition-software-ads2255
+   40. SUBARU BRZ ALL KEYS LOST PROGRAMMING EEPROM - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=X7kQPBg-7sk
+   41. 2015 Subaru Forester All Keys lost | with Autel IM608 - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=zoF-xLlLZvk
+   42. SUBARU KEY PROGRAMMING IN BIU WHEN ALL KEYS LOST G KEY 2012-2018 | eBay, accessed December 20, 2025, https://www.ebay.com/itm/385954164487
+   43. SUBARU | ALL KEYS LOST | SAVE THOUSANDS COMPARED TO DEALER | BIU SMART ECU SYSTEM OVERVIEW - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=wjvdkHtUDnM
+   44. 2020 Mazda CX30 All Keys Lost- Key programming using MZ001 and AVDI - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=3ceO4k_SKBU
+   45. HOW TO PROGRAM A KEY ON 2020 MAZDA CX-30 AKL AND ADD KEY USING AUTEL IM508 - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=Qrgv9PLckL0
+   46. “Add a Smart Key to Mazda in Minutes! | Autel KM100 Step-by-Step Guide” - YouTube, accessed December 20, 2025, https://www.youtube.com/watch?v=y2P021t-z4k

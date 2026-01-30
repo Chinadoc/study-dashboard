@@ -1,0 +1,338 @@
+﻿Advanced Security Architectures and Forensic Key Programming Protocols for Hyundai Motor Group Vehicles (2018–2026): A Comprehensive Technical Analysis
+Executive Summary
+The automotive security landscape encompassing Hyundai Motor Group (HMG)—a conglomerate comprising the Hyundai, Kia, and Genesis marques—has undergone a bifurcation of unprecedented scale and complexity between the model years 2018 and 2026. This period is characterized by two distinct, opposing operational realities that automotive security professionals, forensic locksmiths, and systems integrators must navigate simultaneously. On one vector, the industry is grappling with the remediation of a widespread physical vulnerability in legacy "turn-key" ignition systems found in non-immobilizer-equipped vehicles manufactured between 2011 and 2021. This vulnerability, popularized by the "Kia Boys" social engineering phenomenon, has necessitated a fleet-wide software overhaul that fundamentally alters the logic of the Body Control Module (BCM), creating new procedural roadblocks for legitimate key programming and vehicle recovery.1
+On the opposing vector, HMG has aggressively deployed next-generation cryptographic architectures underpinned by the third-generation N3 platform and the electric E-GMP (Electric-Global Modular Platform). These modern architectures, particularly in 2024–2026 model years, have transitioned from standard Controller Area Network (CAN) protocols to high-bandwidth CAN-FD (Flexible Data-Rate) systems, integrated Ultra-Wideband (UWB) Digital Key 2.0 ecosystems, and implemented server-side "Rolling PIN" verification methods that sever the traditional relationship between Vehicle Identification Numbers (VIN) and static security credentials.3
+This report provides an exhaustive technical analysis of these divergent security paradigms. It functions as a definitive operational database and procedural guide, synthesizing data from technical service bulletins, aftermarket development logs, and forensic security research. The analysis dissects the specific mechanisms of the "Kia Boys" vulnerability and its software countermeasures, explores the hardware requirements for breaching the secure gateways of the 2024+ fleets, and offers a granular, model-specific database of transponder IDs, FCC protocols, and programming methodologies. The findings indicate that while legacy vehicles now require "Active Alarm" bypass protocols, the modern N3 and E-GMP fleets have effectively closed the "open garden" era of OBD-II programming, necessitating a shift toward authorized, server-authenticated tooling and advanced hardware interfaces.
+________________
+1. The Sociotechnical Failure of Legacy Architectures: Anatomy of the "Kia Boys" Vulnerability
+To fully comprehend the current programming environment for millions of Hyundai and Kia vehicles, one must first analyze the engineering decisions that precipitated the theft crisis of the early 2020s. The "Kia Boys" phenomenon was not merely a viral trend but a systemic exploitation of a specific cost-saving hardware configuration in the North American market.
+1.1 The Absence of Transponder Verification (FMVSS 114 Compliance)
+In the majority of global markets, including Canada and Europe, immobilizer mandates compelled manufacturers to install transponder-based verification systems in all vehicles. An immobilizer system functions as a digital gatekeeper: when a key is inserted, an antenna coil around the ignition cylinder energizes a passive RFID chip embedded in the key head. The Engine Control Unit (ECU) sends a challenge to the key; if the key fails to respond with the correct cryptographic signature, the ECU disables the fuel injectors or spark ignition.1
+However, in the United States, Federal Motor Vehicle Safety Standard (FMVSS) 114 required only that a vehicle have a starting system that prevents the engine's activation when the key is removed. It did not explicitly mandate electronic immobilization. Consequently, HMG opted to omit transponder systems in lower-trim vehicles (e.g., Hyundai Accent, Elantra, Kia Soul, Rio) utilizing traditional steel-insert keys between 2011 and 2021.1 In these vehicles, the security was purely mechanical. The ignition cylinder's wafers prevented rotation without the correct key profile, but there was no electronic secondary verification.
+1.2 The Mechanical Vulnerability Interface
+The specific vulnerability that enabled the "USB theft" method lies in the physical design of the ignition lock cylinder housing. Security researchers identified that the steering column cowl in affected models could be stripped with minimal force. Once the cowl was removed, the ignition lock cylinder—the component housing the tumblers—could be detached or broken off from the ignition switch assembly behind it.
+Crucially, the interface between the lock cylinder and the electrical ignition switch is a rectangular male tab. This tab fits into a rectangular slot on the switch to turn it. By a coincidental convergence of industrial design standards, the dimensions of this rectangular slot perfectly match the male connector of a standard USB-A plug.2 Thieves discovered that by removing the cylinder and inserting a USB cable end into the exposed switch, they could apply sufficient torque to rotate the switch through the ACC, ON, and START positions. Because the ECU lacked an immobilizer interrogation loop, the engine would start immediately upon the switch closing the starter circuit.2
+1.3 Regulatory and Insurance Fallout
+The scale of this vulnerability was immense, affecting approximately 4 million vehicles in the United States. The resulting crime wave led to class-action litigation and significant pressure from the National Highway Traffic Safety Administration (NHTSA).6 While HMG argued the vehicles met federal safety standards, the ease of theft rendered many uninsurable in specific regions. This regulatory and financial pressure forced the development of a retrospective software solution, Campaign 993 (Hyundai) and CS230055 (Kia), which fundamentally altered the behavior of the Body Control Module (BCM) and created new complexities for automotive locksmiths.6
+________________
+2. The Software Countermeasure: "Ignition Kill" Logic and BCM Reflashing
+Since a hardware retrofit of immobilizers was deemed logistically and financially unfeasible for millions of units, HMG deployed a software patch designed to emulate immobilizer functionality using the existing alarm logic. This update, rolled out in phases starting in early 2023, has profound implications for key programming and all-keys-lost recovery procedures.
+2.1 The "Logic Gate" Architecture
+The software update modifies the BCM's firmware to introduce a conditional logic check before energizing the starter relay or fuel pump. This is a "pseudo-immobilizer" that relies on the state of the alarm system rather than the presence of a chip.
+2.1.1 The Armed State Protocol
+Under the new logic, when a user locks the vehicle using the Remote Keyless Entry (RKE) fob, the system enters an "Armed" state. Simultaneously, the software activates an "Ignition Kill" feature. In this state, the BCM ignores inputs from the ignition switch. Even if a thief (or a locksmith) physically turns the ignition switch using a key, a screwdriver, or a USB cable, the BCM will not send the crank signal to the starter motor.9
+2.1.2 The Disarm Triggers (The "Dead Man's Switch")
+The critical operational change is how the system disarms. In the pre-patch era, turning the key in the ignition would disarm the alarm. Post-patch, the ignition switch is decoupled from the disarm command. The system disarms only upon receiving a verified "Unlock" signal from the RKE fob.11
+* Implication: The physical key alone is no longer sufficient to start the car if the car was locked with the fob. The fob acts as the authentication token.
+* Door Lock Cylinder Limitation: Many affected vehicles lack an electronic switch in the driver's door lock cylinder. Therefore, turning the physical key in the door may mechanically unlock the vehicle, but it does not send a disarm signal to the BCM. This leaves the "Ignition Kill" active.12
+
+
+  
+
+
+
+2.2 Operational Impact on Locksmith Programming Procedures
+This new architecture creates a specific deadlock scenario for locksmiths performing All-Keys-Lost (AKL) services. In a typical AKL scenario, the vehicle is locked. The locksmith gains entry using air wedges or lishi tools. Opening the door from the inside triggers the alarm.
+The Programming Deadlock:
+1. Active Alarm: The alarm sounds. In patched vehicles, the "Ignition Kill" is active.
+2. OBD-II Rejection: Many diagnostic tools (Autel, SmartPro) cannot communicate with the BCM or ECM to program a new remote while the alarm is in a "Panic" state. The BCM prioritizes the alarm function and may drop diagnostic sessions.10
+3. Chicken-and-Egg: You need to program a fob to disarm the alarm, but you cannot program the fob because the alarm is active.
+2.3 Bypass Protocols and Workarounds
+Field research and locksmith community data have identified several protocols to bypass this state on patched vehicles:
+1. The "Wait it Out" Method: The alarm typically has a timeout period (approximately 30 to 60 seconds). Once the siren stops, the system remains "Armed" but may allow diagnostic communication. However, the "Ignition Kill" remains active until a successful remote command is received.10
+2. Battery Reset: Disconnecting the negative battery terminal for a period of 1 to 5 minutes can force the BCM to reboot. Upon reconnection, some firmware versions revert to a "Disarmed" or "Ready" state, temporarily lifting the ignition block and allowing key programming.14
+3. Active OBD Unlock: Advanced programming tools (such as the Autel IM608 Pro II and Advanced Diagnostics SmartPro) have introduced specific "Unlock" or "Disable Alarm" functions within the Hyundai/Kia software menus. These functions send a CAN bus command that mimics the digital signature of a valid unlock, forcing the BCM to drop the "Ignition Kill" logic.15
+4. Key Cylinder Cycling: On certain intermediate models (e.g., 2021 Kia Sportage), cycling the physical key in the driver's door lock cylinder (Unlock-Lock-Unlock) may effectively disarm the system if the door harness contains the appropriate microswitch wiring.16
+________________
+3. The N3 and E-GMP Platform Revolution: 2018–2026 Security Architecture
+While the legacy fleet undergoes software patching, HMG's new vehicle production has shifted to the N3 architecture (introduced in 2019) and the dedicated electric E-GMP platform (introduced in 2021). These platforms represent a quantum leap in vehicle network security, characterized by the adoption of CAN-FD protocols, Secure Gateways, and Rolling Code encryption.3
+3.1 Platform Scope and Identification
+The N3 Platform serves as the modular backbone for HMG's mid-size sedans and SUVs. It prioritizes lightweight construction and deep integration of Advanced Driver Assistance Systems (ADAS), which necessitate higher data throughput.17
+* Key N3 Models: Hyundai Sonata (DN8), Tucson (NX4), Santa Fe (TM PE/MX5), Santa Cruz (NX4a), Staria (US4); Kia K5 (DL3), Sorento (MQ4), Sportage (NQ5), Carnival (KA4).3
+The E-GMP Platform is a dedicated battery-electric architecture supporting 800V charging and Vehicle-to-Load (V2L) capabilities.
+* Key E-GMP Models: Hyundai Ioniq 5 (NE), Ioniq 6 (CE); Kia EV6 (CV), EV9 (MV); Genesis GV60 (JW).18
+3.2 The Transition to CAN-FD (Flexible Data-Rate)
+A critical delineation point for key programming occurs with the introduction of CAN-FD. Traditional CAN bus networks operate at a maximum speed of 500 kbps with a payload limit of 8 bytes per frame. This bandwidth is insufficient for the complex cryptographic exchanges required by modern immobilizers and Digital Key 2.0 systems.
+The CAN-FD Standard:
+CAN-FD extends the data field to 64 bytes and supports data rates up to 5 Mbps (and potentially higher). This allows the vehicle to transmit longer encryption keys and more complex challenge-response packets in a single frame.5
+The "2024 Firewall":
+While some N3 vehicles (e.g., 2021 Sonata) used standard CAN for OBD-II diagnostics, the 2024+ model year refresh (specifically the Hyundai Santa Fe MX5, Kia EV9, and the facelifted Tucson/Sorento) has migrated the Immobilizer Control Module (ICM) and BCM to the CAN-FD bus.
+* Tooling Impact: Legacy OBD-II programmers (e.g., older Autel VCIs, MVP Pro, Zed-Full) rely on hardware transceivers that cannot interpret CAN-FD frames. When connected to a 2024 Santa Fe, these tools will fail to communicate, often displaying "Linking Error" or "ECU Not Responding."
+* Hardware Requirement: To program keys for these vehicles, technicians must utilize a CAN-FD compatible interface. This includes the Autel VCI V200 (bundled with IM508S/IM608 II), the dedicated Autel CAN FD Adapter, or the OBDSTAR CAN FD connector kit.4
+
+
+  
+
+
+
+________________
+4. The Credentials War: PIN Codes and Server-Side Authentication
+The fundamental mechanism of key programming—authenticating the technician to the vehicle—has evolved from a static lookup to a dynamic, server-dependent process.
+4.1 Evolution of the PIN Code
+Historically (2011–2019), HMG vehicles utilized a static 6-digit PIN that was cryptographically derived from the last six digits of the VIN. This allowed third-party "PIN Calculator" devices and apps to generate the code instantly without internet access.
+The Rolling PIN (2020–2026):
+With the N3 platform, HMG introduced a "Rolling Code" system. The PIN is no longer static. When a programming tool initiates a session, the vehicle generates a random "Challenge" or "Seed" code. This seed must be sent to a central server (GSW - Global ServiceWay), which calculates the correct response PIN based on the seed and the VIN.
+* Operational Consequence: Offline programming is impossible for modern models. Tools like the Autel IM608 or SmartPro must have an active internet connection to communicate with the tool manufacturer's server (which bridges to the OEM algorithm) to retrieve the PIN.21
+4.2 The "Closed Garden" of Genesis
+Genesis, HMG's luxury division, enforces the strictest security protocols. For models such as the GV60, GV70, GV80, and G90 (2021+), the PIN code calculation algorithms have not been reverse-engineered or integrated into most aftermarket tools.
+* The "Dealer Code" Requirement: It is widely accepted in the forensic locksmith community that Genesis PIN codes cannot be pulled via OBD. They must be obtained directly from the dealership parts department or via the National Automotive Service Task Force (NASTF) Vehicle Security Professional (VSP) registry. Attempts to "brute force" or read the PIN via OBD often result in the BCM locking out for a penalty period.23
+________________
+5. Digital Key Conflict Resolution: 2.0 vs. Fob Programming
+A frequent failure point in N3 platform programming is the interference caused by the "Digital Key" ecosystem (Smartphone-as-a-Key). The Digital Key 2.0 (Touch/NFC) and Digital Key 2.0 Premium (UWB) occupy a "slot" in the vehicle's immobilizer memory, identical to a physical key.
+5.1 The "Slot Limit" Failure Mode
+Immobilizer modules have a finite number of memory slots (typically 2 or 3 for fobs, plus 1 for Digital Key). When a vehicle is sold on the secondary market or repossessed, the previous owner's Digital Key profile often remains active in the head unit. When a technician attempts to program a new physical fob, the system checks the slot count. If the Digital Key is occupying a slot, the system may reject the new fob with an "Exceeded Limit" or "Sequence Error" code.25
+5.2 UWB Interference
+For vehicles equipped with UWB (e.g., 2024 Kia EV9, Hyundai Ioniq 6), the Digital Key system is "active," meaning it constantly polls for the presence of the paired phone. If a technician attempts to program a key while the owner's (or previous owner's) phone is within range (even 10–15 feet), the UWB signal can jam the lower-power handshake of the programming tool.27
+5.3 The Mandatory "Delete" Protocol
+To ensure successful programming on Digital Key-equipped vehicles, a specific sanitization protocol must be followed:
+1. Delete via Head Unit: If a working key is present, the technician must navigate to Setup > Vehicle > Digital Key > Smartphone Key and execute "Delete All" to free up the memory slot.28
+2. Master Reset (AKL): In All-Keys-Lost scenarios, the technician must use the diagnostic tool (e.g., Autel "Neutralize" or "Master Reset" function). This command wipes all credentials, including the Digital Key, forcing the BCM to start with a blank slate.30
+3. Physical Sanitization: Ensure no paired smartphones are inside the cabin during the pairing process to prevent UWB interference.31
+
+
+  
+
+
+
+________________
+6. Comprehensive Database: Model-Specific Programming Data (2018–2026)
+This section provides a structured database of key programming parameters for the N3 and E-GMP fleets. This data is critical for identifying the correct transponder systems and anticipating hardware requirements (CAN-FD).
+6.1 Hyundai N3 & E-GMP Database
+
+
+Model
+	Years
+	Platform
+	Key Type
+	Transponder / FCC
+	PIN Method
+	CAN-FD Req?
+	Notes
+	Sonata (DN8)
+	2020-2023
+	N3
+	Smart Key (Prox)
+	Hitag 3 / AES (47/4A)
+
+
+FCC: TQ8-FOB-4F26
+	OBD Read (Server Calc)
+	No
+	High Digital Key interference. Use "Delete" protocol.
+	Sonata (Facelift)
+	2024-2026
+	N3
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4FXX
+	Dealer/NASTF Only
+	YES
+	Strict Security. OBD PIN reading blocked on most tools.
+	Tucson (NX4)
+	2022-2024
+	N3
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4F28
+	OBD Read (80% Success)
+	No (Early)
+
+
+Yes (2024+)
+	2024 model update migrated BCM to CAN-FD.
+	Santa Fe (MX5)
+	2024-2026
+	N3
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4F61
+	Dealer/NASTF
+	YES
+	New Architecture. Requires CAN-FD adapter. Standard tools fail. 4
+	Ioniq 5 (NE)
+	2022-2025
+	E-GMP
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4F29
+	Server Calc (Online)
+	No (Early)
+
+
+Yes (2024+)
+	Ensure vehicle is ON (Ready mode) for some programming steps.
+	Palisade (LX2)
+	2020-2025
+	N3
+	Smart Key (Prox)
+	Hitag 3 (47) / AES (4A)
+	OBD Read (Server)
+	No
+	Verify chip type (47 vs 4A) before cutting key.
+	6.2 Kia N3 & E-GMP Database
+
+
+Model
+	Years
+	Platform
+	Key Type
+	Transponder / FCC
+	PIN Method
+	CAN-FD Req?
+	Notes
+	K5 (DL3)
+	2021-2024
+	N3
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4F27
+	OBD Read (High Success)
+	No
+	Check "Key Sensing Area" (Cup Holder vs Start Button).
+	EV6 (CV)
+	2022-2025
+	E-GMP
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4F33
+	Server Calc
+	No (Early)
+
+
+Yes (2024+)
+	RSPA (Remote Park) fobs are expensive. Verify button count.
+	EV9 (MV)
+	2024-2026
+	E-GMP
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4FXX
+	NASTF/Dealer
+	YES
+	First Kia to natively require CAN-FD for all IMMO functions. 5
+	Telluride
+	2020-2023
+	N3
+	Smart Key (Prox)
+	Hitag 3 (47)
+	OBD Read (High Success)
+	No
+	Active Alarm Bypass often required on patched units.
+	Carnival (KA4)
+	2022-2025
+	N3
+	Smart Key (Prox)
+	Hitag AES (4A)
+
+
+FCC: TQ8-FOB-4F25
+	OBD Read (Server)
+	No
+	Sliding door buttons must match trim (3, 5, 6, or 7 buttons).
+	6.3 Genesis High-Security Database
+
+
+Model
+	Years
+	Platform
+	Key Type
+	Transponder / FCC
+	PIN Method
+	CAN-FD Req?
+	Notes
+	GV60 (JW)
+	2023-2026
+	E-GMP
+	Smart Key (Prox)
+	Hitag AES (4A)
+	DEALER CODE ONLY
+	YES
+	Fingerprint module may require reset in AKL.
+	G70 (IK)
+	2022-2025
+	M2
+	Smart Key (Prox)
+	Hitag AES (4A)
+	Dealer/NASTF
+	No (Early)
+	2024+ likely moves to CAN-FD.
+	G90 (RS4)
+	2023-2026
+	M3
+	Smart Key (Prox)
+	NCF29A1 / Hitag AES
+
+
+FCC: TQ8-FOB-4F53U
+	DEALER CODE ONLY
+	YES
+	Most difficult HMG vehicle. Requires online calc + CAN-FD. 32
+	________________
+7. Tooling Landscape and Hardware Analysis
+The shift to CAN-FD and server-side authentication has rendered many legacy programming tools obsolete for 2024+ HMG vehicles. This section analyzes the capabilities of current market-leading tools.
+7.1 Autel MaxiIM Series (IM508S / IM608 Pro II)
+The Autel ecosystem is currently the market leader for HMG programming.
+* CAN-FD Support: The IM608 Pro II and IM508S come with the VCI V200, which supports CAN-FD natively. Users of the older IM608 (Pro I) or IM508 must purchase the separate Autel CAN FD Adapter ($60-$100) to communicate with 2024+ models like the Santa Fe MX5 and EV9.33
+* Server Calculation: Autel maintains a robust server for PIN calculation. However, for 2024+ models, the success rate of "Read PIN via OBD" has dropped significantly due to new gateway encryption. In these cases, the tool often prompts the user to enter the PIN manually (obtained via NASTF).22
+7.2 Advanced Diagnostics (SmartPro)
+The SmartPro is a token-based system preferred by enterprise locksmiths.
+* Hyundai/Kia Software: The "ADS2329" and "ADS2331" software modules cover N3 platform vehicles.
+* CAN-FD: SmartPro users must utilize the Smart Aerial+ or specific cable adapters to handle high-speed data frames.
+* Strengths: SmartPro often has superior "Bypass" capabilities for vehicles in an active alarm state compared to Autel, making it valuable for "Kia Boys" recovery scenarios.35
+7.3 Proprietary/Dealer Tools (GDS Mobile)
+The OEM tool, Hyundai GDS (Global Diagnostic System) Mobile, remains the only 100% guaranteed method for programming, particularly for Genesis models. It requires a verified dealership login to access the PIN generation server. It natively supports all protocols including CAN-FD and UWB provisioning.
+________________
+8. Conclusion
+The security architecture of Hyundai, Kia, and Genesis vehicles has bifurcated into two extreme realities. For the legacy fleet (2011–2021), the security challenge is one of remediation: dealing with the "Ignition Kill" software patch, bypassing active alarm states, and managing the physical aftermath of the "Kia Boys" vulnerability. For the modern fleet (2024+), the challenge is one of advanced access: navigating CAN-FD networks, UWB interference, and rolling-code encryption that demands server-side authentication.
+For the automotive security professional, the implications are clear: the era of the universal, offline OBD programmer is ending for HMG vehicles. Success now requires a layered approach combining mechanical bypass techniques for legacy models with advanced, internet-connected hardware (CAN-FD adapters, NASTF credentials) for the secure N3 and E-GMP platforms. As HMG transitions to the Integrated Modular Architecture (IMA) in the late 2020s, we anticipate a further move toward biometric and cloud-native authentication, potentially removing the OBD-II port from the key programming equation entirely.
+Works cited
+1. Kia Challenge - Wikipedia, accessed January 8, 2026, https://en.wikipedia.org/wiki/Kia_Challenge
+2. Stealing Cars with a USB Cable - Embedded Artistry, accessed January 8, 2026, https://embeddedartistry.com/fieldatlas/stealing-cars-with-a-usb-cable/
+3. Hyundai-Kia N platforms - Wikipedia, accessed January 8, 2026, https://en.wikipedia.org/wiki/Hyundai-Kia_N_platforms
+4. Kia Hyundai 2024 PIN Code Reading & Smart Key Programming: Autel vs Xhorse Tested, accessed January 8, 2026, https://www.youtube.com/watch?v=2gY00pYD-Go
+5. OBDSTAR CAN FD Programming Adapter - 2020-2023 GM - Your Car Key Guys, accessed January 8, 2026, https://yourcarkeyguys.com/products/obd-star-can-fd-programming-adapter-2020-2021-gm
+6. Hyundai and Kia Launch Service Campaign to Prevent Theft of Millions of Vehicles Targeted by Social Media Challenge | NHTSA, accessed January 8, 2026, https://www.nhtsa.gov/press-releases/hyundai-kia-campaign-prevent-vehicle-theft
+7. Hyundai-Kia and NHTSA Announce Software Fix for Deadly Theft Epidemic, but No Recall, accessed January 8, 2026, https://www.safetyresearch.net/hyundai-kia-and-nhtsa-announce-software-fix-for-deadly-theft-epidemic-but-no-recall/
+8. Immobilizer & Campaign 993 Anti-Theft Software and Window Decal Dealer Best Practices - nhtsa, accessed January 8, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10232190-0001.pdf
+9. VIN Validation - Hyundai, accessed January 8, 2026, https://autoservice.hyundaiusa.com/Campaign993
+10. After learning how the anti-theft software update actually works, I understand why people are still getting their cars stolen : r/Hyundai - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Hyundai/comments/15wgdly/after_learning_how_the_antitheft_software_update/
+11. Anti-Theft Software Upgrade Is Garbage : r/Hyundai - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Hyundai/comments/1io6csv/antitheft_software_upgrade_is_garbage/
+12. car stolen after anti theft software installed : r/Hyundai - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Hyundai/comments/18dwib9/car_stolen_after_anti_theft_software_installed/
+13. How Does the anti-theft “Software Update” Work? : r/kia - Reddit, accessed January 8, 2026, https://www.reddit.com/r/kia/comments/135ls1i/how_does_the_antitheft_software_update_work/
+14. Smart Aerial + How to use for Hyundai and KIA Pincode Use (recap guide) - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=zhA2qctvkCU
+15. Autel IM608 II Program 2025 Hyundai Kona All Smart Keys Lost, accessed January 8, 2026, http://blog.autelshop.de/autel-im608-ii-program-2025-hyundai-kona-all-smart-keys-lost/
+16. Kia Key Fob Tricks and Tips | Wilson KIA, accessed January 8, 2026, https://www.wilsonkia.com/manufacturer-information/kia-key-fob-tricks/
+17. Hyundai-Kia N platforms - Grokipedia, accessed January 8, 2026, https://grokipedia.com/page/Hyundai-Kia_N_platforms
+18. Dissecting Hyundai Motor Group's electrification plans - EV Pulse, accessed January 8, 2026, https://www.evpulse.com/features/dissecting-hyundai-motor-groups-electrification-plans
+19. List of Kia vehicles - Wikipedia, accessed January 8, 2026, https://en.wikipedia.org/wiki/List_of_Kia_vehicles
+20. Autel CAN FD Adapter - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+21. This will Change How You Program Kia and Hyundai Keys! New #SmartPRO Program for Pin Codes - CLK Supplies, accessed January 8, 2026, https://www.clksupplies.com/blogs/news/this-will-change-how-you-program-kia-and-hyundai-keys-new-smartpro-program-for-pin-codes
+22. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 8, 2026, https://autel.us/autel-adds-24-25-immo-key/
+23. How to get PIN code other than dealership? : r/Hyundai - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Hyundai/comments/yso2ie/how_to_get_pin_code_other_than_dealership/
+24. Genesis G90 Key Replacement - What To Do, Options, Costs & More, accessed January 8, 2026, https://lost-car-keys-replacement.com/genesis/g90/
+25. Issues with enrolling digital key : r/Hyundai - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Hyundai/comments/1jjy0db/issues_with_enrolling_digital_key/
+26. Just got a new car, I managed to setup the digital key. Partner fails for her : r/Ioniq5 - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Ioniq5/comments/1mg52e2/just_got_a_new_car_i_managed_to_setup_the_digital/
+27. Keyfob Tricks and Smart Parking in the Kia EV9 (and how to set them up) - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=6ZUBsXjlPZE
+28. How to delete Digital Key (Smart Phone) - Kia Owner's Manual, accessed January 8, 2026, https://ownersmanual.kia.com/docview/webhelp/doc/8d9d4064-a000-4dc6-88df-3e9c3502a293/topics/idEmpty00170.html
+29. Deleting a Digital Key | Hyundai Motor India, accessed January 8, 2026, https://www.hyundai.com/in/en/hyundai-story/bluelink/digital-key/deleting-a-digital-key
+30. Digital Key 1: A Digital Way to Unlock and Start Your Hyundai - MyHyundai, accessed January 8, 2026, https://owners.hyundaiusa.com/us/en/resources/technology-and-navigation/hyundai-digital-key
+31. Kia Digital Key 2 Touch User Guide, accessed January 8, 2026, https://sweb.owners.kia.us/content/dam/kia/us/owners/pdf/common/Kia_Digital_Key_2_Touch_User_Guide.pdf
+32. 2023 Genesis G90 Smart Remote Key Fob w/ Parking Assistance - CarandTruckRemotes, accessed January 8, 2026, https://www.carandtruckremotes.com/products/2023-genesis-g90-smart-remote-key-fob-w-parking-assistance
+33. Autel CANFD-ADAPT Protocol Adaptor for IM508 / IM608 - Key Innovations, accessed January 8, 2026, https://keyinnovations.com/products/autel-canfd-adapt-protocol-adaptor-for-im508-im608
+34. CAN FD ADAPTER - AutelMaxiSysADAS.com, accessed January 8, 2026, https://www.autelmaxisysadas.com/CAN-FD-ADAPTER_p_6925.html
+35. How to read IMMO Pin Code 2021 Hyundai Sonata w Smart Aerial plus & Smart Pro Automotive Programmer - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=gOGcJkpLBjs
+36. Smart PRO: OBD Vehicle Key Programmer - Advanced Diagnostics, accessed January 8, 2026, https://www.advanced-diagnostics.com/ad-products/smart-pro

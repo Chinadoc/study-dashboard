@@ -1,0 +1,181 @@
+﻿Title: The Architecture of Control: A Comprehensive Analysis of Mercedes-Benz FBS3 and FBS4 Drive Authorization Systems (2015–2026)
+1. Introduction: The cryptographic Arms Race
+The automotive security landscape has undergone a seismic transformation over the last decade, nowhere more visibly than within the engineering of Mercedes-Benz Drive Authorization Systems (Fahrberechtigungssystem or FBS). As vehicle architectures shifted from decentralized, offline authentication methods to centralized, server-dependent topologies, the independent repair market has faced an existential challenge. This report provides an exhaustive technical analysis of Mercedes-Benz Electronic Ignition Switches (EIS/EZS) and Infrared (IR) Key systems, covering the pivotal transition from FBS3 to FBS4, the intricate acquisition protocols for Theft-Relevant Parts (TRP), and the current capabilities of aftermarket engineering solutions.
+The analysis reveals a bifurcated market. For vehicles produced prior to 2015 (FBS3), the aftermarket has achieved total mastery, effectively reverse-engineering the hash algorithms and password calculation protocols to allow for independent key generation. Conversely, the FBS4 architecture, introduced incrementally starting in 2013 and standardizing by 2015, remains a formidable "walled garden." Despite marketing claims from various tool manufacturers, "All Keys Lost" (AKL) scenarios for FBS4 vehicles remain fundamentally resolvable only through official dealership channels due to the implementation of 128-bit encryption and online-only calculation servers.1
+This document serves as a definitive technical database for dealers, independent specialists, and security researchers, aiming to clarify the obfuscated boundaries of repair rights, technical capability, and security architecture in the modern era of automotive diagnostics. The implications of this technological divide extend beyond mere convenience; they fundamentally alter the economics of vehicle ownership, the viability of independent service centers, and the legal frameworks governing the "Right to Repair."
+2. The Evolution of the Electronic Ignition Switch (EIS/EZS)
+The Electronic Ignition Switch (EIS), known in German service manuals as Elektronisches Zündschloss (EZS), serves as the central gateway and primary security guardian of the Mercedes-Benz controller network. Unlike traditional mechanical tumblers that physically close a circuit, the EIS is a sophisticated computer that utilizes infrared induction to power and communicate with the key fob, executing a challenge-response cryptographic exchange before authorizing engine start.2
+2.1 The Infrared Protocol and "Handshake" Mechanism
+The core of Mercedes-Benz security lies in the "Hash" exchange. When a SmartKey is inserted into the EIS (or detected via LF antennas in Keyless-Go systems), the EIS induces power into the key via a copper coil. The key then transmits its unique ID (SSID) via Infrared (IR).
+If the SSID is recognized as belonging to one of the 8 distinct "tracks" (key slots) allowed in the EIS memory, the EIS generates a random number (the "Nonce") and transmits it to the key. Both the key and the EIS then independently calculate a response using a stored secret mathematical formula (the "Password") and the random number. The key transmits its result back to the EIS. If the two calculations match, the "Hash" is verified.1
+This successful handshake triggers a cascade of authorizations:
+1. Unlock Steering: The EIS sends an encrypted signal to the Electronic Steering Lock (ESL/ELV) to retract the locking bolt.
+2. Enable Ignition: Terminal 15 power is activated.
+3. Engine Authorization: The EIS sends a separate encrypted hash to the Engine Control Unit (ECU/DME) and Transmission Control Unit (TCU/VGS). Only when all modules agree on the validity of the hash will the engine crank and fire.1
+2.2 The Transition from DAS3 to FBS4
+The industry divides Mercedes security into generations. The most critical distinction for modern repair facilities is between FBS3 (DAS3) and FBS4 (DAS4).
+* FBS3 (approx. 2004–2014): Utilized 56-bit or 64-bit encryption. The "Password" required to generate keys could be calculated by sniffing the CAN bus traffic or directly accessing the EIS memory. The aftermarket has successfully cracked this system, allowing tools to emulate the handshake and extract the password in minutes.1
+* FBS4 (approx. 2013–Present): Introduced 128-bit encryption and, crucially, removed the ability to calculate passwords offline. In FBS4, the "calculation" logic was moved from the local module to the Mercedes-Benz central servers in Stuttgart. The key and EIS no longer just "talk" to each other; they essentially authenticate against a digital twin stored in the cloud during the programming phase. This renders the "sniffing" attacks used on FBS3 useless, as the necessary calculation keys are never fully exposed on the vehicle's bus.1
+
+
+  
+
+
+
+3. The Transition Zone: Identifying System Type (2013–2016)
+The most treacherous period for technicians is the overlap years between 2013 and 2016. During this window, Mercedes-Benz produced "hybrid" model years where the same chassis code (e.g., W212 E-Class) could be equipped with either FBS3 or FBS4 depending on the production month and engine configuration.1 Misidentifying the system leads to catastrophic repair errors, such as purchasing expensive non-returnable keys that cannot be programmed.
+3.1 The "Gray Era" Chassis Breakdown
+The transition was not uniform across all models. It was rolled out progressively, often tied to the introduction of new engine families or "facelift" (MoPf - Modellpflege) updates.
+W212 E-Class (2009–2016)
+The W212 is the primary source of confusion.
+* Pre-Facelift (2009–2012): Exclusively FBS3. Aftermarket keys are fully supported.
+* Facelift (2013–2016): This is the danger zone. Early 2013 models may still be FBS3, but by late 2013 and early 2014, the W212 transitioned to FBS4, particularly with the introduction of the 9G-Tronic transmission and updated gasoline engines. A 2014 E-Class is statistically likely to be FBS4, rendering aftermarket key programming impossible.1
+W205 C-Class (2014–Present)
+The W205 was designed as a "native" FBS4 vehicle. Production began in February 2014, and all W205 models utilize the FBS4 architecture. There are effectively no FBS3 W205s, making this chassis a hard stop for aftermarket key programming.8
+W222 S-Class (2014–2020)
+Similar to the W205, the W222 launched with FBS4 architecture. While some extremely early production units (late 2013) share components with the outgoing W221, for all practical repair purposes, the W222 should be treated as exclusively FBS4.5
+3.2 Decoding the Data Card: Option Codes 804, 805, 806
+For a definitive identification without physical disassembly, technicians must analyze the vehicle's Data Card (V-Card) and specifically the "Model Year" option codes.
+* Code 803 / 804: Typically indicates Model Year 2013/2014. These are often the last of the FBS3 vehicles, but caution is required.
+* Code 805: Indicates Model Year 2015. This is the hard cutoff for most platforms. A vehicle with code 805 is almost certainly FBS4.
+* Code 806+: Model Year 2016 and newer. 100% FBS4 confirmed.1
+3.3 Physical Verification Methods
+When documentation is unavailable, physical inspection of the key and modules provides clues, though they are not infallible.
+* Key Design: The transition to FBS4 coincided with the widespread adoption of the "Chrome" key with the triangular panic button arrangement. However, aftermarket "BGA" style keys can mimic this look while functioning on FBS3 protocols, so visual key inspection is unreliable.1
+* Scanner Identification: Using a diagnostic tool (Xentry, Autel, or equivalent), technicians can query the "Control Unit Version." If the EIS or ECU variant data references "FBS4," "DAS4," or "Gen 4," the system is locked.7
+
+
+  
+
+
+
+3.4 Chronology of Architecture Transition
+The industry data reveals a staggered implementation of the FBS4 protocol, creating distinct "Transition Eras" for different chassis. The C-Class (W204) remained on the secure, yet accessible, FBS3 platform through the end of its production cycle in 2014. The introduction of its successor, the W205 C-Class, marked the immediate and universal adoption of FBS4 in early 2014.
+Conversely, the E-Class (W212) experienced a "split personality" phase. While 2011 to 2013 models are reliably FBS3, the "facelift" refresh in late 2013 introduced a chaotic period where both systems were used simultaneously depending on engine trim, until a full FBS4 standardization occurred by 2016. A similar pattern is observed in the S-Class; the W221 chassis (2007–2013) is strictly FBS3, while the W222, launched in 2014, is a native FBS4 platform.
+4. Dealer Key Acquisition: The Theft Relevant Parts (TRP) Policy
+As aftermarket routes for FBS4 vehicles are closed, the official Mercedes-Benz dealer network becomes the sole source for key replacement. This process is governed by the rigorous Theft Relevant Parts (TRP) policy, which has seen stringent updates in 2024 and 2025 to combat vehicle theft and unauthorized exports.14
+4.1 The "Owner Present" Mandate
+The most significant hurdle for independent shops is the requirement that the vehicle owner must be physically present at the dealership to order a key. The days of a shop ordering a key on behalf of a customer with a simple release form are largely over in many regions.16
+Required Documentation:
+1. Original Title/Registration: Must be current and match the person ordering.
+2. Government-Issued ID: Driver's license or passport matching the registration.
+3. Vehicle Presence: For the final synchronization (programming) of the key, the vehicle must typically be present at the dealership. This is a critical logistical constraint for "All Keys Lost" situations, requiring the vehicle to be towed to the dealer.16
+4.2 The Synchronization Process
+Unlike older systems where a "Green Key" (Workshop Key) was used to program the EIS, modern FBS4 keys arrive from the Logistics Center (e.g., Fort Worth in the US) "pre-personalized." They are coded to the specific VIN and track number of the vehicle before they ship.
+When the key arrives:
+1. Insert Key: The technician inserts the new key into the EIS.
+2. Server Connection: The EIS detects the new key and initiates a call to the Mercedes-Benz backend via the Xentry diagnostic tool.
+3. Activation: The server validates the key's hash against the VIN's digital record. Once validated, the key is "released" and becomes active. This process disables the track of the lost key it replaced.18
+4.3 Cost Analysis (2025 Market Rates)
+The cost of this exclusivity is high.
+* Key Fob Hardware: $350 – $500 USD depending on the "Keyless-Go" or standard variant.
+* Programming/Labor: $150 – $250 USD (typically 1 hour of labor for synchronization).
+* Total Cost: Consumers often face bills ranging from $500 to $800 USD for a single replacement key.19
+5. The Aftermarket Landscape: FBS3 (The "Solved" System)
+For vehicles produced prior to the FBS4 cutoff (approx. 2014), the aftermarket offers robust, cost-effective solutions. The encryption (typically 56-bit) is weak enough to be brute-forced or calculated using specialized algorithms.
+5.1 Aftermarket Tool Capabilities (FBS3)
+The market is dominated by three primary ecosystems: Autel, Xhorse (VVDI), and CGDI.
+Autel (IM508/IM608 + G-Box3)
+Autel has positioned itself as the premium "all-in-one" solution.
+* Method: Autel uses the "G-Box3" accessory to bypass security on the EIS/ECU on the bench. It speeds up the "Password Calculation" phase by 4x-8x compared to older methods.22
+* Advantage: The IM608 is also a full-function diagnostic scanner, allowing technicians to scan for faults and perform coding unrelated to keys.
+* Key Generation: Supports "All Keys Lost" via OBD (On-Board Diagnostics) for most W204/W207/W212 models. The tool reads the EIS data, calculates the password via Autel's server, and writes it to a blank aftermarket key.5
+Xhorse (VVDI MB Tool / Key Tool Plus)
+Xhorse is favored by locksmiths for its speed and dedicated focus on key/remote generation.
+* Password Calculation: widely regarded as the fastest in the industry for FBS3 calculations. It supports "fast mode" for W166, W212, and W246.5
+* Universal Keys: Xhorse produces "BE" keys (aftermarket boards) that can be rewritten multiple times, a significant advantage over single-use OEM keys. Their "FBS3 Keyless-Go" keys allow for aftermarket proximity functions, which was historically difficult to replicate.13
+5.2 The "Motorola vs. NEC" Distinction in EIS
+Not all FBS3 systems are equal. The internal processor of the EIS dictates the repair method.
+* Motorola (HC05/HC08/HC12): Found in older chassis (W220, W203, W210). These require removing the EIS and soldering wires to read the EEPROM directly (EEPROM work). They cannot be done purely via OBD.27
+* NEC Processors: Found in newer FBS3 (W204, W212, W207). These allow for IR-based password extraction, often without soldering, making them much faster to service.28
+
+
+  
+
+
+
+6. The Aftermarket Frontier: FBS4 (The "Uncrackable" Wall)
+Since 2015, the aftermarket has been in an "arms race" to crack FBS4. As of early 2026, the wall remains largely intact, with only small fissures appearing in specific, limited scenarios.
+6.1 The "All Keys Lost" (AKL) Reality
+There is currently no public aftermarket solution for programming a key to an FBS4 vehicle when all keys are lost.
+* Reasoning: The password calculation requires a "seed-key" exchange with the Daimler servers that has not been successfully emulated. Without a working key to act as a bridge or "sniffer," the EIS ignores all attempts to extract the hash.1
+* Consequence: Any vehicle from 2015+ with no keys must go to the dealer. Claims by dubious vendors selling "FBS4 AKL Solutions" usually involve shipping the entire EIS/ECU set to a shadowy third party (often in Eastern Europe or China) for manual EEPROM manipulation, which is high-risk and expensive.30
+6.2 The "Add Key" Partial Solution (Yanhua ACDP)
+The only notable breakthrough has come from Yanhua with their ACDP tool (Module 42 / License A106).
+* Capability: This tool claims to support "Add Key" for FBS4, but with a critical caveat: You must have a working key.
+* Method: The tool uses the working key to authenticate with the EIS and authorize the addition of a new key. It effectively clones the authorization token of the existing key to a new blank.
+* Limitation: This does not create a new track on the EIS; it essentially duplicates an existing permission. Furthermore, it is reported to be unstable and works only on specific earlier versions of the FBS4 firmware (early 2015-2016 models). It typically fails on newer (2020+) updates.32
+6.3 Control Module Renewal (Virginizing)
+While creating keys is blocked, the aftermarket has succeeded in "renewing" used control modules (ECUs/TCUs) for FBS4.
+* The Process: Tools like the Autel IM608 and Abrites can read a used ECU (e.g., Bosch MED17.7.5) and wipe its personalization data (erase the VIN and Hash). This returns the unit to a "Virgin" state.35
+* The Utility: This allows a repair shop to install a used engine computer into a car. Once installed, the dealer (or a technician with an online account) can "personalize" it using the existing working keys. This saves the customer thousands compared to buying a new ECU, but it does not solve the lost key problem.9
+7. Technical Database: Tool-Specific Capabilities (2025/2026)
+This section aggregates the capabilities of major tools for the technical database.
+7.1 Autel MaxiIM (IM508S / IM608 Pro II)
+* FBS3 Status: Gold Standard. Fast, reliable, supports almost all AKL situations via OBD or Bench (G-Box3).
+* FBS4 Status: Strong on Module Renewal (ECU/TCU). Can virginize VGS (Transmission) and MED17 (Engine) modules. Cannot program FBS4 keys AKL.
+* Hardware: Requires XP400 Pro programmer for IR operations.35
+7.2 Xhorse (VVDI MB / Key Tool Plus)
+* FBS3 Status: Speed King. Fastest password calculation. Excellent support for "BE" keys and remote generation.
+* FBS4 Status: Very limited. Primarily focuses on diagnostics and basic enabling/disabling of keys. No significant FBS4 ECU renewal or key programming capabilities compared to Autel or Abrites.5
+7.3 Yanhua Mini ACDP (Module 42)
+* FBS3 Status: Good, but relies on mobile app interface which some technicians find less professional.
+* FBS4 Status: Niche Leader. The only mainstream tool attempting "Add Key" for FBS4 (with working key). Also supports renewal of 7G/9G Tronic gearboxes (VGS-NAG3).32
+7.4 Abrites (AVDI)
+* FBS3 Status: Comprehensive.
+* FBS4 Status: Advanced. Abrites is often the first to release "Virgin" solutions for newer modules (e.g., DAS4 ESL repair). However, the cost of the interface and annual subscriptions (AMS) is significantly higher than Autel or Xhorse.38
+8. Future Outlook: The Right to Repair Battle
+The restriction of FBS4 key programming is currently a flashpoint in the "Right to Repair" legislative battles in the US and EU.
+* 2025 Legislation: The reintroduction of the REPAIR Act in the US aims to force OEMs to share security data with independent shops.46
+* Impact: If passed and enforced, Mercedes-Benz may be forced to open a secure portal for vetted independent locksmiths to purchase "Seed-Key" codes or authorize keys without towing the car to a dealer. Until then, the proprietary lock on FBS4 remains the industry's most effective anti-repair firewall.47
+Conclusion
+The transition from FBS3 to FBS4 represents a definitive "closing of the gates" by Mercedes-Benz. For the independent technician, the ability to service these vehicles depends entirely on accurate identification. The "Gray Era" (2013-2015) demands vigilance: a simple VIN check can mean the difference between a profitable repair and a bricked vehicle.
+While the aftermarket has conquered the hardware of the past (FBS3), the future (FBS4 and beyond) is a battle of software and legislation. As of 2026, the "All Keys Lost" scenario for modern Mercedes-Benz vehicles remains a dealer-monopolized event, reinforcing the critical need for owners to maintain spare keys and for shops to strictly adhere to identification protocols before attempting service.
+Works cited
+1. FBS4 Mercedes Key Programming: What You Need to Know - Monty Locksmith, accessed January 26, 2026, https://www.montyslocksmith.ca/blog/fbs4-mercedes-key-programming-what-you-need-to-know-and-what-we-can-do/
+2. Mercedes EIS Module Failures: Common Signs & Solutions | Mario Auto Keys Blog, accessed January 26, 2026, https://www.marioautokeys.co.uk/blog/mercedes-eis-module-failures/
+3. Infrared "SmartKey" Standard on All Mercedes-Benz Models, accessed January 26, 2026, https://media.mbusa.com/releases/release-c11df29a7e0c36289b53fb004e176670-infrared-smartkey-standard-on-all-mercedes-benz-models
+4. Programming Mercedes Key a Complete Guide, accessed January 26, 2026, https://www.bladeautokeys.co.uk/post/programming-mercedes-key-a-complete-guide
+5. Xhorse VVDI MB BGA Tool Device for Mercedes Benz Key Programming - NazirProg, accessed January 26, 2026, https://www.npshops.com/products/xhorse-vvdi-mb-bga-tool-device-for-mercedes-benz-key-programming
+6. How to program Mercedes Benz W204 W207 W212 Steering Lock Emulator Using Xhorse VVDI Key Tool Plus - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=XwUcG6hLVyU
+7. How to Check if Your Mercedes-Benz Has FBS3 or FBS4 Using the YOUCANIC Scanner, accessed January 26, 2026, https://www.youtube.com/watch?v=aSHdOZ78pBw
+8. MERCEDES CANemu VIN Repair FBS3/FBS4 - NazirProg, accessed January 26, 2026, https://www.npshops.com/products/mercedes-canemu-vin-repair-fbs3fbs4
+9. DSM Conversion Explained: FBS3 → FBS4 → Multiple Variants (Full Demo) - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=pliXz290pKQ
+10. Mercedes-Benz C-Class - Wikipedia, accessed January 26, 2026, https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class
+11. New Mercedes-Benz C-Class W205 Starts Production in The US - autoevolution, accessed January 26, 2026, https://www.autoevolution.com/news/new-mercedes-benz-c-class-w205-starts-production-in-the-us-82691.html
+12. Option codes - W220 S-Class Encyclopedia, accessed January 26, 2026, https://w220.wiki/Option_codes
+13. Mercedes BE FBS3 programmable 3 button proximity fobik key - Reids Remotes, accessed January 26, 2026, https://www.reidsremotes.com.au/home/1996-mercedes-be-fbs3-programable-3-button-proximity-fobik-key.html
+14. MBUSA DVUSA Theft- Relevant Parts Policy - StarTek Info, accessed January 26, 2026, https://www.startekinfo.com/service/download-document/outside/224078/
+15. Service and Warranty Information 2025 - Mercedes-Benz USA, accessed January 26, 2026, https://www.mbusa.com/content/dam/mb-nafta/us/owners/manuals/2025/2025-warranty-booklet.pdf
+16. how to order your mercedes-benz key replacement, accessed January 26, 2026, https://www.mercedesbenzofokc.com/order-keys
+17. New Key Ordering | Mercedes-Benz of Milwaukee, accessed January 26, 2026, https://www.milwaukeemercedesbenz.com/key-ordering.htm
+18. Mercedes-Benz Key Replacement, accessed January 26, 2026, https://www.mercedesbenzportland.com/service/mercedes-benz-key-replacement/
+19. New key prices? - PeachParts Mercedes-Benz Forum, accessed January 26, 2026, http://www.peachparts.com/shopforum/diesel-discussion/368892-new-key-prices.html
+20. I lost my key fob n this is how much they want to charge me for a new one : r/mercedes_benz, accessed January 26, 2026, https://www.reddit.com/r/mercedes_benz/comments/1g9klc1/i_lost_my_key_fob_n_this_is_how_much_they_want_to/
+21. Why are Mercedes replacement keys almost 500 dollars?? Why can't I find my key? - Reddit, accessed January 26, 2026, https://www.reddit.com/r/mercedes/comments/12e469g/why_are_mercedes_replacement_keys_almost_500/
+22. G-BOX3 | Autel | Key programming tool for Mercedes All-key-lost solution - balticdiag, accessed January 26, 2026, https://www.balticdiag.com/programming-tool-g-box3-for-mercedes-all-key-lost-autel
+23. 2025 Autel G-BOX3 Accessory Tool for Mercedes Benz All Key Lost Work with Autel IM608PRO II, IM608 PRO, IM608, IM508, 1M508S - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005006043011584.html
+24. Autel IM608 Pro | All Keys Lost for a Mercedes - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=xlRFR-BI0VU
+25. CGDI MB Benz Key Programmer Add Key and Programming New Key All Key Lost | eBay, accessed January 26, 2026, https://www.ebay.com/itm/376263126661
+26. New FBS3 BGA Keyless Go Remote Key Fob for Mercedes Benz W204 W212 W164 W221 | eBay, accessed January 26, 2026, https://www.ebay.com/itm/145940488574
+27. How to clone and reprogram Mercedes EIS - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=vJt8G-hXMjU
+28. How To Use Vvdi MB Bga Tool | PDF | Password | Computer File - Scribd, accessed January 26, 2026, https://www.scribd.com/document/693127297/how-to-use-vvdi-mb-bga-tool
+29. Mercedes W209 EIS All Keys Lost with VVDI Prog and VVDI MB Tool - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=JKdufHpvFWo
+30. fsb4 : r/Locksmith - Reddit, accessed January 26, 2026, https://www.reddit.com/r/Locksmith/comments/xs07gz/fsb4/
+31. Lost my spare keys : r/mercedes - Reddit, accessed January 26, 2026, https://www.reddit.com/r/mercedes/comments/11zyvfo/lost_my_spare_keys/
+32. Yanhua Mini ACDP Module 42 with License A106 for Benz DSM (FBS4) Virgin and Data Transfer - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005010719570125.html
+33. Yanhua Mini ACDP Module 42 with License A106 for Mercedes FBS4: My Real-World Experience Solving Key Programming Challenges - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=mercedes-a106
+34. Yanhua ACDP Module 42 Benz DSM (FBS4) Transfer Data Guide- OBDII365 - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=0C2JHwuPMXw
+35. ENGINE ECU PROGRAMMING AND CLONNING FOR MERCEDES-BENZ FBS4 VEHICLES by Autel Imea - Issuu, accessed January 26, 2026, https://issuu.com/autel.imea/docs/immo_fbs4_flyer_ar_en
+36. Benz FBS4 ECU Cloning by Autel IM608 and Gbox3 | by obdii365 - Medium, accessed January 26, 2026, https://medium.com/@obd365com/benz-fbs4-ecu-cloning-by-autel-im608-and-gbox3-f18239cc28e7
+37. New CGDI MB Update Unlocks Mercedes FBS4 Virgin Function — The Ultimate Game Changer! - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=-amYZmJ3eXo
+38. FBS4 ECU Personalization in a W213 E-Class Mercedes-Benz 2021 - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=lzGU0koNF8g
+39. UPDAT E TIME AREA SOFT WARE Vehicle Make UPDATE IM508 IM60 8 30-Jun EURO PE IMMO Mercedes, Mercedes LD, Maybach Released Version - Autel, accessed January 26, 2026, https://www.autel.com/u/cms/www/201911/07122432zvn6.pdf
+40. How To Replace Mercedes Benz Key in 5 minutes w Autel IM608 Pro 2 Key Programmer All Keys Lost - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=HIWmA7mtSes
+41. XHORSE VVDI KEY TOOL PLUS Key Programmer Advanced Version Supports Benz BMW VW AUDI All in 1 - OBD2gate.com, accessed January 26, 2026, https://www.obd2gate.com/products/xhorse-vvdi-key-tool-plus.html
+42. Mini ACDP Key Programmer - Gen 2 - VW / Audi TCU Mileage Package, accessed January 26, 2026, https://keyinnovations.com/mini-acdp-key-programmer-gen-2-vw-audi-tcu-mileage-package-module-21-module-25-module-30/
+43. Yanhua Mini ACDP Module 42 with License A106 for B-enz DSM (FBS4) Virg - VXDAS, accessed January 26, 2026, https://www.vxdas.com/products/yanhua-mini-acdp-module-42
+44. FBS4 TRAINING PROGRAM AND DETAILS NOW AVAILABLE! Abrites, accessed January 26, 2026, https://abrites.com/news/fbs4-training-program-and-details-now-available
+45. COMING IN 2024 - WHAT TO EXPECT FROM THE ABRITES TEAM?, accessed January 26, 2026, https://www.abritesusa.com/coming-in-2024-what-to-expect-from-the-abrites-team
+46. Congress Reintroduces Bipartisan Auto Right to Repair Legislation to Protect Consumer Choice, accessed January 26, 2026, https://www.autocare.org/news/latest-news/details/2025/02/25/congress-reintroduces-bipartisan-auto-right-to-repair-legislation-to-protect-consumer-choice
+47. 2025 IP Update and Year in Review: Navigating Right to Repair and What It Means for Brands in a Changing Aftermarket, accessed January 26, 2026, https://www.openroadlawblog.com/2026/01/2025-ip-update-and-year-in-review-navigating-right-to-repair-and-what-it-means-for-brands-in-a-changing-aftermarket/

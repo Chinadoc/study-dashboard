@@ -1,0 +1,247 @@
+﻿Comprehensive Technical Intelligence Report: Advanced Security Architectures for Honda Platforms (2023–2026)
+Executive Preface: The Bifurcation of Honda's Identity
+The automotive security landscape is currently witnessing a tectonic shift, nowhere more apparent than in the divergent engineering paths taken by the Honda Motor Company for its 2023-2026 model years. For the professional locksmith and security integrator, the era of homogenous platform evolution—where a knowledge of the Honda "H" keyway and the NXP ID46/47 protocols sufficed for the entire fleet—has definitively ended.
+We are now operating in a bifurcated environment. On one side stands the 4th Generation Honda Global Architecture, debuting with the 2023 Honda Pilot and extending to the 2026 Honda Passport. This platform represents the pinnacle of Honda's proprietary engineering, featuring high-sensitivity Body Control Modules (BCM) and robust 128-bit AES encryption. On the other side lies the Honda Prologue (2024-2026), a vehicle that, despite its badging, is an operational clone of the Chevrolet Blazer EV, utilizing General Motors' Ultium platform and Global B electrical architecture.
+This report serves as an exhaustive technical dossier for the 2023-2026 model years. It is designed to equip the field technician with the deep operational intelligence required to navigate these distinct systems, focusing on cryptographic protocols, mechanical vulnerabilities, programming risks, and the specific tooling required to service these vehicles without catastrophic hardware failure. The analysis contained herein is derived from verified field reports, service bulletins, and direct technical specifications.
+________________
+Section 1: The 4th Generation Honda Global Architecture (Pilot 2023–2026 & Passport 2026)
+The introduction of the 2023 Honda Pilot marked the deployment of Honda's most sophisticated immobilizer ecosystem to date. This system, which will also underpin the redesigned 2026 Honda Passport, moves away from the legacy distinct "Immo Box" and "Smart Key Unit" configuration, consolidating security functions into a tightly integrated Body System Integration (BSI) unit. This shift has profound implications for data handling, voltage sensitivity, and programming methodology.
+1.1 Cryptographic Evolution: The Shift to HITAG-AES
+For nearly a decade, the standard for Honda proximity keys was the NXP ID47 chip (HITAG 3). While secure, the industry has slowly moved toward stronger encryption standards to combat relay attacks and advanced cloning. The 4th Generation platform adopts the HITAG-AES (4A) protocol.
+1.1.1 The AES Protocol Implementation
+The transition to Advanced Encryption Standard (AES) 128-bit encryption fundamentally changes the handshake between the key fob and the vehicle. Unlike the rolling codes of the past, which relied on a synchronized counter, the AES protocol involves a complex challenge-response mechanism.1 The BCM sends a random 128-bit challenge to the key; the key encrypts this challenge using its secret key and returns the result. The BCM decrypts it to verify the match.
+This architecture renders legacy cloning tools and "sniffing" devices obsolete. The mathematical complexity of AES-128 means that brute-force attacks are computationally infeasible within a human timeframe. Consequently, the only viable method for adding keys is a verified diagnostic session that authorizes the BCM to accept a new cryptographic ID.
+1.1.2 Technical Specifications and Identification
+Technicians must be able to rapidly identify the new hardware. The physical shell of the key fob may resemble previous generations, but the internal electronics are distinct.
+Table 1.1: 4th Gen Pilot/Passport Transponder Specifications
+
+
+Component
+	Specification
+	Operational Notes
+	Platform
+	Honda Global Architecture 4 (HA4)
+	Covers Pilot (2023+), CR-V (2023+), Passport (2026+)
+	FCC ID
+	KR5TP-4
+	Manufactured by Continental. Specific to the 434 MHz band.3
+	IC Certification
+	7812D-TP4
+	Canadian Industry standard identifier.5
+	Transponder Chip
+	NCF29A1 (HITAG-AES / 4A)
+	Not backward compatible with ID47.2
+	Frequency
+	433.92 MHz (434 MHz)
+	High-frequency bandwidth allows for faster bi-directional data transfer.3
+	Modulation
+	FSK (Frequency Shift Keying)
+	Optimized for noise immunity in urban environments.
+	Battery Type
+	CR2032
+	Standard 3V Lithium.7
+	
+
+  
+
+
+
+1.2 The "Bricking" Phenomenon: BCM Failure Modes
+The most critical operational intelligence regarding the 2023-2026 Honda Pilot involves the fragility of the Body Control Module (BCM) during the programming process. Since the release of the 4th Gen Pilot, there has been a significant spike in reports of BCMs becoming "locked" or "bricked" during All Keys Lost (AKL) procedures.8
+1.2.1 Root Cause Analysis
+The failure stems from a vulnerability in the BCM's EEPROM writing sequence. When a diagnostic tool initiates the "All Keys Lost" function, it commands the BCM to erase all stored key IDs and enter a "learning" state. This process requires a stable voltage and a specific communication cadence.
+1. Voltage Sag: The new BCM architecture is exceptionally sensitive to voltage drops. If the vehicle battery voltage dips below 12.5V during the rewrite phase—a common occurrence when the ignition is cycled ON without the engine running—the write operation can abort mid-stream. This leaves the EEPROM with corrupted data, often resulting in a checksum error that the BCM interprets as a tampering event.11
+2. Improper Menu Selection: Utilizing legacy programming protocols (e.g., selecting "Honda Pilot 2019-2022" on a 2023 model) sends commands that the new AES-based BCM does not recognize or misinterprets. The BCM may lock itself into a "Secure Boot" failure mode to protect the vehicle.13
+3. Third-Party Tool Instability: Honda has issued Service Bulletin MC-10228193-0001, explicitly stating that third-party key programming tools can incorrectly rewrite key fob coding, necessitating BCM replacement.9
+1.2.2 Symptoms of a Bricked BCM
+When a BCM fails, the symptoms are immediate and severe:
+* Dashboard Christmas Tree: Multiple warning lights illuminate simultaneously, including "Keyless Start System Error," "Brake System Problem," and "Check Engine." 8
+* No Crank/No Start: The vehicle refuses to crank. The Start/Stop button may flash or remain unresponsive.
+* Communication Loss: Diagnostic tools may lose communication with the BCM entirely, or the BCM may report "Internal Control Module Memory Checksum Error."
+* Permanent Alarm: In some cases, the vehicle alarm triggers continuously and cannot be silenced.
+1.2.3 The "Universal Key" Workaround
+In the event of a BCM failure where the module refuses to accept an OEM key, a highly specific workaround has been identified by the locksmith community. While the corrupted BCM may reject the specific cryptographic signature of a genuine Honda key, it has been observed that Xhorse Universal Smart Keys (generated to the specific Honda AES profile) can sometimes force a successful handshake.9
+This phenomenon suggests that the Xhorse emulation is "permissive" enough to bridge the corrupted data gaps in the BCM's authentication logic. This procedure involves:
+1. Generating an Xhorse XM38 or similar universal smart key using the VVDI Key Tool Max.
+2. Selecting the "Honda Pilot 2023" or generic "Honda AES" profile.
+3. Attempting the programming procedure again.
+4. If successful, this allows the vehicle to start and be driven, potentially saving the technician from an immediate tow to the dealership.9 However, this should be considered a temporary recovery measure, not a permanent repair for a corrupted module.
+
+
+  
+
+
+
+1.3 Operational Procedures and Tooling
+To mitigate the risks outlined above, technicians must adhere to strict Standard Operating Procedures (SOPs) when servicing the 2023-2026 Pilot and Passport.
+1.3.1 Battery Support Protocol
+Connecting a Midtronics-style battery maintainer (not a simple jump pack) is mandatory. The voltage must be stabilized between 13.5V and 14.0V throughout the entire process.12 The BCM's internal voltage regulator is not robust enough to handle the fluctuations caused by the vehicle's systems waking up and shutting down during the programming cycle.
+1.3.2 Tool Selection and Software
+1. Advanced Diagnostics (Smart Pro): The ADS2336 software module is currently the gold standard for this platform.1
+   * Mechanism: It utilizes a proprietary "Bypass" method that communicates directly with the BCM to bypass the security PIN requirement.
+   * Requirement: A stable Wi-Fi connection is required as the calculation is performed on the Advanced Diagnostics server.1
+   * Safety: This software has been specifically validated to avoid the EEPROM corruption sectors that other tools might accidentally overwrite.
+2. Autel IM508/IM608:
+   * Menu Path: IMMO > Honda > Manual Selection > Pilot > 2023+ > Smart Key.13
+   * Warning: Do not use "Auto Detect" if it resolves to a pre-2023 profile. Ensure the software version is the absolute latest, as early patches contained bugs that contributed to BCM failures.21
+3. Xtool D9 / D9 Pro:
+   * Capability: Capable of programming via the "Honda" menu, but users must verify they are on the latest V28.0+ software version.22
+   * Topology Scan: The "Topology Mapping" feature on the D9 Pro can be useful to verify BCM health before attempting programming. If the BCM is already showing communication errors, do not proceed.24
+________________
+Section 2: The GM Ultium Divergence (Honda Prologue 2024–2026)
+The 2024 Honda Prologue represents a radical departure from Honda's engineering lineage. As part of a strategic alliance, this vehicle is built on General Motors' Ultium (BEV3) platform. It is mechanically and electronically a twin to the Chevrolet Blazer EV.25 For the locksmith, this means the vehicle is effectively not a Honda.
+2.1 Architecture Analysis: GM Global B
+The Prologue utilizes GM's Global B electrical architecture, also known as the Vehicle Intelligence Platform (VIP). This system is characterized by high-speed data buses and rigorous cybersecurity measures.
+* CAN-FD Protocol: Communication with the vehicle requires the Controller Area Network Flexible Data-Rate (CAN-FD) protocol. Legacy OBD-II tools that operate on standard CAN speeds (500 kbps) cannot communicate with the Prologue's modules.27
+* Security Gateway: The Global B architecture features a secured gateway that requires online authentication with the OEM server to unlock diagnostic functions, particularly for key programming.29
+
+
+  
+
+
+
+2.2 Transponder and Key Fob Specifications
+The Prologue's key fob is styled to match the Honda aesthetic but houses GM electronics.
+Table 2.1: Honda Prologue (2024-2026) Technical Specifications
+
+
+Feature
+	Specification
+	Service Implications
+	FCC ID
+	YG0G21TB2
+	Matches Chevy Blazer EV / Equinox EV.6
+	IC Number
+	4008C-G21TB2
+	GM Certification Standard.32
+	Chip Type
+	NXP HITAG-PRO (ID49)
+	Distinct from the Pilot's HITAG-AES (4A).6
+	Frequency
+	434 MHz
+	Standard GM global frequency.33
+	Keyway
+	HU100
+	CRITICAL: GM High Security keyway. A standard HON66 tool will not fit.33
+	Battery
+	CR2450
+	Larger capacity coin cell typical of modern GM fobs.6
+	Emergency Key
+	Part # 13548437
+	Requires HU100 jaw for cutting machines.34
+	2.3 Programming Strategy: The "General Motors" Path
+Attempting to program a Prologue using standard Honda software (e.g., ADS2336) will result in immediate failure. The tool will simply not see the vehicle.
+2.3.1 Hardware Requirements
+To successfully service a Prologue, the locksmith must possess:
+1. CAN-FD Adapter: If using an Autel IM508 or IM608 (Gen 1), the Autel CAN-FD Adapter must be plugged into the VCI.27 Users of the IM608 Pro II (with VCI V200) have CAN-FD built-in.36
+2. Cable Options: Advanced Diagnostics users need the ADC2017 cable to interface with the CAN-FD lines.18
+2.3.2 Software Selection
+* Aftermarket Tools (Autel/Xtool/Smart Pro): The software selection is counter-intuitive. While some updates may list "Honda Prologue," the software is often a wrapper for the GM protocol. If the Honda menu fails, technicians should attempt to access the vehicle via Chevrolet -> Blazer EV (2024).26 The system ID and handshake are identical.
+* OEM Tooling (SPS2): For "All Keys Lost" situations, or if the security gateway blocks aftermarket tools, the official solution is GM Techline Connect (SPS2). This requires a laptop, a J2534 passthrough device (e.g., Mongoose-Plus GM), and a per-VIN subscription.29 Note that this is GM's service, not Honda's i-HDS.
+________________
+Section 3: The Transitional Passport (2019–2026)
+The Honda Passport presents a unique challenge due to its "transitional" status. Unlike the Pilot, which switched platforms cleanly in 2023, the Passport retained the older architecture for several years longer.
+3.1 Identifying the Platform Split
+It is vital to visually and electronically identify the Passport generation before connecting a tool.
+Table 3.1: Passport Platform Identification Guide
+
+
+Model Year
+	Platform Generation
+	Transponder Chip
+	FCC ID
+	Programming Risk
+	2019-2022
+	3rd Gen Pilot (Legacy)
+	NXP ID47
+	KR5V44 / KR5T44
+	Low (Standard ID47) 38
+	2023-2025
+	3rd Gen Refresh
+	NXP ID47
+	KR5V44 / KR5T44
+	Low (Legacy architecture persists)
+	2026
+	4th Gen Redesign
+	HITAG-AES (4A)
+	KR5TP-4
+	HIGH (BCM Bricking Risk) 39
+	3.2 The 2026 Redesign Implications
+The 2026 Passport (including the TrailSport trim) migrates fully to the 4th Generation Global Architecture. This means it inherits the KR5TP-4 key fob and the sensitive BCM found in the 2023+ Pilot. Technicians encounter the same voltage sensitivity and programming risks discussed in Section 1.2. Treating a 2026 Passport like a 2025 model (using ID47 software) will likely result in a failed programming attempt or a locked module.
+________________
+Section 4: Mechanical Vulnerabilities and Tooling
+4.1 The HO01 vs. HO03 Keyway (Pilot/Passport)
+The 4th Gen Pilot and Passport utilize the HO01 keyway, a variation of the Honda High Security (laser cut) profile.
+* The "Web" Issue: A distinct characteristic of the HO01 key is the thickness of the "web" (the metal between the two milled tracks). Honda keys are notorious for tight tolerances here. If the web is cut too thick during duplication, the key will not insert fully into the ignition or door lock. If cut too thin, the key becomes brittle.41
+* Lishi Tool: The correct tool is the Lishi HON66. It is a 2-in-1 pick and decoder. Technicians should be aware that the door locks on these newer models often contain "split wafers" or high-tolerance tumblers that require precise picking tension to avoid reading errors.42
+4.2 The HU100 Keyway (Prologue)
+The Honda Prologue’s HU100 keyway is a standard GM side-milled profile, completely incompatible with the HON66.
+* Lishi Tool: Technicians must use the Lishi HU100 (V.3 or V.4 recommended).
+* Cutting: The HU100 requires a different jaw or clamp setting on key cutting machines (e.g., Keyline Gymkana or Xhorse Condor). The cuts are made on the edge of the blade's spine rather than a central track (as in the HON66), or a track on the face.34
+________________
+Section 5: Advanced Diagnostics and Troubleshooting
+5.1 Interference from Digital Ecosystems
+The integration of "Phone-as-a-Key" (PaaK) and the HondaLink app introduces a new layer of interference.
+* BLE Dominance: The vehicle's Bluetooth Low Energy (BLE) module constantly scans for the owner's phone. During key programming, this BLE signal can overpower the Low Frequency (LF) signal required to register a new fob.
+* Mitigation: It is standard procedure to ensure all customer phones are Bluetooth OFF or removed at least 30 feet from the vehicle. Additionally, any existing keys should be removed from the cabin to prevent signal collision.45
+5.2 Diagnostic Trouble Codes (DTCs)
+When troubleshooting programming failures, the following DTCs are indicative of specific issues:
+* B12C5: Keyless Start System Error (Generic). often cleared with a battery reset.
+* U128D: Bus Communication Lost with BCM. This is a "Red Alert" code suggesting BCM corruption or bricking.8
+* P2118: Throttle Actuator Control Motor Current Range/Performance. Paradoxically, this code often appears alongside BCM failures due to shared reference voltages in the harness.8
+5.3 Business Strategy: Inventory Management
+To effectively service these platforms, locksmiths must diversify their inventory. The days of stocking a single "Universal Honda Remote" are over.
+* Stocking Requirement 1: KR5TP-4 (OEM or high-quality aftermarket) for Pilot/Passport.
+* Stocking Requirement 2: YG0G21TB2 (GM style) for Prologue. Note that while this is a GM fob, it carries the Honda logo. Customers may reject a Chevy-logo fob, necessitating the stocking of the specific Honda part number.6
+* Stocking Requirement 3: Xhorse XM38 Universal Smart Keys. These are essential as emergency backups for "un-bricking" BCMs or for temporary customer mobility.9
+Conclusion
+The 2023-2026 model years represent a definitive split in Honda's security identity. The Pilot and Passport have evolved into a highly secure, AES-encrypted proprietary ecosystem that punishes low-voltage programming with expensive hardware failures. Conversely, the Prologue requires the locksmith to effectively become a GM technician, utilizing CAN-FD adapters and HU100 mechanical tools.
+Success in this environment relies on rapid, accurate platform identification and the disciplined application of power support systems. The "plug-and-pray" methodology of the ID47 era is no longer viable; precise tooling, correct software selection (ADS2336 vs. GM SPS2), and strict adherence to voltage protocols are the new baselines for professional competence in the Honda market.
+Works cited
+1. How to Program a 2025 Honda Pilot Proximity Key with Smart Pro in Under 5 Minutes, accessed January 5, 2026, https://www.youtube.com/watch?v=0htrureSru4
+2. 2024 Honda Pilot - 2x New Replacement Proxy Key Fob & DIY OBD Programm - ProKeyBox, accessed January 5, 2026, https://prokeybox.com/collections/pilot/products/2024-honda-pilot-2x-new-replacement-proxy-key-fob-diy-obd-programmer-tool-a-1166000742264654-166
+3. 2023 Honda Pilot Smart Keyless Entry Remote 72147-T43-A01 KR5TP-4 – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2023-honda-pilot-smart-remote-72147-t43-a01
+4. 2023 Honda Pilot Smart Key 5 Buttons FCC# KR5TP-4 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-honda-pilot-smart-key-5-buttons-fcc-kr5tp-4
+5. Honda New OEM 2023-2026 CRV, Pilot, Paspport Smart Key 5B Hatch/Remote Start FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/honda-refurbished-2023-2024-crv-pilot-smart-key-5b-hatch-remote-start-fccid-kr5tp-4-pt-72147-t90-a21
+6. 2024-2025 Honda Prologue / 5-Button Smart Key / PN: 85024679 / YGOG21TB2 (OEM), accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-2025-honda-prologue-5-button-smart-key-pn-85024679-ygog21tb2-oem
+7. 2025 How To Replace or Change Honda Passport Remote Key Fob Battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ZqasK5gP2wY
+8. Honda Pilot 2023: What to do when the engine diagnostic lights come on! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=2otvXZpD5H0
+9. HONDA ACCORD NO CRANK DEAD BRICKED BCM KEY PROGRAM FIX - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=mBUUWfHNcd0
+10. Failed Body Control Module??? Do Not Replace Until You're Sure It's The Problem. Know The Symptoms - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ikJSfwn0To8
+11. Citroën-Peugeot ABS/ESP Functions Guide | PDF | Airbag | Anti Lock Braking System, accessed January 5, 2026, https://www.scribd.com/document/398968955/6-2
+12. BSI (Body System Interface) Reboot Procedure - Cartech Electronics, accessed January 5, 2026, https://www.cartechelectronics.com/pages/bsi-body-system-interface-reboot-procedure
+13. Autel IM608 II Program 2019 Honda Pilot All Keys Lost, accessed January 5, 2026, http://blog.autelshop.de/autel-im608-ii-program-2019-honda-pilot-all-keys-lost/
+14. Car locksmith messed up programming another key fob and cost me $2000 worth of repair. How can I win this lawsuit? - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1dk1vop/car_locksmith_messed_up_programming_another_key/
+15. ServiceNews Article - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10228193-0001.pdf
+16. Honda accord locked bcm : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1fc7yoe/honda_accord_locked_bcm/
+17. How to create and program Xhorse Universal Keys - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=MnMGGYOPpho
+18. Advanced Diagnostics - ILCO.US, accessed January 5, 2026, https://www.ilco.us/support/ad-software-updates
+19. Advanced Diagnostics ADS2336 Honda New Key Programming Software, accessed January 5, 2026, https://keyinnovations.com/advanced-diagnostics-ads2336-honda-new-key-programming-software/
+20. New Key Programming Software for Honda* 2024 ADS2336 - Advanced Diagnostics, accessed January 5, 2026, https://www.advanced-diagnostics.com/news-posts/new-key-programming-software-for-honda-2024-ads2336
+21. (2/6)Autel IM608 Pro | Get a new car key for a Honda - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ZI2xl8dFISs
+22. XTOOL D9 PRO OBD II Bi-Directional Wireless Bluetooth ECU Flash, Key FOB, Injector Coding Scan Tool - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=c2bYKwUcI4o
+23. XTOOL D9S Car Diagnostic Tool - XTOOLonline, accessed January 5, 2026, https://www.xtoolonline.com/product/XTOOL-D9S
+24. D9S Pro - XTool, accessed January 5, 2026, https://www.xtooltech.com/english/ProductsView/D9SPro.html
+25. Honda Released The 2024 Prologue Body Repair News, accessed January 5, 2026, https://rts.i-car.com/crn-2120.html
+26. Prologue vs Blazer EV: How Honda Offers a Better Driving Experience, accessed January 5, 2026, https://ralphhonda.com/blog/prologue-vs-blazer-ev-how-honda-offers-a-better-driving-experience
+27. CAN FD ADAPTER - AutelMaxiSysADAS.com, accessed January 5, 2026, https://www.autelmaxisysadas.com/CAN-FD-ADAPTER_p_6925.html
+28. Autel CANFD-ADAPT Protocol Adaptor for IM508 / IM608 - Key Innovations, accessed January 5, 2026, https://keyinnovations.com/products/autel-canfd-adapt-protocol-adaptor-for-im508-im608
+29. How To Program GM EVs | Techline Connect SPS2 Programming Guide - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=OuMIL1uP4o8
+30. GM Smart Key with Techline Connect SPS2 -Recap and Troubleshooting Guide - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=0c0lxr_eK6o
+31. Replacement for 2024 2025 Honda Prologue Elite Touring Smart Key 85024679 433MHZ, accessed January 5, 2026, https://www.ebay.com/itm/146815530138
+32. Honda New OEM 2024-2025 Prologue Smart Key 5B Hatch/Remote Start FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/honda-new-oem-2024-2025-prologue-smart-key-5b-hatch-remote-start-fccid-ygog21tb2-pn-85024679
+33. 2024-2025 Honda Prologue 5B Hatch Smart Key YG0G21TB2, accessed January 5, 2026, https://yourcarkeyguys.com/products/2024-honda-prologue-5b-hatch-smart-key-yg0g21tb2
+34. 2024-2025 Honda Prologue 5 Button Smart Key ( OEM ) - My Key Supply, accessed January 5, 2026, https://www.mykeysupply.com/product/2024-2025-honda-prologue-5-button-smart-key-oem/
+35. Autel CAN FD Adapter - ADAS Depot, accessed January 5, 2026, https://adasdepot.com/autel-can-fd-adapter/
+36. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 5, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+37. GM OEM Key Programming: SPS & SPS2 with Brian Suggs - Locksmith Pro Academy, accessed January 5, 2026, https://locksmithproacademy.org/gm-oem-key-programming-sps-sps2-with-brian-suggs/
+38. Honda Refurbished 2019-2024 Passport, Pilot Smart Key (No Memory) 5B F, accessed January 5, 2026, https://royalkeysupply.com/products/honda-refurbished-2019-2022-passport-pilot-smart-key-no-memory-5b-fccid-remote-start-hatch-fccid-kr5v44-kr5t44-pn-72147-tg7-a61
+39. 2026 Honda Passport - 1x New Replacement Proxy Key Fob & DIY OBD Progr - ProKeyBox, accessed January 5, 2026, https://prokeybox.com/products/2026-honda-passport-1x-new-replacement-proxy-key-fob-diy-obd-programmer-tool-a-1166000671806204-175
+40. 2026 Honda CR-V Smart Keyless Entry Remote 72147-T43-A01 KR5TP-4, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2026-honda-cr-v-smart-remote-72147-t43-a01
+41. Locksmithing 101 | EVERYTHING You Need To Know About The HO01 Transponder Key!, accessed January 5, 2026, https://www.clksupplies.com/blogs/news/locksmithing-101-everything-you-need-to-know-about-the-ho01-transponder-key
+42. Original Lishi - HONDA-2021 V.2 - Honda (2020+) - KeyShop Online, accessed January 5, 2026, https://keyshop-online.com/products/original-lishi-honda-2021-v-2-honda-2020
+43. ORIGINAL LISHI - HO01 HON66 Honda / 2-In-1 Pick & Decoder / AG - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/original-lishi-honda-hon66-2-in-1-pick-ignition-door-trunk-ag
+44. Honda Prologue key blade : r/partscounter - Reddit, accessed January 5, 2026, https://www.reddit.com/r/partscounter/comments/1gmhjau/honda_prologue_key_blade/
+45. Interference may be the reason your key fob isn't working! Here is how to fix it. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=JH-umUCfp_Y
+46. How do I block someone from tracking my car? : r/Honda - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Honda/comments/1elq33z/how_do_i_block_someone_from_tracking_my_car/
+47. Service Bulletin - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/rcl/2020/RCRIT-20V771-7126.pdf

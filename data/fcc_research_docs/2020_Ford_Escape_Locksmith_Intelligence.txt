@@ -1,0 +1,207 @@
+﻿2020 Ford Escape Locksmith Intelligence
+CRITICAL ALERTS
+* Title: HU101 vs. HU198 Keyway Incompatibility
+* Level: CRITICAL
+* Content: The 2020 Ford Escape (built on the C2 Platform) utilizes the HU198 (High Security Internal Track) keyway, which is visually similar but mechanically distinct from the legacy HU101 (High Security External Track). While an HU101 blade may physically enter the cylinder, the wafer configuration and internal milling are different. Using standard HU101 Lishi tools (e.g., Lishi HU101 V3) can result in incorrect decoding, jammed tools, or damaged wafers. The cuts on the HU198 are located on the internal surface of the blade (internal groove) rather than the external edge.1
+* Mitigation: Verify the keyway immediately upon arrival. If the cuts are internal, you MUST use the Lishi HU198 (Ford 2017+) tool. Do not force an HU101 tool into the lock.
+* Title: Active Alarm Lockout (AKL)
+* Level: WARNING
+* Content: In All Keys Lost (AKL) scenarios, if the vehicle’s alarm is armed, the Body Control Module (BCM) will reject communication attempts via the OBDII port for key programming. The diagnostic tool may report "Security Access Failed" or "Communication Error." The BCM essentially "locks down" the CAN bus to prevent unauthorized access.4
+* Mitigation: Utilize the "Door Latch Trick" (cycle driver door latch to simulate closed/open status) or wait out the 10-minute alarm silence period. Alternatively, ensure your programmer (e.g., Autel IM508/608 with the correct adapter) supports the "Active Alarm Bypass" function specifically for 2020+ Ford systems.6
+* Title: CAN FD Adapter Requirement
+* Level: INFO
+* Content: The 2020 Escape runs on the C2 architecture which utilizes the CAN FD (Flexible Data-rate) protocol for high-speed module communication. Standard OBDII interfaces on older programmers may fail to communicate with the BCM/IMMO modules.8
+* Mitigation: Ensure your programming interface (VCI) is CAN FD compatible or use a dedicated CAN FD adapter (e.g., Autel CAN FD Adapter) between the OBDII port and your device.
+PROGRAMMING PEARLS (Key Insights)
+1. The "Sleeping" BCM Awakening: On the C2 platform, the BCM can enter a deep sleep mode that mimics a dead battery or module failure. Before declaring a "No Communication" fault, perform a "hard reset" by disconnecting the vehicle battery terminals and touching them together (capacitive discharge) for 60 seconds. This reboots the gateway module and often restores communication for programming.4
+2. The HU198 Decoder Cipher: When decoding the HU198 lock with a Lishi tool, be aware that the wafers are often "split" or possess false gates that differ from the HU101. The read values must be precise. If you read a "half-cut" (e.g., a 2.5), assume it is a worn wafer or a misread; Ford code series for HU198 strictly adhere to the 1-5 depth chart.
+3. Proximity Slot Geometry: The backup slot in the 2020 Escape is notoriously sensitive to fob orientation. The correct position is usually with the buttons facing rearward (towards the back seat) and the key ring loop pointing up. If programming fails, rotate the fob 180 degrees before aborting.10
+4. Parameter Reset Necessity: Unlike older Ford systems where "Add Key" simply appended a slot, the 2020 Escape's immobilizer often requires a parameter reset (PATS initialization) if the sync between the BCM and PCM is disturbed during an AKL attempt. Always be prepared to perform a "PATS Parameter Reset" if the key programs but the engine fails to crank.
+5. Frequency Trap: Do not assume frequency based on the VIN alone. The 2020 Escape splits frequencies by trim level and remote start capability. The 315 MHz system is typically found on S and SE trims without factory remote start, while the 902 MHz system is exclusive to Titanium and SEL trims with long-range remote start. Cross-reference the VIN with a build sheet if unsure.12
+6. Battery Voltage Sensitivity: The C2 platform is intolerant of voltage drops. A dip below 11.8V during the "Erase Keys" process can corrupt the BCM EEPROM. Always connect a clean power supply (maintaining 13.5V) during the entire procedure.
+MAPPING DATA
+* FCC ID(s):
+   * Smart Key (902 MHz): M3N-A2C931426 12
+   * Smart Key (315 MHz): M3N-A2C931423 15
+   * Flip Key (315 MHz): N5F-A08TAA 16
+* Chip Type: NXP Hitag Pro (NCF2951) / ID49 128-Bit 17
+* Frequency: 315 MHz (Standard) / 902 MHz (Long Range/Remote Start) 12
+* Keyway/Blade: HU198 (Internal Track) 1
+* System Type: PEPS Gen 4 (PATS) / C2 FNV2 Architecture
+* Battery: CR2450 (Smart Key) 12 / CR2032 (Flip Key) 16
+* Lishi Tool: Lishi HU198 (Ford 2017+) 1
+TOOLS & PROCEDURES
+* Preferred Tool: Autel IM508S/IM608 II (Native CAN FD) or IM508/608 with CAN FD Adapter; Advanced Diagnostics Smart Pro (w/ ADS-2269 software).20
+* Best Method: Add Key via OBD if 2 keys exist (for spare); AKL requires active alarm bypass strategies.
+* Pincode: Calculated online by the programming tool (requires internet connection). No static pincode available.
+* SGW Bypass: Software-based via tool (server authentication) or manual active alarm bypass (door latch trick).
+* Voltage Requirement: Strict 12.5V+ constant supply required.
+________________
+
+
+  
+
+
+
+ARCHITECTURAL FORENSICS: THE FORD C2 PLATFORM
+The 2020 Ford Escape marks a definitive architectural pivot for the manufacturer, transitioning from the legacy Global C platform to the highly modular Ford C2 platform.22 For the automotive locksmith, this is not merely a chassis update; it represents a complete overhaul of the vehicle's "digital nervous system," introducing the FNV2 (Ford Network Vehicle 2) electrical architecture. This shift has profound implications for immobilizer programming, diagnostic communication, and hardware compatibility.
+1.1 The C2 Electrical Architecture (FNV2) & CAN FD
+The C2 platform is engineered to support advanced driver-assistance systems (ADAS) and high-bandwidth connectivity. To facilitate the massive data throughput required by these systems, Ford implemented the CAN FD (Controller Area Network Flexible Data-Rate) protocol.8
+Unlike the "High-Speed CAN" (HS-CAN) found in previous generations—which capped data transmission at 500 kbps—CAN FD allows for variable data rates that can surge up to 5 Mbps for the data phase of the frame. The payload size of a CAN frame also increases from 8 bytes to 64 bytes.
+Implications for Locksmiths:
+* Hardware Incompatibility: Legacy diagnostic tools and key programmers equipped with standard CAN transceivers cannot interpret the CAN FD signal. They are physically incapable of switching to the higher bit rate. When connected to a 2020 Escape, such tools will fail to establish a handshake with the Body Control Module (BCM), resulting in "Communication Error" or "System Not Detected" messages.
+* The Adapter Necessity: Unless using the latest generation hardware (e.g., Autel IM608 II or IM508S which have native CAN FD support), a CAN FD Adapter is mandatory. This adapter acts as a translator, sitting between the vehicle's OBDII port and the legacy programmer.9
+1.2 The Immobilizer System: PEPS Gen 4
+The security architecture is the fourth generation of PEPS (Passive Entry Passive Start), a sophisticated evolution of the traditional PATS (Passive Anti-Theft System).
+* Gateway Centralization: In the C2 architecture, the Body Control Module (BCM)—often referred to as the Smart Junction Box (SJB)—serves as the primary Secure Gateway (SGW). It is the gatekeeper for all immobilizer functions. The BCM manages the cryptographic handshake between the smart key (PEPS fob), the Powertrain Control Module (PCM), and the Anti-Lock Braking System (ABS) module. This triangulation of modules means that simply replacing the BCM or PCM requires a comprehensive parameter reset to re-sync the secure identifiers across the network.25
+* Transponder Technology: The system utilizes NXP Hitag Pro technology. The specific transponder chip is the NCF2951, widely recognized by cloning tools as the ID49 chip.17 This is a 128-bit AES encrypted transponder.
+* Rolling Code & Security: The system employs a high-security rolling code algorithm. The "hitag" code changes with every engine start or remote interaction. The BCM and the key share a "Secret Key" established during the initial programming. Unlike older 40-bit or 80-bit Ford keys, these cannot be cloned for remote functionality. A new key must be cryptographically introduced to the BCM via an authorized diagnostic procedure.
+1.3 The Active Alarm Barrier
+On the C2 platform, the anti-theft alarm system is not just a siren; it is a communication firewall. When the alarm is Armed or Active (sounding), the BCM enters a "Lockdown Mode." In this state, it ignores nearly all non-critical CAN bus traffic, including diagnostic requests from the OBDII port.4
+This presents a "Catch-22" for locksmiths in All Keys Lost (AKL) situations: you need to communicate with the BCM to program a key to disarm the alarm, but the alarm prevents communication with the BCM. Overcoming this barrier requires specific bypass strategies, detailed in the "Troubleshooting" section below.
+MECHANICAL FORENSICS & LISHI DATA
+The mechanical interface of the 2020 Ford Escape is one of the most common stumbling blocks for technicians accustomed to older Ford models. While the key blade looks superficially like the pervasive HU101, it is a fundamentally different design.
+2.1 The HU198 Keyway Profile
+The 2020 Escape utilizes the HU198 profile, often described as the "Internal Track" or "2-Track Internal" system.1
+* Geometry & Confusion: The blade width and general external shape are nearly identical to the HU101. However, the HU101 is an "External Track" key, where the cuts are milled into the outer edge of the blade. The HU198 features a flat, rectangular blade face with a milled groove running down the center. The wafers in the lock cylinder interact with this internal snake cut, not the edge.3
+* Identification: Inspect the customer's existing key (if available) or the emergency blade of a new OEM fob. If the edge is smooth and the cut is a wavy line down the center, it is HU198. If the edge is jagged like a mountain range, it is HU101. Note: The 2020 Escape exclusively uses the internal track system.
+
+
+  
+
+
+
+2.2 Picking & Decoding with Lishi
+Using the wrong Lishi tool is a critical failure point. An HU101 Lishi tool may fit into the keyway, but its picking fingers are designed to lift wafers on the edge. They will not reach the internal wafers of the HU198 lock, and forcing them can damage the tool or the lock shutter.
+* Correct Tool: Lishi HU198 (Ford 2017+) 2-in-1 Pick & Decoder.19
+* Wafer Configuration: The lock cylinder contains 10 wafer positions (Spaces 1 through 10).
+* Depths: The system uses 5 cut depths (1 being the highest/shallowest, 5 being the lowest/deepest).
+* Picking Strategy: The lock typically picks Clockwise to unlock the driver's door.
+* Decoding Nuance: Due to the internal track design, the "spring" feel of the wafers can be subtler than edge-style locks. A "1" cut often feels solid immediately, while a "5" cut requires significant travel. The tool must be positioned precisely on the wafer to get an accurate reading.
+2.3 Emergency Key & Slot
+The emergency key blade is hidden inside the smart fob. It is released by a small button on the side or bottom of the fob housing. This blade is essential for gaining entry to the vehicle when the fob battery is dead.
+* Programming Slot Location: The 2020 Escape features a dedicated backup slot for programming and emergency starting.
+   * Position: It is located in the center console.
+   * Specifics: You will find a specialized depression or slot, often at the bottom of the cupholder or in a tray at the front of the console storage bin, specifically designed to hold the fob.10
+   * Orientation: The fob must be placed correctly for the transponder coil to energize. Typically, this means placing it flat or vertically (depending on the slot shape) with the buttons facing the rear of the vehicle and the key ring loop pointing up. Misalignment here is a frequent cause of "Key Not Detected" errors during programming.29
+
+
+  
+
+
+
+TRANSPONDER & REMOTE FREQUENCY ECOSYSTEM
+One of the most complex aspects of the 2020 Ford Escape is the bifurcation of its remote frequency ecosystem. Unlike previous generations that standardized on a single frequency, the 2020 model uses two distinct frequencies depending on the trim level and factory options. Installing a key with the wrong frequency will result in a successful transponder start but failed remote functions.12
+4.1 The 902 MHz System (High Spec)
+This frequency is reserved for higher trim levels that feature the long-range remote start system. The 902 MHz band offers superior penetration and range compared to standard frequencies.
+* Target Trims: Titanium, SEL (with options), and SE Sport Hybrid (with options).
+* Indicator: If the vehicle has factory-installed remote start on the key fob (circular arrow button), it is highly likely to be 902 MHz.
+* FCC ID: M3N-A2C931426.
+* Part Numbers: 164-R8198 (5-Button w/ Remote Start), 164-R8182 (4-Button).
+4.2 The 315 MHz System (Standard Spec)
+This system is found on base models and lower trims. It is the standard frequency for Ford's shorter-range keyless entry.
+* Target Trims: S (Base), SE (Base).
+* Indicator: Typically 4-button fobs (Lock, Unlock, Hatch, Panic) without the remote start button.
+* FCC ID: M3N-A2C931423.
+* Part Numbers: 164-R8197.
+4.3 Flip Keys (Turn-to-Start)
+Some lower trim levels of the 2020 Escape may still utilize a bladed "flip key" rather than a push-button smart key.
+* Frequency: 315 MHz.
+* FCC ID: N5F-A08TAA.
+* Chip: ID49 (Hitag Pro).
+* Part Numbers: 164-R8269, 164-R8130.
+PROCEDURAL INTELLIGENCE: ADD-KEY & AKL
+5.1 Add-Key Procedure (Onboard & OBD)
+There are two primary distinct pathways for adding a key to the 2020 Ford Escape. The choice depends entirely on the number of currently working keys available.
+Method A: Onboard Programming (Requires 2 Working Keys)
+This method utilizes the vehicle's native administrative programming mode. It is cost-effective but requires two unique, already programmed keys.30
+* Procedure:
+   1. Place the first working key in the backup slot (center console).
+   2. Press the START/STOP button (foot off brake) to turn Ignition ON. Wait 5 seconds.
+   3. Press START/STOP to turn Ignition OFF. Remove the first key.
+   4. Within 5 seconds, place the second working key in the slot.
+   5. Press START/STOP (Ignition ON). Wait 5 seconds.
+   6. Press START/STOP (Ignition OFF). Remove the second key.
+   7. Within 5 seconds, place the NEW (unprogrammed) key in the slot.
+   8. Press START/STOP (Ignition ON). The door locks should cycle (lock/unlock) to confirm programming. The dashboard may display a message such as "Key Programmed."
+Method B: OBD Programming (Add Key via Tool)
+If the customer has 0 or 1 working key, you must use a diagnostic programmer. This method requires a tool capable of bypassing the security gateway via CAN FD.20
+* Tools: Autel IM508/IM608, Smart Pro, Xhorse Key Tool Plus.
+* Procedure:
+   1. Hardware Setup: Connect the CAN FD adapter to the OBDII port, then connect your programmer to the adapter.
+   2. Vehicle Selection: Navigate to Ford > USA > Escape > 2020-2022 > Smart Key.
+   3. Function Selection: Choose Add Key (Guided). This is safer than "All Keys Lost" as it preserves existing key data if one is present.
+   4. Alarm Bypass: If the alarm is active, the tool may prompt you to wait or perform a door cycle.
+   5. Execution: Follow the on-screen prompts to place the new key in the backup slot. The tool will communicate with the BCM to register the new key ID.
+   6. Verification: Once "Success" is indicated, immediately test the remote functions (Lock/Unlock) and the proximity start capability.
+5.2 All Keys Lost (AKL) Procedure
+In an All Keys Lost scenario, the vehicle is effectively a brick with an alarm system guarding it. The procedure is more invasive and risky.25
+* Prerequisite: It is strongly recommended to have two keys available. Newer Ford systems often remain in a "learning mode" or retain "MyKey" restrictions until a second administrative key is cycled.
+* Workflow:
+   1. Gain Entry: Use the Lishi HU198 tool to pick the driver's door lock. Warning: This will trigger the Active Alarm.
+   2. Silence Alarm (The 10-Minute Wait): Once the door is opened, the alarm will sound. You cannot communicate with the vehicle while the alarm is blaring. You must wait approximately 10 minutes for the alarm to time out and silence itself. Do not open the door again or interact with the vehicle switches during this time.
+   3. Connect Tool: Once silenced, connect your tool (with CAN FD adapter) carefully.
+   4. Select AKL: Choose Immo Status Scan or All Keys Lost in your programmer.
+   5. Pincode Calculation: The tool will read the BCM data. On 2020+ models, this requires an active internet connection. The tool sends the incode/outcode data to a server (e.g., Autel or NASTF) to calculate the security bypass.
+   6. Erase Keys: The tool will command the BCM to erase all known key IDs. Crucial: Ensure vehicle battery voltage is stable (above 12.5V) before this step. A voltage drop here can corrupt the BCM.
+   7. Program Keys: Follow the prompts to insert Key 1 and then Key 2 into the backup slot.
+   8. Parameter Reset: If the keys program but the vehicle does not crank, perform a PATS Parameter Reset. This re-synchronizes the rolling codes between the BCM and the PCM/ABS modules.
+SECURITY BARRIERS & TROUBLESHOOTING
+6.1 The Active Alarm Firewall
+The most significant barrier on the 2020 Escape is the Active Alarm. Unlike older vehicles where the alarm was just a nuisance, on the C2 platform, it disables the OBDII port's communication lines.
+Troubleshooting Protocol: The Active Alarm Bypass
+1. State Identification: If your tool reports "Access Denied" or "Security Access Failed" immediately upon connection, the alarm is likely the culprit.
+2. The Door Latch Trick:
+   * Open the driver's door.
+   * Manually close the latch mechanism with a screwdriver (simulating a closed door) while the door remains physically open.
+   * Wait for the cluster to go to sleep.
+   * Then, cycle the latch to "Open" and immediately "Close" again. This can sometimes trick the BCM into a "Door Ajar" state that permits limited communication.
+3. The 10-Minute Patience: If tricks fail, the only reliable method is to unlock the door, let the alarm sound, and wait 10-12 minutes until it silences. Do not touch anything. Once silent, connect the tool and attempt programming immediately.
+6.2 Common Failure Points
+* Low Battery Voltage: The C2 BCM is hypersensitive. If voltage drops below 11.5V, the programming session aborts. This can leave the car in a "no key" state (where old keys are erased, but new ones aren't added). Always use a high-quality jump pack or power supply connected to the battery terminals during AKL.
+* Wrong Frequency: Trying to program a 315 MHz key to a Titanium (902 MHz) trim will result in "Key Learning Failed" at the final step. The BCM detects the transponder chip but rejects the remote frequency compatibility.
+* Slot Debris: The backup slot is at the bottom of a cupholder or bin. Coins, dust, or rubber liners can prevent the key from sitting flat, causing a read failure. Ensure the slot is vacuumed and clear.
+* Sleep Mode: If the tool cannot connect at all (even with the alarm off), the BCM may be in deep sleep. Disconnect the vehicle battery, touch the positive and negative leads together for 60 seconds (Hard Reset), reconnect, and try again.
+6.3 Cross-Reference & Ecosystem
+The C2 architecture (FNV2) is not unique to the Escape. Knowledge gained here applies to a broader ecosystem of Ford vehicles, allowing locksmiths to leverage the same tools and keys.
+* Ford Bronco Sport (2021+): This vehicle is mechanically and electrically a twin to the Escape C2. It uses the exact same key fobs (M3N-A2C931426), the same HU198 keyway, and the same programming procedures.33
+* Ford Maverick (2022+): As another C2 platform derivative, the Maverick shares the flip key (N5F-A08TAA) and smart key architecture. The AKL and Add Key workflows are identical.35
+* Lincoln Corsair (2020+): The luxury counterpart to the Escape. While it often uses distinct, premium key fob shells (different part numbers/branding), the underlying immobilizer logic, frequency splits, and chip types are compatible.
+Conclusion:
+The 2020 Ford Escape represents a modernization of Ford's fleet that demands a corresponding modernization of the locksmith's toolkit. Success requires recognizing the shift from HU101 to HU198, investing in CAN FD capabilities, and managing the 902 MHz frequency split. The "Active Alarm" is the primary adversary, requiring patience and strategy rather than brute force. By adhering to the precise voltage requirements and identifying the correct trim-specific hardware, the C2 platform becomes a manageable, predictable, and profitable service opportunity.
+Works cited
+1. Original Lishi 2-1 Pick/Decoder for HU198 for New Ford Keyway - CLK Supplies, accessed January 3, 2026, https://www.clksupplies.com/products/original-lishi-2-1-pick-decoder-for-hu198-for-new-ford-keyway
+2. Classic Lishi HU198 Ford 2017 2-in-1 Decoder and Pick for Ford, accessed January 3, 2026, https://www.classiclishi.com/product/classic-lishi-hu198
+3. How To Pick And Decode The New Ford HU198 Lock Using An Original Mr Li Pick & Decoder - Keyprint Security Ltd, accessed January 3, 2026, https://www.keyprint.co.uk/news/how-to-pick-and-decode-the-new-ford-hu198-lock-using-an-original-mr-li-pick-decoder
+4. 2023 Ford active alarm, no keys : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1p2yl7a/2023_ford_active_alarm_no_keys/
+5. Use this method to silence an active Ford alarm! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=5LViR5IjuZM
+6. Xhorse - XDFAKLGL - 2016 - 2021 Ford - All Keys Lost with Active Alarm - for VVDI Key Tool Plus for Sale | UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/xhorse-xdfaklgl-2016-2021-ford-all-keys-lost-with-active-alarm-for-vvdi-key-tool-plus
+7. (486) Xhorse Ford Active Alarm All Keys Lost Cable & Key Tool Plus - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=wvF0FKJZpAA
+8. CAN-FD Adapter Xtool AutoProPad – CarandTruckRemotes - Car and Truck Remotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/can-fd-adapter-xtool
+9. Autel - CAN FD Adapter For 2018-2020 Ford / GM Vehicles - Keyless City, accessed January 3, 2026, https://keyless-city.com/products/autel-can-fd-adapter-for-2018-2020-ford-gm-vehicles-1
+10. 2025 FORD ESCAPE - How to Unlock, Open & Start With Dead Remote Key Fob Battery Not Working - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=QebW7i0fWbo
+11. 2024 FORD ESCAPE "No Key Detected" How to Start With Dead Or Broken Remote Key Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=-j0hosJQH5E
+12. 2020 Ford Escape Smart Key 4 Buttons FCC# M3N-A2C931426 - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2020-ford-escape-smart-key-4-buttons-fcc-m3n-a2c931426
+13. 2020 Ford Escape Smart Remote Key Fob w/ Engine Start - CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2020-ford-escape-smart-remote-key-fob-w-engine-start
+14. Frequency In Ranger 2020 Xlt 315mhz or 902mhz all key lost Flip key : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1bnwhiv/frequency_in_ranger_2020_xlt_315mhz_or_902mhz_all/
+15. 2020 Ford Escape Smart Remote Key Fob 4B w/ Hatch (FCC: M3N-A2C931423, P/N, accessed January 3, 2026, https://oemcarkeymall.com/products/2020-ford-escape-smart-keyless-remote-hatch-4button-m3n-a2c931423
+16. 2020 Ford Escape Remote Key Fob - CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2020-ford-escape-remote-key-fob
+17. 2020 Ford Escape Flip Key Fob 3B FCC# N5F-A08TAA - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2020-ford-escape-flip-key-fob-3b-fcc-n5f-a08taa
+18. 2020 Ford Escape Key Fobs - Keyless Entry Remote, accessed January 3, 2026, https://www.keylessentryremotefob.com/shop-by-car-make/ford/escape/2020-ford-escape/
+19. Original Lishi - Ford 2017+ HU198 - 2-In-1 Pick/Decoder - AG - Royal Key Supply, accessed January 3, 2026, https://royalkeysupply.com/products/original-lishi-ford-2017-hu198-2-in-1-pick-decoder-ag-1
+20. HOW TO PROGRAM A KEY ON 2020-2022 FORD ESCAPE KEY IGNITION (HU198) USING AUTEL IM508 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=ekSemvx6jkQ
+21. 2020 Ford Escape proximity key programming without NASTF! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=2lj8t61kiFc
+22. Ford C2 platform - Grokipedia, accessed January 3, 2026, https://grokipedia.com/page/Ford_C2_platform
+23. Ford C2 platform - Wikipedia, accessed January 3, 2026, https://en.wikipedia.org/wiki/Ford_C2_platform
+24. Autel CAN FD Adapter - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+25. 2020-2024 Ford Escape ALL KEYS LOST PROGRAMMING with Autel IM608, EASY!, accessed January 3, 2026, https://www.youtube.com/watch?v=S68oOGEfFbk
+26. Ford Escape Smart Key Programming2022 using Autel IM508 Automotive Locksmith Brownstown Mi - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=8GUx-Y3YtnU
+27. Ford Jaguar HU198 Picking and Decoding Guide - TradeLocks Blog, accessed January 3, 2026, https://blog.tradelocks.co.uk/picking-decoding-ford-hu198-genuine-lishi/
+28. How do I find the intelligent key backup slot? - Ford, accessed January 3, 2026, https://www.ford.com/support/how-tos/keys-and-locks/replace-and-reprogram-keys/how-do-i-find-the-intelligent-key-backup-slot/
+29. How to find your 2020 Ford Escape Backup Key Slot Location - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Tte2tUH0_PU
+30. How can I get a spare key for my Ford?, accessed January 3, 2026, https://www.ford.com/support/how-tos/keys-and-locks/replace-and-reprogram-keys/how-can-i-get-a-spare-key/
+31. How to Program Ford Key Fobs | Service, accessed January 3, 2026, https://www.capitolford.com/service/service-and-parts-tips/how-to-program-ford-key-fobs/
+32. Ford Smart Key All Keys Lost programming AUTEL IM508 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=sgC4Q5mPkVM
+33. 21-23 Bronco Sport Escape Remote Key Fob Flip New 164-R8130 (2 Pack) | eBay, accessed January 3, 2026, https://www.ebay.com/itm/276565425311
+34. 2021-2023 Ford Bronco Sport 5-Button Smart Key Fob Remote (M3N-A2C931426, 164-R8288) - NorthCoast Keyless, accessed January 3, 2026, https://northcoastkeyless.com/product/ford-bronco-sport-5-button-smart-key-fob-remote-fcc-m3n-a2c931426-pn-164-r8288/
+35. 2022 Ford Maverick Flip Key Fob 3B FCC# N5F-A08TAA - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2022-ford-maverick-flip-key-fob-3b-fcc-n5f-a08taa

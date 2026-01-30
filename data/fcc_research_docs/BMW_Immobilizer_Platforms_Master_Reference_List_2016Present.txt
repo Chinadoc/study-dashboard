@@ -1,0 +1,275 @@
+﻿BMW Immobilizer Platforms: Master Reference List (2016–Present)
+1. Quick Reference: "Pdse" Terminology Decoder
+In the aftermarket and repair industry, "Pdse" is the phonetic pronunciation often used for BDC (Body Domain Controller).
+Common Name
+	Technical Name
+	Service Pack
+	Approx. Years
+	Key Features
+	FEM
+	Front Electronic Module
+	Legacy
+	2012–2019
+	Used in 3/4 Series (F3x). Pre-dates the "Pdse" terminology.
+	Pdse 1
+	BDC Gen 1
+	Legacy
+	2014–2022
+	Used in X1/X2/X5 (F-Series). Physically larger connector pins.
+	Pdse 2
+	BDC2
+	SP15
+	2015–2020
+	Found in early G-Series (G30, G11). Can often be bench-programmed.
+	Pdse 3
+	BDC3
+	SP18
+	2019–Present
+	"Secure Coding 2.0" era. Requires server authorization for most changes.
+	BCP
+	Basic Central Platform
+	SP21
+	2022–Present
+	The newest architecture (iX, U11 X1). Highly restricted.
+	________________
+2. Platform List by Series
+1 Series & 2 Series
+Note: The 2 Series has a mix of old (F-chassis) and new (G/U-chassis) platforms overlapping significantly.
+Model
+	Chassis
+	Years
+	Platform
+	Notes
+	1 Series
+	F20 / F21
+	2011 – 2019
+	FEM
+	Never upgraded to BDC.
+	1 Series
+	F40
+	2019 – Present
+	BDC3
+	Launched directly on SP18.
+	2 Series
+	F22 / F23
+	2014 – 2021
+	FEM
+	Coupe/Convertible (includes M2 F87).
+	2 Series
+	F44
+	2020 – Present
+	BDC3
+	Gran Coupe.
+	2 Series
+	G42
+	2021 – Present
+	BDC3
+	New Coupe (includes M2 G87).
+	2 Series
+	U06
+	2021 – Present
+	BCP
+	Active Tourer (first compact to use SP21).
+	3 Series & 4 Series
+Note: The G20 3 Series skipped BDC2 entirely, moving straight from FEM to BDC3.
+Model
+	Chassis
+	Years
+	Platform
+	Notes
+	3 Series
+	F30/F31/F34
+	2012 – 2019
+	FEM
+	Includes M3 (F80).
+	3 Series
+	G20 / G21
+	2019 – Present
+	BDC3
+	Production started late 2018 with SP18 electronics.
+	4 Series
+	F32/F33/F36
+	2013 – 2020
+	FEM
+	Includes M4 (F82).
+	4 Series
+	G22/G23/G26
+	2020 – Present
+	BDC3
+	Includes i4 and M4 (G82).
+	5 Series & 6 Series
+Note: The G30 5 Series is the most common point of confusion. The split happens strictly at the LCI (Life Cycle Impulse) facelift.
+Model
+	Chassis
+	Production Date
+	Platform
+	Notes
+	5 Series
+	G30 / G31
+	Nov 2016 – June 2020
+	BDC2
+	Pre-LCI. Supports key programming via bench tools.
+	5 Series
+	G30 / G31
+	July 2020 – 2023
+	BDC3
+	LCI. Updated headlights/grille. Secure Coding 2.0 active.
+	5 Series
+	G60
+	2024 – Present
+	BCP
+	Completely new architecture.
+	M5
+	F90
+	2017 – June 2020
+	BDC2
+	Pre-LCI.
+	M5
+	F90
+	July 2020 – 2023
+	BDC3
+	LCI.
+	6 Series GT
+	G32
+	2017 – June 2020
+	BDC2
+	Pre-LCI.
+	6 Series GT
+	G32
+	July 2020 – 2024
+	BDC3
+	LCI.
+	7 Series & 8 Series
+Note: The 7 Series switched platforms earlier than the 5 Series.
+Model
+	Chassis
+	Production Date
+	Platform
+	Notes
+	7 Series
+	G11 / G12
+	July 2015 – Feb 2019
+	BDC2
+	The debut vehicle for the BDC2 platform.
+	7 Series
+	G11 / G12
+	March 2019 – 2022
+	BDC3
+	LCI "Giant Grille" update.
+	7 Series
+	G70
+	2023 – Present
+	BCP
+	Service Pack 21.
+	8 Series
+	G14/G15/G16
+	2018 – Present
+	BDC3
+	Launched late enough to skip BDC2 entirely.
+	X Series (SAVs)
+Note: This segment has the "X Series Anomaly" where the X1 stuck with older tech while the X5 jumped ahead.
+Model
+	Chassis
+	Years
+	Platform
+	Notes
+	X1
+	F48
+	2015 – 2022
+	BDC Gen 1
+	Never used BDC2 or BDC3. Remained on UKL platform.
+	X1
+	U11
+	2023 – Present
+	BCP
+	Massive jump from Gen 1 directly to BCP/SP21.
+	X2
+	F39
+	2017 – 2023
+	BDC Gen 1
+	Shared platform with F48 X1.
+	X3 / X4
+	G01 / G02
+	2017 – July 2021
+	BDC2
+	Pre-LCI.
+	X3 / X4
+	G01 / G02
+	Aug 2021 – 2024
+	BDC3
+	LCI update brought SP18 electronics.
+	X5 / X6
+	F15 / F16
+	2014 – 2018
+	BDC Gen 1
+	
+
+	X5 / X6
+	G05 / G06
+	2018 – Present
+	BDC3
+	Anomaly: Launched with BDC3 (SP18) immediately. There is no BDC2 version of the G05.
+	X7
+	G07
+	2019 – 2022
+	BDC3
+	Pre-LCI.
+	X7
+	G07
+	2023 – Present
+	BCP
+	LCI update migrated to BCP (SP21) for the Curved Display.
+	Z Series & i Series (EV)
+Model
+	Chassis
+	Years
+	Platform
+	Notes
+	Z4
+	G29
+	2019 – Present
+	BDC3
+	Shared architecture with Toyota Supra (Supra also uses BDC3-based security).
+	i3
+	I01
+	2013 – 2022
+	BDC Gen 1
+	
+
+	iX
+	I20
+	2021 – Present
+	BCP
+	Flagship for the new Service Pack 21 architecture.
+	________________
+3. Summary of Visual Identification
+If you cannot verify the production date, check the dashboard and head unit:
+1. Instrument Cluster:
+   * Analog dials with plastic rings: Almost always FEM or BDC1.
+   * Hybrid dials (Digital screen but physical chrome rings glued to glass): This is "Live Cockpit Plus" (ID6). It is BDC2.
+   * Fully Digital (Angular bracket shape, no physical rings): This is "Live Cockpit Professional" (ID7). It is BDC3.
+   * One giant curved glass panel (Cluster + Radio merged): This is "Curved Display" (ID8/8.5). It is BCP.
+2. Immobilizer Box Location:
+   * FEM: Passenger footwell (side wall), usually white or black plastic.
+   * BDC (all versions): Passenger footwell (side wall), black plastic.
+   * Distinction: BDC2 has a specific connector layout for LIN bus lighting. BDC3 introduces Gigabit Ethernet (OABR) ports directly on the module for the "Ethernet Ring."
+
+
+  
+
+
+
+
+
+  
+
+
+
+Sources:
+* Autel BMW IMMO Application List
+* Xhorse BDC2/BDC3 Support List 1
+* BMW Technical Service Bulletins (G05/G20/G30) 2
+* RealOEM Parts Database
+Works cited
+1. Xhorse BMW G Series BDC2/BDC3 IMMO License Activation, accessed January 8, 2026, https://www.tlkeys.com/products/xhorse-bmw-g-series-bdc2-bdc3-immo-license-activation
+2. sib 09 02 21 - function change after programming 2021-10-28 - nhtsa, accessed January 8, 2026, https://static.nhtsa.gov/odi/tsbs/2021/MC-10204532-9999.pdf

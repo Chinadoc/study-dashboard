@@ -1,0 +1,183 @@
+﻿2024 Hyundai Vehicle Access and Immobilizer Systems: A Comprehensive Technical Report for Automotive Security Professionals
+1. Introduction: The Paradigm Shift in Hyundai Security Architecture
+The release of the 2024 model year vehicles by Hyundai Motor Group marks a watershed moment in automotive security, specifically regarding locksmithing, immobilizer programming, and vehicle access control. For over a decade, automotive locksmiths grew accustomed to a relatively predictable architecture in Korean vehicles—standard CAN bus communication, widely available PIN codes, and legacy keyway profiles. However, the 2024 lineup, driven by a convergence of escalating theft concerns (colloquially known as the "Kia Boyz" phenomenon) and the technological shift toward "Software Defined Vehicles" (SDV), presents a radically hardened environment.
+This report serves as a definitive technical manual for professional locksmiths servicing 2024 Hyundai vehicles. It moves beyond basic "add-a-key" instructions to analyze the underlying engineering changes that dictate current procedures. The analysis focuses on the migration to the Controller Area Network Flexible Data-Rate (CAN FD) protocol, the implementation of "Active Alarm" firewalls that block diagnostic tools, and the fragmentation of mechanical keyways into high-security laser-cut profiles shared with the Genesis luxury division.
+The operational landscape for 2024 requires a shift from trial-and-error methodology to a strict protocol-based approach. The simplistic days of plugging in a generic programmer and cycling the ignition are effectively over for models like the 2024 Elantra, Kona, and Palisade.1 Success now hinges on three pillars: precise mechanical decoding using specific Lishi generations, authorized acquisition of security credentials (PINs), and the capability to bypass active electronic countermeasures. This document synthesizes data from field reports, technical service bulletins, and tool capability logs to provide an exhaustive roadmap for the modern automotive security professional.
+2. Mechanical Access Systems: Profiles, Decoding, and Cutting
+The first line of defense in the 2024 architecture is the mechanical lock cylinder. While the industry trends toward "Phone-as-a-Key" and purely digital access, the mechanical emergency key remains the fail-safe for dead batteries and system malfunctions. For the locksmith, creating this key is often the prerequisite for gaining entry to the vehicle to plug in a programmer. The 2024 model year introduces significant complexity through the diversification of keyway profiles.
+2.1. The Fragmentation of Keyway Profiles
+Unlike previous generations where the HYN14 or HY15 profiles were ubiquitous, 2024 Hyundais utilize a "split ecosystem" of keyways. The correct blank and Lishi tool depend not only on the model but frequently on the trim level, assembly plant, and presence of proximity entry systems. Misidentification here leads to wasted key blanks and potential damage to the customer's door lock.
+2.1.1. The K9 / K9 V4 Profile (High-Security Internal 4-Track)
+The K9 profile, originally engineered for the flagship Genesis Equus and Kia K900, has been adopted by high-end 2024 Hyundai models, particularly those in the EV sector like the Ioniq 6 and select trims of the Palisade.3
+This keyway is characterized by a 4-track internal laser cut, though functionally, many implementations only utilize two primary tracks for the door cylinder. The warding is extremely tight, designed to reject standard picking tools.
+* Tooling Requirement: The Original Lishi K9 V.4 is the mandatory tool for this profile.
+* Technical Evolution: It is critical to distinguish the V.4 from earlier V.1 or V.2 iterations. The 2024 lock cylinders often feature a recessed housing or a modified face cap that physically prevents the shorter reader arms of older K9 tools from reaching the rear wafers.3 Using an older tool will result in a misread of the deepest cuts, leading to a non-functional key.
+* Operational Nuance: The K9 system utilizes a split-wafer design. Technicians must be adept at feeling for the "springiness" of the wafer. A rigid wafer usually indicates it is set, while a binding wafer requires manipulation.
+2.1.2. The KK12 / K5 Profile (The "New Standard")
+The KK12, often cross-referenced as the "K5" keyway (stemming from the Kia K5), has become the volume standard for the 2024 lineup. It is dominant on the 2024 Tucson, Kona, Elantra (Proximity Trims), and the Ioniq 5.6
+* Geometry: This profile features a distinct center groove with side milling. It is often referred to as a "side-mill" high-security key.
+* Tooling Requirement: The Original Lishi KK12 (or K5) 2-in-1 Pick & Decoder.
+* Decoding Strategy: Unlike the dual-axis reading of some laser keys, the KK12 typically requires reading heights on a single primary axis, but the tool must be positioned precisely. The wafers in 2024 cylinders have tighter tolerances; a reading that is "slightly off" (e.g., reading a 2.5 depth as a 3) will cause the key to bind in the ignition or door.9
+* Cross-Compatibility: This keyway is shared extensively with the 2024 Kia Telluride and Seltos, making the KK12 Lishi a high-ROI tool for the generalist locksmith.
+2.1.3. The Legacy HY20R Profile (Reverse Track)
+While less common on completely redesigned platforms, the HY20R persist on 2024 models that are mid-cycle refreshes or lower trim levels, such as the base Santa Cruz or fleet-spec Sonatas.10
+* The "Reverse" Trap: The "R" designation is critical. It indicates a reverse track configuration compared to the standard HY20. Using a standard HY20 tool will result in reading the wafers in an inverted sequence (e.g., reading position 1 as position 8, or reading the depths upside down). This generates a key code that is mathematically valid but mechanically incorrect for the lock.
+* Tooling Requirement: Original Lishi HY20R. Technicians must visually inspect the keyway face. If the warding orientation mirrors the standard HY20 tool, the HY20R is required.
+
+
+  
+
+
+
+2.2. Advanced Decoding and Cutting Workflows
+The process of generating a working key from a locked cylinder involves more than simply inserting the tool. The 2024 lock cylinders incorporate "anti-pick" features such as variable tension springs and serrated wafers that mimic the feel of a set wafer.
+2.2.1. The Decoding Protocol
+To ensure accuracy, professional locksmiths follow a rigorous decoding protocol:
+1. Flush and Lubricate: Before inserting the Lishi tool, flush the lock cylinder with a synthetic lubricant. Road grime and icing can seize wafers, giving false feedback.
+2. Tension Control: Apply minimal tension. The 2024 cylinders are susceptible to "binding overlap," where too much tension binds multiple wafers simultaneously, making it impossible to isolate the target wafer.
+3. Picking Sequence: Technicians must locate the binding wafer (the one that resists movement) and pick it until a distinct "click" is felt. If the wafer feels "mushy," it is likely a false set or not the current binder.
+4. Verification Pass: Once the lock is picked to the open position, maintain tension and read the depths. It is standard practice to read the lock twice—once while opening and once while locking—to verify the depth values match.5
+2.2.2. Cutting Calibration
+When transferring the decoded bitting to a CNC cutting machine (e.g., Condor XC-Mini, Triton, or Gymkana), software currency is paramount. The spacing parameters for the K9 V4 and KK12 profiles may differ slightly in 2024 from previous years. Using an outdated database can result in a key that enters the lock but will not turn, or worse, becomes stuck. It is advisable to use the "Universal Key" setting if the specific 2024 model year is not listed, provided the keyway profile matches.2
+3. Part Number Verification: The VIN-to-Part Imperative
+A critical point of failure in modern locksmithing is the assumption of backward compatibility. In the 2024 Hyundai ecosystem, keys are strictly tied to the specific configuration of the Body Control Module (BCM) and the Integrated Central Control Unit (ICU). A 2024 Tucson SEL key fob is often electronically incompatible with a 2024 Tucson Limited fob, despite sharing an identical external housing.
+3.1. The "Invisible" Differentiators
+The exterior of the Smart Key often reveals nothing about its internal architecture. Two identical-looking fobs may differ in:
+* Frequency: 315 MHz vs. 433 MHz. 2024 models have largely migrated to 433 MHz, but specific trims retain 315 MHz for legacy compatibility.11
+* Transponder Chip: The shift from 8A chips to 4A chips (NXP) in 2024 models is invisible. An 8A fob will not program to a 4A vehicle system, resulting in a generic "Programming Failed" error that leads technicians to suspect the tool or the car, rather than the key itself.1
+* Circuit Board ID: The FCC ID and PCB numbers (e.g., CQOFD00120 vs. TQ8-FOB-4F26) determine the rolling code logic.
+3.2. Verification Protocols for Locksmiths
+To avoid the costly error of unwrapping and cutting a $150+ OEM key that cannot be programmed, a rigid verification protocol is required.
+3.2.1. The "Dealer Direct" Method
+As identified in the user query, calling the dealership parts department remains the gold standard for accuracy. The locksmith must provide the full 17-digit VIN. The parts counter will provide the exact Assembly Part Number for the fob and the Blank Key Sub-Assembly for the emergency blade.
+* Professional Tip: When requesting this, ask for the "Part Number ending in..." rather than the full number to respect the parts manager's time, or build a rapport by purchasing the occasional key blank from them to maintain access to this data.
+3.2.2. Digital Parts Catalogs
+For after-hours work or high-volume shops, relying on phone calls is inefficient. Professional locksmiths utilize verified online databases:
+* Key4 & UHS Hardware: These suppliers offer VIN-to-Part verification services. Users upload a photo of the VIN plate, and the support team confirms the correct SKU.11
+* HyundaiOEMParts.com: This public-facing database allows users to drill down by VIN to see the exploded parts diagrams, often revealing the specific part number for the "Transmitter-Keyless Entry."
+4. Electronic Programming: Protocols, Hardware, and PIN Codes
+Once the mechanical key is cut and the correct electronic fob is in hand, the locksmith must interface with the vehicle's immobilizer. The 2024 model year introduces the most significant electronic barriers seen to date: the widespread adoption of CAN FD and the hardening of the PIN code system.
+4.1. The CAN FD Requirement
+The 2024 Hyundai Elantra, Tucson, and many others have migrated their communication networks to Controller Area Network Flexible Data-Rate (CAN FD).
+* Technical Context: Traditional CAN bus operates at 500 kbps with an 8-byte payload. CAN FD operates at up to 5 Mbps with a 64-byte payload. This allows the vehicle's modules (BCM, ECU, ICU) to communicate complex encryption data much faster.
+* The Locksmith's Hurdle: Legacy OBD-II programmers (e.g., standard Autel IM508 or IM608 Gen 1) operate on standard CAN. When connected to a 2024 CAN FD vehicle, they cannot interpret the data stream. The tool will simply fail to connect or report "System Not Found."
+* Hardware Solutions:
+   * Adapter Approach: Users of older tools must insert a CAN FD Adapter between the OBD-II port and the programmer's VCI. This adapter actively translates the signal.13
+   * Native Support: The latest generation of tools, such as the Autel IM608 Pro II (IM608 II) and Lonsdor K518 Pro, feature updated VCI hardware (e.g., the Flash JVCI) that supports CAN FD natively, eliminating the need for dongles.16
+4.2. Comparative Analysis of Programming Tools
+Not all programmers are created equal for the 2024 Hyundai architecture. A comparative analysis reveals distinct strengths and weaknesses.
+
+
+Feature / Capability
+	Autel IM508S / IM608 Pro II
+	Lonsdor K518 Pro
+	Xhorse Key Tool Plus
+	CAN FD Support
+	Native (Pro II) / Adapter Required (IM508/608)
+	Native (Hardware supported)
+	Partial (Often requires adapter or specific updates)
+	2024 PIN Reading
+	Moderate. Success rate varies. Often requires buying PIN for 4A/8A systems. 2
+	High. Strong reputation for reading 4A PINs via OBD without external purchase. 17
+	Low/Moderate. Good for cloning, but struggles with 2024 PIN extraction via OBD. 1
+	Active Alarm Bypass
+	High. Specific menu functions for "Unlock/Disable Alarm." 19
+	Moderate. Relies on standard unlock protocols.
+	Low. Often requires manual bypass (battery disconnect).
+	Key Generation
+	OEM Only. Requires OEM or unlocked OEM keys.
+	OEM & Lonsdor Generic. Can generate Lonsdor smart keys to mimic OEM.
+	Universal. Excellent for generating Xhorse universal remotes when OEM is unavailable.
+	4.3. The PIN Code Ecosystem
+Every Hyundai key programming session requires a 6-digit PIN code to authorize the "Key Teaching" session.
+* Historical Context: In previous years, tools could "read" this PIN from the PDM (Power Distribution Module) or BCM via an exploit.
+* 2024 Status: Hyundai has patched many of these exploits on the 2024 firmware. While Lonsdor and some advanced Autel updates claim success, the most reliable method remains purchasing the PIN.
+* Acquisition Sources:
+   * AutoCode: This is a widely used third-party broker app. Locksmiths create an account, enter the VIN, and pay a fee (typically $15-$30) to receive the PIN instantly. This bypasses the need for the tool to "hack" the car.20
+   * NASTF (National Automotive Service Task Force): For compliant VSPs, this is the official route. It allows access to the Hyundai techinfo portal to pull codes legally and reliably.
+   * The Dealer: As noted, dealers can provide this code, but corporate policies increasingly restrict providing codes to anyone other than the registered owner appearing in person with a title. Relying on a "nice dealer" is not a scalable business model for a professional locksmith.
+5. The "Active Alarm" Challenge: Diagnosis and Bypass
+The most pervasive issue facing locksmiths on the 2024 Elantra, Tucson, and Sonata is the Active Alarm State. This security feature acts as a diagnostic firewall, preventing key programming even when the correct tool and PIN are available.
+5.1. Theory of Operation: The Diagnostic Firewall
+When a 2024 Hyundai is locked via the fob, the security system enters an "Armed" state. If the vehicle is subsequently opened via the mechanical key (lock picking) or a forced entry, the "Active Alarm" state is triggered.
+* The Lockout: In this state, the Gateway Module and BCM prioritize theft prevention. They disable the Start/Stop button logic and, crucially, reject diagnostic communication on the OBD-II port.
+* Symptoms: The locksmith plugs in their Autel or Lonsdor tool. The tool powers up but hangs on "Connecting to System" or reports "Communication Failed." The hazard lights may be flashing, and the horn sounding (unless the fuse was pulled).
+5.2. Operational Workflow: The Decision Logic for 2024 Programming
+To overcome the Active Alarm and successfully program a key, technicians must follow a specific logic path.
+Step 1: Determine Alarm State.
+Is the horn sounding or hazards flashing? If yes, the system is in Active Alarm. Diagnostic communication is likely blocked.
+Step 2: Attempt Mechanical Disarm.
+* Action: Insert the successfully cut mechanical key into the driver's door cylinder.
+* Procedure: Cycle the key to the UNLOCK position and hold for 3-5 seconds. Repeat this motion.
+* Result Check: Does the alarm stop? On many 2024 models, Hyundai has removed the disarm switch from the door cylinder to prevent theft tools (like "turbo decoders") from disarming the car easily. If the alarm continues, this method has failed.
+Step 3: The "Battery Reset" Protocol (Brute Force Bypass).
+This is the most effective method for the 2024 Elantra and Tucson.2
+* Action: Pop the hood. Disconnect the Negative (-) Battery Terminal.
+* Wait: Leave disconnected for at least 60 seconds to drain capacitors in the BCM.
+* Reconnect: Reattach the terminal. The alarm will likely remain silent for a short initialization window (approx. 10-30 seconds).
+* Strike: Immediately attempt to connect the programmer during this silence window. The goal is to establish a session before the BCM fully boots into its "Alarm" state.
+Step 4: Tool-Based Disarm (Electronic Bypass).
+Advanced tools like the Autel IM608 II possess specific software functions to override the alarm state, provided communication can be established (often utilizing the Battery Reset window to gain initial access).
+* Action: Navigate to Special Functions or Immo Status -> Select Unlock Door or Disable Alarm. This sends a command via the CAN bus to force the BCM into a disarmed state.19
+Step 5: The "Wait" Strategy.
+If all else fails, allow the alarm to cycle until it times out (usually 30-60 seconds). The system may enter a "Re-arm" or "Seek" state where it is momentarily receptive to valid key signals. However, opening a door will re-trigger the alarm, so the technician must remain inside the vehicle during this wait.
+6. Remote Start Integration: Aftermarket Solutions
+For 2024 Hyundai owners without a Bluelink subscription, locksmiths are often asked to install aftermarket remote start systems. This integration is complicated by the 2024 firmware logic regarding engine "Takeover."
+6.1. The "Takeover" Limitation
+A critical operational characteristic of modern Push-to-Start (PTS) systems is the "Secure Takeover" protocol.
+* The Behavior: When a user remote starts the vehicle (via OEM fob or aftermarket) and subsequently opens the door to enter, the engine shuts down immediately.
+* The Cause: This is a hard-coded security feature in the BCM firmware found on many 2024 Hyundai and Toyota platforms. It prevents a thief from jumping into a running car and driving away while the owner is approaching.
+* Implication for Locksmiths: There is typically no wiring bypass for this. Installers must manage customer expectations upfront: "On this 2024 model, the car will turn off when you open the door. You must restart it to drive.".23
+6.2. Hardware Ecosystem: Start-X vs. Fortin
+Two primary aftermarket ecosystems dominate the 2024 landscape.
+6.2.1. Start-X (Plug-and-Play Focus)
+Start-X kits are favored for their simplicity and are often re-sold by locksmiths.
+* Architecture: These kits generally intercept the CAN bus signals at the BCM or Gateway (located behind the glovebox or kick panel). They monitor for the "3x Lock" signal from the OEM remote.
+* Installation: Strictly T-Harness based. Minimal wire splicing is required, usually limited to a single parking light or horn wire if visual/audible confirmation is desired.26
+* Limitation: Start-X systems are often less customizable regarding run-times or auxiliary outputs compared to professional-grade modules.
+6.2.2. Fortin (Professional Grade)
+The Fortin Evo-One and Evo-All platforms offer deep integration for professional installers.
+* Key Cloning (Dcryptor): Fortin installation often requires a "Decryption" process. The module is installed, powered up to "learn" the vehicle's encryption handshake, then removed and connected to a PC (FlashLink updater). The software calculates a digital clone of the key, which is then written back to the module. This allows the remote start to bypass the immobilizer without sacrificing a physical key inside the dash.28
+* Reliability: Fortin modules are robust against BCM updates and offer superior diagnostic LED feedback during troubleshooting.
+7. Troubleshooting & Edge Cases
+7.1. "No Transponder Detected" on New Key
+If a newly programmed key fails to start the car despite a "Success" message:
+* Cause: The 2024 system often requires the key to be held directly against the Start/Stop button for the first few cycles to synchronize the rolling code.
+* Solution: Press the Start button with the nose of the fob, not your finger. This utilizes the emergency inductive backup antenna in the button housing to force communication.
+7.2. TPMS Lights After Remote Start
+Aftermarket remote starts (Start-X) on 2024 models may trigger a TPMS (Tire Pressure) warning light upon startup.30
+* Diagnosis: This is a known firmware conflict where the remote start module interrupts the TPMS check-in signal on the CAN bus.
+* Resolution: This is usually cosmetic. The light typically clears after the vehicle is driven for 1-2 miles or upon a standard restart.
+8. Conclusion
+The serviceability of 2024 Hyundai vehicles demands a professional evolution. The convergence of CAN FD data speeds, K9/KK12 mechanical precision, and active electronic firewalls has effectively raised the barrier to entry. For the locksmith, the "tools of the trade" now mandate a CAN FD-capable programmer (like the Autel IM608 II), a specific set of V.4 Lishi picks, and a reliable subscription to a PIN code broker like AutoCode. By mastering the "Battery Reset" bypass for active alarms and rigorously verifying part numbers via VIN, the security professional can turn these complex systems into a routine and profitable service revenue stream.
+Works cited
+1. Kia Hyundai 2024 PIN Code Reading & Smart Key Programming: Autel vs Xhorse Tested, accessed January 3, 2026, https://www.youtube.com/watch?v=2gY00pYD-Go
+2. 2024+ Hyundai Elantra Smart Key: AutoProPAD vs. IM608 vs. ABRITES | - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=y3MbP3UHXu8
+3. ORIGINAL LISHI - K9-V4 Ioniq6-Genesis / Picks and Decodes Door Locks of 2024+ Kia, Hyundai, and Genesis Models for Sale | UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/original-lishi-k9-v4-ioniq6-genesis-picks-and-decodes-door-locks-of-2024-kia-hyundai-and-genesis-models
+4. K9 V4 Ioniq-Genesis | Original Lishi Tools, accessed January 3, 2026, https://www.originallishi.com/k9-v4-ioniq-genesis/
+5. Original Lishi Tools | Quality Tools Made by a Locksmith for Locksmiths, accessed January 3, 2026, https://www.originallishi.com/
+6. Original Lishi 2-in-1 Pick/Decoder for Hyundai Ioniq 5 & Tucson, Anti Glare - New, accessed January 3, 2026, https://keyinnovations.com/original-lishi-ionig5-hyundai-new-keyway-for-ioniq-5-and-tuscon-2-in-1-pick-decoder-anti-glare-pre-order-new/
+7. Original Lishi K 5 New Kia Keyway KK12 - 2-in-1 Pick - Door/Trunk/Ignition - Anti-Glare, accessed January 3, 2026, https://keyinnovations.com/original-lishi-k-5-new-kia-keyway-kk12-2-in-1-pick-door-trunk-ignition-anti-glare/
+8. ORIGINAL LISHI - IONIG5 - Hyundai New Keyway for Ioniq 5 and Tuscon / 2-in-1 Pick & Decoder / Anti Glare - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/original-lishi-ionig5-hyundai-new-keyway-for-ioniq-5-and-tuscon-2-in-1-pick-decoder-anti-glare
+9. Original Lishi 2-1 Pick/Decoder for Kia K5 / KK12 - CLK Supplies, accessed January 3, 2026, https://www.clksupplies.com/products/original-lishi-2-1-pick-decoder-for-kia-k5-kk12
+10. Hyundai (HY20R, HY18R) Lishi Pick/Decoder - Lockpicks.com, accessed January 3, 2026, https://www.lockpicks.com/products/hyundai-hy20r-hy18r-lishi-pick-decoder
+11. Find your vehicle's key fob OEM part number by VIN number - Key4, accessed January 3, 2026, https://www.key4.com/key-part-number-search
+12. How To Find OEM Wholesale Car Keys For Sale Using VIN Numbers - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/how-to-find-oem-wholesale-car-keys-for-sale-using-vin-numbers
+13. CAN-FD Adapter Xtool AutoProPad – CarandTruckRemotes - Car and Truck Remotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/can-fd-adapter-xtool
+14. Autel CAN FD Adapter - AE Tools, accessed January 3, 2026, https://www.aetools.us/products/autel-can-fd-adapter
+15. Autel CAN FD Adapter Compatible with Autel VCI Maxisys Tablets - ABKEYS, accessed January 3, 2026, https://abkeys.com/products/autel-can-fd-adapter-compatible-with-autel-vci-maxisys-tablets-1409
+16. 2024 Autel MaxiIM IM608 PRO II Kit IMMO Key PROGRAMMING Diagnostic Scanner Tool | eBay, accessed January 3, 2026, https://www.ebay.com/itm/276068366981
+17. 2023–2025 Hyundai/Kia Anti-Theft Bypass Guide - Keyless City, accessed January 3, 2026, https://keyless-city.com/blogs/locksmith-101/20232025-hyundaikia-anti-theft-bypass-guide
+18. 2024 Autel MaxiIM IM608 PRO II Kits IMMO Key PROGRAMMING Diagnostic Scanner Tool, accessed January 3, 2026, https://www.ebay.com/itm/388893462525
+19. Autel IM608 II Program 2025 Hyundai Kona All Smart Keys Lost, accessed January 3, 2026, http://blog.autelshop.de/autel-im608-ii-program-2025-hyundai-kona-all-smart-keys-lost/
+20. AutoCode - VIN to Key Code - Apps on Google Play, accessed January 3, 2026, https://play.google.com/store/apps/details?id=us.autocode.two&hl=en_US
+21. Sign Up To AutoCode - Auto Key Codes, accessed January 3, 2026, https://www.autocode.us/apply/
+22. how to reset car alarm car not starting Hyundai - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=i2-O48jziLs
+23. Why Push to Start Vehicle Shuts Off as Soon as I Open the Door. - Compustar Help, accessed January 3, 2026, https://help.compustar.com/s/article/Push-to-Start-Vehicle-Shuts-Off-as-Soon-as-I-Open-the-Door
+24. Why did my vehicle turn off after starting with Toyota Remote Connect?, accessed January 3, 2026, https://support.toyota.com/s/article/Why-did-my-vehicle-turn-off-after-starting-with-Toyota-Remote-Connect
+25. Remote start - engine shuts off as soon as I open the door(s) : r/Toyota - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Toyota/comments/1bnv0d4/remote_start_engine_shuts_off_as_soon_as_i_open/
+26. 2013 Toyota Corolla (G-Key) Remote Starter - Start-X, accessed January 3, 2026, https://remotestartx.com/2013-toyota-corolla-g-key-remote-starter/
+27. remote — - starter kit - Start-X, accessed January 3, 2026, https://remotestartx.com/guides/web.pdf
+28. How to install an Evo One remote starter Part 1 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=1eFzp-rrqg0
+29. Toyota Evo-Toy13 Plug and Play Remote Start Review - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=HdTjiNCQY6Y
+30. Anyone use an after market remote starter that works? : r/ToyotaTundra - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ToyotaTundra/comments/1gvvcpi/anyone_use_an_after_market_remote_starter_that/

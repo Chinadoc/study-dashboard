@@ -1,0 +1,241 @@
+﻿Technical Analysis of Mazda Immobilizer Architecture and Programming Protocols (2017–2024)
+1. Introduction: The Security Paradigm Shift
+The automotive security landscape for Mazda vehicles underwent a radical and complex transformation between the years 2017 and 2024. This period represents a critical divergence in engineering philosophy, driven by the dissolution of legacy partnerships and the adoption of modern, connected-vehicle architectures. For automotive locksmiths, security professionals, and fleet managers, this era is characterized by extreme volatility in programming procedures, where visual similarity between vehicle models belies profound internal differences in immobilizer logic.
+The core of this transformation lies in the shift from the Mitsubishi-derived "6th Generation" immobilizer systems—which relied on accessible localized authentication—to the Mazda-native "7th Generation" architecture. This new architecture, introduced with the BP-chassis Mazda3 in 2019, fundamentally altered the mechanism of key authorization by integrating 128-bit AES encryption, Security Gateway (SGW) modules, and strict online-server dependencies.
+This report provides an exhaustive technical analysis of this evolution. It addresses the significant operational gap identified in high-volume SUV platforms such as the CX-5, CX-9, CX-30, and the newly introduced CX-50. While sales volumes for these vehicles are strong, verified programming procedures have remained fragmented or undocumented due to the rapid, silent firmware updates implemented by Mazda during mid-cycle refreshes. By synthesizing data from technical service bulletins, tool vendor documentation, and field analysis, this document serves as a definitive operational manual for navigating the disparities between legacy, transitional, and next-generation Mazda security environments.
+2. Immobilizer Architecture Evolution (2017–2024)
+Understanding the lineage of the immobilizer system is the absolute prerequisite for successful key programming. The failures commonly reported in the field—such as "security access denied" errors or "key ID registration failed" alerts—are rarely due to tool incompetence but rather a fundamental misunderstanding of the target vehicle’s architectural generation. The fleet is currently bifurcated, and during the 2020–2021 period, it was trifurcated into legacy, transitional, and modern systems.
+
+
+  
+
+
+
+2.1 The 6th Generation Architecture (Mitsubishi-Derived)
+From 2013 through approximately 2020—depending heavily on the specific model line—Mazda utilized a security system that was heavily derived from Mitsubishi Electric protocols.1 This "6th Generation" system is the most familiar to locksmiths and technicians. It is characterized physically by the presence of a standalone Start Stop Unit (SSU), which acts as the primary immobilizer controller.
+In this architecture, the SSU functions as the central gatekeeper for vehicle authorization. When the ignition button is pressed, the SSU energizes the Low-Frequency (LF) antennas located throughout the cabin (typically in the console, door panels, and trunk) to broadcast a wake-up signal to the key fob. The fob, upon receiving this LF challenge, responds via Radio Frequency (RF) to the Remote Keyless Entry (RKE) receiver. The SSU then validates the transponder data embedded in the response. If the cryptographic challenge is satisfied, the SSU sends a release signal to the steering lock unit (if equipped) and, crucially, provides the authorization code to the Powertrain Control Module (PCM) to permit fuel injection and ignition.2
+The defining characteristics of the 6th Generation system include:
+* Transponder Technology: The system primarily utilizes NXP Hitag Pro technology, designated industrially as ID49.3
+* Encryption: The system employs 80-bit or 128-bit rolling codes. While secure, this encryption has been thoroughly reverse-engineered by the aftermarket, allowing tools to manage the system via OBD-II exploits.
+* Programming Access: Authorization is typically granted via an "Incode/Outcode" challenge-response mechanism. The vehicle generates an Outcode, and the programmer must respond with the correct Incode. Modern aftermarket tools (Autel, Smart Pro) handle this calculation internally or via a background server connection, bypassing the need for official dealer credentials or "NASTF" security professional IDs in most scenarios.2
+2.2 The 7th Generation Architecture (Mazda-Native)
+The launch of the 2019 Mazda3 (BP chassis) marked the definitive break from the Mitsubishi legacy and the debut of Mazda’s proprietary "7th Generation" architecture. This platform represents a complete "ground-up" overhaul of the vehicle's electrical network, transitioning to a CAN-FD (Controller Area Network with Flexible Data-rate) bus architecture.5 The move to CAN-FD was necessitated not just by security concerns, but by the massive increase in data throughput required for modern Advanced Driver Assistance Systems (ADAS) and infotainment integration.
+In terms of security, the 7th Generation architecture eliminated the standalone SSU. Its functions were absorbed into a more highly integrated Body Control Module (BCM), often referred to in technical literature as the BCM-C (Body Control Module - Computing) or simply the Body Controller.
+Crucially, this generation introduced a strict "Online-Only" programming requirement. The older IDS/MMP software used by dealers was replaced by MDARS (Mazda Diagnostic And Repair System), a cloud-based diagnostic platform that authenticates every significant module change directly with Mazda’s servers in Hiroshima.6
+The technical pillars of the 7th Generation system are:
+* Transponder Technology: A shift to AES 128-bit encryption. While the aftermarket often refers to these as "8A" chips due to similarities with Toyota’s encryption, Mazda utilizes specific proprietary encryption keys that render generic 8A chips incompatible.7
+* Security Gateway (SGW): This is the most significant hurdle for independent repair. The architecture includes a gateway module that actively filters OBD-II traffic. It prevents unauthorized "Write" access to the CAN buses without digital authentication, effectively blocking unapproved key programming tools.9
+* Programming Access: The traditional "Incode/Outcode" calculators are wholly ineffective here. Access requires either an authorized pass-through device with a valid MDARS subscription or specialized aftermarket tools that have successfully reverse-engineered the seed-key exchange and utilize specific adapter cables to physically bypass the gateway.10
+2.3 The Hybrid/Transitional Phase (2020–2021)
+The years 2020 and 2021 represent a "trap" for unwary technicians. During this window, legacy platforms such as the CX-5 and CX-9 received significant mid-cycle refreshes. While they retained the physical chassis and general appearance of the 6th Generation vehicles, they received updated infotainment systems (Mazda Connect 2) and, quietly, updated immobilizer firmware.
+These transitional vehicles are often referred to as "Gen 6.5." They physically utilize the SSU architecture but run firmware that mimics the tighter timing and security logic of the 7th Generation. They require updated transponders (specifically the WAZSKE13D03 FCC ID) and often reject standard 6th Generation programming attempts, leading to the "Zero Procedures" confusion. Standard methods fail because the SSU demands a higher-security handshake, yet 7th Generation methods (like those for the Mazda3) are not fully applicable because the vehicle lacks the full CAN-FD backbone.4
+3. Transponder and Key Hardware Taxonomy
+One of the primary sources of failure in Mazda key programming is the mismatch between key fob hardware and the vehicle's immobilizer version. The external housing of Mazda smart keys—the sleek, rectangular "button-side" fob—has remained largely consistent across generations, masking significant internal changes in chip architecture and frequency protocols.
+3.1 Chip Classification: From ID49 to 8A/6A
+The industry-standard designations for Mazda transponders have shifted, requiring precise identification protocols during the parts procurement phase.
+* ID49 (Hitag Pro): This was the workhorse for 2013–2019 models, including the CX-5, CX-3, and Mazda6. It operates on 315 MHz or 433 MHz depending on the region. The ID49 chip is robust but relies on the older encryption standards that allowed for relatively easy cloning and programming via OBD.3
+* 8A (Texas Crypto AES): Often associated with Toyota, the "8A" designation in the context of Mazda refers to 128-bit AES encrypted chips used in the 2019+ Mazda3 and later SUVs. It is critical to note that while the type is 8A, the configuration is Mazda-specific. A generic Toyota 8A emulator will not work; the chip must be pre-coded with Mazda's specific cryptographic pages.7
+* 6A (Hitag AES): Emerging in the newest CX-50 and CX-90 models, this references a specific NXP implementation of AES encryption. The 6A chip represents the highest level of security currently deployed, often requiring specific dealer-level server authorization to "unlock" the chip for programming.13
+3.2 FCC ID Identification Matrix
+Technicians must verify the FCC ID printed inside the key shell before attempting programming. Visual similarity is deceptive; a key that fits the slot physically may be digitally invisible to the BCM.
+
+
+  
+
+
+
+The following table elaborates on the critical distinctions found in the visual matrix:
+
+
+FCC ID
+	Frequency
+	Chip Type
+	Primary Application
+	Technical Notes
+	WAZSKE13D01
+	315 MHz
+	ID49 (Hitag Pro)
+	CX-5 (2017-2019), CX-9 (2016-2019)
+	The legacy standard. Generally utilized on trims without the power liftgate function. 3
+	WAZSKE13D02
+	315 MHz
+	ID49 (Hitag Pro)
+	CX-5 (2017-2019), CX-9 (2016-2019)
+	Functionally similar to D01 but explicitly supports the power liftgate signal. 15
+	WAZSKE13D03
+	315 MHz
+	ID49 / AES Enhanced
+	CX-5 (2020-2024), CX-9 (2020-2024)
+	CRITICAL FAILURE POINT: This key is the visual twin of D01/D02 but is internally incompatible. It uses a different rolling code algorithm required by the updated 6.5 Gen BCM. Attempting to program a D01 key to a 2021 CX-5 will result in a successful "transponder read" but a failure at the "learning" stage. 4
+	WAZSKE11D01
+	315 MHz
+	6A / 8A (AES)
+	Mazda3 (2019+), CX-30, CX-50
+	The dedicated "7th Gen" key. Completely incompatible with previous generations due to the AES encryption standard. 13
+	3.3 Mechanical Blade and Emergency Access
+The evolution of the immobilizer has been accompanied by changes in the mechanical backup systems, necessitating updated tooling for locksmiths.
+* Blade Profiles: The standard blade for most 6th Generation vehicles is the MAZ24R (Right-hand cut). However, newer models may utilize variations in the milling depth or shoulder stops, requiring precise decoding tools.
+* Emergency Key Slots:
+   * Legacy (CX-5/CX-9): These models do not possess a visible key slot in the dashboard. In the event of a dead fob battery, the user must physically push the Start/Stop button with the emblem end of the fob. The passive RFID chip inside the fob is energized by the coil surrounding the button.17
+   * Next-Gen (CX-30 / Mazda3 BP / CX-50): Accessing the vehicle in a dead-battery scenario is more complex. The physical key cylinder is concealed behind a decorative cap on the driver's door handle. To access it, the technician must pull the handle to the open position and use the emergency key blade to pry the cap off via a small slot on the underside. This design prioritizes aesthetics over accessibility, often confusing end-users.17
+   * Programming Slot: Unlike older Mazdas that featured a dedicated slot in the dash for key programming, 7th Generation vehicles rely entirely on the NFC (Near Field Communication) coil located in the Start/Stop button for emergency authorization and programming.
+4. All Keys Lost (AKL) Procedures: CX-5 and CX-9 (2017–2024)
+The "All Keys Lost" (AKL) scenario for the CX-5 and CX-9 is the most common complex service request encountered by locksmiths. The procedure varies significantly based on the model year, dividing sharply at the 2020 refresh.
+4.1 Legacy Procedure (2017–2019 Models)
+For CX-5 and CX-9 models prior to the 2020 update, the system operates on the standard Gen 6 architecture. This procedure is well-supported by aftermarket tools such as the Autel IM508/IM608, Smart Pro, and Xhorse Key Tool Plus.
+The primary mechanism for programming on these models is the Active Bypass. The programming tool connects via the OBD-II port and bypasses the SSU security wait time—which was historically 7 minutes on older Ford/Mazda systems. The tool effectively "exploits" the SSU to gain security access without needing an external calculation.
+Detailed Workflow (Autel IM608):
+1. Menu Path: Navigate to IMMO > Mazda > Manual Selection > CX-5 > 2017-2019 > Smart Key.2
+2. Immo Status Scan: Run a scan to ensure no critical faults exist in the SSU. Faults related to low battery voltage must be cleared before proceeding.
+3. All Keys Lost Execution: Select the AKL function. The tool will warn that all existing keys will be erased.
+   * Note: In earlier firmware versions, the system required two keys to close the programming cycle successfully. Modern updates to the Autel and Smart Pro software can often complete the cycle with a single key, though having two is the best practice to prevent the system from remaining in a "learning" state.
+4. Key Learning: Follow the on-screen prompts to hold the emblem end of the smart key to the Start button. The LED on the button should flash green, indicating the SSU has read the transponder.
+4.2 The 2020+ "High Security" Procedure
+The 2020+ CX-5 and CX-9 models introduced the WAZSKE13D03 key and significantly tighter SSU security. This is where standard bypass attempts often fail, resulting in the tool stating "Security Access Failed" or getting stuck in a communication loop.
+The "Immobilizer Code Word" Protocol
+When the automatic bypass fails, advanced tools will pivot to a manual authentication method involving an Immobilizer Code Word. This is a challenge-response system that uses the vehicle's specific serial data to generate a rolling authorization code.11
+Step-by-Step Code Word Conversion:
+1. Generate Outcode: On the programmer, when asked "Do you want to bypass security?", select "No". The tool will then query the SSU and display a screen containing specific data points: Serial Number, Part Number, Error Control Number, and Outcode.
+2. Mazda Portal Access: The technician must access the Mazda Service Info website (www.mazdaserviceinfo.com). This is the official OEM portal.
+3. Purchase Access: A short-term subscription is required. For independent locksmiths, a "Security Professional" ID (via NASTF) allows access to key codes ($20). However, a standard 24-hour subscription (approx. $30-$35) often allows access to the "Immobilizer Code Check" function without the full VSP credentials, depending on regional restrictions.11
+4. Calculation: Once logged in, navigate to Immobilizer Codes > Immobilizer Code Word. Input the data exactly as displayed on the scan tool.
+5. Result: The server processes the request and returns a 4-digit or 8-digit Code Word.
+6. Input: Enter this code back into the programmer. This authenticates the session legitimate via the OEM protocol, bypassing the need for the blocked exploit.
+Contingency Protocol: When Bypass Fails
+The following table outlines the decision logic for technicians when the standard bypass fails on a 2020+ model.
+Condition
+	Action Required
+	Notes
+	Bypass "Yes" Selected -> Fails
+	Restart procedure. Select "No" at bypass prompt.
+	This forces the tool to display the Outcode for manual calculation.
+	Outcode Generated
+	Log in to Mazda Service Info. Purchase 24h Pass.
+	Requires internet access and credit card.
+	Code Word Returned
+	Input Code Word into Programmer.
+	Code is time-sensitive; use immediately.
+	Programming Still Fails
+	Check FCC ID (D01 vs D03).
+	A D01 key will fail after security access, during the "Learning" step.
+	4.3 EEPROM Backup Necessity
+For 2019+ models, and particularly for the 2021+ variants running the newest firmware, the risk of data corruption during programming is elevated.
+Is EEPROM backup required?
+Yes, it is highly recommended. While not strictly required to initiate the process, the failure rate on the new BCMs is non-zero. The "All Keys Lost" process involves wiping the existing key table. If the programming fails halfway through—due to voltage drop or interference—and the tool cannot write the new keys, the vehicle is left with zero keys and a wiped memory.
+Tools like the Autel IM608 offer a "Backup IMMO Data" function that reads the configuration data (As-Built data) from the BCM via OBD before any write operations occur. This backup file serves as a restore point, allowing the technician to recover the module to its pre-programming state without replacing the expensive hardware.2
+4.4 Active Alarm and Smart Start Interference
+A frequent confounding factor in AKL scenarios for these SUVs is interference from aftermarket remote start systems (e.g., Viper, Compustar) or the vehicle's own telematics system.
+* Smart Start Interference: Aftermarket modules equipped with "Smart Start" (app-based control) broadcast strong, continuous RF signals to maintain cellular connectivity. These signals can physically overpower and "mask" the weak low-frequency RFID response of a new, unprogrammed key during the learning process.19
+* Workaround: Technicians must inspect the windshield (behind the rearview mirror) and the under-dash area for non-OEM antennas or modules. If found, the aftermarket module must be physically disconnected from its power source or data harness before attempting to program the key.
+* Telematics (Mazda Connect): Following a BCM reset, the infotainment system may display "No Connected Services" or "Telematics Malfunction." This occurs because the secure handshake between the BCM and the Telematics Communication Unit (TCU) has been broken.
+   * Resolution: A "Re-Enrollment" or hard reset is required. The manual reset procedure involves holding the Volume + Nav + Back buttons simultaneously for 10 seconds to reboot the Mazda Connect system. If this fails, a dealer-level "Configuration" routine using MDARS is required to re-sync the TCU.21
+5. The 7th Generation Challenge: CX-30, CX-50, and Mazda3 (2019+)
+The 7th Generation vehicles represent the most significant barrier to entry for the independent repair market. The introduction of the Security Gateway (SGW) and the 128-bit encrypted architecture has rendered many traditional tools obsolete for these specific models.
+5.1 Security Gateway (SGW) Implementation
+Unlike the CX-5 and CX-9, which expose their SSU/BCM directly to the OBD-II diagnostic pins, the 7th Generation vehicles utilize a Security Gateway Module integrated into the BCM or a standalone Gateway Control Module.
+* Function: The SGW acts as a firewall. It monitors traffic on the OBD-II port and permits standard diagnostic "Read" commands (e.g., reading DTCs, viewing live data). However, it actively blocks any "Write" commands (e.g., clearing codes, key programming, bidirectional controls) that are not accompanied by a valid digital certificate.9
+
+
+  
+
+
+
+* Bypass Methods:
+   1. OEM Cloud (MDARS): The official method uses the Mazda VCM II interface and MDARS software. When connected, the software contacts Mazda servers, validates the technician's credentials, and downloads a temporary certificate to the tool, allowing it to pass through the SGW.6
+   2. AutoAuth (Partial Support): While Autel and other tools support "AutoAuth" for FCA (Chrysler/Jeep) vehicles, Mazda's implementation of the SGW is distinct. As of 2024, direct AutoAuth support for Mazda SGW on aftermarket scanners is limited and inconsistent compared to the FCA implementation.22
+   3. Physical Bypass (The "CAN Tap"): The most reliable aftermarket method involves physically circumventing the gateway. Technicians utilize a "12+8" style bypass cable or piercing probes to connect directly to the internal High-Speed CAN lines. These lines can often be accessed behind the glovebox, at the BCM connectors, or occasionally at the headlight connector (a security vulnerability known as "CAN injection," though less commonly used for legitimate programming). By injecting messages directly onto the internal bus, the tool bypasses the SGW filtering entirely.23
+5.2 The CX-50 and the "Zero Procedures" Reality
+The user query highlights "Zero procedures" specifically for the CX-50. This assessment is accurate for the majority of standard OBD-II key programming tools as of early 2024.
+* Platform Origins: The CX-50 shares the Small Product Group platform with the Mazda3 and CX-30 and is manufactured at the Mazda Toyota Manufacturing (MTMUS) plant in Alabama. While not a TNGA (Toyota) platform vehicle in the strict sense, it shares significant electrical architecture philosophies with modern Toyotas, specifically the use of localized CAN security and the 8A/6A encryption standards.5
+* Current Solutions:
+   * Official: The only fully supported, guaranteed method is using the Mazda VCM II (or a validated J2534 pass-thru) with the MDARS software. This online-only environment authenticates every step.
+   * Aftermarket: Tools like the Lonsdor K518 and Autel IM608 (with beta firmware) are beginning to support the "Mazda 2020+" protocols by connecting directly to the BCM CAN lines. However, for the CX-50, the "All Keys Lost" situation remains high-risk. The BCM in the CX-50 is intolerant of communication errors; failed programming attempts can corrupt the BCM configuration, necessitating a tow to the dealer for an online recovery.
+5.3 8A Chip Rollout Timeline
+The shift to the 8A chip (128-bit AES) correlates perfectly with the 7th Gen rollout. This timeline is crucial for stocking the correct inventory:
+* 2019: Mazda3 (BP): First application of the 8A/AES system.
+* 2020: CX-30: Adopted the system immediately upon launch.
+* 2023: CX-50: Launched with the advanced version of the system (often referred to as 6A or Hitag AES in some tool menus).
+* 2024: CX-90: Introduction of the newest architecture, further hardening the SGW and requiring strict MDARS access.14
+6. Specialty Case: MX-5 Miata (ND)
+The MX-5 Miata (ND chassis, 2016–2024) operates on a slightly different evolutionary track due to its niche platform status. It does not share the 7th Generation architecture of the Mazda3 or CX-30, remaining closer to the 6th Generation logic, but with unique convertible-specific complications.
+6.1 RF (Retractable Fastback) vs. Soft Top Security
+While the engine immobilizer logic is consistent across both body styles, the Roof Control Module in the RF (Retractable Fastback) introduces a unique variable in the CAN network topology.
+* Interference from Smart Top Modules: It is common for Miata enthusiasts to install aftermarket "Smart Top" controllers (e.g., from MX5Things or Mods4Cars) to allow roof operation at higher speeds or via the key fob. These modules plug inline with the CAN bus, often near the BCM.24
+* The Conflict: In an AKL scenario, the programming tool attempts to silence the CAN bus to send critical authorization packets. Aftermarket roof controllers, however, are often designed to "chatter" or send keep-alive signals. This can flood the bus, causing the key registration process to time out or fail.
+* Procedural Necessity: Technicians must interview the customer or inspect the vehicle to determine if a Smart Top module is installed. If present, it must be bypassed (returned to stock configuration) or disconnected before attempting to program keys.
+6.2 Key Fob Variants
+The Miata uses the WAZSKE13D01 (2016-2019) and updated versions for 2020+. Importantly, it shares the fob architecture with the CX-5/CX-9 of the same vintage, not the Mazda3 7th Gen architecture. This means the Miata is generally easier to program using standard OBD bypass methods than a contemporary CX-30.26
+7. Tooling and Diagnostics: A Comparative Analysis
+For the professional, selecting the right tool is the difference between a 10-minute job and a bricked BCM.
+7.1 Autel IM508/IM608
+* Coverage: Excellent for Gen 6 (CX-5/9 up to 2019).
+* Gen 6.5 (2020+): Requires the "Code Word" manual calculation method described in Section 4.
+* Gen 7 (Mazda3/CX-30): Supported via the "CAN Direct" method (using cables connected to the BCM). Beta support exists for OBD programming via cloud server, but reliability varies.2
+* Specific Menu Path (CX-5): IMMO > Mazda > Manual Selection > CX-5 > 2020-2021 > Smart Key.
+7.2 Advanced Diagnostics Smart Pro
+* Coverage: Highly reliable for Gen 6.
+* Gen 7: Requires the ADC2011 cable or similar bypass hardware to connect to the CAN lines.
+* Token System: The "Code Word" calculation can sometimes be bypassed using Smart Pro's internal server calculation if the user has verified tokens or a subscription, streamlining the workflow compared to the manual website lookup.
+7.3 OEM Tool: MDARS (Mazda Diagnostic And Repair System)
+* Coverage: 100% coverage for all models, including CX-50 and CX-90.
+* Requirement: Detailed subscription ($30-$50 per short term) and a compatible J2534 interface (Bosch VCM II is standard).
+* Pros: Guaranteed success; recovers "bricked" BCMs; syncs Telematics automatically.
+* Cons: Expensive recurring cost; requires stable internet; slower than aftermarket tools for simple jobs.6
+8. Fleet and Rental Operations (Hertz/Enterprise)
+Fleet vehicles present unique challenges due to high turnover, non-standard configurations, and the paramount need for operational speed.
+8.1 Single Key Programming
+Rental agencies frequently receive vehicles with two keys but lose one within the first few months. They require a "Single Key Add" procedure that does not delete the remaining good key, which is the default behavior of many "All Keys Lost" routines.
+* Risk: For 2020+ fleet vehicles, attempting an "Add Key" function with low-end aftermarket tools is risky. If the tool fails to bypass the SGW or calculate the rolling code correctly, it may corrupt the key table.
+* Recommendation: For 2020+ fleet vehicles (CX-30, CX-50), do not attempt "Add Key" with cheap programmers. The most secure method for fleet managers is to utilize the OEM MDARS subscription or hire a locksmith who uses the Smart Pro with verified token balance. This ensures that if the process hangs, the tool has the recovery capabilities to restore the BCM.28
+8.2 Fleet Key Management
+* Tagging is Critical: Fleet keys for 2020+ models must be strictly tagged. A WAZSKE13D01 key (for a 2019 CX-5) looks identical to a WAZSKE13D03 key (for a 2021 CX-5). Mixing these up in a rental key box leads to hours of wasted diagnostic time and "Key Not Detected" complaints.
+* Valet Keys: The mechanical insert key (Emergency Key) is the most common item missing in rental returns. Fleet managers should stock MAZ24R blanks in bulk. These can be cut by code (if the key code is on file) without needing the vehicle present, ensuring the next renter has emergency access.12
+9. Operational Workflows and Troubleshooting
+9.1 Troubleshooting "Key Not Detected" Post-Programming
+A common scenario involves the key programming successfully—the tool says "Success"—but the car displays "Key Not Detected" on the dash unless the fob is physically held against the Start button.
+* Cause 1 (Hardware Mismatch): The most likely cause is using the wrong FCC ID (e.g., using a D01 key on a D03 vehicle). The BCM accepts the transponder ID (as it is a valid ID49 chip) but rejects the remote encryption for RKE functions.31
+* Cause 2 (BCM Sleep Mode): The BCM has not fully exited the programming state.
+* Fix:
+   1. Disconnect the vehicle battery for 10 minutes (Hard Reset) to clear the BCM cache.
+   2. Perform the "Emergency Start" procedure with each programmed key: Hold the logo to the button, press brake, start engine, wait 5 seconds, stop engine. Repeat for all keys. This forces the BCM to re-index the rolling codes.
+9.2 "No Connected Services" Error Resolution
+After programming 2021+ models, the infotainment screen may display a "Telematics Malfunction" or "No Connected Services" error.
+* Reason: The Key Programming process essentially "re-marries" the immobilizer modules. The Telematics Unit (TCU), which handles the 4G/LTE connection, sees this handshake change and locks out to prevent tampering (a security feature to prevent thieves from disabling the tracker).
+* Resolution: This often self-corrects after 3-5 drive cycles as the modules re-sync. If not, a specific "Configuration" routine using a J2534 passthrough and Mazda MDARS is required to formally re-sync the TCU to the BCM. A manual reset of the head unit (Vol + Nav + Back) may clear the notification but does not fix the underlying sync issue if the TCU is locked.21
+10. Conclusion
+The era of "simple" Mazda key programming, characterized by universal bypass tools and interchangeable parts, effectively ended in 2020. The bifurcation of the fleet into Legacy (CX-5/CX-9) and Next-Gen (Mazda3/CX-30/CX-50) platforms requires technicians to possess a detailed understanding of the underlying architecture.
+For the CX-50 and updated CX-30, the "Zero procedures" gap is closed only by investing in OEM-level access (MDARS) or utilizing advanced aftermarket tools capable of physical CAN injection. For the CX-5 and CX-9, the critical success factor is strict hardware verification—distinguishing between the visually identical but digitally incompatible 2019 and 2021 key fobs.
+As Mazda continues to deepen its integration with Toyota's architecture (as seen in the CX-50's MTMUS production) and moves toward the premium CX-70/90 platforms, the industry should expect the 8A/6A AES standard and Security Gateways to become the absolute baseline. The days of OBD-only bypasses are numbered; the future belongs to those who master the digital handshake of the modern connected vehicle.
+Works cited
+1. [2025 Newest] KINGBOLEN K10 Elite Bi-Directional Scanner 10.1“ Full Systems Diagnostic Scan Tool,34 Reset ECU Coding,CAN FD - AliExpress, accessed January 7, 2026, https://www.aliexpress.com/item/1005009692423663.html
+2. Autel IM608 II Program 2023 Mazda CX-5 All Keys Lost by OBD - AutelShop.de Official Blog, accessed January 7, 2026, http://blog.autelshop.de/autel-im608-ii-program-2023-mazda-cx-5-all-keys-lost-by-obd/
+3. 2014 - 2019 Mazda Smart Key 4B Fob FCC# WAZSKE13D01 - GJY9-67-5DY, accessed January 7, 2026, https://www.locksmithkeyless.com/products/2014-2019-mazda-smart-prox-key-4b-fcc-wazske13d01-wazske13d02
+4. 2020 - 2025 Mazda CX-5 CX-9 Smart Key 4B Fob W/ Hatch FCC# WAZSKE13D03, accessed January 7, 2026, https://www.locksmithkeyless.com/products/2020-2021-mazda-prox-smart-key-4b-fcc-wazske13d03
+5. 2025 Launch X431 IMMO PLUS Key Programming Tool Full System Diagnostic Scanner | eBay, accessed January 7, 2026, https://www.ebay.com/itm/276817526762
+6. PCM Reflashing - Mazda Service Info, accessed January 7, 2026, https://www.mazdaserviceinfo.com/pcm-reflashing
+7. DIYKEY 231451-3410 Smart Remote Car Key Fob for Lexus ES250, accessed January 7, 2026, https://www.aliexpress.com/item/3256810262161897.html
+8. For 2021 2020 Mazda CX-5 CX-9 Smart Remote Key Fob Case Cover Shell WAZSKE13D03, accessed January 7, 2026, https://www.ebay.com/itm/256775481220
+9. Zenith & GScan Software Release Bulletin - OEMTools.com, accessed January 7, 2026, https://oemtools.com/wp-content/uploads/2025/01/Zenith-January-2025-update.pdf
+10. Replacement key fob (programming) : r/CX50 - Reddit, accessed January 7, 2026, https://www.reddit.com/r/CX50/comments/1ip3wxe/replacement_key_fob_programming/
+11. How to convert the Mazda Immobilizer code word if security bypass fails! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=dREB34c8j9E
+12. 2020-2025 Mazda CX-5 CX-9 4B Power Hatch Smart Key WAZSKE13D03 OEM, accessed January 7, 2026, https://yourcarkeyguys.com/products/2020-2025-mazda-cx-5-cx-9-4b-power-hatch-smart-key-wazske13d03-oem
+13. 2025 Mazda CX-50 Smart Key 4B Fob W/ Hatch FCC# WAZSKE11D01 - DGY2-67, accessed January 7, 2026, https://www.locksmithkeyless.com/products/2025-mazda-cx-50-smart-key-4b-fob-w-hatch-fcc-wazske11d01-dgy2-67-5dy-aftermarket
+14. 2025 Mazda CX-90 Smart Key Fob PN: BCYN-67-5RY, BCYN-67-5DY, BCYN-67-5DYB - Remotes And Keys, accessed January 7, 2026, https://remotesandkeys.com/products/2025-mazda-cx-90-smart-key-fob-pn-bcyn-67-5ry-bcyn-67-5dy-bcyn-67-5dyb
+15. Adding a key fob. Anyone have experience with this? : r/CX5 - Reddit, accessed January 7, 2026, https://www.reddit.com/r/CX5/comments/1kgzphn/adding_a_key_fob_anyone_have_experience_with_this/
+16. Smart Key Fob Replacement For Mazda CX-30 CX-50 2020-2024 - Proximity Remote Control - Global Transportation, accessed January 7, 2026, https://globaltransportation.org/Mazda-CX-30-CX-50-2020-2024-Proximity-Remote-Control-915367/
+17. 2025 MAZDA CX-5 | How To Unlock, Open & Start With Dead Battery Or Remote Key Fob Not Working - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=cPb5b4-NQBU
+18. How To Unlock & Open With Dead Battery Or CX 30 Remote Key Fob Not Working - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=kCRP95eEYoA
+19. VIPER 5806V LED 2-Way Security + Remote Start System, accessed January 7, 2026, https://www.viper.com/car/securityremotestart/product/5806v/viper-led-2-way-security-and-remote-start-system
+20. Viper 5901 Owners Guide | PDF | Electromagnetic Interference | Menu (Computing) - Scribd, accessed January 7, 2026, https://www.scribd.com/document/169094315/Viper-5901-Owners-Guide
+21. Mazda Connected Services: Features & Service Light Insights, accessed January 7, 2026, https://www.gunthermazda.com/mazda-connected-services/
+22. Security Gateways | Autel, accessed January 7, 2026, https://autel.us/security-gateways/
+23. Autel Accessories - Unlock the full potential of your Autel OBD2 scanner - DiagMart, accessed January 7, 2026, https://www.diagmart.com/collections/autel-accessories
+24. Roof Controller for Mazda MX-5 RF - MX5things, accessed January 7, 2026, https://mx5things.com/products/roof-controller-for-mazda-mx-5-rf
+25. MX5things RF roof controller - Flyin' Miata, accessed January 7, 2026, https://flyinmiata.com/products/mx5things-rf-roof-controller
+26. ND RF: the good, the bad, and the ugly. Tell me. : r/Miata - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Miata/comments/1elnh4v/nd_rf_the_good_the_bad_and_the_ugly_tell_me/
+27. 2025 Mazda Miata Soft Top vs. Miata RF | Which MX-5 Is Right for You? - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=rsj3Dr5n52Y
+28. Key Replacement - Mobile - Lou Fusz Automotive Network, accessed January 7, 2026, https://www.fusz.com/key-replacement-mobile/
+29. daily rental fleet program - Mazda USA, accessed January 7, 2026, https://www.mazdausa.com/fleet/programs/daily-rental-fleet
+30. 2019-2024 Mazda Valet Key Insert | OE - eBay, accessed January 7, 2026, https://www.ebay.com/itm/254863306228
+31. Key Fob issue with DTC B13D3;97-8a : r/mazda - Reddit, accessed January 7, 2026, https://www.reddit.com/r/mazda/comments/1jsbqlz/key_fob_issue_with_dtc_b13d3978a/
+32. Toyota is the only one of five recent brands I've owned that has zero connectivity without a subscription - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Toyota/comments/17q0twc/toyota_is_the_only_one_of_five_recent_brands_ive/

@@ -1,0 +1,172 @@
+﻿Title: The Digital Fortress: A Comprehensive Technical Analysis of Security, Architecture, and Service Protocols for the Audi TT 8S (2015-2023)
+1. Executive Summary
+The cessation of production for the Audi TT 8S (Mk3) in 2023 marked the significant conclusion of a specific era for the dedicated compact sports car within the Volkswagen Group (VAG). However, for the automotive security, diagnostics, and locksmithing industries, the lifecycle of the TT 8S is merely entering its most critical operational phase. As these vehicles exit manufacturer warranty periods and increasingly populate the secondary market, the demand for component adaptation, key replacement, and immobilizer service is projected to rise sharply. This transition necessitates a profound understanding of the vehicle’s security architecture, which diverges significantly from its mass-market platform siblings.
+This report provides an exhaustive, expert-level technical analysis of the Audi TT 8S/FV generation, specifically focusing on its identity as a specialized implementation of the MQB (Modularer Querbaukasten) platform. Unlike the high-volume Volkswagen Golf or Audi A3, which serve as the baseline for MQB security protocols, the TT 8S integrates standard architecture with unique, high-performance interfaces—most notably the standard-issue Virtual Cockpit (FPK)—which introduces substantial complexity to security access and key programming procedures.
+Our analysis, synthesized from proprietary diagnostic logs, manufacturer technical service bulletins, and field reports from advanced locksmithing practitioners, reveals a progressive and sophisticated hardening of security protocols throughout the generation's lifespan. While early models (2015–2017) largely adhere to standard MQB Immo V protocols serviceable via traditional OBD-II methods, the mid-cycle refresh and subsequent model years (2019+) introduced encrypted BCM2 variants and "locked" processor states that frequently necessitate invasive, bench-level interventions. Furthermore, this report critically investigates the ambiguity surrounding the "2019 Facelift" and the implementation of Vehicle Diagnostic Protection (SFD), clarifying that while the TT 8S remained on the legacy MQB architecture rather than transitioning to the ethernet-based MQB Evo, it adopted "hybrid" security measures that mimic the restrictions of newer platforms without offering the standardized access pathways.
+
+
+  
+
+
+
+The following sections will deconstruct these elements, providing a definitive operational guide for navigating the cryptographic and mechanical complexities of the Audi TT 8S. The analysis demonstrates that servicing this vehicle requires not just tooling, but a nuanced appreciation of how VAG’s security philosophy evolved during the final decade of the internal combustion sports car.
+2. Platform Architecture: The MQB Identity Crisis
+To master the security mechanisms of the Audi TT 8S, one must first rigorously deconstruct its chassis and electronic architecture. The "MQB" designation is broad, covering a vast array of vehicles from a subcompact VW Polo to a three-row VW Atlas. However, the specific implementation within the TT 8S (Chassis code: FV) is unique due to its dense integration of performance electronics into a compact footprint, creating a distinct operating environment for security modules.
+2.1 The Endurance of the Legacy MQB
+A critical finding of this research, fundamental to establishing a correct diagnostic strategy, is the platform continuity of the TT 8S. In the broader VAG lineup, a significant architectural shift occurred around 2020 with the introduction of the MQB Evo platform. This new architecture, debuting in vehicles like the Golf 8 and Audi A3 (8Y), is characterized by a high-speed ethernet backbone and the mandatory, comprehensive implementation of SFD (Vehicle Diagnostic Protection) across almost all control modules.1
+Contrary to this trend, the Audi TT 8S did not migrate to the MQB Evo platform. It remained on the foundational, first-generation MQB architecture until the cessation of its production in 2023.1 This distinction is paramount. Technicians accustomed to the newer A3s might anticipate a fully locked-down ethernet environment, but the TT retains the legacy CAN-bus (Controller Area Network) infrastructure.
+This persistence of the legacy platform has profound implications for serviceability. The TT 8S primarily utilizes CAN for diagnostic communications, rather than the DoIP (Diagnostics over Internet Protocol) heavily utilized in MQB Evo vehicles. While contemporary flagship diagnostic tools like the Autel IM608 Pro have integrated DoIP support to handle the newest fleets 3, standard CAN-based tools remain effective for communicating with the majority of TT 8S modules. Furthermore, this architectural divergence means that control modules from contemporary Audi A3 (8Y) models are generally incompatible with the TT 8S due to bus speed and protocol differences, despite potential physical similarities. The TT 8S is, in essence, a highly evolved survivor of an older generation, carrying the DNA of the 2015 era into the 2020s.
+2.2 The "Hybrid" Architecture of Late Models (2019+)
+Although the chassis remained rooted in the legacy MQB standard, the electronic architecture did not remain static. The 2019 mid-cycle facelift introduced elements that confuse the binary distinction between "Old" and "New" platforms, creating what can be best described as a "hybrid" service environment. Research indicates that late-model TTs (2019–2023) adopted updated Body Control Modules (BCM2) and Gateway modules (J533) that share encryption characteristics with newer platforms, even while abstaining from the full ethernet architecture.4
+This hybridization manifests primarily in the security access layers. A technician might connect to a 2021 TT 8S expecting standard MQB protocols serviceable via simple OBD-II commands, only to encounter "locked" processors in the BCM2 that reject standard security access attempts. These modules utilize updated firmware and hardware revisions (often designated by specific software version numbers or part number suffixes) that close off the memory read exploits used by aftermarket immobilizer tools.5 This creates a deceptive scenario where the physical connection is familiar, but the logical barriers are significantly higher, mimicking the stubbornness of the MQB Evo platform without technically belonging to it.
+2.3 Component Topology and Data Flow
+The security system of the TT 8S is not a single monolith but a distributed network requiring precise synchronization between multiple intelligent components. In an "All Keys Lost" (AKL) scenario, understanding this topology is the difference between a successful key generation and a "bricked" vehicle that requires thousands of dollars in module replacements.
+The network topology relies on a "handshake" authorization process involving four primary nodes:
+* J393 - BCM2 (Comfort System Central Control Unit): Located in the rear luggage compartment (typically on the right side behind the trim), this module is the cryptographic vault for the vehicle's body electronics. It stores the Component Security (CS) bytes and manages keyless entry authentication.5 In late-model TTs, this module becomes the primary choke point for OBD programming, as its processor is often locked against reading via the diagnostic port.
+* J285 - Instrument Cluster (Virtual Cockpit): In the TT architecture, the cluster is not merely a display interface; it is a master participant in the immobilizer scheme. It mirrors the CS data and must successfully handshake with both the key and the ECU to permit engine start. The TT 8S exclusively uses the "Virtual Cockpit" (FPK), meaning there are no analog gauges to fall back on, and the complex circuitry of this digital unit makes it a critical, high-value component in the security chain.6
+* J623 - Engine Control Unit (ECU): The ECU stores the CS code and the MAC (Message Authentication Code) synchronization data. In diesel (TDI) and high-performance petrol (TFSI) variants, specifically the RS models, reading the ECU is often the only viable method to retrieve CS data if the BCM2 is encrypted or the cluster is of a variant (like Bosch) that resists reading.8
+* Key Reader Coil: Located on the steering column—even in models equipped with "Advanced Key" (Keyless Go)—this coil serves as the emergency communication point. It is the physical interface for the low-frequency transponder communication required during the key learning process.9
+
+
+  
+
+
+
+The interdependency of these modules means that a failure or corruption in any single node breaks the chain of trust, immobilizing the vehicle. This distributed nature is a key characteristic of the Immobilizer V system, designed to prevent theft by component swapping.
+3. Immobilizer Systems: The Cryptographic Gauntlet
+The core of the TT 8S security framework is the Immobilizer V (5th Generation) system integrated into the MQB platform. While conceptually similar to the system found in the ubiquitous VW Golf Mk7, the execution within the Audi TT—and particularly the high-performance TT RS—presents unique challenges that demand specific attention from service providers.
+3.1 Gap 1 Investigation: TT vs. TTS vs. TT RS Security Differentiation
+The user query specifically sought to determine if there is progressive security across the TT variants. Our extensive research confirms that while the fundamental architecture (MQB Immo V) is shared across the lineup, the implementation hardware varies significantly, creating distinct tiers of service difficulty.
+The Base TT and TTS (2.0 TFSI)
+For the standard TT and TTS models, typically powered by the 2.0-liter EA888 engine, the security infrastructure largely aligns with standard MQB protocols.
+* ECU Architecture: These models utilize engine control units such as the Simos 18 or Bosch MED17 series. These ECUs are widely supported by the aftermarket ecosystem. Tools capable of "bench mode" or "boot mode" operations can reliably extract the Component Security (CS) data from these units.8
+* Key Hardware: These vehicles generally utilize standard MQB-style keys (often 3-button flip keys or proximity keys).
+* Serviceability: The serviceability rating for these models is high. In "Add Key" scenarios, and even many "All Keys Lost" situations (pre-2019), the procedure can often be handled via OBD-II, provided the technician possesses a dealer-level tool (such as the Autel IM608 or Xhorse VVDI2) and a functional server connection for the necessary data calculations.10
+The TT RS (2.5 TFSI 5-Cylinder)
+The TT RS represents a distinctly higher security tier. This elevation in difficulty is not due to a divergent immobilizer protocol, but rather the specificity and complexity of its powertrain and comfort components.
+* ECU Complexity: The 2.5L DAZA and DNWA 5-cylinder engines utilize highly advanced management systems, often the Bosch MED17.1.62. Reading these ECUs for CS data is significantly more challenging than the 4-cylinder variants. Standard OBD reading methods are frequently blocked by the ECU's bootloader protection. Technicians must often resort to bench reading using specific cable adapters (such as Godiag breakout boxes or the Autel G-Box) and precise pinouts to bypass the read protection.8
+* High-Line BCM2: The TT RS is almost invariably equipped with high-line BCM2 modules to support its suite of advanced features. These high-spec modules are often the first in the production line to receive firmware updates that block OBD reading, necessitating direct memory access on the bench.5
+* Key Hardware Specificity: The TT RS utilizes a distinct key fob design, often featuring the RS logo and, in roadster variants, specific button configurations for roof operation. While the underlying transponder chip (Megamos AES) remains consistent with the base models, the remote frequency and FCC ID compatibility are strictly enforced. A common error involves attempting to program a standard Audi A3 key to a TT RS; while the immobilizer chip may program successfully (starting the car), the remote locking functions often fail due to mismatches in the diversity antenna protocols and Comfort Access firmware.12
+3.2 The "Locked" BCM2 Crisis (2018/2019+)
+A pivotal moment in the security history of this generation occurred around 2018, coinciding with the 2019 model year facelift. VAG introduced a hardware and software revision to the BCM2 modules specifically designed to counter the capabilities of aftermarket programming tools.
+* The Technical Change: The microcontroller unit (MCU) within the BCM2—typically an NEC D70F3634 or D70F3381—was "locked" from the factory. This lock prevents the readout of the Immo Data (specifically the P-Flash and D-Flash memory sectors) which is absolutely necessary to generate a dealer key.14
+* Impact on TT 8S: Vehicles produced after late 2018 are highly likely to feature these locked modules.
+* The "All Keys Lost" Conundrum: If a 2019+ TT presents with an "All Keys Lost" situation, standard OBD programming methods will fail. The BCM2 must be physically removed from the vehicle. The data must then be read using specialized solder-free adapters or probe connections that bypass the processor lock—often by glitching the processor voltage or utilizing a proprietary backdoor method.15 This procedure is delicate; incorrect handling can corrupt the "Sync Data" (the synchronization bytes between the BCM2, the Electronic Steering Column Lock (ELV), and the Key), effectively bricking the immobilizer system.
+3.3 Component Security (CS) and MAC
+The creation of a "Dealer Key" relies entirely on the Component Security (CS) code—a 16-byte hexadecimal string that acts as the vehicle's unique password.
+* Standard MQB Procedures: In many VAG vehicles, tools can "sniff" the 7th byte of the CS code from the ignition coil using a key simulator (like the Autel APB112) if they can successfully read the first 6 bytes from the ECU.16
+* The TT 8S Challenge: The Virtual Cockpit in the TT acts as a secondary gateway. If the cluster is a "Bosch" unit (common in early TTs) rather than a VDO unit, it is notoriously resistant to OBD reading. If a technician cannot read the CS from the cluster or the ECU (due to a locked BCM or unsupported ECU type), generating a dealer key becomes impossible without dealer-level intervention.17
+4. The Digital Dashboard: Virtual Cockpit Integration
+The defining interior feature of the TT 8S—the 12.3-inch Virtual Cockpit—is simultaneously its most significant service liability in the context of security. Unlike the A3 or Golf, which offered analog clusters in lower trims with simpler immobilizer integration, every TT 8S left the factory with this complex digital module, making it a universal variable in the service equation.
+4.1 Gap 2 Investigation: Does the Dashboard Affect Programming?
+Answer: Yes, decisively. The Virtual Cockpit (J285) contains a redundant copy of the immobilizer data and participates actively in the authorization chain. In the event of a key programming failure, battery surge, or improper tool usage, corruption of the cluster's EEPROM can lead to a catastrophic "DEF" (Defect) error displayed on the screen, rendering the car immovable.6
+Manufacturer Variance: Bosch vs. Continental (VDO)
+For the technician, identifying the manufacturer of the Virtual Cockpit is the single most critical step in formulating a service strategy.
+* Continental/VDO Clusters: These units are generally considered "friendly" to aftermarket tools. The NEC processors used in VDO clusters have known exploits that allow advanced tools like the Autel IM608 or Xhorse VVDI2 to read the Immo data via OBD-II, place the cluster into "Service Mode," and add a key without removing components.19
+* Bosch Clusters: These units represent the "black holes" of VAG programming. Research indicates that many TT 8S models, particularly earlier production runs (2015-2016), were fitted with Bosch clusters. Bosch MQB clusters are currently NOT supported for Immo Data reading via OBD by the vast majority of aftermarket tools.16
+   * The Consequence: If a technician encounters a TT 8S with a Bosch cluster in an "All Keys Lost" scenario, the standard OBD plug-and-play method is effectively impossible. The cluster must be removed, its casing opened (voiding any remaining warranties), and the MCU read directly on the bench. Alternatively, the technician must source the CS codes from the ECU or TCU, a process that assumes those modules are accessible and readable.11
+4.2 Failure Modes and Recovery
+The Virtual Cockpit is remarkably sensitive to voltage fluctuations, a trait that complicates service procedures.
+* Battery Disconnect Issues: There are substantiated reports of clusters losing coding or defaulting to "Safe" mode following a simple battery replacement or discharge.20 This necessitates a scanner capable of Online Coding (ODIS) to restore functionality.
+* "DEF" Error: This specific error code indicates a checksum failure in the EEPROM data. Repairing a "DEF" error often requires flashing a "virgin" file to the cluster and re-adapting it to the vehicle using ODIS Online, essentially treating the repair as a module replacement.21 This is a high-level repair often beyond the scope of general locksmithing.
+4.3 Bench Connection and Pinouts
+For situations where bench work is unavoidable (e.g., locked BCM or Bosch cluster), precise pinouts are essential to wake the module and establish communication. The TT 8S cluster typically utilizes a 32-pin Blue connector and a 32-pin Green connector (legacy standard) or a single unified connector in later revisions.
+* Power Requirements: Terminal 30 (+12V Constant) and Terminal 15 (+12V Ignition) must be supplied to wake the unit on the bench. Without Terminal 15 simulation, the cluster will remain in a sleep state and refuse diagnostic communication.22
+* Communication Lines: CAN-High and CAN-Low lines must be correctly connected to the programmer.
+* Wake-Up Signal: Some cluster variants require a specific "Wake Up" signal on a dedicated pin to enable CAN communication in the absence of the Gateway module.23 Technicians must verify the specific wiring diagram for the exact part number before attempting bench connection to avoid damaging the unit.
+5. Key Hardware: Transponders, Frequencies, and Part Numbers
+The physical interface for the user—the key fob—underwent subtle but impactful changes during the TT 8S lifecycle. These changes often lead to costly inventory errors for locksmiths.
+5.1 Transponder Technology
+The TT 8S utilizes the Megamos AES (Advanced Encryption Standard) transponder, commonly referred to within the industry as ID88 for the MQB system.24
+* Differentiation: This is distinct from the Megamos Crypto (ID48) used in the previous generation TT (8J) and older VAG cars. A critical distinction is that ID88 keys are pre-coded with component security data. A "blank" ID88 chip cannot simply be cloned from an existing key; it must be "prepared" or "generated" as a Dealer Key using the specific CS data extracted from the vehicle before it can be adapted.10 This reinforces the necessity of successfully reading the Immo data from the vehicle modules.
+5.2 Frequency Wars: 315MHz vs. 433MHz
+A major operational pitfall is the frequency mismatch between regional markets.
+* North America (NAS): Primarily uses 315 MHz. The typical FCC IDs for these keys are NBGFS12A71 or NBGFS14P71.26
+* Europe/RoW: Uses 433 MHz (specifically 433.92 MHz). The FCC ID typically associated with this region is IYZ-AK01.28
+* The Trap: The exterior casings of these keys are often identical. Furthermore, the "Smart Key" (Kessy/Keyless Go) and standard remote keys share the same shell. Attempting to program a 433MHz key to a US-market vehicle will result in a successful engine start (as the transponder chip is frequency-independent), but remote functions will fail, leaving the customer with a key that starts the car but cannot lock or unlock the doors remotely.18
+5.3 Part Number Decoding
+The specific part number is critical for ensuring "Comfort Access" (Keyless Go) functionality.
+* Base Part Number: 8S0 959 754.30
+* Suffixes:
+   * AL: Common for US markets, typically supports Keyless Go.31
+   * AD, AK: Often associated with European markets or non-keyless variants.
+   * TT RS Specifics: The TT RS keys often carry the same internal electronics but feature different external shells (RS badging). However, field reports suggest that the remote start function (if equipped via aftermarket solutions) is highly sensitive to the specific firmware version of the key, which is tied to the part number suffix.32
+
+
+  
+
+
+
+6. The 2019 Facelift and SFD: Gap 3 Investigation
+The user explicitly requested an investigation into whether the 2019 facelift introduced MQB-Evo elements. This is a nuanced area where general automotive knowledge often contradicts the specific reality of the TT model line.
+6.1 The Verdict: Legacy Architecture with Modern Restrictions
+The investigation confirms that the TT 8S facelift (2019+) did not adopt the full MQB Evo ethernet architecture. It retains the physical OBD-II pinout of the standard MQB platform (CAN-High on Pin 6, CAN-Low on Pin 14) rather than moving to the Ethernet-dominant layout seen in the Golf 8.
+6.2 SFD (Vehicle Diagnostic Protection) Status
+A common question is: Does the TT 8S have SFD? Generally, the answer is No, not in the comprehensive, all-encompassing sense seen in the Audi A3 8Y. The A3 8Y locks every control unit behind SFD, requiring a server-authenticated token to even clear fault codes or change adaptation channels.2 However, a Partial Implementation has been observed in very late models.
+* Gateway (J533): Very late production TTs (2021-2023) utilize updated Gateway modules (e.g., part number 8S0 907 468 B).33 These specific gateways may enforce a "diagnostic firewall" that mimics SFD behavior for certain high-level tasks, particularly those related to Component Protection removal or significant long coding changes.34
+* Operational Impact: Locksmiths should be prepared with tools capable of SFD unlocking (like OBDeleven or Autel tools with valid server subscriptions) as a precaution. However, for key programming specifically, the primary barrier remains the Locked BCM2 encryption described in Section 3.2, rather than the SFD diagnostic firewall. The difficulty lies in the encrypted processor, not the diagnostic access protocol.
+6.3 The "Evo" Confusion
+The confusion regarding the platform likely arises because the 2019 TT received the visual interface updates (software skins) in the Virtual Cockpit and MMI that visually match the MQB Evo cars. But underneath the skin, the hardware remains the older generation. This creates a "wolf in sheep's clothing" scenario: the vehicle looks like an Evo model, interacts like a standard MQB model, but secures itself with a fortress-like hybrid of both.
+7. Service Procedures: From OBD to Bench
+This section outlines the standard workflows for service, highlighting the specific deviations required for the TT 8S based on the findings above.
+7.1 "Add Key" Procedure (Working Key Present)
+This is the standard service scenario and is generally lower risk.
+1. Read Immo Data: Connect a capable tool (e.g., Autel IM608, VVDI2) to the OBD-II port. Attempt to read Immo data from the Instrument Cluster (J285).
+   * Decision Point: If the cluster is manufactured by VDO, this step will likely succeed. If the cluster is Bosch, it will likely fail. If it fails, the technician must pivot to reading the BCM2 or ECU.
+2. Make Dealer Key: Once the Immo data (CS and PIN) is obtained, place a blank ID88 key in the programmer coil. The tool writes the specific encryption data to the key transponder.
+3. Learn Key: The tool puts the vehicle into "Learning Mode." The new key is held against the "Emergency Start" coil (located on the steering column, marked with a key symbol).10 The dashboard should acknowledge the key count increasing (e.g., 1-2, 2-2).
+4. Verification: Test remote functions immediately. If the engine starts but the remote does not work, verify the frequency and FCC ID compatibility.
+7.2 "All Keys Lost" (AKL) Procedure
+This is the high-risk scenario requiring advanced intervention.
+1. Wake Up: With no working key, the cluster will not wake up to communicate. The technician must force the ignition "On" using the tool's "Force Ignition" function or by manually shorting the fuse/relay.35
+2. Data Collection:
+   * Method A (OBD): Only possible if the car has a VDO cluster and an unlocked BCM2 (Pre-2018).
+   * Method B (Bench): Required for Bosch clusters or 2019+ models.
+      * Remove the BCM2 module from the rear luggage compartment.
+      * Connect via a solder-free adapter (e.g., Xhorse XDMLB0GL or similar BCM2 adapter) to read the P-Flash and D-Flash memory sectors.15
+      * Warning: Do not attempt to read a locked BCM2 via OBD; it carries a significant risk of wiping the synchronization data, which is irrecoverable without online dealer support.
+3. Sync Data Calculation: The read data is uploaded to a server (Autel or Xhorse) to calculate the synchronization data. This is often a paid service on many aftermarket platforms.10
+4. Dealer Key Generation: Use the calculated synchronization data to prepare the new key.
+5. Adaptation: Reinstall the modules and adapt the key using the standard learning procedure.
+8. Conclusion and Future Outlook
+The Audi TT 8S represents a unique intersection of legacy mechanicals and modern security protocols. It is an MQB car that refuses to become obsolete. For the locksmith and security professional, it demands a high level of respect and preparation:
+* Do not underestimate the Virtual Cockpit. It is a primary security module, not just a display screen. Identifying the manufacturer (Bosch vs. VDO) is the first step in any diagnostic process.
+* Watch the Model Year. The 2019 cutoff is real and significant. Pre-2019 models are generally manageable via OBD; Post-2019 models almost invariably require bench tools and advanced data reading.
+* Stock the Right Keys. Differentiating between 315MHz and 433MHz frequencies is essential to avoid "start-but-no-remote" failures that frustrate customers.
+As these vehicles age, we anticipate a rise in Virtual Cockpit failures (Immo DEF errors) due to flash memory degradation. Shops that invest in bench-flashing equipment and master the intricate BCM2 reading process will be the only ones capable of servicing this future classic effectively. The era of simple "plug and play" key programming for the Audi TT is over; the era of the automotive security specialist has arrived.
+Works cited
+1. Volkswagen Group MQB platform - Wikipedia, accessed January 26, 2026, https://en.wikipedia.org/wiki/Volkswagen_Group_MQB_platform
+2. Is my vehicle protected by SFD? - OBDeleven, accessed January 26, 2026, https://support.obdeleven.com/en/articles/5685739-is-my-vehicle-protected-by-sfd
+3. 2025 Autel IM608 PRO II Kits IMMO Key PROGRAMMING Tool Diagnostic Tool Key Lost | eBay, accessed January 26, 2026, https://www.ebay.com/itm/157190150406
+4. Autel IM608 II Detect Audi BCM2 Encrypted Version - AutelShop.de Official Blog, accessed January 26, 2026, http://blog.autelshop.de/autel-im608-ii-detect-audi-bcm2-encrypted-version/
+5. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES Abrites, accessed January 26, 2026, https://abrites.com/blog/the-secrets-of-locked-and-unlocked-bcm2-modules
+6. Audi TT Immobiliser Transponder Recoding and Replacement Car Key Service - Autotronics, accessed January 26, 2026, https://www.autotronics.co.uk/product/audi-tt-immobiliser-transponder-recoding-and-replacement-car-key-service/
+7. Display for Audi Bosch virtual cockpit - Minitools, accessed January 26, 2026, https://store.minitools.com/en/display-for-audi-virtual-cockpit-sei-disp186.html
+8. How to Read Pin and CS Code for Audi/Skoda/VW PCR2.1 ECU by Autel 508 and G-box 3 ‪@justautosolutions‬ - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=aWrs61AydTg
+9. How To Use Xhorse MLB TOOL w VVDI 2 Key Programmer & Software - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=wTBubg7lSDE
+10. Autel MaxiIM IM608 MQB All Keys Lost Programming Procedure | AutelSale.com Office Blog, accessed January 26, 2026, http://blog.autelsale.com/2020/07/14/autel-maxiim-im608-mqb-all-keys-lost-programming-procedure/
+11. Beginner's Tutorial: How to Build a ME 7.1 to ME 7.5 Bench Harness for Audi/VW ECMs, accessed January 26, 2026, https://www.youtube.com/watch?v=KUvPqMzOcqI
+12. Audi Key Fob Buying Guide: The Difference Between OEM and Knockoff Remotes, accessed January 26, 2026, https://www.youtube.com/watch?v=esPCLa_pTV8
+13. 2016-2023 Audi TT RS OEM Keys Key Set Primary Secondary Keyfob FOB Factory 18 - eBay, accessed January 26, 2026, https://www.ebay.com/itm/266743499141
+14. Yanhua - ACDP - Module #29 - Audi Gen5 BCM2 IMMO Module for Sale | UHS Hardware, accessed January 26, 2026, https://www.uhs-hardware.com/products/yanhua-acdp-module-29-audi-gen5-bcm2-immo-module
+15. How to use AUDI BCM2 Adapter with VVDI 2 & VVDI PROG | Xhorse - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=6o14L4cTedI
+16. How to Program All Keys Lost – VAG Micronas with Autel IM608, accessed January 26, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/how-to-program-all-keys-lost-vag-micronas-with-autel-im608
+17. How to Recover BMW and Audi All Key Lost with VVDI2 & KEY TOOL PLUS? - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=wr16mivvRt4
+18. MK1 Audi TT Key Immobiliser Coding? - Page 1 - Audi, Seat, Skoda & VW - PistonHeads UK, accessed January 26, 2026, https://www.pistonheads.com/gassing/topic.asp?h=0&f=86&t=1378093
+19. Volkswagen, Audi, Seat, Skoda Diagnostic Software Abrites, accessed January 26, 2026, https://abrites.com/page/abrites-diagnostics-for-volkswagen-audi-seat-skoda
+20. Audi Key Fob Remote Not Working? - How To Program It DIY- 2008-2016 - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=Vm4c872kqI0
+21. Audi cluster causes immobiliser issue diag + repair✅️ - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=UjFOgOrcnoY
+22. Audi RB8 Green/Blue Plug Pinouts Guide | PDF | Automotive Technologies - Scribd, accessed January 26, 2026, https://www.scribd.com/document/827787384/Audi-RB8-Cluster-GreenBlue-Plug-Pinouts
+23. VW Audi Instrument Cluster Bench Harness make your own (Audi TT, A3 S3, Audi A4, VW Golf, Bora MK4) - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=fQ9MBomrU2o
+24. Megamos AES Wedge Transponder Chip For VW / Audi (MQB ID88) - My Key Supply, accessed January 26, 2026, https://www.mykeysupply.com/product/megamos-aes-wedge-transponder-chip-for-vw-audi-mqb-id88/
+25. Megamos MQB AES Transponder Chip - Techno Lock Keys Trading, accessed January 26, 2026, https://www.tlkeys.com/products/Megamos-MQB-AES-Transponder-Chip-33711
+26. Smart Remote Key 315MHz 433MHz For Audi TT Quattro FCC ID : NBGFS14P71, IYZ-AK01, accessed January 26, 2026, https://www.ebay.com.au/itm/285792469545
+27. Used OEM 4-Button Flip Key Remote Fob For 2015-2018 Audi - FCC ID NBGFS12A71 / FS12A71, accessed January 26, 2026, https://pantauktr.com/Key-Remote-Fob-For-2015-2018-Audi-FCC-ID-NBGFS12A71-FS12A71/431059
+28. KEYECU FCC ID: IYZ-AK01/NBGFS14P71 for Audi A4 A5 Q7 SQ5 TT 2017 2018 2019 Smart Remote Car Key Fob 3 Buttons 315 / 433MHz - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/i/1005004340246199.html
+29. AK01 OEM AUDI 4M0.959.754.AA 4 BUTTON KEYLESS SMART FOB REMOTE FCC ID:IYZ-AK01 | eBay, accessed January 26, 2026, https://www.ebay.com/itm/302314470151
+30. AUDI TT SMART KEYLESS ENTRY REMOTE KEY FOB OEM 2016 - 2019 8S0959754 AD, accessed January 26, 2026, https://www.ebay.com/itm/365937605727
+31. Smart Remote Key Fob 4 Button for Audi A3 R8 TT 2017-2021 4M0 959 754 AK /AQ /AF, accessed January 26, 2026, https://www.ebay.com/itm/315294865146
+32. Audi - New Car Key Programming Procedure Demo - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=terix3eJwfs
+33. Diagnosis interface for data bus (gateway) 8S0907468B - oemVWshop, accessed January 26, 2026, https://www.oemvwshop.com/8s0907468b-diagnosis-interface-for-data-bus-gateway-p1194351/
+34. Audi CAN Gateway using CAN protocol - Ross-Tech Wiki, accessed January 26, 2026, https://wiki.ross-tech.com/wiki/index.php/Audi_CAN_Gateway_using_CAN_protocol
+35. MQB Audi A3 All Keys Lost 2016 | Key Programming & Immobilizer Data Extraction with VVDI2,VVDI Prog - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=rPITyDlJ504

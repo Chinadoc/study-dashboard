@@ -1,0 +1,277 @@
+﻿The Convergence of Luxury and Logic: A Forensic Encyclopedia of Acura Security Architectures (2016–2024)
+1. The Myth of the Orphaned Protocol: An Introduction to the Procedural Gap
+In the contemporary landscape of automotive locksmithing and security diagnostics, a peculiar anomaly exists regarding the Acura brand. While the parent company, Honda Motor Co., is widely regarded as having one of the most accessible and well-documented security architectures in the aftermarket—with over thirty-five standardized programming procedures documented by major tool manufacturers like Autel, Xhorse, and Advanced Diagnostics—its luxury division, Acura, appears to exist in a procedural vacuum. Technicians operating on vehicles manufactured between 2016 and 2024 often report a "Procedural Gap," utilizing only two or three generalized workflows that frequently fail on modern platforms such as the 2022+ MDX, the 2019+ RDX, and the reintroduced Integra.1
+This discrepancy is not merely a matter of inconvenience; it represents a fundamental misunderstanding of the engineering relationship between mass-market platforms and their luxury derivatives. The prevailing assumption in the independent repair market is that Acura, as a premium tier, utilizes bespoke security hardware requiring unique, proprietary protocols that aftermarket engineers have failed to reverse-engineer. This assumption is demonstrably false.
+Our comprehensive forensic analysis of the 2016–2024 Acura lineup reveals that the scarcity of "Acura-specific" procedures is a user interface illusion rather than a technical reality. Acura vehicles do not operate on unique security islands. Instead, they are high-fidelity, forward-deployed derivatives of global Honda architectures. The 2023+ Integra is electronically indistinguishable from the 11th-generation Civic.3 The 2022+ MDX shares its neural Body Control Module (BCM) architecture with the Honda Pilot and Passport platforms.4 Even the limited-production NSX supercar utilizes a Smart Key layout shared with the RLX sedan.5
+The "Gap," therefore, is not a void of engineering but a failure of recognition. It is caused by three converging factors: the migration from Powertrain Control Module (PCM) based authentication to BCM-based "Physical Presence" verification; the increasing interference of always-on telematics systems (AcuraLink) which disrupt the Controller Area Network (CAN) bus during sensitive read/write operations; and the aftermarket's slow adaptation to the "BCM Label" security paradigm introduced in the 2022 model year.
+This report serves as a definitive technical dossier to bridge this gap. By deconstructing the shared engineering DNA between Honda and Acura, we will map the "missing" Acura procedures to their existing Honda counterparts, detail the specific forensic pathways required to overcome the BCM Label lockout, and provide exhaustive workflows for the Type S performance variants and the NSX.
+2. The Historical Phylogeny of Honda Security Architectures
+To master the programming of a 2024 Acura TLX Type S, one must first understand the evolutionary lineage that produced its security stack. Honda’s approach to immobilizer technology has been iterative, characterized by long periods of stability followed by abrupt, platform-wide architectural shifts. Understanding which "Generation" a specific Acura model belongs to is the single most critical step in selecting the correct diagnostic protocol.
+2.1 Generation 4: The Static Era (Approx. 2007–2013)
+While largely phased out by the start of our focus period (2016), traces of Generation 4 architecture persist in legacy support modules. In this era, the "Immobilizer Code" was either static or calculated via a simple algorithm based on the Vehicle Identification Number (VIN). The handshake was a direct communication between the transponder key and the Immobilizer Control Unit (ICU) located physically on the ignition lock cylinder. The PCM played a secondary role, merely receiving a "Go" signal to enable fuel injection.
+2.2 Generation 5: The "Smart" PCM Era (2013–2018)
+This generation marks the widespread adoption of the "One-Push Start" or Smart Key system across the Acura lineup. It is the dominant architecture for the 2016–2018 RDX, 2015–2020 TLX, and 2014–2020 MDX.1
+* Architectural Logic: The security logic migrated from the lock cylinder to a distributed network involving the Smart Key Control Unit and the PCM.
+* Authentication Mechanism: When a key is added, the diagnostic tool requests a "Release Code" or "PCM Code."
+* Forensic Characteristic: This code is a 10-digit alphanumeric string (e.g., 5523-2234). Crucially, for Gen 5 vehicles, this code can be calculated purely from the VIN using widely available aftermarket calculators or is automatically handled by the tool via the OBDII port.
+* Vulnerability: Because the authentication relied on the VIN (a public identifier), this system was susceptible to unauthorized key cloning if the thief had access to the OBD port.
+2.3 Generation 6: The "Gateway" Era (2018–2021)
+With the introduction of the 2019 Acura RDX (the first of the "New Era" Acuras), Honda introduced the Security Gateway (SGW). This architecture was a direct response to the vulnerability of the OBDII port.6
+* Architectural Logic: The Central Gateway module acts as a firewall between the external OBDII pins and the internal CAN networks (B-CAN and F-CAN).
+* Authentication Mechanism: The tool must first "unlock" the Gateway to send commands to the BCM or Smart Key Unit.
+* Operational Challenge: In an "All Keys Lost" (AKL) scenario, the vehicle's factory alarm is typically armed. When the alarm is active, the Gateway enters a lockdown mode, rejecting all external communication requests. This results in the common "Communication Failed" error technicians see on the 2019+ RDX.7
+2.4 Generation 7: The BCM-Label Era (2022–Present)
+This is the current standard for the 2022+ MDX, 2021+ TLX, and 2023+ Integra. It represents the most disruptive change in Honda’s history and is the primary source of the user's reported "Gap".8
+* Architectural Logic: The PCM has been demoted. The Body Control Module (BCM) is now the absolute master of the immobilizer domain.
+* Authentication Mechanism: The system utilizes a "Physical Presence" check. To authorize a key programming session, the technician must provide a 5-digit alphanumeric code.
+* Critical Distinction: Unlike the 10-digit PCM code of Gen 5, this 5-digit BCM code cannot be calculated from the VIN. It is mathematically unrelated to the chassis number. Instead, it is derived exclusively from the serial number printed on the physical label of the BCM unit deep inside the dashboard. This forces the technician to physically access the module, proving they have legitimate access to the vehicle's interior and mechanicals, thereby mitigating remote hacking or quick "smash-and-grab" key programming.
+
+
+  
+
+
+
+3. Architectural Convergence: The Honda-Acura Bridge
+The most effective strategy for servicing the 2016–2024 Acura fleet is to abandon the search for "Acura-specific" menus and instead leverage the vast library of Honda protocols. The "Platform Sibling Theory" posits that for every "orphaned" Acura model, there is a well-supported Honda equivalent that shares the same BCM firmware and CAN bus topology.
+3.1 The Civic-Integra Symbiosis (2023+)
+The 2023+ Acura Integra (Chassis Code DE4) is mechanically and electronically a twin of the 11th-generation Honda Civic (Chassis Code FL).10 The reintroduction of the Integra nameplate did not bring with it a new immobilizer system; rather, it adopted the Gen 7 Civic architecture in its entirety.
+* Protocol Mapping: If an aftermarket tool lacks an "Acura Integra 2023" menu, the technician should immediately select Honda Civic > 2022+ > Smart Key. The communication protocol (CAN FD) and the memory addresses for key ID storage are identical.
+* Key Compatibility: Both vehicles utilize the high-frequency 433MHz system. The FCC ID KR5T21 is shared between the Civic Touring and the Integra, indicating that the remote receiver hardware is the same.12
+* Post-Programming Calibration: Unlike older models, the Integra/Civic platform often requires a "All Sensors" calibration in the ABS/VSA module after the immobilizer is touched. A "Code C0063:83" (Brake Pedal Position Sensor) may trigger. This is not a failure of the key programming but a side effect of the BCM reset. A simple "Sensor Calibration" routine via the ABS menu clears this.3
+3.2 The Pilot-MDX Mirror (2022+)
+The 2022 redesign of the Acura MDX (YD4) signaled the arrival of Honda's "Global Light Truck" platform, which subsequently underpinned the 2023+ Honda Pilot.4
+* Protocol Mapping: The 2022+ MDX utilizes the BCM-Label authentication method. If the specific MDX menu fails to communicate—often due to the tool checking for a specific "Type S" Engine Control Unit (ECU) ID—selecting Honda Pilot > 2023+ allows the tool to bypass the ECU check and communicate directly with the BCM, which is shared between the two SUVs.
+* Blind Spot Module (BSI) Shared Logic: Both vehicles utilize the same BSI radar units (located in the rear corners). These units act as "termination nodes" for the B-CAN network. If they are disconnected or replaced with "Dummy Sensors" (common in collision repairs), the B-CAN network becomes unstable, preventing the BCM from entering programming mode.13
+3.3 The Accord-RDX Parallel (2019+)
+The 2019 Acura RDX was the first deployment of the "Gateway" architecture, which later appeared in the updated Honda Accord and CR-V.6
+* Protocol Mapping: The security gateway location and pinout on the 2019+ RDX mimic the Honda Accord (2018-2022).
+* Implication: When the "All Keys Lost" procedure fails on an RDX due to the alarm locking the gateway, using a "Honda Accord 2018+" connection method—specifically connecting directly to the CAN H and CAN L wires at the Star Connector (usually above the glovebox)—is a viable bypass strategy.
+
+
+  
+
+
+
+4. The 2022+ BCM Paradigm: Decrypting the "BSI" Code
+The user query specifically requests documentation on "BSI module specifics" and the "BSI Code." In the context of modern automotive locksmithing, this terminology often causes confusion. While Honda refers to the "Blind Spot Information" system as BSI, the prompt refers to the Body Systems Interface authentication, effectively the Body Control Module (BCM) security layer.
+4.1 The Mechanism of the 5-Digit Code
+In the 2022+ MDX and Integra, the programming tool (e.g., Autel IM608, Xhorse Key Tool Plus) will prompt the user for a "5-Digit BCM Code" or "BSI Code" during an All Keys Lost situation.
+The Algorithm:
+The relationship between this 5-digit code and the security unlock PIN is proprietary and mathematical.
+1. Challenge: The tool initiates a handshake with the BCM. The BCM responds with a challenge seed.
+2. Salt: The tool requests the user to input the 5-digit alphanumeric code found on the BCM label. This code acts as a "Salt" or a variable in the decryption algorithm.
+3. Calculation: The tool combines the Challenge Seed and the Label Code to calculate the Session PIN.
+4. Response: The tool sends the Session PIN back to the BCM. If correct, the BCM opens the "Key Learning" gate.8
+Why VIN Calculators Fail:
+Technicians attempting to use older "VIN-to-PIN" calculators will fail 100% of the time on these vehicles. The 5-digit BCM code is not linked to the VIN in any public database accessible to the aftermarket. It is a localized security measure requiring physical access.8
+4.2 Forensic Location of the BCM (MDX 2022+)
+Locating the BCM to read this code is the primary physical bottleneck of the procedure.
+* Target Vehicle: 2022+ Acura MDX.
+* Physical Coordinates: The BCM is located behind the driver’s side dashboard, mounted vertically. It is positioned roughly behind the Interior Fuse Box (Type A), high up against the firewall.
+* Access Procedure:
+   1. Remove the driver's side under-dash cover panel (kick panel).
+   2. Use a high-quality borescope or a smartphone with the flash on to look up and behind the fuse panel assembly.
+   3. You are identifying a large black rectangular module with multiple connectors (White 66-pin is the data line).15
+* The Label: The target is a white label containing barcodes and text. The required code is a 5-digit alphanumeric string (e.g., A1B2C) printed in bold or separate from the long serial number. It is often the last 5 characters of the "Reference No." line.16
+* Alternative Location: In some early production runs, a duplicate sticker was placed on the side of the fuse box housing or on the exterior chassis of the glovebox unit (requiring glovebox removal), though this is inconsistent.
+4.3 Forensic Location of the BCM (Integra 2023+)
+On the Integra, the BCM is integrated more tightly into the electrical center.
+* Location: The BCM is the "Brain" unit attached to the back of the driver's side under-dash fuse box.
+* Access: It is often necessary to unbolt the fuse box (usually one or two 10mm bolts) and tilt the entire assembly downward to view the label, which is frequently placed on the top surface of the unit.17
+
+
+  
+
+
+
+4.4 EEPROM Recovery: The Nuclear Option
+In instances where the BCM label is damaged, missing, or unreadable, the only remaining forensic pathway is EEPROM/MCU reading. This is an advanced procedure requiring the removal of the BCM from the vehicle.
+* Hardware: Requires an MCU programmer such as the Autel XP400 Pro, Xhorse VVDI Prog, or similar.
+* Chip Architecture: The 2022+ BCMs utilize high-density Renesas or NXP microcontrollers (MCUs) rather than simple 8-pin EEPROM chips.
+* Method:
+   1. Remove the BCM.
+   2. Open the casing to expose the circuit board.
+   3. Use the "In-Circuit" reading method. This involves soldering 6 to 10 wires from the programmer to specific test points (Signal, VCC, GND, Reset, Clock) on the PCB.18
+   4. Data Extraction: Read the D-FLASH or P-FLASH data.
+   5. Forensic Analysis: Load the binary file (.bin) into the key programming tool's "Write Key via Dump" feature. The tool will locate the immobilizer data block and allow the direct injection of a new key ID into the file.
+   6. Write Back: Flash the modified file back to the MCU and reinstall the BCM.
+5. The AcuraLink Factor: Telematics Interference and the "Fuse Pull"
+Perhaps the most insidious cause of programming failure in modern Acuras is the AcuraLink Telematics Control Unit (TCU). This system, designed to provide always-on connectivity for remote start, emergency calls, and vehicle tracking, is an active node on the CAN bus that aggressively competes for bandwidth during diagnostic sessions.
+5.1 The Physics of Interference (CAN Bus Arbitration)
+The Controller Area Network (CAN) utilizes a message-based protocol where nodes arbitrate for access to the bus based on message priority (Identifier ID).
+* The Conflict: When a diagnostic tool (like the IM608) attempts to write a new Key ID to the BCM, it enters a high-sensitivity mode where data packet timing is critical.
+* The Disruption: The TCU, detecting "unusual" bus activity (the programming commands) or simply attempting a routine "Status Report" to the Acura server, broadcasts high-priority packets onto the bus.
+* The Collision: These TCU packets collide with the Programmer's packets. The BCM, detecting data corruption or "Bus Off" errors, triggers a safety abort to prevent memory corruption. The programming session fails, often at the 70-80% mark, leaving the key unprogrammed or the car in a "No Start" state.19
+5.2 The "Fuse Pull" Ritual
+To successfully program a high-trim MDX, RDX, or TLX (especially Advance/Type S trims), the technician must physically sever the TCU's power supply. This is not optional; it is a mandatory step for stability.
+5.2.1 Acura MDX (2022+) Fuse Strategy
+* Target Fuse Box: Interior Driver's Side Fuse Box (Type A). This is located in the driver's kick panel area.
+* Target Fuses:
+   * Fuse #56 (10A) - Often labeled "BACKUP" or "METER".
+   * Fuse #57 (10A) - Often labeled "TELEMATICS" or "CONNECT".
+* Procedure: Pulling the BACKUP fuse is the most effective "master switch." It cuts power to the BCM logic (resetting it) and the TCU.
+* Action: Remove the fuse. Wait 1 minute. Attempt programming. Reinstall fuse immediately after success.15
+5.2.2 Acura RDX (2019+) Fuse Strategy
+* Target Fuse Box: Under-Dash Fuse Box (Driver's side, up high).
+* Target Fuse: Fuse B20 (15A) or Fuse B12.
+* Label: "AUDIO" or "ACURALINK".
+* Why "Audio"? On the RDX, the Telematics unit is integrated heavily with the Infotainment/Audio Head Unit. The "Audio" fuse powers the entire stack.
+* Verification: Upon pulling this fuse, the central infotainment screen must go completely black. If the screen is still illuminated, the TCU is still active. The programming will fail if the screen is on.21
+
+
+  
+
+
+
+5.3 The "Battery Nap" Alternative
+In scenarios where the fuse is inaccessible or the diagram is missing, the "Battery Nap" method serves as a crude but effective alternative.
+1. Disconnect: Remove the negative terminal of the vehicle’s 12V battery.
+2. Wait: Leave disconnected for 10-15 minutes. This drains the capacitors in the TCU.
+3. Reconnect: Reattach the terminal.
+4. Race: Immediately attempt the programming procedure. The TCU typically takes 60-120 seconds to boot up, run self-checks, and re-establish a cellular handshake. The technician has a brief window of "CAN Bus Silence" to execute the key programming before the TCU starts transmitting again.
+6. Model-Specific Deep Dives: Core Procedures
+This section synthesizes the architectural theory into concrete, actionable workflows for the specific models identified in the user query.
+6.1 Acura MDX (2022–2024) & TLX (2021–2024) Type S
+The Type S models introduce a layer of complexity not because of a different immobilizer, but because of a specialized Engine Control Unit (ECU) that confuses standard diagnostic tools.
+The "Type S" Nuance:
+The Type S uses a 3.0L Turbo V6 with a dedicated high-performance ECU. Many aftermarket tools (like the Autel IM608) attempt to "Auto Detect" the vehicle. When they query the ECU and receive an ID that doesn't match the standard "3.5L V6" database, they fail to communicate.
+* The Fix: Do not trust "Auto Detect" on a Type S. Manually select Acura MDX > 2022 > Smart Key (or Honda Pilot 2023+). This forces the tool to talk to the BCM (which is standard across all trims) and ignore the specialized Engine ECU.
+The Procedure (All Keys Lost):
+1. Environment: Connect a battery maintainer (Target: 13.5V). Identify BCM Label Code (5-digit). Pull "Backup" Fuse #56.
+2. Tool Path: Immo/Smart > Honda/Acura > Manual > MDX > 2022 > Smart Key (Knob Style).
+3. Execution:
+   * Select "All Keys Lost".
+   * Tool prompts: "Is Ignition ON?" -> Select NO (Ignition is off because keys are lost).
+   * Tool prompts: "Enter 5-digit Code". -> Input the code from the label.
+   * Tool calculates. BCM enters learning mode.
+4. Registration:
+   * Tool instructs: "Place Key 1 on Start Button."
+   * Technique: Hold the logo side of the fob directly against the Start/Stop button. The LED on the fob should flash. The car will beep.
+   * Repeat for Key 2 if applicable.
+5. Synchronization: The tool will cycle the ignition On/Off to sync the rolling codes.
+6. Cleanup: Reinstall Fuse #56. Test remote functions.
+6.2 Acura RDX (2019–2021)
+The 2019 RDX is a "Gateway" vehicle, presenting a unique challenge when the alarm is active.
+The Alarm Lockdown:
+Unlike the MDX, the RDX Gateway (SGW) will actively block OBDII communication if the factory alarm is triggered (which happens when you open a locked car with a mechanical key in an AKL scenario).
+* Symptom: "Communication Failed" immediately upon selecting the model.
+* Bypass Method (CAN Direct): The most reliable method is to bypass the Gateway entirely.
+   * Locate the CAN Junction Connector or the Star Connector (usually above the glovebox or near the center console kick panel).
+   * Use a CAN Bus Probe or a "Universal Cable" (like the Autel G-Box or ADC2011).
+   * Connect the tool's CAN High and CAN Low pins directly to the vehicle's B-CAN wires (Pink and Blue twisted pair). This bypasses the Gateway firewall and allows direct conversation with the Smart Key Unit.
+6.3 Acura Integra (2023+)
+As established, the Integra is a Honda Civic.
+Procedure:
+* Tool Path: Honda > Civic > 2022+ > Smart Key.
+* Key Type: Requires the new FCC ID: KR5T21 (433MHz). Using an older Acura key will fail.
+* Voltage Sensitivity: The Integra/Civic BCM is notoriously sensitive to low voltage. If the battery drops below 11.8V during the write process, the BCM may corrupt its memory ("brick"). A battery maintainer is mandatory.
+6.4 Acura NSX (2017–2022)
+The NSX is feasible but requires careful handling due to its construction.
+Feasibility Analysis:
+* System: Shared with Acura RLX Sport Hybrid (2014-2020).
+* Menu Path: If "NSX" is not listed, select Acura RLX > Smart Key.
+* Key Specs: FCC ID: KR5V2X. Use the Driver 1 / Driver 2 memory keys.
+* RF Shielding: The NSX cabin utilizes extensive carbon fiber, which blocks RF signals. When the tool says "Hold Key to Button," ensuring direct, flush contact is critical. Even a few millimeters of gap can cause the signal to be absorbed by the chassis shielding.
+* Emergency Slot: The NSX has a physical key slot (often in the glovebox or center console) for emergency starting. For programming, however, the Start Button method is preferred.
+7. The Aftermarket Key Ecosystem: FCC IDs and Logistics
+A critical component of the "Gap" is the confusion surrounding key hardware. Visually, Acura keys have looked nearly identical for a decade (the "Driver 1/2" wedge shape). However, internally, they operate on different frequencies and protocols.
+Model
+	Years
+	Frequency
+	FCC ID
+	Chip Protocol
+	Notes
+	MDX
+	2014-2020
+	433 MHz
+	KR5V2X
+	ID47 (Hitag 3)
+	Interchangeable with RLX/TLX (Gen 5).
+	MDX
+	2022+
+	433 MHz
+	KR5TXN
+	ID4A (Hitag AES)
+	Not compatible with older models. Requires BCM Code.
+	RDX
+	2016-2018
+	433 MHz
+	KR5V1X
+	ID47
+	Standard Gen 5 Smart Key.
+	RDX
+	2019+
+	433 MHz
+	KR5V2X
+	ID47
+	Gateway System Key.
+	TLX
+	2021+
+	433 MHz
+	KR5T21
+	ID4A
+	Type S uses unique Red button config but same electronics.
+	Integra
+	2023+
+	433 MHz
+	KR5T21
+	ID4A
+	Same as Civic 2022+.
+	NSX
+	2017+
+	433 MHz
+	KR5V2X
+	ID47
+	Shared with RLX. High cost, standard tech.
+	The "Type S" Key:
+The TLX Type S and MDX Type S key fobs (Part Number 72147-TGZ-C81) are technically compatible with standard KR5T21 keys in terms of starting the car. However, using a standard key on a Type S may result in the loss of specific "Driver Memory" features or the remote window roll-down function. For a full factory restore, the specific Type S part number must be used.23
+8. Advanced Troubleshooting: The "Dummy Sensor" Fault
+A distinct failure mode for the 2022+ MDX and Pilot involves the Blind Spot Information (BSI) system, distinct from the BCM.
+The Scenario:
+A 2022 MDX is in a body shop after a rear-end collision. The shop has installed "Dummy Sensors" (transport placeholders) or the rear bumper is missing entirely.
+The Failure:
+The technician attempts to program a key. The tool communicates with the BCM but fails at the "Learning" step.
+The Cause:
+The BCM performs a topology check on the B-CAN network before allowing key learning. If it detects "Lost Communication" codes (U-codes) from the Rear Radar (Blind Spot) modules, it interprets the vehicle as "Compromised" and aborts the security procedure.
+The Solution:
+1. Scan: Run a full system health report.
+2. Verify: Check for U-codes related to "Blind Spot Info" or "Rear Radar".
+3. Remedy: You must clear the codes. If they return immediately (hard fault), you must either connect functioning sensors or repair the wiring harness before the key can be programmed.13
+9. Workflow Synthesis and Conclusion
+The "Acura Gap" is less about missing capabilities and more about a shift in security paradigms that requires new forensic behaviors from the technician. The transition from VIN-based PCM codes to physical BCM label codes in 2022+ models, combined with the aggressive interference of the AcuraLink system, has created a steeper learning curve, but not an insurmountable wall.
+
+
+  
+
+
+
+Final Recommendations:
+1. Map the Platform: Always cross-reference the Acura model with its Honda twin (Integra -> Civic, MDX -> Pilot).
+2. Hunt the Label: For 2022+ models, prioritize locating the BCM label over attempting OBDII calculations.
+3. Silence the Bus: Incorporate the fuse pull (Backup/Audio) as a standard operating procedure for all "Advance" or "Type S" trims to neutralize AcuraLink interference.
+By adopting these protocols, the automotive security professional can confidently service the entire 2016–2024 Acura lineage, effectively closing the procedural gap.
+Works cited
+1. ACURA MDX TLX RLX RDX ALL KEYS LOST PUSH START(SMART KEY) TUTORIAL#allkeyslost #keyprogrammer#acura - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=K_PELmyQdqg
+2. ACURA HONDA TL TLX MDX RDX RLX ALL KEYS LOST KEYLESS ENTRY SMART PROXIMITY FOB PROGRAMMING TUTORIAL - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=QiK2LpEBr-c
+3. C0063 83 ECU Key Not Registered SRS Unit Acura Integra Honda Accord Civic - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=10tGAeICWic
+4. Aiming Driving Support Systems - Honda TechInfo, accessed January 7, 2026, https://techinfo.honda.com/rjanisis/pubs/web/docs/AJA15434.PDF
+5. Smart Key_V1.60 Function List - Autel, accessed January 7, 2026, https://www.autel.com/u/cms/www/202210/24020108tdxp.pdf
+6. Key programming? : r/Acura - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Acura/comments/1ivzk4o/key_programming/
+7. 2019 Acura RDX Keyless Entry Remote Fob Programming Instructions, accessed January 7, 2026, https://northcoastkeyless.com/2019-acura-rdx-keyless-entry-remote-fob-programming-instructions/
+8. ALL KEYS LOST? MDX / RDX Smart Key Programming in Minutes - YouTube, accessed January 7, 2026, https://www.youtube.com/shorts/rza-HzOLNdM
+9. Acura Key Fob Programming | Acura of Johnston, accessed January 7, 2026, https://www.acuraofjohnston.com/service/service-and-parts-tips/acura-key-fob-programming/
+10. How To Program Your Acura Key Fob, accessed January 7, 2026, https://www.frankletaacura.com/how-to-program-your-acura-key-fob/
+11. HOW TO PROGRAM HONDA / ACURA KEY FOB | EASY DIY SHORT TUTORIAL #keyprogramming - YouTube, accessed January 7, 2026, https://www.youtube.com/shorts/5gnP1iDmDI8
+12. Acura TLX 72147-TGV-A11 KR5T21 Smart Remote Key Driver 2 4 Button - Key4, accessed January 7, 2026, https://www.key4.com/acura-tlx-smart-remote-key-72147tgva11-kr5t21
+13. What you need to know: Honda blind spot indicator (BSI) dummy sensor, accessed January 7, 2026, https://collision.aiacanada.com/news/what-you-need-to-know-honda-blind-spot-indicator-bsi-dummy-sensor/
+14. Honda & Acura All Keys Lost | How to Find Your Key Code Tutorial - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=MCMyKSlD08Y
+15. Installation Guide. 2022 Acura MDX (Smart Key). 403.HONDA9 2.12.106, accessed January 7, 2026, https://directechs.blob.core.windows.net/ddt/403-HONDA9-2.12.106-ORI_2022-Acura-MDX-(Smart-Key)_IG_EN_20241101.pdf
+16. 2022-2024 Acura MDX Fuse Box Label 38205-TYA-A10 | OEM Parts Online, accessed January 7, 2026, https://acura.oempartsonline.com/oem-parts/acura-fuse-box-label-38205tyaa10
+17. 2025 Acura MDX Fuse Box Info | Fuses | Location | Diagram | Layout - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=f_kxqbhFvPU
+18. IM608 Pro EEPROM Training - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=J3YkEexr57Q
+19. AcuraLink remote start glitch disabling keyless access and key fob lock/unlock functions, accessed January 7, 2026, https://www.reddit.com/r/Acura/comments/1oq8xed/acuralink_remote_start_glitch_disabling_keyless/
+20. Why are the AcuraLink remote commands so useless? It's pretty annoying. : r/Acura - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Acura/comments/1dyq16g/why_are_the_acuralink_remote_commands_so_useless/
+21. 2019 Acura RDX Fuse Box Info | Fuses | Location | Diagrams | Layout - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=8tx8Fk4C-UU
+22. Acura RDX Fuse Box Frenzy Solved! (2019-2020): Interior - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=kXwcFPHGBzg
+23. 2021-2022 Acura TLX Type S 5B Trunk Remote Start Smart Key KR5995364, accessed January 7, 2026, https://yourcarkeyguys.com/products/2021-2022-acura-tlx-type-s-5b-trunk-remote-start-smart-key-kr5995364
+24. Honda Blind Spot Indicator (BSI) Dummy Sensor - I-CAR Repairability Technical Support Portal, accessed January 7, 2026, https://rts.i-car.com/crn-2159.html

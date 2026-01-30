@@ -1,0 +1,169 @@
+﻿Technical Analysis of the 2024 BMW X5 (G05 LCI) Security Architecture: BDC+, Secure Coding 2.0, and Diagnostic Feasibility
+1. Executive Summary
+The introduction of the 2024 BMW X5 Life Cycle Impulse (G05 LCI) marks a definitive inflection point in the trajectory of automotive security systems. While externally categorized as a mid-cycle facelift, the vehicle's internal electronic architecture has undergone a radical transformation, migrating from the Service Pack 2018 (SP18) framework to the Service Pack 2021 (SP21) computing environment.1 This shift is not merely an iterative upgrade of processing power but a fundamental restructuring of how the vehicle validates diagnostic commands, authorizes coding changes, and manages access control credentials.
+For the automotive locksmithing and independent repair sectors, the G05 LCI presents an unprecedented challenge. The core of this challenge lies in the integration of the new Body Domain Controller Plus (BDC+) and the implementation of Secure Coding 2.0. Together, these technologies establish a "connected security" paradigm where physical access to the vehicle's OBD-II port is no longer sufficient to perform immobilizer functions. The reliance on a cryptographically signed handshake with the BMW backend servers for New Coding Data (NCD) files effectively neutralizes the "offline" coding and programming methods that have sustained the aftermarket tool industry for the past decade.3
+This report provides an exhaustive technical examination of the G05 LCI security landscape. It synthesizes data from component-level hardware analysis, software architecture review, and field testing of current aftermarket diagnostic solutions. The findings indicate that for the 2024 model year, All Keys Lost (AKL) scenarios are currently resolvable exclusively through the OEM dealership network, as the requisite exploits for BDC+ manipulation and Engine Control Unit (DME) ISN extraction do not yet exist in the public domain. Furthermore, the introduction of Ultra-Wideband (UWB) technology in the key fob (FCC ID: IYZBK1) and the Digital Key Plus system adds a layer of hardware complexity that renders legacy inventory and relay-attack methodologies obsolete.
+2. Historical Context and Architectural Evolution
+To fully comprehend the formidable nature of the G05 LCI's security, it is necessary to contextualize it within the broader evolution of BMW's electronic protection strategies. The automotive industry has witnessed a steady escalation in the sophistication of anti-theft systems, moving from simple resistor-based keys to complex, multi-node encrypted networks.
+2.1. The Trajectory from EWS to CAS
+In the late 1990s and early 2000s, BMW utilized the Elektronische Wegfahrsperre (EWS) system. This early iteration relied on a rolling code transponder in the key and a dedicated EWS control module. The system was static and offline; a locksmith could read the Motorola MCU within the EWS box on a workbench and generate a valid transponder without needing to communicate with the rest of the car.5
+This evolved into the Car Access System (CAS), starting with CAS1 (E65) and maturing into the widely used CAS3 and CAS3+ (E90/E60 era). CAS integrated the remote control receiver and the immobilizer into a single unit. While more secure, CAS3 heavily relied on the OBD-II port for key learning. The vulnerability of CAS3 lay in its willingness to downgrade its firmware or accept "service mode" commands that exposed the 128-bit Immobilizer Secret Number (ISN).6 Tools like the Autohex and early iterations of the Xhorse VVDI could exploit this by reading the ISN from the engine ECU (DME) and writing a new key ID to the CAS module via the OBD port.7
+2.2. The F-Series and FEM/BDC
+With the F-Series chassis (F30, F15), BMW introduced the Front Electronic Module (FEM) and the first-generation Body Domain Controller (BDC). This architecture split the vehicle's functions into "domains." The security logic became more integrated with the central gateway. Key programming on FEM/BDC systems required removing the unit, reading the 95128/95256 EEPROM, and often performing a "preprocessing" step where the MCU was temporarily flashed with unlocked firmware to extract the ISN and secret keys.9 While complex, this process was purely local; it did not require internet verification from BMW, allowing the aftermarket to develop robust "solder-free" adapters and bench tools.
+2.3. The G-Series and the Arrival of Ethernet
+The G-Series (G05 Pre-LCI, G20, G30) brought the Ethernet backbone into prominence. The BDC2 (Body Domain Controller Gen 2) became the central hub for a high-speed data network. While the BDC2 increased encryption strength, it remained fundamentally an offline system regarding key provisioning. Specialized tools could still utilize "bench mode" exploits to read the necessary data without needing a server signature.11 The "June 2020" update was a significant milestone in this era, as it introduced locked bootloaders on Bosch DMEs, forcing tuners and locksmiths to seek specialized "bench unlock" services, but the BDC itself remained accessible via hardware exploits.
+2.4. The SP21 Paradigm Shift
+The 2024 G05 LCI represents the culmination of this evolutionary path: Service Pack 2021 (SP21). Unlike the transition from CAS to FEM, which was primarily a hardware consolidation, the move to SP21 is a philosophy shift toward "Connected Security." In this generation, the vehicle is treated not as an isolated island of modules but as a secure client node within the BMW cloud infrastructure. The security model assumes that the vehicle is always connected, and therefore, critical administrative actions—such as coding a replacement module or authorizing a new key—must be validated by the "admin" (BMW AG) in real-time. This architectural change is what creates the "brick wall" for current aftermarket solutions.1
+3. Service Pack 2021 (SP21): The Digital Fortress
+The Service Pack 2021 architecture is the foundational environment of the 2024 X5. It is defined by its massive data throughput capabilities and its reliance on the backend for configuration validation.
+3.1. The Gigabit Ethernet Backbone
+The G05 LCI utilizes a Gigabit Ethernet backbone (1000BASE-T1) that fundamentally alters how modules communicate. In previous generations (SP15/SP18), the Body Domain Controller acted as a gateway between the faster FlexRay buses and the slower CAN buses. In SP21, the BDC+ serves as a high-performance router and switch, managing traffic between the Head Unit (MGU22), the Telematics Control Unit (RAM/ATM), and the ADAS sensors.
+This move to Ethernet means that traditional diagnostic tools relying on CAN bus protocols (ISO 15765) are effectively communicating with the vehicle through a translation layer, limiting their visibility into the deeper, high-speed exchange of security tokens. Accessing the core functions of the BDC+ now requires tools capable of handling DoIP (Diagnostic over IP) with the specific routing protocols defined in the SP21 standard. Many older J2534 passthru devices lack the bandwidth or the protocol stack to maintain stable communication with an SP21 BDC+ during complex operations.13
+3.2. Centralized Computing and Integration
+In SP21, the computing power is further consolidated. The Head Unit High 5 (MGU5) and the BDC+ handle tasks that were previously distributed across multiple satellite ECUs. For the security analyst, this consolidation means there are fewer "weak links" or peripheral modules to exploit. In the past, a locksmith might attack a weaker module (like a Comfort Access antenna module) to gain entry to the bus. In the G05 LCI, these peripherals are dumb sensors connected directly to the hardened BDC+ via LIN bus or secure local interconnects, leaving no "backdoor" entry points.
+The integration of the infotainment and security domains is tighter than ever. The Digital Key Plus features, for instance, require the BDC+ to coordinate intimately with the Head Unit for user profiles and the RAM (Receiver Audio Module) for UWB localization. This interdependence implies that replacing a single component (like a damaged BDC) requires a synchronization process that touches nearly every major node in the car, a process that is rigorously policed by the Secure Coding framework.
+
+
+  
+
+
+
+4. Secure Coding 2.0: The End of Offline Configuration
+The most formidable barrier introduced with the G05 LCI is Secure Coding 2.0. This protocol addresses the vulnerability of "offline coding," which has been the standard method for BMW configuration since the E-series era.
+4.1. The Mechanism of NCD 2.0
+In the previous SP18 architecture, coding data was stored in NCD (New Coding Data) files. These files contained the configuration parameters for a module (e.g., enabling Video in Motion, disabling Auto Start-Stop, or setting the default drive mode). While these files were checksum-protected, the checksum algorithms were reverse-engineered years ago. This allowed tools like E-Sys, BimmerCode, and various key programmers to read the NCD, modify the bits required to put the BDC into "learn mode," recalculate the checksum, and write the file back to the car.
+Secure Coding 2.0 (NCD 2.0) introduces a digital signature requirement.3 The process is now a challenge-response sequence:
+1. Request: The diagnostic tool sends a request to the BDC+ to apply coding data.
+2. Challenge: The BDC+ generates a unique, time-sensitive "nonce" (a random number used once) and sends it to the tool.
+3. Signing: The tool must transmit this nonce, along with the desired coding data and the vehicle's VIN, to BMW's secure backend servers.
+4. Verification: The BMW server verifies that the coding data is valid for that specific VIN and that the request is authorized. If valid, the server signs the data package using a private key held in BMW's Hardware Security Module (HSM).
+5. Execution: The signed data is returned to the tool, which passes it to the BDC+. The BDC+ verifies the signature using its internal public key. If the signature matches, the coding is applied.
+4.2. Implications for Key Programming
+This mechanism is catastrophic for current aftermarket key programming workflows. The standard "Add Key" procedure often relies on coding the BDC into a specific state (often called "Service Mode" or "Bootloader Mode") to allow access to the protected memory areas where the key IDs are stored. Without the ability to generate a valid signature for this modified coding file, the BDC+ simply rejects the request.15
+Since the signing key is held securely by BMW, it cannot be extracted or brute-forced. The "offline" calculators and token generators that worked for NCD 1.0 are useless against NCD 2.0. This is why tools like BimmerCode explicitly state they do not support the G05 LCI BDC module 1, and why key programming tools fail to initiate the learning process.
+
+
+  
+
+
+
+5. Body Domain Controller Plus (BDC+): Hardware Analysis
+The hardware enforcing these rules is the BDC+, often referred to in the aftermarket as BDC Gen3 or BDC4. It represents a significant physical and logical departure from the BDC2 used in the pre-facelift X5.
+5.1. Hardware Identification and Specifications
+Technicians must be able to differentiate the BDC+ from its predecessor to avoid damaging the unit with incompatible probes or adapters.
+* Part Numbers: The 2024/2025 BDC modules are identified by part numbers such as 61.35-5.B6C.432 and 61.35-5.A90.8E8.16 These part numbers are distinct from the G05 pre-LCI series.
+* Physical Layout: The BDC+ is located in the passenger footwell (A-pillar), behind the kick panel. While the general form factor remains similar, the connector layout has changed to accommodate the new architecture.
+* Connectors:
+   * Ethernet Ports: The BDC+ features specific OABR (Open Alliance BroadR-Reach) ports for connecting to the Ethernet switch. These are often 2-wire twisted pair connections rather than standard RJ45 style.
+   * UWB Coaxial Inputs: A key visual differentiator is the presence of coaxial inputs (FAKRA style) used to connect the Ultra-Wideband anchors located in the B-pillars and bumpers. These were absent on BDC2.
+   * Power Distribution: The BDC+ continues to act as a Front Power Distribution Box, housing fuses for various body circuits.18
+5.2. Internal Architecture and Security
+The BDC+ integrates a high-performance microcontroller (likely a multi-core TriCore Aurix or similar automotive-grade processor) paired with a dedicated Hardware Security Module (HSM). The HSM is the "vault" of the BDC+. It stores the private keys used for secure boot, secure communication, and the ISN.
+* JTAG/Debug Locking: In previous generations, researchers could solder wires to the debug ports (JTAG/SWD) of the MCU to read the memory directly, bypassing the operating system's restrictions. On the BDC+, these ports are secured with a 128-bit password that is unique to each specific chip. If the correct password is not provided, the debug interface remains electrically disabled. Brute-forcing a 128-bit key is computationally infeasible.
+* Memory Encryption: Even if a physical exploit allowed reading the flash memory (e.g., via fault injection), the data itself is encrypted at rest. The encryption keys are stored in the HSM and are never exposed to the main memory in plain text.
+5.3. BDC2 vs. BDC+ Compatibility Matrix
+It is a critical error to assume that tools supporting "G-Chassis BDC" will work on the LCI.
+* BDC2 (2019–2023): Supported by Yanhua ACDP (Module 2/38), Autel IM608 (with G-Box), and Xhorse VVDI. Exploits involve bench reading via clip adapters or OBD unlock methods.9
+* BDC+ (2024+): The hardware changes (pinout differences) render BDC2 bench adapters physically incompatible. The software changes (Secure Coding 2.0) render OBD exploits ineffective. There is currently no confirmed aftermarket tool support for BDC+ key programming or cloning.1
+
+
+  
+
+
+
+6. The Immobilizer Ecosystem and Key Programming
+The G05 LCI introduces a complex hybrid of traditional RF remote access and modern smartphone-based entry. This ecosystem is designed to prevent the relay attacks that plagued earlier models, but it also significantly raises the bar for key replacement.
+6.1. Next-Generation Key Fob Technology
+The 2024 X5 utilizes a redesigned key fob, distinct from the "blade" style keys of the F-series or the early G-series display keys.
+* FCC ID: The primary key fob for the 2024 X5 (and iX/X7 LCI) is identified by FCC ID IYZBK1 (manufactured by Hella or Continental).23 This is a departure from the NBGIDGNG1 ID used in pre-LCI G05 models.
+* Ultra-Wideband (UWB): The defining feature of this key is the inclusion of a UWB transceiver operating in the 3.1–10.6 GHz range.26 Unlike traditional RF (315/434 MHz) which relies on signal strength (RSSI) to estimate distance—a method vulnerable to amplification attacks—UWB uses "Time of Flight" calculations. The car sends a pulse, the key responds, and the car measures the exact time taken for the round trip. Because the speed of light is constant, this measurement cannot be spoofed by a relay device.
+* Implication for Inventory: Locksmiths stocking NBGIDGNG1 keys will find them useless for the 2024 model. Even if the transponder frequency (434 MHz) matches, the absence of the UWB chip means the key will fail the "Comfort Access 2.0" authentication protocols, likely triggering dashboard warnings or failing to function for passive entry.
+6.2. Digital Key Plus
+The G05 LCI fully supports Digital Key Plus, compatible with iPhones (iOS 16+) and Android devices (Samsung/Pixel) equipped with UWB chips.26
+* Secure Element Storage: The digital key is not just an app credential; it is stored in the embedded Secure Element (SE) of the smartphone.
+* Sharing and Management: Keys can be shared via secure messaging (iMessage/WhatsApp). The BDC+ treats these shared keys as distinct, valid key slots (up to a theoretical maximum, often 5-10 slots depending on software version).
+* Legacy Device Issues: Users with older phones (without UWB) may find limited functionality or require the phone to be placed physically in the NFC tray, a distinction that has caused confusion among owners expecting the "keep your phone in your pocket" experience.30
+6.3. Aftermarket Tool Feasibility Analysis
+The critical question for the industry is: Can current tools program these keys?
+* Autel IM608 II: While a powerful tool for BDC2, reports confirm that on SP21 vehicles, it encounters "Device Locked" errors or simply fails to communicate with the BDC+ in programming mode.31 The G-Box3 adapter, designed to speed up calculations on older units, has no exploit vector for the BDC+.
+* Yanhua ACDP: The ACDP Module 38 is specifically designed for BDC2 (Pre-LCI). Using it on a BDC+ is highly risky due to pinout differences and software incompatibility. Yanhua has not yet released a "Module 39" or similar for the SP21 architecture.11
+* Xhorse VVDI: The Key Tool Plus can read the frequency of the IYZBK1 keys but cannot perform the OBD learning procedure due to the Secure Coding barrier.33
+6.4. All Keys Lost (AKL) Reality
+In an All Keys Lost scenario for a 2024 X5, the independent technician is currently at a dead end.
+1. OBD Method: Impossible. The tool cannot authenticate to the BDC+ to initiate the "All Keys Lost" recovery procedure without a working key or an exploit that is now patched.
+2. Bench Method: Impossible. The BDC+ cannot be unlocked on the bench to inject a new key file directly into the EEPROM/Flash.
+3. ISN Method: Impossible. As detailed in the next section, the ISN cannot be extracted from the engine control unit.
+Conclusion: The only viable solution for AKL on a 2024 X5 is to order a replacement key from the BMW dealership, which is pre-programmed based on the VIN and authorized via the official ISTA online connection.
+
+
+  
+
+
+
+7. Powertrain Security: The DME Wall
+The Engine Control Unit (DME) is the second pillar of the immobilizer system. It stores a copy of the ISN, which must match the ISN in the BDC+ for the engine to start. In AKL scenarios, reading the ISN from the DME is the standard "backdoor" to program a key. However, the G05 LCI has effectively welded this door shut.
+7.1. The June 2020 Security Cliff
+In June 2020, BMW and Bosch introduced a new security architecture for the MG1 series of DMEs. This update moved the digital signature check for the bootloader into the One-Time Programmable (OTP) area of the processor.
+* Pre-June 2020: The bootloader could be patched via bench probes to allow reading of the ISN and flashing of custom maps.
+* Post-June 2020: The processor validates the bootloader signature at startup. If the signature is invalid (i.e., if the bootloader has been tampered with), the DME refuses to boot.34 This effectively killed "bench unlocking" for standard tools.
+7.2. The "Femto" Solution
+Currently, the only entity capable of unlocking Post-June 2020 Bosch DMEs is a company known as Femto, based in Finland.36 They have developed a proprietary method (likely involving a specific hardware exploit or leaked keys) to sign a custom bootloader that the DME accepts.
+* Process: The owner must physically remove the DME and ship it to Finland.
+* Relevance to AKL: While Femto can read the ISN, the logistics of shipping a DME to Finland just to program a key are prohibitive for most emergency locksmith situations. Furthermore, this only applies to Bosch DMEs.
+7.3. The Continental Shift (B58 TU2)
+For the 2024 X5 xDrive40i, which uses the updated B58 TU2 engine (featuring port injection and Miller cycle improvements), reports indicate a shift from Bosch MG1 to Continental DMEs.38
+* The Threat: Continental DMEs have historically been far more resistant to reverse engineering than Bosch units. The "Femto" exploit does not apply to Continental hardware.
+* Current Status: There is currently zero public support for unlocking, tuning, or reading ISN data from the 2024 Continental DMEs found in the B58 TU2. This creates a "hard lock" scenario where no workaround exists, regardless of cost or shipping.
+8. Diagnostic and Repair Implications
+The security hardening of the G05 LCI has profound implications for general repair and maintenance beyond key programming.
+8.1. Module Replacement
+If a BDC+ fails (e.g., due to water damage from a clogged sunroof drain), it cannot simply be swapped with a used unit from a salvage yard.
+* Used Modules: A used BDC+ contains the VIN and ISN of the donor car. Writing the correct VIN/ISN requires "virginizing" the unit, a process that requires unlocking the MCU—which is currently impossible for BDC+.
+* New Modules: A brand-new, blank BDC+ must be ordered from the dealer. Upon installation, it requires an online ISTA session. The technician must log in with a valid "Gecko" ID (BMW's secure user management system). The backend server validates the technician's credentials, the module's serial number, and the vehicle's FA (Vehicle Order) before pushing the initial security keys and coding data.39
+8.2. Coding and Customization
+The era of easy coding (e.g., using BimmerCode to fold mirrors automatically or change the ambient lighting colors) is largely over for the LCI.
+* Limitations: Secure Coding 2.0 prevents changing critical parameters. While some purely cosmetic parameters in non-secure modules (like the RAM or Head Unit) might still be accessible, the BDC+ itself is locked down.
+* Retrofits: Retrofitting hardware (e.g., adding a tow hitch or laser headlights) requires changing the Vehicle Order (VO) and recoding the BDC. This now requires a dealer-level connection to validat the retrofit with BMW's servers, or the coding will be rejected.15
+9. Conclusion
+The 2024 BMW X5 G05 LCI represents a watershed moment in automotive security. It demonstrates a successful execution of "Defense in Depth," where multiple overlapping security layers—SP21 Ethernet architecture, BDC+ hardware hardening, Secure Coding 2.0, UWB authentication, and locked DMEs—create a system that is, for all practical purposes, impenetrable to the current generation of aftermarket tools.
+For the automotive aftermarket, this signals a painful transition period. The techniques that have served the industry for the past decade (EEPROM clipping, bench probing, OBD exploits) are fundamentally incompatible with the connected, server-validated nature of the G05 LCI. Until a new generation of tools emerges that can either legitimately interface with BMW's backend or discover a profound vulnerability in the Secure Coding protocol, the 2024 X5 will remain a vehicle that can only be fully serviced, keyed, and coded within the authorized dealer network.
+Works cited
+1. DIY Coding not possible for LCI 24' X5/X6 (no more BimmerCode) - BMW X5 Forum (G05), accessed January 25, 2026, https://g05.bimmerpost.com/forums/showthread.php?t=2031230
+2. Service pack 21? - XBimmers | X7 - Bimmerpost, accessed January 25, 2026, https://g07.bimmerpost.com/forums/showthread.php?t=2003271
+3. Secure coding explained - Carware, accessed January 25, 2026, https://crwr.com/en/knowledge-base/secure-coding-explained/
+4. How to Bypass BMW's NCD Secure Coding 2.0 System for Custom Coding, accessed January 25, 2026, https://oemnavigations.com/blogs/news/ncd-secure-coding-2-0
+5. How To: PROGRAM your BMW KEYS AT HOME (No More Dead Key Battery!) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=lKUO-W8E8j4
+6. Avoid Destroying Your BMW CAS3 Module – Trust Only Experienced Locksmiths, accessed January 25, 2026, https://beaverlocksmithpros.com/avoid-destroying-your-bmw-cas3-module-trust-only-experienced-locksmiths/
+7. How to Program BMW Keys When All Are Lost Using IM608 PRO II - obdprice, accessed January 25, 2026, https://www.obdprice.com/blogs/car-repar-maintenance/program-bmw-keys-when-all-are-lost
+8. Xhorse VVDI2 Programmer - BMW G series Programming Kit - Best Key Supply, accessed January 25, 2026, https://www.bestkeysupply.com/products/xhorse-vvdi2-full-bmw-gseries-programming-kit-bundle-p445
+9. Yanhua ACDP Module 2 Support BMW FEM/BDC Module for IMMO Key Programmi - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/yanhua-acdp-module-2-support-bmw-fem-bdc-immo-key-programming-by-icp-or-obp-mode-with-mileage-reset-and-recover-backup-data
+10. How to program 2013-2015 BMW 328i Smart Key with Autel IM608 FEM/BDC System "Process Explained" - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=a4y-K-3a4wk
+11. BMW G-Series Key Programming with Yanhua ACDP BDC2 IMMO Module 38 (2015–2021), accessed January 25, 2026, https://www.youtube.com/watch?v=8s7UJHaNl0s
+12. BMW Smart Key Unlocking Using The Key Tool Max (F-Series 315MHZ 5WK49863), accessed January 25, 2026, https://www.youtube.com/watch?v=EBZvYrBYf1Y
+13. Autel MaxiIM IM608S II Keyand Chip Programming Kit&Diagnostic Scanner - Autelkeytools, accessed January 25, 2026, https://www.autelkeytools.com/products/autel-maxiim-im608s-ii-diagnostic-scanner-2-year-update
+14. Xhorse - VVDI BMW BIMTool PRO - Device for Coding & Programming - Royal Key Supply, accessed January 25, 2026, https://royalkeysupply.com/products/xhorse-vvdi-bmw-bimtool-pro-device-for-coding-programming
+15. 2024 F95 LCI X5M coding possible? - BMW X5 Forum (G05) - Bimmerpost, accessed January 25, 2026, https://g05.bimmerpost.com/forums/showthread.php?t=2052693
+16. 23-25 BMW X1 U11 G05 X5 X6 Body Domain Controller BDC Front ECU Module White OEM - Prussian Motors, accessed January 25, 2026, https://prussianmotors.com/23-25-bmw-x1-u11-g05-x5-x6-body-domain-controller-bdc-front-ecu-module-white-oem/
+17. 61-35-5-A90-8E8 - 2016-2024 BMW - Body Control Module | BMWPartsHub, accessed January 25, 2026, https://www.bmwpartshub.com/oem-parts/bmw-2016-2024-bmw-body-control-module-61355a908e8
+18. BDC fuse locations? correct? - XBimmers | BMW X3 Forum - Bimmerpost, accessed January 25, 2026, https://x3.xbimmers.com/forums/showthread.php?t=1665469
+19. Fuse box location and diagrams: BMW X5 (G05; 2019-2022) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=oB5L1X13BA0
+20. Yanhua Mini ACDP: BMW BDC2 All-Keys-Lost - World's First - No tokens/subs! - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=S8tn39JQtbY
+21. Yanhua 2024 New Mini ACDP-2 Key Programming ACDP-2 Master Basic Module Supports USB and Wireless Connection - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/acdp-2-master-basic-module-supports-usb-and-wireless-connection
+22. "Add Key" BMW | Autel, accessed January 25, 2026, https://autel.us/add-key-bmw/
+23. DR UWB ID49 433.2-434.6 FSK OEM PCB Or FBG57 No UWB Car Remote Key For BMW 1 2 X1 X2 IX1 IX2 U06 U10 U11 U12 MINI Countryman U25 - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/item/1005010274213246.html
+24. 2024-2025 BMW X5 Key Fob Battery Replacement - EASY DIY - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=EieCawaq7xw
+25. BMW Smart Key Fob OEM BK1 IYZBK1 Replacement Already Cut | eBay, accessed January 25, 2026, https://www.ebay.com/itm/277474884516
+26. What advantages does the Digital Key Plus offer in the 2024 BMW X5 and 2024 BMW X6?, accessed January 25, 2026, https://faq.bmwusa.com/s/article/BMW-X5-and-BMW-X6-2023-Vehicle-access-Digital-Key-Plus-Advantages-MY24-JRa1p?
+27. All you need to know about Ultra Wideband tech | BMW.com, accessed January 25, 2026, https://www.bmw.com/en/innovation/bmw-digital-key-plus-ultra-wideband.html
+28. BMW Digital Key: Compatible Models & Setup Guide - BMW of Fremont, accessed January 25, 2026, https://www.bmwoffremont.com/research/digital-key.htm
+29. From Key Fob to UWB: Explaining and Securing Ultra-Wideband in Vehicles - VicOne, accessed January 25, 2026, https://vicone.com/blog/from-key-fob-to-uwb-explaining-and-securing-ultra-wideband-in-vehicles
+30. UWB digital key still not available for 11/2023/. 50 - BMW X5 Forum (G05) - Bimmerpost, accessed January 25, 2026, https://g05.bimmerpost.com/forums/showthread.php?t=2087776
+31. Fixed: Autel IM608 II “The device is locked. Error code: 106” Issue, accessed January 25, 2026, http://blog.autelsale.com/2023/08/24/fixed-autel-im608-ii-the-device-is-locked-error-code-106-issue/
+32. Why does My Autel IM608 Scanner Fail To Access The BMW Bosch ISN? - obdprice, accessed January 25, 2026, https://www.obdprice.com/blogs/faqs/my-autel-im608-scanner-fail-to-bmw-bosch-isn
+33. 2024 Xhorse VVDI Key Tool Max PRO Combines Key Tool Max and Mini OBD Tool Functions Adds CAN FD, BMW CAS1-CAS3 IMMO - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/item/1005007370754903.html
+34. BMW DME ECU Unlock for OBD2 Tuning - MG1 - B46 B48 B58 S63 S58, accessed January 25, 2026, https://www.dudmd.com/products/bmw-dme-unlock-for-obd-tuning-mg1
+35. BMW DME UNLOCK - BOSCH MD1/MG1 - king tuner, accessed January 25, 2026, https://kingtuner.com/products/unlock
+36. BMW S68 FEMTO Unlock Tuning Package - M-Tech Performance, accessed January 25, 2026, https://m-techperformance.com/products/bmw-s68-femto-unlock-tuning-package
+37. The B58/S58 DME Unlock Market Just Got INSANE... - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=r10kbJgu7fw
+38. Is there an unlock for gen 3 b58? - G20 BMW 3-Series Forum - Bimmerpost, accessed January 25, 2026, https://g20.bimmerpost.com/forums/showthread.php?p=32449271
+39. ISTA and LCI G05 - BMW X5 Forum (G05) - Bimmerpost, accessed January 25, 2026, https://g05.bimmerpost.com/forums/showthread.php?t=2171336

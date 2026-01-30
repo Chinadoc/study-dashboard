@@ -1,0 +1,185 @@
+﻿The VAG Access Control Ecosystem (2012–2026): A Technical Analysis of Immobilizer Architecture, Component Protection, and Aftermarket Intervention
+1. Introduction: The Paradigm Shift in Automotive Authorization
+The period spanning 2012 to 2026 represents the most significant transitional era in the history of Volkswagen Audi Group (VAG) vehicle security. This fourteen-year window captures the migration from discrete, hardware-based immobilizer silos to fully integrated, server-dependent authorization architectures. For the automotive security professional—whether a dealership technician, an independent locksmith, or a security researcher—understanding this evolution is not merely academic; it is a prerequisite for successful intervention.
+Prior to 2012, the landscape was dominated by the Immobilizer Generation IV (Immo IV) protocol, a system that, while robust for its time, operated on a relatively static "trust model" centered around the instrument cluster or a dedicated KESSY module. The data required to authorize a key—the Component Security (CS) bytes and the Personal Identification Number (PIN)—resided in non-volatile memory that could be read, deciphered, and manipulated with localized tools. The security boundary was physical; if one could access the EEPROM, one could control the vehicle.
+The introduction of the Modular Transverse Matrix (MQB) in 2013 and the refinement of the Modular Longitudinal Matrix (MLB) fundamentally altered this landscape. VAG engineers began to implement a strategy of "Security by Distribution" and "Security by Connectivity." No longer was the immobilizer a single gatekeeper. Instead, authorization data was fragmented across multiple control units—the Engine Control Unit (ECU), the Transmission Control Unit (TCU), the Electronic Steering Lock (ELV), and the Instrument Cluster or Body Control Module (BCM)—creating a distributed ledger of trust that required simultaneous authentication from all nodes to permit engine start.1
+As the decade progressed into the 2020s, the architecture hardened further with the "Evo" platforms (MQB Evo and MLB Evo). These systems introduced AES-128 encryption, high-speed CAN FD communication, and the "Schutz Fahrzeug Diagnose" (SFD) protocol, which effectively firewalled the diagnostic port from unauthorized access.2 The "Arms Race" between OEM security engineers and the aftermarket tool industry shifted from hardware hacking to cryptographic analysis and cloud-based calculation. The result is a complex matrix of compatibility where a tool's effectiveness is determined not just by the vehicle badge, but by the specific part number of the BCM, the manufacturing date of the instrument cluster, and the firmware version of the gateway.
+This report provides an exhaustive technical analysis of this ecosystem. It dissects the architectural logic of Immo IV, V, MQB, and Evo generations, details the mechanisms of Component Protection (CP), and evaluates the capabilities of the leading aftermarket solutions—Xhorse, Autel, Lonsdor, and OBDStar—against the harsh realities of modern VAG security.
+
+
+  
+
+
+
+2. The Architecture of Authorization: Immobilizer Generations Defined
+To navigate the VAG ecosystem effectively, one must first discard the notion that "Model Year" strictly dictates "Immobilizer Generation." A 2015 VW Jetta may still utilize a legacy Immo IV system, while a 2015 Golf is firmly entrenched in the MQB architecture. The distinction lies in the platform chassis code and the underlying electronic topology.
+2.1 The Persistence of Immobilizer IV (Immo 4)
+While technically superseded by newer generations, the Immo IV architecture remained the standard for entry-level and commercial vehicles well into the studied period. Found in chassis such as the VW Jetta (1K/5C), Beetle (5C), and the Transporter T6, Immo IV is defined by a centralized trust model where the Instrument Cluster (Address 17) acts as the primary "Immobilizer Master".4
+2.1.1 Cryptographic Logic
+The core credential in an Immo IV system is the Component Security (CS), a 7-byte hexadecimal string, and a 5-digit PIN code (Login).
+* Trust Chain: The Cluster stores the CS and PIN in its EEPROM (typically a 24C32 or 24C64 chip paired with a Micronas or NEC processor). The ECU is pre-programmed with a matching CS value. When the key is inserted, the Cluster reads the ID48 transponder. If the transponder's pre-coded CS matches the Cluster's stored CS, the Cluster sends a "Start Authorization" signal to the ECU.
+* Transponder Technology: Immo IV relies almost exclusively on the Megamos Crypto ID48 glass transponder. A critical aspect of programming these keys is "Pre-coding." A virgin ID48 chip cannot simply be learned to the car; it must first be written with the specific 7-byte CS of that vehicle to become a "Dealer Key." Only then can the diagnostic tool initiate the adaptation channel (usually Channel 21) to finalize the pairing.1
+2.1.2 Immo IV+ and the "Crypto" Clusters
+Around 2012, VAG introduced a hardened variant often referred to by the aftermarket as "Immo IV+" or "2012+ UDS." These systems appeared in the facelifted Tiguan, Eos, and Scirocco. While the underlying logic remained Immo IV (7-byte CS), the method of reading the EEPROM changed.
+* The Barrier: The EEPROM data was encrypted or protected by a new "Service Mode" requirement. Simple OBD reading often failed. Tools like the Autel IM608 or Xhorse VVDI2 had to implement specific exploits to put the cluster into a bootloader mode to extract the data.6 This distinction is vital because a technician attempting to use a standard "Immo IV" protocol on an "Immo IV+" vehicle will likely fail to communicate or, worse, corrupt the cluster data.
+2.2 Immobilizer V (Immo 5): The BCM2 Era
+Immobilizer V represented a radical departure from the cluster-centric model. Debuting on the MLB platform (Audi A4 B8, A5 8T, Q5 8R) and the D4 A8, Immo V shifted the "Master" role to the Body Control Module 2 (BCM2), located in the rear of the vehicle (typically the right trunk quarter panel).1
+2.2.1 The BCM2 Trust Model
+In this architecture, the Instrument Cluster is demoted to a standard component that simply displays status. The BCM2 (Address 05 - Acc/Start Auth) holds the absolute authority.
+* Data Structure: The BCM2 stores a complex array of security data, including the VIN, the 32-byte Component Security (CS), the Key IDs, and the synchronization data for the ELV (Steering Lock) and TCU (Transmission).
+* Key Technology: Immo V abandoned the mechanical key blade for the "Slot Key" or "Advanced Key" (Keyless Go), utilizing the PCF7945AC (Hitag 2 Extended) or similar transponders. The key itself communicates directly with the BCM2 via low-frequency antennas and RF receivers.
+2.2.2 The Evolution of Encryption (Unencrypted vs. Encrypted BCM2)
+For the aftermarket, the BCM2 era is divided into two distinct periods based on firmware encryption:
+1. Unencrypted (Pre-2013/2014): In early BCM2 units (software versions usually below 04xx or specific 05xx), the EEPROM (typically 95320) and the internal flash of the NEC processor were accessible via direct reading (soldering or probe). Tools could extract the Immo data directly to generate a dealer key.7
+2. Encrypted (Post-2013/2014): VAG introduced updated BCM2 hardware (e.g., ending in part numbers 0711, 0825, 0824, 0827). These units feature a "locked" NEC processor. Attempting to read them with traditional programmers results in empty or corrupted data. This led to a "Blackout" period where "All Keys Lost" (AKL) situations were dealer-only.
+* The Aftermarket Solution: It was not until around 2019-2020 that Xhorse and later Autel developed specialized "Solder-Free" adapters and server-side calculation methods. These tools exploit a vulnerability in the BCM2 communication protocol to extract the "Sync Data" without fully decrypting the processor's main flash, allowing for the generation of a dealer key even on encrypted units.7
+2.3 The MQB Platform: Distributed Security Architecture
+The Modular Transverse Matrix (MQB), introduced with the Golf Mk7 in 2012/2013, brought the sophistication of Immo V to the mass market but retained the Instrument Cluster as the primary interface.
+2.3.1 The "Distributed" Logic
+MQB security is defined by the fragmentation of the CS. There is no single 7-byte string. Instead, the CS is expanded to 16 bytes and distributed:
+* Instrument Cluster (J285): Stores the "Immo Block" containing the full CS and key data.
+* Engine Control Unit (J623): Stores a portion of the CS to validate engine start.
+* Transmission Control Unit (TCU): In DSG vehicles (DQ200, DQ250, DQ381), the TCU is immobilized and stores its own CS portion.
+* KESSY/ELV: If equipped with Keyless Access, the steering lock or Kessy module also participates in the handshake.1
+This architecture makes "swapping" used parts notoriously difficult. You cannot simply install a used ECU into an MQB Golf; the CS bytes in the donor ECU will not match the Cluster, and the engine will start and immediately die (Immo Active).
+2.3.2 The NEC35xx Challenge
+The physical enforcement of this logic in the MQB cluster is handled by the NEC35xx family of microcontrollers (e.g., D70F3525, D70F3526, D70F3532). Unlike previous generations where an external EEPROM chip held the data, the NEC35xx stores the immo data in its internal encrypted flash.
+* Aftermarket Progression:
+   * Phase 1 (2014-2018): No support. Dealer only (ODIS online).
+   * Phase 2 (2018-2020): "Lift Pin" method. Tools like VVDI2 required the technician to cut a specific trace on the PCB or lift a pin on the MCU to bypass the security lock and read the data. This was high-risk.
+   * Phase 3 (2021-Present): "No Cut/No Lift" adapters. Xhorse and Autel released clamp-on adapters and specialized cables that interface with the cluster's debug ports to read the NEC35xx data safely. However, this still requires removing the cluster and performing bench work; it is rarely a pure OBD procedure for "All Keys Lost".9
+
+
+  
+
+
+
+3. The "Evo" Era and the SFD Firewall (2020–2026)
+As the calendar turned to 2020, VAG introduced the "Evo" architectures: MQB Evo (Golf 8, Audi A3 8Y) and MLB Evo (Audi A4 B9, Q7 4M facelift, Porsche Cayenne E3). These platforms represent the current zenith of automotive security, characterized by the move from hardware encryption to online authentication.
+3.1 MQB Evo: Golf 8 and A3 8Y
+The transition from Golf 7 to Golf 8 was not merely cosmetic. The entire electrical architecture moved to high-speed CAN FD (Flexible Data-rate), and the security protocols were hardened.
+* SFD (Schutz Fahrzeug Diagnose): The most immediate hurdle for the aftermarket was SFD. This protocol locks the diagnostic interface. Attempts to code a module, reset an adaptation, or even clear certain codes are rejected by the Gateway unless a valid SFD Token is presented.
+   * Mechanism: The diagnostic tool requests a challenge string from the car. This string must be sent to the VAG server (or an authorized third-party server), which signs it and returns a token. The tool then sends the token to the Gateway to unlock access for 90 minutes.3
+   * Aftermarket Response: Tools like Autel and OBDEleven have integrated SFD unlocking. They essentially purchase bulk tokens or have authorized GeKo accounts running in the background to generate tokens for users in real-time.
+* Key Programming (The NEC35xx Locked): The dashboard in MQB Evo vehicles uses an even more secure variant of the NEC35xx. For "All Keys Lost," reading this processor via OBD is currently impossible. The only successful aftermarket method involves removing the cluster and using a specialized programmer (like the Xhorse Multi-Prog or Autel XP400 Pro with APB131 adapter) to read the data on the bench. Crucially, the raw data read from the chip is encrypted; it must be uploaded to the tool manufacturer's cloud to calculate the "Immo Data" required to generate a key.12
+3.2 MLB Evo: The Locked BCM2 and the "Dealer Key" Problem
+The MLB Evo platform (Audi A4 B9, A5 F5, Q7 4M) presents a different challenge. The BCM2 in these vehicles is cryptographically locked in a way that prevents even the "Solder-Free" adapters from reading the full Immo data directly in an AKL scenario without existing credentials.
+* The "Dealer Key" Hurdle: To program a key, the BCM2 expects a key that has already been pre-authorized (a Dealer Key) by the VAG FAZIT server. In an AKL situation, you have no key to start this handshake.
+* The 2024 Breakthrough - Xhorse MLB Tool: In a significant development, Xhorse released the "MLB Tool" in 2024. This device bypasses the need to read the BCM2's secret key directly. Instead, it utilizes a "Man-in-the-Middle" approach. By placing a blank, specialized key (or an OEM key) in the tool, the device simulates the car's query and captures the response, effectively using the key's own transponder logic to calculate the necessary authorization data. This allows for the generation of a functioning key without the need for a working original key or invasive BCM reading.14
+4. Component Protection (CP): The Secondary Shield
+While the immobilizer protects the drivetrain, Component Protection (CP) protects the high-value modules. It acts as a digital VIN-lock, ensuring that parts stripped from stolen vehicles cannot be easily reused.
+4.1 The Mechanism of Restriction
+CP operates on a master-slave topology. The Gateway (Address 19) is the CP Master. At every ignition cycle, it queries the CP-active slave modules (e.g., MMI Unit, ACC Radar, Amplifier).
+* The Handshake: The slave module sends a cryptographically signed ID. The Gateway compares this against its internal "Whitelist."
+* Active State: If the ID is not on the list (e.g., a junkyard MMI is installed), the Gateway commands the module into "Component Protection Active" mode.
+   * MMI/Radio: Audio output is muted or interrupted periodically.
+   * ACC: Functionality is completely disabled.
+   * Climate Control: Certain functions (like seat heating) may be blocked.
+   * Dashboard: Warning message "SAFE" or "CP ACTIVE" appears, though the car may still start.16
+4.2 The Module Matrix
+The list of modules subject to CP in VAG vehicles (2012-2026) includes but is not limited to:
+* 01 Engine Control Unit (ECU) (Also part of Immobilizer)
+* 02 Transmission Control Unit (TCU) (Also part of Immobilizer)
+* 05 Acc/Start Auth (Kessy/BCM2)
+* 08 Auto HVAC
+* 09 Central Electrics (BCM)
+* 13 Adaptive Cruise Control (Distronic)
+* 15 Airbag
+* 17 Instrument Cluster
+* 19 CAN Gateway
+* 36 Seat Mem. Drvr
+* 47 Sound System (Bang & Olufsen / Bose)
+* 5F Information Electr. (MMI/Infotainment)
+4.3 Removal Methodologies: Official vs. Grey Market
+* Official Method (ODIS Online): The standard procedure involves connecting the vehicle to ODIS Service, logging in with a GeKo account, and running the "Component Protection Removal" test plan. The tool connects to the VAG FAZIT server, verifies the component is not marked as stolen in the database, and downloads a new signed authorization blob to the Gateway.11
+* Grey Market/Aftermarket:
+   * GeKo Services: Third-party providers sell remote ODIS sessions. A technician connects a laptop to the car, and the provider logs in remotely with their credentials to perform the unlock.19
+   * EEPROM Patching: For older modules (Immo IV era MMI 2G/3G), tools like AVDI (Abrites) could read the EEPROM of the module and "patch" the VIN to match the car, tricking the Gateway. This is less effective on newer MQB/MLB modules where the CP data is signed.20
+   * Gateway Emulators: Small hardware devices that sit on the CAN bus and filter the CP query messages, tricking the slave module into thinking it has been authorized. This is often used for retrofitting MMI systems into older cars but is not a true removal.
+5. Aftermarket Tool Matrix: A Comparative Analysis
+The efficacy of an automotive locksmith or security researcher is entirely dependent on their toolchain. The market has consolidated around four major players, each with specific strengths in the VAG ecosystem.
+5.1 Xhorse (VVDI Ecosystem)
+Xhorse is widely regarded as the leader for advanced VAG programming, particularly for Audi platforms.
+* Flagship Tools: VVDI2, Key Tool Plus, Multi-Prog.
+* MQB Strength: High. Supports reading most MQB dashboards (VDO/Continental). The "MQB Solder-Free Adapters" allow reading NEC35xx without cutting traces.
+* MLB Strength: Unmatched. The 2024 "MLB Tool" is the only reliable aftermarket solution for creating dealer keys for MLB Evo (A4 B9, Q7 4M) without sourcing expensive dealer keys.14
+* BCM2 Strength: High. Offers dedicated solder-free adapters for reading encrypted BCM2 units on the bench.7
+5.2 Autel (MaxiIM Ecosystem)
+Autel dominates the generalist market due to its user-friendly interface and integration of diagnostics with key programming.
+* Flagship Tools: IM508S, IM608 Pro II.
+* MQB Strength: High. The "Expert Mode" guides users through MQB key learning. For "All Keys Lost," it requires the XP400 Pro programmer to read the cluster data on the bench (often requiring lifting pins or using the APB131 adapter). It supports server-side calculation for a fee (approx. $10-30 per car).12
+* MQB Evo: Autel was one of the first to add support for Golf 8 / A3 8Y AKL, utilizing the V12.00+ software update. This process requires removing the cluster and reading the NEC35xx via the APB131 adapter.22
+* Weakness: Autel's hardware adapters for BCM2 and specific Audi clusters are generally considered less robust and more cumbersome than Xhorse's dedicated solutions.
+5.3 Lonsdor
+Lonsdor is a niche player that often beats competitors to market with specific "Add Key" solutions but lags in "All Keys Lost" depth.
+* Flagship Tool: K518 Pro.
+* Capabilities: Strong on MQB "Add Key" via OBD. Lonsdor often allows adding a key without removing the cluster if a working key is present. For AKL, it is less capable than Autel/Xhorse for the heavy lifting of extracting data from locked MCUs.23
+5.4 OBDStar
+A budget-friendly alternative that punches above its weight, especially in cluster calibration and mileage correction, which shares the same security access requirements as key programming.
+* Flagship Tool: X300 DP Plus (Key Master DP Plus).
+* Strength: Excellent coverage for "Cluster Calibration" on MQB vehicles. If a tool can correct mileage, it has effectively bypassed the security block, making it a useful backup for reading Immo data.25
+
+
+  
+
+
+
+6. The Porsche Anomaly: MLB Evo's High-Security Cousin
+Despite sharing the MLB Evo platform with the Audi Q7 and Q8, Porsche vehicles (specifically the 992 911, Taycan, and Cayenne E3) occupy a unique, restricted tier of security often referred to as "Immo VI" in the aftermarket, though technically it is a hardened BCM2 architecture.
+6.1 The 992/Taycan Wall
+For the Porsche 992 (2019+) and Taycan, the BCM2 encryption is significantly more robust than its Audi counterparts.
+* Key Frequency: These vehicles utilize newer ultra-wideband (UWB) frequencies (433/434 MHz with rolling encryption) that standard aftermarket keys cannot yet emulate reliably.
+* Dealer Monopoly: As of late 2026, "All Keys Lost" for a Porsche 992 is effectively a dealer-only service. The diagnostic tool must connect to the Porsche PPN (Porsche Partner Network) to program the key. Even specialized tools like the Autel IM608, which can handle a 2018 Macan (older BCM2), fail on the 992.26
+* Grey Market Solutions: The only "aftermarket" solution involves removing the BCM2 and mailing it to specialist labs in Eastern Europe or China. These labs use high-end logic analyzers to glitch the processor and extract the data, or they simply swap the BCM for a "virginized" unit that can be adapted. This is a high-risk, high-cost ($500-$1000+) procedure.27
+6.2 The Cayenne E3 (2018-2023)
+The Cayenne E3 is more closely related to the Audi Q7 4M. The Xhorse MLB Tool has recently added support for the Cayenne E3, allowing for "Add Key" programming by interfacing with the original key. However, this support is often contingent on the specific BCM2 software version; later updates (2022+) may block this exploit.14
+7. Operational Workflows: All Keys Lost (AKL) Scenarios
+To illustrate the practical application of this data, we detail the step-by-step technical workflow for the two most critical scenarios facing technicians today.
+7.1 Workflow: Audi A4 (B9) / A5 (F5) / Q5 (FY) - MLB Evo AKL
+Scenario: A 2019 Audi A4 with all keys lost.
+1. Tool Selection: Xhorse Key Tool Plus with MLB Tool adapter.
+2. Data Extraction:
+   * Since no working key exists, the technician cannot use the standard MLB "Add Key" method.
+   * Method A (Dealer Key): The technician must order a "pre-coded" key from the dealer based on VIN. Once arrived, the Xhorse tool can be used to "learn" it to the car via OBD, bypassing the high dealer labor cost.
+   * Method B (BCM2 Read): If the BCM2 is of the "Unencrypted" variant (rare on a 2019 model), the technician can remove the BCM2, use the solder-free adapter to read the Immo Data, and generate a dealer key file.
+   * Method C (Server Calculation): If the BCM2 is encrypted and no key exists, the technician is largely blocked. The current Xhorse MLB Tool requires a working key to sniff the data. Therefore, strictly speaking, pure AKL on a 2019+ A4 B9 without a dealer-ordered key is currently not supported by standard aftermarket tools. This distinction is crucial: The MLB Tool is primarily an "Add Key" solution.14
+7.2 Workflow: VW Golf Mk8 - MQB Evo AKL
+Scenario: A 2021 VW Golf 8 with all keys lost.
+1. Tool Selection: Autel IM608 Pro II with XP400 Pro and APB131 adapter.
+2. Removal: Remove the Instrument Cluster.
+3. Bench Connection: Connect the APB131 adapter to the specific debug points on the cluster PCB. No soldering is required if using the clamp, but precise alignment is critical.
+4. Reading: Select "VW Golf 8 > Bench > Read Immo Data." The tool reads the encrypted dump from the NEC35xx.
+5. Calculation: The dump is uploaded to the Autel server. The server calculates the "Sync Data" (CS, MAC, PIN) and returns it to the tablet.
+6. Key Generation: The technician places a blank MQB-compatible key (ID48 AES or specialized MQB Evo remote) into the XP400 Pro programmer. The tool writes the calculated CS data to the key.
+7. Adaptation: Reinstall the cluster. Connect the IM608 to the OBD port. Enter the "Key Learning" function. The tool uses the calculated PIN to authorize access and learns the new key to the vehicle. Note: An SFD token will be automatically generated by the tool to unlock the Gateway during this process.12
+8. Conclusion: The Future of Access
+The trajectory of VAG access control is unambiguous: the era of offline, hardware-based cracking is ending. The industry is moving toward a model where the "Key" is merely a digital certificate authorized by a central server.
+The proliferation of SFD and its successor SFD2 (which validates the diagnostic tool's own hardware ID) suggests that future aftermarket access will require increasingly formal integration with VAG's ecosystem. The days of "cloning" keys in a parking lot are fading for newer models. For the professional, the path forward requires a hybrid approach: maintaining a diverse arsenal of aftermarket tools (Xhorse for innovation, Autel for coverage) while simultaneously investing in official ODIS GeKo access to handle the increasing number of "online-only" scenarios. The VAG security architecture is no longer a lock to be picked, but a network to be negotiated.
+Works cited
+1. VOLKSWAGEN AG – A HISTORY OF VAG ELECTRONICS IN (I ..., accessed December 27, 2025, https://abrites.com/blog/volkswagen-ag-a-history-of-vag-electronics-in-i-hope-less-than-10-1-2-chapters-part-2
+2. Volkswagen Group MQB platform - Wikipedia, accessed December 27, 2025, https://en.wikipedia.org/wiki/Volkswagen_Group_MQB_platform
+3. Autel VAG SFD Unlock Token – 1-Year Online Subscription for Volkswagen, Audi, Skoda, SEAT - KEYTECH TOOLS, accessed December 27, 2025, https://keytectools.com/product/autel-vag-sfd-unlock-token-1-year-online-subscription/
+4. Immobilizer VW PDF | PDF | Motor Vehicle | Computing - Scribd, accessed December 27, 2025, https://www.scribd.com/document/602089058/immobilizer-vw-pdf
+5. Immobilizer - Ross-Tech Wiki, accessed December 27, 2025, https://wiki.ross-tech.com/wiki/index.php/Immobilizer
+6. Autel IM508/IM608 VAG IMMO Function List, accessed December 27, 2025, http://www.autelscanner.org/autel-im508-im608-vag-immo-function-list/
+7. Xhorse XDNPA2GL Audi BCM2 Adapter Gen2 | VVDI Key Tool Plus - Key4, accessed December 27, 2025, https://www.key4.com/xhorse-xdnpa2gl-audi-bcm2-adapter-gen2
+8. Xhorse Audi BCM2 Solder-Free Adapter for VVDI Key Tool Plus - VVDI2 - ABKEYS, accessed December 27, 2025, https://abkeys.com/products/xhorse-audi-bcm2-adapter-for-key-programming-without-solder-xdnpab-3330
+9. Xhorse Volkswagen MQB Support Add key And All Key Lost - Techno Lock Keys Trading, accessed December 27, 2025, https://www.tlkeys.com/products/Xhorse-Volkswagen-MQB-Support-Add-key-And-All-Key-Lost-35300
+10. Read MQB Locked NEC35xx Using KEY TOOL PLUS | Xhorse - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=CyfBuegkrX0
+11. How to Remove VAG Component Protection Using VXDIAG Device and ODIS, accessed December 27, 2025, https://vxdiag.com/blogs/blog/how-to-remove-vag-component-protection-using-vxdiag-device-and-odis
+12. VW Golf 2015 All Keys Lost | IMMO Data Read with Autel IM608 & APB131 Adapter (MQB System) - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=OU7OuBMkwJU
+13. MQB ALL KEY LOST AND MILEAGE SOLUTION - Keymaster PolDiag, accessed December 27, 2025, https://keymaster.pl/mqb-all-key-lost-and-mileage-solution/
+14. Xhorse VVDI MLB Tool, Add VAG MLB Keys Without Chip Removal, accessed December 27, 2025, https://www.key4.com/xhorse-vvdi-mlb-key-tool-add-vag-mlb-keys-without-chip-removal-vvdi2-vvdi-key-tool-plus
+15. Xhorse - VVDI MLB Tool for VW Audi Key Adapter - Works with VVDI2, VVDI Key Tool Plus - UHS Hardware, accessed December 27, 2025, https://www.uhs-hardware.com/products/xhorse-vvdi-mlb-tool-for-vw-audi-key-adapter-works-with-vvdi2-vvdi-key-tool-plus
+16. Utah component protection help : r/Audi - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Audi/comments/fjupkg/utah_component_protection_help/
+17. How To: Deactivate Component Protection From Your VW Radio Via ODIS - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=dvJweDBXgpw
+18. ODIS 1 Year Software Subscription - AE Tools, accessed December 27, 2025, https://www.aetools.us/products/odis-1-year-software-subscription
+19. VW GEKO - Not a Scam? : r/CarHacking - Reddit, accessed December 27, 2025, https://www.reddit.com/r/CarHacking/comments/1k6wnyx/vw_geko_not_a_scam/
+20. Component Protection Manager (generation 1/2) - Simon Touch, accessed December 27, 2025, https://www.keyprogtools.com/component/content/article/117-avdi-commander/174-component-prottection-manager-generation1-2-vag-avdi-commanderforvag-simontouch-vagroup-vw
+21. Autel MaxiIM IM608 Supports VW And Audi MQB All Key Lost Function Only by Obd Now!!, accessed December 27, 2025, http://blog.autelsale.com/2020/05/08/autel-maxiim-im608-supports-vw-and-audi-mqb-all-key-lost-function-only-by-obd-now/
+22. IMMO & KEY PROGRAMMING - Autel, accessed December 27, 2025, https://www.autel.com/u/cms/www/202102/15204509wbmg.pdf
+23. K518 Software List - Lonsdor, accessed December 27, 2025, https://en.lonsdor.com/menulistinfo/197
+24. K518 PRO Product Overview K518 Vehicle Compatibility List of K518 PRO - Key4, accessed December 27, 2025, https://www.key4.com/uploads/files/products/key_programming_devices/PD-LON-K518PRO/LON-K518PRO_Compatibility.pdf
+25. X300 DP Plus Universal OBD Key Programmer By OBDSTAR - ABKEYS, accessed December 27, 2025, https://abkeys.com/products/obdstar-x300-dp-plus-key-programmer-for-all-brands-4568
+26. Best Way to Replace Lost Key : r/Porsche - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Porsche/comments/1jfzwd4/best_way_to_replace_lost_key/
+27. Porsche Smart Key Fob Programming Services.Spared or all keys lost! 1 key | eBay, accessed December 27, 2025, https://www.ebay.com/itm/314253482818

@@ -1,0 +1,214 @@
+﻿The Digital Fortress: A Comprehensive Technical Analysis of Subaru Security Architectures (2016–2026)
+1. Introduction: The Decade of Convergence and Encryption
+The trajectory of automotive security within the Subaru lineage from 2016 to 2026 represents a microcosm of the broader automotive industry's struggle between convenience, connectivity, and cryptographic hardening. For the automotive locksmith and security professional, this decade marks a definitive departure from the mechanical and static electronic eras into a domain defined by software-defined perimeters, server-side authentication, and complex telematics integration. The Subaru vehicle of 2016, often reliant on a Texas Instruments 80-bit encryption protocol, bears little structural resemblance to the 2026 model, which functions as a rolling node on a high-speed encrypted network, often sharing more DNA with Toyota's cryptographic architecture than with its own predecessors.
+This report serves as an exhaustive technical guide and analysis of this evolution. It dissects the fundamental architectural shift introduced by the Subaru Global Platform (SGP), which unified the electrical and chassis engineering of the fleet while introducing significantly higher barriers to unauthorized access. We explore the profound impact of the Starlink connected vehicle ecosystem, which has inadvertently created one of the most hostile environments for aftermarket diagnostic tools due to Controller Area Network (CAN) bus interference. Furthermore, we analyze the cryptographic divergence within the brand, where traditional Subaru protocols on the Outback and Forester coexist uneasily with the Toyota-derived systems found in the BRZ and Solterra, necessitating a bifurcation in locksmithing tooling and methodology.
+The narrative that follows is not merely a catalog of part numbers but an investigation into the "why" and "how" of these systems. We examine the move from blade keys to high-security proximity fobs, the implementation of rolling authentication keys that expire biannually, and the physics of the "noisy neighbor" phenomenon on the vehicle network that plagues "All Keys Lost" programming scenarios.
+2. Architectural Metamorphosis: The Subaru Global Platform (SGP)
+To comprehend the security logic of a modern Subaru, one must first understand the chassis and electrical skeleton upon which it is built. Prior to 2016, Subaru models often utilized disparate platforms with varying electrical architectures. The introduction of the Subaru Global Platform (SGP) was a watershed moment, standardizing the vehicle's "nervous system." This transition did not happen simultaneously across all models, creating a fragmented security landscape during the 2016–2020 window that continues to confuse technicians today.
+2.1 The Unified Network Topology
+The SGP introduced a high-speed, high-latency CAN bus architecture designed to support advanced driver-assistance systems (EyeSight) and deeper telematics integration. In the pre-SGP era, the security negotiation was a relatively linear handshake. When a key was inserted, the transponder communicated with the antenna coil, which passed the data to the Body Integrated Unit (BIU). The BIU authenticated the key and sent a "release" signal to the Engine Control Module (ECM) to allow fuel injection and spark.
+In the SGP era (debuting with the 2017 Impreza), this topology shifted to a triangular, multi-node validation network. The security handshake now involves the BIU, the ECM, and crucially, the Combination Meter (Instrument Cluster). The Cluster now acts as a redundant storage node for immobilizer data. This architectural redundancy was designed to prevent odometer fraud and module swapping (the "chop shop" defense), but it has profound implications for locksmiths. In an "All Keys Lost" scenario on an SGP vehicle, simply replacing the BIU—a common practice in older models—is insufficient. If the cryptographic data in the new BIU does not match the backup data stored in the Cluster and the ECM, the vehicle enters a "lockdown" state, often throwing "Collation Error" codes (e.g., B1401).
+2.2 The Rollout of SGP and Security Tiers
+The adoption of SGP correlates directly with the transition to harder-to-crack encryption protocols. It is essential for the technician to recognize that the model year is less important than the platform generation. For instance, a 2018 Forester (pre-SGP) utilizes vastly different programming logic than a 2019 Forester (SGP), despite overlapping production dates.
+The SGP rollout timeline effectively charts the obsolescence of legacy programming tools:
+* 2017: The Impreza becomes the first model to adopt SGP, introducing the "H-Chip" blade key and the high-security proximity system.
+* 2018: The Crosstrek follows suit, migrating to the new architecture.
+* 2019: The Forester undergoes its radical redesign, shifting to SGP and introducing the sophisticated Gateway Module that filters OBD-II traffic.
+* 2020: The Outback and Legacy, the brand's flagships, transition to SGP, bringing with them the most aggressive version of the Starlink telematics system.
+* 2022: The WRX adopts the platform, completing the sedan/hatch migration.
+This staggered adoption means that a "2018 Subaru" is not a monolithic entity in terms of security; a 2018 Forester is a legacy vehicle, while a 2018 Crosstrek is a modern, high-security vehicle.1
+
+
+  
+
+
+
+3. Cryptographic Evolution: From "G" to "H" and Beyond
+The locksmith industry relies on shorthand to categorize keys, often referring to the stamp on the key blade ("G" or "H"). However, these stamps represent a fundamental shift in the underlying cryptographic algorithms used to secure the vehicle.
+3.1 The "G" Chip Era: 80-Bit Legacy (Pre-2017)
+Up until approximately 2017 (depending on the model), Subaru utilized the "G" chip. Technically, this is a Texas Instruments (TI) 4D-60/62 transponder using 80-bit encryption. By 2016, this encryption standard was thoroughly understood by the security community. The "secret key" exchange between the transponder and the immobilizer could be sniffed and deciphered with relative ease.
+For the locksmith, this era represents the "Golden Age" of accessibility. Cloning tools such as the KeyDIY or Xhorse VVDI could copy a "G" chip onto a generic CN5 or LKP02 transponder in seconds. OBD-II programming for "Add Key" or "All Keys Lost" was straightforward, as the seed-key algorithms were static and widely available in aftermarket tool databases.
+3.2 The "H" Chip Revolution: 128-Bit AES (2017–2021)
+With the arrival of the SGP, Subaru transitioned to the "H" chip. This marked a leap to 128-bit AES (Advanced Encryption Standard). Crucially, this shift signaled the deepening technical partnership with Toyota. The Subaru "H" chip is functionally identical to the Toyota "H" chip found in Corollas and Camrys of the same vintage.4
+This transition presented a massive hurdle for cloning. Unlike the "G" chip, the "H" chip's 128-bit encryption meant that the secret key could not be easily extracted simply by "sniffing" the communication between the key and the ignition coil. To clone an "H" chip, one generally requires a "sniffer" tool to capture data from the ignition cylinder while a valid key is turned, collecting enough data packets to perform a complex calculation (often requiring server-side processing) to decipher the key.
+In "All Keys Lost" scenarios, the "H" chip system creates a paradox. Since the encryption is too strong for simple brute-force attacks via OBD, locksmiths must use an "Emulator" approach. Tools like the Autel APB112 or the Lonsdor K518 simulator act as a temporary "master key." The tool exploits a vulnerability in the immobilizer's initialization process to inject a temporary trusted ID, essentially tricking the BIU into thinking a valid key is present. Once this state is achieved, the technician can proceed to add a permanent key.
+3.3 The Rolling Code Vulnerability and Patch
+A significant footnote in Subaru's cryptographic history involves the rolling code implementation for remote entry (locking/unlocking). Research from 2017 revealed a flaw in the implementation of the rolling code algorithm in older models (roughly 2005–2010, and lingering into some later legacy architectures). The system used a predictable, incremental rolling code rather than a pseudo-random one. This allowed for "RollJam" attacks, where an attacker could intercept a code, jam the receiver, and then use the captured code later.6
+However, for the 2016–2026 period of focus, particularly SGP vehicles, Subaru patched this vulnerability. Modern fobs (FCC IDs starting with HYQ14...) utilize a robust, non-sequential rolling code algorithm synchronized with a counter in the BIU. If the fob is pressed too many times out of range (desynchronizing the counter), the system requires a resynchronization procedure—often automatically handled by the "Add Key" programming routine, but occasionally requiring a manual button-press sequence.7
+4. The Connected Vehicle Challenge: Starlink Interference
+Perhaps the most formidable adversary for the modern Subaru locksmith is not the immobilizer encryption itself, but the vehicle's own telematics system: Starlink. As Subaru aggressively integrated connected services (remote start, SOS emergency calling, vehicle tracking) into the 2020+ models, the Data Communication Module (DCM), or Telematics Control Unit (TCU), became a dominant node on the CAN bus.
+4.1 The Physics of "Bus Contention"
+The fundamental problem lies in the architecture of the CAN bus. When a locksmith connects a programming tool (e.g., Autel IM608, Smart Pro) to the OBD-II port, the tool acts as a node on the network, attempting to send "Write" commands to the BIU to register a new key ID.
+In 2020+ models, particularly the Outback and Legacy, the Starlink module is programmed with extremely high message priority. It aggressively monitors the bus for "abnormal" traffic—which it interprets as anything that isn't standard vehicle operation. When a programming tool attempts to rewrite the immobilizer registry, the Starlink module detects this anomaly and floods the bus with "State of Health" or "Priority" messages. This phenomenon, known as bus contention or arbitration loss, effectively drowns out the programming tool. The tool waits for a "Clear to Send" window that never opens, eventually timing out with a "Communication Failed" or "Security Access Denied" error.10
+4.2 Diagnostics: Identifying the Interference
+Technicians can often diagnose Starlink interference before their tool even fails.
+* The Flashing LED: The overhead console containing the "SOS" button usually has a status LED. If this LED is flashing green or red rapidly during the programming attempt, the module is actively communicating and likely blocking the tool.
+* Audio Dropout: The Starlink module is integrated into the front speaker channels for hands-free calling. If the vehicle's audio system cuts out or behaves erratically during the scan, the DCM is active.
+* Persistent Failure: If a high-quality tool with the correct software fails at the exact same step (usually "Configuring System" or "Writing Key ID") multiple times, it is almost certainly a bus contention issue, not a software incompatibility.
+4.3 Bypass Protocols: The Physical Solution
+Software solutions to "silence" the Starlink module are rare and unreliable. The industry standard solution is physical isolation.
+4.3.1 The Fuse Pull Method
+In earlier iterations (2016-2019), pulling the specific fuse for the DCM (often labeled "DCM" or "TELEMATICS" in the engine bay fuse box) was sufficient to power down the module. However, on 2020+ SGP vehicles, the DCM often has a backup battery or shares a power circuit with critical components like the Instrument Cluster or the Gateway Module. Pulling the fuse typically kills the very modules needed for programming.
+4.3.2 Physical Disconnection and Bypass Plugs
+The most reliable method for 2020+ vehicles is to physically unplug the Starlink module.
+* Location: In the Outback and Legacy, the module is typically buried behind the infotainment screen (head unit). Access requires removing the trim bezel, air vents, and the radio unit itself.
+* The Bypass Plug: Simply unplugging the module can break the circuit for the front speakers and the microphone (due to the audio pass-through design). Specialized "Starlink Bypass Plugs" 10 are available. These jumpers connect the audio input pins to the output pins, restoring speaker function and completing the CAN bus loop if the module acts as a terminating resistor.
+* Procedure:
+   1. Remove dash trim and head unit.
+   2. Locate the Telematics module (usually a silver or black metal box beneath or behind the radio).
+   3. Disconnect the main multi-pin connector.
+   4. (Optional but recommended) Install bypass loop to maintain audio/CAN integrity.
+   5. Proceed with key programming.
+   6. Reconnect module after successful programming.
+
+
+  
+
+
+
+5. Model-Specific Analysis: A Deep Dive
+The monolithic view of "Subaru Key Programming" is a recipe for failure. Each model line has followed its own evolutionary path, creating specific quirks and requirements.
+5.1 Subaru Outback & Legacy (2020–2026)
+As the flagship models, the Outback and Legacy were the first to receive the full "SGP + Starlink" treatment.
+* Key Technology: They utilize a high-security 433 MHz smart key system.
+* FCC ID: HYQ14AHK. Note that while this FCC ID is shared with other models, the specific Board ID (Page 4 data) often differs. A used Ascent key with the same FCC ID may not program to an Outback due to these board-level differences.
+* Emergency Start: In the event of a dead fob battery, the "H" chip functionality allows for inductive starting. The user must hold the Subaru logo on the fob directly against the Start/Stop button. The button will glow green when the chip is detected.
+* Locksmith Insight: This model is the "Poster Child" for Starlink interference. If an OBD attempt fails, do not waste time retrying. Proceed immediately to the disconnect method or use a battery disconnect reset (disconnect negative terminal for 10-15 minutes) to potentially put the DCM into a temporary sleep mode.12
+5.2 Subaru Forester (2019–2026)
+The Forester presents a massive trap for the uninitiated due to the 2018/2019 split.
+* 2018 (SJ Chassis): This is the last year of the old platform. It uses standard "G" or early "H" chip logic. Programming is straightforward.
+* 2019+ (SK Chassis): This is the SGP platform. The vehicle looks different, drives different, and programmed different. It requires "2019+" specific software menus on tools like Autel or Smart Pro.
+* Smart Key: HYQ14AHK.
+* Mechanical Key: Lower trim levels (Base, Premium) still use a bladed key. This is a high-security "H" chip key. Warning: Cloning these keys is often impossible or unreliable. The standard procedure is to cut a new key by code and program it via OBD.
+5.3 Subaru Crosstrek (2018–2026) & Impreza (2017–2026)
+These high-volume models are the most commonly encountered by locksmiths.
+* Platform: Impreza was the SGP pioneer (2017), followed by Crosstrek (2018).
+* Key Confusion: These models have the highest variance in key part numbers. Even within the same year, the Smart Key part number can vary based on trim (e.g., 88835-FL03A vs FL03B). The remote start functionality is often tied to specific board revisions.
+* The PIN Code Access: Uniquely, these models heavily market the "PIN Code Access" feature. A rubber button near the trunk latch allows users to enter a 5-digit PIN to unlock the vehicle without a key. Locksmiths should be aware that this feature resides in the BIU logic and does not interact with the immobilizer. Knowing the PIN gets you in the car, but it does not help you start it or program a key.14
+5.4 Subaru WRX (2022–2026)
+The WRX was late to the SGP party, joining in 2022.
+* Logic: It follows the standard SGP security protocols (essentially an Impreza/Levorg under the skin).
+* Key: HYQ14AHK / HYQ14AKB. The AKB variant is increasingly common in 2024+ models and may not be backward compatible with older AHK programmers without a software update.16
+5.5 Subaru Ascent (2019–2026)
+The Ascent has no "legacy" history; it launched on the SGP.
+* Security: It features the most robust version of the BIU/Gateway architecture.
+* Remote Start: The Ascent often comes with long-range remote start installed at the port or dealer. Replacing the BIU in an "All Keys Lost" scenario often breaks the remote start pairing, requiring a separate registration process for the remote start module (RES).17
+5.6 The Anomalies: Solterra & BRZ
+These vehicles are Subarus in badge only. They are engineered by Toyota.
+* Subaru Solterra (2023+): This is a rebadged Toyota bZ4X.
+   * System: Toyota "AA" or "BA" immobilizer.
+   * Key: HYQ14FBX.
+   * Procedure: A locksmith using "Subaru" software will likely fail. You must use "Toyota" software. In an "All Keys Lost" situation, this vehicle requires a specific "Toyota 2023+ All Keys Lost" cable that connects directly to the certification ECU (Smart Box) to back up EEPROM data.
+* Subaru BRZ (2022+): This is a rebadged Toyota GR86.
+   * System: Toyota smart key system.
+   * Key: Looks like a Subaru key but functions as a Toyota fob.
+   * Procedure: Similar to Solterra—treat it as a Toyota. Connect to the OBD port, but if AKL, you may need to access the Smart Key ECU (often behind the glovebox or near the passenger kick panel) to read the EEPROM directly.9
+6. Advanced Locksmith Procedures and Workflows
+The days of "Plug and Play" are over. Modern Subaru locksmithing is a decision-tree process involving multiple variables.
+6.1 All Keys Lost (AKL): The OBD Emulator Method
+For SGP vehicles (H-chip and Smart Key), the "Emulator" method is the industry standard. It avoids the labor of dash disassembly.
+1. Tooling: An advanced programmer (Autel IM508/608, Smart Pro) paired with a specific emulator (Autel APB112, Lonsdor K518 Emulator).
+2. Process:
+   * Connect the tool to the OBD-II port. Ensure a battery maintainer is connected (voltage stability is critical for SGP ECUs).
+   * Select "All Keys Lost (via OBD)".
+   * The tool queries the BIU. This step often requires an internet connection to the tool manufacturer's server to calculate the seed-key response.
+   * The tool writes a temporary "Master" ID to the connected Emulator.
+   * The Emulator, now acting as a valid key, is held to the Start button. The ignition turns on.
+   * With the system "awake" and authorized, the technician performs the standard "Add Key" procedure to register the virgin fob.
+
+
+  
+
+
+
+6.2 All Keys Lost: The EEPROM Bench Method
+When OBD fails—either due to intractable Starlink interference, a "bricked" state from a previous failed attempt, or a locked MCU—the "bench method" is the only recourse. This is technically demanding but highly profitable.
+1. Removal: The BIU is located in the driver's kick panel or under the steering column. It is held by plastic clips and sliding rails.
+2. Identification: Open the BIU casing. Locate the Microcontroller Unit (MCU). In SGP vehicles, this is typically a Cypress/Spansion MB91F series chip (e.g., MB91F526).
+3. Reading: These MCUs are secured. You cannot use a simple clip. You must use a high-end programmer (Xhorse Multi-Prog, Autel XP400 Pro) and solder wires to specific test points on the PCB (Pin 1, Ground, VCC, Reset, Clock, Data).
+4. Manipulation: Read the D-Flash (Data Flash). Load this dump file into the key programming software. The software will reveal the existing key IDs.
+5. Writing: You can either "Reset" the file to a virgin state (allowing standard OBD programming upon reinstallation) or directly write the ID of a new key into the hex code of the dump file.
+6. Reassembly: Write the modified file back to the MCU, desolder wires, and reinstall the BIU.22
+6.3 The "Dealer Code" Barrier: SSM4 and Authentication Keys
+Starting around 2020, Subaru tightened access to its immobilizer functions via the Subaru Select Monitor 4 (SSM4) diagnostic software.
+* Authentication Keys: Unlike older systems that used a static "Teaching Code" (often 3781), new systems require an 8-digit alphanumeric Authentication Key (e.g., 6P4TXWMC) to access the immobilizer menu.
+* Rotation: These keys are not static. They rotate approximately every 6 months.
+* Impact: This broke the functionality of many offline or "cracked" aftermarket tools. Legitimate tools (Autel, Smart Pro) handle this by purchasing these codes or scraping them in the background via their server connection. However, when a code rotates, there is often a lag of days or weeks where aftermarket tools fail until the manufacturers update their databases.
+* NASTF: The industry is moving toward the National Automotive Service Task Force (NASTF) model. To get these codes officially, one must be a registered Vehicle Security Professional (VSP). The tool prompts the user for their VSP credentials, logs into the OEM server, and retrieves the live code.25
+7. Mechanical Security: Cutting the Blade
+Despite the focus on electronics, the mechanical emergency key remains a vital component, especially when the vehicle battery dies.
+7.1 The High-Security Laser Key
+Since 2017, almost all Subarus use a high-security, laser-cut keyway.
+* Keyway ID: TOY51 (Toyota profile) or DAT17 (Subaru High Security).
+* Lishi Tool: The Lishi DAT17 2-in-1 pick and decoder is the industry standard.
+* Decoding: The lock contains 8 to 10 wafers (tumblers) with 4 depth positions. The Lishi tool allows the locksmith to pick the lock to the "Open" position and then read the depths of each wafer.
+* Cutting: These depths are entered into a CNC key cutting machine (e.g., Xhorse Condor, Triton).
+* Key Codes: If picking is not an option, the key code is sometimes stamped on the passenger door lock cylinder (requiring door panel removal) or on the ignition cylinder housing. The code series typically runs from 30001-39999 or 80001-89999.
+8. Tooling Ecosystem: A Comparative Analysis
+No single tool covers the entire 2016-2026 spectrum perfectly. A serious professional requires a suite of tools.
+Tool
+	Strengths
+	Weaknesses
+	Best For
+	Autel IM508/608
+	Excellent coverage for SGP (2019+). Good EEPROM capabilities. Can bypass some Starlink noise via brute force.
+	Subscription is expensive. Toyota/Solterra coverage can be buggy.
+	General SGP Programming, Bench Work.
+	Advanced Diagnostics Smart Pro
+	The "Gold Standard" for stability. Very reliable for Add Key/AKL on newer models.
+	Expensive "Token" system per use. Hardware is aging.
+	High-stakes jobs where failure isn't an option.
+	Lonsdor K518
+	Strong on Toyota systems (Solterra/BRZ) and older Subarus. excellent emulator.
+	Interface is clunky. Coverage for 2024+ SGP models can be lagging.
+	Solterra, BRZ, Pre-2020 Subaru.
+	Xtool (D7/Pad)
+	Low cost. Surprisingly good at "Add Key" functions.
+	Fails often on AKL for SGP. Poor EEPROM support.
+	Backup tool, Budget entry.
+	28
+9. Troubleshooting and Error Codes
+When things go wrong, the vehicle will communicate the failure via B-Codes (Body Codes).
+* B1401 - Meter Collation Invalid: This is the "Kiss of Death." It means the BIU and the Instrument Cluster have lost synchronization. This usually happens if a used BIU is swapped in without a "Parameter Reset." It requires a specialized sync procedure or a dealer tool to fix.
+* B1402 - Immobilizer Key Collation: The key presented to the ignition does not match the stored data. This confirms the key is not programmed or is the wrong chip type.
+* B1572 - Immobilizer Circuit Fault: This often points to a physical issue—a disconnected antenna ring, a cut wire, or Starlink interference blocking the circuit communication.22
+10. Conclusion and Future Outlook
+The evolution of Subaru security from 2016 to 2026 illustrates a clear trend: the vehicle is no longer a mechanical island but a node in a secured network. The convergence with Toyota's architecture (seen in the "H" chip and Solterra) suggests that future Subarus will likely adopt Toyota's encrypted "AA" and "BA" smart key logic entirely.
+For the locksmith, the implications are three-fold:
+1. Hardware Diversification: Relying on a single programmer is professional suicide. The overlap of Subaru, Toyota, and proprietary SGP logic requires a diverse toolkit.
+2. Network Literacy: Understanding CAN bus topology, interference, and gateway bypass is now just as important as knowing how to pick a lock.
+3. Credentialing: The shift toward rotating Authentication Keys and NASTF validation means that legitimate, registered credentials are becoming a barrier to entry. The "Wild West" era of unrestricted aftermarket programming is closing.
+As we look toward 2026, we anticipate the arrival of Ultra-Wideband (UWB) digital keys (Phone-as-a-Key), which will introduce an entirely new layer of RF security and likely require a new generation of sniffing and programming hardware. The learning curve does not flatten; it only accelerates.
+Works cited
+1. 2024 Subaru Forester Changes | Boston Subaru Dealer | Planet Subaru, Hanover Massachusetts, accessed January 5, 2026, https://www.planetsubaru.com/2024-subaru-forester-changes.htm
+2. 2024 Subaru Crosstrek Changes | Boston Subaru Dealer, accessed January 5, 2026, https://www.planetsubaru.com/2024-subaru-crosstrek-changes.htm
+3. SUBARU DEBUTS THE ALL-NEW SEVENTH-GENERATION 2020 LEGACY, accessed January 5, 2026, https://media.subaru.com/pressrelease/1547/1/subaru-debuts-all-new-seventh-generation-2020-legacy
+4. 100 % OEM! SUBARU Legacy OUTBACK REMOTE Chip KEY FOB FCC ID: CWTWBU766, accessed January 5, 2026, https://www.ebay.com/itm/226084293373
+5. Subaru Key 4 bUTTONS - CWTB1G496 - 57497AN03A - Transponder Island, accessed January 5, 2026, https://transponderisland.com/shop/tik-sub-46-2024-subaru-remote-head-key-4b-trunk-cwtb1g496-subaru-h-chip-57497an03a-38739
+6. tomwimmenhove/subarufobrob: Hijack a Subaru's key fob and steal all the things - GitHub, accessed January 5, 2026, https://github.com/tomwimmenhove/subarufobrob
+7. Bad rolling code in key fob for many Subaru cars, accessed January 5, 2026, https://ritcyberselfdefense.wordpress.com/2017/10/23/bad-rolling-code-in-key-fob-for-many-subaru-cars/
+8. Using an RTL-SDR and RPiTX to Defeat the Rolling Code Scheme used on Some Subaru Cars, accessed January 5, 2026, https://www.rtl-sdr.com/using-an-rtl-sdr-and-rpitx-to-defeat-the-rolling-code-scheme-used-on-some-subaru-cars/
+9. Learn How to Program a Subaru Key Fob, accessed January 5, 2026, https://www.capitolsubarusj.com/service/how-to-program-a-subaru-key-fob/
+10. Bypass the Subaru Starlink Tracking & Front Speaker fix - AutoHarnessHouse, accessed January 5, 2026, https://www.autoharnesshouse.com/69018.html
+11. Starlink Telematics Module Removal? : r/Crosstrek - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Crosstrek/comments/18sofsv/starlink_telematics_module_removal/
+12. Push-button start with dead battery in key fob : r/subaru - Reddit, accessed January 5, 2026, https://www.reddit.com/r/subaru/comments/y2926o/pushbutton_start_with_dead_battery_in_key_fob/
+13. How the Subaru Outback Evolved From a Legacy Trim to an Icon, accessed January 5, 2026, https://www.subaruoftroy.com/how-the-subaru-outback-evolved-from-a-legacy-trim-to-an-icon/
+14. Secret Subaru Pin Code Access - How to Set Your Code and More, accessed January 5, 2026, https://www.ewingsubaruofplano.com/secret-subaru-pin-code-access/
+15. Secret PIN code access in newer Subarus! Great hidden feature if you don't already know!, accessed January 5, 2026, https://www.reddit.com/r/subaru/comments/1d1jg4s/secret_pin_code_access_in_newer_subarus_great/
+16. 2017-2025 Subaru Ascent 4B Trunk Smart Key HYQ14AKB, accessed January 5, 2026, https://yourcarkeyguys.com/products/2017-2025-subaru-ascent-4b-trunk-smart-key-hyq14akb
+17. ASCENT - Subaru, accessed January 5, 2026, https://www.subaru.com/content/dam/subaru/downloads/pdf/brochures/2022/ascent/2022_Ascent_Brochure_Final.pdf
+18. SUBARU DEBUTS REFRESHED 2023 ASCENT 3-ROW SUV FEATURING NEW STYLING, ENHANCED SAFETY FEATURES, AND UPDATED MULTIMEDIA, accessed January 5, 2026, https://media.subaru.com/pressrelease/1918/1/subaru-debuts-refreshed-2023-ascent-3-row-suv
+19. SUBARU BRZ ALL KEYS LOST PROGRAMMING EEPROM - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=X7kQPBg-7sk
+20. 2024 Subaru Solterra Smart Key 5B W/ A/C & Hatch Fob FCC# HYQ14 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2022-2024-subaru-solterra-smart-key-5b-w-a-c-hatch-fob-fcc-hyq14fbx-8990h-42620
+21. Subaru Solterra Key Replacement - What To Do, Options, Costs & More, accessed January 5, 2026, https://lost-car-keys-replacement.com/subaru/solterra/
+22. SUBARU IMMOBILIZER SOLUTION 2012-2026 | ALL KEYS LOST | SAVE THOUSANDS OF, accessed January 5, 2026, https://www.youtube.com/watch?v=8dIIIZv4skY
+23. SUBARU | ALL KEYS LOST | SAVE THOUSANDS COMPARED TO DEALER | BIU SMART ECU SYSTEM OVERVIEW - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=wjvdkHtUDnM
+24. Lost All Subaru Keys Solution | BIU Programming | ALL KEYS LOST - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=CuxB5mMjbEk
+25. Subaru Technical Information System, accessed January 5, 2026, https://subaru.locksmithsdrm.com/
+26. SERVICE INFORMATION BULLETIN - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10238472-0001.pdf
+27. New Immobilizer Registration Procedures - 2020-2024 Subaru, accessed January 5, 2026, https://subaru.oemdtc.com/1443/new-immobilizer-registration-procedures-2020-subaru-legacy-outback
+28. 2020 Subaru Impreza all proximity keys lost Smart Pro solution! coming to America soon!, accessed January 5, 2026, https://www.youtube.com/watch?v=rl0hcny1rGk
+29. 2020 Subaru OUTBACK smart key with Autel IM508. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=PHgNHgPRlPA
+30. Autel Key Programmer Failures: Causes and Solutions - obdprice, accessed January 5, 2026, https://www.obdprice.com/blogs/news/autel-key-programmer-troubleshooting-guide
+31. Best machine for Automotive locksmith for AKL and programming to immobilizer? - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1c8zxl1/best_machine_for_automotive_locksmith_for_akl_and/
+32. DTC B2A16 (Immobilizer Key Collation Diagnosis) Service Manual Correction - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2025/MC-11014862-0001.pdf

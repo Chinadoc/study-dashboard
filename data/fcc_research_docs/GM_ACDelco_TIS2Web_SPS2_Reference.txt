@@ -1,0 +1,224 @@
+﻿GM ACDelco TIS2Web / SPS2 Reference
+1. Executive Summary: The Digital Transformation of Serviceability
+The automotive aftermarket currently stands at a critical juncture, defined by a rapid transition from hardware-centric repair methodologies to software-defined serviceability. Nowhere is this shift more palpable than within the ecosystem of General Motors (GM). For decades, the repair and security profession relied on standalone, offline tools—from the ubiquitous Tech 2 handheld scanner to various aftermarket key programmers that exploited static "seed-key" security algorithms. However, the introduction of the Global B (Vehicle Intelligence Platform or VIP) electrical architecture has fundamentally altered the terrain.
+The migration from the legacy TIS2Web platform to the integrated Techline Connect (TLC) application marks the end of the era where access to vehicle firmware was a static, purchasable asset. Today, it is a dynamic, server-authenticated service. The core of this report analyzes the operational, technical, and financial implications of GM's diagnostic evolution. It serves as a definitive reference for automotive locksmiths, independent repair facilities, and fleet managers navigating the complexities of the Service Programming System 2 (SPS2).
+The data clearly indicates that while the aftermarket has historically adapted to GM's security measures—such as the transition from Passlock to Passkey III+—the current architectural shift to encrypted CAN-FD and Automotive Ethernet represents a significant escalation in complexity. The "Right to Repair" landscape is effectively being reshaped by cybersecurity requirements, compelling service providers to integrate officially sanctioned tools like the GM MDI2 and Techline Connect subscriptions into their daily workflows. The reliance on "server-side" calculations for immobilizer functions means that connectivity, subscription management, and hardware compliance are no longer optional "value-adds" but strict operational necessities for servicing model year 2020 and newer vehicles.1
+
+
+
+
+________________
+2. Historical Evolution and Product Differentiation
+To navigate the current ecosystem effectively, one must understand the legacy components that still influence modern repair procedures. GM’s diagnostic strategy has evolved through distinct phases, each leaving a footprint on the tools required for vehicles of that era.
+2.1 The Legacy Era: TIS2000 and the Tech 2
+For vehicles manufactured between roughly 1996 and 2010 (and continuing for some models until 2013), the primary interface was the Tech 2 handheld scanner. This device is legendary in the industry for its durability and comprehensive coverage of Class 2 data bus and early GMLAN architectures.
+* TIS2000: This was the desktop software component that supported the Tech 2. It was primarily delivered via CD/DVD updates quarterly. TIS2000 allowed technicians to update the software on the Tech 2 memory card and perform "Pass-Thru" programming for ECUs.
+* Deprecation: GM deprecated TIS2000 in early 2008, moving toward a web-based delivery model.4 However, the Tech 2 scanner itself remains relevant for working on older platforms (e.g., GMT800 trucks, W-Body cars), and GM still provides emulation software (Tech2Win) to support this legacy functionality on modern laptops.5
+2.2 The Web Transition: TIS2Web
+Following TIS2000, GM launched TIS2Web, a purely browser-based portal. This was a significant shift because it centralized data storage. Technicians no longer relied on a stack of DVDs; instead, they downloaded calibration files in real-time.
+* Functionality: TIS2Web was a portal containing links to various Java-based applets: SPS (Service Programming System) for flashing modules, GDS (Global Diagnostic System) for newer cars, and Service Information (SI).
+* The "Java" Problem: TIS2Web was notorious for its reliance on specific versions of Java, often causing compatibility headaches for IT administrators in dealerships and independent shops.
+* Legacy Status: As of late 2021, TIS2Web has been formally retired in North America, replaced entirely by the unified Techline Connect application.1 Links that previously pointed to TIS2Web now redirect users to download the Techline Connect launcher.
+2.3 The Modern Standard: Techline Connect (TLC)
+Techline Connect represents the consolidation of all diagnostic functions into a single "one-stop-shop" application. Unlike TIS2Web, which ran inside a browser window, TLC is a standalone Windows executable that manages the entire session.
+* Integration: It integrates Service Information (SI), Programming (SPS2), and Diagnostics (GDS2) into a dashboard that is VIN-aware. When a vehicle is connected, the dashboard populates with TSBs, wiring diagrams, and software updates specific to that VIN.2
+* Single Sign-On (SSO): Access is controlled via the ACDelco TDS (Technical Delivery System) website. The user logs in to the website, purchases a subscription, and then launches TLC from the browser. The browser passes an authentication token to the installed application, authorizing the session.5
+2.4 Software Component Breakdown
+Confusion often arises regarding the specific purpose of each software module within the bundle.
+Component
+	Architecture Coverage
+	Primary Function
+	Aftermarket Relevance
+	SPS2 (Service Programming System 2)
+	Global A & Global B
+	Writing Data. Used for flashing firmware, updating calibrations, and performing immobilizer setups (Key Learn).
+	Critical. Mandatory for module replacement and Global B keys.
+	GDS2 (Global Diagnostic System 2)
+	Global A (2010+) & Global B
+	Reading Data. Used for scanning DTCs, viewing live data streams, and bi-directional control (e.g., commanding a window up/down).
+	High. Essential for diagnostics, though aftermarket scanners (Snap-on, Autel) can replicate many functions.
+	Tech2Win
+	Pre-2010 (Class 2/CAN)
+	Emulation. A virtual Tech 2 scanner running on Windows. Uses the MDI/J2534 interface to "pretend" to be a handheld Tech 2.
+	Moderate. Useful for shops working on older GM fleet vehicles (e.g., Express Vans).
+	Service Information (Si)
+	All Years
+	Documentation. The digital library of service manuals, connector end views, and TSBs.
+	High. Essential for wiring diagrams, specifically for locating CAN bus splice packs.
+	Insight on Differentiation: The critical distinction for an aftermarket shop is between Diagnostics and Programming. You can diagnose a 2023 Chevrolet Silverado using an Autel Ultra (reading codes, live data), but if that vehicle requires a software update to fix a transmission shift flare, or if a lost key needs to be replaced, you must transition to SPS2. The aftermarket tool cannot write the encrypted firmware files required by the Global B architecture.7
+________________
+3. Architectural Paradigm: Global A vs. Global B (VIP)
+The single most determinant factor in a technician's workflow is the vehicle's electrical architecture. GM vehicles generally fall into one of two modern categories: Global A (roughly 2010–2019) and Global B (2020+), also known as the Vehicle Intelligence Platform (VIP).
+3.1 Global A: The Standardized Era
+Introduced around 2010 with the Chevrolet Camaro, Buick LaCrosse, and Cadillac SRX, Global A standardized the High-Speed CAN bus across GM's portfolio.9
+* Characteristics: It utilizes a standard 2-wire CAN bus for high-speed communication and a Single Wire CAN (SWCAN) for low-speed body functions.
+* Security: Security access relies on a "Seed-Key" exchange. When a tool requests access to a secure function (like key programming), the module sends a random "seed." The tool must calculate the matching "key" using a known algorithm and send it back.
+* Aftermarket Vulnerability: Because the seed-key algorithms have been reverse-engineered, aftermarket tools (Autel, KeyTool Plus, SmartPro) can perform key programming and module setup completely offline or via simple internet calculation. This made Global A vehicles highly serviceable by independent locksmiths.10
+3.2 Global B (VIP): The Fortress
+The Global B architecture represents a complete rethinking of vehicle networking, designed to support active safety systems, autonomous driving features, and Over-the-Air (OTA) updates.3
+* Network Topology: It moves away from pure CAN bus to a hybrid network utilizing CAN-FD (Flexible Data-Rate) and Automotive Ethernet. This drastically increases bandwidth but requires new hardware hardware (MDI2) capable of handling the speed.
+* Cybersecurity: The central gateway module (CGM) acts as a firewall. Communication is no longer protected by simple seed-key exchanges but by 2048-bit encryption certificates.
+   * The "Certificate Chain": When a module is installed, it is digitally "signed" to the VIN. If a used module from another vehicle is installed, the digital signature will not match, and the gateway will refuse to communicate with it. This effectively kills the "junkyard swap" for many critical controllers unless they can be "virginized" and reprogrammed via SPS2.12
+* Implications for Aftermarket:
+   * Tool Lockout: Traditional J2534 tools that lack CAN-FD hardware cannot even communicate with the vehicle.
+   * Server Dependency: Key programming requires a live connection to the GM server to retrieve the encryption keys. There is no "offline" bypass for Global B. The aftermarket tools that claim to do this are often proxying the connection through a third-party server that mimics the authorized GM handshake, a method that is fragile and prone to breaking when GM updates their security protocols.13
+
+
+
+
+________________
+4. Hardware Infrastructure & J2534 Compliance
+The interface hardware—the "VCI" (Vehicle Communication Interface)—is the bridge between the Techline Connect software and the vehicle. The requirements for this hardware have tightened significantly with the introduction of Global B.
+4.1 The GM MDI 2: The Gold Standard
+The Multiple Diagnostic Interface 2 (MDI 2) is the only officially supported tool for Global B vehicles. It is manufactured by Bosch (and sometimes co-branded ACDelco or ETAS).
+* Cost: The price point typically ranges between $800 and $1,200 depending on the distributor.
+* Capabilities: It supports the full range of protocols: UART, Class 2, CAN, CAN-FD, and DoIP (Diagnostics over IP).
+* Wired vs. Wireless: A critical operational change was introduced in mid-2025. GM released a bulletin stating that all SPS2 programming events on Global B vehicles must use a hardwired connection (USB or Ethernet) between the PC and the MDI 2.15 Wireless connections, while sufficient for GDS2 diagnostics, are prone to micro-interruptions that can corrupt the data stream during the high-speed transfer of encrypted calibration files. The software now actively detects if a wireless connection is being used for programming and will prompt the user to connect a cable before proceeding.15
+4.2 J2534 Pass-Thru Devices: The Alternatives
+The SAE J2534 standard mandates that OEMs allow aftermarket devices to perform emissions-related programming. GM extends this to allow J2534 devices to program almost all modules, but with significant caveats.
+* Approved List: GM maintains a list of validated J2534 devices. This includes the DrewTech CarDAQ-Plus 3, Snap-On Pass Thru Pro 4, and Cardone Flash2. These devices are rigorously tested to ensure they handle the specific timing requirements of the GM handshake.17
+* The CAN-FD Gap: A major pitfall for shops is attempting to use older J2534 devices (like the Autel J2534 VCI included with the IM608/Elite) on newer vehicles. These older boxes do not have native CAN-FD hardware.
+   * The "Communication Error" Loop: When a technician tries to use a non-CAN-FD device on a 2021 Tahoe (Global B), Techline Connect may recognize the device but fail immediately upon trying to communicate with the vehicle, often throwing generic "E4398" or "NO COMM" errors.
+   * Autel V200: The newer Autel V200 VCI, included with the KM100 and newer tablets, does support CAN-FD and can essentially function as a J2534 device for Techline Connect. However, driver conflicts are common. Technicians often have to uninstall the Autel PC Suite and reinstall specific drivers to get TLC to recognize the V200 properly.14
+4.3 PC Specifications: The "Windows 11" Mandate
+The laptop running Techline Connect is just as critical as the VCI. GM has aggressive system requirements due to the resource intensity of the GDS2 and SPS2 applications, which run within a "wrapper" that consumes significant RAM.
+* Operating System: Windows 10 support is ending. As of late 2025, GM mandates Windows 11 Professional 64-bit. Windows 10 is technically supported until October 14, 2025, but new installations are pushed toward Win 11.5
+* Processor: The recommendation has moved to Intel Core i7 8th Gen or newer (or i5 12th Gen equivalent). The "i5" minimum of the past is often insufficient for the heavy multitasking required when viewing wiring diagrams (Si) while simultaneously data-logging (GDS2).19
+* RAM: 16GB is the functional minimum. While 8GB is listed as a minimum in some older docs, real-world performance with 8GB leads to crashes during the Java-heavy programming sessions.21
+* Storage: A 512GB SSD is required. The GDS2 diagnostic database is massive, and calibration files are cached locally before being pushed to the car.
+* Connectivity: A dedicated Ethernet port on the laptop is highly recommended to connect to the shop network, as Wi-Fi instability is a leading cause of programming failures.
+________________
+5. Subscription Models & Commercial Access
+The ACDelco TDS (Technical Delivery System) portal manages all access rights. Understanding the pricing structure is vital for maximizing ROI, whether you are a specialist shop or a generalist.
+5.1 The Tiered Structure
+GM offers a granular subscription model that allows shops to pay only for what they use.
+
+
+
+
+A. SPS2 Programming Subscriptions
+These are strictly for writing software to the vehicle (ECU flashing, Key Learning).
+* Per VIN ($45.00 USD): This is the most popular option for the aftermarket. It grants programming access for one specific VIN for 24 months.
+   * Strategic Insight: This is a high-value proposition. If a module update fails or if you need to program multiple keys for the same car over a year, you do not pay again. The "slot" is locked to that VIN.5
+* Volume Discounts: Pricing scales slightly with volume. For example, a 5-VIN pack costs $224.00, dropping the per-unit cost to ~$44.80. The discounts are negligible until very high volumes (e.g., 25+ vehicles).5
+B. GDS2 Diagnostic Subscriptions
+These are for reading data and diagnostics. They are time-based, not VIN-based.
+* 3-Day Access ($64.00): Grants full access to GDS2 for all supported vehicles for 72 hours. Useful for troubleshooting a "problem child" car that aftermarket tools can't figure out.
+* Monthly ($254.00) / Annual ($644.00): These tiers are designed for shops that specialize in GM. If a shop sees more than 3 GM vehicles a month requiring deep diagnostics, the annual pass pays for itself.5
+C. Techline Connect Bundle
+* Annual Bundle (~$4,328.00): This "Master" subscription includes everything: unlimited SPS2 programming for all VINs, GDS2 diagnostics, Service Information (Si), and Tech2Win. This is the standard tier for dealerships and high-volume fleet centers.5
+5.2 Refund Policies and Risks
+ACDelco is notoriously strict regarding refunds.
+* Short Term (1-3 Days): Non-refundable.
+* Programming Slots: Generally non-refundable once a VIN is entered. However, if a slot is purchased and the system fails to communicate due to a GM-side error, a ticket can be opened with the eBusiness Helpdesk. "User error" or "incompatible cable" are not valid grounds for refunds.22
+________________
+6. The Locksmith & Security Landscape (NASTF/VSP)
+Access to security-sensitive information—specifically Key Codes (the cutting pattern for the physical key blade) and Immobilizer PINs—is governed by the National Automotive Service Task Force (NASTF).
+6.1 The VSP Credential
+To view key codes on the ACDelco TDS site, a user must be a registered Vehicle Security Professional (VSP).
+* Application Process: Requires a background check, proof of $1 million in liability insurance, and a $300 fee every two years (plus application fees, totaling ~$435 initially).23
+* The "Positive ID" Policy: VSPs are legally required to verify the customer's identity and vehicle ownership before performing security work. Failure to do so can result in the revocation of the VSP ID (LSID).
+6.2 The SPS2 "Loophole"
+A critical nuance exists within the GM ecosystem regarding the necessity of the VSP ID for programming versus cutting.
+* Cutting Keys: You absolutely need a VSP ID to look up the key code by VIN to cut the blade.
+* Programming Keys (SPS2): For many Global A and some Global B vehicles, SPS2 handles the security authentication in the background. When the technician initiates "Immobilizer Learn" in SPS2, the system validates the subscription and the MDI2 connection but often does not ask the user to manually enter a PIN code. It pulls the PIN from the server automatically.
+   * Implication: A technician without a VSP ID can often program a pre-cut key using SPS2, provided they have a valid ACDelco programming subscription. However, if the system prompts for a manual PIN entry (common on older Global A vehicles or if the server connection is unstable), the non-VSP technician is stuck.22
+6.3 Cost of Security Info
+Even with a VSP ID, retrieving a code is not free.
+* Key Code Lookup: Generally covered under the subscription for the VIN, but limits apply to prevent data harvesting.
+* Security Code (PIN): Similarly, this is accessed via the "Security Access" portal within TDS. There is a limitation on the number of lookups per day to flag suspicious activity.5
+________________
+7. Detailed Programming Procedures: Key & Module
+The practical application of these tools varies significantly by the task at hand. Below are the definitive workflows for the most common high-value operations.
+7.1 Key Programming: Add Key vs. All Keys Lost (AKL)
+A. Global A (2010-2019) Workflows
+* Add Key (Spare):
+   * Method: Often requires no tools. For keyed ignition: Insert working key, turn On, wait for security light to turn off, remove, insert new key, turn On.
+   * Aftermarket: Tools like the Autel IM508/608 are faster and can bypass wait times.
+* All Keys Lost (AKL):
+   * SPS2 Method: Not strictly required but reliable. Involves a 10-12 minute security wait per key.
+   * Aftermarket Method: Preferred. Tools read the PIN via OBDII and program instantly.
+   * The "10-Minute" Bypass: On older models (e.g., 2011 Silverado), a manual procedure involving three 10-minute cycles (30 mins total) can reset the system without any computer. This functionality has been removed in newer architectures.27
+B. Global B (2020+) Workflows
+This is where SPS2 becomes mandatory for most shops.
+
+
+
+
+* Add Key:
+   * Procedure:
+      1. Launch SPS2 via Techline Connect.
+      2. Select "Immobilizer Learn".
+      3. Choose "Program Transponder or Remote Key (Add)".
+      4. System initiates a 10-12 minute timer. This is a server-enforced delay to deter theft. It cannot be bypassed.
+      5. Place the new smart key in the designated "pocket" (often in the cup holder or center console).
+      6. Follow prompt: Press Start Button. The DIC (Driver Information Center) will display "Ready for Remote 3".
+* All Keys Lost (AKL):
+   * Procedure:
+      1. Requires SPS2 and MDI 2.
+      2. Select "Immobilizer Learn" -> "Setup SDM Primary Key" (or "program keys and delete old").
+      3. This wipes all previous keys.
+      4. Crucial Step: The vehicle must have a healthy battery (12.6V+). Use a maintainer. If voltage drops during the wipe, the BCM may brick.
+   * Aftermarket Viability: Autel and others have "beta" solutions for some Global B cars (e.g., C8 Corvette), but they often require connecting to a server in China to calculate the bypass. This is risky; if the connection drops, the BCM is left in a "bootloader" state. SPS2 is the only risk-free method.14
+7.2 Module Programming (Replace & Program)
+Replacing a module (e.g., Transmission Control Module - TCM) on a Global B vehicle is vastly different from Global A.
+* Global A: You could often grab a used TCM from a junkyard, install it, and flash the VIN over it using SPS2.
+* Global B: Modules are "cryptographically bound" to the gateway.
+   * New Modules: Must be brand new (blank). When programmed via SPS2, they download a certificate from the GM server that matches the car's VIN.
+   * Used Modules: Installing a used Global B module will result in a "Security Mismatch." The car may not start, or the module will function in "Safe Mode." SPS2 often cannot overwrite the security ID of a used Global B module unless the module was "divorced" from the donor car first (a capability rare in the aftermarket).8
+________________
+8. Troubleshooting & Common Failure Points
+Even with the correct tools, the SPS2 environment is fragile. Success often depends on avoiding specific pitfalls.
+8.1 The "Java" and Browser Wars
+While Techline Connect is an executable, it still relies on background processes that can conflict with browser settings.
+* Chrome vs. Edge: GM officially recommends Edge (Chromium-based) or Chrome.
+* Firewall Issues: The most common cause of "Download Failed" errors is the shop firewall blocking the specific ports used by the GM Download Manager. IT admins must whitelist *.gm.com and *.acdelcotds.com.19
+8.2 Voltage Stability
+Global B modules are incredibly sensitive to voltage fluctuation.
+* The 12.0V Threshold: If battery voltage drops below ~12.0V during a flash, the MDI 2 may pause the transfer. In a CAN-FD environment, this pause can cause the module to time out and corrupt its boot sector.
+* Recommendation: Always use a Midtronics or comparable programming power supply set to 13.4V (Do not use a standard battery charger, which introduces AC ripple noise).29
+8.3 "Aftermarket Mode" on Aftermarket Radios
+An emerging issue involves vehicles with aftermarket radios or accessories. SPS2 scans the entire bus before programming. If it detects an unknown module (like an aftermarket CarPlay unit) on the GMLAN or Ethernet bus, it may abort the session to prevent "contamination" of the configuration. Technicians often have to disconnect aftermarket accessories before programming a BCM.8
+________________
+9. Future Outlook: The Software Defined Vehicle
+The trajectory of GM's architecture points toward a closed-loop ecosystem.
+9.1 Ultifi and End-to-End Encryption
+GM’s next-generation platform, Ultifi (built on top of Global B), aims to decouple software from hardware entirely. This moves the vehicle toward a "smartphone on wheels" model.
+* Implication: Future diagnostics may not happen via the OBDII port at all. The port may remain for legislative compliance (emissions), but body controls and security could move entirely to OTA (Over-the-Air) interfaces.
+* The Dealer Monopoly: As encryption becomes absolute, the ability for the aftermarket to reverse-engineer "seed-key" algorithms vanishes. The security is no longer a static algorithm but a dynamic, rotating key managed by the cloud.
+9.2 The Persistence of SPS2
+SPS2 (and its eventual successor) will remain the gatekeeper. For the foreseeable future (next 5-10 years), the J2534 standard will force GM to allow aftermarket access to this system, but the barrier to entry—in terms of cost, training, and hardware—will continue to rise. The "guy with a generic tablet" will be increasingly locked out of profitable jobs like key programming and module replacement, filtering the market down to dedicated specialists who invest in the official Techline Connect ecosystem.
+________________
+Conclusion
+For the modern automotive technician, SPS2 is the new wrench. It is an indispensable tool that cannot be circumvented by cheaper alternatives on the newest platforms. While the cost of entry is significant (laptop, MDI2, subscriptions), the alternative is turning away the growing segment of Global B vehicles that are now entering the post-warranty repair phase. Success in this new era requires not just mechanical skill, but IT competency and a willingness to operate within the authorized OEM frameworks.
+Works cited
+1. Diagnostic Support and Resources | GM Parts - ACDelco, accessed January 25, 2026, https://www.gmparts.com/trade-professionals/diagnostic-support-resources
+2. ADVANCED DIAGNOSTIC SUPPORT WITH TECHLINE CONNECT AND Si - ACDelco, accessed January 25, 2026, https://www.gmparts.com/content/dam/gmparts/na/us/en/index/technical-resources/diagnostic-support-resources/02-pdfs/parts-diagnostic-sell-sheet.pdf
+3. The diagnostic architecture powering GM's next-gen software platform - GM News, accessed January 25, 2026, https://news.gm.com/home.detail.html/Pages/topic/us/en/2025/dec/1222--diagnostic-architecture-powering-GMs-next-gen-software.html
+4. GM SPS Programming: Tech2 Tool Remote Mode ECU TIS2000 How to do a Calibration Update Reflash (PCM) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=Nr_eYexAAV4
+5. ACDelco TDS, accessed January 25, 2026, https://www.acdelcotds.com/
+6. How To Start Programming with GM SPS2 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=TPXDudx6TuU
+7. VXDIAG VCX NANO GM VCI: How to Choose the Device Type (MDI, MDI2, or J2534), accessed January 25, 2026, https://vxdiag.com/blogs/news/vxdiag-vcx-nano-gm-vci-how-to-choose-the-device-type-mdi-mdi2-or-j2534
+8. You're Going To Do What? Vehicle-Wide Programming - Gears Magazine, accessed January 25, 2026, https://gearsmagazine.com/magazine/youre-going-to-do-what-vehicle-wide-programming/
+9. GM SOFTWARE AND DIAGNOSTICS WITH SPS CODING TECHLINE CONNECT EXCLUSIVE TO JLRIDSSDDMONGOOSE, accessed January 25, 2026, https://www.jlridssddmongoose.com/gm-software-and-diagnostics-with-sps-coding-techline-connect-exclusive-to-jlridssddmongoose/
+10. Programmer recomendations : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1krymlq/programmer_recomendations/
+11. Driving the Future: GM's Global B Architecture Revolutionizes Vehicle Connectivity, accessed January 25, 2026, https://www.mcgoverngmcofwestborough.com/blog/2023/november/15/driving-the-future-gms-global-b-architecture-revolutionizes-vehicle-connectivity.htm
+12. GM Global A Architecture list - GPT Maps, accessed January 25, 2026, https://www.gpt-maps.com/post/gm-global-a-architecture-list
+13. In 30-45 days all aftermarket key programmers will require NASTF and lsid verification : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1bdtw0d/in_3045_days_all_aftermarket_key_programmers_will/
+14. How to Program GM Keys 2021–2025 with Autel V200 - obdprice, accessed January 25, 2026, https://www.obdprice.com/blogs/news/program-gm-keys-with-autel-v200
+15. SPS Events Soon to Require Hard-Wired Connection to MDI 2 | TechLink, accessed January 25, 2026, https://gm-techlink.com/wp-content/uploads/2025/07/GM_TechLink_11_June_2025.pdf
+16. STATUS UPDATE: - TechLink, accessed January 25, 2026, https://gm-techlink.com/wp-content/uploads/2025/03/GM_TechLink_03_February_2025.pdf
+17. List of pass-through equipment for using the J2534 program - GIT FAQ, accessed January 25, 2026, https://support.gitauto.com/hc/en-gb/articles/30791207995673-List-of-pass-through-equipment-for-using-the-J2534-program
+18. Autel MaxiFlash J2534 Not Connect with GM Techline Connect SPS2? - AutelShop.us, accessed January 25, 2026, https://www.autelshop.us/blogs/autel-tech-solution/autel-maxiflash-j2534-not-connect-with-gm-techline-connect-sps2
+19. GM Dealer Infrastructure & SECURITY Guidelines (DISG) - You are not authorized to view the requested information. - General Motors, accessed January 25, 2026, https://gsitlc.ext.gm.com/userguides/Aftermarket%20Infrastructure%20Guideline%20v1.0.pdf
+20. Techline Connect, accessed January 25, 2026, https://tis2web.akamai.gm.com/static/docs/techline%20connect%20user_guide.pdf
+21. GM Aftermarket Techline IT Guidelines - Why a Tech2 Wiki?, accessed January 25, 2026, https://tech2wiki.com/content/techline/aftermarket_infrastructure_guideline_v1.0.pdf
+22. General Motors Electronic Service Information - ACDelco TDS, accessed January 25, 2026, https://www.acdelcotds.com/help
+23. NASTF Application Process - New VSP Primary Account Set Up, accessed January 25, 2026, https://support.nastf.org/support/solutions/articles/43000562902-nastf-application-process-new-vsp-primary-account-set-up
+24. What does the VSP subscription cost? - NASTF Support Center, accessed January 25, 2026, https://support.nastf.org/support/solutions/articles/43000755447-what-does-the-vsp-subscription-cost-
+25. LONG POST: My thoughts on the NASTF thing. : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1c1mxmn/long_post_my_thoughts_on_the_nastf_thing/
+26. Keycodes - ACDelco TDS, accessed January 25, 2026, https://www.acdelcotds.com/keycodes
+27. How to program Chevy key or GM key without original. - The Keyless Shop, accessed January 25, 2026, https://www.keylessshop.com/programgmkey/2018/6/10/how-to-program-chevy-key-or-gm-key-without-original
+28. How to bypass GM Techline SPS2 2 Hour Wait - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=1MJMRoXvw5w
+29. GM SPS Programming: Tech2 Tool Pass Thru Mode ECU TIS2Web TDS How to do a Calibration Update Reflash - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=53fho7l7yxI
+30. GM SPS Programming: MDI Tool J2534 Mode ECU TIS2Web How to do a Calibration Update Reflash (IPC) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=sUMJFwMuAkE

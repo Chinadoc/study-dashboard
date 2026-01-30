@@ -1,0 +1,215 @@
+﻿Forensic Analysis of Audi e-tron Security Architecture and Aftermarket Access Protocols (2019–2026)
+1. Executive Intelligence: Platform Taxonomy and Strategic Implications
+The automotive security landscape is frequently obfuscated by marketing nomenclature that prioritizes brand cohesion over technical accuracy. Nowhere is this more evident than in Audi’s "e-tron" portfolio, a sub-brand that, as of January 2026, encompasses three distinct engineering architectures with radically different security protocols. For the forensic locksmith, security researcher, or advanced diagnostic technician, the initial step in any engagement is not the connection of a tool, but the rigorous identification of the underlying platform. The user query posits a common misconception: that the original Audi e-tron SUV (Model Year 2019–2024, Chassis Code GE) is built on the J1 platform. This premise is technically incorrect and, if acted upon, leads to immediate diagnostic failure.
+The Audi e-tron SUV (GE) is built upon the MLB Evo (Modularer Längsbaukasten Evolution) platform.1 This architecture is a direct adaptation of the internal combustion lineage that underpins the Audi Q7 (4M), Q8 (4M), and Lamborghini Urus.3 It is a "transitional" platform, heavily modified to accommodate a high-voltage battery floor and electric motors, but retaining the electronic DNA of its fossil-fuel predecessors. Consequently, its security architecture—specifically the Immobilizer V system and Body Control Module 2 (BCM2)—is an evolution of the systems found in the 2016+ Audi A4 and Q7, not the entirely new electric-native architectures found in later models.
+In stark contrast, the Audi e-tron GT utilizes the J1 Performance Platform, a dedicated electric sportscar architecture developed primarily by Porsche for the Taycan.4 The J1 platform employs a different topology for access authorization, battery management, and thermal integration. Finally, the Audi Q4 e-tron is constructed on the MEB (Modularer E-Antriebs-Baukasten) platform, a scalable "skateboard" architecture shared with the Volkswagen ID.4, utilizing the MQB-style Component Security logic and "E3" electronic structure.2
+Understanding this lineage is the Rosetta Stone for aftermarket support. Because the e-tron SUV (GE) is an MLB Evo vehicle, it falls within the scope of "Immo V" tools developed for the Audi B9/4M generation, specifically those capable of handling the encrypted BCM2 modules. Conversely, the Q4 e-tron (MEB) requires tools capable of interfacing with the modern MQB-48/49 clusters and the emerging SFD (Vehicle Diagnostic Protection) protocols. This report provides an exhaustive technical deconstruction of the e-tron SUV (GE) security environment, referencing the J1 and MEB platforms only to highlight critical operational divergences.
+
+
+  
+
+
+
+2. EV-Specific Immobilizer Architecture (Gap 1)
+The transition from internal combustion to electric propulsion in the e-tron SUV (GE) necessitated a reimagining of the "immobilizer chain." In a traditional Audi, the chain of command for starting the vehicle typically flows from the Key to the Entry and Start Authorization Module (usually integrated into the BCM2), then to the Electronic Steering Column Lock (ESCL), and finally to the Engine Control Unit (ECU) and Transmission Control Unit (TCU). If the cryptographic handshake between these nodes fails, the engine does not crank, or starts and immediately stalls.
+In the e-tron (GE), the fundamental logic of "Immo V" (Fifth Generation Immobilizer) remains, but the physical nodes have been displaced by electric equivalents. The query asks specifically if there is "motor controller integration like Tesla." The answer is affirmative, but implemented through the lens of legacy VAG Component Protection rather than a singular proprietary Tesla-style drive unit lock.
+2.1 The Master Node: Body Control Module 2 (BCM2)
+The heart of the security system in the e-tron (GE) is the Body Control Module 2 (BCM2), technically designated as J393 (Comfort System Central Control Module). Despite the revolutionary drivetrain, Audi engineers chose to retain this proven architecture from the MLB Evo shelf.6
+Physical Location and Access: Unlike older platforms where security modules were often buried under carpets or dashboards, the BCM2 in the e-tron (GE) is located in the luggage compartment (trunk), generally behind the right-side lateral trim panel or within the rear fuse carrier assembly.7 This location is strategic for the technician; in an "All Keys Lost" scenario where the vehicle is locked, gaining access to the trunk becomes a primary objective to physically extract this module for bench programming.
+Cryptographic Evolution: The BCM2 used in the e-tron (GE) represents the "Gen 2" or "Encrypted" variant of the BCM2 family. Historically, BCM2 modules (2008–2013) utilized unencrypted 70F3xxx NEC processors. However, starting with the late-model Q5/A4 and standardized in the e-tron, the processors were updated to locked variants (typically NEC V850 or RH850 series) with hardened security masks.8 This encryption prevents the straightforward reading of the EEPROM (containing VIN, CS bytes, and Key IDs) via the OBDII port, necessitating the specialized "bench" interventions discussed in later sections.
+2.2 The "Electric ECU": Pulse Inverters and Component Protection
+In the absence of an Internal Combustion Engine (ICE), the role of the ECU in the immobilizer chain is assumed by the Power Electronics, specifically the Pulse Inverters controlling the electric motors. The e-tron (GE) features a dual-motor setup (one per axle), meaning there are effectively two "ECUs" that must be authorized to drive.9
+The Authorization Handshake:
+When the "Start/Stop" button is pressed, the BCM2 validates the key fob (Advanced Key) inside the cabin. Upon successful authentication, the BCM2 releases a "Terminal 15" (Ignition On) signal via the Gateway (J533) to the FlexRay bus. The Gateway then facilitates a challenge-response verification with the Front and Rear Pulse Inverters.
+This mechanism is governed by Component Protection (CP). Each Inverter contains a unique identifier and a Component Security (CS) signature derived from the BCM2's master list. If an Inverter is replaced (e.g., from a salvage vehicle) without being adapted via the ODIS (Offboard Diagnostic Information System) tool and an online connection to the FAZIT/GeKo database, the Inverter will enter "Safe Mode." In this state, the HV system may energize, but the motor will refuse to output torque, or will operate with severely limited functionality.10 This mirrors the behavior of a swapped TCU in an ICE Audi, confirming that VAG has simply mapped the EV powertrain onto its existing security topology.
+2.3 High-Voltage (HV) Security Integration
+The integration of the High-Voltage battery into the security matrix is a critical distinction from ICE vehicles. The query asks about "HV battery management security integration."
+The Gateway (J533) as Gatekeeper: The Gateway module (located under the rear bench seat or center console area in MLB Evo) serves as the bridge between the Comfort CAN (where the BCM2 lives) and the Hybrid/EV CAN (where the Battery Management System or BMS lives). The BMS itself is subject to Component Protection. If the BMS does not recognize the authorization signal from the Gateway (originating from a valid key), the HV Contactors (large relays inside the battery pack) will remain open.9
+The "Dead" Car Phenomenon:
+This architecture creates a unique failure mode for locksmiths. In an ICE car, an immobilizer failure usually allows the starter to crank, but fuel/spark is cut. In the e-tron, an immobilizer or CP failure results in a "silent" refusal to enter "Ready" mode. The dashboard may light up (powered by 12V), but the "Ready" light will not illuminate, and the HV system remains isolated. Technicians often mistake this for a dead HV battery, when in reality it is a security authorization failure preventing the HV rail from energizing.
+The N563 Pyro-Fuse: A further layer of security—albeit one driven by safety—is the High-Voltage Battery Interrupt Igniter (N563).9 In the event of a crash detection or specific tamper conditions triggering the airbag module, this pyrotechnic fuse blows, physically severing the HV connection. While primarily a safety device, it acts as a "hard lock" on the drivetrain. A stolen e-tron that has been involved in a collision (or had its airbags triggered) cannot be restarted simply by programming a key; the N563 igniter must be physically replaced, and the crash data in the Gateway and BMS must be reset.
+
+
+  
+
+
+
+3. Aftermarket Support Reality: January 2026 (Gap 2)
+The user’s second inquiry pierces the veil of marketing ambiguity to demand the "ACTUAL" aftermarket capability for e-tron key programming as of early 2026. The narrative that e-tron support is "unknown" is outdated. In the years between 2019 and 2026, the aftermarket research community has successfully reverse-engineered the BCM2 encryption, transforming what was once an "impossible" job into a complex but routine bench procedure.
+3.1 The "Locked" BCM2 Breakthrough
+The primary obstacle for the e-tron (GE) was never the electric powertrain itself, but the encryption applied to the BCM2. Audi introduced locked NEC processors to the BCM2 around 2013/2014, and by the 2019 e-tron launch, this protection was ubiquitous. Early attempts to read these modules via OBDII invariably failed or risked corrupting the data, leading to a "bricked" module.
+However, a significant breakthrough occurred around 2021-2022 with the introduction of solder-free adapter ecosystems by major aftermarket tool manufacturers like Xhorse and Autel. These tools bypass the need for dangerous soldering (which could overheat the processor or lift delicate tracks) by using precision pogo-pin frames that clamp onto the BCM2 circuit board.14
+The Technical Mechanism:
+The adapters connect to specific test points (TDO, TDI, CLK, RESET, VCC, GND) on the BCM2 PCB. This allows the tool to interface directly with the processor in a "Circuit In-System" programming mode. The tool reads the P-FLASH (Program Flash) and D-FLASH (Data Flash) areas.
+* D-FLASH: Contains the critical Immobilizer data, including the Vehicle Identification Number (VIN), Component Security (CS) bytes, and the encrypted Key IDs.
+* P-FLASH: Contains the operating software of the module.
+Once these files are read, the tool utilizes an online calculation server (provided by the tool manufacturer) to decrypt the data and extract the "Service Mode" credentials needed to generate a Dealer Key.16
+3.2 Tool-Specific Capabilities and Limitations
+As of January 2026, two primary ecosystems dominate the e-tron (GE) key programming landscape. It is imperative to verify marketing claims against field reality.
+3.2.1 Xhorse Ecosystem (VVDI Key Tool Plus / VVDI2)
+Xhorse was among the first to market with a comprehensive solution for the locked BCM2.
+* Hardware Required: VVDI Key Tool Plus Pad (or VVDI2 + VVDI Prog) and the XDNPA2GL BCM2 Adapter Set.14
+* Capability: The tool explicitly supports the "Audi BCM2 Encrypted" protocol covering the 2013–2019+ era, which includes the e-tron GE.
+* Procedure: The user must remove the BCM2 from the trunk, connect it to the adapter, read the data, and submit it to the Xhorse cloud for calculation.
+* Reliability: Forum reports and technical feedback suggest high reliability for the reading process.18 However, the "Sync Data" calculation—required for All Keys Lost—can sometimes fail on the very newest software versions (2023+ updates), necessitating a dealer server connection or a third-party data service.
+3.2.2 Autel Ecosystem (MaxiIM IM608 II / IM508S)
+Autel has matched this capability with its own hardware suite.
+* Hardware Required: MaxiIM IM608 II (or IM608 Pro) with the XP400 Pro programmer and the APB131 adapter.20
+* Capability: Autel's software updates in late 2024 and throughout 2025 added robust support for the "MLB Evo" BCM2 reading.20
+* Advantage: Autel often provides a more guided "step-by-step" interface, which is beneficial for technicians less familiar with hexadecimal data manipulation.
+* Limitation: Like Xhorse, Autel relies on server uptime for the calculation of the immo data. If the server is down, or if Audi releases a new BCM2 masking set that the server hasn't cracked, the process halts.
+3.2.3 The "OBDII Myth"
+A critical warning for the 2026 technician: Do not trust tools claiming "OBDII All Keys Lost" for the 2019+ e-tron. While some marketing materials may imply OBD capability, this almost universally applies only to older, unencrypted BCM2 versions (pre-2013) or requires a working key to be present ("Add Key" scenario).21 For a true All Keys Lost situation on an e-tron (GE), bench reading of the BCM2 is mandatory. Attempting to force an OBD read on a locked BCM2 carries a high risk of erasing the coding data or corrupting the sync bytes, rendering the car immobile even if a key is later found.
+3.3 The Operational Workflow for Locksmiths
+In the field, the decision-making process for an e-tron (GE) key job is binary and dictated by the presence of a working key.
+Scenario A: Add Key (Spare Key)
+If the customer has one working key, the process is minimally invasive.
+1. Tooling: Autel IM608 or Xhorse Key Tool Plus.
+2. Connection: OBDII port.
+3. Process: The tool uses the valid key to authenticate with the BCM2. This grants "Security Access."
+4. Result: The BCM2 allows the reading of the Immo data (or a portion of it) sufficient to create a "Dealer Key" on a blank fob. The new key is then learned to the car via the inductive coil (usually in the cup holder or steering column).
+Scenario B: All Keys Lost (AKL)
+If no keys function, the process escalates to "surgical" intervention.
+1. Access: Gain entry to the vehicle (detailed in Section 4).
+2. Extraction: Disassemble the trunk trim to remove the BCM2 module.
+3. Bench Work: Use the solder-free adapter to read D-FLASH/P-FLASH.
+4. Calculation: Upload data to server to retrieve CS and PIN.
+5. Generation: Create Dealer Key using the extracted data.
+6. Reassembly: Reinstall BCM2.
+7. Learning: Perform OBDII learning with the new Dealer Key.
+Critical Note on "Sync Data": In an AKL scenario, the tool must also calculate the Synchronization Data to ensure the BCM2 remains paired with the ELV and Inverters. If this calculation is incorrect, the key will program, but the car will display "Safe" or "Component Protection Active" and will not drive. This is the most common failure point in aftermarket AKL attempts on the e-tron.7
+4. Roadside Access Challenges: The Physics of Entry (Gap 3)
+The user’s third area of inquiry focuses on the physical reality of accessing a "locked and dead" e-tron. This is a scenario fraught with frustration because the e-tron, like many EVs, relies heavily on electromechanical actuation for basic ingress functions. When the 12V rail is depleted—a common occurrence in EVs left standing, as the HV battery generally does not charge the 12V battery when the car is "off"—the vehicle becomes a sealed vault.
+4.1 The Door Entry Paradox
+The e-tron (GE) utilizes electronic door latches. Even the interior door handles are essentially electrical switches that signal the BCM2 to release the latch. However, safety regulations mandate mechanical redundancy.
+The Hidden Mechanical Cylinder:
+For the e-tron SUV (GE), the driver's door handle appears to be a solid, uninterrupted piece. There is no visible keyhole.
+* The Secret: The keyhole is concealed behind the rear cap of the handle (the small stationary piece to the right of the pull handle).
+* The Procedure:
+   1. Pull the door handle outward to the "open" position and hold it there. This exposes the mechanism behind the handle.
+   2. Locate a small slot or access hole on the underside of the rear cap.
+   3. Insert the mechanical emergency key (extracted from the fob) or a specialized hook tool into this slot to release the plastic catch.
+   4. Carefully pop the cap off. This reveals a standard mechanical lock cylinder.24
+   5. The Actuation: Insert the key blade into the cylinder. Turning the key requires significantly more torque than a standard lock because the user is manually driving a cable actuator against the resistance of the electronic latch assembly. This action mechanically retracts the latch pawl.
+Flush Handles (e-tron GT/Q4 Context):
+While the user query asks about "flush handles," these are characteristic of the e-tron GT (J1) or specific Q4 e-tron trims. The standard e-tron SUV (GE) typically features "proud" handles. If flush handles are present (e.g., on a newer aerodynamic facelift), the principle remains similar: pressing one side of the handle usually pivots it out, revealing a similar emergency access point. However, on the e-tron GT, this process is notoriously difficult due to tight tolerances.
+4.2 The "Dead 12V" Frunk Nightmare
+Once inside the vehicle, the locksmith's immediate priority is to energize the 12V system to allow for key programming or diagnostics. This leads to the most critical operational divergence between the e-tron SUV (GE) and the e-tron GT (J1).
+e-tron SUV (GE): The Mechanical Advantage The e-tron SUV (GE) retains a mechanical hood release lever located in the driver’s footwell (A-pillar area), identical to the Audi Q7/Q8.13
+* Benefit: Even with zero electrical power, the technician can pull this lever to pop the hood (frunk).
+* Jump Starting: Under the hood, typically on the passenger side (LHD) or center near the firewall, there are dedicated jump-start terminals.
+   * Positive (+): Located under a red plastic flip-cap.
+   * Negative (-): A dedicated unpainted metal post on the suspension turret or chassis.
+* Action: connecting a booster pack to these terminals instantly wakes the BCM2 and Gateway. The alarm may trigger (horn), and the vehicle’s electronics will boot.
+e-tron GT (J1): The Electronic Deadlock
+In contrast, the e-tron GT (J1 platform) features an electronic hood release button. There is NO mechanical lever in the cabin. If the 12V battery is dead, the button to open the hood is non-functional.
+* The Recursion Loop: You cannot open the hood to charge the battery because the battery is dead, and you need battery power to actuate the hood latch.
+* Official Emergency Access: Audi documentation for the J1 platform instructs technicians to remove the front wheel and the plastic wheel well liner to access a hidden emergency release cable loop.25
+* Field Workarounds:
+   1. Fuse Box Injection: In some European models, a specific fuse in the cabin fuse box is wired directly to the hood latch circuit. Applying 12V to this fuse can pop the hood. However, US models often have this circuit isolated or protected, rendering this method unreliable.25
+   2. Fascia Manipulation: Skilled technicians may use air wedges to gently pry the gap between the front bumper and the hood to insert a long-reach tool and manually trigger the latch, though this carries a high risk of damaging the paint or the latch mechanism.
+4.3 The 12V vs. HV Relationship
+A common misconception among owners and inexperienced technicians is that the massive High Voltage (HV) battery should keep the 12V system charged.
+* The Reality: The HV battery connects to the vehicle's high-voltage rail via the System Main Relays (Contactors). When the vehicle is "Off" (Sleep Mode), these contactors are Open. The HV battery is physically disconnected from the rest of the car.
+* The DC-DC Converter: The 12V battery is maintained by a DC-DC converter (acting as the alternator), which steps down 400V/800V to 14V. However, this converter can only operate when the HV contactors are Closed.
+* The Failure Cascade: If the car sits for an extended period, the "vampire drain" of the telematics and alarm system depletes the small 12V AGM battery. Once the 12V drops below a critical threshold (approx. 9V), the BCM2 and Gateway shut down. Even if the HV battery has 100% charge, the car cannot start because there is no 12V power to close the contactors to activate the DC-DC converter. The car is effectively "bricked" until external 12V power is applied.26
+
+
+  
+
+
+
+5. Comparative Analysis: The Q4 e-tron (MEB) Divergence (Gap 4)
+The user’s fourth knowledge gap questions whether the Q4 e-tron is "completely different" from the original e-tron (GE) regarding key programming. The answer is an emphatic affirmative. The Q4 e-tron represents a generational leap in electronic architecture that renders the BCM2-focused tools and techniques described above largely obsolete.
+5.1 Architecture: Distributed (MLB Evo) vs. Domain (MEB)
+The e-tron SUV (GE) relies on the MLB Evo architecture, which utilizes a Distributed Control strategy. Intelligence is spread across many distinct modules (BCM1, BCM2, Gateway, Door Controllers). The security master is the BCM2, a standalone component in the trunk.
+The Q4 e-tron, built on the MEB platform, utilizes a Domain/Zonal architecture known as E3 (End-to-End Electronic Architecture). Here, functions are consolidated into high-performance computers.
+* ICAS1 (In-Car Application Server 1): The "Body Controller" is no longer a simple BCM but a server-like entity that integrates the Gateway, Body Control, and Immobilizer functions into a single massive unit (J533/J519 integration).
+* The Cluster Connection: In the MEB platform (similar to the MQB platform), the Immobilizer data is often tightly integrated into the Instrument Cluster (Dashboard) and the ICAS unit.
+5.2 Key Programming: The MQB-48/49 Challenge
+For the locksmith, this architectural shift dictates a completely different toolset.
+e-tron (GE) - The "BCM2" Path:
+As established, this vehicle uses the "Audi BCM2 Encrypted" menu. The key data resides in the BCM2.
+Q4 e-tron - The "MQB/MEB" Path:
+The Q4 e-tron utilizes the Immobilizer 5+ (MQB generation) logic, specifically utilizing the V850 processor family within the dashboard or ICAS unit.
+* The Protocol: Tools must access the "VW/Audi MQB" or "MEB" menus.
+* The Difficulty: Unlike the BCM2 which can be read via a solder-free adapter, the MEB immobilizer data is often protected by SFD (Schutz Fahrzeug Diagnose).
+   * Add Key: Often possible via OBDII if the locksmith has a valid "Dealer Key" or authorized credentials (NASTF VSP) to bypass SFD.
+   * All Keys Lost: This is significantly harder on the Q4. It often requires removing the dashboard (Cluster) to read the NEC V850 processor directly, or purchasing "Sync Data" from third-party data brokers who have access to the Volkswagen internal database.27
+The Tooling Divide:
+* A locksmith equipped with an Autel IM608 and the XP400 Pro can theoretically do both, but the adapters and menus are mutually exclusive.
+* For the e-tron (GE), they grab the APB131 adapter and open the "Audi -> A4/Q5/e-tron" menu.
+* For the Q4 e-tron, they might need the APB112 emulator or specific MQB soldering cables and open the "Volkswagen -> ID.4 / Audi -> Q4" menu.
+* Crucial Warning: The processes are not interchangeable. Attempting to read a Q4 e-tron using the e-tron GE protocol will simply result in a communication error. Attempting to force an MQB read on an e-tron GE could disrupt the BCM2 configuration.
+5.3 SFD: The New Component Protection
+The Q4 e-tron also introduces SFD (Vehicle Diagnostic Protection), a successor to the legacy Component Protection. SFD locks specific coding and adaptation channels (including those related to keys and immobilizers) requiring a real-time token from the manufacturer’s server to unlock for 90 minutes. While the e-tron (GE) has Component Protection, it generally lacks the full SFD implementation found in the MEB cars, making the GE slightly more "open" to traditional aftermarket manipulation once the BCM2 encryption is bypassed.
+6. Aftermarket Reality Check: Operational Decision Logic
+Given the complexity of the e-tron ecosystem in 2026, the technician requires a clear, linear decision-making process to avoid wasted time and potential liability. The following logic structure distills the findings of this report into an operational workflow.
+6.1 Phase 1: Platform Identification
+The first step is strictly visual and VIN-based.
+* Is the vehicle an e-tron SUV (GE)? Look for the "conventional" Audi interior (dual MMI screens, mechanical gear selector style). VIN starts with WAU...GE.
+   * Action: Proceed to Phase 2A (MLB Evo Protocol).
+* Is the vehicle a Q4 e-tron? Look for the "ID.4 style" interior (floating cluster, minimalist controls). VIN starts with WAU...F4.
+   * Action: Proceed to Phase 2B (MEB Protocol).
+* Is the vehicle an e-tron GT? Look for the low-slung sportscar profile. VIN starts with WAU...FW.
+   * Action: Abort/Refer to Specialist. The J1 platform requires Porsche-specific PIWIS tooling or highly specialized aftermarket support often not available in standard locksmith programmers.
+6.2 Phase 2A: The e-tron (GE) Workflow
+* Scenario: Spare Key (Add Key)
+   * Method: OBDII Programming.
+   * Requirement: Working key + Autel IM608/Xhorse Key Tool Plus.
+   * Risk: Low.
+* Scenario: All Keys Lost
+   * Method: Bench Programming (Mandatory).
+   * Action: Remove BCM2 from trunk. Use Solder-Free Adapter (APB131/XDNPA2GL).
+   * Critical Step: Ensure 12V supply is stable (13.5V+) during BCM2 re-installation to prevent sync errors.
+   * Risk: Moderate. Requires handling of sensitive electronics.
+6.3 Phase 2B: The Q4 e-tron Workflow
+* Scenario: Spare Key
+   * Method: OBDII Programming (subject to SFD unlock).
+   * Risk: Low/Moderate.
+* Scenario: All Keys Lost
+   * Method: Cluster Removal / Data Service.
+   * Action: Most standard tools cannot do this via OBD. Requires reading the V850 processor in the cluster or buying Sync Data.
+   * Risk: High. Dashboard removal in modern Audis is labor-intensive and fragile.
+7. Future Outlook: The PPE Platform (Q6 e-tron)
+Looking beyond 2026, the arrival of the Audi Q6 e-tron and Porsche Macan EV on the PPE (Premium Platform Electric) architecture signals the end of the "Bench Read" era. The PPE platform utilizes the E3 1.2 architecture.29 This system moves towards a fully server-based immobilization strategy, likely implementing SFD2.
+In SFD2, the vehicle is constantly connected. Authorization for key programming may require a "live" handshake with the Audi server that verifies not just the technician's credentials (NASTF/GeKo), but also the geolocated position of the vehicle and the tool. It is anticipated that the "dump reading" methods (like reading the BCM2 D-FLASH) will be rendered ineffective because the critical security certificates will be stored in a HSM (Hardware Security Module) within the High-Performance Computer (HCP) that does not allow external reading even with direct probing. For the Q6 e-tron, the aftermarket will likely be forced into a "Passthru" model, acting as a conduit for the official factory tool (ODIS) rather than performing independent calculation.
+8. Summary of Findings
+The "unknown" status of the Audi e-tron (GE) in the aftermarket has been resolved. It is a known quantity: an MLB Evo vehicle protected by a Locked BCM2. The tooling to service it exists, is widely available from Autel and Xhorse, and is reliable if the technician adheres to the bench-programming discipline.
+The confusion stems entirely from the brand dilution of the "e-tron" name. By rigorously distinguishing the GE (SUV) from the J1 (GT) and MEB (Q4), the security professional can apply the correct "Immo V" strategies to the former while avoiding the distinct pitfalls of the latter. The e-tron SUV is not a new alien species; it is simply a Q8 with a battery, and it yields to the same tradecraft that has served the Audi community for the last decade.
+
+
+  
+
+
+
+Works cited
+1. The first all-electric Audi on the basis of the MLB evo: the Audi e-tron, accessed January 26, 2026, https://www.audi-technology-portal.de/en/mobility-for-the-future/audi-future-lab-tron-experience_en/the-first-all-electric-audi-on-the-basis-of-the-mlb-evo-the-audi-e-tron
+2. Audi Highlights 4 Distinct Platforms For 20 All-Electric Cars - InsideEVs, accessed January 26, 2026, https://insideevs.com/news/407979/audi-4-distinct-platforms-20-electric-cars/
+3. Quattro Quattros: How Audi will use 4 different EV platforms - CNET, accessed January 26, 2026, https://www.cnet.com/home/electric-vehicles/audi-electric-car-platforms-j1-ppe-meb-mlbevo/
+4. Audi currently has more EV platforms than electric cars built on them, here's why | Electrek, accessed January 26, 2026, https://electrek.co/2020/04/01/audi-currently-has-more-ev-platforms-than-electric-cars-built-on-them-heres-why/
+5. Audi's different platforms. : r/electricvehicles - Reddit, accessed January 26, 2026, https://www.reddit.com/r/electricvehicles/comments/dg73bv/audis_different_platforms/
+6. How to Replace a BCM (Body Control Module) - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=Z2ukBJlP6aI
+7. Audi A4 A5 Q5 A6 A7 A8 BCM2 Body Control Module Repair service - Sancars, accessed January 26, 2026, https://sancarsauto.com/products/audi-a4-a5-q5-a6-a7-a8-bcm2-body-control-module-repair
+8. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES - Abrites USA, accessed January 26, 2026, https://www.abritesusa.com/the-secrets-of-locked-and-unlocked-bcm2-modules
+9. The 2019 Audi e-tron Introduction - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2019/MC-10155750-9999.pdf
+10. Component protection is active? : r/VWIDBuzz - Reddit, accessed January 26, 2026, https://www.reddit.com/r/VWIDBuzz/comments/1ov2ok6/component_protection_is_active/
+11. How to perform a component unlock on a Volkswagen/Audi vehicle, accessed January 26, 2026, https://www.shenghaiautoparts.com/how-to-perform-a-component-unlock-on-a-volkswagen-audi-vehicle/
+12. A Tiny £2 Part Shut Down a £60,000 Audi e-tron… Here's How. - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=ZZ8I9meOm08
+13. Audi e-tron GT, accessed January 26, 2026, https://s7test3.scene7.com/is/content/audi/country/me/assets/pdf/aftersales/e-tron-rescue-sheet.pdf
+14. Xhorse XDNPA2GL Audi BCM2 Solder-Free Adapter Set for VVDI Key Tool Pl, accessed January 26, 2026, https://www.locksmithkeyless.com/products/xhorse-xdnpa2gl-audi-bcm2-solder-free-adapter-set-for-vvdi-key-tool-plus-multi-prog-and-vvdi2-vvdi-prog
+15. Xhorse - XDNPA2GL - Audi BCM2 Adapter Set Upgrade for Sale | UHS Hardware, accessed January 26, 2026, https://www.uhs-hardware.com/products/xhorse-xdnpa2gl-audi-bcm2-adapter-set-upgrade
+16. How to Use AO.D BCM2 Solder-Free Adapter | Xhorse - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=DfLyjepxBGg
+17. How to Use AO.D BCM2 Solder-Free Adapter VW/Audi key programming Xhorse - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=pHETT1dbqT8
+18. How to use AUDI BCM2 Adapter with VVDI 2 & VVDI PROG | Xhorse - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=6o14L4cTedI
+19. 2015 Audi A4 BCM2 All Keys Lost Programmed with VVDI2 VVDI Prog and Xhorse BCM2 Adapters - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=S4Cfy7oqz2o
+20. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 26, 2026, https://autel.us/autel-adds-24-25-immo-key/
+21. In depth tool comparison between Autel IM508 / XHorse Key Tool Plus and Smart Pro, accessed January 26, 2026, https://www.youtube.com/watch?v=XSRX2cESQ90
+22. How to Recover BMW and Audi All Key Lost with VVDI2 & KEY TOOL PLUS? - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=wr16mivvRt4
+23. Technical Service Bulletin - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2024/MC-10253919-0001.pdf
+24. Audi Kitchener-Waterloo: Access Your e-tron With a Dead Battery - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=wHIJXWLlXuI
+25. 22' Etron GT …Dead and Frunk locked - Reddit, accessed January 26, 2026, https://www.reddit.com/r/etron/comments/1lhhuc8/22_etron_gt_dead_and_frunk_locked/
+26. HOW TO JUMP A 2018 AUDI A3 E-TRON HYBRID - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=SGg5wnS0ol8
+27. How to Program Key ALL KEYS LOST #volkswagen MQB48 with EAATA 360PRO Programming Diagnostics Machine - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=R6Wnz72Ui4E
+28. Autel All key lost : r/Locksmith - Reddit, accessed January 26, 2026, https://www.reddit.com/r/Locksmith/comments/1iat02x/autel_all_key_lost/
+29. Volkswagen Group taps into new profit pools with sustainable mobility, accessed January 26, 2026, https://www.volkswagen-group.com/en/press-releases/volkswagen-group-taps-into-new-profit-pools-with-sustainable-mobility-17606

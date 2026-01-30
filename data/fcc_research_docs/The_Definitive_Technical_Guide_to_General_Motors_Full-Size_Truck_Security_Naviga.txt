@@ -1,0 +1,356 @@
+﻿The Definitive Technical Guide to General Motors Full-Size Truck Security: Navigating the Global A (K2XX) to Global B (T1XX) Transition
+Executive Summary
+The transition from General Motors' K2XX platform (2014–2019) to the T1XX platform (2019–Present) represents one of the most profound architectural shifts in the history of automotive security. For the professional locksmith, this evolution is not merely a change in body panels or key blank profiles; it signifies a fundamental migration from the established Global A electrical architecture to the encrypted, high-bandwidth Global B (Vehicle Intelligence Platform or VIP) architecture. This shift has rendered decades of conventional wisdom regarding on-board programming and simple diagnostic interfacing obsolete, introducing new requirements for server-side authentication, high-speed data protocols, and strict voltage regulation.
+The K2XX platform, underpinning the 2014–2018 Silverado/Sierra and the 2015–2020 full-size SUV fleet (Tahoe, Suburban, Yukon, Escalade), relies on standard High-Speed CAN protocols and the established Circle Plus transponder system.1 These vehicles, while secure, operate on a logic that is now considered "legacy" by modern standards, offering forgiving programming windows and offline calculation capabilities. In stark contrast, the T1XX platform utilizes the Controller Area Network Flexible Data-rate (CAN FD) protocol, requiring specific hardware adapters and interacting with a cybersecurity gateway that actively monitors for unauthorized programming attempts.2
+The implications of this shift are operational and financial. Procedures that were routine on the K2XX platform—such as manual on-board programming for remotes or simple "Add Key" functions via OBDII—have been replaced by complex server-side authentication processes on the T1XX.3 Furthermore, the introduction of the 2019 Chevrolet Silverado 1500, which was produced and sold simultaneously as a "New Body Style" (T1XX) and a "Legacy" (K2XX) model, created a critical identification hazard for locksmiths.4 Misidentifying the platform leads to the use of incorrect transponders, failure to connect via diagnostic tools, or, in severe cases involving the T1XX’s Global B architecture, module "bricking" due to voltage instability or protocol mismatch.
+This report serves as an exhaustive technical reference for the automotive locksmith. It provides a granular analysis of both platforms, establishing clear identification methods, defining the requisite tooling (including CAN FD adapters and server-connected programmers), and outlining safe, step-by-step procedures for All Keys Lost (AKL) and Add Key scenarios. It further elucidates the critical role of battery voltage maintenance during T1XX programming to prevent Body Control Module (BCM) corruption and details the complex matrix of FCC IDs and part numbers required to service this fleet effectively.
+________________
+
+
+  
+
+
+
+________________
+Chapter 1: Architectural Evolution and the Cybersecurity Landscape
+To navigate the programming procedures of modern General Motors vehicles effectively, one must first understand the underlying digital infrastructure. The shift from K2XX to T1XX is not merely a change in chassis codes; it is the physical manifestation of GM's transition to a cybersecurity-hardened environment.
+1.1 The Legacy Standard: Global A Architecture (K2XX)
+The K2XX platform, introduced in 2014 for trucks and 2015 for SUVs, operates on the Global A electrical architecture.1 This system was designed in an era where vehicle connectivity was limited, and thus, internal network security was not the primary design constraint.
+* Data Bus Topology: The K2XX utilizes a standard High-Speed GMLAN (Dual Wire CAN) for powertrain and chassis communication, operating typically at 500 kbps. Body comfort features communicate via Low-Speed GMLAN (Single Wire CAN).2
+* Immobilizer Logic: The theft deterrent system involves a decentralized handshake between the Body Control Module (BCM), the Engine Control Module (ECM), and the Keyless Entry Control Module (KECM) on push-to-start models. The security keys are static encrypted values (seed/key pairs) that diagnostic tools can calculate offline or via simple bypass algorithms.
+* Locksmith Implication: This architecture allows for "On-Board Programming" (OBP) for remote transmitters on bladed-key vehicles and permits diagnostic tools to bypass security waits in some scenarios. The risk of module corruption during programming is relatively low, provided basic battery voltage is maintained.
+1.2 The New Standard: Global B / VIP Architecture (T1XX)
+The T1XX platform, launching with the 2019 Silverado/Sierra 1500 and the 2021 full-size SUVs, introduces the Vehicle Intelligence Platform (VIP), commonly known as Global B. This architecture is defined by its massive bandwidth capability and its "security-first" design philosophy.
+* CAN FD Implementation: To handle the immense data throughput required for Super Cruise, advanced infotainment, and over-the-air (OTA) updates, T1XX vehicles utilize CAN FD (Controller Area Network Flexible Data-rate). This protocol allows for variable data rates, jumping from the standard 500 kbps arbitration phase to data transmission rates of up to 5 Mbps or even 8 Mbps.2 Standard OBDII diagnostic interfaces cannot interpret this variable frequency; attempting to read a CAN FD signal with a legacy CAN transceiver results in "Bus Off" errors or communication failure.
+* Cybersecurity Gateway: The Global B architecture routes diagnostic requests through a Serial Data Gateway Module (SDGM). This gateway acts as a firewall, inspecting every data packet entering the OBDII port. If a programming request lacks a valid, cryptographically signed certificate from the GM server, the gateway rejects the command. This necessitates the use of internet-connected tools that can authenticate with the OEM backend in real-time.3
+* Bricking Risk: The BCM in Global B vehicles is highly sensitive to voltage fluctuation. During the programming process, the module enters a bootloader mode to rewrite security data. If the voltage drops below a critical threshold (typically 12.5V) or if the communication is interrupted by a non-compliant adapter, the bootloader may crash, leaving the module in an unrecoverable "bricked" state.5
+________________
+Chapter 2: Platform Identification and VIN Decoding
+The most critical step in servicing GM full-size trucks and SUVs between 2018 and 2020 is accurate platform identification. The 2019 model year is particularly treacherous for locksmiths because Chevrolet and GMC continued to produce the previous generation truck (K2XX) alongside the new generation (T1XX) to meet fleet demand.4 These vehicles look different but share a model year, yet they require entirely different keys, transponders, and programming protocols.
+2.1 The "2019 Split": Legacy (LD) vs. New Body Style
+In 2019, GM introduced the T1XX platform for the Chevrolet Silverado 1500 and GMC Sierra 1500. However, the K2XX platform remained in production under the "Silverado LD" (Light Duty) and "Sierra Limited" nomenclature.4
+* Silverado LD / Sierra Limited (K2XX): These are physically identical to the 2014–2018 trucks. They utilize the Global A architecture, standard High-Speed CAN, and typically use the Z-Keyway (HU100) flip keys or standard remote heads. They do not require CAN FD adapters.
+* Silverado / Sierra "New Body Style" (T1XX): These represent the complete redesign. They utilize the Global B architecture, require CAN FD communication for body modules, and typically use the new "hydra" style or sleek smart keys.6
+2.2 Visual Identification
+Before connecting a diagnostic tool, a visual inspection of the vehicle can confirm the platform.
+Exterior Cues:
+* Mirrors: The most reliable visual tell is the side mirror mounting point. On the K2XX (Legacy), the side mirrors are mounted on the A-pillar sail panel (the triangular plastic piece at the front corner of the window). On the T1XX (New Body), the mirrors are mounted directly onto the door skin, slightly lower and further back, leaving the A-pillar corner clear or occupied by a small window.7
+* Wheel Wells: K2XX trucks feature the distinct "squared-off" wheel wells that were a GM trademark for years. The T1XX introduced rounder, more aerodynamic wheel arches.
+* Fascia: The K2XX Silverado headlights are typically stacked or split by a wide crossbar. The T1XX Silverado features narrow, slit-like headlights integrated into the grille, often with "air curtains" (vents) on the bumper corners.
+Interior Cues:
+* Push-to-Start: While high-trim K2XX vehicles (like the Yukon Denali or Escalade) had Push-to-Start, the vast majority of K2XX Silverados used a mechanical ignition. In the T1XX generation, Push-to-Start became standard on mid-to-high trims immediately.
+* Key Fob Style: The K2XX uses the "switchblade" flip key (OHT01060512/M3N-32337100) or the separate remote and key. The T1XX uses the new high-gloss or matte black rounded smart keys (HYQ1EA/HYQ1ES) which are significantly different in hand-feel and design.8
+2.3 VIN Decoding for Platform Confirmation
+The Vehicle Identification Number (VIN) offers the definitive method for distinguishing the platforms. While the 10th digit indicates the year (K=2019), the 4th and 5th digits provide platform information.10
+GM VIN Logic (Positions 4 & 5)
+The Vehicle Descriptor Section (VDS), comprising digits 4 through 8, holds the key to platform identification.
+* K2XX (Legacy):
+   * 4th Digit (GVW/Brake/Restraint): Typically P, R, or V on K2XX trucks. This correlates to the legacy weight ratings and restraint systems used in the GMT900/K2XX era.10
+   * 5th Digit (Chassis/Series): Almost universally K (for 4WD) or C (for 2WD) on the K2XX platform.12 This adheres to the traditional "C/K" nomenclature General Motors has used for decades. If the 5th digit is a 'C' or 'K', it is highly likely a K2XX (Legacy) vehicle.
+* T1XX (New Body):
+   * 4th Digit: Shifts to new codes like A, B, C, or D.
+   * 5th Digit: Often Y or E on T1XX models. For example, the project code for the Suburban T1XX is "T1YC," and this often reflects in the VIN. If the 5th digit deviates from the standard 'C/K' pattern, proceed with the assumption it is a T1XX Global B vehicle.11
+Crucial Check: For a 2019 Truck, look at the 12th Digit (Serial Number Prefix) and the Model Designation on the door jamb sticker.
+* "Silverado LD" on the sticker explicitly confirms K2XX.
+* Note on SUVs: The SUVs (Tahoe, Suburban, Yukon, Escalade) did not switch in 2019. They continued on the K2XX platform through the 2020 model year. The T1XX SUVs were introduced as 2021 models.6 Therefore, a 2020 Tahoe is still a K2XX (Global A), while a 2019 Silverado could be either.
+________________
+
+
+  
+
+
+
+________________
+Chapter 3: The K2XX Platform (2014–2019)
+The K2XX platform represents the final iteration of GM's Global A architecture for full-size trucks. For locksmiths, this platform is characterized by high reliability in programming but distinct mechanical keyway challenges. While less technologically hostile than the T1XX, the K2XX introduced High Security keyways to the Silverado line, a significant departure from the edge-cut B106 keys of the GMT900 era.13
+3.1 System Architecture
+The K2XX utilizes the Global A electrical architecture. The theft deterrent system involves complex handshakes between the Body Control Module (BCM), the Engine Control Module (ECM), and the Keyless Entry Control Module (KECM) on push-to-start models.
+* Data Bus: High-Speed GMLAN (CAN) for powertrain; Low-Speed GMLAN (Single Wire CAN) for body comfort features.
+* Immobilizer Type:
+   * Bladed Keys: PASS-Key III+ (PK3+) evolution, utilizing the Philips ID46 (Circle Plus) encryption.13
+   * Push-to-Start: PEPS (Passive Entry Passive Start) system using advanced challenge-response encrypted transponders.
+3.2 Mechanical Key Specifications
+A common point of confusion on the K2XX platform is the keyway. While often referred to generically as "High Security," it transitioned fully to the HU100 profile, which is a laser-cut (sidewinder) key.14
+* Keyway: HU100 (Silca reference).
+* Lishi Tool: Lishi HU100 (specifically the 10-cut version).
+   * Critical Note: Older GM vehicles used the Z-Keyway (B106/B111). K2XX trucks use the HU100. It is vital to use the Lishi tool designated for "Ignition/Door/Trunk" (10-cut). Do not confuse this with the 8-cut HU100 used on the Chevy Cruze or Malibu. Using an 8-cut Lishi on a 10-cut K2XX lock will result in misreading the wafers in positions 8, 9, and 10, leading to a miscut key.15
+* Code Series: V0001–V5798 or Z0001–Z6000.
+* Cutting Depths: 4 depths (1 through 4).
+3.3 Transponder Details (K2XX)
+The K2XX platform relies on the "Circle Plus" system.
+* Chip Type: Philips Crypto 2 / ID46 (GM Circle Plus).17
+* Identifier: Look for a small circle with a "plus" sign (+) stamped on the blade near the plastic head. This visual marker confirms the presence of the correct ID46 chip.
+* Frequency: 315 MHz is standard for US market trucks in this generation.8
+3.4 Programming Procedures (K2XX)
+Programming K2XX vehicles is generally straightforward via OBDII, but it requires adherence to specific "Add Key" vs. "All Keys Lost" workflows.
+3.4.1 On-Board Programming (OBP) - Bladed Keys Only
+For K2XX vehicles with a bladed ignition (not Push-to-Start), it is often possible to add a key without diagnostic tools if you have one working key.18 This "Add Key" procedure is a holdover from older GM protocols and remains a valuable fallback for locksmiths.
+1. Insert the existing working key.
+2. Turn ignition ON and wait for the security light to turn off.
+3. Turn ignition OFF and remove the key.
+4. Within 10 seconds, insert the NEW (uncut or cut) key and turn to ON.
+5. Wait for the security light to turn off. The key is now programmed.
+Note: This procedure only adds the key to the immobilizer. The remote functions (Lock/Unlock) are typically learned automatically with the transponder on Global A vehicles, but some aftermarket keys may require a separate OBP remote cycle.19
+3.4.2 All Keys Lost (Diagnostic Programming)
+When no keys are available, a diagnostic tool (Autel IM608, Smart Pro) is required. The Global A system enforces a mandatory security wait time.
+   * Time Delay: The system enforces a 10-to-12-minute security wait time to gain access to the BCM. This cannot be bypassed by most aftermarket tools; it is a hard-coded security feature of the Global A BCM to prevent "smash and grab" theft.20
+   * Procedure:
+   1. Connect tool (e.g., Autel IM608).
+   2. Select "Immo Status Scan".
+   3. Select "All Keys Lost".
+   4. The tool will request to erase all keys. Confirm.
+   5. Wait the 10-12 minute security delay. Technician Tip: Ensure battery voltage is stable during this wait. A drop below 12V can abort the timer.
+   6. Follow on-screen prompts to cycle the ignition with the new keys.
+   7. Crucial: You must cycle the ignition ON for 5 seconds and OFF for 5 seconds for the key data to write successfully to the immobilizer. Failure to respect the "Off" cycle can result in a key that starts the car but has a flashing security light.
+________________
+Chapter 4: The T1XX Platform (2019–2026)
+The T1XX platform introduces the Global B (VIP) architecture. This is a cybersecurity-focused architecture designed to prevent unauthorized code modification, which inherently complicates locksmithing activities. The move to Global B was driven by the need for enhanced data security to support autonomous driving features (Super Cruise) and Over-the-Air (OTA) updates, but it has created a significantly higher barrier to entry for independent repair professionals.2
+4.1 Global B and CAN FD
+   * Global B (Vehicle Intelligence Platform): This architecture encrypts communication between modules. The BCM acts as a gateway, rejecting commands that lack proper cryptographic signatures. This is why older programming tools that worked on K2XX fail on T1XX. The "Gateway" module is often integrated into the Body Control Module or exists as a standalone Serial Data Gateway Module (SDGM), physically isolating the OBDII port from the vehicle's internal critical networks.
+   * CAN FD (Flexible Data-rate): T1XX uses CAN FD for body and chassis communication. This protocol allows for variable data rates (up to 5-8 Mbps) compared to the fixed 500 kbps of classic CAN.
+   * Locksmith Implication: Standard OBDII interfaces use transceivers designed for ISO 11898 standard CAN. They cannot read the "fast" phase of a CAN FD frame. Connecting a legacy tool without an adapter may result in communication errors, or in rare cases, "bus flooding" errors that wake up modules and drain the battery.5 The CAN FD adapter essentially acts as a translator, buffering the high-speed data and presenting it to the diagnostic tool in a readable format.22
+4.2 Transponder Evolution
+The T1XX moves away from the simple ID46 chip to advanced AES encryption.
+   * Chip Type: NXP HITAG AES (often identified as ID49 or ID4A depending on the reader).23 These are 128-bit encrypted chips that support bi-directional challenge-response authentication. Unlike ID46, they cannot be easily cloned using standard coil sniffers.
+   * Frequency: 315 MHz and 433 MHz are both used, with 433 MHz becoming more common on higher trims and newer years (2021+). The shift to 433 MHz aligns GM with global frequency standards and offers better range and penetration for the proximity detection system.25
+   * Keys: The keys are exclusively "Smart Keys" (Prox) for most trims. Even the "Work Truck" (WT) trims, which appear to have a standard bladed key, use a flip key with an integrated high-security transponder that operates on the new frequency/protocol.25
+4.3 The "Two Key" Requirement
+A distinct feature of the Global B immobilizer system is the requirement to program two keys to close the learning cycle in an "All Keys Lost" scenario. If only one key is programmed, the vehicle may remain in a "Learn Mode," leaving the theft deterrent light on or limiting vehicle speed/functionality. This is a logic change from the K2XX, which could technically operate with a single key after a master reset. Locksmiths must budget for two keys when quoting AKL jobs on T1XX vehicles to ensure the job can be closed out properly.18
+________________
+
+
+  
+
+
+
+________________
+Chapter 5: Critical Locksmith Alerts (T1XX Focus)
+Working on the T1XX platform carries significantly higher risks than the K2XX. The Global B architecture is intolerant of voltage fluctuations and improper procedure. A mistake on a K2XX might waste time; a mistake on a T1XX can require a dealership tow and module replacement.
+5.1 The Bricking Risk: Voltage Stability
+The most severe risk on T1XX vehicles is BCM or Radio Unit corruption ("bricking") caused by low voltage during the programming process.
+   * Mechanism: The BCM undergoes a rewrite or reconfiguration of its flash memory sectors during the key learning process. If the voltage drops below 12.5V, the write process may be interrupted. In Global B, the bootloader is secured; if the write fails, the module may not be able to "fallback" to its previous state, leaving it in a boot loop or corrupted state.5
+   * The "Radio Brick": There have been industry reports of the infotainment screen going black or locking up after key programming if the battery was weak. This occurs because the infotainment system is a master node in the Global B security chain and often participates in the authentication handshake. If it detects a voltage sag interpreted as a tampering attempt (side-channel attack), it may lock down.
+   * Mandatory Protocol: ALWAYS connect a high-quality battery maintainer (not just a trickle charger) capable of supplying at least 30-50 Amps of clean power during the programming session. Never attempt T1XX programming on the vehicle's battery alone, as the vehicle's systems (lights, modules waking up) can draw significant current, causing rapid voltage sag.27
+5.2 CAN FD Adapter Requirement
+For Autel (IM608/IM508) and many other aftermarket tools, a CAN FD Adapter is mandatory for T1XX vehicles (2020+ GM).2
+   * 2019 Exception: Some very early 2019 T1XX trucks might communicate via standard CAN on some modules, leading technicians to believe they don't need the adapter. However, relying on this is risky. If the tool attempts to switch to high-speed mode without the adapter, it will fail.
+   * Consequence of Missing Adapter: The tool will fail to communicate with the Immobilizer Control Unit. In a worst-case scenario, forcing communication without the adapter can cause bus errors that wake up modules in an erratic state, leading to battery drain or "Service Theft Deterrent" messages.
+   * Connection: The adapter connects between the OBDII cable and the vehicle's DLC (Data Link Connector). Note: Do not confuse this with the "ADC2011" cable often discussed in locksmith forums. The ADC2011 is a Secure Gateway bypass cable specifically for Chrysler/Jeep/Dodge vehicles.28 It is not the correct tool for GM T1XX. For GM, you specifically need a CAN FD Adapter (e.g., Autel CAN FD Adapter, XTool CAN FD Adapter).
+5.3 Server-Side Authentication
+Unlike K2XX, where the security calculation was often done on the tool or via a static algorithm, T1XX programming requires a live connection to the tool manufacturer's server (Autel, Advanced Diagnostics, etc.) to calculate the challenge-response.29
+   * Requirement: Stable Wi-Fi or Hotspot connection is non-negotiable.
+   * Data Usage: The data packet is small, but latency matters. Avoid weak connections that could time out during the handshake. If the connection drops during the calculation phase, the tool may hang, and the vehicle may be left in a "Pre-Learn" state, refusing to start until the process is successfully completed.
+________________
+Chapter 6: Detailed Programming Procedures
+This chapter details the specific workflows for the two industry-standard tools: the Autel MaxiIM IM608 (Pro/II) and the Advanced Diagnostics Smart Pro.
+6.1 Autel IM608 Procedure (T1XX All Keys Lost)
+This procedure assumes the user has the CAN FD Adapter and a stable internet connection.30
+Prerequisites:
+   * Autel IM608 connected to internet.
+   * CAN FD Adapter installed on the VCI.
+   * Vehicle battery supported (13.0V+ recommended).
+   * Two (2) virgin smart keys (correct FCC ID).
+Step-by-Step Narrative:
+   1. Vehicle Connection: Connect the VCI (with CAN FD adapter) to the OBDII port. Ensure the connection is tight.
+   2. Menu Path: Select IMMO > GM > System Selection. It is often safer to manually select the vehicle (Chevrolet > Silverado > 2020-2021) rather than relying on Auto Detect, as Auto Detect might sometimes misinterpret the VIN year on transitional models.
+   3. Verify Info: Ensure the tool identifies the vehicle as "Silverado 2019-2021" (or relevant model) and explicitly mentions "Blade" or "Smart Key". Select Smart Key.
+   4. Immo Status Scan: Run a scan to ensure all modules are communicating. If the BCM is red (no comms), check your CAN FD adapter and battery voltage immediately. Do not proceed if the BCM is not green.
+   5. Select Function: Navigate to Keyless System > Key Learning > All Smart Keys Lost.
+   6. Server Calculation: The tool will ask to calculate the PIN/Security Data. This requires the internet. It may take 10-15 minutes. Note: Unlike K2XX 10-minute wait, this is a calculation wait, not a security timer. The screen may show a progress bar; do not disturb the tablet.
+   7. Erase Keys: The tool will command the BCM to erase all existing keys. Confirm this action. Warning: Once confirmed, the car will not start until the new keys are added.
+   8. Key 1 Programming:
+   * Locate the Key Pocket. (In T1XX Silverado/Sierra with bucket seats, it is at the bottom of the center console storage bin. For bench seats, it is often a slot in the lower dash or fold-down armrest).
+   * Place the first new key in the pocket (buttons facing up or as directed by tool diagrams).
+   * Press the Start button (do not hold brake).
+   * The tool will display "Key 1 Learned".
+   9. Key 2 Programming:
+   * Remove Key 1.
+   * Place Key 2 in the pocket.
+   * Press Start button.
+   * The tool will display "Key 2 Learned".
+   10. Finalize: Follow prompts to exit learning mode. Typically involves opening/closing the driver door and holding the Start button to turn ignition OFF.
+   11. Test: Test lock/unlock and remote start on both keys. Test proximity start (brake + button) with keys outside the pocket.
+6.2 Smart Pro Procedure (T1XX Add Key)
+The Smart Pro (with ADS2289 or newer software) is highly effective for GM. Advanced Diagnostics has released specific software (ADS2289) for the GM CAN FD platform.32
+Prerequisites:
+   * Smart Pro connected to OBDII (CAN FD adapter may be required depending on the hardware revision or cable used—consult the MyKeysPro app). Newer Smart Pro units may handle some protocols internally, but the ADC2015 CAN FD adapter kit is often required for specific GM applications.
+   * Tokens available or UTP (Unlimited Token Plan) active.
+Step-by-Step Narrative:
+   1. Selection: Select Chevrolet > Silverado > 2019+ (T1XX).
+   2. Connect: Reliable internet is required for the "Cloud Calculation."
+   3. Function: Select Program Keys (Add Key).
+   * Technician Insight: "Add Key" on T1XX is significantly safer than AKL if a working key is present, as it avoids wiping the BCM and risking configuration data loss. Always prefer "Add Key" if possible.33
+   4. Procedure:
+   * Place the working key in the programming slot/pocket.
+   * Follow the prompt to turn ignition ON.
+   * The tool reads the current security data and authenticates with the server.
+   * Place the new key in the pocket when prompted.
+   * Wait for the "Key Programmed" success message.
+   5. Closing: Ensure the tool closes the programming session properly. Unlike older systems, simply unplugging the tool might leave the BCM in a diagnostic session, potentially causing battery drain. Always use the "Disconnect" button in the software.
+________________
+Chapter 7: Remote & Fob Reference Tables
+Correct part sourcing is the single biggest logistical challenge. The K2XX and T1XX fobs are not interchangeable, and even within the T1XX, frequencies differ by year and trim.
+7.1 Chevrolet Silverado / GMC Sierra 1500 (2014–2019 LD) [K2XX]
+Key Type
+	Buttons
+	FCC ID
+	Frequency
+	Part Numbers (OEM)
+	Notes
+	Flip Key
+	4 (Lock, Unlock, Start, Panic)
+	M3N-32337100
+	315 MHz
+	13577770, 22881480
+	Most common. Z-Keyway/HU100.
+	Flip Key
+	3 (Lock, Unlock, Panic)
+	M3N-32337100
+	315 MHz
+	13577771, 23335584
+	Work Truck (WT) trims.
+	Smart Key
+	5 (L, U, Hatch, Start, P)
+	HYQ1AA
+	315 MHz
+	13580802
+	High Country / Denali (Push-to-Start).
+	7.2 Chevrolet Silverado / GMC Sierra 1500 (2019+ New Body)
+Note: 2019-2020 often use 315 MHz; 2021+ often migrated to 433 MHz. Always check the original key or VIN build data.
+
+
+Year Range
+	Type
+	FCC ID
+	Frequency
+	Part Numbers (OEM)
+	Notes
+	2019–2021
+	Smart Key (5-Btn)
+	HYQ1EA
+	433 MHz
+	13529634, 13591396
+	High trim. Check freq carefully.25
+	2019–2020
+	Smart Key (3/4-Btn)
+	HYQ1EA
+	433 MHz
+	13529632
+	Lower trims w/ Prox.
+	2021–2024
+	Smart Key (5-Btn)
+	YG0G21TB2
+	433 MHz
+	13548438, 13550574
+	Newest standard. Common on '22+ refreshed interiors.25
+	2021–2024
+	Smart Key
+	HYQ1ES
+	433 MHz
+	13522904
+	Alternate supplier.
+	2019+
+	Flip Key (Bladed)
+	M3N-32337200
+	315 MHz
+	13529664
+	For T1XX Work Trucks (Turn-key ignition). HU100.26
+	Crucial Warning: The M3N-32337100 (K2XX) and M3N-32337200 (T1XX) flip keys look identical but are not compatible.26
+   * 7100 = K2XX (Legacy) - Global A
+   * 7200 = T1XX (New Body) - Global B
+   * Check the FCC ID printed on the side of the remote head or under the blade pivot. Installing a 7100 key on a 2020 Silverado will result in a "Transponder Not Detected" error or failure to learn the remote functions.
+________________
+
+
+  
+
+
+
+________________
+Chapter 8: PEPS Calibration and Troubleshooting
+A successful key programming session can sometimes leave the vehicle with "quirks"—remote start not working, TPMS lights flashing, or the "Theft Detected" message appearing.
+8.1 PEPS Antenna Calibration
+The Passive Entry Passive Start (PEPS) system relies on multiple Low Frequency (LF) antennas to triangulate the key's position (inside vs. outside, driver side vs. passenger side).
+   * The Issue: After BCM replacement or an AKL reset on T1XX, the BCM may lose the calibration values for these antennas.
+   * The Symptom: The vehicle starts when the key is in the pocket, but passive entry (button on handle) fails, or the car claims "No Remote Detected" when the key is in the cup holder.
+   * The Procedure: This typically requires the OEM Tool (Techline Connect / SPS2). Most aftermarket locksmith tools (IM608/Smart Pro) generally do not have the capability to perform a "PEPS Antenna Learn". The manual "3x10" method mentioned in older forums 20 is for the Immobilizer Learn (allowing the engine to start), not the PEPS Antenna Learn (calibrating the keyless zones).
+   * Workaround: Disconnect the vehicle battery for 15 minutes (hard reset) to force the modules to re-initialize. If this fails, dealer software is required.
+8.2 Immobilizer Relearn vs. Password Learn
+   * 10-Minute Relearn (K2XX): This is the "old school" method described in Chapter 3. It essentially syncs the BCM and ECM code words.
+   * Server Authentication (T1XX): There is no "manual" relearn for T1XX. The security keys are exchanged cryptographically during the programming event. If the "Theft" light remains on after programming a T1XX:
+   1. Do not disconnect the battery immediately.
+   2. Try to perform the "Immo BCM Sync" function if available on your tool.
+   3. Ensure two keys were programmed. The system often keeps the light on until the second key is registered to close the loop.18
+________________
+Chapter 9: Resource Library and Tool Matrix
+9.1 Tool Coverage Matrix
+The following table summarizes the capabilities of major locksmith tools for these specific platforms.
+
+
+Tool
+	K2XX (2014-2019)
+	T1XX (2019-2026)
+	Notes
+	Autel IM508/IM608
+	Excellent. OBD add/AKL.
+	Good. Requires CAN FD Adapter. Online calc required.
+	Must have active subscription for online server access.29
+	Smart Pro (AD)
+	Excellent. Fast OBD.
+	Excellent. Requires active UTP/Tokens.
+	One of the most stable tools for Global B.34
+	AutoProPad (G2/G4)
+	Good.
+	Moderate. Requires CAN FD Adapter.
+	Check latest software updates; T1XX support was added later than Autel/AD.35
+	Proprietary/OEM (SPS2)
+	Native.
+	Native.
+	Requires J2534 Pass-thru + Laptop + Subscription ($45/VIN). Best for recovering bricked modules.
+	9.2 Recommended Video Tutorials
+For visual learners, the following YouTube channels and specific tutorials are highly recommended to visualize the physical locations of key pockets and the specific sounds of the programming handshake:
+   * Autel IM608 Specifics: "Flash Performance" 36 and "JoeDLocksmith" 37 offer excellent step-by-step guides on navigating the IM608 menus for GM vehicles.
+   * T1XX Procedures: "AutoKeyPro" 38 provides a specific walkthrough for the 2022 Silverado, highlighting the hidden key slot location which is a common stumbling block for technicians.
+   * Key Cutting: "CLK Supplies" 39 offers detailed guides on identifying the HU100 keyway and using Lishi tools correctly, ensuring the mechanical cut is accurate before attempting electronic programming.
+Conclusion
+The transition from K2XX to T1XX is a watershed moment for automotive locksmiths. It marks the end of standalone, offline programming for GM trucks and the beginning of the connected, encrypted era. Success requires a shift in mindset: from simply "turning a key" to managing data bus protocols, maintaining precise voltage, and navigating server-side authentication. By strictly adhering to the identification protocols for the 2019 model year and investing in the necessary CAN FD hardware, locksmiths can safely service this profitable segment. However, the "Wild West" days of trying random keys until one works are over; the T1XX platform demands precision, correct part sourcing, and professional-grade tooling to avoid costly module corruption.
+Works cited
+   1. GMT K2XX - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/GMT_K2XX
+   2. Unveiling the Power of CAN FD Protocol and 3rd Party CAN FD Adapter in - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/unveiling-the-power-of-can-fd-protocol-and-3rd-party-can-fd-adapters-in-automotive-locksmithing
+   3. New “Security Requirements” from Ford and GM | Locksmith Ledger, accessed January 5, 2026, https://www.locksmithledger.com/keys-tools/transponder-programming-equipment/article/55000936/new-security-requirements-from-ford-and-gm
+   4. Chevy 1500 LD what's the LD stand for? : r/Silverado - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Silverado/comments/16iyrgc/chevy_1500_ld_whats_the_ld_stand_for/
+   5. Autel CAN FD CANFD Adapter for GM MY2020 Vehicles, 2024 Newest Compatible with Autel Scanner Diagnostic Scan Tool MaxiSys Series Vehicle Models W/CAN FD Protocol (100% Original) - Newegg, accessed January 5, 2026, https://www.newegg.com/p/0FB-0ACC-000X1
+   6. GMT T1XX platform - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/GMT_T1XX_platform
+   7. Is my truck bed the new body style or legacy? 2019 Sierra 1500 : r/gmcsierra - Reddit, accessed January 5, 2026, https://www.reddit.com/r/gmcsierra/comments/11o42nd/is_my_truck_bed_the_new_body_style_or_legacy_2019/
+   8. 2014 Chevrolet Silverado Keyless Entry 4B Fob FCC# M3N32337100, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2014-chevrolet-silverado-keyless-entry-4b-fob-fcc-m3n32337100
+   9. GMC Sierra Key Fobs - Remotes And Keys, accessed January 5, 2026, https://remotesandkeys.com/collections/gmc-sierra-key-fobs
+   10. GM & Chevy Truck VIN Decoder Chart | JEGS, accessed January 5, 2026, https://www.jegs.com/tech-articles/gm-truck-vin-decoder-gm-decoder-chart/
+   11. How To Decode A GM VIN|GMParts Center Blog, accessed January 5, 2026, https://www.gmpartscenter.net/blog/how-to-decode-gm-vin
+   12. Chevrolet and GMC 1981-1987 Chevy Truck Vin Decoder - USA1 Industries, accessed January 5, 2026, https://www.usa1industries.com/square-body-life/?p=chevrolet-and-gmc-1981-1987-chevy-truck-vin-decoder
+   13. Locksmithing 101 | EVERYTHING You Need To Know About The B111 Transponder Key!, accessed January 5, 2026, https://www.clksupplies.com/blogs/news/locksmithing-101-everything-you-need-to-know-about-the-b111-transponder-key
+   14. GMC HU100 Emergency Key - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/products/gmc-hu100-emergency-key
+   15. ORIGINAL LISHI - HU100 GM / 10 Cut / 2-In-1 Pick / AG for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/original-lishi-gm-hu100-2-in-1-pick-ignition-door-trunk-10-cut-ag
+   16. Original Lishi HU100 GM (10 Cuts) 2-in-1 Pick - Ignition / Door / Trunk - Anti Glare, accessed January 5, 2026, https://keyinnovations.com/products/original-lishi-hu100-v3-10-cuts-gm-2-in-1-pick-ignition-enabled-anti-glare
+   17. ID 46 CHIP Car Key Chips id46 Car Transponder Chip ID 4 6 ID48 Chip KD4D KD46 PCF7936 I D 46 Key chip for GM /Chevrolet /Lot - AliExpress, accessed January 5, 2026, https://www.aliexpress.com/item/1005004235952327.html
+   18. Programming key fob : r/Silverado - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Silverado/comments/1d3pi4p/programming_key_fob/
+   19. How to Program Chevy Key Fob Step-by-Step | Rick Hendrick Chevrolet Norfolk, accessed January 5, 2026, https://www.rickhendrickchevroletnorfolk.com/service/service-and-parts-tips/how-to-program-chevy-key-fob/
+   20. CARDONE TECH - GM Passlock | Passkey | VTD Relearn Procedure - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=oVIkjubBKpo
+   21. GM Vehicle Theft Deterrent (VTD) Relearn Procedures - CARDONE Industries, accessed January 5, 2026, https://www.cardone.com/content/Products/PT77-0011.pdf
+   22. Autel CAN FD Adapter - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+   23. MK3. Used Remotes | MK3, accessed January 5, 2026, https://www.mk3.com/en/used-remotes?pagenumber=3
+   24. Identifying Transponders - LSC | Complete Security Solutions, accessed January 5, 2026, https://lsc.com.au/identify-transponders
+   25. for 2022-2024 GMC SIERRA 1500 Smart Key FOB 4-Button Tailgate YG0G21TB2 13548439, accessed January 5, 2026, https://www.ebay.com/itm/156304316951
+   26. Chevrolet Silverado 2019-2022 and GMC Sierra 2019-2021 | 5-Button Remo, accessed January 5, 2026, https://www.bestkeysolution.com/products/gm-remote-key-fob-5-button-for-chevrolet-silverado-gmc-sierra-fcc-id-m3n-32337200-p-n-84209236-433-mhz
+   27. 10 Steps for 100% Safe Car Key Programming (AVOID BRICKING!) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=lR9jv9WjwGk
+   28. Ilco SMARTPRO Chrysler Advanced Diagnostics Cable (ADC2011) - JB Tools, accessed January 5, 2026, https://www.jbtools.com/advanced-diagnostics-adc2011-chrysler-cable-for-smartpro/
+   29. A GUIDE TO THE IM608 ALL LOST KEY PROGRAMMING FOR AUDI A3 - 3D Group, accessed January 5, 2026, https://3dgroupuk.com/tutorials/a-guide-to-the-im608-all-lost-key-programming-for-audi-a3
+   30. How To Program keys All Keys Lost for Ford Fusionusing Autel IM608 Key Programmer, accessed January 5, 2026, https://www.youtube.com/watch?v=TimNTo5l5JE
+   31. Autel MaxiIM IM608 MQB All Keys Lost Programming Procedure | AutelSale.com Office Blog, accessed January 5, 2026, http://blog.autelsale.com/2020/07/14/autel-maxiim-im608-mqb-all-keys-lost-programming-procedure/
+   32. Manuals - Advanced Diagnostics, accessed January 5, 2026, https://www.advanced-diagnostics.com/manuals
+   33. Key Programming Watch the SMART PRO add GM Proximity Keys for a Chevy Traverse!, accessed January 5, 2026, https://www.clksupplies.com/blogs/news/key-programming-watch-the-smart-pro-add-gm-proximity-keys-for-a-chevy-traverse
+   34. How to Get Started with Smart Pro Key Programming Diagnostics Machine_Advanced ... - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=704Z76xQoYU
+   35. Can FD credits : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1luv8nd/can_fd_credits/
+   36. 08 Silverado Key Programming with Autel IM608 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=pYKGJd1qzRQ
+   37. 2018 Chevrolet Malibu All Smart Keys Lost using Autel IM608 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=E-kEkd_Gbw8
+   38. 2022 Chevy Silverado Smart Key Programming | IM608 Pro II + Slot Location Tip - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=WeQCG22YVLU
+   39. Locksmith Tips | FAST WAY TO IDENTIFY ANY KEYWAY! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=_hnaRnznkQE

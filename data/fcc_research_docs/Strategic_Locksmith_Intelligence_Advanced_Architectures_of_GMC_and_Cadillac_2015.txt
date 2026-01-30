@@ -1,0 +1,233 @@
+﻿Strategic Locksmith Intelligence: Advanced Architectures of GMC and Cadillac (2015–2026)
+1. Executive Summary: The Cybersecurity Paradigm Shift in Automotive Access
+The automotive security landscape for General Motors’ premium divisions—GMC and Cadillac—has undergone a radical and systemic transformation between the model years of 2015 and 2026. For the professional automotive locksmith, this period does not merely represent a change in key blank profiles or transponder values; it signifies a fundamental migration from static, high-speed GMLAN architectures to the dynamic, encrypted, and server-dependent Vehicle Intelligence Platform (VIP), colloquially and technically known as "Global B." This report serves as an exhaustive intelligence dossier designed to guide the technical operations of locksmiths servicing the high-value fleets of GMC (Sierra, Yukon, Acadia) and Cadillac (Escalade, CT4/5, XT4/5/6).
+The implications of this shift are profound. In the early phase of this timeline (2015–2018), security was hardware-centric, relying on the physical possession of a transponder key and a localized handshake between the key and the Body Control Module (BCM). By the end of this timeline (2024–2026), security has become network-centric, relying on real-time, encrypted authentication between the vehicle, the diagnostic tool, and the manufacturer’s cloud servers.1 The "crossover years"—specifically 2019 through 2022—present the highest risk of operational failure for technicians, as identical-looking vehicles may operate on entirely different digital foundations depending on their precise build date, manufacturing plant, and platform designation.3
+This dossier specifically dissects these architectures, excluding general Chevrolet or Buick data unless it directly informs the GMC/Cadillac lineage. It provides a granular analysis of the K2XX to T1XX transition, the specific identification of the "Limited" versus "New Body" variations, the "All Keys Lost" (AKL) procedures for the encrypted Global B architecture, and the nuanced troubleshooting required for high-feature remote systems like Cadillac’s Super Cruise.
+2. The Architectural Triad: K2XX, T1XX, and Global B
+Understanding the underlying digital chassis is the absolute prerequisite for successful key programming. Unlike previous generations where a "GM Key" was largely universal across the brand's portfolio, the 2015–2026 era is defined by three distinct communication protocols, each requiring different tooling, voltages, and procedural approaches.5
+
+
+  
+
+
+
+2.1 The K2XX Platform (Legacy High-Speed GMLAN)
+The K2XX platform, which underpinned the GMC Sierra and Yukon from 2014 through 2019 (and specifically the "Sierra Limited" into 2019), represents the maturation of the Global A architecture. This system utilizes a standard High-Speed GMLAN architecture that is well-understood by the locksmith industry. The defining characteristic of this era is the stability of its immobilizer protocol, which utilizes the Philips ID46 (Circle Plus) transponder system.7
+In this architecture, the Body Control Module (BCM) acts as the primary gatekeeper. When a key is inserted or a fob is pressed, the BCM energizes the exciter coil, reads the transponder's cryptographic signature, and, upon verification, sends a "fuel continue" password to the Engine Control Module (ECM). While secure for its time, this handshake is static enough to be emulated by advanced aftermarket programmers. Tools such as the Autel IM608, OBDSTAR X300 DP Plus, and Advanced Diagnostics Smart Pro can perform "Add Key" and "All Keys Lost" procedures via the OBDII port without requiring a live server connection in many instances, or by using a localized challenge-response calculation.9
+The standard remote frequency for the K2XX platform in the North American market is 315 MHz. This is a critical identifier for technicians: if a 2019 GMC Sierra tests at 315 MHz, it is almost certainly a K2XX "Limited" model, requiring legacy programming procedures rather than the CAN FD protocols of its newer sibling.11
+2.2 The T1XX Platform (Introduction of CAN FD)
+Introduced in 2019 for the "New Body Style" Sierra and followed by the Yukon and Escalade in 2021, the T1XX platform marked a significant leap in data transmission speeds. This platform transitioned the vehicle's communication backbone to the Controller Area Network with Flexible Data-Rate (CAN FD) protocol. This shift was necessitated by the increasing data loads of advanced driver-assistance systems (ADAS) and infotainment complexities.4
+For the locksmith, the introduction of CAN FD was a disruptive event. Traditional OBDII interfaces, which operate on the standard CAN 2.0 protocol (500 kbps), are physically incapable of interpreting the higher-speed frames (up to 5-8 Mbps) of the CAN FD bus. Attempting to program a T1XX vehicle with a legacy tool results in a "No Communication" error, often misdiagnosed as a BCM failure. Successful interaction requires either a native CAN FD-capable tool (such as the Autel V200 VCI included with the KM100/IM508S) or a specialized CAN FD adapter inline with the OBD cable.13
+Security on the T1XX platform also evolved. While it retained a similar BCM-centric logic to the K2XX, the frequency shifted to 433 MHz to support greater bandwidth for remote start telemetry and bidirectional fob communication. The encryption keys rotate more frequently, and the handshake requires precise timing that only CAN FD tools can provide. The transponder technology migrated toward the NXP Hitag Pro (ID49) on high-trim models, offering 128-bit encryption that is significantly more resistant to cloning than the older ID46 chips.15
+2.3 Global B (Vehicle Intelligence Platform - VIP)
+Debuting on the Cadillac CT5 in 2020 and expanding to the Sierra, Yukon, and Escalade refresh (circa 2022.5+), Global B is not merely a platform but a holistic cybersecurity architecture. It is designed to secure the vehicle against remote hacking, which inadvertently creates a fortress against unauthorized service, including locksmithing.1
+In the Global B environment, the entire vehicle network is encrypted. Electronic Control Units (ECUs), including the BCM, Gateway Module, and ECM, are digitally signed and paired. The system employs a "Zero Trust" model: the vehicle will not accept data write commands (such as adding a key ID) from a diagnostic tool unless that tool first authenticates itself with the GM back-end server. The tool must essentially "log in" to the car using a digital certificate.2
+For the locksmith, this means traditional "offline" programming is impossible. Access requires either OEM-level server authentication (ACDelco TDS via Techline Connect) or specific aftermarket exploits that bridge the server gap. As of late 2025, tools like the Autel IM608 Pro II (with the v1.80 software update) and OBDSTAR have begun to penetrate this wall, but strictly via server-authenticated pathways that require a stable internet connection and often a subscription or per-use payment.19
+3. GMC Sierra (1500/2500/3500) Intelligence Dossier
+The GMC Sierra represents the most volume-heavy and technically varied workload for an automotive locksmith. The model's long production run means a single day's work could involve a 2015 K2XX, a 2019 T1XX, and a 2024 Global B unit. The critical failure point for most technicians is the 2019 model year split and the 2022.5 interior refresh, where visual identification determines the success of the procedure.
+3.1 The 2019 Split: Sierra Limited (K2XX) vs. New Body (T1XX)
+In the 2019 calendar year, GMC simultaneously sold two distinct vehicles under the "Sierra 1500" nameplate. The "Sierra Limited" continued the legacy K2XX design, while the "New Body Style" introduced the T1XX architecture. These two trucks share almost no electronic parts, key fobs, or programming procedures.4
+3.1.1 Visual Identification Protocols
+While the Vehicle Identification Number (VIN) is the ultimate source of truth, efficiency demands that a locksmith be able to assess the platform visually upon arrival. Relying solely on the customer's description is often unreliable, as owners are frequently unaware of the "Limited" distinction.
+
+
+  
+
+
+
+The most reliable visual indicator is the side mirror mounting point. On the K2XX (Limited), the side mirrors are mounted at the A-pillar corner, nestled into the triangle where the window meets the frame. Conversely, on the T1XX (New Body), the mirrors are mounted lower, directly on the door skin sheet metal, leaving a clear gap between the mirror base and the window line.4
+A secondary indicator is the tail light design. The K2XX Limited utilizes a standard rectangular vertical profile, often with incandescent bulbs in lower trims. The T1XX New Body features a highly sculpted "C-shape" LED signature that wraps slightly around the side of the bed, with more complex internal geometry.23 The rear bumper corner steps also provide a clue: on the T1XX, they are significantly larger and deeper to accommodate work boots, whereas the K2XX steps are shallower and more integrated into the bumper's curve.
+Operational Warning: If a technician attempts to program a "Limited" (K2XX) using a CAN FD adapter and T1XX software, the tool will fail to handshake with the older BCM. Conversely, connecting a non-CAN FD tool to a T1XX will result in a complete lack of communication on the data bus.
+3.1.2 VIN Decoding for Platform Confirmation
+When visual identification is ambiguous—for example, in aftermarket modified trucks—the VIN provides the definitive answer. The 4th and 5th digits of the VIN are the primary indicators of the platform and chassis configuration.3
+For the K2XX (2014–2019 Limited), the 4th digit typically correlates to the older weight and platform codes, often seen as "U" or "R" depending on the GVW. For the T1XX (2019+), the VIN structure was revised. The 5th digit is a key differentiator for the chassis type: 'W' designates a 2WD chassis, while 'Y' designates a 4WD chassis on the newer T1XX platform.5
+Furthermore, the 12th Digit (Serial Number) can indicate the assembly plant, which correlates to production runs. T1XX production was heavily concentrated in the Fort Wayne, Indiana, and Silao, Mexico plants with specific serial ranges. While less intuitive to memorize, the presence of a "K" or "Y" in the 5th digit position combined with a 2019 model year code ("K") usually points toward the T1XX platform nuances.5
+3.2 Key Fob Specifications & FCC ID Intelligence
+The migration from 315 MHz to 433 MHz is the defining characteristic of the T1XX platform. A locksmith stocking inventory must treat these as entirely separate product lines.
+3.2.1 2015-2019 (K2XX) - Sierra Limited
+* Frequency: 315 MHz.
+* System: Remote Keyless Entry (RKE) / Remote Start.
+* Dominant FCC ID: M3N-32337100. This is the industry "workhorse" fob. It is available in 3-button (Lock, Unlock, Panic) or 4-button (Remote Start) configurations.11
+* Interchangeability: This fob is highly interchangeable with the Chevrolet Silverado 1500 (2014-2018).
+* Transponder: Philips ID46 (Circle Plus).
+* OEM Part Numbers: 13577771 (3-btn), 22881480 (4-btn).
+3.2.2 2019-2021 (T1XX) - Sierra New Body
+* Frequency: 433 MHz.
+* System: PEPS (Passive Entry Passive Start) / Push-to-Start.
+* Dominant FCC ID: M3N-32337200. This is the primary proximity fob for the T1XX generation prior to the Global B refresh.25
+* Alternative FCC ID: HUF5767. This is occasionally seen in specific trim levels or build cycles but is less common than the M3N series.
+* OEM Part Numbers: 13577765 (3-btn), 13577766 (4-btn).
+* Critical Risk: The external plastic casing for the M3N-32337100 (315 MHz) and the M3N-32337200 (433 MHz) is virtually identical. A technician cannot distinguish them by shape alone. One must always verify the frequency using a frequency tester or read the FCC ID printed under the mechanical key insert. Mixing these fobs will result in a failed programming attempt where the transponder might learn, but the remote functions will remain dead.
+3.2.3 2022.5-2026 (Global B Refresh)
+* Frequency: 433 MHz (High Security).
+* System: Global B / VIP Architecture.
+* Dominant FCC ID: YG0G21TB2. This fob became the new standard with the refreshed interior models introduced mid-2022.27
+* OEM Part Numbers: 13548440, 13548437.
+* Transponder: NXP Hitag Pro 128-bit (ID49).
+* Compatibility: These fobs are not backward compatible with 2019-2021 T1XX models despite sharing the 433 MHz frequency. The cryptographic keys used for the rolling code algorithm are different. A YG0G21TB2 fob will not program to a 2020 Sierra, and vice versa.
+3.3 AKL Procedures: Sierra Evolution
+The procedure for "All Keys Lost" (AKL) situations perfectly illustrates the escalating complexity of the security environment.
+For the 2015-2019 (K2XX) models, the procedure is standard OBDII programming. The BCM requires a security wait time—typically 12 minutes—which can often be bypassed by advanced tools that force the BCM into learn mode. The success rate for AKL on these models is near 100% with standard equipment.29
+For the 2019-2021 (T1XX) models, the procedure requires a CAN FD Adapter. The tool must read the BCM data to calculate a PIN code. On some tools (like the Autel IM608), this process may require a server connection to compute the PIN from the BCM dump. The "All Keys Lost" procedure on the T1XX platform forces a complete erasure of all existing keys; there is no "Add Key" option if no working keys are present. The system typically requires at least two keys to close the learning loop successfully.4
+For the 2022+ (Global B) models, the status is effectively "Locked" for offline tools. The only method to program keys is via a secure server connection. The procedure involves the tool reading the encrypted BCM challenge, sending it to the server (either GM's Techline or Autel's cloud), receiving a signed response, and writing it back to the vehicle. The "shadow" or "interceptor" method used on older T1XX models—where the tool pretends to be a key—does not work here because the BCM validates the digital signature of the programming tool itself.2
+4. GMC Yukon & Acadia: The SUV Lineage
+4.1 GMC Yukon (2015-2026)
+The Yukon generally follows the Sierra’s architectural shifts, but with specific timing differences that can trap the unwary technician. The most significant divergence occurred with the 2021 redesign, which introduced Global B elements earlier than the pickup truck line.
+4.1.1 2015-2020 (K2XX SUV)
+The 2015-2020 Yukon sits on the K2XX SUV platform. The key fob ecosystem here is split. Standard keyless entry models predominantly use the HYQ1AA (315 MHz) 6-button fob. This is a robust, high-availability fob. However, a shift occurs in late-model years and specific high-trim Denali exports where the 433 MHz HYQ1EA fob appears.
+* Part Numbers: 13580811, 13529634.
+* Correction Note: While 433 MHz (HYQ1EA) is standard for the later T1XX platform, technicians should be wary of assuming all push-to-start K2XX Yukons are 433 MHz. The 315 MHz system remained in use for domestic US models longer than in the Cadillac equivalents.
+4.1.2 2021-2026 (T1XX / Global B)
+The 2021 Yukon redesign moved the vehicle to the T1XX platform and immediately integrated the Global B architecture. This contrasts with the Sierra, which operated on a transitional T1XX architecture (without full Global B lockout) until its 2022.5 refresh.
+* Key Fob: FCC YG0G21TB2 or HUFGM2718.
+* Frequency: 433 MHz.
+* Part Numbers: 13537964, 13541567.31
+* Programming Nuance: The 2021 Yukon is notoriously difficult. While it physically accepts CAN FD connections, the encryption logic is a generation ahead of the 2021 Sierra. Early 2021 models might be readable via CAN FD methods, but 2022+ models are firmly locked behind the Global B firewall.
+* AKL Requirement: The Global B Yukon typically requires two keys to successfully exit the "Learn Mode." If a locksmith attempts an AKL with only one new key, the vehicle may remain in a diagnostic state, refusing to start or lock via the remote.
+4.2 GMC Acadia (2017-2026)
+The Acadia represents the crossover architecture, which often leads the way in frequency adoption before the truck-based platforms.
+* 2017-2019: This era utilizes the HYQ1EA (433 MHz) fob. It has high cross-compatibility with the Chevrolet Traverse and Equinox of the same vintage. It is a 5-button smart key with a reliable NXP chip.8
+* 2020-2026: While the FCC ID HYQ1EA remains common, the internal board revisions (e.g., changing from Part Number 13508276 to 13523305) introduced updated transponder logic. A common failure mode is "Success but no Remote." If a 2020+ Acadia accepts a key programming procedure—the car starts—but the remote buttons (Lock/Unlock) do not function, it indicates that a pre-2020 variant of the HYQ1EA fob was used. The immobilizer chip (Hitag Pro) is compatible enough to start the engine, but the remote rolling code algorithm has diverged.33
+5. Cadillac Escalade: The Fortress
+The Cadillac Escalade is the flagship of the GM fleet and, consequently, the highest theft-risk asset. GM typically deploys its most aggressive immobilizer strategies on the Escalade first, serving as a proving ground before trickling down to the GMC Yukon and Sierra.
+5.1 2015-2020 (Gen 4)
+The Gen 4 Escalade sits on the K2XX platform but employs a more sophisticated Passive Entry Passive Start (PEPS) system than the Sierra of the same years.
+* Fob Spec: Smart Key, 6-Button (Hatch + Glass).
+* FCC ID: HYQ2AB (315 MHz) or HYQ2EB (433 MHz).
+* Critical Distinction: The 2015-2020 models in the domestic US market are predominantly HYQ2AB (315 MHz). The HYQ2EB (433 MHz) is significantly rarer in the US, usually appearing only on export models or very late production runs.34 Technicians should prioritize stocking HYQ2AB for this generation.
+* Part Numbers: 13580812, 13598511.36
+* AKL Procedure: This generation can generally be serviced via OBDII. The system requires a minimum of two keys to exit learning mode on some software versions, although "Add Key" procedures are possible with just one working key available.
+5.2 2021-2026 (Gen 5 - Global B)
+The 2021 redesign moved the Escalade to the T1XX platform with full Global B integration.
+* Fob Spec: 433 MHz, NXP ID49 Chip.
+* FCC ID: YG0G20TB1.16
+* Part Numbers:
+   * Standard: 13541571, 13538864.
+   * Super Cruise: Specific part numbers (e.g., 13546300) exist to support the Super Cruise telematics. While the core immobilizer chip remains the YG0G20TB1, using a non-Super Cruise fob on a Super Cruise-equipped vehicle may trigger "Service Driver Assist System" warnings or fail to enable the remote start-triggered radar pre-checks.38
+* Programming Constraints:
+   * 2021-2023: Classified as "Early Global B." These are supported by the Autel IM608 Pro II (v1.80+) with a valid server connection.
+   * 2024-2026: Firmware in the BCM and Gateway Module was updated to block the exploits used by early Global B tools. Many locksmiths report "Security Access Denied" errors on 2024+ Escalades even when using tools that worked on 2023 models. For these years, the only 100% guaranteed method is the OEM Techline Connect software with a valid NASTF VSP credential.2
+6. Cadillac Sedans & Crossovers: The Global B Vanguard
+The Cadillac CT and XT series were the "canaries in the coal mine" for the Global B architecture. The 2020 Cadillac CT5 was the very first application of the VIP architecture, meaning data from a 2020 CT5 is often more relevant to a 2024 Sierra than data from a 2020 Sierra would be.
+6.1 Fob Interoperability and FCC ID Matrix
+A crucial insight for inventory management is the divergence between the "Sedan/Luxury SUV" architecture and the "Crossover" architecture.
+* XT4 / XT5 / XT6 (2020+):
+   * FCC ID: HYQ2ES.7
+   * Frequency: 433 MHz.
+   * Part Numbers: 13522879, 13544052.
+   * Note: These fobs look physically identical to the "Silverado/Sierra" style fobs (5-button layout) but are physically smaller and have different button mapping. They are not interchangeable with the truck fobs (YG0G series) despite sharing the 433 MHz band.
+* CT4 / CT5 (2020+):
+   * FCC ID: YG0G20TB1.41
+   * Shared DNA: This is the same FCC ID used by the 2021+ Escalade. This indicates a shared electronic architecture between the flagship sedans and the flagship SUV, distinct from the truck-based Sierra/Yukon (which use YG0G21TB2).
+   * Inventory Insight: If a locksmith stocks the YG0G20TB1, they effectively cover both the modern Escalade and the CT sedan lineup with a single SKU.
+
+
+  
+
+
+
+7. The Physics of Access: Mechanical & Lishi Procedures
+Despite the whirlwind of electronic changes, the physical interface for emergency access has remained relatively stable, though the techniques for decoding have evolved. The standard keyway for all vehicles in this report is the HU100.
+7.1 The HU100 Evolution: 8-Cut vs. 10-Cut
+The HU100 system evolved significantly around 2014, transitioning from an 8-cut system to a 10-cut system (Code Series V0001-Z6000). For the 2015-2026 models covered in this report, the 10-cut system is the standard.43
+* Lishi Tool: The correct tool is the HU100 (10-Cut). Using an older 8-cut tool will result in misreads on positions 9 and 10, or an inability to insert the tool fully into the lock cylinder.44
+* Ignition vs. Door Lock: On many 2015+ models (specifically K2XX with keyed ignitions), the door lock cylinder does not contain all the tumblers found in the ignition. The door lock typically contains cuts 3 through 10. The ignition cylinder contains cuts 1 through 10.
+   * Decoding Strategy: A locksmith cannot fully originate a working mechanical key from the door lock alone. They must decode the door (cuts 3-10), and then utilize a progression strategy or a specialized Lishi ignition pick to determine the values for positions 1 and 2.
+   * Push-to-Start Exception: On T1XX and Global B models (2019+), there is no mechanical ignition cylinder. The "emergency key" is only used for the door. Therefore, decoding the door lock (cuts 3-10) is sufficient to originate a fully functional emergency blade, as there are no ignition tumblers to satisfy.
+8. The Digital Battlefield: Programming Procedures
+8.1 The Lishi Mechanical Interface
+Despite electronic changes, the physical keyway has remained relatively stable, but decoding requires precision.
+* Keyway: HU100.
+* Lishi Tool: HU100 (10-Cut) is the standard.
+* Ignition Changes (2014+): GM moved to a 10-cut system (Z-Series codes V0001-Z6000).
+   * Door Lock vs. Ignition: On many 2015+ models, the door lock only contains cuts 3-10. The ignition contains 1-10.
+   * Decoding Strategy: You cannot fully originate a key from the door lock alone. You must decode the door (cuts 3-10), then progress the remaining cuts (1 and 2) or use a specialized Lishi ignition pick if accessible.
+   * Note: On Push-to-Start models (T1XX/Global B), there is no mechanical ignition cylinder. The door lock decode is sufficient to cut the emergency blade.
+8.2 Diagnosing "No Communication"
+When hooking up to a 2020+ Sierra or Yukon, "No Communication" is the most common error.
+1. Check the VCI: Are you using a standard OBDII or a CAN FD VCI (e.g., Autel V200, MaxiFlash VCI)?
+2. Check the Adapter: If using older hardware (IM608 Gen 1), you must use the CAN FD adapter accessory.
+3. Check the Protocol: Ensure the tool is set to "CAN FD" mode.
+4. Global B Wake-up: These vehicles sleep deeply. You may need to hazard-flash or pump the brake to wake the BCM before the tool can handshake.
+8.3 The Global B "Server-Only" Reality
+For 2022.5+ models (and all CT4/5), local programming logic (stored in the tool) is insufficient.
+* The Procedure: The tool reads the VIN and BCM data, sends it to the manufacturer's server (or a third-party server mirroring the calc), receives an encrypted token, and writes it back to the car.
+* Failure Point: If the internet connection is unstable, or the server is down (common with aftermarket tools on weekends), the process will fail.
+* Battery Voltage: Global B modules are extremely voltage sensitive. Do not attempt AKL without a Clean Power Supply (maintainer) connected. A drop below 12.5V during the writing phase can brick the BCM.
+8.4 Troubleshooting Super Cruise Fobs
+Cadillac models with Super Cruise (2021+ Escalade, CT5) use specific fobs that enable the long-range radar handshake required for the system's initialization.
+* Issue: Using a standard non-Super Cruise fob (even with the correct FCC ID) may program successfully to start the car, but may trigger "Service Driver Assist System" warnings on the dash.
+* Solution: Always verify the VIN options (RPO Codes) before ordering fobs. Look for RPO UKL (Super Cruise).
+9. Diagnostic Forensics and Troubleshooting
+When standard procedures fail, the locksmith must pivot to diagnostic forensics. The complexity of the Global B and T1XX architectures creates specific failure modes that are distinct from legacy vehicles.
+
+
+  
+
+
+
+9.1 The "Security Access Denied" Loop
+On 2024+ Global B vehicles, a common error is "Security Access Denied" immediately after the tool attempts to authenticate with the BCM.
+* Cause: The vehicle's Gateway Module has detected an unauthorized diagnostic tool signature, or the tool's software version has not yet patched the latest GM encryption keys.
+* Forensic Step: Check the tool's update log. For Autel users, ensure the "GM" software is at least version 1.80 (August 2025 release).2 If the software is current, the vehicle likely has a newer firmware patch from a recent dealer service (Over-the-Air update). In this case, the only recourse is the OEM Techline Connect method.
+9.2 Remote Start Failure After Programming
+A frequent issue on T1XX and Global B vehicles is a successful key programming event (vehicle starts) followed by a failure of the remote start system.
+* Cause 1: Hood Latch Sensor. The remote start logic checks the hood latch status. If the hood was left unlatched during the programming process (often done to connect a battery maintainer), the BCM may store a "Hood Open" fault code.
+* Forensic Step: Clear all DTCs (Diagnostic Trouble Codes) in the BCM and ECM after programming.
+* Cause 2: Wrong Fob Variant. Using a non-Super Cruise fob on a Super Cruise vehicle, or a 315 MHz fob on a 433 MHz system (where the transponder is compatible but the remote is not), will result in this partial failure.
+9.3 The "Sleep Mode" Barrier
+Global B vehicles are designed to aggressively conserve power. If a vehicle has been sitting with a dead battery, the BCM may enter a deep sleep mode that ignores standard wake-up signals from the OBDII port.
+* Symptom: The diagnostic tool powers up but cannot read the VIN.
+* Solution: "Pump the brakes." Pressing the brake pedal or flashing the hazard lights forces a BCM wake-up event on the High-Speed CAN bus, allowing the diagnostic tool to establish the initial handshake.
+10. Conclusion: The Locksmith as Technician
+The era of "cut and cycle" for GMC and Cadillac is definitively over. The 2015-2026 lineage traces a clear path toward total digital encapsulation. Success in this market requires a pivot from mechanical manipulation to network administration.
+1. Identify: Distinguish K2XX from T1XX instantly to avoid tool mismatch.
+2. Equip: A CAN FD adapter and a voltage maintainer are no longer optional accessories; they are fundamental requirements.
+3. Verify: Global B models (CT5, 2022+ Sierra/Escalade) demand server connectivity.
+4. Stock: Inventory must now include both 315 MHz (Legacy) and 433 MHz (T1XX/Global B) fobs, with careful attention to the YG0G20TB1 vs YG0G21TB2 distinction.
+This report confirms that while the barrier to entry has raised significantly, the authorized locksmith equipped with the correct intelligence and hardware remains a vital service provider in the Global B ecosystem.
+Works cited
+1. GM Global B Tuning Support is Here. - HP Tuners, accessed January 5, 2026, https://www.hptuners.com/gmglobalb/
+2. Autel IM608 II/IM508S Update: 2025 GM,GMC & Cadillac Added, accessed January 5, 2026, http://blog.autelshop.de/autel-im608-ii-im508s-update-2025-gmgmc-cadillac-added/
+3. How To Decode A GM VIN|GMParts Center Blog, accessed January 5, 2026, https://www.gmpartscenter.net/blog/how-to-decode-gm-vin
+4. How To Easily Program Your 2019 GMC Sierra 1500 LD Key Fob - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=5nXsYvo_0Qk
+5. GM & Chevy Truck VIN Decoder Chart - JEGS.com, accessed January 5, 2026, https://www.jegs.com/tech-articles/gm-truck-vin-decoder-gm-decoder-chart/
+6. List of General Motors platforms - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/List_of_General_Motors_platforms
+7. 2019-2025 Cadillac XT4 XT5 XT6 Smart Key 5B Hatch HYQ2ES - Your Car Key Guys, accessed January 5, 2026, https://yourcarkeyguys.com/products/2020-2025-cadillac-xt4-xt5-xt6-smart-key-5b-hatch-hyq2es
+8. GMC Aftermarket 2017-2020 Acadia Smart Key 3B FCCID: HYQ1EA PN# 13508276, accessed January 5, 2026, https://royalkeysupply.com/products/gmc-aftermarket-2017-2020-acadia-smart-key-3b-fccid-hyq1ea-pn-13508276
+9. Diagnostic Tools, Specialty Tools and Key Programming - Autel, accessed January 5, 2026, https://autel.com/immotool.jhtml
+10. How To Program 2021 GMC Yukon key with CAN FD Protocol using Xtool Auto Pro Pad Key Auto Programmer - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=E3Du7xNwQMc
+11. 2015 GMC Sierra Remote Key Fob w/ Engine Start by Car & Truck Remotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2015-gmc-sierra-remote-key-fob-w-engine-start-aftermarket-1
+12. 2015 GMC Sierra Keyless Entry 3B Fob FCC# M3N32337100, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2015-gmc-sierra-keyless-entry-3b-fob-fcc-m3n32337100
+13. How to Program New GM 2021-2025 Keys Autel V200 J2534 Setup-Troubleshoot-Guide (Buick,GMC,Chevy) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=hrSnHb5q4us
+14. How to Program GMC YUKON 2021+ Smart Key All Keys Lost by the OBDSTAR - ABKEYS, accessed January 5, 2026, https://abkeys.com/blogs/news/how-to-program-gmc-yukon-2021-smart-key-all-keys-lost-by-the-obdstar-x300-dp-plus-can-fd-adapter
+15. OEM 2025-2026 GMC Sierra EV Smart Key Fob Remote 6B YGOG21TB2 - eBay, accessed January 5, 2026, https://www.ebay.com/itm/205212876319
+16. 2025 Cadillac Escalade Smart Key 6B FCC# YG0G20TB1 - 13538864 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-2023-cadillac-escalade-smart-key-6b-fcc-yg0g20tb1
+17. Autel IM608 Pro | All Keys Lost for a Mercedes - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=xlRFR-BI0VU
+18. HOW TO PROGRAM 2021-2025 CHEVROLET CADILLAC GMC BUICK KEYS USING GM TECHLINE CONNECT SOFTWARE - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=WuyBH20TKok
+19. AUTEL IM608 PRO II - 2023 MOST ADVANCED KEY PROGRAMMING,ECU CODING & INTELLIGENT DIAGNOSTICS TOOL - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=T8-RAvFjT5A
+20. Autel IM508 & IM608 2025 Update: Full IMMO Support for GM, Cadillac & GMC Unlocked!, accessed January 5, 2026, https://www.youtube.com/watch?v=hd0xiDzsGcg
+21. 2019 GMC Sierra 1500: Top 7 ways it's different from the Chevy Silverado - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=zcKSMLqGc9A
+22. GMC Sierra 1500 Trim Levels | Krietz Auto Group, accessed January 5, 2026, https://krietzauto.com/auto-group/gmc-sierra-1500-trim-level-guide/
+23. 5th Generation (2019-2025) GMC Sierra 1500 halogen vs. LED taillights. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=y9ZtIWiH9_g
+24. 2019-2024 Sierra 1500 OEM Style Tail Light; Black Housing Review & Install - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=2-7cY4tArfM
+25. 2019-2023 Chevrolet Silverado | GMC Sierra 3B Remote Fob 433mhz M3N-32337200, accessed January 5, 2026, https://yourcarkeyguys.com/products/2019-2023-chevrolet-silverado-gmc-sierra-3b-remote-fob-433mhz-m3n-32337200
+26. Remote Key Fob 84209237 M3N-32337200 for 2019-23 GMC Sierra for Chevy Silverado, accessed January 5, 2026, https://www.ebay.com/itm/235370477617
+27. Gmc Sierra 1500 Accessories Smart Key Fob Replacement For GMC Sierra & Chevy Silverado 2022-2025 - Keyless Entry Remote (433MHz) GMC Sierra Key Replacement - fmsi.com, accessed January 5, 2026, https://fmsi.com/shop/product/review/add?ID=757820
+28. 2022- 2025 GMC Sierra 1500 Smart key fob YG0G21TB2 BRAND NEW. Proximity 13548440 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/196498544737
+29. 2015 GMC Sierra 1500 Keys - Advance Auto Parts, accessed January 5, 2026, https://shop.advanceautoparts.com/find/2015-gmc-sierra-1500-keys
+30. How To Program A 2021 GMC Yukon Remote Key Fob - Add A Smart Key - Denali XL Programming Pairing - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=PQpXUQTJUTw
+31. 2021 - 2025 GMC Yukon Smart Key 6B Fob FCC# HUFGM2718, YG0G21TB2 - 135, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-2022-gmc-yukon-smart-key-6b-fcc-hufgm2718
+32. 2021-2025 GMC YUKON 6B SMART KEY PROXIMITY REMOTE FOB YG0G21TB2 13541567 13548434 - - SFFobs, accessed January 5, 2026, https://www.sffobsinc.com/product/2021-gmc-yukon-smart-key-proximity-remote-fob-transmitter-yg0g21tb2-13541567/
+33. 2017 GMC Acadia Smart Keyless Entry Remote 13508275 HYQ1EA – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2017-gmc-acadia-smart-remote-key-fob-w-engine-start-power-liftgate
+34. 2015 Cadillac Escalade Remote Keyless Entry Key Fob 13510242 13580812 13594028 13598511 HYQ2AB – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2015-cadillac-escalade-smart-remote-key-fob-aftermarket
+35. 2020 Cadillac Escalade Smart Key 6B Fob FCC# HYQ2EB - 13598512 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2015-2020-cadillac-escalade-smart-key-hatch-start-6b-fcc-hyq2eb
+36. Cadillac Escalade Smart Remote HYQ2AB 13510242 13594028 - Key4, accessed January 5, 2026, https://www.key4.com/smart-proximity-remote-key-cadillac-escalade-hyq2ab-13580812-13598511
+37. UNLOCK OEM 2021-2024 Cadillac Escalade Remote Fob FCC: YG0G20TB1 PN: 13541571 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/356013740491
+38. Cadillac GM Genuine Parts 5 Button Keyless Entry Remote Key Fob (Programming Required by Automotive Professional) | 13598528, accessed January 5, 2026, https://parts.cadillac.com/product/gm-genuine-parts-5-button-keyless-entry-remote-key-fob-(programming-required-by-automotive-professional)-13598528
+39. Cadillac New OEM 2021-2024 Escalade Smart Key 6B - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/cadillac-new-oem-2021-2023-escalade-smart-key-6b-hatch-glass-remote-start-fccid-yg0g20tb1-pn-13541571-13538864-13546300
+40. 2 For 2020-2025 Cadillac XT4 XT5 XT6 Key Fob Smart Key Proximity Remote HYQ2ES, accessed January 5, 2026, https://www.ebay.com/itm/126810458140
+41. Cadillac CT4 CT5 Smart Key 13536990 13538860 13541988 YG0G20TB1YG - Key4, accessed January 5, 2026, https://www.key4.com/smart-remote-key-cadillac-ct4-ct5-13536990-13538860-13541988-yg0g20tb1yg
+42. 2020-2024 Cadillac CT5 5-Button Smart Key Fob Remote (YG0G20TB1, 13548127, 13536990, 13538860) - NorthCoast Keyless, accessed January 5, 2026, https://northcoastkeyless.com/product/cadillac-ct5-5-button-smart-key-fob-remote-fcc-yg0g20tb1-p-n-13536990-13538860/
+43. GMC HU100 Emergency Key - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/products/gmc-hu100-emergency-key
+44. Original Lishi 2-1 Pick/Decoder for GM HU100 (10) V.3 - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/products/original-lishi-2-1-pick-decoder-for-gm-hu100-10-v-3

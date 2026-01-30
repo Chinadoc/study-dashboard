@@ -1,0 +1,334 @@
+﻿The Mercedes-Benz Security Compendium: A Technical Analysis of Drive Authorization Systems, Locksmith Procedures, and Hardware Specifications (2014–2026)
+1. Executive Summary: The Geopolitics of Automotive Access
+The automotive security landscape for Mercedes-Benz vehicles manufactured between 2014 and 2026 represents a paradigmatic shift in the balance of power between original equipment manufacturers (OEMs) and the independent aftermarket. This twelve-year period encapsulates the transition from the relatively permeable Third Generation Drive Authorization System (FBS3/DAS3) to the hermetically sealed Fourth Generation (FBS4/DAS4), and subsequently, the introduction of the Secure Gateway (SGW) architecture in the latest chassis iterations. For the professional locksmith, this era is not merely a timeline of model years but a technological battlefield characterized by a steep escalation in cryptographic complexity.1
+The implications of this transition are profound. Prior to 2015, the automotive locksmith could rely on a suite of aftermarket tools—such as the Autel IM608, Xhorse VVDI MB, and Abrites—to calculate passwords from the Electronic Ignition Switch (EIS) or Electronic Steering Lock (ESL) via infrared (IR) injection or EEPROM dumping. This accessibility fostered a thriving ecosystem of independent service providers capable of resolving "All Keys Lost" (AKL) scenarios at a fraction of the dealer's cost and time.1 However, the rollout of FBS4, beginning sporadically in late 2013 and becoming ubiquitous by 2015, effectively severed this capability. By migrating the key calculation logic from local modules to Stuttgart-controlled servers utilizing 128-bit encryption, Mercedes-Benz essentially created a "walled garden" where key generation requires proprietary, strictly controlled "workshop keys" and authenticated online sessions.1
+This report serves as an exhaustive technical manual and database for this critical period. It dissects the operational nuances of the C-Class, E-Class, S-Class, SUV lines (GLE/GLS/G-Wagon), and the commercial Sprinter fleet. It provides the precise Federal Communications Commission (FCC) identifiers, OEM part numbers, and frequency specifications required to navigate the inventory complexities of the North American market.5 Furthermore, it addresses the "grey zone" of the 2014 transition year, where a single production month can determine whether a vehicle is a profitable job or a dealer referral, and integrates the latest data on the W206 and W223 platforms, which utilize Ultra-Wideband (UWB) technology and new physical keyway profiles.7
+
+
+  
+
+
+
+The following sections will deconstruct these systems with granular detail, culminating in a structured SQL database designed to power a locksmith’s inventory management system.
+2. Architectural Analysis: The Evolution of the Drive Authorization System
+To effectively service Mercedes-Benz vehicles, one must understand the underlying logic of the Drive Authorization System (DAS). The distinction between generations is not merely a change in part numbers but a fundamental reconfiguration of the trust relationship between the key, the vehicle, and the manufacturer.
+2.1 The Legacy Standard: FBS3 (DAS3)
+The Third Generation system, dominant from approximately 1998 through 2014, relies on a "Hash and Password" architecture. The Electronic Ignition Switch (EIS/EZS) serves as the gatekeeper. It stores a specialized password and a series of key tracks (typically 8 slots). When a key is inserted (or detected via Keyless-Go), the EIS energizes the key via induction (125 kHz) and challenges it. The key responds with a calculation based on its stored data. If the calculation matches the EIS’s expectation, the EIS unlocks the Electronic Steering Lock (ESL) and sends a hashed "enable" signal to the Engine Control Unit (ECU) and Transmission Control Unit (TCU/VGS).1
+For the locksmith, the vulnerability of FBS3 lies in the fixed nature of the password. While the data transfer is encrypted, the password itself resides in the memory of the EIS and ESL. Advanced aftermarket tools can exploit the infrared communication port on the EIS to perform a "brute force" or "analytic" attack, extracting the password in minutes (or hours for older Motorola-based units). Once the password is obtained, a new "Key File" (v51 or v57 format) can be generated on a PC and written to a blank "BE" (Big E) aftermarket key or an unlocked OEM NEC key.9
+2.2 The Fortress: FBS4 (DAS4)
+The introduction of FBS4, debuting on the W222 S-Class and late W212 E-Class around 2013/2014, closed these backdoors. FBS4 abandons the static password concept in favor of a 128-bit rolling code system that is mutually authenticated between the key and the backend Daimler servers. The control units (EIS, ECU, TCU, ISM) are "married" using data that is not locally calculable.1
+In an FBS4 environment, the aftermarket tool cannot "read" a password because the operational credentials change with every start cycle and are verified against a certificate that only the dealer's backend possesses. Consequently, "All Keys Lost" situations on FBS4 vehicles are functionally unsolvable by standard aftermarket means as of late 2024. The only sanctioned method involves the "Theft Relevant Part" (TRP) process: ordering a pre-programmed key from the Parts Distribution Center (PDC) based on the VIN.11 This key arrives "locked" to the specific rail (Key Track) of the vehicle.
+2.3 The Firewall: Secure Gateway (SGW) & Star3 Architecture
+Beginning with the W206 C-Class and W223 S-Class (and mid-cycle refreshes of the W213 and W167), Mercedes-Benz introduced the Secure Gateway (SGW). This is a cybersecurity measure that segregates the vehicle's internal networks (CAN-C, CAN-E, FlexRay) from the external OBD-II port.
+
+
+  
+
+
+
+As illustrated above, the SGW intercepts all diagnostic requests. Without a digital certificate (provided via an authorized account like AutoAuth), the SGW rejects commands to read sensitive data or write coding. For locksmiths, this means even simple tasks like scanning for faults or checking the counter of keys programmed requires authentication or a hardware bypass.7
+3. The C-Class (W204, W205, W206): The High-Volume Bread & Butter
+The C-Class represents the highest volume of service requests for the average automotive locksmith. The progression from the W204 to the W206 perfectly encapsulates the tightening of security protocols.
+3.1 W204 Facelift (2014) – The Last Accessible Frontier
+The 2014 C-Class (W204 chassis) is the final year of the "easy" Mercedes. It utilizes the FBS3 system, making it fully serviceable by the aftermarket.14
+* Immobilizer System: FBS3 (DAS3).
+* Key Type: NEC BGA (Ball Grid Array) Smart Key (Chrome with Plastic sides).
+* FCC ID: IYZ3312 or IYZDC07.5
+* Frequency: 315 MHz (USA/Japan), 433 MHz (Europe/Rest of World).
+* OEM Part Number: A 204 905 62 02 (supersedes older 204 numbers).16
+* Battery: CR2025.
+* Keyway: HU64 (Standard "2-track" laser cut).
+* Locksmith Procedure (AKL):
+   1. Connect Autel IM608/VVDI MB to OBD.
+   2. Use the "Fast Calculation" method. The tool communicates with the EIS to extract the hash.
+   3. Calculate password (approx. 2-10 mins).
+   4. Generate key file and write to a BE key via IR.
+   * Note: This model is infamous for Electronic Steering Lock (ESL) failure. If the key turns but no lights appear on the dash, it is likely an ESL failure, not a key failure. Locksmiths often install an "Emulator" to bypass the faulty physical lock mechanism.3
+3.2 W205 (2015–2021) – The FBS4 Barrier
+The W205 introduced in 2015 brought the FBS4 architecture to the mass market. This model effectively ended the era of aftermarket key generation for the C-Class.
+* Immobilizer System: FBS4.
+* Key Type:
+   * Early (2015-2018): FBS4 Smart Key, Chrome, similar shape to W204 but chemically incompatible.
+   * Facelift (2019-2021): "Gloss Black" or "Matte" finish, slightly thinner.18
+* FCC ID:
+   * Early: IYZDC12K.19
+   * Late: NBGDM3 or IYZ-MS5 (transition models).18
+* OEM Part Number: A 205 905 05 02 (Early), A 222 905 47 02 (Late).
+* Transponder Chip: Proprietary NXP/Renesas FBS4 variants.22
+* Frequency: Shift toward 433 MHz even in US markets for late models, though 315 MHz exists in early builds.
+* Locksmith Procedure:
+   * Add Key: Possible only if a working key is present and the tool (e.g., specific highly advanced proprietary tools, not standard Autel) allows for cloning/adaption, but success rates are low and risk of bricking the EIS is high.
+   * All Keys Lost: Dealer Only (TRP). The locksmith must refer the client to the dealer or act as a broker to order the key from the PDC.1
+3.3 W206 (2022–2026) – The Secure Gateway Era
+The W206 is a complete departure, sharing its electronic architecture with the S-Class W223.
+* Immobilizer System: FBS4 + Secure Gateway (SGW) + Star3 Architecture.
+* Key Type: Gen 2 Keyless-Go ("Aero" style, rounded, high gloss black or white).
+* FCC ID: IYZ-MS5.21
+* Part Number: A 206 905 80 03.8
+* Battery: CR2032.25
+* Keyway: A new high-security profile that differs significantly from the HU64. It is often referred to as the "W223 Profile" or "New S-Class Profile," featuring a more complex internal cut track.26
+* Locksmith Procedure:
+   * Diagnostics require AutoAuth registration to bypass the SGW firewall.2
+   * Key programming is strictly dealer-controlled. Even with SGW access, the FBS4 encryption prevents aftermarket key generation.
+   * Warning: The mechanical key blank is different; utilizing an HU64 cutter/decoder will fail.
+4. The E-Class (W212, W213, W214): The Transition Trap
+The E-Class presents a specific danger to locksmiths due to the mid-cycle implementation of FBS4 in the W212 chassis.
+4.1 W212 Facelift (2014–2016) – The Hybrid Zone
+The 2014-2016 E-Class is the "trap" vehicle. A 2014 E350 Sedan might be FBS3, while a 2014 E350 Coupe or Cabriolet (C207/A207) might be FBS4.
+* Identification Strategy: The locksmith must check the EIS data stream before quoting the job. Using a tool like the VVDI MB or Autel IM608, read the EIS information. If the "FBS Status" reads "FBS4" or "Enabled," aftermarket programming is impossible.3
+* General Rule of Thumb:
+   * Sedans (W212): Late 2013 and 2014 builds are mixed. 2015 is almost exclusively FBS4.
+   * Coupes/Convertibles (207): Transitioned earlier. Many late 2013 models are already FBS4.
+* FCC ID (FBS3): IYZ3312 / IYZDC10.
+* FCC ID (FBS4): IYZDC12K.19
+4.2 W213 (2017–2023)
+The W213 solidified the use of 433 MHz frequencies globally, reducing the inventory variance for parts.
+* System: FBS4.
+* Key Style: "Kite" shape, slim design, gloss black with chrome sides.
+* FCC ID: NBGDM3.18
+* Part Number: A 213 905 52 03.
+* Frequency: 433 MHz (Standard for US and EU).
+* Programming: Dealer/TRP only.
+4.3 W214 (2024–2026)
+The newest E-Class adopts the W223/W206 architecture.
+* System: FBS4 + SGW.
+* Key: Same "Aero" key as W223/W206.
+* Feature: Introduction of Digital Vehicle Key (DVK), allowing iPhone/Android NFC unlocking. This adds a layer of complexity as the "key" can be a virtual credential stored in the phone's secure element.27 Locksmiths cannot currently program DVKs; this is a user-side setup via the Mercedes Me Connect app after dealer verification.
+5. The S-Class (W222, W223) & Ultra-Luxury (Maybach)
+The S-Class pioneers the security technology that trickles down to other models 3-5 years later.
+5.1 W222 (2014–2020) – The Birth of FBS4
+The W222 was the launch platform for FBS4.
+* System: FBS4 (Native).
+* FCC ID: IYZDC12K.20
+* Key: Chrome Smart Key (3 or 4 button).
+* Maybach Variants: Maybach models (X222) use the same electronic architecture but feature distinct key fobs with the "Maybach" double-M logo on the back cover. The part numbers differ solely for cosmetic reasons (e.g., A 222 905 xx xx with specific color codes).29
+* Locksmith Note: Attempting to program a standard Mercedes key to a Maybach will work electronically, but the customer will likely reject the generic logo.
+5.2 W223 (2021–2026) – UWB and Localization
+The W223 introduced Ultra-Wideband (UWB) technology to combat "relay attacks" (where thieves amplify the key signal to open the car). The key must be physically close to the car, verified by time-of-flight calculations, to allow ignition.
+* System: FBS4 + SGW.
+* FCC ID: IYZ-MS5.8
+* Part Number: A 223 905 68 00.
+* Keyway: New "Wavy" high-security profile (Not HU64).
+* Battery: CR2032.
+* SGW: Mandatory bypass required for diagnostics.
+6. The SUV Lineup (GLE, GLS, G-Class)
+The nomenclature change (ML to GLE, GL to GLS) coincided with security updates.
+6.1 GLE (W166/W167) & GLS (X166/X167)
+* W166 (ML/GLE 2012-2019):
+   * 2012-2014: Mostly FBS3.
+   * 2015-2019: FBS4. Key is IYZDC12K.30
+* W167 (GLE 2020+):
+   * System: FBS4 (Late architecture).
+   * Key: "Kite" shape (NBGDM3) initially, transitioning to "Aero" (IYZ-MS5) in 2024 facelift.
+   * FCC ID: NBGDM3.31
+6.2 G-Class (W463 vs. W463A)
+The G-Wagon is an outlier. The "old" body style (W463) remained in production until 2018 with older electronics.
+* W463 (Up to 2018):
+   * Retained FBS3 significantly longer than sedans. Many 2015-2016 G-Wagons are still FBS3 and programmable via OBD.16
+   * FCC ID: IYZ3312.
+* W463A (2019–2026):
+   * Complete electronic overhaul (borrowed from E-Class W213).
+   * System: FBS4.
+   * Key: "Kite" shape.
+   * FCC ID: IYZ-MS2.32
+   * Note: The FCC ID IYZ-MS2 is specific to the G-Class and some high-end AMG GT models, distinguishing it from the common NBGDM3.
+7. Commercial: Sprinter (W906, W907/VS30)
+Sprinter vans are a critical revenue stream for locksmiths due to fleet usage.
+7.1 W906 (2006–2018)
+* System: FBS3.
+* Key: "Fobik" style (plastic blade case) or "Flip" key.
+* Chip: PCF7936 (ID46) or Integrated Remote.
+* Status: Gold Mine. Easily programmed via OBD or by reading the EIS (9S12 processor) on the bench.
+* FCC ID: IYZ3312 (Remote Head) or KR55WK4 (Flip Key).33
+7.2 W907 / VS30 (2019–2026)
+* System: FBS4.
+* Key: "Tomahawk" or "Wedge" style (similar to W213 but ruggedized plastic).
+* Part Number: A 907 905 53 07.34
+* FCC ID: A2C94464500.
+* Frequency: 433 MHz is standard, even for US models.
+* Key Placement: In "dead battery" situations, the key must be placed in a specific pocket near the center console/cupholder, which differs from the steering column induction coil of older models.36
+8. AMG Specifics: Performance Security
+AMG vehicles (C63, E63, GT, SLS) generally follow the chassis they are based on but differ in Key Part Numbers.
+* Differentiation: AMG keys usually feature the AMG "Affalterbach" crest on the battery cover rather than the standard Mercedes star.
+* Compatibility: A standard Mercedes key will program to an AMG vehicle of the same chassis/system (e.g., a standard W205 key works on a C63). However, the customer expects the AMG branding.
+* Part Numbers: AMG keys have distinct SKUs in the EPC (Electronic Parts Catalog). For example, a standard key might be A 222 905 20 04, while the AMG variant is A 222 905 20 04 9999 with an addendum code for the crest.16
+* AMG GT (C190/R190): Uses FBS4 exclusively. FCC ID often matches the G-Class (IYZ-MS2) or E-Class (NBGDM3) depending on the year.7
+9. Comprehensive Tool & Procedure Guide
+9.1 Essential Hardware
+1. Autel IM608 Pro II: The primary diagnostic and programming tool. Essential for AutoAuth (SGW) and FBS3 AKL.4
+2. XP400 Pro Programmer: Reads/writes IR keys and EEPROMs.
+3. G-Box 3: An adapter that accelerates password calculation on W204/W207 EIS units by roughly 10x and allows for "Fast Boot" reading of Bosch ECUs on the bench.4
+4. APB112 Emulator: Used to simulate a key during the password calculation phase if no working key is present (AKL).4
+5. Pass-Thru Device (J2534): Required for Xentry Diagnosis (OEM software) to "teach in" dealer-ordered keys on FBS4 vehicles.
+
+
+  
+
+
+
+9.2 All Keys Lost Procedure (FBS3 - 2014 W204/W212)
+1. Vehicle Connection: Connect IM608 to OBDII. Maintain 13.5V via battery maintainer.
+2. Identification: Select "Smart Mode" -> "All Keys Lost". The tool reads the EIS data.
+3. Data Acquisition (On-Bench Preference): For W204/W207, it is safer to remove the EIS. Connect G-Box 3 to the EIS pins (Power, Ground, CAN-H, CAN-L, K-Line).
+4. Password Calculation: Select "Password Calculation via IR". Insert the APB112 or a blank key into the EIS reader. The tool will cycle algorithms. This can take 10-40 minutes.
+5. File Generation: Once the password is extracted, save the EIS data. Generate a "Key File" (typically Key Track 3 or 4).
+6. Writing: Insert a new "BE" key into the XP400 Pro. Write the generated file via IR.
+7. Synchronization: Reinstall EIS. Insert the new key. The key should turn, and the ESL should unlock (audible "thunk").
+9.3 Administrative Procedure (FBS4 - 2015+)
+1. Validation: Verify owner ID and Registration.
+2. Order: Submit TRP order to the local PDC for a "Replacement Key" (Pre-programmed). You must specify the VIN and color code.
+3. Receipt: Key arrives "Locked" to the VIN.
+4. Activation:
+   * Insert key into ignition (or place in Keyless-Go pocket).
+   * If the key does not work immediately, connect Xentry Diagnosis.
+   * Navigate to "Drive Authorization System" -> "Teach-in of Drive Authorization System components".
+   * Follow the guided steps to enable the key track. This requires online connection to the Daimler server.11
+10. Technical Specifications Database (SQL)
+The following SQL block creates and populates the mb_vehicles table with the highly specific data gathered from the analysis. This covers the variances in FCC IDs, batteries, and programming methods.
+
+
+SQL
+
+
+
+
+-- Database Schema for Mercedes-Benz Locksmith Data
+CREATE TABLE mb_vehicles (
+   id INT AUTO_INCREMENT PRIMARY KEY,
+   model_family VARCHAR(50) NOT NULL,
+   chassis_code VARCHAR(20) NOT NULL,
+   start_year INT NOT NULL,
+   end_year INT NOT NULL,
+   immo_system VARCHAR(30) NOT NULL COMMENT 'FBS3, FBS4, or FBS4+SGW',
+   fcc_id VARCHAR(100) COMMENT 'Comma separated if multiple',
+   frequency_mhz VARCHAR(20),
+   oem_part_number VARCHAR(100),
+   transponder_chip VARCHAR(50),
+   keyway_profile VARCHAR(20),
+   battery_type VARCHAR(20),
+   programming_method VARCHAR(50) COMMENT 'Procedure type',
+   sgw_bypass_required BOOLEAN DEFAULT FALSE,
+   notes TEXT
+);
+
+-- --------------------------------------------------------
+-- C-Class Insertions
+-- --------------------------------------------------------
+
+-- W204 Facelift (2014)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('C-Class', 'W204', 2014, 2014, 'FBS3', 'IYZ3312, IYZDC07', '315 (US)', 'A2049056202', 'NEC BGA', 'HU64', 'CR2025', 'Aftermarket (OBD/Bench)', FALSE, 'Final year of FBS3. Susceptible to ESL failure.');
+
+-- W205 Early (2015-2018)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('C-Class', 'W205', 2015, 2018, 'FBS4', 'IYZDC12K', '315/433', 'A2059050502', 'NXP (FBS4)', 'HU64', 'CR2025', 'Dealer Only (TRP)', FALSE, 'Chrome key style. No AKL solution.');
+
+-- W205 Facelift (2019-2021)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('C-Class', 'W205', 2019, 2021, 'FBS4', 'NBGDM3', '433', 'A2229054702', 'Renesas (FBS4)', 'HU64', 'CR2032', 'Dealer Only (TRP)', FALSE, 'New Gloss Black/Matte key style. Shift to CR2032 battery.');
+
+-- W206 (2022-2026)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('C-Class', 'W206', 2022, 2026, 'FBS4+SGW', 'IYZ-MS5', '433', 'A2069058003', 'Renesas (FBS4)', 'W223 Profile', 'CR2032', 'Dealer Only (TRP)', TRUE, 'Requires AutoAuth for diagnostics. New physical blade profile.');
+
+-- --------------------------------------------------------
+-- E-Class Insertions
+-- --------------------------------------------------------
+
+-- W212 Facelift (2014-2016)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('E-Class', 'W212', 2014, 2016, 'FBS3/FBS4 Mixed', 'IYZ3312, IYZDC12K', '315 (US)', 'A2129052342', 'NEC BGA / NXP', 'HU64', 'CR2025', 'Verify EIS Data', FALSE, 'Transition model. Must check EIS "FBS Status". 2014 Sedans often FBS3, Coupes FBS4.');
+
+-- W213 (2017-2023)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('E-Class', 'W213', 2017, 2023, 'FBS4', 'NBGDM3', '433', 'A2139055203', 'Renesas (FBS4)', 'HU64', 'CR2032', 'Dealer Only (TRP)', TRUE, 'SGW added in late models (2021+). Kite key shape.');
+
+-- W214 (2024-2026)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('E-Class', 'W214', 2024, 2026, 'FBS4+SGW', 'IYZ-MS5', '433', 'A2239056800', 'Renesas (FBS4)', 'W223 Profile', 'CR2032', 'Dealer Only (TRP)', TRUE, 'Digital Vehicle Key (NFC) support.');
+
+-- --------------------------------------------------------
+-- S-Class Insertions
+-- --------------------------------------------------------
+
+-- W222 (2014-2020)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('S-Class', 'W222', 2014, 2020, 'FBS4', 'IYZDC12K', '315/433', 'A2229052004', 'NXP (FBS4)', 'HU64', 'CR2025', 'Dealer Only (TRP)', FALSE, 'Launch vehicle for FBS4. Early models 315MHz, later shifted to 433MHz.');
+
+-- W223 (2021-2026)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('S-Class', 'W223', 2021, 2026, 'FBS4+SGW', 'IYZ-MS5', '433', 'A2239056800', 'Renesas (FBS4)', 'W223 Profile', 'CR2032', 'Dealer Only (TRP)', TRUE, 'UWB technology. Aero key style. New blade profile.');
+
+-- --------------------------------------------------------
+-- SUV & Commercial Insertions
+-- --------------------------------------------------------
+
+-- GLE/GLS (W166)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('GLE-Class', 'W166', 2016, 2019, 'FBS4', 'IYZDC12K', '315/433', 'A2929054702', 'NXP (FBS4)', 'HU64', 'CR2025', 'Dealer Only (TRP)', FALSE, 'Replaced ML-Class.');
+
+-- G-Class (W463A)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('G-Class', 'W463A', 2019, 2026, 'FBS4', 'IYZ-MS2', '433', 'A4639051600', 'Renesas (FBS4)', 'HU64', 'CR2032', 'Dealer Only (TRP)', TRUE, 'Specific FCC ID IYZ-MS2 differs from E-Class NBGDM3.');
+
+-- Sprinter (W907/VS30)
+INSERT INTO mb_vehicles (model_family, chassis_code, start_year, end_year, immo_system, fcc_id, frequency_mhz, oem_part_number, transponder_chip, keyway_profile, battery_type, programming_method, sgw_bypass_required, notes)
+VALUES 
+('Sprinter', 'W907', 2019, 2026, 'FBS4', 'A2C94464500', '433', 'A9079055307', 'NXP (FBS4)', 'HU64', 'CR2032', 'Dealer Only (TRP)', FALSE, 'Tomahawk key. Key placement pocket in cup holder area for dead battery start.');
+
+11. Conclusion and Forward Outlook
+The era of 2014-2026 for Mercedes-Benz vehicles serves as a definitive case study in the cat-and-mouse game of automotive security. The transition from FBS3 to FBS4 effectively ended the "golden age" of independent key generation for this marque. For the locksmith, this necessitates a business model pivot: from "key maker" to "security integrator."
+Success in the modern Mercedes market requires:
+1. Diagnostic Agility: The ability to bypass SGW via AutoAuth to perform diagnostics, even if the key itself comes from the dealer.
+2. Inventory Discipline: Managing the complex matrix of FCC IDs (IYZDC12K vs NBGDM3 vs IYZ-MS5) to ensure that when a client brings a dealer key, the locksmith can supply the correct emergency blade or service the battery.
+3. Knowledge: Recognizing the visual and technical cues of the "Hybrid" 2014 models to avoid quoting unfulfillable jobs.
+As UWB and Digital Keys become standard in the W214 and W223 lifecycles, the physical key fob may diminish in importance, but the locksmith's role in authorizing these digital credentials—and navigating the inevitable failures of these complex systems—will remain vital.
+Works cited
+1. FBS4 Mercedes Key Programming: What You Need to Know - Monty Locksmith, accessed December 27, 2025, https://www.montyslocksmith.ca/blog/fbs4-mercedes-key-programming-what-you-need-to-know-and-what-we-can-do/
+2. Autel Now Offers Access To Mercedes Gateway-Protected Systems, accessed December 27, 2025, https://autel.us/autel-now-offers-access-to-mercedes-gateway-protected-systems/
+3. How to Check if Your Mercedes-Benz Has FBS3 or FBS4 Using the YOUCANIC Scanner, accessed December 27, 2025, https://www.youtube.com/watch?v=aSHdOZ78pBw
+4. Benz FBS4 ECU Cloning by Autel IM608 and Gbox3 | by obdii365 - Medium, accessed December 27, 2025, https://medium.com/@obd365com/benz-fbs4-ecu-cloning-by-autel-im608-and-gbox3-f18239cc28e7
+5. 2008-2016 Mercedes Benz C-Class 4-Button Key Fob Remote (FCC: IYZDC07, IYZDC10, IYZDC11, IYZDC12) - NorthCoast Keyless, accessed December 27, 2025, https://northcoastkeyless.com/product/mercedes-benz-c-class-4-button-key-fob-remote-fcc-iyzdc07-iyzdc10-iyzdc11-iyzdc12/
+6. Mercedes Benz 1998-2014 Key Fob Replacement IYZ-3312, accessed December 27, 2025, https://www.bestkeysolution.com/products/1998-2014-mercedes-benz-4-button-fobik-key-iyz-3312-315-mhz-two-battery
+7. accessed December 27, 2025, https://autel.us/autel-now-offers-access-to-mercedes-gateway-protected-systems/#:~:text=Mercedes%2DBenz%20vehicles%20with%20security,)%3B%20and%20EQS%20(297).
+8. NEW Mercedes Benz key fob battery replacement - EASY DIY - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=Xm9lTYrnyHs
+9. Mercedes W221 All Key Lost | VVDI MB Tool Programming Guide - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=nhIqVzSajg0
+10. Mercedes FBS3 Smart Key With 3Buttons Adjustable Frequency 315MHz - 433MHz - ABKEYS, accessed December 27, 2025, https://abkeys.com/products/mercedes-multi-frequency-smart-key-fob-3buttons-mercedes-be-key-3295
+11. June 22, 2015 S-B-80.57/62e S-B-80.57/62d; May 2015 80 - nhtsa, accessed December 27, 2025, https://static.nhtsa.gov/odi/tsbs/2015/MC-10135903-9999.pdf
+12. News I B2B Connect I Mercedes-Benz, accessed December 27, 2025, https://b2bconnect.mercedes-benz.com/gb/news/e97ed494-c15d-4daa-a6a3-8b8e6fca60eb
+13. Secure Gateway Module (SGW) - autoenginuity, accessed December 27, 2025, https://www.autoenginuity.com/secure-gateway-module-sgw/
+14. Mercedes-Benz Chassis Chart - Detailed Guide for Chassis Identification - UHS Hardware, accessed December 27, 2025, https://www.uhs-hardware.com/pages/mercedes-benz-chasis-chart
+15. 2008 -2012 Mercedes Benz Smart Key 4B Fob W/ Panic FCC# IYZDC07, accessed December 27, 2025, https://www.locksmithkeyless.com/products/2008-2012-mercedes-benz-smart-key-4b-fob-w-panic-fcc-iyzdc07
+16. 2006 Mercedes S-Class Remote Fobik Key 5WK47283 IYZ-3312 – CarandTruckRemotes, accessed December 27, 2025, https://www.carandtruckremotes.com/products/2006-mercedes-s-class-remote-key-fob-aftermarket
+17. How To Program Mercedes Key Fob – FBS3/FBS4 Basics, Pairing Options - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=X2CgzVZeBsg
+18. Smart Remote Key Shell for Mercedes-Benz 4 Button FCCID: NBGDM3, accessed December 27, 2025, https://www.key4.com/smart-remote-key-shell-mercedes-benz-4b-fccid-nbgdm3
+19. FCC ID:IYZDC12K OEM MERCEDES BENZ SMART 4 BUTTON KEY LESS REMOTE FOB CHROME | eBay, accessed December 27, 2025, https://www.ebay.com/itm/303121318726
+20. Genuine Mercedes Benz C180 C200 2014 2020 Smart Proximity Remote Key, accessed December 27, 2025, https://www.tlkeys.com/products/Mercedes-Benz-FBS4-2015-2019-Smart-Key-Remote-PCB-315MHz-33320
+21. Oem 20-25 Mercedes Benz EQB EQE EQS GLC SL 53 Keyless Matte Smart Key Remote, accessed December 27, 2025, https://www.ebay.com/itm/156622922870
+22. Genuine Mercedes Benz FBS4 Smart Key Board, 4Buttons, 315MHz, IYZDC12B - ABKEYS, accessed December 27, 2025, https://abkeys.com/products/mercedes-fbs4-smart-key-315mhz-iyzdc12b-4466-iyzdc12b
+23. Mercedes FBS4 Original Smart Remote Key PCB 3 Buttons 433MHz with Aftermarket Shell, accessed December 27, 2025, https://www.mk3.com/mercedes-fbs4-original-smart-remote-key-pcb-3-buttons-433mhz-with-aftermarket-shell-ready-to-program
+24. Mercedes S Class Key - eBay, accessed December 27, 2025, https://www.ebay.com/shop/mercedes-s-class-key?_nkw=mercedes+s+class+key
+25. Mercedes-Benz Key Fob Battery Replacement | How to Open SmartKey | Video, accessed December 27, 2025, https://www.mercedesbenzofhampton.com/service/service-and-parts-tips/mercedes-benz-key-fob-battery-replacement/
+26. Mercedes Benz 2022-2025 Smart Key Blade, HU64 - ABKEYS, accessed December 27, 2025, https://abkeys.com/products/mercedes-benz-smart-key-blade-2019up-fbs4-hu64-5111
+27. Digital Vehicle Key: emergency unlocking - - E-Class Sedan January 2024 W214 MBUX Owner's Manual Videos - Mercedes-Benz USA, accessed December 27, 2025, https://www.mbusa.com/en/owners/manuals/e-class-sedan-2024-01-w214-mbux/videos/digital-vehicle-key-emergency-unlocking
+28. What cars and/or MBUX version allows smartphone key? : r/mercedes_benz - Reddit, accessed December 27, 2025, https://www.reddit.com/r/mercedes_benz/comments/1jw7zru/what_cars_andor_mbux_version_allows_smartphone_key/
+29. MODEL INDICATOR INDEX ® (1981-2020) - MB Wholesale Parts, accessed December 27, 2025, https://www.mbwholesaleparts.com/content/dam/microsites/marketing-portal/parts/MODELDESIGNATIONHISTORICALDOCUMENT.pdf
+30. 2016 Mercedes Benz GLE-Class 4-Button Key Fob Remote (FCC: IYZDC07, IYZDC10, IYZDC11, IYZDC12) - NorthCoast Keyless, accessed December 27, 2025, https://northcoastkeyless.com/product/mercedes-benz-gle-class-4-button-key-fob-remote-fcc-iyzdc07-iyzdc10-iyzdc11-iyzdc12/
+31. KEYECU For Mercedes-Benz W212 166, 207, V212 AMG G C S E Class Replacement 4 Buttons Remote Car Key Shell Case Housing NBGDM3 - AliExpress, accessed December 27, 2025, https://www.aliexpress.com/i/1005004696638694.html
+32. mercedes benz mb g63 amg smart key remote fob (3btn) fcc: iyz-ms2 excellent! - eBay, accessed December 27, 2025, https://www.ebay.com/itm/174828405865
+33. MERCEDES BENZ - Locksmith Keyless, accessed December 27, 2025, https://www.locksmithkeyless.com/collections/vendors?q=MERCEDES%20BENZ
+34. OEM Smart Key Mercedes Sprinter W907 Buttons:3 / Frequency: 315MHz / Manufacture: HELLA / Part No: A9079058806 / Keyless Go - SOS Autokeys, accessed December 27, 2025, https://auto-keys.eu/original-smart-key-mercedes-sprinter-w907-buttons-3-frequency-315mhz-manufacture-hella-part-no-a9079058806-keyless-go
+35. OEM Mercedes-Benz Sprinter Key Fob A9079055307 | 2019–2025 | RV Van Chassis New, accessed December 27, 2025, https://ocupatucalle.com/products/16530415/
+36. Mercedes Sprinter Key Not Detected▶️ Place Key In Marked Space FIXED - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=-FI_DG-DE9k
+37. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed December 27, 2025, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide

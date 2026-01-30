@@ -1,0 +1,252 @@
+﻿The Fortress Under the Hood: A Definitive Technical Reference on Stellantis Security Gateway Architectures (2018–2026)
+1. Introduction: The End of the Open Architecture Era
+The automotive industry stands at a critical inflection point, transitioning from the mechanical simplicity of the past to the software-defined complexity of the future. For decades, the On-Board Diagnostics II (OBDII) port served as a universal, open-access interface, democratizing vehicle repair and allowing an entire ecosystem of aftermarket tools, telematics dongles, and enthusiast tuners to flourish. However, the introduction of the Security Gateway Module (SGW) by Fiat Chrysler Automobiles (FCA)—now Stellantis—in the 2018 model year marked the definitive closure of this open era. This report provides an exhaustive, expert-level analysis of the Stellantis SGW ecosystem, tracing its evolution from a discrete hardware patch to a fully integrated, silicon-level firewall embedded within the Body Control Module (BCM) of 2026 architectures.
+This shift was not arbitrary but necessitated by a rapidly expanding threat landscape. As vehicles began incorporating 4G LTE modems, Wi-Fi hotspots, and advanced infotainment systems, the Controller Area Network (CAN) bus—a communication standard designed in the 1980s with no inherent encryption or authentication—became critically exposed. High-profile vulnerabilities demonstrated that a malicious actor could pivot from a compromised infotainment unit onto the high-speed powertrain network, potentially seizing control of throttle, braking, and steering systems. In response, Stellantis deployed the SGW as a digital sentinel, a hardware firewall designed to segregate the vehicle's "untrusted" external interfaces from its "trusted" internal control systems.
+For the aftermarket professional—whether a master diagnostic technician, a specialized automotive locksmith, or a fleet manager—the SGW represents a fundamental change in operational workflow. It transforms simple procedures like clearing a diagnostic trouble code (DTC) or programming a proximity key from a trivial task into a complex authentication challenge involving third-party credentialing services, specialized bypass harnesses, and a nuanced understanding of network topology. This document serves as the authoritative reference for navigating this fortified landscape, synthesizing technical schematics, field operational data, and economic models to provide a roadmap for the service industry through 2026.
+2. Technical Architecture of the Security Gateway
+2.1 The Logic of Network Segmentation
+At its core, the SGW is a network bridge that enforces a strict "trust but verify" policy. In pre-2018 architectures, the Data Link Connector (DLC)—the physical OBDII port under the dashboard—was hardwired directly to the vehicle’s primary CAN buses. Any device plugged into the port had immediate, unfiltered access to broadcast messages to the Powertrain Control Module (PCM), Anti-Lock Brake System (ABS), and Body Control Module (BCM).
+
+
+  
+
+
+
+The SGW architecture fundamentally alters this topology by introducing two distinct network zones: the Public Sector and the Private Sector. The Public Sector comprises the external-facing interfaces, specifically the DLC and the telematics units (radio/cellular modems). These points of entry are considered inherently insecure. The Private Sector contains the vehicle's critical operational networks, including the high-speed CAN-C (Powertrain), CAN-IHS (Interior High Speed), and various LIN (Local Interconnect Network) buses. The SGW sits physically and logically between these two sectors. It functions as a gateway router, inspecting every data packet attempting to cross from the Public to the Private side.
+The operational logic is binary and dependent on the nature of the request. "Read" commands, which simply query an ECU for its current status or stored fault codes, are generally permitted to pass through the gateway without authentication. This ensures that the vehicle remains compliant with federal emissions standards that mandate accessible diagnostics for inspection purposes. However, "Write" commands—any instruction that alters the vehicle's state, such as clearing a fault code, actuating a solenoid, recalibrating a sensor, or programming a key—are intercepted and dropped by the SGW unless a valid digital certificate is presented. This certificate serves as a cryptographic proof of authorization, verifying that the diagnostic tool is registered, the user is authenticated, and the action is permissible.
+2.2 Hardware Evolution: From Discrete to Integrated
+The physical implementation of the SGW has undergone a significant evolution, complicating the landscape for aftermarket repair. In the initial rollout phase, covering roughly the 2018 to 2021 model years, the SGW was a discrete, standalone electronic control unit. It was a small black box, typically featuring two distinct connectors: a 12-pin connector and an 8-pin connector. This modularity was a double-edged sword; while it added a component to the assembly process, it also provided a convenient physical vulnerability. Technicians could simply unplug the SGW and bridge the connectors with a bypass harness, effectively physically removing the firewall from the circuit.
+As the architecture matured into the 2022–2024 model years, Stellantis began to harden the physical security of the module. While still often a discrete unit, the SGW was relocated to increasingly inaccessible locations—buried deep behind instrument clusters, integrated into the center stack framework, or mounted high in the firewall—making the "unplug and bypass" method labor-intensive and impractical for quick service.
+The most significant shift, however, appears in the latest "Atlantis" electrical architecture vehicles, such as the Alfa Romeo Tonale, the Dodge Hornet, and the 2025 Ram 1500 "Hurricane" platform. In these next-generation vehicles, the SGW function is no longer handled by a separate module but is integrated directly onto the printed circuit board of the Body Control Module (BCM). This integration eliminates the external connectors entirely. There is no plug to pull, no harness to bridge. The firewall is now silicon-level, rendering the traditional "12+8" bypass cable obsolete for these platforms and forcing the aftermarket to rely entirely on software-based authentication or invasive board-level hacking.
+3. Comprehensive Vehicle Coverage Matrix (2018–2026)
+The rollout of the SGW was aggressive but not simultaneous across all marques. Understanding which vehicles are equipped—and more importantly, where the module is located—is the first step in any diagnostic procedure. The "transition year" of 2018 created a mixed fleet where some models retained the legacy open architecture while others were locked down, creating confusion that persists in service bays today.
+3.1 The 2018 Transition: A Split Ecosystem
+The 2018 model year serves as the demarcation line. High-volume, high-connectivity platforms were the first to receive the technology. The Jeep Wrangler (JL), launched in 2018, was designed with the SGW from day one. Similarly, the Dodge Charger, Challenger, and Durango adopted the module across the board for 2018. The Chrysler Pacifica and 300 also joined the secure ecosystem in this year. However, legacy platforms often lagged. The Ram 1500 "Classic" (DS body style), which continued production alongside the new model, initially lacked the SGW in early 2018 builds but adopted it in late-year production runs, creating a VIN-specific lottery for technicians.
+3.2 Full Standardization (2019–2024)
+By 2019, the transition was effectively complete for the North American market. If a technician encounters a 2019 or newer Stellantis vehicle, it is virtually guaranteed to have an active Security Gateway. This period also saw the introduction of the Ram 1500 (DT platform), which not only standardized the SGW but placed it in a relatively accessible location near the driver's footwell, acknowledging the service realities of fleet maintenance. The Jeep Gladiator (JT), arriving as a 2020 model, mirrored the Wrangler JL's architecture, burying the module deep within the dashboard.
+3.3 The New Frontier (2025–2026)
+The current and upcoming model years introduce the "Phase 3" integrated architecture. The Alfa Romeo Tonale and its platform-mate, the Dodge Hornet, are the harbingers of this new standard. Field reports and technical documentation confirm that these vehicles do not possess a discrete SGW module accessible via standard bypass cables. Instead, the security logic is woven into the BCM, necessitating the use of authorized software access tools. The 2025 Ram 1500, featuring the new Hurricane inline-six engine, reportedly follows this trend, moving away from the easily accessible module of the 2019–2024 DT trucks to a more integrated and secured configuration.
+3.4 Detailed Coverage and Location Table
+Make
+	Model
+	Platform
+	SGW Start
+	Location / Access Notes
+	Ram
+	1500 (New Body)
+	DT
+	2019+
+	Discrete: Driver side kick panel/footwell, near OBDII. Accessible without tool removal.
+	Ram
+	1500 (Classic)
+	DS
+	Late 2018+
+	Discrete: Behind the radio/center stack. Requires bezel removal.
+	Ram
+	2500/3500 HD
+	DJ/D2
+	2019+
+	Discrete: Behind the instrument cluster. Requires cluster removal.
+	Jeep
+	Wrangler
+	JL
+	2018+
+	Discrete: Buried behind the radio/cluster. Preferred Access: Star Connector (Passenger side).
+	Jeep
+	Gladiator
+	JT
+	2020+
+	Discrete: Same as Wrangler JL. Preferred Access: Star Connector.
+	Jeep
+	Grand Cherokee
+	WK2
+	2018-2022
+	Discrete: Behind the radio or passenger glove box area (varies by trim).
+	Jeep
+	Grand Cherokee
+	WL
+	2021+
+	Discrete: Left of the glove box, near the center stack structure.
+	Jeep
+	Cherokee
+	KL
+	2018+
+	Discrete: Under the steering column, near the BCM.
+	Dodge
+	Charger
+	LD
+	2018+
+	Discrete: Above the BCM, near the driver's pedals/knee bolster.
+	Dodge
+	Challenger
+	LA
+	2018+
+	Discrete: Above the BCM, driver's side.
+	Dodge
+	Durango
+	WD
+	2018+
+	Discrete: Passenger side kick panel or behind glove box.
+	Dodge
+	Hornet
+	GG
+	2024+
+	Integrated: Built into BCM. No physical bypass port available.
+	Chrysler
+	Pacifica
+	RU
+	2018+
+	Discrete: Behind the climate control/infotainment bezel.
+	Chrysler
+	300
+	LX
+	2018+
+	Discrete: Behind the BCM area, driver's side.
+	Alfa Romeo
+	Giulia / Stelvio
+	952/949
+	Feb 2018+
+	Discrete: Steering column area. Reached from under the shroud.
+	Alfa Romeo
+	Tonale
+	-
+	2023+
+	Integrated: Built into BCM.
+	Maserati
+	Ghibli / Levante
+	M157/M161
+	2018+
+	Discrete: Often in the kick panel or steering column area.
+	Data synthesized from research materials including service manuals and field reports.1
+4. The Authorized Access Path: AutoAuth
+For the professional repair shop, the most sustainable and efficient method for navigating the SGW landscape is the authorized software bridge. Stellantis partnered with AutoAuth to create a secure identity management platform that allows aftermarket tools to authenticate with the vehicle's gateway over the internet. This "Soft Bypass" eliminates the need for dashboard disassembly and preserves the physical integrity of the vehicle's wiring.
+4.1 The AutoAuth Ecosystem
+AutoAuth functions as a trusted third-party Identity Provider (IdP). The system verifies that a specific diagnostic tool belongs to a legitimate, registered repair facility. The process begins with the shop creating an account on the AutoAuth portal. This involves an annual subscription fee, typically around $50 per year, which covers the administrative costs of managing the secure credentials. Once the account is active, the shop must register the serial numbers of their compatible diagnostic tools. This creates a digital link between the shop's identity and their hardware.
+When a registered tool connects to an SGW-equipped vehicle, it initiates a handshake sequence. The tool first detects the presence of the SGW and prompts the user to log in with their AutoAuth credentials. The tool then communicates with the AutoAuth server via the shop's Wi-Fi connection. If the credentials and tool registration are valid, the AutoAuth server issues a temporary digital certificate or "token" to the tool. The tool passes this token to the vehicle's SGW, which validates the signature. Upon successful validation, the SGW "unlocks," permitting bi-directional traffic to flow from the OBDII port to the internal CAN buses.
+4.2 Tool Compatibility and Ecosystem nuances
+The effectiveness of the AutoAuth solution is heavily dependent on the specific diagnostic platform being used.
+* Autel: Autel has been a leader in integrating AutoAuth access. Their Android-based tablets, such as the MaxiSys Ultra, MS919, and IM608, feature a seamless integration where the login prompt appears automatically upon vehicle identification. However, users must maintain an active "Total Care Program" (TCP) software subscription for the tool itself. If the tool's update subscription expires, the AutoAuth functionality is often disabled, forcing the user to pay hundreds of dollars in renewal fees—a significant hidden cost of the authorized path.7
+* Snap-on: Snap-on's implementation, branded as "Secure Vehicle Gateway," acts as a middleware bridge. While it uses the same AutoAuth backend, the user interface integration on platforms like the Zeus or Apollo is distinct. Snap-on users must ensure their tool software is current (typically within the last two releases) to support the gateway function.9
+* Other Platforms: Launch, Topdon, and Bosch have also integrated AutoAuth access, generally following the Autel model of requiring active software subscriptions. PC-based tools like AutoEnginuity also support the protocol, provided the laptop has internet connectivity.10
+4.3 Operational Limitations
+While AutoAuth is the "correct" way to service these vehicles, it suffers from several operational fragilities. The most obvious is the absolute dependency on internet connectivity. A technician working in a parking garage, a remote roadside location, or a shop with spotty Wi-Fi cannot perform a bi-directional test or clear a code, regardless of their credentials. Furthermore, server latency can introduce delays in the diagnostic process. Perhaps most critically for locksmiths, the AutoAuth permissions do not always extend to the high-security functions required for key programming. The "Read PIN" command, necessary to program new keys, is often classified as a security-critical function that even an unlocked SGW may block via software, necessitating a hardware intervention.4
+
+
+  
+
+
+
+5. The Hardware Bypass: Engineering the Workaround
+When the software path is blocked—be it due to lack of internet, expired subscriptions, or deeper security restrictions—the hardware bypass becomes the technician's primary recourse. This method involves physically circumventing the SGW module to establish a direct, hardwired connection to the vehicle's internal networks.
+5.1 The "12+8" Cable Standard
+The "12+8" cable has become the industry standard tool for hardware bypassing. Its name is derived from the two connectors found on the majority of discrete SGW modules: a 12-pin connector and an 8-pin connector. The 12-pin connector typically carries the vehicle's power, ground, and the primary high-speed CAN-C (Powertrain) bus lines. The 8-pin connector usually carries the secondary CAN-IHS (Interior High Speed) or Body CAN bus lines.
+To utilize this method, the technician must locate the SGW, unplug the vehicle's harness connectors from the module, and plug them into the female ends of the bypass cable. The male end of the bypass cable features a standard OBDII port. By doing this, the technician effectively removes the SGW from the circuit and connects their scan tool directly to the vehicle's internal wiring harness. The scan tool then communicates with the ECUs as if the car were a pre-2018 model, bypassing all firewall logic.
+
+
+  
+
+
+
+5.2 The "Star Connector" Tap: The Locksmith's Secret
+On platforms like the Jeep Wrangler JL and Gladiator JT, the SGW is buried so deep within the dashboard that accessing it to unplug the connectors would require hours of labor. For these vehicles, automotive locksmiths and advanced technicians utilize the "Star Connector" method. Modern Stellantis vehicles use "Star Connectors"—essentially central junction blocks—to distribute CAN bus signals to various modules. These blocks are often located in more accessible areas, such as behind the glove box or in the passenger footwell kick panel.
+By identifying the correct junction block—specifically the green-colored block which typically signifies the CAN-IHS network—a technician can unplug a non-critical module's connector (or use an open port) and insert a specialized probe cable. This cable taps directly into the CAN lines, allowing the programming tool to inject data onto the bus. This method is faster and less invasive than dashboard disassembly but carries higher risk; connecting to the wrong bus or shorting the pins can cause widespread communication faults across the vehicle.11
+5.3 Risks of Hardware Intervention
+While effective, hardware bypassing is not without peril. The physical act of unplugging modules in a live vehicle can trigger a cascade of "Lost Communication" (U-codes) in other modules that expect to see the SGW online. Furthermore, the bypass cables themselves are often cheaply manufactured aftermarket components; poor pin tension or improper shielding can introduce noise onto the sensitive CAN bus, potentially causing module glitches or flash failures during critical programming events. Professional best practice dictates clearing all fault codes immediately after removing the bypass and reconnecting the SGW to restore the vehicle to its factory state.
+6. Key Programming and the RF Hub: The Critical Path
+The most high-stakes operation in the SGW environment is key programming. In Stellantis architecture, the Radio Frequency Hub (RF Hub) is the master controller for keyless entry and immobilization. It communicates with the key fobs, verifies their cryptographic signatures, and authorizes the BCM and PCM to enable the engine start.
+6.1 The 4A Chip and Rolling Codes
+Modern Stellantis platforms (2018+) have largely migrated to keys using the AES-128 bit encryption standard, commonly referred to as "4A" chips (e.g., HITAG AES). These keys use advanced rolling codes that are synchronized with the RF Hub. Unlike older systems where a simple static PIN code might suffice, these systems require a secure handshake. The PIN code for the vehicle is stored within the RF Hub. To program a new key, the diagnostic tool must first extract this PIN.
+6.2 The Ram 1500 RF Hub Lockout Failure
+A catastrophic failure mode has been identified in 2018+ Ram 1500 (DT), Charger, and Challenger models involving the RF Hub. If a technician attempts to program keys—specifically using the "All Keys Lost" function—and the process is interrupted (e.g., due to low battery voltage, loose cable connection, or software crash), the RF Hub can enter a permanent "Locked" or "Bricked" state. In this state, the module refuses all further communication and cannot be unlocked by dealership tools. It essentially becomes a paperweight, immobilizing the vehicle until a virgin replacement unit is installed and programmed.
+This failure is often precipitated by the aggressive nature of the "All Keys Lost" command, which wipes the existing key memory before adding new ones. To mitigate this risk, seasoned locksmiths rigorously adhere to the "Add Key" function whenever possible, preserving the existing key data. Furthermore, using a hardware bypass (12+8 or Star Connector) is strongly recommended over AutoAuth for these operations, as the direct connection is more stable and less prone to latency-induced timeouts that can trigger the lockout.13
+6.3 Emergency Procedures
+When technology fails completely—dead key fob battery or severe RF interference—Stellantis vehicles retain a failsafe inductive start method. The Start/Stop button itself (or the trim ring surrounding it) contains a low-frequency antenna. By pressing the nose of the dead key fob directly against the button while depressing the brake, the vehicle's immobilizer can energize the passive transponder chip inside the fob, authenticating the key and allowing the engine to start. This procedure bypasses the active RF transmission and works even if the fob battery is completely removed.16
+7. FCC ID Consolidation and Remote Compatibility
+Navigating the replacement key market requires precise knowledge of FCC IDs. Stellantis has consolidated its key fob technology, but distinct variations remain based on platform and feature set (e.g., air suspension, power tailgate).
+7.1 Master Compatibility Matrix
+Primary FCC ID
+	Chip Technology
+	Frequency
+	Primary Vehicle Applications
+	Notes
+	OHT-4882056
+	HITAG AES (4A)
+	433 MHz
+	Ram 1500 (DT) 2019-2024
+
+
+Ram 2500/3500 2019+
+	The standard "New Body" fob. Often features specific buttons for air suspension lowering. Backwards compatible with lower trims.
+	M3N-40821302
+	Philips 46
+	433 MHz
+	Dodge Charger/Challenger 2011-2023
+
+
+Chrysler 300 2011-2018
+
+
+Dodge Durango 2014-2024
+
+
+Jeep Grand Cherokee (WK2) 2014-2022
+	The ubiquitous "Dodge Fob." Note: While the case looks identical to 4A fobs, the '46' chip is incompatible with newer RF Hubs.
+	M3N-97395900
+	NXP AES (4A)
+	433 MHz
+	Chrysler Pacifica 2017-2024
+
+
+Chrysler Voyager
+	High button count (up to 7) for sliding doors/hatch. 'KeySense' fobs are specific variants for parental control features.
+	OHT1130261
+	HITAG AES (4A)
+	433 MHz
+	Jeep Wrangler (JL) 2018-2024
+
+
+Jeep Gladiator (JT) 2020+
+	Distinct flip-key style. Ruggedized and water-resistant.
+	GQ4-54T
+	AES 4A / 46
+	433 MHz
+	Jeep Cherokee (KL) 2014-2022
+	Tear-drop shape. Verify chip type as early models used 46 and later switched to 4A.
+	KR5ALFA434
+	HITAG AES (4A)
+	433 MHz
+	Alfa Romeo Giulia / Stelvio 2017-2024
+	Premium fob. Specific 2, 3, or 4 button configurations depending on trunk/hatch options.
+	Note: Always verify the exact FCC ID on the original key or the RF Hub sticker. "Universal" keys often fail to program the proximity functions correctly on 4A systems.
+8. Economic and Operational Analysis
+For the independent shop, the SGW is not just a technical hurdle but a financial one. A cost-benefit analysis reveals that a hybrid approach is the only viable business model.
+8.1 Cost of Access
+* AutoAuth Subscription: At ~$50 annually, the direct cost of the authorized credential is negligible for any professional shop.
+* Scanner Maintenance: The hidden cost lies in the scan tool updates. Maintaining an active subscription on a high-end tool like an Autel Ultra or Snap-on Zeus can cost $800–$1,500 annually. Without this, the $50 AutoAuth account is useless.
+* Per-Use Tokens: Specialized locksmith tools (like the Advanced Diagnostics Smart Pro) often operate on a "token" system, charging ~$15–$25 per key programming event. This variable cost must be factored into customer pricing.18
+8.2 Operational Efficiency vs. Risk
+* Diagnostics: Using AutoAuth saves approximately 20–40 minutes of labor per vehicle by eliminating the need to disassemble dashboards to reach the SGW. For a shop billing $120/hour, saving 30 minutes pays for the annual AutoAuth fee in just one job.
+* Key Programming: Conversely, for key programming, the risk of a failed software handshake (leading to an RF Hub lockout) or the inability to pull a PIN via OBD makes the hardware bypass method economically superior despite the labor time. The cost of replacing a bricked RF Hub (parts + labor + downtime) far exceeds the time spent plugging in a 12+8 cable.
+9. Conclusion: The Road to 2026 and Beyond
+As the automotive industry accelerates toward 2026, the "cat and mouse" game of diagnostics is entering a new phase. The discrete SGW module, with its exploitable connectors, is a transitional technology. The future, evidenced by the 2024+ Dodge Hornet and Alfa Romeo Tonale, lies in deep integration. The migration of security logic directly into the BCM silicon and the adoption of encrypted, ethernet-based architectures (like the "Atlantis" platform) signal the end of the simple hardware bypass.
+Future repair workflows will likely depend almost exclusively on cloud-based authentication. The "Right to Repair" will no longer be about physical access to a port, but about digital access to a server. For the technician of tomorrow, the toolbox must contain not just wrenches and bypass cables, but valid digital certificates, high-speed internet access, and a deep understanding of cryptographic protocols. The Security Gateway is not a temporary hurdle; it is the new foundational standard of the connected vehicle.
+Works cited
+1. Z Automotive SGW Module SGW Bypass module (2018-2021 All FCA vehicles) - Z_SGW - Lethal Performance, accessed January 5, 2026, https://www.lethalperformance.com/z-automotive-sgw-module-sgw-bypass-module-2018-2021-all-fca-vehicles-z-sgw.html
+2. STE Chrysler Pass Through User Manual - Squarespace, accessed January 5, 2026, https://static1.squarespace.com/static/51fac8cfe4b0339e6c6987e1/t/5df85fc2cde8ca0f95214058/1576558531884/STE_Chrysler_Passthrough_V1_2.pdf
+3. SGW Bypass Fitment - ECRI Jeep Wrangler Calibrator, accessed January 5, 2026, https://ecri.app/pages/sgw-bypass-fitment
+4. (576) 2021 Jeep Grand Cherokee Location of SGW SGM Secure Gateway Module, accessed January 5, 2026, https://www.youtube.com/watch?v=NDHsbCQVylI
+5. SGW bypass FCA - Stuff4Car, accessed January 5, 2026, https://shop.stuff4car.com/en/index.php?route=product/product&product_id=51
+6. 2022 Alfa Romeo Giulia Stelvio Smart Key 5B Trunk / Remote Star - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2017-2022-alfa-romeo-giulia-stelvio-smart-key-5b-trunk-remote-start-fcc-kr5alfa434
+7. Secure Gateway Access - Autel, accessed January 5, 2026, https://autel.us/secure-gateway-access/
+8. Autel IM608 / IM608 PRO / IM608 PRO II 1-Year Total Care Program (TCP), accessed January 5, 2026, https://www.bestkeysupply.com/products/autel-im608-1-year-total-care-program-tcp-p107
+9. Secure Vehicle Gateway - Snap-on, accessed January 5, 2026, https://www.snapon.com/EN/US/Diagnostics/Secure-Vehicle-Gateway
+10. Secure Gateway Module (SGW) - autoenginuity, accessed January 5, 2026, https://www.autoenginuity.com/secure-gateway-module-sgw/
+11. 2018 JEEP WRANGLER / GLADIATOR 12+8 LOCATIONS (SGM LOCATION) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=D072R88XJdc
+12. What is the best way to program these new Chrysler star port keys such as for the 19-21 Dodge Ram? - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/vz39oo/what_is_the_best_way_to_program_these_new/
+13. Ram Key Fob Programming | Glen Dale | Straub Chrysler Dodge Jeep Ram, accessed January 5, 2026, https://www.straubcdjr.com/service-department/service-tips/how-to-program-a-dodge-ram-key-fob/
+14. Programming RF Hub Ram : r/ram_trucks - Reddit, accessed January 5, 2026, https://www.reddit.com/r/ram_trucks/comments/1ndkv9g/programming_rf_hub_ram/
+15. ATE Do Not Lock Your RF Hubs! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=hng0TK208Fs
+16. 2025 JEEP WRANGLER - How to Unlock, Open & Start With Dead Remote Key Fob Battery, accessed January 5, 2026, https://www.youtube.com/watch?v=Dk_LlZzVr8M
+17. 2024 Chrysler Pacifica Dead Key Fob Unlock - How To Open & Start With A Bad Remote Battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=6OkI7WTJkQk
+18. Unlimited Token Plan for Advanced Diagnostics Smart Pro- Yearly Plan - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/products/unlimited-tokens-for-advanced-diagnostics-mvp-pro
+19. Advanced Diagnostics Smart Pro and MVP Pro Programming Tokens - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-smart-pro-mvp-pro-programming-tokens

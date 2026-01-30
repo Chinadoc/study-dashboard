@@ -1,0 +1,394 @@
+﻿Jaguar Land Rover (JLR) Security Architecture (2018-2025): A Comprehensive Technical Analysis of Immobilizer Systems, Platform Migrations, and Programming Protocols
+Executive Summary
+The automotive security landscape underwent a seismic shift between 2018 and 2025, with Jaguar Land Rover (JLR) standing at the epicenter of this technological revolution. Driven by an industry-wide escalation in "relay attacks"—where thieves amplified key fob signals to unlock and start vehicles without physical possession—JLR engineered a fundamental migration from static, edge-based security architectures to dynamic, server-authorized ecosystems. This transition was not merely a patch but a complete overhaul of the electrical and digital infrastructure underpinning their vehicles.
+For the automotive security professional, locksmith, or forensic analyst, this period represents a distinct bifurcation in methodology. The era of simple OBD-based key programming, characterized by the "IMMO 3" generation, gave way to the "IMMO 4" and "IMMO 5" paradigms. These newer systems utilize Ultra-Wideband (UWB) technology, encrypted Ethernet backbones (DoIP), and "locked" Remote Function Actuators (RFA) that are chemically bonded to the vehicle's Body Control Module (BCM) via rolling cryptographic codes.
+This report provides an exhaustive technical analysis of this transition. It examines the migration from the D7 Premium Lightweight Architecture (PLA) to the Modular Longitudinal Architecture (MLA-Flex), detailing the implications for Immobilizer (IMMO) generations. It addresses the critical operational risks of "bricked" BCMs, the necessity of proprietary dealer tools (Pathfinder, TOPIx Cloud) versus the capabilities of aftermarket solutions (Autel, Lonsdor, Lock50), and provides granular data on key hardware specifications. Furthermore, it explores the server-side authorization mechanisms introduced via the InControl Connect telematics suite, which has transformed key programming from a local vehicle event into a cloud-monitored transaction.
+
+
+  
+
+
+
+1. Platform Architecture & Security Topography
+To navigate the security systems of modern JLR vehicles, one must first understand the underlying chassis and electrical architectures. The transition from 2018 to 2025 is defined by the move from the D7 platform family to the MLA platform. This shift is not merely structural; it dictates the location of modules, the communication protocols (CAN vs. DoIP), and the accessibility of security gateways.
+1.1 The D7 Premium Lightweight Architecture (PLA)
+The D7 platform, an aluminum-intensive architecture, serves as the foundation for the majority of JLR's fleet during the early transition period (2015-2020). While often collectively referred to as "PLA" (Premium Lightweight Architecture) in locksmith circles, JLR technically differentiates widely within this family. These distinctions are critical for locating the Keyless Vehicle Module (KVM) and understanding programming limitations.
+1.1.1 D7a (iQ[Al]): The Mid-Size Foundation
+The D7a variant underpins the core of the Jaguar sedan lineup and mid-size SUVs. This includes the Jaguar XE (X760), Jaguar XF (X260), Jaguar F-Pace (X761), and the Land Rover Range Rover Velar (L560).1
+* Security Architecture: These vehicles typically utilize a centralized KVM located in the rear quarter panels (often right-hand side for Jaguars, varying for Land Rovers).
+* Vulnerability Profile: Pre-2018 models on D7a are generally open to OBD programming. However, the 2018 refresh brought the "facelift" electrical architecture, introducing the Secure Gateway Module (SGM) which filters OBD traffic, blocking unauthorized key writing commands unless a specific "handshake" is performed.
+1.1.2 D7u: The Heavyweights
+The D7u platform is used by the larger, flagship SUVs: the Land Rover Discovery 5 (L462), Range Rover Sport (L494), and the full-size Range Rover (L405).1
+* Architecture: These vehicles operate with a high-speed CAN bus for body electronics but began integrating Ethernet (DoIP) for diagnostics around 2017.
+* The 2018 Watershed: Models built before 2018 utilize the older "IMMO 3" architecture. Models built post-2018 (VIN digit J and later) transitioned to "IMMO 4," featuring the infamous "Locked KVM." This split means a 2017 Range Rover Sport can be programmed in minutes via OBD, while a 2018 model may require module replacement or bench work.
+1.1.3 D7x: The Extreme Variant (Defender)
+Developed specifically for the 2020 Land Rover Defender (L663), the D7x is a heavily reinforced modification of the D7u.1
+* EVA 2.0: The Defender introduced the Electronic Vehicle Architecture 2.0 (EVA 2.0). This system features a significantly more complex domain controller structure. The Body Control Module (BCM) and Gateway (GWM) are integrated into a single domain that aggressively monitors the CAN bus for "injection" attacks—a common method used by aftermarket key programmers.
+* Locksmith Challenge: The D7x platform is notoriously difficult for "All Keys Lost" scenarios because the alarm system actively isolates the diagnostic ports when armed.
+1.1.4 D7e: The Electric Avenue (I-PACE)
+The Jaguar I-PACE utilizes the D7e platform.1 While sharing suspension components with the F-Pace, its electrical architecture is unique due to the high-voltage (HV) system.
+* Power Stability: Programming keys on a D7e platform requires strict voltage maintenance. The DC-DC converter may not engage when the ignition is off, meaning the 12V battery can drain rapidly during the programming sequence, potentially corrupting the BCM. A dedicated 50A+ power supply is mandatory.2
+1.2 MLA (Modular Longitudinal Architecture): The Fortress
+The MLA platform, specifically MLA-Flex, represents the current state-of-the-art, debuting with the 2022 Range Rover (L460) and Range Rover Sport (L461).1
+* Fully Encrypted Backbone: MLA utilizes a fully encrypted Ethernet backbone for all major control modules. The proprietary communication protocol prevents standard diagnostic tools from "sniffing" passwords or seed-key exchanges.4
+* Cloud Dependency: On MLA vehicles, the "write-to-start" procedures common on D7 platforms are ineffective. The security authority has moved almost entirely to the cloud. The vehicle generates a random challenge code that must be answered by the JLR server via the TOPIx connection. If the answer is incorrect or delayed, the BCM locks out further attempts for a penalty period.5
+1.3 The Role of InControl Telematics
+A critical, often overlooked component of JLR security is the Telematics Control Unit (TCU), marketed as InControl Connect.
+* Server-Side Authorization: JLR introduced server-side key authorization protocols starting in 2018, coinciding with the rollout of UWB. When a diagnostic tool requests security access, the TCU verifies the vehicle's status with JLR's central database.
+* Theft Alert Mode: If the InControl Secure or Secure Tracker system is active and the vehicle has been alarmed or forced open, the TCU broadcasts a "Theft Alert" status to the BCM.6
+* Impact on Programming: In "Theft Alert" mode, the BCM will reject all key programming commands, even if the locksmith has valid seed-key access. The BCM effectively "bricks" the programming session to prevent theft.
+* The Disconnect Workaround: On D7 platforms, locksmiths could often bypass this by physically disconnecting the battery backup sounder and the TCU module before beginning work. However, on MLA platforms, the TCU is integrated into the fibre-optic MOST ring; disconnection breaks the ring and can sever diagnostic communication entirely, making this bypass dangerous.8
+2. Immobilizer (IMMO) Generations and The "Locked" Era
+The classification of JLR immobilizers into "IMMO 3" and "IMMO 4" is an industry convention used to describe the encryption complexity and the write-access status of the KVM (Keyless Vehicle Module), also known as the Remote Function Actuator (RFA).
+2.1 IMMO 3 (The "Open" Era: 2010–2017)
+The IMMO 3 generation is characterized by a relatively permissive architecture that prioritized convenience over hardening.
+* Hardware: Relied primarily on the BJ32 and early DPLA series KVMs.
+* Processor: These modules typically utilized the Freescale (now NXP) MC9S12XEQ384 processor.
+* Characteristics: These chips allowed for direct EEPROM reading and writing via the OBD port. The security "seed" could be easily calculated by aftermarket tools.
+* Vulnerability: This generation was highly susceptible to "OBD cloning." Thieves could plug a device into the OBD port, force the ignition on, and write a new key ID into the KVM in under 30 seconds. This vulnerability led to the widespread media reports of Range Rover thefts in London during the mid-2010s.9
+2.2 IMMO 4 (The "Locked" Era: 2018–2025)
+Starting in 2018, JLR began a systematic update of KVM firmware and hardware to close these vulnerabilities. This generation is defined by the migration to stronger processors and "Locked" status.
+2.2.1 The KVM Version Hierarchy
+Understanding the specific KVM version is the single most important step in modern JLR key programming. A mismatch in tool selection here can result in a dead vehicle.
+
+
+KVM Version
+	Year Range
+	Processor Type
+	Programming Status
+	Tool Requirement
+	Notes
+	FK72
+	2015–2017
+	MC9S12XEQ384
+	Unlocked/Open
+	Standard OBD
+	Can be programmed via OBD by Autel, Lonsdor, etc. 9
+	HPLA
+	2017–2019
+	SPC560B60L3
+	Semi-Locked
+	JLR Connector
+	Requires a bypass connector to tap CAN lines directly. 11
+	JPLA
+	2019–2021
+	SPC560B60L3
+	Locked
+	Virginize/Replace
+	Chip is OTP (One-Time Programmable) locked. Must replace processor or KVM. 12
+	K8D2
+	2020–2023
+	SPC560B60L3
+	Encrypted
+	Dealer/Specialist
+	Heavily encrypted. Requires "virgin" KVM swap or high-end proprietary tool (Lock50). 12
+	M9R
+	2022+ (MLA)
+	Secure MCU
+	Cloud-Locked
+	TOPIx Cloud
+	Currently dealer-only for safe execution. 13
+	
+
+  
+
+
+
+2.2.2 The "Bricked BCM" Risk
+A critical alert for locksmiths involves the Body Control Module (BCM/CJB). In response to the theft epidemic, JLR pushed a Software-Over-The-Air (SOTA) update to vehicles in late 2019.
+* The Trap: This update modified the BCM's bootloader. It introduced a "watchdog" algorithm that monitors the programming partition. If an unauthorized tool attempts to write key ID data to the BCM via OBD (a common method for Autel/Lonsdor tools to "add a key"), the BCM detects the signature of the aftermarket exploit.14
+* The Result: The BCM immediately aborts the process and corrupts its own P-Flash (Program Flash) memory as a defensive measure. The vehicle ignition becomes unresponsive, central locking fails, and the dashboard goes dark. This is often termed "bricking."
+* High-Risk Models: The highest incidence of this failure is seen in Land Rover Discovery 5 (2018+), Range Rover Sport (2018+), and Defender L663 (2020+).
+* Recovery: Recovering a bricked BCM is not possible via OBD. It requires removing the module, opening the casing, and using a bench programmer (like XP400 Pro, VVDI Prog, or specialized tools) to directly access the MCU, repair the corrupted hex data, and reflash the EEPROM.15
+2.3 Dealer-Only vs. Aftermarket Accessibility
+The gap between dealer capabilities and aftermarket solutions is widening.
+* Dealer Tools (SDD vs. Pathfinder vs. TOPIx):
+   * SDD (Symptom Driven Diagnostics): Used for vehicles up to 2016 (D7a pre-facelift). It is largely obsolete for 2018+ security work.17
+   * Pathfinder: The standard tool for 2017–2021 vehicles (D7 platforms with DoIP). It requires an active subscription and communicates via a JLR DoIP VCI (Vehicle Communication Interface).18
+   * TOPIx Cloud: The mandatory tool for 2022+ MLA vehicles (Range Rover L460, Defender L663 refresh). It operates entirely online; the diagnostic software is browser-based and streams data to the VCI. Offline programming is impossible.17
+* Aftermarket Status:
+   * 2018–2020: High success rate with tools like Lonsdor K518 (using JLR Connector) and Autel IM608 (if KVM is replaced/virginized).
+   * 2021–2023: Moderate success. Requires "virgin" KVM replacement or specialized "emulator" keys that bypass the need to write to the locked KVM sectors.
+   * 2024+: Extremely low success. Most aftermarket tools cannot bypass the new GWM/BCM encryption on MLA platforms without physically removing chips, which carries high liability.19
+3. Key Hardware Specifications and RF Technology
+The physical key fob is the user's interface with the security system, but internally, it is a sophisticated piece of radio hardware. The period 2018–2025 saw a transition in transponder technology to support UWB.
+3.1 Transponder Evolution
+JLR keys from this era generally fall into two categories: the "Pebble" key (pre-2018) and the "Smart" key (post-2018, typically with UWB).
+3.1.1 Chip Mapping and Part Numbers
+Correctly identifying the key part number is crucial. Using a non-UWB key on a UWB-equipped vehicle will result in the key starting the car (via emergency coil) but failing to open doors remotely or utilize passive entry.
+
+
+Platform
+	Model
+	Year
+	FCC ID
+	IC / Transponder
+	Notes
+	D7u
+	Range Rover (L405)
+	2013-2017
+	KOBJTF10A
+	Hitag Pro / ID49
+	Standard "Pebble" Key. No UWB. 20
+	D7u
+	Range Rover (L405)
+	2018-2021
+	KOBJXF18A
+	NCF29A1 (UWB)
+	New style. Requires UWB support for Passive Entry. 21
+	D7a
+	Discovery (L462)
+	2017-2020
+	HK83-15K601-AB
+	Hitag Pro / ID49
+	Often cross-compatible with RR Sport of same era. 20
+	D7x
+	Defender (L663)
+	2020-2025
+	JK52-15K601-DG
+	NCF29A1 (UWB)
+	315MHz (NAS) / 433MHz (ROW). Very specific to Defender. 22
+	MLA
+	Range Rover (L460)
+	2022+
+	TBD (New Gen)
+	UWB Enhanced
+	Cloud-auth required. New proprietary rolling code.
+	3.2 Ultra-Wideband (UWB): The Game Changer
+JLR was the first manufacturer to deploy UWB technology at scale in 2018 to combat relay attacks.5
+* The Physics: Unlike simple RSSI (Received Signal Strength Indicator) used in older systems, UWB measures the Time of Flight (ToF) of the radio signal. It calculates exactly how long the signal takes to travel from the key to the car.
+* Relay Attack Mitigation: In a relay attack, thieves extend the signal range. However, this extension introduces a microsecond delay (latency). The UWB system detects this discrepancy. If the signal takes too long to return (indicating it traveled further than a few meters or was processed by a repeater), the car refuses to unlock, even if the cryptographic code is correct.23
+* Locksmith Implication: Aftermarket keys without UWB chips (often sold as "compatible" cheap alternatives) will generally allow the car to start if placed in the emergency start coil (under the steering column) because this uses near-field inductive coupling (125 kHz) which doesn't require ToF. However, they will fail to operate Passive Entry (keyless go) features from a distance.25 To retain full functionality, OEM UWB keys or high-end aftermarket keys (e.g., Lonsdor dedicated JLR keys) are required.26
+
+
+  
+
+
+
+3.3 Emergency Key Blade: HU101 vs. HU109
+A point of frequent confusion in the trade is the blade profile.
+* HU101: This is the ubiquitous standard for JLR (and Volvo/Ford) laser-cut keys. It is used on almost all Range Rover, Discovery, and Defender models from 2010 through 2024. It is a "2-track internal" laser cut.28
+* HU109: Often cited erroneously in some general catalogs or referring to specific heavy truck (Scania) or legacy applications. In the context of modern JLR (2018+), HU101 remains the correct blade profile for the emergency insert. Locksmiths should stock HU101 blanks exclusively for this vehicle range.31
+3.4 Frequency Distribution & Regionality
+* 315 MHz: Exclusively for North America (NAS) markets (USA, Canada). Using a 433 MHz key on a NAS vehicle will result in zero remote function.33
+* 433/434 MHz: Standard for Europe (EU), UK, and Rest of World (ROW).
+* Verification: The only reliable way to confirm frequency on a lost-key job is to check the VIN origin or use a frequency tester on the vehicle's RFA module part number (if accessible), although VIN decoding is generally sufficient.
+4. All Keys Lost (AKL) Procedures
+When all valid keys are lost, the system requires a complete reset of the KVM/RFA. This is the most technically demanding procedure in JLR locksmithing due to the "Active Alarm" barrier.
+4.1 The "Active Alarm" Barrier
+If the vehicle is locked and the alarm is armed (which is almost always the case in AKL scenarios), the KVM enters a "locked" state where it ignores standard OBD communications to prevent tampering.
+* The Problem: Plugging a diagnostic tool into the OBD port will result in a "Communication Failed" error because the Gateway Module (GWM) actively filters diagnostic requests when the alarm is armed.
+* Method A: CAN Bus Injection (The Bypass): Tools like the Lonsdor JLR Connector or Autel G-Box allow the locksmith to tap directly into the CAN bus wires—bypassing the GWM. Common tap points are under the gear shifter, near the BCM, or at the active grill shutter connector. By injecting a "Wake Up" signal directly onto the CAN High/Low lines, the locksmith can force the ignition "ON" without a key, waking the bus for programming.12
+* Method B: KVM/RFA Replacement: For 2018+ models with locked JPLA/K8D2 KVMs, the most reliable method is often to physically remove the KVM. The locksmith must then either:
+   1. Read the EEPROM data on a bench to extract the crypto keys.
+   2. Replace the unit entirely with a "virgin" KVM that has no existing data and can be programmed as a new unit.14
+4.2 Tool Capabilities Matrix
+
+
+Tool
+	Capability
+	Notes
+	JLR Pathfinder
+	10/10 (OEM)
+	Requires TOPIx Cloud subscription. Can do everything but requires online authorization and clean VIN status. Slow process. 17
+	Autel IM608 Pro
+	8/10
+	Strong on 2015-2019. 2020+ generally requires "virginizing" KVM or risky BCM flashing. Supports 2022+ RFA with recent updates but requires XP400 Pro.13
+	Lonsdor K518
+	9/10
+	Specialized for JLR. The "JLR Connector" is essential for bypassing the alarm. Supports HPLA/JPLA/K8D2 via dedicated key emulation which avoids writing to the KVM directly.11
+	Lock50
+	9/10
+	Niche expert tool. Claims 2024+ support with "Alarm OFF" capability without module replacement. High cost but effective for high-volume specialists.27
+	4.3 Physical Module Locations
+Accessing the KVM (RFA) or BCM is often necessary for bench work.
+* Range Rover (L405 / L460): The KVM is located in the left rear quarter panel, behind the loadspace trim. Access requires removing the luggage compartment side panel.35
+* Discovery (L462): Similar to L405, left rear quarter panel.
+* Defender (L663): The KVM/RFA is deeply buried and difficult to access. However, for 2020+ models, it is often easier to access the BCM, which is located behind the glovebox or in the passenger footwell (LHD vehicles). Accessing the BCM allows for direct CAN tapping.38
+* Range Rover Velar / Evoque (L551): The KVM is often located under the rear right seat bolster or side trim, requiring seat removal for access.39
+5. Model-Specific Security Dossiers
+Each model within the JLR lineup possesses unique security quirks that deviate from the standard platform architecture.
+5.1 Land Rover Defender (L663) [2020-2025]
+The Defender is the most secure vehicle in the fleet due to the D7x/EVA 2.0 architecture.
+* The "Double Lock" Issue: The L663 utilizes a highly aggressive GWM. If the alarm is active, the GWM isolates the OBD port completely.
+* Programming Requirement: Standard OBD tools will fail 100% of the time on a locked Defender. The locksmith must use a specialized JLR connector cable to tap the CAN lines (usually located near the BCM in the passenger footwell) to bypass the Gateway.
+* 2024+ Update: Recent reports indicate 2024 models have updated GWM firmware that detects the impedance change of a CAN tap and may shut down the bus, requiring dealer-level "TOPIx Cloud" intervention.19
+5.2 Range Rover (L460) [2022+]
+* New Security Layer: The L460 on the MLA-Flex platform introduces "Rolling Code Security" between the key and the BCM that changes every start. Cloning keys is mathematically impossible.
+* Requirement: Dealer access (TOPIx) or advanced tools that can "virginize" the RFA are required. Autel released an update in late 2023 for 2022+ RFA/KVM programming, but it mandates the use of the XP400 Pro programmer to read the new encrypted chipsets.13
+5.3 Jaguar I-PACE (EV)
+* Platform: Built on a modified D7e platform.
+* Programming Risk: The I-PACE presents a unique risk due to its electric powertrain. The 12V auxiliary battery is small and relies on the high-voltage DC-DC converter.
+* Procedure: The high-voltage system implies different "wake-up" procedures. The 12V battery must be stabilized at 13.8V using a high-amp power supply (Midtronics) during programming. If the voltage drops below 12.5V, the EV control modules may desynchronize or enter a "safe mode" that requires a dealer reset.2
+5.4 Range Rover Evoque & Velar
+* BCM Location: Uniquely, the BCM on these smaller SUVs is often tucked high up in the dashboard or kick panel, making physical removal for bench flashing extremely labor-intensive compared to the larger SUVs.40
+6. Regional Considerations & VIN Decoding
+JLR production is global, and regional specifications significantly impact security hardware.
+6.1 VIN Decoding (WMI, VDS, VIS)
+The VIN is the first line of intelligence for the security professional.
+* WMI (World Manufacturer Identifier - Digits 1-3):
+   * SAL: S = Europe, A = United Kingdom, L = Land Rover. This indicates standard production (Solihull/Halewood).41
+   * SAJ: Jaguar vehicles.
+   * SAD: Used for certain Jaguar SUV models (F-Pace, E-Pace) and occasionally non-Solihull production (e.g., contract manufacturing like Magna Steyr in Austria for I-PACE/E-Pace, though mostly SAJ is used). The user query mention of "SADR" likely refers to SAD with R being the 4th digit (Model Series).42
+   * Designation: Note that newer production in Slovakia (Defender L663) may still use UK-origin WMI codes for corporate reasons, but the 11th digit (Plant Code) is the giveaway (e.g., '5' or '6' often denotes Nitra, Slovakia).
+6.2 UK vs. North American (NAS) Spec
+* Deadlocks (Double Locking): UK and EU models feature "Deadlocking." A double press of the lock button mechanically disconnects the internal door handles.
+   * Implication: "Fishing" tools (reaching through a window gap to pull the handle) will not work on a deadlocked UK car. The handle will pull freely but not unlatch the door. NAS models typically do not have deadlocks due to US safety regulations regarding entrapment, making them easier to open mechanically.43
+* Frequency: As noted, UK/EU uses 433 MHz, while NAS uses 315 MHz. This is hard-coded into the RFA module and cannot be changed via software.
+7. Conclusion and Future Outlook
+The security landscape for Jaguar Land Rover vehicles has transitioned from a hardware-based challenge to a software-defined war of attrition. The 2018 introduction of UWB and the subsequent locking of KVMs via SOTA updates marked the end of the "simple cloning" era.
+For the security professional, the future lies in modular intervention: the ability to physically interact with EEPROM data on the bench, rather than relying solely on OBD ports. As the MLA platform matures and cloud-based verification (TOPIx) becomes ubiquitous, the gap between "Dealer Only" and "Aftermarket" will widen. This necessitates significant investment in proprietary bypass tools like Lock50 or high-end programmers like Autel's IM608 Pro II with updated JLR software packages.
+The "Bricked BCM" remains the single highest liability risk; adherence to strict voltage stabilization and the correct identification of KVM firmware versions (FK72 vs JPLA) is no longer optional—it is the baseline for competency in the JLR sector.
+Appendix: JLR Security Data Matrix (2018-2025)
+Make
+	Model
+	Year Range
+	Platform
+	FCC ID / Part
+	Freq (NA/EU)
+	KVM Version
+	IMMO Gen
+	Dealer Only?
+	AKL Diff (1-10)
+	KVM Location
+	Notes
+	Land Rover
+	Range Rover (L405)
+	2018-2021
+	D7u
+	KOBJXF18A
+	315 / 433
+	JPLA / K8D2
+	4
+	No (Lonsdor/Autel)
+	8
+	Rear Left Quarter
+	Requires UWB key. High brick risk if BCM update applied.
+	Land Rover
+	Range Rover (L460)
+	2022-2025
+	MLA-Flex
+	TBD (New)
+	315 / 433
+	M9R
+	4+
+	Yes (Mostly)
+	10
+	Rear Left Quarter
+	Cloud Auth. Very few aftermarket solutions.
+	Land Rover
+	Range Rover Sport (L494)
+	2018-2022
+	D7u
+	KOBJXF18A
+	315 / 433
+	JPLA / K8D2
+	4
+	No
+	8
+	Rear Left Quarter
+	Same architecture as L405.
+	Land Rover
+	Discovery 5 (L462)
+	2018-2024
+	D7u
+	HK83-15K601
+	315 / 433
+	JPLA / K8D2
+	4
+	No
+	8
+	Rear Left Quarter
+	Watch for "Bricked BCM" on 2020+ models.
+	Land Rover
+	Defender (L663)
+	2020-2025
+	D7x
+	JK52-15K601
+	315 / 433
+	K8D2
+	4+
+	No (Specialized)
+	9
+	Passenger Footwell (BCM) / Rear
+	Very difficult. Alarm active blocks OBD. Need CAN tap.
+	Land Rover
+	Evoque (L551)
+	2019-2025
+	PTA
+	JK52-15K601
+	315 / 433
+	K8D2
+	4+
+	No
+	8
+	Under Rear Seat
+	PTA platform shares architecture with Defender D7x.
+	Jaguar
+	F-Pace (X761)
+	2018-2024
+	D7a
+	KOBJXF18A
+	315 / 433
+	JPLA / K8D2
+	4
+	No
+	8
+	Rear Right Quarter
+	UWB keys required for passive entry.
+	Jaguar
+	I-PACE
+	2018-2025
+	D7e
+	KOBJXF18A
+	315 / 433
+	JPLA / K8D2
+	4
+	No
+	8
+	Rear Right Quarter
+	Ensure stable 13.8V power supply.
+	Works cited
+1. Jaguar Land Rover car platforms - Wikipedia, accessed December 27, 2025, https://en.wikipedia.org/wiki/Jaguar_Land_Rover_car_platforms
+2. THE ULTIMATE GUIDE TO MODERN JAGUAR/LAND ROVER KEY PROGRAMMING FROM AN ABRITES PERSPECTIVE. Abrites, accessed December 27, 2025, https://abrites.com/blog/the-ultimate-guide-to-modern-jaguar-land-rover-key-programming-from-an-abrites-perspective
+3. Range Rover (L460) - Wikipedia, accessed December 27, 2025, https://en.wikipedia.org/wiki/Range_Rover_(L460)
+4. New 2022 Range Rover revealed - Magneto Magazine, accessed December 27, 2025, https://www.magnetomagazine.com/articles/new-2022-range-rover-revealed/
+5. JLR INVESTS IN VEHICLE SECURITY TO HELP REDUCE THEFTS - Jaguar Media, accessed December 27, 2025, https://media.jaguar.com/en-gb/news/2023/11/jlr-invests-vehicle-security-help-reduce-thefts
+6. InControl | Secure Tracker - Jaguar, accessed December 27, 2025, https://www.jaguar.com/en-xi/jdx/incontrol/incontrol/connectivity/secure.html
+7. Stolen Vehicle Locator | Jaguar InControl, accessed December 27, 2025, https://www.jaguarusa.com/incontrol/incontrol-user-guide/stolen-vehicle-locator.html
+8. InControl Secure - InControl User Guide - Land Rover, accessed December 27, 2025, https://www.landroverusa.com/ownership/incontrol/incontrol-user-guide/incontrol-secure.html
+9. Lonsdor JLR IMMO Land Rover and Jaguar Key Tool, accessed December 27, 2025, https://keyinnovations.com/lonsdor-jlr-immo-land-rover-jaguar-key-tool/
+10. Jaguar Land Rover KVM Location Quick Guide - Yanhua Mini ACDP Tech Suport, accessed December 27, 2025, http://blog.yanhuaacdp.com/jaguar-land-rover-kvm-location-quick-guide/
+11. Lonsdor JLR Connector to program Land Rover keys via OBD | by OBDtool - Medium, accessed December 27, 2025, https://medium.com/@dogkingfrom1884/lonsdor-jlr-connector-to-program-land-rover-keys-via-obd-6a1190b61e48
+12. Lonsdor JLR Connector For 2015-2021 Jaguar Land Rover - Al-Najm Al-Thahabi, accessed December 27, 2025, https://gskeyae.com/product/lonsdor-jlr-connector-cable/
+13. Autel IM608 II Update New Update on Land rover Jaguar RFA/KVM Key Prog - AutelShop.us, accessed December 27, 2025, https://www.autelshop.us/blogs/autel-update-information/autel-im608-ii-update-new-update-on-land-rover-jaguar-rfa-kvm-key-programming
+14. JLR 2023 Range Rover Sport spare key: our cost-cutting solution after JLR software security update - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=sMHUU4vNuko
+15. I Bought a $500 Chinese Car Key Cutting Machine on Facebook Marketplace - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=3JtpQnSZ_VM
+16. 2017 cruze : Smart Key programming with km100 after replacing the BCM - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=DaEZ958xbD0
+17. Master JLR Key Programming - Hands On - Locksmith Pro Academy, accessed December 27, 2025, https://locksmithproacademy.org/master-jlr-key-programming-hands-on/
+18. Lock50 Demo Range rover sport 2019 PEPS Cars how To Access RFA to Remove, accessed December 27, 2025, https://www.youtube.com/watch?v=VDIMwGkpeoY
+19. Vehicle Coding for Land Rover Defender L663 | The Automotive Company, accessed December 27, 2025, https://www.theautomotivecompany.co.uk/vehicle-coding-for-land-rover-defender-l663/
+20. New Smart Key For Land Rover Range Rover 2011-2020 KOBJTF10A 315 MHZ A+++ VLS, accessed December 27, 2025, https://www.walmart.com/ip/New-Smart-Key-For-Land-Rover-Range-Rover-2011-2020-KOBJTF10A-315-MHZ-A-VLS/1174891109
+21. 2024 Land Rover Defender Smart Remote Key Fob 5B w/ Hatch (FCC: K0BJXF18A, P/N, accessed December 27, 2025, https://oemcarkeymall.com/products/2024-land-rover-defender-smart-remote-key-fob-5b-w-hatch-fcc-k0bjxf18a-pn-lr116873
+22. 5AVC11F08-AK Genuine Land Rover Smart Proximity - Techno Lock Keys Trading, accessed December 27, 2025, https://www.tlkeys.com/products/Genuine-Land-Rover-2023-Smart-Key-5B-JK5215K601DG-35190
+23. PEPS vs UWB Keys: What's the Difference for JLR? - Autokeyz, accessed December 27, 2025, https://www.autokeyz.co.uk/2025/12/16/peps-vs-uwb-jaguar-land-rover-key-difference/
+24. From Key Fob to UWB: Explaining and Securing Ultra-Wideband in Vehicles - VicOne, accessed December 27, 2025, https://vicone.com/blog/from-key-fob-to-uwb-explaining-and-securing-ultra-wideband-in-vehicles
+25. THE ULTIMATE GUIDE TO MODERN JAGUAR/LAND ROVER KEY PROGRAMMING FROM AN ABRITES PERSPECTIVE. Abrites France, accessed December 27, 2025, https://abrites.fr/blog/the-ultimate-guide-to-modern-jaguar-land-rover-key-programming-from-an-abrites-perspective-1
+26. Lonsdor JLR Land Rover and Jaguar License Software Activatio, accessed December 27, 2025, https://www.tlkeys.com/products/Lonsdor-JLR-Land-Rover-and-Jaguar-License-Software-Activatio-34245
+27. How To Program Spare or All keys Lost 2023 Land Rover Defender USA HW04 w Lock50 Fastest JLR Tool - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=JolOgDUjbIw
+28. Replacement Key Fob Uncut Blade HU101 For Land Rover Range Rover Evoque Sport, accessed December 27, 2025, https://www.ebay.com/itm/386908667803
+29. RFC HU101 key blade for Land Rover Range Rover 5 button remote fob 200 - Remotefobcentre, accessed December 27, 2025, https://www.remotefobcentre.com/products/replacement-uncut-key-blade-hu101-for-land-rover-range-rover-remote-fob
+30. Range Rover HU101 Emergency Blade for Smart Remote Key - MK3, accessed December 27, 2025, https://www.mk3.com/range-rover-smart-key-blade
+31. Emergency Key Blade Old Range Rover 2016-2018 HU101, accessed December 27, 2025, https://www.tlkeys.com/products/Emergency-Key-Blade-Old-Range-Rover-2016-2018-HU101-32816
+32. Land Rover HU101 Emergency Key - CLK Supplies, accessed December 27, 2025, https://www.clksupplies.com/products/land-rover-hu101-emergency-key
+33. jlr smart key transmission frequency - Land Rover, accessed December 27, 2025, https://www.jlridssddmongoose.com/jlr-smart-key-transmission-frequency/
+34. Lonsdor K518 USA - 2015-2021 Land Rover & Jaguar - All Keys Lost via OBD - ( machine sold separately ) for Sale | UHS Hardware, accessed December 27, 2025, https://www.uhs-hardware.com/products/lonsdor-k518-usa-2015-2021-land-rover-jaguar-all-keys-lost-via-obd-machine-sold-separately
+35. Range Rover All Keys Lost (Part 1): Removing the RFA Module for Key Programming, accessed December 27, 2025, https://www.youtube.com/watch?v=K8InlITj7U4
+36. Lonsdor JLR-IMMO Key Programmer by OBD for Jaguar and Land Rover - Locksmith Keyless, accessed December 27, 2025, https://www.locksmithkeyless.com/products/lonsdor-jlr-immo-key-programmer-by-obd-covers-95-jaguar-and-land-rover-models
+37. TECHNICAL BULLETIN - nhtsa, accessed December 27, 2025, https://static.nhtsa.gov/odi/tsbs/2014/MC-10214082-9999.pdf
+38. BCM/ KVM Module Unlock in DFW | Land/ Range Rover/ Jaguar, accessed December 27, 2025, https://www.meyerslocallocksmith.com/range-rover-land-rover-jaguar-key-programming-dfw/
+39. 2017-2020 RANGE ROVER VELAR KVM LOCATION - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=PATn_yZ63j0
+40. LR049875 Range Rover Evoque MODULE - BODY CONTROL - Scuderia Car Parts, accessed December 27, 2025, https://www.scuderiacarparts.com/part/925647/landrover/lr049875/module-body-control.html
+41. Understanding Land Rover VIN numbers (1980 onwards) - Heritage Parts Centre, accessed December 27, 2025, https://www.heritagepartscentre.com/au/blog/understanding-land-rover-vin-numbers-1980-onwards-au.html
+42. Vehicle Identification Numbers (VIN codes)/World Manufacturer Identifier (WMI) - Wikibooks, accessed December 27, 2025, https://en.wikibooks.org/wiki/Vehicle_Identification_Numbers_(VIN_codes)/World_Manufacturer_Identifier_(WMI)
+43. How To Identify Your Land Rover, accessed December 27, 2025, https://www.roversnorth.com/identify-your-land-rover

@@ -1,0 +1,311 @@
+﻿Automotive RF Forensics: A Comprehensive Analysis of Unidentified and Orphaned FCC Identifiers
+Executive Summary
+The modern automotive ecosystem relies heavily on radio frequency (RF) technology for access control, immobilization, and remote functionality. However, the identification of these components is frequently obscured by proprietary naming conventions, regulatory coding variances, and the complex web of Tier 1 supplier relationships. This research report presents an exhaustive forensic analysis of sixteen specific FCC Identifiers (FCC IDs) associated with automotive keyless entry and remote start systems. The primary objective is to de-anonymize these regulatory strings, linking them to their original equipment manufacturers (OEMs), validating their specific vehicle applications, and elucidating their technical operating parameters to serve as a definitive reference for security researchers and automotive locksmiths.
+Our investigation reveals a distinct segmentation in the automotive RF landscape, driven largely by regional regulatory standards and supplier alliances. The dataset provided for analysis includes legacy systems from the late 1990s utilizing simple Amplitude Shift Keying (ASK) at 315 MHz, alongside modern, high-security bi-directional communication systems operating at 433 MHz and 868 MHz. A significant finding is the dominance of German Tier 1 suppliers—specifically Marquardt GmbH and Hella KGaA Hueck & Co.—in the luxury sector (Mercedes-Benz, Audi). This contrasts sharply with the reliance on Alps Electric and Calsonic Kansei in the Asian market (Infiniti, Nissan).
+Supply chain analysis of the identified FCC IDs reveals a stark and consistent segmentation in OEM-supplier relationships. European OEMs, particularly Mercedes-Benz and Audi, heavily rely on Marquardt GmbH and Hella for their access systems, forming a dedicated "German Luxury Consortium" of RF hardware. In contrast, Japanese OEMs such as Nissan and Infiniti maintain exclusive partnerships with Alps Electric and Calsonic Kansei (now Marelli). This bifurcation is not merely commercial but technical; the German lineage favored high-frequency evolution (moving rapidly to 433 MHz and 868 MHz), while the Asian lineage maintained 315 MHz infrastructure in the North American market for a significantly longer duration before transitioning to global frequency standards.
+The analysis also highlights the industry’s frequency migration. While 315 MHz remains a staple for North American legacy and some modern applications (General Motors, older Nissan platforms), there is a definitive shift toward 433 MHz and 868 MHz in global platforms. This transition is driven by the need to accommodate stricter bandwidth regulations, improve signal penetration in increasingly shielded vehicle cabins, and support the higher data rates required by modern rolling-code encryption algorithms such as Hitag 3 and FBS4. Furthermore, the investigation addresses forensic anomalies, including the probable misidentification of component part numbers as FCC IDs, specifically in the case of the string "A2C94464500," and clarifies the alphanumeric confusion surrounding Grantee Code "GOH" versus "G0H".
+Chapter 1: The Regulatory and Technical Framework
+To accurately interpret the significance of an FCC ID on an automotive key fob, one must first understand the regulatory and technical architecture that governs these devices. The Federal Communications Commission (FCC) regulates these devices under Part 15 of Title 47 of the Code of Federal Regulations, which covers unlicensed low-power transmitters.
+1.1 Anatomy of the FCC Grantee Code
+The FCC ID is a unique identifier composed of two distinct elements: the Grantee Code and the Product Code. Understanding this structure is the first step in forensic identification.
+* The Grantee Code: This is the alphanumeric string at the beginning of the ID. Historically, this was a three-character code (e.g., "IYZ" for Marquardt). However, as the pool of available codes depleted, the FCC expanded this to five characters for new registrants. Crucially, the assignment of these codes allows us to pinpoint the actual manufacturer of the device, which is often different from the car brand stamped on the plastic shell. For instance, a key branded "Mercedes-Benz" is invariably manufactured by a third-party specialist like Marquardt or Hella.
+* The Product Code: The remaining characters are determined by the manufacturer to identify the specific product line.
+In the context of this report, we encountered a specific forensic challenge regarding the Grantee Code "GOH" versus "G0H". The query referenced both "GOH-PCGEN2" and "G0H-PCGEN2". Under FCC rules, Grantee Codes that begin with an alphabetic character are typically three characters long. Code Systems Inc., a major supplier of aftermarket security systems, is assigned the Grantee Code "GOH". The variant "G0H" (with a zero) appears to be a common transcription error derived from visual inspection of worn plastic casings where the typeface makes the letter 'O' and number '0' indistinguishable. All forensic evidence in this report points to "GOH" as the legally registered entity.
+1.2 Modulation Protocols and Frequency Allocation
+The automotive industry has historically oscillated between different frequency bands based on the target market.
+* 315 MHz: This has been the standard frequency for the North American market (FCC jurisdiction) for decades. It offers excellent range and penetration through building walls (useful for remote start) but suffers from a crowded spectrum shared with many consumer electronics.
+* 433.92 MHz (434 MHz): This is the European ISM (Industrial, Scientific, and Medical) band standard. As automakers move toward "Global Platforms"—building a single vehicle architecture for all markets—there has been a massive shift toward using 434 MHz hardware in the US as well. This reduces manufacturing complexity.
+* 868 MHz: This frequency is less common in the US automotive sector but is used extensively in Europe for high-bandwidth applications. Its presence in a US-market context (as seen with FCC ID HUF5661) usually indicates a high-end system requiring rapid data transfer for bi-directional authentication, or a specific interference mitigation strategy employed by the OEM.
+1.3 Evolution of Access Technology
+The sixteen IDs analyzed in this report span three distinct generations of technology:
+1. Generation 1: Remote Keyless Entry (RKE): Represented by IDs such as AB01602T (GM) and KBRASTU10 (Nissan). These systems are unidirectional; the key sends a signal to the car to lock or unlock. If the battery dies, the remote is useless, but a mechanical key still works.
+2. Generation 2: Passive Entry / Passive Start (PEPS): Represented by CWTWBU619 (Infiniti). These "Smart Keys" allow the user to keep the fob in their pocket. The car sends a low-frequency (LF) wake-up signal to the key, which responds with a UHF authorization code.
+3. Generation 3: High-Security Bi-Directional: Represented by IYZ-MS5 (Mercedes). These systems use advanced encryption (like Hitag AES or proprietary rolling codes) and often perform a continuous handshake with the vehicle. They are extremely difficult to clone and often require "virginizing" (resetting the EEPROM) before they can be programmed to a new vehicle.
+Chapter 2: The German Luxury Consortium (Mercedes-Benz & BMW)
+The most complex and technically sophisticated cluster in our dataset belongs to the German luxury manufacturers. Unlike domestic or Asian manufacturers who often use off-the-shelf transponder protocols, Mercedes-Benz and BMW develop deeply integrated proprietary systems (FBS and CAS/FEM, respectively).
+2.1 Marquardt GmbH and the Evolution of Mercedes-Benz Access
+Marquardt GmbH, based in Rietheim-Weilheim, Germany, is the primary architect of the Mercedes-Benz "Fahrberechtigungssystem" (Drive Authorization System). The IDs bearing the "IYZ" Grantee Code tell the story of Mercedes' battle against vehicle theft and their transition through different security generations.
+FCC ID: IYZDC07 — The FBS3 Legacy
+* Grantee: Marquardt GmbH
+* Frequency: 315 MHz
+* System: FBS3 (Fahrberechtigungssystem 3)
+The IYZDC07 identifier belongs to the "Chrome Key" era of Mercedes-Benz, specifically the generation utilizing the FBS3 security protocol. This system was ubiquitous in the late 2000s and early 2010s. The key features a distinctive "Fobik" shape (Integrated Key) where the tip of the fob itself is inserted into the dashboard slot (EIS - Electronic Ignition Switch) and turned like a traditional key, or kept in the pocket for Keyless-Go equipped models.
+Vehicle application data places this ID firmly in the W204 C-Class (2008–2012), W221 S-Class (2008–2012), and the ML/GL/R-Class (W164/X164) SUVs of the same vintage. The 315 MHz frequency confirms these are North American specification units; European counterparts would operate on 433 MHz. A critical insight for locksmiths is that FBS3 keys generally can be renewed or unlocked if they are OEM units, allowing them to be reprogrammed to a different vehicle using specialized EEPROM programmers.
+FCC ID: IYZ-MS2 — The FBS4 Fortress
+* Grantee: Marquardt GmbH
+* Frequency: 315 MHz
+* System: FBS4 (Fahrberechtigungssystem 4)
+The IYZ-MS2 represents a massive leap in security architecture. Introduced around 2014/2015, the FBS4 system was Mercedes-Benz's response to the increasing sophistication of relay attacks and key cloning. The "MS2" key is visually sleeker than the DC07, often appearing in a matte black or glossy finish with chrome sides.
+Forensic analysis of the snippets indicates that this key operates at 315 MHz, maintaining the North American frequency standard even as the underlying cryptography changed. This key is used extensively in the W205 C-Class (2015–2018), W222 S-Class (2014–2017), and the W213 E-Class (2017–2020).
+The "Panic" button functionality mentioned in the research material is a definitive marker for the US market; European keys strictly prohibit panic alarms on key fobs due to noise pollution regulations. A crucial distinction of the IYZ-MS2/FBS4 generation is the difficulty of aftermarket support. Unlike FBS3, FBS4 keys are notoriously difficult to "unlock" or "renew." Once programmed to a VIN, the calculation of the hash keys is unique, and as of this writing, few if any aftermarket tools can successfully calculate the password required to program a used MS2 key to a new vehicle without dealer-level intervention.
+FCC ID: IYZ-MS5 — The EQ Generation and UWB
+* Grantee: Marquardt GmbH
+* Frequency: 315 MHz / 433 MHz (Dual-Band or Market Dependent)
+* System: MBUX / NTG7 Generation
+The IYZ-MS5 is the current flagship identifier for Mercedes-Benz. It appears on the "Gen 2" keys that accompanied the launch of the Mercedes-EQ electric vehicle lineup and the latest internal combustion models. Vehicle applications include the Mercedes-Benz EQS (2022–2024), EQE, W223 S-Class, and the W206 C-Class.
+Technical documents suggest a bifurcation in frequency. While some sources cite 315 MHz, the shift to global platforms often brings 433 MHz into play. It is highly probable that the IYZ-MS5 hardware platform is capable of supporting both, or that the FCC ID covers a radio module that is software-locked to the appropriate regional frequency. This generation of key is likely equipped with Ultra-Wideband (UWB) technology (though the primary FCC ID often covers the UHF control link) to support "Digital Key" features, allowing smartphones to act as keys and preventing relay attacks by measuring the physical time-of-flight of the signal.
+
+
+  
+
+
+
+2.2 The Hella Alternative
+While Marquardt dominates the core and upper-luxury segments of the Mercedes lineup, Hella KGaA Hueck & Co. provides the access hardware for the entry-luxury and compact segments.
+FCC ID: NBGDM3
+* Grantee: Hella KGaA Hueck & Co.
+* Frequency: 315 MHz
+* System: FBS4
+The NBGDM3 identifier is associated with Hella's contribution to the FBS4 ecosystem. Visually, these keys often look identical to their Marquardt counterparts from the outside, but the internal PCB layout and RF architecture are distinct. This key is the standard fob for the Mercedes-Benz CLA-Class (2014–2020), GLA-Class, and the pre-facelift versions of the E-Class (W212/W207) during the transition years of 2013–2016. The use of Hella for the MFA (Modular Front Architecture) platform (CLA/GLA) suggests a strategic sourcing split by Daimler to mitigate supply chain risks.
+2.3 BMW and the 868 MHz Anomaly
+The FCC ID HUF5661 presents one of the most interesting forensic cases in the dataset.
+* Grantee: Huf Hülsbeck & Fürst
+* Frequency: 868 MHz
+The frequency of 868 MHz is the standard for automotive remote systems in Europe, whereas the US strictly adheres to 315 MHz or 433 MHz for these applications. The presence of an FCC ID (which is a US regulatory mark) on an 868 MHz key is highly unusual. Typically, a US-spec BMW key would be 315 MHz (e.g., FCC ID ending in 5662).
+Vehicle application data links this key to the BMW F-Series (F01/F02 7 Series, F10 5 Series, F30 3 Series) operating on the CAS4 (Car Access System 4) or FEM (Front Electronic Module) platforms. The existence of this ID in the US market likely points to one of two scenarios: either it is a specialized key for a specific subset of vehicles requiring high-bandwidth data transmission that was cleared for use in the US under specific low-interference waivers, or, more likely, it represents a "Global" key part that was certified for import but is primarily used for European-spec vehicles that have been imported or for testing purposes. Locksmiths attempting to program a HUF5661 key to a standard US-market BMW F30 will likely fail, as the vehicle's CAS module antenna will be tuned to 315 MHz.
+2.4 Audi’s Platform Standardization
+FCC ID: IYZ-AK2
+* Grantee: Marquardt GmbH
+* Frequency: 434 MHz
+Unlike Mercedes-Benz, which held onto 315 MHz in the US for many years, Audi aggressively transitioned to 434 MHz for its MLB Evo platform vehicles. The IYZ-AK2 is the standard Smart Key for the modern Audi lineup, including the Audi A4 (B9 chassis, 2017–2024), Audi Q7 (4M chassis, 2017–2024), and the Audi A6/A7/A8 (2019+). This consolidation on 434 MHz aligns with the Volkswagen Group's strategy of component commonality, allowing the same receiver hardware to be used in Europe and North America, simplifying the build process.
+Chapter 3: Asian Market Dynamics (Nissan, Infiniti, Honda)
+The Asian manufacturers utilize a completely different set of suppliers and encryption protocols. While the frequency physics (RF) remain similar, the digital logic (Transponder IDs) is distinct.
+3.1 Nissan/Infiniti Intelligent Key Evolution
+Nissan was a pioneer in "Intelligent Key" (Smart Key) technology, and their systems from the mid-2000s are robust and recognizable.
+FCC ID: CWTWBU619 — The "Oval" Key
+* Grantee: Alps Electric Co., Ltd.
+* Frequency: 315 MHz
+* Chip: Philips ID46 (PCF7936/46)
+The CWTWBU619 is an iconic identifier for the first generation of widespread Nissan/Infiniti smart keys. Manufactured by Alps Electric, this key is physically distinct—an oval shape with buttons on the face. It operates on 315 MHz using the Philips ID46 crypto-transponder. It is the primary key for the Infiniti FX35 / FX45 (2005–2008).
+Crucially, the "CWT" prefix identifies the manufacturer as Alps, a Japanese electronics giant. These keys are durable but prone to button wear. From a programming perspective, they are "unlocked" capable; meaning a used key can often be reprogrammed to a new car if the locksmith has the correct PIN code for the vehicle's BCM (Body Control Module).
+FCC ID: KBRASTU10 — Legacy RKE
+* Grantee: Calsonic Kansei (now Marelli)
+* Frequency: 315 MHz
+The KBRASTU10 takes us back to Generation 1 technology. This is a pure Remote Keyless Entry (RKE) fob, not a smart key. It does not start the car; it only opens the doors. Manufactured by Calsonic Kansei, Nissan's primary electronics affiliate, this fob serves the Nissan Pathfinder (2000–2001), Nissan Xterra, and Infiniti QX4. The presence of "ASTU10" in the product code is a typical Calsonic naming convention. These remotes are simple, utilizing standard rolling codes that are easily programmed, often via an "on-board" procedure (e.g., cycling the ignition key a set number of times) without the need for a diagnostic computer.
+3.2 Honda’s Security Migration
+Honda's transition from 315 MHz to 433 MHz is clearly visible in the comparison between the two IDs in our dataset.
+FCC ID: MLBHLIK-1TA — The Remote Head Key
+* Grantee: Honda Lock Mfg. Co., Ltd.
+* Frequency: 314 MHz
+The MLBHLIK-1TA represents the era of the "Remote Head Key"—a mechanical key blade integrated directly into the plastic remote head. Manufactured by Honda Lock, this device operates at 314 MHz (often rounded to 315 MHz in casual conversation, but technically distinct). It utilizes the Philips ID46 transponder chip. This key is the standard application for the Honda CR-V (2012–2013) and the Honda Civic (2016–2020) in lower trim levels (LX). Note that while the Civic is newer, lower trims often retain the older turnkey ignition system to save costs, hence the persistence of this older ID.
+FCC ID: KR5V2X-V44 — The 433 MHz Smart Key
+* Grantee: Continental Automotive
+* Frequency: 433.92 MHz
+* Chip: Hitag 3 / ID47 (NCF2951)
+With the KR5V2X-V44, Honda moves to the modern era. The "KR5" prefix is associated with Continental Automotive. This is a proximity "Smart Key" for push-button start vehicles. It operates at 433.92 MHz and uses the newer, more secure Hitag 3 (ID47) transponder protocol.
+This key is used in the Honda CR-V (2017–2022), Honda Civic (2018–2021), and Honda Pilot (2016–2021). A critical detail for this ID is the "Driver 1" vs. "Driver 2" memory settings. These fobs are often sold in pairs with specific coding to recall seat positions for specific drivers. While the FCC ID is the same for both, the internal part number (and often the stock keeping unit) differs. Locksmiths must ensure they are supplying the correct "Driver" version to match the customer's needs, although for starting the car, either will work.
+Chapter 4: The Domestic and Aftermarket Landscape
+The North American domestic market, dominated by General Motors, and the aftermarket sector show a different set of priorities, focusing on long-range remote start and broad compatibility.
+4.1 The General Motors Component Bin
+General Motors is famous for its "parts bin" engineering, sharing components across vast swathes of its portfolio.
+FCC ID: AB01602T
+* Grantee: General Motors
+* Frequency: 315 MHz
+* Type: 4-Button RKE
+The AB01602T is a legacy GM fob. It is most notable for its application in the Cadillac Deville / Seville / Eldorado (1996–1999) and the Cadillac Catera. Like the Honda smart keys, this GM remote featured "Memory" prioritization long before it was standard. The back of these remotes is often stamped with "1" or "2" to indicate which driver profile (seat position, mirror settings) it activates. This was a cutting-edge luxury feature in 1996.
+FCC ID: L2C0005T
+* Grantee: Delphi Electronics & Safety
+* Frequency: 315 MHz
+The L2C0005T is the "workhorse" of the early 2000s GM lineup. Manufactured by Delphi, it was used in everything from the entry-level Chevrolet Cavalier and Pontiac Sunfire (2000–2005) to the luxury Cadillac CTS (2003–2007). This illustrates the economies of scale; the same RF transmitter unlocked a $15,000 car and a $40,000 car.
+FCC ID: LHJ009
+* Grantee: Continental Automotive Systems
+* Frequency: 315 MHz
+The LHJ009 is specific to the Saturn L-Series (2000–2005). The "LHJ" grantee code maps to Continental (likely inherited from the Siemens VDO acquisition). This key is unique to the Saturn platform, which often utilized Opel-derived architectures (the L-Series was based on the Opel Vectra), necessitating a specific key that was not shared with the broader Chevrolet/Pontiac lineup.
+4.2 The Dealer-Installed Aftermarket
+FCC ID: GOH-PCGEN2 / G0H-PCGEN2
+* Grantee: Code Systems Inc.
+* Frequency: 433 MHz
+This identifier highlights the "Dealer-Installed Option" market. Code Systems Inc. (Grantee Code GOH) manufactures remote start and security systems that are often branded by the OEM but installed at the port or the dealership.
+The GOH-PCGEN2 is a 433 MHz remote used in Hyundai Tucson and Sonata (2011–2013) models equipped with the "Remote Start" package. It is also found in various Ford and Mazda dealer-installed remote start kits. The use of 433 MHz here is strategic: by operating on a different frequency than the factory RKE (usually 315 MHz for these years), the remote start system avoids interference and potential signal collision with the car's native entry system.
+Chapter 5: Forensic Anomalies and The "A2C" Case
+In the course of this analysis, one query string stood out as an anomaly: A2C94464500.
+Extensive searching of the FCC database, OEM part catalogs, and spectral allocation tables yields no valid FCC ID matching this string. The structure of the string itself provides the clue.
+* "A2C" Prefix: In the automotive electronics industry, "A2C" is the standard prefix for internal part numbers used by Continental Automotive (formerly Siemens VDO). It is not an FCC Grantee Code format (which would be three letters like "KR5" for Continental).
+* The Confusion: It is highly probable that this string is printed on a label or the plastic casing of a module (like a Body Control Module or a TPMS sensor) alongside the actual FCC ID. Consumers or technicians often mistake this prominent manufacturing code for the regulatory ID.
+* Conclusion: A2C94464500 is a Continental component part number, not an FCC ID. It is likely associated with a Body Control Module or a similar ECU found in vehicles that use Continental electronics (such as Mazda, Ford, or Nissan), but it does not denote a specific radio transmitter grant in the FCC database. The search snippets provided (referencing Florida DMV forms) are "false positives" — text matches that have no semantic relationship to the query.
+Chapter 6: Synthesis and Conclusions
+The forensic analysis of these sixteen FCC IDs paints a vivid picture of the automotive industry's technological trajectory. We observe a clear "Frequency War" where the legacy North American standard of 315 MHz is slowly but surely surrendering territory to the global standard of 433 MHz.
+6.1 The Shift to Global Frequencies
+As visualized in the distribution data, while 315 MHz remains common due to the long tail of legacy vehicles on the road, modern platforms (Audi B9, Honda Global Compact Platform) have standardized on 433 MHz. This simplifies logistics for OEMs, allowing them to produce a single "World Tuner" for their radio systems. The outlier, 868 MHz (BMW), remains a niche solution for high-bandwidth requirements in specific market conditions.
+
+
+  
+
+
+
+6.2 Implications for Security Professionals
+For the locksmith and security researcher, the implications are clear:
+1. Grantee Identification is Critical: Knowing that "IYZ" is Marquardt and "CWT" is Alps allows a technician to predict the internal architecture of the key (e.g., locking mechanism, transponder type) even before opening it.
+2. Frequency Awareness: The assumption that "US cars are 315 MHz" is no longer valid. Technicians must verify frequency on all modern vehicles (2015+) to avoid stocking incompatible inventory.
+3. The "Locked" Key Problem: The rise of FBS4 (IYZ-MS2) and Hitag 3 (KR5V2X) means that the era of easily recycling used keys is ending. The industry is moving toward "One Time Programmable" (OTP) logic, increasing the cost of ownership and repair.
+This report serves as a baseline for navigating this complex RF environment, providing the necessary data to link the regulatory code on the back of a fob to the silicon and steel reality of the vehicle it controls.
+Appendix: Structured Data Specification
+The following tables provide the detailed technical specifications for each FCC ID, formatted for integration into inventory databases or parts cataloging systems.
+Table A1: German Luxury Consortium (Mercedes-Benz, BMW, Audi)
+
+
+FCC ID
+	Grantee
+	Freq (MHz)
+	Key Type
+	Chip / System
+	Vehicle Applications (Primary)
+	OEM Part # Reference
+	Image Source URL
+	IYZ-MS2
+	Marquardt GmbH
+	315
+	Smart Key (4-Btn)
+	FBS4
+	MB C-Class (W205), E-Class (W213), S-Class (W222)
+	A2229059610 1
+	(https://www.ebay.com/itm/156356438038)
+	IYZ-MS5
+	Marquardt GmbH
+	315/433
+	Smart Key (3/4-Btn)
+	FBS4 / UWB
+	MB EQS, EQE, C-Class (W206), S-Class (W223)
+	A2069058003 2
+	(https://www.ebay.com/itm/306486721553)
+	NBGDM3
+	Hella KGaA
+	315
+	Smart Key (4-Btn)
+	FBS4
+	MB CLA (C117), GLA (X156), E-Class (W212)
+	A1779052201 3
+	(https://www.ebay.com/itm/157309542205)
+	HUF5661
+	Huf Hülsbeck & Fürst
+	868
+	Smart Key (3/4-Btn)
+	PCF7953 (Hitag Pro)
+	BMW 3/5/7 Series (F-Chassis), X3 (F25)
+	9254902-03 4
+	(https://www.ebay.com/itm/172934237462)
+	IYZDC07
+	Marquardt GmbH
+	315
+	Smart Key (Fobik)
+	FBS3
+	MB C-Class (W204), ML (W164), S-Class (W221)
+	221-905-xx-xx 5
+	(https://www.ebay.com/itm/293015890966)
+	IYZ-AK2
+	Marquardt GmbH
+	434
+	Smart Key (3/4-Btn)
+	Audi Advanced Key
+	Audi A4 (B9), Q7 (4M), A6/A7 (C8)
+	4N0.959.754 6
+	(https://www.ebay.com/itm/176842525250)
+	Table A2: Asian Market Transnationals (Infiniti, Nissan, Honda)
+
+
+FCC ID
+	Grantee
+	Freq (MHz)
+	Key Type
+	Chip / System
+	Vehicle Applications (Primary)
+	OEM Part # Reference
+	Image Source URL
+	CWTWBU619
+	Alps Electric
+	315
+	Intelligent Key
+	Philips ID46
+	Infiniti FX35, FX45 (2005-2008)
+	285E3-CL01D 7
+	(https://www.ebay.com/itm/153448832989)
+	KBRASTU10
+	Calsonic Kansei
+	315
+	RKE Fob (3-Btn)
+	Rolling Code
+	Nissan Pathfinder, Xterra, Infiniti QX4 (2000-01)
+	28268-7J119 8
+	(https://www.ebay.com/itm/302636762376)
+	KR5V2X-V44
+	Continental
+	433.92
+	Smart Key (5-Btn)
+	Hitag 3 (ID47)
+	Honda CR-V, Civic, Pilot (2016-2022)
+	72147-TLA-A22 9
+	Key4 Listing
+	MLBHLIK-1TA
+	Honda Lock
+	314
+	Remote Head Key
+	Philips ID46
+	Honda CR-V (2012-2013), Civic LX
+	35118-T0A-A00 10
+	OEMCarKeyMall
+	Table A3: Domestic & Aftermarket (GM, Code Systems)
+
+
+FCC ID
+	Grantee
+	Freq (MHz)
+	Key Type
+	Chip / System
+	Vehicle Applications (Primary)
+	OEM Part # Reference
+	Image Source URL
+	AB01602T
+	General Motors
+	315
+	RKE Fob (4-Btn)
+	Legacy GM
+	Cadillac Deville, Seville, Catera (1996-1999)
+	16259829 11
+	(https://www.ebay.com/itm/356778677368)
+	L2C0005T
+	Delphi
+	315
+	RKE Fob (4-Btn)
+	Legacy GM
+	Cadillac CTS, Chevy Cavalier, Pontiac Sunfire
+	16263074 12
+	(https://www.ebay.com/itm/177068221190)
+	LHJ009
+	Continental
+	315
+	RKE Fob (4-Btn)
+	Saturn Specific
+	Saturn L-Series (L100, L200, L300)
+	22692190 13
+	(https://www.ebay.com/itm/336243665338)
+	GOH-PCGEN2
+	Code Systems
+	433
+	Remote Start
+	Aftermarket
+	Hyundai Tucson (Dealer Install), Ford (Add-on)
+	00056-ADU10 14
+	LocksmithKeyless
+	A2C94464500
+	Continental
+	N/A
+	Component ID
+	N/A
+	Likely non-RF Component (BCM/ECU)
+	N/A
+	N/A
+	Works cited
+1. MERCEDES SMART Key KEYLESS Fob MS2 LU A2229059610 433.92mhz FCC ID IYZ-MS2A | eBay, accessed January 30, 2026, https://www.ebay.com/itm/394921652608
+2. Mercedes AMG key fob battery replacement - EASY DIY - YouTube, accessed January 30, 2026, https://www.youtube.com/watch?v=v9RUyTpw4dA
+3. 2013-2020 Mercedes FBS4 / 4-Button Smart Key / PN: A-177-905-22-01 / NBGDM3 (OEM) - UHS Hardware, accessed January 30, 2026, https://www.uhs-hardware.com/products/2013-2020-mercedes-fbs4-4-button-smart-key-pn-a-177-905-22-01-nbgdm3-oem
+4. Genuine Bmw F Series CAS4 FEM BDC 2009+ Smart Key, 3Buttons, 868MHz, HUF5661 Chrome - ABKEYS, accessed January 30, 2026, https://abkeys.com/products/bmw-cas4-fem-bdc-smart-key-3buttons-868mhz-pcf7953p-f-series-huf5661-3592
+5. 2008 -2012 Mercedes Benz Smart Key 4B Fob W/ Panic FCC# IYZDC07, accessed January 30, 2026, https://www.locksmithkeyless.com/products/2008-2012-mercedes-benz-smart-key-4b-fob-w-panic-fcc-iyzdc07
+6. 2019 - 2022 Audi Smart Key 4B FCC# IYZ-AK2 - Locksmith Keyless, accessed January 30, 2026, https://www.locksmithkeyless.com/products/2019-2022-audi-smart-key-4b-fcc-iyz-ak2
+7. 2008 Infiniti FX35 FX45 Smart Key 3B Fob FCC# CWTWBU619 - 285E3 - Locksmith Keyless, accessed January 30, 2026, https://www.locksmithkeyless.com/products/2006-2008-infiniti-smart-prox-key-3b-fcc-cwtwbu619
+8. 2000 2001 Nissan Keyless Entry 3B FCC# KBRASTU10/ KBRASTU09, accessed January 30, 2026, https://www.locksmithkeyless.com/products/2000-2001-nissan-remote-control-3b-fcc-kbrastu10-kbrastu09
+9. Honda CR-V Pilot Civic Smart Key Fob 72147-TLA-A22 KR5V2X V44 - Key4, accessed January 30, 2026, https://www.key4.com/honda-cr-v-pilot-civic-proximity-remote-key-72147-tla-a22-kr5v2x-v44
+10. 2012 Honda CR-V Remote Head Key Fob 3B (FCC: MLBHLIK-1TA, P/N: 35118-T0A-A00), accessed January 30, 2026, https://oemcarkeymall.com/products/2012-honda-cr-v-remote-head-key-fob-3b-mlbhlik-1ta
+11. Cadillac Refurbished OEM 1996-1999 Keyless Entry Remote - Royal Key Supply, accessed January 30, 2026, https://royalkeysupply.com/products/cadillac-refurbished-oem-1996-1999-deville-keyless-entry-remote-memory-2-4-button-fccid-ab01602t-pn-16259829
+12. 2005 Cadillac CTS Keyless Entry 4B Fob FCC# L2C0005T, accessed January 30, 2026, https://www.locksmithkeyless.com/products/2005-cadillac-cts-keyless-entry-4b-fob-fcc-l2c0005t
+13. 2001-2003 Saturn L200 4-Button Key Fob Remote (FCC: LHJ009, P/N: 24401698, 22692190) - NorthCoast Keyless, accessed January 30, 2026, https://northcoastkeyless.com/product/saturn-l200-4-button-key-fob-remote-fcc-lhj009-p-n-24401698-22692190/
+14. 2011 - 2013 Hyundai Tucson Dealer Installed Keyless Entry 4B Fob FCC, accessed January 30, 2026, https://www.locksmithkeyless.com/products/hyundai-dealer-installed-remote-control-w-remote-start-4b-fcc-goh-pcgen2-433-mhz

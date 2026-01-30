@@ -1,0 +1,193 @@
+﻿Technical Protocol for Key Generation and Immobilizer Programming for 2022-2026 Acura Models
+The automotive security landscape for the 2022-2026 Acura vehicle lineup, encompassing the fourth-generation MDX, the TLX, the RDX, and the newly introduced ADX and Integra, represents a zenith in consumer-grade anti-theft engineering. This period marks a decisive shift from the legacy 48-bit and 96-bit transponder systems to a high-security 128-bit encryption architecture utilizing the Hitag-AES (4A) chip.1 For the professional locksmith or automotive technician, an "all-keys-lost" (AKL) scenario on these vehicles is no longer a simple matter of cycling the ignition; it requires a coordinated assault on both the physical and digital layers of the vehicle’s security. This report provides a comprehensive, expert-level walkthrough of the technical specifics, hardware requirements, and critical "gotchas" associated with creating a functional key when no original remains.
+The Cryptographic Architecture of the 4A Immobilizer System
+The immobilizer system in modern Acura vehicles is not a standalone module but a distributed network of authentication. At the heart of this system is the 128-bit encryption protocol, which provides    possible combinations, rendering brute-force attacks computationally impossible.1 The system functions through a sophisticated challenge-response mechanism. When a user attempts to start the vehicle, the Keyless Access Unit (KAU) sends a Low Frequency (LF) wake-up signal at    to the proximity fob.3 The fob, powered by a CR2032 battery, activates its internal Hitag-AES transponder to compute a cryptographic response based on a shared secret key and a random challenge sent by the vehicle.2
+This response is broadcast via Ultra High Frequency (UHF) at    or   , depending on the specific model trim and regional regulatory requirements.1 The vehicle's Immobilizer Control Unit (ICU), often integrated into the Body Control Module (BCM) or a dedicated smart unit, verifies the response. If the credentials are valid, the ICU sends an encrypted "allow" signal to the Engine Control Module (ECM) and the Power Control Module (PCM), which then enables the fuel delivery and ignition systems.3 In the absence of a programmed key, the vehicle may still crank, but the engine will fail to catch, a condition signaled by a blinking green key icon on the instrument cluster.5
+Hardware Identification: The KR5BTP and KR5 TB-2 Ecosystem
+The first critical step in an AKL situation is the identification of the correct hardware. Acura utilizes specific FCC IDs for different models and market segments, and using the incorrect fob—even if it features the same physical buttons—will result in a failed programming attempt. The primary FCC ID for the 2022-2026 MDX, RDX, and TLX is KR5BTP.1 This fob is characterized by a 5-button layout, including Lock, Unlock, Hatch/Trunk, Panic, and Remote Start functionality.1
+Here is a breakdown of fob compatibility by FCC ID and vehicle model:
+
+
+  
+
+
+
+Specific Fob Breakdown and Compatibility
+The KR5BTP and the related KR5 TB-2 fobs are frequently categorized by "Driver 1" and "Driver 2" profiles. These designations correspond to the vehicle’s memory seat and mirror systems. While both fobs will start the vehicle if programmed correctly, they utilize different internal Continental part numbers to ensure the vehicle can distinguish between multiple users.1
+Vehicle Model
+	Model Years
+	Required FCC ID
+	Memory Profile
+	OEM Part Number
+	Acura MDX
+	2022-2026
+	KR5BTP
+	Driver 1
+	72147-TYA-C01 / 72147-TYB-C21
+	Acura MDX
+	2022-2026
+	KR5BTP
+	Driver 2
+	72147-TYA-C11
+	Acura TLX
+	2021-2025
+	KR5BTP
+	Driver 1
+	72147-TGV-A01
+	Acura RDX
+	2022-2025
+	KR5BTP
+	Driver 1/2
+	72147-TYA-C11
+	Acura Integra
+	2023-2026
+	KR5BTP
+	Standard
+	72147-3S5-A01
+	Acura ADX
+	2025-2026
+	KR5BTP
+	Standard
+	72147-TYA-C010
+	The determination of which key to use is typically made by inspecting the back of an existing fob, but in an AKL scenario, the technician must rely on the Vehicle Identification Number (VIN) and the specific trim level.7 The Advance and A-Spec packages almost universally require the Driver 1/Driver 2 specific fobs to maintain the utility of the memory settings.1
+Mechanical Decoding: The HON66 High-Security Interface
+Before the electronic programming can commence, the technician must gain entry to the vehicle and generate a mechanical emergency blade. Acura uses the HON66 (also known as HO01) keyway, a high-security 12-cut external 4-track system.10
+Utilizing the Lishi HON66 2-in-1 Tool
+The Lishi HON66 2-in-1 Pick and Decoder is the primary professional tool for this task. It allows for the non-destructive manipulation of the lock wafers and provides a direct reading of the bitting depths.12 The lock cylinder consists of 6 wafer positions on each side, labeled Left (L) and Right (R).10
+To decode the lock:
+1. The tool is inserted into the driver’s door lock.
+2. Tension is applied to the tension arm.
+3. The technician systematically "picks" each of the 6 wafer positions on both sides until the cylinder rotates, indicating an open state.12
+4. Once rotated, the tool’s pointer is moved to each numbered position (1-6) on the scale. The depth is read based on where the pointer stops (depths range from 1 to 5 or 6 depending on the system generation).12
+5. These depths are then input into a high-security key cutting machine, such as the Xhorse Dolphin or Autel MaxiIM KM100, to cut a replacement emergency blade.16
+A critical "gotcha" for the 2022+ models is that some generic Lishi tools only feature positions 1 through 5, whereas the newest Acura cylinders may utilize all 6 positions for the full 12-cut bitting.10 Professional-grade "Original Lishi" tools with the verified anti-glare finish and full 6-position scales are required for consistent accuracy.16
+Alternative Code Acquisition Methods
+If mechanical decoding is not feasible, the bitting code can be retrieved through authorized administrative channels. Licensed locksmiths with NASTF (National Automotive Service Task Force) certification can access Acura's ServiceExpress portal.19 By entering the vehicle's VIN, the portal provides the key code, which can then be converted to bitting dimensions using code software like Genericode or GCode Online.17 The VIN is most easily located on the driver’s side dashboard (visible through the windshield), the door jamb sticker, or the vehicle title.7
+The Digital Barrier: Secure Gateway (SGW) Implementation
+The most significant hurdle in 2022-2026 Acura models is the Secure Gateway (SGW) module. Inspired by cybersecurity protocols in the technology sector, the SGW acts as a firewall that prevents unauthorized diagnostic tools from performing "write" operations on the vehicle’s CAN bus.22 This means that while a standard OBD2 scanner can read error codes, it cannot program new keys or reset the immobilizer without first bypassing the gateway.22
+Locating and Bypassing the SGW
+To perform an AKL procedure, the technician must physically bypass the SGW. In the 2022-2026 MDX and RDX, the SGW module is typically located under the driver's side dashboard, near the steering column or above the brake pedal assembly.23
+The bypass process involves:
+1. Identifying the two primary harness connectors plugged into the SGW module (usually an 8-pin and a 12-pin or 16-pin connector).
+2. Unplugging these connectors from the module.
+3. Plugging the connectors into a specialized "SGW Bypass Cable" or "Bypass Block," which essentially bridges the communication gap and provides the diagnostic tool with direct access to the BCM and ICU.25
+4. Connecting the diagnostic tablet to the bypass cable's OBD2 female port rather than the vehicle’s factory OBD2 port.25
+This direct connection is mandatory for most aftermarket tools like the Autel IM608 and XTOOL X100, as they cannot navigate the gateway's encryption without a factory-authenticated server connection.22
+Diagnostic Tool Selection and Compatibility
+The transition to the 4A Hitag-AES system has rendered many older key programmers obsolete. The following tools are currently industry leaders for 2022-2026 Acura models.
+Here is a tool compatibility and support matrix:
+
+
+  
+
+
+
+Professional Programming Matrix
+
+
+Tool
+	AKL Support
+	Required Adapters
+	Key Advantages
+	Autel MaxiIM IM608 Pro II
+	Full support via "Smart Mode".28
+	XP400 Pro, G-Box3, APB131.28
+	Advanced ECU coding and guided procedures.28
+	XTOOL X100 Pad S
+	Dedicated Acura/Honda workflow.31
+	Main OBD2 Cable, SGW Bypass.31
+	User-friendly interface for ignition override.31
+	Autel MaxiIM KM100
+	Handheld proximity programming.30
+	Standard VCI, SGW Bypass.
+	Portability and built-in transponder cloning.30
+	Honda HDS (Dealer Tool)
+	Native support for all functions.19
+	GNA600 or Bosch VCI.19
+	No bypass required if used with factory login.19
+	The Autel APB131 adapter is particularly important for the newest Acura/Honda dashboards, as it is designed to read immobilizer data from the RH850 and V850 dashboard types often found in the latest generation models.30
+Critical Walkthrough: The All-Keys-Lost Procedure
+The AKL procedure is a time-sensitive operation that requires precision and a stable power source.
+Refer to this step-by-step walkthrough for the "All Keys Lost" process:
+
+
+  
+
+
+
+Phase 1: Ignition Power-Up and Initialization
+In an AKL situation, the vehicle is in a "dead" state where the ignition cannot be turned on because no recognized key is present. After connecting the tool via the SGW bypass, the technician selects the vehicle model and chooses "All Keys Lost".31 The tool will prompt the technician that the ignition is off and will attempt to force the ignition on.31 This often involves holding the Start/Stop button for an extended period (10-15 seconds) as the tool sends "wake-up" packets to the BCM.31
+Phase 2: Transponder Isolation and System Clearing
+A common technical failure point is radio interference. The tool will command the technician to move all smart keys at least 2 meters (6.5 feet) away from the vehicle.31 This ensures that when the tool attempts to "clear" the old key data from the ICU, it does not accidentally pick up a signal from a key sitting on the passenger seat or in the technician's pocket.31 The system then enters a "Registration Mode" where the existing key database is wiped.19
+Phase 3: The Key Handshake and Registration
+The tool will prompt the technician to bring the first new smart key into the vehicle.31 For the most reliable registration, the key should be held directly against the Start/Stop button or placed in the designated center console induction zone.35 The tool will communicate with the fob’s 4A chip, verify the 128-bit response, and register the new Key ID to the BCM. If a second key is required, the tool will ask to remove the first key and repeat the process with the second fob.31
+Phase 4: Synchronization and Ignition Cycling
+The final phase is the most critical for the rolling code synchronization. The tool will provide a series of rapid prompts:
+1. Turn the ignition Off.
+2. Turn the ignition On.
+3. Check if the green immobilizer light on the dashboard turns off.34
+4. Turn the ignition Off and then back On within a strict 15-second window.31
+If the timing is missed, the rolling code synchronization will fail, and the vehicle will not start, despite the keys being "learned" by the system.5 A successful procedure is indicated by the green key light extinguishing and the engine starting upon the first press of the button.31
+Technical Nuances and "Gotchas"
+Even with the correct tools, several environmental and procedural factors can lead to failure.
+Battery Voltage Stability
+Acura’s 4A system is extremely sensitive to voltage fluctuations. The AKL process, including the forced ignition power-up, can draw significant current. If the vehicle's battery drops below   , the communication between the diagnostic tool and the ICU can become corrupted.37 It is considered a professional best practice to connect a clean battery maintainer (set to   ) to the vehicle throughout the duration of the programming.37
+The "Add-Key" Contrast
+If at least one working key is available, the process is significantly less invasive. The "Add-Key" function does not usually require an SGW bypass if the diagnostic tool can "piggyback" on the security clearance of the existing key.38 However, the same isolation and timing rules for the new key still apply to ensure successful registration.30
+Driver Memory Synchronization
+When programming KR5BTP fobs for high-trim MDX or TLX models, the technician must ensure the tool correctly assigns the key to the intended memory slot.1 If a Driver 1 fob is programmed into the Driver 2 slot, the vehicle will start, but the user's seat and mirror preferences will not activate upon entry. High-end tools like the Autel IM608 provide an "Expert Mode" to specifically assign these slots.28
+Keyline S.p.A. and Third-Party Accessory Incompatibility
+A critical "gotcha" for technicians using Keyline S.p.A. equipment is the strict requirement for original accessories. Keyline S.p.A. explicitly states that the correct operation of their machines is not guaranteed when used with non-original equipment, and using such accessories will void the manufacturer's warranty. This is particularly relevant for the high-security HON66 cutters and tracers required for the 2022+ Acura keyways, where even minor deviations in accessory tolerances can lead to failed mechanical decoding or machine malfunctions.
+HomeLink and Remote Start Specifics
+For 2022-2026 models, the Remote Start functionality is integrated into the smart key's primary programming.1 However, the HomeLink garage door opener system is a separate entity that requires a different training procedure.40 To program HomeLink:
+1. The outside two buttons on the mirror are held until the indicator blinks green (clearing memory).40
+2. The desired HomeLink button is held while the existing garage remote is pressed 1-3 inches away.40
+3. For systems with rolling codes (most modern openers), the "Learn" button on the garage motor must be pressed before final synchronization with the Acura mirror.40
+The Immobilizer Logic: Rolling Codes and Challenge-Response
+The 128-bit system utilized by Acura is not merely a static password. It is a dynamic, rolling-code environment. Every time a key is used to start the vehicle, the ECM and the key exchange a new seed value that will be used for the next start attempt.40 This ensures that even if a sophisticated attacker captured the radio signal during a start event, the captured data would be useless for a future attempt.41
+In an AKL situation, the programming tool must reset the "Expected Next Code" in the ECM to match the "Starting Code" of the new key. This is why the ignition cycling at the end of the walkthrough is mandatory; it "steps" the rolling code forward to verify that both the key and the vehicle are in perfect cryptographic alignment.34
+Conclusion of Professional Recommendations
+Successfully navigating an all-keys-lost scenario for a 2022-2026 Acura model is the hallmark of a modern automotive security expert. The requirement for a physical SGW bypass, the mechanical precision needed for the HON66 12-cut decoding, and the cryptographic complexity of the 128-bit 4A chip create a formidable barrier to entry.
+Technicians are advised to prioritize the use of Genuine OEM KR5BTP fobs to avoid the high failure rates associated with aftermarket alternatives.1 Furthermore, the use of verified Lishi tools and advanced diagnostic platforms like the Autel IM608 Pro II or XTOOL Pad S is essential for managing the timing-sensitive ignition cycles required for rolling code synchronization.28 By adhering to the 2-meter isolation rule and ensuring constant battery support, the technician can reliably restore vehicle functionality, maintaining the integrity of the Acura high-security architecture.
+Works cited
+1. 2022-2026 Acura MDX OEM Smart Key Programming | NY | PAYLESS CAR KEYS CORP, accessed January 25, 2026, https://paylesscarkeys.com/2022-2026-acura-mdx-oem-smart-key-with-remote-start-programming
+2. 2025 Acura MDX Smart Key 5B W/ Hatch & Remote Start Fob FCC# KR - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/2022-2025-acura-mdx-smart-key-5b-w-hatch-remote-start-fob-fcc-kr5btp-72147-tya-c01
+3. 556H Honda/Acura Immobilizer Bypass Module - DirectedDealers.com, accessed January 25, 2026, https://www.directeddealers.com/manuals/ig/accessories/n556h_10-04.pdf
+4. Acura MDX 2022-2025 OEM 5 Button Smart Key KR5BTP (72147-TYA-C11) (Dri, accessed January 25, 2026, https://www.bestkeysupply.com/products/acura-mdx-2022-2025-5-button-smart-key-kr5btp-72147tyac11-oem2183
+5. Acura MDx Immobilizer Light Comes On & Need to Disable - Please ..., accessed January 25, 2026, https://www.reddit.com/r/Acura/comments/atonbb/acura_mdx_immobilizer_light_comes_on_need_to/
+6. 2022-2026 Acura ADX MDX 5B Remote Start Hatch Hold Smart Key ..., accessed January 25, 2026, https://yourcarkeyguys.com/products/2022-2026-acura-adx-mdx-5b-remote-start-hatch-hold-smart-key-kr5btp
+7. Acura Radio Codes Unlock Guide, accessed January 25, 2026, https://www.philsmithacura.com/acura-radio-codes.htm
+8. OEM 2022-2025 ACURA MDX smart keyless entry remote fob KR5BTP DRIVER 2 + NEW KEY | eBay, accessed January 25, 2026, https://www.ebay.com/itm/304576411505
+9. 2022-2025 Acura MDX / 5-Button Smart Key / PN: 72147-TYA-C11 / KR5BTP, accessed January 25, 2026, https://www.uhs-hardware.com/products/2022-2025-acura-mdx-5-button-smart-key-pn-72147-tya-c11-kr5btp-driver-2-oem
+10. ORIGINAL LISHI HON66 HONDA ACURA 2-IN-1 PICK DECODER IGNITION, DOOR, TRUNK - Car and Truck Remotes, accessed January 25, 2026, https://www.carandtruckremotes.com/products/original-lishi-hon66-honda-acura-2-in-1-pick-decoder-ignition-door-trunk
+11. Original Lishi 2-1 Pick/Decoder for Honda HON66 - CLK Supplies, accessed January 25, 2026, https://www.clksupplies.com/products/original-lishi-2-1-pick-decoder-for-honda-hon66
+12. Lishi Tool Pick Decoder USA - Multipick, accessed January 25, 2026, https://multipick.com/us/automotive-opening/lock-manipulation/lishi-tool-pick-decoder-usa/
+13. Genuine Lishi HON66 3-in-1 Pick/Decoder, accessed January 25, 2026, https://www.genuinelishi.com/lishi_tool/hon66-3-in-1/
+14. Classic Lishi HON66 2-in-1 Decoder and Pick for Honda / Acura, accessed January 25, 2026, https://www.classiclishi.com/product/classic-lishi-hon66
+15. Original Lishi for Honda HON66 HO01 Pick Decoder Ignition Door Trunk - Key4, accessed January 25, 2026, https://www.key4.com/original-lishi-hon66-ho01-honda-high-security-2-in-1-pick-decoder-anti-glare
+16. Opening Tools - Genuine Lishi Tools - Lock Picking Tools | ABKEYS, accessed January 25, 2026, https://abkeys.com/collections/opening-tools-genuine-lishi-lock-picking-tools
+17. Locksmithing 101 | Key Code Software - CLK Supplies, accessed January 25, 2026, https://www.clksupplies.com/blogs/news/locksmithing-101-key-code-software
+18. Original Lishi Honda Acura 2 In 1 Pick And Decoder HON66 HO01 | Transponder Island Inc., accessed January 25, 2026, https://transponderisland.com/shop/tit-dec-55-original-lishi-honda-acura-2-in-1-pick-and-decoder-hon66-ho01-1773
+19. security professionals who wish to obtain Honda and Acura key code and immobilizer information must meet the following requirements., accessed January 25, 2026, https://techinfo.honda.com/Rjanisis/RJAAI001_LOCKSMITH_INFO.asp
+20. Your source for key codes : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/rajcjy/your_source_for_key_codes/
+21. Locksmith Key Codes, accessed January 25, 2026, https://www.locksmithkeycodes.com/
+22. Security Gateway (SGW) Bypass – Appcar DiagFCA – diagnostic tool, accessed January 25, 2026, https://appcar-diagfca.com/en/diy/security-gateway-sgw-bypass/
+23. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 25, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+24. [EN] How to unlock a gateway and replace rear brake pads | Masters of Motion - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=ICduGjille0
+25. Why You Need A Security Bypass - OBDGenie.com, accessed January 25, 2026, https://www.obdgenie.com/pages/boxbypassinstructions
+26. Security Gateway Bypass Module - ZAutomotive, accessed January 25, 2026, https://www.zautomotive.com/products/z_sgw
+27. Z Automotive Security Gateway Bypass Modules for 2018-2021 DURANGO, GRAND CHEROKEE - Z_SGW - Summit Racing, accessed January 25, 2026, https://www.summitracing.com/parts/zau-zsgw
+28. 2026 Autel IM608 PRO II Kits IMMO Key Lost PROGRAMMING Diagnostic Scanner Tool - eBay, accessed January 25, 2026, https://www.ebay.com/itm/177078634587
+29. Autel 8A AKL Cable Blade Key All Keys Lost Adapter Autel Key Programming Accessory Work with IM508/ IM608 and G-Box3 - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/i/1005005264152890.html
+30. APB131 Adapter - Autel, accessed January 25, 2026, https://autel.us/product/maxiim-apb131-adapter/
+31. Acura TLX All Keys Lost - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=eIGoTdBL4TQ
+32. Autel Adds 2024/2025 IMMO & Key Programming Functionality | Autel, accessed January 25, 2026, https://autel.us/autel-adds-24-25-immo-key/
+33. Autel - Maxim APB131 Adapter - Adapter to Read and Add Keys on Select VW/Audi and Nissan Vehicles for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/autel-maxim-apb131-adapter-adapter-to-read-and-add-keys-on-select-vw-audi-and-nissan-vehicles
+34. Acura TSX All Keys Lost Programming - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=pHa51ZStkt4
+35. ALL KEYS LOST? MDX / RDX Smart Key Programming in Minutes - YouTube, accessed January 25, 2026, https://www.youtube.com/shorts/rza-HzOLNdM
+36. How To Open A 2022-2024 Acura MDX With Dead Battery Or Key- Manually Unlock If Remote Fob Won't Work - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=3p7AT6UlBq0
+37. ACURA MDX TLX RLX RDX ALL KEYS LOST PUSH START(SMART KEY) TUTORIAL#allkeyslost #keyprogrammer#acura - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=K_PELmyQdqg
+38. AUTEL IM508 ACURA HONDA KEY PROGRAMMING TUTORIAL #honda #acura #autel #keyprogramming#keyfob - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=NTHLypTHNIA
+39. "Acura Remote Start Programming with Autel | Quick DIY" - YouTube, accessed January 25, 2026, https://www.youtube.com/shorts/z2hrAXOWDpU
+40. 22 ACURA MDX-31TYA6000_02.book, accessed January 25, 2026, https://owners.acura.com/utility/download?path=/static/pdfs/2022/mdx/2022_mdx_homelink.pdf
+41. 2022 Acura MDX IGLA pincode / Compustar T13 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=gqTCECH8U4Q

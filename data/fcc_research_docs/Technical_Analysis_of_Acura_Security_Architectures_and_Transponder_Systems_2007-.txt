@@ -1,0 +1,211 @@
+﻿Technical Analysis of Acura Security Architectures and Transponder Systems (2007-2014)
+The transition of Acura security systems from 2007 through 2014 represents a period of significant architectural refinement, moving from basic transponder-integrated keys to sophisticated multi-functional remote head and flip keys. Central to this evolution are three primary Federal Communications Commission (FCC) identifiers: OUCG8D-380H-A, MLBHLIK-1T, and N5F0602A1A. These systems, while sharing a common cryptographic foundation in the Philips HITAG 2 protocol, exhibit distinct mechanical and radio-frequency characteristics that necessitate specialized diagnostic approaches. The following report provides an exhaustive investigation into the electronic specifications, programming methodologies, and mechanical vulnerabilities inherent in these Acura platforms, tailored for professional automotive security practitioners.
+Profiles of Primary Acura FCC Identifiers
+The technical landscape of Acura security during the late 2000s and early 2010s is dominated by a shift toward integrated remote electronics. Unlike earlier systems where the transponder chip and remote fob were separate entities, the identifiers under review represent unified hardware solutions where the immobilizer transponder and the keyless entry transmitter share a single printed circuit board (PCB) and housing.
+The OUCG8D-380H-A Integrated Remote Head Key
+The OUCG8D-380H-A identifier, manufactured by Omron, served as the workhorse for entry-level and mid-tier Honda and Acura vehicles. While heavily utilized in the Honda Accord (2003-2007) and Odyssey (2005-2010), it established the foundational frequency and chip architecture that Acura would adopt for its higher-tier models.1
+Feature
+	Detailed Specification
+	Manufacturer
+	Omron Corporation (G8D Series)
+	FCC ID
+	OUCG8D-380H-A
+	Nominal Frequency
+	313.8 MHz / 314 MHz
+	Transponder Chip
+	Philips ID 46 (PCF7936)
+	Battery Requirement
+	CR1616 3V Lithium Cell
+	Key Blade Profile
+	HON66 High-Security Laser Cut
+	Common OE Part
+	35111-SHJ-305 / 35118-SDA-A11
+	The internal logic of the OUCG8D-380H-A utilizes a fixed-frequency SAW (Surface Acoustic Wave) resonator. This hardware component is critical for maintaining stability in the 313.8 MHz band, which is a departure from the more common 315 MHz standard found in other North American automotive applications.1 The use of the PCF7936 transponder allows for encrypted mutual authentication with the vehicle’s Immobilizer Control Unit (ICU), utilizing a 48-bit secret key.1
+The MLBHLIK-1T Advanced Remote Transmitter
+The MLBHLIK-1T identifier, often produced by Mitsubishi Electric, is primarily associated with the fourth-generation Acura TL (2009-2014) and the contemporary TSX. This unit introduced a more complex user-profile integration, notably the "Driver 1" and "Driver 2" functionality.5
+Parameter
+	MLBHLIK-1T Specifications
+	System Integration
+	Remote Head / Integrated Slot Key
+	Radio Frequency
+	313.8 MHz
+	Immobilizer Protocol
+	Philips HITAG 2 (Manchester Encoding)
+	User Personalization
+	Driver 1 / Driver 2 Memory Sync
+	Vehicle Application
+	Acura TL (2009-2014), TSX (2009-2014)
+	Programming Protocol
+	Honda/Acura Type 3/4 Immobilizer
+	A key technical distinction of the MLBHLIK-1T is its ability to transmit personalized ID packets that the vehicle's Body Control Module (BCM) uses to trigger memory settings for seat positioning, mirror angles, and climate control presets.5 This deeper integration means that while the transponder side remains standard HITAG 2, the RKE (Remote Keyless Entry) side requires specific firmware to be recognized as a valid "Driver X" remote.5
+The N5F0602A1A Flip Key Architecture
+The N5F0602A1A identifier marks Acura’s shift toward the "switchblade" or flip key style, primarily for the Acura MDX (2007-2013) and RDX (2007-2012).7
+Attribute
+	N5F0602A1A Details
+	Housing Design
+	Spring-Loaded Flip Key
+	Operational Frequency
+	313.8 MHz
+	Transponder ID
+	ID 46 (HITAG 2)
+	OEM Part Number
+	35111-STX-329
+	Button Configuration
+	Lock, Unlock, Trunk, Panic (4-Button)
+	Mechanical Profile
+	HON66 (Milled Sidewinder)
+	The N5F0602A1A is technically identical in frequency and transponder logic to the OUCG8D-380H-A but packaged in a more premium housing. The mechanical hinge assembly in these units is a common failure point, leading to a high demand for "re-shelling" or replacement with aftermarket flip keys that maintain the 313.8 MHz frequency.7
+The 313.8 MHz Frequency Discrepancy
+A frequent point of failure in the field is the attempt to use universal 315 MHz remote keys on Acura systems designated for OUCG8D-380H-A, MLBHLIK-1T, or N5F0602A1A. While the 1.2 MHz difference between 313.8 MHz and 315 MHz may seem negligible in the context of broad-spectrum radio, it is a critical misalignment for the narrow-band receivers used by Acura.1
+Technical Basis for System Rejection
+The receiver modules in these Acura vehicles are designed with high-selectivity band-pass filters, often employing superheterodyne architectures. The quality factor (  ) of these filters is tuned specifically to the 313.85 MHz center frequency. In RF engineering, the selectivity of a receiver is defined by its ability to reject signals outside its intended bandwidth. The relationship between the center frequency (  ) and the bandwidth (  ) is governed by:
+  
+
+Because Acura’s receivers are designed to operate in an increasingly crowded 315 MHz ISM (Industrial, Scientific, and Medical) band, they utilize extremely narrow-band SAW filters to minimize interference from garage door openers and other RKE systems.10 A signal at 315.0 MHz falls into the "stop-band" of the Acura receiver’s filter, resulting in significant attenuation (often exceeding 20-30 dB). This attenuation reduces the signal-to-noise ratio below the threshold required for the MCU (Microcontroller Unit) to decode the rolling code packet, leading to a situation where the transponder is successfully programmed (allowing the car to start) but the remote buttons fail to function entirely.2
+Verification and Diagnostic Protocols
+To mitigate the risk of cutting an incompatible key, professional locksmiths utilize frequency detection tools to verify the output of the replacement key against the vehicle's requirements.12
+1. Frequency Analysis: Using the Autel MaxiIM KM100 or Xhorse VVDI Key Tool, the technician must perform a "Frequency Detection" test. A compatible Acura key must register within the range of 313.8 MHz to 313.9 MHz. Any key registering at a flat 315.0 MHz is fundamentally incompatible with the RKE receiver, regardless of the transponder chip's success.14
+2. Signal Strength Verification: These tools also measure the signal amplitude. A weak or fluctuating signal during verification may indicate a failing SAW resonator or a depleted CR1616 battery, both of which are common in older "new old stock" (NOS) or refurbished units.12
+3. Transponder Identification: The technician must confirm that the chip is a PCF7936 (ID46). Some later Honda models transitioned to the 8E or ID47 chips, which utilize different cryptographic handshakes and frequencies, making them incompatible with the 2007-2014 Acura ICU.2
+Instructional Media and Diagnostic Workflow Analysis
+For technicians tasked with an All Keys Lost (AKL) or Add Key scenario on the Acura TL (2009-2014) or MDX (2007-2013), several highly-rated instructional resources provide the baseline for modern diagnostic workflows.
+Top 3 Instructional Media Resources
+1. Mods Forever: XTOOL Pad 2 Pro Acura TL Tutorial: This tutorial is widely cited for its demonstration of the "Third Gen Immobilizer" system found in the 2004-2008 and early 2009 TL models. It effectively illustrates the speed of the Xtool interface in pulling the VIN and identifying the system type.16
+2. Season 3, Episode 1: Acura MDX Keyfob Reprogramming DIY: This video focuses on the 2007-2013 MDX (N5F0602A1A) and is notable for its detailed disassembly of the flip key housing and the subsequent on-board programming of the remote portion to memory settings.7
+3. Fabolousg4ever: Acura MDX/TLX All Keys Lost Push-Start Tutorial: This resource is essential for the transition years (2013-2014) when some MDX models moved to smart key systems. It details the "Force Ignition On" procedure required when no valid key is present to power the dashboard.17
+Comparative Tool Performance: Autel vs. Xtool
+In the professional locksmithing domain, the choice between the Autel MaxiIM IM508 and the Xtool X100 Pad series is often dictated by the specific requirements of the Acura immobilizer reset.18
+
+
+Tool
+	Acura Programming Strengths
+	Limitations
+	Autel IM508
+	Superior frequency detection; guided AKL workflows for smart keys.21
+	Slower initialization on some older Honda/Acura K-Line systems.
+	Xtool X100 Pad
+	Extremely fast VIN pulling and immobilizer handshake; often more budget-friendly.16
+	Basic frequency detection; limited EEPROM capabilities compared to Autel.
+	5-Step Diagnostic Walkthroughs
+The following walkthroughs describe the standard operating procedures for servicing Acura vehicles utilizing the OUCG8D-380H-A, MLBHLIK-1T, and N5F0602A1A identifiers.
+Walkthrough A: All Keys Lost (AKL) via Diagnostic Tool
+The AKL procedure is more invasive as it requires the deletion of existing key data to ensure vehicle security after a loss.17
+1. Vehicle Connection and Power-Up: Connect the IM508 or Xtool to the OBDII port. If the ignition is mechanically locked, the technician must use the Lishi HON66 to pick and turn the cylinder to the ON (II) position to power the ICU and BCM.16
+2. System Identification: Select the vehicle manually or via Auto-VIN. Confirm the system is "Immobilizer" or "Smart Key" (for later proximity models). The tool will typically report "Number of Registered Keys: 0" or requires a reset of the current count.16
+3. Immobilizer Reset / Key Learning: Initiate the "All Keys Lost" or "Immobilizer Reset" function. This process clears the Rolling Code and Secret Key registers in the ICU. The technician will be prompted to turn the ignition ON and OFF with the first new key.16
+4. Transponder Registration: The tool communicates with the PCF7936 chip via the antenna coil at the key cylinder. A successful registration is confirmed when the green "Key" light on the instrument cluster flashes and then stays off when the ignition is turned to ON.24
+5. Multi-Key Sync: If additional keys are needed, the tool will provide a 15-20 second window to remove the first key and insert the second. Once all transponders are registered, the tool will finalize the session and confirm the new key count.17
+Walkthrough B: Add Key Procedure
+The Add Key procedure is used when at least one working key is available, allowing for a non-destructive expansion of the key registry.22
+1. Security Handshake: Insert the existing working key and turn the ignition to ON. The tool uses the existing key's "Secret Key" to authenticate with the ICU and unlock the "Key Learning" menu.22
+2. Add Key Invitation: Select "Add a Key" from the menu. The tool will instruct the technician to turn the ignition OFF and remove the working key.23
+3. New Key Introduction: Insert the new, unprogrammed key and turn the ignition to ON. The tool will verify the PCF7936 chip and write its unique ID into the next available memory slot (usually up to 4 or 6 slots total).23
+4. Verification of Success: The tool will prompt the technician to cycle the ignition a final time. The dash lights will confirm the immobilizer is satisfied. The engine should then be cranked to ensure the new transponder is fully synchronized.23
+5. Remote Programming: Because the transponder and remote are separate logical units, the technician must then perform either the tool-based remote sync or the manual OBP sequence to enable button functionality.9
+On-Board Programming (OBP) Analysis
+A significant nuance in Acura servicing is the availability of manual on-board programming for the remote portion of the key. While the transponder always requires a diagnostic tool for registration, the RKE (buttons) often do not.26
+Remote OBP Compatibility and Conflicts
+There is conflicting information in technical documentation regarding OBP support for the 2009-2014 Acura TL (MLBHLIK-1T). While some specialized sources claim no OBP is available and a tool is required 27, multiple locksmith field reports and dealership guides provide a verified manual sequence for the base-model (non-Technology Package) vehicles.6 This discrepancy typically arises because the Technology Package (Proximity/Smart Key) vehicles do require a tool for the remote sync, whereas the standard remote head keys do not.
+The Standard Acura Manual Sequence
+For the 2007-2013 MDX and 2009-2014 TL (Remote Head), the following OBP sequence is used to sync up to three remotes 6:
+1. Vehicle Entry: Sit in the driver's seat with all doors, windows, and the trunk closed. Ensure the doors are unlocked.26
+2. Initial Cycle: Insert the key into the ignition. Turn the ignition to the ON (II) position. Immediately press the LOCK or UNLOCK button on the remote while aiming it toward the receiver module in the dash or rearview mirror.6
+3. The Rule of Four: Turn the ignition to OFF (I). Repeat the ON/Press/OFF cycle three more times. On the fourth cycle (ON), when the LOCK button is pressed, the door locks will physically cycle (LOCK/UNLOCK), indicating that the BCM has entered "Programming Mode".6
+4. Syncing Remotes: Within 5 seconds of the locks cycling, press the LOCK button on the same remote again. The locks will cycle once more to confirm success. To add additional remotes, press the LOCK button on the next remote immediately after the first one is confirmed.6
+5. Exit and Test: Turn the ignition to OFF and remove the key. Exit the vehicle and test all remotes. Note that the trunk release button may require a 5-10 second hold to initialize its specific function after this process.6
+Mechanical Nuance: The HON66 System and the "Honda Lock Jam"
+All Acura models using these FCC IDs utilize the HON66 high-security key system, a 4-track "sidewinder" design. While highly secure against picking, the mechanical design of the cylinder is prone to a catastrophic failure known as the "Honda Lock Jam".33
+Lishi HON66 Tool Application
+The Lishi HON66 is the industry-standard tool for non-destructive entry and decoding. However, the HON66 cylinder utilizes a "split wafer" design, where each of the six or five wafer positions is actually comprised of two independent pieces of metal.33
+Picking an Acura HON66 cylinder often requires a "two-stage" pick. The first pick brings the cylinder to a 45-degree angle. At this point, the split wafers create a "second shear line," and the technician must continue picking to reach the full 90-degree rotation.33 Because the lock is under spring tension, the Lishi tool must be "un-picked" or eased back to the neutral position to avoid binding the tool inside the cylinder.33
+Forensics of the "Honda Lock Jam"
+The "Lock Jam" is a metallurgical and mechanical failure primarily caused by the friction between the nickel-silver key and the brass split wafers.
+1. The Wafer Shelf: Each split wafer has a tiny internal ledge or "shelf" that the milled track of the key rides upon. Over time (typically 120,000 to 180,000 miles), this shelf wears down until it can no longer support the key.34
+2. Protrusion Failure: When the shelf fails, the wafer no longer retracts fully into the cylinder plug even when the correct key is inserted. The protruding wafer binds against the cylinder housing, preventing any rotation.35
+3. The "Key Damage" Factor: It is a common misconception that only the wafers wear out. In reality, the key's milling also loses its crisp edges over time. Using a worn key in a newly rebuilt lock will cause the new wafers to fail prematurely.34
+Rebuild vs. Replacement Analysis
+When a customer's ignition jams, the professional recommendation is an on-site rebuild rather than a full cylinder replacement.35
+
+
+Repair Method
+	Cost (Est.)
+	Pros
+	Cons
+	Dealer Replacement
+	$600 - $1,200
+	New OEM hardware.
+	High cost; often requires two separate keys (ignition vs. doors).35
+	Aftermarket Cylinder
+	$150 - $300
+	Cheap; immediate fix.
+	Very poor quality (China-sourced); high failure rate; requires two keys.35
+	Locksmith Rebuild
+	$250 - $450
+	Maintains one-key system; uses superior pinning kits.37
+	Requires removal of shear bolts and full disassembly.34
+	A professional rebuild involves removing the shear bolts (using a punch or drill), disassembling the cylinder, cleaning out old debris, and "pinning up" the lock with brand new wafers according to the original factory key code.34 A critical step in this process is decoding the lock and cutting a brand new key to factory specifications using a code-cutter (like the Silca Futura or Autel Alpina).34
+Synthesis of Diagnostic Best Practices
+The integration of radio-frequency verification, diagnostic programming, and mechanical forensics is essential for the successful servicing of 2007-2014 Acura vehicles. The following table synthesizes the critical technical checkpoints for each FCC ID.
+
+
+Identifier
+	Primary Frequency
+	Key Style
+	OBP Support (Remote)
+	Critical Technical Note
+	OUCG8D-380H-A
+	313.8 MHz
+	Remote Head
+	Yes
+	Check for "H" stamp on blade for later models.1
+	MLBHLIK-1T
+	313.8 MHz
+	Remote Head
+	Partial (Base Only)
+	Requires Driver 1/2 firmware for memory sync.5
+	N5F0602A1A
+	313.8 MHz
+	Flip Key
+	Yes
+	Mechanical hinge failure is common; rebuild over replace.7
+	Technicians must remain vigilant regarding the "313.8 MHz Gotcha." The reliance on generic 315 MHz keys is the single largest cause of customer dissatisfaction in Acura RKE servicing. By utilizing frequency detection tools and following the 5-step walkthroughs provided, the modern automotive security professional can ensure 100% success in immobilizer registration and remote synchronization. Furthermore, addressing the mechanical "Lock Jam" through a proper rebuild and code-cut key provides a comprehensive solution that restores the vehicle to factory-new reliability.
+The future of Acura security continues to move toward ultra-wideband (UWB) and BLE-based proximity systems, but the legacy of the OUCG8D-380H-A, MLBHLIK-1T, and N5F0602A1A systems remains a core component of the secondary market, requiring a deep technical understanding of the intersection between narrow-band radio and high-security mechanical locking.
+Works cited
+1. Honda 4-Button Remote Head Key 46 Chip 'V' OUCG8D-380H-A - Lockpicks.com, accessed January 25, 2026, https://www.lockpicks.com/products/hd-05-313-8-3-1-button-remote-key
+2. 2005-2014 Honda / 3-Button Remote Head Key / OUCG8D-380H-A ..., accessed January 25, 2026, https://www.uhs-hardware.com/products/2005-2014-honda-3-button-remote-head-key-oucg8d-380h-a-chip-46-rk-hon-ouc-3
+3. 35118-SDA-A11 OUCG8D-380H-A Honda Accord Keyless Entry Remote, accessed January 25, 2026, https://www.carandtruckremotes.com/products/original-remote-for-honda-accord-pn-35118-sda-a11
+4. Honda Fit Odyssey Ridgeline Keyless Entry Remote Head Key Fob FCC ID: OUG8D-380H-A, ID46-Chip, 315MHZ, accessed January 25, 2026, https://www.bestkeysolution.com/products/honda-fit-odyssey-ridgeline-keyless-entry-remote-head-key-fob-fcc-id-oug8d-380h-a-id46-chip-315mhz
+5. Acura TL OEM 4 Button Key Fob Driver 1 MLBHLIK-1T - Keyless Entry Remote, accessed January 25, 2026, https://www.keylessentryremotefob.com/acura-tl-oem-4-button-key-fob-driver-1-mlbhlik-1t/
+6. 2009 Acura TL Keyless Entry Remote Fob Programming Instructions, accessed January 25, 2026, https://northcoastkeyless.com/2009-acura-tl-keyless-entry-remote-fob-programming-instructions/
+7. Acura MDX keyfob replacement and reprogramming DIY - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=C-KY-Ue0I9Y
+8. KEYYOU Remote Key 313.8Mhz 433Mhz ID46 Chip Fob For Acura MDX RDX TL TSX ZDX For Honda Insight Civic Accord 8 Elysion CR-V Jazz - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/item/1005007355357027.html
+9. XTOOL PAD 2 PRO ACURA TL HONDA KEY PROGRAMMING TUTORIAL#xtool #keyprogramming #honda #acura #keyfob - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=6qumFmB-g_o
+10. Investigating 315MHz interference : r/rfelectronics - Reddit, accessed January 25, 2026, https://www.reddit.com/r/rfelectronics/comments/1103khx/investigating_315mhz_interference/
+11. Remote Keyless Entry Systems Overview - Analog Devices, accessed January 25, 2026, https://www.analog.com/en/resources/app-notes/remote-keyless-entry-systems-overview.html
+12. How to Check Key Fob Frequency & Remote Identification with Autel KM100 (Full Tutorial), accessed January 25, 2026, https://www.youtube.com/shorts/Y5nNRyq5R1A
+13. How to Check Key Info & Frequency with Autel KM100? - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=x5xAmBXBO50
+14. MaxiIM KM100_User Manual_EN - Autel, accessed January 25, 2026, https://autel.us/wp-content/uploads/MaxiIM_KM100_User_Manual_EN.pdf
+15. KM100 Key Tool Overview: The Ultimate Beginner's Guide to Autel's Best Programmer, accessed January 25, 2026, https://www.youtube.com/watch?v=bXNkq2LLfOI
+16. ACURA HONDA TL TLX MDX RDX RLX ALL KEYS LOST KEYLESS ENTRY SMART PROXIMITY FOB PROGRAMMING TUTORIAL - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=QiK2LpEBr-c
+17. ACURA MDX TLX RLX RDX ALL KEYS LOST PUSH START(SMART KEY) TUTORIAL#allkeyslost #keyprogrammer#acura - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=K_PELmyQdqg
+18. Acura TLX All Keys Lost - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=eIGoTdBL4TQ
+19. AUTEL IM508 vs XTOOL PAD 3 | Best Key Programmer & Diagnostic Tool Comparison, accessed January 25, 2026, https://www.youtube.com/watch?v=URik3gmcjq0
+20. AUTEL MK808 VS XTOOL PRO PAD 2 MY KEY PROGRAMMERS - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=4Xw3vNSyaV4
+21. Autel Key Programming IM508 Webcast Training - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=CzM9P2bfHSo
+22. Add a Smart Key to an Acura in MINUTES! | Autel 508 + Autel iKey Step-by-Step Guide, accessed January 25, 2026, https://www.youtube.com/watch?v=ORNEJkg8_Ak
+23. How To Use Autel KM100 Key Programmer The Full Guide - ABKEYS, accessed January 25, 2026, https://abkeys.com/blogs/news/how-to-use-autel-km100-key-programmer-the-full-guide-abkeys
+24. AUTEL IM508 ACURA HONDA KEY PROGRAMMING TUTORIAL #honda #acura #autel #keyprogramming#keyfob - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=NTHLypTHNIA
+25. Acura MDX Key & Remote Fob Programming Tutorial | Step-by-Step Guide - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=dL2wjK8utdE
+26. 2009 Acura MDX Keyless Entry Remote Fob Programming Instructions, accessed January 25, 2026, https://northcoastkeyless.com/2009-acura-mdx-keyless-entry-remote-fob-programming-instructions/
+27. 2009 Acura TL Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 25, 2026, https://keyless2go.com/blogs/program-instructions/2009-acura-tl-keyless-entry-remote-fob-smart-key-programming-instructions
+28. 2009 Acura TL Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 25, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2009-acura-tl-keyless-entry-remote-fob-smart-key-programming-instructions
+29. Acura Key Fob Programming | Acura of Johnston, accessed January 25, 2026, https://www.acuraofjohnston.com/service/service-and-parts-tips/acura-key-fob-programming/
+30. How to Program Honda/Acura Key Remote/Key FOB/Keyless Remote (All 1997-2012 Factory Installed) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=VYsnLowCQzs
+31. How to Program your Acura Key Fob, accessed January 25, 2026, https://www.westsideacura.com/how-to-program-your-acura-mdx-key-fob/
+32. 2013 Acura MDX Keyless Entry Remote Fob Programming Instructions, accessed January 25, 2026, https://northcoastkeyless.com/2013-acura-mdx-keyless-entry-remote-fob-programming-instructions/
+33. Lishi HON-66 question : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/5uf0wn/lishi_hon66_question/
+34. Honda Ignition lock repair step by step | Locksmith Tip - CLK Supplies, accessed January 25, 2026, https://www.clksupplies.com/blogs/news/honda-ignition-lock-repair-step-by-step-locksmith-tip
+35. Your Honda's Ignition is About to Fail - Local Locksmith, accessed January 25, 2026, https://locallocksmithaz.com/your-hondas-ignition-is-about-to-fail/
+36. Honda ignition lock repair : r/AskALocksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/AskALocksmith/comments/1lm78j9/honda_ignition_lock_repair/
+37. Honda Ignition lock repair step by step | Locksmith Tip - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=6RUno3J0xos
+38. HONDA / ACURA IGNITION LOCK REPAIR - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=57WXjMbxatc

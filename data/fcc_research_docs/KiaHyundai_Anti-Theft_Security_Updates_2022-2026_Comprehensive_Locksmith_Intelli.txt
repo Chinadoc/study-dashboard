@@ -1,0 +1,297 @@
+﻿Kia/Hyundai Anti-Theft Security Updates (2022-2026): Comprehensive Locksmith Intelligence Report
+1. Introduction: The Paradigm Shift in Korean Vehicle Security
+The automotive security landscape in North America underwent a fundamental and chaotic transformation between 2022 and 2026, precipitated by the unprecedented "Kia Boys" theft epidemic. This crisis, driven by a mechanical vulnerability in non-immobilized vehicles and amplified by social media viral trends, forced Hyundai Motor Group (HMG)—the parent entity of both Kia and Hyundai—to implement a rapid, multi-phased defense strategy. For the automotive locksmithing industry, these countermeasures have dismantled decades of established protocols for servicing Korean vehicles. The era of simple, mechanical key generation for base-model vehicles has been superseded by a complex operational environment defined by retrofitted software logic, hardened physical barriers, and advanced transponder encryption.
+This intelligence report serves as an exhaustive guide for security professionals and locksmiths navigating this new terrain. It provides a granular analysis of the technical mechanics behind the anti-theft software updates (Campaign 993/CS2302), details the specific bypass protocols required for "All Keys Lost" (AKL) scenarios on updated vehicles, and offers a comprehensive encyclopedic reference for the transponder and remote data of the 2023–2026 model years. The analysis indicates that while theft rates for legacy models are stabilizing due to these interventions, the complexity of service—and the potential for "service lockouts" where legitimate technicians are blocked by anti-theft measures—has increased exponentially.1
+1.1 Chronology of the Crisis and Countermeasures
+To fully comprehend the current state of vehicle security, it is essential to reconstruct the timeline of the epidemic and the manufacturer's response, as detailed in various service campaigns and press releases. The crisis began in earnest during the summer of 2022, when theft rates for Hyundai and Kia vehicles spiked dramatically, driven by instructional videos on TikTok and other platforms.3 These videos exposed a critical vulnerability in vehicles equipped with standard "turn-key-to-start" ignition systems produced roughly between 2011 and 2021.
+By February 2023, the National Highway Traffic Safety Administration (NHTSA) and the manufacturers announced the rollout of a free anti-theft software upgrade.4 This marked the beginning of "Phase 1" of the response, targeting the highest-volume vehicles like the Elantra, Sonata, and Venue.6 Throughout 2023 and into 2024, the campaigns expanded to include millions of additional vehicles, including the Kona, Santa Fe, and Tucson.3 Simultaneously, recognizing that some vehicles were electrically incompatible with the software patch, the manufacturers introduced physical hardening measures, specifically the Ignition Cylinder Protector (Campaign CS2311) and the distribution of steering wheel locks.7
+By late 2024 and entering 2026, the focus shifted toward legal settlements and the standardization of engine immobilizers on all new production models.1 The "Class Action Settlement" provided financial relief and reinforced the deployment of software upgrades, but it also cemented the presence of these retrofitted security measures in the aftermarket for years to come.9 Locksmiths today are essentially operating in the wake of this timeline, encountering vehicles that may be in any state of modification—from fully vulnerable to software-patched to physically hardened.
+2. Anatomy of the Vulnerability: The "Turn-Key" Flaw
+The root cause of the crisis was a design choice in the entry-level trim packages of Hyundai and Kia vehicles. While the automotive industry largely transitioned to standard engine immobilizers in the late 1990s and early 2000s, HMG continued to produce base-model vehicles for the US market without this critical electronic security layer until November 2021.6
+2.1 Mechanical vs. Electronic Security Architectures
+In a standard immobilized vehicle, security relies on a dual-authentication factor: the mechanical cut of the key blade and the digital signature of a transponder chip. When a key is inserted, an antenna coil around the ignition cylinder (the immobilizer coil) energizes the transponder. The transponder emits a unique ID, which is read by the Immobilizer Control Unit (ICU) or Smartra unit. This unit communicates with the Engine Control Unit (ECU), which verifies the ID against a stored whitelist. If the ID is valid, the ECU enables the fuel injectors and spark plugs. If the ID is missing or invalid, the engine may crank but will not start, or will start and immediately die.
+In the affected Kia and Hyundai models (e.g., Kia Sportage 2011-2022, Hyundai Elantra 2011-2022), this electronic handshake was entirely absent.3 The security was purely mechanical. The ignition switch, located behind the lock cylinder, operated on a simple rotary circuit. The vulnerability lay in the physical interface between the lock cylinder and the ignition switch. The "Kia Boys" exploit involved removing the plastic steering column cowling and physically detaching the lock cylinder housing. Once the cylinder was removed, a rectangular tab on the ignition switch was exposed. This tab, responsible for turning the switch contacts, coincidentally matched the dimensions of a standard USB-A plug. By inserting a USB cable into this slot and rotating it, a thief could engage the starter motor and drive the vehicle away. The vehicle's ECU, lacking an immobilizer protocol, had no means of distinguishing between a key turn and a USB turn.4
+2.2 The Scope of the Affected Fleet
+The scale of this vulnerability is staggering. Approximately 4 million Hyundai vehicles and millions of Kia vehicles were susceptible.4 The affected models span a decade of production and include the highest-volume sellers in the manufacturers' lineups.
+Hyundai Affected Models (Campaign 993):
+* Accent (2018-2022)
+* Elantra (2011-2022)
+* Elantra GT (2013-2020)
+* Genesis Coupe (2013-2014)
+* Kona (2018-2022)
+* Palisade (2020-2021)
+* Santa Fe (2013-2022)
+* Santa Fe Sport (2013-2018)
+* Santa Fe XL (2019)
+* Sonata (2011-2019)
+* Tucson (2011-2022)
+* Veloster (2012-2017 & 2019-2021)
+* Venue (2020-2021).3
+Kia Affected Models (Campaign CS2302/CS2306):
+* Forte (2011-2021)
+* K5 (2021)
+* Optima (2011-2020)
+* Rio (2011-2021)
+* Sedona (2011-2021)
+* Seltos (2021)
+* Soul (2010-2022)
+* Sorento (2011-2022)
+* Sportage (2011-2022).8
+It is crucial to note that vehicles with push-button start were not affected by this specific vulnerability, as they are inherently equipped with immobilizers and complex cryptographic authorization processes.6 However, the visual similarity between base models and premium trims often led to "smash-and-grab" attempts on push-button vehicles by thieves unable to distinguish between them, resulting in broken windows and damaged steering columns even if the car could not be stolen.3
+3. The Software Remediation: Logic as a Virtual Immobilizer
+The primary countermeasure deployed by HMG is a software patch, designated as Service Campaign 993 for Hyundai and Technical Service Bulletin (TSB) CS2302 (and subsequent iterations like CS2306, CS2310) for Kia.6 Locksmiths must fundamentally reorient their understanding of these updated vehicles. This update does not add an immobilizer. It does not install an antenna coil or require transponder keys. Instead, it repurposes the vehicle's existing logic to create a "virtual" immobilizer using the Body Control Module (BCM) and the factory alarm system.
+3.1 The "Ignition Kill" Logic Architecture
+The software update modifies the BCM or Integrated Body Control Unit (IBU) firmware to introduce a conditional check within the starting sequence. This logic acts as a gatekeeper between the ignition switch and the starter relay/fuel pump.
+Pre-Update Logic:
+1. Ignition Switch turned to START.
+2. Starter Relay energized.
+3. Engine cranks and runs.
+Post-Update Logic:
+1. System Arming: When the driver locks the doors using the key fob, the BCM enters an "Armed" state. Crucially, this state now engages an "Ignition Kill" feature.16
+2. The Theft Event: If the door is opened mechanically (picked lock, forced lock, or broken window) or if the ignition is turned to ON/START while the system is Armed, the BCM detects an unauthorized entry.
+3. Active Defense: Instead of energizing the starter relay, the BCM triggers the alarm. The horn sounds and hazard lights flash. The update extends the duration of this alarm from the standard 30 seconds to one full minute to maximize deterrence.5
+4. Ignition Block: While the alarm is active, the BCM actively inhibits the starter signal. The engine will not crank. Even if the starter is jumped, the fuel pump may be disabled, preventing the engine from running.
+3.2 The Disarming Protocol: Fob Dependency
+The most significant operational change for locksmiths is the disarming protocol. In the original logic, unlocking the door with the physical key cylinder would typically disarm the factory alarm, or at least allow the car to start once the key was in the ignition.
+Under the new software logic, the manufacturer explicitly states: "Customers must use the key fob to unlock their vehicles to deactivate the 'ignition kill' feature".4 This implies that the software deliberately ignores the status of the door lock cylinder switch to prevent thieves from disarming the system by forcefully rotating the door lock (a common vulnerability).
+This creates a critical dependency on the Remote Keyless Entry (RKE) transmitter. The vehicle essentially behaves as if it has an immobilizer, but the "token" is the RKE unlock signal rather than a transponder chip ID.
+
+
+  
+
+
+
+3.3 The "Door Lock" Controversy and Logic Flaws
+While the official documentation insists on fob usage, field intelligence and user reports highlight inconsistencies and potential flaws in this logic. Some research suggests that on certain firmware versions or models, the physical key does disarm the system if used in a specific way, or conversely, that the system remains armed even after a valid key unlock if the battery was depleted.
+More alarmingly, reports indicate that the "Kia Boys" have adapted to the software update by exploiting the door lock cylinder itself. Thieves are now forcefully damaging the driver's door lock to manipulate the internal mechanism. On some vehicles, this forced rotation mimics a valid key turn, which the software—despite the stated intent to require a fob—interprets as a valid unlock command.19 This "door lock bypass" effectively disables the software patch, allowing the thief to proceed with the ignition attack. This vulnerability suggests that the software patch may rely on the door lock cylinder switch state, and if that switch is mechanically triggered (even destructively), the system disarms. This contradicts the "fob only" rule in some instances, creating a confusing environment for locksmiths who may find that some updated cars disarm with a key turn while others trigger the alarm.
+Furthermore, there is a known issue where the software logic creates a "loop" of non-start conditions. If a customer locks the vehicle with the fob and then the fob battery dies, they can enter the vehicle with the mechanical key but cannot start it because the "Ignition Kill" is active. The alarm will sound, and the car is effectively bricked until a working fob is presented.21 This is the "Service Lockout" scenario that locksmiths frequently encounter.
+4. Hardware Countermeasures: The Ignition Cylinder Protector
+Recognizing that software updates were not feasible for all vehicles (due to hardware incompatibilities in older BCMs) and that the software itself had bypass vulnerabilities, HMG introduced a physical hardening measure: the Ignition Cylinder Protector (Campaign CS2311 for Kia, and a similar campaign for Hyundai).7
+4.1 Technical Specifications and Installation
+The Ignition Cylinder Protector is a reinforced metal collar or cap designed to fit over the ignition lock cylinder housing. Its primary function is to prevent the "peeling" of the steering column plastic and the subsequent removal of the lock cylinder body—the first step in the USB theft method.23
+The installation of this device is intended to be permanent. Technical documents and installer reports describe the protector as being secured with non-removable shear bolts or industrial-grade adhesive (often described colloquially as "super-glued") to the steering column.25 The goal is to make the cylinder physically irremovable without destroying the entire steering column assembly.
+4.2 Impact on Locksmith Operations
+For the automotive locksmith, the presence of an Ignition Cylinder Protector changes a routine repair into a major mechanical intervention.
+* Ignition Repair/Replacement: Traditionally, if an ignition cylinder failed (common on older Hyundais/Kias due to wafer wear), a locksmith could turn the key to the ACC position, depress a retention pin, and slide the cylinder out. With the Protector installed, the retention pin is inaccessible or the cylinder is physically bonded to the column. Replacing a worn ignition now often requires replacing the entire steering column or using destructive cutting tools to remove the protector.25
+* Visual Identification: Locksmiths must learn to identify these devices before quoting a job.
+   * Decals: Look for specific window decals stating "Anti-Theft Ignition Protector Installed" or similar wording, which are distinct from the software update decals.7
+   * Physical Inspection: A visual check of the ignition keyway will reveal a bulky, often silver or black metal collar that sits proud of the column plastic or looks distinct from the factory fit and finish.
+   * VIN Verification: Checking the VIN against OEM recall databases will confirm if Campaign CS2311 has been performed.9
+5. Locksmith Operational Protocols: The "All Keys Lost" (AKL) Workflow
+When a locksmith arrives at a 2011–2021 Hyundai or Kia that has received the anti-theft software update, the standard AKL workflow (Pick Lock -> Decode -> Cut Key -> Program) is fundamentally broken. The vehicle is likely in an "Armed" state, meaning the ignition is disabled, and the BCM may ignore diagnostic requests. The following protocols outline the necessary adaptations to service these vehicles.
+5.1 The "Active Alarm" Lockout
+The most immediate hurdle is the active alarm. Upon picking the door lock or using a newly cut mechanical key, the alarm will sound (horn and hazards) for one minute. During this time, the BCM enforces the "Ignition Kill." The diagnostic tablet (Autel, Smart Pro, etc.) will likely fail to communicate with the vehicle because the ignition power rail is cut or the BCM is in a "reject" state.
+
+
+  
+
+
+
+5.2 Protocol A: The "Wait and Reset" Method
+This is the least invasive method and should be attempted first.
+1. Entry: Gain entry to the vehicle (pick lock or use Lishi tool). The alarm will trigger.
+2. Ignition ON: Insert a mechanical key (or turn the ignition switch if the cylinder is removed) to the "ON" position.
+3. The Waiting Game: Leave the key in the "ON" position. Do not attempt to start. The alarm will cycle for approximately 60 seconds.18
+4. Silence: Once the alarm stops sounding, the system may enter a "Reset" or "Disarmed" state. The BCM interprets the sustained "ON" signal without a theft attempt (cranking) as a potential valid user interaction, or the alarm timer simply expires.
+5. Connect Tool: Attempt to connect the diagnostic tool. If the BCM communicates, proceed immediately to Remote Programming (see Section 5.5).
+5.3 Protocol B: The Battery Hard Reset
+If the system remains obstinate or the alarm re-triggers immediately:
+1. Open Hood: Ensure you have access to the battery.
+2. Ignition Status: Turn the ignition to the "ON" position.
+3. Disconnect: Remove the negative battery terminal.
+4. Discharge: Wait 1–5 minutes. This allows the volatile memory in the BCM and ECU to clear, potentially resetting the "Armed" status flag.28
+5. Reconnect: Reattach the battery terminal.
+6. Quick Strike: Immediately attempt to communicate with the vehicle using the diagnostic tool. There is often a short window where the module boots up before the alarm logic re-engages.
+5.4 Protocol C: Forced Ignition Injection
+In cases where the BCM completely cuts power to the ignition rail (meaning the dashboard does not light up even with the key in "ON"), the locksmith must manually power the system to establish communication.
+1. Tools: ADC-222 Force Ignition Tool, Autel G-Box3, or a fused jumper wire.30
+2. Fuse Box Location: Locate the interior fuse box (usually driver's kick panel).
+3. Target Fuse: Identify the IG1 or IGN fuse. This fuse supplies power to the instrument cluster and ECU.
+4. Injection: Connect the Force Ignition Tool to the OBD port (which supplies 12V) and probe the load side of the IG1 fuse. Alternatively, use a jumper wire from a constant 12V source (battery or B+ fuse) to the IG1 fuse.
+5. Result: The dashboard should illuminate, indicating the ECU is powered. The diagnostic tool can now communicate via the OBD port. Note that this bypasses the BCM's control over the ignition relay, allowing programming to proceed even if the BCM wants to kill the car.
+5.5 The "Remote First" Strategy
+On updated vehicles, the operational hierarchy has inverted. The remote fob is no longer just a convenience; it is the primary authorization token.
+1. Prioritize Remotes: Do not waste time cutting a perfect key blade or trying to start the engine. Your first goal is to program a remote.
+2. Program: Navigate to "Remote Control Learning" or "Transmitter Programming" on your tool (Autel/Smart Pro).
+3. Unlock to Disarm: Once the remote is programmed, exit the vehicle, close the door, and use the new remote to Lock and then Unlock the vehicle.
+4. Verification: The Unlock command sends the signal to the BCM to disarm the alarm and deactivate the Ignition Kill. Only then will the mechanical key start the engine.33
+5.6 Troubleshooting Tool-Specific Issues
+* Autel (IM508/IM608):
+   * Network Error 10003: Common during online calculation. Ensure a stable Wi-Fi connection (hotspot) is active. The tool needs to reach Autel servers to calculate PINs for newer systems.35
+   * "Incapable" Error: If the tool says "Incapable" under the IMMO menu, switch to "Diagnostics" -> "Body Control Module" -> "Live Data" to verify inputs or "Special Functions" to force a reset.2
+* Smart Pro:
+   * ADS2331 Software: Ensure the device is updated with the ADS2331 patch, which is specifically designed for 2023+ Hyundai/Kia PIN reading and programming. This update allows for reading the PIN via OBD or utilizing the ADC245 Smart Aerial Plus for transponder sniffing.36
+   * Connection: Smart Pro requires a robust internet connection for the Hyundai/Kia server handshake.
+* Xtool (D8/D9):
+   * FCA/SGW Access: While primarily for Chrysler, Xtool's AutoAuth integration is relevant as Hyundai/Kia move toward secure gateways. Ensure the tool's subscription is active for online updates, which contain the latest bypass protocols.37
+   * Reset Functions: The "Special Function" menu on Xtool devices often contains specific "Alarm Reset" or "Immobilizer Reset" shortcuts that can simplify the process compared to the full IMMO path.39
+6. The Modern Fleet (2023–2026): Detailed Technical Reference
+While the "Kia Boys" crisis centered on legacy vehicles, the 2023–2026 model years have transitioned to entirely new platforms (N3, N3-K, etc.) equipped with standard engine immobilizers and advanced encryption. These vehicles utilize Hitag AES (4A) and Hitag 3 (47) transponder architectures, rendering the "turn-key" exploit impossible but introducing new complexities for key programming.
+The following section provides a detailed encyclopedia of the key fob and transponder data for the most common 2023–2026 models, derived from locksmith intelligence sources.
+6.1 Hyundai Model Profiles
+2023–2024 Hyundai Elantra (CN7)
+* System Type: Smart Key (Push-to-Start)
+* Transponder: Hitag AES (4A Chip) / Texas ID H (8A) for Flip Keys
+* Part Numbers:
+   * Smart Key (5-Button): 95440-AA000 (FCC: NYOMBEC5FOB2004).40
+   * Smart Key (N-Line/Limited): 95440-IB500YPN (FCC: NYOMBEC7FOB2208).41
+   * Flip Key (4-Button): 95430-AA600 (FCC: NYOMBEC4TX2004).42
+* Frequency: 434 MHz.
+* Keyway: KK12.
+* Programming Notes: The 2024 Elantra uses a rolling PIN code system. Autel IM508/608 can often read the PIN via OBD if the internet connection is active, but a CAN-FD adapter may be required for communication stability on the latest firmware.43
+2024–2025 Hyundai Kona (SX2)
+* System Type: Smart Key
+* Transponder: Hitag AES (4A Chip)
+* Part Numbers:
+   * Smart Key (7-Button): 95440-BE000 (FCC: TQ8-FOB-4F61M43).44
+   * Smart Key (4-Button): 95440-BE030 (FCC: TQ8-FOB-4F61M43).46
+* Frequency: 433 MHz.
+* Programming Notes: The Kona's new BCM is notoriously difficult to communicate with if the alarm is active. The "Wait and Reset" method (Protocol A) is critical here. The G-Box3 adapter is recommended for All Keys Lost situations to expedite PIN calculation.47
+2023–2024 Hyundai Santa Fe (MX5)
+* System Type: Smart Key
+* Transponder: Hitag AES (4A Chip)
+* Part Number: 95440-P6050 (FCC: TQ8-FOB-4F89U44).48
+* Frequency: 433 MHz.
+* Key Data: Uses the CR2450 battery, distinct from the CR2032 in older models.
+* Programming Notes: Requires the 6-digit PIN. Smart Pro (with ADS2331) and Autel (with online calculation) are the primary tools. Manual PIN entry is required if OBD reading fails.50
+2022–2024 Hyundai Tucson (NX4)
+* System Type: Smart Key
+* Transponder: Hitag 3 (ID47) - Note distinct chip type from Elantra/Kona.
+* Part Numbers:
+   * Smart Key (4-Button): 95440-N9052 / 95440-N9002 (FCC: TQ8-FOB-4F27).51
+   * Smart Key (7-Button, Remote Park): 95440-N9010 (FCC: TQ8-FOB-4F28).53
+* Frequency: 434 MHz.
+* Programming Notes: The Tucson (NX4) platform is robust. However, ensuring the correct FCC ID is crucial as 4-button and 7-button remotes are not always interchangeable regarding the Remote Start logic.51
+2024 Hyundai Sonata (DN8)
+* System Type: Smart Key
+* Transponder: Hitag AES (4A Chip)
+* Part Number: 95440-L1760 / 95440-L5750 (FCC: TQ8-FOB-4F89U44).54
+* Programming Notes: Similar to the Elantra, requires online PIN calculation.
+6.2 Kia Model Profiles
+2023–2024 Kia Sportage (NQ5)
+* System Type: Smart Key
+* Transponder: Hitag AES (4A Chip)
+* Part Numbers:
+   * Smart Key (5-Button): 95440-P1100 (FCC: SY5MQ4FGE05).56
+   * Smart Key (7-Button, Remote Park): 95440-P1200 (FCC: SY5MQ4FGE07).58
+* Frequency: 434 MHz.
+* Programming Notes: The Sportage NQ5 platform has a known issue where the alarm sounds continuously during programming if not disarmed first. The "Remote First" strategy is mandatory here.33
+2022–2024 Kia K5 (DL3)
+* System Type: Smart Key
+* Transponder: Hitag AES (4A Chip) / Texas ID H (8A) for Flip Keys.
+* Part Numbers:
+   * Smart Key (5-Button): 95440-L3430 (FCC: CQOFD00790).60
+   * Flip Key (4-Button): 95430-L2110 (FCC: CQOTD00660).62
+* Programming Notes: The K5's BCM is highly sensitive. Using a battery maintainer during programming is recommended to prevent voltage drops that can abort the PIN reading process.35
+2023–2024 Kia Soul (SK3)
+* System Type: Smart Key / Flip Key
+* Transponder: Hitag AES (4A Chip)
+* Part Numbers:
+   * Smart Key (4-Button): 95440-K0510 (FCC: SY5MQ4AMFGE04).63
+   * Flip Key (3-Button): 95430-K0120 (FCC: SY5SKRGE03).64
+* Programming Notes: The Soul remains a high-theft target. Even newer models with immobilizers may have damage from attempted thefts. Locksmiths should inspect the door lock cylinder for damage before starting work.
+2023–2024 Kia Seltos (SP2)
+* System Type: Smart Key
+* Transponder: Hitag AES (6A Chip) - Note the 6A designation.
+* Part Number: 95440-Q5710 (FCC: NYOSYEC5FOB1907).66
+* Programming Notes: The Seltos uses a specific "6A" AES chip which may require specific transponder generators (like the Xhorse VVDI Super Chip) if creating a spare from scratch.67
+7. Tool Capabilities Analysis
+The locksmith's ability to service these vehicles is entirely dependent on the capabilities of their programming hardware. The following analysis compares the three dominant platforms based on their performance with the 2023+ Hyundai/Kia architectures.
+Autel IM508/IM608 (with XP400)
+* Strengths: Autel remains the market leader for Asian imports. Its online PIN calculation for Hitag AES (4A) and Hitag 3 (47) systems is robust. The "Read PIN via OBD" function works well for 80-90% of newer models.
+* Weaknesses: Susceptible to network timeouts ("Error 10003"). In some cases, it falsely reports "Incapable" when it simply needs a menu redirection (from IMMO to Diagnostics).
+* Adapters: The G-Box3 is highly recommended for All Keys Lost scenarios on the newest encryption types, as it speeds up the calculation process and can bypass certain gateway restrictions.68
+Advanced Diagnostics Smart Pro
+* Strengths: The ADS2331 software update was a game-changer, enabling reliable PIN reading for the 2022-2023 models that previously required NASTF codes. It is extremely stable and less prone to "bricking" modules than cheaper tools.2
+* Weaknesses: Token-based system makes it more expensive per use. Requires the Smart Aerial Plus for some transponder sniffing procedures.
+* Adapters: May require the ADC-222 Force Ignition Tool for the hardware bypass of the alarm logic.31
+Xtool (D8/D9/Autopropad)
+* Strengths: Excellent value proposition. The Xtool pads often have dedicated "Alarm Reset" or "Immobilizer Reset" special functions that can clear the "Armed" state without needing a full key programming session.39 The AutoAuth integration helps with gateway-locked vehicles.
+* Weaknesses: PIN reading capability on the very latest (2024+) models lags slightly behind Autel and Smart Pro.
+8. Legal, Insurance, and Customer Context
+The technical challenges are compounded by the legal and financial fallout of the "Kia Boys" epidemic. Locksmiths are not just fixing cars; they are navigating a minefield of liability and customer anxiety.
+Insurance Uninsurability
+Many major insurers (State Farm, Progressive) effectively blacklisted older Hyundai/Kia models in certain regions due to the theft risk.1 This means customers are often paying exorbitant rates or are driving uninsured. Locksmiths should be aware that a customer may be hesitant to spend significant money on a key for a vehicle they can barely insure.
+Class Action Settlements
+The settlement announced in May 2023 provided reimbursement for theft-related losses and software upgrades.9 Locksmiths should be prepared for customers asking for invoices or documentation to submit for reimbursement claims. Providing detailed, itemized receipts is a value-added service in this climate.
+Service Lockouts and "Bricking" Risk
+There is a non-zero risk of "bricking" a BCM during programming if the battery voltage drops or if the alarm logic interferes with the data stream. The "Ignition Kill" feature, if not properly disarmed, can simulate a bricked car. Locksmiths must be confident in their diagnosis: is the car broken, or is it just "Armed"? The protocols in Section 5 are designed to distinguish between the two.
+9. Conclusion
+The 2022–2026 period represents a watershed moment for Hyundai and Kia security. The transition from the "turn-key" vulnerability to the "virtual immobilizer" software patch, and finally to the "hardened" 2023+ immobilizer platforms, has created a fragmented service environment. A locksmith entering a job today must be a detective first: checking VINs for campaigns, inspecting windows for decals, and scrutinizing the ignition for physical protectors.
+Operational Imperatives for the Locksmith:
+1. Assume Hostility: Treat every 2011–2021 vehicle as if it has an active "Ignition Kill" system.
+2. Remote Priority: Shift your workflow to "Remote First" programming to disarm the logic.
+3. Hardware Readiness: Carry "Force Ignition" tools and updated programmers (Autel G-Box3, Smart Pro ADS2331) to handle the latest encryption.
+4. Inventory Management: Stock the 4A and 47 chip keys for the 2023+ fleet, as the mechanical key era is over.
+By mastering these protocols and understanding the deep technical context of the manufacturers' response, locksmiths can turn a crisis of complexity into a profitable opportunity for specialized service.
+________________
+Report End
+Works cited
+1. Anti-theft software tamps down viral theft trend targeting Hyundai, Kia vehicles - IIHS, accessed January 5, 2026, https://www.iihs.org/news/detail/anti-theft-software-tamps-down-viral-theft-trend-targeting-hyundai-kia-vehicles
+2. 2023–2025 Hyundai/Kia Anti-Theft Bypass Guide - Keyless City, accessed January 5, 2026, https://keyless-city.com/blogs/locksmith-101/20232025-hyundaikia-anti-theft-bypass-guide
+3. Hyundai Anti-Theft, accessed January 5, 2026, https://hyundaiantitheft.com/
+4. Hyundai Introduces Free Anti-Theft Software Upgrade, Beginning With More Than 1 Million Elantras, Sonatas and Venues - HyundaiNews.com, accessed January 5, 2026, https://www.hyundainews.com/releases/3768
+5. Hyundai and Kia Launch Service Campaign to Prevent Theft of Millions of Vehicles Targeted by Social Media Challenge | NHTSA, accessed January 5, 2026, https://www.nhtsa.gov/press-releases/hyundai-kia-campaign-prevent-vehicle-theft
+6. Campaign 993 Anti-Theft Immobilizer Software, Campaign 9A5 Anti-Theft Ignition Cylinder Protector & Decal Installation, & - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10247611-0001.pdf
+7. Customer Satisfaction: Theft Deterrent Ignition Cylinder Protector & Decal Installation (CS2311) - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10247553-0001.pdf
+8. Kia Introduces Free Anti-Theft Device for Vehicles Ineligible for Software Update | Cars.com, accessed January 5, 2026, https://www.cars.com/articles/kia-introduces-free-anti-theft-device-for-vehicles-ineligible-for-software-update-476237/
+9. Kia Anti-Theft Support Actions - Customer Care Center, accessed January 5, 2026, https://customercare.kiausa.com/SWLD
+10. Anti-Theft Software Upgrade - MyHyundai, accessed January 5, 2026, https://owners.hyundaiusa.com/us/en/resources/technology-and-navigation/anti-theft-software-upgrade
+11. Anti-Theft Software Upgrade | Smart Kia of Davenport, accessed January 5, 2026, https://www.smartkiadavenport.com/anti-theft-software-upgrade
+12. Will a Kill Switch Protect Your Theft-Vulnerable Car? - Autoweek, accessed January 5, 2026, https://www.autoweek.com/car-life/diy/a42954891/kill-switch-to-protect-your-car-from-thieves/
+13. Kia Issues New Theft Deterrent for Vehicles Not Eligible for Software Update, accessed January 5, 2026, https://www.caranddriver.com/news/a46268571/kia-issues-new-theft-deterrent/
+14. Kia Global Information System - TSB - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2024/MC-11001593-0001.pdf
+15. customer satisfaction: kia genuine remote start control module upgrade for anti-theft logic compatibility (cs2310) - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10239108-0001.pdf
+16. VIN Validation - Hyundai, accessed January 5, 2026, https://autoservice.hyundaiusa.com/Campaign993
+17. Anti-Theft Software Upgrade - Rosen Hyundai of Algonquin, accessed January 5, 2026, https://www.rosenhyundai.com/antitheft-software-upgrade.htm
+18. Understanding the Kia Anti-theft Immobilizer Update and Safety Recall, accessed January 5, 2026, https://www.emichkia.com/understanding-the-kia-anti-theft-immobilizer-update-and-safety-recall
+19. Hyundai & Kia's Anti-Theft Software Has a FATAL Flaw - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=jG6EGOYGD6o
+20. car stolen after anti theft software installed : r/Hyundai - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Hyundai/comments/18dwib9/car_stolen_after_anti_theft_software_installed/
+21. How Does the anti-theft “Software Update” Work? : r/kia - Reddit, accessed January 5, 2026, https://www.reddit.com/r/kia/comments/135ls1i/how_does_the_antitheft_software_update_work/
+22. After learning how the anti-theft software update actually works, I understand why people are still getting their cars stolen : r/Hyundai - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Hyundai/comments/15wgdly/after_learning_how_the_antitheft_software_update/
+23. KIA ignition lock cylinder protector recall. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=WzGhSc-AUA4
+24. Kia rolls out new safety upgrade that will make older cars harder to steal - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=7pavJHsn_RM
+25. If you get the Ignition Cylinder Protector for your affected vehicle, can you not install a ghost key? : r/KiaSoulClub - Reddit, accessed January 5, 2026, https://www.reddit.com/r/KiaSoulClub/comments/1ck2gbs/if_you_get_the_ignition_cylinder_protector_for/
+26. Recalls - Kia Owners Portal, accessed January 5, 2026, https://owners.kia.com/us/en/recalls.html
+27. Disarmed stage - Kia, accessed January 5, 2026, https://www.kia.com/content/dam/kia2/in/en/content/carens-manual/topics/chapter4_2_3.html
+28. Anti-theft Software Update Problems : r/KiaSoulClub - Reddit, accessed January 5, 2026, https://www.reddit.com/r/KiaSoulClub/comments/135sxcm/antitheft_software_update_problems/
+29. how to reset car alarm car not starting Hyundai - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=i2-O48jziLs
+30. KEYSENTIALS Ignition Force Tool Cable For Push To Start Vehicles - Key Innovations, accessed January 5, 2026, https://keyinnovations.com/products/kesentials-force-ignition-tool-for-kia-hyundai-vehicles-with-push-button-ignition
+31. Smart Pro ADC-222 Force Ignition Tool - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/adc-222-force-ignition-tool
+32. Quick Reference Guide - Autel, accessed January 5, 2026, https://www.autel.com/u/cms/www/202406/050609153tbj.pdf
+33. 2023 KIA Sportage transponder equipped flip key programming - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=dIemcJNMBz8
+34. How to Re-Program Remote on Hyundai & KIA Vehicles | Without Any PIN CODE - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=3MzdZ4FwcFY
+35. Autel Key Programmer Failures: Causes and Solutions - obdprice, accessed January 5, 2026, https://www.obdprice.com/blogs/news/autel-key-programmer-troubleshooting-guide
+36. Advanced Diagnostics ADS2331 Smart Pro Programming Software - Hyundai / KIA 2023, accessed January 5, 2026, https://keyinnovations.com/advanced-diagnostics-ads2331-smart-pro-programming-software-hyundai-kia-2023/
+37. XTOOL Software Renewal Issue? Update Your App to Activate!, accessed January 5, 2026, https://www.xtoolglobal.com/blogs/news/xtool-software-renewal-issue-update-your-app-to-activate
+38. By registering their workshops with AutoAuth, a third-party authentication service, XTOOL users are granted access to the SGW module and can perform previously restricted diagnostic operations without requiring additional accessories. If you need FCA SGW access, please register your information with AutoAuth. XTOOL does not provide or charge any fees for FCA SGW access functionality., accessed January 5, 2026, https://www.xtooltech.com/english/FcaSgw.html
+39. How Xtool D8 active test and do special functions on your Vehicle, accessed January 5, 2026, http://blog.xtool.co.uk/how-xtool-d8-active-test-and-do-special-functions-on-your-vehicle/
+40. 2023 Hyundai Elantra Smart Key Fob PN: 95440-AA000, accessed January 5, 2026, https://remotesandkeys.com/products/2023-hyundai-elantra-smart-key-fob-pn-95440-aa000
+41. 2023-2025 Hyundai Elantra N 5-Button Smart Key Fob Remote (NYOMBEC7FOB2208, 95440-IB500YPN), accessed January 5, 2026, https://northcoastkeyless.com/product/hyundai-elantra-n-5-button-smart-key-fob-remote-fcc-nyombec7fob2208-p-n-95440-ib500ypn/
+42. 2024 Hyundai Elantra Flip Key Fob 4B W/ Trunk FCC# NYOMBEC4TX2004 - 95, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-hyundai-elantra-flip-key-fob-4b-w-trunk-fcc-nyombec4tx2004-95430-aa600-8a-chip-oem
+43. HOW TO PROGRAM A KEY ON 2025 HYUNDAI ELANTRA USING AUTEL IM508 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=xenpIRfN-N4
+44. Hyundai New OEM 2024-2025 Kona Smart Key 7B Hatch/Remote Start/Park As, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2024-2025-kona-smart-key-7b-hatch-remote-start-park-assist-fccid-tq8-fob-4f61m43-pn-95440-be000
+45. 2024 Hyundai Kona OEM FOB Smart Key 95440BE000 | Korea | Republic of - eBay, accessed January 5, 2026, https://www.ebay.com/itm/395827228371
+46. Hyundai Kona 2024-2025 Smart Key 95440-BE030 TQ8-FOB-4F61M43 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/hyundai-kona-2024-2025-smart-key-4b-95440-be030-tq8-fob-4f61m43-5420
+47. Autel IM608 II Program 2025 Hyundai Kona All Smart Keys Lost, accessed January 5, 2026, http://blog.autelshop.de/autel-im608-ii-program-2025-hyundai-kona-all-smart-keys-lost/
+48. 2024 Hyundai Santa Fe / 5-Button Smart Key / PN: 95440-P6050 / TQ8-FOB-4F89U44 (OEM) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-hyundai-santa-fe-5-button-smart-key-pn-95440-p6050-tq8-fob-4f89u44-oem
+49. 2024 Hyundai Santa Fe Smart Remote Key Fob - CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2024-hyundai-santa-fe-smart-remote-95440-p6050
+50. What Tool to Program 2024 Hyundai Kia New Style Smart Key? - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=pblfDdMDOWQ
+51. 2024 Hyundai Tucson Smart Remote Key Fob – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2024-hyundai-tucson-smart-remote-key-fob
+52. Hyundai Aftermarket 2021-2024 Tucson Smart Key 5B Hatch - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-aftermarket-2021-2024-tucson-smart-key-5b-hatch-remote-start-fccid-tq8-fob-4f27-nx4-pn-95440-n9002
+53. 2024 Hyundai Tucson Smart Key 7B Fob FCC# TQ8-FOB-4F28 (NX4) - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-hyundai-tucson-smart-key-7b-fob-fcc-tq8-fob-4f28-nx4-aftermarket-1
+54. 2024-2025 Hyundai Sonata / 5-Button Smart Key / PN: 95440-L1760 / TQ8-FOB-4F89U44 (OEM) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-2025-hyundai-sonata-5-button-smart-key-pn-95440-l1760-tq8-fob-4f89u44-oem
+55. Hyundai New OEM 2024 Sonata Smart Key-4B Trunk - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-2024-sonata-smart-key-4b-trunk-fccid-tq8-fob-4f89u44-pn-95440-l5750
+56. 2024 Kia Sportage Smart Key 5B W/Remote Start & Hatch Fob FCC# SY5MQ4F, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-kia-sportage-smart-key-5b-w-remote-start-hatch-fob-fcc-sy5mq4fge05-95440-p1100-oem
+57. 2024 Kia Sportage Smart Key 5B W/Remote Start & Hatch Fob FCC - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-2024-kia-sportage-smart-key-5b-w-remote-start-hatch-fob-fcc-sy5mq4fge05-95440-p1100
+58. 95440-P1200 2023-2024 KIA Sportage Smart Key 7-Button, accessed January 5, 2026, https://gskeyae.com/product/2023-kia-sportage-smart-key-95440-p1200/
+59. Kia Sportage 2023-2024 Smart Key, 7Buttons 95440-P1200 433MHz, SY5MQ4FGE07, accessed January 5, 2026, https://abkeys.com/products/kia-sportage-smart-key-2023-2024-7btn-95440-p1200-sy5mq4fge07-5792
+60. 2024 Kia K5 Smart Remote Key Fob 5B w/ Trunk, Remote Start (FCC: CQOFD00790, 4A Chip, P/N: 95440-L3430), accessed January 5, 2026, https://oemcarkeymall.com/products/2024-kia-k5-smart-remote-key-fob-5b-w-trunk-remote-start-fcc-cqofd00790-4a-chip-pn-95440-l3430
+61. KIA K5 2022-2023 Genuine Smart Remote Key 4+1 Buttons 433MHz 95440-L3430 - MK3, accessed January 5, 2026, https://www.mk3.com/kia-k5-genuine-smart-remote-key-95440-l3430
+62. 2024 Kia K5 Flip Key Fob 4B W/ Trunk FCC# CQOTD00660 - ID H-8A Chip, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-kia-k5-flip-key-fob-4b-w-trunk-fcc-cqotd00660-id-h-8a-chip-95430-l2110-oem
+63. Genuine Kia Soul 2023-2024 Smart Key, 4Buttons 95440-K0510 433MHz, SY5MQ4AMFGE04 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/kia-soul-2023-2024-smart-key-4buttons-95440-k0510-sy5mq4amfge04-5366
+64. 2024 Kia Soul Remote Flip Key Fob 3B (FCC: SY5SKRGE03, 4A Chip, P/N: 95430-K0120), accessed January 5, 2026, https://oemcarkeymall.com/products/2024-kia-soul-remote-flip-key-fob-3b-fcc-sy5skrge03-4a-chip-pn-95430-k0120
+65. 2024 Kia Soul Flip Key Fob 3B FCC# SY5SKRGE03 - 4A Chip - 95430-K0120, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-kia-soul-flip-key-fob-3b-fcc-sy5skrge03-4a-chip-95430-k0120-oem
+66. Keyless Entry Remote Replacement Smart Key Fob For KIA Seltos 2022-2024 - fmsi.com, accessed January 5, 2026, https://fmsi.com/Replacement-Smart-Key-Fob-For-KIA-Seltos-2022-2024-4-Button-c-596074
+67. 2024 Kia Seltos Smart Key 4B w/ Remote Start Fob FCC# NYOSYEC5F - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-2024-kia-seltos-smart-key-4b-w-remote-start-fob-fcc-nyosyec5fob1907-95440-q5710
+68. Autel MaxiIM IM608 PRO II with 2-Year Update, Bypass Cable, GBOX3, APB - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/autel-maxiim-im608-pro-ii-with-2-year-update-bypass-cable-gbox3-apb112-and-imkpa-no-area-restriction

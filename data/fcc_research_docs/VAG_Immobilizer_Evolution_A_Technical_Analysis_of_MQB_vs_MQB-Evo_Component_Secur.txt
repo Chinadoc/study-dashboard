@@ -1,0 +1,180 @@
+﻿VAG Immobilizer Evolution: A Technical Analysis of MQB vs. MQB-Evo Component Security and Aftermarket Solutions
+1. Executive Summary
+The automotive security landscape is currently witnessing one of its most significant tectonic shifts with the transition of the Volkswagen Group (VAG) from the pervasive MQB (Modularer Querbaukasten) platform to the digitally hardened MQB-Evo architecture. This report provides a comprehensive, expert-level analysis of this evolution, specifically focusing on the implications for the automotive locksmith and security professional. The divergence between the MQB platform, which dominated production from 2012 to 2020, and the MQB-Evo platform, introduced in 2021, represents a fundamental re-engineering of vehicle access control systems.
+For nearly a decade, the MQB platform served as the standardized matrix for a vast array of vehicles, from the Volkswagen Golf Mk7 to the Audi A3 and Skoda Octavia. While initially formidable, the security protocols of MQB—characterized by the Component Security (CS) 16-byte architecture and Megamos AES (ID88) encryption—eventually yielded to advanced aftermarket calculation methods. Locksmiths leveraged tools that could extract dashboard data, calculate synchronization bytes via third-party servers, and program keys via OBDII ports.
+However, the introduction of MQB-Evo (Golf Mk8, Audi A3 8Y, Octavia IV) has introduced a "digital curtain" that currently renders traditional All Keys Lost (AKL) methodologies largely obsolete. This report details the technical underpinnings of this disruption, including the migration to high-speed Ethernet backbones, the implementation of the In-Car Application Server (ICAS1) as a central security gateway, and the deployment of Vehicle Diagnostic Protection (SFD) which acts as a robust firewall against unauthorized access. Furthermore, the report analyzes the shift from accessible processor memory to "Secure Core" lock steps in Renesas RH850 processors, which effectively neutralizes traditional memory dump attacks.
+Through a rigorous evaluation of current tool capabilities—spanning Autel, Xhorse, Abrites, and OEM solutions like ODIS—this document delineates the stark reality of the current market: while "Add Key" functions are slowly becoming feasible for select advanced tools, "All Keys Lost" on MQB-Evo remains a critical vulnerability in the aftermarket's service portfolio, often necessitating dealer-level intervention or high-risk bench procedures. This analysis serves as a definitive technical guide for navigating the bleeding edge of VW security, offering nuanced warnings, hardware requirements, and a roadmap for the future of VAG key programming.
+2. The Evolution of VAG Immobilizer Systems
+To fully grasp the magnitude of the challenge presented by MQB-Evo, it is essential to contextualize it within the historical trajectory of Volkswagen's immobilizer development. VAG has consistently been a pioneer in anti-theft technology, with each generation escalating the complexity of encryption and data distribution.1
+2.1 The Pre-MQB Era: Immo III and IV
+Before the modular matrix revolution, VAG vehicles operated on Immobilizer generations III and IV.
+* Immo III: Characterized by a relatively simple system where the PIN code (SKC) was static or easily retrieved. The transponders utilized were typically Megamos Crypto 48 (ID48). In this era, the "Component Security" concept was nascent; the primary security barrier was a 5-digit PIN and the transponder ID matching the cluster's whitelist.3
+* Immo IV: This generation introduced the concept of Component Security (CS), initially as a 7-byte sequence. This was a critical architectural change. The vehicle no longer just checked if the key was "allowed"; it checked if the key contained a specific mathematical derivative of the car's identity. The CS bytes were stored in the Engine Control Unit (ECU) and the Instrument Cluster (Immobilizer Master). For a key to start the car, it had to be pre-coded with these 7 bytes before adaptation. Tools like the AVDI or VVDI2 mastered this generation early on, making OBD programming standard practice.3
+2.2 The MQB Disruption (Immo V)
+The launch of the MQB platform in 2012 marked the mass deployment of Immobilizer V. The term "MQB" stands for Modularer Querbaukasten, translating to "Modular Transversal Toolkit." It was a manufacturing strategy to standardize transverse engine layouts across brands (VW, Audi, SEAT, Skoda), but it also standardized the electronic architecture.1
+Technological Leaps in MQB Security:
+1. Expansion to 16-Byte CS: The relatively weak 7-byte CS of Immo IV was replaced by a robust 16-byte Component Security code. This massive increase in key space made brute-force attacks mathematically infeasible within a human lifespan using standard computing power.2
+2. Distributed Trust (Sync Data): Security was no longer just about the key and the cluster. MQB introduced a complex web of trust involving the ECU, the Transmission Control Unit (TCU), and the Electric Steering Column Lock (ELV). A 32-byte synchronization block (often called "Sync Data" or "Validation Data") was required to align these modules. If a locksmith replaced a cluster, they needed not just the CS, but this synchronization block to marry it to the transmission and engine.2
+3. Megamos AES (ID88): The physical transponder changed from the ID48 crypto to the AES (Advanced Encryption Standard) enabled transponder, known in the aftermarket as ID88 or MQB48. This chip utilized a 128-bit encryption key, significantly hardening the communication link between the key fob and the reader coil.2
+
+
+  
+
+
+
+The timeline above illustrates the relentless progression of security technologies. As demonstrated, the industry is currently grappling with the post-2020 era, defined by the "SFD Wall." The shift from the physical constraints of the ID48 chip to the server-verified logic of SFD represents a move from hardware-based security to network-based security.
+3. MQB Platform (2012–2020): A Retrospective Technical Analysis
+To understand the blockage presented by MQB-Evo, one must first deeply understand the system it replaced. The MQB platform's security, while advanced, eventually became "open" to the aftermarket through a combination of hardware reverse engineering and server-side calculation.
+3.1 The Component Security (CS) Architecture
+In the MQB environment, the Immobilizer Master is almost exclusively the Instrument Cluster (dashboard). The Component Security logic is defined by 16 bytes of hex data.
+* The Master-Slave Relationship: The Cluster (Master) holds the full security profile. The ECU and TCU (Slaves) hold partial CS data or synchronization bytes that must match the Master. When the ignition is turned on, the Cluster queries the key. If the key's AES response is valid, the Cluster then shakes hands with the ECU and TCU using the 32-byte Sync Data. Only if all handshakes are successful does the engine start and the transmission engage gear.2
+* Implications for AKL: In an All Keys Lost scenario on MQB, the primary objective of any locksmith tool is to extract this 16-byte CS and the 32-byte Sync Data. Without a working key to act as a "credential," the tool must exploit a vulnerability in the Cluster's firmware to dump its memory (EEPROM and Flash).2
+3.2 Hardware Variations: The VDO vs. JCI Divide
+Not all MQB clusters are created equal. The manufacturer of the cluster dictates the feasibility of programming.
+* VDO / Continental: These clusters utilize NEC35xx processors. Aftermarket tools like the Autel IM608 and Xhorse VVDI2 achieved high success rates with these by entering a "Service Mode." This involves injecting a small bootloader via OBDII to read the Immo data.3
+* Johnson Controls (JCI) / Visteon: These clusters presented a much higher barrier. Their memory structures were different, and for years, they were unsupported via OBD. Solutions often required removing the cluster, desoldering the MCU, or using specialized adapters/licenses (like the Abrites VN021) to read the data on a bench.8
+* Virtual Cockpit (Full LCD): Initially considered impossible, later updates from companies like Xhorse and Autel added support for many Virtual Cockpits, provided they were based on the accessible VDO architecture.
+3.3 The "Sync Data" Calculation Market
+A unique economy emerged around MQB AKL programming: the "Sync Data" calculation market.
+* The Problem: Even if a tool could read the Cluster's CS, it often could not retrieve the full 32-byte Sync Data required to program a dealer key in an AKL situation because that data resides in a protected block.
+* The Solution: Third-party services emerged. A locksmith would read the ECU and TCU data (which is easier to access) and upload it to a server. The server, often utilizing massive databases or brute-forcing algorithms, would "calculate" the missing synchronization bytes for the Cluster. This allowed the generation of a Dealer Key without ever extracting the full data from the dashboard itself.6
+* Tool Integration: Tools like the Autel IM608 eventually integrated "built-in" calculators or partnered with third parties to streamline this. The device reads the available data, sends it to the cloud, and receives the Immo block needed to write the key.9
+3.4 Megamos AES (ID88) Transponder Logic
+The "MQB Key" is a complex device. It is not just a transponder; it is a micro-computer.
+* Pre-Coding is Mandatory: Unlike older ID48 chips where you could sometimes clone a key, an MQB ID88 chip must be "prepared" by the locksmith tool using the specific vehicle's CS data. This process writes the brand (VW, Audi, Skoda) and the CS encryption keys onto the chip's writable pages. Once written, these pages are locked.
+* Locking Status: An MQB key consists of a "Locked" state and an "Unlocked" state. A "Dealer Key" is a key that has been pre-coded with the vehicle's CS but not yet adapted. An "Adapted Key" is fully learned. You cannot take a used key from one Golf 7 and program it to another without "unlocking" (renewing) the chip, which essentially wipes it back to a virgin state.10
+4. The MQB-Evo Revolution (2021+): A Paradigm Shift
+The introduction of the MQB-Evo platform (Golf 8, Audi A3 8Y, Seat Leon IV, Skoda Octavia IV) was driven by the need for advanced digitization, connectivity, and ADAS capabilities. For the security professional, however, it represents a "hard fork" in technology. The methods that worked for MQB DO NOT work for MQB-Evo.
+4.1 The ICAS1: The New Gatekeeper
+The most profound change in MQB-Evo is the migration of the immobilizer logic. While the Instrument Cluster still plays a role, the In-Car Application Server 1 (ICAS1) has emerged as the central gateway and master of the vehicle's digital domain.
+* Connectivity: The ICAS1 connects various vehicle domains (infotainment, body, chassis) via Automotive Ethernet, a high-bandwidth protocol that replaces traditional CAN bus connections for high-level data transfer.12
+* The Gatekeeper: The ICAS1 manages the "Gateway" functions previously handled by the BCM or a separate Gateway module. It serves as the bridge between the vehicle's internal networks and the outside world (OBDII port and OTA servers).13
+* Implication: To program a key, one must communicate with the Immobilizer. In MQB-Evo, the path to the Immobilizer goes through the ICAS1. The ICAS1 is designed to reject any unauthorized communication, effectively cutting off the OBDII access that aftermarket tools relied upon for the previous decade.
+Figure 1 provides a textual schematic comparison of this architectural shift:
+MQB Architecture (2012-2020):
+* Topology: CAN Bus Centric.
+* Flow: OBDII Port -> Gateway -> Dashboard (Immo Master).
+* Access: Security Access (PIN) allows Read/Write of EEPROM/Flash.
+* Key Data: Stored in Dashboard (NEC/Renesas) and synchronized with ECU/TCU.
+MQB-Evo Architecture (2021+):
+* Topology: Ethernet & CAN FD Centric.
+* Flow: OBDII Port -> ICAS1 (Gateway & Firewall) -> Dashboard (Slave/Display) / BCM2.
+* Access: SFD (Vehicle Diagnostic Protection) blocks all adaptation without dynamic token.
+* Key Data: Distributed/Centralized in ICAS1 and secure backend verification.
+4.2 SFD: The Firewall
+SFD (Schutz Fahrzeug Diagnose) is the mechanism that enforces the ICAS1's authority. It replaces the old 5-digit Login Code (e.g., 20103).
+* Challenge-Response: SFD requires a dynamic authentication token. The diagnostic tool reads a challenge string from the car, sends it to a verified server (VAG's backend), and receives a signed response token.
+* The "Read-Only" State: Without this token, the control units are locked in a read-only mode for adaptations and coding. You cannot change a single bit of configuration data, let alone add a key.14
+* Misconception: Many locksmiths believe that "unlocking SFD" (which some tools can now do) allows key programming. This is false. Unlocking SFD grants Diagnostic Access (e.g., to reset an oil light or calibrate a camera). It does not grant Immobilizer Access. The Immobilizer requires a separate, higher-level authorization (Immo-Data) that is not part of the standard SFD unlock token.15
+4.3 The "Secure Core" Processor (RH850)
+At the hardware level, MQB-Evo components (Clusters and BCMs) utilize the latest generation of Renesas RH850 processors.
+* Secure Hardware Extension (SHE): These chips feature a "Secure Core" or HSM (Hardware Security Module). The cryptographic keys and CS bytes are stored in this secure area, which is physically isolated from the standard flash memory.
+* Lockstep Technology: The processors often run in "lockstep," where two cores execute the same code simultaneously to detect faults. This makes "glitching" (fault injection attacks used by tools like VVDI Prog to bypass security) extremely difficult and risky.
+* The "Brick" Risk: Attempting to read an RH850 chip with a standard programmer or using incorrect voltage/timing can trigger the chip's tamper detection mechanisms. If triggered, the chip may erase its own key data or permanently lock itself, rendering the $1,500+ instrument cluster a paperweight.2
+5. Transponder Technology: The Confusion of ID88 vs. ID5C
+A significant source of confusion in the aftermarket is the identification of the transponder chip used in MQB-Evo keys. While the physical key blade (HU66 or HU162T) and the shell might look identical to previous generations, the internal electronics are distinct.
+5.1 Megamos AES (ID88) Legacy vs. Evolution
+* MQB (2012-2020): Utilized the standard Megamos AES (ID88). The industry mastered the pre-coding and adaptation of these chips.5
+* MQB-Evo (2021+): While some basic models may still identify the chip as an "AES" type, the data structure and the pre-coding logic have changed. The "pages" of memory on the chip that store the manufacturer identity and secret keys are organized differently. Using a standard "Golf 7" ID88 chip on a Golf 8 will result in a failure during the adaptation phase because the ICAS1 expects a specific data signature that the older chip structure cannot provide.17
+5.2 The Rise of Hitag Pro (ID5C)
+In many MQB-Evo vehicles, particularly within the Audi (A3 8Y) and higher-end VW lines (Touareg, high-spec Golf 8), VAG has migrated to Hitag Pro transponders, identified in the aftermarket as ID5C or sometimes ID49.
+* Incompatibility: Hitag Pro is a fundamentally different protocol from Megamos AES. It is an NXP-based technology (similar to what BMW and Porsche use). An ID88 programmer cannot write to an ID5C chip, and vice-versa.
+* Tool Identification: Locksmiths must use a key tool (like the VVDI Key Tool Max or Autel KM100) to scan the original key. If it reads as "MQB48" or "ID88," it might be compatible with older stock if the tool supports the new pre-coding. If it reads as "ID49," "ID5C," or "Hitag Pro," it is strictly an MQB-Evo specific ecosystem requiring distinct keys and programming methods.17
+6. Comprehensive Tool Analysis: The "State of the Art"
+This section evaluates the verified capabilities of the major locksmith tools for MQB-Evo, distinguishing between "Add Key" (Spare Key) and "All Keys Lost" (AKL) scenarios.
+
+
+  
+
+
+
+6.1 Autel (MaxiIM IM608 / IM508)
+Autel is a market leader in the US, but its MQB-Evo capabilities are currently its Achilles' heel.
+* MQB (2012-2020): Supported. Autel offers excellent coverage for standard MQB. With the APB131 adapter, it can read many dashboards without trace cutting. It supports AKL via OBD for most VDO clusters and calculates Sync Data via its server.20
+* MQB-Evo (2021+):
+   * Add Key: Partial/Limited. Autel has released updates allowing for "Add Key" on some 2020+ models, but this often requires the user to buy third-party Sync Data or works only on "crossover" models that are technically Evo but use older cluster firmware.
+   * All Keys Lost: Unsupported via OBD. The IM608 cannot currently bypass the ICAS1/SFD firewall to read Immo data in an AKL scenario for a Golf 8 or A3 8Y via OBD. The tool will typically return a "Function Not Supported" or "Communication Error" message.22
+   * Adapter Confusion: Users often confuse the APB131 (for MQB) with an Evo solution. The APB131 helps with legacy MQB NEC processors, not the new RH850 secure cores found in Evo.21
+6.2 Xhorse (VVDI2 / Key Tool Plus)
+Xhorse is aggressive in VAG R&D and offers more modular solutions than Autel.
+* MQB (2012-2020): Supported. The VVDI2 and Key Tool Plus are industry standards for this platform. They support calculation, "dealer key" generation, and advanced cluster manipulation.6
+* MQB-Evo (2021+):
+   * The "MQB48" License: Xhorse sells a specific license for "MQB48" (often bundled or extra). This allows for key programming if the immo data is available.
+   * Data Extraction: This is the bottleneck. Xhorse generally cannot read the MQB-Evo Immo data via OBD.
+   * Bench Solution: Xhorse released the RH850/V850 Adapter for the Multi-Prog or Key Tool Plus. This requires removing the dashboard, disassembling it, and physically connecting to the RH850 processor to "glitch" or read the data. This is a high-risk, expert-level procedure. If successful, the data can be used to make a key.
+   * Toyota Adapter Confusion: Snippet 33 mentions an "XD8ASKGL" adapter. It is crucial to note this is for Toyota AKL. Do not confuse this with VW solutions.
+6.3 Abrites (AVDI)
+Abrites (Bulgaria) is often the first to crack VAG encryption, usually commanding a premium price.
+* The VN024 License: Abrites has introduced the VN024 license specifically for "VAG Immo 5C Key Programming."
+* Capabilities: Abrites claims the ability to program Spare Keys (Add Key) for vehicles with the RH850 processor without removing the cluster in some specific software versions, or via their specialized RH850/V850 Programmer on the bench.
+* The "Spare Key" Limitation: The documentation explicitly emphasizes "Add Spare Key." For All Keys Lost, the process is significantly more invasive, typically requiring the physical reading of the dashboard and the TCU/ECU to manually reconstruct the sync data, a process that is not "plug and play".17
+6.4 Lonsdor (K518 Pro)
+Lonsdor is a rising player, often strong in Volvo/Toyota, but its VAG capabilities are mixed.
+* Capabilities: The K518 Pro lists support for "VW/Audi/Skoda" and mentions "Immo 4" and "Immo 5." However, verified reports of successful MQB-Evo AKL via OBD are virtually non-existent in professional forums.
+* Marketing vs. Reality: Lonsdor's "Full Configuration" packages include VW licenses, but these primarily cover the mature MQB and BCM2 (Audi A4/A5) platforms. Support for the specific Golf 8 ICAS1 architecture is not confirmed as a stable OBD solution.26
+6.5 The "Nuclear Option": ODIS + GeKo
+For 2021+ vehicles, the only method that works 100% of the time, without risk of bricking hardware, is the OEM path.
+* Tool: ODIS Service (Offboard Diagnostic Information System) - the software used by VW dealers.
+* Credential: GeKo Account (Geheimnis und Komponentenschutz). This is a vetted, restricted login that connects the ODIS laptop directly to VAG's FAZIT servers in Germany.
+* The Process: In an AKL scenario, the locksmith (or dealer) orders a key by VIN. The key arrives pre-coded from the factory. Using ODIS + GeKo, the user runs the "Adapt Immobilizer" test plan. The software connects to the server, validates the user, pushes the SFD unlock token, and authorizes the new key.
+* Barriers: Accessing GeKo requires background checks and NASTF certification (in the US). "Grey market" GeKo logins exist but are frequently banned, and using them carries legal and operational risks.28
+7. Operational Risks and "Bleeding Edge" Warnings
+Navigating the MQB-Evo landscape is fraught with peril. The following warnings are critical for any professional attempting these vehicles.
+7.1 The "Brick" Risk: RH850 Processors
+The Renesas RH850 processors used in Evo dashboards are extremely sensitive.
+* Voltage Sensitivity: Unlike older NEC chips, RH850s operate at lower voltages. Applying 5V (standard for some older programmers) to a 3.3V or 1.2V logic line on an RH850 will instantly destroy the processor.
+* Lock Bits: These chips have active tamper detection. If a tool attempts to "glitch" the chip to bypass security (a common method for reading locked chips) and fails the timing, the chip may interpret this as an attack and engage a "kill switch," erasing its memory or permanently locking access. Warning: Do not attempt to read an MQB-Evo cluster with a generic EEPROM programmer. Use only purpose-built adapters (e.g., Xhorse MQB-RH850) and follow connection diagrams precisely.17
+7.2 The "Universal Key" Trap
+A major pitfall is the use of incorrect aftermarket keys.
+* Visual Similarity: A Golf 7 key and a Golf 8 key look nearly identical.
+* Electronic Incompatibility: A generic "MQB" key (ID88) intended for a 2018 Golf will not program to a 2021 Golf 8, even if you manage to open the programming port. The Golf 8 requires a specific transponder extension (Hitag Pro / advanced ID88) and pre-coding data that the older key cannot accept.
+* Recommendation: Always verify the exact part number and FCC ID. For MQB-Evo, OEM keys ordered by VIN are the safest route until aftermarket "universal" Evo keys (like specialized Xhorse XM38 remotes updated for Evo) are fully matured and verified.30
+
+
+  
+
+
+
+7.3 Data Corruption and SFD
+* Coding Errors: Because MQB-Evo relies on Ethernet communication, interrupting a data stream (e.g., pulling an OBD cable too early or a battery voltage drop) can corrupt the ICAS1 configuration. This can result in a "Christmas Tree" dashboard (all warning lights on) that requires online ODIS coding to fix.32
+* Battery Support: Mandatory Requirement. MQB-Evo vehicles are power-hungry during diagnostic sessions. A stable power supply (minimum 13.5V, 50A+) is non-negotiable. Attempting programming on vehicle battery power alone is a primary cause of module failure.
+8. Conclusion and Future Outlook
+The transition from MQB to MQB-Evo represents a watershed moment in automotive security. The VAG group has effectively closed the "OBD loophole" that sustained the aftermarket for the past decade. The 16-byte Component Security model of the MQB era, while robust, was static enough to be calculated. The MQB-Evo model, with its reliance on the ICAS1 gateway, SFD firewalls, and secure-core processors, shifts the balance of power heavily back to the manufacturer.
+For the modern locksmith, the "Plug and Play" era is paused. The current reality for MQB-Evo AKL demands a bifurcation of strategy:
+1. Invest in Bench Tools: Success now requires the ability to physically remove modules and perform precision work on the bench using tools like the Abrites RH850 programmer or Xhorse Multi-Prog.
+2. Align with OEM Standards: The most sustainable business model for 2021+ VAG vehicles involves obtaining legitimate ODIS/GeKo access (via NASTF in the US or similar bodies globally). This bypasses the need for "hacks" and provides a secure, warrantable service.
+As the aftermarket continues to reverse-engineer the ICAS1 logic, "One-Click" OBD solutions may eventually return. However, until that breakthrough occurs, the gap between MQB and MQB-Evo remains the most significant technical divide in the industry, separating generalist key cutters from specialized automotive electronic technicians.
+Works cited
+1. Volkswagen Group MQB platform - Wikipedia, accessed December 23, 2025, https://en.wikipedia.org/wiki/Volkswagen_Group_MQB_platform
+2. MQB – Past, Present, and future. Key programming IMMO V - ABRITES.com, accessed December 23, 2025, https://abrites.com/blog/mqb-past-present-and-future-key-programming-immo-v
+3. VOLKSWAGEN AG – A HISTORY OF VAG ELECTRONICS IN (I HOPE) LESS THAN 10 ½ CHAPTERS. PART 2 Abrites, accessed December 23, 2025, https://abrites.com/blog/volkswagen-ag-a-history-of-vag-electronics-in-i-hope-less-than-10-1-2-chapters-part-2
+4. Component Security in Keys of The Megamos48 Type | PDF - Scribd, accessed December 23, 2025, https://www.scribd.com/document/467858688/7th-Byte
+5. Audi Skoda & VW compatible ID88 MQB Megamos AES transponder chip - Reids Remotes, accessed December 23, 2025, https://www.reidsremotes.com.au/home/2456-audi-skoda-vw-compatible-id88-mqb-megamos-aes-transponder-chip.html
+6. Xhorse VAG MQB Add Key and All Keys Lost License for VVDI Key Tool Plu - Locksmith Keyless, accessed December 23, 2025, https://www.locksmithkeyless.com/products/xhorse-vag-mqb-add-key-and-all-keys-lost-license-for-vvdi-key-tool-plus-vvdi2-vvdi-prog
+7. VAG cars immobilizer evolution by Martin Richter on Prezi, accessed December 23, 2025, https://prezi.com/p/ung-qabmlrhg/vag-cars-immobilizer-evolution/
+8. MQB ALL KEY LOST AND MILEAGE SOLUTION - Keymaster PolDiag, accessed December 23, 2025, https://keymaster.pl/mqb-all-key-lost-and-mileage-solution/
+9. How to Calculate VAG MQB AKL Sync Data with Autel IM508 IM608?, accessed December 23, 2025, https://www.auteltool.us/blogs/autel-tech-solutions/how-to-calculate-vag-mqb-akl-sync-data-with-autel-im508-im608
+10. Megamos AES MQB-ID88 Transponder Chip - Key Innovations, accessed December 23, 2025, https://keyinnovations.com/products/new-virgin-megamos-48-chip-2
+11. Megamos AES Transponder Chip for VW / Audi (MQB ID88) - eBay, accessed December 23, 2025, https://www.ebay.com/itm/314952533886
+12. A Tale of Two Powertrains - Volkswagen, accessed December 23, 2025, https://www.vw.com/en/newsroom/future-of-mobility/meb-v-mqb.html
+13. Continental Vehicle Server Connects VW ID. Electric Vehicles, accessed December 23, 2025, https://www.continental.com/en/press/press-releases/2019-11-12-icas-vw/
+14. What is SFD? | OBDeleven, accessed December 23, 2025, https://support.obdeleven.com/en/articles/5685742-what-is-sfd
+15. VW Audi SFD Unlock Procedure - iSCAN, accessed December 23, 2025, https://www.iscantech.com/2025/01/03/vw-audi-sfd-unlock-procedure/
+16. Can someone guide me to unlocking SFD? : r/CarHacking - Reddit, accessed December 23, 2025, https://www.reddit.com/r/CarHacking/comments/1ionru0/can_someone_guide_me_to_unlocking_sfd/
+17. Key programming (Add Spare Key Hitag-Pro) and Module Replacement for VAG Immo 5C Vehicles - ABRITES.com, accessed December 23, 2025, https://abrites.com/products/vn024
+18. Megamos AES MQB ID88 Transponder Chip for Jeep VW FIAT AUDI - Al-Najm Al-Thahabi, accessed December 23, 2025, https://gskeyae.com/product/megamos-aes-mqb-id88-chip/
+19. Be First with Abrites! Cutting-Edge Functionality Key Programming for VAG Immo 5C Vehicles (Add Spare Key Hitag-Pro) at Pre-Order From Today! - Remkeys, accessed December 23, 2025, https://remkeys.com/be-first-with-abrites-cutting-edge-functionality-key-programming-for-vag-immo-5c-vehicles-add-spare-key-hitag-pro-at-pre-order-from-today/
+20. Autel Adds 2024/2025 IMMO & Key Programming Functionality | Autel, accessed December 23, 2025, https://autel.us/autel-adds-24-25-immo-key/
+21. VW Golf 2015 All Keys Lost | IMMO Data Read with Autel IM608 & APB131 Adapter (MQB System) - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=OU7OuBMkwJU
+22. Program Audi A3 2012 VDO 24C32 All Keys Lost with Autel + Xhorse | by obdii365 | Medium, accessed December 23, 2025, https://medium.com/@obd365com/program-audi-a3-2012-vdo-24c32-all-keys-lost-with-autel-xhorse-1eb2a9683468
+23. Autel MaxiIM IM608 MQB All Keys Lost Programming Procedure | AutelSale.com Office Blog, accessed December 23, 2025, http://blog.autelsale.com/2020/07/14/autel-maxiim-im608-mqb-all-keys-lost-programming-procedure/
+24. Xhorse Volkswagen MQB Support Add key And All Key Lost - Techno Lock Keys Trading, accessed December 23, 2025, https://www.tlkeys.com/products/Xhorse-Volkswagen-MQB-Support-Add-key-And-All-Key-Lost-35300
+25. VW T-Roc Immo 5C Add Key (HITAG-PRO) using AVDI, RH850 Programmer and Protag!, accessed December 23, 2025, https://www.youtube.com/watch?v=iKEYxbImM3s
+26. Lonsdor K518 PRO FCV - All Keys Lost Bundle For Toyota And Lexus, accessed December 23, 2025, https://www.bestkeysupply.com/products/lonsdor-k518-pro-fcv-programmer-toyota-package-keys-shells-bundle-p444
+27. Lonsdor K518 PRO USA Key Programmer - Full Configuration - New USA Version, accessed December 23, 2025, https://www.uhs-hardware.com/products/lonsdor-k518-pro-usa-key-programmer-new-usa-version
+28. ODIS Geko User Online Login System for VW/Audi/Skoda/Seat | Autosvs Technology, accessed December 23, 2025, https://autosvs.com/en/odis-geko-user-online-login-system-for-vw-audi-skoda-seat/
+29. Keycode Instructions - erWin Online | Volkswagen of America, accessed December 23, 2025, https://vw-us.erwin-store.com/erwin/showKeycodeInstructions.do
+30. Megamos AES Transponder Chip for VW / Audi (MQB ID88) - UHS Hardware, accessed December 23, 2025, https://www.uhs-hardware.com/products/megamos-aes-transponder-chip-mqb-id88
+31. Transponder Chip for Audi VW Jeep Fiat MQB ID88 - Your Car Key Guys, accessed December 23, 2025, https://yourcarkeyguys.com/products/transponder-chip-for-audi-vw-jeep-fiat-mqb-id88
+32. How to Salvage a Key Programming Disaster: Accidental Key Deletion On a 2015 VW Jetta with the Im608 - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=4BchfrAZBIY
+33. Xhorse - TOY8A AKL Adapter for VVDI Key Tool Plus - Royal Key Supply, accessed December 23, 2025, https://royalkeysupply.com/products/xhorse-toy8a-akl-adapter-for-vvdi-key-tool-plus-w-all-keys-lost-support-xd8askgl

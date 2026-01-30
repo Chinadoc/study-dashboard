@@ -1,0 +1,233 @@
+﻿Technical Intelligence Dossier: Stellantis RU Platform Architecture & Forensic Analysis (2020 Chrysler Pacifica)
+Confidential Engineering Brief
+Subject: 2020 Chrysler Pacifica (RU) / Voyager / Hybrid vs. Legacy Grand Caravan (RT)
+Operational Domain: Vehicle Security, Electrical Architecture, Advanced Diagnostics, and Systems Integration
+________________
+1. Executive Intelligence Summary
+The 2020 Chrysler Pacifica (internal designation RU) represents the technological zenith of the PowerNet electrical architecture before the Stellantis-wide transition to the Atlantis high-speed architecture in 2021. For the automotive security professional, forensic analyst, or advanced diagnostician, the RU platform is not merely a minivan; it is a complex, high-density network of distributed computing, heavily firewalled by the Secure Gateway Module (SGW) and relying on a high-security encrypted immobilizer protocol (Hitag AES 4A).
+This dossier serves as an exhaustive technical reference for the RU platform. It contrasts the 2020 architecture against the 2017+ launch models, the budget-oriented Chrysler Voyager, the technically distinct Pacifica Hybrid (PHEV), and the legacy Dodge Grand Caravan (RT). The comparative analysis is crucial for fleet operators and technicians who often encounter these vehicles in mixed environments, requiring a nuanced understanding of the divergent servicing protocols.
+The analysis reveals that the 2020 Pacifica functions as a "bridge" platform. While it utilizes the established PowerNet topology found in late-model Chargers and Grand Cherokees, it integrates advanced driver-assistance systems (ADAS) and hybridization that push the bandwidth limits of the CAN-C and CAN-IHS buses. This density of data traffic results in specific, predictable failure modes—most notably bus contention issues caused by the Power Sliding Door Modules (PSDM) and catastrophic communication failures linked to Star Connector corrosion.
+Furthermore, the operational requirements for key programming and module initialization have diverged significantly from the legacy RT platform. The migration from the Wireless Ignition Node (WIN) used in the Grand Caravan to the Radio Frequency Hub (RF Hub) in the Pacifica fundamentally changes the attack surface and diagnostic approach for "All Keys Lost" scenarios. Understanding the specific encryption protocols, physical keyway geometries (Y171 vs. Y164), and the requisite bypass hardware for the Security Gateway is no longer optional; it is a mandatory baseline for engagement with the vehicle.
+
+
+  
+
+
+
+________________
+2. Platform Architecture: The PowerNet Paradigm
+The 2020 Chrysler Pacifica is the culmination of the PowerNet architecture, a system that replaced the older TIPM-based architecture used in the Dodge Grand Caravan RT. Understanding this architectural foundation is essential for diagnosing complex electrical faults.
+2.1 The CUSW Platform Roots
+The RU Pacifica is built on the Compact U.S. Wide (CUSW) platform, a derivative of the Fiat Compact platform. This modular chassis supports a wider track and longer wheelbase than its predecessors but, more importantly, it was designed from the outset to support a distributed electrical architecture. Unlike the RT platform, which centralized massive amounts of power distribution and logic into a single, failure-prone Totally Integrated Power Module (TIPM), the RU platform distributes these functions.
+In the RU architecture, the Body Control Module (BCM) handles the logic for interior electronics, lighting, and access control, while a separate Power Distribution Center (PDC) in the engine bay handles high-current fusing and relays. This separation significantly increases reliability; a single relay failure in the PDC does not necessitate the replacement of the vehicle's primary logic computer, a common and costly repair on the RT platform.1
+2.2 The PowerNet Topology
+The PowerNet architecture utilizes a specific bus topology designed to optimize data flow between high-priority powertrain modules and lower-priority body modules.
+* CAN-C (High Speed): This bus operates at 500 kbps and connects critical systems such as the Powertrain Control Module (PCM), Anti-lock Brake System (ABS), Electric Power Steering (EPS), and the Occupant Restraint Controller (ORC). It is a two-wire twisted pair network that requires termination resistors at the physical ends of the bus to prevent signal reflection.
+* CAN-IHS (Intermediate High Speed): Operating at 125 kbps or 500 kbps depending on the specific implementation year, this bus connects the BCM, Radio Frequency Hub (RF Hub), Radio (Uconnect), Climate Control, and the various door modules.
+* The Gateway: The Central Gateway, typically integrated into the BCM or operating as a standalone Secure Gateway Module (SGW), bridges these two networks. It allows data to flow between them while filtering traffic to prevent non-critical signals from flooding the critical CAN-C bus.
+The 2020 model year pushes PowerNet to its absolute limit. With the inclusion of high-bandwidth features like the Uconnect 4C NAV with 4G LTE, surround-view cameras, and parallel park assist, the bus load is significantly higher than in earlier model years. This high utilization is a contributing factor to the system's sensitivity to electrical noise, such as that generated by failing sliding door modules.3
+2.3 Transition to Atlantis (2021+)
+It is critical for the technician to distinguish the 2020 model from the 2021 facelift. The 2021 Pacifica introduced the Atlantis electrical architecture. Atlantis was necessitated by the shift to Uconnect 5, an Android Automotive-based infotainment system with processing requirements five times greater than its predecessor.5
+* Ethernet Integration: Atlantis introduces BroadR-Reach automotive Ethernet to handle the massive data streams required for firmware-over-the-air (FOTA) updates and high-definition video processing.
+* CAN-FD: The new architecture utilizes CAN Flexible Data-Rate (CAN-FD), which allows for variable data speeds and larger payload sizes per frame compared to standard CAN.
+* Diagnostic Implication: Tools and breakout cables designed solely for PowerNet vehicles may not function correctly on Atlantis vehicles due to the differences in protocol speeds and physical layer tolerances. The 2020 Pacifica, therefore, stands as the final and most advanced iteration of the legacy PowerNet standard.5
+________________
+3. The Secure Gateway Module (SGW) Paradigm
+By 2020, the Secure Gateway Module (SGW) had become a standard and mandatory component of the Chrysler Pacifica's architecture. Introduced in late 2018 to combat remote hacking threats, the SGW fundamentally alters the aftermarket service landscape.
+3.1 Theory of Operation
+The SGW acts as a digital firewall located physically between the Data Link Connector (DLC/OBD-II port) and the vehicle's internal CAN buses.
+* Public Sector: The DLC and the Telematics Box Module (TBM) are considered "public" and untrusted.
+* Private Sector: The internal CAN-C and CAN-IHS buses, containing the BCM, PCM, and RF Hub, are "private" and trusted.
+The SGW monitors all traffic originating from the DLC. It permits "Read" commands (such as retrieving DTCs or viewing live data streams) to pass through to the private network. However, it blocks all "Write" commands (such as clearing codes, initiating actuators, learning keys, or resetting adaptives) unless the diagnostic tool provides a valid, cryptographically signed digital certificate from FCA/Stellantis.7
+3.2 Physical Bypass Methodology
+For independent technicians and locksmiths who do not utilize the official wiTECH 2.0 tool with an AutoAuth subscription, a physical bypass is required.
+* The 12+8 Connector: The SGW connects to the vehicle harness via two distinct connectors: a 12-pin connector and an 8-pin connector. The bypass procedure involves locating the SGW, unplugging these two connectors, and connecting them into a specialized "12+8 Bypass Cable" or "Universal Star Connector" adapter. This physically removes the SGW from the loop, connecting the diagnostic tool directly to the internal CAN buses.8
+* Location Strategy: In the 2020 Pacifica, the SGW is typically mounted deep in the driver's side kick panel area, often above the accelerator pedal or behind the infotainment head unit bezel. Access can be difficult, requiring the removal of trim panels. Some technicians prefer to access the Star Connectors directly (see Section 5.2) as an alternative entry point, though the SGW bypass is the most direct method for full authorization.10
+3.3 Implications for Diagnostics
+The presence of the SGW means that simple tasks, such as clearing a "Check Engine" light after a repair or recalibrating a replaced window switch, are impossible with a standard, non-networked OBD-II scanner. The tool will report "Command Rejected" or "Security Access Denied." This is not a defect in the tool or the vehicle; it is the intended function of the security architecture. For key programming specifically, the bypass is mandatory unless the programmer supports the AutoAuth protocol via Wi-Fi.11
+________________
+4. Access Control & Immobilizer Cryptography
+The defining characteristic of the 2020 Pacifica's security system is the total abandonment of the legacy FOBIK system in favor of a Keyless Enter-N-Go (PEPS) system managed by the Radio Frequency Hub (RF Hub).
+4.1 The Smart Key Ecosystem
+The 2020 Pacifica key fob utilizes the Hitag AES protocol, specifically utilizing the NXP AES 128-Bit (Type 4A) transponder. This represents a quantum leap in encryption strength compared to the Hitag 2 or Phillips 46 chips used in earlier Chrysler vehicles.
+Fob Intelligence (FCC ID: M3N-97395900)
+The specific fob utilized for the 2017-2020 Pacifica (and Voyager) is identified by FCC ID M3N-97395900.
+* Frequency: 433.92 MHz.
+* Modulation: Frequency Shift Keying (FSK).
+* Chipset: NXP AES 128-Bit / Hitag AES Type 4A.
+* Part Numbers: 68217827AC (3-button), 68217832AC (7-button with remote start/doors).
+* Interchangeability: This fob is shared with the 2020-2021 Chrysler Voyager. However, it is not compatible with the 2021+ Pacifica redesign, which migrated to a new fob architecture alongside the Atlantis update.12
+The KeySense Protocol
+The RU platform features a "KeySense" fob, often branded with a specific logo. Architecturally, this is identical to a standard fob but carries a specific Tag ID in the RF Hub's memory. When this tag is detected, the BCM applies pre-configured vehicle restrictions, such as limiting top speed, capping audio volume, and disabling the ability to disable traction control. Resetting a KeySense PIN code requires accessing the radio's specialized menu via a diagnostic tool, as the PIN is stored in the module logic, not on the key itself.13
+4.2 The Mechanical Interface: Y171 vs. Y164
+A critical point of failure in aftermarket servicing is the selection of the emergency key insert. The 2017+ Pacifica (RU) utilizes the Y171 keyway, a thinner blade with a distinct milling profile.16
+* The Legacy Trap: The Y164 and Y160 blades are standard for the older Dodge Grand Caravan (RT) and older Chrysler vehicles (FOBIK era). They are often physically thicker and have a different warding profile.
+* Operational Consequence: Attempting to cut a Y164 blank for a 2020 Pacifica will result in a blade that may not fit the fob retention mechanism or, worse, may jam in the driver's door lock cylinder. The Y171 is the only correct profile for the RU platform's emergency access cylinder.18
+4.3 RF Hub & Antenna Topology
+The RF Hub is the central nervous system of the access architecture. Located in the rear shelf or headliner area, it acts as the gateway between the wireless fob signals and the CAN-IHS bus.
+LF Antenna Locations (2020 Pacifica):
+1. Console Antenna: Located inside the center console. This is the primary antenna for interior detection and the "Dead Key" override.20
+2. Rear Bumper: Detects the fob for the hands-free liftgate actuation.
+3. Door Handle Antennas (x2 or x4): Located in the door handles to detect approach for unlocking.
+4. Trunk/Cargo Area: Monitors the rear zone to prevent locking keys inside the trunk.
+Diagnostic Insight: If a 2020 Pacifica exhibits "Key Not Detected" but the fob unlocks the doors remotely, the failure is rarely the fob itself. It is usually a failure of the Console LF Antenna or the RF Hub logic losing its calibration. A diagnostic routine to "Reset RF Hub" or "Calibrate Antennas" is often required.21
+
+
+  
+
+
+
+4.4 The "Dead Fob" Start Procedure
+Unlike the Grand Caravan (RT), which uses a WIN module where the fob is physically inserted and turned, the RU Pacifica uses a push-button start. When the fob battery is depleted, the LF antennas cannot wake the fob.
+Emergency Start Protocol:
+The user must physically press the nose (the end opposite the key ring) of the fob directly against the Start/Stop button.
+* Mechanism: The Start/Stop button contains a localized, high-power inductive coil. Pressing the fob against it allows for near-field communication (NFC-like) that powers the fob's transponder passively, bypassing the battery requirement.
+* Common Failure: Users often press the flat side or the buttons against the start button. The transponder coil is oriented at the nose. Forensic analysis of "no start" complaints often reveals this user error.22
+________________
+5. The Hybrid (PHEV) Vector: High Voltage Complexities
+The Chrysler Pacifica Hybrid (PHEV) introduces a High Voltage (HV) variable that complicates standard service procedures significantly. The integration of a 16 kWh lithium-ion battery and dual-motor EVT (Electrically Variable Transmission) creates an environment where electrical noise and safety protocols must be strictly managed.
+5.1 "Ready" vs. "Run" State
+For key programming and advanced diagnostics, the vehicle must be in Run (Ignition ON) but NOT in Ready Mode.
+* Ready Mode: In this state, the HV contactors are closed, the DC-DC converter is active, and the vehicle is capable of movement. The power inverter module (PIM) generates significant electromagnetic interference (EMI) during this state, which can corrupt the sensitive low-frequency programming data transmission between the tool, the RF Hub, and the key fob.
+* Ignition ON: The 12V system is active, but the HV battery is isolated. This is the correct state for programming.
+* Procedure: To enter this state, the technician must press the Start button without depressing the brake pedal twice. This cycles the ignition to "Run" without engaging the HV contactors.23
+5.2 The 12V Vulnerability
+A critical oversight in PHEV service is relying on the HV battery to maintain the 12V system. In "Ignition ON" (not Ready), the DC-DC converter is not charging the 12V battery. The vehicle's modules, however, are drawing significant current (up to 20-30 Amps). If the 12V battery voltage drops below a critical threshold (typically 11.8V) during a programming session, the RF Hub may abort the write process, potentially corrupting the immobilizer data. A robust 12V battery maintainer is mandatory for all PHEV service procedures.24
+5.3 High Voltage Safety Disable
+In the event of a collision or if extensive electrical work is required near the High Voltage Interlock (HVIL) lines, strict disablement procedures must be followed.
+1. Chock Wheels & E-Brake: The parking pawl mechanism is electric and may disengage if power is lost unexpectedly.
+2. Disconnect 12V: Always disconnect the 12V negative terminal first to kill the logic to the Battery Pack Control Module (BPCM).
+3. Service Disconnect: Remove the HV Service Disconnect located in the floor between the 1st and 2nd row seats. This physically breaks the HV circuit inside the battery pack, ensuring that voltage is contained within the pack itself.
+4. Verification: Personnel must use a voltmeter to verify zero voltage at the inverter before touching any orange cabling.25
+________________
+6. The "Killer" Failure Modes: Forensic Analysis
+The RU platform, while advanced, is notorious for specific high-level system failures that often masquerade as simple "key programming" or "no start" issues. These are not random glitches but predictable consequences of the platform's physical and logical design.
+6.1 The Sliding Door Bus Storm
+The Power Sliding Door Modules (PSDM) on the 2017-2020 Pacifica are prone to a specific logic failure where they "babble" or flood the CAN-IHS bus with noise.
+* Symptom: The diagnostic tool fails to communicate with the BCM or RF Hub. Key programming fails at the "Writing" stage, or the process hangs indefinitely.
+* Mechanism: The PSDM logic locks up, pulling the bus voltage high or low intermittently. This creates "bus contention," preventing the delicate handshake required for AES key encryption.
+* Remediation: The standard operating procedure (SOP) for any programming failure on an RU minivan is to unplug the sliding door modules (located in the door or via fuse pull) or hard reset the battery (capacitive discharge) before attempting to program again. Simply clearing codes is insufficient, as the module's volatile memory must be cleared of the error state.3
+
+
+  
+
+
+
+6.2 The Star Connector Corrosion (Can Bus Hub)
+The Pacifica utilizes Star Connectors (Can Bus hubs) to distribute network traffic, minimizing wire length. These are essentially physical junction blocks for the CAN bus wires.
+* The Defect: Water intrusion, often from windshield leaks or HVAC condensation, drips directly onto the Star Connector located behind the glove box/passenger kick panel area.
+* Consequence: The pins corrode, creating high resistance or bridging the CAN-C High and Low signals. This results in a "Christmas Tree" dashboard effect (all lights on), loss of power steering, and total loss of communication with the RF Hub.
+* Forensic Sign: A technician inspecting this area will often find "green crust" (copper oxide) visible on the connector block face or white residue on the pins. This physical corruption of the bus layer renders any software-based diagnostic attempt useless until the connector is cleaned or replaced.28
+6.3 Stow 'n Go Harness Severance
+The Stow 'n Go seating system involves a complex folding mechanism that moves the floor pan and the seat simultaneously.
+* The Defect: The wiring harness routing for the rear B-pillar area (which carries signals for door sensors and pretensioners) passes through a tight pinch point in the seat track mechanism.
+* Consequence: Repeated folding and unfolding of the seats can physically sever the harness or strip the insulation. This can short the CAN-IHS bus to the chassis ground. Since the RF Hub lives on this same bus, the vehicle may become unresponsive to the key fob, leading to a misdiagnosis of a "bad fob" or "bad RF Hub" when the root cause is actually a wiring short located under the floor mats.30
+________________
+7. Legacy Comparison: The Dodge Grand Caravan (RT)
+A frequent source of confusion is the concurrent existence of the Dodge Grand Caravan (RT) and the Chrysler Pacifica (RU) in the 2017-2020 timeframe. Why did Stellantis maintain two distinct minivan platforms? The answer lies in fleet economics and architectural simplicity, but the differences for the technician are stark.
+7.1 Architectural Divergence
+* Dodge Grand Caravan (RT): Built on the legacy Chrysler RT platform, this vehicle is a relic of the Daimler-Chrysler era. Its electrical backbone is the TIPM (Totally Integrated Power Module). The TIPM acts as both a fuse box and a gateway/computer. While simplified, it created a single point of massive failure—if the fuel pump relay inside the TIPM died (a common failure), the entire expensive module often required replacement or an external relay bypass.
+* Chrysler Pacifica (RU): The RU platform decouples these functions. It uses a Power Distribution Center (PDC) for fusing and relays, and a separate Body Control Module (BCM) for logic. This is a superior architecture for reliability. However, it introduces the SGW, which complicates aftermarket serviceability significantly compared to the "open" nature of the RT platform.
+7.2 The Immobilizer Divide
+* RT (WIN Module): The Grand Caravan uses the Wireless Ignition Node (WIN). The key (FOBIK) acts as a physical token that must be inserted into the dash and turned. The WIN module reads the transponder data directly. Failures here are often mechanical (detents wearing out) or solder joints cracking on the WIN board.
+* RU (RF Hub): The Pacifica uses the RF Hub and a push-button start. The key never physically engages with the vehicle's ignition switch. Failures here are almost exclusively related to signal reception (antenna calibration), bus communication (SGW/Star Connector), or battery voltage. The "No Start" diagnosis on an RT involves wiggling the key; on an RU, it involves checking LF Antenna status on a scan tool.32
+7.3 Sliding Door Logic
+* RT: The RT sliding doors operate on a simpler, largely analog/LIN bus logic. They are less prone to the complex bus contention issues seen on the RU.
+* RU: The RU sliding doors are full CAN bus nodes (PSDM). They report detailed position data, motor current, and obstacle detection to the BCM. While safer and more feature-rich, this complexity is what allows a failing door module to bring down the entire interior bus network.
+________________
+8. Diagnostic Workflows & Tooling Strategies
+Navigating the RU platform requires a specific set of tools and procedures. The "plug and play" era of the RT platform is over.
+8.1 Tooling Requirements
+* Hardware: A J2534 passthrough device or a high-level diagnostic tablet (e.g., Autel IM608, CDA 6) is required. Crucially, a 12+8 Bypass Cable is mandatory for any 2018+ model unless the tool supports AutoAuth.
+* Software: For official dealers, wiTECH 2.0 is the standard. For the aftermarket, subscriptions to AutoAuth allow tools to digitally authenticate with the SGW via Wi-Fi, bypassing the need for the 12+8 cable. However, in "All Keys Lost" scenarios where the battery may be dead or Wi-Fi unavailable, the physical 12+8 cable remains the most reliable method.11
+8.2 Key Programming Workflow (Autel Example)
+1. Preparation: Connect battery support (maintainer). Ensure all doors are closed.
+2. Connection: Locate the SGW (kick panel or radio). Disconnect the 12-pin and 8-pin connectors. Connect the 12+8 bypass cable.
+3. Identification: Scan the vehicle. Verify communication with the BCM and RF Hub.
+4. Pin Code: Read the PIN code from the RF Hub. On the RU platform, this is typically a 4-digit code.
+5. Execution: Select "Smart Key Learning." Follow the prompts to press the "Unlock" button on the new fob or press the fob against the Start button.
+6. Troubleshooting: If the process fails at "Configuring System," disconnect the Sliding Door Modules and retry. This is the single most common fix for programming failures on this platform.34
+8.3 Proximity (PEPS) Initialization
+After a key is programmed, the vehicle must sometimes relearn the "Proximity" functions. If the key starts the car but does not unlock the doors passively (Keyless Go), a "Proxy Alignment" or "RF Hub Replacement/Reset" routine may be necessary to synchronize the new key data across all modules on the CAN-IHS bus.
+________________
+9. Component Location Guide (2020 Pacifica RU)
+For the forensic technician, knowing where to look is as important as knowing what to look for. Accessing these components often requires significant disassembly.
+Component
+	Location
+	Notes
+	SGW (Secure Gateway)
+	Driver Side Kick Panel / Above Accel Pedal
+	Requires 12+8 Adapter. 2018+ only. Difficult access.
+	RF Hub
+	Rear Headliner / C-Pillar area
+	Requires headliner drop to access. The "Brain" of the key system.
+	Star Connector (Front)
+	Behind Glove Box / Passenger Kick Panel
+	Prone to HVAC condensation corrosion. Green crust indicates failure.
+	Star Connector (Rear)
+	Rear Left Quarter Panel (Jack Storage)
+	Main hub for rear modules. Check for water intrusion from tail lights.
+	Battery (Auxiliary)
+	Driver Side Fender / Wheel Well
+	The "Start/Stop" battery. Often dies first, dragging down the main bus voltage.
+	Battery (Main)
+	Engine Bay (Driver Side)
+	AGM H6 or H7. Primary power source.
+	PDC (Fuse Box)
+	Engine Bay (Driver Side)
+	Contains High Current Fuses and relays.
+	HV Service Disconnect
+	Floor (Between Front/2nd Row)
+	PHEV ONLY. Orange lever under a trim flap. Essential for safety.
+	PSDM (Sliding Door)
+	Inside the Sliding Door Panel
+	Requires door trim removal to unplug physically, or fuse pull from PDC.
+	________________
+10. Final Forensic Assessment & Future Outlook
+The 2020 Chrysler Pacifica (RU) is a sophisticated machine that demands respect for its protocols. It operates in a "sweet spot" of complexity—utilizing the robust PowerNet logic but battling the physical degradation of early RU wiring harnesses and the digital gatekeeping of the SGW.
+For the Technician/Engineer:
+1. Trust but Verify Voltage: The RU platform is hyper-sensitive to 12V fluctuations. A system below 12.2V will trigger ghost communication codes (U-codes) across the bus.
+2. Respect the Firewall: Attempting to diagnose a 2018+ RU without a 12+8 cable or AutoAuth is futile. The SGW is an active blocker.
+3. Isolate the Noise: When programming fails, assume the Sliding Door Modules are interfering. Disconnect them immediately.
+4. Identify the Keyway: Carry Y171 blades. Attempting to force Y164 blades into RU cylinders damages the wafers.
+The Atlantis Horizon:
+The transition to the Atlantis architecture in 2021 renders much of the 2020 diagnostic hardware (specifically older patch cables and lower-speed interfaces) obsolete. Technicians must recognize that the 2020 Pacifica is the final chapter of the PowerNet story. Future serviceability of the minivan segment will require Ethernet-capable tooling and a deeper understanding of Android Automotive-based systems.
+This dossier confirms that the most effective tool for the RU platform is not just the scanner, but the 12+8 Bypass Cable and a keen eye for corrosion in the Star Connectors. Without addressing the physical layer integrity (wiring/connectors), no amount of programming will resolve the communication faults inherent to this platform.
+________________
+End of Technical Dossier
+Works cited
+1. What are signs of a failing Chrysler body control module (BCM)? - MAKS TIPM Rebuilders, accessed January 3, 2026, https://tipmrebuilders.com/articles/signs-of-a-failing-chrysler-body-control-module-bcm/
+2. Bad Body Control Module Symptoms To Never Ignore - Flagship One Blog, accessed January 3, 2026, https://www.fs1inc.com/blog/bad-body-control-module-symptoms-to-never-ignore/
+3. Intermittent, Non-responsive Sliding Door - 2017-2018 Chrysler Pacifica VMI, accessed January 3, 2026, https://chrysler.oemdtc.com/1191/intermittent-non-responsive-sliding-door-2017-2018-chrysler-pacifica-vmi
+4. Flash: Power Sliding Door Module (PSDM) System Updates - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2024/MC-11005326-0001.pdf
+5. Press Kit: Uconnect 5:What's New for 2023 - Stellantis Media, accessed January 3, 2026, https://media.stellantisnorthamerica.com/newsrelease.do?id=21511&mid=
+6. Press Kit: Uconnect 5 - Stellantis Media, accessed January 3, 2026, https://media.stellantisnorthamerica.com/newsrelease.do?id=21511&fIId=21503&mid=1
+7. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 3, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+8. How to use Chrysler BYPASS 12+8 cable on a 2018+ Chrysler - FCAR Tech USA, accessed January 3, 2026, https://www.fcarusa.com/TechSupport/HowTo/how-use-chrysler-bypass-12-8-cable-2018-chrysler
+9. Chrysler Pacifica Security Gateway Bypass location / How to read clear check engine light OBD 12+8 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=Q5p63yB4h_k
+10. Chrysler Pacifica SECURITY GATEWAY MODULE location and connection with Autel, accessed January 3, 2026, https://www.youtube.com/watch?v=FtQFCIlsVV8
+11. Chrysler Pacifica Security Gateway Bypass Location & Installation - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=wq_q_32UXhE
+12. 2020 Chrysler Pacifica Smart Key 3B Fob FCC# M3N-97395900 - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2020-chrysler-pacifica-smart-key-3b-fob-fcc-m3n-97395900-aftermarket
+13. Chrysler New OEM 2017-2020 Pacifica Keysense Smart Key 3B FCCID: M3N-9, accessed January 3, 2026, https://royalkeysupply.com/products/chrysler-new-oem-2017-2020-pacifica-keysense-smart-key-3b-fccid-m3n-97395900-pn-68238686ac
+14. Chrysler Pacifica Voyager Prox Key M3N-97395900 68217827AC 3 Button - Key4, accessed January 3, 2026, https://www.key4.com/chrysler-pacifica-voyager-smart-remote-key-m3n97395900-68217827ac
+15. 2019 Chrysler Pacifica Hybrid User's Guide - Mopar, accessed January 3, 2026, https://vehicleinfo.mopar.com/assets/publications/en-us/Chrysler/2019/Pacifica_Hybrid/10465.pdf
+16. INSERT 2017-2025 Chrysler Pacifica | Voyager ... - Your Car Key Guys, accessed January 3, 2026, https://yourcarkeyguys.com/products/insert-2017-2022-chrysler-pacifica-voyager-smart-emergency-key-blade-y171
+17. 2017-2021 Chrysler Pacifica / Emergency Key / Y171 / PN ..., accessed January 3, 2026, https://www.uhs-hardware.com/products/2017-2021-chrysler-pacifica-emergency-key-y171-pn-68289894ab-ekb-chy-pcf
+18. 2017-2024 Chrysler Pacifica Emergency Key - My Key Supply, accessed January 3, 2026, https://www.mykeysupply.com/product/2017-2019-chrysler-pacifica-emergency-key/
+19. Chrysler - Your Car Key Guys, accessed January 3, 2026, https://yourcarkeyguys.com/collections/chrysler
+20. Dodge Charger - PASSIVE KEYLESS ENTRY LF ANTENNA LOCATION (2011 - 2021), accessed January 3, 2026, https://www.youtube.com/watch?v=fzQukqejZNA
+21. Chrysler Keyless Entry Diagnostic Tip | Tech Tip - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=-1sJLBYZJVc
+22. 2023 Chrysler Pacifica Key Fob Not Detected - How to Start With Dead, Bad, Broken Key Fob - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=NKpoJIwgRMo
+23. DS3+ / DS4+: Installation Guide. 2018 Chrysler Pacifica (Smart Key). 933.CHRYSLER14 1.20.198.12 N/A 933 - NET, accessed January 3, 2026, https://directechs.blob.core.windows.net/ddt/933-CHRYSLER14-1.20.198.12_2018-Chrysler-Pacifica-(Smart-Key)_IG_EN_20241025.pdf
+24. SB 10059649 2273 | PDF | Hybrid Electric Vehicle | Vehicles - Scribd, accessed January 3, 2026, https://ru.scribd.com/document/621604101/SB-10059649-2273
+25. 2022-2025 Chrysler Pacifica Hybrid Emergency Response Guide - Mopar, accessed January 3, 2026, https://www.mopar.com/content/dam/mopar/images/first-responders/pdf/2025-Chrysler-Pacifica-Hybrid-Emergency-Response-Guide.pdf
+26. 2022 Chrysler Pacifica Hybrid Emergency Response Guide - Mopar, accessed January 3, 2026, https://www.mopar.com/content/dam/mopar/images/first-responders/pdf/2022_RU_ERG_Final-12NOV21.pdf
+27. Power Sliding Door Issue - Any Suggestions? : r/ChryslerPacifica - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ChryslerPacifica/comments/n65h3z/power_sliding_door_issue_any_suggestions/
+28. Water Damage and Corrosion: Saving Connectors Before It's Too Late | FindPigtails.com, accessed January 3, 2026, https://findpigtails.com/connector-repair/water-damage-and-corrosion-saving-connectors-before-its-too-late/
+29. THIS SERVICE BULLETIN IS ALSO BEING RELEASED AS RAPID RESPONSE TRANSMITTAL (RRT) 16-065. ALL APPLICABLE SOLD AND UN-SOLD RRT VIN - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2016/MC-10121641-9999.pdf
+30. Chrysler Pacifica Stow N Go seat door repair fix - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=wqRxkyI6HQg
+31. Stow 'n Go® | How To | 2026 Chrysler Pacifica & Voyager - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=VHAKstNHJO8
+32. Chrysler Pacifica vs. Dodge Grand Caravan: Family Minivans in Richmond, CA, accessed January 3, 2026, https://www.hilltopchryslerjeepdodge.com/chrysler-pacifica-dodge-grand-caravan-blog.htm
+33. Chrysler Pacifica vs. Dodge Caravan: We Break Down The Differences - CoPilot, accessed January 3, 2026, https://www.copilotsearch.com/posts/chrysler-pacifica-vs-dodge-caravan-vehicle-differences/
+34. Chrysler Pin Code retrieval with the new Autel IM608 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=1kEJFvXad8w
+35. 2019 Chrysler 300 Smart Key Programming | All Keys Lost + Gateway Location - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=BfNR7VFHoxc

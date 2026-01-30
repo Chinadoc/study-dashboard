@@ -1,0 +1,318 @@
+﻿Dedicated Locksmith Intelligence Dossier: Infiniti Vehicles (2010-2026)
+1. Executive Intelligence Summary
+The Infiniti brand, operating as the luxury division of Nissan Motor Corporation, presents a unique and often underestimated challenge within the automotive security landscape. While sharing a genetic lineage with Nissan, Infiniti vehicles employ a distinct evolution of immobilizer protocols, Intelligent Key (I-Key) logic, and onboard diagnostic architectures that require a specialized approach. This dossier serves as a comprehensive operational guide for automotive locksmiths, security researchers, and technical specialists, aiming to decouple Infiniti from the general "Nissan" category and treat it as a distinct entity requiring specific intelligence.
+Between 2010 and 2026, Infiniti transitioned through three major security epochs: the Legacy 4-Digit PIN era, the Rolling Code/20-Digit era, and the modern Secure Gateway (SGW) era. Understanding these transitions is critical. A technician treating a 2022 QX60 like a 2018 Pathfinder will face communication lockouts, potentially bricked Body Control Modules (BCMs), and failed programming attempts. Furthermore, the 2020s have introduced the "SGW Wall," a cybersecurity measure that segregates the OBD-II port from the vehicle’s CAN bus, necessitating the use of authorized credentials (AutoAuth) or physical bypass interventions.
+This report provides an exhaustive mapping of these systems. It analyzes the cross-pollination of platforms—such as the Patrol-based QX80 and the Mercedes-Benz-derived QX30—and details the implications for transponder chip selection and remote frequency modulation. It also addresses the critical "All Keys Lost" (AKL) procedures, offering granular insights into pin code extraction, BCM initialization, and the nuances of the "I-Key System Error" that plagues the luxury line.
+
+
+
+
+2. Strategic Justification: Why Infiniti Deserves Separate Coverage
+While it is common practice in the locksmith industry to group Infiniti under the Nissan umbrella, this reductionist approach often leads to operational inefficiencies, pricing errors, and technical failures. The justification for a dedicated Infiniti dossier rests on four pillars: Premium Pricing Expectations, Divergent Security Implementations, Platform Complexity, and the I-Key Ecosystem.
+2.1 Premium Pricing and Customer Expectations
+The Infiniti customer profile differs significantly from the Nissan demographic. Owners of vehicles such as the QX80 or Q60 Red Sport expect a service level commensurate with a luxury marque. This dictates not only a higher price point for key programming and replacement but also a zero-tolerance policy for "trial and error." When a locksmith approaches an Infiniti, the expectation is immediate, seamless integration. The margin for error is slimmer; damaging a leather-wrapped dash while attempting to locate a BCM or scratching a console while accessing an emergency slot can result in liability claims exceeding the cost of the job. Therefore, the "Infiniti Premium" is not just about the badge; it is about the specialized knowledge required to perform surgical interventions on high-value assets. Customers paying premium prices for vehicles like the QX50 or QX80 demand original equipment manufacturer (OEM) quality parts and flawless execution, necessitating that the locksmith stock specific Infiniti-branded fobs rather than generic Nissan substitutes that may technically function but lack the correct aesthetic or logo.
+2.2 Divergent Security Implementations
+Although Nissan and Infiniti share the Nissan Anti-Theft System (NATS) and Infiniti Vehicle Immobilizer System (IVIS) architecture, the implementation often differs in timing and complexity. Infiniti serves as the testbed for advanced features. For instance, the transition to the 20-digit rolling code PIN often appeared in Infiniti models (like the QX56/QX80) before proliferating to the lower-tier Nissan lineup. Furthermore, the integration of Remote Engine Start (RES) as a standard luxury feature complicates the immobilizer logic, as the system must verify the key's presence externally while maintaining deadlock security. The logic governing the "Handshake" between the Intelligent Key, the BCM, and the Engine Control Module (ECM) in a Q50 Red Sport is tuned differently than in a Nissan Sentra, often requiring more precise timing during the programming sequence. The introduction of specific security protocols in Infiniti models typically precedes their Nissan counterparts by 12 to 24 months, creating a window where standard "Nissan" tools may lack the necessary updates to communicate with the latest luxury BCMs.
+2.3 The "Outlier" Platforms
+Infiniti's lineup includes models that break the Nissan mold entirely. The most prominent example is the QX30 (2017-2019). While badged as an Infiniti, this vehicle is mechanically and electronically a Mercedes-Benz GLA (X156). It utilizes the Mercedes MFA platform and, crucially, the Mercedes "FBS" (Drive Authorization System) architecture. A locksmith attempting to program a QX30 using Nissan software or Nissan keys will fail 100% of the time. This vehicle requires Mercedes-specific tools (like an IR programmer) and knowledge of the Mercedes EIS (Electronic Ignition Switch). Similarly, the QX80 shares its DNA with the Nissan Patrol (Y62), a vehicle not sold in all markets as a Nissan, leading to parts sourcing confusion where US-market "Armada" keys may or may not cross-reference correctly depending on the specific frequency (315MHz vs 433MHz) utilized in the luxury variant. The discontinuation of the QX30 and the continued evolution of the QX80 highlight the necessity of recognizing platform origins to avoid costly diagnostic missteps.
+2.4 The I-Key Ecosystem Specifics
+The Infiniti Intelligent Key (I-Key) system is distinct in its physical and electronic design. While Nissan keys are often utilitarian, Infiniti fobs feature distinct aesthetics (brushed metal finishes, specific button layouts) and, more importantly, often operate on different frequencies or use different transponder chips even within the same model year as their Nissan cousins to prevent cross-programming. The "Oval" vs. "Square" button logic, the transition from HITAG 2 to HITAG AES, and the introduction of 433MHz as a standard for US luxury models (diverging from the 315MHz legacy) create a matrix of compatibility that requires precise navigation. The presence of features like "linked driver profiles"—where the key fob stores seat, mirror, and steering wheel positions—adds a layer of data complexity to the programming process that is absent in base Nissan models.
+3. Platform & Security Architecture Mapping
+To master Infiniti security, one must understand the chassis code. The chassis code is the locksmith's Rosetta Stone; it reveals the underlying platform, the likely location of the BCM, the type of steering lock (ESCL) used, and the generation of NATS/IVIS.
+3.1 The Full-Size Luxury Platform: QX80 & QX56 (Z62/Y62)
+* Platform: F-Alpha (Body-on-Frame). Shared with Nissan Patrol (Global) and Nissan Armada (2017+ US).
+* Production: 2011–2024 (Y62), 2025+ (Z63).
+* Security Architecture:
+   * 2011-2013 (QX56): Utilizes NATS 5 with a 4-digit PIN (usually). Uses CWTWB1G744 fobs.1
+   * 2014-2024 (QX80): Migrated fully to the newer BCM structure requiring 20-digit rolling codes. The system is robust but sensitive to battery voltage.2
+   * 2025+ (All-New QX80): Represents a radical shift. Likely utilizing the newest encryption standards (Hitag AES / 4A) and full SGW implementation.3
+* Key Insight: The QX80 is a high-theft target. Its security system often includes perimeter monitoring and intrusion sensors not found on the Armada, complicating aftermarket alarm installations.4
+3.2 The Mid-Size Crossover Platform: QX60 (L50/L51)
+* Platform: D Platform (Unibody). Shared with Nissan Pathfinder (R52/R53).5
+* Production: 2013 (JX35), 2014-2020 (L50), 2022+ (L51).
+* Security Architecture:
+   * Gen 1 (2013-2020): Standard Nissan Prox system. Reliable, easy to program with standard tools (Autel, Smart Pro). Uses KR5S180144014 fobs.6
+   * Gen 2 (2022+): A major leap. This platform introduced the "Secure Gateway" to the mass-market Infiniti crossover. It requires an AutoAuth account or a physical bypass cable (12+8 pin) connected directly to the gateway module, usually located deep under the dashboard or behind the glovebox.8
+* Note: There was no 2021 model year QX60, marking a clear demarcation line between the legacy and modern security architectures.
+3.3 The Compact Crossover: QX50 (J50/J55)
+* Platform:
+   * J50 (2014-2017): FM Platform (Rear Wheel Drive bias). Renamed from Infiniti EX. Shares architecture with G37/Q60. Legacy security.10
+   * J55 (2019+): All-new platform (FWD bias). First variable compression engine. Security is modern NATS with rolling codes.10
+* Unique Feature: The J55 QX50 was one of the first to implement the newer high-frequency (434MHz) keys (FCC ID: KR5TXN1) which are distinct from the older 315MHz systems.11
+3.4 The Sports Sedan/Coupe: Q50 & Q60 (V37)
+* Platform: FM Platform (Front Midship). Heavily modified version of the Nissan Skyline platform.
+* Production: 2014–Present.
+* Security Architecture:
+   * Early (2014-2015): Often problematic "DAS" (Direct Adaptive Steering) modules that interact with the immobilizer.
+   * Mid (2016-2019): Stable 20-digit rolling code system.
+   * Late (2020+): Introduction of Secured Gateway logic, though implementation varies by build date.12
+* Performance Note: The Red Sport 400 models have specific remote start logic that validates hood latch status and transmission temperature, often causing "remote start fail" errors if aftermarket immobilizers are installed incorrectly.13
+3.5 The German Step-Child: QX30
+* Platform: MFA (Mercedes Front-Drive Architecture).15
+* Sibling: Mercedes-Benz GLA (X156).16
+* Security: This is NOT a Nissan system. It uses the Mercedes FBS (Fahrberechtigungssystem).17
+* Implication: Nissan software on key programmers will not communicate. You must select "Mercedes CLA/GLA" on your tool. The key is a Mercedes "fish" style key or a proximity fob that looks like an Infiniti fob but houses Mercedes electronics.
+
+
+
+
+4. I-Key System Evolution: The Hardware of Access
+The Infiniti Intelligent Key (I-Key) is the user's primary interface with the vehicle's security system. Over the 16-year period covered by this report, the technology inside these fobs has evolved from simple magnetic induction to advanced encrypted radio frequency communication.
+4.1 The Chip Progression
+1. Texas Instruments 4D-60 (Legacy): Found in early G35s and QX4s (pre-2010). These used a carbon wedge chip or glass ampoule. Simple fixed code or early crypto.18
+2. Philips/NXP ID46 (PCF7952/7953): The workhorse of the 2010-2018 era. This "Encrypted Manchester" coding is robust but now vulnerable to cloning via modern tools. Used in QX60, QX80 (early), and Q50 (early).19
+3. Hitag 3 / ID47: Introduced around 2013-2015. A more secure iteration of the NXP chip, offering better range and faster handshaking. Used in QX60 and later Q50 models.6
+4. Hitag AES / 4A (Current Gen): Found in 2020+ models (QX50, QX60, QX55). This utilizes 128-bit encryption. These keys cannot be cloned easily and must be programmed via OBD-II with authorization.21
+4.2 Frequency Shift: The 315MHz vs. 433MHz War
+Historically, North American Nissan/Infiniti vehicles used 315MHz. However, starting with the Q50 and the JX35/QX60, Infiniti began shifting to 433MHz (often listed as 434MHz).
+* Critical Alert: Visually identical fobs can operate on different frequencies. A 2017 QX60 key (433MHz) looks identical to a 2015 Q50 key, but they are often incompatible due to internal circuit board revisions. Always verify the FCC ID.
+* The "Hybrid" Problem: Some transition years (e.g., 2016-2017) may have mixed frequencies depending on the build date or trim level (e.g., vehicles with Remote Start vs. those without).
+4.3 FCC ID Registry (Selected High-Volume Models)
+* CWTWB1G744: The "Big Body" Key. Used for QX80 (2014-2021) and QX56. 433MHz. 5-Button layout.1
+* KR5S180144014: The "Universal" Modern Key. Used for QX60 (2014-2018), Q50 (2016-2019). 433MHz.6
+* KR5TXN1 / KR5TXN7: The "Next Gen" Keys. Used for QX50 (2019+), QX55, and newer QX60s. These are often 4A chip based.11
+* CWTWB1U787: The Sedan Key. Used for Q70, M37, M56 (2011-2019).23
+* CWTWBU618 / CWTWBU735: Legacy "Oval" fobs for G35/G37 and early FX models. 315MHz.19
+4.4 Emergency Key Blades
+Infiniti uses the standard Nissan emergency blade (Keyway: DA34/NSN14).
+* Locksmith Tip: While the keyway is standard, the head of the emergency key varies to fit the specific fob shell. A QX80 emergency key will not click securely into a Q50 fob, even if the blade cuts and turns the lock. Stocking generic "Nissan Smart" blades often leads to loose-fitting keys that fall out of the customer's fob. Part numbers H0564-ZN50A and H0564-JA00A are common variants, but precise matching is required for the key to latch correctly into the fob body.7
+
+
+
+
+5. All Keys Lost (AKL) Procedures: A Chronological Guide
+The procedure for restoring access when all keys are lost varies dramatically by the model year. This section details the workflows for the three primary eras.
+5.1 Era 1: Pre-2013/2014 (The PIN Code Era)
+* System: NATS 5 / CAN NATS.
+* Requirement: A 4-digit PIN code is often required to unlock the BCM for programming.
+* Extraction:
+   * Old Method: Read the 5-digit alpha-numeric code from the BCM label (requires removing the kick panel or glovebox to view the BCM). Convert this code using a "Nissan SuperCode" calculator to a 4-digit PIN.25
+   * New Method: Modern tools (Smart Pro, Autel IM508/608) can pull the BCM PIN via OBD-II automatically ("Pin Code by OBD").27
+* Procedure:
+   1. Connect Programmer.
+   2. Select "Read BCM Code" or "Bypass PIN".
+   3. Steering Lock Release: On models with ESCL (Electronic Steering Column Lock), the lock must be released (unlocked) for the ignition to turn on. If the ESCL is broken (common failure), programming may fail. Critical Workaround: Tap the ESCL while cycling ignition or apply voltage directly if the motor is stuck.28
+   4. Follow tool prompts to insert key/fob into the slot (if equipped) or touch to Start Button.
+5.2 Era 2: 2014-2020 (The Rolling Code Era)
+* System: 20-Digit Rolling Code NATS.
+* Requirement: The BCM generates a challenge code. The tool must calculate a response (20-digit PIN).29
+* The Challenge: The "Rolling" nature means the PIN changes every time the BCM is queried. You cannot write it down and use it later.
+* Tool Support: Most pro-level tools (Autel, Zed-Full, Smart Pro) have built-in calculators for this. They read the BCM ID, calculate the PIN in the background (sometimes requiring Wi-Fi), and execute the unlock.30
+* Risk: If the process is interrupted after the PIN is calculated but before the key is programmed, the BCM may "roll" to a new code, requiring a restart and potentially consuming a "token" on some pay-per-use tools.
+5.3 Era 3: 2021+ (The Secure Gateway & AutoAuth Era)
+* The Barrier: The Secure Gateway (SGW) Module.
+* What Changed? The OBD-II port no longer talks directly to the CAN bus for "write" commands (like programming a key). It is filtered by a firewall designed to prevent cyberattacks.8
+* Solution A: AutoAuth (Software):
+   * Register the shop with AutoAuth.com.
+   * Register the scan tool (Autel/Snap-On/Smart Pro) with AutoAuth.
+   * When the tool connects, it requests a digital certificate via Wi-Fi. The SGW validates the certificate and opens the gate.33
+   * Note: This requires a stable internet connection at the vehicle.
+* Solution B: The "Bypass" (Hardware):
+   * Physically locate the SGW module.
+   * Unplug the 12-pin and 8-pin connectors from the SGW.
+   * Plug them into a "12+8 Bypass Cable" connected to the programmer.8
+   * Locations:
+      * QX60 (2022+): Often found under the dashboard, driver side, near the steering column or kick panel.35
+      * Q50 (2021+): Can be found behind the glovebox or near the BCM.37
+* Critical Alert: On 2022+ models, simply bypassing the SGW might not be enough if the vehicle requires a server-side calculation (NASTF credentials) for the immobilizer data, although currently, most Infiniti models can still be programmed via the SGW bypass/AutoAuth method without LSID (Locksmith ID) for the key part itself, unlike recent Volkswagens.
+
+
+
+
+6. Model-Specific Deep Dives
+6.1 The Flagship: QX80 (Y62 & Z63)
+The QX80 operates on the F-Alpha platform, making it a "truck" in terms of electronic architecture.
+* Theft Target: Due to its high export value (popularity in the Middle East and Africa), the QX80 is a prime target for "Relay Attacks" (amplifying the key fob signal to open/start the car).
+* Security Features: The Y62 platform uses perimeter sensors that detect glass breakage and inclination (towing). When programming keys, triggering these sensors can lock out the BCM.
+   * Best Practice: Ensure all doors are closed and the hood latch is depressed (or hood closed) during programming to prevent the alarm from interfering with the BCM's "Learning Mode."
+* 2025 Redesign (Z63): The all-new QX80 drops the V8 for a V6 Turbo and moves to a completely new electrical architecture (likely shared with the new Armada). Expect this to utilize 128-bit AES encryption and potentially "Phone-as-a-Key" (PAAK) technology, moving beyond traditional transponders.3
+6.2 The Performance Line: Q50 & Q60 (V37)
+* Red Sport 400 Specifics: The high-performance VR30DDTT engine management system is tightly integrated with the immobilizer.
+* Remote Start Conflicts: Owners of these models frequently install aftermarket remote starters (e.g., Compustar). These systems often use a "T-Harness" that intercepts the immobilizer data at the BCM.
+   * AKL Warning: If a Q50 comes in for AKL, always check under the dash for an aftermarket module. If present, unplug it before attempting to program new keys. The aftermarket module can "jam" the programming signal, causing the Nissan software to error out or fail to write the Key ID.39
+* ESCL Delete: Later model Q50s (approx. 2018+) eliminated the physical Electronic Steering Column Lock to reduce failure points. This simplifies programming as there is no ESCL to "unlock" before the ignition can cycle.28
+6.3 The Outlier: QX30
+* The "Mercedes Trap": As noted, the QX30 is a GLA.
+* Key Programming: You cannot program a QX30 key via the OBD port using Nissan software. You generally need to remove the EIS (Ignition Switch) and read the key data from the Motorola/NEC processor on the bench, or use an IR (Infrared) key programmer designed for Mercedes FBS3/4 systems.
+* Alert: A standard locksmith with only "Nissan/Infiniti" software packages on their tool will be unable to service this vehicle. It requires a "Euro" package or a specialized Mercedes tool (like Autel XP400 with IM608). The key itself is a Mercedes "FBS" proximity key, and no amount of trying to program a Nissan Intelligent Key will work.15
+7. Infiniti vs. Nissan Key Interchangeability
+A common question is: "Can I use a cheaper Nissan key on an Infiniti?"
+* The Rule: Generally, NO. While the FCC IDs may match, the "Data Stream" often differs.
+   * Byte Differences: The remote's firmware often contains a "Brand Byte." An Infiniti BCM expects an Infiniti Brand Byte. If it receives a Nissan Brand Byte, it may program the transponder (allowing the car to start) but reject the remote functions (lock/unlock/trunk).42
+* The Exception: Some platform-mates are more forgiving.
+   * Pathfinder to QX60: Reports indicate that Pathfinder keys (FCC KR5S180144014) can sometimes be programmed to a QX60 of the same generation, provided the button configuration matches exactly (e.g., 4-button vs 5-button). However, the Nissan logo on an Infiniti fob is a customer satisfaction issue and should be avoided for professional service.7
+   * Shell Swaps: The internal PCBs are often identical dimensions. A locksmith can take a "Nissan" PCB (if the frequency/chip matches) and transplant it into an "Infiniti" shell to create a working key with the correct logo, assuming the Brand Byte issue doesn't block remote functions for that specific Year/Make/Model.43
+8. Critical Alerts & Troubleshooting
+8.1 "I-Key System Error"
+This ubiquitous dashboard warning is the bane of Infiniti owners.
+* Cause 1: Low Battery: The most common cause.
+* Cause 2: RF Interference: Cheap USB chargers or radar detectors plugged into the 12V outlet can emit RF noise that blocks the 315/433MHz signal from the key.45
+* Cause 3: Antenna Failure: The Q50/Q60 has antennas located in the center console and door handles. If liquid is spilled on the center console (common), it can short the internal antenna, blinding the car to the key's presence inside the cabin.46
+* Cause 4: Battery Voltage Sensitivity: Infiniti BCMs are highly sensitive to voltage fluctuations. A car battery reading 11.8V might be enough to crank the engine but too low for the BCM to reliably handshake with the key fob, triggering the error.47
+8.2 Key Slot Reader Failures
+Pre-2015 models (and some later ones like the QX60) feature a physical slot to insert the key.
+* The Failure: The limit switch inside the slot wears out. The car doesn't detect the key insertion.
+* The Symptom: Push-to-Start button remains "Locked" (OFF), and the cluster says "Insert Key" even when the key is inserted.
+* The Fix: Replace the slot assembly. In an emergency, some systems allow a "forced" start by holding the fob directly against the Start Button (using the RFID/NFC backup chip) rather than the slot.48 The ribbon cables connecting these slots can also crack or come loose, requiring delicate soldering or replacement.50
+8.3 BCM "Bricking" Risk
+* Scenario: During key programming on 2014+ models, if the vehicle battery voltage drops below 11.5V, the BCM may enter a "Secure Lockout" or "Saved Mode" and fail to exit.
+* Result: The car is dead. No keys work.
+* Prevention: ALWAYS connect a clean power supply (battery maintainer) providing a stable 13.0V-13.5V during programming. Never rely on the vehicle's aging battery during a BCM flash or key programming sequence. Recovering a bricked BCM often requires dealer-level tools (Consult-III Plus) or EEPROM work on the bench.28
+9. Comprehensive Data Registry
+
+
+
+
+9.1 Table: Infiniti Model Security Profiles (2010-2026)
+Model
+	Years
+	Platform
+	FCC ID
+	Freq
+	Chip
+	AKL Protocol
+	Critical Notes
+	QX80
+	2014-2021
+	Y62
+	CWTWB1G744
+	433MHz
+	ID46
+	20-Digit Rolling
+	Patrol Platform. High Theft.
+	QX80
+	2025+
+	Z63
+	KR5TXPZ3
+	433MHz
+	4A
+	SGW / AutoAuth
+	New Architecture.
+	QX60
+	2013-2020
+	L50
+	KR5S180144014
+	433MHz
+	ID46/47
+	20-Digit Rolling
+	Shared w/ Pathfinder. No 2021 model.
+	QX60
+	2022+
+	L51
+	KR5TXN4
+	434MHz
+	4A
+	SGW / AutoAuth
+	Requires 12+8 Bypass or AutoAuth.
+	Q50
+	2014-2015
+	V37
+	KR55WK49622
+	315MHz
+	ID46
+	20-Digit Rolling
+	Early DAS issues.
+	Q50
+	2016-2020
+	V37
+	KR5S180144014
+	433MHz
+	ID47
+	20-Digit Rolling
+	Switch to High Freq.
+	Q50
+	2021+
+	V37
+	KR5TXN7
+	434MHz
+	4A
+	SGW / AutoAuth
+	Check for SGW.
+	QX50
+	2019+
+	J55
+	KR5TXN1
+	434MHz
+	4A
+	20-Digit / SGW
+	Unique platform. FWD bias.
+	QX30
+	2017-2019
+	H15
+	N/A (Mercedes)
+	433MHz
+	FBS3/4
+	Mercedes Tool
+	DO NOT USE NISSAN TOOLS.
+	Q70
+	2014-2019
+	Y51
+	CWTWB1U787
+	433MHz
+	ID46
+	20-Digit Rolling
+	Discontinued. Fuga Platform.
+	G37
+	2008-2013
+	V36
+	KR55WK49622
+	315MHz
+	ID46
+	BCM/4-Digit
+	Legacy system. Slot reader failures common.
+	10. Conclusion and Future Outlook
+The landscape of Infiniti security is one of rapid evolution. The days of the simple "Nissan PIN" are over. The modern Infiniti requires a locksmith who is part technician, part IT specialist. The introduction of the Secure Gateway (SGW) in 2021/2022 models creates a "pay-to-play" environment where only those with authorized credentials (AutoAuth) or specialized hardware knowledge (Bypass Cables) can compete.
+Looking forward to 2026, we anticipate the full democratization of "Phone-as-a-Key" (PAAK) via the MyINFINITI app, likely utilizing Ultra-Wideband (UWB) technology. This will further complicate the locksmith's role, potentially shifting the service model from "cutting keys" to "provisioning digital credentials." Until then, the mastery of the 20-digit rolling code, the SGW bypass, and the specific FCC ID matrix remains the gold standard for servicing this premium brand.
+Works cited
+1. 2014 Infiniti QX80 Remote Keyless Entry key fob 285E3-1LA5A CWTWB1G744 – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2014-infiniti-qx80-smart-remote-key-fob
+2. 2025 INFINITI QX60 Owner's Manual, accessed January 5, 2026, https://www.infinitiusa.com/content/dam/Infiniti/US/manuals_guides/qx60/2025/2025-infiniti-qx60-owner-manual.pdf
+3. New Oem 2025 Infiniti QX80 Smart Remote Key 5 Buttons 433MHz 285E3-7JA8B | eBay, accessed January 5, 2026, https://www.ebay.com/itm/286609410089
+4. INFINITI QX80 Vs. Nissan Armada Comparison: Power & Luxury - West Houston INFINITI, accessed January 5, 2026, https://www.westhoustoninfiniti.com/nissan-armada-vs-infiniti-qx80-comparison.html
+5. Who Makes Infiniti? - J.D. Power, accessed January 5, 2026, https://www.jdpower.com/cars/shopping-guides/who-makes-infiniti
+6. Infiniti QX60 2013 Original Smart Remote Key 433MHz 285E3-9NB3A - MK3, accessed January 5, 2026, https://www.mk3.com/infiniti-jx-2013-original-smart-remote-key-3-buttons-433mhz-285e3-9nb3a
+7. 2017 Infiniti QX60 Keyless Smart Remote Key Fob w/ Engine Start, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2017-infiniti-qx60-keyless-smart-remote-key-fob-w-engine-start
+8. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 5, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+9. 2022 Infiniti QX60 Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 5, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2022-infiniti-qx60-keyless-entry-remote-fob-smart-key-programming-instructions
+10. Infiniti QX50 - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Infiniti_QX50
+11. 2025 Infiniti QX50 Smart Remote Key Fob w/ Engine Start - CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2025-infiniti-qx50-smart-remote-285e3-5ny7a
+12. Genuine Infiniti Q50, Q60 2020+ Smart Key, 5Buttons 285E3-6HE6A 433MHz, KR5TXN7 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/infiniti-q60-smart-key-5buttons-433mhz-kr5txn7-2020up-285e3-6he6a-2263
+13. Infiniti; Remote Engine Start Not Working - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2016/SB-10091384-2280.pdf
+14. Infiniti; Remote Engine Start Not Working - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10235461-0001.pdf
+15. Infiniti QX30 - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Infiniti_QX30
+16. accessed January 5, 2026, https://www.lakenormaninfiniti.com/infiniti-qx30-vs-mb-gla/#:~:text=The%20QX30%20is%20actually%20the,with%20the%20Mercedes%20GLA%20Class.
+17. 2017 INFINITI QX30 and Mercedes-Benz GLA Class: Similarities and Differences, accessed January 5, 2026, https://www.lakenormaninfiniti.com/infiniti-qx30-vs-mb-gla/
+18. NEW! OEM Infiniti G20 I30 I35 QX4 Transponder Chip 4d60 Car Key Replacement N102, accessed January 5, 2026, https://www.ebay.com/itm/256679064359
+19. 2007 - 2010 Infiniti Smart Key 4B W/ Trunk Fob FCC# CWTWBU735 / CWTWBU - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2007-2010-infiniti-smart-key-4b-fcc-cwtwbu735-cwtwbu618
+20. Transponder Identification - LSC | Complete Security Solutions, accessed January 5, 2026, https://lsc.com.au/transponder-identification
+21. Infiniti New OEM 2022-2025 QX60 Smart Key 4B Hatch FCCID: KR5TXN1 PN, accessed January 5, 2026, https://royalkeysupply.com/products/infiniti-new-oem-2022-2023-qx60-smart-key-4b-hatch-fccid-kr5txn1-pn-285e3-6sa3a
+22. 2025 Infiniti QX50 QX55 Smart Key 5B W/ Hatch & Remote Start Fo - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2020-2022-infiniti-qx50-qx55-smart-key-5-buttons-w-hatch-starter-key-fob-fcc-kr5txn1
+23. 2011- 2019 Infiniti Smart Key 4B W/ Trunk Fob FCC# CWTWB1U787 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2011-2019-infiniti-smart-key-4b-fcc-cwtwb1u787
+24. Nissan & INFINITI 4 Button Smart Key Fob Remote for Select Vehicles, accessed January 5, 2026, https://tomskey.com/products/nissan-infiniti-4-button-smart-key-fob-remote-select-vehicles-nisk-e4tz0sk
+25. Nissan Infinity PIN Code Calculator - Google Groups, accessed January 5, 2026, https://groups.google.com/g/microsoft.public.windowsxp.help_and_support/c/wEGcpjXQdhc
+26. {Nissan Infinity PIN Code Calculator} - Google Sites, accessed January 5, 2026, https://sites.google.com/view/8odgloblisto
+27. Infiniti NATS key programming - Autel Support Communities, accessed January 5, 2026, https://bbs.autel.com/autelsupport/Diagnostics/31148.jhtml
+28. Infiniti G35 how to program a used replacement BCM using Launch X431 IMMO Plus, accessed January 5, 2026, https://www.youtube.com/shorts/ow4Epk36fec
+29. NISSAN - INFINITI, accessed January 5, 2026, http://www.teamxtremetech.ca/ReprogrammingFiles/Nissan/Updated_NISSAN_FOR_QUICK_DOWNLOAD-3-1-13.pdf
+30. Infiniti/Nissan 20-Digit rolling code system; an easy yet powerful method of storing the Proximity K - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=mWRU8Ybv6X0
+31. The Infiniti Nissan 20 Digit Rolling Code explained in detail - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=uzCC0phjhAw
+32. Security Gateways | Autel, accessed January 5, 2026, https://autel.us/security-gateways/
+33. AutoAuth: Homepage, accessed January 5, 2026, https://info.autoauth.com/
+34. AutoAuth, accessed January 5, 2026, https://autoauth.com/
+35. 2024 Security Gateway Bypass - How to remove original cables from security module? SGW : r/Wrangler - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Wrangler/comments/1gmrcn0/2024_security_gateway_bypass_how_to_remove/
+36. The Ultimate Setup Guide for Your 2023 INFINITI QX60 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=wbmMQ7itBaA
+37. 2017-2020 Infiniti Q50 Can Gateway Controller Assembly ECM 284T16HH0C | eBay, accessed January 5, 2026, https://www.ebay.com/itm/226552151628
+38. Infiniti QX50 and QX55 2025: One Last Year and That's It - Dormani Infiniti, accessed January 5, 2026, https://www.dormaniinfiniti.com/news-article/Infiniti-2025-id4234.html
+39. 2015 Q50 3.7 issues - Reddit, accessed January 5, 2026, https://www.reddit.com/r/q50/comments/1hfd2lx/2015_q50_37_issues/
+40. Remote start? : r/q50 - Reddit, accessed January 5, 2026, https://www.reddit.com/r/q50/comments/1c07ws1/remote_start/
+41. This INFINITI Is Secretly a Mercedes-Benz (GLA vs. QX30) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ROO-YlJqAFw
+42. Old key FOB question : r/Nissan - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Nissan/comments/17suqg3/old_key_fob_question/
+43. Key Fob Case - Infiniti Addicts™, accessed January 5, 2026, https://infinitiaddicts.com/products/key-fob-case
+44. Case & Key Only* 3 Button CWTWB1U751 Chevrolet | Infiniti | Nissan, accessed January 5, 2026, https://www.keylessentryremotefob.com/case-key-only-br-3-button-cwtwb1u751-br-chevrolet-infiniti-nissan-rhk/
+45. Why Does my INFINITI Say "No Key Detected"? [2025], accessed January 5, 2026, https://www.infinitiofsouthbay.com/blog/why-does-my-infiniti-say-no-key-detected/
+46. Key System Error : r/Nissan - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Nissan/comments/1dzboi4/key_system_error/
+47. Nissan "I-Key System Error" (Causes & How to Fix) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=STZAv3m_WL4
+48. Infiniti/Nissan: How to Test a Faulty Slot Using a Working Key - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=4v-2C5aVMJI
+49. 2014 Infiniti QX70 testing the slot when you have a working key - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=YD87x2W_1Rc
+50. The Impossible Repair: Ribbon Cables - Hackaday, accessed January 5, 2026, https://hackaday.com/2024/05/11/the-impossible-repair-ribbon-cables/
+51. Is it possible to repair this ribbon cable? : r/ElectronicsRepair - Reddit, accessed January 5, 2026, https://www.reddit.com/r/ElectronicsRepair/comments/1pdi3c6/is_it_possible_to_repair_this_ribbon_cable/
+52. How To Fix Infiniti Key Fob Not Working – Battery, Resync & Receiver/Immobilizer, accessed January 5, 2026, https://www.youtube.com/watch?v=sQAu3R4z-5E

@@ -1,0 +1,170 @@
+﻿Comprehensive Technical Analysis: Kia Telluride Access Control Systems and Immobilizer Architectures (2020–2025)
+1. Introduction: The Paradigm Shift in Automotive Security
+The automotive locksmithing industry is currently navigating a period of profound technological transition, a shift exemplified most acutely by the evolution of the Kia Telluride. Since its debut in the 2020 model year, the Telluride has served not only as a flagship SUV for the Korean manufacturer but also as a rolling testbed for successive generations of access control architecture. For the professional locksmith, the Telluride represents a unique challenge: a single model nameplate that, over a span of just five years, has employed three distinct security protocols, two different mechanical keyways, and radically different diagnostic communication standards.
+The initial models (2020–2021) operated on a relatively open architecture, accessible via standard OBD-II protocols and utilizing widely understood transponder logic. However, the subsequent years have seen a rapid hardening of these systems. The 2022 model year introduced transitional encryption changes, while the 2023 facelift (the "ON PE" platform) and the 2024–2025 models integrated the Controller Area Network Flexible Data-Rate (CAN FD) protocol, fundamentally locking out older diagnostic tools and necessitating a new tier of hardware and software capability.
+This report provides an exhaustive technical examination of the Kia Telluride’s security ecosystem. It is designed to serve as a definitive reference for automotive security professionals, covering every aspect of key programming from part number identification and mechanical decoding to the nuances of encrypted data exchange and the impact of recent anti-theft software updates. By synthesizing data from technical service bulletins, locksmith field reports, and hardware documentation, this analysis aims to equip the reader with the granular knowledge required to service these vehicles safely, efficiently, and profitably.
+1.1 The Market Context and "Kia Boyz" Impact
+One cannot discuss modern Kia security without addressing the external pressures that have shaped it. The unprecedented surge in theft targeting physical-key Kia models (popularized by the "Kia Boyz" social media trend) forced the manufacturer to accelerate the deployment of enhanced immobilizer logic across their entire fleet, including the push-to-start Telluride. While the Telluride was generally immune to the specific exploit used on lower-end models (the lack of an immobilizer on turn-key ignitions), the resulting corporate response involved a wholesale tightening of diagnostic access. This "defense in depth" strategy has resulted in the implementation of Gateway Modules (IGPM) that aggressively filter diagnostic traffic, making legitimate key programming more difficult for third-party technicians. The implications of this security hardening are woven throughout the vehicle's electronic architecture, affecting everything from how PIN codes are retrieved to how the Body Control Module (BCM) sleeps when the vehicle is locked.
+2. Electrical Architecture and Immobilizer Topology
+To successfully program keys for the Telluride, one must first understand the terrain of the vehicle's digital networks. The vehicle does not rely on a single "immobilizer box" but rather a distributed network of modules that must achieve a cryptographic consensus before the engine is allowed to start.
+2.1 Generation 1: The "ON" Platform (2020–2021)
+The first generation of the Telluride, built on the "ON" platform, utilizes a traditional high-speed CAN bus (C-CAN) for immobilizer communications.
+* Core Components: The architecture centers around the Smart Key Module (SMK) and the Integrated Body Control Unit (IBU). In this generation, the SMK acts as the primary arbiter of key validity. When a start request is received, the SMK polls the low-frequency (LF) antennas to locate the fob, validates the transponder's Hitag3 ID, and then sends an encrypted "OK" signal to the Engine Control Module (ECM).
+* Diagnostic Access: The On-Board Diagnostics (OBD) gateway on these models is permissive. Diagnostic tools can query the SMK directly to retrieve the 6-digit PIN code (Immobilizer Password) needed for learning new keys.1 This "Read PIN" capability makes the 2020–2021 models the most straightforward for locksmiths to service.
+2.2 Generation 2: The Transitional Architecture (2022–2023)
+The 2022 model year marked the beginning of a transition. While physically similar to the previous year, the firmware within the IBU and SMK was updated to close the "Read PIN" vulnerability.
+* The PIN Code Blackout: Starting with late 2021 production for the 2022 model year, Kia removed the function that allowed the PIN code to be read via the OBD port in cleartext. The data is still present, but it is stored in a hashed format or is not accessible via the standard diagnostic service IDs used by aftermarket tools.2
+* Gateway Implementation: The 2023 facelift (ON PE) introduced a more robust Central Gateway (CGW) logic. This module inspects traffic entering the OBD-II port. If it detects unauthorized or malformed packets (common with "brute force" PIN reading attempts), it can temporarily suspend communication on the diagnostic bus, leading to "Communication Failed" errors even when using legitimate tools.
+2.3 Generation 3: The CAN FD Era (2024–2025)
+The most significant architectural shift occurred with the full adoption of the CAN FD protocol for the 2024 and 2025 model years.
+* Protocol Physics: CAN FD (Flexible Data-Rate) allows for data payloads up to 64 bytes (compared to 8 bytes for standard CAN) and variable data transmission speeds. This bandwidth is required for the complex encrypted handshakes now used during the key learning process.3
+* Hardware Exclusion: Standard J2534 passthrough devices and older VCI (Vehicle Communication Interface) dongles are physically incapable of switching to the higher baud rates required by CAN FD. When a locksmith connects a legacy tool to a 2024 Telluride, the tool may power up, but it will be unable to interpret the data stream, effectively speaking a different language than the car.
+* Adoption Timeline: While some late 2023 models may exhibit hybrid behavior, the 2024 model year is the definitive cutoff where a CAN FD adapter or a CAN FD-native VCI becomes mandatory for communication with the immobilizer system.5
+
+
+  
+
+
+
+3. Transponder Technology and Remote Identification
+The complexity of the Telluride's electrical architecture is mirrored in its key fob hardware. Kia utilizes a system of part number supersessions and localized variances that can be treacherous for the unprepared technician. Physically identical fobs often house incompatible firmware, leading to the dreaded "Success" message on the programmer followed by a non-functional remote.
+3.1 The Physics of the Smart Key
+The Telluride smart key acts as a dual-band transceiver. It receives Low-Frequency (LF) signals (typically 125 kHz) from the vehicle's antennas located in the door handles, trunk, and interior. Upon receiving a valid LF "wake up" ping, the key transmits a High-Frequency (HF) response (433 MHz) containing its encrypted ID and rolling code data to the vehicle's Receiver, which is then processed by the IBU/SMK.7
+* The "Dead Battery" Circuit: A critical component for locksmiths to understand is the passive transponder circuit. Even if the fob's battery (CR2032 or CR2450) is removed, a secondary coil in the top of the fob can be energized by the inductive field of the Start/Stop button. This passive ID47 chip signal is what allows the "Emergency Start" procedure.
+3.2 Part Number Genealogy and Compatibility
+The "Old Logo" Era (2020–2021)
+The initial production run utilized a specific series of remotes identified by the traditional oval Kia logo.
+* Part Number: 95440-S9000.8
+* FCC ID: TQ8-FOB-4F24.
+* IC: 5074A-FOB4F24.
+* Chipset: NCF29A1X (Philips ID47 / Hitag3).
+* Configuration: 4-Button (Lock, Unlock, Hatch, Panic).
+* Critical Constraint: These fobs generally cannot be used on 2022+ vehicles, and conversely, newer fobs cannot be back-programmed to 2020 models reliably. The rolling code algorithm seed is different.
+The "New Logo" Era (2022–2025)
+Coinciding with Kia's rebranding and the platform facelift, the keys were updated to the TQ8-FOB-4F71 FCC ID family. This family splits into multiple sub-variants based on vehicle trim.
+* The "High Trim" Remote: 95440-S9510.10
+   * Buttons: 5-Button (Lock, Unlock, Hatch, Remote Start, Panic).
+   * Usage: SX, Prestige, and other trims with the Power Liftgate option.
+   * Feature: Includes the dedicated Remote Start button (a semi-circle arrow icon) which was absent on the 2020 fob face (though the capability existed in the vehicle via telematics).
+* The "Low Trim" Remote: 95440-S9530.12
+   * Buttons: 4-Button (Lock, Unlock, Remote Start, Panic).
+   * Usage: LX, S, and trims without the Power Liftgate.
+   * Interchangeability Warning: Programming an S9510 (Hatch button) to a vehicle designed for S9530 will often work for starting and locking, but the Hatch button will be dead. More dangerously, attempting to program an S9530 to a High Trim vehicle will result in the customer losing remote access to their power liftgate.
+* The "2024/2025" Revision: 95440-S9610 / S9640.14
+   * Usage: Late production 2024 and 2025 models.
+   * Evolution: These part numbers represent internal board revisions, possibly to accommodate UWB (Ultra-Wideband) handshakes for future "Digital Key 2.0" phone compatibility or improved battery efficiency. While they share the 4F71 FCC ID, cross-compatibility with the S9510 should not be assumed without testing.
+3.3 Visual Identification Guide
+Locksmiths must train themselves to distinguish these parts visually to avoid unboxing the wrong stock.
+* Logo Check: The first step is the logo. Old Logo = 2020/2021. New Stylized Logo = 2022+.
+* Button Count: Count the buttons carefully. The presence of the "Hold" (Remote Start) button differentiates the newer generation logic.
+* Emergency Key Release: The release button mechanism also shifted slightly in feel and location with the housing update.
+
+
+  
+
+
+
+4. Mechanical Security: Lock Cylinders and Lishi Protocols
+While the Smart Key system is digital, the mechanical interface remains a critical failsafe. The transition of the Telluride's mechanical keyway has created a significant point of confusion in the trade, specifically regarding the correct Lishi tool selection for decoding.
+4.1 The Legacy Standard: KK12 (HY22)
+From 2020 through the 2022 model year, the Telluride utilized the well-established KK12 keyway (also cross-referenced as HY22 or K5).16
+* Profile: This is a 4-track internal laser-cut key with a central web.
+* Cylinder Architecture: The door lock cylinder contains split wafers (tumblers).
+* Tool Selection: The Lishi 2-in-1 K5 or HY22 is the correct tool.
+* Decoding Nuance: Because of the split wafers, the locksmith must often pick and decode both the "A" and "B" sides of specific positions. A common error is decoding only one half of a split wafer, leading to a miscut key that will turn the ignition (if applicable) but not the door, or vice versa.
+4.2 The New Standard: K9 (2023–2025)
+Starting with the 2023 "PE" models and standardizing in 2024, Kia transitioned to the K9 keyway architecture.18
+* Why the Change? The K9 system was introduced alongside the Genesis and Ioniq lines. It features tighter manufacturing tolerances and a slightly different warding profile to improve pick resistance and key retention.
+* Tool Incompatibility: Crucially, the standard KK12/HY22 Lishi tool is not compatible with the K9 lock. The keyway is narrower in specific warding areas. Forcing a KK12 tool into a 2024 Telluride door lock carries a high risk of the tool jamming or the reading finger snapping off inside the cylinder.
+* The K9 V.4 Tool: Locksmiths must acquire the Original Lishi K9 (V.4) tool. This specific version features "cutouts" in the lifter arm designed to bypass the new warding ridges found in the 2024+ locks.18
+* Emergency Access: On 2024+ models with flush door handles, accessing the keyhole requires a specific technique: pressing the front of the handle to leverage the rear cap outward, then using the key blade to pop the cap release tab.20
+4.3 Key Cutting Specifications
+When cutting replacement emergency blades, the depth and spacing data differs between the two systems.
+* Machine Setup: On key cutting machines like the Xhorse Condor or Dolphin, the user must select the correct menu.
+   * For 2020-2022: Select Kia > Telluride > HY22/KK12.
+   * For 2023+: Select Kia > Telluride > K9. Attempting to cut a K9 blank using the HY22 profile may result in a key that inserts but does not turn due to incorrect spacing of the cuts relative to the shoulder.
+5. Programming Methodologies and Tool-Specific Workflows
+The procedure for programming a key to the Telluride varies drastically depending on the model year. The "Universal" approach of earlier years is no longer viable.
+5.1 Pre-Programming Protocol: Voltage and Alarm Management
+Before connecting any diagnostic equipment, the locksmith must stabilize the vehicle environment.
+* Voltage: The IBU is highly sensitive to voltage fluctuation. A battery maintainer set to 12.5V–13.5V is mandatory. Voltage drops during the "Write" phase can corrupt the BCM's EEPROM, effectively "bricking" the module.21
+* Alarm Status: If the vehicle is locked and the alarm is sounding, diagnostic communication is often inhibited by the Gateway. The alarm must be silenced. If no working key is available, the technician may need to wait for the alarm timeout (typically 2 minutes) or perform a battery hard reset to reset the alarm state before attempting communication.
+5.2 The 2020–2021 "OBD Direct" Workflow
+For these models, the process is efficient and supported by most tools (Autel IM508/608, Smart Pro, Key Tool Plus).
+1. Connection: Connect via standard OBD-II.
+2. Menu Path: Kia > Telluride > 2020-2021 > Smart Key.
+3. PIN Retrieval: Execute the Read Immobilizer Password function. The tool will query the SMK and return the 6-digit PIN (e.g., 450129).1
+4. Programming: Select Add Smart Key or All Keys Lost. Follow the on-screen prompt to turn the ignition off and open/close the driver's door (this wakes the CAN bus).
+5. Execution: When prompted, enter the PIN. Then, hold the top of the fob against the Start/Stop button. The hazard lights will flash to confirm programming.
+5.3 The 2022–2023 "Broker Code" Workflow
+The removal of the "Read PIN" function necessitates an external data source.
+1. PIN Acquisition: The locksmith must obtain the 6-digit PIN before starting. This can be done via:
+   * NASTF VSP: Authorized locksmiths can purchase the code from the Kia Tech Info website.
+   * Third-Party Brokers: Various services provide PINs derived from the VIN, though this exists in a legal gray area and varies by region.
+2. Tool Operation: The programming steps are identical to the 2020 model, with one critical difference: Skip the "Read PIN" step. Go directly to Smart Key Programming and manually input the code when prompted.2
+3. Bypass Adapters: Some tools (like the Autel G-Box or dedicated Hyundai/Kia adapters) may claim to read passwords on these years, but success is mixed and often depends on the specific software version of the IBU.
+5.4 The 2024–2025 "CAN FD" Workflow
+This is the current frontier of Telluride programming.
+1. Hardware Requirement: A CAN FD adapter is non-negotiable.
+   * Autel: Use the CAN FD Adapter with the VCI Mini/J2534, or use the newer VCI V200.5
+   * Lonsdor: K518 Pro (native support) or K518ISE with adapter.24
+2. Connection: Plug the CAN FD adapter into the OBD port, then the programmer into the adapter.
+3. Execution: The tool will negotiate the higher baud rate. The process typically requires an internet connection on the tool side, as the "calculation" of the security access involves a server-side handshake even if the PIN is manually entered.
+4. Symptom of Failure: If the adapter is missing, the tool will hang at "Connecting to system..." or fail to auto-detect the VIN.
+6. Troubleshooting and Edge Cases
+Even with the correct tools and parts, the Telluride presents several specific failure modes that the professional must be prepared to diagnose.
+6.1 Recall ELE302: The "Sleeping IBU"
+A significant issue affects 2023 Tellurides produced between January and June 2023.
+* The Symptom: The vehicle fails to detect a valid smart key, even if the key is programmed and the battery is new. The lock/unlock buttons on the fob do nothing.
+* The Cause: A software bug in the IBU causes the module to enter a deep sleep state from which it cannot wake up to poll for the key signal.21
+* The Fix: This is not a key programming issue. It is a module logic failure.
+   * Field Remedy: Disconnect the vehicle's negative battery terminal for 10-15 minutes. This "hard reboots" the IBU. Upon reconnection, the key should work immediately.
+   * Permanent Fix: The customer must visit a dealer for the software update (ECU Upgrade Event 686). Locksmiths should advise customers of this recall to prevent recurrence.
+6.2 The "Brick" Risk: IBU Corruption
+Attempting to program a 2024+ model with a tool that does not fully support the CAN FD protocol, or attempting to brute-force the PIN on a 2023 model with a Gateway, can occasionally corrupt the IBU configuration data.
+* Consequence: The vehicle may lose all keys, and the IBU may refuse to accept any PIN code, returning "System Error" or "Access Denied."
+* Recovery: Recovery often requires a "Parameter Reset" or "Neutral Mode" usually reserved for dealer tools (KDS). In severe cases, IBU replacement is necessary.25
+6.3 Signal Interference and the "Limp Home" Slot
+Owners frequently report "Key Not Detected" errors.
+* Interference: The Telluride's interior antennas are sensitive to interference from dash cams, radar detectors, or even mobile phones placed in the same cupholder as the key.7
+* The Backup Slot: Contrary to some assumptions, there is no physical slot in the console. The backup method is strictly inductive: pressing the Start button with the fob. It is crucial to teach the customer the correct orientation—holding the fob perpendicular to the button to align the coils.27
+7. Regulatory Context and Business Operations
+7.1 NASTF and the "Right to Repair"
+The removal of OBD-accessible PIN codes has reignited the debate around the "Right to Repair." For professional locksmiths, obtaining a Vehicle Security Professional (VSP) credential via the National Automotive Service Task Force (NASTF) is becoming a business necessity. Access to the Kia Tech Info portal for legitimate PIN retrieval ensures that the locksmith is not reliant on gray-market brokers who may disappear or provide incorrect codes that lock out the system.
+7.2 The "Kia Boyz" Shadow
+While the Telluride uses a push-to-start system and is not vulnerable to the USB-cable theft method, the software updates released in response to the theft epidemic have tightened the overall security environment. The Gateway Module's aggressive filtering of diagnostic requests is a direct result of Kia's efforts to prevent unauthorized key generation tools from functioning. Locksmiths must communicate to customers that "simple" key programming is no longer simple due to these anti-theft measures.
+7.3 Pricing and Stocking Strategy
+Given the complexity, pricing for Telluride key services should reflect the hardware and risk involved.
+* Stocking: Maintain inventory of 95440-S9000 (2020-2021) and 95440-S9510 (2022+ 5-Button). The 5-button S9510 is the safest bet for newer models as it covers the high-trim features; using a 4-button remote on a Power Tailgate vehicle will result in a callback.
+* Pricing: Programming a 2024 Telluride involves the cost of the key, the cost of the PIN code, the amortization of the CAN FD adapter, and the risk of the newer architecture. Service prices should be premium-tiered compared to older Hyundai/Kia models.
+8. Conclusion
+The Kia Telluride stands as a case study in the rapid evolution of automotive access control. In the span of a single model generation, it has traversed the technological gap from simple, open-standard proximity systems to highly encrypted, high-bandwidth architectures requiring specialized hardware. For the automotive locksmith, the Telluride is unforgiving of ignorance. The visual similarity of the key fobs belies their internal incompatibility; the outward appearance of the door lock conceals the shift from KK12 to K9 keyways; and the OBD port itself has transformed from an open door to a guarded gateway.
+Success in servicing the 2020–2025 Telluride requires a methodical approach: precise VIN decoding to identify the platform generation, investment in modern CAN FD-capable hardware, and a robust understanding of the IBU's logic and failure modes. By adhering to the protocols outlined in this analysis, professionals can navigate these complexities, turning a formidable technical challenge into a profitable service opportunity.
+Works cited
+1. Autel IM508S Program 2022 Kia Telluride All Keys Lost by OBD ..., accessed January 27, 2026, http://blog.autelshop.de/autel-im508s-program-2022-kia-telluride-all-keys-lost-by-obd/
+2. Solution for Autel IM608 Unable to Read PIN Code on 2025 Nissan Sentra HFM, accessed January 27, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/solution-for-autel-im608-unable-to-read-pin-code-on-2025-nissan-sentra-hfm
+3. 2024 Kia Telluride Keyless Entry Remote Fob Smart Key ..., accessed January 27, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2024-kia-telluride-keyless-entry-remote-fob-smart-key-programming-instructions
+4. 2024 Kia Telluride Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 27, 2026, https://keyless2go.com/blogs/program-instructions/2024-kia-telluride-keyless-entry-remote-fob-smart-key-programming-instructions
+5. Autel CAN FD Adapter - Autelmaxisys.com, accessed January 27, 2026, https://www.autelmaxisys.com/products/autel-can-fd-adapter
+6. 2024 Kia Telluride Key Programming With Autel IM608 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=5WBEhg3XpX8
+7. Key Not Detected? Here's What It Means and How to Fix It - Keyless Entry Remote, accessed January 27, 2026, https://www.keylessentryremotefob.com/blog/key-not-detected-heres-what-it-means-and-how-to-fix-it/
+8. Kia Telluride 95440-S9000 TQ8-FOB-4F24 Smart Remote Key 4 Button, accessed January 27, 2026, https://www.key4.com/smart-remote-key-kia-telluride-95440s9000-tq8fob4f24
+9. 2020 Kia Telluride Smart Key Fob Remote (TQ8-FOB-4F24, 95440-S9000) - NorthCoast Keyless, accessed January 27, 2026, https://northcoastkeyless.com/product/kia-telluride-4-button-smart-key-fob-remote-fcc-tq8-fob-4f24-p-n-95440-s9000/
+10. Kia New OEM 2022-2025 Telluride Smart Key 5B Hatch - Royal Key Supply, accessed January 27, 2026, https://royalkeysupply.com/products/kia-2022-2023-telluride-smart-prox-key-5b-fccid-tq8-fob-4f71-pn-95440-s9510
+11. Original Kia Telluride Smart Remote Key 95440-S9510 5 Button, accessed January 27, 2026, https://www.tlkeys.com/products/original-kia-telluride-smart-remote-key-95440-s9510-5-button
+12. 2025 Kia Telluride Smart Key Remote PN: 95440-S9530, accessed January 27, 2026, https://remotesandkeys.com/products/2025-kia-telluride-smart-key-remote-pn-95440-s9530
+13. Kia Telluride Smart Prox Key 4B - 95440-S9530 - Transponder Island, accessed January 27, 2026, https://transponderisland.com/shop/tik-kia-188-2022-2025-kia-telluride-smart-prox-key-4b-tq8-fob-4f71-95440-s9530-36802
+14. KIA Telluride Key Fobs - Remotes And Keys, accessed January 27, 2026, https://remotesandkeys.com/collections/kia-telluride-key-fobs
+15. Kia New OEM 2022-2025 Telluride Smart Key 5B Remote Start/Hatch FCCID: TQ8-FOB-4F71 PN# 95440-S9610, accessed January 27, 2026, https://royalkeysupply.com/products/kia-new-oem-2022-2024-telluride-smart-key-5b-remote-start-hatch-fccid-tq8-fob-4f71-pn-95440-s9610
+16. Original Lishi 2-in-1 K5-AG Kia / Hyundai K5 / KK12 Pick and Decoder - Anti Glare, accessed January 27, 2026, https://www.southernlock.com/itemdetail/132-4320
+17. Original Lishi K 5 New Kia Keyway KK12 - 2-in-1 Pick - Door/Trunk/Ignition - Anti-Glare, accessed January 27, 2026, https://keyinnovations.com/original-lishi-k-5-new-kia-keyway-kk12-2-in-1-pick-door-trunk-ignition-anti-glare/
+18. ORIGINAL LISHI - K9-V4 Ioniq6-Genesis / Picks and Decodes Door Locks of 2024+ Kia, Hyundai, and Genesis Models for Sale | UHS Hardware, accessed January 27, 2026, https://www.uhs-hardware.com/products/original-lishi-k9-v4-ioniq6-genesis-picks-and-decodes-door-locks-of-2024-kia-hyundai-and-genesis-models
+19. K9 V4 Ioniq-Genesis | Original Lishi Tools, accessed January 27, 2026, https://www.originallishi.com/k9-v4-ioniq-genesis/
+20. Unlocking Your Car when Smart Key Battery Is Dead | Quick Tips | Kia Saudi Arabia NMC, accessed January 27, 2026, https://www.kia.com/nmc/en/owners/owner-resources/quick-tips/breakdowns-and-accidents/unlocking-your-car-when-smart-key-battery-is-dead.html
+21. technical service bulletin - smart key operation logic improvement - nhtsa, accessed January 27, 2026, https://static.nhtsa.gov/odi/tsbs/2024/MC-10249925-0001.pdf
+22. 2023 Kia Sportage - Programming smart key : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/10b1xqy/2023_kia_sportage_programming_smart_key/
+23. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 27, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+24. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 27, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+25. 2020 2021 2022 KIA TELLURIDE IBU BCM CONTROL MODULE OEM 954A0-S9530 | eBay, accessed January 27, 2026, https://www.ebay.com/itm/277431068759
+26. How to Replace a BCM (Body Control Module) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=Z2ukBJlP6aI
+27. Starting Your Car when Smart Key Battery Is Dead | Quick Tips - Kia, accessed January 27, 2026, https://www.kia.com/aw/owners/owner-resources/quick-tips/breakdowns-and-accidents/starting-your-car-when-smart-key-battery-is-dead.html

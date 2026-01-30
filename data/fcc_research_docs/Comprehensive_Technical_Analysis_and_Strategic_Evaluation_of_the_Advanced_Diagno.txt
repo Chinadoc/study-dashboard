@@ -1,0 +1,266 @@
+﻿Comprehensive Technical Analysis and Strategic Evaluation of the Advanced Diagnostics Smart Pro (TT0101) Ecosystem in the North American Automotive Market
+The automotive security landscape has undergone a radical transformation since the inception of transponder-based anti-theft systems in the late 1990s. In the North American market, this evolution is characterized by a perpetual technological struggle between Original Equipment Manufacturers (OEMs) seeking to secure vehicle access and the independent aftermarket seeking to maintain serviceability. At the center of this technological nexus is the Advanced Diagnostics Smart Pro platform, specifically the TT0101 series. This report provides an exhaustive examination of the Smart Pro ecosystem, detailing the critical migration from legacy hardware, the intricate physical layer of the ADC cable architecture, the financial mechanics of the Advanced Immobilizer Technology (AIT) system, and the tool's emergence as the preeminent dealer-alternative diagnostic solution for Ford, General Motors, Stellantis, and Toyota/Lexus platforms.
+The Technological Lineage: From MVP Pro to the TT0101 Architecture
+The transition from the legacy MVP Pro to the Smart Pro TT0101 represents more than a mere iterative hardware update; it signifies a complete architectural overhaul necessitated by the adoption of high-speed Controller Area Network (CAN) bus protocols, encrypted gateways, and server-side authentication in modern vehicles.1 The MVP Pro, while a stalwart of the industry for over a decade, was built on an embedded architecture that eventually reached its physical limits regarding processing speed, memory capacity, and connectivity.1
+As of the current market state in 2024, the MVP Pro and the AD100 Pro have been officially phased out. Advanced Diagnostics has discontinued the sale of tokens and software updates for these units, marking their transition to legacy status.1 The industry standard has shifted entirely to the Smart Pro (TT0100/TT0101 series), which provides the hardware overhead required for 2024 and 2025 model year security protocols.2 This migration was facilitated by an extensive exchange program, allowing former MVP Pro users to trade in their units for a discounted Smart Pro while transferring existing software assets.3
+Hardware Specifications and Environmental Resilience
+The TT0101 is engineered specifically for the rigors of the mobile locksmith and shop environment. The hardware is encased in a ruggedized shell with internal rubber shaping to protect sensitive components during transit.4 The user interface is dominated by a 10.1-inch high-definition color touchscreen protected by Gorilla Glass, which ensures long-term durability against the scratches and impacts common in automotive service.4
+Hardware Component
+	Specification
+	Processor
+	Quad-Core ARM Cortex
+	Operating System
+	Custom High-Security Linux/Android Hybrid
+	Memory
+	2GB RAM
+	Storage
+	32GB SSD
+	Display
+	10.1" (1280 x 800) PCAP Touch Panel
+	Battery
+	Internal Lithium-Ion (2-hour standalone runtime)
+	Connectivity
+	Wi-Fi 802.11 b/g/n, Bluetooth 4.1
+	Operating Temp
+	23°F to 104°F (-5°C to 40°C)
+	Weight
+	6.4 lbs (2.9 kg)
+	The integration of a quad-core processor is a critical upgrade over the MVP Pro, as it allows the device to perform complex PIN reading and key programming functions in a single streamlined step, significantly reducing the time spent connected to a vehicle.4 Furthermore, the internal battery serves as a vital safeguard; in the event of a power disruption at the vehicle's OBD-II port, the Smart Pro maintains its state, preventing potential module corruption during sensitive write operations.6
+The ADC Cable Ecosystem: Physical Connectivity and Security Bypass
+The efficacy of the Smart Pro is intrinsically linked to its physical connection layer, known as the ADC series. Unlike generic OBD-II tools that rely on software-only workarounds, Advanced Diagnostics utilizes a sophisticated ecosystem of vehicle-specific cables and bypass adapters to gain access to locked security modules.9
+Core Connectivity and Legacy Support
+The system's foundation is the ADC2000 OBD Master Cable. However, the ecosystem extends into specialized adapters that address the physical limitations of the standard diagnostic port. The ADC2013, for example, is a 90-degree right-angle master cable designed for vehicles where the OBD port is located in a cramped footwell or behind a dashboard panel.9 For technicians migrating from legacy units, the ADC2001 adapter allows for the continued use of 25-way D-Type cables from the MVP Pro era, ensuring that historical investments in hardware are not entirely lost.9
+The Rise of Security Gateway (SGW) Bypass Solutions
+A primary challenge in the North American market is the proliferation of Secure Gateway Modules (SGM/SGW), particularly in vehicles produced by Chrysler (Stellantis) and Toyota. These modules act as firewalls, preventing unauthorized commands from reaching the Body Control Module (BCM) or Immobilizer.10
+The ADC cable ecosystem provides the industry-standard bypass for these modules:
+Cable Model
+	Name
+	Vehicles / Application
+	Price (USD)
+	ADC2011
+	Chrysler 2018 CAN-C
+	Jeep Compass/Renegade, Fiat 500X (SGW Bypass)
+	$85 - $111
+	ADC2012
+	Chrysler RFH Bypass
+	2018+ Chrysler/Dodge/Jeep (RFH Unit Connection)
+	$199 - $251
+	ADC2019
+	Fiat/RAM FCA Bypass
+	2021+ Alfa Romeo, RAM, Fiat FCA Gateway
+	$75 - $93
+	ADC2021
+	Toyota Gateway Bypass
+	2022+ Tundra, Sequoia (TNGA-F Platform)
+	$74 - $120
+	ADC219
+	VAG Cluster Reset
+	VW/Audi/Skoda All Keys Lost Situations
+	$292 - $325
+	ADC250
+	Subaru Main Cable
+	Subaru Legacy/Outback/Forester (G-Key/Power Inject)
+	$102 - $186
+	The ADC2021 cable is particularly significant for the North American Toyota market. Late-model Toyota vehicles utilizing the BA platform and DST-AES transponders incorporate a "challenge and response" security layer traditionally requiring an authorized dealer login via TIS (Technical Information System).14 The ADC2021 bypasses this requirement by connecting directly to the vehicle's Smart ECU (Certification Unit), saving the technician significant transaction fees and time.16
+Cable Identification and Organization
+Effective field operation requires a nuanced understanding of cable identification. The Smart Pro software includes an integrated "Info Quest" database that provides the technician with the exact cable and dongle requirements for each vehicle before the procedure begins.18 This database includes photos of the OBD port location and the required ADC cable, mitigating the risk of incorrect connections.18 Professional users often organize these cables in the provided hard-body carry case, which features custom rubberized slots designed to prevent cable fatigue and damage during transit.4
+Advanced Immobilizer Technology (AIT): Financial and Operational Flexibility
+The Smart Pro operates on a hybrid financial model known as Advanced Immobilizer Technology (AIT). This system allows automotive professionals to customize their investment based on volume and specialization, offering three primary avenues: Pay-As-You-Go tokens, Unlimited Token Plans (UTP), and permanent software ownership.3
+The Token Economy and ROI Analysis
+Tokens are the primary currency of the Advanced Diagnostics ecosystem. Each programming procedure consumes a set amount of tokens, which can be purchased in various denominations. This model is ideal for general repair shops or part-time locksmiths who do not have the volume to justify a full subscription.20
+Token Pack
+	MSRP (USD)
+	Effective Cost per Token
+	10 Program Tokens
+	$259.46
+	$25.95
+	25 Program Tokens
+	$459.00
+	$18.36
+	50 Program Tokens
+	$765.00
+	$15.30
+	250 Program Tokens
+	$2,705.44
+	$10.82
+	For a standard "All Keys Lost" (AKL) scenario, which may consume between 5 and 50 tokens depending on the vehicle's year and security tier, the technician can accurately calculate their overhead and profit margins.20 The 250-token pack offers the most significant cost efficiency for businesses scaling their operations.
+Unlimited Token Plans (UTP) and Subscriptions
+The Unlimited Token Plan is the preferred choice for high-volume mobile locksmiths in North America. These plans provide unrestricted access to all supported vehicles for a fixed duration.
+* Annual Unlimited (UTPSUB1YR): Priced at approximately $2,663.42, this plan covers all supported vehicle makes and provides unlimited programming sessions. This eliminates the "per-job" anxiety and allows for competitive pricing in high-volume markets.20
+* Monthly Unlimited (UTPSUB1MO): Priced at approximately $326.40, this is often used during peak seasons or by businesses testing the profitability of adding key programming services.22
+* 24-Hour UTP Packs: A 5-pack of 24-hour unlimited access is available for $225.00, providing flexibility for emergency weekend coverage.20
+Software Ownership and Modular Licensing
+Technicians who specialize in specific brands, such as Ford or Chrysler, can choose to purchase permanent software modules. Once purchased, these modules no longer require tokens or UTP for the specific vehicles they cover.3 This is categorized into tiers:
+* Category A Software: Typically priced around $699.00 (e.g., ADS138 GM USA Basic).25
+* Category B Software: Priced around $599.00 (e.g., ADS127 Subaru USA).25
+* Category C Software: Priced around $499.00 (e.g., ADS181 Fiat USA).25
+North American Strength: Dealer-Alternative Capabilities
+The Smart Pro’s market dominance in North America is sustained by its deep coverage of domestic manufacturers and its ability to bypass dealership-locked diagnostic routines.
+Ford: The FDRS and PATS Challenger
+Ford's security system, known as PATS (Passive Anti-Theft System), has evolved into a server-dependent architecture requiring the Ford Diagnostic and Repair System (FDRS). Traditionally, an aftermarket technician would need a NASTF VSP credential and an expensive FDRS subscription to program keys for a 2021+ F-150.27
+The Smart Pro provides a streamlined alternative through software ADS2269. This software allows for "All Keys Lost" programming while bypassing the security PIN code.2 In scenarios where an active alarm is present (which traditionally blocks diagnostic access), the ADC2020 emulator cable mimics a working key, shutting down the alarm and opening the communication channel for programming.28
+General Motors: GM SPS2 Alternative
+General Motors’ modern security architecture utilizes the Techline Connect platform and the Service Programming System (SPS2). For vehicles produced between 2020 and 2024, the Smart Pro's ADS2290 and ADS2282 software allow for standalone key programming without the need for an internet connection or NASTF credentials.29 This is a massive operational advantage for mobile technicians working in rural areas or underground parking structures where Wi-Fi or cellular signals are non-existent.
+Chrysler/Stellantis and the Secure Gateway
+The introduction of the Secure Gateway in 2018 by Chrysler was intended to lock out all non-dealer tools. Advanced Diagnostics was one of the first manufacturers to release physical bypass cables (ADC2011/2012) and later software-driven bypasses for newer models.6 The Smart Pro handles the 2021+ proximity systems for Jeep and RAM by using the ADC2019 cable to connect directly to the SGW located behind the glovebox, a procedure that allows for a full immobilizer reset and key addition in under 15 minutes.31
+Professional Features and Ecosystem Integration
+Beyond raw programming capability, the Smart Pro offers features designed for the professional fleet manager and high-volume shop.
+Fleet and VIN Management
+The device includes an archive function that stores a detailed history of every vehicle programmed. This "Job History" includes the VIN, the engine code, the transponder type used, and the successful completion of the procedure.4 For businesses managing large fleets, this documentation is essential for warranty tracking and billing accuracy.
+Integration with Silca/ILCO Cutting Machines
+The Smart Pro is part of a "360-degree" solution in partnership with Silca and ILCO. It integrates directly with electronic key cutting machines like the Silca Futura Pro.
+* Workflow Synchronization: A technician can use the Smart Pro to identify the vehicle and read the electronic key code from the ECU. This information can then be synced with the Futura Pro machine via the MYKEYS Pro app to cut the physical key blade precisely to OEM specifications.32
+* The Smart Pro Lite Option: A specialized version of the hardware, the Smart Pro Lite, is designed for beginners. It operates without tokens by requiring the use of ILCO transponder keys. Technicians scan a QR code on the ILCO key bag to authorize the programming, effectively trading hardware exclusivity for reduced operating costs.13
+Transponder Management and Smart Aerial+
+The Smart Pro features an expansion port for the Smart Aerial+. This allows the technician to pre-code transponders and clone existing keys without a secondary PC or device.4 For Mercedes-Benz applications, the Smart Programmer (ADC260) connects to this same port, enabling the duplication of infrared "fish" keys, further extending the tool's versatility into the luxury market.4
+Technical Data and Interface Schema
+To further illustrate the tool's capabilities, the following data blocks represent the structured operational parameters of the TT0101 platform.
+Tool Specification Data (JSON)
+
+
+JSON
+
+
+
+
+{
+ "tool": "Advanced Diagnostics Smart Pro",
+ "model": "TT0101",
+ "manufacturer": "Advanced Diagnostics / ILCO",
+ "primary_market": "North America",
+ 
+ "subscription_options":,
+ 
+ "cable_ecosystem":,
+     "required_for": "Bypassing TIS challenge-response on TNGA-F platform"
+   },
+   {
+     "model": "ADC219",
+     "name": "VAG Instrument Cluster Reset Cable",
+     "price_usd": 325.91,
+     "vehicles": [
+       "Volkswagen Golf 2013-2020",
+       "Volkswagen Jetta 2018-2020",
+       "Audi A3 2013-2020"
+     ],
+     "required_for": "Service Mode entry for All Keys Lost"
+   },
+   {
+     "model": "ADC250",
+     "name": "Subaru Main Cable",
+     "price_usd": 186.92,
+     "vehicles":,
+     "required_for": "12V Power Injection and G-Key communication"
+   }
+ ],
+ 
+ "procedures_by_vehicle": [
+   {
+     "make": "Ford",
+     "model": "F-150",
+     "years": ,
+     "tool": "Smart Pro",
+     "cable_required": "Standard OBD + ADC2020 Emulator (if alarm active)",
+     "akl_supported": true,
+     "add_key_supported": true,
+     "menu_path": "Ford > USA > F-150 > 2021-2024 > Proximity > All Keys Lost",
+     "steps":,
+     "tokens_required": 25,
+     "time_minutes": 20,
+     "gotchas":
+   }
+ ]
+}
+
+UI Tool Tab Schema (TypeScript)
+
+
+TypeScript
+
+
+
+
+interface SmartProToolTab {
+ tool_name: "Smart Pro";
+ model_number: "TT0101";
+ 
+ vehicle_match: {
+   make: "Toyota";
+   model: "Tundra";
+   year: 2023;
+ };
+ 
+ support_level: {
+   akl: true;
+   add_key: true;
+   remote_programming: true;
+   proximity_supported: true;
+ };
+ 
+ requirements: {
+   cables:;
+   tokens_akl: 30;
+   tokens_add_key: 15;
+   internet_required: true;
+   firmware_min: "ADS2328.04";
+ };
+ 
+ procedure: {
+   menu_path: "Toyota > USA > Tundra > 2022-2024 > Proximity";
+   estimated_time_minutes: 15;
+   difficulty: 'moderate';
+   steps:;
+ };
+ 
+ alternatives:;
+}
+
+Professional Image References for Training and Documentation
+For the development of shop manuals and training materials, the following specific visual references are required to assist technicians in identifying hardware and procedural steps.
+* Smart Pro TT0101 Unit with ADC Cables: A high-resolution image showing the Smart Pro device connected to the ADC2000 Master Cable, with the secondary ADC2013 90-degree cable and a selection of A, B, and C dongles in the foreground. This clarifies the modularity of the system.4
+* ADC2021 Toyota Bypass Cable Connection: A close-up photograph of the vehicle's interior with the glovebox removed, showing the ADC2021 cable successfully interfaced between the factory wiring loom and the Toyota Smart ECU. This serves as a critical visual aid for locating the connection point on the TNGA-F platform.16
+* Menu Navigation Screenshot for Ford AKL: A direct screenshot of the Smart Pro 10.1-inch display at the vehicle selection screen, highlighting the path Ford > USA > F-150 > 2021-2024 > Proximity > All Keys Lost. This ensures the technician is selecting the correct software module (ADS2269).2
+* Cable Identification Chart (ADC Series Lineup): A comprehensive grid-view graphic displaying the entire ADC cable range with part numbers and color-coded connectors, facilitating rapid cable selection in high-pressure mobile scenarios.37
+Conclusion: Strategic Market Position and Future Outlook
+The Advanced Diagnostics Smart Pro TT0101 has established itself as the indispensable standard for the North American automotive locksmith through a combination of hardware resilience, sophisticated physical bypass solutions, and a flexible financial ecosystem. Its success is rooted in the "AD Factor"—the ability to deliver high-speed, server-supported dealer-alternative solutions for the most popular vehicles in the domestic fleet while maintaining backward compatibility for older systems.
+The migration from the MVP Pro is now a completed chapter, and the Smart Pro stands alone as the bridge between legacy mechanics and the future of encrypted vehicle access. As OEMs continue to move toward "Software Defined Vehicles" (SDVs) with even more restrictive security gateways, the Smart Pro's ability to receive over-the-air updates and utilize its massive ADC cable library ensures that the independent aftermarket will remain a viable and necessary competitor to the dealership network. For the professional locksmith, the Smart Pro is not merely a tool but a comprehensive platform that integrates hardware, software, and digital data management into a single, profit-generating powerhouse. Consistent utilization of the MYKEYS Pro app and the ADC bypass cables will continue to be the primary differentiator for technicians operating at the highest levels of the North American automotive service industry.
+The technical superiority of the TT0101 platform is further solidified by its integration with Silca key cutting equipment, creating a closed-loop service environment that minimizes error and maximizes billable efficiency. Whether navigating the complexities of a Ford PATS calculation or bypassing the gateway on a late-model Toyota Tundra, the Smart Pro remains the preeminent solution for professional vehicle security technicians.
+Works cited
+1. How to Choose MVP Pro or Smart Pro Key Programmer: Buying Guide - CarInterior, accessed January 25, 2026, https://carinterior.alibaba.com/buyingguides/mvp-pro-vs-smart-pro-key-programmers-what-to-choose
+2. What's New - Advanced Diagnostics, accessed January 25, 2026, https://www.advanced-diagnostics.com/news/whats-new
+3. Advanced Diagnostics - SMART Pro Vehicle Key Programmer ..., accessed January 25, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-smart-pro-vehicle-key-programmer-trade-in-program-smart-pro-exchange
+4. Smart Pro, accessed January 25, 2026, https://cdn.prod.website-files.com/61892e75c82e3f58b48eab7f/6406fc44f93ac381b33d0e04_SmartPro_brochure_feb2023_A4_EN.pdf
+5. Smart PRO: OBD Vehicle Key Programmer - Advanced Diagnostics, accessed January 25, 2026, https://www.advanced-diagnostics.com/ad-products/smart-pro
+6. Advanced Diagnostics Smart Pro Key Programmer and Tokens plus ADC2011 - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-smart-pro-vehicle-key-programmer-with-1-year-free-utp-tokens-plus-adc2011-adc2012-adc2017-bypass-cables1
+7. Advanced Diagnostics - SMART Pro Vehicle Key Programmer w/ 6 Months UTP for Sale, accessed January 25, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-smart-pro-vehicle-key-programmer-w-6-months-utp
+8. Advanced Diagnostics Smart Pro Programmer With 1 Year Unlimited Token Plan (ITT0431XXXX) - Best Key Supply, accessed January 25, 2026, https://www.bestkeysupply.com/products/advanced-diagnostics-smartpro-programmer-6months-token-plan-itt0431xxxx-p947
+9. Advanced Diagnostics Cables - Key4, accessed January 25, 2026, https://www.key4.com/cables-advanced-diagnostics
+10. Advanced Diagnostics ADC2012 Bypass Cable - Smallwood Lock & Supply, accessed January 25, 2026, https://smallwoodlock.com/advanced-diagnostics-bypass-cable-adc2012/
+11. Subaru Smart Pro Key Programming For Models With Bladed (G key type) Ignition - Software ADS2255 - Key Innovations, accessed January 25, 2026, https://keyinnovations.com/products/subaru-smart-pro-key-programming-for-models-with-bladed-g-key-type-ignition-software-ads2255
+12. Advanced Diagnostics - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/collections/advanced-diagnostics
+13. Smart Pro Mini - Advanced Diagnostics, accessed January 25, 2026, https://www.advanced-diagnostics.com/ad-products/smart-pro-mini
+14. Advanced Diagnostics Smart Pro Bypass Cable for Toyota - ADC2021 D756924AD - LSC, accessed January 25, 2026, https://lsc.com.au/advanced-diagnostics-smart-pro-bypass-cable-for-toyota-adc2021-d756924ad
+15. Advanced Diagnostics - Chrysler Dodge Jeep Bypass Cable ADC2011 Star Connector, accessed January 25, 2026, https://www.ebay.com/itm/277287353093
+16. ADC2021 Toyota Security Bypass Cable for Smart Pro - Noble Key Supply, accessed January 25, 2026, https://noblekeysupply.com/products/adc2021
+17. Advanced Diagnostics ADC2021 Smart Pro Bypass Cable for Toyota - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-adc2021-smart-pro-bypass-cable-for-toyota
+18. Smart Pro Key Programmer - Hickleys, accessed January 25, 2026, https://www.hickleys.com/diagnostics/smartpro.php
+19. AD Smart Pro TURBO Software Kit - Lockpicks.com, accessed January 25, 2026, https://www.lockpicks.com/products/smart-pro-turbo-software-kit-40-software-by-advanced-diagnostics
+20. Advanced Diagnostics Smart Pro and MVP Pro Programming ..., accessed January 25, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-smart-pro-mvp-pro-programming-tokens
+21. Unlimited Token Plan for Advanced Diagnostics Smart Pro- Yearly Plan - CLK Supplies, accessed January 25, 2026, https://www.clksupplies.com/products/unlimited-tokens-for-advanced-diagnostics-mvp-pro
+22. Advanced Diagnostics – 1-Month Unlimited Token Plan for Smart Pro Prog, accessed January 25, 2026, https://royalkeysupply.com/products/advanced-diagnostics-1-month-unlimited-token-plan-for-smart-pro-programmers-utpsub1mo-d745267ad
+23. Unlimited Token Plan for Advanced Diagnostics Smart Pro- Monthly Plan - CLK Supplies, accessed January 25, 2026, https://www.clksupplies.com/products/monthly-unlimited-tokens-for-advanced-diagnostics-mvp-pro
+24. Advanced Diagnostic Programming Tokens - 1 Month Unlimited - Keyless Entry Remote, accessed January 25, 2026, https://www.keylessentryremotefob.com/advanced-diagnostic-programming-tokens-1-month-unlimited/
+25. Advanced Diagnostics Smart Pro Softwares - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-softwares
+26. Smart Pro Software – Page 3 - Best Key Supply, accessed January 25, 2026, https://www.bestkeysupply.com/collections/smart-pro-software?page=3
+27. Ford F-150 2021+ All Keys Lost : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/10nrh17/ford_f150_2021_all_keys_lost/
+28. Advanced Diagnostics - Limited Time SMART PRO Exchange Bundle - Ford Key Programming - ADS2269 / ADC2020 for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-limited-time-smart-pro-exchange-bundle-ford-key-programming-ads2269-adc2020
+29. 2020 GM Key Programming Software ADS2290 For Smart Pro, accessed January 25, 2026, https://keyinnovations.com/products/2020-gm-key-programming-software-ads2290-for-smart-pro
+30. Advanced Diagnostics ADC2011 SmartPro Cable for Chrysler 2018 Programming, accessed January 25, 2026, https://keyinnovations.com/products/advanced-diagnostics-adc2011-smartpro-cable-for-chrysler-2018-programming
+31. Advanced Diagnostics - ILCO.US, accessed January 25, 2026, https://www.ilco.us/support/ad-software-updates
+32. ILCO - Silca Futura Pro - Laser-Cut Key Cutter and Duplicator, accessed January 25, 2026, https://www.qcc.edu/tour2.html?pano=data:text%2Fxml,%3Ckrpano%20onstart=%22loadpano(%27%2F%5C%2Fp6.pics%2Fp%2F7101085126%27)%3B%22%3E%3C/krpano%3E
+33. Ilco - Silca Futura Pro with FREE Pro Lite - Laser-Cut Key Cutter and Duplicator / Vehicle Key Programmer for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/ilco-silca-futura-pro-with-free-pro-lite-laser-cut-key-cutter-and-duplicator-vehicle-key-programmer
+34. ILCO Futura Auto Key Cutting Machine with Smart Pro Lite Programming Device Bundle - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/ilco-futura-auto-key-cutting-machine-with-smart-pro-lite-programming-device-bundle
+35. ADC2021 Toyota* Bypass Cable - advanced-diagnostics.com, accessed January 25, 2026, https://www.advanced-diagnostics.com/smart-pro-accessories/adc2021-toyota-bypass-cable
+36. Advanced Diagnostics - ADC2015 - Emulator Cable suitable for Toyota / Subaru, accessed January 25, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-adc2015-emulator-cable-suitable-for-toyota-subaru
+37. Don't get your wires crossed...get them cross-referenced! - Advanced Digital Cable Inc., accessed January 25, 2026, https://adcable.com/images/electronic_catalog/ADC_Complete_Electronic_Cable_Catalog.pdf
+38. Automotive & Hookup Wire Catalog - Advanced Digital Cable Inc., accessed January 25, 2026, https://adcable.com/images/automotive_and_hookup_catalog/ADC_Complete_Hookup_Catalog.pdf

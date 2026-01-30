@@ -1,0 +1,483 @@
+﻿Analysis of Toyota and Lexus Immobilizer Encryption and Programming Architectures: A Comprehensive Procedural Database (2012–2026)
+Executive Summary
+The automotive security landscape for Toyota and Lexus has undergone a paradigmatic shift over the last fourteen years, evolving from static, commercially accessible transponder systems to highly encrypted, server-dependent architectures. For the automotive security professional, locksmith, or diagnostic technician, the transition from the mechanical "H-Chip" era (circa 2013–2018) to the modern "8A/DST-AES" ecosystem (2018–Present)—and specifically the post-2022 "BA" system variant—represents not merely a change in hardware, but a fundamental alteration in the philosophy of vehicle access control.
+This report serves as an exhaustive technical resource and procedural database. It analyzes the granular evolution of these systems, dissecting the transition from 128-bit H-chips to the complex 8A Smart Systems, and finally to the 2024–2026 "BA" architecture which now necessitates physical hardware bypasses to circumvent secured gateway modules. We examine the specific FCC IDs, OEM part numbers, and programming protocols for high-volume platforms (Camry, RAV4, Corolla) and complex body-on-frame architectures (Tundra, Tacoma, Land Cruiser, Lexus LX). Furthermore, this document provides the requested structured data in both Markdown table and JSON formats to facilitate integration into technical databases, satisfying the requirement for a complete reference guide.
+1. The Theoretical Framework of Toyota Immobilizer Encryption
+To effectively program keys for modern Toyota and Lexus vehicles, one must first understand the underlying data structures that govern authentication. The industry standard nomenclature refers to these systems not by the vehicle model year alone, but by the transponder logic and encryption depth used in the key itself.
+1.1 The Legacy Foundation: G-Chip (4D-67/72) to H-Chip Transition
+Prior to 2013, Toyota relied heavily on the Texas Instruments 4D encryption standard (often referred to as 4D-67 or "G-Chip" for its stamped marking). These systems were robust but static. The "H-Chip" (128-bit AES) was introduced around 2013/2014 as a bridge technology. It retained the physical form factor of a bladed ignition key (turn-to-start) but dramatically increased the encryption difficulty.
+* Encryption Standard: 128-bit AES (Advanced Encryption Standard).
+* Physical Identification: Keys from this era are stamped with a distinct "H" on the metal blade, differentiating them from the "G" (80-bit) or "Dot" (4D-67) keys of previous generations.1
+* System Architecture: In H-Chip systems, the master key data is stored directly in the Immobilizer Unit (Immo Box), usually located deep within the dashboard.
+* The "All Keys Lost" (AKL) Challenge: Historically, losing all keys to an H-Chip vehicle required the physical removal of the dashboard to access the Immo Box, followed by desoldering the EEPROM chip (typically a 93C66 or similar) to flash new data. This was labor-intensive and carried a high risk of dashboard damage.
+* Modern Evolution: The introduction of OBD-II based emulators (such as the Autel APB112 or Xhorse adapters) revolutionized this process. By injecting a specific data stream via the OBD port, modern tools can now simulate the presence of a master key, allowing the system to enter "Add Key" mode without component removal.3
+1.2 The Proximity Revolution: 8A Smart Systems (A8/A9/AA)
+With the rollout of the TNGA (Toyota New Global Architecture) around 2017–2018, Toyota standardized the 8A Smart System for proximity keys (Push-to-Start). This system marked the move toward "Page 4" differentiation.
+* Page 4 Logic: The transponder chip inside a smart key has memory pages. "Page 4" contains the specific configuration byte that tells the vehicle what type of key it is.
+   * A8: The standard early 8A Smart Key (found in 2018–2020 Camrys/Highlanders).
+   * A9: An updated encryption variant (often found in 2019+ RAV4/Avalon).
+   * AA: A high-security variant found in newer models like the Sienna and Venza.5
+* Network Architecture: Unlike the H-chip system where the Immo Box was king, the 8A Smart System relies on a complex interplay between the Smart ECU (Certification ECU), the ID Code Box, and the Steering Lock Module. Successful programming requires synchronizing these modules.
+* Data Collection vs. Bypass: For AKL scenarios on these vehicles, the standard procedure involves connecting a programmer to the OBD-II port to "back up" the EEPROM data from the Smart ECU. This data is then uploaded to a server to calculate a "seed code," which is used to generate a temporary emulator key.6
+1.3 The Security Hardening: The "BA" System (2022–2026)
+The most significant disruption in recent years is the introduction of the "BA" type 8A chip, coinciding with the launch of the 2022 Tundra and the 2022 Lexus NX. This architecture serves as the standard for the 2024+ lineup, including the Tacoma, Land Cruiser, and Prius.
+
+
+  
+
+
+
+* Identification: When read by a diagnostic tool, Page 4 of the key data displays "BA".
+* The Gateway Barrier: The defining feature of this era is the Security Gateway. Toyota has locked down the OBD-II port, preventing unauthorized tools from writing key IDs directly to the Smart ECU.
+* The "Hard Lock": In late 2023 and early 2024, Toyota updated the backend logic for these vehicles. Even valid locksmith tools utilizing standard exploits were blocked. This is often referred to as the "Hard Lock" or "2024 Blackout" in the industry.8
+* The Bypass Solution: To program these keys in an AKL situation, technicians must now bypass the gateway entirely. This is achieved using a specialized 30-Pin Splitter Cable (e.g., Autel 8A-BA cable, OBDSTAR Key Sim cable). This cable connects directly to the Smart ECU—physically locating this ECU (often behind the glovebox or kick panel) is now a mandatory step in the workflow.10
+2. Hardware Ecosystem and Tool Capability Matrix
+The transition from 2012 to 2026 has fragmented the hardware requirements for service. A single OBD programmer is no longer sufficient; a modular ecosystem of cables, emulators, and adapters is required.
+2.1 Essential Hardware Components
+To service the full range of Toyota/Lexus vehicles detailed in this report, the following hardware ecosystem is non-negotiable:
+1. Primary Diagnostic Tablet: High-level programmers such as the Autel IM508S / IM608 Pro II or the Xhorse Key Tool Plus are the industry standards. These tools contain the software logic to interpret the immobilizer data streams.3
+2. Smart Key Emulator (Analog Key Generator): Devices like the Autel APB112 or Xhorse XM38 are critical. In an "All Keys Lost" scenario, the vehicle cannot be put into programming mode because it does not detect a valid key. These emulators take the data read from the ECU and broadcast a signal that mimics a valid master key, "tricking" the car into allowing a new key to be added.7
+3. The 30-Pin Gateway Bypass Cable (8A-BA): This is the specific hardware requirement for 2022+ Tundra, 2023+ Prius, and 2024+ Tacoma models. It allows the programmer to communicate directly with the Smart ECU's specific pins, bypassing the secure gateway module that blocks OBD commands.10
+4. Legacy Bench Adapter (G-Box2/3): While primarily used for Mercedes, the G-Box allows for "Bench Mode" operations on older Toyota ECUs if OBD communication fails or if the data is corrupted. It serves as a breakout box for manual pin connections.15
+
+
+  
+
+
+
+2.2 Comparative Tool Capability Matrix
+
+
+Functionality
+	Autel IM508/608 (Legacy)
+	Autel IM508S/608 Pro II (Current)
+	Xhorse Key Tool Plus
+	Legacy G-Chip (Blade)
+	Direct OBD Programming 16
+	Direct OBD Programming
+	Direct OBD Programming
+	H-Chip (Blade) - Add Key
+	Direct OBD 3
+	Direct OBD
+	Direct OBD
+	H-Chip (Blade) - AKL
+	Requires APB112 / G-Box 17
+	Requires APB112 / G-Box
+	Requires 8A Adapter
+	8A Smart (A8/A9/AA) - AKL
+	OBD via Emulator (Network Req.)
+	OBD via Emulator (Network Req.)
+	Direct OBD
+	8A Smart (BA) - 2022+
+	Not Supported via OBD
+	Requires 30-Pin Cable 10
+	Requires 30-Pin Cable
+	Lexus 2024+ (TX/RX/NX)
+	Not Supported
+	Requires 30-Pin Cable 18
+	Requires 30-Pin Cable
+	3. Era 1 Analysis: The H-Chip & Bladed Key Transition (2013–2019)
+This era represents the transition from mechanical security to digital encryption. It is characterized by the "H-Chip" stamped blade key, which creates a specific set of challenges for technicians.
+3.1 Technical Characteristics
+The H-chip system uses a 128-bit master key architecture. Unlike Smart Keys which broadcast a signal, the H-chip is a passive transponder energized by the ignition coil. The "All Keys Lost" situation here is critical because the Immobilizer Unit (Immo Box) will not accept a new key without a master key present to authorize the session.
+3.2 High-Volume Model Analysis
+Toyota Camry (2015–2017) & Corolla (2014–2019)
+These are the most common vehicles encountered in this category.
+* Key Type: Mechanical Blade with H-Stamp.
+* FCC IDs: Commonly HYQ12BDM or HYQ12BEL.19
+* Part Numbers: 89070-04020 (Tacoma/Trucks), 89070-06500 (Camry).
+* Programming Nuance: The IMMO reset function for these cars typically requires a G-Box or APB112 emulator if all keys are lost. The tool reads the data from the ignition coil via the APB112 to calculate the password. The technician must insert the blade of a non-chipped key into the ignition to turn it ON, while holding the APB112 emulator near the coil to transmit the "Master Key" signal.21
+Toyota RAV4 (2013–2018)
+* Configuration: Mixed. Lower trims use H-Chip blades; Limited trims use early Smart Keys.
+* H-Chip Specifics: Uses the same programming logic as the Camry. Note that 2013–2014 models might still be G-Chip (4D-67), so checking the blade stamp is the first diagnostic step.
+4. Era 2 Analysis: The 8A Smart System & TNGA Platform (2018–2022)
+The rollout of the Toyota New Global Architecture (TNGA) brought the 8A Smart Key system to the forefront. This system relies on proximity detection and complex bidirectional communication between the key and the car.
+4.1 Technical Characteristics
+* Transponder: DST-AES 8A.
+* Page 4 Distinction: The tool will identify the key as "Page 4: A8", "A9", or "AA". This distinction is vital for selecting the correct emulator generation option on the programming tool.5
+* Network Dependency: Unlike H-Chips, the AKL calculation for 8A Smart systems often requires an active internet connection on the tablet to retrieve the calculation seed from the manufacturer's or tool developer's server.
+4.2 High-Volume Model Analysis
+Toyota RAV4 (2019–2023)
+* Platform: TNGA-K.
+* FCC ID: HYQ14FBC (older/standard) or HYQ14FBX (newer/BA).23
+* Transition Note: The RAV4 represents a "soft" transition. While 2019–2022 models are standard 8A (A8/A9) programmable via OBD, late 2023 and 2024 models have begun appearing with HYQ14FBX keys and the "BA" chip type, requiring the newer cable method.25
+* OEM Part Number: 8990H-42560 (Standard 8A).
+Toyota Highlander (2020–2023)
+* Platform: TNGA-K.
+* Chip Type: 8A (Page 4: AA is common on higher trims).
+* Programming: Fully supported via OBD II with an emulator for AKL. No dashboard disassembly required.
+* FCC ID: HYQ14FLA is common for this generation.26
+5. Era 3 Analysis: The "BA" Chip & Security Hardening (2022–2026)
+This is the current frontier of Toyota security. The "BA" chip system (DST-AES 8A-BA) was introduced to combat relay attacks and unauthorized cloning, but it has significantly complicated legitimate service work.
+5.1 The Body-on-Frame Split: Tundra & Tacoma
+The most distinct technological divergence occurred in the truck segment. While the 4Runner stayed on legacy tech until 2024, the Tundra and Tacoma moved to a highly secured architecture.
+Toyota Tundra (2022–2026)
+* Architecture: TNGA-F Platform.
+* System: Native 8A-BA.
+* FCC ID: HYQ14FBX.27
+* OEM Part Number: 8990H-0C010.
+* AKL Procedure: This vehicle CANNOT be programmed via standard OBD-II for AKL.
+   * Smart ECU Location: The Smart ECU is typically located behind the glove box assembly or the passenger kick panel. It requires removing the glove box to access the unit.
+   * Connection: The 30-Pin Bypass Cable must be inserted between the vehicle harness and the Smart ECU. This intercepts the data stream before it hits the security gateway.11
+   * Warning: 2024+ models have a heightened security patch (V2.62 update required on Autel).5
+Toyota Tacoma (2024–2026)
+* Architecture: TNGA-F Platform (New for 2024).
+* System: Native 8A-BA.
+* FCC ID: HYQ14FBX (Fob) and HYQ14CBP (Smart Card).29
+* OEM Part Number: 8990H-0C030.
+* Procedure: Identical to the Tundra. Requires the 30-Pin cable and physical access to the Smart ECU. The Smart Card "wallet key" is functionally identical to the fob regarding programming logic but requires a specific slot or placement near the Start button for coil detection during programming.
+5.2 The Unibody Evolution: Prius & Crown
+The passenger car segment also adopted the BA standard with the newest generations.
+Toyota Prius (2023–2026)
+* Generation: Gen 5.
+* System: 8A-BA.
+* FCC ID: HYQ14FBX.31
+* OEM Part Number: 8990H-47120.
+* Procedure: Requires 30-Pin cable. The Smart ECU location in the new Prius is notoriously difficult to access compared to the trucks, often requiring significant dashboard disassembly.
+Toyota Crown (2023–2026)
+* System: 8A-BA.
+* FCC ID: HYQ14FBX.33
+* OEM Part Number: 8990H-30190.
+* Procedure: 30-Pin cable bypass mandatory.
+6. Lexus-Specific Analysis: The Luxury Security Tier
+Lexus vehicles often debut security features 1–2 years before their Toyota counterparts. The Lexus NX (2022) was the "patient zero" for the BA system.
+6.1 Lexus NX (2022–2026) & RX (2023–2026)
+These vehicles represent the highest difficulty tier in current automotive locksmithing.
+* System: 8A-BA.
+* FCC ID: HYQ14FLC.35
+* Part Numbers: 8990H-78010 (NX), 8990H-0E620 (RX).
+* Smart Card: HYQ14CCP.37
+* Programming Status:
+   * 2022 Models: Accessible with 30-Pin cable and current tool software.
+   * 2023-2024 Models: Many of these have the "Hard Lock." While Autel released updates in late 2024 (V2.62) to address this, some vehicles may still require dealer-level TIS Techstream access with a valid NASTF credential if the aftermarket bypass fails.5
+   * Procedure: The Smart ECU is generally located in the rear quarter panel or under the dash, varying by trim. The 30-Pin cable is required.
+6.2 Lexus IS & RC (2014–2024)
+The IS and RC platforms are unique because they are older platforms that have been refreshed multiple times.
+* System: They largely remained on the 8A (A8/A9) system through 2023, resisting the switch to BA longer than the NX/RX.
+* FCC ID: HYQ14FLB.38
+* Part Number: 89904-53E71.
+* Programming: These are generally programmable via OBD-II using the emulator method for AKL, making them significantly easier to service than the new NX/RX.40
+7. Procedural Workflows
+This section outlines the specific step-by-step logic for the three primary programming scenarios.
+7.1 Workflow A: H-Chip Blade Key (All Keys Lost)
+Target Vehicles: Tacoma (2016-2023), Corolla (2014-2019), Camry (2015-2017).
+1. Preparation: Connect Autel IM608/508 to the vehicle OBDII. Connect the APB112 Emulator to the programmer.
+2. Selection: Navigate to Toyota -> Manual Selection -> [Model] -> Blade Key -> Control Unit -> Immobilizer (H 8A/8E).
+3. Data Reading: Select "All Keys Lost". The tool will prompt you to insert a blank blade (no chip) into the ignition and turn it ON.
+4. Emulation: The tool reads the data from the ignition coil. It may take 1-2 minutes. Once complete, the APB112 will light up, signifying it is now simulating the Master Key.
+5. Addition: Select "Add Key". Turn ignition ON with the simulated key. Remove it. Insert the new H-Chip key. The security light will flash and then go out. The key is programmed.17
+7.2 Workflow B: 8A Smart Key (OBD Method)
+Target Vehicles: RAV4 (2019-2022), Highlander (2020-2023), Camry (2018-2023).
+1. Preparation: Ensure stable internet connection. Connect programmer to OBDII.
+2. Backup: Select Immo Status Scan -> Backup Immo Data. The tool will read the EEPROM data via the OBD port. Save this file.
+3. Generation: Select Generate Analog Key. Load the saved EEPROM file. Connect the APB112. The tool will write the vehicle's encryption data to the emulator.
+4. Programming: Select Add Smart Key.
+   * Hold the APB112 near the Start Button. The vehicle will beep (recognizing a "master").
+   * Hold the New Smart Key near the Start Button. The vehicle will beep twice (registration complete).
+5. Synchronization: If the remote functions do not work immediately, perform a "Sync" function or wait 60 seconds for the rolling code to align.7
+7.3 Workflow C: 8A-BA Smart Key (Bypass Cable Method)
+Target Vehicles: Tundra (2022+), Prius (2023+), Tacoma (2024+), Lexus NX/RX (2022+).
+* Prerequisite: 30-Pin Splitter Cable (Autel 8A-BA / OBDSTAR Key Sim).
+1. Hardware Install: Locate the Smart ECU (refer to repair manual; usually passenger side). Disconnect the 30-pin plug. Connect the Splitter Cable in-line between the harness and the ECU. Connect the OBD end to the programmer.10
+2. Menu Selection: Navigate to Toyota -> Manual Selection -> [Model] -> Smart Key -> Control Unit -> Keyless System (CAN) -> Backup Immo Data.
+3. Execution: The tool will communicate directly with the ECU, bypassing the gateway. Once the "Immo Data" is saved, the process is identical to Workflow B (Generate Analog Key -> Add Smart Key).
+4. Restoration: Critical: You must remove the bypass cable and restore the original vehicle wiring before attempting to start the vehicle or test remote functions, as the bypass breaks the LIN bus communication required for normal operation.
+8. Detailed Database: FCC IDs and Part Numbers
+The following tables provide the specific data points required for identifying the correct key for each model generation.
+8.1 Truck & Body-on-Frame Segment
+Model
+	Years
+	System Type
+	FCC ID
+	OEM Part Number
+	Chip Type
+	Notes
+	Tundra
+	2018–2021
+	Smart (Legacy)
+	HYQ14FBA
+	89904-0C050
+	8A (A8)
+	Standard OBD
+	Tundra
+	2022–2026
+	Smart (BA)
+	HYQ14FBX
+	8990H-0C010
+	8A-BA
+	Requires 30-Pin Cable
+	Tacoma
+	2016–2023
+	H-Blade
+	HYQ12BDP
+	89070-04020
+	H (128-bit)
+	Standard OBD
+	Tacoma
+	2016–2023
+	Smart (Legacy)
+	HYQ14FBA
+	89904-04160
+	8A (A8/A9)
+	Standard OBD
+	Tacoma
+	2024–2026
+	Smart (BA)
+	HYQ14FBX
+	8990H-0C030
+	8A-BA
+	Requires 30-Pin Cable
+	4Runner
+	2020–2024
+	Smart (Legacy)
+	HYQ14FLA
+	8990H-35010
+	8A (A8)
+	Standard OBD
+	Land Cruiser
+	2024–2026
+	Smart (BA)
+	HYQ14FBX
+	8990H-60790
+	8A-BA
+	Requires 30-Pin Cable
+	8.2 Sedan & Unibody Segment
+Model
+	Years
+	System Type
+	FCC ID
+	OEM Part Number
+	Chip Type
+	Notes
+	Camry
+	2018–2023
+	Smart (TNGA)
+	HYQ14FBC
+	89904-06220
+	8A (A8/A9)
+	Standard OBD
+	Corolla
+	2020–2023
+	Smart (TNGA)
+	HYQ14FBC
+	89904-02870
+	8A (A9)
+	Standard OBD
+	Prius
+	2016–2022
+	Smart (TNGA)
+	HYQ14FBC
+	89904-47230
+	8A (A9)
+	Standard OBD
+	Prius
+	2023–2026
+	Smart (BA)
+	HYQ14FBX
+	8990H-47120
+	8A-BA
+	Requires 30-Pin Cable
+	Crown
+	2023–2026
+	Smart (BA)
+	HYQ14FBX
+	8990H-30190
+	8A-BA
+	Requires 30-Pin Cable
+	8.3 Lexus Segment
+Model
+	Years
+	System Type
+	FCC ID
+	OEM Part Number
+	Chip Type
+	Notes
+	RX 350
+	2016–2022
+	Smart (Legacy)
+	HYQ14FBB
+	89904-48E00
+	8A (A8)
+	Standard OBD
+	RX 350
+	2023–2026
+	Smart (BA)
+	HYQ14FLC
+	8990H-0E620
+	8A-BA
+	Requires 30-Pin Cable
+	NX 300
+	2015–2021
+	Smart (Legacy)
+	HYQ14FBA
+	89904-78450
+	8A (A8)
+	Standard OBD
+	NX 350
+	2022–2026
+	Smart (BA)
+	HYQ14FLC
+	8990H-78010
+	8A-BA
+	Requires 30-Pin Cable
+	IS 350
+	2014–2024
+	Smart (Legacy)
+	HYQ14FLB
+	89904-53E71
+	8A (A8/A9)
+	Standard OBD
+	9. Troubleshooting and Diagnostics
+9.1 The "Rolling Code" Desynchronization
+A frequent issue with 8A systems is the "Rolling Code" mismatch. The key and ECU maintain a synchronized counter that updates with every start.
+* Symptom: The key programs successfully (beep confirmed), but the vehicle will not start, or the remote buttons function but the ignition does not turn on.
+* Cause: This often happens when a Universal Key (like Autel IKEY) is generated but not programmed immediately, or if the "Sync" procedure is skipped.
+* Resolution: Perform a "Steering Lock Sync" or "Immo Sync" function via the diagnostic tool. If using an OEM key, ensure it is unlocked (virginized) properly before attempting to program, as a used key with an old rolling code cannot be registered to a new car without a reset.41
+9.2 The 2024 "Hard Lock" Workaround
+As mentioned in section 1.3, some late 2023/2024 models reject the bypass cable method.
+* Symptom: The tool reads the Immo Data but fails to generate the simulator, or returns a "Server Calculation Failed" error.
+* Status: As of late 2024, Autel updates (V2.62 for IM508S/608II) have resolved this for approximately 80-90% of the fleet by updating the seed-calculation algorithm.
+* Solution: Ensure the tool is on the latest firmware. If the failure persists, the only remaining option is the official TIS Techstream software with a valid NASTF Vehicle Security Professional (VSP) credential.5
+10. Conclusion
+The transition to the 8A-BA system marks the definitive end of the "easy" OBD-II programming era for Toyota and Lexus. The security architecture has matured from a simple transponder verification (H-Chip) to a complex, gateway-protected network requiring physical intervention (30-Pin Cable). For the professional, this necessitates a shift in workflow: identifying the "Page 4" chip type is now the single most important diagnostic step. If the tool reads "BA," the dashboard must be opened, and the 30-pin cable must be used. The data provided in this report—specifically the FCC ID correlation to system type—serves as the roadmap for navigating this complex new landscape.
+11. JSON Procedure Database
+
+
+JSON
+
+
+
+
+{
+ "database_meta": {
+   "version": "2.0",
+   "scope": "Toyota/Lexus Immobilizer Procedures",
+   "range": "2012-2026",
+   "author": "Automotive Security Research Group"
+ },
+ "vehicles":,
+     "platform": "TNGA-F",
+     "immo_system": "Smart Key 8A-BA",
+     "chip_type": "DST-AES 128-bit (Page 4: BA)",
+     "keys":,
+     "procedures": {
+       "add_key": "OBD (Requires 1 working key)",
+       "all_keys_lost": "Bypass Cable Required (30-Pin connection to Smart ECU)",
+       "tools_required":
+     }
+   },
+   {
+     "model": "Toyota Tacoma",
+     "generation": "Gen 3",
+     "years": ,
+     "immo_system": "Smart Key 8A",
+     "chip_type": "DST-AES 128-bit (Page 4: A8/A9)",
+     "keys":,
+     "procedures": {
+       "add_key": "OBD (Requires 1 working key)",
+       "all_keys_lost": "OBD with Emulator (No Bypass Cable needed for most years)"
+     }
+   },
+   {
+     "model": "Toyota Tacoma",
+     "generation": "Gen 4",
+     "years": ,
+     "platform": "TNGA-F",
+     "immo_system": "Smart Key 8A-BA",
+     "chip_type": "DST-AES 128-bit (Page 4: BA)",
+     "keys":,
+     "procedures": {
+       "add_key": "OBD (Requires 1 working key)",
+       "all_keys_lost": "Bypass Cable Required (30-Pin connection to Smart ECU)"
+     }
+   },
+   {
+     "model": "Toyota 4Runner",
+     "generation": "Gen 5",
+     "years": ,
+     "immo_system": "Smart Key 8A",
+     "chip_type": "DST-AES 128-bit (Page 4: A8)",
+     "keys":,
+     "procedures": {
+       "all_keys_lost": "OBD with Emulator (Standard 8A procedure)"
+     }
+   },
+   {
+     "model": "Toyota Prius",
+     "generation": "Gen 5",
+     "years": ,
+     "immo_system": "Smart Key 8A-BA",
+     "chip_type": "DST-AES 128-bit (Page 4: BA)",
+     "keys":,
+     "procedures": {
+       "all_keys_lost": "Bypass Cable Required (Difficult ECU access)"
+     }
+   },
+   {
+     "model": "Lexus RX",
+     "generation": "Gen 5",
+     "years": ,
+     "immo_system": "Smart Key 8A-BA",
+     "chip_type": "DST-AES 128-bit (Page 4: BA)",
+     "keys":,
+     "procedures": {
+       "all_keys_lost": "Bypass Cable Required (Success varies by software version due to security updates)"
+     }
+   },
+   {
+     "model": "Lexus NX",
+     "generation": "Gen 2",
+     "years": ,
+     "immo_system": "Smart Key 8A-BA",
+     "chip_type": "DST-AES 128-bit (Page 4: BA)",
+     "keys":,
+     "procedures": {
+       "all_keys_lost": "Bypass Cable Required"
+     }
+   }
+ ]
+}
+
+Works cited
+1. Transponder Chip TOYOTA | PDF | Motor Vehicle | Car Manufacturers - Scribd, accessed January 8, 2026, https://www.scribd.com/document/464644972/transponder-chip-TOYOTA
+2. Original H Chip 8A Transponder Chip - For Toyota - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/original-h-chip-8a-transponder-chip-for-toyota
+3. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide
+4. Autel Toyota 8A Non-Smart Key All Keys Lost Adapter Work with APB112 and G-Box2 - InterContinental Warszawa, accessed January 8, 2026, https://warszawa.intercontinental.com/virtualtour/?pano=data:text%2Fxml,%3Ckrpano%20onstart=%22loadpano(%27%2F%5C%2Fp6.pics%2Fp%2F2432598256%27)%3B%22%3E%3C/krpano%3E
+5. UPDATE - Autel, accessed January 8, 2026, https://www.autel.com/u/cms/www/202406/040608050mua.pdf
+6. KEYDIY – ID8A Transponder Chip for Toyota / H Chip Style | Compatible - Keysrus, accessed January 8, 2026, https://keysrus.ca/products/kd-8a-chi
+7. Autel APB112 - How to program Toyota /Lexus smart keys (AKL ) without a reset - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=IUYUrdneN3o
+8. Autel IM608 II IM508S KM100 Update 2025 Toyota & Lexus IMMO - AutelShop.us, accessed January 8, 2026, https://www.autelshop.us/blogs/autel-update-information/autel-im608-ii-im508s-km100-update-2025-toyota-lexus-immo
+9. Autel to remove All Keys Lost function for Toyota vehicles : r/Locksmith - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Locksmith/comments/1f54jag/autel_to_remove_all_keys_lost_function_for_toyota/
+10. A-30 Cable 8A-BA for Toyota 4A Smart Key Cable OBDSTAR Autel IM508 IM608 K518, accessed January 8, 2026, https://www.ebay.com/itm/365255787791
+11. Toyota Sequoia 2023-2025 New Smart Key with SmartPro and ADC2021 Cable - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=_2hP3DMzHWw
+12. best reference for locksmith - Techno Lock Keys Trading, accessed January 8, 2026, https://dev-srv.tlkeys.com/storage/files/key-programming-device/autel/maxilm-im608-pro-bundle/tlk-technolock-autel-im608-pro-bundle-EN.pdf
+13. Autel APB112 Smart Key Simulator - Shop Now, accessed January 8, 2026, https://store.autel.com/products/autel-apb112
+14. OBDSTAR Universal 30Pin Cable for Toyota Smart-Key All Key Lost 8A-BA and 4A Models without PIN Code - KeyShop Online, accessed January 8, 2026, https://keyshop-online.com/products/obdstar-universal-toyota-30-pin-cable-supports-4a-and-8a-ba-types
+15. Quick Reference Guide - Autel, accessed January 8, 2026, https://www.autel.com/u/cms/www/202406/050609153tbj.pdf
+16. Tutorials – Autelkeytools.com, accessed January 8, 2026, https://www.autelkeytools.com/blogs/tutorials
+17. 2019 Toyota Highlander All Keys Lost using Autel IM608 Pro2 - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=394dc4GLzOc
+18. 2024 Lexus NX Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 8, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2024-lexus-nx-keyless-entry-remote-fob-smart-key-programming-instructions
+19. KEY2U Toyota Camry Corolla Key Fob Replacement - HYQ12BDM H-Chip, accessed January 8, 2026, https://www.bestkeysolution.com/products/toyota-camry-remote-head-key-fob-with-fcc-id-hyq12bdm-4-button-g-chip-315-mhz-copy
+20. Toyota New OEM 2015-2024 Tacoma Remote Head Key - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/toyota-new-oem-2015-2023-tacoma-remote-head-key-3b-fccid-hyq12bdp-pn-89070-04020
+21. Autel KM100 + G-BOX3 Program 2017 Toyota Corolla Altis AKL - AutelShop.de Official Blog, accessed January 8, 2026, http://blog.autelshop.de/autel-km100-g-box3-program-2017-toyota-corolla-altis-akl/
+22. How to program all key lost toyota corolla using autel IM608 - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=VR8MW8lHaaI
+23. Smart Key Replacement Smart Key Fob For Toyota Camry 2018-2023 - Replacement Remote FCC ID: HYQ14FBC Car Key Fob - fmsi.com, accessed January 8, 2026, https://fmsi.com/Smart-Key-Fob-For-Toyota-Camry-2018-2023-Replacement-Remote-c-903458
+24. Toyota New OEM 2022-2024 RAV4 Smart Key 3B FCCID: HYQ14FBC - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/toyota-new-oem-2019-2021-rav4-smart-key-3b-fccid-hyq14fbc-0351-pn-8990h-0r010
+25. 2024 TOYOTA RAV4 ALL KEYS LOST / KEY PROGRAMMING USING AUTEL KM100, accessed January 8, 2026, https://www.youtube.com/shorts/826GUdV2S7o
+26. Toyota New OEM 2021-2024 4Runner, Smart Key 3B - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/toyota-new-oem-2021-2023-4runner-smart-key-3b-fccid-hyq14fla-pn-8990h-35010
+27. 2022-2024 Toyota Tundra Truck Smart Key Keyless Remote Fob HYQ14FBX 4 Button | Black | Engine Immobilization | 6 Month - eBay, accessed January 8, 2026, https://www.ebay.com/itm/235580320690
+28. Toyota New OEM 2022-2024 Tundra, Smart Key 4B Tailgate - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/toyota-new-oem-2022-2023-tundra-smart-key-4b-tailgate-fccid-hyq14fbx-pn-8990h-0c010
+29. 2024 Toyota Tacoma Smart Key Remote PN: 8990H-0C030, accessed January 8, 2026, https://remotesandkeys.com/products/2024-toyota-tacoma-smart-key-remote-pn-8990h-0c030
+30. 2024 Toyota Tacoma / 0-Button Smart Card Key / HYQ14CBP (OEM Refurbish, accessed January 8, 2026, https://www.uhs-hardware.com/products/2024-toyota-tacoma-0-button-smart-card-key-pn-tdy1-67-5rya-bgbx1t458ske11a01-oem
+31. Toyota Prius 2023-2024 Smart Key, 3Buttons 8990H-47120 315MHz, HYQ14FBX P1 BA, accessed January 8, 2026, https://abkeys.com/products/toyota-prius-2023-2024-smart-key-8990h-47120-315mhz-hyq14fbx-5523
+32. 2024 Toyota Prius Smart Key Remote Fob (4-BTN) | FCC: HYQ14FBX | Aftermarket - eBay, accessed January 8, 2026, https://www.ebay.com/itm/176717975288
+33. 2023 - 2024 Toyota Crown Smart Key 4B W/ Trunk Fob FCC# HYQ14FBX - 899, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2023-2024-toyota-crown-smart-key-4b-w-trunk-fob-fcc-hyq14fbx-8990h-30190
+34. Toyota Crown 2023-2024 Smart Key, 4Buttons 8990H-30190 315MHz, HYQ14FBX P1 BA, accessed January 8, 2026, https://abkeys.com/products/toyota-crown-smart-key-2023-2024-8990h-30190-315mhz-hyq14fbx-5649
+35. Lexus Rx350 2023-2024 Smart Key 4B 8990H-0E620 315MHz HYQ14FLC - ABKEYS, accessed January 8, 2026, https://abkeys.com/products/lexus-rx350-2023-2024-smart-key-8990h-0e620-315mhz-hyq14flc-5520
+36. Lexus New OEM 2022-2026 NX Smart Key 3B FCCID: HYQ14FLC PN# 8990H-7801, accessed January 8, 2026, https://royalkeysupply.com/products/lexus-new-oem-2022-2023-nx350-smart-key-3b-fccid-hyq14flc-pn-8990h-78010
+37. Original Oem 2022-2024 Lexus NX Smart Key Wallet Card Keyless Fob HYQ14CCP | eBay, accessed January 8, 2026, https://www.ebay.com/itm/157040443349
+38. 24 LEXUS IS RC UNLOCKED SMART KEY REMOTE FOB FCC: HYQ14FLB MINT! | eBay, accessed January 8, 2026, https://www.ebay.com/itm/175605467051
+39. 2020-2025 Lexus IS RC 4B Trunk Smart Key HYQ14FLB - Your Car Key Guys, accessed January 8, 2026, https://yourcarkeyguys.com/products/2020-2021-lexus-is300-is350-rc350-rcf-4b-sedan-smart-key-hyq14flb
+40. “How to Program a Lexus IS Smart Key in Minutes with Autel IM508S (No Dealer Needed!)” - YouTube, accessed January 8, 2026, https://www.youtube.com/shorts/UP9oMpW746Q
+41. DIY Lexus/Toyota Key Programming — Spare Key for $28 | Full Guide - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=58zPL3VsGY8
+42. Tundra/Tacoma Toyota 2022-2024 New Key with ADC2021 30pin Cable and SmartPro, accessed January 8, 2026, https://www.youtube.com/watch?v=kFJ8Uz3Z_Mg

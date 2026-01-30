@@ -1,0 +1,370 @@
+﻿The Ultium Protocol: A Definitive Technical Dossier on GM’s Electric Vehicle Security, Access Control, and Service Architecture (2022–2026)
+1. Executive Intelligence Summary
+The automotive landscape is currently undergoing its most radical transformation since the introduction of the electronic control unit (ECU). For the General Motors ecosystem, this transformation is codified under the banner of "Ultium"—a modular electric vehicle platform—and underpinned by the Vehicle Intelligence Platform (VIP), colloquially known within the aftermarket and locksmith communities as "Global B." This dossier serves as a comprehensive operational guide and technical analysis for the GMC Hummer EV, Cadillac Lyriq, Cadillac Celestiq, and Chevrolet Silverado EV.
+The implications of this architectural shift for security professionals, forensic analysts, and emergency responders are profound. The era of the simple mechanical breach and OBD-II key programming is effectively over. The Ultium platform introduces a unified, cyber-hardened perimeter where physical access is strictly gated by 12-volt electrical dependency, and digital access is guarded by 2048-bit encryption and real-time server-side authentication.
+Our analysis of the 2022–2026 model years reveals a security environment defined by "Zero Trust" principles. The vehicle's internal network is no longer a trusting cluster of modules but a segmented, firewall-protected domain. For the locksmith, this means that the "All Keys Lost" (AKL) scenario has escalated from a routine service call to a complex diagnostic operation often requiring OEM-level tooling. Furthermore, the reliance on electronic latching mechanisms creates a critical vulnerability: the "dead battery lockout." In this state, the vehicle becomes a sealed vault, requiring specific, often counter-intuitive mechanical override procedures to restore the low-voltage power necessary to wake the high-voltage drivetrain.
+This report provides the granular intelligence required to navigate these systems, detailing the cryptographic hurdles of the VIP architecture, the specific physical override points for each model, and the evolving capabilities of the aftermarket ecosystem.
+2. The Vehicle Intelligence Platform (VIP): A Paradigm Shift in Security
+To understand the specific challenges presented by the Hummer EV or Lyriq, one must first dissect the digital nervous system that governs them. The transition from the previous "Global A" architecture to the VIP/Global B architecture represents a fundamental hardening of the vehicle's attack surface.
+
+
+  
+
+
+
+2.1 The Serial Data Gateway Module (SDGM): The Firewall
+In previous generations (Global A), the OBD-II port provided a direct physical connection to the vehicle's High-Speed CAN bus. A locksmith's tool could plug in, broadcast a "request for seed" to the Body Control Module (BCM) or Immobilizer, and receive a response. The tool would then calculate the key, send it back, and the car would enter programming mode.
+The VIP architecture eliminates this direct access. The OBD-II port now terminates at the Serial Data Gateway Module (SDGM). This module acts as a rigorous firewall.1 It inspects every frame of data attempting to enter the vehicle's network.
+* Authentication: The SDGM rejects any command that affects vehicle security (such as key programming) unless it is accompanied by a cryptographically signed authorization token.
+* Encrypted Communication: Even if a tool bypasses the gateway (e.g., by tapping directly into the wiring harness, known as the "star connector" method in other brands), the inter-module communication is encrypted. The BCM and the Radio or Center Stack Module (CSM) communicate using encrypted frames, preventing "Man-in-the-Middle" attacks or module swapping without authorization.2
+2.2 CAN FD: The Language of Speed
+The sheer volume of data required for modern EVs—managing battery thermals, autonomous driving sensors, and over-the-air (OTA) updates—necessitated a move away from the traditional Controller Area Network (CAN) protocol, which is limited to 500 kbps.
+Ultium vehicles exclusively utilize CAN FD (Flexible Data-Rate).1 This protocol allows for:
+1. Variable Data Rates: Burst speeds of up to 5 Mbps or 8 Mbps during the data phase of the frame.
+2. Expanded Payloads: Up to 64 bytes of data per frame, compared to the 8-byte limit of classic CAN.
+Operational Impact for Locksmiths: This is a hardware-level incompatibility. Legacy key programming tools (older MVP Pros, standard J2534 devices, or generic OBD dongles) physically cannot interpret the voltage shifts and timing of the CAN FD signal. Connecting a non-CAN FD tool to a Lyriq or Hummer EV will result in a communication failure or, in rare cases, network instability. Support for CAN FD is the entry ticket for working on these vehicles, necessitating adapters like the Autel CAN FD Adapter or newer native tools.3
+2.3 Cloud Dependency and Module Binding
+The VIP architecture is designed to be "connected first." Key programming logic has moved significantly from the vehicle's local storage to GM's backend servers. When a technician uses the official Techline Connect software to add a key, the software reads the VIN and the BCM's challenge seed, transmits this to GM's cloud, and receives a specific response string.
+This "call home" requirement creates a significant barrier for the aftermarket. Offline key programming, a staple of the industry for decades, is severely restricted on the Ultium platform. Furthermore, VIP enforces strict Module Binding. If a BCM or Radio is damaged and replaced with a used unit from a salvage yard, the central gateway will detect the mismatch in digital certificates. The module will be "blocked," and the vehicle may refuse to start or operate key subsystems.2 This forces reliance on "virgin" (new, unprogrammed) modules and official GM programming subscriptions, raising the cost and complexity of repair.2
+2.4 Phone as a Key (PaK): The BLE vs. UWB Divide
+Ultium vehicles integrate "Phone as a Key" (PaK) capabilities, moving access control from a physical token to a digital credential stored in a smartphone's secure element.
+* Bluetooth Low Energy (BLE): Used for initial handshake and presence detection. While convenient, BLE is vulnerable to relay attacks, where a thief extends the range of the phone's signal.
+* Ultra-Wideband (UWB): Higher-trim Ultium models (Hummer EV, Lyriq, Celestiq) utilize UWB radios. UWB operates on a "Time of Flight" principle, measuring the nanoseconds it takes for the signal to travel from the phone to the car. This provides centimeter-level accuracy and makes relay attacks physically impossible, as the relay introduces a time delay that the car detects.6
+For the locksmith, PaK introduces a new failure mode: the "Digital Lockout." If a user relies solely on their phone and the battery dies or the app desynchronizes, they are locked out. The mechanical key blade remains the ultimate fail-safe, yet as we will explore, gaining access to the cylinder is often obscured by design.
+3. 12V System Architecture: The Critical Dependency
+In an internal combustion vehicle, a dead 12V battery prevents the starter motor from turning. In an Ultium EV, a dead 12V battery is a systemic paralysis event. The 12V system is the "key" that unlocks the High Voltage (HV) system; without it, the 200kWh battery pack in a Hummer EV is inaccessible energy.
+3.1 The Low-Voltage "Bootstrap" Problem
+The High Voltage battery pack (400V or 800V) is electrically isolated from the rest of the vehicle by heavy-duty contactors (relays) when the vehicle is off. These contactors are spring-loaded to the "open" (disconnected) position for safety. To drive the car, the 12V system must energize the electromagnets in these contactors to close them.
+1. Sleep State: When the vehicle is parked, the HV contactors are open. The HV battery is disconnected. The 12V battery powers the Remote Keyless Entry (RKE) receiver, the alarm, and the telematics module.
+2. Wake-Up Request: When the user presses "Unlock" on the fob, the RKE receiver (powered by 12V) sends a wake-up signal to the Body Control Module (BCM).
+3. ** HV Engagement**: If the 12V battery is healthy, the BCM wakes the Battery Energy Control Module (BECM). The BECM performs safety checks (isolation resistance, temperature). If all pass, the BECM uses 12V power to close the HV contactors.
+4. Sustained Power: Once the HV contactors are closed, the High Voltage flows to the Accessory Power Module (APM)—essentially a massive DC-DC converter—which steps the 400V/800V down to 14V to run the vehicle's electronics and recharge the 12V battery.
+The Dead Battery Scenario: If the 12V battery drains (e.g., due to a dome light left on, or a "parasitic draw" from a module failing to sleep), the vehicle cannot wake up. The RKE receiver cannot hear the fob. The electronic door latches cannot release. The HV contactors cannot close. The massive energy in the main battery is stranded. You cannot simply plug the car into a wall charger to fix this, because the Onboard Charging Module (OBCM) also needs 12V power to communicate with the charging station (EVSE) to negotiate the charge session.7
+3.2 The Paradox of Electronic Latches
+A defining feature of the Ultium platform is the move to electronic door releases ("E-Latches"). On the Cadillac Lyriq and Celestiq, and increasingly on the Silverado EV and Hummer EV, there is no direct mechanical linkage between the interior/exterior handle and the latch mechanism during normal operation. The handle sends a signal to a module, which sends a pulse to an actuator.
+* Implication: If the 12V battery is dead, pulling the exterior handle does nothing. The vehicle is effectively a seamless, handle-less vault.
+* The Breaching Sequence: The locksmith's primary objective in a dead-battery situation is not to "pick the lock" to open the door, but to "pick the lock" to access the mechanical override cable. This cable is the only way to physically release the door latch. Once inside, the locksmith must then locate the mechanical hood release (which is often different from the electronic switch) to access the 12V battery for a jump start.
+4. Vehicle Specifics: Intelligence Dossiers
+This section provides a model-by-model breakdown of physical access points, key system specifications, and programming protocols.
+4.1 GMC Hummer EV (Pickup & SUV)
+Platform: Ultium Body-on-Frame (BT1)
+Production: 2022–Present
+The Hummer EV represents the heavy-duty application of the Ultium architecture. Its "off-road" focus ironically creates unique lockout challenges due to the ruggedized nature of its access points.
+4.1.1 Physical Access Protocols
+* Door Locks: The Hummer EV retains a standard high-security mechanical lock cylinder on the driver's door handle. However, it is concealed for aesthetic and aerodynamic reasons.
+   * Access Method: The lock cylinder is hidden under a cosmetic cap on the fixed portion of the handle. To remove it, the key blade (extracted from the fob) must be inserted into a small slot on the underside or rear edge of the cap to pry it off.9
+   * Keyway: HU100 (High Security Laser Cut). This is the standard General Motors keyway used for over a decade. Standard Lishi tools (HU100) are effective for picking and decoding.
+* The "Frunk" (eTrunk) Problem: The 12V battery is located in the front trunk. The Frunk release is electronic. If the 12V is dead, the Frunk button on the bumper and the fob are useless.
+   * Emergency Override: You must first gain entry to the cabin via the mechanical door lock. Once inside, locate the manual hood release cable. This is a specific handle located in the driver's footwell, typically on the left-side kick panel (outboard side). Critical Step: You must pull this handle TWICE firmly to release the primary and secondary latches.7
+* Emergency Door Exit: If a passenger is trapped inside a dead Hummer EV, the interior door handles have a mechanical backup. Pulling the handle a second time (or pulling it past a resistance point) will mechanically disengage the latch.11
+4.1.2 Key System Intelligence
+* Key Type: Proximity / Smart Key (PEPS) with 6 buttons.
+* FCC ID: YG0G21TB2.12
+* IC: 4008C-G21TB2.
+* Frequency: 433 MHz (often listed as 434 MHz).
+* Chip Type: NXP HITAG-PRO ID49 (128 Bit). This is a rolling code transponder that is highly secure.
+* OEM Part Numbers:
+   * 13542577: Standard 6-button (Lock, Unlock, Remote Start, Hood, Tailgate, Panic).13
+   * 13542579: Alternate part number, possibly for SUV vs Pickup variants.
+   * 13560224: Newer supersession.
+* Battery: CR2450.
+* Emergency Key Blade: High security HU100 blade.
+4.1.3 Programming & Tools
+* Programming Slot: Located in the center console. Usually, it is a dedicated pocket in the cupholder or the storage bin.
+* Add Key: If one working key is present, the "User Programming" method (Place key in slot, key on/off sequence) may work for US models depending on the software version.
+* All Keys Lost (AKL): This requires OBD access.
+   * Aftermarket: Autel IM608 Pro II / IM508S with CAN FD Adapter has shown success on 2022-2023 models. However, 2024+ models with updated Global B security patches may reject aftermarket PIN reading.
+   * Official Method: GM Techline Connect (SPS2) with an MDI2 or J2534 interface is the only 100% reliable method.
+4.2 Cadillac Lyriq
+Platform: Ultium Unibody (BEV3)
+Production: 2023–Present
+The Lyriq serves as the luxury vanguard for Ultium. Its design prioritizes sleek surfaces, leading to highly obfuscated mechanical access points.
+4.2.1 Physical Access Protocols
+* Exterior Handles: The Lyriq features flush, "pop-out" or touch-sensitive door handles that present themselves when the fob is detected. If the battery is dead, they remain flush.
+* Mechanical Cylinder: The driver's door handle assembly contains a hidden mechanical cylinder.
+   * Access Method: Press the small button on the side/back of the key fob to release the mechanical key blade. On the driver's door handle, locate a small slot on the bottom or right side of the handle cover. Insert the key blade to pop the cover off. This reveals the HU100 cylinder. Insert the key and turn to unlock.16
+* Emergency Frunk Release: Like the Hummer, the Lyriq's 12V battery is under the hood, and the hood latch is electronic.
+   * Location: The manual release handle is located on the lower-left side of the instrument panel (driver's side).
+   * Action: Pull TWICE to fully release the hood.18
+* Rear Entry Contingency: There are reports 20 of owners having to crawl through the rear of the vehicle to reach the front manual releases if the driver's door mechanical linkage fails or is inaccessible (e.g., frozen). The rear hatch may have a mechanical cylinder near the license plate light or be accessible via an internal manual release if the glass can be breached or opened, though the primary path is always the driver's door cylinder.
+4.2.2 Key System Intelligence
+* Key Type: Proximity Smart Key (5-Button).
+* FCC ID: YG0G20TB1.21
+* Frequency: 433.92 MHz.
+* Chip Type: NXP HITAG-PRO ID49 (128 Bit).
+* OEM Part Numbers:
+   * 13553714: Standard 5-button (Lock, Unlock, Hatch, Remote Start, Panic).
+   * 13592983, 13560553: Alternate/Superseded numbers.
+* Digital Key: The Lyriq supports "Phone as a Key" using UWB technology on capable devices (iPhone 11+, Pixel 6+). This is standard on 2025+ models and available on updated 2024 models.25
+4.2.3 Programming & Tools
+* Programming Slot: Located in the rear cupholder or the center console storage. The fob should be placed with buttons facing up.17
+* Tooling: Same constraints as Hummer EV. CAN FD adapter is mandatory.
+4.3 Chevrolet Silverado EV
+Platform: Ultium Body-on-Frame (Narrow Body)
+Production: 2024–Present
+Variants: Work Truck (3WT, 4WT), RST, Trail Boss.
+The Silverado EV introduces a split in key architecture between the retail "lifestyle" trucks and the commercial "Work Truck" (WT) variants.
+4.3.1 Physical Access Protocols
+* Door Locks: Standard mechanical HU100 cylinder on the driver's door handle.
+* Manual Hood Release:
+   * Location: Outboard side of the driver's footwell (left kick panel area).
+   * Action: Pull TWICE firmly. This releases the "eTrunk" (Frunk) latch mechanically.27
+* 12V Battery Access: Located in the eTrunk. Once the hood is popped manually, you must remove the maintenance access panel (usually near the firewall/cowl) to expose the jump points.29
+4.3.2 Key System Intelligence
+* Retail Models (RST/Trail Boss):
+   * FCC ID: YG0G21TB2 (Shared with Hummer EV).30
+   * Part Number: 13547258 (5-button: Lock, Unlock, Panic, Remote Start, Frunk).
+   * Type: Smart Key (Proximity).
+* Work Truck (WT) Models:
+   * Confusion Point: Fleet trucks often use bladed keys. However, the Silverado EV WT is explicitly listed as having "Keyless Open and Start" as a standard feature.33 Snippet 51 confirms the starting procedure involves "just get into the vehicle... system will power up."
+   * Implication: Even the base WT uses a Prox/Smart Key system.
+   * Part Numbers (WT): 13560195, 13558070.34
+   * Difference: WT keys likely lack the "Remote Start" or "Frunk" buttons found on the retail key, or have a more ruggedized casing. They share the YG0G21TB2 FCC ID architecture.
+   * Fleet Restrictions: WT vehicles ordered for large fleets may have "Fleet Key" restrictions programmed into the BCM. This often disables the "Add Key" menu in the infotainment system to prevent unauthorized key duplication by drivers. Adding keys to these units usually requires the Techline Connect tool and a fleet authorization PIN.
+4.4 Cadillac Celestiq
+Platform: Bespoke Ultium Low-Volume
+Production: 2024–Present
+The Celestiq is a hand-built, ultra-luxury sedan ($340,000+) that presents the most extreme security and serviceability challenges.
+4.4.1 The "Vault" Scenario: Physical Access
+* Exterior Handles: The Celestiq lacks traditional door handles entirely. It uses buttons on the B-pillar or door skin to electronically unlatch the doors.
+* The Lockout Nightmare: If the 12V battery dies, these buttons are inert.
+   * Front Door Access: Unlike the Lyriq, the Celestiq does not have an obvious pop-off cap on a handle (because there is no handle).
+   * The "Rear Ingress" Route: Snippets 35 describe a procedure where the operator must access a mechanical key cylinder located in the rear.50
+   * Procedure:
+      1. Use the mechanical key to open the Trunk/Hatch.
+      2. Crawl through the trunk into the cabin. (Note: On executive seating packages with a fixed bulkhead, this may be impossible, potentially requiring a destructive entry or under-car 12V supply).
+      3. Reach the driver's footwell.
+      4. Pull the manual hood release handle twice.
+      5. Exit (manually unlatch door) and jump start the 12V battery under the hood.
+* Manual Door Exit: The interior handles have a mechanical backup (pull up fully/twice) to allow occupants to escape a dead vehicle.37
+4.4.2 Key System Intelligence
+* Fob Design: A unique, sculptural fob matching the vehicle's paint.
+* Button Configuration: 7-Buttons (Open Frunk, Open Trunk, Open Driver Door, Alarm, Remote Start, Lock, Unlock).38
+* Architecture: Likely shares the YG0G20TB1 (Lyriq) logic but with a unique casing and part number.
+* Note: The fob may have a "colored section" on the back matching the car's paint 38, making replacements extremely specific and expensive.
+
+
+  
+
+
+
+5. Critical Alerts, Transport Mode, and Safety Protocols
+Working on the Ultium platform carries specific risks and procedural quirks that can trap the unwary technician.
+5.1 Transport Mode: The "New Car" State
+Vehicles delivered from the factory or stored for long periods are placed in "Transport Mode" to minimize battery drain. This disables non-essential systems (infotainment, remote entry range).
+* Symptoms: "Transport Mode On" message on the cluster, limited speed, battery light on.
+* Exit Procedure (Global B/Ultium): The old method of "Hazard + Key Cycle" has evolved.
+   1. Ensure the 12V battery is fully charged.
+   2. Turn the vehicle to Service Mode (Press and hold Start button for 5-10 seconds without touching the brake pedal).
+   3. Turn on the Hazard Flashers.
+   4. Press and hold the Brake Pedal.
+   5. While holding the brake, press and hold the Start/Stop button for approximately 15–20 seconds.
+   6. The cluster will display "Transport Mode Off".39
+5.2 The "Service High Voltage Charging System" Lockout
+This is a critical alert for any technician touching the 12V system. The Hybrid/EV Powertrain Control Module 2 (HPCM2) continuously monitors the isolation of the high-voltage system and the coolant levels.
+* The Trigger: If the 12V battery is disconnected while the vehicle is charging or before the vehicle has fully gone to sleep, the HPCM2 may detect a momentary loss of data or a voltage spike/drop that it interprets as a high-voltage isolation fault. Alternatively, low coolant levels in the battery loop can trigger this.
+* The Consequence: The vehicle sets a permanent latch code (e.g., P1FFF or P0AA6). It will display "Service High Voltage Charging System" and refuse to charge.
+* The Fix: A standard OBD-II code clear will not remove this latch. It requires a specific "Secure High Voltage DTC Clear" function available in GDS2 (part of Techline Connect).42
+   * Advisory: When replacing a 12V battery, always connect a memory saver (OBDII breakout box with 12V supply) if safe to do so, or strictly follow the "Wait for Sleep" procedure (Engine Off, Remote away, wait 5-10 minutes for all relay clicks to cease) before disconnecting the negative terminal.44
+5.3 High Voltage Safety
+* Orange Cables: These carry 400V (Hummer/Lyriq) or 800V (Hummer EV limitation/Silverado EV). Never cut, pierce, or tap these cables.
+* First Responder Loops: All Ultium vehicles have a low-voltage cut loop (usually in the Frunk area) designed for firefighters to cut 12V power to the airbag and HV contactor circuits. Cutting this loop disables the vehicle permanently until the harness is repaired.46
+6. Aftermarket Tool Matrix and Programming Capabilities
+The aftermarket is in a state of rapid adaptation regarding Global B. The following matrix reflects the capabilities as of late 2025/early 2026.
+
+
+Tool Ecosystem
+	Global B / Ultium Capability
+	Interface Requirement
+	Operational Notes
+	GM Techline Connect (SPS2)
+	Native / Full
+	MDI2 or J2534
+	The only 100% reliable solution for All Keys Lost. Requires paid subscription ($45/VIN or yearly) and a robust internet connection.
+	Autel (IM608 II / IM508S)
+	Partial / Beta
+	CAN FD Adapter
+	Can perform "Add Key" on many 2022-2023 models via OBD. "All Keys Lost" often fails on 2024+ firmware due to inability to read the PIN/Seed from the BCM via OBD.
+	OBDSTAR (Key Master G3)
+	Advanced
+	CAN FD Adapter
+	Known for stronger PIN reading capabilities. Some procedures may require "Bench Mode" (removing the BCM to read PIN directly from the pins), bypassing the gateway's OBD filter.47
+	Advanced Diagnostics (Smart Pro)
+	Limited
+	ADC2011
+	"Coming Soon" for full Global B AKL. Currently relies on "Add Key" where a working key is present. Lags behind in CAN FD encryption cracking.48
+	Proprietary (AutoProPad)
+	Partial
+	CAN FD Adapter
+	Similar to Autel. Good for adding keys, struggles with total loss situations without server-side support.
+	The "Bench Mode" Workaround: Because the Serial Data Gateway Module (SDGM) blocks critical programming commands at the OBD port, some advanced locksmiths are now removing the Body Control Module (BCM) from the vehicle and connecting directly to its pins on a workbench. This bypasses the gateway entirely, allowing tools like the OBDSTAR DC706 or Autel G-Box to read the immobilizer data directly. This is high-risk and labor-intensive but may be the only "offline" option for AKL on newer firmware.
+7. Operational Logic for Emergency Entry
+When facing a locked, unresponsive Ultium vehicle, the locksmith must follow a rigid logic tree to avoid wasting time or damaging components.
+7.1 Phase 1: Voltage Assessment
+* Test: Press the exterior door button or handle.
+* Observation:
+   * Lights flash/Sound: 12V is good. Issue is key (battery dead or de-synced). Action: Use Mechanical Entry -> Fob Pocket Start.
+   * No Response: 12V is dead. Action: Mechanical Entry -> Manual Frunk Release -> Jump Start.
+7.2 Phase 2: Mechanical Breach (The "Vault" Entry)
+* Objective: Pull the Manual Hood Release.
+* Method (Lyriq/Silverado/Hummer):
+   1. Extract mechanical key blade from fob (press button on side/back).
+   2. Locate the slot on the driver's door handle (bottom or rear edge).
+   3. Insert blade and pry the cosmetic cap outward to pop it off.
+   4. Insert blade into the exposed HU100 lock cylinder.
+   5. Rotate clockwise (usually) to unlock.
+   6. Pull the handle mechanism to open the door.
+   * Note: The door may feel heavy or resistant as you are manually back-driving the latch motor.
+* Method (Celestiq):
+   1. If no driver door cylinder exists, go to the Rear Hatch/Trunk.
+   2. Locate hidden cylinder (under emblem or near license plate).
+   3. Unlock and open trunk.
+   4. Crawl through trunk and cabin to the driver's footwell.
+7.3 Phase 3: Power Restoration
+* Objective: Energize the 12V rail to wake the computer.
+* Method:
+   1. Locate the Manual Hood Release in the driver's footwell (left kick panel).
+   2. PULL TWICE firmly. (Double pull is mandatory to release the safety catch).
+   3. Exit vehicle, open Hood/Frunk.
+   4. Remove the plastic maintenance cover (usually passenger side, labeled with battery symbols).
+   5. Connect Jump Pack: Positive (+) Red first, Negative (-) Black to chassis ground post.
+   6. WAIT: Do not attempt to start immediately. The vehicle's modules (BCM, Gateway, HPCM2) need 2-3 minutes to boot up and handshake.
+   7. Wake Up: The alarm will likely sound. Press "Unlock" on the fob to silence.
+   8. Start: Enter vehicle, press Brake + Start.
+8. Consolidated Locksmith Data Matrix
+Per the request requirements, the following table consolidates all intelligence into the specified format.
+Make
+	Model
+	Year Start
+	Year End
+	Platform
+	FCC ID
+	OEM PN
+	Chip
+	Frequency
+	Key Type
+	Phone Key
+	Add Key Tool
+	AKL Tool
+	AKL Supported
+	12V Access
+	Critical Alert
+	GMC
+	Hummer EV
+	2022
+	2026
+	Ultium (BT1)
+	YG0G21TB2
+	13542577
+	ID49 (Hitag Pro)
+	433 MHz
+	Smart / prox
+	UWB / BLE
+	Autel/SPS2
+	SPS2 (Techline)
+	Yes (OEM Only)
+	Frunk (Manual Release in Footwell)
+	Service HV System Lockout
+	Cadillac
+	Lyriq
+	2023
+	2026
+	Ultium (BEV3)
+	YG0G20TB1
+	13553714
+	ID49 (Hitag Pro)
+	433.92 MHz
+	Smart / prox
+	UWB / BLE
+	Autel/SPS2
+	SPS2 (Techline)
+	Yes (OEM Only)
+	Hood (Manual Release in Footwell)
+	Blocked Modules if Swapped
+	Cadillac
+	Celestiq
+	2024
+	2026
+	Ultium (BEV3)
+	YG0G20TB1 (Likely)
+	Bespoke
+	ID49 (Hitag Pro)
+	433 MHz
+	Smart / prox
+	UWB / BLE
+	SPS2
+	SPS2 (Techline)
+	Yes (OEM Only)
+	Hood (Rear Ingress Required)
+	No Ext Door Handles
+	Chevrolet
+	Silverado EV
+	2024
+	2026
+	Ultium (BT1)
+	YG0G21TB2
+	13547258 (Retail)
+	ID49 (Hitag Pro)
+	434 MHz
+	Smart / prox
+	BLE
+	Autel/SPS2
+	SPS2 (Techline)
+	Yes (OEM Only)
+	Frunk (Manual Release in Footwell)
+	Fleet Key Restrictions (WT)
+	9. Conclusion
+The transition to the Ultium platform represents the "iPhone moment" for automotive locksmithing: a shift from mechanical/analog systems to a fully integrated, software-defined ecosystem. The days of simple EEPROM reading and direct CAN bus manipulation are ending. The Global B architecture demands that the locksmith evolve into a "Vehicle Systems Technician," capable of managing 12V power supply, navigating server-based programming interfaces, and understanding the intricate "wake-up" logic of high-voltage systems.
+Success on these vehicles requires a toolkit that prioritizes connectivity (CAN FD, J2534, reliable Wi-Fi for SPS2) and power management (high-quality jumpers, memory savers) over traditional lock-picking prowess. While the physical lock cylinder remains the "break-glass" entry point, the real key to the vehicle is now a cryptographic handshake authorized by the cloud.
+Works cited
+1. Vehicle Intelligence Platform - TechLink, accessed January 5, 2026, https://gm-techlink.com/wp-content/uploads/2021/04/GM_TechLink_06_Mid-March_2021.pdf
+2. Pulled Security code from GM IPC without needing to dump eeprom : r/CarHacking - Reddit, accessed January 5, 2026, https://www.reddit.com/r/CarHacking/comments/1ndjkix/pulled_security_code_from_gm_ipc_without_needing/
+3. Autel CAN FD Adapter Global for MaxiSys Series IM508 IM608 Supports GM Ford 2020 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/397198983255
+4. Autel CAN FD Adapter Compatible with Autel VCI work for Maxisys Series Tablets - AutelShop.us, accessed January 5, 2026, https://www.autelshop.us/products/autel-can-fd-adapter-compatible-with-autel-vci-work-for-maxisys-series-tablets
+5. Autel MaxiSys CAN FD Adapter for Autel IM508 and IM608 - Key4, accessed January 5, 2026, https://www.key4.com/autel-maxisys-can-fd-adapter
+6. UWB vs. Bluetooth Keys: Which is Safer? - RF Wireless World, accessed January 5, 2026, https://www.rfwireless-world.com/terminology/uwb-vs-bluetooth-key-comparison
+7. Hummer EV 12V Battery & Manual Frunk Access - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=6IFZ_t-oWiw
+8. What Should You Do if Your Cadillac EV Runs Out Of Battery?, accessed January 5, 2026, https://www.tustincadillac.com/what-should-you-do-if-your-cadillac-ev-runs-out-of-battery/
+9. GMC Hummer EV Key Fob Battery Replacement - EASY DIY - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=sLEHHmfRzyI
+10. GMC HUMMER EV Truck / Pickup, accessed January 5, 2026, https://www.gmstc.com/wp-content/uploads/2022/12/GMC-Hummer-EV-Pickup-2022-Emergency-Response-Guide_English.pdf
+11. GMC HUMMER EV Truck / SUV, accessed January 5, 2026, https://www.gmstc.com/wp-content/uploads/2022/12/GMC-Hummer-EV-SUV-2024-Emergency-Response-Guide_English.pdf
+12. 2022 GMC Hummer Ev Smart Key Remote PN: 13542577, accessed January 5, 2026, https://remotesandkeys.com/products/2022-gmc-hummer-ev-smart-key-remote-pn-13542577
+13. 2022-2024 GMC Hummer EV / 6-Button Smart Key / PN: 13542577 / YG0G21TB2 (OEM), accessed January 5, 2026, https://www.uhs-hardware.com/products/2022-2024-gmc-hummer-ev-6-button-smart-key-pn-13542577-yg0g21tb2-oem
+14. 2022-2026 GMC Hummer EV 6B Smart Key 433MHz YG0G21TB2, accessed January 5, 2026, https://yourcarkeyguys.com/products/2022-2026-gmc-hummer-ev-6b-smart-key-433mhz-yg0g21tb2
+15. GMC New OEM 2024-2025 Hummer EV Smart Key 6B Hood, accessed January 5, 2026, https://royalkeysupply.com/products/gmc-new-oem-2024-2025-hummer-ev-smart-key-6b-hood-remote-start-fccid-yg0g21tb2-pn-13542579
+16. Keyless Open and Start | Vehicle Support - Cadillac, accessed January 5, 2026, https://www.cadillac.com/support/vehicle/security/keyless-open-start
+17. Open and Start Cadillac Lyriq, Optiq and Vistiq EV models with a dead key fob battery 2023, accessed January 5, 2026, https://www.youtube.com/watch?v=oIvn8-IuizU
+18. Cadillac LYRIQ, accessed January 5, 2026, https://www.gmstc.com/wp-content/uploads/2022/12/Cadillac-LYRIQ-2023-Emergency-Response-Guide_English.pdf
+19. How to Use the eTrunk | Vehicle Support - Cadillac, accessed January 5, 2026, https://www.cadillac.com/support/vehicle/storage-doors-windows/e-trunk
+20. Emergency Unlock for GM EVs : r/CadillacLyriq - Reddit, accessed January 5, 2026, https://www.reddit.com/r/CadillacLyriq/comments/1kg99dr/emergency_unlock_for_gm_evs/
+21. 2024 Cadillac Lyriq Smart Key Remote PN: 13553714, accessed January 5, 2026, https://remotesandkeys.com/products/2024-cadillac-lyriq-smart-key-remote-pn-13353714
+22. 2024 Cadillac Lyriq Smart Key 5B W/ Remote Start & Hatch Fob FC - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-2024-cadillac-lyriq-smart-key-5b-w-remote-start-hatch-fob-fcc-yg0g20tb1-13553714
+23. Locksmith Lot 5 OEM 2023-2025 Cadillac 5-Button Smart Key Fob Remote YG0G20TB1, accessed January 5, 2026, https://www.ebay.com/itm/204895700850
+24. Cadillac New OEM 2023-2026 Lyriq Smart Key 5B Remote Start/Hatch FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/cadillac-new-oem-2023-2024-lyriq-smart-key-5b-remote-start-hatch-fccid-yg0g20tb1-pn-13553714
+25. About Digital Key | Vehicle Support - Cadillac, accessed January 5, 2026, https://www.cadillac.com/support/vehicle/security/digital-key
+26. Some Key details for Digital Key. Only available on 2025+ with OnStar. On iPhone11+ or Google Pixel 6+ : r/CadillacLyriq - Reddit, accessed January 5, 2026, https://www.reddit.com/r/CadillacLyriq/comments/1prjpdo/some_key_details_for_digital_key_only_available/
+27. Chevrolet Silverado EV 4 Door Pick-up Truck, accessed January 5, 2026, https://www.gmstc.com/wp-content/uploads/2024/11/Chevrolet_Silverado-EV_Pick-up_2024_4d_Electric_EN_ERG_-1GC-23101.pdf
+28. eTrunk | Silverado EV Quick Start Guide - Chevrolet, accessed January 5, 2026, https://www.chevrolet.com/support/silverado-ev-quick-start-guides/etrunk
+29. How to open and jump start a Chevrolet EV that has a dead start (12-volt) battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=04Fj1Lnawu4
+30. Replacement Smart Key Fob for 2024 Chevrolet Silverado - FCC ID: YG0G21TB2 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/176694775588
+31. 2024 Chevrolet Silverado Ev Smart Key Remote PN: 13547258, accessed January 5, 2026, https://remotesandkeys.com/products/2024-chevrolet-silverado-ev-smart-key-remote-pn-13547258
+32. 2024 Chevrolet Silverado EV / 5-Button Smart Key / PN: 13547258 / YG0G21TB2 (OEM), accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-chevrolet-silverado-ev-5-button-smart-key-pn-13547258-yg0g21tb2-oem
+33. 2025-Silverado-EV-Specification-Guide-022525-1-1.pdf - GM Upfitter, accessed January 5, 2026, https://www.gmupfitter.com/wp-content/uploads/2025/03/2025-Silverado-EV-Specification-Guide-022525-1-1.pdf
+34. NEW OEM 2024-2026 Chevy Silverado EV Smart Key YGOG21TB2 13558070 13560195, accessed January 5, 2026, https://www.ebay.com/itm/267297497561
+35. If the Cadillac Celestiq's 12-volt battery dies, you have to crawl into the trunk and through the whole cabin to pop the hood and jump-start it : r/cars - Reddit, accessed January 5, 2026, https://www.reddit.com/r/cars/comments/1kfbt1t/if_the_cadillac_celestiqs_12volt_battery_dies_you/
+36. Cadillac's $340K Celestiq Doesn't Force You To Crawl Through The Trunk To Fix A Dead Battery After All | Carscoops, accessed January 5, 2026, https://www.carscoops.com/2025/05/cadillacs-340k-celestiq-forces-you-to-crawl-through-the-trunk-to-fix-a-dead-battery/
+37. use power doors for easy entry and exit - Cadillac, accessed January 5, 2026, https://es.cadillac.com/support/escalade-iq-quick-start-guides/power-doors
+38. Alleged Cadillac Celestiq key fob looks like any other Cadillac key fob - Autoblog, accessed January 5, 2026, https://www.autoblog.com/features/cadillac-celestiq-key-fob
+39. UI Bulletin #121b - ADVISORY:, accessed January 5, 2026, https://www.gmupfitter.com/wp-content/uploads/2021/05/UI-Bulletin_121b.pdf
+40. HOW TO TURN TRANSPORT MODE ON AND OFF ON ANY CHEVROLET CRUZE OR GM VEHICLE! FAST & EASY! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=L6m2YRWTooY
+41. How to Turn Transport Mode Off on the 2025 Chevy Tahoe #nbcr - YouTube, accessed January 5, 2026, https://www.youtube.com/shorts/95qIpK00MLI
+42. Hybrid/EV Energy Storage | Diagnostic Information and Procedures | Document ID: 4511265 - High Voltage Disabling - GM Upfitter, accessed January 5, 2026, https://www.gmupfitter.com/wp-content/uploads/2024/02/High-Voltage-Disabling-Bolt-EUV_EV.pdf
+43. Clearing "Service High Voltage Charging System" code : r/volt - Reddit, accessed January 5, 2026, https://www.reddit.com/r/volt/comments/v81r23/clearing_service_high_voltage_charging_system_code/
+44. UI Bulletin #190 | GM Upfitter, accessed January 5, 2026, https://www.gmupfitter.com/wp-content/uploads/2023/04/UI-Bulletin_190.pdf
+45. How To: Disconnect 12V battery : r/EquinoxEv - Reddit, accessed January 5, 2026, https://www.reddit.com/r/EquinoxEv/comments/1hoclvj/how_to_disconnect_12v_battery/
+46. Chevrolet Spark EV - GM Service Technical College, accessed January 5, 2026, https://www.gmstc.com/wp-content/uploads/2021/06/14-16_Spark_EV_QR_v1.pdf
+47. GM BCM CLONE WORK W/ OBDSTAR DC706 & AUTEL IM608 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=vnspuzNBB9A
+48. Advanced Diagnostics Smart Pro Device w/ 6 Months UTP | Transponder Island Inc., accessed January 5, 2026, https://transponderisland.com/shop/tit-ad-ad20001-advanced-diagnostics-smart-pro-device-w-6-months-utp-3525
+49. Smart Pro™ Basics - Read Vehicle Pin - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=k6SbDJ4rb6s
+50. LYRIQ-24-Owner-Manual-EU-EN.pdf - Cadillac Europe, accessed January 5, 2026, https://www.cadillaceurope.com/content/dam/cadillac/eu/ch/en/index/help/01-pdf/LYRIQ-24-Owner-Manual-EU-EN.pdf
+51. How to Start and Shut Off Your Chevy EV | Silverado, Blazer, Equinox - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=jlKp-XsygYY

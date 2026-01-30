@@ -1,0 +1,171 @@
+﻿Title: The Evolution of Ford Automotive Security Architectures (2015–2026): A Technical Analysis of PATS, FNV, and Dealer Access Protocols
+1. Introduction: The Decade of Transition
+The automotive industry is currently navigating one of its most profound technological metamorphoses, shifting from hardware-defined mechanical assemblies to software-defined vehicle (SDV) ecosystems. Within the specific domain of Ford Motor Company’s engineering, this transition is most visibly encapsulated in the evolution of the Passive Anti-Theft System (PATS) and the broader electrical topologies that support it. This report provides an exhaustive technical analysis of this evolution, spanning the mature, distributed architectures of the mid-2010s to the centralized, cloud-dependent Zonal Architectures characterizing the 2021–2026 model years.
+The analysis is segmented to address three critical pillars of this transformation: the cryptographic migration from static rolling codes to server-validated challenge-response protocols; the infrastructural shift from the Integrated Diagnostic Software (IDS) to the Ford Diagnosis and Repair System (FDRS); and the architectural pivot from Controller Area Network (CAN) ubiquity to the Fully Networked Vehicle (FNV) standards, specifically FNV2 and the emerging FNV3.X.
+This document serves as a primary reference for security researchers, forensic analysts, and advanced automotive technicians seeking to understand the granular mechanics of modern Ford security. It details how the introduction of the Gateway Module (GWM) has effectively ended the era of "offline" vehicle programming, introducing a new paradigm of digital gatekeeping that requires persistent dealer-level authentication and precise environmental control.
+
+
+  
+
+
+
+2. Legacy Architectural Foundations (2015–2020)
+To fully comprehend the restrictive nature of modern FNV architectures, one must first deconstruct the "Legacy" environment—broadly defined as the C1MCA (C1 Platform Mid-Cycle Action) and CD4 platform eras. These vehicles, including the 2015–2020 F-150 (Gen 13), Fusion, and Escape, operated on a distributed computing model that prioritized connectivity over isolation.
+2.1 The Distributed CAN Topology
+In the legacy configuration, the vehicle’s intelligence was decentralized. While a Body Control Module (BCM) existed, it acted more as a traffic cop for lighting and locks rather than a secure firewall.1 The security architecture relied heavily on the Instrument Panel Cluster (IPC) or the Powertrain Control Module (PCM) to store cryptographic keys.
+The critical vulnerability of this era was the topology of the On-Board Diagnostics (OBD-II) port. In these vehicles, the Data Link Connector (DLC) pins 6 and 14 were hardwired directly to the High-Speed CAN (HS-CAN) bus.2 This physical connection meant that any device plugged into the OBD-II port essentially had "root access" to the network's raw traffic. There was no intermediary gateway actively filtering packets based on the vehicle's security state.
+Consequently, if a vehicle was locked and the alarm armed, a technician (or thief) could connect a tool that simply broadcasted a "Network Silence" or "Alarm Disable" command directly onto the bus. Because the BCM was listening directly to the bus, it would process these commands, effectively disarming the system. This direct-access topology is the fundamental feature that Ford sought to eliminate with the FNV transition.3
+2.2 The Texas Instruments Transponder Era
+From a cryptographic standpoint, the 2015–2020 era was dominated by Texas Instruments (TI) transponder technology. The keys typically housed a 4D-63 (40-bit or 80-bit) or 4D-83 chip.3 These chips operated on a relatively static "Incode/Outcode" challenge-response mechanism.
+2.2.1 The Incode/Outcode Algorithm
+The "Incode/Outcode" system functioned as a localized authentication handshake.
+1. The Challenge (Outcode): When a diagnostic tool requested security access (e.g., to add a key), the PATS module would generate a random hexadecimal string known as the Outcode.4
+2. The Response (Incode): The tool was required to provide a matching Incode. In the early years of this era, the algorithm to convert an Outcode to an Incode was static and reverse-engineered by the aftermarket. This allowed independent "key calculators" to generate valid responses offline, bypassing the need for Ford's central servers.4
+3. The Time Delay: To mitigate brute-force attacks against this relatively weak algorithm, Ford modules enforced a coded wait time—typically 10 minutes—before accepting an Incode. This "coded access" was a security feature inherent to the module's firmware, not a cloud-based restriction.5
+This system was robust against mechanical theft but fragile against electronic manipulation. The availability of offline calculators meant that unauthorized key programming was accessible to anyone with basic hardware.
+3. The Cryptographic Paradigm Shift: Rolling Code Evolution
+A central theme in Ford's security evolution is the hardening of the communication link between the physical key (fob) and the vehicle's transceiver. This link has evolved from simple fixed codes to complex, synchronized rolling code algorithms designed to defeat replay attacks.
+3.1 Legacy Rolling Codes: The Keeloq Standard
+The legacy systems (PATS Gen 2 through Gen 4) utilized variations of the Keeloq encryption algorithm, developed originally by Nanoteq and licensed by Microchip.6
+Mechanism of Action:
+In a Keeloq implementation, the transmission is not merely a static password. It consists of a 66-bit data packet:
+* 32 bits: An encrypted hopping code (rolling code).
+* 28 bits: A serial number (unique to the remote).
+* 4 bits: Button status (function code).
+* 2 bits: Status indicators (battery low, repeat).
+The security relies on a Sequence Counter. Both the transmitter (fob) and the receiver (BCM) maintain a counter. Every time the button is pressed, the fob increments its counter, encrypts it using a derived manufacturer key, and transmits it. The receiver decrypts the packet and compares the received counter to its stored value. If the received counter is greater than the stored counter (within a specific window, typically 16 or 256 steps), the command is accepted, and the receiver's counter is updated.7
+Vulnerability: This system is vulnerable to a specific type of "Jam-and-Replay" attack. If an attacker jams the receiver's frequency while simultaneously capturing the fob's transmission, the vehicle never "hears" the code, so its counter doesn't increment. The attacker now possesses a valid, unused code that can be replayed later to unlock the vehicle.
+3.2 Modern Cryptography: AES and Hitag Pro (2021+)
+With the FNV2 architecture, Ford transitioned to higher-security transponders, primarily the NXP Hitag Pro (ID49/ID51) series, which utilizes 128-bit AES encryption.3
+Mechanism of Action:
+Unlike the unidirectional Keeloq system, Hitag Pro often employs a bidirectional challenge-response protocol.
+1. Wake-Up: When the user touches the door handle or presses the start button, the vehicle's LF (Low Frequency) antennas broadcast a wake-up signal containing a random 32-bit or 64-bit challenge.8
+2. Processing: The key fob receives this challenge, encrypts it using its embedded secret key, and transmits the calculated response via RF (Radio Frequency) or UHF.
+3. Validation: The BCM decrypts the response. Because the challenge is random every time, a recorded signal from a previous interaction is mathematically useless.
+Server-Side Synchronization: The most critical evolution in 2021+ vehicles is that the secret keys and synchronization counters are no longer managed solely by the local module. When a new key is programmed, the FDRS tool reads the key's unique ID and transmits it to Ford's servers. The server calculates the necessary cryptographic data to "introduce" the key to the BCM. This effectively kills the "Incode/Outcode" method; there is no Outcode to calculate because the authentication logic has moved to the cloud.4
+4. The Fully Networked Vehicle (FNV) Architecture
+The introduction of the 2021 Ford F-150 (Gen 14) and the Mustang Mach-E marked the debut of the FNV2 (Fully Networked Vehicle) architecture. This was a "clean sheet" redesign of the vehicle's electrical topology, driven by the need for Over-The-Air (OTA) updates, enhanced cybersecurity, and feature-rich digital experiences.10
+4.1 Zone Module Architecture
+Legacy architectures were function-based (e.g., all door locks wired to the BCM). FNV2 introduces a Zone Module concept.12 In this topology, computational power is decentralized into physical zones (e.g., Front-Left Zone Module, Rear-Right Zone Module) to reduce wiring harness weight and complexity. However, control is centralized.
+A central computing complex—often comprising the GWM, Sync 4 module (APIM), and TCU—orchestrates these zones. This means a command to unlock a door is no longer a simple voltage signal; it is a complex digital message routed through multiple layers of authentication.
+4.2 The Gateway Module (GWM): The New Gatekeeper
+The centerpiece of FNV2 security is the Gateway Module (GWM). In technical schematics, this is sometimes referred to as the Smart Data Link Connector (SDLC), but its function has expanded well beyond simple data linking.13
+
+
+  
+
+
+
+The Firewall Mechanism: In FNV2 vehicles, the OBD-II port (pins 6 and 14) connects exclusively to the GWM. There is no physical wire connecting the diagnostic port to the BCM or PCM.14
+* Packet Inspection: The GWM inspects every CAN frame entering from the diagnostic port. It maintains a state machine that tracks the vehicle's security status (e.g., "Armed," "Disarmed," "Factory Mode").
+* Conditional Routing: If the vehicle is in an "Armed" state (Active Alarm), the GWM is programmed to drop or ignore diagnostic commands attempting to reach the BCM. This is the technical root of the "Active Alarm Lockout" that plagues aftermarket locksmiths. The tool is sending the correct "Unlock" command, but the GWM simply refuses to forward it to the BCM.15
+4.3 FNV2 Model Rollout
+The FNV2 architecture was not deployed across the entire fleet simultaneously. It followed a specific staggered rollout 10:
+* 2021: F-150 (Gen 14), Mustang Mach-E.
+* 2021.5/2022: Ford Bronco (Full Size). Note: The Bronco Sport is an outlier, utilizing a hybrid C2 architecture that mimics FNV2 behavior but retains some legacy traits.
+* 2022: Ford Expedition / Lincoln Navigator (Mid-cycle refresh).
+* 2023: Super Duty (F-250/350/450).
+* 2024: Mustang (S650).
+5. Diagnostic Tooling Ecosystem: The IDS to FDRS Migration
+The shift to FNV2 rendered the legacy Integrated Diagnostic Software (IDS) obsolete for new platforms. While IDS remains the gold standard for vehicles pre-2021 (and some legacy platforms like the Transit well into 2023), FNV2 vehicles mandate the use of the Ford Diagnosis and Repair System (FDRS).17
+5.1 FDRS: A Cloud-Native Environment
+FDRS represents a fundamental departure from the standalone nature of IDS.
+* Internet Latency and Stability: FDRS does not store massive databases of calibration files locally. Instead, it streams data on-demand. This makes the tool highly sensitive to internet latency. A dropped connection during a key programming session or module update can result in a "bricked" module.19
+* Server-Side Authentication: Every significant action in FDRS triggers a "handshake" with Ford's backend. When a technician initiates a "PATS Functions" session, FDRS sends the technician's credentials and the vehicle's VIN to the server. The server verifies the user's Security Professional (VSP) status via the National Automotive Service Task Force (NASTF) registry before issuing a token that allows the tool to proceed.9
+
+
+  
+
+
+
+5.2 Hardware Interface Requirements (J2534)
+The physical interface between the laptop and the car has also evolved. The legacy VCM II is technically capable of J2534 pass-through, but it lacks the hardware throughput to handle the CAN-FD (Flexible Data-Rate) protocols used in FNV2.17
+* VCM3: The current OEM standard, designed specifically for CAN-FD and DoIP (Diagnostics over IP).
+* J2534 Pass-Through: FDRS allows the use of third-party J2534 devices. However, high-quality devices like the DrewTech Mongoose Plus or Autel V200 are required. Cheap clones often fail to maintain the stable voltage and timing required for the GWM handshake, leading to communication errors.20
+6. The Active Alarm Lockout: Mechanics and Mitigation
+The most disruptive consequence of the GWM firewall is the "Active Alarm" lockout. This phenomenon occurs when a vehicle is locked and armed, and no working key is available (All Keys Lost scenario).
+6.1 The Lockout Mechanism
+In a legacy F-150 (2018), a locksmith could pick the door lock, enter the vehicle, plug into the OBD-II port, and use a tool to silence the alarm. The alarm would sound, but the data path to the BCM was open. In an FNV2 F-150 (2021+), picking the door lock triggers the intrusion sensors. The BCM enters an "Alarm State." It communicates this state to the GWM. The GWM immediately disables the diagnostic pins on the OBD-II port. The tool receives no power or data. The technician is effectively locked out of the vehicle's digital brain.22
+6.2 Procedural Workflow for Active Alarm Mitigation
+To bypass this digital blockade, the industry has developed a physical workaround that exploits the fact that the GWM's firewall logic is dependent on its power state and the BCM's wake-up sequence. The following procedure, synthesized from field reports and technical bulletins 25, is currently the standard operating procedure for FNV2 vehicles.
+Step 1: Power Isolation
+The technician must disconnect the vehicle's main battery. This forces all modules, including the volatile memory of the GWM and BCM, to power down.
+Step 2: The "Can-Direct" Cable Connection
+A specialized "Active Alarm Cable" (e.g., ADC-2020 or Autel 2021+ Cable) is installed. This cable bridges the vehicle's battery terminals to the OBD-II tool independently of the vehicle's main harness.
+* Purpose: This allows the diagnostic tool to be powered and ready to transmit before the vehicle's modules wake up.
+Step 3: The "Door Latch" Simulation This is a critical, often missed step. With the battery still disconnected, the technician must manually engage the latch on the driver's door (and sometimes the passenger door) to the "Closed" position using a screwdriver or latch tool.25
+* Reasoning: When power is restored, the BCM immediately checks the status of door ajar switches. If it detects an open door, it may default immediately back to an alarm state. By simulating a closed door, the BCM wakes up in a "standby" state rather than an "intrusion" state.
+Step 4: Power Restoration and Immediate Handshake
+The battery is reconnected. The technician must immediately initiate the "All Keys Lost" function on the diagnostic tool.
+* The Race Condition: There is a brief window (milliseconds to seconds) during the GWM's boot sequence where the firewall rules are not yet fully active. The tool attempts to inject the "Alarm Silence" or "Gain Access" command during this window.
+Step 5: The 10-Minute Wait Once communication is established, the system will enter a mandatory 10-minute security delay. This is enforced by the server/BCM to ensure authorized access. Unlike legacy systems, this timer cannot be bypassed.28
+7. Platform-Specific Security Implementations
+While FNV2 is a shared architecture, its implementation varies by model, creating unique challenges for each platform.
+7.1 Ford F-150 (Gen 14, 2021–2024)
+The F-150 creates specific challenges due to its heavy integration of the Sync 4 screen into the security loop. A failure in the APIM (Sync module) or GWM can prevent the security PIN from being displayed or accepted.13 The "Connectivity Menu" often disappears if the GWM software is corrupted, requiring a specific GWM recovery procedure via FDRS before key programming can even be attempted.13
+7.2 Ford Mustang (S650, 2024+)
+The S650 Mustang introduces the "Remote Rev" feature, which allows the engine to be revved via the key fob.29 This feature requires a significantly more complex cryptographic handshake. The key fob must not only authenticate for entry (BCM) and start (PCM) but also communicate with the Powertrain Control Module in a specific "Secure Idle" mode to allow engine RPM fluctuation without engaging the transmission.
+* Security Implication: The rolling code sequence for the S650 is tightly coupled. If the "Remote Rev" buttons are pressed repeatedly out of range, the fob can fall out of sync with the PCM more easily than with the BCM, leading to a fob that unlocks the door but fails to remote start or rev.29 Resynchronization requires a specific ignition cycle procedure involving both working keys.
+7.3 Ford Expedition (2022 Mid-Cycle Action)
+The 2022 Expedition serves as a cautionary tale of "Architecture Swaps." The 2018–2021 Expedition used the legacy architecture (similar to the 2015–2020 F-150). In 2022, Ford migrated the Expedition to the FNV2 architecture mid-generation to align with the F-150.30
+* Consequence: Tools and methods that worked on a 2021 Expedition will fail catastrophically on a 2022 model. The 2022 model requires the FDRS tool and the full active alarm bypass procedure, whereas the 2021 could be programmed with simple aftermarket tablets.
+8. Module Synchronization and Power Management
+The reliability of programming FNV2 vehicles is inextricably linked to power management. The BCM and GWM are highly sensitive to voltage variance during the programming or "learning" phases.
+8.1 The "80% SOC" Threshold
+FDRS software contains a safety logic that checks the State of Charge (SOC) parameter in the BCM before allowing a programming session to begin.
+* The Check: The tool reads the BATT_SOC PID. If this value is below 80%, the process aborts.13
+* The Solution: Technicians must perform a "BMS Reset" (Battery Monitoring System Reset) in FDRS to reset the learned battery age and charge status to 100% if the battery is known to be good but the PID reads low due to storage.33
+8.2 Voltage Stability Requirement
+During the 10-minute security wait or the multi-gigabyte OTA updates often required during module replacement, the vehicle's ignition is "On" (Engine Off). This drains the battery rapidly.
+* Risk: If voltage drops below ~12.2V, the GWM may toggle into a "Low Power" or "Battery Saver" mode. This shuts down the ethernet communication port, severing the link to the FDRS laptop. This interruption during a data write often results in a corrupted ("bricked") module.19
+* Mandate: A power supply capable of holding 12.6V to 13.6V constant amperage (typically 20-40 Amps) is mandatory. Crucially, the negative lead must be connected to the chassis ground point, not the battery negative terminal, to ensure the current passes through the BMS sensor, allowing the vehicle to "see" that it is being charged.33
+9. Strategic Outlook: The FNV4 Cancellation and FNV3.X Pivot (2026)
+The automotive industry moves in long cycles. While FNV2 is the current standard, Ford's roadmap for 2026 and beyond has recently shifted.
+9.1 The Death of FNV4
+Reports from early 2025 confirmed that Ford halted development of its next-generation architecture, internally codenamed FNV4.34 FNV4 was intended to be a centralized "Tesla-fighter" architecture with massive central compute nodes replacing the Zone Modules.
+* Reasoning: The cancellation was driven by cost overruns and the sheer complexity of integrating software from over 150 different suppliers.34
+9.2 The Rise of FNV3.X
+Instead of a revolutionary jump to FNV4, Ford is pivoting to FNV3.X, an evolutionary update to the current FNV2 architecture.37
+* Implications for Security: This indicates that the Zone Module Architecture and the GWM firewall model will remain the standard for the foreseeable future (through 2026+).
+* Aftermarket Impact: This provides a degree of stability for the aftermarket. The investment in FNV2-compatible tools (VCM3, FDRS, Active Alarm Cables) will likely remain relevant for the next generation of vehicles (FNV3.X), as the fundamental topology of "GWM-as-Gatekeeper" is being preserved rather than replaced.
+10. Conclusion
+The transition from the legacy C1MCA architecture to the modern FNV2 ecosystem represents the most significant shift in Ford's security history. The era of the "offline" technician is effectively over. The GWM now stands as a formidable digital gatekeeper, enforcing a security model that relies on server-side authentication, real-time internet connectivity, and strict voltage discipline.
+The active alarm lockout is not merely a software toggle but a fundamental function of the network topology—a physical isolation of the control modules from the diagnostic port. Success in this new environment requires a forensic understanding of the vehicle's wake-up states, a mastery of the FDRS ecosystem, and the hardware capability to physically bypass the GWM when necessary. As Ford consolidates around the FNV3.X roadmap, this GWM-centric security model is poised to define the landscape for the remainder of the decade.
+Works cited
+1. Ford Passive Anti-Theft System Relearn Procedures - my cardone login, accessed January 26, 2026, https://my.cardone.com/techdocs/PT%2078-0004.pdf
+2. Can Ford | PDF | Computer Network | Resistor - Scribd, accessed January 26, 2026, https://www.scribd.com/document/400615926/can-ford
+3. Understanding Ford PATS: Security for Your Transit - Auto Locksmith in Bristol, accessed January 26, 2026, https://lockcity.co.uk/learning-centre/ford-pats-immobiliser-guide/
+4. Ford Key Programming Guide | PDF | Technology & Engineering - Scribd, accessed January 26, 2026, https://www.scribd.com/document/640011129/Untitled
+5. Passive Anti-theft system (PATS) FoCOM service manual - DiagnosES.biz, accessed January 26, 2026, https://www.diagnoses.biz/data/mediablocks/focom-pats-info-en.pdf
+6. Rolling codes and vehicle locks - EmbeddedRelated.com, accessed January 26, 2026, https://www.embeddedrelated.com/showthread/comp.arch.embedded/19564-1.php
+7. How Rolling code works? : r/CarHacking - Reddit, accessed January 26, 2026, https://www.reddit.com/r/CarHacking/comments/1bo8l4w/how_rolling_code_works/
+8. SecuriLock - Wikipedia, accessed January 26, 2026, https://en.wikipedia.org/wiki/SecuriLock
+9. 2021+ FORD F150 KEY PROGRAMMING BY OBD Ford FDRS Dealer Login use Mongoose Pass thru cable with Active alarm - Lock50 HW04, accessed January 26, 2026, https://lock50.co.uk/2021-to-24-all-ford-f150-key-programming-by-obd-ford-fdrs-dealer-login-use-mongoose-pass-thru-cable-with-active-alarm-free-for-lock50-users/
+10. Ford F-Series (fourteenth generation) - Wikipedia, accessed January 26, 2026, https://en.wikipedia.org/wiki/Ford_F-Series_(fourteenth_generation)
+11. Along with new F-150, first new vehicle to use Ford's Fully-Networked Vehicle Architecture (FNV 2.0) | MachEforum, accessed January 26, 2026, https://www.macheforum.com/site/threads/along-with-new-f-150-first-new-vehicle-to-use-fords-fully-networked-vehicle-architecture-fnv-2-0.2130/
+12. Why Simplicity is The Blueprint for Our Future Electric Vehicle Platform - Ford, accessed January 26, 2026, https://www.fromtheroad.ford.com/us/en/articles/2025/simplicity-blueprint-future-ford-electric-vehicle-platform
+13. 2022 F-150, accessed January 26, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/TSB/EU/~WTSB23-2099/US/EN/~UEmployee/default.aspx?VIN=&ver
+14. Communication Network System Component Description | PDF - Scribd, accessed January 26, 2026, https://www.scribd.com/document/615768533/Communication-Network-System-Component-Description
+15. SSM 49994 - 2021 F-150 - Modules On HS2, HS3, HS4, MS CAN Networks Do Not Respond To - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2021/MC-10200983-0001.pdf
+16. 2021 Ford F-150 Model Options & Comparison, accessed January 26, 2026, https://www.kimbercreekford.com/blog/2021-ford-f-150-model-options-comparison/
+17. Ford Diagnostic Tools: FDRS vs IDS, VCM3 & PATS Access (2025 Guide) - TechRoute66, accessed January 26, 2026, https://techroute66.com/ford-diagnostic-tools/
+18. Programming: Part II - Ford - Gears Magazine, accessed January 26, 2026, https://gearsmagazine.com/magazine/programming-part-ii-ford/
+19. Ford Module programming what to do when something goes wrong | Tool Hut USA, accessed January 26, 2026, https://www.youtube.com/watch?v=zSl81ukSUpw
+20. Ford F150 2021 (fdrs type) Key Start Program with OCT FastPATS - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=AHqbwAFdWtY
+21. HOW TO PROGRAM KEYS FOR NEW FORD VEHICLES USING FDRS DEALER SOFTWARE USING AUTEL V200 & PC - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=bSpVWxDALwA
+22. Ford F-150 : r/Locksmith - Reddit, accessed January 26, 2026, https://www.reddit.com/r/Locksmith/comments/1lpdvo6/ford_f150/
+23. How to Reset the Anti-Theft System on a Ford F-150, accessed January 26, 2026, https://www.wendlefordsales.com/blog/how-to-reset-the-anti-theft-system-on-a-ford-f-150/
+24. 2019 F-150 active alarm no keypad or existing key : r/Locksmith - Reddit, accessed January 26, 2026, https://www.reddit.com/r/Locksmith/comments/xcjk7i/2019_f150_active_alarm_no_keypad_or_existing_key/
+25. (486) Xhorse Ford Active Alarm All Keys Lost Cable & Key Tool Plus - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=wvF0FKJZpAA
+26. Ford Active Alarm Cable - Intelligent Key Solutions, accessed January 26, 2026, https://www.intelligentkeysolutions.com/product/ford-mustang-active-alarm-bypass-cable/
+27. IKS Active Perimeter Alarm Bypass Cable For Select Ford Vehicles - Key Innovations, accessed January 26, 2026, https://keyinnovations.com/products/iks-ford-active-alarm-cable
+28. 2019 Ford Mustang alarm bypass via the new ADC-2020 emulator! - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=Lie2bJgsP9E
+29. Remote Rev and Keyfob tricks in the Ford Mustang (2024-2025) - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=HIRUmMJWBUc
+30. How to Program a Spare Key Fob for Your Ford Expedition - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=SljzYzPzvs0
+31. 2022 ford Expedition keys and locks VIDEO LIBRARY, accessed January 26, 2026, https://www.ford.com/support/vehicle/expedition/2022/how-to-videos/video-library/keys-and-locks/
+32. Ford Expedition: Design refresh & Hybrid variant incoming - TopElectricSUV, accessed January 26, 2026, https://topelectricsuv.com/news/ford/2022-ford-expedition-hybrid/
+33. FDRS Battery Error..? | Page 2 | MachEforum - Ford Mustang Mach-E News, Owners, Discussions, Community, accessed January 26, 2026, https://www.macheforum.com/site/threads/fdrs-battery-error.17635/page-2
+34. Ford kills automotive networking programme says report ... - eeNews Europe, accessed January 26, 2026, https://www.eenewseurope.com/en/ford-kills-automotive-networking-programme-says-report/
+35. Ford halts project to develop next-generation EV architecture – report - AutoTechInsight, accessed January 26, 2026, https://autotechinsight.spglobal.com/news/5281681/ford-halts-project-to-develop-next-generation-ev-architecture-report
+36. April Sales Records, Ford Cancels Electrical Architecture, Shoppers Hesitant On AI, accessed January 26, 2026, https://www.youtube.com/watch?v=sVDryO4tAQY
+37. How Ford's Software Vision is Redefining the Road Ahead for Customers, accessed January 26, 2026, https://www.fromtheroad.ford.com/us/en/articles/2025/ford-vehicles-software-vision

@@ -1,0 +1,285 @@
+﻿Global Automotive Security Intelligence: Comprehensive Technical Analysis of Mitsubishi Fleet Security (2015–2026)
+1. Introduction and Strategic Operational Context
+The automotive security landscape for Mitsubishi Motors has undergone a radical transformation over the past decade, driven largely by the tightening integration of the Renault-Nissan-Mitsubishi Alliance. For the professional locksmith and security integrator, the period from 2015 to 2026 represents a complex operational environment where legacy proprietary architectures coexist with, and are eventually superseded by, shared global platforms. This report serves as a definitive operational guide and technical analysis for the Mitsubishi Outlander, Eclipse Cross, Outlander Sport (RVR), and Mirage. It provides an exhaustive deconstruction of the immobilizer protocols, remote entry logic, mechanical engineering, and programming procedures required to service these vehicles.
+The central challenge facing technicians in the current era is the bifurcation of Mitsubishi’s engineering logic. Unlike many manufacturers that maintain a linear evolution of security systems, Mitsubishi’s fleet is currently split between two distinct lineages: the Legacy Mitsubishi Architecture, rooted in the proprietary ETACS (Electronic Total Automobile Control System) and utilizing standard Mitsubishi programming slots and rolling codes; and the Alliance Architecture, introduced prominently in the 2022 Outlander, which adopts Nissan’s CMF (Common Module Family) platforms, Security Gateway Modules (SGW), and High-Tag AES (4A) encryption.1
+Misidentification of these platforms is the primary cause of service failure in the field. A 2022 Outlander Sport is fundamentally a different machine from a 2022 Outlander, requiring different software menus, different physical interface cables, and different transponder technologies. This report will rigorously define these boundaries, providing the actionable intelligence necessary to distinguish between a vehicle requiring a standard OBDII connection and one requiring invasive dashboard disassembly for BCM access.
+2. Architectural Bifurcation: Legacy vs. Alliance Platforms
+2.1 The Legacy Mitsubishi Platform (ETACS)
+The "Legacy" architecture refers to vehicles built upon Mitsubishi’s own engineering standards, primarily the GS and GF platforms. This includes the Outlander (up to 2021), the Outlander Sport / RVR (entire run through 2026), the Eclipse Cross (2018–2026), and the Mirage (2015–2026).
+These vehicles are characterized by the integration of the immobilizer logic within the ETACS-ECU (Electronic Time and Alarm Control System). The security handshake typically involves a challenge-response verification between the key’s transponder (usually NXP’s PCF7952/ID46 or later Hitag 3/ID47) and the immobilizer coil. For locksmiths, the hallmark of this system is the programming slot. Legacy Mitsubishi Smart Key systems almost universally require the new fob to be inserted into a physical slot—located in the glovebox, center console, or dashboard—to facilitate the low-frequency (LF) inductive coupling required for key learning.4
+The programming logic for these vehicles is distinctively "Mitsubishi." It often involves a specific PIN code (often static or calculable via VIN) and a rigid procedure where the specialized tester communicates directly with the ETACS unit. The diagnostic path is clear and usually unobstructed by firewalls, making these vehicles accessible via standard OBDII interfaces without the need for bypass cables, provided the locksmith possesses the correct software authorization.
+2.2 The Alliance Platform (CMF-C/D)
+The "Alliance" architecture marks a stark departure from Mitsubishi tradition. Inaugurated with the 2022 Mitsubishi Outlander, this platform is mechanically and electronically derived from the Nissan Rogue (T33 platform).1
+In this environment, the ETACS system is replaced or heavily modified to align with Nissan’s BCM (Body Control Module) architecture. The security logic shifts to Hitag AES (4A) encryption, a far more robust 128-bit standard that resists traditional cloning and emulation attacks. Crucially, these vehicles incorporate a Security Gateway Module (SGW), a firewall designed to filter unauthorized CAN bus traffic entering via the OBDII port. This prevents standard scan tools from writing data—such as new key IDs—to the ECU unless they are authorized via an OEM server or physically bypass the gateway.6
+For the technician, this means the "Mitsubishi" software menu on their key programmer may fail to communicate. Instead, the vehicle responds to protocols designed for the Nissan Rogue or Sentra. Furthermore, the programming interface changes from a physical slot to a Start Button Contact method, where the key is held against the Start/Stop button to read the transponder signal.8
+
+
+  
+
+
+
+3. The Critical 2022+ Paradigm Shift: Nissan Integration
+The introduction of the 2022 Outlander (and subsequent PHEV models in 2023) created a significant disruption in aftermarket serviceability. This section details the specific technical hurdles introduced by this platform shift and the specialized hardware now required.
+3.1 Security Gateway (SGW) and the Need for Bypass
+The modern automotive industry has largely moved toward securing the OBDII port against hacking, and the Alliance platform is no exception. The 2022+ Outlander features a Secure Gateway Module located between the OBDII port and the vehicle’s primary CAN networks. This module allows read-only access (diagnostics) but blocks write commands (key programming) unless a digital certificate is presented.
+Since aftermarket tools often lack the ability to present this OEM certificate in real-time, locksmiths must physically bypass the module. There are two primary methods for this, dictated by the vehicle's specific wiring harness configuration and the tool being used:
+1. 12+8 Bypass (Star Connector): This method, common in Chrysler vehicles, is occasionally applicable to early or specific Alliance implementations where the gateway connectors are accessible. It involves unplugging the connectors from the SGW and plugging them into a bypass cable that shorts the appropriate pins to creates a direct line to the CAN bus.
+2. 40-Pin BCM Direct Connection: This is the definitive and most reliable method for the 2022+ Outlander and its Nissan Rogue twin. In an "All Keys Lost" (AKL) scenario, the vehicle's alarm is typically active, which can further lock down communication. The solution is a specialized Nissan 40-Pin Cable (e.g., Autel, Lonsdor, or ADC2017 compatible hardware).7
+Physical Access to the BCM:
+The Body Control Module (BCM) in the 2022+ Outlander is physically located deep within the dashboard assembly, typically behind the glovebox or near the driver’s kick panel depending on the region (LHD vs. RHD). Accessing this module to connect the 40-pin cable is invasive. Technicians must carefully remove the glovebox assembly to expose the BCM. The target connector is a dense, 40-pin block that carries both data and power. Connecting the bypass cable here does two things: it intercepts the data stream before it reaches the gateway, and it provides a direct power injection to wake the BCM even if the ignition cannot be turned on due to a lost key.10
+The connector geometry and pinout are identical to the Nissan Rogue (T33). Locksmiths are advised to disconnect the vehicle battery before attempting this connection to avoid shorting pins during the difficult reach behind the dash. Once connected, the diagnostic tool will treat the system as a Nissan BCM, bypassing the need for a gateway authorization code.
+3.2 Transponder Technology: The Shift to 4A
+The shift to the Alliance platform also migrated the transponder logic from the NXP Hitag 2/3 (ID46/47) family to the Hitag AES (4A) standard. The ID4A chip uses 128-bit encryption, which is significantly more secure than the 40-bit or 80-bit logic of previous generations.
+This has immediate implications for key generation. The "Universal Smart Keys" (like those from Autel or Xhorse) used for older Mitsubishis must be generated specifically for Nissan 4A logic, not Mitsubishi ID46. Trying to program a standard Mitsubishi-generated universal key into a 2022+ Outlander will result in a failure to detect the key. The tool will simply time out looking for a transponder that speaks the correct cryptographic dialect.
+4. Model-Specific Intelligence: Mitsubishi Outlander (2015–2026)
+The Outlander is the flagship model and the primary vector for the architectural changes discussed. Service procedures differ radically depending on the generation.
+4.1 Generation 3 (2015–2021)
+This generation sits firmly on the Mitsubishi GS/GF platform. It is a known quantity in the locksmith world, but specific variations in transponders exist.
+Hardware Specifications:
+* System Type: KOS (Keyless Operation System) / ETACS.
+* Transponder:
+   * 2015-2021 Smart Key: PCF7952A (ID46).11 The presence of the ID46 chip indicates a rolling code system that has been standard for Mitsubishi for years.
+   * FCC ID: OUC644M-KEY-N or OUC644M-KEY-N-3P.11
+   * Part Numbers: 8637A817, 8637C813.
+   * Frequency: 315 MHz.
+* Key Blade: MIT11 (Right Groove).
+* Slot Location: The programming slot is critical for this generation. It is typically found in the glovebox (look for a small indentation or holder) or sometimes forward of the shifter in the center console. The key must be inserted here for the LF coil to energize the chip directly.
+Operational Procedures:
+For an "All Keys Lost" scenario on a Gen 3 Outlander, the procedure relies on the standard Mitsubishi diagnostic menu.
+1. Vehicle Connection: Connect the OBDII tool. Ensure battery voltage is stable (above 12V), as ETACS is sensitive to voltage drops.
+2. System Selection: Select "Mitsubishi" -> "Outlander" -> "2014-2021" -> "Smart Key".
+3. PIN Code: The system requires a PIN to access the key learning function. Common static PINs for this era include 8A42 and 8A62.13 If these fail, the tool must calculate the PIN from the VIN or the BCM seed code. Most modern tools (Autel, Smart Pro) handle this calculation automatically in the background.
+4. Learning Process:
+   * Select "All Keys Lost." This will erase all existing keys from the KOS memory.
+   * Insert the new Smart Key into the programming slot.
+   * Follow the prompts to cycle the ignition (press the Start button).
+   * Successful programming is often indicated by a chime or the security light extinguishing.
+4.2 Generation 4 (2022–2026)
+This generation utilizes the CMF-C/D platform (Nissan Rogue T33 clone).
+Hardware Specifications:
+* System Type: Nissan BCM / Hands-Free Module.
+* Transponder:
+   * Chip: Hitag AES (4A) / NCF29A1M.15
+   * FCC ID: KR5MTXN1.16
+   * Part Numbers: 8637C253, 8637C254.
+   * Frequency: 433.92 MHz. While some sources mention 315 MHz for US markets, the KR5 prefix and Continental part numbers usually align with 433 MHz in Nissan applications. Technicians should verify with a frequency counter. The Nissan Rogue (T33) typically uses 433 MHz.
+* Key Blade: MIT11 (or MIT3). Despite the electronics being Nissan, the mechanical lock cylinders remain Mitsubishi specifications.18 Do not use NSN14 keys, as they will not enter the lock cylinder.
+Operational Procedures:
+Programming the Gen 4 Outlander requires treating it as a Nissan.
+1. Vehicle Connection (Add Key): If a working key is present, the gateway may sometimes be bypassed via software using a "Server Calculation" on tools like the Autel IM608, connecting purely via OBDII. However, success rates vary.
+2. Vehicle Connection (All Keys Lost): This almost universally requires the 40-Pin Cable method.
+   * Remove the glovebox to expose the BCM.
+   * Disconnect the 40-pin connector from the BCM.
+   * Connect the male end of the bypass cable to the BCM and the female end to the vehicle harness.
+   * Connect the OBDII connector of the bypass cable to the key programmer.
+3. System Selection: If "Mitsubishi Outlander 2022" is not available or fails, select Nissan -> Rogue -> 2021+ (T33). The protocol is identical.3
+4. Learning Process:
+   * Select "Read PIN Code" (usually a 20-digit rolling code). The tool will query the BCM and calculate the PIN via server.
+   * Once the PIN is acquired, select "Program Smart Key".
+   * Start Button Contact: Unlike the Gen 3, there is no slot. You must hold the back of the Smart Key (usually the logo side) against the Start/Stop button. The dashboard will likely display "Key ID Incorrect" until the programming is successful, at which point it will change or the hazards will flash.8
+   * Synchronization: Once the key is registered, hold it to the button and press "Start" to verify the ignition turns on.
+5. Model-Specific Intelligence: Mitsubishi Eclipse Cross (2018–2026)
+The Eclipse Cross occupies a unique middle ground. While introduced later than the Outlander Sport, it retains the Legacy platform architecture but adopts newer transponder technology early in its lifecycle. It serves as a bridge between the old ID46 systems and the new ID47/4A systems.
+5.1 Technical Specifications
+Smart Key System:
+* FCC ID: OUCGHR-M013.20
+* Part Numbers: 8637B639 (2018-2021), 8637C983 (2022-2025).
+* Chip: Philips ID47 (Hitag 3).20 This represents an upgrade from the ID46 used in the contemporaneous Outlander Sport. ID47 offers better range and security.
+* Frequency: 315 MHz.
+* Buttons: 3-Button (Lock, Unlock, Panic).
+* Blade: MIT11R (High Security Reverse).
+Remote Head Key (Bladed):
+* FCC ID: OUCJ166N.22
+* Chip: Hitag 3 (PCF7961M / ID47).
+* Keyway: MIT11R.
+* Note: The existence of a bladed key with ID47 logic is relatively rare in the Mitsubishi lineup and mimics Honda’s transition to "G" chips.
+5.2 Programming Logic and Common Issues
+The Eclipse Cross utilizes the PROX 3 system logic. Programming procedures are generally OBD-based without the need for gateway bypass cables, as the vehicle predates the stringent SGW implementation found in the 2022+ Outlander.
+All Keys Lost (AKL):
+* Tooling: Smart Pro (ADS2281 software), Autel IM508/608.
+* Procedure:
+   * Connect via OBDII.
+   * Bypass the security PIN (tools typically handle this rolling code automatically).
+   * The "Add Key" function typically requires a working key to authorize the session. In AKL, the "All Keys Lost" function is mandatory, which erases all previous keys.
+* "Wrong Key" Errors: A significant issue reported in the field is the failure of aftermarket keys to program, returning a "Wrong Key" or "Key Error" message during the learning phase.23 The Eclipse Cross ID47 system is highly specific regarding the pre-coding of the transponder. Generic ID47 chips often fail. It is strongly recommended to use OEM keys or high-quality aftermarket keys that are explicitly pre-coded for the OUCGHR-M013 configuration.
+* Key Positioning: During programming, the key must be held to the Start/Stop button. Some procedures specify holding the key "inverted" (logo facing the button) to align the antenna correctly with the button's internal coil.8
+6. Model-Specific Intelligence: Mitsubishi Outlander Sport / RVR (2015–2026)
+The Outlander Sport (North America) and RVR (Canada/Japan) are the longest-running iterations of the Legacy GS platform. Crucially, unlike the larger Outlander, the Outlander Sport did not migrate to the Nissan platform in 2022. It remains a Mitsubishi engineered vehicle through 2026.
+6.1 Unchanged Legacy Architecture
+Locksmiths must not conflate the "Outlander" and "Outlander Sport." While the 2022 Outlander requires a Nissan bypass cable, the 2022 Outlander Sport requires standard Mitsubishi adapters (if any) and standard legacy software.
+Hardware Specifications:
+* Smart Key (Prox):
+   * FCC ID: OUC644M-KEY-N (Early models) transitioning to OUCGHR-M013 (2020+ Facelift).
+   * Chip: ID46 (PCF7952) for earlier models; newer facelifts may utilize ID47.
+   * Frequency: 315 MHz.
+* Bladed Key:
+   * FCC ID: OUCG8D-625M-A or OUCJ166N.
+   * Chip: ID46.
+   * Blade: MIT11.
+6.2 Programming Procedures
+The Outlander Sport is one of the most straightforward vehicles to service in the Mitsubishi fleet due to its stable, long-running architecture.
+* PIN Codes: The static PIN 8A62 is overwhelmingly common for the Outlander Sport/RVR across the 2011-2020 range.4 If 8A62 fails, 8A42 or 004F are secondary options.
+* Slot Programming: The Smart Key system relies on the glovebox slot. In AKL scenarios, the new key must be inserted into this slot. Debris in the slot is a common cause of failure; technicians should inspect the slot with a flashlight before assuming a system fault.
+* Onboard Programming (OBP): A manual procedure exists for adding remotes (not transponders) if two working keys are present.
+   1. Insert Key 1 (Turn ON 5 sec, OFF, Remove).
+   2. Insert Key 2 (Turn ON 5 sec, OFF, Remove).
+   3. This sequence opens the remote learning window (indicated by immobilizer light flashing).
+   4. However, for professional service, diagnostic programming is preferred as it handles both the remote and the immobilizer simultaneously.24
+7. Model-Specific Intelligence: Mitsubishi Mirage (2015–2026)
+The Mirage and Mirage G4 are budget-oriented platforms that have nevertheless received significant security upgrades.
+7.1 Evolution of Transponder Logic
+* 2015-2019: Used the OUC003M Smart Key with ID46 logic.25 These systems are standard legacy Mitsubishi.
+* 2020-2023: Transitioned to ID47 (Hitag 3) chips. FCC ID OUCGHR-M013 became common, sharing hardware with the Eclipse Cross and Outlander Sport.26
+* 2024+ (The G4 Update): A new Smart Key with FCC ID GHR-M013-FSL (Part # 8637C998 / 285E3W550P) has been identified.27 The part number prefix 285E3 is characteristically Nissan. This suggests that while the chassis remains Mitsubishi, the electronic components are increasingly being sourced from the Alliance supply chain. These keys use Hitag 3 (ID47) logic but likely with updated firmware/pre-coding.
+7.2 Service Implications
+Technicians encountering a 2024+ Mirage should be prepared for potential protocol shifts. While likely still programmable via "Mitsubishi" menus (unlike the Outlander), the transponder compatibility is stricter. Old OUC003M keys will not work on these newer models. The specific FCC ID GHR-M013-FSL must be matched.
+8. Mechanical Engineering & Physical Security
+One of the most persistent sources of confusion and inventory waste involves the physical keyways used by the Alliance vehicles.
+8.1 The MIT11 vs. NSN14 Critical Distinction
+When the 2022 Outlander adopted the Nissan Rogue's electronic architecture, many locksmiths assumed it also adopted the Nissan NSN14 keyway. This is incorrect.
+* The Reality: The 2022+ Outlander retains the MIT11 (also referred to as MIT3) keyway profile.18
+* The Risk: An NSN14 emergency key blade will physically not enter the lock cylinder of a 2022+ Outlander. It is wider and has a different milling profile.
+* Actionable Advice: When stocking "Universal" smart keys for the 2022+ Outlander (Nissan 4A type), technicians must ensure they install an MIT11 emergency blade insert, not the NSN14 blade that typically accompanies Nissan-style universal remotes.
+
+
+  
+
+
+
+8.2 Lishi Tool Selection
+* MIT11 (Standard): Used for the vast majority of models including Outlander (all years), Outlander Sport, and Mirage. The Lishi MIT11 2-in-1 is the correct tool.
+* MIT11R (Reverse): Often found on the Eclipse Cross and some Mirage ignitions. This profile is the mirror image of the MIT11. Technicians should carry both the MIT11 and MIT8 (or MIT11R) Lishi tools to ensure coverage.
+* Usage Note: These locks typically contain 8 wafers (positions 1-8). They are relatively easy to pick but require light tension.
+9. Transponder & Remote Cryptography: A Deep Dive
+Understanding the underlying data structures of the keys is essential for troubleshooting "Key Learning Failed" errors.
+9.1 PCF7952 (ID46)
+Used in the Gen 3 Outlander and pre-2020 Outlander Sport. This is a robust, rolling-code transponder. It relies on a "Secret Key" (SK) exchange. Cloning is possible but requires "sniffing" data from the vehicle ignition coil, which is difficult in an All Keys Lost situation. Direct generation of a new ID46 chip using a diagnostic tool is the standard procedure.
+9.2 Philips ID47 (Hitag 3)
+Used in Eclipse Cross, newer Outlander Sport, and Mirage. Hitag 3 offers extended memory pages and improved encryption over ID46.
+* Pre-coding: ID47 keys are not generic. A blank ID47 chip must be "pre-coded" with specific Mitsubishi configuration data (CS/Config bytes) before the vehicle will accept it. This is why "unlocked" used keys often fail unless they have been fully reset and re-flashed with the correct firmware.
+9.3 Hitag AES (4A)
+Used in the 2022+ Alliance Outlander.
+* Encryption: 128-bit AES (Advanced Encryption Standard).
+* Security: This system allows the vehicle to authenticate the key and the key to authenticate the vehicle.
+* Cloning: Virtually impossible with current handheld tools.
+* Generation: Requires specialized "Nissan 4A" universal remote generation files. If using an Autel or Xhorse universal key, you must select the Nissan Rogue 2021+ profile to generate the correct 4A logic. There is currently no distinct "Mitsubishi 2022 Outlander" profile in many tool databases; the Nissan profile is the functional equivalent.
+10. Advanced Tooling & Diagnostics Ecosystem
+To service the full 2015-2026 range, a locksmith requires a stratified tool kit. Relying on a single programmer is a point of failure.
+10.1 The Cable Ecosystem
+* Nissan 16+32 Gateway Adapter: Used for bypassing the SGW on 2020+ Nissan/Mitsubishi vehicles. It connects between the SGW and the harness. Useful for diagnostics and "Add Key" where a working key is present.
+* Nissan 40-Pin BCM Cable: Mandatory for All Keys Lost on the 2022+ Outlander. This cable connects directly to the BCM, bypassing the gateway and the alarm state. It provides the "wake-up" signal to the BCM that a standard OBD connection cannot provide when the alarm is active.10
+* ADC2017 Cable: Proprietary cable for the Smart Pro programmer. Functionally similar to the 40-pin cable but designed specifically for the Smart Pro’s multiplexer.7
+10.2 Programmer Comparison
+
+
+Programmer
+	Strength
+	Weakness
+	Best For
+	Autel IM508/608
+	Versatility. Excellent coverage of both Legacy (ETACS) and Alliance (Nissan) systems.
+	Can be slow to calculate Nissan PINs without internet.
+	All Models.
+	Smart Pro
+	Reliability. "ADS2326" software is stable for 2022+ Outlander.3
+	Requires specific ADC2017 cable (extra cost). Token system can be expensive.
+	2022+ Outlander, Eclipse Cross.
+	Lonsdor K518
+	Speed. Fast PIN reading for Nissan 4A systems.
+	Documentation can be sparse.
+	2022+ Outlander AKL.
+	XTool
+	Budget. Good coverage for legacy Mitsubishi static PINs.
+	Weaker on newer Alliance 4A systems compared to Autel.
+	Outlander Sport, Mirage.
+	11. Operational Procedures: Step-by-Step Field Guides
+11.1 All Keys Lost: 2022+ Mitsubishi Outlander (Alliance)
+Objective: Program a new Smart Key when no working keys exist.
+Tools: Autel IM608, Nissan 40-Pin Cable, New 4A Smart Key (433MHz).
+1. Preparation: Ensure vehicle battery is >12.5V. Locate BCM behind glovebox.
+2. Cable Connection:
+   * Disconnect negative battery terminal (Safety).
+   * Remove glovebox assembly.
+   * Locate the BCM (black box with multiple connectors).
+   * Unplug the 40-pin connector.
+   * Install the 40-Pin Bypass Cable in-line. Reconnect battery.
+3. Programmer Setup:
+   * Connect Autel VCI to the OBD port on the bypass cable.
+   * Menu: IMMO -> Nissan -> Manual Selection -> Rogue -> 2021+ (T33) -> Smart Key.
+4. PIN Reading:
+   * Select "Immo Status Scan".
+   * Select "Read PIN Code". (Requires WiFi). Tool will pull the 20-digit BCM code and calculate the PIN.
+5. Key Learning:
+   * Select "Add Key" or "All Keys Lost".
+   * Prompt: "Place Key on Start Button."
+   * Hold the new key (Logo side) against the Start button.
+   * Wait for dashboard chime/flash.
+   * Note: If it fails, try flipping the key or moving it slightly to find the sweet spot of the LF antenna.
+6. Reassembly: Disconnect bypass cable, restore factory connections, reinstall glovebox.
+11.2 Add Key: 2018+ Eclipse Cross
+Objective: Add a spare key.
+Tools: Smart Pro or Autel.
+1. Preparation: Locate OBD port. No bypass cable needed usually.
+2. Menu: Mitsubishi -> Eclipse Cross -> 2018+.
+3. Procedure:
+   * Select "Program Keys".
+   * Tool will bypass PIN automatically.
+   * Prompt: "Hold New Key to Start Button."
+   * Hold key (inverted) to button.
+   * Wait for success message.
+4. Verification: Test remote functions (Lock/Unlock) and Proximity Start.
+12. Troubleshooting Common Issues
+12.1 "Communication Failed" on 2022+ Outlander
+* Cause: Security Gateway is blocking the tool.
+* Solution: You are likely using the standard OBDII port without a bypass. You must use a 16+32 or 40-pin cable to communicate with the BCM directly.
+12.2 "Key Learning Failed" on Eclipse Cross
+* Cause: Incorrect Transponder or Aftermarket Key.
+* Solution: The Eclipse Cross requires ID47 chips properly pre-coded. Many generic "Mitsubishi" keys are ID46. Verify the FCC ID matches OUCGHR-M013. Try an OEM key if aftermarket fails.
+12.3 "Key Not Detected" in Slot (Outlander Sport)
+* Cause: Debris in slot or weak key battery.
+* Solution: Blast the slot with compressed air. Replace the CR2032 battery in the smart key. Ensure the key is fully inserted and oriented correctly (buttons facing the correct way as per owner's manual).
+13. Conclusion
+The serviceability of the Mitsubishi fleet from 2015 to 2026 relies on the locksmith's ability to discern between Legacy and Alliance engineering. The 2022 Model Year serves as the critical fault line. Vehicles preceding this (and the Outlander Sport/Mirage continuing through it) act as traditional Mitsubishi ETACS systems, responsive to standard tools and static PINs. The 2022+ Outlander, however, acts as a Nissan in disguise, demanding 4A-compatible hardware and invasive BCM access.
+By strictly adhering to the platform identification protocols—verifying VINs, checking FCC IDs for KR5 (Nissan) vs OUC (Mitsubishi) prefixes, and stocking the correct MIT11 mechanical blades—technicians can navigate this complex transition with confidence and precision.
+________________
+Data References:
+
+
+1
+Works cited
+1. Renault Nissan Mitsubishi Alliance - Road to 2030, accessed January 5, 2026, https://alliancernm.com/home-alliance/the-road-to-2030/
+2. Renault-Nissan-Mitsubishi Alliance | Our Company | Nissan Motor Corporation Global Website, accessed January 5, 2026, https://www.nissan-global.com/EN/COMPANY/ALLIANCE/
+3. 2022 Mitsubishi Outlander proximity key programming via Smart Pro! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=_US0ODtHRAA
+4. Make Area Model Year Key Type Read PIN Add Keys All Keys Lost Remote Other Functions MITSUBISHI China V73 / / MITSUBISHI - XTool, accessed January 5, 2026, https://www.xtooltech.com/official/pack_pdf/PS_IKMITSUBISHI/PS_IKMITSUBISHI_V26_83_EN.PDF
+5. 2022 Mitsubishi Outlander vs 2022 Nissan Rogue | 10 KEY DIFFERENCES! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=X6Gk5oSkc0Y
+6. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 5, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+7. Advanced Diagnostics - Nissan Mitsubishi Bypass Cable ADC2017 for SMART Pro Programmer for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-nissan-mitsubishi-bypass-cable-adc2017-for-smart-pro-programmer
+8. 2023 Mitsubishi Eclipse Cross proximity key programming - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=iUy_0q3B0LI
+9. 2022 Mitsubishi Outlander Sport Keyless Entry Remote Fob Smart Key Pro – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2022-mitsubishi-outlander-sport-keyless-entry-remote-fob-smart-key-programming-instructions
+10. 2023 Mitsubishi Outlander - All Keys Lost Autel IM608 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=PcOt1SySkLI
+11. Genuine Mitsubishi Outlander 2015-2019 Smart Key, 4Buttons 8637A817 315MHz, OUC644M-KEY-N - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/mitsubishi-outlander-smart-key-4buttons-315mhz-ouc644m-key-n-8637a817-1402
+12. 2015-2020 Mitsubishi Outlander Smart Key Fob 8637A817 OUC644M-KEY-N - Key4, accessed January 5, 2026, https://www.key4.com/mitsubishi-outlander-smart-prox-key-8637a817
+13. Autel IM608 II/ IM508S Program Mitsubishi Outlander Sport AKL - AutelShop.de Official Blog, accessed January 5, 2026, http://blog.autelshop.de/autel-im608-ii-im508s-program-mitsubishi-outlander-sport-akl/
+14. Mitsubishi Pin Codes For Programming | Car Key Solution - Auto Locksmith Services, accessed January 5, 2026, https://www.carkeysolution.ca/mitsubishi-keys/
+15. VD22589-Mitsubishi Outlander Original Smart Key 8637C254 - VVDI, accessed January 5, 2026, https://www.vvdi.com/vd22589-mitsubishi-outlander-original-smart-key-8637c254
+16. 2022 - 2024 Mitsubishi Outlander Smart Key 3B Fob FCC# KR5MTXN1 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-2022-mitsubishi-outlander-smart-key-3-buttons-fob-fcc-kr5mtxn1
+17. OEM 21-24 MITSUBISHI OUTLANDER SMART KEY PROXIMITY REMOTE FOB 8637C254 KR5MTXN1 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/145300752158
+18. Mitsubishi Outlander 2022 Smart Remote Key Blade 6370C465 - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/mitsubishi-outlander-2022-smart-remote-key-blade-6370c465
+19. Mitsubishi New OEM 2021-2023 Outlander Smart Key Insert - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/mitsubishi-new-oem-2021-2023-outlander-smart-key-insert-blade-pn-6370c465
+20. 2018 - 2024 Mitsubishi Eclipse Cross Smart Key 3B Fob FCC# OUCGHR-M013, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2018-2022-mitsubishi-smart-key-3b-fob-fcc-oucghr-m013-8637b639
+21. Mitsubishi New OEM 2022-2025 Eclipse Cross Smart Key 3B FCCID: OUCGHR-M013 PN# 8637C983, accessed January 5, 2026, https://royalkeysupply.com/products/mitsubishi-new-oem-2021-2023-eclipse-cross-smart-key-3b-fccid-oucghr-m013-pn-8637c983
+22. Mitsubishi Eclipse Cross 2018+ Key Head Remote 3Buttons 6370C135 315MHz OUCJ166N MIT11R - ABK-1737 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/mitsubishi-eclipse-cross-remote-key-3b-6370c135-315mhz-oucj166n-1737
+23. 2019 eclipse cross key programming error(blade) : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1la3m89/2019_eclipse_cross_key_programming_errorblade/
+24. 2019 Mitsubishi Outlander Sport Keyless Entry Remote Fob Smart Key Programming Instructions - Keyless2Go, accessed January 5, 2026, https://keyless2go.com/blogs/program-instructions/2019-mitsubishi-outlander-sport-keyless-entry-remote-fob-smart-key-programming-instructions
+25. 2015 Mitsubishi Mirage Smart Key Fob PN: 8637B153, accessed January 5, 2026, https://remotesandkeys.com/products/2015-mitsubishi-mirage-5512
+26. 2020 - 2024 Mitsubishi Mirage G4 Smart Key 4B W/ Trunk Fob FCC# OUCGHR, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2020-2024-mitsubishi-mirage-g4-smart-key-4b-w-trunk-fob-fcc-oucghr-m013-ouc003m-8637c291
+27. 2024 Mitsubishi Mirage / 4-Button Smart Key / PN: 8637C998 / 285E3W550P (OEM) for Sale, accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-mitsubishi-mirage-4-button-smart-key-pn-8637c998-285e3w550p-oem
+28. MK3. Mitsubishi Mirage Smart Remote Key 8637C998 / 285E3W550P, accessed January 5, 2026, https://www.mk3.com/en/mitsubishi-mirage-smart-remote-key-8637c998
+29. Lonsdor Nissan 40Pin BCM Cable For Nissan - Mitsubishi 2019-2024 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/lonsdor-nissan-40pin-bcm-programming-cable-for-nissan-1913
+30. For 2011 2012 2013 2015 2016-2024 Mitsubishi Outlander Sport Remote Car Key Fob, accessed January 5, 2026, https://www.ebay.com/itm/396426266553
+31. 2025 Mitsubishi Eclipse Cross Smart Key Fob PN: 8637C983, accessed January 5, 2026, https://remotesandkeys.com/products/2025-mitsubishi-eclipse-cross-smart-key-fob-pn-8637c983
+32. Remote Head Key for Mitsubishi Eclipse Cross 6370C135 OUCJ166N - Key4, accessed January 5, 2026, https://www.key4.com/remote-head-key-mitsubishi-eclipse-cross-6370c135-oucj166n
+33. How to Program All Keys Lost on Mitsubishi Attrage 2014 Using Autel KM100 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=FcK8WWYjbcE
+34. Mastering Key Cutting & Programming: 2019 Mitsubishi Outlander Sport Chip Key When All Keys Lost. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=oF1oULP8oVM
+35. Mitsubishi 2006-2022 Smart Emergency Key - Nitrous Keys, accessed January 5, 2026, https://nitrouskeys.com/products/mitsubishi-2006-2022-smart-key-emergency-key
+36. 2010-2024 Mitsubishi Outlander Lancer 3B RHK OUCJ166N - Your Car Key Guys, accessed January 5, 2026, https://yourcarkeyguys.com/products/2010-2024-mitsubishi-outlander-lancer-3b-rhk-w-shoulder-oucj166n

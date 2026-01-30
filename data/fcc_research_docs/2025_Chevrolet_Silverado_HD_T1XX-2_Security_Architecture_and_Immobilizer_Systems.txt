@@ -1,0 +1,259 @@
+﻿2025 Chevrolet Silverado HD (T1XX-2) Security Architecture and Immobilizer Systems Intelligence Report
+1. Executive Intelligence Summary
+1.1 Strategic Context and Report Scope
+The 2025 Chevrolet Silverado Heavy Duty (2500HD/3500HD) represents the definitive maturation of General Motors’ T1XX truck platform, marking the complete transition of the heavy-duty lineup to the Global B (Vehicle Intelligence Platform - VIP) electrical architecture. This shift is not merely an iterative update; it constitutes a fundamental discontinuity in the automotive security landscape, rendering legacy locksmithing methodologies and programming interfaces obsolete. The introduction of the 2025 model year completes the phased rollout of this encrypted architecture, which began with the Silverado 1500 refresh in late 2022 (often denoted as 2022.5) and extended to the HD lineup for the 2024 model year.
+This comprehensive intelligence report provides an exhaustive technical analysis of the 2025 Silverado HD's security framework. It is designed for security professionals, automotive locksmiths, and fleet technical managers who require granular operational data to service these vehicles. Unlike the "Global A" architecture that dominated the previous decade—characterized by open CAN bus access and relatively static key exchange protocols—the 2025 Silverado HD employs a high-speed CAN-FD (Controller Area Network with Flexible Data-rate) backbone, secured by a dedicated Serial Data Gateway Module (SDGM). This gateway acts as a formidable firewall, strictly regulating all traffic between the external OBD-II diagnostic port and the vehicle's internal nervous system.
+The findings detailed herein are derived from a forensic examination of OEM service mandates, part schematics, software release notes, and field reports from early 2025 deployments. Critical attention is paid to the operational impacts of GM’s mandatory transition to hardwired diagnostics effective June 2025, the specific pin-out configurations of the Global B Body Control Module (BCM), and the nuanced differences between the retail "High Country" security suites and the utilitarian "Work Truck" fleet configurations.
+1.2 Key Operational Findings
+* Architectural Standardization: The 2025 Silverado HD is fully integrated into the Global B/VIP ecosystem.1 The transitional or "hybrid" architectures observed in early T1XX models (2020-2023 HD) are effectively deprecated. Every control module, from the BCM to the Infotainment System, is now cryptographically bound to the VIN and protected by continuously rotating security keys.
+* The "Hardwire" Mandate: Effective June 23, 2025, General Motors has enforced a strict policy within the Service Programming System (SPS2) requiring a hardwired USB or Ethernet connection for all programming events.3 Wireless J2534 tool usage is now actively blocked by the Techline Connect software to prevent data packet corruption during massive CAN-FD payload transfers, a measure that fundamentally changes the equipment requirements for mobile locksmiths.
+* The 2-Hour Security Wait: In "All Keys Lost" (AKL) scenarios utilizing standard OEM protocols, the Global B system enforces a mandatory, unskippable 2-hour security timer.4 This counter-theft measure is designed to increase the "time-on-target" for unauthorized actors but imposes severe constraints on legitimate Service Level Agreements (SLAs).
+* Gateway Isolation: The SDGM acts as a packet-filtering firewall between the Data Link Connector (DLC) and the internal networks. Traditional "Add Key" commands sent via generic OBD-II tools are silently dropped unless the tool possesses valid encrypted certificates or utilizes a hardware intervention method ("CAN Direct") to physically bypass the gateway.5
+
+
+  
+
+
+
+________________
+2. Platform Architecture & Security Topology
+2.1 The T1XX-2 Heavy Duty Platform Evolution
+The 2025 Silverado HD rides on the T1XX-2 platform, a heavily refreshed iteration of the T1XX architecture that was originally introduced for the 2020 model year.8 While the mechanical underpinnings—the fully boxed steel frame, independent front suspension (IFS), and leaf-sprung rear axle—retain the robust characteristics of the original T1XX, the electrical backbone has undergone a complete "brain transplant."
+For the automotive locksmith and security researcher, it is crucial to rigorously distinguish between the T1XX (2020-2023 HD) and the T1XX-2 (2024+ HD Refresh). This distinction is the primary determinant of the tooling and procedures required for service.
+* 2020-2023 HD (Legacy T1XX): These vehicles utilized the "Global A" architecture, albeit with some transitional "Global B-lite" elements in the infotainment system.2 Key programming could typically be performed via standard OBD-II interfaces without encountering massive gateway restrictions, and inter-module communication relied on standard High-Speed CAN (500 kbps).
+* 2024-2025 HD (Refreshed T1XX-2): These models have fully migrated to Global B. This is not merely a software update; it is a comprehensive hardware replacement involving new wiring harnesses, high-density connectors, and fundamentally different communication protocols (CAN-FD).8
+The "refresh" was staggered: the Silverado 1500 received the Global B update in the 2022.5 model year, while the Heavy Duty (2500/3500) lineup followed in the 2024 model year.9 Therefore, a 2025 Silverado HD is a second-year Global B vehicle, meaning the initial firmware bugs have been patched, and the security countermeasures are fully active and enforced.
+2.2 Global B (Vehicle Intelligence Platform)
+The Global B architecture, also known internally as the Vehicle Intelligence Platform (VIP), is defined by its massive data capacity and stringent security posture. It utilizes CAN-FD (Flexible Data-rate) which increases data throughput from the 500 kbps limit of standard CAN to up to 5 Mbps.7 This bandwidth is necessary to support the massive amount of data required for advanced driver-assistance systems (ADAS) like Super Cruise, high-definition 360-degree cameras, and Over-the-Air (OTA) software updates.2
+Security Implications for Access Control:
+1. Encrypted Handshakes: Communication between the key fob, the Body Control Module (BCM), and the Engine Control Module (ECM) involves advanced encryption standards (AES-128 or higher). The "challenge-response" authorization is no longer a static exchange but a dynamic, rolling code sequence that is tightly synchronized with the GM back-end servers.12
+2. Component Protection (VIN Locking): Modules are "VIN-locked" more aggressively than in previous generations. Swapping a BCM or ECM from a donor vehicle without a full SPS2 reprogramming event is impossible. The vehicle will detect the mismatch in the module's security certificate and inhibit starting. Unlike Global A, where a "used" module could sometimes be forced to learn a new VIN, Global B modules often require a "virgin" state or a proprietary unlock process to accept new credentials.13
+3. The Silent Firewall: The Serial Data Gateway Module (SDGM) monitors the OBD-II port (specifically pins 6 and 14 for CAN High/Low). If it detects traffic that does not carry a valid cryptographic signature—such as a generic locksmith tool attempting to read the PIN code—it silently discards the packets.7 This is often misinterpreted by technicians as a "connection failure" or "dead tool," when in reality, the vehicle is actively refusing the unauthorized connection.
+2.3 CAN-FD Implementation and Tooling
+The 2025 Silverado HD utilizes CAN-FD for all critical powertrain and body control communications.
+* Protocol: ISO 11898-2:2016.
+* Data Frame: Supports up to 64 bytes of data per frame (vs. 8 bytes in classic CAN).14
+* Implication for Service Tools: Older J2534 interfaces (like the standard GM MDI 1 or early aftermarket pass-thru devices) generally cannot read CAN-FD frames physically. Technicians must use CAN-FD compatible hardware (e.g., GM MDI 2, Autel V200, OBDSTAR P003, or specialized CAN-FD adapters) to even detect the vehicle's "heartbeat".3 Using a non-CAN-FD tool will result in a "No Communication" error because the tool's transceiver cannot synchronize with the bus speed switch that occurs during the data phase of the CAN-FD frame.
+________________
+3. Security Modules & Hardware Configuration
+3.1 Body Control Module (BCM)
+The Body Control Module (BCM) serves as the primary immobilizer master in the 2025 Silverado HD architecture. It manages the Passive Entry Passive Start (PEPS) antennas, processes the RF signals from the smart key, and authorizes the engine start request sent to the ECM.
+* Part Numbers: Recent OEM part streams identify the BCM part numbers as 13547771, 13531840, and 13591519.15 Note that GM frequently supersedes these numbers with software updates, but the physical hardware remains the "Global B" spec unit.
+* Physical Location: The BCM is located under the driver's side dashboard, positioned to the left of the steering column and behind the knee bolster/trim panel. It is typically mounted vertically.15
+* Connector Configuration: The Global B BCM features a distinct, high-density connector arrangement, utilizing 7 connectors labeled X1 through X7. These connectors are color-coded for identification: Pink, Brown, Green, Blue, Gray, Black, and Natural.19
+Critical Pinout Analysis for Bypass and Bench Programming: For locksmiths attempting to program keys on the bench (to bypass the vehicle gateway) or needing to tap directly into the CAN bus, the BCM connectors provide the most reliable access points. Based on Global B schematics and field analysis of the 2024-2025 harness 21:
+* X4 Connector (Pink): This is the primary communication interface.
+   * Pin 24 (Blue/White): CAN-FD High. This is the critical data line for the high-speed body bus.
+   * Pin 25 (Blue/Black): CAN-FD Low. The complementary low-side data line.
+* X1 Connector (Lights/Power):
+   * Pin 1: Battery Positive Voltage (12V+). This pin requires a constant power supply for bench operations.
+   * Pin 5 or X4 Pin 5: Ground. Chassis ground reference.
+* Wake-Up Logic: Unlike older modules that might wake on CAN traffic alone, the Global B BCM often requires a specific "Ignition" or "Wake Up" signal (often 12V applied to a specific ignition sense pin, typically in the X1 or X2 connector) to fully boot the processor for programming.22
+Bench Programming Insight: Connecting directly to the BCM pins (X4 Pin 24/25) allows a "CAN Direct" tool to communicate with the BCM without passing through the SDGM firewall. However, the BCM expects to see other modules (like the Gateway) on the network. Without the SDGM present in a bench simulation, some "All Keys Lost" calculations may fail if the software logic requires a gateway handshake before releasing the seed.24
+3.2 Serial Data Gateway Module (SDGM)
+The SDGM is the network gatekeeper. On the 2025 Silverado 1500 and HD, its location has shifted from the more accessible locations of previous generations to a deeply buried position, complicating physical bypass attempts.
+* Location: The SDGM is mounted in the driver's side footwell, directly behind the center stack heating vent/duct work. Access requires removing the floor heating vent cover (secured by a 7mm bolt) and peeling back the carpet/felt footwell covering.25
+* Functionality: The SDGM physically interrupts the CAN bus. The wires from the OBD-II port (pins 6/14) go to the SDGM, and the SDGM then has separate output wires going to the vehicle's internal networks. There is no direct copper connection between the OBD port and the BCM.7
+* Bypass Strategy: The "Star Connector" or "CAN Direct" cables used by aftermarket tools (like the Autel 12+8 or proprietary GM adapters) essentially act as a "man-in-the-middle." By unplugging the connector from the SDGM or finding the star connector block, the technician inserts a "Y" splitter. This allows the tool to inject data frames directly onto the internal vehicle bus, bypassing the gateway's packet filtering logic entirely.6
+3.3 Engine Control Module (ECM)
+The ECM works in tandem with the BCM to immobilize the vehicle.
+* Diesel (6.6L Duramax L5P): Uses the E42 ECM.13 This is a securely locked Global B module. Aftermarket tuning or replacement requires a specialized "Unlock" service (often involving physical modification of the board or proprietary RSA key exchange) before it will accept a new VIN or calibration.
+* Gas (6.6L L8T V8): Typically uses the E90 or E99 series ECM.10
+* Immobilization Sequence: Upon pressing the start button, the ECM waits for a "Pre-Release" encrypted message from the BCM. If the BCM does not validate the key fob, it sends a "Disable" message to the ECM. Crucially, if the CAN bus is cut (in an attempt to hotwire), the ECM defaults to a "Fuel Cut" state, preventing the engine from running.28
+________________
+4. Key Credential Specifications
+4.1 Smart Key Fob (PEPS) Technology
+The 2025 Silverado HD standardizes on a 5-button Smart Key (Lock, Unlock, Remote Start, Tailgate, Panic), utilizing high-frequency RF for long-range communication.
+* Frequency: 433.92 MHz.29
+   * Analyst Note: It is critical not to confuse this with older 315 MHz systems found on previous generation GM trucks. The Global B architecture utilizes 433 MHz almost exclusively to support higher data rates and improve signal propagation in crowded RF environments.
+* FCC ID: YG0G21TB2.29 This FCC ID is the definitive identifier for the T1XX-2 Global B fob.
+* OEM Part Numbers:
+   * 13548437 (Standard 5-button configuration).
+   * 13548441 (Alternate supply chain number).
+   * 13560205 (Often associated with High Country/Denali trims, potentially featuring different cosmetic finishes but identical internals).
+* Transponder Chip: The fob utilizes a Hitag AES transponder (often identified in the industry as ID49 or NCF29A1). It employs 128-bit AES encryption.29
+   * Reusability Warning: This chip is not reusable. Once programmed to a vehicle (locked to the VIN), the chip cannot be unlocked or "refleshed" without specialized heavy-duty unsoldering and reprogramming equipment, which is generally not cost-effective for field locksmiths. Service providers must use "Virgin" or "New OEM" keys.29
+* Battery: CR2450 coin cell.30
+4.2 Mechanical Emergency Key
+Despite the push-button start, a mechanical key blade is retained for emergency driver door access.
+* Keyway: HU100.34 This is the standard GM "High Security" laser-cut keyway used since the late 2000s.
+* Code Series: Z-Series (Z0001 - Z6000).36
+* Cutting Specifications: The key requires a vertical milling machine (e.g., Condor, Dolphin, Gymkana). It is a "2-track" internal cut (or "sidewinder") key.
+* Lishi Tool: The HU100 (10-cut) pick and decoder is the standard tool for non-destructive entry.37
+4.3 Fleet Key Options (WT Trim)
+While the retail market has moved entirely to Push-to-Start (PEPS), the Work Truck (WT) trim introduces complexity with fleet-specific configurations.
+* Keyed Ignition Rarity: While most 2025 WTs are equipped with "Keyless Open and Start" 39, fleet orders may specify RPO 6E8 (Fleet Key) or 6E2.41
+* Fleet Common Key: The 6E8 option provides a single key code common to all vehicles in a specific fleet order. This system simplifies logistics for fleet managers but relies on the older Passkey III+ (PK3+) or a transponder-integrated Global B blade key (Chip ID 4A or 46 extended) if a physical ignition cylinder is present.
+* Verification Protocol: Technicians must visually verify the ignition type. If the truck has a Start/Stop button, it must use the YG0G21TB2 smart key. If it has a keyed ignition cylinder (a rare special order), it requires a transponder blade key (typically an HU100 blade with an embedded transponder).
+________________
+5. Programming Protocols: OEM vs. Aftermarket
+5.1 OEM Protocol: GM SPS2 (Techline Connect)
+The Service Programming System 2 (SPS2), accessed via the Techline Connect platform, is the official General Motors method for adding keys, replacing modules, and performing software updates.
+* Access Requirements: A valid LSID (Locksmith ID) obtained via the NASTF (National Automotive Service Task Force) registry is mandatory to purchase key codes, PINs, and immobilization programming subscriptions.12
+* Hardware Compatibility: The system is designed for the GM MDI 2 (EL-52100) or a high-quality J2534-2 compliant device that explicitly supports CAN-FD.3
+* Critical Constraint (June 2025 Update): In a significant operational shift, GM updated Techline Connect in mid-2025 to block wireless programming. Effective June 23, 2025, the MDI 2 must be connected via a USB or Ethernet cable to the laptop hosting the software. If Techline Connect detects a wireless connection during a critical programming event (like an Immobilizer Learn), it will terminate the session. This measure was implemented to prevent data packet loss on the high-bandwidth CAN-FD bus, which can corrupt module memory ("brick" the module).3
+* Process Overview:
+   1. Connect MDI 2 via USB/Ethernet.
+   2. Launch Techline Connect and authenticate via SPS2.
+   3. Select "Immobilizer Learn" -> "Setup".
+   4. Add Key: This function is only available if at least one working key is present. It is a relatively fast process (approx. 15 minutes).
+   5. All Keys Lost: If no working keys are present, the system initiates a mandatory 10-minute wait (which can be extended to 2 hours depending on server load and the specific security state of the BCM) to clear the old key database and authorize new credentials.4
+5.2 Aftermarket Protocol: "CAN Direct" & Hardware Bypass
+Due to the strict firewalling by the SDGM, aftermarket tool manufacturers (Autel, OBDSTAR, Xhorse) have developed hardware-intensive methods to bypass the OBD-II restrictions.
+* Operational Theory:
+   1. OBD Connection: The tool connects to the standard OBD-II port to source power (Pin 16) and ground (Pins 4/5) and to perform basic status checks.
+   2. CAN Direct Tap: A specialized cable—such as the Autel "CAN FD Adapter" or OBDSTAR "CAN Direct Kit"—is physically connected to the internal CAN wires.6
+   3. Tap Points:
+      * BCM Connectors: Unplugging the X4 (Pink) or X7 connector at the BCM and inserting the bypass harness inline.
+      * Star Connector: Locating the CAN distribution block (Star Connector) under the dash and plugging into an empty slot or using a Y-cable to inject the signal.
+* Server-Side Calculation: Once the connection is established, the tool reads the BCM's encrypted configuration data. This data is uploaded to the tool manufacturer's cloud server, where proprietary algorithms (likely derived from cracked private keys or rainbow tables) calculate the required 128-bit security PIN/Seed-Key.5
+* Wait Time Variance:
+   * OEM: 2 hours (Mandatory security delay for AKL).
+   * Aftermarket: Some advanced tools claim to bypass this wait by directly writing the new key ID into the BCM EEPROM via the CAN Direct connection, potentially reducing the job time to under 15 minutes. However, with the 2025 refresh, GM has hardened the BCM write protection. Field reports indicate that even with aftermarket tools, the 2-hour wait is becoming increasingly unavoidable as the "backdoors" are patched.4
+
+
+  
+
+
+
+________________
+6. Detailed Programming Workflows
+6.1 The "All Keys Lost" (AKL) Procedure
+The AKL scenario is the most challenging service event for the 2025 Silverado HD due to the combination of physical disassembly and extended wait times.
+Phase 1: Preparation and Safety
+* Voltage Support: Connecting a Clean Power Supply (battery maintainer) is mandatory. The Global B architecture is extremely sensitive to voltage fluctuations. If the system voltage drops below 12.5V during the critical EEPROM write phase, the BCM may suffer data corruption ("bricking"), necessitating module replacement.3
+* Tool Setup: Ensure the J2534 tool or Key Programmer has the latest 2025 GM database update installed.
+Phase 2: Gaining Access (Aftermarket Method)
+1. Locate SDGM: Identify the Serial Data Gateway Module behind the driver's kick panel or center stack heating vent.25
+2. Install Bypass: Disconnect the CAN-FD bus connector from the SDGM and insert the "CAN Direct" male/female Y-adapter. Connect the adapter to the programmer's main cable.6
+3. Read BCM Data: Select "Immo Status Scan" or "Read Pin". The tool will attempt to extract the BCM configuration data via the direct connection.
+4. Pin Calculation: The tool sends the encrypted data to the server. (Note: A stable Internet connection is required for this step).
+Phase 3: Execution
+1. Locate Key Slot: Identify the Immobilizer Pocket. In 2025 Silverado HD models with the center console (LTZ, High Country), this is typically located inside the center armrest storage bin, at the bottom front, or in the cup holder. For models with a bench seat (WT, Custom), it may be a slot on the dash or a pocket in the fold-down armrest.44
+2. Initiate Programming: Place the new smart key in the pocket. Select "Add Key" (if the pin read was successful and bypassed) or "All Keys Lost" (if forcing a reset).
+3. The Wait: If the tool cannot bypass the security timer via EEPROM manipulation, a countdown will begin. Do not disconnect power or the OBD tool during this phase.
+4. Key Learn Sequence: Once the timer expires or the bypass executes, the vehicle enters "Learn Mode." Press the Start button. The Driver Information Center (DIC) should display "Ready for Remote #1".
+5. Cycling Keys: Place Key 1 in the pocket -> Press Start (Cluster confirms learn) -> Remove -> Place Key 2 -> Press Start.
+6. Finalization: Press and hold the Start button for approximately 12 seconds to exit Learn Mode.
+6.2 Troubleshooting "Dead" Radio/Cluster After Programming
+A common issue reported in 2024-2025 refreshes is the "Serial Data Authentication Configuration" (SDAC) failure.46
+* Symptom: After key programming, the vehicle starts, but the Radio display remains black or displays "Theft Locked," and the Instrument Cluster shows dashes instead of mileage.
+* Root Cause: The BCM and the Radio/Infotainment modules failed to synchronize their security counters during the programming event. The Radio interprets the BCM's new configuration as tampering and locks itself.
+* Resolution:
+   * OEM Method: Perform a "Vehicle Wide Programming" or select the specific "Serial Data Authentication Configuration" function via SPS2. This forces a system-wide handshake re-synchronization.46
+   * Aftermarket Method: Disconnect the negative battery terminal for 15 minutes (Hard Reset). This often forces the modules to re-negotiate the security token upon reconnection, clearing the "Theft Locked" state.
+________________
+7. Trim-Specific Variations
+7.1 Work Truck (WT) & Custom Trims
+* Interior Configuration: These trims are often equipped with the 40/20/40 split-bench seat.
+* Immo Pocket Location: Look for the pocket in the fold-down armrest storage compartment or a dedicated slot on the lower center dashboard.47
+* Fleet Key Integration: If the vehicle is part of a fleet order (check the RPO sticker in the glovebox for code 6E8 or 6E2), it may use a unified key code. While electronically identical in terms of encryption, the mechanical cut of the emergency blade will be shared across the fleet.41
+* Physical Locks: Work Trucks are more likely to feature physical lock cylinders on both the driver's door and the tailgate, whereas higher trims may only have the driver's door cylinder concealed under a cap.
+7.2 LTZ, High Country, & ZR2 Trims
+* Interior Configuration: These models feature the full center console.
+* Immo Pocket Location: Located inside the main storage bin of the center console, usually a designated depression at the bottom.48
+* Advanced Security Features: These trims often include the Advanced Theft Deterrent Package (UTQ).49
+   * Inclination Sensor: Detects towing or jacking attempts.
+   * Interior Motion Sensor: Ultrasonic sensors located in the overhead console detect movement inside the cabin.
+   * Glass Breakage Sensors: Located in the rear quarter windows.
+   * Battery-Backed Siren: A separate siren unit that sounds even if the main battery cable is cut.
+   * Implication for Locksmiths: Opening a locked High Country with a Lishi tool will trigger the alarm immediately. The alarm system may disable the Start button logic until a valid key is presented or the battery is cycled to reset the BCM's alarm state.
+________________
+8. Conclusions and Strategic Recommendations
+The 2025 Chevrolet Silverado HD represents a hostile environment for the unprepared locksmith or technician. The convergence of the SDGM firewall, CAN-FD protocol, and Global B encryption creates a "pay-to-play" barrier where only those with advanced tooling (CAN Direct capabilities) and authorized OEM access (SPS2/NASTF) can operate effectively.
+Strategic Recommendations for Service Providers:
+1. Invest in Hardwired Infrastructure: Dealerships and independent shops must upgrade their laptop-to-vehicle interfaces to hardwired Ethernet/USB connections to comply with GM's June 2025 mandate and avoid the risk of bricking modules during programming.3
+2. Acquire CAN-FD Hardware: Attempting to service a 2025 Silverado with a legacy MDI 1 or standard OBD programmer is futile. Tools must support the ISO 11898-2 CAN-FD standard to communicate with the vehicle.11
+3. Master the Hardware Bypass: Physical access to the SDGM or BCM connectors is now a standard component of the "All Keys Lost" workflow. Technicians should practice removing the driver's side lower dash panels and identifying the specific CAN-FD pairs (Blue/White & Blue/Black) to minimize on-site service time.25
+4. Manage Customer Expectations: The potential 2-hour wait time for key programming is a system feature, not a bug. Customers should be quoted accordingly, with service times estimated at 3+ hours for AKL scenarios to account for disassembly, the mandatory programming wait, and reassembly.
+
+
+  
+
+
+
+The era of "plug-and-play" OBD key programming for GM Heavy Duty trucks has largely ended. The 2025 Silverado HD demands a forensic approach to access control, treating the vehicle as a secure network endpoint rather than just a mechanical lock.
+8.1 Key Data Reference Table
+Specification
+	Detail
+	Note
+	Platform
+	T1XX-2 (Heavy Duty)
+	2025 Refresh
+	Architecture
+	Global B / VIP
+	Encrypted CAN-FD
+	Key Fob Frequency
+	433.92 MHz
+	High Range
+	FCC ID
+	YG0G21TB2
+	5-Button Smart Key
+	Keyway
+	HU100
+	High Security Laser Cut
+	Transponder
+	Hitag AES (128-bit)
+	Locked to VIN
+	BCM Location
+	Driver Dash (Left)
+	Behind Knee Bolster
+	SDGM Location
+	Driver Footwell
+	Behind Heater Vent
+	OBD Protocol
+	CAN-FD
+	ISO 11898-2
+	Programming
+	SPS2 (Hardwired)
+	Wireless Blocked (06/25)
+	Works cited
+1. 2025 Chevy Security Features: 6 Car Theft Prevention Tools - Community Chevrolet Blog, accessed January 25, 2026, https://www.yourchevy.com/blogs/6719/2025-chevy-security-features-6-car-theft-prevention-tools
+2. Driving the Future: GM's Global B Architecture Revolutionizes Vehicle Connectivity, accessed January 25, 2026, https://www.mcgoverngmcofwestborough.com/blog/2023/november/15/driving-the-future-gms-global-b-architecture-revolutionizes-vehicle-connectivity.htm
+3. SPS Events Soon to Require Hard-Wired Connection to MDI 2 | TechLink, accessed January 25, 2026, https://gm-techlink.com/wp-content/uploads/2025/07/GM_TechLink_11_June_2025.pdf
+4. How to bypass GM Techline SPS2 2 Hour Wait - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=1MJMRoXvw5w
+5. How to Program GM Keys 2021–2025 with Autel V200 - obdprice, accessed January 25, 2026, https://www.obdprice.com/blogs/news/program-gm-keys-with-autel-v200
+6. OBDSTAR CAN Direct Kit Fit For Toyota Corolla 4A No Disassembly, accessed January 25, 2026, https://www.ebay.co.uk/itm/357497086742
+7. Gretio Global B Status - Surreal Development, accessed January 25, 2026, https://surrealdev.com/gretio-global-b-status/
+8. 2025 Chevrolet Silverado 2500 HD Tuners and Programmers Parts - Holley, accessed January 25, 2026, https://www.holley.com/platform/chevrolet/silverado-2500-hd/2025/products/tuners_and_programmers/
+9. T1 GM Pickups (2022.5-2026) and Full-Size SUVs (2021-2024) (Global B) - WAMS, accessed January 25, 2026, https://www.whiteautoandmedia.com/product-category/chevrolet-gmc-truck-suvs/fullsizetruck/t1-globalb/
+10. GM Global B - HP Tuners, accessed January 25, 2026, https://webdev2.hptuners.com/gmglobalb/
+11. GM Programming - CAN FD Compatible Programming Machines – UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/collections/gm-programming-can-fd-compatible-programming-machines
+12. How to Program New GM 2021-2025 Keys Autel V200 J2534 Setup-Troubleshoot-Guide (Buick,GMC,Chevy) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=hrSnHb5q4us
+13. GM E42 ECM Service (L5P, Global B) - Hawk Performance Diesel, accessed January 25, 2026, https://www.hawkperformancediesel.com/i-10926-gm-e42-ecm-service-l5p-global-b.html
+14. How To Use Autel IM608 Pro Car Key Programmer - Introduction and Unboxing - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=t1OvWATiRh4
+15. 2025 Chevrolet Silverado Body Control Module BCM BCU Unit P: 13591519 OEM | eBay, accessed January 25, 2026, https://www.ebay.com/itm/276842028456
+16. 2020-2025 GM Body Control Module 13547771 | OEM Parts Online, accessed January 25, 2026, https://g.oempartsonline.com/oem-parts/gm-body-control-module-13547771
+17. 2021-2025 GM Body Control Module 13531840 - Shea Chevrolet Parts, accessed January 25, 2026, https://parts.sheachevrolet.com/oem-parts/gm-body-control-module-13531840
+18. CHEVROLET SILVERADO IMMOBILIZER FUSE LOCATION REPLACEMENT 2014 2015 2016 2017 2018 2019 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=1K_fhyN5rkk
+19. 2014 GM Body Control Module ~ How to De-Pin JST HIT Series Connectors (Chevy & GMC) #Shorts - YouTube, accessed January 25, 2026, https://www.youtube.com/shorts/T9wifMABdFw
+20. ALL LIGHTS ON - Fleece Performance Engineering, accessed January 25, 2026, https://fleeceperformance.com/media/wysiwyg/FPE-ALO-1.pdf
+21. Chevrolet Silverado HD (2500/3500) Pick Up ELECTRICAL Section - GM Upfitter, accessed January 25, 2026, https://www.gmupfitter.com/wp-content/uploads/2025/02/MY25-Silverado-2500-3500HD-BBM.pdf
+22. 2022 Silverado 3500 K9 BCM Pinouts | PDF | Electrical Connector | Switch - Scribd, accessed January 25, 2026, https://www.scribd.com/document/893203091/2022-Silverado-3500-K9-BCM-Pinouts
+23. BCM Connector and Pinout Details | PDF | Switch - Scribd, accessed January 25, 2026, https://www.scribd.com/doc/200651494/Body-Control-Module-Pinouts
+24. Bench Harness Pinouts - Custom ECM, accessed January 25, 2026, https://www.customecm.com/tune-file-repo-and-info-here/bench-harness-pinouts
+25. Installation and Operation Instructions, accessed January 25, 2026, https://assets.ctfassets.net/0j0u5f98aept/5kIwFKgQgMvFetxeRhTf1D/192db57ef73f0cb423362de2de04ac04/920-0913-00.pdf
+26. Installation and Operation Instructions, accessed January 25, 2026, https://assets.ctfassets.net/0j0u5f98aept/5kIwFKgQgMvFetxeRhTf1D/c89d6074b052890ea38eb9468a39e885/920-0913-00.pdf
+27. ELECTRICAL MANUAL – 2008 LIGHT DUTY FULL SIZE C/K TRUCKS - GM Upfitter, accessed January 25, 2026, https://www.gmupfitter.com/wp-content/uploads/2021/05/2008_LD_ElectricalPickupsChassisCabs.pdf
+28. GM Global B Tuning Support is Here. - HP Tuners, accessed January 25, 2026, https://www.hptuners.com/gmglobalb/
+29. 2 For Smart Keyless Remote Key Fob Chevrolet Silverado 2022 2023 2024 2025 | eBay, accessed January 25, 2026, https://www.ebay.com/itm/126685961427
+30. 2025 Chevrolet Silverado Smart Key Remote PN: 13548436, accessed January 25, 2026, https://remotesandkeys.com/products/2025-chevrolet-silverado-smart-key-remote-pn-13548436
+31. 2025 Chevrolet Silverado Smart Remote Key Fob w/ Engine Start by Car & – CarandTruckRemotes, accessed January 25, 2026, https://www.carandtruckremotes.com/products/2025-chevrolet-silverado-smart-remote-key-fob-w-engine-start
+32. 2022-2026 CHEVROLET SILVERADO 1500 2500 3500 5B SMART KEY PROXIMITY REMOTE FOB YG0G21TB2 13548437 - - SFFobs, accessed January 25, 2026, https://www.sffobsinc.com/product/2022-2023-chevy-silverado-chevy-silverado-1500-2500-3500-smart-key-remote-fob-yg0g21tb2/
+33. Chevrolet Silverado Key Fobs - Remotes And Keys, accessed January 25, 2026, https://remotesandkeys.com/collections/chevrolet-silverado-key-fobs
+34. INSERT 2021-2025 Chevrolet Buick GMC Smart Emergency Key Blade HU100, accessed January 25, 2026, https://yourcarkeyguys.com/products/insert-2021-2024-chevrolet-buick-gmc-smart-emergency-key-blade-hu100
+35. (2 Pack) New Uncut Insert Emergency Key Replacement for Chevrolet GMC - HU100 | eBay, accessed January 25, 2026, https://www.ebay.com/itm/143932977336
+36. 2010-2025 HIGH SECURITY HU100 TRANSPONDER KEY FOR GM B119 PCF7937EA -, accessed January 25, 2026, https://www.sffobsinc.com/product/2010-2019-high-security-transponder-key-for-gm-b119/
+37. ORIGINAL LISHI - HU100 GM / 8 Cut / 2-In-1 Pick & Decoder / AG for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/original-lishi-gm-hu100-b116-2-in-1-pick-ignition-door-trunk-8-cut-ag
+38. Original Lishi 2-in-1 HU100 GM 10-Cut 2-in-1 Pick and Decoder for Door, Ignition, and Trunk - Anti Glare, accessed January 25, 2026, https://www.southernlock.com/itemdetail/132-4110
+39. 2025 Silverado HD | Heavy Duty Truck - Chevrolet, accessed January 25, 2026, https://www.chevrolet.com/trucks/previous-year/silverado/2500hd-3500hd
+40. 2025 SILVERADO 2500 HD/3500 HD - General Motors, accessed January 25, 2026, https://contentdelivery.ext.gm.com/bypass/gma-content-api/resources/sites/GMA/content/staging/MANUALS/9000/MA9477/en_US/1.0/GTK_2025_Chevrolet_Silverado_2500HD_3500HD_87855251_A.pdf
+41. SILVERADO 9C1 PPV - GM Upfitter, accessed January 25, 2026, https://www.gmupfitter.com/wp-content/uploads/2024/12/2025-Silverado-9C1-Specification-Guide-012275.pdf
+42. GM SPS Programming: MDI Tool J2534 Mode ECU TIS2Web How to do a Calibration Update Reflash (IPC) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=sUMJFwMuAkE
+43. Best Auto Key Programming Adapters & Cables, accessed January 25, 2026, https://gskeyae.com/product-category/adapters/
+44. 2022 Chevy Silverado Smart Key Programming | IM608 Pro II + Slot Location Tip - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=WeQCG22YVLU
+45. Keyless Open and Start | Vehicle Support | Chevy, accessed January 25, 2026, https://www.chevrolet.com/support/vehicle/security/keyless-open-start
+46. Preliminary Information - nhtsa, accessed January 25, 2026, https://static.nhtsa.gov/odi/tsbs/2025/MC-11013463-0001.pdf
+47. 2025 Chevrolet Silverado 1500 Trim Levels Comparison, accessed January 25, 2026, https://www.aaronchevy.com/chevrolet-silverado-1500-trim-levels.htm
+48. 2025 Silverado 2500 HD | Compare Trims - Chevrolet, accessed January 25, 2026, https://www.chevrolet.com/shopping/configurator/trucks/2025/silverado/silverado-2500hd/compare
+49. Advanced Theft Deterrent Features | Vehicle Support | Chevy, accessed January 25, 2026, https://www.chevrolet.com/support/vehicle/security/arm-advanced-theft-deterrent

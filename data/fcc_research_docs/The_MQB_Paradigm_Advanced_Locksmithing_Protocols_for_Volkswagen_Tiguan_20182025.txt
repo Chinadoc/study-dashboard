@@ -1,0 +1,241 @@
+﻿The MQB Paradigm: Advanced Locksmithing Protocols for Volkswagen Tiguan (2018–2025)
+1. Introduction: The Evolution of VAG Security Architectures
+The automotive security landscape has undergone a radical transformation over the last decade, with the Volkswagen Group's Modularer Querbaukasten (MQB) platform serving as the vanguard for high-security, interconnected electronic architectures. For the professional automotive locksmith, the Volkswagen Tiguan, specifically the second-generation (Mk2) produced from 2018 to 2025, represents a critical case study in this technological evolution. This vehicle spans two distinct epochs of immobilizer technology: the established MQB48 standard and the emergent, highly restricted MQB49 (5C) ecosystem protected by SFD (Vehicle Diagnostic Protection) protocols.1
+The shift from the previous PQ35/PQ46 platforms to MQB was not merely a change in chassis construction but a complete reimaging of the vehicle's digital topology. In older architectures, the immobilizer function was often a discrete task handled between the instrument cluster and the Engine Control Unit (ECU). The MQB platform, however, integrates the immobilizer function into a distributed "trust network" involving the Instrument Cluster (J285), the Body Control Module (BCM/J519), the Gateway (J533), the Engine Control Unit (ECU), the Transmission Control Unit (TCU), and the Steering Lock (ELV/ESCL).2 This interdependence means that the successful programming of a key is no longer a singular event of writing a code to a transponder; it is a complex synchronization of encrypted data blocks across multiple control units, requiring precise "Sync Data" to align the new key with the vehicle's existing security lattice.4
+For the locksmith, this necessitates a move away from simple OBD-II manipulation tools toward a more forensic approach involving bench work, EEPROM reading, and server-side cryptographic calculation. The stakes are considerably higher: an improper attempt to read a locked processor in a Johnson Controls instrument cluster can result in immediate data corruption, rendering the vehicle immobile and necessitating expensive dealer-level hardware replacements.5 This report serves as an exhaustive technical manual for navigating these risks, offering a deep dive into the hardware specifications, programming workflows, and diagnostic procedures required to service the VW Tiguan from 2018 through 2025.
+
+
+  
+
+
+
+2. Theoretical Framework: The MQB Immobilizer Ecosystem
+To understand the practical steps of key programming, one must first grasp the theoretical underpinnings of the MQB Immobilizer V (Immo 5) and its subsequent iterations. Unlike Immo 4, which relied heavily on a fixed Component Security (CS) code of 7 to 12 bytes, MQB systems utilize a dynamic 16-byte CS code combined with a proprietary "Brand" identifier and a Power Class byte.
+2.1 The Concept of "Sync Data"
+A critical innovation in the MQB platform is the concept of "Sync Data" (Synchronization Data). In an All Keys Lost (AKL) scenario, simply extracting the Component Security bytes and the PIN code from the instrument cluster is insufficient to generate a working dealer key that will start the engine. The vehicle's security modules (ELV, TCU, and ECU) constantly verify their relationship to the cluster via a 32-byte synchronization string.3
+When a key is generated, it must be pre-coded with this specific Sync Data. If the locksmith attempts to program a standard ID48 AES transponder with just the CS and PIN, the transponder may be accepted by the cluster (key count increases), but the "Remote Start" and "Engine Run" authorizations will fail because the other modules on the CAN bus reject the authorization request due to a checksum mismatch in the sync block. This is why modern AKL procedures for Tiguan require reading data from multiple modules—often the ECU and TCU—to reconstruct this 32-byte string before a dealer key can be created.3
+2.2 The Distributed Trust Network
+The Tiguan's security is not centralized in a single box. It is a distributed network:
+* J285 Instrument Cluster: The "Master" of the immobilizer. It stores the primary database of authorized keys and the encryption keys for the transponders. It dictates whether the ignition is allowed to turn on (Terminal 15).
+* J519 Body Control Module (BCM): Acts as the interface for the KESSY (Keyless Entry Start and Exit System) antennas. It receives the raw RF signals from the key fob, filters them, and passes the encrypted challenge-response data to the cluster for verification.6
+* J533 Gateway: Controls the flow of information between the various CAN bus networks (Comfort CAN, Powertrain CAN, Extended CAN). In newer models (2020+), the Gateway hosts the SFD firewall, blocking unauthorized diagnostic requests.8
+* Engine & Transmission (ECU/TCU): These are "Slave" units. They will not operate until they receive a cryptographically signed "OK" message from the Cluster.
+3. Hardware Logistics: Transponders, Blades, and FCC IDs
+One of the most frequent causes of programming failure in the MQB Tiguan is the use of incorrect hardware. Volkswagen keys are strictly non-interchangeable between platforms and often between model years.
+3.1 Transponder Technology: From AES to 5C
+The Tiguan (2018–2025) utilizes two distinct transponder technologies, separated by a technology refresh around the 2021 model year.
+MQB48: The Megamos AES Era (2018–2020)
+The early Mk2 Tiguans utilize the Megamos AES (often labeled as ID48 AES or ID88) transponder. This is an evolution of the classic glass ID48 chip but features 128-bit AES encryption.
+* Characteristics: These chips are "locked" to the specific brand (VW) and platform (MQB) during the pre-coding phase. Once programmed to a vehicle, the "Crypto Key" sector is written and locked, making the key unusable on another vehicle unless it is "unlocked" or "renewed" using specialized hardware that wipes the specific memory sectors.10
+* Part Numbers: Common keys in this era include the 5G6 959 752 series.
+MQB49: The NCF29xx / 5C Era (2021–2025)
+Starting with the 2021 facelift (and appearing in late 2020 production), VW shifted to the MQB49 protocol. This uses an NXP NCF29xx family chip, colloquially known in the locksmith industry as the "5C" chip due to its identifier in reading tools.
+* Characteristics: The 5C chip supports significantly higher data throughput, required for the enhanced range and security features of the newer KESSY systems. It is fundamentally incompatible with MQB48 programmers. If you attempt to program an MQB48 key to an MQB49 car, the BCM will simply ignore the RF signal.1
+* Identification: These keys often carry the FCC ID KR5FS14-US or KR5FS14-T. The "T" designation is crucial for identifying compatibility with the newest Taos and Tiguan logic.13
+3.2 The Generation Matrix
+The following table provides a definitive guide for selecting the correct OEM hardware. Locksmiths should prioritize matching the FCC ID and the Part Number suffix.
+
+
+  
+
+
+
+Critical Notes on Hardware Selection:
+* The 2020/2021 Crossover: The 2021 model year is notoriously difficult because it contains a mix of leftover MQB48 parts and new MQB49 architecture. A 2021 Tiguan might accept an NBGFS93N key, but it is more likely to require the KR5FS14-US. The only sure way to verify is to read the existing key with a transponder detector (like the coil on an Autel or Xhorse tool). If it reads as "ID48 AES," use the older stock. If it reads as "PROX" or "NCF29xx / 5C," you must use the newer stock.13
+* Prox vs. Non-Prox: While most Tiguans in the North American market are equipped with KESSY (Push Button Start), some lower trims (S trim) may still feature a bladed ignition. The transponder logic remains similar (MQB48), but the remote PCB is different. Using a Prox key on a bladed ignition car will result in the car starting (via the transponder coil in the key head) but the remote buttons failing to sync.15
+3.3 Mechanical Engineering: The HU162T Blade
+The mechanical keyway for the Mk2 Tiguan is exclusively the HU162T (VAG 2015+) profile. This represents a significant departure from the previous HU66 (HAA) generation.
+* Geometry and Physics: The HU162T is a "side-milled" or "laser-cut" key, but with a complex twist. It features cuts on the outer edges of the blade as well as a central internal track. The ignition cylinder typically engages 9 or 10 wafers.
+   * Side Cuts (Axis A/B): These cuts interact with wafers that move horizontally. They are critical for the physical turning of the cylinder.
+   * Center Track (Axis C): This internal groove interacts with vertical wafers.
+* Lishi Decoding: The specific tool required is the HU162T (9-Cut) or HU162T (10-Cut). The decoding process is counter-intuitive for locksmiths used to standard wafers.
+   * Picking Order: You must often pick the side cuts first to relieve tension on the sidebar before the center track wafers will bind. If you attempt to pick the center track first, it will often feel "mushy" or springy without setting.17
+* Cutting Machines: Standard tracers cannot easily duplicate these keys because the side cuts require the cutter to approach the blade at a specific angle (often requiring a secondary clamp or a specific "side" operation mode on CNC machines like the Condor XC-Mini or Dolphin XP-005).18
+4. System Identification and Diagnostics
+Before a single screw is removed or a programmer is connected, a thorough system identification is mandatory. The "MQB" label is generic; the specific sub-system determines the feasibility of the job.
+4.1 Cluster Identification: VDO vs. Johnson Controls (JCI)
+The manufacturer of the Instrument Cluster (J285) is the primary determinant of whether a key can be added via OBD-II or if bench work is required.
+* VDO / Continental: These clusters are widely considered "locksmith friendly." The security access algorithms are well-understood by aftermarket tool manufacturers (Autel, Xhorse, OBDSTAR). In an "Add Key" scenario, tools can usually gain access via OBD-II, put the cluster into service mode (screen goes black), and read the Immo data.
+* Johnson Controls (JCI) / Visteon: These clusters are "hostile." They utilize a different processor architecture (often NEC35xx with specific mask sets) and a locked debug port.
+   * The "Bricking" Risk: Attempting to read a JCI cluster using a standard VDO protocol via OBD is the #1 cause of cluster failure in Tiguans. The tool attempts to inject a service mode bootloader, the cluster rejects it, and fails to return to normal operation, leaving the car with a dead dashboard and a "Defective" error message.5
+   * Visual ID: While not 100% reliable, VDO clusters often have a specific layout of the rear connector pins and label. However, the safest method is to use the "System Information" or "ECU ID" function of the diagnostic tool to read the "VAG Number" and "System Supplier" string. If the string contains "JCI" or "Visteon," STOP. OBD programming is unsafe.
+4.2 The Virtual Cockpit (Digital Cockpit Pro)
+Models equipped with the fully digital LCD instrument cluster (common on SEL and R-Line trims 2021+) are almost exclusively MQB49 systems with advanced component protection. These units usually cannot be read via OBD for Immo data. They typically require removing the cluster and engaging in complex bench operations or, more commonly, utilizing an online calculation service that bypasses the need for local reading.2
+4.3 SFD and SFD2: The Gateway Firewall
+Starting with 2020/2021 models, VW introduced SFD (Schutz Fahrzeug Diagnose), a Vehicle Diagnostic Protection layer housed in the Gateway (J533).
+* SFD (Stage 1): Blocks unauthorized writing and coding. While it primarily affects adaptations (like changing lighting behaviors), it interferes with key programming tools that need to write "loader" files to the gateway to facilitate high-speed data transfer.
+   * Unlock Protocol: Requires a token. Tools like Autel IM608 II and OBDSTAR KeyMaster G3 now feature integrated SFD unlocking. The tool connects to the manufacturer's server, requests a token, and unlocks the gateway for 90 minutes.8
+* SFD2 (Stage 2): Found on 2024+ Tiguans. This is a dynamic challenge-response system that verifies the identity of the technician against the Volkswagen GeKo database.
+   * Implication: Aftermarket tools currently struggle with SFD2. The gateway may reject the token if it detects the request originates from a known aftermarket IP range or device signature. For 2024+ models, if the tool fails to unlock, the locksmith essentially cannot proceed without official ODIS access.21
+5. Body Control Module (J519): Deep Dive and Access
+The Body Control Module (BCM), specifically the J519 unit, is the physical hub for the KESSY system. In scenarios where a key is programmed but the "Keyless Go" features (prox unlock, push start) fail, the BCM is the focal point for diagnosis.
+5.1 Location and Physical Access
+The J519 is notoriously difficult to access in the Tiguan Mk2. It is located deep under the driver's side dashboard (LHD models), positioned vertically behind the relay carrier and fuse panel C.
+* Removal Procedure:
+   1. Trim Removal: Remove the driver's side footwell trim (T20 Torx screws) and the side dashboard cover (clips).
+   2. Obstruction Clearance: It is often necessary to unbolt the knee airbag (if equipped) or the relay carrier frame to gain sufficient hand clearance.
+   3. Release Mechanism: The BCM sits in a plastic cage. It is held by a latch at the top or bottom. You must depress the plastic tab blindly and slide the module downwards (towards the floor) to release it from the bracket.
+   4. Cabling: The harnesses are short. You will likely need to disconnect the plugs blindly or partially lower the unit before you can see the release levers.6
+5.2 Connector Architecture and Pinout
+The BCM utilizes three high-density connectors, typically identified by color:
+* Connector A (Black, T73a): Primary Power and CAN Bus.
+* Connector B (White, T73b): Lighting and Interior functions.
+* Connector C (Beige/Gold, T46b): Comfort systems and KESSY Antennas.24
+Critical Diagnostics Pinout (Connector C - T46b)
+When troubleshooting "Key Not Detected," locksmiths should check continuity on the following pins (referencing general MQB diagrams, specific wire colors may vary by year):
+* KESSY Antenna (Interior Front): Check pins relating to the center console antenna. A break here causes the "Keyless Start" failure.
+* KESSY Antenna (Trunk/Bumper): A common failure point due to rear-end collisions or water intrusion. If this antenna is shorted, the BCM may disable the entire passive entry system to protect the circuit.7
+5.3 Bench Connection for AKL
+In "All Keys Lost" procedures where BCM data is required (for Sync Data calculation on some platforms), the locksmith must connect to the BCM on the bench.
+* Wiring for Bench Read:
+   * +12V (Bat): Connector A, Pin 1.
+   * GND: Connector A, Pin 12 (or chassis).
+   * CAN High: Connector A, Pin 16.
+   * CAN Low: Connector A, Pin 17.7
+Note: Always use a stabilized power supply set to 13.6V-14.0V when reading modules on the bench to prevent brownouts during flash operations.
+6. Operational Procedures: Add Key (Spare Key)
+The "Add Key" procedure assumes the presence of one working key. This is the lowest-risk operation but still requires strict adherence to protocol.
+6.1 Prerequisites
+1. Battery Support: Connect a high-quality battery maintainer (e.g., Schumacher, Victron) capable of delivering at least 30-50 Amps. The Tiguan's fans and modules can draw significant current during the "Ignition ON" states required for programming. Voltage drops below 12.0V can cause the cluster to hang during data writing.26
+2. Internet Connection: Modern tools (Autel, Xhorse) require a stable Wi-Fi connection to calculate the "Immo Data" from the raw dump files.
+3. Key State: Ensure the new key is "unlocked" (virgin). A used key from another vehicle cannot be programmed via OBD unless it has been properly renewed.
+6.2 Step-by-Step Workflow (VDO Cluster - MQB48)
+1. Scan and ID: Use the tool to identify the cluster. Confirm it is VDO/Continental.
+2. Backup: Perform a "Backup EEPROM" or "Backup Immo Data" function. This saves the current state of the cluster. Crucial: Do not skip this. If the process fails, this file is your only path to recovery.
+3. Read Immo Data: Select "Read Immo Data" (via OBD). The cluster will enter bootloader mode (screens black out). The tool will upload the dump to the server and return the CS, PIN, and MAC.
+4. Make Dealer Key:
+   * Insert the New blank key into the programmer's coil (e.g., XP400 Pro for Autel).
+   * Select "Make Dealer Key." The tool writes the vehicle's specific encryption keys (CS) onto the transponder.
+   * The key is now "Dealer" status—it belongs to this car but is not yet authorized to start it.
+5. Key Learning:
+   * Select "Key Learning." Enter the number of keys to be programmed (e.g., 2).
+   * The dashboard will wake up and display "0/2" or "Key Learning Active."
+   * Hold the First (working) key to the inductive coil on the steering column (marked with a key/wi-fi symbol). Dash changes to "1/2."
+   * Hold the Second (new dealer) key to the coil. Dash changes to "2/2."
+   * The learning session concludes. Verify remote functions and engine start.15
+6.3 Handling JCI Clusters (Add Key)
+If the cluster is identified as JCI, do not uses the OBD read function.
+* Safe Method: Most advanced tools (like Xhorse Key Tool Plus) now offer a "JCI" specific menu. However, the safest route for JCI Add Key is often to utilize the "Dealer Key" generation via Service Mode.
+* Alternative: Some tools can generate a dealer key if you have a working key by reading the working key's transponder data and calculating the partial CS. This "Clone-adjacent" method creates a key that can start the car but may not have full remote functionality without OBD pairing.
+7. Operational Procedures: All Keys Lost (AKL)
+The AKL scenario for Tiguan (2018+) is one of the most technically demanding jobs in the locksmith trade.
+7.1 The "Sync Data" Barrier
+As established in Section 2, you cannot simply program a key with cluster data alone. You need the 32-byte Sync Data. Since no working key exists to provide a reference, you must extract this data from the vehicle's other modules.
+7.2 Method A: Bench Reading (The Forensic Approach)
+This method involves physically removing modules to read their EEPROMs/Flash.
+1. Remove ECU & TCU: Pull the Engine Control Unit and Transmission Control Unit.
+2. Bench Read: Use a breakout cable (e.g., Godiag GT100 or specific tool adapters like OBDSTAR P004) to connect to the ECU/TCU pins.
+3. Data Extraction: Read the full backup of both modules.
+4. Calculation: Load these files into the programmer (e.g., Autel IM608 "Expert Mode" or Xhorse "Immo Data Tool"). The software will cross-reference the ECU/TCU data to calculate the missing Sync bytes.
+5. Cluster Prep: Remove the instrument cluster. Use a programmer (VVDI Prog) to read the cluster's encrypted data (requires soldering to NEC MCU points or lifting pins).
+6. Synthesis: Combine the Cluster data + Sync Data to generate the final "Immo Data" file.
+7. Write Key: Load this synthesized file to make a dealer key.
+8. Write Back: Write the new Immo data back to the cluster (if required) or simply proceed to OBD learning using the valid dealer key.3
+Tool Logic for AKL:
+* Start -> Identify Gen (MQB48/49).
+   * If MQB48: Identify Cluster (VDO/JCI).
+      * VDO: OBD Read (with Sync Data from ECU/TCU).
+      * JCI: Bench Read Cluster + ECU + TCU.
+   * If MQB49: Third Party Server Calculation or ODIS only.
+7.3 Method B: The Third-Party Server (MQB49 / 5C)
+For MQB49 vehicles (2021+), the encryption is too strong for local calculation.
+1. Hardware Interface: Connect a pass-thru device (like VAS5054 or a supported J2534).
+2. Service Provider: Log in to a third-party calculation service (many exist in the aftermarket, often charging $30-$50 per calculation).
+3. Data Upload: The tool reads the encrypted "Identity" of the BCM/Cluster via OBD.
+4. Calculation: The server computes the Immo Data and Sync Data.
+5. Programming: The tool uses this downloaded package to format the 5C transponder.
+   * Note: This method is "gray market" and relies on the availability of these private servers, which can go offline without notice.2
+7.4 Method C: ODIS (The Official Path)
+The most reliable method for 2024+ models or stubborn SFD2 vehicles.
+1. Credentials: Requires a valid VW GeKo ID (obtained via NASTF VSP registry in the US).
+2. Software: ODIS Service (Offboard Diagnostic Information System).
+3. Process: Run the "Immobilizer Components Adaptation" guided function. The software connects to the FAZIT server in Wolfsburg, verifies the technician's identity, downloads the approved key data, and programs the key.
+   * Cost: Subscription fees + per-transaction Token costs.
+   * Parts: Must use a brand new, OEM key ordered by VIN. ODIS will often reject aftermarket or "refurbished" keys.29
+8. Troubleshooting and Common Failures
+8.1 "Key Not In Range" / Remote Failure
+Symptoms: The key starts the car when held to the coil, but buttons do not work and "Key Not Detected" appears on the dash during normal driving.
+Analysis:
+* Frequency Mismatch: You used a 315MHz key on a 434MHz system (or vice versa). Check the BCM part number.
+* Wrong Transponder: You used an MQB48 key on an MQB49 car.
+* Antenna Failure: Use a scan tool to check "Live Data" in the BCM (Address 09). Look for "Keyless Entry Antenna 1/2/3". Walk around the car with the key. If the signal strength (RSSI) remains at 0, the antenna or BCM receiver is faulty.15
+8.2 Component Protection (CP) Active
+Symptoms: Radio displays "Component Protection Active," interior lights fail, or climate control is locked. Cause: This occurs if you replaced a BCM, Cluster, or Gateway from a donor car to solve a key issue without "marrying" it. Solution: Aftermarket tools cannot easily remove CP on MQB platforms. This usually requires ODIS "Component Protection Removal" function, which validates the serial numbers against a stolen parts database.29
+8.3 "Error: Key Learning Failed"
+Cause:
+* Time: The process timed out (usually 60 seconds allowed).
+* Pre-coding: The dealer key was not generated correctly with the specific Brand/Power Class bytes.
+* Key Count: The cluster has reached its maximum key count (usually 8). You must "Delete All Keys" before adding more, but this is high risk without a working key.15
+9. Tool Comparison Matrix for Locksmiths
+Feature
+	Autel IM608 II (Pro)
+	Xhorse VVDI2 + Key Tool Plus
+	OBDSTAR KeyMaster G3
+	ODIS (OEM)
+	MQB48 Add Key (OBD)
+	Excellent (Guided)
+	Excellent (Manual)
+	Good
+	Excellent
+	MQB48 AKL (Bench)
+	Good (Requires G-Box)
+	Superior (Best Diagrams)
+	Good (P004 Adapter)
+	N/A (Online Only)
+	MQB49 (5C) Support
+	Limited (Beta/Server)
+	Good (Paid License)
+	Strong (Newer Hardware)
+	Native
+	JCI Cluster Unlock
+	High Risk (Avoid OBD)
+	Moderate (Bench/Solder)
+	Moderate
+	N/A
+	SFD Unlock
+	Integrated (Server)
+	No Native Support
+	Integrated
+	Native
+	Price Point
+	High ($3k+)
+	Medium ($2k+)
+	Medium ($1.5k+)
+	Subscription
+	10. Conclusion
+The 2018-2025 Volkswagen Tiguan ecosystem represents the pinnacle of modern automotive security challenges for the locksmith. The transition from the relative accessibility of MQB48 to the fortress-like architecture of MQB49 demands a paradigm shift in how technicians approach the job. The days of "plug-and-play" OBD programming are fading; the new standard involves sophisticated bench diagnostics, microsoldering, and an intimate understanding of data synchronization across distributed control units.
+For the professional locksmith, success on this platform relies on three pillars: Identification (knowing exactly which cluster and transponder is in play), Preparation (having the correct hardware, voltage support, and "Sync Data" calculation path), and Execution (following the "Add Key" or "AKL" workflows with forensic precision). By mastering these protocols, the locksmith positions themselves as a vital asset in an era where the dealership is often the only other option.
+________________
+Disclaimer: This technical report is intended for educational purposes for licensed automotive security professionals. All procedures described involve interaction with sensitive vehicle control modules. Incorrect application of these techniques can result in permanent damage to vehicle electronics. Always adhere to local laws and regulations regarding vehicle security and data access.
+Works cited
+1. What to Do When You've Lost All Your VW Keys? The MQB49/MQB48 Key Programming Service Explained - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=lost-vw-key
+2. MQB – Past, Present, and future. Key programming IMMO V - Abrites, accessed January 27, 2026, https://abrites.com/blog/mqb-past-present-and-future-key-programming-immo-v
+3. KeyMaster G3-2018 VW Tiguan MQB48-5A Proximity AKL By RH850/V850 Adapter Kit, accessed January 27, 2026, https://www.youtube.com/watch?v=dxa7ScfdsZQ
+4. How to Calculate VAG MQB AKL Sync Data with Autel IM508 IM608?, accessed January 27, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/how-to-calculate-vag-mqb-akl-sync-data-with-autel-im508-im608
+5. VW MQB? : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1nd3plz/vw_mqb/
+6. How To: Check & Remove The BCM On A VW Transporter T6 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=6QzF57MurxM
+7. BCM Pin - Out. | PDF | Headlamp | Equipment - Scribd, accessed January 27, 2026, https://www.scribd.com/document/814424206/BCM-Pin-out
+8. Autel VAG SFD Security Gateway Unlock Guide & Instruction, accessed January 27, 2026, http://blog.autelsale.com/2025/01/09/autel-vag-sfd-security-gateway-unlock-guide-instruction/
+9. Access VW & Audi Security Gateway on Autel Tablets - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=g5OrkVzBUYI
+10. Oem 2018-2025 VW Volkswagen Tiguan Smart Key Prox Fob Remote Entry Uncut Blade, accessed January 27, 2026, https://www.ebay.com/itm/116766680420
+11. Volkswagen 5G6 959 752 BM NBGFS125C1 Flip Remote Key (Refurbished) - Key4, accessed January 27, 2026, https://www.key4.com/volkswagen-flip-remote-key-5g6959752-bm-nbgfs125c1-refurbished
+12. MQB49 5C Key Programming: How I Got My Volkswagen Tiguan L Back Online After Losing Every Key - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=mqb49-5c-key-programming
+13. 2023 Volkswagen Smart Key 5B FCC# KR5FS14 T - 3G0.959.752.BQ - Locksmith Keyless, accessed January 27, 2026, https://www.locksmithkeyless.com/products/2018-2023-volkswagen-smart-key-5b-fcc-kr5fs14-t-3g0-959-752-bq
+14. Genuine OEM 4 Btn 2021-2024 VW Volkswagen Smart Key Remote 3G0959752BP KR5FS14-T | eBay, accessed January 27, 2026, https://www.ebay.com/itm/394940336042
+15. How To Program A Volkswagen Key FOB: Step By Step, accessed January 27, 2026, https://www.gunthervw.com/how-to-program-vw-key-fob/
+16. Refurbished Flip Remote Key for Volkswagen with FCC ID: NBG010180T P/N, accessed January 27, 2026, https://www.bestkeysolution.com/products/proximity-flip-key-for-volkswagen-with-fcc-id-nbg010206t-p-n-5k0837202ak-and-315-mhz-chip-48-key2u-copy
+17. LOT 2 Volkswagen VW Atlas Tiguan Insert Emergency Remote Key Uncut Blade HU162T, accessed January 27, 2026, https://www.ebay.com/itm/147010621255
+18. ORIGINAL LISHI - HU162T - 2015-2021 Audi / VW - 9 Cut - 2-in-1 Pick & Decoder, accessed January 27, 2026, https://www.uhs-hardware.com/products/original-lishi-hu162t-2015-2021-audi-vw-9-cut-2-in-1-pick-decoder-ignition-ag
+19. VW Tiguan 2016 Key Copy | MQB Digital Cluster IMMO Data with VVDI2, VVDI PROG & MQB Adapter (No OBD) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=lKkESRtNj9Q
+20. AUTEL VAG SFD Authorization 1 Year: Serial Number Required - AutelTool.us, accessed January 27, 2026, https://www.auteltool.us/products/new-arrivals-autel-vag-sfd-authorization-1-year
+21. Is VW Trying to Stop you from Working on your Car? SFD Unlock - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=4qgxqw2jCg8
+22. Has anyone gotten OBDEleven to work on a '24? : r/JettaGLI - Reddit, accessed January 27, 2026, https://www.reddit.com/r/JettaGLI/comments/1dc383y/has_anyone_gotten_obdeleven_to_work_on_a_24/
+23. VW TIGUAN MULTIFUCTION CONTROL MODULE FUSE LOCATION REPLACEMENT, accessed January 27, 2026, https://www.youtube.com/watch?v=RPaI3B3cr1c
+24. 5Q0 937 700 B C 702 for Volkswagen BCM Plug MQB Model J519 Controller Harness 1pcs - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005004960794088.html
+25. J519 BCM Pinouts | PDF | Headlamp | Electricity - Scribd, accessed January 27, 2026, https://www.scribd.com/document/621470674/J519-BCM-pinouts
+26. How to read VW Wiring Diagrams (With Camshaft Sensor Example) - VOLKSWAGEN, accessed January 27, 2026, https://www.youtube.com/watch?v=_bWuQ7IVJLs
+27. How to Program a Volkswagen Key FOB: Step-by-Step Guide - obdprice, accessed January 27, 2026, https://www.obdprice.com/blogs/news/program-volkswagen-key-fob-guide
+28. VAG Group MQB 49/5C Add Key Data Service (Immo Data ) Via OBD Using A Key Programming Device - MK3, accessed January 27, 2026, https://www.mk3.com/vag-group-mqb-495c-add-key-data-service-immo-data-sync-file-via-obd-using-a-key-programming-device
+29. How To: Deactivate Component Protection From Your VW Radio Via ODIS - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=dvJweDBXgpw
+30. Key not in range : r/Volkswagen - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Volkswagen/comments/103ik2j/key_not_in_range/
+31. What does component protection is active mean? : r/Volkswagen - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Volkswagen/comments/1gsx0lc/what_does_component_protection_is_active_mean/

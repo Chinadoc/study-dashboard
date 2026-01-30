@@ -1,0 +1,164 @@
+﻿Deep Technical Analysis: Audi Q7 4M (2017-2024) Security Architecture and Advanced Locksmithing Protocols
+1. Introduction: The MLB-Evo Security Paradigm
+The Audi Q7 (Chassis Code 4M), introduced in 2017, represents a definitive pivot point in the automotive security landscape. As the flagship deployment of the Volkswagen Group's MLB-Evo (Modularer Längsbaukasten Evolution) platform, the vehicle integrates a sophisticated, distributed immobilization architecture that fundamentally alters the requirements for aftermarket service and key programming. Unlike its predecessors on the PL71 or MLB platforms, which relied on relatively static authorization chains amenable to direct EEPROM manipulation, the Q7 4M employs the fifth-generation Immobilizer system (IMMO V) centered around a cryptographically hardened Body Control Module 2 (BCM2).
+For the automotive locksmith and security professional, the Q7 4M is not merely a high-value SUV; it is a complex endpoint of encrypted microcontrollers and cloud-dependent authorization protocols. The evolution of this platform has bifurcated the industry, separating technicians who rely on legacy OBD-II methodologies from those capable of executing complex bench-level data extractions and cloud-synchronized cryptographic synthesis. The security architecture is designed to resist unauthorized start attempts through a "Locked" NEC processor environment, which necessitates the calculation of "Sync Data"—a digital bridge derived from the specific firmware context of the vehicle's control modules.
+
+
+  
+
+
+
+This report provides an exhaustive technical analysis of the Q7 4M's security ecosystem. It addresses critical operational voids regarding hardware version identification (specifically the 0824, 0825, and 0827 variants), the intricacies of P-Flash and D-Flash memory structures, and the shifting dependencies on third-party cloud calculation servers.1 Furthermore, it examines the "All Keys Lost" (AKL) procedures through the lens of the most effective aftermarket toolsets, specifically the Yanhua ACDP system, while contrasting it with alternatives like the Xhorse Key Tool Plus. The analysis confirms that successful service of the Q7 4M requires a synthesis of electrical engineering skills—specifically in handling delicate "solder-free" interface points—and a robust understanding of the data dependencies that govern the modern VAG immobilization chain.
+1.1 The Shift to Distributed Trust
+The core innovation in the MLB-Evo platform is the distribution of trust. In previous generations (IMMO IV), the Cluster or Kessy module often acted as a singular repository for the Component Security (CS) bytes. If a locksmith could extract this data, a dealer key could be generated. The Q7 4M, however, employs a "Split-CS" model. The BCM2 acts as the master, but it validates its authority against the Engine Control Unit (ECU) and the Transmission Control Unit (TCU) using dynamic challenge-response pairs involving the Message Authentication Code (MAC).1
+This distribution means that extracting data from the BCM2 alone is insufficient if that data is encrypted. The "Sync Data" concept, which permeates this report, refers to the computed block of data that harmonizes the BCM2's encrypted internal state with the external expectations of the ECU and TCU. Without this synchronization, a generated key might turn the ignition, but the ECU will block fuel injection, resulting in a "Start and Stall" condition or a complete refusal to crank.
+2. BCM2 Hardware Architecture and Variant Identification
+The Body Control Module 2 (BCM2) serves as the central node for access control in the Q7 4M. Located typically behind the trim in the passenger footwell (left side) or the rear luggage compartment depending on specific regional configurations, this module houses the NEC microcontroller responsible for key validation. A critical operational challenge for technicians is the existence of three distinct hardware variants—0824, 0825, and 0827—which dictate the required programming methodology.
+2.1 Hardware Variant Classification
+The distinction between these versions is not merely bureaucratic; it represents escalating levels of processor security and "Lock" status.
+* Version 0824 (Early Production 2017-2018): This variant is occasionally found in the earliest Q7 4M chassis and some carry-over architectures from the late A6 C7 era. The NEC processor in these units often retains open debugging interfaces (such as UART or JTAG) or utilizes weak encryption keys. Consequently, these units are frequently described as "Unencrypted" or "Open." Technicians encountering an 0824 unit may find that legacy OBD-II reading methods are successful, or that simple bench reads do not require the intensive cloud calculation overhead associated with later models.2
+* Version 0825 (Mid-Cycle 2018-2021): The 0825 variant is the standard-bearer for the pre-facelift Q7 4M. It introduces the "Locked" NEC processor architecture. In this state, the chip's internal bootloader rejects standard read commands from unauthorized debuggers. The debugging ports are logically disabled, requiring the use of "glitching" techniques or specific exploit vectors to bypass the security fuse. For the locksmith, the 0825 unit is the primary target for "Sync Data" calculations; data cannot be simply read and edited—it must be extracted, uploaded to a server, decrypted, modified, and re-synchronized.3
+* Version 0827 (Late Production 2021+): Coinciding with the mid-cycle facelift and the introduction of newer electrical architectures, the 0827 unit represents the current zenith of BCM2 security. These units often feature updated firmware that patches previous exploit vectors. While leading tools like Yanhua and Xhorse have updated their "Solder-Free" adapters to interface with these units, the margin for error is significantly reduced. The 0827 architecture is particularly sensitive to voltage irregularities during the read process, and failure to maintain stability can result in a corrupted D-Flash, effectively "bricking" the vehicle's authorization system.4
+
+
+  
+
+
+
+2.2 Investigation of Gap 1: Non-Intrusive Identification Strategies
+A persistent inefficiency in the locksmith workflow is the need to physically access the BCM2 to read the paper label for version identification. This process involves removing dashboard trim, door sill panels, and potentially the glovebox—a labor-intensive task that risks cosmetic damage. Our investigation into Gap 1 confirms that OBD-based identification is a viable, though nuanced, alternative.
+2.2.1 Diagnostic Protocol Analysis (VCDS/OBDeleven)
+Standard VAG diagnostic protocols allow for the interrogation of module version data without triggering security alerts. Tools like VCDS (VAG-COM Diagnostic System) or OBDeleven can access the BCM2 via Address 46 (Central Convenience) or Address 05 (Access/Start Authorization).
+Upon connecting to Address 46, the diagnostic tool sends a standard "Read ECU Identification" request (Service ID 0x1A or similar KWP/UDS command). The module responds with a block of ASCII data containing the Part Number, Component Name, and Software Version.5
+* Data Interpretation: The key identifier is often found in the "Component" field. A string such as BCM2.0 0825 explicitly identifies the firmware version.
+   * Implication: If the returned value ends in 0824, the technician can proceed with a high confidence of using older, potentially faster OBD programming methods.
+   * Implication: A return of 0825 or 0827 serves as an immediate "Stop" signal for OBD programming. The technician knows before removing a single screw that the module requires bench extraction and cloud calculation.
+   * The "0551" Anomaly: Field reports using Autel IM608 tools indicate that some BCM2 units return a software version of 0551. This specific version code is internally flagged by advanced tools as an encrypted variant equivalent to the 0825/0827 lock status.6 It mandates bench removal just as strictly as the later versions.
+2.2.2 Advanced Tool Identification Functions
+Dedicated locksmith tools have evolved to automate this identification process, reducing the cognitive load on the operator.
+* Autel IM608/IM508: The workflow for "Read IMMO Data" via OBD initiates with a handshake. If the tool detects the encrypted bootloader signature (associated with 0551/0825/0827), it halts the operation and displays a prompt: "The BCM2 is encrypted. Please remove the module.".7 This "Fail-Fast" mechanism is a critical safety feature, preventing the tool from attempting an exploit that might crash a locked processor.
+* Xhorse VVDI2 / Key Tool Plus: These devices offer a granular identification path: Audi -> Select by type -> Fifth Immobilizer System -> Read BCM2 Data -> OBD identify BCM2 type.4
+   * Feedback Mechanism: The screen explicitly categorizes the unit as "BCM2 Locked" or "BCM2 Unlocked." This binary output eliminates the ambiguity of interpreting software version numbers manually. If "Locked," the user is guided to the wiring diagram for the BCM2 adapter.
+2.2.3 The Limitations of VIN Decoding
+While VIN decoders 8 provide robust data regarding the chassis build date, engine configuration, and trim level, they are insufficient for determining the BCM2 firmware version with the precision required for locksmithing. The BCM2 hardware is subject to supply chain variations; a 2018 chassis might have been assembled with an 0824 unit in January and an 0825 unit in March. Furthermore, dealer service updates (SVM - Software Version Management) can upgrade a module's firmware during routine maintenance, changing an "0824" behavior to a locked state without changing the physical label. Therefore, electronic interrogation via OBD is the only reliable non-intrusive method for version verification.
+3. Cryptographic Mechanisms: P-Flash, D-Flash, and Sync Data
+The crux of the "All Keys Lost" challenge on the Q7 4M lies in the structure of the data stored within the BCM2's NEC microcontroller. Unlike older EEPROM-based systems where a single small file contained all relevant data, the NEC architecture utilizes a split-memory model comprising P-Flash and D-Flash. Addressing Gap 4, we analyze the exact relationship between these memory blocks and the "Sync Data" calculation.
+3.1 Memory Architecture Fundamentals
+The NEC/Renesas microcontrollers utilized in the BCM2 architecture partition their non-volatile memory into two distinct functional areas, each serving a specific role in the security ecosystem.12
+3.1.1 P-Flash (Program Flash)
+* Capacity: Typically 2MB or larger.
+* Content: P-Flash stores the executable firmware, the operating system of the BCM, and the static logic tables that govern its behavior. It dictates how the module processes inputs, communicates on the CAN bus, and executes encryption algorithms.
+* Role in AKL: Crucially, the P-Flash does not store the specific key IDs or the Vehicle Identification Number (VIN). However, it contains the decryption context. The algorithms used to encrypt the user data (stored in D-Flash) are embedded within the compiled code of the P-Flash. When a cloud server attempts to calculate Sync Data, it requires the P-Flash to "understand" the encryption schema used by that specific firmware version. It effectively serves as the "Map" or the "Key" to unlock the scrambled data in the D-Flash.
+3.1.2 D-Flash (Data Flash)
+* Capacity: Typically 32KB to 64KB (functioning as emulated EEPROM).
+* Content: This is the repository for dynamic, vehicle-specific data. It holds the VIN, the Component Security (CS) bytes, the Immobilizer Key IDs, coding configurations, and adaptation values.
+* Role in AKL: This is the target. In an unencrypted module, a technician could simply read the D-Flash, identify the CS bytes at a known offset, and write a new key ID. In the 0825/0827 variants, the D-Flash is encrypted. A raw read of the D-Flash yields a file that appears as random noise. Without the P-Flash to provide the decryption context, this data is useless.
+3.2 The "Sync Data" Calculation Process
+"Sync Data" is the industry term for the synchronized security block required to authorize a new key in the MLB-Evo distributed environment. Because the BCM2 is locked and the D-Flash is encrypted, the tool (e.g., ACDP, Xhorse) cannot simply modify the D-Flash directly on the bench. Instead, it must generate a bridge.
+The Cryptographic Workflow:
+1. Dual Extraction: The technician extracts both the P-Flash (Firmware/Context) and the encrypted D-Flash (User Data) from the BCM2 using a bench interface.
+2. Cloud Transmission: These files are uploaded to the manufacturer's secure server (Yanhua or Xhorse Cloud).
+3. Algorithmic Synthesis: The server utilizes proprietary algorithms—likely derived from reverse-engineered firmware structures or leaked private keys—to analyze the P-Flash. It identifies the encryption routines and applies them to the uploaded D-Flash to decrypt the Component Security bytes.
+4. Synchronization Calculation: The server does not just "decrypt" the data; it calculates a new "Sync Data" block. This block contains the necessary authorization codes that will allow a new key to be recognized by the BCM2 and accepted by the ECU/TCU.
+5. Key Generation: The tool receives this Sync Data and writes it to a blank key (dealer key generation). When this key is presented to the vehicle, the BCM2 recognizes the pre-authorized signature.
+
+
+  
+
+
+
+Critical Insight: The requirement for both memory blocks is absolute. Attempting to calculate Sync Data with only the D-Flash will result in a "Calculation Failed" error because the server lacks the firmware-specific decryption context. Conversely, P-Flash alone contains no vehicle identity. This interdependence is the defining characteristic of the MLB-Evo AKL procedure.
+4. Cloud Infrastructure and Dependency Risks (Gap 2)
+The technological shift to cloud-based calculation introduces a significant vulnerability into the locksmith's business model: Server Availability. The capability to program a key is no longer solely resident in the technician's hands or tools; it is contingent upon the uptime and stability of remote servers often located in China. Our investigation into Gap 2 analyzes the reliability profiles of the major ecosystems.
+4.1 Yanhua ACDP Cloud Ecosystem
+The Yanhua Mini ACDP system relies heavily on its cloud infrastructure for "Module 29" (Audi Gen5 BCM2) functions.
+* Reliability & Binding: While generally stable, the ACDP ecosystem has a unique point of failure regarding "Device Binding." The tool must be bound to a specific user account and authenticated via the cloud. Network latency or server-side errors can cause "Binding Failed" or "DME Power Reset" errors.15 These messages are often misleading; while they suggest a hardware power issue, they frequently stem from the tool's inability to verify the cryptographic handshake with the server due to packet loss.
+* Latency Impacts: The upload of the P-Flash (2MB+) and D-Flash is bandwidth-sensitive. High latency (ping) between the technician's location and the Yanhua servers in Asia can lead to timeouts during the upload phase. If the upload is interrupted at 99%, the calculation cannot proceed.
+* Recovery: In the event of a calculation failure, the data on the BCM2 remains safe because the tool reads before it attempts to write. The risk is operational delay, not hardware destruction.
+4.2 Xhorse Cloud Ecosystem
+Xhorse (Key Tool Plus / VVDI2) operates a competing cloud infrastructure.
+* "No Server" Marketing vs. Reality: Xhorse has marketed some adapters as "No Need To Connect VW Server".3 It is crucial to parse this carefully: it means the technician does not need access to the official Volkswagen GEKO (dealer ODIS) server. However, the Xhorse server is still required for the calculation of the immo data from the dump. The dependency on a cloud remains; it has just shifted from the OEM to the aftermarket provider.
+* Third-Party Integration: For certain rare BCM2 variants (often late-model 0827s found in high-spec A6/A7/A8s), the Xhorse server may not yet have the decryption algorithm. In these cases, the ecosystem relies on "Third-Party Service Providers." The tool reads the data, but the user must export the file and pay a third-party broker to perform the calculation, then import the result. This adds a layer of cost and complexity.3
+4.3 Operational Contingencies
+The reliance on these servers means that a "Server Down" event effectively halts all Q7 4M AKL work globally for that tool brand.
+* Risk Mitigation Strategy: Professional locksmiths aiming for high reliability often maintain redundancy. If the Yanhua server is undergoing maintenance, the Xhorse Key Tool Plus serves as a backup.
+* Offline Limitations: Currently, there is no known offline calculator for MLB-Evo Sync Data available to the public. The computational complexity and the proprietary nature of the decryption keys prevent this function from being hosted locally on handheld devices.
+5. The 2022+ Security Paradigm Shift (Gap 3)
+The automotive security landscape is dynamic, with manufacturers continuously patching vulnerabilities. The Q7 4M received a significant facelift and technical update around 2020/2021, leading to the deployment of the 0827 BCM2 hardware in 2022+ models. Addressing Gap 3, we investigate the reality of the "2023 Block."
+5.1 Hardware Hardening and Glitch Detection
+The challenges with late 2022+ and 2023 production models stem from physical and firmware-level hardening of the BCM2.
+* Physical Fusing: The JTAG and debug ports on the circuit board, which adapters use to communicate with the processor, are often physically fused off or disabled at the silicon level in the newest batches. This prevents the "Solder-Free" adapters from establishing the necessary low-level communication.
+* Glitch Detection Firmware: There are credible indications that the latest firmware iterations monitor the voltage on the processor pins with high sensitivity. The extraction methods used by aftermarket tools often rely on "voltage glitching"—momentarily dropping the voltage to bypass the security check. The new firmware can detect the characteristic waveform of a glitch attack. If detected, the processor may enter a "Security Lockout" mode or, in extreme cases, wipe the encryption keys from the D-Flash, effectively "bricking" the module.
+5.2 Service Implications
+This hardening has fragmented the market.
+* Mail-In Services: Listings for "2022 Audi Q7 Key Programming" increasingly direct users to mail-in services.17 This suggests that the equipment required to bypass the new security is no longer portable or affordable for the average locksmith. It likely involves high-end laboratory equipment capable of more sophisticated side-channel attacks or chip-off operations that are risky and require microscopic precision.
+* Solder-Free Evolution: Tool manufacturers like Xhorse and Yanhua are responding by releasing updated adapters with more precise pogo pins and updated voltage regulation algorithms to evade detection.19 However, the window of support always lags behind the vehicle production date. A 2024 Q7 is currently a high-risk undertaking that should be approached with extreme caution, verifying tool support lists explicitly before attempting work.
+6. Comprehensive AKL Procedure: Yanhua ACDP Method
+Based on the synthesis of technical requirements and risk factors, the following section details the definitive, expert-level procedure for an All Keys Lost scenario on a 2017-2021 Audi Q7 (BCM2 0825/0827) using the Yanhua ACDP system. This workflow prioritizes data integrity and risk reduction.
+Phase 1: Vehicle Preparation and Safety
+1. Battery Management: Disconnect the negative battery terminal. The Q7 4M features a sensitive Battery Management System (BMS) and complex bus topography. Power fluctuations during module removal can trigger fault codes in the Airbag or Comfort modules. Wait at least 5 minutes for capacitor discharge to prevent accidental shorts.
+2. Access: The BCM2 is generally located behind the glovebox assembly or the left-side kick panel in the passenger footwell. Removal of the glovebox requires identifying and removing multiple 8mm bolts, some of which are hidden behind trim strips.
+3. Module Removal: The BCM2 has two large multi-pin connectors with lever-locking mechanisms.
+   * Warning: The levers are fragile. They must be rotated fully to the "Open" position before pulling the connector. Forcing them can snap the pivot points, requiring a connector shell replacement.
+Phase 2: Bench Connection (The "Solder-Free" Standard)
+Direct soldering to the BCM2 0825/0827 is strongly discouraged due to the high density of surface-mount components and the risk of heat damage to the multi-layer PCB.
+1. Tooling: Utilize the Yanhua ACDP Module 29 with the appropriate Interface Board.
+2. Surface Prep: Clean the test points on the BCM2 PCB with isopropyl alcohol. Oxidation or flux residue can cause high resistance, leading to read errors.
+3. Alignment & Verification: Install the interface board, ensuring the alignment pins seat correctly in the PCB tooling holes. Tighten the clamping screws evenly.
+4. Pin Detection: Launch the ACDP App. Navigate to Audi -> Module 29 -> 0825/0827 -> Pin Detection.
+   * Critical Check: Do not proceed until the app confirms that every pin has "Good Contact." A single bad ground pin can cause a voltage differential that damages the processor during the glitch attempt.
+Phase 3: Data Operation (The Critical Path)
+1. P-Flash Extraction: Execute the P-Flash read. This process reads the 2MB+ firmware file. It typically takes 5-10 minutes depending on transfer speed. Save this file securely (e.g., VIN_PFLASH_BACKUP.bin).
+2. D-Flash Extraction: Execute the D-Flash read. This is a rapid process (30-60 seconds) capturing the 32KB/64KB data block. Save as VIN_DFLASH_BACKUP.bin.
+3. Cloud Calculation: Select "Export Data" or "Calculate Sync Data" within the app. The software will upload both files to the Yanhua server.
+   * Operational Note: Ensure a stable internet connection. If the upload hangs, allow it to timeout naturally rather than force-closing, to avoid locking the session on the server side.
+4. Sync Data Download: Upon successful calculation, the app will download the synthesized "Sync Data" file.
+Phase 4: Key Generation and Reassembly
+1. Dealer Key Creation: Place a blank BCM2-compatible key (FCC ID: IYZ-AK2, 434 MHz for most global markets) in the ACDP BAV-Key adapter.
+2. Write Pre-Coding: The tool uses the downloaded Sync Data to write the "Pre-Coding" (CS and authorization data) onto the blank key's transponder.
+3. Key Learning:
+   * Reinstall the BCM2 into the vehicle and reconnect the connectors.
+   * Reconnect the vehicle battery.
+   * Connect the ACDP unit to the vehicle's OBD-II port.
+   * Select "Learn Key" in the app.
+   * The Learning Coil: The tool will prompt the user to hold the new key against the "Emergency Start Coil." In the Q7 4M, this is typically located on the dashboard (indicated by a key and wireless symbol) or in the center console cupholder area.
+   * Authorization: The BCM2 detects the key, validates the pre-coded Sync Data against its internal D-Flash, and finalizes the learning process by writing the Key ID into its permanent memory.
+
+
+  
+
+
+
+7. Troubleshooting and Error Recovery
+7.1 "DME Power Reset" / Communication Failure
+While the error text "DME Power Reset" is legacy terminology from BMW modules, its appearance in VAG workflows usually points to insufficient power supply amperage.
+* Diagnosis: The BCM2 draws significant current when waking up from sleep mode to process a read command.
+* Solution: Ensure the bench power supply is set to 13.5V and is capable of delivering at least 5 Amps. Standard 1A/2A "wall wart" adapters often experience voltage sag, causing the processor to brown out during the read attempt.15
+7.2 "Unrecognized Key" Post-Programming
+If the key generation completes but the vehicle displays "Key Not Recognized":
+* Frequency Mismatch: Verify the key frequency. While 434 MHz is the global standard, some early US-market Q7s (2017-2018) may use 315 MHz. The 4M chassis is intolerant of frequency mismatches.
+* Coil Placement: The emergency start coil has a very short effective range (often < 2cm). The key must be placed flat and held still against the symbol during the learning phase.
+* Sync Data Corruption: If the D-Flash read had minor bit errors (due to poor pin contact) that the checksum correction missed, the calculated Sync Data will be invalid. The only remedy is to clean the pins, perform a fresh read, and pay for a new calculation token.
+8. Conclusion
+The Audi Q7 4M stands as a testament to the escalating complexity of automotive security. The transition to the MLB-Evo platform and the 0825/0827 BCM2 architecture has effectively deprecated simple OBD-based key programming for "All Keys Lost" scenarios. Success in this domain now requires a hybrid skillset: diagnostic competence to identify hardware versions via OBD, precision engineering skills to manage bench connections without soldering, and an operational understanding of cloud-based cryptographic dependencies.
+For the security professional, the "Knowledge Gaps" identified in this report are bridged by specific protocols: use OBD data to verify the "0825/0551" lock status; respect the absolute necessity of P-Flash for decryption context; and maintain awareness of the physical hardening in 2022+ models that may necessitate outsourcing. As tools evolve, the "Cat and Mouse" game continues, but for the 2017-2021 model years, the procedures defined herein represent the industry standard for reliable service.
+Works cited
+1. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES Abrites, accessed January 26, 2026, https://abrites.com/blog/the-secrets-of-locked-and-unlocked-bcm2-modules
+2. Xhorse BCM2 Solder-free Adapter for Audi work with VVDI Key Tool Plus/VVDI2 | eBay, accessed January 26, 2026, https://www.ebay.com/itm/194929335252
+3. Xhorse BCM2 Audi Solder-Free Adapter for Add Key and All Key Lost Solution Work with Key Tool Plus Pad and VVDI2 - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005009201426028.html
+4. BCM2 A-udi Solder-Free Adapter for Add Key and All Key Lost Solution W - VXDAS, accessed January 26, 2026, https://www.vxdas.com/ja/products/bcm2-a-udi-solder-free-adapter
+5. Guide: Check Your ECU/TCU Box Code & Software Version - Audi/Volkswagen, accessed January 26, 2026, https://www.034motorsport.com/checking-ecu-tcu-box-code-software-version-audi-volkswagen/
+6. Audi BCM2 Encrypted Version Detection using Autel IM608 Pro2 - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=6x6lZ1AF2zo
+7. Autel IM508 Full Review 2024 - Program Audi BCM Encrypted All Key Lost - VXDAS, accessed January 26, 2026, https://www.vxdas.com/blogs/news/autel-im508-program-audi-bcm-encrypted-all-key-lost
+8. Audi Q7 VIN Decoder - iSeeCars.com, accessed January 26, 2026, https://www.iseecars.com/vin/audi-q7
+9. Audi Q7 VIN Decoder - Vininspect.com, accessed January 26, 2026, https://vininspect.com/vin/audi/q7
+10. Audi Q7 VIN Decoder, accessed January 26, 2026, https://www.vindecoderz.com/EN/Audi/Q7
+11. Free Audi VIN Decoder & Lookup - EpicVIN, accessed January 26, 2026, https://epicvin.com/vin-decoder/audi
+12. What is difference between PFlash and DFlash? - NXP Community, accessed January 26, 2026, https://community.nxp.com/t5/S12-MagniV-Microcontrollers/What-is-difference-between-PFlash-and-DFlash/m-p/218679
+13. ECU Memory:PFlash, DFlash, EEPROM, ROM, RAM, FRAM, SRAM, HSM, etc, accessed January 26, 2026, https://bhadraelectronics.com/blogs/f/ecu-memorypflash-dflash-eeprom-rom-ram-fram-sram-hsm-etc
+14. Understanding the Memory Types in Automotive ECUs: A Deep Dive for Tuners - AutoTuner, accessed January 26, 2026, https://www.autotuner.com/blogs/news/understanding-the-memory-types-in-automotive-ecu
+15. How to Solve Mini ACDP DME Power Reset Error?, accessed January 26, 2026, http://blog.yanhuaacdp.com/how-to-solve-mini-acdp-dme-power-reset-error/
+16. How to Solve Mini ACDP Cannot Bind on Android Phone?, accessed January 26, 2026, http://blog.yanhuaacdp.com/how-to-solve-mini-acdp-cannot-bind-on-android-phone/
+17. Audi BCM2 Cloning Or Programming Keys | OE - eBay, accessed January 26, 2026, https://www.ebay.com/itm/167239392679
+18. 2022 Audi Q7 Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 26, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2022-audi-q7-keyless-entry-remote-fob-smart-key-programming-instructions
+19. How to Use AO.D BCM2 Solder-Free Adapter VW/Audi key programming Xhorse - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=pHETT1dbqT8

@@ -1,0 +1,284 @@
+﻿Ford BCM Security Bypass Architecture (2018-2025): Comprehensive Technical Analysis
+1. Introduction: The Paradigm Shift in Automotive Security
+The automotive industry is currently navigating a profound transition in electronic architecture, moving from decentralized, discrete control units toward centralized, domain-based computing. Ford Motor Company, as a high-volume global manufacturer, has been a vanguard in this shift, particularly regarding vehicle security and access control. For security researchers, forensic analysts, and automotive locksmiths, the period spanning 2018 through 2025 represents the most volatile and complex era in the history of the Passive Anti-Theft System (PATS).
+Prior to 2018, Ford’s security architecture was relatively static. The reliance on the Instrument Cluster (IPC) and Powertrain Control Module (PCM) handshake (PATS Generations 3 and 4) provided a predictable, albeit aging, framework for key programming. However, the introduction of the Ford Network Vehicle (FNV) architecture, specifically FNV2, fundamentally altered the threat landscape. This shift was necessitated by the rise of connected vehicles, Over-the-Air (OTA) updates, and the increasing sophistication of "relay attacks" utilizing signal amplification to steal vehicles.
+In response, Ford implemented a multi-layered defense-in-depth strategy. This strategy moved the locus of security control to the Body Control Module (BCM) and introduced aggressive countermeasures against unauthorized diagnostic access. These countermeasures include the Active Alarm System (AAS) which creates a "diagnostic blackout" during intrusion events, the Secure Gateway Module (SGW) which firewalls the Controller Area Network (CAN) from the OBD-II port, and the adoption of CAN FD (Flexible Data-Rate) protocols on flagship platforms like the S650 Mustang.
+This report provides an exhaustive technical analysis of these systems. It moves beyond high-level overviews to explore the granular mechanics of BCM logic, the cryptographic specificities of transponder families, and the physical layer bypasses required to service these vehicles in "All Keys Lost" (AKL) scenarios. By synthesizing data from technical service bulletins, FCC filings, aftermarket engineering analysis, and field-validated procedures, this document establishes a definitive reference for navigating the Ford security ecosystem of the mid-2020s.
+2. Active Alarm System (AAS): The Diagnostic Denial-of-Service
+The single most disruptive feature introduced in modern Ford vehicles is the Active Alarm System (AAS). While alarm systems have existed for decades, the integration of AAS into the diagnostic authentication process marks a significant departure from legacy designs. In previous generations, an active alarm might sound the horn and flash the lights, but it would rarely interfere with the digital handshake between a diagnostic tool and the vehicle’s ECU. In the 2018-2025 architecture, the alarm state is inextricably linked to the BCM's gateway permissions.
+2.1 Theoretical Operation of Diagnostic Lockout
+When a Ford vehicle equipped with AAS enters an "Armed" state, the BCM monitors various inputs: door latch switches, hood pins, ultrasonic interior sensors (on higher trims), and inclination sensors. Upon detecting an anomaly—such as a door being opened mechanically without a valid transponder signal—the system triggers an "Alarm Active" state.
+Crucially, under the FNV architecture, the BCM responds to this state by implementing a logic block on the diagnostic communication lines.1 The standard OBD-II port (Data Link Connector) connects to the vehicle's networks via a gateway. When the alarm is active, the gateway logic effectively filters out or ignores "Wake Up" frames and "Security Access" requests initiated from the OBD port. The vehicle effectively performs a localized Denial-of-Service (DoS) attack on the diagnostic tool.
+The result is that standard programming attempts in an "All Keys Lost" situation will fail immediately. The tool will report "Communication Error," "No ECU Detected," or "Security Access Denied," leading technicians to incorrectly diagnose the issue as a hardware fault or software incompatibility.3 This behavior is designed to prevent "smash and grab" key cloning, where a thief breaks a window, plugs in a fast-programmer, and drives away. By severing the digital limb of the vehicle, Ford forces the attacker to contend with the physical and audible alarm first.
+2.2 Evolution of Lockout Aggression
+The severity of this lockout varies significantly across model years and trims, creating a tiered difficulty matrix for service personnel.
+Level 1: Passive Lockout (Standard Trims)
+On base models like the Ford Escape or lower-trim Fusions (2018-2020), the lockout is primarily software-based. The BCM refuses the initial handshake but does not actively jam the bus. In these cases, simply waiting out the alarm cycle (usually 30-60 seconds) or using a "silence" command from a high-end tool can restore access.4
+Level 2: Active Rejection (Mid-Range)
+On models like the 2018+ Explorer and Expedition, the active alarm creates a persistent "Deny" flag in the BCM's volatile memory. Even after the horn stops sounding, the vehicle remains in a heightened security state for a "cool down" period. Attempting to communicate during this window resets the timer. This requires specific intervention, such as the battery reset method, to clear the volatile memory.5
+Level 3: The "Fortress" Models (F-150 Gen 14, S650 Mustang)
+The most aggressive implementation is found in the 2021+ Ford F-150 (Gen 14) and the 2024+ Mustang. These vehicles utilize overhead ultrasonic sensors that detect volumetric changes inside the cabin. If a technician is sitting in the driver's seat, their mere presence continuously re-triggers the alarm loop, permanently blocking OBD communication.6 Furthermore, these BCMs often require a cryptographic handshake with the Ford backend (via FDRS) to authorize the "Alarm Silence" command, effectively locking out offline aftermarket tools unless a physical bypass is employed.
+2.3 Operational Workflow for Active Alarm Bypass
+Navigating an active alarm lockout requires a structured, decision-tree approach. The following workflow synthesizes field-validated methodologies to bypass the BCM's defensive logic.
+Step 1: Non-Invasive Digital Bypass (The Keypad Method)
+The primary and most efficient vulnerability in the Ford AAS architecture is the SecuriCode™ keypad. The BCM treats a valid code entry on the keypad as a "Class A" authentication event, equivalent to a valid key fob button press.
+* Procedure: Locate the BCM, which is typically situated under the dashboard on the driver’s side or behind the passenger kick panel/glovebox assembly depending on the model (e.g., 2020 Fusion BCM is reachable from the driver footwell).2
+* Decal Identification: Ford prints a 5-digit factory master code on a decal attached to the BCM casing. This code is static and hardcoded into the module. Using a borescope or by physically maneuvering the BCM, the technician can read this code.2
+* Execution: Entering this 5-digit code into the exterior door keypad immediately disarms the alarm, unlocks the doors, and restores full OBD-II communication privileges. This method is preferred as it is non-destructive and retains vehicle settings.2
+Step 2: The "Double-Tap" Power Reset (Volatile Memory Clear)
+If the vehicle lacks a keypad or the BCM label is inaccessible, the next tier of intervention involves forcing a reboot of the BCM to clear the "Alarm Triggered" flag from its Random Access Memory (RAM).
+* Theory: The alarm state is often stored in volatile memory. By removing power, the system creates a temporary initialization window upon reboot where the alarm logic has not yet armed.
+* Procedure:
+   1. Disconnect both positive and negative battery terminals.
+   2. Short the vehicle-side cables together for at least 60 seconds. This action discharges the capacitors within the BCM and Gateway modules, ensuring a hard reset.8
+   3. Reconnect the battery.
+   4. The "Golden Window": Immediately upon reconnection, there is often a 10-30 second window before the BCM re-establishes its security perimeter. Technicians must have their diagnostic tool plugged in and ready to initiate the "Add Key" or "All Keys Lost" sequence immediately. In some cases, the alarm may resume sounding, but the diagnostic session, once established, will take precedence.3
+Step 3: Hardware Emulation and Isolation
+For the most stubborn vehicles (e.g., 2021+ F-150), a purely timing-based approach may fail due to the speed of the BCM's boot sequence. In these scenarios, specialized hardware adapters are utilized.
+* Mechanism: Active Alarm Bypass kits (e.g., from Lock Labs or Magnus) function by isolating the Vehicle Communication Interface (VCI) power supply.
+* Execution: The adapter connects to the OBD port and provides an external 12V power source to the VCI. This allows the VCI to maintain its handshake and session state "alive" while the vehicle's battery is disconnected. When the vehicle power is restored, the VCI is already broadcasting authorized frames, slipping past the initialization check before the BCM can block the port.9
+Step 4: The 10-Minute Security Wait
+Legacy logic remains in the BCM firmware. If the alarm cannot be silenced, some tools force a "Security Access" request that triggers a 10-minute countdown.
+* Behavior: During this countdown, the alarm may sound intermittently. The dashboard may go dark. This is normal behavior as the BCM verifies that the intruder (technician) is persistent.
+* Success Criteria: If the bus remains uninterrupted for 10 minutes, the BCM assumes the attempt is legitimate (or at least persistent enough to be a service event) and grants access. This is risky in high-traffic areas due to the noise but remains a valid fallback.8
+3. PATS Generations: Technical Architecture and Evolution
+The Passive Anti-Theft System (PATS) is the backbone of Ford's immobilizer technology. While often referred to generically, PATS has evolved through five distinct generations, with a sixth "Smart" generation currently dominating the market. Understanding these generations is critical because they dictate the cryptographic protocol, the transponder hardware, and the necessary programming infrastructure.
+3.1 Historical Context: The 40-Bit to 80-Bit Transition
+Early PATS systems (Gen 1-3) utilized Texas Instruments 4C and 4D-60/63 chips with 40-bit encryption. These systems were vulnerable to brute-force attacks and cloning.
+* Gen 4 (2011-2018): Ford transitioned to 80-bit encryption using the Texas Instruments 4D-63 "80-bit" chip. This effectively mitigated simple cloning attacks but retained the bladed key form factor. This generation introduced the concept of the "Coded Access" where the vehicle and tool exchange an "Incode" and "Outcode" to authorize programming.1
+3.2 Gen 5 and Gen 6 (Smart System): The Modern Standard
+From 2018 onwards, the majority of Ford's lineup migrated to PATS Gen 5 (for bladed keys) and PATS 6 / PEPS (Passive Entry Passive Start) for smart keys.
+Generation 5 (Advanced Bladed):
+* Architecture: The PATS logic moved entirely to the Body Control Module (BCM). The Instrument Cluster (IPC) acts merely as a display interface.
+* Cryptography: Utilizes AES-128 encryption. The transponder is typically a Hitag Pro (ID49) or an advanced 80-bit Texas chip depending on the model.
+* Bypass Mechanism: The "Incode/Outcode" system was replaced by a challenge-response system requiring a 16-digit security string. This necessitates online calculation or a rolling code exchange that standard offline calculators cannot generate.1
+Generation 6 (Smart / PEPS):
+* Architecture: This is the standard for 2018-2025 push-to-start vehicles. It utilizes a complex web of Low Frequency (LF) antennas to triangulate the key's position inside or outside the vehicle.
+* Authentication: The BCM authenticates the key via 128-bit AES. Upon validation, the BCM sends an encrypted "Go" message to the Steering Column Lock Module (ESCL) and the PCM.
+* Key Limit: Unlike previous generations allowing 8 keys, modern smart systems often cap the memory at 4 programmed fobs.1
+3.3 Data Mapping: PATS Generations and Transponders
+To assist in identification, the following table correlates model years with their specific PATS generation and hardware requirements.
+
+
+  
+
+
+
+The table highlights a critical inventory challenge: the coexistence of "H-Series" bladed keys and "Smart" fobs within the same model years (e.g., Transit Connect vs. Transit).
+3.4 The H-Series Confusion: H92 vs. H94
+A specific point of failure for technicians working on 2018-2022 bladed-key Fords (Transit Connect, base F-150, Ranger) is the distinction between H92 and H94 keys.
+* H92 (Edge Cut): This key utilizes an 80-bit Texas 4D-63 chip. It physically resembles the older H75/H84 keys but contains the upgraded chip. It is used primarily on the F-Series (up to 2020) and Ranger.14
+* H94 (High Security/Laser Cut): This key also utilizes the 80-bit Texas 4D-63 chip. Electrically, H92 and H94 are identical; they utilize the same transponder protocol. However, the physical blade is different (H92 is edge cut, H94 is a side-milled laser cut).
+* Critical Implication: The chips are interchangeable, but the blades are not. A technician can harvest a chip from an H92 to repair an H94, but they cannot use the blank shell. Furthermore, the H94 is distinct to the "Global Platform" vehicles like the Fiesta, Focus, and Transit Connect, whereas the H92 is for the "North American Truck" platform.14
+4. RF Spectrum Analysis: The Migration to 902 MHz
+In parallel with the PATS evolution, Ford engineered a major shift in the Radio Frequency (RF) layer of its Remote Keyless Entry (RKE) systems. For decades, 315 MHz was the standard automotive frequency in North America. However, the demand for "Long Range" remote start capabilities and improved signal penetration in urban environments drove a migration to the 902 MHz ISM (Industrial, Scientific, and Medical) band.
+4.1 The 315 MHz vs. 902 MHz Divide
+This split has created a significant inventory hazard. From 2018 to 2025, Ford vehicles are split between these two bands, often within the same model family depending on the trim level.
+* 902 MHz (High Feature): This band allows for bi-directional communication over longer distances (up to 3000 feet). It is standard on vehicles equipped with factory remote start, power liftgates, and "Phone-as-a-Key" preparation.
+* 315 MHz (Standard Feature): This remains the band for base models (XL/XLT) and fleet vehicles that lack advanced remote features.16
+4.2 The Case of the Identical Fobs: M3N-A2C931426 vs. M3N-A2C931423
+The most prominent example of this confusion lies in the 5-button proximity keys used by the Explorer, Edge, Fusion, and Expedition.
+* M3N-A2C93142600 (902 MHz): This fob is used for high-trim vehicles (Titanium, Platinum, ST). It features an LED that provides feedback (e.g., green flash) when the car starts remotely.
+* M3N-A2C931423 (315 MHz): This fob is physically identical in casing and button layout. However, it operates on 315 MHz.
+* Incompatibility: These keys are not cross-compatible. The vehicle's Remote Function Actuator (RFA) or Receiver Module (RTM) is hardware-tuned to a specific frequency. Attempting to program a 902 MHz key to a 315 MHz car will result in a successful transponder add (engine starts) but a failed remote programming (buttons do not work), or a complete failure of the procedure.16
+
+
+  
+
+
+
+4.3 Chip Architecture: ID49 Hitag Pro
+Regardless of the frequency (315 vs 902), the underlying transponder chip for virtually all 2018-2025 Smart Keys is the NXP Hitag Pro (ID49). This 128-bit chip is robust and supports the complex challenge-response required by the BCM.
+* Cloning: Unlike the older 40-bit chips, ID49 chips are not easily clonable. While some aftermarket tools claim cloning capability, the rolling code nature of the Hitag Pro encryption makes cloning unreliable for long-term use. "Add Key" programming is the only stable solution.20
+5. The Security Gateway (SGW) Era: 2020+
+Following the lead of FCA (Stellantis), Ford began implementing Security Gateway Modules (SGW) in 2020. The purpose of the SGW is to segregate the vehicle's "public" network (the OBD-II port) from the "private" internal networks (HS-CAN, MS-CAN). This creates a firewall that prevents unauthorized devices from sending privileged commands—such as "Clear Codes," "Active Tests," or "Program Keys"—without digital authentication.
+5.1 SGW Architecture and Deployment
+Unlike FCA, which utilized a discrete "SGW Module" that was often easily accessible near the OBD port, Ford integrated the Gateway functionality deeply into the Gateway Module (GWM) or the Smart Data Link Module (SDLM).
+* Deployment Timeline:
+   * 2020: Introduced on the all-new Ford Explorer (U625) and Lincoln Aviator.
+   * 2021: Expanded to the Ford F-150 (Gen 14), Mustang Mach-E, and Bronco Sport.
+   * 2022+: Standardized across the majority of the fleet including the Expedition and Navigator.22
+5.2 Bypass Methodologies: Digital vs. Physical
+Digital Bypass (AutoAuth/Ford Service):
+Ford utilizes a cloud-based authentication system. Authorized tools (e.g., Ford IDS/FDRS, and certified aftermarket tools like Autel IM608 with a valid subscription) can perform a digital handshake.
+* Mechanism: The tool connects to the internet, validates the technician's credentials (often requiring NASTF VSP registration for security functions), and retrieves a digital token. This token is passed to the SGW, which then "unlocks" the gateway for the duration of the session.24
+* Limitations: This requires a stable internet connection and an active subscription. In field scenarios with poor connectivity or for "All Keys Lost" where the alarm is active, the digital handshake may fail due to the BCM's lockout logic.
+Physical Bypass (The Hardware Patch):
+When digital access fails, technicians must physically bypass the gateway by connecting directly to the CAN bus behind the firewall module.
+* The "Start/Stop Eliminator" Insight: An accidental boon for the security industry has been the proliferation of "Auto Start/Stop Eliminators." These aftermarket devices are designed to remember the driver's preference for the auto-start/stop engine feature. To do this, they plug in-line with the Gateway Module. Security researchers discovered that the connectors used by these eliminators (typically 24-pin or 26-pin) are the exact points needed to inject diagnostic commands, effectively serving as a bypass harness.26
+5.3 Physical Bypass Locations by Model
+Ford Explorer (2020+):
+* Location: The Gateway Module is located high in the dashboard, roughly above the brake pedal assembly. It is a black box with multiple connectors.
+* Target Connector: The 24-pin connector facing the front of the vehicle.
+* Access: No tool disassembly is strictly required; it can be reached by hand from the footwell, though it is a tight fit. Disconnecting this plug and inserting a bypass cable (e.g., the Autel 12+8 style or specific Ford bypass cable) restores CAN access.26
+Ford F-150 (2021+ Gen 14):
+* Location: The architecture here is more complex. The Gateway functionality is handled by a module located behind the center console/radio stack, physically positioned below the radio head unit.
+* Target Connector: A 26-pin connector located on the underside of the module.
+* Access: This is significantly more difficult than the Explorer. It may require removing the trim panels around the center stack to reach the connector. Once accessed, the bypass harness bridges the connection, allowing the diagnostic tool to speak directly to the internal CAN bus, bypassing the firewall logic.28
+
+
+  
+
+
+
+Ford Mustang Mach-E (2021+):
+* Location: As an EV, the Mach-E's BCM and Gateway are deeply integrated. The Gateway is often accessed near the BCM in the passenger footwell area.
+* Procedure: Similar to the F-150, disconnection of the primary gateway connector allows for the insertion of a bypass tool. However, due to the high-voltage nature of the vehicle, extreme caution is advised. Disconnecting the 12V battery (and following the HV disable procedure if necessary) is critical before unplugging modules to prevent setting persistent DTCs in the high-voltage control modules.29
+6. Model-Specific Security Profiles
+6.1 The F-150 Gen 14 (2021-2025): The Apex Predator
+The 14th Generation F-150 represents the pinnacle of Ford's current security capabilities.
+* The Alarm Problem: As noted, the ultrasonic sensors are the primary antagonist. In an AKL scenario, the alarm will trigger the moment the door is breached. The "Double-Tap" battery reset is almost mandatory.
+* PaaK Integration: The introduction of "Phone as a Key" adds another layer of complexity. The RFA module is constantly scanning for Bluetooth Low Energy (BLE) signals. This can cause interference with standard programming tools.
+* Bypass Strategy: Successful programming typically involves: 1) Battery Reset to silence alarm, 2) Physical Gateway Bypass behind the radio (if OBD fails), 3) Use of a dealer-level tool (FDRS) or a high-end aftermarket tool (Autel IM608 Pro) with the latest software patch to handle the 2021+ BCM algorithm.6
+6.2 The Mustang S650 (2024+): The CAN FD Fortress
+The 2024 Mustang (S650) introduces the next generation of networking: CAN FD.
+* Protocol Shift: Standard CAN bus operates at 500 kbps with an 8-byte payload. CAN FD (Flexible Data-Rate) operates at up to 5 Mbps with a 64-byte payload.
+* Diagnostic Implication: Legacy OBD tools physically cannot read the data stream. The tool's transceiver must be CAN FD capable. Even if the tool software is updated, if the hardware (VCI) lacks the CAN FD chip, it will fail to communicate.
+* Bypass: Currently, there is no "bypass" for the CAN FD requirement itself; you must have compatible hardware (e.g., Autel V200/V300 VCI or a CAN FD adapter). The security access then follows the standard 2021+ Ford online calculation protocol.32
+6.3 Commercial Fleet: Transit vs. Transit Connect
+The commercial sector shows a divergence in security strategies.
+* Ford Transit (Full Size) 2020+: This vehicle has aligned with the F-150 architecture. It uses the 902/315 MHz smart keys (ID49) and shares the BCM logic of the passenger vehicles. AKL procedures match the Explorer/F-150.20
+* Ford Transit Connect (2019-2022): This platform is based on the older "Global C" architecture (Focus/Fiesta). It retains the H94 Bladed Key (80-bit). Crucially, while it is a "modern" vehicle, it does not typically feature the aggressive Active Alarm lockout found in the F-150. It remains one of the easier vehicles to service, provided the technician has the correct H94 key blank and not the visually similar H92.34
+7. Structured Data Summary: Ford Security Matrix (2018-2025)
+The following structured data synthesizes the complex variables of model, year, security generation, and bypass requirements into a unified reference matrix.
+Model
+	Year Range
+	PATS Gen
+	Key/Chip Type
+	FCC ID / Freq
+	Alarm Sensitivity
+	Bypass Req?
+	AKL Difficulty (1-10)
+	Programming Notes
+	F-150
+	2018-2020
+	Gen 5 (Smart)
+	Smart / ID49
+	M3N-A2C931426 (902)
+	High
+	Door Code / Bat. Reset
+	7/10
+	Alarm active lockout common; use door code or battery reset.
+	F-150
+	2021-2025
+	Gen 5+
+	Smart / ID49
+	M3N-A2C931426 (902)
+	Extreme
+	Gateway Bypass (Radio)
+	9/10
+	Requires GWM bypass behind radio if alarm active. Ultrasonic sensors very sensitive.
+	Mustang
+	2018-2023
+	Gen 5 (Smart)
+	Smart / ID49
+	M3N-A2C931426 (902)
+	High
+	Door Code / Bat. Reset
+	7/10
+	S550 platform. Alarm lockout frequent.
+	Mustang
+	2024+
+	CAN FD
+	Smart / ID49
+	M3N-A2C931426 (902)
+	Extreme
+	CAN FD Adapter
+	10/10
+	S650 platform. Mandatory CAN FD hardware. Dealer codes often required.
+	Explorer
+	2020-2025
+	Gen 5+
+	Smart / ID49
+	M3N-A2C931426 (902)
+	Extreme
+	Gateway Bypass (Dash)
+	8/10
+	GWM bypass cable needed above brake pedal. 10-min wait often enforced.
+	Escape
+	2020-2024
+	Gen 5
+	Smart / ID49
+	M3N-A2C931423 (315)
+	Medium
+	Standard OBD
+	5/10
+	Uses 315MHz key. SGW present but digital bypass usually works.
+	Transit
+	2020-2024
+	Gen 5
+	Flip / ID49
+	N5F-A08TAA (315)
+	Medium
+	Standard OBD
+	6/10
+	Full-size van. Blue/Silver remote keys. Standard procedure.
+	Transit Connect
+	2019-2022
+	Gen 4/5
+	Blade H94 / 4D-63
+	N5F-A08TAA (315)
+	Low
+	Standard OBD
+	4/10
+	Uses H94 High Security Blade. Do not use H92.
+	Mach-E
+	2021-2025
+	Gen 5+
+	Smart / ID49
+	M3N-A2C931426 (902)
+	Extreme
+	Gateway Bypass (BCM)
+	9/10
+	EV architecture. 12V battery reset critical for alarm silence.
+	Bronco Sport
+	2021-2025
+	Gen 5+
+	Smart / ID49
+	M3N-A2C931426 (902)
+	High
+	Gateway Bypass
+	8/10
+	Similar to Escape/Explorer architecture.
+	1
+8. Conclusion and Future Outlook
+The trajectory of Ford's security architecture from 2018 to 2025 demonstrates a clear strategic intent: the deprecation of the OBD-II port as an open service interface. The convergence of the Active Alarm System (AAS), Security Gateway (SGW), and CAN FD protocols creates a "Zero Trust" environment for aftermarket diagnostics.
+For the security professional, the "All Keys Lost" event on a modern Ford is no longer a software-only problem. It has become a hybrid challenge requiring physical intervention (harness patches), electrical manipulation (battery resets), and advanced networking hardware (CAN FD adapters). As the S650 Mustang's architecture likely proliferates to the F-150 and Explorer in their next mid-cycle refreshes, the industry must prepare for a future where offline, port-based programming is obsolete, replaced by server-authenticated, high-speed data exchanges that demand both physical access and digital credentials. The era of the simple "plug and play" key programming is effectively over for the Blue Oval's flagship vehicles.
+Works cited
+1. Understanding Ford PATS: Security for Your Transit, accessed December 27, 2025, https://lockcity.co.uk/learning-centre/ford-pats-immobiliser-guide/
+2. 2020 Ford Fusion Smart Key FAILS?! | All Keys Lost | Alarm Lockout Fix + Programming Tips, accessed December 27, 2025, https://www.youtube.com/watch?v=tewp9Yev6vA
+3. (486) Xhorse Ford Active Alarm All Keys Lost Cable & Key Tool Plus - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=wvF0FKJZpAA
+4. How do I use the anti-theft alarm system in my Ford?, accessed December 27, 2025, https://www.ford.com/support/how-tos/keys-and-locks/door-locks-and-alarms/how-do-i-use-the-anti-theft-alarm-system/
+5. Advanced Diagnostics ADC2020 NEW Ford / Toyota AKL Active Alarm Ford Emulator Cable - for Smart Pro - Southern Lock, accessed December 27, 2025, https://www.southernlock.com/itemdetail/026-2020
+6. Intrusion alarm : r/f150 - Reddit, accessed December 27, 2025, https://www.reddit.com/r/f150/comments/lvx92d/intrusion_alarm/
+7. 2019 F-150 active alarm no keypad or existing key : r/Locksmith - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Locksmith/comments/xcjk7i/2019_f150_active_alarm_no_keypad_or_existing_key/
+8. 2023 Ford active alarm, no keys : r/Locksmith - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Locksmith/comments/1p2yl7a/2023_ford_active_alarm_no_keys/
+9. Magnus - Ford Active Alarm Bypass Kit - OBDII Adapter & Extension Cable - UHS Hardware, accessed December 27, 2025, https://www.uhs-hardware.com/products/ford-active-alarm-bypass-kit-obdii-adapter-extension-cable-lock-labs
+10. Active Alarm Bypass OBDII Adapter for Ford by Magnus - Noble Key Supply, accessed December 27, 2025, https://noblekeysupply.com/products/active-alarm-bypass-obdii-adapter-for-ford-by-magnus
+11. Ford Active Alarm Kit [Active Alarm Bypass Kit] [MAGNUS] - Nitrous Keys, accessed December 27, 2025, https://nitrouskeys.com/products/ford-active-alarm-kit-active-alarm-bypass-kit
+12. Ford Mustang Smart Key Programming AUTEL KM100 - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=bNgQnsUwvg8
+13. Passive Anti-Theft System (PATS) - Overview | PDF | Electricity - Scribd, accessed December 27, 2025, https://www.scribd.com/document/472446431/419-PATS
+14. Transponder Keys Explained | H94 Ford 80 Bit | Video Blog, accessed December 27, 2025, https://www.clksupplies.com/blogs/news/transponder-keys-explained-h94-ford-80-bit
+15. Ford Ignition Transponder Chip Key H92 599114 164-0475 - Car and Truck Remotes, accessed December 27, 2025, https://www.carandtruckremotes.com/products/ford-transponder-ignition-key-h92-h84-h85-aftermarket
+16. Key fob question : r/f150 - Reddit, accessed December 27, 2025, https://www.reddit.com/r/f150/comments/vql6de/key_fob_question/
+17. Frequency In Ranger 2020 Xlt 315mhz or 902mhz all key lost Flip key : r/Locksmith - Reddit, accessed December 27, 2025, https://www.reddit.com/r/Locksmith/comments/1bnwhiv/frequency_in_ranger_2020_xlt_315mhz_or_902mhz_all/
+18. 2017-2022 Ford / 5-Button Smart Key / PN: 164-R8149 / M3N-A2C93142600 / 902 Mhz (OEM Refurb) - UHS Hardware, accessed December 27, 2025, https://www.uhs-hardware.com/products/2017-2022-ford-5-button-smart-key-pn-164-r8149-m3n-a2c93142600-902-mhz-oem-refurb
+19. 2018-2023 Ford Smart Key - M3N-A2C931423 4-Button - Best Key Solution, accessed December 27, 2025, https://www.bestkeysolution.com/products/2017-2022-smart-key-fob-remote-transmitter-fits-to-ford-edge-explorer-fusion-mustang-m3n-a2c93142300-315mhz
+20. MK3. Ford Transit 2020 Original Flip Remote Key N5F-A08TAA, accessed December 27, 2025, https://www.mk3.com/ford-transit-2020-original-flip-remote-key-n5f-a08taa
+21. Ford Transit 2019-2023 Key Fob Replacement - Best Key Solution, accessed December 27, 2025, https://www.bestkeysolution.com/products/2018-2022-smart-key-fob-remote-transmitter-fits-to-ford-expedition-explorer-escape-maverick-m3n-a2c931423-315-mhz
+22. FCA Security Gateway Module Basic Info and Location - JScan, accessed December 27, 2025, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+23. DB3: Installation Guide. 2020 Ford Explorer (Smart Key). 403.FORD12 2.06, accessed December 27, 2025, https://directechs.blob.core.windows.net/ddt/403-FORD12-2.06-ORI_2020-Ford-Explorer-(Smart-Key)_IG_EN_20230707.pdf
+24. Vehicle Coverage | AUTEL, accessed December 27, 2025, https://autel.com/vehicle-coverage/coverage2
+25. Autel and the authorized Chrysler method to bypass SGW - AESwave.com, accessed December 27, 2025, https://www.aeswave.com/blog/Autel-and-the-authorized-Chrysler-method-to-bypass-SGW-bp350.html
+26. Explorer (20-24') Start / Stop Eliminator - 4D Tech, accessed December 27, 2025, https://www.4dtech.com/ford-explorer-20-24-start-stop-eliminator/
+27. Ford Explorer DISABLE Auto Start/Stop Feature - Toggle ON and OFF permanently! [2020-2024] - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=5d1KMQUIvJo
+28. How to access an F-150 Gateway Connector - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=YGKAHWkLAis
+29. Security Gateway Bypass Module - ZAutomotive, accessed December 27, 2025, https://www.zautomotive.com/products/z_sgw
+30. Accessing the Body Control Module Fuse Box, accessed December 27, 2025, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=7430&languageCode=en&countryCode=USA&moidRef=G2131023&Uid=G2137115&ProcUid=G2139346&userMarket=USA&div=f&vFilteringEnabled=False&buildtype=web
+31. How to Replace a BCM (Body Control Module) - YouTube, accessed December 27, 2025, https://www.youtube.com/watch?v=Z2ukBJlP6aI
+32. 2024 Ford Mustang Keyless Entry Remote Fob Smart Key Programming Instructions, accessed December 27, 2025, https://keyless2go.com/blogs/program-instructions/2024-ford-mustang-keyless-entry-remote-fob-smart-key-programming-instructions
+33. Autel CAN FD Adapter Compatible with Autel VCI Maxisys Tablets - ABKEYS, accessed December 27, 2025, https://abkeys.com/products/autel-can-fd-adapter-compatible-with-autel-vci-maxisys-tablets-1409
+34. 2021 Ford Transit Van Flip Key Fob 5B Side Door FCC# N5F-A08TAA - Locksmith Keyless, accessed December 27, 2025, https://www.locksmithkeyless.com/products/2021-ford-transit-van-flip-key-fob-5b-side-door-fcc-n5f-a08taa-aftermarket
+35. 2020 Ford Transit Connect transponder key blank H94 by Car & Truck Remotes, accessed December 27, 2025, https://www.carandtruckremotes.com/products/2020-ford-transit-connect-transponder-key-blank-aftermarket
+36. Ford Expedition Escape Smart Remote Key M3N-A2C931423 164 ..., accessed December 27, 2025, https://www.key4.com/smart-remote-key-ford-expedition-escape-m3na2c931423-164r8197
+37. 2020 Ford Transit Van Remote Key Fob w/ Side Door - CarandTruckRemotes, accessed December 27, 2025, https://www.carandtruckremotes.com/products/2020-ford-transit-van-remote-key-fob-w-side-door

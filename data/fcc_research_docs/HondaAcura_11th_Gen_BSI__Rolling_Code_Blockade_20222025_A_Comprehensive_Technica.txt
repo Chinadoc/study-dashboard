@@ -1,0 +1,155 @@
+﻿Honda/Acura 11th Gen "BSI" & Rolling Code Blockade (2022–2025): A Comprehensive Technical Analysis of Security Architecture, Service Mode Logic, and Aftermarket Tool Support
+Executive Summary
+The automotive security landscape has undergone a radical transformation with the introduction of the 11th generation Honda and Acura platforms, specifically the 2022–2025 Honda Civic (FE), the 2023–2025 Honda Accord (CY), and the 2023–2025 Acura Integra (DE). This report provides an exhaustive, expert-level analysis of the systemic shift from legacy immobilizer protocols to the high-security Hitag AES architecture. This transition, driven by the urgent need to mitigate high-profile replay vulnerabilities such as "Rolling-PWN" (CVE-2021-46145), has resulted in a phenomenon widely known in the locksmith and diagnostic community as the "Rolling Code Blockade."
+The primary focus of this research is to deconstruct the operational logic of the Body Control Module (BCM)—often referenced in diagnostic interfaces as the Body Systems Interface (BSI)—and its interaction with aftermarket programming tools. Our analysis reveals that the widespread "bricking" of BCM units during "All Keys Lost" (AKL) procedures is not merely a software glitch but a consequence of a fundamental protocol mismatch between legacy diagnostic handshake protocols and the BCM's strictly enforced rolling code synchronization window.
+This document serves as a definitive technical reference for automotive security professionals, breaking down the specific hardware requirements, the critical "Service Mode" vs. "Locked" states, and the precise toolchain methodologies required to navigate this hostile programming environment without inducing catastrophic module failure. By synthesizing data from technical service bulletins, FCC filings, cybersecurity research papers, and field reports from diagnostic tool users, we establish a robust framework for understanding and overcoming the challenges posed by this new generation of vehicle security.
+
+
+  
+
+
+
+1. The Evolution of Honda Immobilizer Architecture
+To fully grasp the severity of the "Rolling Code Blockade," one must first understand the architectural lineage that precipitated it. The 11th generation platform represents a distinct break from the evolutionary path of the previous decade, moving from a strategy of obfuscation to one of cryptographic rigor.
+1.1 The Legacy Era: Hitag 2 to Hitag 3 (10th Gen)
+For years, the automotive industry relied heavily on NXP’s Hitag 2 protocol, a 48-bit encryption standard that eventually succumbed to various cryptanalytic attacks. In response, Honda migrated to Hitag 3 (96-bit) for its 10th generation vehicles (2016–2021 Civic, 2018–2022 Accord). Hitag 3 was considered secure against brute-force attacks due to its increased key length. However, the implementation of the rolling code mechanism—the system that ensures each key press transmits a unique, non-repeatable code—retained structural weaknesses.
+The rolling code system is designed to prevent "replay attacks," where an adversary records a valid signal (e.g., a "lock" command) and plays it back later to unlock the car. The receiver (the car) maintains a counter and only accepts codes that correspond to a future counter value within a specific "sliding window." If a code is received that is older than the current counter, it should be rejected.
+1.2 The Catalyst: The "Rolling-PWN" Vulnerability
+The architectural shift seen in the 2022+ models was largely catalysed by the discovery of the "Rolling-PWN" vulnerability (CVE-2021-46145). Security researchers demonstrated that in many Honda vehicles produced between 2012 and 2022, the rolling code implementation was flawed. Specifically, the BCM did not strictly enforce the "freshness" of the counter.
+By capturing a sequence of consecutive codes and replaying them in a specific pattern, an attacker could force the BCM to resynchronize its internal counter to a previous state. This effectively "rolled back" the security window, allowing previously captured (and ostensibly expired) commands to become valid again.1 This vulnerability meant that a simple Software Defined Radio (SDR) could unlock a "secure" Hitag 3 vehicle without ever knowing the encryption key. The 11th Gen architecture was specifically engineered to close this loophole.
+1.3 The 11th Gen Solution: Hitag AES (4A) Implementation
+The 11th Gen platform (Civic FE, Accord CY, Integra DE) introduces the Hitag AES protocol, often identified in the aftermarket as "4A" due to the transponder ID structure. This is not merely an upgrade in key length to 128-bit AES; it is a fundamental restructuring of the authentication handshake.
+In the Hitag AES implementation, the BCM maintains a "Stateful" connection with the key. The rolling code window is extremely tight, and the resynchronization logic that allowed Rolling-PWN has been removed or severely restricted. The BCM now requires strict mutual authentication. When a diagnostic tool attempts to interact with the immobilizer system to program a new key, it must essentially masquerade as a valid "Dealer Key" to even initiate the conversation.
+This heightened strictness is the root cause of the "Blockade." Legacy tools that rely on the more permissive handshake of the Hitag 3 era fail to provide the correct cryptographic proof during the initial "Service Mode" request. The BCM, interpreting this malformed request as a potential brute-force or replay attack, triggers a defensive lockdown—the "Brick."
+2. The Body Control Module (BCM) - The New Fortress
+The Body Control Module (BCM) in the 11th Gen architecture serves as the central nervous system for vehicle access. Unlike previous iterations where the immobilizer might have been a separate physical unit or a sub-module of the PCM, the 11th Gen BCM fully integrates the immobilizer, remote keyless entry (RKE), and passive entry (smart key) functions into a single, hardened processor.
+2.1 BCM Hardware and Terminology
+Confusion often arises regarding the terminology used to describe this unit. In Honda's official parts catalog, the unit is consistently referred to as the "Body Control Module" or "BCM." However, in many diagnostic tools (particularly those of European or multi-brand origin like Autel and Xhorse), the menu option for key programming is often labeled "BSI" (Body Systems Interface) or "BSI Service Mode." This discrepancy is purely semantic; BSI is simply the software interface layer through which the tool communicates with the physical BCM hardware.
+The physical hardware itself has evolved. For the 2022 Civic FE, the BCM (Part Number 38320-T20-A01 for sedans, variations for hatchbacks) is a sophisticated unit capable of handling CAN-FD (Controller Area Network with Flexible Data-Rate) communication, although the primary immobilizer communication often still occurs over standard HS-CAN lines.4 The move to CAN-FD capability in the vehicle network is another hurdle for older diagnostic interfaces that lack the hardware bandwidth to communicate reliably with the module.
+2.2 The "Locked" vs. "Virgin" State Logic
+Understanding the operational states of the BCM is critical for successful servicing. The BCM operates in two primary modes regarding immobilizer security: "Locked" and "Virgin" (or Service Mode).
+The "Locked" State:
+Once a BCM is paired with a set of keys and an Engine Control Unit (ECU/PCM) at the factory, it enters a "Locked" state. In this state, the memory sectors containing the unique Key IDs and the secret encryption keys are write-protected. The BCM will only respond to commands from the registered keys. Crucially, standard OBD-II commands to "Add Key" are often restricted in this state. The BCM requires the presence of a working, registered key to authorize the session. This is why "Add Key" functions invariably fail in "All Keys Lost" scenarios—the tool cannot produce the digital signature required to unlock the write-protected memory.
+The "Virgin" (Service/Manufacturing) State:
+A "Virgin" BCM is one that has no registered keys or VIN data. This is the state of a replacement unit shipped from the parts counter. In this mode, the BCM is essentially in a listening state, ready to accept the first key presented to it as the "Master" key. This state is sometimes referred to as "Manufacturing Mode" in broader automotive contexts.6
+The goal of any aftermarket "All Keys Lost" procedure is to artificially force a "Locked" BCM back into this "Virgin" or "Service Mode" without physically replacing the hardware. This is achieved through a specific diagnostic command sequence that clears the internal memory or resets the security flag.
+2.3 Bench Programming and Pinout complexities
+For cases where OBD recovery fails, technicians often turn to "Bench Programming"—removing the BCM and connecting it directly to a programmer. The 11th Gen BCM utilizes complex multi-pin connectors (often 64-pin or higher density) making simple pin-out identification difficult.
+Research indicates that the BCM bench connection typically requires identifying the CAN High and CAN Low lines (often on the Green or White connectors) along with steady 12V power and Ground.8 However, unlike older units where reading an EEPROM chip (like a 93C46 or 24C04) yielded the data, the 11th Gen BCM stores security data in the encrypted partition of the main microcontroller (often a Renesas or NXP MCU). "Reading" this data directly is effectively impossible with standard EEPROM clips. The "Bench" solution, therefore, usually involves simulating the vehicle environment to run the OBD "All Keys Lost" procedure in a controlled setting, rather than direct memory manipulation.
+3. The "Rolling Code Blockade" and Failure Modes
+The term "Rolling Code Blockade" refers to the specific defensive behavior of the 11th Gen BCM when subjected to unauthorized or incorrect programming attempts. This is the mechanism that transforms a simple key addition job into a nightmare scenario involving a towed vehicle and a $800+ repair bill.
+3.1 The "Safety Check Failed" Error
+The most common error reported by technicians using Autel or similar tools is "Safety Check Failed".10 This error message is a generic catch-all displayed by the tool when the BCM refuses to enter the programming session. It typically occurs at the very beginning of the "All Keys Lost" function.
+Technically, this error indicates that the Security Access Algorithm has failed. The tool attempts to calculate a response to the BCM's security challenge (Seed-Key exchange). Because the 11th Gen BCM uses the Hitag AES challenge-response (which is significantly more complex than the Hitag 3 version), tools with outdated calculation libraries or poor internet connectivity fail to provide the correct response. The BCM, detecting a failed authentication, terminates the session immediately to prevent brute-forcing.
+3.2 The "Bricking" Phenomenon: A Detailed Analysis
+Far more severe than a simple failure to connect is the "Bricking" phenomenon. This occurs when the tool successfully initiates a session but writes corrupt data to the BCM, or when the tool uses an incorrect communication protocol that the BCM interprets as a command to erase its key registry without successfully entering learning mode.
+The "2020+" Trap:
+The primary vector for this failure is a specific user interface prompt found in Autel software. Upon connecting to a 2021 or 2022 Honda, the tool asks: "Is this vehicle 2020 or newer?"
+* The Logic Trap: A technician working on a 2022 Civic logically selects "YES."
+* The Consequence: Selecting "YES" instructs the tool to use a newer, generic CAN-FD protocol (likely developed for the GM-based Honda Prologue or other future architectures).
+* The Result: The protocol mismatch causes the tool to send commands that the Civic FE BCM misinterprets. It may attempt to write a configuration file incompatible with the Hitag AES immobilizer. The BCM, detecting integrity corruption, enters a "Defensive Lockdown" or "Brick" state. In this state, the BCM refuses all keys, including the original working keys, and the vehicle becomes completely immobile.10
+The Correct Procedure:
+To avoid this, technicians must select "NO" when asked if the vehicle is 2020+, or bypass the auto-detection entirely and manually select the specific chassis code (e.g., "Civic (FE)") from the menu system. This forces the tool to use the correct Hitag AES adaptation protocol specifically designed for the FE/CY platform.11
+
+
+  
+
+
+
+4. Hardware Ecosystem and FCC ID Mapping
+The transition to Hitag AES has necessitated a complete overhaul of the physical key hardware. The 11th Gen keys are visually distinct (often utilizing a newer, sleeker shell design) and electronically incompatible with the 10th Gen hardware. A significant number of failures stem from technicians attempting to program 10th Gen keys to 11th Gen vehicles, assuming backwards compatibility where none exists.
+4.1 Honda Civic (FE) – 2022–2025
+The 11th Gen Civic utilizes a smart key system operating at 433.92 MHz. The critical distinction for parts identification is the shift from the "V" series FCC IDs (10th Gen) to the "T" series (11th Gen).
+* Correct FCC ID: KR5TP-4.12
+* Frequency: 433.92 MHz (often simplified to 434 MHz in catalogs).
+* Transponder Chip: NCF29A1M (Hitag AES / 4A).
+* OEM Part Numbers: 72147-T20-A01 (Sedan), 72147-T43-A01 (Hatchback).
+* Button Configuration: 4-Button (Lock, Unlock, Trunk, Panic) or 5-Button (Remote Start included).
+* Incompatibility Warning: The KR5V2X key 16 is the standard key for the 10th Gen (2016-2021) Civic. While it looks similar and operates on a similar frequency, it uses the Hitag 3 architecture. The 11th Gen BCM cannot communicate with this chip. Attempting to program a KR5V2X to a 2022 Civic FE will result in immediate failure and may contribute to system lockout if the BCM flags the repeated invalid attempts.
+4.2 Honda Accord (CY) – 2023–2025
+The 11th Gen Accord architecture mirrors the Civic FE, creating a rare instance of platform unification for key hardware. In previous generations, the Accord and Civic often utilized different FCC IDs (e.g., KR5V2X for Civic vs. KR5V1X for Accord). For the 11th Gen, Honda has consolidated onto the KR5TP-4 platform.
+* Correct FCC ID: KR5TP-4.18
+* Frequency: 433 MHz.
+* Part Numbers: 72147-T20-A11.
+* Implication: This consolidation simplifies inventory for locksmiths, as a single stock of KR5TP-4 keys can theoretically cover both the new Civic and Accord, provided the button configurations (Trunk vs. Hatch) match the customer's needs.
+4.3 Acura Integra (DE) – 2023–2025
+The resurrected Acura Integra is mechanically a twin to the Civic FE, sharing the same chassis and electrical architecture. However, to maintain brand differentiation, the key hardware carries a specific variant code.
+* Correct FCC ID: KR5TP-2 (Note the "-2" suffix).22
+* Frequency: 434 MHz.
+* Transponder Chip: Hitag AES (4A).
+* Part Numbers: 72147-3S5-A01, 72147-3S5-A11 (Memory 1), 72147-3S5-A21 (Memory 2).
+* Interchangeability: While the underlying transponder chip (NCF29A1M) is likely identical to the Civic's KR5TP-4, the "TP-2" FCC ID indicates firmware differences in the remote transmitter. The BCM whitelist for the Integra likely excludes the "TP-4" Honda keys to prevent cross-brand usage, even if the immobilizer chip itself could theoretically be learned.
+
+
+  
+
+
+
+5. Diagnostic Tool Support and Methodology
+The efficacy of aftermarket tools in navigating the "Rolling Code Blockade" varies significantly. Success depends heavily on the tool's ability to perform online calculations and properly emulate the "Dealer Key" handshake.
+5.1 Autel (MaxiIM IM508 / IM608 / IM608S II)
+Autel is a dominant player in this space, but its support for the 11th Gen is fraught with the "Bricking" risks discussed earlier.
+* Methodology: For a 2022+ Civic, the technician must enter the "Immo Scan" menu, select "Honda," and then strictly follow the "Manual Selection" path to "Civic" -> "Smart Key" -> "Push to Start".24
+* Universal Key Support: Autel's "IKEY" universal smart keys are a viable solution. The tool can generate an IKEY to emulate the specific KR5TP-4 Hitag AES configuration. This is often safer than using an aftermarket "lookalike" key because the IKEY's firmware is generated by the tool itself, ensuring perfect synchronization with the programming protocol.25
+* Internet Dependency: The Autel programming sequence for 11th Gen requires an active internet connection. The tool reads the BCM's challenge data, uploads it to the Autel server for calculation, and downloads the response. This "Online Calculation" is the substitute for the static PIN codes of the past. If the server is unreachable, the process fails with "Safety Check Failed."
+5.2 Xhorse (VVDI Key Tool Plus / Key Tool Max)
+Xhorse has emerged as a robust alternative, particularly for recovery operations.
+* The "Universal Remote" Advantage: Xhorse's strength lies in its "Universal Smart Key" ecosystem. Unlike standard OEM keys that come with a fixed "virgin" state, Xhorse universal keys can be generated with "certain page data already locked".11 This means the key is pre-configured to look like a key that has already started the pairing process.
+* Recovery of Bricked BCMs: Field reports strongly suggest that Xhorse Universal Keys are the only reliable method for recovering a "Bricked" BCM without hardware replacement. If a BCM has been corrupted by an Autel or other tool and refuses to accept a standard key, the Xhorse key—due to its pre-locked data structure—can sometimes bypass the BCM's check for "virginity" and force a synchronization. This "trick" essentially manually satisfies the rolling code window that the BCM believes is missing.11
+* The Toyota Adapter Confusion: There is frequent mention of an "XD8ASKGL" adapter in the context of Xhorse tools.26 It is critical to clarify that this adapter is for Toyota 8A "All Keys Lost" situations, not Honda. While both systems use "8A" or "4A" nomenclature (referring to AES encryption), the hardware interface is different. Honda 11th Gen programming is done via the OBD-II port, not by connecting an adapter to the BCM directly.
+5.3 Honda Diagnostic System (HDS)
+The official HDS software, paired with an i-HDS interface, remains the gold standard for safety but the most restrictive for access.
+* MaRIS and VSP: Using HDS for immobilizer functions requires a valid locksmith credential (VSP - Vehicle Security Professional) and a login to the Honda MaRIS backend.
+* Procedure: HDS performs the official handshake, retrieving the 10-digit (or rolling) PCM code directly from Honda's servers. It does not use "bypass" methods or exploits. Consequently, it is the only method guaranteed not to brick a functional BCM. However, HDS is often incapable of "un-bricking" a module corrupted by aftermarket tools because it strictly adheres to the protocol; if the BCM's internal state is invalid, HDS will simply report a communication error and advise module replacement.
+6. Recovery and Mitigation Strategies
+When a "Blockade" event occurs—typically defined by a "No Start" condition after a failed programming attempt—the following recovery protocol is recommended based on aggregated field data.
+6.1 The "Hard Reset" Attempt
+Before assuming the BCM is permanently bricked, perform a "capacitive discharge" or "hard reset." Disconnect both battery terminals and touch the cable ends together (isolating them from the battery) for 10-15 minutes. This drains all residual power from the BCM's capacitors, potentially clearing volatile memory errors or "stuck" rolling code counters.
+6.2 The Xhorse Universal Key Method
+If the hard reset fails, the primary recovery strategy is the Xhorse Universal Key method.
+1. Use a VVDI Key Tool Max or Key Tool Plus.
+2. Generate a Universal Smart Key specifically for the "Honda Civic 2022+" or "Accord 2023+" profile (Hitag AES).
+3. Attempt the "All Keys Lost" programming sequence again using the Xhorse tool.
+4. The tool's ability to inject pre-configured data into the key may satisfy the BCM's corrupted handshake requirement, allowing the vehicle to start even if the BCM remains partially non-compliant with standard OEM keys.11
+6.3 Module Replacement (The Last Resort)
+If recovery fails, BCM replacement is the only option.
+* Sourcing: A used BCM from a salvage yard is often "Locked" to the donor vehicle and will be extremely difficult to "Virginize" without advanced bench tools (which currently lack full support for 11th Gen Renesas/NXP MCUs).
+* New BCM: A brand new BCM (approx. $170-$200 USD) comes in "Manufacturing Mode." It can be programmed using HDS or a capable aftermarket tool (selecting the correct protocol). However, replacing the BCM also requires resynchronizing the PCM and potentially the ABS/VSA modules, turning a key job into a complex diagnostic session.
+
+
+  
+
+
+
+7. Theoretical Implications and Future Outlook
+The "Rolling Code Blockade" of the 11th Gen Honda platform is not an isolated event but a harbinger of the "Crypto-Automotive" era. The move to Hitag AES 128-bit encryption renders the traditional "signal capture" and "replay" methodologies of theft (and by extension, simplistic diagnostics) obsolete.
+The industry is clearly moving towards Gateway-Locked Architectures, similar to the FCA (Stellantis) Secure Gateway. In such systems, the BCM will eventually require a digital certificate signed by the manufacturer to even accept a diagnostic connection. The "Service Mode" loophole that current aftermarket tools exploit—by calculating the challenge-response seed online—is a transient vulnerability. As Honda patches this via firmware updates or future hardware revisions (12th Gen), we anticipate a complete closure of the OBD programming path for unauthorized tools.
+For the locksmith and security professional, the implications are clear: the era of "dumb" key programming is over. Success now requires a fusion of traditional mechanical skills with a deep understanding of cryptographic protocols, network architecture (CAN-FD), and digital rights management. The "Blockade" is effective because it treats the diagnostic tool not as a trusted mechanic's wrench, but as a potential intruder—a stance that defines the future of automotive repair.
+Works cited
+1. Rolling Pwn Attack, accessed December 20, 2025, https://rollingpwn.github.io/rolling-pwn/
+2. Hackers Are Able to Unlock Honda Vehicles Remotely - Heimdal Security, accessed December 20, 2025, https://heimdalsecurity.com/blog/hackers-are-able-to-unlock-honda-vehicles-remotely/
+3. CVE-2022-27254 technical description - IstroSec, accessed December 20, 2025, https://istrosec.com/blog/honda-vulnerability/
+4. 2015 Honda Civic Start Power Control Module Unit 38320-TR0-A01 - AH Parts Dismantlers, accessed December 20, 2025, https://ahparts.com/buy-used/2015-honda-civic-start-power-control-module-unit-38320-tr0-a01-38320tr0a01/459933-1
+5. Genuine Honda Civic Body Control Module, accessed December 20, 2025, https://www.hondapartsnow.com/oem-honda-civic-body_control_module.html
+6. GM Recall Information - Recalls and Problems - Auto Lemon Law Attorneys, accessed December 20, 2025, http://www.lemonauto.com/complaints/z_news_recalls_2014_2.html
+7. 204-04B - Tire Pressure Monitoring System (TPMS) | PDF - Scribd, accessed December 20, 2025, https://www.scribd.com/document/536783956/204-04B-Tire-Pressure-Monitoring-System-TPMS
+8. Body Control Module Pinouts | PDF | Switch | Electrical Connector - Scribd, accessed December 20, 2025, https://id.scribd.com/doc/200651494/Body-Control-Module-Pinouts
+9. DB3: Installation Guide. 2022 Honda Civic (Smart Key). 403.HONDA9 2.20.106, accessed December 20, 2025, https://directechs.blob.core.windows.net/ddt/403-HONDA9-2.20.106-ORI_2022-Honda-Civic-(Smart-Key)_IG_EN_20250613.pdf
+10. 2022 honda civic : r/Locksmith - Reddit, accessed December 20, 2025, https://www.reddit.com/r/Locksmith/comments/1ia1qgr/2022_honda_civic/
+11. Honda Accord 2021 2022 No Start Bricked BCM Key Solution ..., accessed December 20, 2025, https://www.youtube.com/watch?v=pkizN9UFDbc
+12. 2022 Honda Civic Hatchback Smart Remote Key Fob - CarandTruckRemotes, accessed December 20, 2025, https://www.carandtruckremotes.com/products/2022-honda-civic-smart-remote-key-fob
+13. 2022 Honda Civic Smart Key 5 Buttons FCC# KR5TP-4 - Aftermarket - Locksmith Keyless, accessed December 20, 2025, https://www.locksmithkeyless.com/products/2022-honda-civic-smart-key-5-buttons-fcc-kr5tp-4-aftermarket
+14. Genuine Honda Civic 2022-2024 Smart Key, 4Buttons 72147-T20-A01 433MHz, KR5TP-4, accessed December 20, 2025, https://abkeys.com/products/honda-civic-smart-key-72147-t20-a01-433mhz-kr5tp-4-5116
+15. honda civic hatchback smart keyless entry, remote key fob fcc id: kr5tp-4, oem p/n, accessed December 20, 2025, https://www.bestkeysolution.com/products/honda-cr-v-2023-honda-pilot-2023-smart-keyless-entry-remote-key-fob-fcc-id-kr5tp-4-oem-refurbished
+16. 2021 Honda Civic Smart Key 4B FCC# KR5V2X - Locksmith Keyless, accessed December 20, 2025, https://www.locksmithkeyless.com/products/2021-honda-civic-smart-key-4-buttons-fcc-kr5v2x
+17. 2016-2021 Honda Civic Smart Key Fob 72147-TBA-A12 KR5V2X 334MHz - Key4, accessed December 20, 2025, https://www.key4.com/honda-civic-smart-prox-key-71247tbaa12
+18. 2023 Honda Accord Smart Key 5 Buttons FCC# KR5TP-4 - Aftermarket - Locksmith Keyless, accessed December 20, 2025, https://www.locksmithkeyless.com/products/2023-honda-accord-smart-key-5-buttons-fcc-kr5tp-4-aftermarket
+19. 2023 Honda Accord Smart Remote Key Fob 5B w/ Remote Start, Trunk (FCC: KR5TP-4, No Memory, P/N: 72147-T20-A11) - OEM Car Key Mall, accessed December 20, 2025, https://oemcarkeymall.com/products/2023-honda-accord-smart-remote-key-fob-5b-w-remote-start-trunk-fcc-kr5tp-4-pn-72147-t20-a11
+20. 2022-2024 Honda Accord Smart Key Fob Remote (KR5TP4, 72147-T20-A11), accessed December 20, 2025, https://northcoastkeyless.com/product/honda-accord-smart-key-fob-remote-fcc-kr5tp4-pn-72147-t20-a11/
+21. 2022-2024 Honda Accord Civic Smart Key 5 Button 433MHz KR5TP-4 72147-T20-A11, accessed December 20, 2025, https://gskeyae.com/product/2024-honda-accord-civic-smart-key-kr5tp-4-72147-t20-a11/
+22. 2023-2024 Acura Integra Smart Key Remote Fob KR5TP-2 72147-3S5-A01 MINT - eBay, accessed December 20, 2025, https://www.ebay.com/itm/176372329495
+23. 2024 Acura Integra Smart Key 4B W/ Hatch Fob FCC# KR5TP-2 - 721 - Locksmith Keyless, accessed December 20, 2025, https://www.locksmithkeyless.com/products/2023-2024-acura-integra-smart-key-4b-w-hatch-fob-fcc-kr5tp-2-2-72147-3s5-a11
+24. Autel IM608S II Program 2022 Honda Civic All Keys Lost - obdprice, accessed December 20, 2025, https://www.obdprice.com/blogs/news/autel-im608s-ii-program-2022-honda-civic-all-keys-lost
+25. Autel IM608 Pro2 Program 2022 Honda Civic All Keys Lost, accessed December 20, 2025, https://blog.autelsale.com/2024/03/21/autel-im608-pro2-program-2022-honda-civic-all-keys-lost/
+26. XD8ASKGL – 2019 – 2022 – All Keys Lost – for VVDI Key Tool Plus - My Key Supply, accessed December 20, 2025, https://www.mykeysupply.com/product/xhorse-xd8askgl-2019-2022-all-keys-lost-for-vvdi-key-tool-plus/
+27. Xhorse XD8ASKGL Toyota 8A/4A AKL Adapter 2017-2022 All Keys Lost For V, accessed December 20, 2025, https://www.locksmithkeyless.com/products/xhorse-xd8askgl-toyota-8a-4a-akl-adapter-2017-2022-all-keys-lost-for-vvdi-key-tool-plus

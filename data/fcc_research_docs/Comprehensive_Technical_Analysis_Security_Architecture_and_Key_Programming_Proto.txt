@@ -1,0 +1,170 @@
+﻿Comprehensive Technical Analysis: Security Architecture and Key Programming Protocols for the Nissan Pathfinder R53 Generation (2022–2025)
+1. Introduction: The Evolution of the R53 Platform and Security Paradigms
+The automotive landscape is currently undergoing a significant transformation in electronic security, driven by increasing connectivity and the subsequent need for robust cybersecurity measures. The introduction of the R53 generation Nissan Pathfinder for the 2022 model year represents a watershed moment in this evolution for Nissan's mid-size SUV segment. Moving away from the legacy D-platform that underpinned the R52 generation (2013–2020), the R53 is built upon the Renault-Nissan-Mitsubishi Common Module Family (CMF-CD) architecture. This shift is not merely structural or mechanical; it entails a complete overhaul of the vehicle's electronic topology, moving from a relatively open Controller Area Network (CAN) bus system to a segmented, firewalled architecture protected by a Secure Gateway Module (SGW) and advanced cryptographic transponder protocols.
+For the automotive locksmith, diagnostic technician, and security researcher, the R53 Pathfinder presents a fundamentally different set of challenges compared to its predecessor. The R52 generation relied on the established Nissan Anti-Theft System (NATS) logic, utilizing HITAG 2 or HITAG 3 (ID46/47) transponders and a Body Control Module (BCM) that was directly accessible via the On-Board Diagnostics (OBD-II) port. Programming a key for an R52 was a straightforward matter of calculating a 4-digit or 20-digit PIN code—often derived seamlessly by aftermarket tools—and initiating a learning command. The communication lines were open, and the barrier to entry was low.
+In stark contrast, the R53 platform implements a "Zero Trust" model for external diagnostics. The introduction of the Secure Gateway Module (SGW) effectively bifurcates the vehicle's network into "public" and "private" sectors. The OBD-II port, previously a direct line to the vehicle's brain, is now strictly monitored by the SGW, which acts as a digital gatekeeper. It permits passive "Read-Only" traffic, such as viewing Diagnostic Trouble Codes (DTCs) or live data streams, but strictly blocks active "Write" commands—including key programming, code clearing, and bi-directional controls—unless a cryptographic handshake authorizes the tool. This architecture is coupled with the migration to 128-bit HITAG AES (4A) transponder technology, rendering traditional cloning and emulation methods obsolete.
+The transition from the R52 to the R53 is characterized by the physical isolation of critical control units. In the R52, the wiring harness allowed for direct communication between the scan tool and the BCM via CAN High and CAN Low lines at the Data Link Connector (DLC). In the R53, the DLC connects solely to the SGW. This necessitates either a digital certification (via services like AutoAuth) or a physical intervention to bypass the gateway entirely. This report provides an exhaustive technical analysis of these systems, detailing the procedural necessities for key programming, the specific hardware locations for bypass operations, and the critical, evolving distinctions between the 2022–2023 and 2024+ model years.
+2. Advanced Security Architecture: NATS 4A and the Secure Gateway
+To understand the programming procedures for the R53 Pathfinder, one must first master the underlying security architecture that governs the authorization of keys. The system is a composite of hardware firewalls and software encryption that far exceeds the complexity of previous Nissan iterations.
+2.1 The Secure Gateway Module (SGW) Mechanics
+The Secure Gateway Module is the defining feature of the R53's diagnostic interface. Mandated by global cybersecurity regulations to prevent remote hacking and unauthorized vehicle control, the SGW filters all traffic entering the vehicle via the OBD-II port. The module operates on a whitelist principle: unless a command is recognized as safe (read-only), it is rejected.
+For operations critical to immobilizer programming—such as "Connect to BCM," "Read PIN Code," or "Register Intelligent Key"—the scan tool must send a specific authentication request. In an OEM environment, the Nissan Consult III+ tool connects to a central server to retrieve a time-sensitive certificate, which is then passed to the SGW to unlock the gateway. Aftermarket tools have adapted to this via two primary methods:
+1. Virtual Authorization: Utilizing the AutoAuth service, where the tool connects to the internet, verifies the technician's credentials, and receives a digital token to pass to the SGW. However, Nissan has historically restricted immobilizer-specific functions from this open protocol, often keeping key programming locked behind proprietary barriers even for registered users.
+2. Physical Bypass: This method, which has become the standard operating procedure for R53 key programming, involves disconnecting the SGW or the BCM from the gateway network and connecting the diagnostic tool directly to the private CAN bus. By physically tapping into the lines behind the firewall, the technician circumvents the filtering logic entirely, granting unrestricted access to the BCM.
+2.2 The 128-Bit HITAG AES (4A) Protocol
+The R53 Pathfinder utilizes the NXP HITAG AES transponder chip, commonly referred to in the locksmith industry as the "4A Chip".1 This represents a significant leap in cryptographic strength compared to the HITAG 2 (46) and HITAG 3 (47) chips used in the R52.
+The HITAG AES protocol employs a Challenge-Response authentication mechanism based on the Advanced Encryption Standard (AES) with a 128-bit key. The process operates as follows:
+1. Wake-Up and Challenge: When the Start/Stop button is pressed, the BCM energizes the Low-Frequency (LF) antennas (125 kHz) to wake up the key fob. The BCM generates a random 128-bit number (the "Challenge") and transmits it to the key.
+2. Processing: The key fob receives the challenge. Inside its secure element, it processes this random number using its factory-programmed "Secret Key" (a unique cryptographic key burned into the chip during manufacturing). The result of this calculation is the "Response."
+3. Transmission and Verification: The key transmits the Response back to the vehicle via the Ultra-High Frequency (UHF) receiver (433 MHz). The BCM, which also possesses the Secret Key for that specific fob, performs the same calculation. If the key's response matches the BCM's calculation, the immobilizer is disarmed, and the engine is permitted to crank.
+This architecture has profound implications for serviceability. Cloning is impossible. Unlike older transponders where the "password" could be sniffed or the ID copied to a blank emulator, the Secret Key in a HITAG AES chip never leaves the protected memory of the transponder. It cannot be extracted or copied. Therefore, every key used on an R53 Pathfinder must be a "virgin" or "unlocked" OEM key that is then registered to the vehicle. The vehicle learns the key; the key does not learn the vehicle. This distinction is critical: if a used key from another vehicle is attempted, the BCM will reject it because the Secret Key inside the used fob does not match the manufacturer's database or the BCM's expected parameters for a "new" key, unless the fob has been professionally "renewed" (wiped and reset to a virgin state).
+3. Hardware Locations and Physical Access Strategies
+The primary practical challenge for technicians working on the R53 Pathfinder is not just the software interaction but the physical access required to bypass the SGW. Unlike the R52, where the OBD port was sufficient, the R53 demands dashboard disassembly to access the Body Control Module (BCM) or the gateway connectors.
+3.1 The Body Control Module (BCM) and Gateway Integration
+In the CMF-CD platform, the "Gateway" function is often integrated closely with the BCM wiring harness. The BCM serves as the master coordinator for the immobilizer system, storing the key IDs and managing the Start/Stop logic.
+Location Analysis: The BCM in the 2022–2025 Pathfinder is located in the driver's side footwell area, positioned high up under the dashboard, to the left of the steering column.3 This location is consistent with the Nissan Rogue (T33) and Mitsubishi Outlander of the same vintage, which share the platform.
+Visual Identification: The module is a large, black plastic Electronic Control Unit (ECU), typically rectangular. It is identifiable by its three large multi-pin connectors: usually a White, Black, and Gray/Blue configuration. The part numbers for this generation typically begin with 284B1-XXXX.4
+
+
+  
+
+
+
+3.2 Detailed Disassembly and Connection Procedure
+To access the BCM for the mandatory physical bypass, the technician must perform the following disassembly steps. This process is required for All Keys Lost and often for Add Key situations on 2022-2023 models to ensure stable communication.
+1. Preparation: Ensure the vehicle is in a safe location. Connect a high-quality battery maintainer (such as a Midtronics or Clore JNC660) to the vehicle's 12V battery. The programming process is voltage-sensitive; a drop below 12.0V can cause the BCM to abort the flash or, in worst-case scenarios, corrupt the EEPROM data.
+2. Remove the Driver's Kick Panel: This is the plastic trim piece that covers the transition from the door sill to the fuse box area. It is typically held in place by two or three tension clips and possibly a 10mm plastic nut near the firewall. Pull firmly but gently straight back towards the rear of the vehicle to disengage the clips without breaking the mounting tabs.5
+3. Remove the Knee Bolster (Lower Instrument Panel): This is the panel directly below the steering column, housing the hood release latch and various switches.
+   * Locate and remove the side dashboard cover (the panel visible only when the door is open) using a nylon trim tool to avoid scratching the plastic. This often reveals a hidden screw.
+   * Locate the two Torx or Phillips screws at the bottom edge of the knee bolster.
+   * Once screws are removed, pull the panel outwards horizontally. Disconnect the harnesses for the hood release and any switches (Traction Control, Trunk Release) to free the panel completely.7
+4. Identify the Target Connectors: Look up towards the firewall to locate the BCM. You will see two large connectors that correspond to the Nissan 16+32 Gateway Bypass Cable.
+5. Install the Bypass Cable:
+   * Disconnect the 32-pin and 16-pin connectors from the BCM. Note: These connectors can be tight. Depress the locking tab fully before pulling.
+   * Plug the male ends of the aftermarket 16+32 Bypass Cable 8 into the BCM sockets.
+   * Plug the vehicle's factory harnesses into the female ends of the bypass cable.
+   * Connect the OBD-II end of the bypass cable to your diagnostic tool's VCI (Vehicle Communication Interface).
+   * Result: Your tool now has a direct, hardwired connection to the BCM's internal CAN lines, physically bypassing the Secure Gateway Module located upstream.
+3.3 The Role of the IPDM
+While the BCM is the brain, the Intelligent Power Distribution Module (IPDM) is the muscle. Located in the engine bay (typically near the battery), the IPDM contains the starter relay and fuses. In a "No Crank" situation after key programming, it is vital to check the IPDM fuses. However, for the programming procedure itself, the IPDM is not the primary access point. The immobilizer data and key registry reside in the BCM. Therefore, "Bench Access" usually refers to removing the BCM, not the IPDM.
+3.4 Is Bench Access Required?
+For the vast majority of R53 Pathfinder scenarios, Bench Access is NOT required. The "Physical Bypass" method described above effectively puts the BCM "on the bench" electronically while it remains physically inside the car. The only scenarios necessitating true bench removal (desoldering and reading EEPROM directly) are:
+1. Corrupted Data: If a previous failed programming attempt has "bricked" the BCM.
+2. Alarm Lockout: In rare cases where the alarm system is triggered and refuses to silence, preventing the tool from communicating even via bypass.
+3. Legacy Tools: If the technician is using an outdated tool that cannot calculate the PIN via OBD/CAN, they might need to read the EEPROM dump (usually a 9S12 or similar MCU) to manually locate the PIN. However, modern tools like the Autel IM608 and Smart Pro handle this calculation via the bypass cable connection.
+4. Key Programming Procedures and Workflows
+The programming workflow for the R53 generation is distinct from earlier models. The critical divergence is the dependency on the bypass cable and the handling of the PIN code calculation.
+4.1 Prerequisites and Tool Selection
+* Voltage: Maintain >12.5V.
+* Key State: Keys must be New/Virgin. Used keys are incompatible unless unlocked.
+* Tools:
+   * Autel IM608/IM508: High success rate for 2022-2023. Mixed for 2024.
+   * Advanced Diagnostics Smart Pro: Very high reliability with ADS-2326 software.
+   * Lonsdor K518 Pro: Emerging leader for 2024+ models due to frequent updates.
+   * Consult III+: Dealer tool, requires NATS security card/VI.
+4.2 "All Keys Lost" (AKL) Procedure
+This procedure applies when no working keys are available. It effectively acts as a system reset, erasing all existing keys from the BCM's memory.
+Method A: Autel IM608 / IM508 (XP400 Required for Key Testing)
+1. Connection: Install the 16+32 Bypass Cable as described in Section 3.2. Connect the VCI to the bypass cable's OBD port.
+2. Vehicle Selection:
+   * Navigate to IMMO > Nissan > Manual Selection > North America > Pathfinder > 2022-2023 > Smart Key.
+   * Note: If Pathfinder is not listed under 2022+, try Rogue (T33) or System Selection > Intelligent Key System > Type 4 (CAN).
+3. Read BCM Data:
+   * Select the function Read BCM Data or Read IMMO Data. The tool will communicate with the BCM to retrieve the configuration data.
+   * Process: The tool reads the BCM's unique identifier and sends it to the Autel server (requires internet) to calculate the 20-digit or 28-digit PIN code.
+   * Output: The tool will display the PIN. Take a photo of this PIN. It is required for the next step.
+4. Initiate Learning:
+   * Select All Smart Keys Lost or Program Smart Key.
+   * The tool will prompt for the PIN code. Input the calculated PIN.
+5. Key Registration Sequence:
+   * Step 5a: The tool will instruct: "Press the Start Button."
+   * Step 5b: Watch the dashboard. If the Hazard Lights flash, the BCM has accepted the PIN and entered "Learn Mode."
+   * Step 5c: Hold the back (Logo side) of the first smart key directly against the Start/Stop button.
+   * Step 5d: Listen for a beep or watch for the Security Light (a car with a key icon) to flash 5 times. This confirms the key is registered.
+   * Step 5e: If programming a second key, remove the first key from the vehicle cabin. Press the Start Button again (to cycle the learning window). Hold the second key to the Start button. Wait for the confirmation flash/beep.9
+6. Closing the Session:
+   * Once all keys are programmed, press the Start Button to cycle the ignition to the OFF position.
+   * Crucial Step: Open and close the driver's door. This signals the BCM to exit "Learn Mode" and return to normal operation.
+   * Test all buttons (Lock, Unlock, Hatch, Panic) and the Proximity Start function.
+The "20-Minute Wait" Analysis: In the older NATS protocols (NATS 5.0), entering an incorrect PIN three times would trigger a lock mode, requiring the technician to leave the ignition ON for 15-20 minutes to reset the BCM. In the R53 architecture utilizing the 16+32 Bypass, this wait time is generally not required for access.10 The bypass cable provides immediate authority. The only scenario where a wait is necessary is if the alarm system is actively triggered and the BCM refuses to communicate. In such cases, disconnecting the battery for 10-15 minutes is the preferred reset method over a timed ignition wait.11
+Method B: Advanced Diagnostics Smart Pro
+1. Setup: Connect the ADC-2017 cable (which is the AD version of the 16+32 bypass) to the BCM.
+2. Selection: Choose Nissan > Pathfinder > 2022+ (Blade or Prox, select Prox).
+3. Procedure: Select Program Keys. The Smart Pro software (ADS-2326) handles the background PIN calculation seamlessly. It will prompt to "Switch Ignition OFF," "Switch Hazard Lights ON" (to keep the CAN bus awake), and then follow the same "Hold Key to Start Button" sequence as Autel. The Smart Pro interface is widely regarded for its stability in maintaining the session without dropping communication.12
+Method C: Lonsdor K518 Pro
+The Lonsdor tool has gained prominence for its aggressive updates regarding the 2024+ security protocols.
+1. Update: Ensure the device is updated to the "August 2024" firmware or later.15
+2. Connection: Use the proprietary Nissan 40-Pin or Universal Nissan Cable if prompted.
+3. Execution: Select Immo & Remote > Nissan > Select by Model > Pathfinder > 2022-. The Lonsdor workflow is often faster than Autel's in calculating the PIN, sometimes bypassing the need for a server calculation on specific BCM versions by utilizing a local algorithm.
+4.3 Add Key Procedure (With Existing Key)
+Technically, the "Add Key" procedure on the R53 platform follows the same "Delete All, Add Back" logic as the AKL procedure in most aftermarket tools.
+* Risk: When you select "Add Key," the system typically erases the existing key registry to open the programming slots.
+* Requirement: You must have ALL keys present. If the customer has one working key and wants a spare, you must re-program the original working key during the session. If you do not, the original key will be deleted and will stop working.
+* Dealer Difference: The OEM Consult III+ tool can sometimes add a key without deleting the others if the "Additional Registration" option is selected, but this is rarely replicated perfectly in aftermarket software.
+* Consult III+ Equivalent: High-end tools like the Autel IM608 and Smart Pro act as the "Consult III+ Equivalent" in the field. They perform the same functions but rely on the bypass cable rather than the secure VI (Vehicle Interface) used by the dealer.
+4.4 PIN Extraction: OBD vs. EEPROM
+For the R53 generation:
+* OBD (via Bypass): This is the primary and preferred method. The tools read the BCM configuration data via the CAN connection established by the bypass cable and calculate the PIN. This is non-invasive to the BCM board.
+* EEPROM: This involves opening the BCM casing, locating the Microcontroller (usually a sealed Renesas or NXP MCU), soldering wires to specific test points, and reading the binary data dump. This is high risk and should only be attempted if the OBD extraction fails repeatedly or if the BCM is corrupted. The complexity of the R53 BCM circuit board makes in-circuit reading difficult without precise schematics.
+5. Transponder Matrix and Part Numbers
+A critical failure point in R53 programming is the selection of the incorrect key fob. While the 2022 and 2024 keys look identical externally, their internal architecture differs significantly. The keys are generally not cross-compatible.
+
+
+  
+
+
+
+5.1 The 2022–2023 Specification
+* FCC ID: KR5TXPZ3.1 This is the launch specification for the R53.
+* IC: 7812D-TXPZ3.
+* Chip: HITAG AES (4A).
+* Frequency: 433.92 MHz.
+* OEM Part Number: 285E3-7LA7A (5-Button: Lock, Unlock, Hatch, Remote Start, Panic).
+* Compatibility: These keys work reliably on 2022 and most 2023 models. They are widely available in the aftermarket.
+5.2 The 2024–2025 Paradigm Shift
+Starting in late 2023 production for the 2024 model year, Nissan introduced a rolling change.
+* FCC ID: KR5TXN4.17
+* The Issue: The KR5TXN4 key operates on a newer revision of the NATS protocol. Reports indicate that KR5TXPZ3 keys will fail to program to a vehicle requiring KR5TXN4, often failing at the "Key Registration" step with a generic error.
+* Dealer Only Status: As of early 2025, the 2024+ models with the KR5TXN4 system are frequently flagged as "Dealer Only" in locksmith forums.18 This is because the PIN calculation algorithm for these newer BCMs has been altered, and the aftermarket tools (Autel/Lonsdor) may generate a PIN that the BCM rejects. However, recent updates from Lonsdor (August 2024) claim to have cracked this new algorithm 15, suggesting the "Dealer Only" window is closing, but stability is still lower than for the 2022 models.
+6. The Proximity System: Mechanics and Troubleshooting
+The R53's Intelligent Key system relies on a sophisticated network of Low-Frequency (LF) antennas to triangulate the key's position. This ensures the car knows if the key is in the driver's pocket, in the trunk, or outside the door.
+6.1 Antenna Locations and Testing
+Diagnosing "Key Not Detected" errors requires checking these specific nodes:
+1. Console Antenna (Internal): Located beneath the center console, near the cup holders and shifter assembly (Index 13). This is the primary antenna for the Push-to-Start authorization. If this antenna is unplugged or damaged (common during console removal for detailing), the car will display "Key ID Incorrect" or "Key Not Detected" even with a good key.19
+2. Rear Luggage Antenna (Internal): Positioned in the rear cargo floor area. Its primary function is to prevent the liftgate from closing if the key is detected inside the trunk.
+3. Door Handle Antennas (External): Located inside the driver and front passenger door handles. These handle the Request Switch logic for keyless entry.
+4. Bumper Antenna (External): Located behind the rear bumper fascia. This detects the key for the Motion-Activated Liftgate (kick sensor).
+6.2 Common Issues and Fixes
+"I-Key System Error"
+This generic warning is a frequent complaint on the R53 platform.
+* Causes:
+   * Low Fob Battery: The 4A chip's constant polling drains the CR2032 battery faster than older technologies.
+   * Interference: The 433 MHz frequency is crowded. Cheap USB chargers, dash cams, or radar detectors plugged into the center console 12V outlet can emit RF noise that jams the Console Antenna's signal.11
+   * BCM Logic Freeze: The Secure Gateway or BCM can enter a "hung" state where it stops processing CAN frames correctly.
+* Solutions:
+   * Battery Reset: Disconnect the vehicle's negative battery terminal for 10-15 minutes. This "hard reboot" clears the volatile memory of the BCM and SGW, often resolving the error permanently.11
+   * Fob Capacitor Discharge: Remove the battery from the key fob, press the buttons a few times to discharge the internal capacitor, and re-insert the battery. This resets the fob's internal processor.
+7. Conclusion
+The Nissan Pathfinder R53 (2022–2025) represents a definitive step towards high-security automotive networks. The days of simple OBD-II key programming are over for this platform. The integration of the Secure Gateway Module and HITAG AES technology mandates that every technician possess not just a scan tool, but the specific 16+32 Gateway Bypass Cable and the knowledge to disassemble the dashboard safely.
+For the 2022–2023 models, the aftermarket solution is mature. Tools like the Autel IM608 and Smart Pro offer a reliable, efficient alternative to the dealership, provided the bypass cable is used. However, the 2024+ models introduce a new layer of complexity with the KR5TXN4 protocol, currently creating a friction point where dealer intervention via Consult III+ may still be required until aftermarket algorithms fully stabilize. Technicians are advised to verify the Model Year and FCC ID meticulously before attempting programming to avoid the dreaded "Security Access Denied" lockout.
+Works cited
+1. 2022-2023 Nissan Pathfinder Rogue / Smart Key 5 Buttons Fob / FCC# KR5 - Keyless City, accessed January 27, 2026, https://keyless-city.com/products/2022-2023-nissan-pathfinder-rogue-smart-key-5-buttons-fob-fcc-kr5txpz3
+2. 2023 Nissan Pathfinder Rogue Smart Key 5 Buttons Fob FCC# KR5TX - Locksmith Keyless, accessed January 27, 2026, https://www.locksmithkeyless.com/products/2022-2023-nissan-pathfinder-rogue-smart-key-5-buttons-fob-fcc-kr5txpz3
+3. 2017-2022 Nissan Rogue Sport BCM Location. How To Remove 2017-2022 Nissan Rogue Sport BCM. - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=ZbXC53aK5EI
+4. 284B1-6TA2A - Body Control Module 2022-2023 Nissan Pathfinder, accessed January 27, 2026, https://parts.nissanusa.com/parts/nissan-body-control-module-284b16ta2a
+5. Illuminated Kick Plate Kit - Nissan Parts Deal, accessed January 27, 2026, https://www.nissanpartsdeal.com/resources/installation/npd/1tu27.pdf
+6. Automotive Carpet Replacement: Remove Kick & Pillar Panels - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=xj88Rc1YrRk
+7. How to Locate the Security Gateway Module | 2018+ Dodge, Jeep, Chrysler, Fiat Key Programming - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=1mTiFLHIB1M
+8. Nissan Universal 16+32G Bypass Cable with CGW Adapter - CLK Supplies, accessed January 27, 2026, https://www.clksupplies.com/products/nissan-universal-16-32g-bypass-cable-with-cgw-adapter
+9. How To Program keys All Keys Lost for Nissan Sentra using Autel IM608 Key Programmer, accessed January 27, 2026, https://www.youtube.com/watch?v=jqHMxyzweQ8
+10. 2022 Nissan Maxima Key Programming with IM608 | All Keys Lost! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=lZT-4Je_6eE
+11. How To Fix “I-Key System Error” In Nissan – Causes, Fixes & Quick Reset Steps - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=GAI9nZ8S-lQ
+12. Program 2022 Nissan Pathfinder proximity key w Smart Pro Key Programmer - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=hJ5WN1Zp50w
+13. 2022 Nissan Pathfinder proximity key programming via Smart Pro - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=2OYRXetz5Fg
+14. Access the body control module to plug in the Nissan ADC-2017 bypass cable! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=ymPfeiBFZvE
+15. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 27, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+16. Remote Key Fob for Nissan Pathfinder Rogue 2022 2023 2024 S180146127 KR5TXPZ3, accessed January 27, 2026, https://www.ebay.com/itm/395953998260
+17. 2023 Nissan Pathfinder Smart Key 5B W/ Hatch & Remote Start Fob FCC# K, accessed January 27, 2026, https://www.locksmithkeyless.com/products/2023-nissan-pathfinder-smart-key-5b-w-hatch-remote-start-fob-fcc-kr5txn4-285e3-6xr7a-aftermarket
+18. New key fob - Asking for help on programming it : r/Nissan - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Nissan/comments/1ggtboz/new_key_fob_asking_for_help_on_programming_it/
+19. nissan - Where is the part of the car that senses the i-key? - Mechanics Stack Exchange, accessed January 27, 2026, https://mechanics.stackexchange.com/questions/32012/where-is-the-part-of-the-car-that-senses-the-i-key
+20. “I-Key System Error” in Nissan vehicles: Reasons and quick fix - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=FMBL2kWzERA

@@ -1,0 +1,219 @@
+﻿The Fortress Rebuilt: A Comprehensive Technical Analysis of Post-Crisis Security Architectures in 2024-2026 Hyundai and Kia Vehicles
+1. Introduction: The End of the Analog Era and the Rise of Cryptographic Sovereignty
+The automotive security landscape for Hyundai Motor Group (HMG)—encompassing both the Hyundai and Kia marques—has undergone a metamorphosis so profound in the 2024 model year that it can only be described as a complete architectural severing from the past. For over a decade, the brands were plagued by a decision rooted in cost-optimization: the omission of standard engine immobilizers in physical-key trims. This vulnerability, once an obscure footnote in automotive engineering, was catapulted into the global consciousness by the "Kia Boys" phenomenon, a social-media-fueled epidemic of theft that exposed the fragility of mechanical security in a digital age.
+The 2024-2026 model years represent the industry's definitive response to this crisis. This is not merely a patch; it is a ground-up fortification. The transition from the "vulnerable era" (2011-2021) to the current "fortified era" is characterized by the mandatory implementation of encrypted immobilizers across all trim levels, the introduction of defensive cyber-physical barriers like the Secure Gateway (SGW), the migration to high-speed CAN FD (Flexible Data-rate) protocols, and the adoption of military-grade Ultra-Wideband (UWB) technology for digital access.
+For the automotive locksmith, the security professional, and the insurer, the implications are stark. The "2024 Hard Border" renders a decade of accumulated institutional knowledge and tooling obsolete. Traditional "plug-and-play" key programming via the OBDII port, once a trivial task for any technician with a basic scanner, has been replaced by a complex gauntlet of digital certificates, proprietary adapter requirements, and physical hardware interventions. This report provides an exhaustive, forensic-level examination of these changes, dissecting the new security paradigms, evaluating the efficacy of current aftermarket tooling, and establishing the standard operating procedures required to navigate this hostile new environment.
+
+
+  
+
+
+
+2. The Historical Context: Deconstructing the "Kia Boys" Vulnerability
+To fully appreciate the severity of the 2024 countermeasures, one must first engage in a technical post-mortem of the vulnerability they were designed to eradicate. The crisis that engulfed Hyundai and Kia was not the result of a failed cryptographic system, but rather the complete absence of one.
+2.1 The Mechanical Fallacy
+In the pre-2022 era, particularly in base-model vehicles such as the Hyundai Accent, Elantra, and Kia Soul, the ignition system was purely mechanical.1 While the key fob might have controlled the door locks via a basic Radio Frequency (RF) signal, the actual process of starting the engine relied solely on the physical rotation of a lock cylinder. There was no "transponder" chip in the head of the key to communicate with an immobilizer coil around the ignition switch. The Engine Control Unit (ECU) simply looked for a 12-volt signal on the "Ignition On" and "Starter" circuits.
+The "Kia Boys" exploit was devastatingly simple because it bypassed the only security layer present: the lock cylinder itself. By stripping the plastic cowling from the steering column, thieves could expose the ignition housing. The design of the ignition switch assembly allowed for the lock cylinder to be removed or brutally twisted. Crucially, the rectangular interface of the ignition switch happened to perfectly match the dimensions of a standard USB-A plug.3 The USB cable provided the torque necessary to turn the switch, and because the ECU was not polling for a transponder ID, the engine would fire immediately.
+2.2 The "Software Upgrade" Patch: A Behavioral Deterrent
+Facing immense public pressure and class-action litigation, Hyundai and Kia released an "Anti-Theft Software Upgrade" in 2023 for millions of affected vehicles.4 It is critical to distinguish this patch from the 2024 hardware changes. The software update did not add an immobilizer; it added "Anti-Theft Logic" to the Body Control Module (BCM).
+This logic operates on a "Kill Switch" principle. When the vehicle is locked with the key fob, the BCM activates an "Armed" state. If the car is subsequently unlocked mechanically (e.g., by smashing a window and flipping the lock tab, or picking the door lock), the BCM detects the breach and cuts the signal to the starter or fuel pump.3 The system only disarms if it sees an "Unlock" signal from the legitimate key fob.
+However, this solution remains imperfect. It relies on the owner actively locking the car with the fob to "arm" the system. If the car is left unlocked, or locked manually with the key blade, the logic does not engage.6 Furthermore, thieves quickly adapted, finding that entering the vehicle through a window without opening the door could sometimes bypass the alarm trigger sequence. The 2024 architecture was developed to render these behavioral loopholes impossible by enforcing hardware-level verification.
+3. The 2024 Architectural Revolution: Anatomy of a Hardened Platform
+The 2024 model year introduces the "CCNC" (Connected Car Navigation Cockpit) and other advanced electrical architectures that fundamentally alter how the vehicle handles data and security. This is not a retrofit; it is a new generation of automotive network design.
+3.1 The Universal Immobilizer Mandate
+The most significant baseline change is the universal standardization of engine immobilizers. Every 2024 Hyundai and Kia vehicle, from the entry-level Hyundai Venue to the flagship Kia EV9, now leaves the factory with an encrypted transponder system.5 The "turn-key" ignitions that remain (on lower trims) now feature a chip in the key head that must be interrogated by an antenna ring on the ignition switch. The Push-to-Start (PTS) models use advanced bidirectional communication between the Smart Key Unit (SKU) and the fob.
+The engine management software has been rewritten to default to a "locked" state. The fuel injectors and spark coils are electronically disabled until the ECU receives a specific, encrypted "Go" message from the immobilizer module. This message is dynamic (rolling code), preventing simple "replay attacks" where a thief might record and retransmit a valid start signal.
+3.2 The Secure Gateway (SGW) Module: The New Firewall
+Following the lead of FCA (Fiat Chrysler Automobiles, now Stellantis) in 2018 and Nissan/Renault in 2020, Hyundai Motor Group has implemented a Secure Gateway (SGW) module on its newest platforms.7 This is arguably the single most disruptive change for the aftermarket repair industry.
+The SGW sits as a gatekeeper between the standard J1962 OBDII port and the vehicle's internal CAN (Controller Area Network) buses. In previous generations, the OBDII port was a direct tap into the vehicle's nervous system; any tool plugged in could send commands to any module. The SGW effectively severs this connection.
+* Read-Only Access: The SGW typically allows "Read" commands (such as pulling Diagnostic Trouble Codes or viewing Live Data) to pass through without authentication. This ensures that emissions testing and basic diagnostics remain accessible.
+* Write Blocking: Critical functions—specifically those related to security, such as "Key Learning," "ECU Reset," "Coding," or "Actuation Tests"—are categorized as "Write" or "Privileged" commands. When the SGW detects such a command coming from the OBDII port, it checks for a valid digital certificate. If the tool (e.g., a locksmith's programmer) cannot present a certificate signed by the Hyundai/Kia servers, the SGW silently drops the packet or returns a "Security Access Denied" error.8
+For the locksmith, this means the days of simply plugging a tool into the port and programming a key are over. Access now requires either digital authentication (via an "AutoAuth" account, though Hyundai/Kia support is still rolling out and often buggy) or a physical bypass of the gateway module itself.
+3.3 CAN FD (Flexible Data-Rate): The Language of Speed
+Coinciding with the security hardening is a migration to the CAN FD protocol. Traditional High-Speed CAN operates at a maximum of 500 kilobits per second (kbps) with a payload of 8 bytes per frame. CAN FD, developed to handle the massive data throughput of modern ADAS and infotainment systems, allows for variable data rates up to 5 Megabits per second (Mbps) and payloads of up to 64 bytes.10
+Models such as the 2024 Hyundai Elantra, Hyundai Kona, and Kia EV9 have been identified as primary adopters of this protocol.12
+* The Locksmith's Problem: Most legacy key programming tools (even those from 2-3 years ago) utilize CAN transceivers that are hardware-limited to the older standard. When these tools attempt to communicate with a 2024 Elantra, they cannot synchronize with the higher speed or decode the larger data frames. The result is a total communication blackout—the tool simply says "No Vehicle Detected" or "Connection Error."
+* The Hardware Fix: Success requires a tool with native CAN FD hardware (like the Autel MaxiIM IM608 Pro II or IM508S) or the use of a specialized CAN FD Adapter that acts as a translator, buffering the high-speed data and presenting it to the tool in a format it can understand.12
+4. Tooling Forensics: The Autel Ecosystem (IM508/IM608)
+The Autel MaxiIM series (IM508, IM608, IM608 Pro II) dominates the independent locksmith market. However, the introduction of the 2024 platforms has exposed significant fragmentation in the tool's capabilities, requiring users to adopt new hardware strategies and software workarounds.
+4.1 The "Immo" Menu Failure and the "Diagnostic" Workaround
+A critical finding from field research involves the failure of the dedicated "Immobilizer" software application on the Autel IM608 for models like the 2024 Kia Telluride and Hyundai Santa Fe.9
+* The Failure Mechanism: When a user selects the "Immobilizer" icon and navigates to the 2024 model year, the tool attempts to execute a pre-compiled script designed to exploit known "backdoors" or standard diagnostic services for key learning. On the 2024 models, the SGW or the updated BCM firmware rejects these specific script commands, leading to a "Communication Failed" error or infinite "spooling".9
+* The Diagnostic Backdoor: Locksmiths have discovered that the "Diagnostic" side of the tool—normally reserved for mechanics fixing engine codes—contains a more robust set of communication protocols. By navigating to Diagnostics -> -> Hot Functions -> Smart Key Code Saving, the user is accessing the OEM-compliant service routine rather than the reverse-engineered immobilizer script.9
+* Why It Works: The OEM diagnostic routines often use standard UDS (Unified Diagnostic Services) commands that the SGW is programmed to recognize (provided the tool has internet access for the server handshake), whereas the "Immo" scripts may be using deprecated commands that trigger the firewall.
+4.2 The "All Keys Lost" (AKL) Conundrum and the G-Box 3
+In an "All Keys Lost" scenario, the challenge is magnified. The tool cannot simply "add" a key; it must first gain administrative access to the BCM to wipe the old keys or calculate a security password.
+* Password Calculation: On older models, tools could "brute force" or calculate the PIN by reading data from the ECU. On 2024 models, this data is encrypted.
+* The G-Box 3 Role: The Autel G-Box 3 is an external interface that allows the IM608 to connect directly to specific pins on the ECU or BCM, often bypassing the OBDII port entirely to read password data in a "Bench Mode" or "Boot Mode".15 For 2024 models, the G-Box 3 is frequently used to accelerate the calculation process by manipulating the power supply to the module during the data query, forcing it to reveal the password seed—a technique known as "power glitching" or "side-channel analysis," though performed automatically by the tool.
+4.3 The Mandatory 16+32 Secure Gateway Adapter
+For the 2024 Hyundai Santa Fe and Kia Telluride, the 16+32 Secure Gateway Adapter has become the single most critical piece of hardware in the locksmith's van.
+* Physical Bypass: Since the SGW blocks writing via the OBDII port, the 16+32 adapter physically circumvents it. The adapter features a female OBDII port (for the tool) and two male connectors (16-pin and 32-pin, typically) that are designed to plug directly into the Integrated Gateway Block (IGB), which acts as the vehicle's central junction box.16
+* The "IGB" Connection: We will detail the specific procedure for this connection in Section 7, as it requires dismantling the dashboard. The existence of this adapter proves that the "Secure Gateway" is secure only as long as the physical wiring is inaccessible. Once the locksmith taps into the lines behind the gateway, the firewall is irrelevant.
+
+
+  
+
+
+
+5. Tooling Forensics: Advanced Diagnostics (Smart Pro)
+Advanced Diagnostics (a division of Kaba Ilco) offers the Smart Pro, a dedicated key programming tablet that operates on a different philosophy than the Android-based Autel scanners. The Smart Pro relies on a "Token" system and a centralized server (Info Quest) for software updates and PIN calculation.
+5.1 The ADS2331 Software Update
+The release of the ADS2331 software package was intended to address the 2024 Hyundai/Kia challenge.17 This software is specifically designed to read PIN codes via the OBDII port for the latest platforms.
+* Capabilities: ADS2331 claims support for both bladed and proximity keys. It integrates with the Smart Aerial+ (ADC245), a transponder reader that attaches to the Smart Pro.
+* The "Snooping" Limitation: A critical limitation of the Smart Pro on 2024 models is its reliance on "snooping" data from a working key to calculate the PIN. The Smart Aerial+ must be placed near the ignition while a valid key is turned, capturing the encrypted challenge-response handshake.17
+* The AKL Dead End: This renders the Smart Pro largely ineffective for "All Keys Lost" scenarios on many 2024 models. Without a working key to snoop, the tool cannot calculate the PIN, and unlike Autel, it currently lacks a comprehensive hardware bypass (like the G-Box) to force the ECU to yield the data via brute force in all situations. For AKL, the Smart Pro user is often forced to purchase the PIN code separately.
+5.2 Token Economics and Server Dependency
+The Smart Pro operates on a "pay-per-use" model (unless the user has an unlimited subscription).
+* Cost Implications: Programming a 2024 Hyundai often consumes tokens for both the "PIN Read" (if successful) and the "Key Program" functions.
+* Server Lag: Reports indicate that the calculation process for 2024 PINs can be slow, as the tool must upload data to the AD server, wait for the cryptographic solution, and receive the PIN back.20 This requires a stable internet connection, which can be a logistical hurdle for mobile locksmiths working in parking garages or remote areas.
+* The "Brick" Risk: If the server is down or the internet connection drops during the "Key Learning" phase—after the old keys have been wiped but before the new one is added—the vehicle can be left in a paralyzed state.
+6. The "IGB" Bypass Protocol: A Technical Deep Dive
+For the 2024 Hyundai Santa Fe (MX5) and Kia Telluride, the most reliable method for gaining programming access involves physically bypassing the Secure Gateway at the Integrated Gateway Block (IGB). This procedure is invasive and carries risk, but it is currently the industry standard for independent locksmiths.
+
+
+  
+
+
+
+6.1 Step 1: Accessing the IGB
+The IGB is typically located behind the lower crash pad on the driver's side (left of the steering column).
+* Procedure: The locksmith must remove the side dashboard cover and the lower knee bolster panel. This involves removing several Phillips-head screws and releasing plastic retention clips. Care must be taken not to damage the knee airbag assembly often located in this region.
+* Identification: The IGB looks like a standard fuse box but is densely populated with multi-pin data connectors in addition to fuses.
+6.2 Step 2: Identifying the Target Connectors
+Not all connectors on the IGB are relevant. The goal is to intercept the CAN bus lines before they enter the gateway logic.
+* The Connectors: The target connectors are usually a pair of large, multi-pin plugs. On the 2024 Santa Fe, these are often Connector A (Green/White) and Connector B (Black/White).16 They carry the specific CAN High and CAN Low signals that the 16+32 adapter utilizes.
+* Verification: Experienced technicians verify the wire colors against a wiring diagram to ensure they are tapping into the C-CAN (Chassis CAN) or B-CAN (Body CAN) lines required for the BCM communication.
+6.3 Step 3: Bridging the Connection
+This is the critical "hack."
+* Disconnect: The factory connectors are unplugged from the IGB.
+* Bridge: The 16+32 Adapter is inserted. The male ends of the adapter plug into the IGB sockets. The factory male plugs (which were just removed) plug into the female ends of the adapter.
+* The Loop: This creates a "man-in-the-middle" setup. The adapter taps into the data lines while maintaining the circuit so the car remains powered.
+* OBDII Output: The adapter terminates in a female OBDII port. The locksmith plugs their Autel IM608 (or G-Box) into this new, provisional port.
+* Result: The tool is now electrically connected to the vehicle's network inside the secure perimeter. The SGW, which monitors the dashboard OBDII port, is completely bypassed. Programming can proceed as if the gateway did not exist.
+7. Forensic Identification: Decoding the 2024 Platform
+Before dismantling a dashboard, the technician must confirm they are dealing with a "hardened" 2024 vehicle. Not all 2024s are created equal; production splits and platform differences mean some cars may still accept legacy methods.
+7.1 VIN Analysis: The 10th Digit Rule
+The Vehicle Identification Number (VIN) is the primary forensic tool.
+* The 10th Digit (Year):
+   * P (2023): Likely has SGW, but may not have the full 2024 encryption. Immobilizer standard on most trims.
+   * R (2024): The danger zone. Assume full SGW implementation, mandatory immobilizer, and potentially CAN FD (depending on model).
+   * S (2025): Fully hardened. Expect UWB on higher trims and CAN FD standard.
+* The 11th Digit (Plant): This digit reveals the production origin.
+   * K (Korea): Often receives technology updates first. A Korean-built 2024 Kona is highly likely to have the newest, most difficult firmware.
+   * 5 (USA - Alabama/Georgia): Sometimes lags slightly in component updates during model year transitions, but for 2024, the security mandate was global.
+7.2 Visual Cues: Door Handles and Dashboard
+* The "Dimple" vs. The "Sensor":
+   * Legacy/Standard Prox: The exterior door handle features a small black rubber button or a distinct physical indentation that must be pressed to lock/unlock.
+   * Next-Gen (UWB): The handle is sleek with a capacitive touch sensor (no moving button) or a small square icon indicating an NFC reader for a Digital Key card/phone. This visual cue strongly suggests the presence of Ultra-Wideband (UWB) hardware.
+* The Screen: The "CCNC" infotainment system, characterized by a unified panoramic curved display (combining instrument cluster and infotainment), is a hallmark of the 2024 architecture (found in the refreshed Santa Fe, Sonata, and EV9). If you see this screen, you are dealing with the new CAN FD/SGW architecture.
+8. The "Digital Key 2.0" and Ultra-Wideband (UWB)
+The 2024 model year marks the mass-market arrival of Digital Key 2.0, leveraging Ultra-Wideband (UWB) technology. This is distinct from the older NFC-only "Digital Key 1.0".22
+8.1 Physics of UWB vs. RF
+Standard key fobs use Ultra High Frequency (UHF) for remote commands and Low Frequency (LF) for proximity detection. They measure signal strength (RSSI) to guess if the key is close. This is vulnerable to "Relay Attacks," where thieves amplify the signal from a key inside a house to trick the car outside.
+UWB uses Time of Flight (ToF). It sends billions of pulses per second and measures the exact time it takes for the signal to bounce back from the key. This allows the car to calculate the key's location to within centimeters. If the signal is relayed (amplified), the time delay increases, and the car knows it is being attacked. It will not unlock.
+8.2 Implications for Locksmiths
+* Hardware Incompatibility: A "Universal" smart key (like an Autel IKEY or Xhorse variant) that relies on simulating RF/LF signals cannot simulate UWB. The hardware is fundamentally different. Locksmiths must stock OEM UWB keys for these specific trims (e.g., Santa Fe Limited/Calligraphy).
+* Programming Fails: The "Chip Error" or "Reading Failed" errors seen on tools 24 are often due to the tool attempting to program a standard Prox key into a UWB system. The system rejects the key because it lacks the UWB radio chip.
+* Smartphone as Key: With Digital Key 2.0, the owner's iPhone or Samsung Galaxy becomes the primary credential. This reduces the demand for physical spare keys but creates a new service category: "Digital Key Pairing." Currently, this is largely a dealer-only or DIY (via app) process, cutting the locksmith out of the loop unless they can offer troubleshooting services.
+9. Insurance Market Impact: The "Uninsurable" Stigma
+Despite the 2024 hardening, the ghost of the "Kia Boys" haunts the insurance market. Major carriers like State Farm and Progressive have instituted strict underwriting guidelines that often affect new models due to brand association.
+9.1 The Blacklists
+Reports confirm that State Farm and Progressive have "do not write" lists for Hyundai/Kia models in certain high-theft zip codes.26 While these lists nominally target the 2011-2021 models, the automated underwriting systems can flag any Kia or Hyundai.
+9.2 The "Verification" Burden
+For a 2024 model owner, obtaining insurance often requires Proof of Immobilizer.
+* Push-to-Start: This is the "Gold Standard." Insurers generally accept the presence of a push-button start as proof of an immobilizer.
+* Keyed Ignition (2024): Even though 2024 keyed models have chip keys, they visually resemble the vulnerable 2018 models. Owners often have to provide a window sticker (Monroney label) or a letter from the dealer confirming the presence of an "Engine Immobilizer" to bypass the automatic rejection.
+9.3 The "Software Patch" Fallacy
+It is crucial to reiterate that the "Anti-Theft Software Upgrade" applied to older cars is not equivalent to the 2024 hardware. The software patch is a fragile logic update that can be bypassed by simply leaving the car unlocked or entering through a window.6 Insurers know this, which is why rates for "patched" older cars remain high, while 2024 models—once verified—should theoretically command standard premiums.
+
+
+  
+
+
+
+10. Conclusion: The New Normal of Automotive Security
+The 2024 model year stands as a watershed moment for Hyundai and Kia. The era of the "Kia Boys" is effectively closed by a tripartite defense of Universal Immobilizers, Secure Gateways, and Advanced Protocols (CAN FD/UWB). The vulnerability that allowed a teenager with a USB cable to steal a car has been replaced by a system that challenges even the most sophisticated professional locksmiths.
+For the aftermarket industry, the implications are clear:
+1. Tooling: Investment in next-generation hardware (CAN FD adapters, G-Box 3, Smart Aerial+) is mandatory.
+2. Training: Technicians must move beyond "OBDII port jockeys" to become adept at dashboard disassembly and component-level interfacing (IGB bypass).
+3. Credentials: The reliance on third-party PIN brokers is a stopgap. The future belongs to those with legitimate NASTF VSP credentials who can navigate the digital certificate landscape authorized by the OEM.
+The fortress has been rebuilt. It is no longer made of straw and mechanical tumblers, but of silicon, encryption, and verified digital identity.
+11. Appendix: Detailed Model Compatibility & Protocol Reference (2024-2026)
+Model
+	Year Range
+	Protocol
+	Key Tech
+	SGW Status
+	Programming Method
+	Hyundai Santa Fe (MX5)
+	2024+
+	CAN FD
+	UWB / Prox
+	Active (IGB)
+	IGB Bypass + 16+32 Adapter
+	Kia Telluride
+	2024+
+	CAN FD
+	Prox
+	Active (IGB)
+	IGB Bypass / Diag Menu
+	Hyundai Elantra (CN7)
+	2024+
+	CAN FD
+	Prox / Blade
+	Active
+	CAN FD Adapter Required
+	Hyundai Kona (SX2)
+	2024+
+	CAN FD
+	UWB / Prox
+	Active
+	CAN FD Adapter Required
+	Kia EV9
+	2024+
+	CAN FD
+	UWB
+	Active
+	Dealer / NASTF Only (Current)
+	Hyundai Venue
+	2024+
+	Standard CAN
+	Blade / Prox
+	Active
+	Standard OBDII (with Auth)
+	Kia Soul
+	2024+
+	Standard CAN
+	Blade / Prox
+	Active
+	Standard OBDII (with Auth)
+	Table 1: Summary of Security Protocols for Key 2024+ Models. "Active (IGB)" indicates the need for a physical fuse box bypass.
+Works cited
+1. Hyundai Anti-Theft, accessed January 6, 2026, https://hyundaiantitheft.com/
+2. Hyundai/Kia Theft Recall: The TikTok Challenge That Sparked a Crisis - Cardog App, accessed January 6, 2026, https://cardog.app/blog/hyundai-kia-theft-recall
+3. Hyundai-Kia and NHTSA Announce Software Fix for Deadly Theft Epidemic, but No Recall, accessed January 6, 2026, https://www.safetyresearch.net/hyundai-kia-and-nhtsa-announce-software-fix-for-deadly-theft-epidemic-but-no-recall/
+4. Hyundai and Kia Launch Service Campaign to Prevent Theft of Millions of Vehicles Targeted by Social Media Challenge | NHTSA, accessed January 6, 2026, https://www.nhtsa.gov/press-releases/hyundai-kia-campaign-prevent-vehicle-theft
+5. Hyundai Introduces Free Anti-Theft Software Upgrade, Beginning With More Than 1 Million Elantras, Sonatas and Venues - HyundaiNews.com, accessed January 6, 2026, https://www.hyundainews.com/releases/3768
+6. After learning how the anti-theft software update actually works, I understand why people are still getting their cars stolen : r/Hyundai - Reddit, accessed January 6, 2026, https://www.reddit.com/r/Hyundai/comments/15wgdly/after_learning_how_the_antitheft_software_update/
+7. Security Gateways | Autel, accessed January 6, 2026, https://autel.us/security-gateways/
+8. FCA vehicles with the secure gateway : r/Justrolledintotheshop - Reddit, accessed January 6, 2026, https://www.reddit.com/r/Justrolledintotheshop/comments/1fak8iu/fca_vehicles_with_the_secure_gateway/
+9. 2024 Kia Telluride Key Programming With Autel IM608 - YouTube, accessed January 6, 2026, https://www.youtube.com/watch?v=5WBEhg3XpX8
+10. 2024 Launch X431 IMMO Elite K~ey Programming Tool Full System Diagnostic Scanner, accessed January 6, 2026, https://www.ebay.com/itm/395626834797
+11. Autel CAN FD Adapter - AE Tools, accessed January 6, 2026, https://www.aetools.us/products/autel-can-fd-adapter
+12. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 6, 2026, https://autel.us/autel-adds-24-25-immo-key/
+13. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 6, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+14. CANFD & DOIP Adapter - OEMTools.com, accessed January 6, 2026, https://oemtools.com/canfd-doip-adapter/
+15. 2024+ Hyundai Elantra Smart Key: AutoProPAD vs. IM608 vs. ABRITES | - YouTube, accessed January 6, 2026, https://www.youtube.com/watch?v=y3MbP3UHXu8
+16. Hyundai Santa Fe/ Add key/ Autel im508 - YouTube, accessed January 6, 2026, https://www.youtube.com/watch?v=JPI24nZM5Mc
+17. ADA Smart Pro Software for Hyundai Kia Pin Read - D756916AD ADS2331 - LSC, accessed January 6, 2026, https://lsc.com.au/ada-smart-pro-software-for-hyundai-kia-pin-read-d756916ad-ads2331
+18. New Key Programming Software for HYUNDAI* and KIA* ADS2331 - Advanced Diagnostics, accessed January 6, 2026, https://www.advanced-diagnostics.com/news-posts/new-key-programming-software-for-hyundai-and-kia-ads2331
+19. Advanced Diagnostics - ADS2331 - Hyundai/Kia Key Programming Software - Category A, accessed January 6, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-ads2331-hyundai-kia-key-programming-software-category-a
+20. Hyundai Palisade 2024 - New Smart Key Programming with SmartPro and Autel 508, accessed January 6, 2026, https://www.reddit.com/r/Hyundai/comments/1oheok8/hyundai_palisade_2024_new_smart_key_programming/
+21. Thoughts on Advanced Diagnostics Smart Pro? : r/Locksmith - Reddit, accessed January 6, 2026, https://www.reddit.com/r/Locksmith/comments/1fxbcyj/thoughts_on_advanced_diagnostics_smart_pro/
+22. Unlocking Modern Convenience: The Hyundai Digital Key 2 Advantage, accessed January 6, 2026, https://www.crainhyundailittlerock.com/blogs/3221/hyundai-digital-key-2/
+23. Digital Key 2 Premium | Bluelink® | Hyundai - YouTube, accessed January 6, 2026, https://www.youtube.com/watch?v=cmqbA1-zCNs
+24. OEM key failed to program : r/Locksmith - Reddit, accessed January 6, 2026, https://www.reddit.com/r/Locksmith/comments/125uddb/oem_key_failed_to_program/
+25. Hyundai Santa Fe 2022/23 - Pincode & Wrong Key Guide - YouTube, accessed January 6, 2026, https://www.youtube.com/watch?v=ofkGjEqWPd4
+26. State Farm Has A List Of Kia And Hyundai Models It Won't Insure - CarBuzz, accessed January 6, 2026, https://carbuzz.com/news/state-farm-has-a-list-of-kia-and-hyundai-models-it-wont-insure/
+27. Insurers are dropping some models of Kia and Hyundai | The Zebra, accessed January 6, 2026, https://www.thezebra.com/resources/car-insurance/insurers-dropping-kia-and-hyundai/
+28. State Farm Implements Blacklist for High-Risk Kia and Hyundai Models - The Soliz Law Firm, accessed January 6, 2026, https://thesolizlawfirm.com/2024/05/21/state-farm-implements-blacklist-for-high-risk-kia-and-hyundai-models-2/

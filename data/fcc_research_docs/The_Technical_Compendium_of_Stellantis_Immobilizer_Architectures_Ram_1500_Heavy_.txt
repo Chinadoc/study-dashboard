@@ -1,0 +1,241 @@
+﻿The Technical Compendium of Stellantis Immobilizer Architectures: Ram 1500, Heavy Duty, and ProMaster (2019-2024)
+1. Executive Summary: The Divergence of Modern Fleet Security
+The period spanning 2019 to 2024 represents the most volatile and technically demanding era in the history of automotive security for the Stellantis North American truck portfolio. For the automotive locksmith, diagnostic technician, and fleet manager, the "Ram Truck" is no longer a singular entity with a standardized service procedure. Instead, the market is fractured into three distinct architectural lineages, each requiring unique hardware, software protocols, and physical access methods.
+The primary driver of this complexity was the simultaneous production of the "Classic" DS platform—a legacy architecture dating back to 2013—and the "New Body Style" DT platform, which introduced high-speed, centralized security logic via the Radio Frequency Hub (RF Hub). Concurrently, the Ram ProMaster, a critical volume unit in the commercial sector, maintained its Fiat-derived "VF" architecture, utilizing a Magneti Marelli Body Control Module (BCM) completely alien to the Chrysler-based systems of the pickup trucks.
+This fragmentation is further compounded by the industry-wide implementation of the Secure Gateway (SGW) module in 2018, which effectively firewalled the vehicle’s CAN bus from unauthorized aftermarket tools. By 2024, the introduction of the "Atlantis" electrical architecture and CAN-FD (Flexible Data-rate) protocols has once again shifted the paradigm, rendering older diagnostic hardware obsolete without specific adapters.
+This report provides an exhaustive technical analysis of these systems. It moves beyond superficial "how-to" steps to explore the underlying engineering logic of the RF Hub and BCM immobilizers. It documents the forensic disassembly required to access hidden modules, analyzes the cryptographic handshake between key and car, and provides a comparative evaluation of the leading aftermarket solutions—specifically the Autel IM series and Advanced Diagnostics Smart Pro—in handling All Keys Lost (AKL) scenarios.
+
+
+  
+
+
+
+2. Immobilizer Architecture: A Tale of Three Platforms
+To successfully navigate the key programming landscape, one must first deconstruct the vehicle's "Security Topology." Unlike General Motors, which tends to centralize immobilizer data within a Global BCM, or Ford, which utilizes a dedicated Passive Anti-Theft System (PATS) often integrated into the PCM or BCM, Stellantis employs a distributed logic that varies wildly depending on the vehicle's lineage (Chrysler vs. Fiat).
+2.1 The Ram 1500 DT Platform (2019-2024): The RF Hub Era
+The introduction of the DT platform marked the obsolescence of the Wireless Ignition Node (WIN) and Wireless Control Module (WCM) that defined Chrysler security for a decade. In their place, engineers implemented the Radio Frequency Hub (RF Hub) as the master controller for vehicle access and immobilization.
+2.1.1 RF Hub Functional Logic
+The RF Hub is not merely a receiver; it is a complex computation node. Located physically separate from the ignition switch, it manages the encrypted communication with the key fob (Smart Key). The system operates on a dual-frequency basis:
+* Low Frequency (LF - 125 kHz): The vehicle is equipped with multiple LF antennas (typically in the door handles, center console, and rear bumper). These antennas broadcast a "wake-up" challenge to the key fob when a door handle is grasped or the Start button is pressed.
+* Radio Frequency (RF - 433 MHz): The key fob, upon receiving the LF challenge, calculates a response using its stored secret key (Hitag-3 or AES logic) and transmits it back to the RF Hub via Ultra High Frequency (UHF) at 433 MHz.1
+Upon validating the key's response, the RF Hub does not start the engine directly. Instead, it issues an encrypted "Go" message over the CAN-C (High Speed) data bus. This message is received by the Body Control Module (BCM), which unlocks the steering column (if equipped with Electronic Steering Column Lock, ESCL) and the Powertrain Control Module (PCM), which enables the fuel injectors and ignition coils.
+This architecture has profound implications for "All Keys Lost" (AKL) programming. Since the RF Hub holds the "Secret Key Information" (SKIM) data, replacing the PCM or BCM will not resolve a lost key situation. The technician must target the RF Hub directly.
+2.1.2 The Physical Anomaly: RF Hub Location
+One of the most significant serviceability challenges of the DT platform is the placement of the RF Hub. Unlike the WIN module, which was easily accessible on the dashboard, the RF Hub in the Ram 1500 DT is mounted on the rear cab wall.
+* Crew Cab and Quad Cab Access: To access the module, the technician must remove the rear bench seat. This is a labor-intensive process involving the removal of 18mm mounting bolts that torque the seat frame to the floor. Once the bolts are removed, the seat must be slid forward and tilted or completely extracted from the vehicle. The RF Hub is bolted to the rear metal wall of the cab, typically positioned centrally or slightly biased toward the driver's side.3
+* The Water Intrusion Vulnerability: The placement of the RF Hub on the rear wall makes it susceptible to a widely documented engineering flaw in the DT platform: the leaking Center High-Mounted Stop Lamp (CHMSL) and rear window seals. Water ingress travels down the rear cabin wall, directly onto the RF Hub.4
+   * Diagnostic Implication: A water-damaged RF Hub will often present as a "Key Not Detected" fault, even with a known good key. In many cases, the corrosion bridges pins on the PCB, causing the bus to wake intermittently or fail to sleep, draining the battery. Technicians diagnosing a "No Start" condition on a DT Ram should always inspect the rear wall for moisture signs before condemning the key or the starter.
+2.2 The Ram 2500/3500 HD Platforms (2019-2024)
+The Heavy Duty lineup adopted the DT electrical architecture but retained some structural elements of previous generations depending on the cab configuration.
+* Shared Electronic Logic: Like the 1500 DT, the 2500/3500 HD trucks utilize the RF Hub as the immobilizer master. They share the same 433 MHz frequency and "Smart Key" form factors, meaning key programming procedures are largely identical between the light-duty and heavy-duty trucks.3
+* Location Variance (Regular Cab): In Regular Cab HD models, where there is no rear seat, the RF Hub is mounted to the rear cab panel, accessible by removing the trim behind the seats. The lack of a rear bench simplifies access compared to the Crew Cab models.3
+2.3 The Ram ProMaster (VF Platform): The Fiat Outlier
+The Ram ProMaster stands as a technological island within the Ram lineup. As a rebadged Fiat Ducato, it does not share the Chrysler "PowerNet" or "Atlantis" architectures found in the pickup trucks. It operates on a Fiat-derived architecture that centers on the Magneti Marelli Body Control Module (BCM).
+2.3.1 BCM-Centric Immobilization
+In the ProMaster, there is no RF Hub. The immobilizer logic is integrated directly into the BCM, which is located in the dashboard (typically driver's side lower dash/fuse box area).6
+* Transponder Logic (Megamos AES/Hitag): The keys for the ProMaster are fundamentally different. They often utilize a "SIP" (System In Package) or dedicated transponder chip that follows Fiat's pre-coding standards.
+* The "Pre-Coding" Requirement: This is the most critical distinction for locksmiths. On a Ram 1500, a virgin key can often be programmed directly to the vehicle via OBD. on a ProMaster, the blank key must first be "Pre-Coded" or "Prepared" with specific Component Security (CS) bytes derived from the BCM before it can be learned to the vehicle.8 This necessitates a programmer capable of writing to the key transponder (e.g., Autel XP400), not just communicating with the OBD port.
+
+
+  
+
+
+
+3. The Secure Gateway (SGW): The Digital Firewall
+In 2018, FCA (now Stellantis) introduced the Secure Gateway Module (SGW) across its lineup. This module acts as a bridge and firewall between the diagnostic connector (DLC/OBDII) and the vehicle's internal CAN networks (CAN-C, CAN-IHS).
+3.1 The Engineering Intent
+The SGW was implemented to prevent remote hacking and unauthorized access to critical vehicle control systems. While the module allows "Read" commands (such as retrieving DTCs or viewing Live Data) to pass through from the OBD port, it strictly blocks all "Write" commands, "Actuation" tests, and "Routine" initializations unless the diagnostic tool provides a valid, encrypted digital certificate authorized by Stellantis.9 Key programming, by definition, requires writing data (new key IDs) to the RF Hub or BCM, and is therefore blocked by the SGW.
+3.2 Bypass Methodologies
+For the aftermarket technician, interacting with a 2019-2024 Ram requires bypassing this firewall. There are three primary methods, each with distinct advantages depending on the scenario (Add Key vs. All Keys Lost).
+3.2.1 The "12+8" Direct Connection
+The physical "12+8" bypass involves disconnecting the connectors from the SGW module and plugging them into a breakout cable that connects directly to the aftermarket tool. This effectively removes the SGW from the loop, connecting the tool directly to the internal CAN bus.
+* Ram ProMaster Location: The SGW on the ProMaster (2019-2023) is located behind the glove box.10
+   * Access Procedure: The technician must open the glove box and release the limit stops to drop the bin fully or remove it. Looking up towards the passenger A-pillar or the firewall/body control area, the SGW is visible as a black module with two connectors: one 12-pin and one 8-pin.
+   * Connection: The connectors are unplugged from the SGW and plugged into the "12+8" adapter (such as the Autel Chrysler 12+8 adapter). The male end of the adapter connects to the OBDII cable of the programmer.
+* Ram 1500 DT Location: In the Ram 1500 DT, the SGW is often buried deep within the dashboard, usually behind the instrument cluster or near the radio module.11 Accessing the module directly for a 12+8 connection in the DT platform is extremely labor-intensive, often requiring the removal of trim panels, the cluster bezel, and the cluster itself to reach the connectors. For this reason, the 12+8 method is least preferred for the Ram 1500 DT, with technicians favoring the Star Connector method instead.
+3.2.2 The Star Connector (CAN-C) Shorting Method
+This method is the industry standard for Ram 1500/2500/3500 trucks due to ease of access. The "Star Connector" is a passive junction block that acts as a hub for the CAN-C network. By plugging a specialized cable (like the ADC2011) into this hub, the tool joins the network "downstream" of the SGW.
+* The Green Connector: On 2019+ Ram DT models, the active CAN-C Star Connector is almost exclusively Green.13 It is generally located under the passenger side dashboard, tucked high up near the glove box or kick panel.
+* Bank Identification: Technicians will often see two banks of connectors in this area. A critical insight from field reports is that the Right Bank (often white or mixed color) is frequently a "false" or inactive block for diagnostic purposes. The Left Bank (Green) is the correct target for communication.13
+* The "Jumper" Logic: Cables like the ADC2011 or the Autel "Star" adapter work by shorting the tool's CAN High and CAN Low lines to the vehicle's bus. The cable connects to an empty slot on the Star Connector. If no empty slot is available, a non-critical module connector can be temporarily unplugged to make room.14
+   * Pinout Specifics: The Star Connector is a parallel hub. Pin 1 connects to Pin 1 of all other slots, Pin 2 to Pin 2, etc. The diagnostic tool communicates on the CAN-C pair (typically Pin 9 and Pin 10 or similar standard CAN pair on the block). The bypass cable ensures the tool's signals propagate to the RF Hub and PCM without passing through the SGW.13
+3.2.3 AutoAuth (The Software Solution)
+AutoAuth is a web-based service integrated into tools like the Autel IM608, Snap-on, and others. It allows the tool to authenticate with the SGW over the internet, eliminating the need for physical bypass cables.
+* Workflow: The shop registers with AutoAuth (annual fee). The tool is connected to Wi-Fi. When accessing the vehicle, the tool sends a challenge to the AutoAuth server, which returns a digital signature that the SGW accepts to "unlock" the gateway.
+* The AKL Limitation: In an "All Keys Lost" scenario, the vehicle ignition often cannot be turned "ON" to wake up the SGW module fully. If the SGW is in a low-power sleep state, it cannot communicate with the diagnostic tool to perform the handshake. Therefore, AutoAuth is frequently unreliable for AKL situations where the car is "dead." Physical bypass (Star Connector or 12+8) forces the bus awake and is the recommended protocol for AKL.16
+4. Key Programming Workflows: Tool-Specific Procedures
+The two dominant platforms for programming these vehicles are the Autel IM Series (IM508/IM608) and the Advanced Diagnostics Smart Pro. Their workflows differ significantly.
+4.1 Autel IM608 / IM508: The "Swiss Army Knife" Approach
+The Autel platform is favored for its ability to perform advanced EEPROM work and handle the ProMaster "Dealer Key" generation natively.
+4.1.1 Ram 1500 DT / HD Procedure (OBD Method)
+Prerequisites:
+* SGW Bypassed (via 12+8 or Star Connector).
+* Battery voltage stabilized >12.5V (Critical: RF Hubs are voltage sensitive).
+* Correct Key Blank (See Section 7).
+Step-by-Step Workflow:
+1. Vehicle Selection: Navigate to IMMO > Chrysler/Dodge/Ram > Smart Selection > Ram > 1500 DT (2019-2023).
+2. Immobilizer Data Reading:
+   * Select Read Immobilizer Password. The tool attempts to pull the 4-digit PIN code from the RF Hub via OBD.
+   * The "Bench Mode" Pivot: On many 2021+ models, Stellantis updated the RF Hub bootloader to block OBD PIN reading. If the tool fails to read the PIN via OBD, it may prompt for "Bench Mode." This requires removing the RF Hub (see Section 2.1.2) and connecting it directly to the G-Box or XP400 on the bench to read the EEPROM.12
+3. Key Learning:
+   * Once the PIN is secured, select Keyless System (CAN) > Key Learning.
+   * Ignition Status: The tool will prompt to turn the Ignition OFF and switch Hazard Lights ON. This keeps the BCM awake.12
+   * PIN Entry: Input the PIN.
+   * Key Actuation: The tool will countdown. Hold the nose of the Smart Key against the Start/Stop Button (or the designated "Key Symbol" area on the steering column shroud or center console).
+   * Confirmation: Press Unlock twice on the fob. Listen for the vehicle chimes or door lock cycling.
+   * Verification: Check the "Number of Keys Learned" to ensure it incremented.
+4.1.2 Ram ProMaster Procedure (The "Pre-Coding" Workflow)
+This procedure is distinct because it requires the XP400 Programmer.
+1. Connection: Connect via 12+8 cable behind the glove box.10
+2. Data Extraction: Select IMMO > Ram > ProMaster > Smart Mode. The tool will read the BCM configuration data (Immo Data).
+3. Dealer Key Generation:
+   * The tool will prompt: "Please insert a blank key into the programmer."
+   * Place the new key (typically a flip key with ID46 transponder) into the XP400 coil.
+   * Select Make Dealer Key. The Autel writes the CS bytes and secret key data to the transponder. This step is mandatory. You cannot program an off-the-shelf blank without this step.8
+4. Key Learning:
+   * Select Key Learning.
+   * Insert the pre-coded key into the ignition cylinder.
+   * Turn Ignition to ON.
+   * The "60-Second Rule": If programming multiple keys, the tool will prompt to remove the first key and insert the second. You have a strict window (usually 60 seconds) to cycle the keys. If the BCM times out, the session closes.8
+   * Critical Warning: Unlike the Ram 1500, the ProMaster BCM often executes a "Reset" during programming. Any keys not present and cycled during this session will be deleted. Ensure all existing keys are available before starting.8
+4.2 Advanced Diagnostics Smart Pro (ADS2306): The Streamlined Approach
+The Smart Pro focuses on speed and ease of connection, leveraging specialized cables to handle the hardware interface.
+4.2.1 Hardware Requirements
+* ADC2011 Cable: This cable is essential for 2018+ Ram trucks. It connects the Smart Pro's main port to the Star Connector.5
+   * Function: The cable has a male connector that plugs into the Green Star Connector block. It routes the CAN High/Low signals to the correct pins on the Smart Pro, effectively acting as a hardware bypass for the SGW.
+* Dongle: Typically requires the 'A' Dongle (or Smart Dongle) for standard Chrysler software, though newer software updates may utilize the 'C' Dongle for specific CAN variants. Always check the "MyKeys Pro" app for the current dongle requirement.19
+4.2.2 Workflow (Ram 1500/2500)
+1. Connection: Locate the Green Star Connector (Passenger side). Plug in the ADC2011.
+2. Software Selection: Select Ram > 1500 > 2019+ (DT).
+3. Bypass Logic:
+   * Select Connect. The Smart Pro software (ADS2272 or newer) is designed to utilize the direct CAN connection to bypass the need for a PIN code in many cases. It injects a "Generic PIN" or exploits a backdoor in the RF Hub firmware to authorize the key.14
+   * Programming: Follow the prompts to cycle the ignition. The Smart Pro is notoriously effective at waking up a "sleeping" bus on a dead truck via the Star Connector injection method.
+5. PIN Code Extraction: Methodologies and Economics
+Access to the vehicle's PIN code is the linchpin of the programming process. When OBD reading fails (common on 2022+ vehicles), technicians must resort to alternative methods.
+5.1 The "Dump" Method (EEPROM)
+This is the most technically demanding but cost-effective method. It involves physically reading the memory chip from the immobilizer module.
+* Target: RF Hub (Ram DT/HD) or BCM (ProMaster).
+* Chip ID: Typically a 95640 or 95320 SPI EEPROM.21
+* Process:
+   1. Remove the module.
+   2. Open the casing.
+   3. Use a SOIC-8 clip or desolder the chip.
+   4. Read the data using a programmer (Autel XP400, Xhorse PROG).
+   5. Load the binary file ("Dump") into the key programming tool. The software parses the hex data to reveal the 4-digit PIN and current Key IDs.17
+* Pros: Free (no data purchase cost), works on all firmware versions.
+* Cons: High labor (removing seats/dash), risk of damaging the PCB.
+5.2 The NASTF / Dealer Code Method
+For shops with a NASTF Vehicle Security Professional (VSP) registry ID, PIN codes can be purchased directly from the automaker's database (TechAuthority / Mopar sites).
+* Process: Log in to the portal, enter the VIN, pay the fee (typically ~$30-$50 per VIN or subscription based), and receive the code instantly.
+* Pros: 100% accurate, no disassembly required.
+* Cons: Requires VSP credentials (background check, insurance), costly per-transaction fees.
+* Limitation: If the RF Hub or BCM has been replaced with a used unit from a salvage yard (a common repair for water damage), the VIN-based PIN from the dealer will not work. The module retains the PIN of the donor vehicle. In this specific case, the "Dump" method is the only way to retrieve the correct PIN from the used module.23
+6. 2024+ "Atlantis" Architecture: The CAN-FD Frontier
+The 2024 model year, and the arrival of the "Hurricane" inline-6 engine, coincides with the transition to the Atlantis electrical architecture. This system introduces significant hurdles for legacy tools.
+6.1 CAN-FD (Flexible Data-rate)
+The vehicle's communication networks have upgraded from standard CAN (500 kbps) to CAN-FD (up to 5-8 Mbps).
+* Implication: Older OBD interfaces (VCI) simply cannot speak this language. They will fail to communicate with the vehicle entirely.
+* Hardware Requirement:
+   * Autel Users: If using the standard VCI-100 or VCI-Mini, you must attach the Autel CAN FD Adapter.24 If using the newer V200 VCI or MaxiFlash VCI (bundled with IM608 Pro II or Ultra), CAN-FD support is built-in and no adapter is needed.25
+   * Smart Pro: The Smart Pro hardware requires the ADC2017 cable or updated internal hardware modules to handle CAN-FD signaling.27
+6.2 Rolling Code Encryption
+Reports indicate that 2025+ models utilize an aggressive Rolling Code algorithm for the immobilizer handshake. This system changes the security key code every time the vehicle is started or queried. This is designed to defeat "Replay Attacks" (e.g., thieves using Flipper Zero devices to capture and replay a unlock signal).28
+* Impact: This makes "cloning" keys virtually impossible. It also means that diagnostic tools must maintain a live connection to the manufacturer's server (via AutoAuth or similar) to constantly update the authorization tokens during the programming session. Offline programming capabilities for these newest models are severely restricted.
+7. Hardware Identification: The Key to Success
+Identifying the correct key blank is critical. Using the wrong Fobik or Smart Key will result in a failed programming attempt, often after the customer has already paid for the key.
+7.1 Fobik vs. Smart Key Differentiation
+* Fobik (POD Key): A plastic rectangle that inserts into a slot in the dash. It has no metal blade flip mechanism (though it has an emergency key insert). It is used on "Classic" DS models and lower-trim HD trucks.
+   * FCC ID: Commonly GQ4-53T.29
+* Smart Key (Proximity): Used for Push-to-Start vehicles. It stays in the pocket.
+   * Visual Cues: Look for the "Air Suspension" button (truck lowering icon) or "Tailgate Release" button (x2).
+   * Compatibility: A 5-button Smart Key (with suspension/tailgate) typically works on a 3-button truck (Lock/Unlock/Panic), but the extra buttons will be non-functional. However, trying to program a "Classic" Fobik to a "New Body" Push-Start truck (or vice versa) will fail immediately due to different transponder logic (Hitag-2 vs Hitag-3/AES).30
+7.2 VIN Decoding Table
+The 5th, 6th, and 7th digits of the VIN provide definitive data on the vehicle's platform and trim, which dictates the key type.
+Position
+	Character
+	Meaning
+	Implication for Key Type
+	5 (Line)
+	N
+	Ram 1500 (Classic/DS)
+	Likely Fobik (Turn-to-Start) or older Prox
+	
+
+	U
+	Ram 1500 (New Body/DT)
+	Smart Key (Push-to-Start) - RF Hub System
+	
+
+	T
+	Ram 2500/3500 HD
+	Smart Key or Fobik depending on trim
+	6 (Series)
+	1
+	1500 Series
+	-
+	
+
+	2
+	2500 Series
+	-
+	
+
+	3
+	3500 Series
+	-
+	7 (Body)
+	6
+	Conventional Cab (Reg)
+	RF Hub on rear wall (HD)
+	
+
+	9
+	Extended Crew / Mega Cab
+	RF Hub behind rear seat (HD)
+	Source: Derived from.31
+8. Ram ProMaster Specifics: A Fiat in Ram's Clothing
+The ProMaster requires a complete shift in thinking for the technician. It is essentially a Fiat Ducato.
+8.1 European Architecture Differences
+* BCM Dominance: Unlike the Ram trucks, the ProMaster does not broadcast SKIM data over a Chrysler-style bus. It uses Fiat's specific coding.
+* Yellow Key Code Card: In the European market, these vans come with a "Code Card" containing the 5-digit PIN. In the US market, this card is often missing. The PIN is still required and is often 5 digits (unlike the 4-digit Ram truck PIN).16
+* Key Blade: The ProMaster typically uses the SIP22 keyway (Fiat style), whereas Ram trucks use the CY24 or Y157/Y159 keyways. This physical difference is the first clue that the systems are unrelated.
+* Ignition Lock: The ignition switch is directly wired to the BCM for transponder reading. There is no intermediate "WIN" or "RF Hub" node. The coil around the ignition cylinder reads the key and sends the signal to the BCM.
+8.2 Troubleshooting the ProMaster
+* "Key Not Recognized" after Battery Death: A common issue on ProMasters is BCM corruption after a dead battery or jump start. The BCM may lose its synchronization with the keys. In this case, an "Add Key" procedure often fixes it by rewriting the existing keys back into the BCM memory.6
+9. Conclusion
+The landscape of Ram and Stellantis truck security is defined by its fragmentation. The locksmith or technician cannot apply a "one size fits all" approach. The Ram 1500 DT requires a focus on the RF Hub and its physical vulnerabilities (water leaks) and access challenges (rear seat removal). The ProMaster demands a focus on the Marelli BCM and the specialized "Pre-Coding" of transponders.
+Crucially, the Secure Gateway (SGW) is the universal gatekeeper. Mastery of the bypass methods—specifically the Star Connector shorting for reliable AKL bus wake-up—is the prerequisite skill for any work on these vehicles. Looking forward, the arrival of CAN-FD on the 2024+ "Atlantis" platforms signals the end of the line for older diagnostic hardware, necessitating immediate investment in updated VCI technology to maintain service capability on the newest generation of work trucks.
+Works cited
+1. 2x RX2TRF198 Marelli BCM for Dodge RAM ProMaster 1500 2500 3500 Remote Key Fob, accessed January 7, 2026, https://www.ebay.com/itm/375859546115
+2. ACCESSORIES AND EQUIPMENT Radio Frequency (RF Hub) Module - Electrical Diagnostics - Ram Pickup PDF - Scribd, accessed January 7, 2026, https://www.scribd.com/document/476458082/ACCESSORIES-AND-EQUIPMENT-Radio-Frequency-RF-Hub-Module-Electrical-Diagnostics-Ram-Pickup-pdf
+3. RF hub location? : r/ram_trucks - Reddit, accessed January 7, 2026, https://www.reddit.com/r/ram_trucks/comments/1bxwqa2/rf_hub_location/
+4. RAM RFH ANTENNA AND MODULE LOCATION - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=1GVQAGrDimI
+5. Smart Pro ADC2011 Smart Pro - Chrysler 2018 CAN-C Cable - Locksmith Keyless, accessed January 7, 2026, https://www.locksmithkeyless.com/products/adc2011-smart-pro-chrysler-2018-can-c-cable
+6. 2021 RAM ProMaster 1500 / 2500 / 3500 New 68457680 BCM - MAKS TIPM Rebuilders, accessed January 7, 2026, https://tipmrebuilders.com/product/2020-2021-ram-promaster-1500-2500-3500-new-68457680-bcm/
+7. IM608 PRO Case Study How to Replace and Program a BCM on a 2017 Ram ProMaster, accessed January 7, 2026, https://www.youtube.com/watch?v=AxzeUdIckWc
+8. Add key 2014-2022 Dodge RAM Promaster 3500 Autel IM608 EASY! RX2TRF198 2ADPXTRF198 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=SJxCPlXxVtQ
+9. Autel MaxiSYS How To Use SGW Secure Gateway Access FCA Chrysler Jeep Dodge Fiat Vehicles - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=OcPvFUPN-x8
+10. 2019-2023 RAM PROMASTER 12+8 SGM (security getaway module) LOCATION FOR PROGRAMMING A KEY - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=0DhKI6QrCNY
+11. Bypass the Pesky RAM Security Gateway - HERE'S HOW! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=-u3Rtx7mThY
+12. 2023 Dodge Ram 2500 Add Key With Autel IM608 and Bypass Cables - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=qZ8k6wDQddM
+13. 2019 Ram push-to-start; how to find the correct star connector! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=0mOr21OHaPQ
+14. ADC2011 cable : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/198kr4q/adc2011_cable/
+15. 8W-80 CONNECTOR PINOUTS, accessed January 7, 2026, http://www.rambodybuilder.com/2008/docs/wd/dr/8w80connectorpinouts.pdf
+16. PIN code from 2019 Dodge Ram : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/1mtwmtz/pin_code_from_2019_dodge_ram/
+17. Chrysler Pin Code retrieval with the new Autel IM608 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=1kEJFvXad8w
+18. Advanced Diagnostics - Chrysler / Dodge / Jeep Bypass Cable ADC2011 for SMART Pro Programmer for Sale | UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-chrysler-dodge-jeep-bypass-cable-adc2011-for-smart-pro-programmer
+19. Smart Pro Mini: Step-by-Step Guide for Automotive Remote Programming - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=CuRXDv97LsA
+20. 2019 Dodge Ram; super easy star connector location revealed - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=vRxpsc5IViA
+21. XP400 Pro_User Manual_EN - Autel, accessed January 7, 2026, https://www.autel.com/u/cms/www/202307/14112633lmor.pdf
+22. FCA (Fiat Chrysler Automobiles) RFHUB/RFHM - I/O TERMINAL, accessed January 7, 2026, https://ioterminal.com/?page_id=1624
+23. 2014 Dodge Ram RF hub replacement. - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=nzNh4CUpVZw
+24. 2024 Autel CAN FD Adapter For MY2020 GM Vehicles, accessed January 7, 2026, https://gskeyae.com/product/autel-can-fd-adapter/
+25. Autel CAN FD Adapter Compatible with Autel VCI Maxisys Tablets - ABKEYS, accessed January 7, 2026, https://abkeys.com/products/autel-can-fd-adapter-compatible-with-autel-vci-maxisys-tablets-1409
+26. Autel CAN FD Adapter - ADAS Depot, accessed January 7, 2026, https://adasdepot.com/autel-can-fd-adapter/
+27. 2024 Ram 1500 proximity key programming via Smart Pro - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=4NsIigxJuIg
+28. How to Program a Dodge Ram Key Fob Without the Original - Professional Guide, accessed January 7, 2026, https://dmllocksmith.com/post/how-to-program-a-dodge-ram-key-fob-without-the-original-professional-guide/
+29. Ram 5-Button Smart Key Remote Replacement with Remote Start and Suspension Control, accessed January 7, 2026, https://store.carkeysexpress.com/keys-and-remotes/item/1006258-ram-5-button-smart-key-remote-replacement-with-remote-start-and-suspension-control
+30. Dodge Fobiks – Know the Difference! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=mEzg7g0P9LY
+31. FCA US LLC - Ram Trucks, accessed January 7, 2026, https://www.ramtrucks.com/assets/bbg/pdf/2016/docs/intro/vin.pdf
+32. VIN Number Lookup & Decoder| Official Mopar® Site, accessed January 7, 2026, https://www.mopar.com/en-us/my-vehicle/vin-lookup.html
+33. Vehicle Identification Number (VIN) Plate, accessed January 7, 2026, http://www.rambodybuilder.com/2004/docs/intro/vin.pdf

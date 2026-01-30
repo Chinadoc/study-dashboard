@@ -1,0 +1,336 @@
+﻿Technical Report: Honda & Acura Smart Key Programming Ecosystem (2016–2026)
+1. Introduction: The Paradigm Shift in Automotive Security
+The decade spanning 2016 through 2026 represents one of the most volatile and transformative periods in the history of automotive security for Honda Motor Company and its luxury division, Acura. For the professional automotive locksmith, security researcher, and dealership technician, this era is characterized not merely by the introduction of new key fob designs, but by a fundamental restructuring of the vehicle’s internal communication architecture. We have witnessed the deprecation of localized, static immobilizer systems in favor of highly integrated, networked security environments that rely on high-bandwidth protocols and cloud-based authentication.
+The primary catalyst for this shift is the transition from the Controller Area Network (CAN) protocol—the industry standard for over two decades—to the Controller Area Network Flexible Data-Rate (CAN-FD) protocol. This migration, driven by the need to support data-intensive systems like the Honda Sensing suite and 360-degree camera arrays, has had profound downstream effects on immobilizer logic. The simple act of programming a key, once a localized handshake between a diagnostic tool and a dashboard unit, has evolved into a complex cryptographic dialogue often requiring server-side calculation and specialized hardware interfaces.
+This report serves as an exhaustive technical reference and procedural database. It tracks the evolution of transponder technology from the Philips ID47 (Hitag 3) family, which dominated the mid-2010s, to the NXP Hitag AES (4A chip) architecture that characterizes the post-2021 landscape. It provides a granular "Coverage Matrix" tracking FCC IDs, IC chip types, and part numbers across the entire model lineup—Civic, Accord, CR-V, Pilot, Passport, HR-V, Odyssey, TLX, RDX, MDX, and ILX. Furthermore, it dissects the proprietary logic required for programming tools, offering a standardized JSON data structure for tracking PIN source derivations, whether they stem from the Powertrain Control Module (PCM), the Body Control Module (BCM), or external server calculations.
+
+
+  
+
+
+
+2. Technical Architecture and Protocol Evolution
+To navigate the programming procedures detailed in this report, it is essential to first dismantle the underlying network architecture. The distinction between a 2019 Honda Pilot and a 2024 Honda Pilot is not cosmetic; it is a change in the very language the vehicle speaks.
+2.1 The Standard CAN Era (2016–2020/2021)
+From 2016 through approximately 2020—and extending to 2022 in legacy platforms like the HR-V and Odyssey—Honda utilized the standard High-Speed CAN bus (ISO 11898-2) for immobilizer communications.1 This era is defined by the widespread adoption of the "Smart Key System Type 3," which integrated the keyless access logic into a dedicated Smart Key Unit.
+The industry standard transponder during this period was the Philips ID47, widely referred to as Hitag 3.3 This chip operated primarily on a 433 MHz frequency (specifically 433.92 MHz), marking a departure from the 313.8 MHz and 315 MHz frequencies common in the early 2000s.3 The security topology relied on a localized authentication challenge. When a programming tool requested access, the Smart Key Unit generated a challenge code. The "PIN code" required to answer this challenge was often static or algorithmically derived from the PCM (Powertrain Control Module) VIN programming. This system allowed for relatively straightforward "All Keys Lost" (AKL) programming because the BCM (Body Control Module) did not enforce a rigid, real-time synchronization check with the PCM that required online authorization.
+2.2 The CAN-FD and Hitag AES Revolution (2021–Present)
+The introduction of the 2021 Acura TLX 6 and subsequently the 2022 Honda Civic 7 heralded the arrival of the CAN-FD (Flexible Data-Rate) era. This shift was necessitated by the exponential growth in sensor data; a standard CAN bus, capped at 500 kbps, could no longer support the bandwidth requirements of modern ADAS (Advanced Driver Assistance Systems).1
+CAN-FD accommodates speeds up to 5 Mbps and allows for significantly larger data payloads per frame (up to 64 bytes versus the classic 8 bytes). This has immediate physical implications for programming: standard OBD-II programming tools, such as older Autel IM608 units lacking specific adapters, cannot communicate with the vehicle's immobilizer. Connecting a non-compatible tool can cause communication errors across the entire bus, potentially triggering a cascade of "U-codes" (Communication Errors) throughout the vehicle's modules.8
+The physical key transponder shifted concurrently to Hitag AES, often labeled as the "4A" chip in programming tools.9 While externally identical to the ID47 fob, the internal logic uses robust 128-bit AES encryption. Crucially, the calculation of the security response now often involves a "Firewall" or Security Gateway (SGW). While Honda has not implemented a locked gateway requiring strict registration like Stellantis (AutoAuth), the calculation of the security response now frequently requires a server handshake.11 The tool reads a long data string from the BCM, uploads it to a cloud server (such as Autel's or Xhorse's), calculates the AES response, and writes it back. This renders offline programming for newer models difficult or impossible without specialized bypass cables or active internet connections.7
+3. Comprehensive Coverage Matrix (2016–2026)
+The following sections provide the "Source of Truth" for inventory management. The matrix correlates the vehicle model year and generation with the specific FCC ID, Part Number, and Chip Type required.
+
+
+  
+
+
+
+3.1 Honda Civic: The Architectural Bellwether
+The Civic platform serves as the primary indicator for Honda's security roadmap. The shift between the 10th and 11th generations demarcates the exact boundary between the ID47 and 4A eras.
+10th Generation (2016–2021): The Standard Era
+The 10th Gen Civic operates on the Smart Key System Type 3. Programming is highly stable, with widespread aftermarket support. The system utilizes the Philips ID47 chip.
+* FCC ID: KR5V2X (This is the dominant ID, though some early 2016 models may show variations).
+* Chip: Philips ID47 / Hitag 3.
+* Frequency: 433 MHz.
+* Part Numbers: 72147-TBA-A11 (Driver 1), 72147-TBA-A12.
+* Emergency Blade: High Security (HO01/HON66).
+* Programming Note: Requires standard OBD-II connection. "All Keys Lost" can be performed offline with most advanced tools.3
+11th Generation (2022–2026): The CAN-FD Era
+The 2022 Civic was the first mass-market Honda to require CAN-FD adapters for programming.
+* FCC ID: KR5TP-4.
+* Chip: NXP Hitag AES (4A).
+* Frequency: 433 MHz.
+* Part Numbers: 72147-T20-A01 (4-button), 72147-T20-A11 (5-button with Remote Start).
+* Emergency Blade: High Security (HO01).
+* Programming Note: Requires a CAN-FD adapter (e.g., Autel V200 or CAN FD Adapter, Xhorse Key Tool Plus). The BCM calculates the rolling code via a server handshake. If the alarm is active, communication with the BCM is often blocked, requiring a manual short of the CAN lines or waiting for the alarm to timeout.7
+3.2 Honda Accord: The Anomaly
+The Accord introduces a unique form factor and a specific chip deviation that often confuses technicians.
+10th Generation (2018–2022)
+Unlike the Civic or CR-V which used the "wedge" shaped remote (KR5V2X), the Accord used a sleek, elongated fob.
+* FCC ID: CWTWB1G0090.
+* Chip: NXP AES 128-bit. While typically read as "4A" by some tools, it behaves differently than the Civic's KR5TP-4.
+* Frequency: 433 MHz.
+* Part Numbers: 72147-TVA-A11 (Driver 1), 72147-TVA-A21 (Driver 2).
+* Programming Note: The memory distinction (Driver 1 vs 2) is strictly enforced. Attempting to program a Driver 1 key when one is already present often fails or overwrites the existing key without warning.13
+11th Generation (2023–2026)
+The Accord converged with the Civic/CR-V architecture in 2023.
+* FCC ID: KR5TP-4.
+* Chip: Hitag AES (4A).
+* Protocol: CAN-FD.
+* Part Numbers: 72147-T20-A11 (Shared with Civic/CR-V in some markets, but often specific PN 72147-30A-A11 for Accord-specific trim features).16
+3.3 Honda CR-V: The Reliability Workhorse
+5th Generation (2017–2022)
+This platform mirrors the 10th Gen Civic.
+* FCC ID: KR5V2X.
+* Chip: Philips ID47.
+* Part Numbers: 72147-TLA-A01 (No Memory), 72147-TLA-A11 (Driver 1), 72147-TLA-A21 (Driver 2).
+* Note: The "Power Tailgate" button presence distinguishes higher trims. A remote with a trunk button will program to a non-power-tailgate car, but the button will obviously be non-functional.18
+6th Generation (2023–2026)
+Moved to the global architecture.
+* FCC ID: KR5TP-4.
+* Chip: Hitag AES (4A).
+* Protocol: CAN-FD.
+* Part Numbers: 72147-T43-A11.20
+3.4 Honda Pilot & Passport: The Driver Memory Maze
+The Pilot and Passport are notable for their confusing array of Driver 1 and Driver 2 remotes, often with differing part numbers but identical FCC IDs.
+Pilot (2016–2022) / Passport (2019–2024)
+These models remained on the ID47 platform longer than the sedans.
+* FCC ID: KR5V2X (Early models) / KR5V44 or KR5T44 (Later models and Passport).
+* Chip: Philips ID47.
+* Part Numbers: 72147-TG7-A11, 72147-TG7-AB1.
+* Nuance: The "Driver 1" and "Driver 2" designation is printed on the back. It is critical to match this. Mixing KR5V2X and KR5V44 remotes can sometimes work, but utilizing the correct FCC ID is recommended to ensure full range and functionality.22
+Pilot (2023–2026) / Passport (2025–2026)
+* FCC ID: KR5TP-4.
+* Chip: Hitag AES (4A).
+* Protocol: CAN-FD.
+* Part Numbers: 72147-3A0-A01.24
+3.5 Honda HR-V: The Platform Jump
+The HR-V represents the most drastic architectural jump.
+1st Generation (2016–2022)
+Based on the Honda Fit platform.
+* FCC ID: KR5V1X.
+* Chip: Philips ID47.
+* Frequency: 314 MHz (Distinct from the 433 MHz of the Civic/CR-V).
+* Note: This lower frequency means HR-V keys are physically incompatible with CR-V keys of the same year, despite looking identical.26
+2nd Generation (2023–2026)
+Moved to the Civic 11th Gen platform.
+* FCC ID: KR5TP-4.
+* Chip: Hitag AES (4A).
+* Frequency: 433 MHz.
+* Protocol: CAN-FD.28
+3.6 Honda Odyssey: The Sliding Door Complexity
+2018–2024 Models
+* FCC ID: KR5V2X (2018-2020) / KR5T44 (2021+).
+* Chip: Philips ID47.
+* Buttons: 7-button layout (Lock, Unlock, Left Door, Right Door, Hatch, Remote Start, Panic).
+* Part Numbers: 72147-THR-A11, 72147-THR-A31.
+* Programming: Standard CAN. AKL is straightforward.30
+2025+ Models
+* FCC ID: KR5TP-4.
+* Chip: Hitag AES (4A).
+* Protocol: CAN-FD.
+* Part Numbers: 72147-THR-AC1.32
+3.7 Acura Lineup: The CAN-FD Pioneers
+Acura has aggressively adopted the new architecture, leading the transition before the Honda mass-market models.
+Acura TLX (2015–2020)
+* FCC ID: KR5V1X.
+* Chip: ID47 (313.8 MHz/314 MHz).
+* Protocol: Standard CAN.
+Acura TLX (2021–2026)
+The first vehicle to introduce the "CAN-FD problem" to locksmiths.
+* FCC ID: KR5T21.
+* Chip: Hitag AES (4A).
+* Protocol: CAN-FD.
+* Part Numbers: 72147-TGV-A01.34
+Acura MDX (2014–2020)
+* FCC ID: KR5V1X.
+* Chip: ID47.
+Acura MDX (2022–2026)
+* FCC ID: KR5TP-2 (Standard) / KR5BTP (Type S).
+* Chip: Hitag AES (4A).
+* Frequency: 434 MHz / 902 MHz (Some Type S models use high frequency for long-range remote start).
+* Part Numbers: 72147-TYA-A21.36
+Acura RDX (2019–2021)
+* FCC ID: KR5V2X (Early) / KR5T21 (Transition).
+* Chip: ID47.
+Acura RDX (2022–2026)
+* FCC ID: KR5TP-2.
+* Chip: Hitag AES (4A).
+* Protocol: CAN-FD.38
+4. PIN Source Tracking and Algorithm Logic
+A critical requirement of this database is "PIN source tracking." In the Honda/Acura ecosystem, the concept of a "PIN code" has evolved from a static lookup to a dynamic cryptographic exchange.
+4.1 Evolution of the "PIN"
+1. PCM Code (Legacy / Brake Code): Originally, a 4-digit code was used to release the steering lock. This is largely obsolete in Smart Key systems but remains in the ECU firmware for legacy fallback.
+2. Rolling Code Challenge (2016–2020):
+   * Mechanism: The programming tool sends a request to the Smart Key Unit. The Unit replies with a "Challenge" string (e.g., 10 bytes).
+   * Source: The "PIN" is the calculated response to this challenge. It is not "sourced" from a sticker but is the output of a proprietary algorithm (Hitag 3 logic) contained within the programming tool software.
+3. Server-Authenticated Session (2021+ CAN-FD):
+   * Mechanism: The vehicle generates a dynamic seed. The tool reads this seed via the CAN-FD bus.
+   * Source: The seed is uploaded to an authenticated server (e.g., Autel or Xhorse cloud). The server, possessing the manufacturer's AES keys, calculates the response and sends it back to the tool.
+   * Implication: The "PIN Source" is the Cloud Server. If the tool has no internet access, or if the server is down, programming is impossible.
+4.2 Handshake Process for CAN-FD Models
+Understanding the handshake is vital for troubleshooting failures on 2022+ models. The process follows a strict linear flow:
+1. Authorization Request: The diagnostic tool requests programming access from the Central Gateway (CGW).
+2. Seed Generation: The BCM generates a random seed (a string of data) and sends it to the tool.
+3. Cloud Relay: The tool transmits this seed to the cloud server via Wi-Fi.
+4. Key Calculation: The cloud server utilizes the Hitag AES algorithm to compute the matching "Key" (Response).
+5. Transmission: The tool receives the Key and writes it back to the BCM.
+6. Unlock: The BCM validates the Key and opens the programming session for the new fob.
+This process highlights why the "PIN Source" for modern vehicles is listed as "SERVER_CALC" in the database schema below.
+5. Programming Methodologies and JSON Procedures
+The following section fulfills the requirement for "Detailed JSON procedures." These schemas serve as a template for integrating programming logic into automated database systems.
+5.1 JSON Procedure Database Schema
+The schema tracks the vehicle identity, hardware requirements, security profile, and the step-by-step workflow.
+* vehicle_id: Unique identifier (Year/Make/Model).
+* system_type: The immobilizer generation.
+* pin_source_type: VIN_CALC, ROLLING_CODE_CHALLENGE, or SERVER_CALC.
+* access_method: OBDII or OBDII_CANFD.
+5.2 Procedure Record: Legacy CAN (e.g., 2018 Honda Civic)
+
+
+JSON
+
+
+
+
+{
+ "record_id": "HND-CIV-2018-GEN10",
+ "vehicle_profile": {
+   "make": "Honda",
+   "model": "Civic",
+   "year_range": "2016-2021",
+   "platform": "FC/FK",
+   "bus_protocol": "CAN (ISO 11898-2)"
+ },
+ "hardware_requirements": {
+   "key_fob": {
+     "fcc_id": "KR5V2X",
+     "ic": "7812D-V2X",
+     "frequency": "433 MHz",
+     "chip_type": "Philips ID47 (Hitag 3)",
+     "part_numbers":
+   },
+   "adapter_required": false
+ },
+ "security_profile": {
+   "system_name": "Smart Key System Type 3",
+   "pin_source_type": "ROLLING_CODE_CHALLENGE",
+   "pin_source_description": "Local algorithmic calculation. No internet required.",
+   "bypass_method": "N/A"
+ },
+ "procedure_workflow":
+}
+
+
+
+  
+
+
+
+5.3 Procedure Record: Modern CAN-FD (e.g., 2023 Honda Pilot)
+
+
+JSON
+
+
+
+
+{
+ "record_id": "HND-PLT-2023-GEN4",
+ "vehicle_profile": {
+   "make": "Honda",
+   "model": "Pilot",
+   "year_range": "2023-2026",
+   "platform": "YG1",
+   "bus_protocol": "CAN-FD"
+ },
+ "hardware_requirements": {
+   "key_fob": {
+     "fcc_id": "KR5TP-4",
+     "ic": "7812D-TP4",
+     "frequency": "433 MHz",
+     "chip_type": "Hitag AES (4A)",
+     "part_numbers":
+   },
+   "adapter_required": true,
+   "adapter_type": "CAN-FD Adapter (Autel/Xhorse) or VCI200"
+ },
+ "security_profile": {
+   "system_name": "Honda Keyless Access System Gen 6",
+   "pin_source_type": "SERVER_CALC",
+   "pin_source_description": "Rolling code challenge-response requiring server-side AES calculation.",
+   "bypass_method": "Manual CAN short required if alarm is active."
+ },
+ "procedure_workflow":
+}
+
+6. Physical Security, Emergency Access, and Hardware Details
+While the electronic handshake is the primary barrier, physical access remains a prerequisite for programming. The transition to "Smart Keys" has obscured mechanical backup methods, often confusing users and technicians during battery failure scenarios.
+6.1 The "Dead Fob" Inductive Start Procedure
+Contrary to older models that featured a physical slot in the dashboard for the key fob (a "dock"), none of the 2016-2026 Honda/Acura Smart Key models utilize a fob-in-dash slot. Instead, they rely on a standardized inductive backup method.40
+Procedure:
+1. Entry: Use the mechanical emergency blade to unlock the driver's door.
+2. Alarm State: Upon opening the door, the alarm will typically sound. This is normal.
+3. Positioning: Hold the emblem side (the "H" or "A" logo) of the dead key fob directly against the Start/Stop button. The proximity must be near-zero (touching).
+4. Activation: The Start/Stop button contains a Low Frequency (LF) antenna that energizes the passive RFID coil in the fob via induction. The button LED may flash or change color (often to white) to indicate the chip is detected.
+5. Start: While holding the fob against the button, depress the brake pedal and push the button. The vehicle will start, and the alarm will silence.
+6.2 Emergency Key Blade Profiles
+The mechanical key blade, housed inside the remote, is essential for gaining entry to a locked vehicle with a dead battery.
+* Profile: HON66 (High Security / Laser Cut). This is a center-milled, "sidewinder" keyway used across the entire 2016-2026 range.43
+* Cutting: Requires a vertical milling machine (e.g., Xhorse Condor, Silca Futura). It cannot be cut on standard edge-cut duplicators.
+* Code Series: Typically K-series (K001-N718).45
+* Observation: While the profile remains HON66, the head of the emergency key has changed shape to fit the different fob bodies (e.g., the skinny Accord fob vs. the wide Civic fob). They are not universally interchangeable despite having the same blade profile.
+7. Troubleshooting, Anomalies, and Locksmith Economics
+7.1 The "Alarm Active" Lockout on CAN-FD
+On the newest CAN-FD models (e.g., 2023 Pilot, 2022 Civic), the alarm state can actively block OBD port communication. This is a significant deviation from pre-2020 architectures.
+* The Issue: When the alarm is triggered, the Gateway (CGW) may isolate the OBD-II port to prevent tampering.
+* The Fix: Technicians must either:
+   1. Wait for the alarm to time out (can take 5+ minutes).
+   2. Manually short the "Star Connector" (CAN junction block) to wake the bus.
+   3. Use a specialized "All Keys Lost" cable that bypasses the OBD port and connects directly to the internal CAN lines.
+7.2 Driver Memory Conflicts
+Honda's "Driver 1" and "Driver 2" system is hard-coded into the remote's transmission logic.
+* Conflict: If a vehicle currently has a "Driver 1" key paired and a technician attempts to program a new "Driver 1" key (without deleting the old one), the system may fail or behave unpredictably.
+* Solution: For "Add Key" jobs, always identify which key (1 or 2) the customer currently has. If they have Driver 1, you must provide a Driver 2 remote to ensure memory seat functions work correctly.
+7.3 Economic Analysis: Labor and Tooling
+The shift to CAN-FD has direct economic implications.
+* Labor Time:
+   * Standard CAN (Civic 2016-2021): Programming is fast (10–15 minutes).
+   * CAN-FD (Civic 2022+): Programming takes longer (20–40 minutes) due to server calculation latency and potential connection troubleshooting.46
+* Tooling Costs:
+   * Locksmiths must upgrade to CAN-FD capable hardware (e.g., Autel IM608 Pro II, Xhorse Key Tool Plus).
+   * Universal Remotes: The emergence of universal remotes (Autel iKey, Xhorse XS) that can emulate the 4A chip offers a cost-effective alternative to stocking expensive OEM fobs, though reliability on the very newest 2025 models requires validation.47
+8. Conclusion
+The Honda/Acura smart key ecosystem from 2016 to 2026 illustrates a clear trajectory toward higher security, increased data bandwidth, and cloud dependency. The demarcation line is the adoption of the CAN-FD protocol (2021/2022).
+* Pre-2021: A stable, open ecosystem dominated by ID47 chips and standard CAN. High aftermarket support.
+* Post-2021: A restricted ecosystem utilizing 4A AES chips and CAN-FD. This environment requires specialized adapters, server-side authentication, and strictly matched FCC IDs.
+For the user utilizing this database, the critical imperative is to rigorously segregate inventory and procedures by Protocol Type. A 2021 HR-V and a 2022 HR-V are technically unrelated vehicles in terms of security; one is a legacy platform, the other is a modern CAN-FD platform. Treating them as a continuous lineage will lead to programming failures. The database structures provided in Section 5 offer the necessary granularity to handle these distinctions effectively.
+Works cited
+1. Honda-Acura - ScanGauge, accessed January 8, 2026, https://www.scangauge.com/support/x-gauge-commands/honda-acura/
+2. LIST OF CARS FOR CAN-BUS FIRMWARE VERSION 1406 - Mongoose New Zealand, accessed January 8, 2026, https://www.mongoose.co.nz/assets/files/EN%20List%20of%20cars%20for%20CAN-BUS%201406.pdf
+3. Honda Civic Smart Key 5B Trunk - KR5V2X - Transponder Island, accessed January 8, 2026, https://transponderisland.com/shop/tik-hon-69a-2016-2021-honda-civic-smart-key-5b-trunk-remote-start-kr5v2x-aftermarket-34413
+4. ILCO Look-Alike 2016-2021 Honda Smart Key 5B FCCID: KR5V2X (V44) PN# 7, accessed January 8, 2026, https://royalkeysupply.com/products/ilco-look-alike-2016-2021-honda-smart-key-5b-fccid-kr5v2x-v44-pn-72147-tg7-a41
+5. Honda Refurbished 2016-2022 Fit, HR-V Smart Key 4B Hatch FCCID: KR5V1X, accessed January 8, 2026, https://royalkeysupply.com/products/honda-refurbished-2016-2022-fit-hr-v-smart-key-4b-hatch-fccid-kr5v1x-pn-72147-t7s-a01
+6. Car scanner Acura ▷ Which OBD2 diagnostic device for your car? - klavkarr, accessed January 8, 2026, https://www.klavkarr.com/vehicle-list-compatible-obd2/acura
+7. Autel IM608S II Program 2022 Honda Civic All Keys Lost - obdprice, accessed January 8, 2026, https://www.obdprice.com/blogs/news/autel-im608s-ii-program-2022-honda-civic-all-keys-lost
+8. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 8, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+9. 2023 Honda Civic Smart Key 4 Buttons FCC# KR5TP-4 - Aftermarket - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2023-honda-civic-smart-key-4-buttons-fcc-kr5tp-4-aftermarket
+10. 2022-2024 Honda Civic Smart Key Fob Remote (KR5TP4, 72147-T20-A11), accessed January 8, 2026, https://northcoastkeyless.com/product/honda-civic-smart-key-fob-remote-fcc-kr5tp4-pn-72147-t20-a11/
+11. MaxiIM IM608 Pro_User Manual_EN - Autel, accessed January 8, 2026, https://www.autel.com/u/cms/www/202307/14110641nag4.pdf
+12. 2016-2021 Honda Civic Smart Key Fob 72147-TBA-A12 KR5V2X 334MHz - Key4, accessed January 8, 2026, https://www.key4.com/honda-civic-smart-prox-key-71247tbaa12
+13. 1/2pcs FOR 2018-2022 HONDA ACCORD SMART KEY KEYLESS REMOTE FOB KEY CWTWB1G0090 | eBay, accessed January 8, 2026, https://www.ebay.com/itm/296420651073
+14. Honda New OEM 2018-2022 Accord Smart Key 4B Trunk FCCID, accessed January 8, 2026, https://royalkeysupply.com/products/honda-new-oem-2018-2022-accord-smart-key-4b-trunk-fccid-cwtwb1g0090-pn-72147-tva-a11
+15. 2018 - 2022 Honda Accord Smart Key 5B FCC# CWTWB1G0090 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2018-2019-honda-accord-smart-key-5b-fcc-cwtwb1g0090
+16. 2023-2024 Honda Accord / 5-Button Smart Key / PN: 72147-30A-A11 / KR5TP-4 (OEM)(Driver 2) - UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/products/2023-2024-honda-accord-5-button-smart-key-pn-72147-30a-a11-kr5tp-4-oem-driver-2
+17. Brand new original 2024 Honda Accord Smart Keyless Entry Remote 72147-T20-A11 KR5TP-4 – CarandTruckRemotes, accessed January 8, 2026, https://www.carandtruckremotes.com/products/2024-honda-accord-smart-remote-72147-t20-a11
+18. Original Oem Honda 2017-2022 CR-V Smart Key Keyless Remote Start Fob KR5V2X | eBay, accessed January 8, 2026, https://www.ebay.com/itm/405926201881
+19. 2022 Honda CR-V Smart Key 5 Buttons FCC# KR5V2X V44 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2022-honda-cr-v-smart-key-5-buttons-fcc-kr5v2x-v44
+20. 2023-2024 Honda CR-V HR-V Pilot / 5-Button Smart Key / PN: 72147-T43-A11 / KR5TP-4 (OEM) - UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/products/2023-2024-honda-cr-v-hr-v-pilot-5-button-smart-key-pn-72147-t43-a11-kr5tp-4-oem
+21. 2023 2024 Honda Smart Key 5B W/ Remote Start & Hatch Hold FCC# KR5TP-4, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2023-2024-honda-smart-key-5b-w-remote-start-hatch-hold-fcc-kr5tp-4
+22. For 2016 2017 2018 2019 2020 2021 Honda Pilot Remote Smart Car Key Fob KR5V2X 5B, accessed January 8, 2026, https://www.ebay.com/itm/394522672583
+23. 2024 Honda Pilot Passport Smart Proximity Key FCC: KR5 T44 / PN: 72147-TG | eBay, accessed January 8, 2026, https://www.ebay.com/itm/155721106548
+24. 2024 Honda Pilot Smart Key 5B W/ Remote Start & Hatch Hold FCC# KR5TP, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2024-honda-pilot-smart-key-5b-w-remote-start-hatch-hold-fcc-kr5tp-4-aftermarket
+25. Honda New OEM 2023-2024 CR-V, Pilot Smart Key (Memory 1) 5B Hatch/Remo, accessed January 8, 2026, https://royalkeysupply.com/products/honda-new-oem-2023-2024-cr-v-pilot-smart-key-5b-hatch-remote-start-fccid-kr5tp-4-pn-72147-3a0-a01
+26. 2016-22 HONDA HR-V FIT SMART KEY REMOTE FOB FCC: KR5V1X 72147-T7S-A01 EXCELLENT! | eBay, accessed January 8, 2026, https://www.ebay.com/itm/176318291611
+27. 2016 - 2021 Honda HR-V Fit Smart Key 4B FCC# KR5V1X - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2016-2019-honda-smart-key-4b-fcc-kr5v1x
+28. 2023 Honda HR-V Smart Key 5 Buttons FCC# KR5TP-4 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2023-honda-hr-v-smart-key-5-buttons-fcc-kr5tp-4
+29. Honda New OEM 2022-2026 Civic, HR-V Smart Key 4B Hatch FCCID: KR5TP-4, accessed January 8, 2026, https://royalkeysupply.com/products/honda-new-oem-2022-2023-civic-hr-v-smart-key-4b-hatch-fccid-kr5tp-4-pn-72147-t43-a01
+30. 2018 Honda Odyssey Remote Keyless Entry Key 72147-THR-A31 KR5V2X – CarandTruckRemotes, accessed January 8, 2026, https://www.carandtruckremotes.com/products/2018-honda-odyssey-smart-remote-key-fob-driver-2
+31. Shop Honda Odyssey OEM & Replacement Aftermarket Remotes - SFFobs, accessed January 8, 2026, https://www.sffobsinc.com/product-category/vehicles/honda/odyssey/
+32. Honda New OEM 2025 Odyssey Smart Key 7B - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/honda-new-oem-2025-odyssey-smart-key-7b-fccid-kr5tp-4-pn-72147-thr-ab1-copy
+33. OEM 2025 Honda Odyssey Remote Start Smart Key Fob 7 button - KR5TP-4 Driver 2 | eBay, accessed January 8, 2026, https://www.ebay.com/itm/286751927530
+34. 2022 Acura TLX Smart Key 4B Fob FCC# KR5T21 - 72147-TGV-A01 / 7 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2021-2022-acura-tlx-smart-key-4b-fcc-kr5t21
+35. 2021-2023 Acura TLX 4B Trunk Smart Key KR5T21, accessed January 8, 2026, https://yourcarkeyguys.com/products/2021-2023-acura-tlx-4b-trunk-smart-key-kr5t21
+36. 2022-2025 Acura MDX / 5-Button Smart Key / PN: 72147-TYA-C11 / KR5BTP, accessed January 8, 2026, https://www.uhs-hardware.com/products/2022-2025-acura-mdx-5-button-smart-key-pn-72147-tya-c11-kr5btp-driver-2-oem
+37. Acura New OEM 2022-2026 MDX Smart Key (Memory 1) 5B Engine Hold/Hatch, accessed January 8, 2026, https://royalkeysupply.com/products/acura-new-oem-2022-2023-mdx-smart-key-memory-1-5b-engine-hold-hatch-fccid-kr5btp-pn-72147-tya-c01
+38. 2024 Acura RDX Smart Key 4B W/ Hatch Fob FCC# KR5TP-2 - 72147-T - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2022-2024-acura-rdx-smart-key-4b-w-hatch-fob-fcc-kr5tp-2-72147-tjb-a21
+39. Acura New OEM 2022-2025 RDX Smart Key (Memory 1) 4B Hatch FCCID: KR5TP, accessed January 8, 2026, https://royalkeysupply.com/products/acura-new-oem-2022-rdx-smart-key-memory-1-4b-hatch-fccid-kr5tp-2-pn-72147-tya-a11
+40. How to Start Your Honda With a Dead Key Fob | Honda Minot ND, accessed January 8, 2026, https://www.ryanhondaminot.com/how-to-start-your-honda-with-a-dead-key-fob/
+41. Acura Key Fob Battery Replacement & Instructions, accessed January 8, 2026, https://www.philsmithacura.com/acura-key-fob-battery.htm
+42. Emergency Engine Start | CIVIC SEDAN 2022 - Honda TechInfo, accessed January 8, 2026, https://techinfo.honda.com/rjanisis/pubs/om/ah/at202222iom/enu/details/131229047-328106.html
+43. Emergency Key Blade / HONDA / FLIP / HON66 - KeyShop Online, accessed January 8, 2026, https://keyshop-online.com/products/copy-of-emergency-key-blade-fobik-smart-key
+44. Honda 2013-2023 Smart Key Blade 35118-T2A-A50, HON66 25Pcs Bundle - ABKEYS, accessed January 8, 2026, https://abkeys.com/products/honda-smart-key-blade-25pcs-35118-t2a-a50-hon66-2936-off25
+45. Honda HON66 Emergency Key - CLK Supplies, accessed January 8, 2026, https://www.clksupplies.com/products/honda-hon66-emergency-key
+46. How Long Does Key Fob Programming Take? - Affordable Lock & Security Solutions, accessed January 8, 2026, https://affordablelock.com/how-long-does-key-fob-programming-take/
+47. Honda CR-V Pilot 2023+ Smart Key 4B 72147-T43-A01 KR5TP-4 - ABKEYS, accessed January 8, 2026, https://abkeys.com/products/honda-cr-v-pilot-2023-2025-smart-key-72147-t43-a01-kr5tp-4-5505

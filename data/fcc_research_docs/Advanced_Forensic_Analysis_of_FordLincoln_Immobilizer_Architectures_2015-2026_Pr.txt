@@ -1,0 +1,328 @@
+﻿Advanced Forensic Analysis of Ford/Lincoln Immobilizer Architectures (2015-2026): Protocols, Programming, and Security Bypass Methodologies
+1. Executive Summary: The Paradigm Shift in Automotive Security
+The decade spanning 2015 to 2026 represents the most volatile and transformative period in the history of Ford Motor Company’s vehicle security architectures. For automotive locksmiths, security researchers, and forensic analysts, this era marks the dissolution of the "legacy" Passive Anti-Theft System (PATS)—characterized by static 40-bit or 80-bit encryption and low-speed Controller Area Network (CAN) access—and the emergence of a highly militarized digital fortress. The modern Ford security ecosystem is defined by three converging technologies: the adoption of high-frequency (902 MHz) Ultra High Frequency (UHF) remote systems, the implementation of the Controller Area Network Flexible Data-Rate (CAN FD) protocol for high-speed module intercommunication, and the deployment of "Active Alarm" states that physically isolate the On-Board Diagnostics (OBD-II) port to thwart unauthorized access.
+This report serves as a definitive technical reference for programming procedures across the entire Ford and Lincoln portfolio during this window. It synthesizes data from OEM documentation, aftermarket tool capabilities (Autel, Smart Pro, FDRS), and field-tested bypass methodologies. The analysis reveals that the "plug-and-play" era of key programming is effectively over for the post-2020 fleet. The introduction of the 2021+ Ford F-150 (P702 platform) and the 2020+ Explorer (CD6 platform) necessitated a complete retooling of the aftermarket industry, requiring technicians to adopt cloud-based diagnostic verification, physical hardware bypasses, and specialized adapters capable of handling variable bit rates.
+The following sections will deconstruct the theoretical underpinnings of these changes, provide exhaustive, model-specific programming workflows, and conclude with the requested comprehensive JSON database of procedures.
+2. The Evolution of Ford Security Architecture (2015-2026)
+To master the programming procedures for modern Ford vehicles, one must first comprehend the chronological evolution of the underlying hardware. The transition was not instantaneous but rolled out in distinct phases, often overlapping across different model lines. This phasing created a complex matrix of compatibility where a 2019 Ford Ranger might require a completely different approach than a 2019 Ford Expedition.
+2.1 Phase I: The Legacy Standard (2015-2017)
+In the early years of this study (2015-2017), the majority of Ford's lineup—including the F-150 (P552), Fusion (CD4), and Focus (C1)—utilized what is now considered "Standard PATS."
+* Communication: These systems communicated over the standard High-Speed CAN bus (HS-CAN) at 500 kbps.1
+* Encryption: The transponders typically utilized Texas Instruments (TI) 80-bit encryption or early iterations of the NXP Hitag series.
+* Vulnerability Profile: The Gateway Module (GWM) in these vehicles was relatively passive. It acted as a traffic cop but did not aggressively filter diagnostic requests. Consequently, aftermarket tools could easily gain "Security Access" (often bypassing the 10-minute wait via an exploited seed-key exchange) and program keys without physical intervention.
+* Frequency: The standard operating frequency for Remote Keyless Entry (RKE) and Passive Entry Passive Start (PEPS) was 315 MHz for the North American market.2
+2.2 Phase II: The Frequency Migration (2018-2020)
+Starting with the 2018 Expedition and Navigator, and quickly following with the 2018 Mustang and EcoSport, Ford initiated a migration to the 902 MHz band.4
+* Why 902 MHz? This shift to the UHF band was driven by the need for greater bandwidth and range to support bi-directional "Phone-as-a-Key" features and enhanced proximity detection. The 902 MHz signal penetrates interference better than 315 MHz in urban environments.
+* The Identification Trap: This era introduced a significant hazard for technicians. A 2019 F-150 key fob (315 MHz) looks externally identical to a 2019 Expedition fob (902 MHz). Attempting to program the wrong frequency results in a successful immobilizer learn (engine starts) but a failed remote learn (buttons do not work), leading to misdiagnosis of the vehicle's receiver module.
+2.3 Phase III: The CAN FD & Active Alarm Era (2020-Present)
+The launch of the CD6 platform (2020 Explorer/Aviator) and the P702 platform (2021 F-150) marked the arrival of the current "High Security" standard.
+* CAN FD Protocol: These vehicles utilize CAN FD, which allows data transfer rates to jump from 500 kbps to 2-5 Mbps during the data payload phase of the transmission frame.6 Older diagnostic tools that cannot switch clock speeds effectively "hear" static and cannot handshake with the vehicle.
+* Active Alarm Monitoring: The Body Control Module (BCM) and Gateway were reprogrammed to interpret OBD-II port activity while the alarm is armed as a hostile intrusion. In this state, the Gateway physically isolates the diagnostic CAN lines, rendering the port dead.8
+
+
+  
+
+
+
+3. Theoretical Framework of Modern Immobilization
+3.1 The Physics of CAN FD (Flexible Data-Rate)
+The Controller Area Network (CAN) has been the backbone of automotive communication since the 1990s. However, the bandwidth requirements of modern cryptography and module communication outstripped the 500 kbps limit of standard CAN 2.0.
+The 2020+ Ford architectures employ CAN FD. In a standard CAN frame, the arbitration field (which determines message priority) and the data field (the actual payload) operate at the same speed. In a CAN FD frame, the arbitration phase remains at 500 kbps to maintain compatibility, but once the system confirms which module has the "floor," the data phase accelerates to 2 Mbps or even 5 Mbps.
+Forensic Implication: When an older key programmer (e.g., an Autel IM608 Gen 1 without an adapter) attempts to read this signal, it successfully reads the arbitration header but loses synchronization as soon as the speed shifts for the data payload. The tool interprets this as a communication error or "No Response." This is why the CAN FD Adapter or a Gen 2 tool (IM608 Pro II, IM508S) is strictly mandatory for the 2020+ Explorer, 2021+ F-150, 2022+ Maverick, and 2021+ Bronco.10
+3.2 The "Active Alarm" Intrusion Detection System
+The most significant hurdle for All Keys Lost (AKL) programming on the 2021+ platforms is the Active Alarm state. In previous generations, if a technician picked the door lock (triggering the alarm), they could still plug into the OBD-II port, communicate with the BCM, and silence the alarm via software.
+In the P702 (F-150) and CD6 (Explorer) platforms, the Gateway Module monitors the vehicle's security state.
+1. State: Vehicle Locked & Armed.
+2. Trigger: Door opened without valid fob (lock picked or window broken).
+3. Reaction: The alarm sounds. Simultaneously, the Gateway sends a command to disable the OBD-II port's CAN lines.
+4. Result: Any tool plugged into the port receives no power or no data. The technician cannot communicate with the vehicle to program a key or silence the alarm.
+To bypass this, the industry has developed two primary methods:
+* The "Battery Clamp" Method: Tools like the Xhorse active alarm cable connect directly to the vehicle's battery and the OBD cable. By modulating the voltage or injecting a specific "wake-up" signal onto the power line, these tools can trick the BCM into keeping the communication lines open despite the alarm state.12
+* The "Can Jumper" Method: This involves physically removing the kick panel, locating the Gateway or BCM connectors, and using needle probes to tap directly into the CAN High and CAN Low wires behind the Gateway. This bypasses the digital roadblock at the OBD port entirely.9
+
+
+  
+
+
+
+4. Comprehensive Tooling Ecosystem Analysis
+A technician's ability to service these vehicles is entirely dependent on their toolchain. The market is bifurcated between OEM software and aftermarket reverse-engineering solutions.
+4.1 Ford Diagnostic & Repair System (FDRS)
+FDRS is the successor to the Integrated Diagnostic System (IDS) and is the only OEM-sanctioned method for programming 2021+ vehicles.
+* Architecture: Unlike IDS, which was largely offline-capable, FDRS is a cloud-first application. It requires a constant, stable internet connection to download module-specific applications (e.g., the "PATS" app for a specific VIN).13
+* NASTF Requirement: This is the critical bottleneck. To access security functions in FDRS, the user must hold a valid Vehicle Security Professional (VSP) credential from the National Automotive Service Task Force (NASTF). When the technician attempts to enter the PATS menu, FDRS prompts for the VSP ID and password. It validates this credential in real-time against the NASTF registry. If the subscription is expired or the IP address is flagged, access is denied.15
+* Hardware: FDRS functions with any J2534-compliant Vehicle Communication Interface (VCI). Common choices include the Ford VCM3, the Autel V200/MaxiFlash, or the Opus passthrough. The tool must support CAN FD to communicate with the 2021+ modules.16
+4.2 Autel MaxiIM Series (IM508/IM608)
+Autel is the market leader in aftermarket programming, but its capabilities on the newest Fords are subject to server availability.
+* Server-Side Calculation: Autel does not calculate the security algorithm (the challenge-response seed) on the tablet itself. It uploads the vehicle data to Autel's servers in China, calculates the response, and sends it back. If Ford changes the algorithm (as they frequently do with firmware updates), Autel's method fails until their engineers reverse-engineer the new seed.13
+* Hardware Nuance:
+   * IM608 Gen 1 / IM508: These units lack internal CAN FD hardware. They require the CAN FD Adapter (plugs into the OBD cable) for 2020+ Explorer and 2021+ F-150.10
+   * IM608 Pro II / IM508S: These units have CAN FD support built-in. No adapter is needed.
+* Coverage Gaps: In 2024, Autel temporarily removed the public coverage list for the KM100 and IM series regarding Ford, citing the rapid changes in firmware that made static lists inaccurate.18
+4.3 Advanced Diagnostics (Smart Pro)
+The Smart Pro is favored for its modular software approach and dedicated bypass hardware.
+* ADS2269 Software: This is the primary software suite for the 2020+ Ford proximity systems.
+* ADC2020 Emulator: For the 2020+ Explorer and Aviator, Smart Pro utilizes the ADC2020 emulator cable. In an All Keys Lost situation, this cable connects to the Smart Pro and physically mimics the signal of a valid key antenna. It is placed near the start button to trick the BCM into thinking a key is present, which wakes up the cluster and allows the tool to execute the "Add Key" command.20 This is a distinct advantage over the intrusive "wire tapping" method.
+
+
+  
+
+
+
+5. Detailed Programming Workflows by Model Platform
+The following sections detail the exact procedural nuances for the major Ford platforms. These procedures assume the technician is encountering an All Keys Lost (AKL) scenario, as "Add Key" (when one working key is present) is generally trivial via the "Admin Key" menu in the vehicle settings (for older models) or simple diagnostic add (for newer ones).
+5.1 The F-Series Transition: P552 vs. P702
+Platform P552: Ford F-150 (2015-2020)
+* System: Standard PATS over HS-CAN (500 kbps).
+* Key Type: High security keys (HU101 blade) with Hitag Pro (ID49) chips. Frequencies vary: 315 MHz (Standard) or 902 MHz (Heavy Duty/Late).
+* AKL Procedure:
+   1. Gain Entry: Pick door lock (HU101). Alarm will sound.
+   2. Connect Tool: Plug in Autel IM608 or Smart Pro. The alarm does not block the OBD port on this generation.
+   3. Silence Alarm: Most tools will automatically silence the horn upon gaining security access.
+   4. Security Access: The tool reads the BCM data. This requires a 10-minute wait in some firmware versions, though newer updates often bypass this.
+   5. Erase Keys: The system requires a minimum of two keys to close the learning cycle.
+   6. Program: Insert Key 1 into the programming slot (under the cup holder rubber mat or inside the center console). Cycle ignition. Repeat for Key 2.
+   7. Completion: The cluster will display "Key Programmed."
+Platform P702: Ford F-150 (2021-2026)
+* System: CAN FD with Active Alarm Monitoring.
+* Key Type: 902 MHz Smart Key (FCC: M3N-A2C931426). Note: 315 MHz keys from the 2020 era will NOT work.
+* AKL Procedure:
+   1. Gain Entry: Pick door lock. Alarm sounds. OBD Port is now DEAD.
+   2. Bypass:
+      * Option A (Cable): Connect the Ford Active Alarm Bypass cable to the battery terminals and the OBD connector. This injects power and signal to keep the Gateway alive.9
+      * Option B (FDRS): If using FDRS with VSP, the software may be able to force entry, but often still requires the vehicle to be "awake." The bypass cable is recommended even with FDRS to prevent voltage drop during the download.
+   3. Connect Tool: Use Autel IM608 Pro II (or Gen 1 with CAN FD Adapter).
+   4. Execute: Select "All Smart Keys Lost." The tool will attempt to gain access.
+   5. The 2-Key Rule: You MUST have two unprogrammed keys available. The P702 platform will effectively "brick" (stay in anti-theft mode) if the learning cycle is interrupted after only one key.21
+   6. Parametric Reset: If the alarm was triggered, you may need to perform a "PATS Initialization" or "Parameter Reset" between the BCM and PCM if the vehicle cranks but does not start.
+5.2 The CD6 Platform: Explorer & Aviator (2020-2026)
+* Critical Hardware: CAN FD Adapter is non-negotiable.
+* Active Alarm: The 2020+ Explorer has one of the most aggressive alarm lockdowns.
+* The ADC2020 Solution: For Smart Pro users, the ADC2020 emulator is the preferred method. Instead of stripping wires, the emulator is held against the Start/Stop button. It broadcasts a "virtual key" signal that satisfies the RFA module's handshake requirement, temporarily disarming the alarm system to allow the OBD tool to communicate.20
+* Frequency Check:
+   * 315 MHz: Common on lower trims (FCC: M3N-A2C931423).3
+   * 902 MHz: Common on Platinum/Aviator trims (FCC: M3N-A2C931426).22
+   * Warning: These fobs look identical. Always check the VIN or the original key if available.
+5.3 The Mustang Anomaly (2015-2023)
+The Mustang presents a unique case because it bridges the legacy and modern architectures.
+* 2015-2017: Standard PATS. Easy programming via OBD.
+* 2018-2023: Active Alarm introduced.
+   * The Problem: The Mustang does not have a "door keypad" which was traditionally a way to access the code and reset the alarm.
+   * The Solution: The bypass requires accessing the BCM connectors in the passenger kick panel (CAN High/Low) if the alarm is active. Snippet 23 suggests the "Emulator" method is also effective here for 2019+ models, avoiding the need to dismantle the interior.
+   * Parts: Uses the 902 MHz fobs (FCC: M3N-A2C931426) on newer models.24
+5.4 The Transit Challenge (2020+)
+The Ford Transit (V363 facelift) is notoriously difficult for locksmiths.
+* The "Silent" Lockout: Unlike the F-150, which gives clear feedback, the Transit often silently disables the OBD port.
+* Bypass: Snippet 25 and 25 highlight the difficulty. The standard bypass cables sometimes fail on Transits due to different BCM wiring configurations. The most reliable method for AKL on a 2020+ Transit often involves removing the BCM to read the EEPROM directly (bench programming) or using the specialized "Star Connector" bypass located near the glovebox, which grants direct access to the CAN network, bypassing the Gateway.
+
+
+  
+
+
+
+6. The "Two-Key" Protocol & Legal Compliance
+6.1 The Two-Key Requirement
+It is imperative to emphasize the "Two-Key Rule." On almost all Ford PATS systems post-2015, the "Erase Keys" command puts the BCM into a "Learn Mode." The system will not exit this mode until it sees two unique transponder IDs.
+* Symptoms of Failure: If a technician programs one key and attempts to start the car, the cluster may display "Starting System Fault" or "Security Mode." The vehicle may crank but not start, or start once and then lock out.
+* Operational Mandate: Technicians must always carry at least two blank keys for any AKL job on a 2015+ Ford. For "Add Key" jobs (where one working key exists), this rule does not apply.
+6.2 NASTF and the Right to Repair
+The reliance on FDRS for 2021+ models brings the National Automotive Service Task Force (NASTF) into focus.
+* VSP Registry: To use the security functions of FDRS, the technician must be a vetted Vehicle Security Professional. This involves a background check and listing in the secure registry.
+* Implications: This is Ford's method of ensuring that only legitimate repair facilities can program keys. It effectively criminalizes the use of "cracked" or offline versions of FDRS, as the software phones home to validate the VSP ID before unlocking the PATS module.15 Aftermarket tools (Autel/Xhorse) operate in a legal grey area by reverse-engineering the seed exchange, avoiding the NASTF check, but they are constantly at risk of being patched out by Ford firmware updates.
+7. Master Database: Ford PATS Procedures (2015-2026)
+The following JSON database serves as the technical core of this report. It aggregates the model-specific data, FCC IDs, tool requirements, and bypass notes into a machine-readable format. This dataset is derived from the cross-referenced analysis of tool coverage lists and service manuals.
+Data Notes:
+* "platform": Internal Ford chassis code.
+* "frequency": Critical for part ordering.
+* "active_alarm_bypass": Indicates if physical intervention is needed during a lockout.
+* "can_fd": Boolean indicating if the CAN FD adapter/protocol is required.
+
+
+JSON
+
+
+
+
+,
+   "chip_type": "Hitag Pro (ID49)",
+   "tool_compatibility": {
+     "autel": "IM508/IM608 (Standard)",
+     "smart_pro": "ADS2269",
+     "fdrs": "Supported"
+   },
+   "requirements": {
+     "can_fd": false,
+     "active_alarm_bypass": "Not Required",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "Standard OBD programming. Alarm does not block port. Ensure correct frequency match."
+ },
+ {
+   "model_family": "Ford F-150",
+   "years": "2021-2026",
+   "platform_code": "P702",
+   "key_type": "Smart Key (PEPS)",
+   "frequency_mhz": "902",
+   "fcc_id_examples": [
+     "M3N-A2C931426",
+     "M3N-A2C93142600"
+   ],
+   "chip_type": "Hitag Pro (ID49) / NXP",
+   "tool_compatibility": {
+     "autel": "IM508S/IM608 II (Native) or Gen 1 w/ Adapter",
+     "smart_pro": "ADS2326 (Keypad) / ADS2269",
+     "fdrs": "Required for guaranteed success (Needs NASTF)"
+   },
+   "requirements": {
+     "can_fd": true,
+     "active_alarm_bypass": "MANDATORY (Cable or Jumper)",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "Active Alarm isolates OBD port. Must use bypass cable at battery or BCM. 315MHz keys will NOT work."
+ },
+ {
+   "model_family": "Ford Explorer / Lincoln Aviator",
+   "years": "2020-2026",
+   "platform_code": "CD6",
+   "key_type": "Smart Key (PEPS)",
+   "frequency_mhz": "315 (Lower Trims) / 902 (High Trims)",
+   "fcc_id_examples": [
+     "M3N-A2C931423",
+     "M3N-A2C931426"
+   ],
+   "chip_type": "Hitag Pro (ID49)",
+   "tool_compatibility": {
+     "autel": "Requires CAN FD Adapter",
+     "smart_pro": "ADS2269 w/ ADC2020 Emulator",
+     "fdrs": "Supported"
+   },
+   "requirements": {
+     "can_fd": true,
+     "active_alarm_bypass": "MANDATORY (Emulator Preferred)",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "Aggressive alarm lockout. Use ADC2020 Emulator to wake BCM. Verify FCC ID carefully (315 vs 902)."
+ },
+ {
+   "model_family": "Ford Mustang",
+   "years": "2018-2023",
+   "platform_code": "S550",
+   "key_type": "Smart Key (PEPS)",
+   "frequency_mhz": "902",
+   "fcc_id_examples": [
+     "M3N-A2C931426"
+   ],
+   "chip_type": "Hitag Pro (ID49)",
+   "tool_compatibility": {
+     "autel": "Supported (May need bypass)",
+     "smart_pro": "ADS2269",
+     "xhorse": "Key Tool Plus w/ XDFAKLGL Cable"
+   },
+   "requirements": {
+     "can_fd": false,
+     "active_alarm_bypass": "Required (Cable/Jumper)",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "No door keypad to reset alarm. Must use bypass cable at BCM connectors in passenger kick panel."
+ },
+ {
+   "model_family": "Ford Maverick",
+   "years": "2022-2026",
+   "platform_code": "C2",
+   "key_type": "Smart Key (PEPS) or Bladed",
+   "frequency_mhz": "902",
+   "fcc_id_examples": [
+     "M3N-A2C931426"
+   ],
+   "chip_type": "Hitag Pro (ID49)",
+   "tool_compatibility": {
+     "autel": "IM608/IM508 (CAN FD Adapter)",
+     "fdrs": "Recommended",
+     "smart_pro": "Supported"
+   },
+   "requirements": {
+     "can_fd": true,
+     "active_alarm_bypass": "Required if Locked",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "Shared architecture with Bronco Sport. High server dependency for security calculation."
+ },
+ {
+   "model_family": "Ford Transit",
+   "years": "2020-2026",
+   "platform_code": "V363",
+   "key_type": "Smart Key or Bladed (HU101)",
+   "frequency_mhz": "315",
+   "fcc_id_examples": [
+     "M3N-A3C054338"
+   ],
+   "chip_type": "Hitag Pro (ID49)",
+   "tool_compatibility": {
+     "autel": "IM508/IM608",
+     "smart_pro": "ADS2269"
+   },
+   "requirements": {
+     "can_fd": false,
+     "active_alarm_bypass": "Difficult / Required",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "Notorious for difficult alarm bypass. If alarm sounds, OBD is dead. May require bench read of BCM."
+ },
+ {
+   "model_family": "Ford Super Duty (F-250/350/450)",
+   "years": "2023-2026",
+   "platform_code": "P708",
+   "key_type": "Smart Key (PEPS)",
+   "frequency_mhz": "902",
+   "fcc_id_examples": [
+     "M3N-A2C931426"
+   ],
+   "chip_type": "Hitag Pro (ID49)",
+   "tool_compatibility": {
+     "autel": "IM608 Pro II (Native CAN FD)",
+     "fdrs": "Required (NASTF)"
+   },
+   "requirements": {
+     "can_fd": true,
+     "active_alarm_bypass": "MANDATORY",
+     "min_keys_akl": 2
+   },
+   "procedure_notes": "Follows 2021 F-150 architecture. Requires CAN FD and Active Alarm bypass. 2017-2022 models are standard PATS (easier)."
+ }
+]
+
+8. Conclusion and Future Outlook
+The forensic analysis of Ford's 2015-2026 immobilizer ecosystem reveals a decisive shift toward high-security, connected architectures. The "Aluminum" F-150 (2015-2020) represents the end of the legacy era, where programming was straightforward and tools were universally compatible. The 2021+ P702 and CD6 platforms have erected significant barriers to entry for the aftermarket.
+For the professional locksmith or security analyst, the implications are clear:
+1. Hardware Upgrade: The CAN FD adapter is no longer an optional accessory; it is a fundamental requirement for servicing the modern fleet.
+2. Frequency Awareness: The migration to 902 MHz requires vigilant part verification to avoid "start-but-no-remote" failures.
+3. Active Alarm Mastery: Success in All Keys Lost scenarios now depends on the ability to physically intervene in the vehicle's network (via bypass cables) rather than relying solely on software exploits.
+4. Credentialing: The increasing reliance on FDRS and server-side verification points to a future where NASTF VSP credentials will be the only reliable way to service the newest vehicles, as offline reverse-engineering becomes exponentially more difficult.
+As Ford continues to refine its "Active Alarm" logic and push more security functions to the cloud, the window for offline programming will continue to narrow, necessitating a more sophisticated, compliant, and hardware-intensive approach to vehicle security service.
+Works cited
+1. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide
+2. 2020 Ford Explorer Smart Key Fob PN:164-R8163,5929508 - Remotes And Keys, accessed January 8, 2026, https://remotesandkeys.com/products/2020-ford-explorer-smart-key-remote-3044
+3. 2020 Ford Explorer Smart Key 4B FCC# M3N-A2C931423 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2020-ford-explorer-smart-key-4b-fcc-m3n-a2c931423
+4. 2021 Ford F-150 F150 Smart Keyless Entry Remote 164-R8166 5929503, accessed January 8, 2026, https://www.carandtruckremotes.com/products/2021-ford-f-150-f150-smart-remote-key-fob-w-engine-start-and-tailgate
+5. for 2018 2019 2020 2021 2022 FORD F-150 REMOTE SMART KEY FOB M3N-A2C931426, accessed January 8, 2026, https://www.ebay.com/itm/186306142450
+6. FORD CAN FD Token (2020+) – Key Programming - eaata usa, accessed January 8, 2026, https://us.eaata.pro/products/ford-can-fd-token-2020-key-programming
+7. Aazon.co: Autel CAN FD Protocol Adapter For G Y2020 For Ford For Chevrolet For Lincoln... - VisualSP, accessed January 8, 2026, https://www.visualsp.com/901316/Protocol-Adapter-For-G-Y2020-For-Ford-For-Chevrolet-For-Lincoln
+8. 2019 F-150 active alarm no keypad or existing key : r/Locksmith - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Locksmith/comments/xcjk7i/2019_f150_active_alarm_no_keypad_or_existing_key/
+9. Xhorse All Key Lost Cable for Ford 2016-2023 Smart Key AKL Works with VVDI Key Tool Plus XDFAKLGL - ABKEYS, accessed January 8, 2026, https://abkeys.com/products/xhorse-cable-for-ford-2016-2021-all-key-lost-key-programming-xdfaklgl-2277
+10. Autel - CAN FD Adapter for 2018-2020 Ford / GM Vehicles for Sale | UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/products/autel-can-fd-adapter
+11. XTOOL AutoProPAD Core Key Programmer with CAN FD Adapter (2020 - 2021), accessed January 8, 2026, https://www.locksmithkeyless.com/products/xtool-autopropad-core-key-programmer-with-can-fd-adapter-2020-2021-bundle
+12. Ford Active Alarm Cable - Intelligent Key Solutions, accessed January 8, 2026, https://www.intelligentkeysolutions.com/product/ford-mustang-active-alarm-bypass-cable/
+13. HOW TO PROGRAM A KEY ON ALL KEYS LOST 2023 FORD E TRANSIT USING FDRS & AUTEL V200 - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=UD120MxktQI
+14. HOW TO PROGRAM KEYS FOR NEW FORD VEHICLES USING FDRS DEALER SOFTWARE USING AUTEL V200 & PC - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=bSpVWxDALwA
+15. Ford F-150 2021+ All Keys Lost : r/Locksmith - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Locksmith/comments/10nrh17/ford_f150_2021_all_keys_lost/
+16. Ford Maverick 2023- New Key Programming with FDRS How to Guide Autel V200 and Laptop - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=ujaCwvKBHU4
+17. Autel CAN FD Adapter - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+18. How to Check Vehicle Coverage of IM508S, IM608 PRO II, and KM100 - obdprice, accessed January 8, 2026, https://www.obdprice.com/blogs/faqs/how-to-check-vehicle-coverage-of-km100
+19. Autel Website Removed KM100 IM508 IM608 Vehicle Coverage List?, accessed January 8, 2026, https://www.auteltool.us/blogs/autel-tech-solutions/autel-website-removed-km100-im508-im608-vehicle-coverage-list
+20. Advanced Diagnostics ADC2020 NEW Ford / Toyota AKL Active Alarm Ford Emulator Cable - for Smart Pro - Southern Lock, accessed January 8, 2026, https://www.southernlock.com/itemdetail/026-2020
+21. 2021 Ford Bronco proximity adding a spare key via Smart Pro! - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=-YqY40Dz5lI
+22. 2020 Ford Explorer Smart Remote Key Fob w/ Engine Start - CarandTruckRemotes, accessed January 8, 2026, https://www.carandtruckremotes.com/products/2020-ford-explorer-smart-remote-key-fob-w-engine-start
+23. 2019 Ford Mustang deactivating the alarm when all keys are lost - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=cht4cX6Q_hU
+24. 2018-2022 OEM Original Ford Mustang Proximity Smart Key FCC ID: M3N-A2C931426, accessed January 8, 2026, https://www.ebay.com/itm/144471920765
+25. 2018 Ford transit AKL : r/Locksmith - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Locksmith/comments/1ewqtpt/2018_ford_transit_akl/

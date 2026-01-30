@@ -1,0 +1,206 @@
+﻿Title: Advanced Technical Analysis of Key Programming Protocols for Audi A4 (B9 Chassis, 2017–2025): Platform Architectures, Immobilizer Cryptography, and Locksmith Workflows
+1. Executive Summary and Operational Scope
+The automotive security landscape has undergone a profound transformation with the introduction of the Audi A4 B9 generation (Typ 8W), produced from late 2016 to the present. For the professional automotive locksmith, the transition from the B8 to the B9 chassis represents not merely a model year update, but a fundamental paradigm shift in electronic architecture and immobilizer cryptography. The B9 utilizes the MLB Evo (Modularer Längsbaukasten Evolution) platform, a sophisticated longitudinal matrix that integrates high-speed FlexRay communication networks and the Fifth Generation Immobilizer System (Immo V) with advanced encryption protocols.
+This report provides an exhaustive technical examination of the key programming procedures for the Audi A4 B9. It is designed to serve as a definitive operational manual for security professionals, distinguishing clearly between the "Add Key" scenarios—now revolutionized by specialized "MLB Tool" hardware—and the "All Keys Lost" (AKL) scenarios, which remain one of the most technically demanding and financially significant challenges in the aftermarket. The analysis dissects the critical distinctions between the widespread MQB platform and the B9’s MLB Evo architecture, a differentiation that is frequently the source of diagnostic failure. Furthermore, it evaluates the capabilities of the primary tool ecosystems—Xhorse, Autel, and Yanhua—against the rigid requirements of the B9’s "Locked" Body Control Module 2 (BCM2) and the necessity of third-party synchronization data.
+
+
+  
+
+
+
+The report further investigates the financial and logistical implications of "Online Authorization," a term that encompasses the opaque market of third-party data calculation services required for AKL procedures. By synthesizing data from technical schematics, tool capability logs 1, and verified locksmith case studies 4, this document aims to elevate the technician's understanding from rote procedure to systemic mastery.
+2. Platform Architecture: The Critical MQB vs. MLB Evo Distinction
+A foundational competency in modern VAG (Volkswagen Auto Group) locksmithing is the ability to instantly and accurately identify the vehicle's underlying platform. The procedural gap between the MQB and MLB platforms is absolute; software licenses, hardware adapters, and programming logic are mutually exclusive.
+2.1 The MLB Evo Architecture (Typ 8W)
+The Audi A4 B9 is built on the MLB Evo platform. The term Modularer Längsbaukasten translates to "Modular Longitudinal Matrix," indicating that the engine is mounted longitudinally (North-South orientation). This is a hallmark of Audi’s premium vehicles (A4 and above) and differentiates them from the transverse-engine layouts of the Volkswagen lineup.6
+In the context of immobilizer security, the MLB Evo platform designates the Body Control Module 2 (BCM2) as the primary immobilizer master. Located in the rear luggage compartment (typically the left-hand cubby or behind the side trim), the BCM2 stores the vehicle's Component Security (CS) bytes, the Vehicle Identification Number (VIN), and the encrypted registry of authorized keys.5 The instrument cluster (dashboard) in an MLB vehicle acts as a secondary slave node in the immobilizer chain, displaying status messages ("Safe", "Key not recognized") but not holding the master encryption keys required for generating a new dealer key.
+2.2 The MQB Misconception
+The MQB (Modularer Querbaukasten) platform, used by the Audi A3 (8V), VW Golf Mk7, and Q3 (F3), features a transverse engine layout. Crucially, in MQB vehicles, the immobilizer master is integrated into the Instrument Cluster (dashboard).9
+Technicians frequently conflate the A4 B9 with MQB vehicles because they share similar aesthetic components, particularly the "switchblade" or "smart key" fob designs, and their production years overlap (2015–2020). However, attempting to use MQB-specific tools (such as the Xhorse MQB License or Autel MQB Instrument Cluster menu) on an A4 B9 will result in communication failure. The diagnostic tool will attempt to query the dashboard for immobilizer data—a query the MLB dashboard cannot answer—leading to "Function Not Supported" errors.6
+2.3 Definitive Identification Protocols
+To prevent platform misidentification, technicians must adhere to a strict verification protocol:
+1. Chassis Code Verification: The VIN of an Audi A4 B9 will invariably contain the sequence 8W (e.g., WAUZZZ8W...). The previous generation (B8) used 8K, while the MQB-based A3 uses 8V.10
+2. Visual Engine Inspection: A longitudinal engine placement confirms the MLB platform.
+3. Key Part Number Analysis: MLB Evo keys for the A4 B9 typically carry part numbers beginning with 4M0 (shared with the Q7) or 8W0. In contrast, MQB keys often start with 5G0 (Golf) or 8V0 (A3).
+4. Diagnostic Scan: A preliminary scan of Module 05 (Start/Stop Authorization) or Module 46 (Central Convenience) will confirm the presence of the BCM2 protocol, distinct from the Module 17 (Instruments) mastery seen in MQB.11
+
+
+  
+
+
+
+3. Immobilizer V System Architecture and BCM2 Cryptography
+The A4 B9 operates on the Immo V (Fifth Generation) system. Unlike earlier iterations where the immobilizer PIN (SKC) was the primary barrier, Immo V relies on a complex distribution of Component Security (CS) bytes across multiple control units: the BCM2, the Engine Control Unit (ECU/DME), the Transmission Control Unit (TCU/mechatronic), and the Electronic Steering Lock (ELV).5
+3.1 The Evolution of BCM2 Security
+The BCM2 has evolved through three distinct security phases, each requiring different locksmithing approaches:
+1. Phase 1: Unlocked BCM2 (Pre-2013/2014): In the B8 generation, the NEC microcontrollers within the BCM2 were accessible via standard programmer connections. The memory sectors containing Immo data were not hardware-locked against reading.
+2. Phase 2: Locked/Encrypted BCM2 (2013–2019): With the late B8 and early B9 models, Audi introduced NEC processors (specifically the D70F3381 and D70F3634 variants) with hardware read protection.12 Standard reading attempts would fail or, in catastrophic cases, trigger a mechanism that corrupted the flash memory, "bricking" the unit. This era birthed the requirement for "Solder-Free Adapters" and specific "Unlock" wiring diagrams to bypass the security without damaging the chip.
+3. Phase 3: The "New" Encryption (2019/2020+): The latest B9 and B9.5 facelift models utilize BCM2 versions such as 0824, 0825, and 0827.13 These units feature enhanced encryption that renders traditional "unlocked" reading methods obsolete for the purpose of generating keys directly from the file.
+3.2 The "Sync Data" Imperative
+A critical concept in the B9 programming workflow is Synchronization Data (Sync Data). In the Immo V architecture, a valid "Dealer Key" cannot be generated solely from the BCM2's EEPROM/Flash dump. The system requires a specific 32-byte data block that synchronizes the key's transponder ID with the BCM2's registry.
+* Derivation in "Add Key": When a working key is present, the diagnostic tool can query the key itself to extract the CS bytes and calculate the Sync Data. The working key acts as a "Trojan Horse," providing the necessary cryptographic seed to authorize a new key.
+* The AKL Bottleneck: In an "All Keys Lost" scenario, there is no working key to query. The BCM2 dump contains the data, but it is heavily encrypted. The locksmith must extract the BCM2 data and send it to a third-party calculation server. This server uses a massive database of pre-calculated keys or brute-force algorithms to derive the 32-byte Sync Data.15 Without this externally calculated file, the BCM2 dump is useless for generating a new key.
+
+
+  
+
+
+
+4. Pre-Procedure Diagnostics: Part Numbers and Frequency
+Before any tool is connected, the locksmith must verify the key hardware. The Audi A4 B9 utilizes a "Smart Key" system that is strictly frequency-dependent. Installing a key with the wrong frequency, even if the programming procedure completes successfully, will result in a key that starts the car (via the emergency coil) but has non-functional remote buttons.17
+4.1 Frequency Domains
+* 315 MHz (North America): Used primarily in the USA and Canada. The typical part number is 4M0 959 754 AB or BB. The FCC ID is typically IYZ-AK01.19
+   * Critical Warning: Do not confuse this with the B8 generation key (FCC ID: IYZFBSB802). They are visually similar but electronically incompatible.
+* 433/434 MHz (Europe/Global): The standard for Europe, Asia, and Australia. Common part numbers include 4M0 959 754 T or 8W0 959 754.20
+* 868 MHz: A less common frequency found in specific European trims or regions with heavy RF interference in the 433 band.
+4.2 Verification Workflow
+The technician should use a frequency tester (e.g., the tester built into the Key Tool Plus or a standalone RF detector) on the customer's existing key. If no key is present (AKL), the frequency can often be decoded from the VIN by checking the PR codes (e.g., "5D2" for 315 MHz, "5D1" for 433 MHz) or by inspecting the label on the BCM2 unit itself, which lists the receiver frequency.21
+5. Tool Ecosystem Analysis: Capabilities and Hardware Requirements
+The market for Audi B9 key programming is dominated by three major ecosystems, each with distinct strengths and hardware requirements. A fourth, the specialized "MLB Tool," has recently emerged as a mandatory asset for efficient workflows.
+5.1 Xhorse (VVDI Ecosystem)
+Xhorse is currently the market leader for Audi BCM2 programming, offering the most modular and rapidly updated solution.
+* Hardware Stack: The ecosystem relies on the VVDI Key Tool Plus (a standalone tablet) or the VVDI2 + VVDI Prog combination (laptop-based).
+* Specialized Adapters:
+   * The MLB Tool: A dedicated hardware interface that connects to the original key's PCB. It allows for the calculation of Immo data without removing the main chip or accessing the BCM2. This is the gold standard for "Add Key" jobs.1
+   * BCM2 Solder-Free Adapters (XDN63/XDN64): These adapters utilize pogo pins to connect to the BCM2 circuit board, eliminating the need for soldering wires to microscopic points. They are mandatory for the AKL workflow to read the D70F3634/3381 chips safely.23
+* Sync Data Integration: Xhorse's software often integrates the request for Sync Data, but for the newest BCM2 versions (0824+), it still directs the user to obtain the data file externally.25
+5.2 Autel (MaxiIM Ecosystem)
+Autel provides a guided, wizard-style interface that is approachable for generalists but has historically lagged in "Locked BCM2" support compared to Xhorse.
+* Hardware Stack: MaxiIM IM608 Pro or IM608 II coupled with the XP400 Pro programmer.26
+* AKL Limitations: While Autel supports reading the encrypted BCM2 via wiring or the APB112 emulator for some functions, it heavily relies on the user providing the Sync Data file for B9 AKL scenarios. The tablet prompts the user to "Contact Dealer" or load a bin file. Autel does not natively calculate the Sync Data on its own servers for the latest B9 updates.28
+* Add Key: Autel supports the add key function, often utilizing the "Dealer Key" generation method which typically requires the XP400 Pro.
+5.3 Yanhua Mini ACDP
+The ACDP system is favored for its "Module" based approach, specifically Module 29 (Audi Gen5 BCM2).13
+* Hardware: The ACDP-1 or ACDP-2 host unit connects via Bluetooth/WiFi to a smartphone or PC.
+* ICP (In-Circuit Programming): ACDP's strength is its specialized interface boards that clamp onto the BCM2, avoiding soldering.
+* Data Services: Similar to Autel, ACDP reads the BCM2 data but explicitly states in its documentation that for BCM2 versions 0824/0825/0827, "Sync data needs to be obtained from a third party".13
+5.4 The "MLB Tool" (KYDZ / Xhorse)
+The MLB Tool represents a specific category of hardware designed solely to exploit the MLB key architecture.
+* Innovation: Traditional methods required desoldering the BGA chip from the key to read it. The MLB Tool uses a non-invasive clamp that connects to test points on the key PCB, reading the data via a proprietary algorithm.22
+* Workflow: It collects data from the key, sends it to a cloud server (often requiring a "Token"), and returns the calculation needed to generate a dealer key. It is the fastest method for "Add Key" but cannot solve AKL on its own as it requires a working key to read.30
+
+
+  
+
+
+
+6. Comprehensive Workflow A: "Add Key" (The MLB Tool Method)
+For the modern locksmith, the "Add Key" job—where the customer possesses at least one working key—has been revolutionized by the MLB Tool. This method is preferred over BCM2 extraction because it is non-invasive, faster, and carries near-zero risk of module damage.
+6.1 Prerequisites and Setup
+* Working Original Key: This key is the source of the encryption data.
+* New Blank Key: Must be a dedicated MLB blank (e.g., Xhorse XS series or OEM un-locked).
+* MLB Tool Hardware: The physical cradle/clamp.
+* Control Unit: VVDI Key Tool Plus or a PC running the Xhorse/KYDZ software.
+* Internet Connection: Required for server-side calculation.
+* Tokens: Ensure the account has sufficient tokens (usually 1 per calculation).31
+6.2 Detailed Execution Steps
+Step 1: Key Disassembly and Connection
+The technician must carefully open the shell of the working original key.
+* Remove the battery cover and the battery (CR2032).
+* Separate the PCB from the casing.
+* Crucial Update: Unlike older methods that required desoldering the main capacitor or the chip itself, the current MLB Tool utilizes a solder-free clamp. Place the PCB into the MLB Tool's cradle, ensuring the pogo pins align perfectly with the test points on the key board.29 Secure the clamp.
+Step 2: Data Calculation
+* Connect the MLB Tool to the Key Tool Plus via USB.
+* Navigate to: Immo Programming > Audi > MLB > Calculate Key Data.
+* The software will verify the connection and request a server calculation.
+* Process: The tool reads the encrypted data from the key, uploads it to the Xhorse/KYDZ server, and the server computes the specific "Immo Data" block required for the new key. This typically takes 3–5 minutes.
+* Result: A data file (often .bin) is saved to the device.
+Step 3: Dealer Key Generation
+* Remove the working key PCB from the clamp and reassemble it (it is no longer needed for the calculation).
+* Insert the New Blank Key into the coil of the Key Tool Plus (or the programming slot of the MLB Tool if equipped).
+* Select Make Dealer Key.
+* Load the calculated data file obtained in Step 2.
+* The tool writes the identity and encryption logic onto the new blank key. The key is now "pre-coded" for the specific vehicle but not yet authorized to start it.
+Step 4: Vehicle Learning (OBD)
+* Enter the vehicle with both the working original key and the newly generated dealer key.
+* Connect the Key Tool Plus to the OBDII port.
+* Navigate to Key Learning. The tool will prompt for the number of keys to learn (e.g., "2").
+* The Learning Sequence:
+   1. Hold the Working Key against the sensing area (marked with a key symbol on the dash, or the center console cup holder coil). The dash will acknowledge the key (e.g., "1/2").
+   2. Hold the New Key against the same sensing area. The dash will acknowledge ("2/2").
+* Finalization: The hazard lights will flash, confirming the procedure. Test remote functions (Lock/Unlock/Trunk) and engine start.
+7. Comprehensive Workflow B: "All Keys Lost" (The BCM2 Extraction)
+The "All Keys Lost" (AKL) scenario is technically distinct and significantly more labor-intensive. Since there is no working key to provide the seed data, the locksmith must extract the encrypted data directly from the BCM2 and utilize a third-party service to derive the Sync Data.
+7.1 Component Access and Removal
+* BCM2 Location: In the Audi A4 B9, the BCM2 is located in the left rear luggage compartment, behind the side trim panel.
+* Removal Protocol:
+   1. Disconnect Battery: Disconnect the negative terminal to prevent voltage spikes.
+   2. Trim Removal: Carefully pry off the trunk side trim.
+   3. Module Extraction: Unplug the multiple connectors (typically 3–5 plugs) from the BCM2. Remove the retaining nuts and extract the unit.
+7.2 Bench Reading (Solder-Free Method)
+The BCM2 board is densely populated. Soldering wires is risky.
+* Adapter Selection: Use the Xhorse XDN63/XDN64 or ACDP Module 29 adapter. Select the correct adapter based on the BCM2 version (check the label: 0711 vs 0824/0825/0827).
+* Connection:
+   * Align the adapter's pogo pins with the BCM2's debug points.
+   * Apply even pressure and lock the adapter.
+   * Connect to the programmer (e.g., Key Tool Plus).
+* Reading: Execute Read Immo Data (D-Flash and P-Flash). Verify the checksum and save the files to a secure location (cloud/USB).32
+7.3 The Sync Data Calculation Service
+This is the bottleneck.
+* Action: The locksmith must send the read BCM2 data to a Calculation Service Provider.
+* Providers: Services like Emirates Keys (MK3), PolDiag, or specialized VAG servers offering "Sync File Calculation".15
+* Cost: This is rarely free. Expect to pay between $50 and $150 USD per calculation.
+* Deliverable: The provider returns a Sync Data file (usually 32 bytes or a specific binary block).
+7.4 Dealer Key Generation and Write-Back
+* Load Data: In the programmer, load the Original BCM2 Dump AND the Sync Data File.
+* Generate: Place a blank MLB key in the coil and select Make Dealer Key. The tool uses the combined data to forge a valid key.
+* Write-Back (System Dependent): Some systems (like PolDiag) may require writing modified data back to the BCM2 to unlock it. Others simply require the key to be learned via OBD. Follow the specific tool's instruction for the "Write Back" step.
+7.5 Installation and Learning
+* Reinstall the BCM2 into the vehicle. reconnect the battery.
+* Connect the diagnostic tool via OBD.
+* Execute the Learn Key function as described in the "Add Key" section, presenting the newly generated key to the coil.
+8. Advanced Topics: Component Protection and Used Modules
+8.1 The Risk of Used BCM2 Units
+A common error in AKL scenarios is attempting to swap in a used BCM2 from a salvage yard.
+* Component Protection (CP): The BCM2 is linked to the Gateway, ECU, and TCU via Component Protection. Installing a used unit will trigger "Component Protection Active" DTCs. The car may start (if keys are matched), but the radio, HVAC, and interior lights will be disabled or function intermittently.36
+* Removal: Removing CP on an A4 B9 requires ODIS (Offboard Diagnostic Information System) and a valid online GeKo account with "Immobilizer" privileges. Most aftermarket tools cannot fully remove CP on this platform. Recommendation: Always repair the original BCM2 if possible. Avoid replacement unless the hardware is physically destroyed.
+8.2 Error 02811 (ELV Defective)
+During BCM2 reading or writing, the data sync between the BCM2 and the ELV (Steering Lock) can be disturbed, leading to Error 02811 ("Control Module for Electronic Steering Column Lock - Defective").
+* Symptom: The ignition will not turn on; the steering remains locked.
+* Solution: Tools like PolDiag or the "Repair ELV" function in VVDI can sometimes fix the data mismatch in the BCM2 dump.38 If this fails, the ELV itself may need to be replaced or adapted, adding significant cost to the job.
+9. Conclusion and Strategic Recommendations
+The Audi A4 B9 (MLB Evo) represents a high-water mark for automotive security. For the locksmith, it demands a transition from simple "OBD Programming" to a workflow that involves bench electronics, cloud calculations, and precise hardware interfaces.
+* For "Add Key" Jobs: The MLB Tool is non-negotiable. It transforms a high-risk procedure into a routine, 15-minute service. Shops should prioritize acquiring this hardware and maintaining a stock of correct (315/433 MHz) MLB keys.
+* For "All Keys Lost" Jobs: The barrier to entry is high. Success depends on owning Solder-Free BCM2 Adapters and having a reliable Sync Data Provider. Technicians must price these jobs (typically $800+) to reflect the risk of component protection faults, the cost of calculation services, and the extensive labor involved.
+Ultimately, the A4 B9 is not a vehicle for the unprepared. It rewards the specialist who invests in the correct "MLB" specific ecosystem and punishes the generalist who relies on generic MQB protocols.
+________________
+Disclaimer: The procedures detailed in this report involve advanced automotive electronics. Improper handling of BCM2 units can result in permanent vehicle immobilization. Technicians should always maintain a clean power supply (13.5V+) during programming and verify all connections before reading data.
+Works cited
+1. Xhorse - VVDI MLB Tool for VW Audi Key Adapter - Works with VVDI2, VVDI Key Tool Plus - UHS Hardware, accessed January 27, 2026, https://www.uhs-hardware.com/products/xhorse-vvdi-mlb-tool-for-vw-audi-key-adapter-works-with-vvdi2-vvdi-key-tool-plus
+2. Yanhua Mini ACDP - How to Program a BMW BDC2 Key - No tokens/subs! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=Ox4qhdHpv-4
+3. Launch X431 IMMO Plus vs Autel IM608: Which Key Programmer Delivers Real Results for Modern Immobilizer Systems? - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=launch-x431-immo-plus-vs-autel-im608
+4. Audi A4 – 5th Gen IMMO Key Programming | BCM2 Coding & Dealer Key Preparation, accessed January 27, 2026, https://www.youtube.com/watch?v=1WcHpl9upYg
+5. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES - Abrites USA, accessed January 27, 2026, https://www.abritesusa.com/the-secrets-of-locked-and-unlocked-bcm2-modules
+6. MQB vs MLB: A Comprehensive Guide to Choosing the Right Diagnostic Cable for Your Vehicle - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=mqb-vs-mlb
+7. Volkswagen Group MLB platform - Wikipedia, accessed January 27, 2026, https://en.wikipedia.org/wiki/Volkswagen_Group_MLB_platform
+8. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES Abrites, accessed January 27, 2026, https://abrites.com/blog/the-secrets-of-locked-and-unlocked-bcm2-modules
+9. VOLKSWAGEN AG – A HISTORY OF VAG ELECTRONICS IN (I HOPE) LESS THAN 10 ½ CHAPTERS. PART 2 Abrites, accessed January 27, 2026, https://abrites.com/blog/volkswagen-ag-a-history-of-vag-electronics-in-i-hope-less-than-10-1-2-chapters-part-2
+10. audi platform & chassis codes explained: from b5 to mlb & ppe - Amayak Auto Service, accessed January 27, 2026, https://amayakauto.com/audi-platform-chassis-codes-explained-from-b5-to-mlb-ppe/
+11. Immobilizer - Ross-Tech Wiki, accessed January 27, 2026, https://wiki.ross-tech.com/wiki/index.php/Immobilizer
+12. Audi BCM D70F3381 | PDF - Scribd, accessed January 27, 2026, https://es.scribd.com/document/458809706/audi-bcm-D70F3381
+13. Mini ACDP 2 Key Programmer and VW Audi BCM + MQB Package - Best Key Supply, accessed January 27, 2026, https://www.bestkeysupply.com/products/acdp2-programmer-vw-audi-bcm-mqb-bundle-p427
+14. Yanhua ACDP Module 29 Audi Gen5 BCM2 IMMO Module with License A603 - Locksmith Keyless, accessed January 27, 2026, https://www.locksmithkeyless.com/products/yanhua-acdp-module-29-audi-gens-bcm2-immo-module
+15. Keymaster Poldiag - Audi / VW / Lamborghini - BCM2 Locked NEC IMMO Data Extractor, accessed January 27, 2026, https://www.uhs-hardware.com/products/keymaster-poldiag-audi-vw-lamborghini-bcm2-locked-nec-immo-data-extractor
+16. MQB WFS5 WFS4 IMMODATA SERVICES - ECUSERWIS, accessed January 27, 2026, https://www.ecuserwis.pl/vag-mqb-wfs5-wfs4-immodata-services/
+17. What's The Difference Between 315MHz Remote Control And 433MHz Remote Control? - S4A Access, accessed January 27, 2026, https://www.s4a-access.com/blog/what-s-the-difference-between-315mhz-remote-control-and-433mhz-remote-control_b25
+18. 315/433/868MHZ Smart Remote Car Key For Audi A4 Q5 A5 A4L A6 C7 A6L A7 A8 B8 RS4 RS5 S4 S5 Q3 8K0959754D/H/G Keyless Go No Logo - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005009586653105.html
+19. 2017-2021 Audi A4, A5, Q5, Q7, S4, S5 Smart Key KeylessGo MLB ( OEM ) - My Key Supply, accessed January 27, 2026, https://www.mykeysupply.com/product/2017-2021-audi-a4-a5-q5-q7-s4-s5-smart-key-keylessgo-mlb-oem/
+20. Car Key Case For Audi A4 B9 A3 8P A6 C7 8S 8W A7 S3 S7 S8 R8 Q2 Q3 Q5 Q7 Q8 SQ5 TT RS3 RS6 Keychain Made of Alcantara Accessorie - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005005028466711.html
+21. Determining the transmit frequency of a key fob - Electrical Engineering Stack Exchange, accessed January 27, 2026, https://electronics.stackexchange.com/questions/545674/determining-the-transmit-frequency-of-a-key-fob
+22. Xhorse VVDI MLB Tool, Add VAG MLB Keys Without Chip Removal - Key4, accessed January 27, 2026, https://www.key4.com/xhorse-vvdi-mlb-key-tool-add-vag-mlb-keys-without-chip-removal-vvdi2-vvdi-key-tool-plus
+23. Xhorse - XDNPA2GL - Audi BCM2 Adapter Set Upgrade for Sale | UHS Hardware, accessed January 27, 2026, https://www.uhs-hardware.com/products/xhorse-xdnpa2gl-audi-bcm2-adapter-set-upgrade
+24. How to use AUDI BCM2 Adapter with VVDI 2 & VVDI PROG | Xhorse - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=6o14L4cTedI
+25. Xhorse VAG MQB Add Key and All Keys Lost License for VVDI Key Tool Plu - Locksmith Keyless, accessed January 27, 2026, https://www.locksmithkeyless.com/products/xhorse-vag-mqb-add-key-and-all-keys-lost-license-for-vvdi-key-tool-plus-vvdi2-vvdi-prog
+26. Im608 PRO How To Do All Keys Lost AUDI A4 2013 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=XFNxvUqqHbY
+27. (US Ship)Autel MaxiIM IM608 PRO II (IM608 II/IM608S II)IMMO Key Fob Programming Tool Upgrade of IM608PRO with XP400 PRO Key Programmer Support ECU Coding & Bidirectional 40+ Services 1 Year Free Update - AutelShop.us, accessed January 27, 2026, https://www.autelshop.us/products/autel-maxiim-im608-ii-im608-pro-ii-automotive-all-in-one-key-programming-tool-support-all-key-lost
+28. How to Calculate VAG MQB AKL Sync Data with Autel IM508 IM608?, accessed January 27, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/how-to-calculate-vag-mqb-akl-sync-data-with-autel-im508-im608
+29. Xhorse MLB Tool for VW Audi Key Adapter work with VVDI2 & VVDI Key Tool Plus, accessed January 27, 2026, https://keytectools.com/product/xhorse-mlb-tool-for-vw-audi-key-adapter-work-with-vvdi2-vvdi-key-tool-plus/
+30. KYDZ MLB 5M Bluetooth Programming Calculation Tool w/ Solder Free Adapters, accessed January 27, 2026, https://yourcarkeyguys.com/products/kydz-mlb-5m-bluetooth-programming-calculation-tool-w-solder-free-adapters
+31. KYDZ MLB Programmer Add Key For Audi A4 A5 A6 A7 A8 Q7 Q8 RS4 RS5 RS 6 Porsche Lamborghini B-entley - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005006369010116.html
+32. How to Use AO.D BCM2 Solder-Free Adapter | Xhorse - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=DfLyjepxBGg
+33. Can Xhorse BCM2 Solder Free Adapter Read Locked Audi BCM? | by Auto obd2 - Medium, accessed January 27, 2026, https://medium.com/@autoobd2.it/can-xhorse-bcm2-solder-free-adapter-read-locked-audi-bcm-8d1af7dc6a5e?responsesOpen=true&sortBy=REVERSE_CHRON
+34. VAG Group MQB 48 All Key Lost Syncro File Service - MK3, accessed January 27, 2026, https://www.mk3.com/services-files-mqb-sync-file
+35. Keymaster Poldiag - Audi / VW / Lamborghini - BCM2 Locked NEC IMMO Data Extractor - Key Innovations, accessed January 27, 2026, https://keyinnovations.com/keymaster-poldiag-audi-vw-lamborghini-bcm2-locked-nec-immo-data-extractor/
+36. Key reprogramming - various Audi models - Professional Motor Mechanic, accessed January 27, 2026, https://pmmonline.co.uk/technical/key-reprogramming-various-audi-models/
+37. What does component protection is active mean? : r/Volkswagen - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Volkswagen/comments/1gsx0lc/what_does_component_protection_is_active_mean/
+38. About BCM2 and POLDIAG SOLUTION - Keymaster, accessed January 27, 2026, https://keymaster.pl/bcm2-locked-nec-immo-data-extract/

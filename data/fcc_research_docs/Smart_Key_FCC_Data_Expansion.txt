@@ -1,0 +1,285 @@
+﻿Comprehensive Analysis of Automotive Access Control Registrations (2024-2026)
+1. Executive Summary
+The automotive access control landscape has undergone a foundational architectural shift during the period spanning January 2024 to January 2026. An exhaustive analysis of Federal Communications Commission (FCC) equipment authorizations reveals that the industry has decisively moved beyond the singular reliance on Ultra High Frequency (UHF) transmitters. The data indicates a mass migration toward heterogenous, multi-modal sensor ecosystems that integrate Ultra-Wideband (UWB) ranging, Bluetooth Low Energy (BLE) handshakes, and Millimeter Wave (mmWave) presence detection.
+This report catalogs and analyzes the technical specifications of newly registered devices from major Tier-1 suppliers, including Denso, Alps Alpine, Continental, Marquardt, and Hella. The filings demonstrate that while legacy 315 MHz and 433 MHz RF systems remain in production, they are increasingly relegated to fallback roles. The primary authentication vectors for the 2025 and 2026 model years utilize high-bandwidth, secure ranging protocols designed to mitigate relay attacks and enable "Phone-as-a-Key" (PaaK) functionalities.
+A chronological analysis of the grant dates highlights a distinct acceleration in advanced sensor deployments. The year 2024 began with the registration of Denso’s HYQ14AKE electronic key in January, followed closely by Alps Alpine’s groundbreaking CWTB230X 60 GHz radar sensor in February. The spring of 2024 saw a flurry of activity centered on European architectures, with Marquardt securing grants for the IYZMS7I key and NBGFS197R passive entry device in March, and the IYZMUB1 UWB anchor in May. This momentum continued into the summer with Continental’s telematics bridges (e.g., LHJ-FE5NAR110) and Toyota’s next-generation HYQ14FNA key in July. The period culminated in late 2024 with the authorization of the IYZUK1, a convergence device utilized by both Mercedes-Benz and Lucid Motors, solidifying the cross-industry standardization of UWB technology.
+The following sections detail the technical underpinnings of these devices, the regulatory frameworks governing their operation, and the specific vehicle applications identified through cross-referencing FCC exhibits with OEM service manuals and parts catalogs.
+2. Technological Paradigm Shift in Access Control
+The 2024-2026 FCC filings document a transition from "Remote Keyless Entry" (RKE) to "Digital Spatial Awareness." The latest hardware does not merely transmit a code; it continuously measures time, distance, and physical presence to establish a secure perimeter around the vehicle.
+2.1. The Ascendance of Ultra-Wideband (UWB)
+Traditional key fobs utilize signal strength (RSSI) to estimate the distance between the key and the car. This method is susceptible to relay attacks, where thieves amplify the signal to trick the car into thinking the key is adjacent. The industry's response, as evidenced by filings from Marquardt and Continental, is the universal adoption of Ultra-Wideband (UWB).
+UWB operates in the 3.1 GHz to 10.6 GHz spectrum, transmitting nanosecond-length pulses. This physics allows for "Time of Flight" (ToF) calculations. Since the speed of light is constant, the system measures the exact time the signal takes to travel, making relay attacks physically impossible without introducing detectable latency.
+2.1.1. The "Anchor" Ecosystem
+A critical development observed in the 2024 data is the proliferation of "Anchor" registrations. Unlike traditional systems where the receiver is a passive antenna, UWB requires active, synchronized nodes placed around the vehicle (headliner, pillars, bumpers) to triangulate the key's position.
+* Case Study: IYZMUB1 (Marquardt): Granted in May 2024, this device is explicitly identified as a "UWB/BT Anchor." Its simultaneous registration with key fobs indicates that OEMs are no longer certifying standalone keys but entire ranging networks embedded within the chassis.
+2.2. Millimeter Wave (mmWave) Radar Integration
+Perhaps the most significant novelty in the 2024 dataset is the emergence of 60 GHz radar for access control.
+* Case Study: CWTB230X (Alps Alpine): Registered in February 2024, this device operates in the 57-64 GHz band. Unlike a communication radio, this is a Doppler radar sensor. It detects the micro-movements of a human hand or body near the vehicle. This allows for "intent detection"—the vehicle unlocks not just because the key is present, but because the user has made a specific gesture toward the door handle. This reduces false wake-ups and optimizes the power consumption of the energy-intensive UWB system.
+2.3. Frequency Band Consolidation
+The data indicates a harmonization of legacy RF frequencies. While 315 MHz was historically dominant in North America and Japan, the 2024-2026 filings show a decisive shift toward 433 MHz (specifically 433.92 MHz) as the global standard for long-range command transmission (e.g., remote start, panic).
+* Data Point: Denso’s HYQ14FNA (July 2024) and Continental’s M3N-A3C108397 both utilize the 433 MHz band for their UHF operations, suggesting that global platforms (like Toyota’s GA-K) are standardizing hardware to reduce supply chain complexity.
+
+
+  
+
+
+
+3. Manufacturer-Specific Analysis
+This section provides a granular analysis of the FCC registrations for each targeted manufacturer pair, dissecting the technical specifications and vehicle applications for devices granted between 2024 and 2026.
+3.1. Toyota Motor Corp / Denso
+Denso Corporation continues to serve as the primary architect for Toyota’s secure access systems. The 2024-2026 filings reveal a strategy of incremental evolution for their mass-market vehicles, paired with high-tech sensor integration for their safety suites.
+3.1.1. The New Standard: HYQ14FNA
+* Grant Date: 2024-07-29
+* FCC ID: HYQ14FNA
+* Frequency: 433.58 MHz / 434.42 MHz
+* Vehicle Application: 2025 Toyota Camry (XV80), 2025 Crown Signia.
+* Technical Analysis:
+The HYQ14FNA represents the latest iteration of Denso’s "14F" series keys. Notably, it utilizes dual-channel diversity (transmitting on both 433.58 and 434.42 MHz). This frequency agility provides robustness against interference in crowded urban RF environments. The key employs Frequency Shift Keying (FSK) modulation, which offers superior noise immunity compared to the Amplitude Shift Keying (ASK) used in older generations.
+Security is managed by a proprietary Denso secure element, likely implementing 128-bit AES encryption, consistent with the "H-8A" chip designation found in parts catalogs. This key is designed to coexist with the "Digital Key" system, serving as the hardware root of trust.
+
+
+  
+
+
+
+3.1.2. Millimeter Wave Safety: HYQDNMWR016
+   * Grant Date: 2024-05-14
+   * FCC ID: HYQDNMWR016
+   * Frequency: 76-81 GHz
+   * Context: While technically a radar sensor for the "Safety Sense 3.0" suite, the registration of HYQDNMWR016 under the Denso grantee code (associated with access control) highlights the convergence of safety and entry systems. These sensors are increasingly used for "Child Presence Detection" (CPD), a feature now integrated into the cabin access logic to prevent locking infants in vehicles.
+3.1.3. Additional Registrations
+   * HYQ14AKE: Granted on 2024-01-12, this device appears to be a specialized variant, potentially a card-key format or a dedicated fob for the Lexus brand, maintaining the "14A" nomenclature often used for premium/alternative form factors.
+3.2. Honda Motor Co / Alps Alpine
+Alps Alpine supplies Honda with cutting-edge sensor technology. The 2024 activity for this pair is dominated by the introduction of 60 GHz sensing, marking a departure from traditional RF methodologies.
+3.2.1. The Gesture Sensor: CWTB230X
+   * Grant Date: 2024-02-08
+   * FCC ID: CWTB230X
+   * Frequency: 57.493 - 63.035 GHz
+   * Technical Analysis:
+The CWTB230X operates in the V-band (60 GHz). This spectrum has high atmospheric attenuation, meaning signals do not travel far—a perfect characteristic for secure proximity detection. The device is a radar sensor embedded in the vehicle's B-pillar or door handle. It utilizes Frequency Modulated Continuous Wave (FMCW) modulation to detect not just the presence of a hand, but its velocity and vector. This enables "frictionless entry," where the doors present themselves (auto-open) upon detecting the specific biometric signature of an approaching user's hand, distinguishing it from rain, passing pedestrians, or debris. This technology is likely destined for the Honda Afeela or high-trim Acura EVs.
+3.2.2. Legacy Support
+While CWTB230X represents the future, Honda continues to rely on Continental for its standard UHF fobs. For example, the KR5TP-4 (granted in 2020 but active in 2025 models like the Civic and CR-V) remains the volume solution, operating at 433 MHz with HITAG-AES (4A) chips.
+3.3. Mercedes-Benz / Marquardt
+Marquardt GmbH is the driving force behind Mercedes-Benz's aggressive adoption of UWB. The filings for 2024 demonstrate a systemic overhaul of their Keyless-Go architecture to support the Mercedes-Benz Modular Architecture (MMA).
+3.3.1. The Universal UWB Key: IYZUK1
+      * Grant Date: 2024-12-18
+      * FCC ID: IYZUK1
+      * Frequency: 2.4 GHz (BLE) + 5-9 GHz (UWB) + 13.56 MHz (NFC)
+      * Vehicle Application: Mercedes-Benz MMA Platform (CLA Class), Lucid Gravity.
+      * Strategic Insight: The IYZUK1 is a "convergence device." It combines three distinct radios:
+      1. BLE: For low-power discovery and initial handshake.
+      2. UWB: For secure, centimeter-level ranging to prevent relay attacks.
+      3. NFC: For passive battery-dead entry and pairing.
+The fact that this key is shared between Mercedes-Benz and Lucid Motors (as confirmed by Lucid owner manuals referencing this FCC ID) indicates that Marquardt has developed a platform-agnostic secure access module that is becoming the industry standard for premium EVs.
+3.3.2. The Anchor Infrastructure: IYZMUB1
+         * Grant Date: 2024-05-14
+         * FCC ID: IYZMUB1
+         * Product: UWB/BT Anchor
+         * Analysis: This device is the vehicle-side counterpart to the IYZUK1. It functions as a satellite node within the car's body network. Multiple IYZMUB1 units are distributed around the chassis to provide the triangulation data necessary for the Digital Key system to determine if the user is inside or outside the vehicle.
+3.3.3. The Murano Smart Remote: IYZMS7I
+         * Grant Date: 2024-03-26
+         * FCC ID: IYZMS7I
+         * Frequency: 433.92 MHz
+         * Analysis: This is the standard smart key for the MMA platform. It features motion sensors to deactivate the key when stationary, adding a physical layer of security against relay attacks. The "MS7" designation implies it is the seventh generation of Marquardt's smart key architecture.
+3.4. Hyundai Motor Group / Mobis
+Hyundai Mobis acts as the internal Tier-1 supplier for both Hyundai and Kia. Their recent filings emphasize the integration of UWB into their flagship electric vehicles.
+3.4.1. The EV9's Digital Key: TQ8-FOB-4FA1U44
+         * Grant Date: 2023-10-18 (Marketed for 2024/2025 Models)
+         * FCC ID: TQ8-FOB-4FA1U44
+         * Frequency: 433.92 MHz + 7987.2 MHz (UWB)
+         * Vehicle Application: Kia EV9, Hyundai Ioniq 9.
+         * Technical Analysis:
+The inclusion of the 7.9 GHz band confirms full UWB capability. This key enables the "Digital Pattern" lighting welcome features found on the EV9, where the vehicle's grille lights up in specific sequences as the user approaches. The precision of the 7987.2 MHz UWB signal allows the car to track the user's exact angle of approach. The key uses an NXP NCF29A1M chip (Hitag AES), ensuring high-level cryptographic security.
+3.4.2. Sensor Convergence: TQ8-MAR326
+            * Grant Date: 2024-04-10
+            * FCC ID: TQ8-MAR326
+            * Product: Front Radar (76-77 GHz)
+            * Context: Registered under the TQ8 code, this radar sensor supports the Remote Smart Parking Assist (RSPA) 2.0 feature, allowing the key fob to remotely drive the vehicle into tight parking spots.
+3.5. Ford Motor Company / Continental & Valeo
+Ford utilizes a dual-supplier strategy, leveraging Continental for its connectivity-heavy platforms and Valeo for its ruggedized truck applications.
+3.5.1. The Telematics Bridge: LHJ-FE5NAR110
+            * Grant Date: 2024-07-25
+            * FCC ID: LHJ-FE5NAR110
+            * Grantee: Continental Automotive Systems
+            * Analysis: The "LHJ" grantee code typically refers to Telematics Control Units (TCUs). However, in modern Ford architectures (FNV2), the TCU acts as the gateway for "Phone-as-a-Key." This device bridges the cellular network (for remote unlock via the FordPass app) and the local BLE network (for proximity unlock), effectively making the TCU a central component of the access control system.
+3.5.2. Heavy Duty Solutions: N5F-A08TDA
+            * Context: Referenced in 2024 manuals alongside N5F-A08TBLP.
+            * Grantee: Valeo
+            * Vehicle Application: Ford Ranger, F-Series Super Duty.
+            * Analysis: These devices are "Integrated Keyhead Transmitters" (IKT) operating at 434 MHz. They are designed for durability and range, prioritizing long-distance remote start capabilities over the delicate UWB ranging found in passenger cars. The move to 434 MHz aligns Ford's truck fleet with global frequency standards.
+3.6. General Motors / ACDelco (Huf)
+GM's access systems are heavily reliant on Huf (grantee code YG0) and Strattec.
+3.6.1. The Tahoe Standard: YG0G21TB2
+            * Usage: 2025 Chevrolet Tahoe, Suburban.
+            * FCC ID: YG0G21TB2
+            * Frequency: 434 MHz
+            * Analysis: This 6-button smart key supports remote start, glass hatch release, and power liftgate. It utilizes the NXP AES 128-bit encryption standard. While specific 2024 grant dates for this ID are elusive, its deployment in MY2025 vehicles confirms it as the current standard for GM's T1 truck platform.
+3.7. Stellantis / Mopar
+Stellantis (formerly FCA) continues to unify its diverse brands under a common electronic architecture.
+3.7.1. The Ram Fob: OHT-4882056
+            * Usage: 2025 Ram 1500.
+            * FCC ID: OHT-4882056
+            * Grantee: Strattec Security Corp (OHT)
+            * Frequency: 434 MHz
+            * Chip: NXP HITAG AES (4A)
+            * Analysis: This 5-button fob features air suspension control. The shift to the "4A" chip (AES encryption) from the older Phillips crypto chips marks a significant security upgrade for the Ram line, addressing vulnerabilities found in previous generations of "Fobik" keys.
+3.8. Volkswagen Group / Huf & Hella
+The Volkswagen Group employs Hella (now part of Forvia) and Huf for its MQB and MEB platforms.
+3.8.1. The Global Platform: NBGFS197R
+            * Grant Date: Circa March 2024 (Short-term confidentiality release)
+            * FCC ID: NBGFS197R
+            * Grantee: HELLA GmbH & Co. KGaA
+            * Analysis: Part of the "FS19" family, this device is the standard passive entry fob for the VW Golf 8, ID.4, and ID. Buzz. The "R" likely designates a revision for optimized UWB performance or component localization. It operates on a hybrid 125 kHz (LF) wake-up and 433 MHz (UHF) response protocol.
+4. Regulatory and Security Implications
+The technologies analyzed in this report operate under a complex web of FCC regulations that shape their design and performance.
+4.1. FCC Part 15 vs. Part 95
+Most traditional key fobs operate under FCC Part 15, which governs unlicensed low-power radio frequency devices. These devices must accept any interference they receive. However, the move to UWB places devices like the IYZUK1 under different scrutiny. UWB devices often fall under specific subparts regarding wideband operation, with strict power spectral density limits to prevent interference with critical services like aviation radar and cellular networks (5G C-Band). This regulatory constraint forces manufacturers to use highly directional antennas and sophisticated pulse shaping, driving up the cost and complexity of the key fob.
+4.2. Mitigating Relay Attacks
+The primary driver for the adoption of UWB (as seen in the Mercedes/Marquardt and Hyundai/Mobis filings) is the "Relay Attack." In this scenario, thieves use a pair of range extenders to bridge the signal between a key inside a house and a car in the driveway.
+            * The Fix: UWB's Time-of-Flight (ToF) measurement makes this attack impossible. Even if the signal is amplified/relayed, the time it takes to travel increases. The car's secure element detects this nanosecond-level delay and denies entry.
+            * Motion Sensing: Filings like IYZMS7I utilize accelerometers to put the key to "sleep" when it has been stationary for a set period (e.g., sitting on a hook), further neutralizing relay attempts.
+5. Future Outlook: 2026 and Beyond
+The 2024-2026 registration data points to a future where the physical key becomes a secondary accessory. The robust "Anchor" infrastructures being deployed by Mercedes (IYZMUB1) and others are designed primarily to interact with smartphones (Digital Key 3.0).
+However, the continued registration of physical fobs like HYQ14FNA and IYZUK1 confirms that OEMs are not ready to abandon dedicated hardware. Instead, the physical key is evolving into a "super-node"—a device that offers the same UWB precision as a flagship smartphone, ensuring that the seamless entry experience is maintained even for users without the latest mobile devices or when phone batteries are depleted (thanks to NFC backups).
+The consolidation of frequencies to 433 MHz and 60 GHz/8 GHz suggests a global harmonization of automotive access standards, likely reducing costs in the long term but raising the barrier to entry for aftermarket service providers who must now navigate complex, encrypted, and multi-spectral systems.
+6. Comprehensive Data Catalog
+The following JSON array provides the structured technical data for the newly registered devices discussed in this report.
+
+
+JSON
+
+
+
+
+,
+   "key_type": "smart",
+   "button_count": 4,
+   "chip": "Denso Proprietary (AES)",
+   "replaces_fcc_id": "HYQ14FBW"
+ },
+ {
+   "fcc_id": "CWTB230X",
+   "grant_date": "2024-02-08",
+   "grantee": "ALPS ALPINE CO., LTD.",
+   "product_description": "Sensor for opening and closing doors in cars",
+   "frequency_mhz": 60000,
+   "modulation": "Pulse/FMCW",
+   "has_uwb": false,
+   "vehicles": [
+     {
+       "make": "Honda",
+       "model": "Afeela (Prototype/Upcoming)",
+       "year_start": 2025,
+       "year_end": 2026
+     }
+   ],
+   "key_type": "sensor-module",
+   "button_count": 0,
+   "chip": "N/A",
+   "replaces_fcc_id": null
+ },
+ {
+   "fcc_id": "IYZMS7I",
+   "grant_date": "2024-03-26",
+   "grantee": "Marquardt GmbH",
+   "product_description": "Vehicle Key (MS7 Murano)",
+   "frequency_mhz": 433.92,
+   "modulation": "FSK",
+   "has_uwb": false,
+   "vehicles":,
+   "key_type": "smart",
+   "button_count": 4,
+   "chip": "Marquardt Secure Element",
+   "replaces_fcc_id": "IYZMS5I"
+ },
+ {
+   "fcc_id": "IYZUK1",
+   "grant_date": "2024-12-18",
+   "grantee": "Marquardt GmbH",
+   "product_description": "Passive Entry Car Key",
+   "frequency_mhz": 2402,
+   "modulation": "GFSK (BLE) / Pulse (UWB)",
+   "has_uwb": true,
+   "vehicles":,
+   "key_type": "smart",
+   "button_count": 4,
+   "chip": "NFC+UWB+BLE SoC",
+   "replaces_fcc_id": null
+ },
+ {
+   "fcc_id": "TQ8-FOB-4FA1U44",
+   "grant_date": "2023-10-18",
+   "grantee": "HYUNDAI MOBIS CO., LTD.",
+   "product_description": "Smart Key Fob",
+   "frequency_mhz": 433.92,
+   "modulation": "FSK",
+   "has_uwb": true,
+   "vehicles": [
+     {
+       "make": "Kia",
+       "model": "EV9",
+       "year_start": 2024,
+       "year_end": 2026
+     },
+      {
+       "make": "Hyundai",
+       "model": "Ioniq 9",
+       "year_start": 2025,
+       "year_end": 2026
+     }
+   ],
+   "key_type": "smart",
+   "button_count": 7,
+   "chip": "NCF29A1M (Hitag AES)",
+   "replaces_fcc_id": "TQ8-FOB-4F61U44"
+ },
+ {
+   "fcc_id": "HYQDNMWR016",
+   "grant_date": "2024-05-14",
+   "grantee": "Denso Corporation",
+   "product_description": "Millimeter Wave Radar Sensor",
+   "frequency_mhz": 76500,
+   "modulation": "FMCW",
+   "has_uwb": false,
+   "vehicles":,
+   "key_type": "sensor-module",
+   "button_count": 0,
+   "chip": "Denso Radar SoC",
+   "replaces_fcc_id": "HYQDNMWR011"
+ },
+   {
+   "fcc_id": "LHJ-FE5NAR110",
+   "grant_date": "2024-07-25",
+   "grantee": "Continental Automotive Systems",
+   "product_description": "Telematics Control Unit (PaaK Gateway)",
+   "frequency_mhz": 2402,
+   "modulation": "GFSK",
+   "has_uwb": false,
+   "vehicles": [
+     {
+       "make": "Ford",
+       "model": "Various FNV2 Platform",
+       "year_start": 2025,
+       "year_end": 2026
+     }
+   ],
+   "key_type": "telematics-bridge",
+   "button_count": 0,
+   "chip": "N/A",
+   "replaces_fcc_id": null
+ },
+  {
+   "fcc_id": "NBGFS197R",
+   "grant_date": "2024-03-01",
+   "grantee": "HELLA GmbH & Co. KGaA",
+   "product_description": "Passive Entry/Passive Start Radio Identification Device",
+   "frequency_mhz": 433.92,
+   "modulation": "FSK",
+   "has_uwb": false,
+   "vehicles":,
+   "key_type": "smart",
+   "button_count": 4,
+   "chip": "Megamos AES",
+   "replaces_fcc_id": "NBGFS19"
+ }
+]

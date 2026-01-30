@@ -1,0 +1,186 @@
+﻿The Modern Automotive Locksmith’s Definitive Compendium: Security Architecture of the RAM 1500 (DT Platform) 2019–2025
+1. Executive Summary: The Evolution of Truck Security
+The automotive security landscape has undergone a radical transformation over the last decade, and nowhere is this more evident than in the Stellantis—formerly Fiat Chrysler Automobiles (FCA)—lineup, specifically the RAM 1500 "DT" platform. Introduced for the 2019 model year and running concurrently with the previous "DS" generation (marketed as the RAM Classic), the DT platform represents a watershed moment for automotive locksmiths. It marked the definitive shift from traditional transponder-based immobilization to fully integrated, encrypted, and gateway-protected cyber-physical systems.
+For the professional locksmith, the RAM 1500 DT is not merely a vehicle to be serviced; it is a complex node in a secure network. The transition involves three distinct phases of security architecture: the initial Secure Gateway (SGW) implementation (2018–2021), the locked Radio Frequency Hub (RF Hub) era (2022–2024), and the emerging Atlantis architecture (2025+). Each phase presents unique challenges, from physical firewall bypasses to high-risk module flashing that, if mishandled, can result in catastrophic "bricking" of vehicle control units.1
+This compendium serves as an exhaustive technical resource. It moves beyond basic key programming instructions to explore the underlying engineering of the RAM 1500’s security suite. It covers the cryptographic protocols of the Hitag AES transponders, the topology of the CAN-C and CAN-IHS networks, the mechanical nuances of the Y160/CY24 keyways, and the intricate "handshake" procedures required to introduce new credentials to the RF Hub. By understanding the why and how of these systems, the locksmith moves from a technician following prompts to an analyst capable of diagnosing and resolving complex security failures.
+
+
+  
+
+
+
+2. Platform Identification and Architecture
+Before any tool is connected or any key is cut, the locksmith’s first critical task is positive platform identification. Since 2019, RAM has manufactured two distinct versions of the 1500 simultaneously, creating a potential pitfall for technicians who rely solely on the model year for procedure selection. The bifurcation of the model line necessitates a keen eye for physical and digital identifiers to distinguish between the legacy systems and the modern architecture.
+2.1 Differentiating the DT from the DS Platform
+The market currently supports the RAM 1500 Classic (Platform Code: DS), which is a continuation of the 4th Generation architecture introduced in 2009, and the RAM 1500 (Platform Code: DT), the 5th Generation "New Body Style" introduced in 2019. The security architectures of these two platforms are fundamentally different. The DS platform typically relies on the Wireless Ignition Node (WIN) or a basic RF Hub setup derived from older Chrysler architecture, often utilizing Fobik keys or legacy proximity systems. In contrast, the DT platform utilizes a completely redesigned electrical architecture—initially PowerNet and later Atlantis—with a dedicated, high-security RF Hub and the Secure Gateway Module (SGW).1
+Mistaking a DT for a DS can lead to programming failures, as diagnostic tools will attempt to communicate over the wrong CAN bus protocols or send incompatible wake-up frames. While badging often helps—the DS is frequently badged as "Classic" on the door—it is not a reliable technical indicator due to potential badge removal, body repair, or aftermarket modifications.
+The professional locksmith looks for specific engineering markers. Externally, the DT platform features a 6-lug wheel pattern, whereas the DS retains the 5-lug pattern. The DT’s headlights are slimmer and integrated more fluidly into the grille, whereas the DS headlights are larger and more distinct. Internally, the DT platform features a significantly modernized dashboard with Uconnect 4 or 5 screens that are often flush-mounted. The critical distinction for locksmiths is the Start Button. In DT models, the Push-to-Start button is prominently located and integrated into the gear selector panel or dashboard proper, communicating directly with the RF Hub via a dedicated LIN bus or private CAN line.
+Automated identification via VIN decoding is also standard practice. The 5th character of the VIN often denotes the platform series, but a manual verification of the lug nut count (6 for DT, 5 for DS) remains the most fail-safe physical check for a locksmith in the field to confirm they are dealing with the DT platform's specific security protocols.4
+2.2 Network Topology: CAN-C, CAN-IHS, and the Star Connector
+The RAM 1500 DT operates on a complex network of Controller Area Network (CAN) buses. Understanding this topology is vital because the Secure Gateway Module (SGW) effectively segregates the "Public" network (OBD-II port) from the "Private" networks where the actual control modules reside.
+The vehicle employs a CAN-C (CAN-Chassis or Critical) bus, which operates at high speeds (500 kbps or higher) and handles mission-critical data between the Powertrain Control Module (PCM), Anti-Lock Brakes (ABS), and the Radio Frequency Hub (RF Hub). This is the network that the locksmith must access to program keys. There is also a CAN-IHS (Interior High Speed) bus, responsible for body control functions, infotainment, and comfort features.
+In legacy vehicles, the OBD-II port provided direct, unencumbered access to these buses. In the DT platform, the OBD-II port connects only to the SGW. The SGW acts as a bridge and firewall. To bypass this, locksmiths utilize the Star Connector, a physical junction block where the various CAN bus lines meet. By plugging into the Star Connector, the locksmith physically taps into the CAN-C network behind the SGW, granting direct access to the RF Hub.6
+3. The Secure Gateway Module (SGW): The First Line of Defense
+The defining characteristic of the DT platform’s initial release was the inclusion of the Secure Gateway Module (SGW). Introduced across the FCA lineup in 2018, the SGW acts as a firewall between the external Data Link Connector (DLC/OBD-II port) and the vehicle's internal communication networks.
+3.1 The Function of the SGW
+The SGW analyzes all incoming traffic from the OBD-II port. It allows generic OBD-II diagnostics—such as reading basic engine codes required by federal emissions standards—to pass through to the PCM. However, it blocks all "privileged" commands. These restricted commands include clearing trouble codes, actuations (bi-directional controls), and most importantly for the locksmith, Key Programming and PIN Reading routines. Without authentication or bypass, a scan tool connected to the OBD-II port is effectively read-only regarding security functions.1
+3.2 Bypass Methodologies
+For locksmiths, navigating the SGW is now standard procedure. There are two primary methods to bypass this firewall on the RAM 1500 DT, and the choice of method often depends on the tool's capabilities and the specific model year constraints.
+3.2.1 Software Authorization (AutoAuth)
+Modern internet-connected programmers, such as the Autel IM608 Pro II or the Advanced Diagnostics Smart Pro (with internet connection), can authenticate wirelessly via the AutoAuth service. The tool connects to Wi-Fi, communicates with the AutoAuth server to verify the locksmith's credentials, and receives a digital "token." This token is passed to the vehicle's SGW, which then "opens the gate" for programming commands. This is the preferred method for 2019–2021 models as it requires no physical disassembly and maintains the integrity of the vehicle's trim.8
+3.2.2 Physical Bypass (Star Connector/12+8)
+When internet access is unavailable, or for specific high-level programming functions that the SGW might still restrict (or on 2022+ models where OBD access is risky), physical bypass is required. While a "12+8 Adapter" can replace the SGW connections directly, reaching the SGW module itself in the RAM DT is notoriously difficult as it is often buried deep behind the instrument cluster or radio.
+The industry-standard physical bypass for the RAM DT is the Star Connector (CAN Junction) Method. The RAM 1500 utilizes "Star Connectors" to distribute CAN signals. By plugging a specialized cable—such as the ADC2011 for Smart Pro or the Autel 12+8 connected via universal leads—directly into the Star Connector, the locksmith bypasses the SGW entirely.
+Location of the Star Connector:
+On the 2019-2024 RAM 1500 DT, the Star Connector bank is generally located behind the dashboard panel on the passenger side (kick panel area) or sometimes behind the headlight switch area on the driver's side, depending on the specific trim and build date. The "Green" Star Connector is typically the CAN-C network required for key programming. The locksmith removes the side dashboard panel (fusible link cover area), locates the plug section, and plugs the bypass cable directly into an open slot in this bank. This connection grants the tool direct authority on the network.6
+4. The Radio Frequency Hub (RF Hub): The Core of Security
+The Radio Frequency Hub (RF Hub) is the master controller for the vehicle’s access and immobilization system. It replaces the older WIN (Wireless Ignition Node) found in DS models. The RF Hub functions as the receiver for all remote keyless entry (RKE) signals, passive entry (Keyless Go) authentication, and Tire Pressure Monitoring System (TPMS) data. It stores the programmed key IDs and communicates with the PCM to authorize engine start.9
+4.1 Hardware Vulnerability: Water Intrusion
+The RF Hub is mounted on the rear cab wall, behind the rear seats. In crew cab models, particularly those with a sliding rear window or third brake light, this location has proven to be a significant vulnerability. Water leaks from the third brake light gasket or the rear window seal often drip directly onto the RF Hub.
+Corrosion on the RF Hub's printed circuit board (PCB) leads to a variety of "Ghost" electrical issues. Common symptoms include failure to detect keys (even when batteries are fresh), inability to lock/unlock via the fob, and a "Push to Start" button that is unresponsive. In severe cases, the vehicle may exhibit a "Key Not Detected" message or trigger DTC U1A00 (Private CAN Bus Communication) or B1A24 (Key Not Programmed), indicating the hub has lost its programming or failed internally. If a locksmith encounters a RAM DT with these symptoms, a physical inspection of the module for water intrusion is mandatory before attempting any programming, as attempting to write to a corroded module can lead to data corruption.9
+4.2 The 2022+ RF Hub Lockout Crisis
+The most critical operational change for locksmiths occurred with the 2022 model year update. Stellantis updated the firmware and bootloader of the RF Hub to close previously exploited security vulnerabilities. This update had a severe side effect for the aftermarket: The Read PIN / Write VIN Lockout.
+4.2.1 The Mechanism of Failure
+On 2019–2021 models, a locksmith could use a tool like the Autel IM508/IM608 or Smart Pro to "Read PIN" from the RF Hub via the OBD or Star Connector. The tool would use a bootloader exploit to extract the 4-digit PIN code and then proceed to program the key. However, on 2022+ models, the RF Hub strictly monitors requests to read sensitive data. If a tool attempts to "brute force" or read the PIN using the legacy protocols, the RF Hub detects this as a tampering event.
+The consequence is immediate and often irreversible: the RF Hub enters a "Locked" or protective state. It may corrupt its own internal memory (EEPROM/Flash) or set a permanent "Internal Failure" DTC. In this state, the vehicle is effectively "bricked"—it will not start, the ignition cannot be cycled, and the module often requires replacement. This scenario is known in the industry as "bricking the RF Hub".2
+4.2.2 The Professional Solution and Workarounds
+Locksmiths must strictly adhere to updated procedures for 2022+ RAM DT trucks to avoid this liability.
+1. Do Not "Read PIN": On 2022+ firmwares, attempting to read the PIN via OBD is the trigger for the lockout. This function should be avoided unless the tool explicitly supports the specific 2022+ patch.
+2. Star Connector is Mandatory: The Star Connector cable (ADC2011 or similar) must be used. Accessing the system via the OBD-II port for key programming is highly risky on these newer models.
+3. Use Updated Software: Tools like the Advanced Diagnostics Smart Pro with ADS2328 software or Autel with the latest FCA updates (V4.40+) are designed to handle this by utilizing different access methods or server-side calculations that do not trigger the lockout.12
+4. RF Hub Replacement for All Keys Lost (AKL): In "All Keys Lost" scenarios for 2022+ models, it is often safer or even required to replace the RF Hub entirely with a "virgin" or unlocked unit. Several vendors (e.g., UHS, All Computer Resources) sell remanufactured RF Hubs that are pre-unlocked or come with matched keys. The locksmith physically swaps the hub behind the rear seat and then performs a "Replace RF Hub" routine, which writes the VIN to the new hub and syncs it with the PCM. Note that a used RF Hub from another vehicle cannot be installed unless it has been professionally "unlocked" or "re-flashed" to a virgin state, as the Hub locks to the VIN upon first installation.10
+
+
+  
+
+
+
+5. Key Fob Hardware Ecosystem
+The RAM DT platform utilizes high-security "Smart Keys" (Proximity/Fobik) operating on 433/434 MHz. These keys use Hitag AES (128-bit) encryption (specifically NCF29A1M chips), a significant upgrade over the Hitag 2 or Hitag 3 systems found in older DS models. This encryption change prevents the use of older keys on the new platform.
+5.1 Frequency and Technical Specifications
+* Frequency: 434 MHz (often listed as 433 MHz in some regions).
+* FCC ID: The dominant FCC ID for the DT platform is OHT-4882056.
+* IC: 5461A-4882056.
+* Chip Type: NXP AES 128-bit / Hitag AES (PCF7939M / NCF29A1M).
+The 128-bit AES encryption implies that the key and the vehicle perform a mutual authentication handshake. The vehicle challenges the key, and the key must respond with the correct encrypted answer. This makes "cloning" these keys virtually impossible with current technology; they must be programmed diagnostically.17
+5.2 Part Number Matrix and Compatibility
+The RAM 1500 DT features a diverse array of key fobs due to the varying trim levels (Tradesman, Big Horn, Laramie, Limited, TRX) and feature sets (Air Suspension, Tailgate Release, Remote Start).
+* Interchangeability: Generally, a fob with more buttons (e.g., Air Suspension) can be programmed to a lower-trim truck, but the extra buttons will simply be non-functional. Conversely, a lower-button fob will work on a higher-trim truck for basic functions (Start/Lock/Unlock) but will lack control over specific features like the tailgate.
+* TRX Specifics: The TRX fobs often feature unique styling with red lettering or a dedicated TRX logo. Despite the cosmetic differences, they share the same underlying FCC ID (OHT-4882056) and Chip ID (Hitag AES) as the standard DT keys.
+Table 1: Common Compatible Part Numbers (FCC ID: OHT-4882056)
+Button Configuration
+	Part Numbers (OEM)
+	Features Included
+	3-Button (Basic)
+	68291687AB, 68291687AC, 68291687AD, 68442905AB
+	Lock, Unlock, Panic
+	4-Button (Remote Start)
+	68291689, 68291689AB, 68584153, 68442907
+	Lock, Unlock, Panic, Remote Start
+	5-Button (Air Susp)
+	68291690AB, 68442917, 68575612
+	Lock, Unlock, Panic, Remote Start, Air Suspension
+	5-Button (Tailgate)
+	68442917, 68575612
+	Lock, Unlock, Panic, Remote Start, Tailgate Release
+	6-Button (Full Spec)
+	68291692AB, 68291692AC, 68575605AA
+	Lock, Unlock, Panic, Remote Start, Tailgate, Air Susp
+	TRX Specific
+	68462107AA, 68584164AA
+	Red Logo/Lettering, usually 5-Button config
+	Locksmith Insight: Never rely solely on the part number printed on the case, as cases are swapped frequently during refurbishment. Always verify the FCC ID (OHT-4882056) and the Chip ID (Hitag AES) using a key reader (e.g., VVDI Key Tool, Autel XP400) before attempting programming. Using a legacy "GQ4-54T" key from a DS model will result in a failed programming attempt.17
+5.3 Emergency Keyways and Mechanical Systems
+The physical emergency key blade for the RAM DT is a high-security milled key, distinct from the edge-cut Y159/Y157 keys of the older RAMs.
+* Keyway Profile: The profile is commonly referred to as Y160 (or the new Chrysler High Security). It is an internal 2-track or 4-track laser cut key.
+* Lishi Tool Selection:
+   * Y160 / CY24 (8-Cut): The standard CY24 2-in-1 (often marked for Chrysler 8-cut) is the primary tool for picking and decoding.
+   * Confusion with SIP22: A common point of confusion arises with the RAM ProMaster van, which uses the FIAT-derived SIP22 keyway. The RAM 1500 DT pickup uses the Chrysler-derived Y160/CY24 high-security profile. The SIP22 tool is incompatible with the RAM 1500 DT lock cylinders.
+   * Reading the Lock: The door lock cylinder typically contains wafers in positions 2 through 8 (or sometimes 1-8). The "CY24-CV" (Commercial Vehicle) tool is designed for older fleet trucks and often does not fit the recessed door handle lock cylinder of the DT as well as the standard Y160/CY24 tool.20
+6. Programming Methodologies and Workflows
+Programming the RAM DT requires a specific sequence of operations. Deviation from this sequence—particularly regarding the SGW and PIN reading—is the primary cause of failure. The process has bifurcated based on the model year due to the RF Hub security patch.
+6.1 Pre-Programming Checklist
+1. Battery Voltage: Ensure vehicle battery is maintained above 12.5V. The RF Hub is extremely voltage-sensitive. A low voltage condition during the "write" phase can corrupt the module. Connect a battery maintainer (not just a charger) if possible.
+2. SGW Bypass: Determine if the vehicle is 2019-2021 (AutoAuth possible) or 2022+ (Star Connector recommended/mandatory).
+3. Key State: Ensure the new key is "Unlocked" or "Virgin." Used keys must be reflashed or unlocked using a simplified remote generation tool before programming, as the Hitag AES chip locks to the VIN upon first programming.
+6.2 The Autel Workflow (IM508/IM608)
+Autel is a dominant player in this space, but its capabilities vary by software version.
+1. Connection: Connect the VCI to the OBDII port (if using AutoAuth) or via the 12+8/Star Connector cable for physical bypass.
+2. Vehicle Selection: Select RAM -> 1500 (DT) -> 2019-2023 -> Smart Key.
+3. Status Scan: Run an "Immo Status Scan" to verify communication with the RF Hub and check for existing keys or fault codes.
+4. Pin Reading (The Danger Step):
+   * 2019-2021: Select "Read Immobilizer Password." The tool will request SGW authorization. Once granted, it pulls the PIN.
+   * 2022+: WARNING: If the menu offers "Read PIN (2022+)", proceed with extreme caution or prefer "RF Hub Replacement" if all keys are lost. Many users report "Password Reading Failed" or bricking risks on late 2022/2023 models when attempting standard PIN reads. The safest route for 2022+ AKL on Autel is often replacing the RF Hub with a pre-programmed unit and using the "Replace RF Hub" function to sync it.15
+5. Key Learning: Once the PIN is acquired (or if using a new RF Hub with a known PIN like 0000), select "Key Learning."
+   * Place the Smart Key against the Start Button (or in the cup holder as directed).
+   * Press the Start Button with the fob nose to "push" the signal.
+   * The hazard lights should flash to confirm programming success.
+6.3 The Smart Pro (Advanced Diagnostics) Workflow
+The Smart Pro is often favored for 2022+ models due to its specialized software and cables.
+1. Hardware: Smart Pro + ADC2011 (Star Connector Cable) is mandatory for 2022+ programming.
+2. Software: Use ADS2328 (Toyota/Lexus/RAM Prox) or specific Chrysler software updates designed for the bypass.
+3. Connection: Plug the ADC2011 directly into the Star Connector bank behind the glovebox or kick panel.
+4. Bypass: The Smart Pro software utilizes a proprietary bypass method that communicates directly with the RF Hub on the CAN-C line. It bypasses the need for a PIN read in the traditional sense, or calculates it via the server more safely than the "brute force" method used by some other tools.13
+5. Programming: The tool guides the user to press the Start button with the fob to complete the pairing.
+
+
+  
+
+
+
+6.4 Handling Active Alarm Scenarios
+If the vehicle is locked and the alarm is active, the SGW may block OBD communication entirely as a security measure. In this state, the OBD-II port is effectively dead for programming purposes.
+* Solution: You must use the Star Connector method or a 12+8 cable to communicate. The active alarm shuts down the external diagnostic ports to prevent tampering. Tapping into the Star Connector (internal CAN) bypasses this lockout because the tool appears as a trusted internal module, allowing the locksmith to silence the alarm by programming a valid key or resetting the BCM.4
+7. The 2025 Atlantis Architecture: The New Frontier
+The 2025 model year introduces the Atlantis electrical architecture, representing the most significant leap in RAM security to date. This system moves beyond the PowerNet architecture used in 2019-2024 models and demands a new generation of tools and protocols.
+7.1 Key Changes and Challenges
+* CAN FD (Flexible Data-Rate): The Atlantis architecture relies heavily on CAN FD for higher speed communication. Locksmith tools must support CAN FD protocols to even communicate with the vehicle. Tools like the Autel IM608 Pro II (which has built-in CAN FD) or the OBDSTAR G3 are required. Older tools (e.g., IM608 Gen 1) will require a specialized CAN FD adapter to function.3
+* Uconnect 5 & Digital Key: The 2025 RAM integrates "Phone as a Key" (PAAK) and NFC card support via the Uconnect 5 system. This suggests that the immobilization authorization path now routes through the Telematics Box Module (TBM) and the Head Unit, in addition to the RF Hub, creating a multi-module authentication chain.
+* Programming Restrictions: Early reports indicate that the 2025 models may have even stricter "Read PIN" blocks. The reliance on server-side authentication (e.g., WiTech 2.0) is increasing. Aftermarket support for 2025 models is currently in the "Beta" or "Development" phase for most tool manufacturers (Autel, OBDSTAR). While OBDSTAR lists "IMMO Upgrade Announcement of December 2025" for full coverage, current capabilities are limited and often require online calculation.29
+8. Diagnostics and Troubleshooting Common Failures
+A successful key programming job often involves diagnosing why the old keys stopped working or why a new key won't take.
+8.1 DTC Analysis and Interpretation
+* U1A00 (Private CAN Bus - Communication): This is the "Ghost" code. It often indicates the RF Hub has locked up or lost communication with the BCM. If this code is permanent and cannot be cleared after a battery reset (capacitive discharge), the RF Hub is likely bricked or suffering from severe corrosion.9
+* B1A24 (Key Not Programmed): The RF Hub sees the key signal but does not recognize it as valid. This confirms the key reader/antenna is working, but the key ID is not in the whitelist. This is a good sign for programming prospects.
+* P0513 (Invalid Skim Key): This code means the PCM does not recognize the seed/key data it is receiving from the RF Hub. This often happens after a PCM replacement or if the RF Hub/PCM handshake is out of sync. A "PCM Replaced" or "Proxy Alignment" routine may be needed to re-sync the rolling codes between the modules.31
+8.2 Battery and Voltage Sensitivity
+The RAM DT's electrical system is highly sensitive to voltage fluctuations. Programming failures (e.g., "Communication Failed") are frequently caused by a weak vehicle battery. A battery maintainer capable of supplying clean power (13.8V-14.2V) should be connected during any programming session, especially for 2022+ models where a voltage drop during a handshake could lead to a module lockout.
+9. Conclusion: The Professional Path Forward
+The days of simple "Add Key" procedures are over for the RAM platform. The professional locksmith must now be a hybrid of a network engineer and a mechanic. Success on the RAM 1500 DT (2019-2025) requires a strategic approach:
+1. Investment in Hardware: Owning the necessary physical interfaces—Star Connector cables (ADC2011), CAN FD adapters, and updated programmers (IM608 II, Smart Pro, G3)—is non-negotiable.
+2. Risk Management: Knowing when not to read a PIN (2022+) and when to quote for a full RF Hub replacement instead is critical for protecting the business from liability.
+3. Continuous Education: Keeping abreast of the Atlantis architecture updates as tool manufacturers crack the new encryption layers of the 2025 models is essential for future relevance.
+By mastering the SGW bypass, respecting the RF Hub's fragility, and utilizing the correct connection points, the automotive locksmith can turn these high-security vehicles from liability risks into profitable, high-value service opportunities.
+Works cited
+1. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 5, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+2. Locked RF Hub 22 Renegade : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1m3kvyj/locked_rf_hub_22_renegade/
+3. Press Kit: 2025 Ram 1500 - Stellantis Media, accessed January 5, 2026, https://media.stellantisnorthamerica.com/newsrelease.do?id=25459&mid=
+4. Bypass the Pesky RAM Security Gateway - HERE'S HOW! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=-u3Rtx7mThY
+5. New Body Ram Heavy Duty - Gateway Bypass Installation - Infotainment.com - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=bBahzr7VRIo
+6. 2019 Dodge Ram; super easy star connector location revealed - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=vRxpsc5IViA
+7. Ram/Dodge Truck (1500-5500) 2017-2023 New Fobik with SmartPro and Star Connector Cable. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=MUY92wp0Qy0
+8. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide
+9. RF Hub Help : r/ram_trucks - Reddit, accessed January 5, 2026, https://www.reddit.com/r/ram_trucks/comments/1j9veq8/rf_hub_help/
+10. RF hub, question in comments. : r/ram_trucks - Reddit, accessed January 5, 2026, https://www.reddit.com/r/ram_trucks/comments/11ut59k/rf_hub_question_in_comments/
+11. Ram ignition switch or WIN problem or rfhub. Don't be Fooled ! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=XnjVyuARZew
+12. Autel IM508S/IM608 II Enhanced Vehicle Password Reading Function - obdprice, accessed January 5, 2026, https://www.obdprice.com/blogs/news/autel-im508s-im608-ii-vehicle-password-reading
+13. Software Update compatible with Toyota* 07-2024 ADS2328 - Advanced Diagnostics, accessed January 5, 2026, https://www.advanced-diagnostics.com/news-posts/software-update-compatible-with-toyota-07-2024-ads2328
+14. 2014 Dodge Ram RF hub replacement. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=nzNh4CUpVZw
+15. 2022 RAM 1500 RF Hub Module Part# 56029943AA w/ programmed keys | eBay, accessed January 5, 2026, https://www.ebay.com/itm/116575842646
+16. 2023 RAM 1500 RF Hub Module Part# 56029946AB w/ programmed keys | eBay, accessed January 5, 2026, https://www.ebay.com/itm/135734436622
+17. 2019 - 2024 RAM 1500 Smart Key 6B FCC# OHT-4882056 - Silver ..., accessed January 5, 2026, https://www.locksmithkeyless.com/products/2019-2021-dodge-ram-1500-smart-key-fob-w-starter-6b-fcc-oht-4882056-2-pack
+18. 2022 Dodge Ram 1500 TRX Smart Remote Key Fob - CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2022-dodge-ram-1500-trx-smart-remote-key-fob
+19. 2019-2024 RAM 1500 Truck 4-Button Smart Key Fob Remote Start (OHT-4882056, 68291689, 68584153, 68575602, 68442907) - NorthCoast Keyless, accessed January 5, 2026, https://northcoastkeyless.com/product/ram-1500-truck-4-button-smart-key-fob-remote-start-chrome-fcc-oht-4882056-p-n-68291689-68584153-68575602-68442907/
+20. The Original Lishi Tools CY24 Tool Family Explained - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=zR9T77QQ9rM
+21. Original Lishi CY24 V.2 2in1 Decoder and Pick for Chrysler Mitsubishi - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/lishi-cy24-cv-2in1-decoder-and-pick
+22. Original Lishi 2-In-1 Pick and Decoder 8-Cut Anti-Glare CY24 / Y157 / Y159, accessed January 5, 2026, https://www.bestkeysupply.com/products/original-lishi-2-in-1-pick-and-decoder-8-cut-anti-glare-cy24-y157-y159-y160-l03
+23. ORIGINAL LISHI - SIP22 Fiat Lancia Iveco / 2-in-1 Pick & Decoder / Twin Lifter / AG, accessed January 5, 2026, https://www.uhs-hardware.com/products/original-lishi-fiat-lancia-iveco-sip22-2-in-1-pick-decoder-tl-ag
+24. Solution for Autel IM608 Unable to Read PIN Code on 2025 Nissan Sentra HFM, accessed January 5, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/solution-for-autel-im608-unable-to-read-pin-code-on-2025-nissan-sentra-hfm
+25. Ram 1500 2022 and New Prox key with SmartPro and Star Connector Cable - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=9WRGXSOWstE
+26. 2022-2024 Ram Promaster proximity has been released for Smart Pro! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=Y-Ib-vs64L0
+27. Bypass Your Car Immobilizer in Under 10 Minutes (No Key Needed) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=lIR1wuPQdqQ
+28. 2024 Autel MaxiIM IM608 PRO II Kits IMM0 Key PROGRAMMING Diagnostic Scanner Tool, accessed January 5, 2026, https://www.ebay.com/itm/267004850365
+29. Update Info - OBDSTAR Technology Co., Ltd, accessed January 5, 2026, https://www.obdstar.com/NewsStd_UpdateInfo.html
+30. IMMO Upgrade Announcement of March 2025 - OBDSTAR Technology Co., Ltd, accessed January 5, 2026, https://www.obdstar.com/News_1716.html
+31. P0513 Code: Incorrect Immobilizer Key - In The Garage with CarParts.com, accessed January 5, 2026, https://www.carparts.com/blog/p0513-code-incorrect-immobilizer-key/
+32. No Start, After Flash And Or PCM Replace, DTC P0513 Invalid Skim - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10220715-9999.pdf

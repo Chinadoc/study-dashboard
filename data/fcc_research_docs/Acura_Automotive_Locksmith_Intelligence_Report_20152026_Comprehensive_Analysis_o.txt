@@ -1,0 +1,399 @@
+﻿Acura Automotive Locksmith Intelligence Report (2015–2026): Comprehensive Analysis of Immobilizer Architectures, Proprietary Protocols, and Security Systems
+1. Critical Strategic Alerts and Operational Risk Assessment
+The contemporary landscape of automotive security for Acura—the luxury division of Honda Motor Company—presents a complex dichotomy for the professional locksmith. While the marque shares a fundamental engineering lineage with Honda, often utilizing identical keyways and similar logic structures, Acura frequently serves as the testbed for advanced security protocols 12 to 24 months prior to their mass-market deployment in Honda vehicles. This "early adopter" status necessitates a higher degree of vigilance, particularly regarding the migration from localized immobilizer systems to network-centric, encrypted architectures utilizing Controller Area Network with Flexible Data-Rate (CAN FD).
+1.1 Distinct Operational Divergences: Honda vs. Acura
+While many diagnostic tools group "Honda/Acura" under a single software header, treating an Acura merely as a "fancy Honda" is a procedural error that leads to programming failures. The critical divergence lies in the Body Control Module (BCM) configuration and the handling of Driver Memory Systems.
+Immobilizer Architecture Divergence:
+The Acura platform, particularly from 2014 onwards (MDX YD3), integrated a sophisticated Driver Memory System (Driving Position Memory System - DPMS) directly into the immobilizer logic. Unlike a standard Honda Pilot of the same vintage, where the key simply authorizes ignition, an Acura smart key (Fob 1 or Fob 2) actively communicates a user profile to the BCM upon detection. This adds a layer of complexity during "All Keys Lost" (AKL) procedures. If a locksmith attempts to program a generic or incorrect memory-slot key, the BCM may accept the transponder ID for ignition authorization but reject the remote functions or trigger a "Driver Settings Error" on the Multi-Information Display (MID). This effectively renders the job incomplete from the customer's perspective.
+The "Alarm Active" Suppression Protocol:
+Acura security systems exhibit a more aggressive "Alarm Active" lockout state compared to their Honda counterparts. In scenarios where the vehicle is locked and the alarm is triggered (or the BCM perceives a breach), the Gateway Module often refuses OBD-II communication with aftermarket programmers. This is distinct from Honda vehicles, which are generally more permissive. On models such as the Acura TLX (2015–2020) and MDX (2014–2020), this necessitates a physical intervention before digital communication can be established. The analysis of field data suggests that picking the driver’s door lock cylinder (HON66) to the "Unlock" position is the most reliable method to downgrade the security status from "Alarm" to "Disarmed," thereby opening the diagnostic port for traffic.
+1.2 The Body Control Module (BCM) and BSI Risks
+The Body Systems Interface (BSI), often integrated with the Fuse Box in modern Acuras, serves as the central nervous system for security operations. A critical vulnerability has been identified in the industry regarding "voltage sag" during programming.
+The Voltage Vulnerability:
+Acura vehicles are equipped with high-draw parasitic loads, including "Jewel Eye" LED headlights, advanced infotainment systems, and always-on telematics (AcuraLink). During the "Key Learning" or "All Keys Lost" programming cycle, the ignition is often forced to an "ON" state without the engine running. This rapidly depletes the battery. If system voltage drops below 11.8 Volts during the data-writing phase to the BCM, there is a substantial risk of data corruption. Unlike older EEPROM-based systems that might simply fail the operation, the modern BCMs in the 2019+ RDX and 2021+ TLX are susceptible to becoming "bricked" or entering an unrecoverable boot loop. Recommendation: It is mandatory to attach a high-quality battery maintainer (providing a stable 13.4V – 13.6V) during all programming operations on Acura vehicles.
+1.3 Dealer-Only Programming Scenarios & Secure Gateway
+The introduction of the 2023 Acura Integra and 2022 Acura MDX marked the arrival of the Secure Gateway (SGW) module and CAN FD protocol. This creates scenarios where independent locksmiths without specific credentials or hardware are effectively locked out.
+Secure Gateway (SGW) Implementation:
+The SGW acts as a firewall between the OBD-II port and the vehicle’s internal CAN networks. Unauthenticated traffic is blocked. While some tools utilize "AutoAuth" (common in FCA vehicles), Honda/Acura’s implementation often requires a direct connection to the Honda diagnostic server or the use of a proprietary "Gateway Bypass" cable. However, the physical location of the Gateway module in newer Acuras is often buried deep behind the dashboard or glovebox, making physical bypass difficult and time-consuming.
+Dealer-Proprietary Codes:
+Field reports indicate that for the 2023+ Integra and 2022+ MDX, the rolling code algorithms for "All Keys Lost" are shifting towards a server-dependent challenge-response system that fewer aftermarket tools can calculate locally. This drives a necessity for tools that possess active server connections (e.g., Autel IM608 Pro with valid subscription, Smart Pro with internet access) rather than offline token-based units.
+1.4 Evolution of Acura Immobilizer Architectures
+To understand the programming environment, one must recognize the chronological evolution of the security stack. The migration from standard CAN bus to CAN FD represents a hard hardware cutoff for locksmiths.
+Phase 1: Legacy Smart Entry (Type 3/4) – 315MHz (2015–2020)
+This era, covering the majority of vehicles in this report (MDX YD3, TLX Gen 1, RDX Gen 2), utilizes standard High-Speed CAN. The keys operate on 315MHz. Programming is relatively stable, PIN codes are calculable (10-digit system), and tool coverage is near universal.
+Phase 2: The Transitional Era – 433MHz (2019–2021)
+Introduced with the 2019 RDX (TC2), this architecture shifted to 433MHz frequencies for better range and penetration. While still utilizing standard CAN for most diagnostic functions, the encryption on the keys (Hitag AES) became more robust.
+Phase 3: The CAN FD Era – 433MHz + 900MHz (2022–2026)
+The current generation (2022 MDX, 2023 Integra) utilizes CAN FD for the immobilizer communication. This protocol allows for variable data rates and larger packet sizes, essential for the complex handshake of modern encryption. Crucially, the Remote Start feedback signal on these models operates on a separate 900MHz band (bi-directional), necessitating keys with dual-frequency transmitters. Legacy tools will fail to communicate with these vehicles without a hardware adapter.
+________________
+2. Generation and Platform Identification
+Accurate identification of the vehicle generation is the first step in a successful locksmith intervention. Acura recycles model names, but the underlying chassis codes and electronic architectures change drastically between generations. The VIN (Vehicle Identification Number) serves as the definitive decoder.
+2.1 VIN Logic and Year Identification
+The 10th character of the VIN denotes the Model Year. This is the only reliable metric for determining key compatibility, as production dates on door stickers can be misleading (e.g., a car built in late 2021 is often a 2022 Model Year).
+Acura VIN Year Decoder (10th Digit):
+* F = 2015
+* G = 2016
+* H = 2017
+* J = 2018
+* K = 2019
+* L = 2020
+* M = 2021
+* N = 2022
+* P = 2023
+* R = 2024
+* S = 2025
+* T = 2026
+2.2 Platform Matrix
+The following table delineates the platform codes and key types for the target models. Note the transition points (e.g., MDX skipping the 2021 model year).
+Model
+	Generation
+	Years
+	Chassis Code
+	Platform
+	Key System Type
+	Operational Notes
+	Acura MDX
+	3rd Gen
+	2014–2020
+	YD3
+	Honda Global Light Truck
+	Smart Prox (315MHz)
+	Uses Driver 1/2 Memory System.
+	Acura MDX
+	4th Gen
+	2022–2026
+	YD4
+	Honda Global Architecture
+	CAN FD Smart Prox (433/900MHz)
+	NO 2021 Model. High Security CAN FD.
+	Acura RDX
+	2nd Gen
+	2016–2018
+	TB4
+	CR-V Based
+	Smart Prox (315MHz)
+	Facelift years. Push-to-Start standard.
+	Acura RDX
+	3rd Gen
+	2019–2024
+	TC2
+	Global Compact
+	Smart Prox (433MHz)
+	First Acura with "True Touchpad" interface.
+	Acura TLX
+	1st Gen
+	2015–2020
+	UB1-UB4
+	Accord Based
+	Smart Prox (315MHz)
+	Replaced TL and TSX. 4-Button standard.
+	Acura TLX
+	2nd Gen
+	2021–2026
+	TG
+	Dedicated Sedan
+	CAN FD Smart Prox (433MHz)
+	High encryption AES.
+	Acura ILX
+	1st Gen (Facelift)
+	2016–2022
+	DE2/DE3
+	Civic (9th Gen)
+	Smart Prox (315MHz)
+	Retained older architecture longer than others.
+	Acura Integra
+	5th Gen
+	2023–2026
+	DE4/DE5
+	Civic (11th Gen)
+	CAN FD Smart Prox (433MHz)
+	Shared logic with Civic FL. Requires adapter.
+	________________
+3. Key Specifications and Inventory Intelligence
+Managing inventory for Acura is capital intensive due to the proliferation of "Driver Memory" fobs. Unlike many brands where a single key works for all users, Acura assigns "Driver 1" and "Driver 2" status based on the remote's fixed code.
+3.1 Understanding the Driver Memory System
+When a customer requests a key, the locksmith must identify which driver position is lost or desired.
+* Driver 1 (Memory 1): Typically linked to the primary driver profile (Seat Position 1, Mirror 1).
+* Driver 2 (Memory 2): Linked to the secondary profile.
+* Unlinked/Driver 3+: Additional keys programmed beyond the first two often function as "Linkless" remotes. They start the car and operate locks but do not recall memory settings.
+* Inventory Implication: A dedicated locksmith must stock both PN variants or utilize "Universal Smart Keys" (like the Autel IKEY or Xhorse XM38) that allow the technician to generate the specific "Driver 1" or "Driver 2" file onto a blank remote.
+3.2 Key Specification Tables
+Acura MDX (2014–2020) & RDX (2016–2018)
+This is the most common "Legacy" smart key. Note the crossover between MDX and RDX.
+Feature
+	Specification
+	Key Type
+	Smart Proximity Key (Push-to-Start)
+	FCC ID
+	KR5V1X (Continental)
+	IC
+	7812D-V1X
+	Chip Type
+	Philips ID47 (Hitag 3)
+	Frequency
+	315 MHz
+	OEM Part (Driver 1)
+	72147-TZ5-A01
+	OEM Part (Driver 2)
+	72147-TZ5-A11
+	Buttons
+	4-Button: Lock, Unlock, Hatch, Panic
+	Battery
+	CR2032
+	Emergency Blade
+	HON66 / HO01
+	Acura TLX (2015–2020) & ILX (2016–2022)
+While visually similar to the MDX key, the internal board layout differs slightly.
+Feature
+	Specification
+	Key Type
+	Smart Proximity Key
+	FCC ID
+	KR5V1X
+	OEM Part (Non-Memory)
+	72147-TX6-A22 (Common on lower trims)
+	OEM Part (Driver 1)
+	72147-TZ3-A01
+	OEM Part (Driver 2)
+	72147-TZ3-A11
+	Buttons
+	4-Button: Lock, Unlock, Trunk, Panic
+	Frequency
+	315 MHz
+	Acura RDX (2019–2024) & TLX (2021–2024)
+The shift to 433MHz occurred here.
+Feature
+	Specification
+	Key Type
+	Smart Proximity Key (New Body Style)
+	FCC ID
+	KR5T21 (Early) / KR5TP-2 (Late)
+	Frequency
+	433 MHz
+	Chip Type
+	NCF29A1 (Hitag AES / 4A)
+	OEM Part (Driver 1)
+	72147-TJB-A11
+	OEM Part (Driver 2)
+	72147-TJB-A31
+	Buttons
+	4-Button: Lock, Unlock, Hatch, Panic
+	Acura MDX (2022–2026) – The Dual Band System
+This key represents the highest tier of complexity.
+Feature
+	Specification
+	Key Type
+	Bi-Directional Smart Key
+	FCC ID
+	KR5BTP (Bi-Directional) / KR5TP-2 (Standard)
+	Frequencies
+	433 MHz (Immo/Entry) + 900 MHz (Remote Start Feedback)
+	Chip Type
+	Hitag AES (4A)
+	OEM Part (Driver 1)
+	72147-TYA-C01 / 72147-TYA-A11
+	OEM Part (Driver 2)
+	72147-TYA-C11 / 72147-TYA-A21
+	Buttons
+	5-Button: Lock, Unlock, Hatch, Engine Hold, Panic
+	Notes
+	"Engine Hold" button keys utilize the 900MHz band. Aftermarket keys often lack this, breaking remote start.
+	Acura Integra (2023–2026)
+Shared with the Honda Civic FL platform.
+Feature
+	Specification
+	Key Type
+	Smart Proximity Key
+	FCC ID
+	KR5TP-2
+	Frequency
+	433 MHz
+	Chip Type
+	Hitag AES (4A)
+	OEM Part
+	72147-3S5-A01
+	Buttons
+	4-Button
+	Notes
+	Strictly requires CAN FD adapter.
+	3.3 Emergency and Valet Keys
+* Standard Emergency Blade: All smart keys in this report use the HON66 high-security blade. It acts as a mechanical override for the driver's door lock cylinder.
+* Valet Function: The emergency blade often locks/unlocks the glove box and the trunk lockout switch (if equipped).
+* Valet Key (Grey Head): Older concepts of a "Valet Key" (grey head that won't open trunk/glovebox) are obsolete in the smart key era. The "Valet Mode" is now achieved by removing the mechanical blade from the smart fob and giving the fob to the valet, while the owner keeps the blade and locks the glovebox/trunk release.
+* Remote Head Keys: The prompt requested information on "Remote Head Keys." In the 2015–2026 window, these are virtually non-existent on the core Acura models (MDX, RDX, TLX). The ILX (based on the Civic) in its earliest base trims (2013-2015) might have utilized a keyed ignition, but by the 2016 facelift, the Smart Key became ubiquitous across the lineup. Inventory focus should remain 99% on Smart Keys.
+________________
+4. All Keys Lost (AKL) Procedures by Model
+The "All Keys Lost" scenario defines the locksmith's capability. This section details the specific programming logic and menu paths for the major diagnostic tools.
+4.1 Pre-Programming Preparation
+Before initiating any AKL procedure:
+1. Battery Support: Connect a maintainer.
+2. Alarm Silence: Pick the door lock to disarm the active alarm.
+3. Key Collection: Have all keys to be programmed (at least 1, preferably 2) ready.
+4. Verification: Verify the frequency of the new keys (315MHz vs 433MHz) matches the vehicle year.
+4.2 Legacy Platforms (2015–2020 MDX, RDX, TLX)
+Tool: Autel IM608 Pro II / IM508
+Protocol: Standard CAN
+Detailed Procedure:
+1. Connection: Connect VCI to OBD-II.
+2. Path: IMMO > Acura > Manual Selection > MDX > 2014-2020 > Smart Key.
+3. System Scan: Perform a "Health Check" to ensure the BCM is responsive.
+4. Function: Select Keyless System (CAN) > All Keys Lost.
+5. Ignition Force: The tool will attempt to communicate. If the ignition is OFF (locked), the tool will use a "Force Ignition On" packet. You will hear the relays click and the dash may light up.
+6. Key Registration:
+   * Prompt: "Take one keyless remote into the vehicle."
+   * Prompt: "Turn Ignition ON." (Press the Start button twice. If the key is not detected, hold the emblem of the fob directly to the Start button).
+   * The tool will write the Key ID to the BCM.
+   * Prompt: "Do you want to program another key?" (Yes/No).
+7. Indicator Check: Verify the green key security light on the dash extinguishes.
+8. Synchronization: The tool will synchronize the IMMO and Engine ECU.
+9. Completion: Cycle ignition OFF. Test remote functions.
+Tool: XTOOL D8 / AutoProPad
+Path: Immobilizer > Honda/Acura > Smart Key System > Type 3 (or Type 4 depending on year).
+Procedure:
+1. Select All Keys Lost.
+2. The XTOOL interface is simpler but follows the same logic. It relies heavily on the "Honda Algorithm" for PIN bypass.
+3. Note: XTOOL is excellent at bypassing the 10-digit PCM code requirement automatically.
+Tool: Advanced Diagnostics Smart Pro
+Path: Acura > MDX > 2014-2020.
+Procedure:
+1. Select Program Proximity Keys.
+2. Smart Pro utilizes the "ADS Server" to bypass the PIN. Ensure Wi-Fi is active.
+3. The "Tips and Hints" section on Smart Pro often provides photographs of the specific "Sweet Spot" for the key if the Start button antenna is weak (often the cupholder or specific slot).
+4.3 CAN FD Platforms (2022+ MDX, 2023+ Integra)
+Tool: Autel IM608 Pro II (Native CAN FD) or IM508 with Adapter
+Protocol: CAN FD
+Detailed Procedure:
+1. Hardware: CRITICAL: Connect the CAN FD Adapter to the VCI if using older hardware.
+2. Path: IMMO > Acura > Expert Selection > Integra > 2023-2024 > Smart Key (CAN FD).
+3. Network Scan: The tool scans the Gateway to verify CAN FD communication.
+4. Cloud Calculation: The tool extracts the Immo Data. This requires a stable internet connection. It calculates the necessary unlock codes to bypass the Secure Gateway.
+5. Key Learning:
+   * Prompt: "Put the smart key to be learned inside the vehicle."
+   * Technique: On the 2023 Integra, the detection coil on the Start button is highly directional. Hold the key flat against the button.
+6. Key ID Writing: The tool writes the new 4A (Hitag AES) ID to the unit.
+7. Remote Start Check: For the MDX, verify the "Engine Hold" button functionality immediately. If it fails, the 900MHz antenna in the key or car may be mismatched.
+4.4 PIN Code Requirements and Sources
+* Pre-2015: 4-Digit Fixed PIN. (Obsolete for this report).
+* 2015–2020: 10-Digit PCM Code. This is calculated based on the VIN and the PCM Seed.
+   * Source: Most tools (Autel/XTOOL) calculate this internally in the background.
+   * External Source: NASTF (National Automotive Service Task Force) credentials allow access to the Honda/Acura Key Code broker for a fee.
+* 2021+ (CAN FD): Rolling Code / Server Authentication.
+   * Source: The tool MUST have an active server connection to the manufacturer (via the tool's cloud) to derive the response. There is no manual "PIN" to enter.
+________________
+5. Add Key Procedures
+5.1 Self-Programming Capability
+It is a definitive fact that NO Acura model from 2015 through 2026 supports user self-programming (On-Board Programming). The days of "cycling the key in the ignition" ended in the mid-2000s. All key additions require professional diagnostic equipment.
+5.2 Tool-Assisted Add Key
+The "Add Key" function is safer than AKL as it does not wipe the existing key table.
+1. Authorization: The working key authorizes the BCM to open the programming window.
+2. Slot Management: The system typically supports up to 6 keys.
+3. Procedure:
+   * Enter Add Key menu.
+   * Tool asks to turn ignition ON with the Working Key.
+   * Tool asks to take Working Key out of the vehicle (at least 10 feet away).
+   * Tool asks to bring New Key into the vehicle.
+   * Tool asks to turn Ignition ON with New Key.
+   * Success confirms registration.
+4. Memory Slot Conflict: If you add a generic key, it usually defaults to "Driver 3" (Linkless). To clone a "Driver 1" profile, specialized cloning tools (like the KeyDIY or Xhorse Key Tool Max) might be needed to modify the remote's emitted ID before programming, though OEM keys are hard-coded.
+________________
+6. Mechanical Key Specifications
+The mechanical key remains the fail-safe entry method.
+6.1 The HON66 Keyway
+The HON66 (also known as HO01, HO03) is the standard high-security keyway for Honda and Acura.
+* Type: 4-Track Internal (Web) or External High Security.
+* Axis: Two axes (Side A and Side B) with split wafers.
+* Depths: 1 (Shallowest) to 6 (Deepest).
+* Positions: 6 positions per side (12 cuts total).
+* Complexity: The wafers are often arranged in "Split" pairs. Position 1 on Side A might be depth 3, while Position 1 on Side B is depth 5. This requires precise decoding.
+6.2 Lishi Tool Compatibility
+The Lishi HON66 (2-in-1) is the essential tool.
+* Operation: Insert tool fully. Apply medium tension.
+* Picking: Feel for binding wafers on Axis A and Axis B. Pick to shear line.
+* Decoding: Once the lock is picked (cylinder turns), hold the tension and use the reader arm to determine the depth of each of the 12 positions.
+* Note: The door lock cylinder on late-model Acuras (2019+) feels "spongy" due to weather sealing and clutch mechanisms. Ensure the tool is fully seated to avoid misreading the first position.
+6.3 Key Code Sources
+* Physical Tags: A small plastic tag with the key code (e.g., K001-N999) is provided with the new vehicle.
+* Glove Box: On older models (pre-2016), a sticker might be on the side of the glove box. This is rare on 2017+ models.
+* Door Lock: The code is NOT stamped on the door lock cylinder face. It requires removing the door panel and inspecting the lock housing, which is impractical.
+* NASTF: The only reliable source for 2015+ vehicles is a VIN-to-Key-Code query via a verified locksmith data broker (NASTF SDRM).
+________________
+7. Shared Honda Platform Intelligence
+Leveraging Honda knowledge is crucial for troubleshooting Acuras.
+7.1 Platform Sharing Matrix
+* Acura ILX (2013-2022) = Honda Civic (9th Gen, FB chassis)
+   * Implication: Keys and programming logic are nearly identical to the 2012-2015 Civic. Very stable, older technology.
+* Acura Integra (2023+) = Honda Civic (11th Gen, FL chassis)
+   * Implication: This is the most important pairing. The 2023 Integra is essentially a Civic FL in a tuxedo. If your tool fails under "Acura Integra," try "Honda Civic 2022+ (CAN FD)."
+* Acura RDX (2013-2018) = Honda CR-V (RM chassis)
+   * Implication: Shares the same "Type 3" Smart Key logic.
+* Acura MDX (2014-2020) = Honda Pilot (2016-2022)
+   * Implication: Both use the YD chassis architecture. However, Pilot keys often use different FCC IDs (KR5V2X) compared to MDX (KR5V1X). Do not assume interchangeability of parts, only logic.
+7.2 Part Number Interchangeability
+While platforms are shared, Key Fobs are rarely interchangeable between Honda and Acura due to:
+1. Logo/Branding: Customers reject Honda keys for Acuras.
+2. Button Layout: Acura keys often feature "Hatch" or "Memory" buttons that Honda keys lack.
+3. Frequency Mismatch: Even if the shell looks the same, the transmission protocols often differ slightly to prevent cross-talk.
+* Exception: The Emergency Blades (HON66) are universally interchangeable across the entire 2002–2026 Honda/Acura lineup.
+________________
+8. Common Issues & Troubleshooting
+The following table synthesizes common field failures and their resolutions.
+Symptom
+	Probable Cause
+	Technical Resolution
+	Tool hangs at "Security Access"
+	Alarm Active State / BCM Lockout.
+	Pick driver door lock to "Unlock" position. Perform battery reset (10 mins). Ensure hood latch is closed.
+	"Communication Error" (2023+ Model)
+	Missing CAN FD hardware.
+	Install CAN FD Adapter. Verify VCI firmware is updated.
+	Key Programming Success, but Remote Dead
+	Frequency Mismatch / Memory Mismatch.
+	Check if key is 315MHz vs 433MHz. Verify if vehicle requires Driver 1 or Driver 2 specific fob.
+	"Keyless Start System Error" on Dash
+	BCM Corruption / Low Voltage.
+	IMMEDIATE: Connect 13.5V maintainer. Perform "All Keys Lost" again to rewrite BCM data.
+	Remote Start Fails (2022 MDX)
+	900MHz Band Failure.
+	The aftermarket key likely lacks the bi-directional UHF transmitter. Use OEM key.
+	Steering Lock Wont Release (Programming)
+	Immobilizer Brake Code needed.
+	Some 2022+ models require a "Brake Code" (PIN) to release the electric steering lock during AKL. Obtain from NASTF.
+	Door Lock Cylinder Spins Freely
+	Clutch Mechanism Disengaged.
+	This is a security feature. The lock must be picked precisely to the shear line, then turned with significant (but controlled) force to engage the actuator clutch.
+	________________
+9. Tool Coverage Matrix
+
+
+  
+
+
+
+________________
+10. Video Tutorials and Reference Library
+The following curated video library provides visual validation of the procedures described above.
+1. Acura MDX 2014-2020 All Keys Lost (Autel IM508): YouTube - Mods Forever.1 A definitive guide for the Legacy platform.
+2. Honda & Acura Key Code Finding Tutorial: YouTube - Mods Forever.2 Essential for locating key codes when NASTF is unavailable.
+3. Acura Integra 2023 Add Key (CAN FD): YouTube - Super Mario Diagnostics.3 Demonstrates the specific 2023+ CAN FD workflow.
+4. Autel CAN FD Adapter Usage Guide: YouTube - Autel.4 Explains the physical connection of the adapter for Honda/Acura.
+5. Acura TLX Smart Key Programming: YouTube - Dynamic Auto Works.5 Covers the sedan-specific nuances.
+6. Advanced Diagnostics Smart Pro ADS2336 Demo: YouTube - Advanced Diagnostics USA.6 Shows the server-based bypass for 2024 models.
+7. Acura RDX 2019+ Programming: YouTube - BAMF.7 Covers the transitional 433MHz platform.
+8. 2022 Acura MDX Remote Start Features: YouTube - Real Cars With Steve.8 Explains the "Engine Hold" button logic.
+9. XTOOL Key Programming Acura: YouTube - Mods Forever.9 Validates XTOOL coverage for older models.
+10. Honda/Acura Alarm Bypass (Hood Latch): YouTube - Dan the Fix it Man.10 A crucial workaround for the "Alarm Active" programming block.
+________________
+Conclusion
+The Acura locksmithing environment (2015–2026) is defined by a sharp technological fracture point located at the 2022 model year. Vehicles prior to this fracture (MDX YD3, RDX TB4/TC2, TLX UB1) represent a mature, stable ecosystem supported by standard CAN protocols and widely available tools. The locksmith’s primary challenge here is managing the "Driver Memory" inventory and maintaining battery voltage during BCM writes.
+However, the post-2022 landscape (MDX YD4, Integra DE4, TLX TG) introduces an elevated threat level. The integration of CAN FD, Secure Gateways, and 900MHz bi-directional communication demands a capitalization in new hardware (CAN FD adapters, server-connected programmers) and a rigorous adherence to NASTF protocols. The professional locksmith must view the 2023 Integra not as an Acura, but as a harbinger of the encrypted, connected future of automotive security, requiring not just a key cutter, but a network technician's mindset.
+Works cited
+1. ACURA MDX TLX RLX RDX ALL KEYS LOST PUSH START(SMART KEY) TUTORIAL#allkeyslost #keyprogrammer#acura - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=K_PELmyQdqg
+2. Honda & Acura All Keys Lost | How to Find Your Key Code Tutorial - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=MCMyKSlD08Y
+3. Adding Acura/Honda Keys - using Autel IM608 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=U0gJP658aWg
+4. (3/6) Autel IM608 Pro | Make A Car Key Without The Original | Key Programming - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=WTyA6Ejg1v8
+5. Acura Smart Key programming ( All Keys Lost) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=0d3TBxsfvXg
+6. The New 2024 Honda Smart Pro software ADS-2336 has been released! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=nBc0-DTdY1Q
+7. Acura RDX 2017 New Prox Key with Autel 508 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=tDAOvhILSZY
+8. Remote Start and Keyfob Tricks in the Acura MDX (and how to set them up) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=n7MgcmlyjUo
+9. How to Program Acura Key Fob | MDX, TLX, RLX, ILX, RDX (2014–2020) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=YptSWdPt8Oc
+10. ALARM KEEPS GOING OFF! How to stop a Honda or Acura Security Alarm from going off. EASY DIY FIX! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=_hdqhXJabwk

@@ -1,0 +1,289 @@
+﻿The Lincoln Security Architecture: A Comprehensive Locksmith Intelligence Report (2015–2026)
+1. Executive Intelligence Summary
+1.1 The Strategic Shift in Automotive Access Control
+The operational landscape for the automotive locksmith profession has undergone a fundamental transformation over the last decade, a shift nowhere more evident than within the Lincoln luxury vehicle portfolio. Between 2015 and 2026, the Lincoln Motor Company, operating as the luxury division of Ford Motor Company, migrated from legacy, hardware-defined security protocols to complex, software-defined ecosystems. This transition was not merely an upgrade of components but a complete reimagining of vehicle access control architecture. For the security professional, this period represents a migration from the mechanical certainty of the H75/HU101 keyway and standard 40-bit or 80-bit transponder logic to a networked environment dominated by 128-bit encryption, Controller Area Network Flexible Data-Rate (CAN FD) communication buses, and cloud-dependent authentication layers.
+The intelligence gathered for this report, covering the Lincoln Navigator, Aviator, Nautilus (formerly MKX), Corsair (formerly MKC), and Continental, reveals a distinct bifurcation in Lincoln’s security strategy. The early phase (2015–2019) was characterized by shared Ford global architectures (CD4, Global C) utilizing standardized 315 MHz or 902 MHz frequencies and largely interoperable Intelligent Access systems. The subsequent and current phase (2020–Present), however, is defined by the introduction of the CD6 and C2 platforms. This modern era is marked by a silent yet critical migration to 434 MHz frequencies for global compliance, the absolute requirement for CAN FD adapters for diagnostic communication, and the integration of Phone-As-A-Key (PAAK) technologies that fundamentally alter the definition of a "master key."
+1.2 The Silent Migration: 902 MHz to 434 MHz
+A critical, non-obvious insight derived from deep analysis of part number supercessions and FCC filings is Lincoln's strategic migration from the North American-centric 902 MHz frequency to the global 434 MHz standard. This shift began incrementally with the 2022/2023 model years across the Navigator, Aviator, and Nautilus lines. The danger for inventory management is significant: the "Look-Alike" syndrome is prevalent. A 2020 Aviator key fob (902 MHz) and a 2024 Aviator key fob (434 MHz) share identical external housings, button configurations, and emergency key inserts. However, they possess incompatible internal RF logic boards and distinct FCC IDs.1 Locksmiths relying on visual identification will face inevitable failure, as the vehicle’s Body Control Module (BCM) will simply ignore the transmission of an incorrect frequency fob, often leading to misdiagnosis of the vehicle’s receiver module rather than the key itself.
+1.3 The Active Alarm Protocol and "All Keys Lost"
+The 2020+ Lincoln lineup has increasingly adopted aggressive "Active Alarm" states. In an "All Keys Lost" (AKL) scenario, the vehicle’s alarm system now actively suppresses communication on the OBD-II port. Unlike previous generations where the alarm would sound but diagnostic communication would continue, the modern BCM logic interprets OBD-II activity during an alarmed state as a hacking attempt, effectively firewalling the port.3 This necessitates a fundamental change in locksmith methodology, moving away from simple plug-and-play programming to sophisticated intervention strategies. These include the use of specialized bypass cables that physically interrupt the alarm circuit or inject data directly onto the CAN bus, the utilization of "emulator" keys to simulate a valid transponder presence, or strict adherence to waiting periods that can exceed 10 minutes to allow the alarm logic to time out before BCM access is granted.
+
+
+  
+
+
+
+________________
+2. Platform Architecture and Security Implications
+To truly master Lincoln key programming, one must look beyond the badge and understand the underlying platform architecture. Lincoln vehicles are luxury derivatives of specific Ford architectures, but they often function as the testbeds for the most advanced—and restrictive—security implementations before they trickle down to mass-market Ford models. The specific implementation of security modules, gateway firewalls, and data speeds is dictated by these platforms.
+2.1 The T3 Platform (Navigator)
+The T3 Platform (Truck 3) underpins the Lincoln Navigator and its corporate sibling, the Ford Expedition. This body-on-frame architecture is robust but presents unique challenges due to its evolutionary nature.4
+* Generation 4 (2018–2024): Utilizes the U554 internal code. Security is managed by a BCM that is closely integrated with the Gateway Module (GWM). In this generation, the GWM begins to act as a significant gatekeeper. Accessing the communication bus often requires bypassing the GWM if the OBD port is locked down by an active alarm. The transition from CGEA 1.2 (Common Global Electrical Architecture) to CGEA 1.3 occurred during this lifecycle, increasing the complexity of module-to-module authentication.
+* Generation 5 (2025–Present): The U718 code represents the current state of the art. This platform introduces the Fully Networked Vehicle (FNV) architecture, which is heavily reliant on Ethernet for high-speed module communication. Key programming here is not just about the BCM; it involves the Remote Function Actuator (RFA) module which authenticates the 434 MHz signal.4 The cryptographic handshake between the key, the RFA, and the BCM is significantly faster and more complex, often requiring persistent server connection for calculation.
+2.2 The CD6 Platform (Aviator)
+The CD6 (Chicago D-segment 6) platform, debuting with the 2020 Lincoln Aviator, marked the brand's return to a Rear-Wheel Drive (RWD) architecture, shared with the Ford Explorer.5
+* Security Implication: CD6 was the pioneer platform for Lincoln to widely enforce CAN FD protocols on the diagnostic lines. Standard OBD-II programmers without CAN FD hardware support cannot strictly communicate with the BCM for key learning functions. The data transfer rate for the security handshake is significantly higher (up to 5 Mbit/s) compared to the standard HS-CAN (500 kbit/s). This platform is also notorious for its sensitive "perimeter alarm" logic, which utilizes ultrasonic sensors in the headliner to detect movement inside the cabin—a common trigger for locksmiths working inside a locked vehicle.3
+2.3 The C2 Platform (Nautilus, Corsair)
+The C2 Platform is Ford’s highly modular compact/midsize unibody architecture. It is extremely scalable, underpinning everything from the Ford Escape/Kuga to the 2024+ Lincoln Nautilus.6
+* C2 Security Architecture: This platform utilizes a "Distributed Security" model. While the BCM remains the primary gatekeeper for key IDs, the Gateway Module (GWM) acts as a strictly enforced firewall against unauthorized diagnostic tools.
+* The 2024+ Nautilus Shift: The migration of the Nautilus to the C2 platform (specifically the CDX707 variant) in 2024 introduced a radical change in the Human-Machine Interface (HMI) and security interaction.7 The removal of physical key code cards in favor of cluster-displayed codes is a direct result of this new digital architecture, which assumes a "screen-first" interaction model for all vehicle data.8
+2.4 The CD4 Platform (MKZ, Continental, MKX, Early Nautilus)
+The CD4 platform is the legacy architecture that defined the mid-2010s for Lincoln.9
+* Characteristics: These vehicles represent the most straightforward work for locksmiths today. They utilize standard ISO 15765-4 CAN protocols. The "Active Alarm" issue is present but significantly less aggressive than in C2 or CD6 vehicles. Programming is typically successful via standard OBD-II connections without the need for bypass cables, provided the alarm is disarmed or the standard 10-minute security access wait period is observed. The BCMs in this era are robust and less prone to "bricking" during failed programming attempts compared to the newer FNV architectures.
+________________
+3. The Locksmith's Ecosystem: Tools, Adapters, and Protocols
+Before examining specific models, it is essential to establish the baseline equipment and protocols required to service the 2015-2026 Lincoln fleet. The days of a single programmer handling the entire lineup are effectively over; the modern locksmith requires a modular toolkit.
+3.1 The Necessity of CAN FD
+Controller Area Network Flexible Data-Rate (CAN FD) is an extension of the original CAN protocol. It allows for higher data rates and larger data payloads per frame (up to 64 bytes vs. 8 bytes).
+* Why it Matters: The 2021+ Navigator, 2020+ Aviator, and 2024+ Nautilus utilize CAN FD for the critical security modules (BCM, RFA, GWM). Attempting to program these vehicles with a legacy tool (e.g., an Autel IM608 Gen 1 without the VCI update or adapter) will result in a "Communication Error".10
+* Hardware Solutions:
+   * Autel: Users of the MaxiIM IM508 or IM608 (Gen 1) must use the CAN FD Adapter (Connects to the VCI). Users of the IM508S or IM608 Pro II (Gen 2) have CAN FD support built into the newer VCI V200 interface.11
+   * Advanced Diagnostics (Smart Pro): The Smart Pro generally handles CAN FD via software updates, but connection stability is vastly improved with the use of the ADC2020 or updated OBD cables designed for high-speed data.3
+   * Propads/XTool: The X100 PAD3 requires the CAN FD adapter for successful communication with the 2021+ Lincoln lineup.
+3.2 Active Alarm Bypass Strategies
+The "Active Alarm" state is the primary barrier to successful programming in All Keys Lost (AKL) situations. When the alarm is sounding, the BCM in C2 and CD6 vehicles enters a defensive state.
+* Method A: The Waiting Game: The traditional method involves mechanically unlocking the door (triggering the alarm), leaving the ignition in the ON position, and waiting 10 minutes. In theory, the alarm times out and the BCM accepts diagnostic traffic. In practice, on newer Lincolns (2022+), the alarm may re-arm or the battery may drain before the programming window opens.
+* Method B: The Battery Reset: Disconnecting the vehicle battery, shorting the leads (to drain capacitors), and reconnecting can sometimes reset the alarm logic long enough to initiate programming. However, this risks clearing learned values in other modules (e.g., transmission adaptive tables).
+* Method C: The Bypass Cable: This is the professional standard. Tools like the Autel/XTool Ford Alarm Bypass Cable connect directly to the BCM connectors (often located in the Passenger Junction Box area) or bridge the OBD port pins to interrupt the alarm signal while maintaining data lines.12 This allows immediate access to the BCM without the 10-minute wait, reducing job time and battery strain.
+* Method D: The Emulator: Using an emulator (like the Autel APB112 or Keyless Factory emulator) allows the locksmith to generate a "simulated key" if they can read the BCM data first. This simulated key acts as a master key to disarm the system immediately.3
+3.3 Frequency Management
+Inventory management is critical. The shift from 902 MHz to 434 MHz is not visually apparent.
+* The Tester is King: A high-quality RF frequency tester is mandatory. Before attempting any programming, the locksmith should, if possible, test the customer's broken key or verify the part number via VIN decoding.
+* Stocking Strategy: Locksmiths must stock both the M3N-A2C931426 (902 MHz) and the M3N-A3C108397 (434 MHz) fobs. They are never cross-compatible.2
+________________
+4. Detailed Model Analysis: Lincoln Navigator (2015–2026)
+The Lincoln Navigator serves as the flagship of the brand, and its security evolution mirrors the industry's move from mechanical to digital. It has passed through three distinct security generations in the timeframe of this report.
+4.1 Navigator Generation 3 (2015–2017)
+* Platform: T1 (U326)
+* Key System: Intelligent Access (PEPS) with Slot.
+* Frequency: 315 MHz
+* FCC ID: M3N5WY8609
+* Transponder: ID46 (PCF7953)
+* Emergency Key: HU101
+* Operational Insight:
+This generation represents the "legacy" era. It utilizes a 315 MHz system common to the Ford Edge and Explorer of the same vintage.14 The key fob is typically the 5-button "teardrop" or "shield" shape.
+   * AKL (All Keys Lost): This system requires a standard 10-minute bypass if the alarm is active. Communication is via standard CAN. Most aftermarket tools (Autel, Smart Pro, CK100) handle this with near 100% success rates.
+   * Add Key: On-board programming (OBP) is possible if two working keys are present. The slot is located in the center console.
+   * Vulnerability: These keys are prone to button failure (collapsed domes). The slot reader in the console can also become clogged with debris, causing "No Key Detected" errors even with a good key.
+4.2 Navigator Generation 4 (2018–2021)
+   * Platform: T3 (U554)
+   * Key System: PEPS High Security.
+   * Frequency: 902 MHz
+   * FCC ID: M3N-A2C931426 (Strattec 5933985 / 164-R8198)
+   * Transponder: ID49 (Hitag Pro 128-bit)
+   * Emergency Key: HU101
+   * Operational Insight:
+This generation marks a massive leap in security. The frequency shifts to 902 MHz for better penetration and range.15 The transponder upgrades to the 128-bit ID49, which is far more secure than the ID46 and cannot be easily cloned without specialized sniffing tools.
+      * Programming: Requires internet-connected diagnostic tools (e.g., Smart Pro with Ford software, Autel IM608). The security calculation is done online.
+      * Active Alarm: If the alarm is triggered, the BCM locks the OBD port. The locksmith must use a tool capable of "gaining security access," which involves a server calculation. NASTF credentialing is often bypassed by aftermarket tool servers, but official Ford FDRS requires it.
+      * Slot Location: The backup slot is located at the bottom of the center console storage bin, under the rubber mat.16
+4.3 Navigator Generation 4.5 & 5 (2022–2026)
+      * Platform: T3 (U554 Refresh / U718)
+      * Key System: Next-Gen PEPS / PAAK.
+      * Frequency: 902 MHz (2022) -> 434 MHz (2023+)
+      * FCC ID:
+      * 2022: M3N-A3C054339 (902 MHz) 17
+      * 2023–2026: M3N-A3C108397 (434 MHz) - Critical Change 1
+      * Transponder: ID49 (Hitag Pro)
+      * Operational Insight:
+The 2022 refresh brought minor aesthetic changes but significant electrical updates. The 2023 model year introduces the 434 MHz fob (Part Number 164-R8351).
+         * Compatibility Warning: The 2022 and 2023 fobs look identical. Attempting to program a 902 MHz fob to a 2023 vehicle will fail silently (the car simply won't detect it).
+         * Programming: This vehicle strictly requires CAN FD support. The diagnostic connector under the dash may require a gateway bypass cable if the tool cannot negotiate the firewall. The alarm system is extremely aggressive; utilizing an active alarm bypass cable is highly recommended to avoid the 10+ minute wait times or failed access attempts.3
+         * The 2025+ Model: With the shift to the U718 platform in 2025, the electrical architecture aligns with the "Digital Experience" seen in the Nautilus. Key programming likely requires the newest software patches from tool manufacturers to handle the updated RFA module security blocks.
+
+
+  
+
+
+
+________________
+5. Detailed Model Analysis: Lincoln Aviator (2020–2026)
+The Lincoln Aviator is the technology carrier for the brand. Reintroduced in 2020, it skipped the legacy phase entirely and launched directly onto the advanced CD6 architecture, bringing with it a host of new security challenges.
+5.1 Aviator (2020–2022)
+         * Platform: CD6
+         * FCC ID: M3N-A2C931426
+         * Frequency: 902 MHz
+         * Part Numbers: 164-R8278 (5-button) 15
+         * Locksmith Challenges:
+         * CAN FD Requirement: The 2020 Aviator was one of the first Ford/Lincoln vehicles to use CAN FD. Many older programmers failed to communicate with the BCM upon launch. Today, updated tools handle this, but the requirement remains.10
+         * Active Alarm Sensitivity: The alarm system is highly sensitive. The ultrasonic sensors inside the cabin can trigger the alarm if the locksmith moves while inside the locked vehicle during the waiting period. It is recommended to stay perfectly still or wait outside the vehicle if performing the 10-minute wait method.
+         * Bypass Effectiveness: The "Simulated Key" method (using an emulator like the APB112 or ADC2020) is highly effective on this platform. It fools the system into thinking a valid key is present to disarm the alarm immediately, allowing for faster programming.3
+5.2 Aviator (2023–2026)
+         * Platform: CD6 (Updated)
+         * FCC ID: M3N-A3C108397
+         * Frequency: 434 MHz
+         * Part Number: 164-R8351 / 164-R8401 18
+         * Motion Sense Key Fobs:
+Newer Lincoln fobs, including those for the Aviator, feature "sleeping" battery technology. If the fob sits still for approximately 40 seconds, it stops transmitting to save battery life and prevent relay attacks (where thieves boost the signal from inside a house to steal the car).
+            * Technique: When programming new fobs, the locksmith must shake the key or press a button to wake it up immediately before attempting to learn it to the car. Failure to do so results in a "Key Not Detected" error during the programming sequence, leading to false diagnosis of a bad key.
+5.3 Hybrid Considerations
+The Aviator Grand Touring (Plug-in Hybrid) presents a unique risk.
+            * 12V Battery Stability: The high-voltage system does not always keep the 12V accessory battery charged when the ignition is in "Service Mode" or OFF. Programming sessions that extend beyond 15-20 minutes (common with active alarm waits) can drain the small 12V AGM battery, causing the BCM to drop voltage and fail the programming.
+            * Protocol: Always connect a high-quality battery maintainer (providing 13.5V - 14V) to the jump posts under the hood during any programming procedure on a hybrid Aviator.
+________________
+6. Detailed Model Analysis: Lincoln Nautilus / MKX (2016–2026)
+The transition from MKX to Nautilus is a story of rebranding, but the 2024 model year represents a hard break in engineering, splitting the lineage into two distinct security eras.
+6.1 Lincoln MKX (2016–2018)
+            * Platform: CD4
+            * FCC ID: M3N-A2C31243300 (standard) or M3N-A2C31243800 (different trim) 19
+            * Frequency: 902 MHz
+            * Key Features: 5-button standard.
+            * Programming: This utilizes the standard Ford PEPS procedure. It requires a 10-minute wait if all keys are lost (AKL). It is very reliable to program and rarely requires bypass cables. The alarm system is less aggressive than C2 platform vehicles.
+6.2 Lincoln Nautilus Gen 1 (2019–2023)
+            * Platform: CD4 (Revised)
+            * FCC ID: M3N-A2C931426 (Shared with Aviator/Corsair of same vintage).15
+            * Frequency: 902 MHz.
+            * Insight: Despite the name change, the 2019-2023 Nautilus behaves electrically like a late-model MKX. It retains the older BCM architecture, meaning CAN FD adapters are generally not required for this generation, unlike the Aviator of the same years. The programming slot is typically in the center console.
+6.3 Lincoln Nautilus Gen 2 (2024–2026)
+            * Platform: C2 (CDX707)
+            * FCC ID: M3N-A3C108397
+            * Frequency: 434 MHz 1
+            * The "No Card" Protocol:
+For years, Lincolns were delivered with a credit-card-sized card in the glovebox containing the 5-digit factory SecuriCode (keypad code). The 2024 Nautilus does not include this card. The move to the "Lincoln Digital Experience" means physical static codes are deprecated.8
+               * Retrieval Method: Locksmiths cannot simply "find" the card. The code must be retrieved electronically via a specific sequence that requires two programmed keys.
+               * Procedure:
+               1. Place Key 1 in the backup slot (front of the center console, under the mat near USB ports).
+               2. Press Start (ACC mode). Wait 5 seconds.
+               3. Press Start (OFF).
+               4. Place Key 2 in the slot.
+               5. Press Start (ACC).
+               6. The factory code will display on the massive 48-inch panoramic screen.8
+               * Implication: You must program two keys to retrieve the keypad code for the customer. You cannot retrieve it with just one key (unless using a high-end diagnostic scanner like FDRS to read the BCM data block directly). This creates an upsell opportunity: "I need to make you a second key to recover your door code."
+________________
+7. Detailed Model Analysis: Lincoln Corsair / MKC (2015–2026)
+7.1 Lincoln MKC (2015–2019)
+               * Platform: Global C
+               * FCC ID: M3N-A2C31243300 20
+               * Frequency: 902 MHz
+               * Emergency Key: HU101
+               * The "Ghost Key" Phenomenon:
+The MKC shares its electrical architecture with the Ford Escape (2013-2019). This generation of BCM is known for moisture intrusion issues (located in the passenger footwell). This can cause "Ghost Key" problems where the car detects a key that isn't there, or conversely, fails to detect a valid key. If a programmed key fails to start the car, check the BCM connectors for green corrosion before condemning the key.
+7.2 Lincoln Corsair (2020–2026)
+                  * Platform: C2
+                  * FCC ID:
+                  * 2020-2022: M3N-A2C931426 (902 MHz) 21
+                  * 2023+: M3N-A3C108397 (434 MHz) - Likely shift, verify VIN.
+                  * The "Phone As A Key" Variable:
+The Corsair was marketed heavily with Phone-As-A-Key (PAAK). This feature creates a significant issue for secondary market vehicles.
+                     * Resetting PAAK: When a Corsair is sold or repossessed, the previous owner's phone remains a "key" in the system memory. To the BCM, this occupies a memory slot (Slot 1-4). If the slots are full, new keys cannot be added.22
+                     * Master Reset: A standard "Clear All Keys" command via a locksmith tool should wipe PAAK slots, but field reports suggest PAAK digital keys can persist in the Telematics Control Unit (TCU).
+                     * Locksmith Procedure: ALWAYS perform a SYNC Master Reset (Settings > General > Reset > Lincoln Connect Reset) after programming physical keys to ensure the previous owner cannot unlock the car via the app.23 This is a liability protection step for the locksmith.
+________________
+8. Detailed Model Analysis: Lincoln Continental (2017–2020)
+8.1 The Single Generation (2017–2020)
+                     * Platform: CD4
+                     * FCC ID: M3N-A2C940780 24
+                     * Frequency: 902 MHz
+                     * Uniqueness:
+The Continental uses a unique fob design (Part # 164-R8155) that is not interchangeable with the MKX/Nautilus fobs of the same era, despite looking nearly identical. The button logic for the trunk/boot release is different due to the Continental's powered trunk lid architecture.
+                        * E-Latch System: The Continental features electronic door latches (no mechanical handles). If the vehicle battery is dead, the doors will not open. There is a capacitor-backed emergency release, but if that fails, the physical key cylinder is hidden behind the driver's door handle cap.
+                        * Access Difficulty: This cap is notoriously difficult to remove without scratching the paint. It requires a specific angle of attack with a pick tool to release the clip.
+                        * Lockout Tip: Use a plastic pry tool exclusively. The cylinder is strictly for mechanical entry; it does not control the central locking electronically. Once inside, the alarm will sound immediately upon opening the door if the battery has any charge.
+
+
+  
+
+
+
+________________
+9. Technical Programming Protocols
+9.1 The "All Keys Lost" (AKL) Procedure
+For 2020+ Lincoln vehicles, the AKL procedure is the most challenging service a locksmith performs.
+The "Active Alarm" Barrier:
+When a vehicle is locked and the alarm is armed, the BCM ignores commands from the OBD-II port to prevent unauthorized key cloning.
+                        1. Entry: Pick the door lock (HU101). This will trigger the alarm.
+                        2. Silence: The alarm will sound for 30 seconds to 1 minute.
+                        3. Connection: Connect the programmer (e.g., Autel IM608, Smart Pro).
+                        4. Bypass:
+                        * Method A (Software): Select "Active Alarm Mode" on the tool. The tool will attempt to silence the alarm by communicating with the IPC (Instrument Panel Cluster) or Gateway. This can take 10+ minutes.
+                        * Method B (Hardware): Use a Ford Alarm Bypass Cable. This cable connects between the BCM and the OBD port (or sometimes inline with the BCM connectors in the passenger footwell). It interrupts the alarm power or injects a "disarm" signal directly to the CAN bus.12
+                        5. Data Reading: Once the alarm is silenced, the tool reads the Flash data from the BCM/IMMO module to calculate the security pincode.
+                        6. Key Learning: Once the pincode is bypassed/read, the system enters "Learning Mode." The locksmith must insert the new smart key into the backup slot.
+9.2 The Backup Slot Locations
+Knowing the physical location of the programming slot is mandatory, as the vehicle will not detect the key in the cup holder or on the seat during learning mode.
+                        * Navigator: Bottom of the center console storage bin, under the rubber mat. Orientation varies (frontward or rearward) by year.16
+                        * Aviator: Inside the center console, often a vertical slot or a depression under the mat.
+                        * Nautilus (2024+): Front of the center console, under the mat near the USB ports.26
+                        * Corsair: Center console, deep bottom.27
+                        * Continental: Center console, often marked with a key symbol.
+9.3 Troubleshooting: "No Key Detected"
+If the vehicle fails to detect the key in the slot during programming:
+                        1. Wrong Frequency: You are likely trying to program a 902 MHz key to a 434 MHz car (or vice versa). Check the VIN.
+                        2. Sleep Mode: The new key's motion sensor has put it to sleep. Shake the key vigorously.
+                        3. Slot Debris: Coins or debris under the rubber mat can interfere with the inductive signal. Remove the mat completely.
+                        4. Low Battery: Even a new key might have a weak battery. The programming signal requires peak voltage. Replace the CR2450.
+________________
+10. Digital Forensics: Phone-As-A-Key (PAAK)
+The integration of PAAK introduces a new layer of complexity for ownership transfers and security auditing.
+10.1 The PAAK Architecture
+PAAK uses Bluetooth Low Energy (BLE) to communicate with multiple antennas around the vehicle (to triangulate the phone's position). It is not just an app; it creates a "Virtual Key" stored in the BCM's memory, identical to a physical fob.
+10.2 The Locksmith's Role in PAAK
+                        * Deletion: If a customer buys a used Aviator/Navigator, the previous owner may still have PAAK access.
+                        * Verification: A physical "Erase All Keys" via OBD-II should remove these. However, because PAAK is also linked to the cloud account (Lincoln Way App), the phone may re-provision itself if the vehicle modem (TCU) is not reset.
+                        * Procedure:
+                        1. Perform standard "Erase All Keys" via OBD-II.
+                        2. Perform "Lincoln Connect Reset" via the Sync screen.
+                        3. Advise the customer to perform a "Master Reset" of the infotainment system.23
+________________
+11. Emerging Trends and Future Outlook (2026+)
+11.1 Ultra-Wideband (UWB)
+The industry is moving from BLE to UWB for PAAK to prevent relay attacks. Future Lincoln models (likely the 2026/2027 Navigator refresh) will utilize UWB chips in both the phone and the key fob. This will require new frequency scanners for diagnostics.
+11.2 OTA (Over-The-Air) Security Patches
+Ford/Lincoln is aggressively patching security vulnerabilities via OTA updates. A procedure that works today (e.g., a specific BCM bypass) may be patched out tomorrow. Locksmiths must keep their programming tools updated weekly to counter these firmware changes.
+11.3 NASTF and the End of Offline Programming
+While current tools often bypass NASTF (National Automotive Service Task Force) requirements for key programming, Lincoln is moving key authentication to the cloud (part of the T3/GE2 electrical architecture). It is highly probable that by 2026/2027, all key programming will require an authenticated NASTF login and a persistent internet connection, effectively killing offline key programming for newer models.29
+12. Conclusions and Recommendations
+For the automotive locksmith servicing the 2015-2026 Lincoln lineup, success depends on three pillars: Identification, Adaptation, and Equipment.
+                        1. Identification: Never assume the frequency based on the shell. Use an RF tester to confirm 315, 902, or 434 MHz before cutting any blades.
+                        2. Adaptation: The "Active Alarm" is the new normal. Patience (waiting 10 minutes) or investment (bypass cables) is mandatory.
+                        3. Equipment: The era of basic programmers is over. A tool capable of CAN FD, active alarm bypass, and BCM calculation is the minimum standard for the 2024+ Nautilus and Navigator.
+The 2024 Nautilus serves as the bellwether: no code cards, 434 MHz keys, and screen-based retrieval. This is the template for the future of Lincoln security.
+________________
+13. Technical Appendices
+13.1 Emergency Keyway Specification
+                        * Profile: HU101 (High Security 2-Track).
+                        * Cut Depth: 10-cut system (Series 1-10 or similar).30
+                        * Usage: Door lock cylinder (often hidden under cap). Glovebox (some models).
+                        * Warning: The door lock cylinders on the Continental and newer Aviators are fragile. High torque from a Lishi tool can shear the internal tailpiece.
+13.2 Battery Specifications
+                        * CR2032: Used in older 2015-2017 fobs.31
+                        * CR2450: The standard for 2018+ "Pebble" and "Shield" smart keys. The higher capacity is needed for the constant RF pinging of the PEPS system.15
+
+
+  
+
+
+
+Works cited
+                        1. 2024 Lincoln Nautilus Smart Key Remote PN: 164-R8351, accessed January 5, 2026, https://remotesandkeys.com/products/2024-lincoln-nautilus-smart-key-remote-pn-164-r8351
+                        2. Oem Factory 2022-2025 Lincoln Logo Navigator Smart Key Fob Remote 164-R8321 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/116668647164
+                        3. Advanced Diagnostics ADC2020 NEW Ford / Toyota AKL Active Alarm Ford Emulator Cable - for Smart Pro - Southern Lock, accessed January 5, 2026, https://www.southernlock.com/itemdetail/026-2020
+                        4. Ford T platforms - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Ford_T_platforms
+                        5. Ford CD6 platform - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Ford_CD6_platform
+                        6. Ford C2 platform - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Ford_C2_platform
+                        7. 2024 Lincoln Nautilus Review, Pricing, and Specs - Car and Driver, accessed January 5, 2026, https://www.caranddriver.com/lincoln/nautilus-2024
+                        8. How to Find Your Lincoln Nautilus Door Key Code (2024–2026 Models) — Free & Easy Tutorial - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=Eyivhll4x4A
+                        9. Ford CD4 platform - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Ford_CD4_platform
+                        10. Keyfob Tricks in the Lincoln Aviator and how to set them up (2025 model) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=5Hd73qnwfiA
+                        11. Autel - Updates & Support Sub for IM608 and IM608 PRO II - 1 YEAR - ( machine sold separately ), accessed January 5, 2026, https://www.uhs-hardware.com/products/autel-key-programmer-maxiim-im608-updates-support-sub-1-year
+                        12. Magnus - Ford Active Alarm Bypass Kit - OBDII Adapter & Extension Cable - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/ford-active-alarm-bypass-kit-obdii-adapter-extension-cable-lock-labs
+                        13. XTOOL - AKL Alarm Bypass Cable for Ford All Key Lost Key Programming A - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/xtool-akl-alarm-bypass-cable-for-ford-all-key-lost-key-programming-adapter
+                        14. Fit for Lincoln MKT 2013-2019 315Mhz M3N5WY8609 Smart Remote Car Key Fob 46 Chip, accessed January 5, 2026, https://www.ebay.com/itm/186494731012
+                        15. 2020-2024 Lincoln Corsair Aviator Nautilus Navigator 5B Hatch Smart Key M3N-A2C931426, accessed January 5, 2026, https://yourcarkeyguys.com/products/2020-2022-lincoln-corsair-aviator-5b-suv-hatch-smart-key-m3n-a2c931426
+                        16. 2021 Lincoln Navigator Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 5, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2021-lincoln-navigator-keyless-entry-remote-fob-smart-key-programming-instructions
+                        17. 2022 Lincoln Navigator Smart Keyless Entry Remote 164-R8321 M3N-A3C054339 – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2022-lincoln-navigator-smart-remote-164-r8321
+                        18. 2023-2025 Lincoln Aviator Navigator Nautilus 5B Hatch Smart Key w/ Mot, accessed January 5, 2026, https://yourcarkeyguys.com/products/2023-2025-lincoln-aviator-navigator-nautilus-5b-hatch-smart-key-w-motion-sense-434mhz-m3n-a3c108397
+                        19. 2016 Lincoln MKX Smart Remote Key Fob w/ Engine Start, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2016-lincoln-mkx-smart-remote-key-fob-w-engine-start-aftermarket
+                        20. 2015 Lincoln MKC Smart Key Fob PN:5925315, 164-R8108 - Remotes And Keys, accessed January 5, 2026, https://remotesandkeys.com/products/2015-lincoln-mkc-smart-key-remote-3005
+                        21. 2020-2022 Lincoln Corsair 5-Button Smart Key Fob Remote (M3N-A2C931426, 164-R8278), accessed January 5, 2026, https://northcoastkeyless.com/product/lincoln-corsair-5-button-smart-key-fob-remote-fcc-m3n-a2c931426-p-n-164-r8278/
+                        22. What is Phone As A Key in the Lincoln app?, accessed January 5, 2026, https://www.lincoln.com/support/how-tos/lincoln-app/phone-as-a-key/what-is-phone-as-a-key-in-the-lincoln-app/
+                        23. How do I remove my Phone As A Key using the Lincoln app or SYNC?, accessed January 5, 2026, https://www.lincoln.com/support/how-tos/lincoln-app/phone-as-a-key/how-do-i-remove-my-phone-as-a-key-using-the-lincoln-app-or-sync/
+                        24. 2017-2020 Lincoln Continental 5-Button Smart Key Fob Remote (M3N-A2C940780, 164-R8154) - NorthCoast Keyless, accessed January 5, 2026, https://northcoastkeyless.com/product/lincoln-continental-5-button-smart-key-fob-remote-fcc-m3n-a2c940780-p-n-164-r8154/
+                        25. 2015 Lincoln Navigator Smart Key Fob PN: 164-R8094, accessed January 5, 2026, https://remotesandkeys.com/products/2015-lincoln-navigator-3097
+                        26. 2024 Lincoln Nautilus Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 5, 2026, https://keyless2go.com/blogs/program-instructions/2024-lincoln-nautilus-keyless-entry-remote-fob-smart-key-programming-instructions
+                        27. Lincoln Corsair Key Programming Slot Location #automobile #howto #cartok #lincoln #ford #key #auto - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=r5sg8y3tgj8
+                        28. How do I reset my Phone As A Key? - Lincoln, accessed January 5, 2026, https://www.lincolncanada.com/support/how-tos/lincoln-app/phone-as-a-key/how-do-i-reset-my-phone-as-a-key/
+                        29. National Automotive Service Task Force - NASTF, accessed January 5, 2026, https://wp.nastf.org/
+                        30. PATS Key Type Control Function Type - Motorcraft Service, accessed January 5, 2026, https://www.motorcraftservice.com/pdf/pats_job_aid.pdf
+                        31. 2013-2020 Lincoln MKX | MKS | MKT | Navigator 5B Smart Key M3N5WY8609, accessed January 5, 2026, https://yourcarkeyguys.com/products/2013-2020-lincoln-mkx-mks-mkt-navigator-5b-smart-key-m3n5wy8609
+                        32. Lincoln Prox Remote Key M3N-A2C940780 164-R8154 5 Button - Key4, accessed January 5, 2026, https://www.key4.com/smart-remote-key-lincoln-continental-mkc-mkz-navigator-m3na2c940780-164r8154

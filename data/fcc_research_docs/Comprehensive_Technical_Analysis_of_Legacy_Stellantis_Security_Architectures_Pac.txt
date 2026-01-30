@@ -1,0 +1,303 @@
+﻿Comprehensive Technical Analysis of Legacy Stellantis Security Architectures: Pacifica, 300, Charger, and Challenger (2015–2024)
+Executive Summary
+The decade spanning 2015 to 2024 represents a period of radical transformation within the automotive security landscape of Fiat Chrysler Automobiles (FCA) and its successor, Stellantis. This era is defined by the migration from the relatively permissive Wireless Ignition Node (WIN) architectures of the Daimler-Chrysler legacy to the highly fortified, encrypted environments of the modern RF Hub Lockdown era. For the automotive security professional, locksmith, and fleet manager, this transition has not been linear. It is characterized by three distinct technological epochs, each demanding specific tooling, bypass strategies, and procedural knowledge: the Pre-SGW Era (2015–2017), the Secure Gateway Implementation Phase (2018–2020), and the RF Hub Lockdown Era (2021–2024).
+This report serves as an exhaustive technical dossier on the "Legacy Four" platforms: the Chrysler Pacifica (RU), Chrysler 300 (LX), Dodge Charger (LD), and Dodge Challenger (LA). It provides a granular analysis of immobilizer system architectures, key programming methodologies, and critical failure points. Special emphasis is placed on the distinct procedural requirements for the Pacifica Hybrid (PHEV) electrical architecture, the catastrophic "brick" risks associated with Police Pursuit fleet vehicles, and the intricate bypass mechanisms required to circumvent the Secure Gateway Module (SGW) firewall. By synthesizing data from technical service bulletins, field-tested locksmith procedures, and proprietary diagnostic protocols, this document aims to close the knowledge gap regarding high-security key programming for late-model Stellantis vehicles.
+
+
+  
+
+
+
+1. System Identification and VIN Decoding Protocols
+The foundational step in any cryptographic engagement with Stellantis vehicles is the precise identification of the immobilizer platform. Unlike manufacturers such as Honda or Toyota, where the physical key blade or shell design offers a definitive visual cue regarding the transponder type, Stellantis vehicles utilize physically identical key shells (Fobiks and Pod Keys) for vastly different electronic architectures. A visual inspection of the key alone is insufficient and frequently leads to the acquisition of incompatible inventory or the application of incorrect programming protocols. The distinction between a legacy Fobik system and a modern Smart Key system is rooted in the vehicle's ignition node hardware, not the plastic casing of the remote.
+1.1 The Fobik vs. Smart Key Distinction: Architectural Divergence
+The term "Fobik" (Finger Operated Button Integrated Key) technically refers to the ergonomic shape of the key housing. However, within the locksmithing and diagnostic domain, this term has bifurcated to denote two distinct operating systems that function on fundamentally different principles of physics and data transmission.
+1.1.1 The Legacy WIN System (Rotary Fobik)
+The traditional Fobik system operates via a Wireless Ignition Node (WIN). In this architecture, the key must be physically inserted into a rotary slot in the dashboard and turned to the "Start" position. The immobilization check is passive and localized: a coil inside the WIN module energizes the transponder chip embedded in the key's nose via low-frequency induction.1 The data exchange is a direct query-response between the key and the WIN module. If the cryptographic challenge is satisfied, the WIN releases the steering lock (if equipped) and sends a "Key Valid" message to the PCM over the CAN bus to enable fuel and spark.
+* Visual Identification: The dashboard features a square-ish receptacle. The node behind this receptacle physically rotates when the key is turned. This system is prevalent on lower-trim Chargers (Pursuit/SE), older Grand Caravans, and the RAM Classic DS platform.3
+1.1.2 The RF Hub System (Keyless Go / Smart Key)
+The modern Smart Key system, often marketed as "Keyless Go" or "Proximity Entry," utilizes a Radio Frequency Hub (RF Hub) as the central security controller. In this architecture, the key remains in the driver's pocket. The vehicle is started via a Push-to-Start (PTS) button. The immobilization check is an active, bidirectional triangulation process. The vehicle's Low-Frequency (LF) antennas (located in the door handles, trunk, and center console) broadcast a "Wake Up" challenge. The Smart Key receives this LF signal and responds via an Ultra-High Frequency (UHF) signal (315 MHz or 433 MHz) directly to the RF Hub.4
+* Visual Identification: The dashboard features a "START/STOP" button.
+* The Critical "Button Cap" Deception: A significant "gotcha" for technicians is that the PTS button on many Chrysler vehicles (especially 2011–2016 models) is merely a plastic cap that pops into the rotary WIN module. If a customer presents a "Smart Key" but the button is missing, a technician might mistake it for a rotary system. The definitive test requires removing the button cap (if present) and testing the node. If the internal mechanism rotates, it is a WIN system, even if it supports proximity features (rare hybrid systems). If the node is a solid, non-rotating block, it is a true RF Hub Keyless Go system.6
+1.2 VIN Decoding for Security Architecture
+The Vehicle Identification Number (VIN) offers the only immutable data source for determining the key system before physical access to the vehicle is established. For Chrysler and Dodge vehicles manufactured between 2015 and 2024, positions 5, 6, and 7 are the most relevant for platform identification. While these digits do not explicitly state "Smart Key," they indicate the trim level and body style, which correlates directly to the security package installed at the factory.7
+1.2.1 Position 7: Body Style and Restraint System
+This digit is often the most diagnostic for locksmiths as it differentiates between "Premium" and "Base" body configurations. High-line electronics packages, which include Keyless Go, are associated with specific body codes.
+VIN Pos 7
+	Definition
+	Typical Key System
+	Application Notes
+	A
+	Police / Special Service
+	Fobik (Rotary) or Non-Prox
+	Dominant in Charger Pursuit models. Often lacks Keyless Go to simplify fleet management.
+	B
+	Sedan 4-Door (Base/SE)
+	Fobik or Low-line Smart
+	Early base models (2015-2017) may still utilize the rotary Fobik WIN system.
+	C
+	Sedan 4-Door (Upmarket)
+	Smart Key (Prox)
+	Standard on R/T, SXT Plus trims. Indicates presence of RF Hub.
+	D
+	Sedan 4-Door (Highline)
+	Smart Key (High Security)
+	Associated with SRT, Scat Pack, and Hellcat trims. Indicates high probability of Enhanced Security Mode.
+	E
+	Coupe / Specialty
+	Smart Key (High Security)
+	Found on Challenger models; almost exclusively Smart Key post-2015.
+	G
+	Sedan (Sport/Superbee)
+	Smart Key (Prox)
+	Indicates performance-oriented electronics package.
+	H
+	Sedan (Rallye)
+	Smart Key (Prox)
+	Indicates mid-tier performance electronics.
+	J
+	MPV (Pacifica)
+	Smart Key (Prox)
+	Used for Pacifica Touring/Limited. Indicates RU platform architecture.
+	Data synthesized from Mopar VIN coding guides and body builder documents.9
+1.2.2 Position 11: Assembly Plant and Platform Family
+While strictly geographic, the plant code confirms the platform family, which is the primary determinant for the physical location of security modules like the SGW and RF Hub.
+* H (Brampton, Ontario): This code denotes the LX/LD/LA platform family, comprising the Dodge Charger (LD), Dodge Challenger (LA), and Chrysler 300 (LX). These vehicles share a common electrical architecture where the RF Hub is located on the rear shelf or in the trunk area.
+* R (Windsor, Ontario): This code denotes the minivan platform, primarily the Chrysler Pacifica (RU) and the Dodge Grand Caravan (RT). These vehicles have a distinct architecture where the RF Hub is located in the rear quarter panel or headliner, significantly impacting access procedures.9
+1.3 RPO Codes: The Definitive Electronic DNA
+When access to the vehicle's physical label or a build sheet is available (via QR code scanning on 2018+ door jambs), specific Regular Production Option (RPO) Sales Codes provide the most granular definition of the keyless system.14
+* GXM (Remote Keyless Entry): This code indicates a standard remote system where the user must press buttons to unlock the doors. It is highly correlated with rotary ignition systems.
+* GXD (Remote Proximity Keyless Entry): This code confirms the presence of the full "Keyless Go" suite, including passive entry sensors in the door handles and Push-to-Start ignition. It confirms the vehicle uses a Smart Key and an RF Hub.
+* GX4 (Keyless Go): This "middle tier" code indicates Push-to-Start ignition but without passive entry on the door handles. This configuration is rare but occasionally found in fleet vehicles. It requires a Smart Key for ignition but behaves like a Fobik for entry.
+* JPH (GPS Navigation/Telematics): While not a key code, the presence of JPH on 2017+ models is a strong heuristic indicator for the presence of a Secure Gateway Module (SGW), as connected radio units were the primary vector the SGW was designed to protect.
+2. The Secure Gateway Module (SGW) Ecosystem
+The introduction of the Secure Gateway Module (SGW) in 2018 marked a paradigm shift in the aftermarket servicing of Stellantis vehicles. Prior to this, the OBD-II port (Data Link Connector or DLC) provided direct, unbridled access to the vehicle's CAN bus networks. The SGW was implemented as a cybersecurity firewall, physically isolating the external DLC from the vehicle's internal critical networks (CAN-C for powertrain/chassis and CAN-IHS for body/interior).
+2.1 The Firewall Mechanism
+The SGW operates by inspecting all traffic originating from the DLC. It permits "Read Only" requests (e.g., reading DTCs, viewing live data streams) to pass through to the internal networks. However, it blocks all "Write" commands and "Active Tests" unless the diagnostic tool provides a cryptographically signed digital certificate authorized by FCA. Blocked actions include clearing fault codes, calibrating sensors, writing VINs, and crucially, all key programming sequences.17 For the locksmith, a vehicle with an active SGW is effectively a "read-only" device until the firewall is bypassed.
+2.2 Implementation Timeline and Transitional Risks
+The industry generally operates on the "2018+ Rule," assuming all vehicles 2018 and newer have an SGW. However, the rollout was nuanced and staggered, creating trapdoors for the unprepared technician.
+* 2017 ½ (Late Production): Select high-trim models, particularly the Dodge Durango and Chrysler Pacifica manufactured after July 2017, may feature an SGW. It is vital to check the manufacturing date on the driver's door B-pillar sticker. A 2017 model year vehicle built in late 2017 is essentially a 2018 model electronically.20
+* 2018: Standard implementation across the Charger, Challenger, 300, and Pacifica lineups. All diagnostic procedures requiring "Write" access are blocked without a bypass.
+* 2019–2024: 100% saturation. No Stellantis vehicle from these model years lacks an SGW.
+2.3 Physical Bypass Strategies: The "12+8" Approach
+Before the widespread availability of software-based solutions, the physical bypass was the primary method of circumventing the SGW. This technique involves physically disconnecting the SGW from the network and bridging the connections to restore direct communication.
+* The Hardware: The "12+8 Bypass Cable" is a Y-harness. It connects to the vehicle's harness plugs that were originally plugged into the SGW (a 12-pin connector carrying CAN-C and an 8-pin connector carrying CAN-IHS) and bridges them to a female OBD-II port. The diagnostic tool is then plugged into this new OBD-II port, effectively bypassing the firewall entirely.21
+
+
+  
+
+
+
+2.3.1 SGW Location by Model Architecture
+* Chrysler Pacifica (2018+): The SGW is located behind the Climate Control (HVAC) bezel in the center stack.
+   * Access Protocol: Use a non-marring plastic trim tool to pry the bezel surrounding the climate control knobs. The panel is held in by retention clips. The module is mounted directly behind this panel, often reachable without full radio removal. The connectors can be unplugged by hand, and the bypass cable inserted into the vehicle harness.23
+* Dodge Charger / Challenger / Chrysler 300 (2018+): The location varies slightly by year but is generally in the driver's footwell area.
+   * 2018–2020: The module is often mounted high up under the dashboard on the driver's side, near the steering column or adjacent to the Body Control Module (BCM). Access may require removing the lower hush panel and assuming a contorted position in the footwell.
+   * The Star Connector Alternative: On the LX/LD/LA platforms, it is often more efficient to bypass the SGW by connecting directly to the Star Connector (CAN junction block). This component acts as a physical hub for the CAN bus wires. Connecting a specialized "Star Connector Cable" (e.g., ADC2011 or Autel equivalent) to an open port on this block grants direct access to the CAN-C and CAN-IHS buses, rendering the SGW irrelevant. This block is typically located in the passenger kick panel (Challenger) or driver's side kick panel (Charger).25
+2.4 Software Bypass: The AutoAuth Solution
+For technicians utilizing modern, Wi-Fi enabled diagnostic tools (such as the Autel IM508/608 or Smart Pro), AutoAuth provides a streamlined, software-based authorization method that eliminates the need for physical disassembly.
+* Operational Requirements: The technician must register for an AutoAuth account ($50 annual fee) and register the serial number of their diagnostic tool. The tool must have an active internet connection at the time of service.
+* Mechanism: When the tool attempts a "Write" command, it pauses to handshake with the AutoAuth server. The server verifies the technician's credentials and sends a digital token back to the tool, which the tool then presents to the SGW to "unlock" the gateway for that session.
+* Limitations and Risks: AutoAuth relies entirely on internet connectivity. If the vehicle is in a dead zone (e.g., underground parking) or the AutoAuth servers are experiencing downtime, the system fails. Furthermore, while AutoAuth grants access through the SGW, it cannot overcome the "RF Hub Lockdown" found in 2021+ vehicles (discussed in Chapter 7). For 2018–2020 models, AutoAuth is generally sufficient and preferred. For 2021+, physical intervention is often required regardless of AutoAuth status.19
+3. Chrysler Pacifica (RU) Specific Procedures (2017–2024)
+The Chrysler Pacifica (platform code RU) presents a unique set of challenges for the locksmith due to its highly integrated sliding door modules and complex body control architecture. Unlike the sedans, the Pacifica's body controller is sensitive to the state of the vehicle's apertures during programming.
+3.1 Key Types and Tooling Prerequisites
+* Key Type: High-Security Smart Key (Fobik Prox). The key utilizes a "teardrop" shape similar to older Fobiks but contains advanced proximity circuitry.
+* Key Blades: The emergency key blade is a side-mill (laser cut) profile, specifically the Y159 or Y160 keyway. This requires a high-security key cutting machine (e.g., Condor, Triton, Gymkana) to duplicate.
+* Frequency: 433 MHz is the standard frequency for North American markets.28
+* Primary Tooling:
+   * Autel IM508/608: Menu Path: Chrysler > Pacifica > 2017-2020 > Smart Key.
+   * Smart Pro: Selection: Chrysler Pacifica 2017+ (Software ADS-2272).
+   * Connectivity: 2018+ models require the 12+8 Bypass Cable connected behind the climate controls or a valid AutoAuth session.
+3.2 The Sliding Door Interference Phenomenon
+A prevalent issue documented in Pacifica key programming is the electronic interference caused by the Power Sliding Door Modules. These modules communicate heavily on the CAN-IHS bus, broadcasting status updates regarding door position and latch state. During the "Read PIN" or "Program Key" phase of the locksmith procedure, this bus chatter can overwhelm the diagnostic tool's request, causing the programming sequence to hang or time out.
+* Symptom: The programmer hangs indefinitely at the "Communicating..." screen or fails to extract the 4-digit PIN code.
+* Remediation Strategy: It is critical to ensure all sliding doors are closed and fully latched before connecting the tool. If communication failures persist, the recommended procedure is to pull the fuses for the sliding door modules or physically disconnect the vehicle battery for 5 minutes to perform a "hard reset" of the bus. Some technicians report success by manually locking the vehicle using the driver's door switch prior to initiating the programming sequence to force the modules into a "sleep" state.29
+3.3 Hybrid (PHEV) vs. Gas Models: The Voltage Trap
+The Pacifica Hybrid introduces a critical variable: the High Voltage (HV) battery system and its interaction with the 12V auxiliary system.
+* Voltage Architecture: In the Hybrid model, the 12V system is maintained by a DC-DC converter that steps down voltage from the High Voltage traction battery. This converter is typically active only when the vehicle is in "Ready" mode (High Voltage contactors closed). However, key programming requires the ignition to be cycled ON/OFF without the engine running. In this state, the DC-DC converter may be inactive, leaving the vehicle running solely on the small 12V AGM auxiliary battery.
+* The Risk: The auxiliary battery in the Hybrid is smaller than a standard automotive battery and can deplete rapidly under the load of diagnostic scanning and module waking. If the voltage drops below 12.0V during the critical "Writing Config" phase of the RF Hub programming, the module can suffer data corruption ("brick").
+* Mandatory Protocol: ALWAYS connect a high-quality battery maintainer (e.g., Schumacher, Clore, or similar stable power supply) to the jump posts under the hood during any programming procedure on a Pacifica Hybrid. Relying on the HV battery to maintain the 12V system is a gamble that can result in catastrophic module failure.31
+3.4 RF Hub Location and "Stow 'n Go" Access Challenges
+For "All Keys Lost" (AKL) scenarios on 2021+ Pacificas equipped with the RF Hub Lockdown (detailed in Chapter 7), the RF Hub often needs to be physically removed or replaced.
+* Location: The RF Hub is located in the rear left quarter panel area, often buried behind the interior trim near the C/D-pillar.
+* Access Complexity: In models equipped with the "Stow 'n Go" seating system, the rear seats fold into floor tubs. These tubs and the associated folding mechanisms obstruct the removal of the side trim panels.
+   * Procedure: Accessing the RF Hub is a labor-intensive process, often requiring 1–2 hours. The technician must partially remove the rear bench or fold the Stow 'n Go seats into the floor to access the lower trim bolts. The large side panel must be carefully popped out to reveal the module mounted to the chassis wall. This contrasts sharply with the Charger platform, where the RF Hub is accessible in minutes.23
+4. Dodge Charger & Challenger (LD/LA) Procedures (2015–2023)
+The Dodge muscle car platform (LD for Charger, LA for Challenger) shares a nearly identical electronic architecture with the Chrysler 300 (LX). The defining feature of this lineage is the migration from the rotary WIN module (2011–2014) to the pure RF Hub system (2015+).
+4.1 "All Keys Lost" (AKL) Strategy by Model Year
+The procedure for an All Keys Lost situation varies dramatically based on the specific model year due to the escalating security measures implemented by Stellantis.
+Phase 1: The "Easy" Years (2015–2017)
+* Security State: These vehicles typically lack a Secure Gateway Module.
+* PIN Code: The PIN can be easily read via the OBD-II port using standard locksmith tools (Autel, Smart Pro, MVP).
+* Procedure:
+   1. Connect the tool directly to the OBD-II port.
+   2. Select "Read Immobilizer Password" (PIN is usually 4 digits, occasionally 5).
+   3. Select "Add Key" or "All Keys Lost".
+   4. When prompted, place the nose of the new Smart Key against the Start/Stop button. This utilizes the emergency inductive coil behind the button to read the key's transponder directly.
+   5. Success is indicated by a dashboard chime and a cluster message (e.g., "Key 3 Programmed").5
+Phase 2: The SGW Era (2018–2020)
+* Security State: SGW is present. Diagnostic access via OBD-II is blocked for writing.
+* Bypass Method:
+   * Charger: Remove the "hush panel" above the driver's pedals. Locate the Star Connector (a Green or White junction block with multiple CAN wires). Plug the "Star Connector Cable" (e.g., Autel 12+8 or ADC2011) into any open port on the block. This bypasses the SGW physically.
+   * Challenger: Similar Star Connector access is often found in the passenger kick panel area.
+* Procedure: Once the Star Connector or SGW bypass is established, the programming procedure mirrors Phase 1. The tool reads the PIN from the RF Hub and programs the key via the inductive coil.25
+Phase 3: The Lockdown Era (2021–2023)
+* The Problem: The RF Hub firmware was updated to block the "Read PIN" command and the "Write Key" command via the OBD-II or CAN bus interface. This is the "RFHM Lockdown" (see Chapter 7).
+* The Fix: Conventional programming via OBD-II is impossible. The technician must interface directly with the RF Hub's EEPROM or replace the unit entirely.
+4.2 SRT / Hellcat Security Tiers
+While the key programming procedure for a base SXT (V6) and a Hellcat (Supercharged V8) is electronically similar, the distinction between the "Red Key" (Full Power) and "Black Key" (Valet Mode) is handled by the Powertrain Control Module (PCM), not the RF Hub.
+* Programming Parity: The technician programs the key fobs identically. The vehicle recognizes the specific transponder ID of the key (Red vs. Black) based on the key's pre-coded internal data.
+* Enhanced Security Mode (2021+): Late-model SRT and Scat Pack vehicles feature "Enhanced Security Mode," which limits engine output to approximately 3 horsepower (idle crawl only) if the correct 4-digit code is not entered on the radio screen.
+   * Locksmith Implication: This 4-digit security code is separate from the Immobilizer PIN. Locksmiths generally cannot reset the User Security Mode code; it is a user-set feature stored in the radio/PCM. If a customer loses this code, it often requires a dealer reset. Programming a new key does not bypass the 3 HP limit.35
+4.3 Widebody Package Impact
+The "Widebody" option is primarily aesthetic and suspension-related. It does not alter the fundamental immobilizer architecture. A Widebody Charger Scat Pack follows the same programming rules as a standard Charger Scat Pack of the same year.
+5. Chrysler 300 (LX) Specific Procedures (2015–2023)
+The Chrysler 300 shares the LX platform with the Charger and Challenger, and thus its procedures are largely identical. However, there are subtle differences in module access.
+5.1 Shared Platform Architecture
+Like the Charger, the Chrysler 300 transitioned to the RF Hub system in 2015. The RF Hub is located on the rear shelf (accessible from the trunk or by removing the C-pillar trim).
+* Procedure: Follow the same Phase 1/2/3 roadmap as the Charger.
+* SGW Location: In the 2018+ Chrysler 300, the SGW is typically located above the driver's kick panel, similar to the Charger. The Star Connector is also a viable bypass point.
+5.2 AWD vs. RWD Module Access
+The drivetrain configuration (All-Wheel Drive vs. Rear-Wheel Drive) does not change the location of the RF Hub or SGW. However, AWD models may have additional modules (Transfer Case Control Module) on the CAN-C bus. If these modules fail or flood the bus with errors, they can theoretically interfere with programming. Disconnecting the battery to reset the bus is a standard troubleshooting step.
+5.3 Final Production Year (2023)
+The 2023 Chrysler 300C (the final V8 model) is subject to the strict RF Hub Lockdown. Technicians should assume any 2023 model requires the "nuclear" option (RF Hub replacement) or advanced bench programming methods.
+6. The RF Hub Lockdown Crisis (2021+)
+Starting in 2021 (and retroactively applied to some 2018–2020 models via dealer Technical Service Bulletins), Stellantis introduced a security patch that fundamentally disrupted the aftermarket key programming ecosystem. This phenomenon is widely known as the RF Hub Module (RFHM) Lockdown.
+6.1 The Mechanism of Lockdown
+The firmware update specifically disables the diagnostic services $27 (Security Access) and $31 (Routine Control) on the RF Hub when requested via the CAN bus for the purpose of key learning. When a locksmith tool attempts to "Read PIN," the module returns a "Conditions Not Correct" or "Access Denied" error. Even if the correct 4-digit PIN is manually entered (e.g., obtained from the dealer's parts department), the "Program Key" command is rejected by the hub. The module is effectively "locked" against unauthorized write commands.26
+6.2 Workaround 1: The "Star Connector" Backdoor (2020–2021)
+For some transitional vehicles (late 2019 to early 2021), the lockdown prevents OBD-II access but leaves the CAN-C bus somewhat vulnerable to direct injection attacks.
+* Tooling: Autel IM608 equipped with the G-Box2 or Star Connector Cable.
+* Procedure:
+   1. Connect the Star Connector cable directly to the Star block (Green/White junction).
+   2. Select Dodge > Charger > 2020-2021 > Smart Key.
+   3. The tool attempts to "backdoor" the PIN reading by analyzing CAN traffic directly on the star bus, bypassing the SGW and potentially exploiting vulnerabilities in the older RF Hub firmware.
+   4. Outcome: If this fails, the RF Hub is fully locked, and the technician must proceed to Workaround 2.27
+6.3 Workaround 2: RF Hub Replacement (The "Nuclear" Option)
+For fully locked 2022+ models (and updated older models), the only reliable aftermarket solution is to physically replace the RF Hub with a "Virgin" or "Unlocked" unit.
+* The Component: The RF Hub is the black box receiver located on the rear shelf (Sedans) or rear quarter (Pacifica).
+* The Process:
+   1. Physically remove the existing locked RF Hub.
+   2. Install a new, virgin RF Hub (sourced from the dealer or aftermarket specialists like Auto Tech Electronic).
+   3. Use the programming tool to execute the "Replace RF Hub" function. The tool will write the vehicle's VIN and configuration data to the new hub.
+   4. Program the new keys into the new hub.
+   5. Warning: Once the new hub is locked to the vehicle, it cannot be reused on another car.
+* Cost Implications: This procedure significantly increases the cost of service, adding the price of the hardware ($150–$300) and 1–2 hours of labor for trim removal.33
+6.4 Workaround 3: The EEPROM "Solder" Method (Advanced)
+Advanced locksmiths with electronics expertise may use a programmer (like VVDI Prog or XP400) to read the EEPROM chip (typically a 9S12 or similar MCU) directly from the RF Hub circuit board.
+* Procedure: Remove the RF Hub, open the casing, and solder wires to specific test points on the PCB. Read the data dump.
+* Outcome: The dump allows the technician to extract the PIN and Component Security (CS) bytes manually. This data can then be used to force-feed the programmer or generate a "Dealer Key" that the car will accept.
+* Risk: High. One slip with the soldering iron or a bridged connection can destroy the module, permanently bricking the vehicle.26
+
+
+  
+
+
+
+7. Fleet and Police Vehicle Considerations
+Fleet vehicles, particularly the Dodge Durango Pursuit and Charger Pursuit, utilize a modified architecture known as the VSIM (Vehicle System Interface Module) to facilitate the integration of aftermarket police equipment (lights, sirens, radios). This unique architecture introduces specific risks for the locksmith.
+7.1 The "Disable Key Alike" Trap: A Critical Warning
+Police fleets often order vehicles with the "Key Alike" option, where a single physical key cut code opens the entire fleet. To manage this, the Body Control Module (BCM) configuration is unique.
+* The Trap: In the diagnostic menu for these vehicles (often under BCM or RF Hub Special Functions), there is a function labeled "Disable Key Alike".
+* The Consequence: If a technician accidentally selects this function—perhaps thinking it will reset the system or clear old keys—it permanently alters the BCM and RF Hub configuration. The module will reject any further key programming attempts. It effectively "bricks" the key learning capability of the vehicle forever.
+* Recovery: There is no known recovery for this error other than replacing the BCM and RF Hub and reprogramming them with a standard "Civilian" configuration. NEVER select the "Disable Key Alike" option.41
+7.2 Chrysler Voyager Fleet Specifications
+The Chrysler Voyager, reintroduced in 2020 as a fleet-only lower trim of the Pacifica, generally shares the same electronic architecture (SGW, RF Hub) as the Pacifica.
+* Access Advantage: Many Voyager fleet models lack the "Stow 'n Go" seats in the second row, featuring a solid bench or simplified floor instead. This actually makes accessing the RF Hub (for replacement) slightly easier than in high-trim Pacificas, as the floor pan is less cluttered with folding mechanisms. However, the SGW location remains consistent behind the climate stack.43
+8. Legacy Fobik (Rotary) Procedures
+While the Smart Key is dominant in late-model vehicles, the rotary Fobik system persisted in fleet vehicles (Charger Pursuit) and the Dodge Grand Caravan well into the 2018–2020 era.
+8.1 On-Board Programming (OBP) Status
+Historically, Chrysler vehicles allowed owners to program a third key if they possessed two working keys (Self-Programming).
+* Status Check: For most 2015+ models, this feature is disabled by default in the BCM configuration to prevent theft. Technicians should assume that OBP is not available and that diagnostic tooling is required for all key programming.
+* Exceptions: Some fleet orders specifically requested OBP to remain active. The procedure involves cycling the first key On/Off, then the second key, and finally the new key. If the security light does not flash/chime, OBP is disabled.5
+8.2 Cut Code Requirements
+* Key Way: The standard Fobik emergency blade is the Y160 or Y170 profile.
+* Code Series: The keys are cut to the "M" code series (e.g., M0001-M2618).
+* Decoding: The door lock cylinder on these vehicles is often the only accessible lock. It contains 7 or 8 cuts. However, the ignition cylinder (if rotary) may have different wafers or be a purely electronic switch without tumblers. Always decode the door lock first. If the ignition is rotary, verify if it accepts the physical blade (older models) or just the plastic fob tip (newer WIN modules).45
+9. Tooling Ecosystem and Procedures
+9.1 Primary Tooling Breakdown
+1. Autel IM508/IM608: Currently the market leader for Stellantis key programming.
+   * Strengths: Native "Star Connector" bypass software, excellent diagram guidance, robust "All Keys Lost" capability via OBD for pre-2021 models.
+   * Weakness: Can struggle with the absolute newest 2023+ encryptions without the latest software subscriptions.47
+2. Advanced Diagnostics (Smart Pro):
+   * Strengths: High reliability, industry-standard "ADS-2272" software is robust for 2018+ bypass.
+   * Weakness: Token-based system usage can be expensive for troubleshooting.
+3. wiTECH 2.0 (Dealer Tool):
+   * Strengths: The only tool that guarantees access to 2022+ Locked RF Hubs if the technician has a valid locksmith LSID and authenticated credentials.
+   * Weakness: Expensive annual subscription, requires constant online access, and cannot perform "EEPROM" hacks or utilize used parts.17
+9.2 Generic Autel Menu Path (Charger/Pacifica)
+For a standard 2019 Charger (SGW Era):
+1. Physical Connection: Connect the 12+8 Cable to the Star Connector or SGW plugs.
+2. Menu Selection: IMMO > Dodge > Charger > 2015-2019 > Smart Key.
+3. System Scan: Run Immo Status Scan to verify no existing faults in the RF Hub.
+4. PIN Extraction: Select Read PinCode. The tool will communicate with the RF Hub to extract the 4-digit PIN.
+5. Programming: Select Add Key. Follow the on-screen prompt to "Press the Start Button with the nose of the Fob."
+6. Verification: The dashboard should chime, and the cluster will display "Key Programmed." Test Prox unlock, Lock, Trunk, and Remote Start.50
+10. Troubleshooting & Critical Verification
+10.1 "Key Fob Not Detected" After Programming
+A common failure mode occurs when the programming tool reports "Success," but the vehicle displays "Key Fob Not Detected" on the cluster.
+* Cause 1: Frequency Mismatch. The technician may have attempted to program a 315 MHz key to a 433 MHz vehicle.
+* Cause 2: Antenna Disconnect. The RF Hub antenna may be disconnected or damaged.
+* Cause 3: The "Emergency Coil" Deception. The inductive coil behind the Start button (which reads the transponder chip) is separate from the UHF receiver (which reads the remote buttons). A key with a dead battery or a defective UHF transmitter might start the car if pushed against the button (using the coil) but fail to work remotely. This indicates a bad key, not a bad program.52
+10.2 The "Brick" Risk: Voltage Stability
+* The Vulnerability: Stellantis RF Hubs are notoriously sensitive to voltage fluctuations. If the system voltage drops below 12.0V during the "Writing Config" or "Handshake" stage of programming, the Hub's bootloader can become corrupted.
+* Symptom: The vehicle ignition will not turn on; the dashboard remains dead; hazard lights may flash uncontrollably; the tool cannot communicate with the vehicle.
+* Prevention: Always use a battery maintainer. Never attempt to program a Stellantis vehicle using only the vehicle's internal battery, especially if the door has been open for some time (waking the BCM).31
+Conclusion
+The evolution of the Chrysler/Dodge security platform from 2015 to 2024 reflects the broader automotive industry's pivot toward rigorous cybersecurity. What began as a simple RFID exchange in the WIN era morphed into a walled garden with the Secure Gateway Module, and finally into a locked vault with the RF Hub Lockdown. For the modern locksmith or diagnostic technician, the days of simple "plug and play" programming are over. Success now requires a synergistic blend of mechanical skill (for physical access to SGWs and RF Hubs), networking knowledge (for AutoAuth and Star Connector bypasses), and inventory management (stocking virgin RF Hubs). Mastering the nuances of the Pacifica's sliding door interference and the Charger's specific lockdown protocols is what distinguishes the master technician from the novice in the current era of automotive security.
+Works cited
+1. Key Fob vs. Transponder vs. Smart Key: What's the Difference? - mr-key.com, accessed January 7, 2026, https://mr-key.com/post-details/4krynjrfd5/key-fob-vs-transponder-vs-smart-key-whats-the-difference
+2. How to tell if your Fobik and or POD key is coded correctly! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=8nEHmdBwnR0
+3. Dodge Fobiks – Know the Difference! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=mEzg7g0P9LY
+4. Chrysler, Dodge, Jeep and Ram 4-Button Smart Key Remote Replacement with Remote Start for 2018 Dodge Grand Caravan - Car Keys Express, accessed January 7, 2026, https://store.carkeysexpress.com/keys-and-remotes/Dodge/Grand%20Caravan/2018/1006243-chrysler-dodge-jeep-and-ram-4-button-smart-key-remote-replacement-with-remote-start
+5. Steps for How to Program a Dodge Key Fob, accessed January 7, 2026, https://www.scottevanschryslerdodgejeep.com/service-department/service-tips/how-to-program-dodge-key-fob/
+6. How to Program a Dodge Key Fob | DIY Guide, accessed January 7, 2026, https://www.encorechryslerdodgejeepram.com/how-to-program-a-dodge-key-fob-diy-guide/
+7. VIN Number Lookup & Decoder| Official Mopar® Site, accessed January 7, 2026, https://www.mopar.com/en-us/my-vehicle/vin-lookup.html
+8. Welcome to VIN Decoding :: provided by vPIC, accessed January 7, 2026, https://vpic.nhtsa.dot.gov/decoder/
+9. VIN PLATE DECODING INFORMATION - Chrysler, accessed January 7, 2026, https://starparts.chrysler.com/starlibrary/vindecode/12D2.pdf
+10. VIN PLATE DECODING INFORMATION - Chrysler, accessed January 7, 2026, http://starparts.chrysler.com/starlibrary/vindecode/12LD.pdf
+11. Mopar VIN Decoder & Fender Tag Decoder: A-Body, B-Body, & E-Body Specs, accessed January 7, 2026, https://news.classicindustries.com/mopar-vin-decoder
+12. FCA US LLC - Ram Body Builder's Guide, accessed January 7, 2026, http://www.rambodybuilder.com/2017/docs/intro/vin.pdf
+13. VIN Decoding - American Mopars: Vehicle Identification: Production - Charger Club of WA, accessed January 7, 2026, https://www.chargerclubofwa.asn.au/production-detail.asp?iProductionID=40
+14. RPO Codes VIN Decoder - GM Chevrolet Buick Cadillac - Regular Production Option, accessed January 7, 2026, https://decoderpo.com/pages/U.html
+15. RPO Codes and Descriptions - AWS, accessed January 7, 2026, https://rparts-sites.s3.amazonaws.com/dec399b0838336997484042ed2af1004/design/rpoCodes.pdf
+16. Tech Tip: Finding the RPO (regular production option) codes on a late model GM vehicle, accessed January 7, 2026, https://www.youtube.com/watch?v=CVFmQUDgsOE
+17. Secure Vehicle Gateway - Snap-on, accessed January 7, 2026, https://www.snapon.com/EN/US/Diagnostics/Secure-Vehicle-Gateway
+18. Unlock FCA Secure Gateway-protected vehicles seamlessly - Bosch Diagnostics, accessed January 7, 2026, https://boschdiagnostics.com/ads-software/secure-gateway
+19. FCA US Secure Gateway (SGW) - FCAR Tech USA, accessed January 7, 2026, https://www.fcarusa.com/SGW
+20. FCA US SGW, accessed January 7, 2026, https://m.media-amazon.com/images/I/91wqcjXTtEL.pdf
+21. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 7, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+22. Chrysler Pacifica Security Gateway Bypass location / How to read clear check engine light OBD 12+8 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=Q5p63yB4h_k
+23. Chrysler Pacifica SECURITY GATEWAY MODULE location and connection with Autel, accessed January 7, 2026, https://www.youtube.com/watch?v=FtQFCIlsVV8
+24. STE Chrysler Pass Through User Manual - Squarespace, accessed January 7, 2026, https://static1.squarespace.com/static/51fac8cfe4b0339e6c6987e1/t/5df85fc2cde8ca0f95214058/1576558531884/STE_Chrysler_Passthrough_V1_2.pdf
+25. 2018+ Dodge Charger/Challenger Diablosport Bypass Cable Install + SHINE ARMOR Review! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=jm2qvz0q3dU
+26. Dodge charger 2020. I can't get the passcode. Help : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/180sfpu/dodge_charger_2020_i_cant_get_the_passcode_help/
+27. How To Program Dodge Keys with Autel KM100 Generating a Universal Key: Dodge Challenger: Up to 2023 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=LEkHxchBvhU
+28. Chrysler 7 Button Prox Fobik Smart Key IYZ-C01C, 5026590, 433 MHz - New OEM, accessed January 7, 2026, https://keyinnovations.com/products/chrysler-7-button-keyless-enter-n-go-proximity-fobik-iyz-c01c-05026590-ag
+29. Pacifica sliding doors not working FIX, Power Liftgate not working FIX, DO THIS FIRST B1975-00 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=P818UQVhaZI
+30. Power Sliding Door Issue - Any Suggestions? : r/ChryslerPacifica - Reddit, accessed January 7, 2026, https://www.reddit.com/r/ChryslerPacifica/comments/n65h3z/power_sliding_door_issue_any_suggestions/
+31. Flash: Radio Frequency Module (RFHM) - nhtsa, accessed January 7, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10229537-9999.pdf
+32. 2026 Chrysler Pacifica FAQs - Frequently Asked Questions, accessed January 7, 2026, https://www.chrysler.com/pacifica/faq.html
+33. RF Hub Installation Location / Seat Removal - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=ZGDYekifYAc
+34. Programming a smart key to a 2015 Dodge Charger | AutoProPAD - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=mVZyf7E18AE
+35. Dodge Announces Three New Theft Protection Measures - DodgeGarage, accessed January 7, 2026, https://www.dodgegarage.com/news/article/showcase/2021/08/dodge-announces-three-new-theft-protection-measures
+36. Dealer TSB for Key programing lockdown and Enhanced security mode - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Challenger/comments/1ctp0ms/dealer_tsb_for_key_programing_lockdown_and/
+37. Has anyone with a 2022 RT been able to get the key lockdown? : r/Challenger - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Challenger/comments/z2w6ab/has_anyone_with_a_2022_rt_been_able_to_get_the/
+38. HOW TO PROGRAM A KEY ON DODGE CHARGER 2019-2022 USING AUTEL IM508 & ADC2011 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=-QIRYbgEKFQ
+39. 2013-2016 Dodge Charger / Chrysler 300 RFHUB Theft Locking Module Location and Removal - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=WY-5j8Fecd4
+40. OEM RF Hub Replacement Kit with POD Keys - Auto Tech Electronic, accessed January 7, 2026, https://www.autotechelectronic.com/rf-hub-kits/oem-rf-hub-replacement-kit-with-pod-keys/
+41. 2021-2023 Dodge Durango Pursuit Upfit Guide - Stellantis | Fleet, accessed January 7, 2026, https://www.fcafleet.ca/documents/fleet/pdf/en/2021-2023%20Durango%20Pursuit%20Upfitter%20Guide.pdf
+42. 2015 – 2022 Dodge Charger Pursuit Upfit Guide, accessed January 7, 2026, https://www.stellantisfleet.com/content/dam/fca-fleet/na/fleet/en_us/shopping-tools/upfitting-guide/2022/2015-2022%20Charger%20Pursuit%20Upfitter%20Guide.pdf
+43. How to Program Your Chrysler Key Fob - Encore CDJR, accessed January 7, 2026, https://www.encorechryslerdodgejeepram.com/chrysler-key-fob-programming/
+44. 2020 Chrysler Voyager adding a spare proximity key via Smart Pro - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=wKRejVFdjs0
+45. Chrysler Aftermarket 2008-2020 Transponder Key Y170-PT PN# 68033740AA, accessed January 7, 2026, https://royalkeysupply.com/products/chrysler-aftermarket-2008-2020-town-country-challenger-charger-dart-journey-commander-grand-cherokee-transponder-key-y170-pt-pn-68033740aa
+46. Y170 Chrysler / Dodge / Jeep Transponder Key (AFTERMARKET) for Sale - UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/pod-transponder-key-chrysler-dodge-jeep-y170
+47. HOW TO PROGRAM A KEY FOR 2018-2021 CHRYSLER PACIFICA / VOYAGER USING AUTEL IM508 & ADC2011 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=8RCu9spvOQc
+48. Programming dodge key with Autel im608 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=JkHkkSHlmpo
+49. Chrysler Pacifica Security Gateway Bypass Location & Installation - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=wq_q_32UXhE
+50. Table of Contents - Autel, accessed January 7, 2026, https://www.autel.com/es/u/cms/wwwes/202007/17133147u9sq.pdf
+51. MaxiIM IM608 II & IM608 Pro II_User Manual_EN - Autel, accessed January 7, 2026, https://www.autel.com/u/cms/www/202307/27074754wqj0.pdf
+52. How To Fix Chrysler Pacifica “Key Fob Not Detected” – Battery, RF Hub/Antenna Reset, accessed January 7, 2026, https://www.youtube.com/watch?v=HY9w7HNu65o
+53. 2023 Dodge Charger Key Fob Not Detected - How To Start With Dead, Bad Key Fob Battery, accessed January 7, 2026, https://www.youtube.com/watch?v=s9FSgNykx6Y
+54. HOW TO PROGRAM A KEY FOR 2023 DODGE RAM 1500 USING AUTEL IM508 & 12+8 CABLE - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=Yxb_NuYY_4A

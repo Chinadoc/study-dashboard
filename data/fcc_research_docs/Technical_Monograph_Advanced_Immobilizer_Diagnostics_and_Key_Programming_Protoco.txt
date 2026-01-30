@@ -1,0 +1,193 @@
+﻿Technical Monograph: Advanced Immobilizer Diagnostics and Key Programming Protocols for the 2014 Volkswagen Golf Platform
+1. Introduction: The Architectural Divergence of the 2014 Model Year
+The 2014 model year represents a significant inflection point in the engineering history of the Volkswagen Golf, creating a complex landscape for automotive security professionals and diagnostic technicians. This period marks the overlap of two distinct vehicular architectures: the outgoing sixth-generation (Mk6) platform, based on the PQ35 chassis, and the incoming seventh-generation (Mk7), which introduced the revolutionary Modularer Querbaukasten (MQB) matrix.1
+For the locksmith or diagnostic specialist, this duality is not merely cosmetic; it dictates the fundamental approach to the vehicle’s security systems. The electronic architecture, immobilizer generation, transponder technology, and component security protocols differ radically between these two iterations. A failure to correctly identify the underlying platform can lead to catastrophic diagnostic errors, ranging from the purchase of incompatible hardware to the corruption of control module data, potentially rendering the vehicle inoperable.3
+This report provides an exhaustive technical analysis of the key systems found in the 2014 Volkswagen Golf. It dissects the operational theory of the Immobilizer IV (IMMO IV) system prevalent in North American Mk6 variants and the Immobilizer V (MQB) system found in early Mk7 models. The analysis extends to granular hardware specifications, detailing the exact FCC IDs, part numbers, and transponder logic required for both "Flip Key" (turn-start) and "KESSY" (Keyless Entry and Start System) configurations. Furthermore, it offers a definitive procedural guide for performing "All Keys Lost" (AKL) protocols using industry-standard tools such as the Autel MaxiIM IM608 and the Xhorse VVDI2, with a specific focus on bench-level intervention for data extraction when OBD-II access is compromised.
+1.1 Platform Identification Fundamentals
+The primary challenge in servicing a 2014 Golf lies in the immediate and accurate identification of its chassis code. While marketing materials may blur the lines during transition years, the underlying electronic control units (ECUs) do not.
+The Mk6 Golf (Typ 5K) relies on the PQ35 platform. This architecture is characterized by a distributed immobilizer system where the instrument cluster acts as the primary gateway for key authorization, communicating with the Engine Control Unit (ECU) via the CAN powertrain bus. In the North American market, the 2014 Golf hatchback, GTI, and particularly the Jetta SportWagen largely retained this architecture.1
+Conversely, the Mk7 Golf (Typ 5G) utilizes the MQB platform. This system centralizes various body control functions and introduces a higher-speed, more encrypted communication protocol between the key reader coil, the BCM (Body Control Module), and the instrument cluster. The MQB immobilizer (IMMO V) integrates the immobilizer data more deeply into the processor of the cluster, moving away from separate EEPROM storage, which significantly alters the data extraction methodology.4
+Technicians must utilize the Vehicle Identification Number (VIN) for definitive classification. Mk6 VINs typically contain the chassis identifier "1K" or "AJ" (specifically for the SportWagen), whereas Mk7 VINs introduce the "AU" identifier. Furthermore, the physical design of the key blade offers a rapid visual heuristic: Mk6 keys employ a blade that folds parallel to the fob's face, while Mk7 keys utilize a blade that folds distinctively sideways, perpendicular to the fob's orientation.6
+1.2 The Evolution of Component Security
+The shift from Mk6 to Mk7 is also a shift in cryptographic complexity. The Mk6 IMMO IV system relies on a 7-byte Component Security (CS) code. This static string acts as a digital handshake between the key transponder (ID48), the instrument cluster, and the ECU. Programming a key requires extracting these 7 bytes (along with a Power Class byte and MAC) to pre-code the blank transponder before it can be adapted to the car.3
+The MQB system expands this to a 16-byte CS code and utilizes AES-128 encryption. The calculation of the "Sync Data"—the cryptographic block required to authorize a key—is no longer a linear extraction process. It requires complex manipulation of the NEC35xx processor's data, often necessitating online calculation servers or specialized hardware adapters to read the encrypted sectors of the microcontroller.4
+2. Immobilizer IV System Architecture (Mk6 / PQ35)
+The majority of 2014 Golf units encountered by technicians in the North American secondary market belong to the Mk6 generation. Understanding the Immobilizer IV system is therefore paramount.
+2.1 System Topology and Logic
+In the IMMO IV system, the instrument cluster (Address 17) serves as the "Immobilizer Master." When a key is inserted into the ignition lock cylinder, the reader coil (D2) energizes the transponder chip embedded in the key head. The transponder transmits its unique ID (UID) and a cryptographic response to the cluster.
+The cluster compares this data against its stored "White List" of authorized keys. If the ID is recognized, the cluster challenges the key with a random number. The key must encrypt this number using the pre-programmed Component Security (CS) bytes. If the response matches the cluster's calculation, the cluster then sends a challenge-response signal to the Engine Control Unit (ECU).
+The ECU also stores the CS bytes. If the cluster and ECU successfully authenticate each other (MAC synchronization), the ECU authorizes fuel injection and spark. This entire "Challenge-Response" sequence occurs within hundreds of milliseconds. If any link in this chain fails—incorrect transponder, mismatched CS bytes between cluster and ECU, or corruption in the EEPROM data—the engine will start briefly (for approximately one second) and then stall, accompanied by the "Immobilizer Active" message on the dashboard display.3
+2.2 The Role of the Instrument Cluster (VDO NEC+24C64)
+By 2014, the Mk6 Golf had transitioned almost exclusively to instrument clusters manufactured by Continental VDO, utilizing a specific hardware architecture known as NEC+24C64.
+* Microcontroller: A 32-bit NEC (Renesas) microcontroller manages the cluster's logic and display.
+* EEPROM: A separate 24C64 serial EEPROM chip stores the encrypted immobilizer data (IMMO block), odometer value, and coding configuration.7
+This distinction is critical for "All Keys Lost" procedures. In older VW clusters (Micronas or VDO with 24C32), the data could often be read easily via OBD-II exploits. However, the 2014 NEC+24C64 architecture introduced tighter security measures. The NEC processor actively encrypts the data written to the 24C64 EEPROM. While the EEPROM can be read physically, the data appears as "garbage" or encrypted ciphertext unless the NEC processor's decryption key is known or the cluster is placed into a specific "Service Mode".9
+2.3 Keyless Access (KESSY) Integration
+The KESSY (Keyless Entry and Start System) variant of the Mk6 introduces additional complexity. While the core immobilizer logic remains in the cluster, the KESSY system adds a KESSY control module (Address 05 - Start/Stop Authorization) and a network of low-frequency (LF) antennas and high-frequency (HF) receivers.
+In a KESSY vehicle, the "ignition" is activated by a button. The system must first detect a valid key inside the cabin (via LF triangulation). Once detected, the key transmits its authorization data. Crucially, the key fob itself must have specific hardware to support this proximity function. A standard remote key, even if the transponder is programmed correctly to the cluster, lacks the specific UHF transmitter hardware to respond to the KESSY module's wake-up signal. This leads to a scenario where the car will not start via the button but will start if the key is held against the emergency induction coil (usually located on the steering column plastic), which reverts to standard transponder induction.11
+3. Hardware Specifications: Transponders, FCC IDs, and Part Numbers
+One of the most frequent causes of failure in VW key programming is the selection of incorrect hardware. The 2014 model year supports multiple incompatible key types.
+3.1 Transponder Technology: Megamos Crypto 48 (ID48)
+Both the KESSY and Non-KESSY Mk6 keys utilize the Megamos Crypto 48 (ID48) glass transponder. This chip is a "Write-Once" (for the ID) and "Re-writable" (for the crypto pages) architecture.
+* Pre-Coding: Before an ID48 chip can be adapted to a 2014 Golf, it must be "pre-coded" or "prepared" with the specific 7-byte Component Security (CS) code of the target vehicle. A generic, blank ID48 chip will be rejected by the cluster during the adaptation phase because it lacks the manufacturer-specific "Dealer Key" signature.13
+3.2 Remote Frequency and Modulation
+* North America (NAR): 315 MHz.
+* Europe/Rest of World (RoW): 433/434 MHz.
+It is imperative to check the existing key or the VIN build data. A 433 MHz key programmed to a US vehicle will start the engine (transponder function) but the remote buttons will never work.
+3.3 The Part Number Matrix
+The specific part number printed on the side of the remote head is the definitive guide. For the 2014 Golf (Mk6 platform), the relevant part numbers are in the 5K0 837 202 series.
+3.3.1 Non-KESSY (Flip Key)
+For vehicles with a standard mechanical ignition switch:
+   * Part Number: 5K0 837 202 AE (Standard 315 MHz).
+   * Alternate/Superseded: 5K0 837 202 R is often seen on aftermarket or replacement units.15
+   * FCC ID: NBG010180T.
+   * Chip: ID48 CAN.
+These keys utilize a standard remote circuit. The transponder is often a separate glass pill glued into the key head, or integrated onto the board in later aftermarket revisions.
+3.3.2 KESSY (Push-to-Start)
+For vehicles with the Start/Stop button:
+      * Part Number: 5K0 837 202 AK (North America 315 MHz).
+      * Alternate: 5K0 837 202 AJ (Europe 434 MHz - Incompatible with US models).
+      * FCC ID: NBG010206T.
+      * Chip: ID48 CAN (Integrated). Critical Distinction: The FCC ID NBG010206T is specific to the KESSY "Proximity" keys. The remote board contains additional circuitry to handle the 125kHz wake-up signal from the car's interior antennas. A key with FCC ID NBG010180T (Non-KESSY) cannot be made to work with the push-button start features, although it can be programmed to start the car via the emergency coil method.16
+
+
+  
+
+
+
+3.4 MQB Hardware (Mk7)
+If the vehicle is an MQB Mk7, none of the above keys will work. The MQB keys are based on the 5G0 part number series (e.g., 5G0 959 752). They use MQB48 or MQB49 transponders and AES encryption. They are physically distinct, with the LED indicator located in a different position (top corner vs. middle) and the blade folding mechanism changed. The FCC ID for US MQB keys is often KR5FS14.16 Mixing 5K0 (Mk6) and 5G0 (Mk7) hardware is physically impossible due to the key blade keyway (HU66 is used on both, but the orientation in the fob differs) and electronically impossible due to the transponder architecture.
+4. Diagnostic Tooling: Autel IM608 vs. Xhorse VVDI2
+For professional key programming on the 2014 Golf, two tool ecosystems dominate the market: Autel and Xhorse. Each has distinct advantages for this specific platform.
+4.1 Autel MaxiIM IM608 Pro
+The Autel IM608 is a comprehensive tablet-based diagnostic tool that combines advanced key programming with full OEM-level diagnostics (scanning, coding, actuation tests).
+      * Architecture: It uses the J2534 MaxiFlash ECU programmer for vehicle communication and the XP400 Pro for bench-level chip reading.
+      * Strength for Golf 2014: The IM608 features a "Smart Mode" that guides the user through the process. For the NEC+24C64 cluster, it has robust "Service Mode" capabilities, allowing the tool to modify the EEPROM data to unlock the cluster for key learning.
+      * XP400 Pro Role: This external programmer is essential for the "Bench" method. It connects to the specific EEPROM clips (APA103) to read the memory dump directly from the circuit board.4
+4.2 Xhorse VVDI2 / Key Tool Plus
+The Xhorse ecosystem is more specialized towards locksmithing. The VVDI2 (PC-based) or the Key Tool Plus (Tablet) are often considered the "gold standard" for VAG vehicles.
+      * Strength for Golf 2014: Xhorse tools often have faster calculation times for the CS bytes. They provide granular control over the "Immo Data" file, allowing the technician to manually edit bytes, which is useful for recovering "bricked" clusters or fixing checksum errors.
+      * MQB Capabilities: Xhorse was one of the first to support MQB platform key addition. It allows for the purchase of "Tokens" to calculate the synchronization data online, whereas Autel often bundles this into the subscription or a separate fee structure.6
+5. Operational Procedure: Mk6 (IMMO IV) All Keys Lost
+The "All Keys Lost" (AKL) scenario on a 2014 Mk6 Golf is a complex service procedure. Since no valid key is available to turn the ignition ON, the instrument cluster remains in a sleep state, refusing to communicate via OBD-II for security data extraction. While some tools claim "OBD-II AKL" capabilities by forcing the ignition or exploiting gateway vulnerabilities, the Bench Method remains the safest and most reliable approach for the NEC+24C64 clusters found in 2014 models.
+5.1 Phase 1: Cluster Removal and Access
+The first step is to physically remove the instrument cluster (Kombi) from the vehicle.
+      1. Battery Disconnection: Disconnect the negative battery terminal. This prevents voltage spikes and airbag faults.
+      2. Trim Removal: Remove the plastic trim piece located directly above the steering column and below the cluster. It is secured by spring clips and pulls straight out towards the driver.
+      3. Hardware Release: Locate the two T20 Torx screws at the bottom of the cluster tabs. Remove them.
+      4. Extraction: Pull the cluster forward. You may need to lower the steering wheel fully.
+      5. Disconnection: Reach behind the cluster to the blue 32-pin connector. Lift the pink/magenta locking lever to release the plug. Remove the cluster from the vehicle.
+5.2 Phase 2: Bench Connection and EEPROM Reading
+The objective in this phase is to read the raw data from the 24C64 EEPROM. This data contains the encrypted immobilizer information.
+Hardware Setup:
+      * Tool: Autel IM608 with XP400 Pro Programmer.
+      * Adapter: APA103 (EEPROM Clamp) or APB129 (EEPROM Adapter Shell).
+      * Target: The 24C64 EEPROM is an 8-pin SOIC chip located on the rear PCB of the cluster. You must remove the white plastic back cover of the cluster (usually T10 screws or plastic tabs) to expose the board.
+Visual Identification: Locate the chip marked "24C64" (or sometimes "64" with a manufacturer code like ST, Atmel, or Microchip). It is typically situated near the large square NEC microcontroller. Pay close attention to Pin 1, indicated by a small dot or dimple on the chip package.9
+Connection Steps:
+      1. Cleaning: The most common cause of read failure is the conformal coating or varnish on the PCB. Use a fiberglass pen or precision scraping tool to gently clean the 8 pins of the EEPROM until the metal is shiny. Clean with isopropyl alcohol.
+      2. Clamping: Attach the APA103 clip to the chip. Ensure the Red wire (Pin 1) of the ribbon cable aligns with Pin 1 of the chip. The grip must be firm.
+      3. Software Execution:
+      * On the IM608, go to Programmer > Chip > Read/Write > EEPROM > ST/M24C Series > M24C64.
+      * Select Read.
+      * Validation: Verify the data. If the read returns all 00 or FF, check the connection. A valid VW cluster dump should have data scattered throughout, with specific "Kombi" or part number ASCII strings visible in the hex editor near address 00E40.9
+      * Backup: Save this file as original_eeprom_dump.bin. Do not proceed without this backup.
+Technical Note on "Cutting Tracks": A common question 24 is whether tracks need to be cut. For the 24C64 in the Mk6 Golf, cutting tracks is generally not required if using the APA103 clip. The XP400 Pro is capable of supplying the necessary voltage and handling the in-circuit impedance. However, if reading fails persistently, lifting Pin 8 (VCC) or Pin 4 (GND) is a safer alternative to cutting PCB traces, as it isolates the chip's power rail from the rest of the board.
+5.3 Phase 3: Service Mode and Data Extraction
+With the EEPROM dump secured, the data must be processed to enter "Service Mode." The standard dump is encrypted; the tool needs to modify it to allow the cluster to accept diagnostic commands without a valid key.
+      1. Immo Data Processing:
+      * Navigate to IMMO > Volkswagen > Advanced Mode > IMMO 4 Instrument CAN > VDO NEC+24C64.
+      * Select All Keys Lost.
+      * When prompted "Do you have original EEPROM data?", select Yes and load original_eeprom_dump.bin.
+      2. Service Mode Generation:
+      * The tool will calculate and generate a new file, typically named service_mode_eeprom.bin.
+      * It will instruct you to write this file back to the chip.
+      3. Writing Service File:
+      * Return to the Programmer menu. Select Write and load the service_mode_eeprom.bin.
+      * Once written, the cluster is now in Service Mode.
+      4. Reconnection:
+      * You can now reinstall the cluster into the car OR connect it on the bench using the specific pinout.
+
+
+  
+
+
+
+Bench Pinout for VDO NEC+24C64 10: If proceeding on the bench, connect the cluster 32-pin Blue connector as follows:
+      * Pin 16: Ground (GND)
+      * Pin 31: Ignition Power (+12V Switched)
+      * Pin 32: Battery Power (+12V Constant)
+      * Pin 28: CAN High
+      * Pin 29: CAN Low
+Connect the CAN lines to the OBD-II female port (Pin 6 for High, Pin 14 for Low) of your diagnostic tool.
+      5. Reading Immo Data:
+      * With the cluster in Service Mode (and powered ON), select Read IMMO Data in the Autel menu.
+      * The tool will now successfully communicate with the NEC processor and decrypt the CS Code (7 Bytes), PIN, and MAC.
+      * Crucial Step: After reading the data, the tool will usually prompt (or you must manually select) to restore the original EEPROM data. Write the original_eeprom_dump.bin back to the chip using the programmer. If you fail to do this, the cluster will remain in Service Mode, displaying "Error" or "Service" on the screen, and the odometer may not display correctly.
+5.4 Phase 4: Dealer Key Generation and Adaptation
+With the 7-byte CS code and PIN extracted and the cluster restored to its original state:
+      1. Make Dealer Key:
+      * Place a new, blank ID48 transponder (or the new key) into the XP400 programmer slot.
+      * Select Make Dealer Key.
+      * The tool will write the CS bytes onto the ID48 chip, locking it to this specific vehicle.
+      2. Key Learning:
+      * Reinstall the cluster in the vehicle (if on bench).
+      * Connect the IM608 to the OBD-II port.
+      * Select Key Learning.
+      * Enter the number of keys to be programmed (e.g., 2).
+      * The tool will verify the PIN and open the adaptation channel.
+      * The Dance: The dashboard will display "0/2". Insert the first key and turn Ignition ON. Watch for the display to change to "1/2". Turn Ignition OFF, remove key. Insert the second key, turn Ignition ON. Watch for "2/2".
+      * Once completed, the "Immobilizer Active" light will extinguish.
+6. Operational Procedure: MQB (Mk7) Considerations
+If the vehicle is an MQB platform (Mk7), the above procedure is entirely invalid. The 24C64 method does not apply because the data is stored within the NEC35xx processor, which is locked.
+6.1 MQB AKL Workflow
+      1. Advanced Mode: Select IMMO > Volkswagen > Advanced Mode > MQB (Beta/Main).
+      2. Read Immo Data: In an AKL scenario, reading the data via OBD-II is often blocked on 2014+ clusters (Johnson Controls/VDO).
+      3. The "Lift Pin" Requirement: To read the NEC35xx processor, the cluster must be disassembled. The technician must identify the specific NEC MCU. In many cases, it requires cutting a specific trace on the PCB (to disable the watchdog) or lifting a specific pin on the MCU to put it into boot mode. This is a high-risk microsurgery procedure.
+      4. Sync Data Calculation: Once the raw data is read from the MCU, it is still encrypted. The Autel or VVDI tool will upload this data to a server. The server calculates the 16-byte CS and the "Sync Data" required to generate a dealer key. This calculation usually incurs a cost (Token).
+      5. Writing: The Dealer Key is generated using the MQB48/49 chip. The adaptation is then performed via OBD-II, similar to the Mk6, but using the MQB learning protocol.
+7. Troubleshooting and Common Pitfalls
+7.1 "Key ID OK, but Engine Starts and Dies"
+If the key adaptation says "Successful" but the car starts and stalls:
+      * Transponder Lock: Ensure you didn't use a transponder pre-coded for another vehicle. Once an ID48 is locked to a CS code, it cannot be overwritten.
+      * Transponder Type: Verify you are not using a standard ID48 in an MQB car, or vice versa.
+      * Coil Issues: Check the reader coil resistance (D2). It should be between 20-30 Ohms.
+7.2 Remote Works, Keyless Start Fails
+      * Diagnosis: The customer complains that the buttons unlock the doors, but the Start button says "Key Not Found." The car only starts if the fob is held against the column.
+      * Root Cause: Wrong Part Number. You used a 5K0 837 202 AE (Non-KESSY) remote on a KESSY car. The passive transponder works (hence the emergency start), but the active proximity hardware is missing.
+      * Resolution: You must program a new key with part number 5K0 837 202 AK (FCC ID NBG010206T).
+7.3 Cluster "Error" or Dead after Bench Work
+      * Root Cause: Bad EEPROM write or failure to restore the original dump after Service Mode.
+      * Resolution: Re-read the EEPROM. Compare it with your original_eeprom_dump.bin. Write the original backup file back to the chip. If the cluster is totally dead (no lights), check for solder bridges on the EEPROM pins or damage to the PCB tracks from the clamp.
+8. Conclusion
+The 2014 Volkswagen Golf is a "gatekeeper" vehicle in the world of automotive locksmithing. It stands at the threshold between the accessible, EEPROM-based security of the past (Immo IV) and the server-dependent, encrypted complexity of the future (MQB/Immo V).
+Success in programming keys for this model year is predicated on three pillars:
+      1. Correct Identification: Distinguishing Mk6 (PQ35) from Mk7 (MQB).
+      2. Correct Hardware: Selecting the exact FCC ID (NBG010206T for KESSY vs NBG010180T for Turn-Key).
+      3. Correct Procedure: Utilizing the Bench/Service Mode method for NEC+24C64 clusters to safely extract Component Security data.
+By strictly adhering to the "Backup First" philosophy and utilizing the verified part numbers and pinouts detailed in this report, the technician can ensure a high success rate while minimizing the risk of component failure.
+Works cited
+      1. Volkswagen Golf Mk6 - Wikipedia, accessed January 12, 2026, https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk6
+      2. Used Mk6 vs. Mk7 : r/GolfGTI - Reddit, accessed January 12, 2026, https://www.reddit.com/r/GolfGTI/comments/1myirin/used_mk6_vs_mk7/
+      3. Immobilizer - Ross-Tech Wiki, accessed January 12, 2026, https://wiki.ross-tech.com/wiki/index.php/Immobilizer
+      4. Autel IM608 II Generate MQB Universal Key for VW Golf 2013-2021 Year, accessed January 12, 2026, http://blog.autelsale.com/2023/07/20/autel-im608-ii-generate-mqb-universal-key-for-vw-golf-2013-2021-year/
+      5. VW Golf MQB System All Keys Lost Solution | Step-by-Step Guide Using VVDI2, VVDI Prog & Adapters - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=kAFVmR2b4II
+      6. Programming Spare Key Using Xhorse VVDI 2 on a 2014 Volkswagen Up - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=bTaFwNzbYMM
+      7. Golf6 Cluster Swap With VVDI2 - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=3gpJBVjUVSA
+      8. Mk7.5 immobilizer active issue : r/GolfGTI - Reddit, accessed January 12, 2026, https://www.reddit.com/r/GolfGTI/comments/1eovg8d/mk75_immobilizer_active_issue/
+      9. VW Golf Mk6 Instrument Pack - Solderless Programming Adapter - Avon Diagnostics Limited, accessed January 12, 2026, http://www.avon-diagnostics.co.uk/cli/ADL001/PDF/Golf%206%20IPK%20Solderless%20Adapter%20Datasheet_Issue1.pdf
+      10. VW Golf 6 Instrument cluster pinout bench connect - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=F1Z5xZC7eiQ
+      11. MK6 Golf KESSY retrofit : r/GolfGTI - Reddit, accessed January 12, 2026, https://www.reddit.com/r/GolfGTI/comments/1kb9gtr/mk6_golf_kessy_retrofit/
+      12. MK6 Golf KESSY retrofit : r/vwgolf - Reddit, accessed January 12, 2026, https://www.reddit.com/r/vwgolf/comments/1kb9ink/mk6_golf_kessy_retrofit/
+      13. Refurbished Flip Remote Key for Volkswagen with FCC ID: NBG010180T P/N, accessed January 12, 2026, https://www.bestkeysolution.com/collections/volkswagen/products/proximity-flip-key-for-volkswagen-with-fcc-id-nbg010206t-p-n-5k0837202ak-and-315-mhz-chip-48-key2u-copy
+      14. Genuine Volkswagen Jetta, Tiguan 2008+ Flip Remote, 3Buttons 5K0 837 202 AJ 433MHz, 5K0837202AJ Keyless Go - ABKEYS, accessed January 12, 2026, https://abkeys.com/products/vw-bettle-caddy-golf6-tiguan-touran-remote-key-433mhz-5k0-837-202-aj-3611
+      15. 2011-16 Volkswagen Flip Remote 5K0837202AE 5K0837202AK NBG010180T - Key4, accessed January 12, 2026, https://www.key4.com/flip-remote-key-for-volkswagen-5k0837202ae-5k0837202ak-5k0837202r-nbg010180t
+      16. OEM VOLKSWAGEN SMART KEY FLIP KEY KEYLESS REMOTE 3G0 959 752 BO KR5FS14 T | eBay, accessed January 12, 2026, https://www.ebay.com/itm/156356007715
+      17. Proximity Flip Key for Volkswagen with FCC ID: NBG010206T P/N: 5K08372, accessed January 12, 2026, https://www.bestkeysolution.com/collections/volkswagen/products/proximity-flip-key-for-volkswagen-with-fcc-id-nbg010206t-p-n-5k0837202ak-and-315-mhz-chip-48
+      18. 2014 Volkswagen Golf Proximity Smart Remote Key NBG010206T 5K0837202AK – CarandTruckRemotes, accessed January 12, 2026, https://www.carandtruckremotes.com/products/2014-volkswagen-golf-smart-remote-key-fob-aftermarket
+      19. 2007 - 2016 Volkswagen Flip Key FCC# NBG010180T / 5K0837202R (15 Pack) - Locksmith Keyless, accessed January 12, 2026, https://www.locksmithkeyless.com/products/2007-2016-volkswagen-flip-key-fcc-nbg010180t-5k0837202r-15-pack
+      20. Genuine OEM Volkswagen Smart Key Keyless Entry Fob FCC ID: KR5FS14-US | eBay, accessed January 12, 2026, https://www.ebay.com/itm/326545753596
+      21. IM608 Pro | How To Do All Keys Lost On A Volkswagen Jetta 2014 - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=4c6Srv63QRM
+      22. Xhorse VVDI 2 Remote Programming Demo | 2014 Volkswagen Golf GTD - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=nBz8jRU3lKM
+      23. VVDI Xhorse Key Tool Plus - Programming New Keys for 2013 Volkswagen Jetta - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=YF-tlihySjg
+      24. VW Golf 2009+ VDO NEC +24C64 All Keys Lost using AUTEL IM508. AKL via dump using APA 103 XP400 PRO - YouTube, accessed January 12, 2026, https://www.youtube.com/watch?v=F8dammEq9W8

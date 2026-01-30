@@ -1,0 +1,257 @@
+﻿The Locksmith’s Definitive Dossier: The Final Era of the Stellantis LA/LD Platform (2021-2026)
+Executive Summary: The Sunset of Mopar Muscle and the Rise of Advanced Security Architecture
+The automotive landscape is currently navigating a definitive, irreversible transition, marked most clearly by the cessation of the internal combustion engine (ICE) dominance within the Stellantis North America portfolio. For the professional automotive locksmith and security integrator, the operational window spanning the 2021 through 2026 model years for the Dodge Charger, Dodge Challenger, and Chrysler 300 represents a critical, high-stakes epoch. These model years encompass the highly publicized "Last Call" production run—a period characterized not only by the release of high-value, high-performance collector vehicles but also by the deployment of the most aggressive, hostile anti-theft protocols ever engineered by the manufacturer.
+This dossier serves as an exhaustive technical reference and operational guide for the security professional tasked with servicing these final iterations of the Chrysler LD (Charger), LA (Challenger), and LX (300) platforms. It meticulously documents the escalation of immobilizer technologies, specifically dissecting the mandatory Radio Frequency Hub (RF Hub) lockdowns introduced in 2021, the pervasive and often obstructive deployment of the Security Gateway Module (SGW), and the nuances of the "Red Key" ecosystem found in the Hellcat variants. Furthermore, the report bridges the technological gap to the immediate future, analyzing the initial security architecture of the 2024+ Charger Daytona EV built on the STLA Large platform.
+The data synthesized herein suggests a fundamental, permanent shift in aftermarket serviceability. The era of simple PIN reading via standard OBD-II connections is effectively closed for these specific high-security models. The professional must now navigate a complex landscape requiring hardware replacements, proprietary bypass cables, and the navigation of often-unreliable cloud-based authentication systems. This report provides the actionable intelligence, technical specifications, and strategic foresight required to navigate this hostile architecture safely, efficiently, and profitably, ensuring that the locksmith remains a vital asset in the service chain of these future classic vehicles.
+
+
+  
+
+
+
+Section 1: Platform Architecture and the "Last Call" Context
+To service a vehicle effectively, the security professional must first understand its origin, its architectural constraints, and the historical context of its manufacturing. The 2021 through 2023 model years for the Dodge Charger and Dodge Challenger, along with the Chrysler 300, are not merely continuations of previous production cycles; they represent the culmination of nearly two decades of the LX/LD platform evolution. This context is vital because the security systems installed in these final years are essentially retrofitted layers—digital patches—designed to mitigate vulnerabilities exposed over fifteen years of global production and high-profile theft exploitation.
+1.1 The End of the Brampton Era
+The production of the current generation Dodge Charger and Challenger, along with the Chrysler 300, formally concluded at the Brampton Assembly Plant in Ontario, Canada, at the end of the 2023 calendar year.1 This cessation marks the definitive end of the "L-platform" lineage that began in 2004, a platform originally derived from Mercedes-Benz architecture during the DaimlerChrysler partnership. The implications of this closure are profound for the parts and service market. As production lines halt, the supply chain for specific electronic control modules, including the critical Radio Frequency Hubs (RF Hubs) and Body Control Modules (BCMs), shifts from active production logistics to service parts inventory. This transition often precipitates backorders and price increases, making the locksmith’s ability to repair or reuse existing modules—where possible—more valuable than ever.
+The final vehicle to roll off the assembly line was a 2023 Dodge Challenger SRT Demon 170 painted in Pitch Black, a symbolic closure to the era of high-horsepower internal combustion muscle cars.1 This specific vehicle, and the thousands of "Last Call" units preceding it, are not merely used cars; they are instant collectibles with appreciating asset values. Owners of these vehicles, particularly the Demon 170, Black Ghost, King Daytona, and Swinger editions, are extraordinarily sensitive to intrusive maintenance work. Dashboard disassembly for Security Gateway Module (SGW) access or rear-seat removal for RF Hub replacement must be performed with surgical precision, utilizing non-marring tools and strict adherence to OEM trim removal procedures to avoid devaluing these assets.
+1.2 The "Last Call" Variants and Identification
+Stellantis released seven distinct "Last Call" special edition models to commemorate the end of the platform. Identifying these correctly is crucial for the locksmith, as high-trim models often utilize different remote start configurations, suspension control modules, and inter-module communication protocols that can interact with the immobilizer chain. For instance, the sheer value of these vehicles means they are often the primary targets for organized theft rings, and consequently, they are the most likely to have the "RF Hub Lockdown" software updates applied either at the factory or during subsequent dealer service visits.
+The "Last Call" lineup includes the Dodge Challenger Shakedown, of which only 1,000 units were produced. This model features a specialized "Shaker" hood intake system.2 For the locksmith, this seemingly cosmetic feature complicates under-hood access to the battery terminals or the Engine Control Unit (ECU) if jump-starting or power cycling is required during programming. The Dodge Charger Super Bee, also limited to 1,000 units, features a unique "Drag Mode" suspension and specialized startup graphics on the cluster.2 These distinct software loads on the Instrument Panel Cluster (IPC) can sometimes cause handshake delays during key programming if the voltage is not perfectly maintained, as the modules draw significant current to boot up their specialized graphics.
+The Dodge Challenger and Charger Scat Pack Swinger editions, limited to 2,000 units each, feature retro styling cues but standard 392 HEMI security protocols.2 The Dodge Charger King Daytona, limited to a mere 300 units, is based on the Hellcat Redeye Widebody.2 This vehicle specifically requires the "Red Key" programming protocol to unlock its full 807 horsepower potential, a critical detail that will be explored in depth in subsequent sections. Similarly, the Challenger Black Ghost, also limited to 300 units, carries a distinct VIN series that may trigger specific database alerts in aftermarket key programming software.3 Finally, the Challenger SRT Demon 170, with approximately 3,300 units produced, represents the pinnacle of the platform's engineering, featuring a 1,025-horsepower engine and a highly specialized ECU and RF Hub mapping designed to manage variable ethanol content.1
+1.3 The Transition to STLA Large (2024+)
+While the LD/LA platforms ceased production in 2023, the Dodge Charger nameplate continues onto the all-new STLA Large platform for the 2024 model year and beyond.4 This represents a radical architectural shift from the rear-wheel-drive L-platform to a highly flexible, battery-electric vehicle (BEV) native platform that also supports internal combustion via the new inline-six "Hurricane" engine.6
+The 2024 Charger Daytona EV operates on the STLA Large platform's 400-volt and 800-volt architectures.4 This transition from 12V-native legacy architectures to high-voltage EV architectures fundamentally alters the safety protocols for the locksmith. Jump-starting a 2024+ Charger requires strict adherence to EV safety standards to avoid damaging the high-voltage battery management system (BMS) or the DC-DC converter. Furthermore, the immobilizer logic in the STLA Large platform is different, relying on new Body Control Modules (BCMs) and likely abandoning the standalone RF Hub design of the LD platform in favor of integrated Secure Vehicle Architectures (SVA) that centralize computing power and security credentials.4 This shift renders current RF Hub bypass techniques obsolete for the new generation, necessitating a complete retooling for the locksmith industry.
+Section 2: The Electronic Locking Ecosystem (Keys & Remotes)
+For the locksmith, the physical interface—the key fob—is the primary stock-keeping unit (SKU) and the most frequent point of interaction with the customer. In the 2021–2026 operational window, confusion regarding frequency, chip type, and button configuration is rampant due to the visual similarity between "old" styling and the updated internal electronics required by the locked-down security architecture.
+2.1 Technical Specifications: 2021–2023 Models
+The Charger, Challenger, and Chrysler 300 utilize a specialized high-security smart key system. Unlike earlier Chrysler fobs that were simpler OHT variants, these later models demand specific OEM parts to function correctly with the proximity (Keyless Go) systems. The primary smart key fob for these models operates under the FCC ID M3N-40821302.8 This FCC ID is shared across multiple models, including the Charger, Challenger, and Chrysler 300, creating a degree of cross-compatibility that can be advantageous for inventory management.
+The operating frequency for these fobs is listed as 433 MHz or 434 MHz.8 It is critical for the technician to understand that while these numbers are often used interchangeably in marketing materials, the precise carrier frequency is typically 433.92 MHz. Locksmith equipment, such as frequency testers and key programmers, must be set to the 433 MHz range to detect the signal correctly. The transponder chip embedded within the fob has evolved significantly. While pre-2019 models often utilized the ID46 (PCF7953) chip, the 2021-2023 models have shifted to the HITAG AES (128-bit) chip, often identified as PCF7953M or ID4A.8 This shift to Advanced Encryption Standard (AES) is a direct countermeasure against the relay attacks and key cloning techniques that plagued earlier iterations of the platform.
+Part number variants are specific to the branding and button configuration. The standard Dodge Charger and Challenger fob usually carries the part number 68394196AA.8 The Chrysler 300 utilizes variants such as 68394191AA or 68394195AA 12, which differ primarily in the logo and the potential inclusion of a remote start button. The high-performance SRT and Hellcat models utilize the same base hardware but are distinguished by their casing and programming logic, with the "Black Key" typically sharing the 68394196AA part number 14, and the coveted "Red Key" carrying the part number 68394205AA.15
+2.2 The Red Key vs. Black Key Phenomenon
+Unique to the Dodge SRT ecosystem, particularly the Hellcat variants, is the dual-key strategy. This feature is a frequent source of customer queries and programming confusion for the locksmith. The Black Key acts effectively as a hardware-limited "Valet Mode," restricting the engine's output to 500 horsepower and limiting engine speed to 4,000 RPM.14 This key is intended for daily driving, valet parking, or less experienced drivers. In contrast, the Red Key unlocks the vehicle's full performance potential, releasing 707, 717, 797, or even 1,025 horsepower depending on the specific "Last Call" trim level.14
+A common misconception among automotive professionals is that the Red Key contains a different transponder chip or operates on a different frequency than the Black Key. This is factually incorrect. Both Red and Black keys utilize the identical FCC ID (M3N-40821302) and the same Hitag AES (ID4A) transponder chip architecture.16 The differentiation does not occur at the radio frequency level but rather in the RF Hub's memory and the data packet transmitted during the handshake.
+When a key is programmed to the vehicle, the RF Hub reads the unique identifier of the key. However, the distinction of "Red" or "Black" status is determined by the Part Number and specific configuration bytes coded into the remote's logic board.20 When the key communicates with the car, it sends a "Type" byte that identifies it as a Red or Black fob.21 The RF Hub then communicates this status to the Engine Control Module (ECM), which selects the appropriate engine mapping table (500HP vs Full Power).
+This technical nuance has significant implications for the locksmith. You cannot simply take a generic black fob, reprogram it, and expect it to function as a Red Key. Unless the aftermarket fob allows for the manual manipulation of the "Type" byte or emulation of the specific Red Key part number 68394205AA, it will function as a standard Black Key. Furthermore, when programming a used Red Key, extreme caution is required. Once a Red Key is programmed to a vehicle, the RF Hub often permanently associates that specific transponder ID with the "Red Key" class for that VIN. If the key is not properly unlocked or "virginized" before being used on another vehicle, the new vehicle's RF Hub may reject it or fail to apply the correct power mapping.16
+
+
+  
+
+
+
+2.3 The Future: 2024+ Charger Daytona EV Keys
+As the platform shifts to the STLA Large architecture, the key hardware has evolved once again, rendering the inventory of M3N-40821302 fobs incompatible with the new generation. The 2024 Dodge Charger Daytona EV introduces a new key fob with the FCC ID 2BAHD-KFW1.22 This fob utilizes the IC 30273-KFW1 and operates at 434 MHz, maintaining the European standard frequency utilized in late-model Stellantis US vehicles.
+A critical change in the new fob design is the battery. The 2024+ fob utilizes a CR2450 coin cell battery.22 This is a significant departure from the CR2032 battery used in the previous LD platform fobs. The CR2450 is thicker and offers a significantly higher capacity (typically around 600-620 mAh compared to the CR2032's 220-240 mAh). This increased power capacity strongly suggests that the new fobs are supporting more power-intensive features, likely Ultra-Wideband (UWB) technology for precision location tracking, enhanced range, and seamless "Phone-as-a-Key" integration that requires the fob to constantly ping its precise distance to the vehicle for security authentication.
+Section 3: The Mechanical Interface (Locks and Lishi)
+While the electronic programming presents the most significant hurdle in modern automotive locksmithing, the mechanical access to the vehicle remains the fundamental first step in any "All Keys Lost" (AKL) scenario. The Stellantis fleet utilizes a high-security internal laser-cut keyway, but nomenclature confusion regarding the specific keyway profile is rampant in the trade.
+3.1 Keyway Identification: Y157 vs. Y159 vs. CY24
+The physical key blade for the 2021–2023 Charger, Challenger, and Chrysler 300 is often referred to by multiple conflicting codes in distributor catalogs. The industry standard designation for the keyway profile is Y159.24 This profile refers to the 8-cut version of the keyway, which is used on the door and trunk cylinders of these vehicles. The distinction is critical: the Y157 profile is typically associated with the older 7-cut ignition cylinders found on previous generations of Chrysler vehicles or specific valet key applications. However, in the push-to-start era of the "Last Call" models, there is no mechanical ignition cylinder. The emergency blade inserted into the fob is universally the 8-cut Y159 profile.27
+For the locksmith utilizing Lishi tools for picking and decoding, the correct tool selection is vital. The appropriate tool is the CY24 (often labeled as CY24 2-in-1). A critical warning must be issued regarding the "CY24 Truck" tool. This variant is designed specifically for commercial vehicles like the Freightliner or Sprinter vans, which utilize a similar keyway but include a 5th depth in the wafer system that is not present in the passenger car locks.26 Attempting to use the CY24 Truck tool on a Dodge Charger door lock can result in misreads or, in worst-case scenarios, damage to the wafers due to the different spacing and depth indicators. The standard CY24 or Y159-specific tool is the only correct choice.
+3.2 Picking and Decoding Strategy
+The door locks on the Charger and Challenger are known to be relatively robust but are highly susceptible to road grime and dirt ingress due to their low placement on the door handle, particularly on the Challenger where the handle is integrated into the body line. The standard operation for unlocking is typically clockwise rotation. These locks are 8-cut systems, meaning there are eight potential positions for wafers (1 through 8). However, the door lock cylinder typically contains wafers only in positions 2 through 8. The number 1 wafer is often omitted in the door cylinder but would be present in a mechanical ignition if one existed.
+When decoding the lock after picking, the locksmith will obtain the cuts for positions 2-8. To generate a full key code capable of turning the lock smoothly, the missing position 1 cut must be determined. This is often done by referencing the Code Series M1-M2618.27 If the Lishi read yields the cuts for 2-8, the locksmith can input these partial cuts into code software such as Genericode or Instacode. The software will often provide a limited number of valid key codes that match the partial cuts, allowing the locksmith to deduce the correct cut for position 1 without needing to disassemble the lock.
+Section 4: The Security Gateway (SGW) Module
+The introduction of the Security Gateway Module (SGW) in 2018 marked a turning point in aftermarket diagnostics for Stellantis vehicles. The SGW acts as a digital firewall, physically separating the vehicle's diagnostic port (OBD-II) from the internal CAN bus networks.31 Its primary engineering purpose was to prevent remote hacking and unauthorized control of vehicle systems via the telematics unit or the OBD port. However, its secondary effect was to block aftermarket tools from performing critical service functions.
+4.1 The 2018 vs. 2021+ Landscape
+For the 2018 through 2020 model years, the SGW was largely a nuisance that required a bypass cable or an authorized scan tool. For the 2021 through 2023 "Last Call" models, the SGW has evolved into a formidable barrier, compounded significantly by the RF Hub lockdown. The SGW enforces a "Read Only" access protocol for unauthorized tools. A locksmith can connect a scanner and read Diagnostic Trouble Codes (DTCs) or view live data streams, but any attempt to clear codes, initiate active tests, or transmit "Write" commands—such as "Program Key" or "Write VIN"—will be rejected by the gateway.31
+4.2 Bypass Method 1: AutoAuth (The Software Solution)
+Stellantis introduced "AutoAuth," a cloud-based authentication system, to allow the aftermarket industry to legitimately bypass the SGW. By registering their diagnostic tools (such as Autel, Snap-on, or AirPro) with AutoAuth and paying an annual subscription, technicians can theoretically "unlock" the SGW via a Wi-Fi connection during the session.
+However, for the automotive locksmith, AutoAuth has proven to be fraught with reliability issues. Many professionals report that while AutoAuth works reasonably well for general diagnostics (like clearing engine codes), it is frequently unreliable for Immobilizer functions.35 The authentication handshake often fails during the critical key programming sequence, or the specific "Key Learn" functions are not fully whitelisted for the aftermarket tools in the AutoAuth database for the newest models. Consequently, the consensus in the high-security locksmith community is clear: Do not rely solely on AutoAuth for a 2021+ Charger/Challenger AKL job. Always have a physical bypass solution ready to ensure the job can be completed.
+4.3 Bypass Method 2: The 12+8 Cable (The Physical Solution)
+The most robust and universally effective method for bypassing the SGW is the physical "12+8" bypass. This involves disconnecting the two connectors (one 12-pin, one 8-pin) from the SGW module itself and plugging them into a "12+8" breakout cable that is connected to the key programmer. This physically removes the SGW firewall from the communication loop, giving the programmer direct access to the internal CAN bus.
+Locating the SGW is the primary challenge with this method, as it varies significantly by model:
+* Dodge Challenger: The SGW is located directly behind the infotainment screen (Radio).37 Accessing it requires removing the dashboard trim panel that surrounds the gauge cluster and the center air vents, then removing the four screws securing the radio head unit. The radio must be pulled out to reveal the SGW mounted on the bulkhead behind it. This is a labor-intensive process that carries the risk of cracking expensive trim pieces.
+* Dodge Charger: In contrast, the SGW in the Charger is typically located under the driver's side dash, often near the steering column or kick panel.38 This location is significantly easier to access than the Challenger's radio-mounted unit.
+* Chrysler 300: The location in the 300 is generally similar to the Charger, often found under the dash or behind the HVAC control panel, but technicians should always verify before disassembly.
+4.4 Bypass Method 3: The Star Connector (The Direct Approach)
+For key programming specifically, many locksmiths prefer connecting directly to the CAN-C Star Connector. This acts as a central hub for the CAN bus network. By connecting a specialized cable (such as the ADC2011 or a generic Star Connector cable) to this hub, the programmer can communicate directly with the RF Hub and other modules, effectively ignoring the SGW without needing to unplug it.
+* Location: In the 2021+ Challenger and Charger, the Star Connector is often located in the passenger side kick panel or wrapped in the wiring harness near the glovebox area.39 It is a green block with multiple white plugs.
+* Tooling: The technician uses the probe connectors on the cable to tap into the green (CAN-L) and white (CAN-H) wires, or plugs the specialized connector directly into an open port on the Star block.
+
+
+  
+
+
+
+Section 5: The RF Hub Lockdown (The 2021+ Crisis)
+This section details the most critical development in the servicing of the LD/LA platform. In 2021, driven by escalating theft rates of high-performance models (Hellcat, Scat Pack), Stellantis initiated a rolling software update campaign (referenced in TSBs such as 08-086-22).41 This update fundamentally altered the behavior of the Radio Frequency Hub (RF Hub), creating what is known in the industry as the "RF Hub Lockdown."
+5.1 The "Lockdown" Mechanism
+The software update modifies the firmware of the RF Hub, the module responsible for receiving signals from the key fob and authorizing the ignition sequence.
+* The Change: The update removes the ability for the RF Hub to communicate via the standard OBD-II key programming protocol that allows for PIN Code Retrieval and Key Learning. In previous years (2018-2020), even with an SGW, a locksmith could bypass the gateway and read the PIN from the RF Hub.
+* The Result: On a 2021+ vehicle (or an older vehicle that has received the dealer update), traditional key programmers—even when connected via a 12+8 bypass or Star Connector—cannot read the PIN code or write a new key ID to the RF Hub.43 The Hub simply rejects the "Write" command or returns a "Security Access Denied" error. The port for key programming is effectively closed at the firmware level.
+5.2 The "Bricking" Risk
+The most dangerous aspect of this lockdown is the risk of "bricking" the module. Many locksmiths, unaware of the update, attempt to force-program a locked 2021+ RF Hub using older software protocols (e.g., selecting "2018-2020 Charger" on their programmer).
+* The Consequence: When the programmer attempts to force the PIN read or write via the K-line or CAN bus on a locked hub, the module may enter a tamper-protection mode or corrupt its own EEPROM data.45
+* Symptoms: The vehicle becomes completely unresponsive. The ignition cannot be cycled to "Run" or "Acc." The cluster may remain dark or display persistent communication errors. The original keys (if any existed) stop working. The car is effectively dead.
+* Recovery: A bricked RF Hub typically cannot be recovered in the field. It requires replacement with a new unit and often a tow to the dealership or a specialized shop with wiTECH engineering access to restore vehicle function.
+5.3 The Solution: RF Hub Replacement
+For a 2021–2023 Charger or Challenger in an All Keys Lost (AKL) situation, the only reliable, safe procedure now involves physically replacing the RF Hub with a "virgin" or unlocked unit that has not received the lockdown update.
+1. Locate the RF Hub:
+   * Challenger/Charger: The RF Hub is located on the rear shelf (under the package tray/rear deck) or behind the rear seat backrest.47
+   * Access: This is a physically demanding task. It requires removing the rear seat cushion, the rear seat backrest, and the C-pillar trim to access the rear deck panel. The Hub is mounted to the metal shelf.
+2. Replacement: Physically unbolt and unplug the locked RF Hub.
+3. Installation: Install the new "Virgin" RF Hub. These can be purchased from the dealer (though often on backorder) or from specialized locksmith suppliers who sell "unlocked" OEM units.
+4. Programming: Use a capable programmer (such as the Autel IM608 or Smart Pro) and select the specific "Replace RF Hub" or "RF Hub Unit Replacement" function. The tool will communicate with the new Hub, write the vehicle's current VIN into the Hub's memory, and then sync the Hub with the BCM and PCM.44
+   * Critical Step: You must perform the "RF Hub Replace" routine correctly to sync the VIN. If the VIN is not written, the vehicle may start but will shut off after a few seconds (usually 3-5 seconds) or throw a "VIN Mismatch" error code.49 The immobilizer checks the VIN stored in the RF Hub against the VIN in the PCM; if they don't match, the engine is cut.
+5.4 2021+ Programming Decision Tree
+To navigate this complex environment without damaging the vehicle, the locksmith should follow a strict decision tree:
+* Scenario A: Add Key (One working key available)
+   * Some advanced tools may be able to add a key if the alarm is disarmed and the locksmith has a working key to authenticate the session. However, on fully updated 2022+ models, even this is often blocked, and the "Replace RF Hub" method becomes the only option.
+* Scenario B: All Keys Lost
+   * Step 1: Check the production date on the door sticker. If it is late 2021 or newer, assume the RF Hub is locked.
+   * Step 2: Attempt to read the PIN via the Star Connector (using a non-intrusive read). If the tool returns a PIN, proceed with caution.
+   * Step 3: If the PIN read fails or returns "Access Denied," STOP. Do not attempt to brute force or use older menu selections.
+   * Step 4: Quote the customer for an RF Hub Replacement. This is the only safe path forward.
+
+
+  
+
+
+
+Section 6: Programming Methodologies & Equipment
+The successful servicing of these vehicles depends heavily on the specific toolset employed. The locksmith industry relies on a few flagship tools, each with its own strengths and workflows for the Stellantis platform.
+6.1 Tool-Specific Workflows
+
+
+Autel IM608 / IM508
+44
+
+
+The Autel MaxiIM series is a dominant force in this sector due to its robust "RF Hub Replacement" functions.
+* Capabilities: Autel software is particularly strong at writing the VIN to a new RF Hub and syncing it with the vehicle, a crucial step that some other programmers struggle with.
+* Menu Path: To access the correct functions, the user typically navigates to: IMMO > Chrysler/Dodge > Selection > Charger > 2021-2023 > Smart Key. From there, special menus for "Control Unit Replacement" or "RF Hub Replacement" are available.
+* Cable Requirement: The Autel tool requires the 12+8 Connector to be plugged into the SGW (or the SGW bypass location) to communicate. Alternatively, the tool can be connected to the Star Connector using a CAN breakout cable, though the 12+8 method is often more stable for the heavy data writing required during module replacement.
+* Note: Users must follow the on-screen prompts meticulously. The tool will often ask for the original PIN (if available) or will bypass it using the new module's default state.
+
+
+Advanced Diagnostics Smart Pro
+39
+
+
+The Smart Pro is favored by many for its ease of use and its dedicated cable ecosystem.
+* Capabilities: The Smart Pro excels at "Pincode Reading" via the ADC2011 cable, which connects directly to the Star Connector.
+* Bypass Strategy: By connecting to the Star Connector (CAN-C), the Smart Pro communicates directly with the high-speed CAN bus, effectively ignoring the SGW.36 This often eliminates the need to remove the radio in the Challenger or dig under the dash for the 12+8 plugs, saving significant labor time.
+* Lockdown Handling: Advanced Diagnostics frequently updates its software to guide users through the specific "2021+ Key Programming" flow, often alerting the user if the RF Hub is locked and advising on replacement procedures.
+
+
+XTool / AutoProPad
+54
+
+
+* Capabilities: These pad-based programmers are capable of SGW bypass via the 12+8 cable.
+* Star Connector: XTool users can also use a "brute force" cable or a generic CAN hook to tap into the Star Connector. However, this method is riskier than using a dedicated cable like the ADC2011, as it often involves using probe needles to back-probe the connector. If the probes touch or short the CAN High and CAN Low lines together, it can cause network communication errors or potential module damage.36
+6.2 Key Programming Steps (General Protocol for Unlocked/New Hub)
+Once the RF Hub issue is resolved (either by using a pre-lockdown vehicle or installing a new hub), the general programming protocol is as follows:
+1. Connect: Install the 12+8 bypass cable or connect to the Star Connector.
+2. Power Support: Crucial Step. Ensure the vehicle battery voltage is maintained above 12.5V. These vehicles consume high amperage (often 20-30 Amps) when the ignition is "On" and the modules are waking up. A voltage drop during the writing process can corrupt the BCM or RF Hub. Use a high-quality battery maintainer (not just a trickle charger).
+3. Read PIN: Attempt to read the 4-digit PIN code from the RF Hub.
+4. Program: Select "Add Smart Key" or "Program Smart Key."
+5. Procedure:
+   * The tool will prompt you to hold the new key fob near the Start/Stop Button or, in some cases, the center console antenna pocket.
+   * Press the Unlock and Lock buttons on the fob as prompted by the screen.
+   * Wait for the instrument cluster to recognize the key. A successful programming event is typically signaled by the door locks cycling or two audible beeps from the cluster.
+6. Verify: Test the proximity functions (door handle request) and the remote start functionality to ensure the key is fully integrated.
+Section 7: Troubleshooting Common Post-Programming Issues
+Even with a successful "Program Success" message on the tool, the Stellantis architecture is prone to specific post-service failures that can baffle the technician.
+
+
+7.1 "Key Fob Not Detected"
+56
+
+
+* Symptom: The key programs successfully, the buttons unlock/lock the doors, but when the Start Button is pressed, the cluster displays "Key Fob Not Detected" and the car will not crank.
+* Cause 1: RF Hub Antenna Disconnect. During the RF Hub replacement (if performed), the coaxial antenna plugs on the module may not be seated fully. There are usually multiple antenna inputs (Interior 1, Interior 2, Trunk, etc.). If the primary interior antenna is disconnected, the Hub cannot triangulate the key's position inside the car.
+* Cause 2: Battery Voltage. A weak fob battery (CR2032) or, more commonly, a weak vehicle battery can cause the Low Frequency (LF) antennas to broadcast at reduced power, failing to excite the key's transponder.
+* Cause 3: Wrong Key Type. Using a non-proximity key (a standard keyless entry fob intended for a turn-key ignition) on a push-to-start vehicle.
+* Fix: Try the "Emergency Start" method: Press the nose of the fob (the end opposite the key ring) directly against the Start Button while depressing the brake.59 This utilizes the "Limp Home" inductive coil in the Start Button to read the chip directly, bypassing the proximity antenna array. If this starts the car, the transponder is programmed, but the proximity antenna loop is failing.
+
+
+7.2 Push-to-Start Synchronization Failure
+60
+
+
+* Symptom: The fob works for door locks, but the Start Button does nothing (No Crank, No Response).
+* Fix: The WIN/RF Hub Reset. Disconnect the vehicle's negative battery terminal for 10-15 minutes. This "hard reset" forces a reboot of all CAN bus modules, clearing temporary logic errors and forcing the RF Hub and BCM to re-establish their handshake.
+
+
+7.3 VIN Mismatch (Stalling after Start)
+49
+
+
+* Symptom: The car starts, the engine runs for approximately 3 seconds, and then shuts off.
+* Cause: The replacement RF Hub has not been properly "Write VIN" programmed. The ECM (Engine Control Module) performs a continuous security handshake with the RF Hub. If the VIN stored in the RF Hub does not match the VIN stored in the ECM, the immobilizer kills the fuel injectors.
+* Fix: Connect the programmer again and perform the "Write VIN" or "Replace RF Hub" function. Ensure the VIN is typed correctly and confirmed.
+Section 8: Looking Ahead – The 2024+ Charger Daytona EV
+The launch of the STLA Large platform with the 2024 Dodge Charger Daytona EV introduces the next generation of locksmith challenges, moving the goalposts once again.
+8.1 New Hardware, New Rules
+As detailed in Section 2, the 2024 Charger Daytona requires the new 2BAHD-KFW1 fob hardware.
+* High Voltage Safety: Programming typically requires the vehicle to be "Awake" (Ignition On). In an EV, this means engaging the high-voltage contactors. Locksmiths must be trained in basic EV safety. While the 12V system is still accessible for jumping, the high-voltage system presents lethal risks if deep disassembly is attempted without following Lockout/Tagout (LOTO) procedures.
+* Scan Tool Compatibility: Early reports suggest that legacy tools (such as the Autel IM608 Pro I) may require hardware upgrades (such as the VCMI interface) or significant software updates to communicate with the STLA Large architecture's new Secure Vehicle Architecture (SVA).4 The SVA centralizes computing power, potentially moving the immobilizer logic into a High Performance Computer (HPC) rather than a discrete RF Hub, which could fundamentally change or eliminate the "RF Hub Replacement" workaround used on the LD platform.
+Conclusions and Strategic Recommendations
+The era of the "Last Call" Dodge muscle cars represents a paradox for the modern locksmith: these are among the most desirable vehicles to service due to their high market value, collector status, and passionate owner base, yet they are simultaneously the most hostile to aftermarket intervention.
+The data indicates that specialization is the only viable path forward. The "generalist" locksmith who relies on a single OBD tool and a subscription to AutoAuth will find themselves unable to service 2021+ All Keys Lost scenarios effectively or safely. To succeed in this niche, the professional must:
+1. Invest in RF Hub Inventory: Maintain a stock of virgin/unlocked RF Hubs for the Charger, Challenger, and Ram lines to avoid dealer backorders.
+2. Master the Teardown: Become proficient in the physical disassembly required to access the RF Hub (Challenger rear seat/shelf) and the SGW (Challenger radio/Charger dash) without damaging interior trim.
+3. Educate the Customer: Be prepared to explain why the service costs significantly more than a standard key programming job. The narrative must shift from "cutting a key" to "replacing the immobilizer computer" to justify the higher labor rates and parts costs associated with the "Last Call" security protocols.
+The shift to the STLA Large platform in 2024 will likely reset the board once again, requiring a new cycle of research, tool updates, and technique refinement. Until then, the LD/LA platform remains the "final boss" of the internal combustion era locksmithing—a complex, high-stakes, but ultimately conquerable challenge for the well-equipped professional.
+Works cited
+1. The Last 2023 Dodge Challenger and Charger Have Been Built - Car and Driver, accessed January 5, 2026, https://www.caranddriver.com/news/a46236136/2023-dodge-challenger-charger-last-built/
+2. Don't Miss Dodge's “Last Call” Special Edition Models, accessed January 5, 2026, https://www.edmartincdjr.com/blogs/3285/dont-miss-dodges-last-call-special-edition-models/
+3. Dodge Challenger & Charger Last Call: Specs & Horsepower, accessed January 5, 2026, https://www.spartanburgchryslerdodgejeep.com/dodge-challenger-dodge-charger-last-call/
+4. Stellantis Unveils BEV-native STLA Large Platform with 800 Km/500 Mile Range and the Ultimate Flexibility to Cover a Wide Spectrum of Vehicles, accessed January 5, 2026, https://www.stellantis.com/en/news/press-releases/2024/january/stellantis-unveils-bev-native-stla-large-platform-with-800-km-500-mile-range-and-the-ultimate-flexibility-to-cover-a-wide-spectrum-of-vehicles
+5. Stellantis Unveils BEV-native STLA Large Platform with 800 Km/500 Mile Range and the Ultimate Flexibility to Cover a Wide Spectrum of Vehicles, accessed January 5, 2026, https://media.stellantisnorthamerica.com/newsrelease.do?id=25630&mid=1
+6. Dodge Unveils All-New 2024 Charger: EV or ICE, 2 or 4 Doors—Plus Standard AWD & Up To 670 HP - OnAllCylinders, accessed January 5, 2026, https://www.onallcylinders.com/2024/03/05/dodge-unveils-all-new-2024-charger-ev-or-ice-2-or-4-doors-plus-standard-awd-up-to-670-hp/
+7. Farewell to Dodge uniqueness… - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Dodge/comments/1b7n1mk/farewell_to_dodge_uniqueness/
+8. 2023 Dodge Charger Smart Key 4B Fob FCC# M3N-40821302 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-dodge-charger-smart-key-4b-fob-fcc-m3n-40821302
+9. 2021 Dodge Charger Smart Remote Key Fob 4B w/ Trunk (FCC: M3N-40821302, P/N, accessed January 5, 2026, https://oemcarkeymall.com/products/2021-dodge-charger-smart-key-trunk-m3n-40021302
+10. Dodge New OEM 2023 Challenger Demon Smart Key 3B - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/dodge-new-oem-2025-ram-1500-smart-key-3b-fccid-0ht4882056-pn-68523825ab-copy
+11. Dodge Challenger Charger SRT Smart Key 68394198AA M3M-40821302 - Key4, accessed January 5, 2026, https://www.key4.com/dodge-challenger-charger-srt-smart-remote-key-68394198aa-m3m40821302
+12. Replacement for Chrysler 300 2019 2020 2021 2022 2023 Smart Key Fob M3N-40821302, accessed January 5, 2026, https://www.ebay.com/itm/286452128452
+13. 2021 Chrysler 300 Keyless Remote Key w/ Engine Start 68394191AA M3M-40021302 – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2021-chrysler-300-smart-remote-key-fob-w-engine-start-aftermarket
+14. Dodge Charger SRT Hellcat Red Key Vs. Black Key Differences, accessed January 5, 2026, https://www.bomninchryslerdodgejeepram.com/dodge-charger-srt-hellcat-redeye-widebody-red-key-vs-black-key.htm
+15. 68394205AA - Integrated Key Fob Transmitter 2019-2023 Dodge | The Official Mopar eStore, accessed January 5, 2026, https://store.mopar.com/oem-parts/mopar-integrated-key-fob-transmitter-68394205aa
+16. VD4920-Dodge Charger Challenger Hellcat 2019-2022 Remote Key - VVDI, accessed January 5, 2026, https://www.vvdi.com/vd4920-dodge-charger-challenger-hellcat-68394205aa
+17. Red Key vs. Black Key: Unlocking Hellcat Power | Capital One Auto Navigator, accessed January 5, 2026, https://www.capitalone.com/cars/learn/finding-the-right-car/red-key-vs-black-key-unlocking-hellcat-power/2723
+18. Black Key vs. Red Key for the Hellcat Challenger Jailbreak. Do You Know the Difference? #hellcat - YouTube, accessed January 5, 2026, https://www.youtube.com/shorts/oADSQFIEw78
+19. Genuine Dodge Charger 2019-2023 Smart Key, 4Buttons 68394196AA 433MHz, M3M-40821302 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/dodge-charger-challenger-smart-key-4b-433mhz-m3m-40821302-68394196aa-4479
+20. Eli5: how the Dodge challenger hellcat's red and black key work : r/explainlikeimfive - Reddit, accessed January 5, 2026, https://www.reddit.com/r/explainlikeimfive/comments/2bzqk5/eli5_how_the_dodge_challenger_hellcats_red_and/
+21. Want a Red Hellcat key fob? This is how to do it... - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=CfX2SotrhrY
+22. Dodge New OEM 2025 Charger EV Smart Key 5B FCCID: 2BAHD-KFW1 PN# 68575201AC, accessed January 5, 2026, https://royalkeysupply.com/products/dodge-new-oem-2025-charger-ev-smart-key-5b-fccid-2bahd-kfw1-pn-68575201ac
+23. 2024 - 2026 Dodge Charger Key Fob Battery Replacement - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=LTPyyGQUrz8
+24. Original Lishi CY24 8Cut 2-in-1 Pick & Decoder for Chrysler Lishi Tool - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/original-lishi-cy24-8cut-pick-decoder-for-chrysler-lishi-tool-1493
+25. Original Lishi 2-in-1 CY24 Chrysler CY24 / Y157 / Y159 Pick and Decoder - Anti Glare, accessed January 5, 2026, https://www.southernlock.com/itemdetail/132-4055
+26. Original Lishi CY24 Chrysler 8-Cut Y157 / Y159 2-in-1 Pick - Door/Trunk - Anti Glare, accessed January 5, 2026, https://keyinnovations.com/products/original-lishi-cy24-cv-chrysler-8-cut-y15-2-in-1-pick-anti-glare
+27. 2011-2021 Chrysler Dodge Jeep / Emergency Key Blade / Y157 | Y159 / 68085680AA-68085673AA (AFTERMARKET) - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/2011-2021-chrysler-dodge-jeep-emergency-key-blade-y157-y159-68085680aa-68085673aa-aftermarket
+28. 2011-2021 Dodge / Chrysler/ Jeep Emergency Key Blade / Y157 | Y159, accessed January 5, 2026, https://www.autolocksupplier.ca/products/2011-2021-dodge-emergency-key-blade-y157-y159
+29. International truck Key blank : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1elptlg/international_truck_key_blank/
+30. ORIGINAL LISHI - CY24 Y157 Y159 Chrysler / 8-Cut / 2-In-1 Pick & Decoder / AG, accessed January 5, 2026, https://keyless-city.com/products/cy24-lishi
+31. FCA Secure Gateway - Xtool Official Car Diagnostic TOOL Store, accessed January 5, 2026, https://www.xtoolglobal.com/blogs/news/fca-secure-gateway
+32. Why You Need A Security Bypass - OBDGenie.com, accessed January 5, 2026, https://www.obdgenie.com/pages/boxbypassinstructions
+33. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 5, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+34. Dodge Challenger: How to Diagnose Security Gateway Module (SGM) Issues | Clear DTCs, accessed January 5, 2026, https://www.youtube.com/watch?v=-q9ei9-LsOc
+35. Autel and Auto Auth : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1eyx8i1/autel_and_auto_auth/
+36. What is the best way to program these new Chrysler star port keys such as for the 19-21 Dodge Ram? - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/vz39oo/what_is_the_best_way_to_program_these_new/
+37. Read And Clear Codes 12+8 OBD adapter / Dodge Challenger Security Gateway Module location Charger - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=58VVBnp4u2M
+38. 2018-2023 Dodge Challenger Gateway Control Module 068492545AA 2021 - eBay, accessed January 5, 2026, https://www.ebay.com/itm/276637627866
+39. How to Find STAR connector in 2021 Dodge Challenger and Program New Smart Key with AutoProPAD G2 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=mJgdC6T82o0
+40. 2018 Dodge Challenger star connector location via Smart Pro - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=n6wAbGWWTCQ
+41. Dodge Announces New Security Feature for Charger and Challenger Muscle Cars, accessed January 5, 2026, https://media.stellantisnorthamerica.com/newsrelease.do?id=22616
+42. Has anyone with a 2022 RT been able to get the key lockdown? : r/Challenger - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Challenger/comments/z2w6ab/has_anyone_with_a_2022_rt_been_able_to_get_the/
+43. DO NOT Update your DODGE SECURITY SYSTEM on your Dodge Hellcat / Scat Pack UNTIL you watch THIS... - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=BiCVM8OvLxw
+44. Autel IM508/ IM608 updated Chrysler IMMO 2023 - OBD2 Scanner & Car Diagnostic Tool — OBDPRICE-AU, accessed January 5, 2026, https://au.obdprice.com/blogs/news/autel-im508-im608-updated-chrysler-immo-2023
+45. https://www.johnsonvilleschistory.org/items/browse?sort_field=Dublin+Core%2CCreator&%3Bamp%3Bamp%3Bsort_dir=d&%3Bamp%3Bamp%3Boutput=omeka-xml&%3Bamp%3Boutput=omeka-xml&%3Bsort_dir=d&%3Bpage=11&%3Boutput=omeka-xml&sort_dir=d&page=2&output, accessed January 5, 2026, https://www.johnsonvilleschistory.org/items/browse?sort_field=Dublin+Core%2CCreator&%3Bamp%3Bamp%3Bsort_dir=d&%3Bamp%3Bamp%3Boutput=omeka-xml&%3Bamp%3Boutput=omeka-xml&%3Bsort_dir=d&%3Bpage=11&%3Boutput=omeka-xml&sort_dir=d&page=2&output=omeka-xml
+46. 2019 RAM 1500 Recalls, Complaints and Investigations - The Center for Auto Safety, accessed January 5, 2026, https://www.autosafety.org/vehicle-safety-check/2019-ram-1500/
+47. 2018, & 2019 (Classic) Dodge RAM Replacing RFHub Fobik Remote Part 3 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=iZugJE7f4Z0
+48. RF Hub Location Dodge Challenger #shorts - YouTube, accessed January 5, 2026, https://www.youtube.com/shorts/QhkdEUnEozU
+49. Resetting your RF Hub after a Push Button Conversion (or you just had to replace the hub), accessed January 5, 2026, https://www.youtube.com/watch?v=CNwWHbK4bJk
+50. 2023 Dodge Ram 2500 Add Key With Autel IM608 and Bypass Cables - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=qZ8k6wDQddM
+51. MaxiIM IM608 II & IM608 Pro II_User Manual_EN - Autel, accessed January 5, 2026, https://www.autel.com/u/cms/www/202307/27074754wqj0.pdf
+52. 2019 Dodge Charger pin bypass via Smart Pro coupled with the ADC 2011 cable - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=JbPdJCLoAMQ
+53. How To Program key for 2022 Dodge RAM 1500 w Auto Pro Pad Key Programmer, accessed January 5, 2026, https://www.youtube.com/watch?v=Z_WUcI3jbRE
+54. X-Tool - Chrysler / Jeep / Dodge Bypass Programming Cable 12+8 for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/x-tool-chrysler-jeep-dodge-bypass-cable-for-almost-all-programmers
+55. NEW XTOOL D8 CODING BIDIRECTIONAL KEY PROGRAMMING SCAN TOOL 2022 - Fast, Easy, and Affordable! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=BEXMIPCpfXE
+56. How To Fix Dodge Challenger “Key Fob Not Detected” – Battery, RF Hub & Antenna Check, accessed January 5, 2026, https://www.youtube.com/watch?v=jKDnhgoHsBQ
+57. How To Fix Dodge Charger “Key Fob Not Detected” – Push-Start Override, Battery, RF Hub, accessed January 5, 2026, https://www.youtube.com/watch?v=M_zYcDBtWdA
+58. Why Key Fob Not Detected Warning Message On Dodge Charger - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=WLZZZvLaXkc
+59. 2023 Dodge Challenger Key Fob Not Detected - How To Start With Dead, Bad Or Broken ... - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=G1Pr_wTLr-k
+60. How To Fix A Malfunctioning Chrysler "Push Start" Switch, accessed January 5, 2026, https://www.manahawkinchryslerdodge.net/how-to-fix-a-malfunctioning-chrysler-push-start-switch
+61. Truck won't respond to fob or push to start : r/ram_trucks - Reddit, accessed January 5, 2026, https://www.reddit.com/r/ram_trucks/comments/1c9sdoe/truck_wont_respond_to_fob_or_push_to_start/

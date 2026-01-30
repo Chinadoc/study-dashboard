@@ -1,0 +1,246 @@
+﻿Exhaustive Technical Analysis: 2021-2025 Chevrolet Tahoe Key Programming & Security Architecture
+Executive Summary: The Global B Paradigm Shift
+The automotive security landscape underwent a seismic shift in 2020 with the introduction of General Motors' Vehicle Intelligence Platform (VIP), predominantly known within the engineering and locksmithing communities as Global B. The 2021-2025 Chevrolet Tahoe, built on the T1 platform, stands as a primary exemplar of this architecture, representing a fortified digital fortress designed to withstand the modern threat landscape of relay attacks, CAN injection, and unauthorized firmware manipulation. For the automotive security professional, the transition from the previous Global A architecture to Global B is not merely an incremental update; it is a fundamental restructuring of how vehicle modules communicate, authenticate, and authorize access.
+In the Global A era, access to the Body Control Module (BCM) and the immobilizer subsystem was relatively permissive. Aftermarket tools could readily query the seed-key exchange, calculate the necessary response, and gain security access to add keys or replace modules. The T1 platform dismantles this paradigm. Global B introduces a high-speed, encrypted CAN FD (Controller Area Network Flexible Data-Rate) bus, overseen by a Cybersecurity Gateway (CGM) that actively filters diagnostic requests. This gateway requires a cryptographically signed certificate—obtained only through a live connection to GM's back-end servers—to authorize any write operations to critical security modules.
+Consequently, the standard operating procedures that defined the last decade of automotive locksmithing are largely obsolete for the 2021+ Tahoe. The concept of "offline programming" is effectively dead for this platform. Whether performing an "Add Key" operation or resolving an "All Keys Lost" (AKL) scenario, the technician is now tethered to the OEM's cloud infrastructure via the Service Programming System 2 (SPS2). While aftermarket manufacturers like Autel and Xhorse have developed specific workarounds—ranging from J2534 pass-through emulation to transponder cloning—the "Golden Path" remains strictly defined by GM's own proprietary software ecosystem.
+This report serves as a comprehensive technical manual and strategic analysis of the key programming landscape for the 2021-2025 Chevrolet Tahoe. It exhaustively details the architecture of the VIP system, the exact methodologies for OEM and aftermarket interventions, the distinct failure modes associated with CAN FD latency and voltage instability, and granular troubleshooting protocols for post-programming anomalies such as disabled remote start systems. It is written for the domain expert who requires not just the "how-to," but the "why" and "what-if" necessary to navigate this complex environment without catastrophic liability.
+
+
+  
+
+
+
+Section 1: The Vehicle Intelligence Platform (VIP) Architecture
+To effectively service the 2021-2025 Tahoe, one must first understand the hostile terrain of the Vehicle Intelligence Platform. The VIP architecture was engineered with a "Zero Trust" philosophy. Unlike previous generations where access to the OBDII port implied physical authorization, VIP assumes that any connection to the diagnostic port could be malicious until proven otherwise.
+1.1 The Role of the Cybersecurity Gateway (CGM)
+At the heart of the Global B security model is the Cybersecurity Gateway. Physically, this logic is often integrated into the Body Control Module (BCM) or the Serial Data Gateway Module (SDGM), depending on the specific trim and build date of the Tahoe.1 This gateway acts as a firewall for the vehicle's internal networks.
+When a diagnostic tool connects to the OBDII port, it is not speaking directly to the Engine Control Module (ECM) or the Immobilizer. It is speaking to the Gateway. The Gateway inspects the message headers. Read-only requests (like checking for Diagnostic Trouble Codes) are generally permitted. However, any request that attempts to alter the vehicle's state—such as writing a VIN, clearing keys, or initiating a learn procedure—triggers a security challenge.
+In Global A vehicles, this challenge was a static seed-key exchange. The module would send a random "seed" (e.g., 0x1A2B), and the tool would calculate a "key" based on a known algorithm. In Global B, the challenge involves a 256-bit encrypted handshake that requires a digital certificate signed by GM's central servers. This certificate is time-bound and VIN-specific. If the tool cannot provide this certificate (which requires an active internet connection and authorized credentials), the Gateway drops the packets, resulting in the "Security Access Denied" or "Device Control Not Available" errors frequently seen on aftermarket tablets.3
+1.2 The CAN FD Protocol Requirement
+The second major barrier to entry is the communication protocol itself. The T1 platform utilizes CAN FD (Flexible Data-Rate) for its internal bus communication.
+* Legacy CAN (High Speed): Limited to 1 Mbit/s with a payload of 8 bytes per frame.
+* CAN FD: Supports data rates up to 5 Mbit/s (or higher in some implementations) with payloads up to 64 bytes per frame.
+This shift is critical because the security certificates and encrypted data blocks transferred during key programming exceed the 8-byte limit of legacy CAN frames.
+* Technological Implication: Any interface used to program a 2021+ Tahoe must natively support CAN FD. Standard J2534-1 interfaces (like the older Autel MaxiFlash Elite or standard heavy-duty adapters) cannot interpret these frames. They will see the high-speed data as noise or bus errors.
+* Risk: Connecting a non-CAN FD adapter to a Global B vehicle can induce bus instability. The adapter may attempt to "acknowledge" bits it misunderstands, flooding the bus with error frames and potentially waking up modules in an uncontrolled state, leading to battery drain or "U-code" storms (communication loss DTCs) across the entire vehicle network.4
+1.3 Module Interdependency and the Immobilizer
+In the 2021 Tahoe, the immobilizer function is not an isolated island. It is a distributed consensus system involving:
+1. The Body Control Module (BCM): Stores the trusted key identifiers and manages the start request.
+2. The Radio Frequency Hub (RFHM): Receives the raw 433 MHz signal from the fob and communicates with the BCM via a private LIN sub-bus or the CAN FD main bus.
+3. The Engine Control Module (ECM): Requires a cryptographic "go" signal from the BCM to enable the fuel injectors and spark.
+When "All Keys Lost" programming is initiated, the system does not just "add a key." It wipes the trust table in the BCM. This action breaks the trust chain with the ECM. Consequently, the programming procedure is not just about teaching the fob to the car; it is about re-synchronizing the entire security triad. This explains why the "Immobilizer Learn" function in SPS2 often includes steps that seem redundant or lengthy—the vehicle is effectively rebuilding its internal web of trust.1
+Section 2: Technical Prerequisites and Hardware Ecosystem
+Before a technician even approaches the vehicle, the integrity of the physical and digital environment must be verified. The Global B architecture is notoriously intolerant of voltage fluctuations and network latency. The margin for error is effectively zero; a dropped packet or a voltage dip during the EEPROM write phase can result in a catastrophic module failure.
+2.1 The J2534 Interface: Autel V200 and Alternatives
+While high-end dealer tools like the GM MDI 2 are the gold standard, the independent market has validated specific aftermarket J2534 pass-through devices. The most prominent among these for the locksmith sector is the Autel V200.
+* Device Profile: The V200 is typically bundled with the Autel KM100 or sold as a standalone interface. Crucially, it is a J2534-1 and J2534-2 compliant device that supports CAN FD hardware layers.
+* Operational Mode: For Global B programming, the V200 is not used with the Autel tablet software. Instead, it is connected to a Windows laptop to act as the communication bridge for the OEM Techline Connect software.6
+* Connection Topology:
+   * Device: Autel V200 (or GM MDI 2).
+   * Link: USB-C to USB-A cable. Wireless or Bluetooth connections are strictly prohibited for programming operations. The latency introduced by wireless protocols can cause the secure handshake to time out, aborting the process and potentially leaving the BCM in a bootloader limbo state.6
+   * Host: Windows 10/11 Laptop (i5/i7 processor, 8GB+ RAM) with Techline Connect installed.
+2.2 Power Supply Management: The 12.6V Imperative
+Global B modules are computationally dense and power-hungry. During the "Key Learn" process, the ignition may need to be in the "ON/RUN" position (engine off) for extended periods, cumulatively reaching 20-30 minutes. The vehicle's daylight running lights, infotainment system, and blower fans may cycle, drawing significant current.
+* Voltage Floor: 12.6 Volts. This is the absolute minimum.
+* Equipment: A dedicated battery maintainer (e.g., Clore PL2320, Schumacher INC100) capable of supplying a clean, ripple-free 50-70 Amps is mandatory. A standard "trickle charger" or "battery tender" (1-5 Amps) is insufficient and dangerous.
+* Failure Mode: If voltage drops below 12.0V during the EEPROM write phase of the BCM, the module's internal checksum validation will fail. The BCM may become "bricked," unresponsive to diagnostic requests, and requiring physical replacement—a repair that far exceeds the cost of the key programming job.3
+2.3 Software Ecosystem: GM Techline Connect (SPS2)
+The software environment is as critical as the hardware. Accessing the vehicle's security kernel requires a valid subscription to General Motors' service portal.
+* Portal: ACDelco TDS (acdelcotds.com).
+* Cost Structure: The model is "Pay-Per-VIN." Access to the Vehicle Programming Software (SPS2) costs approximately $45.00 USD per VIN. This token grants access to that specific vehicle's programming files for 24 months. It is not a time-based subscription that allows unlimited vehicles.6
+* Browser Compatibility: The ACDelco TDS portal utilizes Java-based applets for the handshake. Field research indicates significant incompatibility with Mozilla Firefox and Safari. Google Chrome is the mandatory browser for a seamless transaction and application launch. Failure to use Chrome often results in payment processing errors or the failure of the Techline Connect launcher to initialize.6
+Section 3: OEM Procedure - SPS2 and Techline Connect
+The most reliable, sanctioned, and high-success-rate method for programming keys to a 2021-2025 Tahoe is utilizing General Motors' official Service Programming System 2 (SPS2) via the Techline Connect application. This method bypasses the adversarial nature of aftermarket reverse-engineering by using the manufacturer's own authentication tunnels. It covers both "Add Key" (when one working key is present) and "All Keys Lost" (AKL) scenarios.
+3.1 Account and Software Setup
+1. Account Creation: Navigate to acdelcotds.com and create a professional user account. Ensure the password meets the strict complexity requirements, as the site will reject logins silently if criteria are not met.7
+2. Subscription Purchase: Select "Service Programming System (SPS2)" and purchase a single VIN slot ($45).
+3. Software Installation: Upon the first launch, the site will prompt the download of the Techline Connect wrapper application. This is a substantial download (often 1-2 GB). Install this software and the associated J2534 wrapper drivers. Ensure the Autel V200 (or MDI 2) drivers are also installed and the device firmware is updated to the latest version via the Autel PC Suite.9
+3.2 Detailed Procedure: All Keys Lost (AKL)
+This procedure assumes no working keys are available. It wipes the trusted key list in the BCM and establishes a new trust chain.
+Step 1: Hardware Connection & Vehicle Prep
+1. Connect the battery maintainer to the vehicle's battery terminals. Verify stable voltage >12.6V.
+2. Connect the V200 to the OBDII port.
+3. Connect the V200 to the laptop via USB.
+4. Ensure the laptop has a high-speed internet connection (Hardline Ethernet is preferred; stable 5GHz Wi-Fi is acceptable, but public hotspots are risky).6
+5. Wake the Bus: Since there is no working key, the ignition cannot be turned "ON" in the traditional sense. Flash the high beams or depress the brake pedal to wake the Gateway module.
+Step 2: Launch and Authenticate
+1. Launch the Techline Connect dashboard from the desktop icon or the TDS website.
+2. Click "Connect to Vehicle". The system attempts to read the VIN.
+3. VIN Recovery: In an AKL state, the vehicle may not broadcast the VIN automatically if the ignition is essentially "OFF". If auto-detect fails, manually enter the 17-digit VIN from the dashboard tag or door jamb label.5
+Step 3: SPS2 Navigation
+1. Once connected, navigate to the SPS2 tab on the left-hand menu.
+2. Select "Reprogramming" (Do not select "Replace and Program" unless you physically replaced the BCM hardware).
+3. In the controller list, scroll down and select "Immobilizer Learn".7
+   * Critical Distinction: Do not select "Body Control Module" at this stage. You are interacting with the Immobilizer function specifically.
+4. Select the Function: "Immobilizer Learn - Setup New Keys" (terminology may vary slightly by software version, e.g., "Transponder Programming"). This option implies a complete reset of the key list.
+Step 4: The 10-Minute Security Wait
+1. Upon initiating the Immobilizer Learn sequence, the system will request security access.
+2. The Timer: A countdown will appear on the laptop screen (or simply a "In Progress" spinner). The vehicle will enter a security wait period.
+3. Duration: Exactly 10 to 12 minutes.
+4. The "Do Not Touch" Rule: During this window, DO NOT TOUCH THE VEHICLE. Opening a door, toggling lights, pressing brake pedals, or disconnecting cables will abort the timer. The Gateway interprets these bus wake-up signals as a potential intrusion or instability. An abort here may lock the BCM for a "penalty" period (often 30-60 minutes) where no further attempts are allowed.1
+Step 5: Key Learning Sequence
+1. Once the timer expires, the Instrument Cluster (Driver Information Center - DIC) will change its display. It will typically read "Ready for Remote #1" or prompt to place the key in the pocket.
+2. The Prox Pocket: This is the inductive backup reader.
+   * Location (Tahoe/Suburban): Inside the center console storage bin, or in the front cup holder. Look for a small key symbol molded into the rubber mat.
+   * Placement: Ensure the key blade is removed if it obstructs fitment. The key must lie flat against the bottom of the pocket to ensure the 125kHz coil can energize the transponder.11
+3. Action: With the first new key in the pocket, press the vehicle's START/STOP button.
+4. Verification: Watch the DIC. It should display "Remote #1 Learned" and then cycle to "Ready for Remote #2".
+5. Cycle: Remove the first key. Place the second key in the pocket. Press the START/STOP button. Repeat for up to 8 keys.13
+6. Finalize: Once all keys are learned, press and hold the START/STOP button for approximately 12-15 seconds to exit programming mode. The ignition will cycle off. The laptop software will display "Programming Successful".11
+Step 6: Post-Programming Verification
+1. Test all buttons (Lock, Unlock, Panic, Liftgate) on each fob.
+2. Test the physical blade in the door lock (ensure it was cut correctly).
+3. Start the vehicle with each key.
+4. Crucial Check: Test Remote Start. (See Section 5 for "Remote Start Lockout" troubleshooting).
+
+
+  
+
+
+
+Section 4: Aftermarket Solutions (Autel & Xhorse)
+While the OEM method via SPS2 is the definitive solution, the aftermarket industry has attempted to reverse-engineer the Global B security protocols. These solutions are categorized into "Pass-Through Workarounds" and "Cloning Procedures."
+4.1 Autel IM608 Pro / IM508: The "J2534 Slave" Mode
+As of early 2026, the Autel IM608 (and its Pro/II variants) has limited native capability to generate the response codes required for Global B All Keys Lost on the Tahoe T1 platform without external assistance.
+* Native Limitations: Using the tablet's own software ("IMMO Status Scan") often results in a "Security Access Denied" message or a request for a "24-digit Response Code" that the tablet cannot calculate offline. The rolling encryption keys are not stored in a static database that Autel can easily clone.5
+* The Effective Workaround: The most robust way to use an IM608 on a 2021+ Tahoe is to bypass the tablet interface entirely. The technician uses the VCI (MaxiFlash JVCI or V200) as a generic J2534 pass-through device connected to a laptop running GM's Techline Connect. This effectively treats the $3,000 diagnostic tool as a $100 adapter. This is the recommended "Autel" procedure for AKL.7
+* CAN FD Adapter: If one does attempt to use the tablet's native diagnostics or "Add Key" functions (which may work on some lower-security trims or earlier software versions), the Autel CAN FD Adapter is mandatory for the standard IM608. The newer IM608 Pro II (IM608 II) has CAN FD protocols built into the VCI and does not require the external dongle.4
+4.2 Xhorse Key Tool Plus: The Cloning Paradigm
+Xhorse offers a completely different methodology that circumvents the need for BCM programming by cloning the identity of an existing key. This is applicable only for "Add Key" situations (creating a spare) and is useless for "All Keys Lost."
+* The Hardware: Xhorse Key Tool Plus (Tablet) or Key Tool Max, paired with an XM38 Smart Key. The XM38 is a specialized universal remote capable of emulating the NXP ID49 chip architecture used in Global B vehicles.16
+* The Procedure (No OBDII Connection Required):
+   1. Generate: Use the Key Tool to generate an XM38 key with the "ID49 GM/Mazda" profile.
+   2. Harvest: Take a working original key and remove its battery. This forces the car to communicate with it via Low Frequency (LF) coil induction rather than UHF radio.
+   3. Read: Use the "Copy Proximity Remote" function on the Xhorse tool. Place the battery-less original PCB in the tool's coil to read its configuration.
+   4. Sniff: Quickly move the original PCB to the Tahoe's Prox Pocket (cup holder) and press the Start button. The vehicle sends an authentication challenge to the key. The key (powered by the car's coil) responds.
+   5. Decrypt: Return the PCB to the Xhorse tool. The tool analyzes the challenge-response pair it just witnessed.
+   6. Write: The tool calculates the encryption key and writes the cloned identity onto the new XM38 fob.
+* The Result: The vehicle cannot distinguish between the original key and the new XM38. They share the same digital ID. Both will work, but the vehicle thinks it only has one key programmed. This avoids the risk of BCM bricking since no data is written to the car.
+Section 5: Deep Dive - Failure Modes and "Gotchas"
+The 2021-2025 Tahoe is notorious for specific post-programming issues. These are not necessarily defects in the programming tools but consequences of the BCM's aggressive security logic.
+5.1 The Remote Start Lockout (RPO BTV)
+Symptom: After successfully programming a new key (even via SPS2), the lock/unlock and panic buttons work, and the car starts, but Remote Start is disabled. Pressing the remote start sequence results in a single flash of the lights, but no engine crank.
+Root Cause: The BCM resets its configuration flags during the Immobilizer Learn process. It may default the "Remote Start" (RPO code BTV) permission to "Disabled" or the vehicle enters a "Valet" or "Security" mode where remote operation is suspended to prevent theft.
+Resolution Protocol:
+1. Key Cycle: Ensure the vehicle has been started with the physical button at least once to confirm the key is "Trusted."
+2. Latch Check: Verify the hood is completely latched. The Global B BCM monitors the hood latch status switch continuously. An open (or faulty) hood switch disables remote start immediately to prevent engine starting while a mechanic is working.17
+3. The "Re-Enable" Sequence:
+   * Press LOCK on the fob.
+   * Immediately press and hold the REMOTE START (arrow) button for at least 4 seconds. Do not release early. The turn signal lamps should flash to confirm acceptance.18
+4. SPS2 Configuration (The "Hard" Fix): If the manual sequence fails, you must re-enter SPS2.
+   * Select "Body Control Module" (not Immobilizer).
+   * Select "Configuration/Setup".
+   * Navigate to the "Remote Start" or "BTV" option and ensure it is set to "Enabled".
+   * Follow the prompts to write this configuration to the BCM. This is a separate write event from Key Learning.20
+5.2 The "VIN Mismatch" Error
+Symptom: SPS2 or a diagnostic scanner reports a VIN mismatch after programming, often accompanied by a "Theft Deterrent System" warning light. Cause: This occurs when the BCM and the Immobilizer module (or the Engine Control Module) fall out of sync. It is particularly common if a used BCM was installed (which is generally impossible on Global B without high-level hacking) or if the programming procedure was interrupted. Fix: Perform a "IMMO ECU Reset" or "Immobilizer Learn" again, but select "Replace ECU" (or "Program Transponder and Remote Keys") instead of "Add Key". This forces the modules to perform a full handshake and agree on the VIN. This effectively treats the existing modules as "new" to each other.5
+5.3 The "Locked" Browser Loop
+Symptom: Techline Connect shows a "Locked" or "Access Denied" screen when trying to launch SPS2 from the ACDelco website.
+Cause: This is a caching issue between the Java runtime, the browser, and the Techline launcher.
+Fix:
+1. Close Everything: Close all browser windows and the Techline Connect application (check the System Tray).
+2. Clear Cache: Clear all cache and cookies in Google Chrome.
+3. Restart Launcher: Manually start the "Techline Connect" launcher from the Windows Start Menu before logging into the website.
+4. Launch: Log in to ACDelco TDS and click the launch button. The website should detect the running launcher.3
+Section 6: Security Architecture & Component Locations
+Understanding the physical layout is crucial for troubleshooting "No Key Detected" errors and for access during module replacement.
+6.1 Body Control Module (BCM)
+* Role: The BCM is the master of the access control system. It authenticates the key fob signal received from the RFA (Remote Function Actuator) and issues the wake-up command to the rest of the bus.
+* Location: Under the driver's side dashboard, to the left of the steering column, near the kick panel. It is a large, rectangular module with multiple heavy-gauge connectors (typically 5-7 connectors).21
+* Replacement: Requires full SPS2 programming. Warning: Unlike previous generations, you cannot install a used Global B BCM from another vehicle. The VIN is hard-coded and encrypted in the microcontroller's One-Time Programmable (OTP) memory. Once a BCM is married to a VIN, it is married for life. Always use a virgin (new) unit for replacements.23
+* EEPROM Backup: For standard key programming via SPS2, an EEPROM backup is not required. However, for advanced aftermarket bench work (e.g., trying to read the PIN code directly from the board using an XP400 Pro), reading the EEPROM (typically a 95xxx or similar serial SOIC-8 chip) is necessary. This carries high risk and is not recommended for routine locksmithing.4
+6.2 The Prox Pocket (Immo Coil)
+* Function: This is the inductive backup reader. If the key battery is dead, or during programming, the key must be placed here to be energized by the car's coil (125kHz Low Frequency).
+* Location:
+   * Tahoe/Suburban: Inside the center console storage bin, or in the front cup holder. Look for a small key symbol molded into the rubber mat.
+   * Silverado/Sierra: Often in the center console or a dedicated slot in the lower dash center stack.
+* Diagnostics: If programming fails to detect the key, ensure the pocket is free of metallic objects (coins, other keys) that could detune the inductive coupling.11
+
+
+  
+
+
+
+Section 7: Future Outlook & Industry Implications
+The shift to Global B suggests a future where "Add Key" functions are increasingly gated behind OEM servers. The locksmith industry is pivoting towards "J2534 + OEM Subscription" models rather than relying on standalone programmers.
+* NASTF and VSP: For independent locksmiths, acquiring a Vehicle Security Professional (VSP) credential via the National Automotive Service Task Force (NASTF) is becoming essential. While SPS2 access for key programming is currently available via the standard $45 subscription without a VSP ID for most GM models, access to key codes (cutting keys by code) and certain high-security immobilizer resets increasingly requires VSP validation to track the identity of the person performing the work.
+* Right to Repair: The complexity of Global B has sparked significant debate. While GM provides the SPS2 tool to the aftermarket (complying with Right to Repair), the requirement for high-speed internet and specific hardware creates a barrier to entry. The rise of "Remote DoIP" services—where a technician plugs in a device, and a remote master technician performs the SPS2 programming over the internet—bridges this gap for shops that do not want to maintain the specific subscriptions themselves.
+Conclusion
+Programming keys for the 2021-2025 Chevrolet Tahoe is a procedure that demands strict adherence to OEM protocols. The "Wild West" days of plug-and-play key programmers are ending for this platform. Success requires a J2534 interface capable of CAN FD, a stable high-amperage power supply, and a valid SPS2 subscription. While aftermarket workarounds like Xhorse cloning exist, they are stop-gap measures for spare keys, not solutions for total loss situations. The technician who invests in the proper infrastructure—specifically the Techline Connect ecosystem—will find this profitable and repeatable work; those who resist will face endless "Communication Error" screens and potential liability for bricked modules.
+________________
+Appendix A: Quick Reference Data
+
+
+Parameter
+	Specification
+	Notes
+	Platform
+	T1 (Global B / VIP)
+	Requires CAN FD
+	Key Frequency
+	433 MHz
+	Check part number carefully; varies by trim
+	Battery Type
+	CR2032
+	Replace before programming 1
+	Programming Cost
+	~$45.00 USD
+	Per VIN (SPS2) 8
+	Wait Time
+	10-12 Minutes
+	Do not interrupt 1
+	Max Keys
+	8 Keys
+	13
+	Browser
+	Google Chrome
+	Mandatory for TDS payment 6
+	Remote Start Fix
+	Lock + Hold Start (4s)
+	Resets BCM flag 18
+	Appendix B: Error Code Glossary
+
+
+Error Message
+	Likely Cause
+	Solution
+	"Communication Error"
+	Interface not CAN FD compatible
+	Use Autel V200, MDI 2, or CAN FD adapter
+	"Locked" (SPS2)
+	Java/Browser Cache
+	Clear Chrome cache, restart Techline Connect
+	"Device Control Not Available"
+	Aftermarket device interference
+	Unplug any other OBD dongles/accessories 3
+	"VIN Mismatch"
+	Used BCM or Sync Failure
+	Perform "Replace ECU" function in SPS2
+	"Security Access Denied"
+	Low Voltage or Timer Interrupt
+	Maintain >12.6V, restart 10-min wait
+	Works cited
+1. How To Program 2021 Chevy Tahoe Smart Key – Add A Remote (DIY) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=NAZ0PzUDVUc
+2. GM Global B Tuning Support is Here. - HP Tuners, accessed January 27, 2026, https://www.hptuners.com/gmglobalb/
+3. Programming Key Fob Transmitters - TechLink, accessed January 27, 2026, https://gm-techlink.com/wp-content/uploads/2023/08/GM_TechLink_10_Mid-May_2023.pdf
+4. 2025 Newest Autel MaxiIM IM608 PRO II Key Programming Scanner Tool IM608S II | eBay, accessed January 27, 2026, https://www.ebay.com/itm/277516649423
+5. 2021 Tahoe add prox : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/102p2ru/2021_tahoe_add_prox/
+6. How to Program New GM 2021-2025 Keys Autel V200 J2534 Setup-Troubleshoot-Guide (Buick,GMC,Chevy) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=hrSnHb5q4us
+7. How to Program GM Keys 2021–2025 with Autel V200 - obdprice, accessed January 27, 2026, https://www.obdprice.com/blogs/news/program-gm-keys-with-autel-v200
+8. ACDelco TDS, accessed January 27, 2026, https://www.acdelcotds.com/
+9. HOW TO PROGRAM 2021-2025 CHEVROLET CADILLAC GMC BUICK KEYS USING GM TECHLINE CONNECT SOFTWARE - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=WuyBH20TKok
+10. HOW TO INSTALL GM DEALER TOOL (TECHLINE) FOR CAR KEY PROGRAM FOR THE NEW SYSTEM KEYS 2021-2025 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=bxwU-cGj2tQ
+11. How to program Chevy Tahoe 2021/2022 NEW Smart Key- Autel V200 and Tech Connect, accessed January 27, 2026, https://www.youtube.com/watch?v=77NLfdQ-18A
+12. 2021 Chevrolet Tahoe Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 27, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2021-chevrolet-tahoe-keyless-entry-remote-fob-smart-key-programming-instructions
+13. How many keys can be programmed to a car? - Auto Locksmith Reno, accessed January 27, 2026, https://www.autolocksmithreno.com/how-many-keys-can-be-programmed-to-a-car/
+14. 2022 Chevy Silverado Smart Key Programming | IM608 Pro II + Slot Location Tip - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=WeQCG22YVLU
+15. (US Ship)Autel MaxiIM IM608 PRO II (IM608 II/IM608S II)IMMO Key Fob Programming Tool Upgrade of IM608PRO with XP400 PRO Key Programmer Support ECU Coding & Bidirectional 40+ Services 1 Year Free Update - AutelShop.us, accessed January 27, 2026, https://www.autelshop.us/products/autel-maxiim-im608-ii-im608-pro-ii-automotive-all-in-one-key-programming-tool-support-all-key-lost
+16. HOW TO ADD A KEY ON 2021 - 2025 GM KEYS USING XHORSE KEY TOOL & XM38 KEY, accessed January 27, 2026, https://www.youtube.com/watch?v=L3RgRjv-om0
+17. Remote Start Not Working: 10 Things to Check... - Wallace Chevrolet, accessed January 27, 2026, https://www.wallacechev.com/blog/remote-start-not-working-try-this/
+18. Remote Start Not Working: 10 Things to Check - Gateway Chevrolet, accessed January 27, 2026, https://www.gatewaychevrolet.ca/blog/remote-start-not-working-10-things-to-check/
+19. Chevy Remote Start Stopped Working - Why & How to Fix It, accessed January 27, 2026, https://blog.applechevy.com/2023/06/08/chevy-remote-start-stopped-working-why-how-to-fix-it/
+20. Remote Control Door Lock, Theft Deterrent, and Remote Start Transmitter Package Installation - GM Parts Giant, accessed January 27, 2026, https://www.gmpartsgiant.com/resources/installation/gpg/20_isheets_84432218.pdf
+21. CHEVROLET TAHOE SUBURBAN BCM BODY CONTROL MODULE FUSE RELAY LOCATION REPLACEMENT 2015 2016 2017 2018 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=0syrrbYXTBY
+22. Chevy BCM Replacement - Master Automotive Training, accessed January 27, 2026, https://www.smartautotraining.com/chevy-bcm-replacement-guide/
+23. T1 GM Pickups (2022.5-2026) and Full-Size SUVs (2021-2024) (Global B) - WAMS, accessed January 27, 2026, https://www.whiteautoandmedia.com/product-category/chevrolet-gmc-truck-suvs/fullsizetruck/t1-globalb/
+24. im software - update - Autel, accessed January 27, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202212/12024605cqed.pdf

@@ -1,0 +1,246 @@
+﻿Comprehensive Technical Analysis of Subaru Global Platform Security Architecture: SGW, SLOA, and Immobilizer Protocols (2019–2025)
+1. Introduction: The Paradigm Shift in Automotive Security
+The automotive industry has witnessed a seismic shift in electronic architecture over the last decade, driven primarily by the need for enhanced connectivity, autonomous driving capabilities, and robust cybersecurity. For Subaru, this transition culminated in the widespread adoption of the Subaru Global Platform (SGP). While the SGP is often discussed in terms of chassis rigidity and driving dynamics, its implications for vehicle security and electronic servicing are equally profound. The architecture introduced a unified, highly segmented Controller Area Network (CAN) environment that rendered traditional, localized security measures obsolete.
+Prior to 2018, Subaru’s security landscape was defined by discrete modules—the Body Integrated Unit (BIU), the Cluster, and the Engine Control Module (ECM)—operating with relatively open communication lines. The encryption standards, predominantly 40-bit or 80-bit "G-Chip" protocols, relied on static challenge-response mechanisms that were well-understood by the aftermarket service industry. However, the introduction of the SGP marked the deployment of a defense-in-depth strategy. This modern architecture is characterized by three overlapping layers of protection: network isolation via the Security Gateway (SGW), algorithmic defense via the Subaru Locking On Attempt (SLOA) protocol, and cryptographic hardening via 128-bit DST-AES (H-Chip) transponders.
+This report provides an exhaustive technical analysis of these systems as they appear in the 2019–2025 model years. It is designed for security professionals, automotive locksmiths, and diagnostic technicians who require a granular understanding of the operational logic, failure modes, and service procedures mandated by this new environment. The analysis moves beyond superficial procedural steps to explore the "why" and "how" of the system's behavior, synthesizing data from cryptographic analysis, field diagnostics, and OEM technical service bulletins. The objective is to demystify the interactions between the Telematics Data Communication Module (DCM), the Eyesight safety suite, and the immobilizer network, providing a definitive reference for navigating the complexities of the modern Subaru ecosystem.
+2. The Security Gateway (SGW) and Network Segmentation
+The most visible and immediate barrier to entry in the modern Subaru fleet is the implementation of the Security Gateway Module (SGW). Modeled closely after the architecture pioneered by Fiat Chrysler Automobiles (FCA/Stellantis) in 2018, the Subaru SGW serves as a digital firewall. Its primary function is to partition the vehicle’s internal networks into "public" and "private" domains, thereby effectively neutralizing the threat of remote exploitation via the OBD-II port or telematics interfaces.
+2.1 Network Topology and the "Firewall" Effect
+To understand the challenge posed by the SGW, one must visualize the vehicle’s network topology. In pre-SGP architectures, the OBD-II port (pins 6 and 14) connected directly to the vehicle’s main CAN bus. A diagnostic tool plugged into this port had unfettered access to broadcast messages to the BIU, ECM, and other critical nodes. The SGP architecture fundamentally alters this relationship.
+The SGW module is inserted physically and logically between the external Data Link Connector (DLC/OBD-II) and the internal vehicle buses.1 The OBD-II port no longer connects to the vehicle's control networks; instead, it connects solely to the "Public" side of the Security Gateway. Any diagnostic request sent from a tool must pass through the SGW. The module inspects the packet headers and authentication certificates. If the tool is not authenticated—typically via a secure server handshake—the SGW blocks any command that attempts to write data, clear codes, or initiate bidirectional controls.2
+However, the Subaru implementation introduces a unique variable not present in the standard FCA architecture: the aggressive integration of the Telematics system. The Data Communication Module (DCM), responsible for Starlink services, often sits in a parallel or privileged position relative to the gateway. In many scenarios, particularly in 2019–2021 models, the DCM acts as a secondary, active interference node. It monitors bus traffic for "abnormal" patterns—such as the high-frequency polling used by key programmers—and can actively flood the bus with noise or "keep-alive" signals to disrupt the unauthorized session.3 This creates a dual-layer obstruction: the passive filtering of the SGW and the active jamming of the DCM.
+2.2 Implementation Timeline and Model Variance
+The rollout of the SGW was not instantaneous across the Subaru lineup. It followed a staggered implementation aligned with model refreshes and the migration to the SGP.
+* The Transition Phase (2018–2019): This period represents the most confusing era for technicians. Models like the 2019 Forester and 2019 Ascent were the vanguards of the SGP. While many possess physical SGW modules, the firmware enforcement in early production runs was often permissive, allowing read access and occasional write access without a bypass. However, the presence of the Starlink DCM in these vehicles is ubiquitous and remains the primary source of programming failure.1
+* Standardization (2020+): By the 2020 model year, the architecture hardened significantly. The Outback and Legacy, completely redesigned for 2020, feature fully active SGW modules that strictly block all non-OEM write commands.1 The Forester followed suit, with late 2019 and 2020 models requiring mandatory bypass measures.
+* Full Integration (2021–2025): The Crosstrek and WRX, which migrated to the SGP later than their stablemates, adopted the full security suite by 2021. For these model years, the SGW is not just a gateway but an integrated logic component often housed within or immediately adjacent to the Body Control Module (BCM), making physical access increasingly difficult.3
+2.3 Physical Location and Access Vectors
+The "Cat and Mouse" game of modern automotive diagnostics often revolves around physical access. Since the software lock cannot be easily circumvented without OEM credentials, the industry standard solution relies on physical bypass—connecting the diagnostic tool directly to the private CAN bus, downstream of the SGW.
+The location of these connection points varies by model:
+* 2020–2025 Outback & Legacy: The SGW is typically located deep under the driver's side dashboard, often near the Body Integrated Unit (BIU) or the fuse block. Access often requires the removal of the lower trim panels. The connectors are the standard 12+8 pin configuration or, in some newer revisions, a specialized Star connector block.2
+* 2019–2025 Forester: The module is frequently positioned behind the glove box assembly or near the infotainment head unit. This location makes the "Starlink Bypass" method (accessing the connectors at the radio) a viable alternative to digging for the specific gateway module.5
+* 2019–2025 Ascent: The Ascent presents a significant challenge, with modules often buried deep within the central dashboard structure. The DCM is particularly intrusive in this model, and technicians often report that accessing the SGW requires significant disassembly. Consequently, using a bypass cable at the Starlink module (accessible via the head unit cavity) is the preferred method.8
+* 2018–2024 Crosstrek: Earlier models (2018–2020) may allow OBD access depending on the trim level (EyeSight vs. non-EyeSight). However, 2021+ models consistently require bypass, typically accessed near the steering column or BCM.9
+2.4 Bypass Methodology: Hardware vs. Software
+A critical distinction must be made between Subaru’s SGW implementation and that of other manufacturers. In the FCA ecosystem, "AutoAuth" is a software-based solution where the diagnostic tool communicates with a central server to digitally "unlock" the gateway via the internet.
+Crucial Insight: For Subaru key programming, AutoAuth is generally not a viable solution. While some diagnostic scan tools support AutoAuth for general diagnostics (clearing codes, resetting oil lights) on Subaru, the immobilizer functions typically require a direct, unfiltered connection to the BIU and Smart ECU to perform the high-speed data exchange necessary for key registration. The latency or packet filtering introduced by a software bypass is often enough to trigger a failure or an SLOA lockout. Therefore, physical hardware bypass is the industry standard for Subaru key programming.
+
+
+  
+
+
+
+The three primary hardware solutions employed in the field are:
+1. FCA-Style 12+8 Bypass Cable: Despite being named for Chrysler, this cable is the "skeleton key" for modern secure gateways. It functions by physically unplugging the connectors from the SGW and bridging them directly to the diagnostic tool. This completely removes the gateway from the loop, allowing the tool to speak directly to the CAN High and CAN Low lines of the vehicle bus.2
+2. Starlink (DCM) Bypass Plugs: In vehicles where the DCM is the primary aggressor (jamming the bus rather than just filtering it), a simple gateway bypass may not suffice. Specialized plugs (e.g., AHH-7747) are designed to replace the Starlink module connections. These plugs complete the CAN bus loop—ensuring the rest of the car can communicate—while physically isolating the telematics unit to prevent it from broadcasting interference.10
+3. The Fuse Pull Method: This is a tactical field solution often used on 2019–2020 models (Impreza, Crosstrek) where the SGW is less aggressive but the Starlink system is hyperactive. By removing the specific fuse powering the DCM (Telematics), the technician effectively "silences" the noise on the bus. This creates a quiet environment for the key programmer to handshake with the BIU. However, this method is losing efficacy on 2021+ models where the gateway logic is integrated into essential BCM circuits that cannot be powered down.12
+3. The SLOA Protocol: Subaru Locking On Attempt
+While the SGW is a physical barrier, the Subaru Locking On Attempt (SLOA) protocol is an algorithmic one. Embedded deeply within the firmware of the Body Integrated Unit (BIU) and the Smart Engine Control Unit (Smart ECU), SLOA is a defensive behavior designed to thwart brute-force attacks on the immobilizer system.
+3.1 Trigger Conditions and System Logic
+The SLOA protocol operates on a counter-based logic. It monitors the "authentication requests" sent to the immobilizer system. In a standard key programming session, the diagnostic tool must submit a Security ID or a calculated PIN to gain access to the registration mode. The system is designed to tolerate a limited number of errors to account for transmission noise, but it aggressively penalizes persistence.
+The primary triggers for an SLOA lockout include:
+* Failed Security ID Authentication: This is the most common trigger. If a diagnostic tool attempts to submit a Security ID or PIN that does not match the hash stored in the BIU more than three consecutive times, the system interprets this as a brute-force hacking attempt. The counter increments with each failure, and upon reaching the threshold, the lockout engages.13
+* Abnormal CAN Traffic (Sniffing): Many aftermarket "cloning" tools attempt to derive the PIN by "sniffing" the traffic on the CAN bus or by flooding the bus with query packets to find a vulnerability. The modern Subaru gateway logic can identify this high-frequency polling as a Denial of Service (DoS) or tampering event. The BIU responds by entering a "Safe Mode," effectively shutting down the K-Line or CAN communication used for registration.14
+* Voltage Irregularities: The SGP architecture is highly sensitive to voltage. Attempting a write operation (EEPROM flash) with a vehicle battery below 12.0V can result in incomplete data packets. The system interprets these malformed packets as data corruption or tampering, triggering a protective lockout to prevent the immobilizer data from being scrambled.16
+3.2 Lockout States: Soft vs. Hard
+The term "lockout" is often used generically, but technically, the Subaru system exhibits two distinct lockout states:
+* Soft Lockout (Timer-Based): This is the standard response to a failed PIN entry. The security indicator light on the dashboard—typically a car icon with a padlock—will exhibit a specific flash pattern, such as remaining solid or flashing rapidly. The BIU enforces a mandatory wait period, typically 15 to 30 minutes. Crucially, the vehicle ignition must often remain in the "ON" position (engine off) for the duration of this timer to allow the internal countdown to proceed. Turning the ignition off pauses the timer, extending the lockout indefinitely.13
+* Hard Lockout (Persistent): A hard lockout occurs after repeated Soft Lockouts or if the system detects active manipulation of the EEPROM data (e.g., a failed "All Keys Lost" reset). This state does not clear with time. Recovery typically requires a "Capacitive Discharge" (disconnecting the battery terminals and touching them together to drain all residual power from the capacitors) or a "Registration Mode" reset using the OEM Subaru Select Monitor 4 (SSM4) tool.18 In severe cases, a hard lockout can result in a "bricked" BIU, necessitating module replacement.
+3.3 Tool-Specific Workarounds
+Professional locksmith tools have evolved to manage the SLOA protocol, often incorporating specific software routines to mitigate the risk.
+* Smart Pro (Advanced Diagnostics): Advanced Diagnostics has integrated specific "SLOA" management into their software. The Smart Pro tool features a "Wait" timer function that visually displays the countdown required by the vehicle. When the tool detects a lockout response code from the BIU, it automatically initiates the 10–12 minute timer, preventing the user from sending further requests that would reset the counter or escalate the lockout.20
+* Autel (IM508/IM608): Autel's approach is more aggressive. The "All Keys Lost" function on IM tools often attempts to bypass the timer by directly accessing the EEPROM data to overwrite the lockout flag or by forcing a "Smart Box Reset" that clears all learned parameters, including the error counters. However, if the vehicle's active alarm is triggered (a common occurrence in AKL scenarios), the Autel tool may be blocked by the alarm state itself. In this scenario, the tool effectively waits out the alarm duration (approx. 15 minutes) before re-attempting communication.22
+4. Eyesight-Equipped Vehicle Restrictions
+The Subaru Eyesight Driver Assist Technology adds a layer of operational complexity to the key programming process. While the Eyesight system is not part of the immobilizer logic per se, its position as a high-priority node on the CAN bus makes it a significant liability during programming.
+4.1 Bus Contention and the "Bricking" Risk
+The Eyesight system, comprising dual stereo cameras mounted near the rearview mirror, is a chatty module. It constantly queries the CAN bus for vehicle speed, steering angle, and engine status. During a key programming session—specifically during the "EEPROM Read" or "Flash Write" phases—the diagnostic tool requires a stable, quiet bus to transfer large blocks of data.
+If the Eyesight module "wakes up" or broadcasts a high-priority safety message during this critical write phase, the data packets can collide. This collision disrupts the programming sequence and, in worst-case scenarios, can corrupt the firmware in the BIU or Smart ECU.24 This is commonly referred to in the industry as "bricking" the module. While the module is rarely physically damaged, the data corruption requires a specialized bench tool to restore, turning a 20-minute job into a multi-day repair.
+4.2 Disconnection Protocols
+To mitigate this risk, it is a standard safety protocol to isolate the Eyesight system before attempting any immobilizer work on 2019+ models.
+1. The Fuse Pull Method (Recommended): The safest and most efficient method is to locate the fuse designated for the Eyesight system. This is typically labeled "ES," "Safety," or "Camera" in the interior fuse box. Removing this fuse cuts power to the module without physically disconnecting the harness. This prevents the module from waking up but avoids the risk of damaging the delicate connectors in the overhead console.25
+2. Physical Disconnection (Caution Required): If pulling the fuse does not silence the module (due to redundant power circuits in some trims), the technician may need to physically unplug the stereo camera module. This is done at the overhead console. However, this method carries a significant downside: physically disturbing the camera alignment or disconnecting it can trigger a "Calibration Required" code. Re-calibrating the Eyesight system requires specific targets and the SSM4 tool, adding substantial time and liability to the job.24
+3. Post-Programming Behavior: After the fuses are replaced or the module is reconnected, the vehicle will likely display an "Eyesight Disabled" warning along with various U-codes (Communication Errors) stored in the module history. These are artifacts of the disconnection. A short drive cycle (driving the vehicle above 20 mph for a few minutes) typically allows the system to self-check and clear the warning light. If the light persists, a static calibration may be necessary.25
+5. H-Chip (128-bit) and Smart Key AKL Procedures
+The 2019–2025 Subaru fleet utilizes two primary immobilizer technologies, both of which represent a significant leap in encryption difficulty from the older "G-Chip" (80-bit) systems. These are the 128-bit "H-Chip" (for bladed keys) and the DST-AES Smart Key (for push-to-start vehicles).
+5.1 H-Chip (Bladed) 128-bit All Keys Lost Workflow
+The "H-Chip" system, identified by an 'H' stamped on the metal key blade, utilizes a Texas Crypto 128-bit (8A) transponder. This system presents a unique challenge in an "All Keys Lost" (AKL) scenario because the ECU logic does not support a simple "Add Key" command without a master key present. The system is designed to require an existing, authorized key to open the programming window.28
+When no master key is available, the technician must "spoof" the system into believing a master key is present. This is achieved through a "Sniff-Calculate-Emulate" workflow.
+Required Hardware Ecosystem:
+* Data Sniffer/Simulator (The "Ear"): Tools like the Autel APB112 or the Toyota/Subaru SLK-06 Emulator (Tango) are essential. These devices contain a coil that is placed near the ignition cylinder. Their role is to "sniff" or capture the encrypted query sent by the immobilizer coil when the ignition is turned on.30
+* Emulator/Chip (The "Key"): The LKP-04 is a specialized ceramic chip designed to be programmable. It serves as the physical vessel for the calculated master key data. While the APB112 can act as a temporary master key during the session, the LKP-04 is often used if a permanent "cloned" key is required or if the specific tool (like Tango) requires a dedicated chip for the emulation process.28
+* Server Access (The "Brain"): The captured data is encrypted. To generate a master key signature, this data must be sent to a calculation server. While official channels utilize the NASTF VSP (Vehicle Security Professional) registry to retrieve key codes, aftermarket ecosystems like Autel and Xhorse rely on their own proprietary cloud servers to perform the cryptographic calculation.33
+
+
+  
+
+
+
+Detailed AKL Procedure (Autel IM608 Example):
+1. Preparation: Connect the IM608 to the vehicle (using the 12+8 bypass if required). Connect the APB112 simulator to the IM608 via USB.
+2. Data Collection: Select "All Keys Lost (via OBD)". Insert a blank blade into the ignition and turn it ON. Place the APB112 near the ignition coil. The tool will cycle the data stream. The APB112 captures the encrypted query.23
+3. Calculation: The tool uploads the captured trace to the Autel server. The server calculates the "Page 94" or "Page 98" data required to mimic a master key. This process typically takes 1–2 minutes.
+4. Simulation: The calculated data is written back to the APB112. The APB112 now functions as a "virtual" master key.
+5. Registration: The technician initiates the "Add Key" sequence. When the vehicle asks for the "Master Key," the technician holds the APB112 to the ignition. The vehicle accepts it. When prompted for the "New Key," the technician inserts the new H-Chip key. The system registers the new key, and the APB112 is disconnected.
+5.2 Smart Key (Proximity) AKL Procedures
+For 2020+ push-to-start models (Outback, Forester, Ascent), the process involves the Smart ECU (Keyless Access Control Module). The H-Chip "sniffing" method does not apply here. Instead, the procedure relies on a "Smart Box Reset."
+* Smart Box Reset: This function wipes all existing keys from the Smart ECU, returning it to a "virgin" or initialization state. This is a high-risk operation; if the process is interrupted (e.g., by the DCM or Eyesight), the module may be left in a corrupted state where it accepts no keys.
+* Used Key Restrictions: A critical distinction for Subaru Smart Keys is that they are "locked" to the vehicle upon programming. A used key from another vehicle cannot be reprogrammed to a new car unless it is first "unlocked" or "renewed" using a specialized PCB flasher (like the Xhorse Key Tool Max) to reset its internal memory to factory default.35
+* The "Alarm" Barrier: When a locked Subaru is opened mechanically (via the emergency blade), the alarm triggers. In 2020+ SGP models, the active alarm state often creates a logical block in the BIU, preventing it from accepting the "Reset" command. Technicians must often wait for the alarm to time out or disconnect the horn/battery temporarily to reset the alarm logic before the tool can communicate effectively.22
+6. FCC ID and Frequency Reference (2015–2025)
+Correct part identification is the single most common point of failure in Subaru key programming. The transition to the SGP introduced a split in frequency allocations and FCC IDs. While legacy models operated on 315 MHz, the new platform standardized on 433 MHz (often labeled 434 MHz) to support the higher bandwidth requirements of 128-bit encryption. However, exceptions exist, particularly with models codeveloped with Toyota.
+6.1 The 315 MHz to 433 MHz Migration
+* Pre-2018 (Legacy Platforms): The vast majority of Subaru remote head keys and smart fobs utilized 315 MHz.
+* 2018–2025 (Global Platform): The SGP models (Ascent, Forester, Outback) migrated to 433 MHz. These keys utilize 128-bit AES encryption. Crucially, the HYQ14AHK and HYQ14AKB fobs are externally identical but internally incompatible. Using the wrong one will result in a failed programming attempt, which can inadvertently trigger the SLOA lockout as the system detects the incorrect frequency response as a "spoofing" attack.6
+* The Toyota Exception (Solterra): The 2023+ Subaru Solterra is built on the Toyota e-TNGA platform. Consequently, it uses Toyota-specific hardware (FCC ID HYQ14FBX) and frequencies (315 MHz), deviating from the standard Subaru 433 MHz architecture.37
+6.2 Master FCC ID Mapping Table
+The following table provides a comprehensive reference for selecting the correct key fob based on model and year. Note the critical distinction between the "AHK" and "AKB" suffixes for the 433 MHz smart keys.
+
+
+Model
+	Years
+	System Type
+	Frequency
+	FCC ID / Part Number
+	Chip Type
+	Ascent
+	2019–2025
+	Smart Prox
+	433 MHz
+	HYQ14AKB (Early models may use HYQ14AHK; verify VIN) 8
+	128-bit 8A
+	Outback / Legacy
+	2015–2017
+	Smart Prox
+	315 MHz
+	HYQ14AHC 38
+	G-Chip (80-bit)
+	Outback / Legacy
+	2018–2019
+	Smart Prox
+	433 MHz
+	HYQ14AHK 39
+	128-bit 8A
+	Outback / Legacy
+	2020–2025
+	Smart Prox
+	433 MHz
+	HYQ14AKB (High Security Refresh) 8
+	128-bit 8A
+	Forester
+	2014–2018
+	Smart Prox
+	315 MHz
+	HYQ14AHC 38
+	G-Chip
+	Forester
+	2019–2025
+	Smart Prox
+	433 MHz
+	HYQ14AHK 6
+	128-bit 8A
+	Impreza / Crosstrek
+	2017–2023
+	Smart Prox
+	433 MHz
+	HYQ14AHK 6
+	128-bit 8A
+	WRX / STI
+	2016–2018
+	Smart Prox
+	315 MHz
+	HYQ14AHC 38
+	G-Chip
+	WRX / STI
+	2019–2021
+	Smart Prox
+	433 MHz
+	HYQ14AHK 39
+	128-bit 8A
+	BRZ
+	2014–2020
+	Smart Prox
+	315 MHz
+	HYQ14AHC 38
+	G-Chip
+	BRZ
+	2022–2025
+	Smart Prox
+	433 MHz
+	HYQ14AKB 41
+	128-bit 8A
+	Solterra
+	2023–2025
+	Smart Prox
+	315 MHz
+	HYQ14FBX 37
+	Toyota 8A
+	Standard Key (All)
+	2012–2019
+	Bladed RHK
+	315 MHz
+	CWTWB1U811 29
+	G-Chip (4D-60/62)
+	Standard Key (New)
+	2019–2024
+	Bladed RHK
+	433 MHz
+	CWTB1G077 43
+	H-Chip (128-bit)
+	7. Conclusions and Operational Recommendations
+The analysis of Subaru’s security architecture from 2019 to 2025 reveals a highly hardened environment where successful service requires adherence to strict hardware and procedural protocols. The "All Keys Lost" scenario is no longer a simple EEPROM flash but a multi-stage active bypass operation involving network isolation, signal emulation, and precise timing.
+Key Findings:
+* The "Starlink" Obstacle: The single biggest hurdle in 2020+ models is the Telematics DCM. Technicians must prioritize bypassing this module (via cable or fuse pull) before any programming is attempted. It is the primary cause of "Communication Failure" errors.
+* Bypass is Mandatory: The SGW is ubiquitous in the SGP fleet. The 12+8 cable and Star connector bypass are essential toolkit items. Software bypasses (AutoAuth) are largely ineffective for immobilizer functions.
+* Hardware Sniffing is the Standard: For H-Chip keys, the "sniff-calculate-emulate" workflow using tools like APB112/LKP-04 is the only viable method for AKL without removing and bench-flashing the BIU.
+* Eyesight Sensitivity: While not a "hard" lock, the Eyesight system acts as a "canary in the coal mine." Codes thrown by Eyesight are indicators of CAN bus instability caused by the programming tool. Disabling it via fuse is a best practice.
+Operational Recommendation:
+For any 2020+ Subaru AKL service, the recommended workflow is:
+1. Identify: Confirm FCC ID and Key Type (H-Chip vs. Smart) using the reference table.
+2. Isolate: Install SGW Bypass Cable (12+8) or Pull DCM Fuse if applicable.
+3. Silence: Ensure Eyesight is powered down (Fuse Pull) to prevent data corruption.
+4. Execute: Perform emulation (if H-Chip) or Smart Box Reset (if Smart Key) using a tool with SLOA timer management (Smart Pro) or active reset (Autel).
+5. Restore: Reconnect all fuses/cables and clear the inevitable U-codes (Communication Errors) from the Eyesight and BCM modules before returning the vehicle to the customer.
+Works cited
+1. Security Gateway Bypass Module - ZAutomotive, accessed December 23, 2025, https://www.zautomotive.com/products/z_sgw
+2. FCA Security Gateway Module Basic Info and Location - JScan, accessed December 23, 2025, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+3. 2019 Outback, 2019-21 WRX: DCM Bypass now available : r/subaru - Reddit, accessed December 23, 2025, https://www.reddit.com/r/subaru/comments/1aykj8f/2019_outback_201921_wrx_dcm_bypass_now_available/
+4. November 2023 - OEMDTC, accessed December 23, 2025, https://static.oemdtc.com/TechTIPS/MC-10249612-0001.pdf
+5. How to Use Your Subaru Vehicle's Power Rear Gate - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=730-A7bUNOU
+6. 2017 - 2022 Subaru Smart Key 4B FCC# HYQ14AHK - Locksmith Keyless, accessed December 23, 2025, https://www.locksmithkeyless.com/products/2017-2022-subaru-smart-key-4b-fcc-hyq14ahk
+7. 20-21 SUBARU OUTBACK CENTRAL GATEWAY Control MODULE OEM 88301AN001, accessed December 23, 2025, https://www.ebay.com/itm/275901982820
+8. 2019-2024 Subaru Ascent Smart Key Fob Remote Logo (FCC: HYQ14AKB, P/N: 88835-XC00A, 88835-AN140, Board: 231451-7190) - NorthCoast Keyless, accessed December 23, 2025, https://northcoastkeyless.com/product/subaru-ascent-smart-key-fob-remote-logo-fcc-hyq14akb-p-n-88835-xc00a-88835-an140-board-231451-7190/
+9. SUBARU IMMOBILIZER SOLUTION 2012-2026 | ALL KEYS LOST | SAVE THOUSANDS OF, accessed December 23, 2025, https://www.youtube.com/watch?v=8dIIIZv4skY
+10. Bypass the Subaru Starlink Tracking & Front Speaker fix - AutoHarnessHouse, accessed December 23, 2025, https://www.autoharnesshouse.com/69018.html
+11. 2019 Starlink Module Speaker Bypass : r/subaru - Reddit, accessed December 23, 2025, https://www.reddit.com/r/subaru/comments/11iizc8/2019_starlink_module_speaker_bypass/
+12. Bypassing Starlink/Telematics and not voiding the extended Warranty : r/subaru - Reddit, accessed December 23, 2025, https://www.reddit.com/r/subaru/comments/1ad4j5d/bypassing_starlinktelematics_and_not_voiding_the/
+13. How to Program a Subaru Key Fob, accessed December 23, 2025, https://www.subarulakeland.com/how-to-program-subaru-key-fob/
+14. Car with Lock Symbol on Dashboard: Anti-Theft Troubleshooting Guide, accessed December 23, 2025, https://blog.myairbags.com/car-with-lock-symbol-what-it-means
+15. US7553173B2 - Vehicle connector lockout apparatus and method of using same - Google Patents, accessed December 23, 2025, https://patents.google.com/patent/US7553173B2/en
+16. CrashedToy Road Glide wont start : r/Harley - Reddit, accessed December 23, 2025, https://www.reddit.com/r/Harley/comments/1ok2ggp/crashedtoy_road_glide_wont_start/
+17. BS or legit? Car key taking 2 hours to program. - Reddit, accessed December 23, 2025, https://www.reddit.com/r/cars/comments/4c1ryy/bs_or_legit_car_key_taking_2_hours_to_program/
+18. Subaru VVT Learned Values Reset With Autel | ECM Saved! - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=ur-jb_lwO0o
+19. Unresponsive head unit issue (starlink) : r/subaru - Reddit, accessed December 23, 2025, https://www.reddit.com/r/subaru/comments/jc27sw/unresponsive_head_unit_issue_starlink/
+20. 2024 Subaru Legacy proximity key programming via Smart Pro - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=insjhWkfQko
+21. How To Program 2020 Subaru Ascent H-Key all keys lost via the emulator with Smart Pro Key Programmer - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=ze5Mz5YrZac
+22. Autel Tech Tips: Adding a Prox Key to a Subaru - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=v9lGoS_YR00
+23. HOW TO PROGRAM A KEY FOR 2017 SUBARU IMPREZA ALL KEYS LOST USING AUTEL IM508 & APB112 WITH XM38 KEY - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=4Ix0HNl9Bw4
+24. Calibration Research Tips: Subaru EyeSight - I-CAR Repairability Technical Support, accessed December 23, 2025, https://rts.i-car.com/collision-repair-news/crn-1623.html
+25. How To Reset, Troubleshoot or Disable the Subaru Eyesight System - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=tKqR2DcApTA
+26. HOW TO: SUBARU EYESIGHT CAMERA REPLACEMENT & CALIBRATION - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=TbfmLFJXxuo
+27. 2019 Subaru Crosstrek B28AF Static Camera Calibration EYESIGHT CALIBRATION, accessed December 23, 2025, https://www.youtube.com/watch?v=nU6Pxs-UPaI
+28. TANGO - LKP04 - Transponder Cloning Chip - 128-Bit - for Toyota H-Key - UHS Hardware, accessed December 23, 2025, https://www.uhs-hardware.com/products/tango-lkp04-transponder-cloning-chip-128-bit-for-toyota-h-key-cloning
+29. Upgraded Flip Remote Key Fob 315MHz 4D82 for Subaru Forester Impreza CWTWB1U811, accessed December 23, 2025, https://www.ebay.com/itm/293504871349
+30. Autel APB112 Smart Key Emulator, accessed December 23, 2025, https://autel.us/product/autel-apb112-smart-key-emulator/
+31. Slk-06 Emulador De Tango Sniffer Para Toyota Inmovilizador Akl - ABKEYS, accessed December 23, 2025, https://abkeys.com/es/products/tango-slk-06-emulator-for-toyota-immobilizer-akl-page1-39-59-3a-5a
+32. TANGO - LKP04 - 128-Bit Transponder Cloning Chip f - Royal Key Supply, accessed December 23, 2025, https://royalkeysupply.com/products/tango-lkp04-128-bit-transponder-cloning-chip-for-toyota-h-key-cloning
+33. Smart pro TIS bypass : r/Locksmith - Reddit, accessed December 23, 2025, https://www.reddit.com/r/Locksmith/comments/1f90d5x/smart_pro_tis_bypass/
+34. SUBARU BRZ ALL KEYS LOST PROGRAMMING EEPROM - YouTube, accessed December 23, 2025, https://www.youtube.com/watch?v=X7kQPBg-7sk
+35. UNLOCKED ORIGINAL SUBARU 17-24 OEM SMART KEY LESS ENTRY REMOTE FOB ALARM SEDAN | eBay, accessed December 23, 2025, https://www.ebay.com/itm/396073598099
+36. 2017-2024 Subaru 4B Trunk Smart Key HYQ14AHK - Your Car Key Guys, accessed December 23, 2025, https://yourcarkeyguys.com/products/2017-2022-subaru-4b-trunk-smart-key-hyq14ahk
+37. 2024 Subaru Solterra Smart Key 5B W/ A/C & Hatch Fob FCC# HYQ14 - Locksmith Keyless, accessed December 23, 2025, https://www.locksmithkeyless.com/products/2022-2024-subaru-solterra-smart-key-5b-w-a-c-hatch-fob-fcc-hyq14fbx-8990h-42620
+38. 2014 - 2020 Subaru Smart Key 4B FCC# HYQ14AHC (10 Pack) - Locksmith Keyless, accessed December 23, 2025, https://www.locksmithkeyless.com/products/2014-2020-subaru-smart-key-4b-fcc-hyq14ahc-10-pack
+39. Subaru Smart Proximity Key HYQ14AHK 88835-FL03A 4 Button - Key4, accessed December 23, 2025, https://www.key4.com/smart-remote-key-subaru-hyq14ahk-88835fl03a-4button
+40. Subaru New OEM 2019-2024 Outback Smart Key 4B Trunk FCCID: HYQ14AKB PN, accessed December 23, 2025, https://royalkeysupply.com/products/subaru-new-oem-2024-outback-smart-key-4b-trunk-fccid-hyq14akb-pn-88835xc00a
+41. Subaru 2017-2025 4-Button Smart Key w/Trunk (HYQ14AKB)—OEM NEW, accessed December 23, 2025, https://www.americankeysupply.com/product/subaru-2017-2025-4-button-smart-key-w-trunk-hyq14akb-oem-new-20874
+42. Subaru Remote Head Key CWTWB1U811 ILCO LookALike - Key4, accessed December 23, 2025, https://www.key4.com/subaru-ilco-remote-head-key-cwtwb1u811
+43. OEM 2019 - 2024 Subaru Remote Head Key - Gray CWTB1G077 - Subaru H Chip | eBay, accessed December 23, 2025, https://www.ebay.com/itm/335396060833

@@ -1,0 +1,233 @@
+﻿Comprehensive Technical Analysis and Operational Guide: BMW/Mini CAS3 & CAS3+ Key Programming
+The architectural landscape of vehicle security within the BMW Group has undergone a sophisticated transformation since the inception of electronic immobilizers. At the core of this transformation for the E-series and R-series platforms produced between 2005 and 2014 is the Car Access System, commonly known as CAS. The transition from the earlier Electronic Vehicle Immobilizer (EWS) to the Car Access System (CAS) generations marked a fundamental shift from simple transponder validation to a complex, multi-module authorization network.1 This report serves as a definitive technical reference for the CAS3 and CAS3+ systems, providing professional peers with the depth of insight required to navigate key programming, system synchronization, and forensic module repair.
+Understanding CAS3 & CAS3+ Systems: Definition and Evolution
+The Car Access System (CAS) serves as the primary security hub for the vehicle, integrating functions that were previously distributed across multiple disparate modules. It functions as the central gateway for terminal management (Terminal 15, 30, and 50), anti-theft monitoring, remote access, and vehicle configuration storage.1 The evolution from CAS1 to CAS3+ represents a continuous hardening of the system's cryptographic defenses.
+Theoretical Framework and System Evolution
+The CAS system was first introduced in the E65 7-series as CAS1, which focused on basic key authentication.1 As the platform matured, CAS2 introduced enhanced security protocols and broader chassis application. The arrival of CAS3 brought integration for Comfort Access and refined data management.1 The most significant leap, however, occurred with CAS3+, which introduced encrypted memory storage for the Individual Serial Number (ISN).
+The hardware evolution is best understood through the microcontrollers utilized in these modules. Earlier CAS3 units often featured the Motorola MC9S12DG256 (mask 0L01Y), whereas later CAS3+ and CAS3++ (ISTAP) variants moved to the more powerful MC9S12XDP512 (mask 0L15Y or 0M23S), providing the computational overhead required for 128-bit encryption protocols.3
+Generation
+	Approximate Era
+	Primary Security Feature
+	Microcontroller/Mask
+	CAS1
+	2003-2006
+	Basic Authentication
+	0K50E
+	CAS2
+	2006-2008
+	Enhanced Protocols
+	9S12DG256 / 2K79X
+	CAS3
+	2008-2013
+	Comfort Access Integration
+	9S12DG256 / 0L01Y
+	CAS3+
+	2012-2014
+	Encrypted Memory (ISN)
+	9S12XDP512 / 0L15Y
+	CAS3++
+	2013-2015
+	ISTAP Firmware Hardening
+	9S12XDP512 / 0M23S
+	Vehicle Application and Chassis Identification
+The CAS3 architecture is pervasive across the BMW E-series and Mini R-series generations. While newer vehicles (post-2014) transitioned to the Front Electronic Module (FEM) or Body Domain Controller (BDC), the CAS3 system remains the most frequently serviced immobilizer platform in the secondary market.1
+
+
+Series
+	Chassis Codes
+	Immobilizer Variants
+	1 Series
+	E81, E82, E87, E88
+	CAS2, CAS3, CAS3+ 3
+	3 Series
+	E90, E91, E92, E93
+	CAS3, CAS3+ 5
+	5 Series
+	E60, E61
+	CAS2, CAS3, CAS3+ 5
+	6 Series
+	E63, E64
+	CAS3, CAS3+ 5
+	X5 / X6
+	E70, E71, E72
+	CAS3, CAS3+ 5
+	Z4
+	E89
+	CAS3, CAS3+ 5
+	Mini
+	R55, R56, R57, R60
+	CAS3, CAS3+ 5
+	For technicians, physical identification via the module's sticker can be an initial diagnostic step. A white sticker typically signifies a CAS3 or early CAS3+ module, while a black sticker often indicates the highly encrypted CAS3++ or ISTAP firmware versions.8
+Component Interaction and Security Authorization Logic
+The starting authorization process is a sequential handshake involving several high-level modules. When a key is inserted into the ignition slot or detected via Comfort Access, the CAS provides inductive power to the transponder chip. The transponder transmits a unique identification code back to the CAS via the ring antenna (in turnkey models) or the slot antenna (in push-start models).10
+Once the key's ID is validated, the system initiates the rolling code verification. The CAS generates a random code, synchronizes it with the Digital Motor Electronics (DME) or Digital Diesel Electronics (DDE), and updates the value for the next start attempt.2 In the CAS3+ era, this process is bolstered by the 128-bit Individual Serial Number (ISN), which must be identical in both the CAS and the engine management module for combustion to occur.10 For vehicles equipped with an Electronic Steering Lock (ELV), the CAS must also receive an "unlocked" confirmation from the steering column before it will engage Terminal 50 (the starter motor).2
+Key Variations: Turnkey, Push-Start, and Comfort Access
+The user-facing hardware for CAS3 systems falls into three distinct categories. Understanding these is vital for correctly identifying the necessary key blanks and the appropriate programming procedure.
+Traditional Turnkey Remote Keys
+Found primarily in earlier E-series models (e.g., E83 X3, early E60 5-series), these keys utilize a mechanical blade to turn the ignition cylinder. The transponder logic is similar to push-start models, but the remote functions are often handled via a rechargeable VL2020 battery that is soldered to the board and charged inductively while the key is in the ignition.14
+Push-Start Remote Keys (Slot Key)
+The "wedge" shaped key for push-start vehicles is the standard for the E90 3-series and R56 Mini. These keys must be inserted into a dashboard slot to enable the "Start/Stop" button. Like the turnkey version, the standard slot key (Non-Comfort Access) features a rechargeable internal battery and does not have a user-accessible battery door.14
+Comfort Access (Smart Keys)
+Comfort Access (Option S322A) provides proximity-based entry and starting. While visually similar to the standard slot key, the Comfort Access fob features a removable battery cover on the back to house a non-rechargeable CR2032 battery.11 Because these keys must broadcast a low-power signal (typically up to 5 feet) for proximity detection, the power draw is higher, necessitating a replaceable cell rather than an inductive charger.11
+
+
+Feature
+	Turnkey / Standard Slot
+	Comfort Access
+	Ignition
+	Physical insertion required
+	Proximity-based
+	Battery
+	Rechargeable (VL2020)
+	Replaceable (CR2032)
+	Visual ID
+	Sealed back (No door)
+	Removable battery door 15
+	Chip Types
+	7936 / 7845 17
+	7952 / 7953 17
+	________________
+Image 1: Push-Start & Turnkey Keys
+Description: A high-fidelity composite image displaying the three primary BMW/Mini keys side-by-side. The left-most key is a traditional turnkey remote with a flip-blade, indicating a metal ignition system. The center key is a standard E90-style push-start key, shown with its sealed, smooth back. The right-most key is a Comfort Access variant, with the back cover removed to reveal the CR2032 battery compartment and the emergency mechanical blade partially extracted. Annotations highlight the "Rechargeable Internal Battery" for standard keys versus the "Replaceable Proximity Battery" for Comfort Access units, providing a quick visual guide for technicians.
+________________
+Technical Foundations: The Individual Serial Number (ISN)
+The Individual Serial Number (ISN) is the lynchpin of the BMW security system. It is a unique digital fingerprint that tethers the CAS, the engine management system (DME/DDE), and the transmission control (EGS) in a unified security chain.10
+Short vs. Long ISN Structures
+The structure of the ISN evolved as encryption became more complex.
+* Short ISN (4-byte / 8-digit): Utilized in older, non-encrypted units. The last four digits of this ISN represent the DME identification. Matching a short ISN between modules often requires a manual synchronization (DME-CAS Sync) via a diagnostic tool before the car will start.12
+* Long ISN / SK (16-byte / 128-bit / 32-digit): Found in encrypted CAS3+ and CAS3++ units. The associated engine modules (e.g., MSV80, MSD81, EDC17) also utilize this 32-digit Secret Key (SK). In long ISN systems, once the values match, a manual sync is typically not required, as the encryption protocol handles the handshake.12
+ISN Acquisition for Programming
+In an "All Keys Lost" (AKL) scenario, the ISN must be retrieved to generate a "Dealer Key." If the CAS is encrypted (CAS3+), reading the ISN via the OBD port typically requires a "working key" to decrypt the data. Without a working key, the technician must extract the ISN directly from the engine DME/DDE. Tools like the Autel IM608 (with G-Box) or the Xhorse VVDI2 can read the ISN from many DMEs in "Factory Mode" or "Boot Mode" on the bench, providing the 32-digit code necessary to generate a transponder that the CAS will accept.4
+Key Programming Toolchains: Capabilities and Comparisons
+The professional landscape for BMW programming is primarily occupied by Autel and Xhorse, each offering distinct advantages depending on the technician's workflow.
+Autel MaxiIM IM608 and IM508
+The Autel IM608 is a comprehensive tablet-based solution that combines diagnostic functions with advanced immobilizer (IMMO) capabilities. Its "Smart Mode" provides a guided, automated path for key learning, which is ideal for generalists and multi-brand locksmiths.19
+* OBD2 Capabilities: Autel is highly efficient at adding keys via OBD for standard CAS3. It automatically verifies the VIN and identifies the CAS version, minimizing the risk of user error.21
+* Bench Operations: For AKL or encrypted CAS3+, the Autel utilizes the XP400 Pro programmer to read the CAS EEPROM. The software provides detailed, on-screen wiring diagrams for the MC9S12 microcontroller.22
+* CAS Preprocessing: Autel can perform the "Preprocessing" required for ISTAP versions, though it frequently prompts the user to perform this on the bench for increased safety.21
+Xhorse VVDI2 and BIMTool Pro
+The Xhorse VVDI2 (and its successor, the BIMTool Pro) is widely considered the specialist's choice for German vehicles. It offers deeper granular control over module firmware and flashing.24
+* Downgrading Capabilities: One of Xhorse's standout features is its ability to "downgrade" an ISTAP CAS3+ module via the OBD port. This process reflashes the module to an earlier, unencrypted firmware, allowing the tool to read the immo data without physical removal.26
+* CAS Plug Support: Xhorse offers a specialized "CAS Plug" adapter that allows the technician to connect to the CAS module's external pins on the bench, enabling programming without soldering directly to the circuit board.25
+* Niche Support: Xhorse often provides more frequent updates for advanced functions, such as ISN editing and EGS synchronization.24
+Niche and Supplementary Tools
+While Autel and Xhorse are the leaders, other tools serve specific roles. The AK90+ is a cost-effective entry point for early EWS and CAS systems, though its interface is outdated compared to modern tablets.28 The R270+ is a dedicated EEPROM programmer often used by electronics specialists for high-precision data recovery in bricked modules.30
+
+
+Feature
+	Autel IM608
+	Xhorse VVDI2
+	Interface
+	10.1" Android Tablet
+	Laptop-based (USB)
+	Guided Mode
+	Yes (Smart Mode)
+	No (Professional/Expert)
+	ISTAP Handling
+	CAS Preprocessing
+	OBD Downgrade 27
+	ISN Reading
+	Extensive (G-Box support)
+	Advanced (Factory Mode)
+	Update Frequency
+	Monthly
+	Daily/Weekly 24
+	Programming Procedures: Step-by-Step Implementation
+Execution of key programming requires a disciplined approach to ensure data integrity and module safety.
+Pre-Programming Checklist
+1. Voltage Stability: Connect a high-quality battery maintainer (not a standard charger) to the vehicle. Flashing a CAS module can draw significant current; a voltage drop below 12.5V during a 10-minute flash window will likely "brick" the module.21
+2. Vehicle Status: Ensure the vehicle is in a "well-ventilated" area and turn on the hazard lights to keep the communication gateway (JBE) active.21
+3. Key Blank Verification: Use the tool to detect the frequency of the new key (315MHz for US, 433/868MHz for EU) and verify the transponder is blank.17
+Add Key (Existing Working Key Available)
+The "Add Key" procedure via OBD2 is the most common task for locksmiths.
+1. Identify CAS: Connect the tool to the OBD port and identify the system (e.g., CAS3+ Encrypted).21
+2. Read Immo Data: Select "Add Key." The tool will ask to insert the original working key to authenticate the request and decrypt the security file.12
+3. Key Slot Selection: View the occupied key slots. BMW allows up to 10 keys. Select an unused slot (e.g., Key 4).21
+4. Generate Dealer Key: Place the new blank key into the tool's programmer (XP400 Pro or VVDI programmer). The tool will write the synchronization data to the transponder.33
+5. Final Learning: Insert the new key into the vehicle slot. The ignition should cycle, and the key will be "learned" to the CAS memory. Test all remote and Comfort Access functions.21
+All Keys Lost (AKL) Procedure
+When no working key is available, the process is significantly more involved.
+1. ISN Extraction: Read the ISN from the engine DME/DDE. This can often be done via OBD if the DME is supported, or on the bench.20
+2. Bench Read CAS: Remove the CAS module and read the EEPROM and Flash files using a programmer (e.g., XP400 Pro or VVDI Prog).4
+3. Load Files: In the programming software, load the CAS EEPROM file and manually enter the 32-digit ISN retrieved from the DME.4
+4. Write Dealer Key: Place the new key in the programmer and generate the key using the combined ISN and EEPROM data.4
+5. Restore and Test: Write the modified EEPROM back to the CAS (if necessary) or simply reinstall the CAS and start the car with the new key. In AKL scenarios for encrypted systems, the tool may require up to 64 "start attempts" to synchronize the rolling code.21
+________________
+Image 2: CAS Module & Programmer Setup
+Description: A detailed, clear image showing a CAS3+ module (with its black sticker visible) removed from the vehicle and opened. Six thin, color-coded wires are meticulously soldered to the MC9S12XDP512 microcontroller pins (BKGD, RESET, VCC, GND, etc.) according to the official pinout. These wires connect to the DB26 port of an Autel XP400 Pro. In the background, an IM608 tablet shows a high-resolution wiring diagram that matches the physical board layout, illustrating the professional environment of bench-level data retrieval and module repair.
+________________
+The ISTAP Challenge and Firmware Downgrading
+Vehicles updated by BMW dealers after roughly 2011 often feature "ISTAP" firmware. These versions are highly resistant to OBD reading.
+Risks and Mechanisms of Downgrading
+When a tool attempts to read an ISTAP module, it will prompt for an "update" or "downgrade." This process involves rewriting the module's operating system via the OBD port.
+* リスク (Risk): Corruption is a known hazard. A communication timeout or power surge during this 10-minute window can erase the CAS's internal "Flash" memory, resulting in a "No Ignition" condition.4
+* Procedural Caution: Many specialists recommend removing the CAS and performing a full backup of the Flash and EEPROM on the bench before attempting any OBD firmware operations.4
+Common Challenges and Troubleshooting
+The complexity of the CAS system means that failures can manifest in subtle ways, often appearing as key issues when the fault lies in the hardware or synchronization.
+Electronic Steering Lock (ELV) Issues
+The ELV is a frequent point of failure in E90 and E60 models. The CAS monitors an internal "fault counter" for the steering lock motor. When this counter reaches its threshold, the dash displays a yellow or red steering wheel icon, and the ignition will not engage.2
+* Troubleshooting: Use a tool like the Autel IM608 to "Reset ELV Fault Counter" in the CAS menu. If the lock is mechanically failing, the counter will quickly reach its limit again. In such cases, an ELV Emulator is often installed to "spoof" the "unlocked" signal to the CAS.13
+Mini Cooper Heat-Related Failures
+Mini Cooper R56 modules are notoriously prone to hardware failure due to their location deep within the dashboard. High temperatures can cause the internal circuitry to fault, resulting in intermittent "No Crank" conditions or clicking noises from the passenger-side fuse box.36
+* Recovery: If a CAS is damaged by heat or overvoltage, the most reliable fix is to clone the data to a used "donor" CAS with the same part number.10
+Corruption Recovery with Autel KM100
+If a CAS is bricked during programming, tools like the Autel KM100 provide a specialized "ECU Repair" function. The technician reads the corrupted Flash and EEPROM on the bench, loads them into the KM100, and the tool attempts to reconstruct a valid, bootable file set by repairing the checksums and data headers.4
+________________
+Image 3: Autel IM608 in Action (OBD2)
+Description: A professional shot from the driver's perspective inside a Mini Cooper R56. An Autel IM608 tablet is connected via the VCI to the OBD2 port. The screen displays a "Key Learning" menu with a green checkmark next to "Read Immobilizer Data," indicating a successful ISTAP downgrade. The technician is seen holding a new smart key near the induction slot. This image captures the "in-vehicle" programming process, highlighting the synergy between modern diagnostic tablets and complex vehicle security systems.
+________________
+Best Practices for Professional Locksmiths
+Maintaining a high standard of operation ensures both vehicle safety and professional reputation.
+Safety Protocols and Liability
+* Voltage: Always maintain a minimum of 13.5V using a stabilized power source.21
+* Data Backup: Never write to a CAS without first reading and saving the original EEPROM and Flash files. This "dump" is your only insurance against a total loss.4
+* Communication: Explicitly inform customers of the risks associated with ISTAP downgrading. A "No Start" condition following an OBD flash is a professional risk that must be managed through prior disclosure.1
+Module Identification and Location
+Efficient workflow depends on knowing where the hardware resides.
+* BMW E90/E60: The CAS is under the driver's side dash, above the pedals. It is held by one 10mm bolt and a slide-bracket.2
+* Mini R56/R60: The CAS is deep in the dash, often requiring the removal of trim panels or "popping" the dash top to gain access.39
+Maintaining Tooling
+Software for BMW programming is constantly evolving. Xhorse, in particular, provides updates on an almost daily basis to address new firmware patches released by BMW.24 Ensure all tablets and programmers are updated over Wi-Fi before heading to a job site to avoid compatibility issues with newer vehicle integration levels.
+Conclusion
+The BMW/Mini CAS3 and CAS3+ platforms represent a high-water mark for mid-2000s vehicle security. While the encryption and firmware hurdles of the ISTAP era are significant, the availability of advanced tooling from Autel and Xhorse has made these systems manageable for the informed professional. By understanding the cryptographic relationship between the ISN, the engine management system, and the physical transponder, and by strictly adhering to safety protocols regarding voltage and data backups, technicians can provide reliable, high-tier key programming services. The shift toward bench-level reading and module cloning for corrupted systems further expands the capabilities of the modern locksmith, ensuring that even "bricked" vehicles can be restored to functionality with the correct forensic approach.
+Works cited
+1. BMW Key Programming: CAS vs FEM Systems Explained | Mario Auto Keys Blog, accessed January 25, 2026, https://www.marioautokeys.co.uk/blog/bmw-key-programming-cas-vs-fem/
+2. BMW CAS Module Repairs: Common Fault Codes and How to Repair Them - The ECU Pro, accessed January 25, 2026, https://the-ecu-pro.com/blog/article/588882182400/bmw-cas-module-repairs-common-fault-codes-and-how-to-repair-them
+3. BMW Immo System | PDF | Car Body Styles - Scribd, accessed January 25, 2026, https://www.scribd.com/document/949376063/BMW-Immo-System
+4. How to Repair Bricked BMW CAS3+ istap Module by Autel KM100 ..., accessed January 25, 2026, https://medium.com/@obd365com/how-to-repair-bricked-bmw-cas3-istap-module-by-autel-km100-2a9a94646994
+5. BMW Chassis and IMMO Type List | PDF | Luxury Brands | Cars Of Germany - Scribd, accessed January 25, 2026, https://www.scribd.com/document/976766280/BMW-Chassis-and-IMMO-Type-List
+6. BMW Chassis Codes, accessed January 25, 2026, https://www.turnermotorsport.com/t-BMW-Chassis-Codes
+7. Mini Cooper R55 - R56 - R58 - R60 (2007 to 2013) CAS Removal instructi - Rpm Motorsport, accessed January 25, 2026, https://www.rpmmotorsport.net/pages/mini-cooper-r55-r56-r58-r60-years-2007-to-2013-cas-car-access-system-removal-instructions
+8. New (used) DME and CAS, No Start with Steering Lock and Key Symbols on Dash - Page 2 - BMW 3-Series (E90 E92) Forum - Bimmerpost, accessed January 25, 2026, https://www.e90post.com/forums/showthread.php?t=1716967&page=2
+9. BMW Multitool CAS 2/3/3+ Key Programming DIY - BMW 3-Series (E90 E92) Forum - Bimmerpost, accessed January 25, 2026, https://www.e90post.com/forums/showthread.php?t=1515434
+10. CAS Replacement in BMW E Series - Microtronik, accessed January 25, 2026, https://www.microtronik.com/technical-info/autohex/cas-replacement-bmw-e-series
+11. Everything you need to know about BMW Comfort Access - BimmerTech, accessed January 25, 2026, https://www.bimmer-tech.net/blog/item/38-how-to-check-if-your-car-has-comfort-access
+12. Reading BMW ISN From CAS,DME, and DDE - Microtronik, accessed January 25, 2026, https://www.microtronik.com/technical-info/autohex/bmw-isn-reader-and-writer-software
+13. BMW & MINI ELV Counter Steering wheel column LOCK Emulator for CAS, Repair FIX, accessed January 25, 2026, https://birminghamdiagnostics.co.uk/product/bmw-mini-elv-counter-steering-wheel-column-lock-emulator-for-cas-repair-fix/
+14. Question about 2012 BMW key fob : r/BmwTech - Reddit, accessed January 25, 2026, https://www.reddit.com/r/BmwTech/comments/1jhjdbf/question_about_2012_bmw_key_fob/
+15. New comfort access key fob needs charging? - BMW 3-Series (E90 E92) Forum - Bimmerpost, accessed January 25, 2026, https://www.e90post.com/forums/showthread.php?t=247058
+16. Comfort access FOB battery - BMW M3 Forum (E90 E92) - Bimmerpost, accessed January 25, 2026, https://www.m3post.com/forums/showthread.php?t=346856
+17. BMW CAS3+ CAS3++ E Series Key Programmer via OBD2 (PNP - Autosvs Technology, accessed January 25, 2026, https://autosvs.com/en/product/bmw-cas3-cas3-e-series-key-programmer-via-obd2-pnp/
+18. BMW CAS 3 and CAS 3+ Remote Key Comfort Access ( Keyless Go ), accessed January 25, 2026, https://diagspeed.com/products/bmw-cas-3-and-cas-3-remote-key-comfort-access-keyless-go
+19. How To Program BMW CAS3 0L01Y Semi-Smart Key using Autel IM608 II + GODIAG, accessed January 25, 2026, https://www.youtube.com/watch?v=JObzkvULJkQ
+20. BMW CAS3/CAS3+ All Keys Lost Done with Mini ACDP in 3 Steps, accessed January 25, 2026, http://blog.yanhuaacdp.com/bmw-cas3-cas3-all-keys-lost-done-with-mini-acdp-in-3-steps/
+21. How to Program BMW Keys When All Are Lost Using IM608 PRO II ..., accessed January 25, 2026, https://www.obdprice.com/blogs/car-repar-maintenance/program-bmw-keys-when-all-are-lost
+22. XP400 Pro_User Manual_EN - Autel, accessed January 25, 2026, https://www.autel.com/u/cms/www/202307/14112633lmor.pdf
+23. Autel IM608 II/ IM508S Read BMW CAS3 EEPROM on Bench - AutelShop.de Official Blog, accessed January 25, 2026, http://blog.autelshop.de/autel-im608-ii-im508s-read-bmw-cas3-eeprom-on-bench/
+24. Best Key Programming Tool For VAG and BMW Vehicles - VVDI2 - Auto Locksmith Training, accessed January 25, 2026, https://www.autolocksmithtraining.com/pages/blog?p=xhorse-vvdi-the-best-key-programming-tool-for-vag-and-bmw-vehicles
+25. VVDI BIMTool Cas3+ ISTAP Downgrade Over OBD Success FINALLY! - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=WjDdzV3ZQqE
+26. Xhorse Cas Plug Adapter vvdi2 Bimtool Pro Finally Works - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=mrqBvFnNNzw
+27. Xhorse VVDI BMW Tool User Manual - Magicmotorsport Shop, accessed January 25, 2026, https://magicmotorsport.shop/media/repository/Manual_Xhorse_BimTool.pdf
+28. bmw e90 key programming,Can you program a new BMW key fob yourself? buying guide, accessed January 25, 2026, https://carinterior.alibaba.com/buyingguides/diy-bmw-e90-key-programming-can-you-do-it-yourself-
+29. VVDI2, VVDI PROG, VVDI MB TOOL, VVDI BMW, Differences? : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/hw6rkd/vvdi2_vvdi_prog_vvdi_mb_tool_vvdi_bmw_differences/
+30. BMW CAS3 Bench Downgrade Cgdi Istap Cas3+ - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=wwKCDcFS7Xw
+31. BMW - Cas3 - Mc9s12xdp512cal - 0l15y PDF - Scribd, accessed January 25, 2026, https://www.scribd.com/document/318384141/BMW-CAS3-MC9S12XDP512CAL-0L15Y-pdf
+32. CAS3++ ISTAP ALL KEYS LOST! REPAIR corrupt module! ISN code TC1767 BMW MINI AUTEL IM608 XP400 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=ZhvxqDADX9M
+33. Xhorse VVDI Key Tool Plus + GODIAG Add BMW CAS3++ ISTAP Key | by Auto obd2, accessed January 25, 2026, https://medium.com/@autoobd2.it/xhorse-vvdi-key-tool-plus-godiag-add-bmw-cas3-istap-key-b74edbccac1b
+34. Yellow Steering Wheel (ELV lock) no ignition or crank. SOLVED! - BMW 3-Series (E90 E92) Forum - Bimmerpost, accessed January 25, 2026, https://www.e90post.com/forums/showthread.php?t=2003711
+35. How To Fix Red Steering Lock On Your BMW ELV Using Autel - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=3WACgHh2_zc
+36. CAS Module Advice - Mini Cooper 2011 R56 : r/MINI - Reddit, accessed January 25, 2026, https://www.reddit.com/r/MINI/comments/tgec8r/cas_module_advice_mini_cooper_2011_r56/
+37. MINI COOPER CAS Module Heat Related Issue - Rpm Motorsport, accessed January 25, 2026, https://www.rpmmotorsport.net/blogs/technical-help-center/mini-cooper-heat-related-cas-repair
+38. BMW E90 E92 CAS Module Location & Diagnosis (Car Access System) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=pqLIYLx2hDk
+39. Mini Cooper cas removal easier - YouTube, accessed January 25, 2026, https://www.youtube.com/shorts/cvRSBSpP0ro
+40. 2006-2014 Mini Cooper DME and CAS location - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=Xp_bkBUVfmk

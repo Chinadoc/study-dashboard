@@ -1,0 +1,208 @@
+﻿Technical Analysis of Acura Smart Key Immobilizer and Personalized Memory Systems: KR580399900 and KR5V1X Architectures
+The transition of Acura’s vehicle security from the traditional mechanical key-and-tumbler systems to the contemporary smart access architectures represents a significant milestone in automotive engineering. This shift has necessitated a specialized understanding of radio frequency (RF) mapping, immobilizer encryption protocols, and the mechanical nuances of high-security keyways like the HON66. Within the North American market, the two most prominent electronic architectures utilized by the luxury marque are identified by their Federal Communications Commission (FCC) identifiers: KR580399900 and KR5V1X. These systems, primarily manufactured by Continental and Denso, serve as the backbone for both the anti-theft immobilizer system and the comfort-focused Driving Position Memory System (DPMS).1
+Radio Frequency Mapping and Hardware Identification
+A primary challenge for the modern automotive locksmith or technician is the identification of the correct frequency band for a given Acura model year and trim level. The brand utilizes two primary frequency spectra for its smart key operations: the legacy 315 MHz band and the modern 902 MHz band. The choice of frequency is typically dictated by the presence of bi-directional features such as Remote Engine Start (RES).
+The 902 MHz Architecture (KR580399900)
+The KR580399900 identifier denotes a high-frequency system operating on the 902 MHz spectrum. This band is utilized because it offers superior range and resistance to the RF interference that often plagues the 315 MHz spectrum in dense urban environments.3 A defining characteristic of the 902 MHz smart keys is their 5-button configuration, which includes a dedicated "Engine" button for remote starting. This system is bi-directional; when the vehicle receives a start command, it transmits an acknowledgment packet back to the key fob, which then illuminates an LED to confirm the engine is running.4
+The 315 MHz Architecture (KR5V1X)
+The KR5V1X architecture represents the standard proximity entry and push-to-start system used on base and mid-level trims that lack extended-range remote start capabilities. Operating at 315 MHz, this system is generally associated with 4-button fobs (Lock, Unlock, Trunk/Hatch, and Panic).2 While reliable, the 315 MHz band is susceptible to "RF noise" from consumer electronics, which can occasionally lead to intermittent "Key Not Detected" messages if the fob is placed near a smartphone or a high-powered tablet.7
+Compatibility and Application Matrix
+The following table provides a detailed breakdown of model year compatibility and the corresponding frequency and part numbers for these two dominant FCC identifiers.
+Model
+	Model Years
+	FCC ID
+	Frequency
+	Buttons
+	Part Number (D1/D2)
+	Acura TLX
+	2015 - 2018
+	KR580399900
+	902 MHz
+	5
+	72147-TZ3-A51 / A61
+	Acura TLX
+	2015 - 2017
+	KR5V1X
+	315 MHz
+	4
+	72147-TZ3-A01 / A11
+	Acura ILX
+	2016 - 2022
+	KR580399900
+	902 MHz
+	5
+	72147-TZ3-A51 / A61
+	Acura ILX
+	2016 - 2018
+	KR5V1X
+	315 MHz
+	4
+	72147-TX6-A22 (Non-Mem)
+	Acura RLX
+	2018 - 2020
+	KR580399900
+	902 MHz
+	5
+	72147-TZ3-A51 / A61
+	Acura RLX
+	2016 - 2020
+	KR5V1X
+	315 MHz
+	4
+	72147-TZ3-A01 / A11
+	Acura MDX
+	2016 - 2020
+	KR580399900
+	902 MHz
+	5
+	72147-TZ6-A71 / A81
+	Acura MDX
+	2014 - 2020
+	KR5V1X
+	315 MHz
+	4
+	72147-TZ5-A01 / A11
+	Acura RDX
+	2016 - 2020
+	KR580399900
+	902 MHz
+	5
+	72147-TZ6-A71 / A81
+	Acura RDX
+	2016 - 2018
+	KR5V1X
+	315 MHz
+	4
+	72147-TZ5-A01 / A11
+	Data analysis confirms that while some model years overlap (e.g., the 2016 TLX), the hardware is not interchangeable. A 2016 TLX equipped for 902 MHz will not recognize a 315 MHz KR5V1X fob because the Remote Control Door Lock Receiver (RCDLR) is hardware-tuned to a specific frequency band.1 Technicians should utilize frequency counters or diagnostic tools like the Autel KM100 to verify the original key's transmission before committing to a programming procedure.9
+Driver 1/2 Memory Logic and Technical Implementation
+One of the most distinguishing features of the Acura smart key system is the integration of the Driving Position Memory System (DPMS). This system allows the vehicle to automatically adjust the driver's seat, outside mirrors, and steering wheel (if power-equipped) to a specific preset position based on the transmitter identified by the Body Control Module (BCM).11
+The Role of the Hardware Driver ID
+Contrary to common misconceptions that Driver 1 and Driver 2 settings are purely software-defined, the distinction is fundamentally rooted in the key fob's hardware. Each smart key is assigned a specific "Driver ID" bit within its data packet.13 When the key is first registered to the vehicle, the BCM permanently associates that key’s unique serial number with either the "Driver 1" or "Driver 2" profile based on the hardcoded flag in the fob's memory.12
+* Driver 1 Fobs: Typically labeled with a "1" on the back of the case. They activate Memory Button 1 on the door panel.1
+* Driver 2 Fobs: Labeled with a "2" on the back. They activate Memory Button 2.4
+This identification occurs the moment the driver interacts with the door handle. The car's proximity sensors send a low-frequency (LF) 125 kHz wake-up signal to the key. The key responds with its 315 MHz or 902 MHz data packet, which includes the Driver ID. The BCM then sends a command over the Controller Area Network (CAN) to the Power Seat Control Module to initiate the movement before the driver even enters the vehicle.7
+Aftermarket Key Limitations
+A persistent issue with aftermarket or generic smart keys is the lack of specific Driver ID support. Many universal keys are manufactured with a default "Driver 1" profile. While these keys will successfully start the vehicle and operate the locks, they will all trigger the "Driver 1" memory profile.17 If a vehicle already has an OEM Driver 1 key, the BCM will treat both keys as the same user, rendering the personalized memory system ineffective for a second driver. Professional locksmiths who aim to provide a "like-OEM" experience must specifically procure keys designated for Driver 2 when replacing a lost second key.8
+Personalized Settings and the MID
+The Multi-Information Display (MID) provides feedback to the user regarding which driver has been detected. Upon entering the vehicle, the display will briefly show "Driver 1" or "Driver 2".11 If the user wishes to customize settings such as auto-locking behavior or lighting duration, these settings are stored independently for each driver ID. If the wrong driver is detected—often caused by both keys being in the cabin simultaneously—the system typically defaults to the key used to unlock the driver's door first.7
+2015-2017 TLX 'Ignition Force' All Keys Lost (AKL) Procedure
+The 2015-2017 Acura TLX presents a unique challenge in "All Keys Lost" scenarios due to its robust electronic steering lock and ignition lockout mechanism. When no valid key is present, the Start/Stop button is disabled, and the dashboard remains dark, preventing standard diagnostic communication with the immobilizer system.21
+The Mechanics of the Ignition Force
+To program a new key when all original keys are missing, the technician must "force" the ignition into the "ON" state to allow the programmer to "handshake" with the BCM and the Powertrain Control Module (PCM). This procedure is standardized across high-end programming tools like the Autel IM608, Smart Pro, and Xtool Pad.22
+1. Selection and Initialization: The technician connects the programmer to the OBDII port and selects the vehicle (Acura > TLX > 2015-2017 > Smart Key).
+2. The Force Prompt: When the tool asks, "Can the ignition be turned on?", the technician must select NO.22
+3. Physical Interaction: The tool will then prompt the technician to hold the Start/Stop button on the dashboard. At the same time, the tool sends a specific diagnostic command to the BCM to bypass the transponder check and energize the IG1 and IG2 relays.22
+4. Verification: Once the dashboard lights up, the ignition is considered "forced." The technician can now proceed with the "All Keys Lost" or "Key Registration" menu.22
+Registration Sequence and Timing
+The registration of new keys for the TLX is a timed process. Once the force procedure is successful, the tool will command the technician to perform the following steps:
+* Clearance: Move all other electronic devices and extra smart keys at least two meters away from the vehicle to prevent interference.22
+* Proximity Placement: Hold the new smart key directly against the Start/Stop button. This ensures the LF antenna in the button can read the transponder chip inside the fob.14
+* Cycle Sequence: The system will require several cycles of the ignition being turned OFF and then back ON. This sequence allows the rolling codes to synchronize between the key and the vehicle’s security gateway.22
+Technicians must be aware that if the vehicle battery voltage drops below 12.0V during this process, the BCM may abort the programming sequence. The use of a high-quality battery maintainer is considered an industry best practice for Acura AKL procedures.21
+HON66 Mechanical Blade and Lock Evaluation
+While the smart key provides the primary interface, the mechanical emergency blade—a high-security HON66 laser-cut profile—is the final line of defense during a power failure. This keyway is characterized by its internal track and split-wafer design.28
+Blade Specifications and Wafer Count
+The HON66 system is notably more complex than traditional edge-cut keys. The door lock typically contains 7 split wafers and one full wafer, while the ignition (on non-push-to-start models) contains a full 10-wafer set.28 For the TLX and other smart-key-equipped models, the mechanical lock is only present on the driver's door and the glove box.30
+Feature
+	Specification
+	Keyway Type
+	High Security / Laser Cut
+	Code Series
+	K001-N718
+	Wafer Type
+	Split Wafer (Axis A and Axis B)
+	Bitting Depths
+	1 through 6 (1 is deepest, 6 is no cut)
+	Blank Material
+	Nickel-Plated Brass or Steel
+	The Glove Box Code Strategy
+In AKL situations where the door lock is difficult to decode—often due to environmental debris or heavy wear—locksmiths frequently turn to the glove box lock. In many Acura models, the glove box lock cylinder contains the full mechanical code for the vehicle.30 By removing the glove box lock and decoding its wafers, a technician can generate an original key using a computerized code cutter like the Xhorse Condor or Autel MaxiIT.32
+The 6th Bitting "Locksmith's Secret"
+A widely documented field insight regarding the HON66 key involves the 6th bitting position. Many Honda and Acura ignition cylinders (on older or base models) fail because the 6th wafer—which often lacks a full mechanical function—becomes jammed. A common professional tip is to cut the 6th bitting to a depth of 2 instead of a 1.34 This modification ensures that the key still triggers the "key-in-ignition" buzzer but reduces the physical depth of the cut, which can prevent the key from getting "hung up" in a worn cylinder. However, if the glove box lock is particularly sensitive, this depth change may prevent the key from operating that specific lock.34
+Tool Compatibility and Aftermarket Key Evaluation
+The landscape of Acura key programming has been democratized by the arrival of powerful aftermarket diagnostic tablets. However, not all tools are created equal when handling the 96-bit and 128-bit encryption used in the KR580399900 and KR5V1X systems.
+Autel MaxiIM Series (IM508/IM608)
+Autel tools are highly regarded for their "Smart Mode," which provides a step-by-step guided workflow specifically for the Acura TLX and MDX.9
+* Hardware Strength: The IM608S II features a Qualcomm SDM660 Octa-core processor and 128GB of memory, allowing for rapid calculation of the immobilizer PIN codes.9
+* IKEY Compatibility: Autel's universal IKEY fobs can be programmed to mimic the KR5V1X (315 MHz) systems with high success rates. However, their performance with the 902 MHz KR580399900 system is more variable, particularly regarding the bi-directional LED feedback for remote start.19
+Advanced Diagnostics Smart Pro
+The Smart Pro remains the "gold standard" for professional automotive locksmiths due to its deep integration with the Info Quest (IQ) database.24
+* Database Accuracy: The IQ database provides verified OBD port locations and specific wiring tips for the TLX, which is critical for identifying potential communication failures on the CAN bus.24
+* Token vs. Software: The Smart Pro offers a hybrid model where users can choose between pay-per-use tokens or purchasing the full Acura/Honda software suite.24
+Comparison of Leading Programming Platforms
+Feature
+	Autel IM608S II
+	AD Smart Pro
+	Xtool Pad S
+	Operating System
+	Android 10
+	Customized AD OS
+	Android 10
+	Acura AKL Force
+	Guided / Automated
+	Manual / Expert
+	Automated
+	Driver 2 Support
+	Partial (Generic IKEY)
+	Full (OEM Hardware)
+	Partial
+	Price Point
+	~$3,000 - $4,000
+	~$4,000 - $5,000
+	~$1,000 - $1,500
+	Updates
+	Frequent (Subscription)
+	Frequent (Subscription)
+	Life-time (Select Models)
+	Practical Insights and Field Service Tips
+Successful Acura key programming often depends on nuances not found in official service manuals. Synthesis of data from master locksmiths and technical walkthroughs reveals several critical field tips.
+Proximity Interference and the "2-Meter Rule"
+A common cause of "Programming Failed" errors on the Acura TLX and MDX is the presence of other electronic signals. Technicians are advised to ensure that no other smart keys—even those for other vehicles—are within 2 meters of the car during the registration process.22 Furthermore, high-powered cell phones or tablets used for the programming software should be held away from the Start/Stop button once the command is sent, as their cellular RF can interfere with the 125 kHz induction coil.7
+The Emergency Key Bypass
+If the vehicle's battery is completely dead, the smart key will not work, and the mechanical blade must be used. However, many users do not know that if the key fob battery is dead, the car can still be started by holding the fob directly against the Start/Stop button.14 This uses passive RFID induction (similar to a contactless credit card) to power the transponder chip inside the key, bypassing the need for the fob's internal CR2032 battery.
+Troubleshooting the "Keyless Access System Problem" Error
+If an Acura displays a "Keyless Access System Problem" message after programming an aftermarket key, it is often due to a "checksum" error in the key's rolling code. The solution frequently involves performing a "system reset" using a diagnostic tool or simply driving the vehicle for 10-15 miles, which allows the BCM and the key to fully synchronize their rolling code counters over multiple start/stop cycles.26
+Conclusion and Strategic Outlook
+The technical landscape of Acura smart key systems is a study in the balance between security and user convenience. The fragmentation between the 315 MHz KR5V1X and the 902 MHz KR580399900 architectures requires a disciplined approach to inventory and diagnostic verification. For the 2015-2017 TLX, the "Ignition Force" procedure remains a critical skill for any automotive technician, as it is the only viable entry point for system recovery in all-keys-lost scenarios.
+Furthermore, the hardware-linked Driver 1/2 memory logic underscores the importance of utilizing high-quality, correctly identified hardware. As vehicle systems continue to integrate more deeply with personalized user profiles, the role of the smart key evolves from a simple ignition device to a portable digital identity. For the professional locksmith, staying current with the evolving tool capabilities of platforms like Autel and Smart Pro, while respecting the mechanical precision of the HON66 keyway, is essential for maintaining a competitive edge in the luxury automotive service market. The transition toward 128-bit encryption and UWB (Ultra-Wideband) technology in the newest Acura models suggests that the complexity of these systems will only increase, making the foundational knowledge of the KR5 series even more vital as these vehicles move into the secondary and tertiary ownership markets.
+Works cited
+1. OEM ACURA ILX TLX RLX DRIVER 1 smart keyless remote fob KR580399900 + NEW KEY, accessed January 25, 2026, https://www.ebay.com/itm/302335963025
+2. 2020 Acura MDX Smart Key Fob Memory: Driver 2 PN: 72147-TZ5-A11 - Remotes And Keys, accessed January 25, 2026, https://remotesandkeys.com/products/2020-acura-mdx-smart-key-remote-6328
+3. Acura 2015-2020 OEM 5 Button Smart Key FCC: KR580399900 ..., accessed January 25, 2026, https://www.bestkeysupply.com/products/acura-oem-5button-smartkey-kr580399900-188d1
+4. 2022 Acura TLX ILX RLX Smart Key 5B W/ Trunk & Engine Start Fob FCC# KR580399900, accessed January 25, 2026, https://www.locksmithkeyless.com/products/2015-2019-acura-smart-key-5b-fcc-kr580399900
+5. 20 ACURA MDX RDX SMART KEY REMOTE FOB FCC: KR580399900 DRIVER 1 EXCELLENT | eBay, accessed January 25, 2026, https://www.ebay.com/itm/175295749669
+6. 2015 - 2020 Acura ILX TLX RLX Smart Key 4B W/ Trunk Fob FCC ..., accessed January 25, 2026, https://www.locksmithkeyless.com/products/2015-2018-acura-smart-key-4b-fcc-kr5v1x
+7. Driving Position Memory System - Acura, accessed January 25, 2026, https://owners.acura.com/utility/download?path=/static/pdfs/2023/MDX/2023_MDX_Seat_Position_Memory_System.pdf
+8. 2015-2020 Acura ILX TLX RLX / 5-Button Smart Key / PN: 72147 ..., accessed January 25, 2026, https://www.uhs-hardware.com/products/2015-2020-acura-ilx-tlx-rlx-5-button-smart-key-pn-72147-tz3-a61-kr580399900-driver-2-oem
+9. Autel MaxiIM IM608 Pro II Key Fob Programming Tool, accessed January 25, 2026, https://store.autel.com/products/maxiim-im608-pro-ii
+10. HOW TO ADD A KEY FOR 2019 ACURA RDX (and most Honda & Acura PTS) USING AUTEL IM508 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=WNx5CHV_Ygg
+11. Driving Position Memory System* - Acura, accessed January 25, 2026, https://owners.acura.com/utility/download?path=/static/pdfs/2022/ILX/2022_ILX_Driving_Position_Memory_System.PDF
+12. Keyless Memory Settings - Acura, accessed January 25, 2026, https://owners.acura.com/utility/download?path=/static/pdfs/2012/MDX/2012mdx_Personalized_Settings_Vehicle.pdf
+13. Changing from Driver 2 to 1? : r/Acura - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Acura/comments/hfhsx9/changing_from_driver_2_to_1/
+14. How to Use the Driving Position Memory System - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=e0FAk--sBpE
+15. Acura TLX 72147-TZ3-A81 KR5995364 Smart Remote Key Driver 2 5 Button - Key4, accessed January 25, 2026, https://www.key4.com/acura-tlx-smart-remote-key-72147tz3a81-kr5995364
+16. KEYLESS MEMORY SETTINGS - Acura, accessed January 25, 2026, https://owners.acura.com/utility/download?path=/static/pdfs/2010/MDX/mdx_Personalized_Settings_Vehicle.pdf
+17. Smart Fob Key | Auto Smart Key Replacement | UHS Hardware – tagged "Acura", accessed January 25, 2026, https://www.uhs-hardware.com/collections/new-r-smart-keys/acura
+18. Acura Aftermarket 2022-2024 MDX Smart Key (Memory 1) Hatch - Royal Key Supply, accessed January 25, 2026, https://royalkeysupply.com/products/acura-aftermarket-2022-2024-mdx-smart-key-memory-1-4b-hatch-fccid-kr5tp-2-pn-72147-tya-a11
+19. Smart Key_V1.60 Function List - Autel, accessed January 25, 2026, https://www.autel.com/u/cms/www/202210/24020108tdxp.pdf
+20. Driver #1 and Driver #2 : r/hondapilot - Reddit, accessed January 25, 2026, https://www.reddit.com/r/hondapilot/comments/1htka8p/driver_1_and_driver_2/
+21. 2015 Acura TLX Key Not Turning - Troubleshooting Tips - RepairPal, accessed January 25, 2026, https://repairpal.com/acura/tlx/2015/key-wont-turn
+22. Acura TLX All Keys Lost - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=eIGoTdBL4TQ
+23. ACURA MDX TLX RLX RDX ALL KEYS LOST PUSH START(SMART KEY) TUTORIAL#allkeyslost #keyprogrammer#acura - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=K_PELmyQdqg
+24. Advanced Diagnostics - SMART Pro Vehicle Key Programmer for Sale - UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-smart-pro-vehicle-key-programmer
+25. How to Program Acura Key Fob | MDX, TLX, RLX, ILX, RDX (2014–2020) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=YptSWdPt8Oc
+26. How Rolling code works? : r/CarHacking - Reddit, accessed January 25, 2026, https://www.reddit.com/r/CarHacking/comments/1bo8l4w/how_rolling_code_works/
+27. SoK: Stealing Cars Since Remote Keyless Entry Introduction and How to Defend From It, accessed January 25, 2026, https://arxiv.org/html/2505.02713v1
+28. HON 66 - Raf's lockpicking world, accessed January 25, 2026, https://mylockpickingworld.com/category/hon-66/
+29. Lishi HON66: Why It's a Must-Have Tool for Automotive Locksmiths? - CLK Supplies, accessed January 25, 2026, https://www.clksupplies.com/blogs/news/lishi-hon66-why-it-s-a-must-have-tool-for-automotive-locksmiths
+30. hon66 : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/114799h/hon66/
+31. Honda Master Cut Code from Glove Box - Guide for making new key. - YouTube, accessed January 25, 2026, https://m.youtube.com/watch?v=K5u7jG4mt5g
+32. How to Decode Honda HON66 with Lishi and Cut Key with 2M2 Tank 2 Pro - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=aRY_UBar1ms
+33. Cutting A Spare Key For Honda Hon66 Blade - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=SEBghMq6fi8
+34. I got this tip from a local locksmith recently I figured I'd share it with you guys. - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1j6up91/i_got_this_tip_from_a_local_locksmith_recently_i/
+35. got a replacement key made - it works in doors & ignition, but not glovebox? I'm stumped : r/HondaElement - Reddit, accessed January 25, 2026, https://www.reddit.com/r/HondaElement/comments/1bonwy2/got_a_replacement_key_made_it_works_in_doors/
+36. MaxiIM IM508 - Autel, accessed January 25, 2026, https://www.autel.com/immotool1/3202.jhtml
+37. Autel MaxiIM IM608 PRO II Kits IMMO Key Programming Diagnostic Scanner IM608S II | eBay, accessed January 25, 2026, https://www.ebay.com/itm/388388517023
+38. Autel MaxiIM IM608S II & XP400 PRO & J253 Key Programming Diagnostic Scanner | eBay, accessed January 25, 2026, https://www.ebay.com/itm/256989425591
+39. Autel MaxiAP AP2500E Bluetooth Code Reader Upgrade AP200 CAN FD OBD2 Scanner Full Systems ABS SRS 45+ Car Brands for Android/iOS - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/i/1005008797449315.html

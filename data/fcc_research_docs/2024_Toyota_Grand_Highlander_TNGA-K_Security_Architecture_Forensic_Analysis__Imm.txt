@@ -1,0 +1,239 @@
+﻿2024 Toyota Grand Highlander (TNGA-K) Security Architecture: Forensic Analysis & Immobilizer Protocols
+1. Executive Summary
+The introduction of the 2024 Toyota Grand Highlander marks a definitive pivot in Toyota's North American security strategy, representing not merely a new model year but a fundamental architectural shift in immobilizer cryptography and network topology. As the automotive security landscape evolves from static encryption to dynamic, rolling-code environments, the Grand Highlander serves as a flagship implementation of the "8A-BA" DST-AES protocol within the unibody TNGA-K platform. This report provides an exhaustive, expert-level technical analysis of the vehicle’s security architecture, specifically designed for automotive locksmiths, security researchers, and advanced diagnostic technicians who must navigate the complexities of this new ecosystem.
+Our analysis confirms that the 2024 Grand Highlander utilizes the TNGA-K platform 1, distinct from the truck-based TNGA-F used in the Sequoia and Tundra. This distinction is critical for locating control modules, as the TNGA-K architecture dictates a unibody component layout that places the Certification ECU (Smart Box) behind the glovebox assembly, rather than in the kick panels or under the center console as seen in other architectures. The primary security challenge identified is the 8A-BA chip architecture.3 Unlike previous generations (8A-AA or H-chip), the BA system requires specific localized hardware bypasses to program keys in an All Keys Lost (AKL) scenario. The OBDII port is firewall-restricted via a Security Gateway (SGW), necessitating a direct physical connection to the Smart Box using a 30-pin proprietary cable.5
+This report details the operational differences between the 8A-BA and legacy systems, provides verified part numbers (FCC ID: HYQ14FBX) 7, and outlines step-by-step forensic procedures for key provisioning using Autel, Lonsdor, and Smart Pro ecosystems. Furthermore, we explore the integration of the "Digital Key" 8 and its impact on the vehicle's slot registration limit, offering a comprehensive guide to navigating the complexities of modern Toyota security.
+2. Platform Architecture & Network Topology
+2.1 TNGA-K Platform Designation and Implications
+The "Toyota New Global Architecture" (TNGA) is a modular unibody philosophy that has revolutionized how Toyota vehicles are designed, manufactured, and serviced.9 It is crucial to dispel the confusion regarding the Grand Highlander's classification. While the Grand Highlander shares the "Highlander" nameplate, its enlarged dimensions and "Grand" prefix often lead technicians to conflate it with the body-on-frame TNGA-F platform used by the Sequoia or Land Cruiser.10
+Research unequivocally confirms the 2024 Grand Highlander is built on a modified TNGA-K platform.1 This is the same platform underpinning the standard Highlander, RAV4, Sienna, and Camry.9 The "K" designation (often associated with the Camry/Avalon lineage) implies a transverse engine layout and a unibody construction, which fundamentally dictates the routing of the CAN bus harnesses and the placement of security modules. In contrast, the TNGA-F platform (Tundra, Sequoia, Land Cruiser) utilizes a longitudinal engine layout and body-on-frame construction, leading to significantly different interior hard points and module locations.11
+This architectural distinction is not merely academic; it has immediate practical implications for service. The electronic topology follows the "K" architecture standards, which dictates the location of the Body Control Module (BCM) and best practices for system selection in diagnostic tools. When a technician connects a scanner that does not yet have a specific "Grand Highlander" profile, selecting the "Highlander" (post-2020) or "Sienna" (post-2021) profile—both TNGA-K siblings—is the correct fallback protocol, whereas selecting a "Sequoia" (TNGA-F) profile would likely result in communication errors due to baud rate or gateway discrepancies.2
+While visual schematics often clarify these differences, a textual breakdown reveals the core divergence: the TNGA-K (Unibody) architecture rigidly places the Certification ECU behind the glovebox assembly to minimize harness length to the Start/Stop button and Low-Frequency (LF) antennas located in the dashboard. In contrast, the TNGA-F (Body-on-Frame) architecture often necessitates a different harness routing, placing modules in the center console or kick panels to accommodate the transmission tunnel and frame rails. Confusing the two results in significant labor time lost dismantling the wrong interior components.
+2.2 The Smart Box (Certification ECU)
+In the 2024 Grand Highlander, the Certification ECU (often referred to as the "Smart Box," "Immo Box," or "Cert ECU") is the cryptographic heart of the Keyless Entry system. It manages the Low-Frequency (LF) oscillators that detect the key fob's presence and communicates with the Engine Control Module (ECM) and Steering Lock (if equipped) to authorize the engine start.
+Location and Access: Detailed analysis of service procedures for TNGA-K vehicles indicates the Smart Box is located behind the glovebox assembly, on the left-hand side (towards the center stack).12 This placement is consistent with the TNGA-K standard but presents a physical barrier to the technician.
+* Access Procedure: To access the connector required for programming, the technician must drop the glovebox. This typically involves releasing the dampener arm on the right side, squeezing the internal stops to lower the bin, and then removing the entire glovebox assembly (secured by 3-5 screws) to expose the firewall area.14
+* Mounting Orientation: In some TNGA-K iterations, the Smart Box is mounted vertically against the firewall support bracket or tucked high up behind the air distribution housing. A flashlight and a hook tool are often necessary to manipulate the connector locking tabs.
+* Connector Type: The unit features a high-density connector. For 8A-BA systems, the critical connection point is the 30-pin connector.5 This is a departure from older systems that used 24-pin or split connectors. The move to 30 pins likely accommodates additional data lines required for the enhanced localized encryption and Digital Key communication pathways.
+2.3 The Security Gateway (SGW) & Communication Lines
+The 2024 model year integrates a robust Security Gateway (SGW) directly into the CAN bus network, a feature that has become standard across the industry to prevent remote hacking and unauthorized access.
+* Role of SGW: The SGW filters traffic between the OBDII port (DLC3) and the internal vehicle networks (CAN-C, CAN-B). It acts as a firewall, allowing read-only access (diagnostics) but strictly blocking unauthorized "Write" commands.5 This prevents standard OBDII key programmers from initiating an "Add Key," "Reset," or "All Keys Lost" sequence without proper authentication.
+* Bypass Requirement: While some tools can authenticate via a server (AutoAuth) for diagnostics, Toyota's 8A-BA programming procedure generally requires a physical bypass. By unplugging the specific connector at the Smart Box and inserting a "Bypass Cable" (e.g., Autel G-Box cable, Lonsdor ADP adapter, or Smart Pro ADC2021), the technician effectively injects data directly into the Smart Box, circumvention the SGW entirely.5 This "man-in-the-middle" hardware attack allows the programming tool to communicate directly with the Certification ECU on its local LIN or private CAN lines, bypassing the gateway's restrictions.
+3. The 8A-BA Chip Architecture
+3.1 Understanding the "BA" Designation
+The term "8A-BA" refers to the specific configuration of the DST-AES transponder chip used in the key fob, representing the latest evolution in Toyota's proprietary encryption standards.
+* Legacy 8A (H-Chip): Previous generations utilized 128-bit AES encryption but had a different page structure (often referred to as "Page 1: 88" or "A8"). These systems were vulnerable to certain cloning and emulation techniques that have since been patched.
+* 8A-BA (Current): The "BA" designation is derived from the data read on Page 4 of the transponder memory.3 When interrogated by a modern transponder reading tool (such as the VVDI Key Tool Max or Autel XP400), Page 4 will explicitly display the hex value BA.
+* Electronic Signature:
+   * Chip ID: Texas Crypto DST-AES.
+   * Configuration: "BA" type is specific to models produced post-2022/2023 on updated platforms (Sienna, Venza, Tundra, Grand Highlander).18 It indicates a rolling code algorithm that is significantly more aggressive than the "AA" or "A9" types used in the 2019-2021 RAV4 and Camry.
+3.2 Visual vs. Electronic Identification
+One of the most dangerous "traps" for a technician servicing the 2024 Grand Highlander is the visual similarity between the 8A-BA keys and the older 8A-AA keys. Using the wrong key will result in a failed programming attempt and potential lockout timers.
+* Visual ID: The key fobs look nearly identical externally. They are 4-button "Smart Keys" (Lock, Unlock, Hatch, Panic) utilizing the same shell design as the previous generation Highlander.7
+* Board Numbers:
+   * Grand Highlander 2024: Uses FCC ID HYQ14FBX.3 This is a critical identifier.
+   * PCB Board ID: The specific board number for the "BA" system is often 231451-0020 or 0351, but relying solely on the printed number can be misleading due to aftermarket shell swapping and refurbished keys entering the market.21
+   * The Only Sure Method: Electronic Interrogation. You must read the key using a coil detector (e.g., Autel XP400, Key Tool Max).
+      * If Page 4 reads AA -> It is the older system (RAV4 2019-2021).
+      * If Page 4 reads BA -> It is the new system (Grand Highlander 2024).
+This reliance on electronic verification is paramount. The visual markings on the shell (FCC ID) can be swapped, but the transponder data on the PCB cannot be faked without reprogramming the chip itself.
+
+
+  
+
+
+
+3.3 Cryptography and "Rolling Code" Evolution
+The move to 8A-BA is not just a hardware change; it is a cryptographic upgrade designed to counter "Replay Attacks" and "Relay Attacks." The "BA" system utilizes a more complex seed-key exchange protocol during the handshake between the key and the Smart Box.
+* Impact on Cloning: The DST-AES encryption employed in the BA system makes cloning these keys virtually impossible with current handheld technology. The keys must be programmed into the vehicle, creating a unique relationship between the specific key ID and the ECU. This eliminates the "quick clone" option often used by basic key cutters.
+* Impact on Programming: The "BA" protocol requires the programming tool to calculate a response to a random challenge from the car. In older systems, this could often be done via OBDII by bypassing the timing security. In the 2024 Grand Highlander, the SGW blocks the challenge-response traffic, which is why the direct connection to the Smart Box (bypass) is mandatory. The tool effectively "injects" itself into the local LIN/CAN network of the Smart Box to perform the handshake directly, acting as a trusted node within the vehicle's internal network.5
+4. Hardware & Tooling Requirements
+To successfully program keys to a 2024 Grand Highlander, a technician cannot rely on a standard OBDII dongle alone. A specific hardware ecosystem is required, tailored to the 8A-BA architecture and the 30-pin physical interface.
+4.1 The "Toyota-30" Bypass Cable
+This is the single most critical piece of hardware for the job. Without it, communication with the Smart Box for programming purposes is physically impossible due to the SGW.
+* Specification: It is a 30-pin splitter cable.5
+* Function: The cable interposes between the vehicle harness and the Smart Box. It provides:
+   1. Power (12V/GND): To keep the Smart Box alive and functioning while disconnected from the main vehicle harness (in some configurations) or to tap into the power lines.
+   2. Communication Lines (CAN/LIN): Breaking out the private data lines to the programming tool, allowing the tool to speak directly to the ECU.
+* Why 30-pin? Previous generations (Corolla, RAV4) used 24-pin or 27-pin connectors. The 2024 Grand Highlander's Smart Box has an updated pinout configuration (30 pins) to accommodate increased data throughput and additional security lines associated with the Digital Key and advanced immobilizer functions.
+* Warning: Using an older 24-pin cable (intended for 2019-2021 models) will physically not fit. Forcing it could bend pins. More importantly, using a generic "Toyota Smart Key Cable" without verifying the pin count can lead to cross-pinning power lines, potentially damaging the Certification ECU—a costly mistake that often requires dealership intervention to rectify.
+4.2 Tool-Specific Adaptations
+A. Autel Ecosystem (IM508/IM608)
+Autel remains a popular choice for this procedure, but it requires a specific combination of accessories.
+* Required Hardware:
+   * MaxiIM Tablet (IM508S or IM608 Pro II).
+   * G-Box2 or G-Box3: This accessory helps manage the CAN Direct lines and provides the necessary voltage regulation for the bypass.
+   * APB112 (Optional but recommended): The Smart Key Simulator is crucial for generating an emergency start signal in "All Keys Lost" situations where no working key is available to initiate the ignition.
+   * Toyota 30-Pin Cable (8A-BA Cable): Connects the G-Box to the Smart Box.6
+* Software Status: Autel has actively updated its software to include "2024/2025 IMMO" functions.23 The menu path typically involves "Toyota" -> "Manual Selection" -> "Grand Highlander" -> "Smart Key" -> "Control Unit" -> "Keyless System (CAN)". If "Grand Highlander" is missing in older software versions, technicians have reported success using the "Highlander (2022+)" or "Sienna (2021+)" profiles, provided the chip type matches (8A-BA).
+B. Smart Pro (Advanced Diagnostics)
+The Smart Pro system offers a streamlined approach, often favored for its integrated software solutions.
+* Required Hardware:
+   * Smart Pro Device.
+   * ADC2021 Cable: This is the specific bypass cable for Smart Pro.12 It connects directly to the Smart Box and the Smart Pro's main cable.
+   * ADC2015 Emulator: Required for "All Keys Lost" to simulate a master key.24
+* Advantage - TIS Bypass: The ADC2021 cable allows for a "TIS Bypass," meaning the technician does not need to purchase a rolling code or seed code from the Toyota Information System (TIS) server (which typically requires NASTF credentialing).12 This offline capability is a significant advantage for locksmiths working in areas with poor cellular data or those without active TIS subscriptions.
+C. Lonsdor (K518ISE / K518 Pro)
+Lonsdor has carved a niche in Toyota/Lexus programming with its proprietary "ADP" system.
+* Required Hardware:
+   * K518 Device (K518ISE, K518S, or K518 Pro).
+   * ADP Adapter (ADP-25 / Super ADP): Lonsdor’s proprietary adapter that replaces the functionality of the G-Box.27 It is designed specifically to handle the encryption handshake of the 8A-BA system.
+   * LKE (Lonsdor Key Emulator): Used to generate the backup key.
+* Method: Lonsdor is renowned for its "Backup Immo Data" feature. Instead of forcing a reset, it reads the EEPROM data from the Smart Box via the ADP adapter, decrypts it, and allows the generation of a "virtual key" on the LKE emulator. This virtual key is then used to add the new physical key.17 This method is generally considered safer than a full ECU reset as it preserves the existing key data.
+5. Procedural Workflows
+The following sections detail the exact step-by-step procedures for the two most common scenarios faced by technicians: Adding a spare key and handling an All Keys Lost situation.
+5.1 Scenario A: "Add Key" (One Working Key Available)
+Note: In 8A-BA systems, even "Add Key" often requires the bypass cable because the OBDII port is locked down by the SGW.
+1. Preparation and Access:
+   * Ensure the vehicle battery is fully charged or supported by a maintainer.
+   * Locate the Smart Box behind the glovebox.
+   * Remove the glovebox assembly carefully.
+   * Disconnect the 30-pin connector from the Smart Box.
+   * Connect the 30-Pin Bypass Cable (Autel/Lonsdor/ADC2021) in-line between the vehicle harness and the Smart Box.
+   * Connect the other end of the cable to the programmer (or G-Box/ADP).
+2. Backup Data (Crucial Step):
+   * Select "Backup Immo Data" on the tool.
+   * The tool will read the EEPROM configuration from the Smart Box. This process may take several minutes. Save this file (e.g., GrandHighlander_2024_Backup.bin). This file is your safety net; if anything goes wrong, you can restore the ECU to its original state.
+3. Add Key Execution:
+   * Select "Add Smart Key" from the menu.
+   * The tool will prompt to hold the Registered Key (Working Key) to the Start Button. Listen for one beep. This confirms the system has authenticated the master key.
+   * The tool will then prompt to hold the New Key (Virgin 8A-BA Fob) to the Start Button. Listen for two beeps. This confirms the new key has been registered.
+4. Verification and Reassembly:
+   * Test Lock, Unlock, and Panic functions on the new remote.
+   * Test Proximity Start (Key in pocket, foot on brake).
+   * Critical Check: Verify the Hatch/Liftgate function (See Section 6).
+   * Disconnect the bypass cable and restore the original connections. Reinstall the glovebox.
+5.2 Scenario B: "All Keys Lost" (AKL)
+This is the high-stakes procedure. Without a working key, you must "trick" the car into thinking a key is present using emulation technology.
+
+
+  
+
+
+
+Detailed Steps (Emulator Method):
+1. Hardware Connection:
+   * Perform the same glovebox removal and 30-pin cable installation as in the "Add Key" scenario. This is mandatory. You cannot do AKL via OBDII alone due to the encrypted handshake required to initiate the process.
+2. Read & Decrypt:
+   * Select "All Keys Lost" -> "Backup Immo Data" (via Adapter).
+   * The tool (Lonsdor K518 or Autel IM608) will read the encrypted data from the Smart Box.
+   * Cloud Calculation: This data is often uploaded to the manufacturer's server (Lonsdor/Autel cloud) to calculate the decryption key. Ensure you have a stable Wi-Fi connection. The server processes the encrypted dump and returns a file capable of generating a master key signature.
+3. Generate Emulator:
+   * Once the data is decrypted, place the Emulator Key (Autel APB112 or Lonsdor LKE) into the tool's key slot.
+   * Select "Generate Emulator Key".
+   * The tool writes the decrypted "Master Key" signature onto the emulator. The emulator now mimics the digital signature of a key that the car already knows.
+4. The "Virtual" Start:
+   * The Emulator now acts as a valid key.
+   * Select "Add Key" (not AKL anymore, because you have a "working" emulator).
+   * Hold the Emulator to the Start Button. Vehicle beeps (authorized).
+   * Hold the New Physical Key to the Start Button. Vehicle beeps twice (registered).
+5. Reassembly:
+   * Remove the bypass cable.
+   * Reconnect the OEM connector to the Smart Box.
+   * Reinstall glovebox.
+6. Critical "Gotchas" & Troubleshooting
+The 2024 Grand Highlander introduces several quirks that can trip up even experienced technicians, resulting in "successful" programming but incomplete vehicle functionality.
+6.1 The Hatch Release "Sleep" Mode
+A common post-programming complaint is that the Rear Liftgate (Hatch) button on the new remote does not work, even though Lock/Unlock works fine.30 This is rarely a defective key.
+* The Cause: The Power Back Door (PBD) module often loses its initialization status during the battery disconnect or programming phase. It enters a "protect" or "sleep" mode to prevent damage from uncalibrated movement.
+* The Fix:
+   1. Unlock the Doors: The hatch will often not open if the doors are locked (security feature).
+   2. Manual Assist: Press the exterior release button on the hatch itself while manually lifting it slightly to wake the sensor.
+   3. Long Press: The remote button on the new Toyota keys often requires a press-and-hold (2-3 seconds), not a quick click, to prevent accidental opening.31
+   4. Cluster Setting: Verify that "PBD" (Power Back Door) is enabled in the instrument cluster settings menu. If it was toggled off during the reset, the remote will be ignored.
+6.2 Digital Key Conflicts & Slot Limits
+The 2024 Grand Highlander features Digital Key technology (Phone-as-a-Key), allowing users to access the vehicle via the Toyota App.8 This introduces a new variable in key management.
+* Slot Consumption: Each registered Digital Key consumes a "Key Slot" in the Certification ECU. The system typically supports a maximum number of keys (often 7 total slots).33
+* The Conflict: If a family has shared 5 Digital Keys among their phones and already has 2 physical fobs, the slots are full. Attempting to program a third physical fob will fail with a "Memory Full" or "Registration Failed" error.
+* Resolution: When programming a new physical fob in a slot-full scenario, you may need to "Erase Keys" first to free up slots. Warning: Erasing keys will also wipe all Digital Keys, forcing the customer to re-enroll their phones via the Toyota App. Always warn the customer of this possibility before performing an erasure.
+6.3 Hybrid vs. ICE Variations
+* 12V Battery Location:
+   * ICE (Gas): Under the hood.
+   * Hybrid: Located in the right-rear cargo area (behind the panel).
+* Programming Risk: Hybrids are uniquely sensitive to voltage drops. When the ignition is "On" (Ready mode off) during programming, the 12V battery drains rapidly because the DC-DC converter (which charges the 12V battery from the High Voltage traction battery) is not active. A voltage drop below 11.5V can cause the Smart Box to abort the writing process, potentially corrupting the EEPROM. Always connect a high-quality battery maintainer (JNC or similar) to the jump points under the hood, regardless of where the physical battery is located.1
+6.4 Emergency Start with Dead Fob Battery
+Technicians must be able to instruct customers on how to start the vehicle if their fob battery dies.
+* Procedure: In the 2024 Grand Highlander, the emergency start coil is located directly behind the Start/Stop button.
+* Action: Hold the back of the key fob (specifically the area with the Toyota logo, where the LF antenna is usually positioned) directly against the Start button. Wait for a buzzer sound, then depress the brake and press the Start button within 5 seconds.34
+7. Parts Database & Identification Guide
+To assist in procurement and verification, the following table consolidates the confirmed part numbers for the 2024 Grand Highlander Smart Key system.
+
+
+Component
+	Specification
+	Identifier / Part Number
+	Notes
+	Smart Key Fob
+	4-Button (Lock, Unlock, Hatch, Panic)
+	FCC ID: HYQ14FBX
+	Do not confuse with HYQ14FBA (Older) 7
+	OEM Part #
+	Key Assembly
+	8990H-0E330
+	Primary part number for 2024 models 7
+	Alternate Part #
+	Key Assembly
+	8990H-0E340
+	Possible variance for high-trim (Platinum) 35
+	Chip Type
+	Transponder
+	DST-AES (8A-BA)
+	Page 4 must read BA
+	Frequency
+	Dual Band
+	315 MHz
+	Most US models operate on 315 MHz 7
+	Emergency Blade
+	Key Blank
+	TOY51 / LXP90
+	High-security laser cut
+	Bypass Cable
+	Hardware
+	Toyota-30 (30-Pin)
+	Required for all AKL procedures
+	Table 1: 2024 Toyota Grand Highlander Security Parts Matrix
+
+
+  
+
+
+
+8. Conclusion
+The 2024 Toyota Grand Highlander firmly establishes the 8A-BA architecture as the new standard for Toyota's TNGA-K lineup, signaling a definitive move away from legacy security systems. For the automotive security professional, this vehicle demands a shift in methodology from "OBDII-centric" to "Module-centric" programming. The days of simple "plug-and-play" key programming via the diagnostic port are effectively over for this generation. The mandatory requirement for the 30-pin SGW bypass cable and the direct physical access to the Smart Box behind the glovebox fundamentally changes the labor time, complexity, and tooling required for the job.
+Technicians must adapt by investing in updated hardware (Lonsdor ADP, Autel G-Box3, Smart Pro ADC2021) and adopting rigorous verification protocols—specifically electronically reading Page 4 data to distinguish "BA" chips from "AA" chips. Furthermore, the integration of Digital Key technology adds a new layer of complexity to slot management that must be communicated to the customer. By adhering to the "Emulator" workflow and maintaining strict discipline regarding part verification, the 2024 Grand Highlander can be serviced efficiently and safely, turning a complex security barrier into a routine, albeit technical, procedure.
+Works cited
+1. Toyota Grand Highlander Adds Hybrid Nightshade Edition and LE Grade for 2025, accessed January 25, 2026, https://pressroom.toyota.com/toyota-grand-highlander-adds-hybrid-nightshade-edition-and-le-grade-for-2025/
+2. 2024 Toyota Grand Highlander: 5 things to know about three-row SUV, accessed January 25, 2026, https://pickuptrucktalk.com/2023/02/2024-toyota-grand-highlander-5-things-to-know-about-three-row-suv/
+3. Toyota Highlander 2024-2025 Smart Key, 4Buttons 8990H-0E600 315MHz, HYQ14FBX P1 BA - ABKEYS, accessed January 25, 2026, https://abkeys.com/products/toyota-highlander-smart-key-2024-8990h-0e600-315mhz-hyq14fbx-5646
+4. Everything You Need to Know About the 8A Chip for Toyota Key Programming - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=8a-chip
+5. Autek Bypass Cable For Toyota - Compatible With Keysim 8A-BA and 4A Smart Key Box with 30 Pins models - Proximity Key Programmer for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/bypass-cable-for-toyota-compatible-with-keysim-8a-ba-and-4a-smart-key-box-with-30-pins-models-proximity-key-programmer
+6. OBDSTAR TOYOTA-30 Pin V2 All Keys Lost - 4A | 8A-BA Cable + CAN DIRECT Cable Kit, accessed January 25, 2026, https://yourcarkeyguys.com/products/obdstar-toyota-30-pin-v2-all-keys-lost-4a-8a-ba-cable-can-direct-cable-kit
+7. 2024 Toyota Grand Highlander Smart Key Remote PN: 8990H-0E330 FCC: HYQ14FBX, accessed January 25, 2026, https://remotesandkeys.com/products/2024-toyota-grand-highlander-smart-key-remote-pn-8990h-0e330
+8. 4 Key Features of the 2024 Toyota Grand Highlander, accessed January 25, 2026, https://www.billpagetoyota.com/blogs/5238/4-key-features-of-the-2024-toyota-grand-highlander
+9. Toyota New Global Architecture - Wikipedia, accessed January 25, 2026, https://en.wikipedia.org/wiki/Toyota_New_Global_Architecture
+10. New Redesigns for 2024 Toyota Models, accessed January 25, 2026, https://www.wyattjohnsontoyota.com/blogs/3580/new-redesigns-for-2024-toyota-models
+11. What New Toyota's Are Coming in 2024? - DARCARS Toyota of Silver Spring Blog, accessed January 25, 2026, https://www.darcarstoyota.com/blogs/3657/what-new-toyotas-are-coming-in-2024/
+12. Advanced Diagnostics ADC2021 Smart Pro Bypass Cable for Toyota - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-adc2021-smart-pro-bypass-cable-for-toyota
+13. THEFT DETERRENT / KEYLESS ENTRY: CERTIFICATION ECU: REMOVAL; 2021 MY RAV4 RAV4 HV [08/2020 - Mitchell, accessed January 25, 2026, https://estimateca.mymitchell.com/t3Portal/document/rm/RM3510U/xhtml/RM100000001WE01.html?linkId=d8993e882&hashId=RM100000001WE01
+14. How to Use the Kick Sensor in the 2023 Highlander | Toyota - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=HK8LqkPlXBU
+15. 2024 QUICK REFERENCE GUIDE - Toyota, accessed January 25, 2026, https://assets.sia.toyota.com/publications/en/om-s/OM24U4QRG/pdf/OM24U4QRG.pdf
+16. 2024 Toyota Grand Highlander all keys lost key programming! - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=jupqjDXyng0
+17. Lonsdor K518ISE Key Programmer Plus LKE Emulator/Super ADP-25E 8A/4A Adapter, accessed January 25, 2026, https://www.obd2gate.com/products/lonsdor-k518ise-plus-lke-emulator-and-super-adp-8a-4a-adapter.html
+18. Toyota LT20-10-6 8A-BA PCB Board 6 Button Smart Key PCB Lonsdor - Key4, accessed January 25, 2026, https://www.key4.com/lonsdor-lt20106-toyota-8a-ba-pcb-board-6b-smart-key-pcb-switchable-frequency
+19. Lonsdor LT20-10 8A-BA Smart Key PCB Board for 2023 Toyota Lexus – Adjustable Frequency for K518 K518PRO KH100+ - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/item/1005008287836274.html
+20. Toyota New OEM 2024-2026 Highlander Smart Key 4B Hatch FCCID: HYQ14FBX PN# 8990H-0E330, accessed January 25, 2026, https://royalkeysupply.com/products/toyota-new-oem-2024-grand-highlander-smart-key-4b-hatch-fccid-hyq14fbx-pn-8990h-0e330
+21. 315MHZ 8A Smart Remote Control Key Circuit PCB Board 0020 Fit for Toyota hm | eBay, accessed January 25, 2026, https://www.ebay.com/itm/305711834872
+22. 1Pcs 315MHZ 8A Smart Remote Control Keyless PCB Board 0020 Fit for Toyota New | eBay, accessed January 25, 2026, https://www.ebay.com/itm/176349331690
+23. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 25, 2026, https://autel.us/autel-adds-24-25-immo-key/
+24. Advanced Diagnostics ADC2021 Toyota Bypass Cable - for Smart Pro - Southern Lock, accessed January 25, 2026, https://www.southernlock.com/itemdetail/026-2021
+25. ADC2021 Toyota* Bypass Cable - Advanced Diagnostics, accessed January 25, 2026, https://www.advanced-diagnostics.com/smart-pro-accessories/adc2021-toyota-bypass-cable
+26. 2024 Toyota Grand Highlander; bypass TIS to reset the IMMO via the ADC- 2021 cable!, accessed January 25, 2026, https://www.youtube.com/watch?v=U8eS8vYGCZk
+27. Lonsdor Super ADP Adapter for Toyota Smart Key Programming - ABKEYS, accessed January 25, 2026, https://abkeys.com/products/lonsdor-super-adp-adapter-for-toyota-smart-key-programming-2019up-5080
+28. Lonsdor K518 Key Programming Adapter For Toyota/Lexus Super ADP 25 8A/4A, accessed January 25, 2026, https://keyinnovations.com/lonsdor-k518-key-programming-adapter-for-toyota-lexus-super-adp-8a-4a/
+29. Lonsdor ADP-15 Adapter For Toyota Smart Key Programmer For K518 Pro - ABKEYS, accessed January 25, 2026, https://abkeys.com/products/lonsdor-adp-15-adapter-for-toyota-lexus-smart-key-programmer-for-k518-pro
+30. Toyota Highlander trunk not opening | Mechanical release button - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=a6PZlimAdmQ
+31. 2024 Grand Highlander trunk won't open. : r/ToyotaHighlander - Reddit, accessed January 25, 2026, https://www.reddit.com/r/ToyotaHighlander/comments/17ood4b/2024_grand_highlander_trunk_wont_open/
+32. 2025 Grand Highlander Hybrid Owner's Manual - Digital Key - Toyota, accessed January 25, 2026, https://www.toyota.com/owners/warranty-owners-manuals/digital/article/grand-highlander-hv/2025/om0e112u/ch03se010402
+33. Can I share my Digital Key? - Toyota Support, accessed January 25, 2026, https://support.toyota.com/s/article/Can-I-share-my-Digital-Key-Toyota
+34. How To Start A 2020 - 2022 Toyota Highlander With Key Not Detected - Dead Remote Key Fob Battery - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=du4g5C5j6fI
+35. Toyota Grand Highlander Prox Remote Key 8990H-0E340 HYQ14FBX - Key4, accessed January 25, 2026, https://www.key4.com/toyota-grand-highlander-smart-remote-key-hyq14fbx-8990h0e340

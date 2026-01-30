@@ -1,0 +1,158 @@
+﻿Technical Analysis: Security Architecture and Immobilizer Protocols of the 2022 Toyota Tundra i-Force Max
+1. Introduction: The TNGA-F Paradigm Shift
+The introduction of the 2022 Toyota Tundra, particularly the i-Force Max Hybrid variant, marks a definitive inflection point in automotive security architectures for the North American light truck market. Built upon the Toyota New Global Architecture-Frame (TNGA-F) platform, this vehicle abandons the legacy immobilizer topologies that defined the previous generation (2007–2021) in favor of a highly integrated, encrypted, and gateway-protected ecosystem.1 For the automotive locksmith and security professional, the transition to TNGA-F represents a fundamental obsolescence of traditional OBD-II-based key programming methodologies for "All Keys Lost" scenarios.
+The TNGA-F platform is not merely a chassis designation; it encompasses a complete overhaul of the vehicle's electronic control units (ECUs) and communication buses. The 2022 Tundra shares this architecture globally with the Land Cruiser 300 Series, the Lexus LX600, and the redesigned Sequoia.2 This shared DNA indicates that the security protocols observed in the Tundra are part of a unified, global strategy by Toyota to mitigate high-tech theft and unauthorized key replication. The primary vector of this security enhancement is the migration from the previous "H-Chip" (128-bit) system to the new "BA" type DST-AES system, protected by a strictly enforced Security Gateway (SGW).4
+
+
+  
+
+
+
+The implications of this shift are profound. The vehicle's Controller Area Network (CAN) is no longer an open environment. The introduction of the Security Gateway creates a digital firewall between the diagnostic port (OBD-II) and the critical security modules, specifically the Certification ECU (Smart Box) and the ID Code Box. While diagnostic "read" commands are generally permitted to pass through the gateway, "write" commands—such as those required to register a new key ID or reset the immobilizer—are systematically blocked unless accompanied by a cryptographic signature from a verified factory server.6 Since aftermarket tools typically lack this factory authentication capability, the industry standard has shifted toward physical bypass methods, necessitating direct connection to the Smart Box via a specialized 30-pin connector.
+2. Electrical Architecture and Security Barriers
+The 2022 Tundra's immunity to traditional theft and programming techniques stems from three interconnecting layers of security: the utilization of the CAN FD protocol, the physical isolation of the Smart Key ECU, and the cryptographic complexity of the "BA" transponder.
+2.1 The CAN FD Protocol and Security Gateway
+Modern automotive networks are increasingly saturated with data from advanced driver-assistance systems (ADAS), infotainment, and hybrid powertrain management. To accommodate this, the 2022 Tundra employs CAN FD (Controller Area Network with Flexible Data-Rate).7 Unlike the classic CAN bus, which is limited to 8 bytes of data per frame, CAN FD supports up to 64 bytes and operates at significantly higher transmission speeds.
+For the locksmith, the presence of CAN FD has two immediate consequences. First, legacy hardware interfaces that support only standard CAN (ISO 11898-2) cannot physically communicate with the vehicle's newer modules; they will simply fail to detect the protocol or return communication errors.7 Second, the Security Gateway leverages this speed to perform real-time filtering of message traffic. When a programming tool attempts to initiate a key learning sequence via the OBD-II port, the gateway inspects the message ID. If the tool has not performed a successful "Security Key" handshake (a challenge-response sequence often requiring online calculation), the gateway silently drops the packet, preventing it from reaching the Certification ECU.6
+2.2 The 30-Pin Bypass Necessity
+Because the Security Gateway effectively sanitizes traffic from the OBD port, the industry solution has evolved to a "Man-in-the-Middle" or direct injection attack. This is where the 30-pin connector becomes the critical interface. Located directly on the Certification ECU (Smart Box), this connector sits topologically "behind" the Security Gateway.
+By unplugging the vehicle harness and inserting a breakout cable (the 30-pin adapter) between the ECU and the harness, or connecting directly to the ECU, the technician establishes a bridge. This bridge allows the programming tool to inject data directly into the Certification ECU's communication lines (CAN High and CAN Low) while simultaneously supplying power.8 This method bypasses the gateway entirely, as the signals are injected directly at the destination module rather than routed through the central network hub. The 30-pin cable is not merely an optional accessory for the 2022 Tundra; it is a mandatory hardware requirement for "All Keys Lost" procedures where no valid master key exists to authorize a diagnostic session.8
+2.3 30-Pin vs. Legacy Connections
+A point of frequent confusion involves the distinction between various connectors used in Toyota smart systems. Previous generations and some lower-tier models utilized 20-pin or 24-pin configurations on the Smart Key ECU. The transition to the 30-pin standard on the TNGA-F platform correlates with the increased I/O requirements of the "Smart Box," which now integrates functions previously handled by separate Body Control Modules (BCMs).10
+The research material clarifies that the target connector for the Tundra is the top white 30-pin plug located on the Certification ECU.10 It is crucial to distinguish this from the 30-pin connectors found on the Body ECU (passenger side), which do not provide the necessary access to the immobilizer memory. The pinout of this connector is specific to the CAN FD and power requirements of the programming process, carrying high-speed data lines that legacy adapters cannot interpret.
+
+
+  
+
+
+
+3. The i-Force Max Hybrid System: Voltage and Serviceability
+The "i-Force Max" designation refers to the hybrid powertrain available in the 2022 Tundra, which pairs a twin-turbo V6 with an electric motor-generator. While the mechanical performance is documented in consumer literature, the implications for the locksmith are centered on electrical system management. Successful key programming is contingent on maintaining a stable system voltage, typically above 13.5 Volts. The hybrid architecture introduces a significant deviation from standard service procedures regarding the 12-volt auxiliary battery.
+3.1 The Rear-Seat Battery Location
+In the vast majority of internal combustion vehicles, including the non-hybrid Tundra SR5, the 12-volt battery is located in the engine bay. However, the i-Force Max hybrid relocates the 12-volt auxiliary battery to the interior of the cabin, specifically under the rear passenger seat.12
+This relocation is driven by packaging constraints under the hood, where the hybrid inverter and additional cooling circuits reside. For the locksmith, this presents a unique workflow challenge. Accessing the battery requires lifting the rear bench seat and removing a cosmetic service cover.12 While there are jump-start terminals located under the hood, these are designed for emergency boosting, not for the sustained, clean power delivery required during EEPROM reading and writing. The long cable run from the engine bay to the rear battery can result in voltage drop (V-drop) under load. Therefore, best practice dictates connecting the battery maintainer or power supply directly to the battery terminals under the rear seat to ensure the Certification ECU receives consistent voltage during the critical programming phase.
+3.2 High Voltage Safety
+The proximity of the 12-volt battery to the high-voltage (HV) traction battery—a 288V Nickel-Metal Hydride (Ni-MH) unit also located under the rear seats—demands heightened situational awareness.13 While Toyota engineers have shielded the high-voltage lines (identifiable by their bright orange cladding), the technician is working in the immediate vicinity of lethal voltage. It is imperative to identify the standard lead-acid (or AGM) 12-volt block and avoid tampering with any orange cabling or the sealed metal casing of the HV battery pack. The programming procedures discussed in this report interact solely with the 12-volt low-voltage system and do not require interaction with the high-voltage service disconnect.
+
+
+  
+
+
+
+4. Part Data and Identification: The "BA" Ecosystem
+The 2022 Tundra utilizes a smart key system designated as "BA" type. This nomenclature, visible in the menus of high-end programming tools, refers to the specific cryptographic configuration of the transponder's Page 4 data.
+4.1 Transponder Technology (BA / DST-AES)
+The transponder chip embedded within the smart key PCB is a Texas Instruments 128-bit AES crypto chip. While physically similar to the previous "8A" (H-Chip) generation, the "BA" variant employs a different memory structure and encryption key management system.4 The "BA" designation is a shorthand used by tool manufacturers (such as Autel and Lonsdor) to categorize the specific algorithm required to unlock and register the key.
+This system is dual-frequency, operating on 312.11 MHz and 314.35 MHz.15 This spread-spectrum approach improves signal reliability and range, reducing the likelihood of interference in crowded RF environments. It is critical to note that while many catalogs list the key simply as "315 MHz," the precise dual-frequency transmission is required for the vehicle to recognize the key commands.
+4.2 Part Numbers and FCC IDs
+Correct part identification is the first step in any successful service. The 2022 Tundra smart key is a 4-button unit (Lock, Unlock, Tailgate, Panic). The primary identifiers are:
+
+
+Identifier Type
+	Value
+	Context
+	FCC ID
+	HYQ14FBX
+	Stamped on the back cover or inside the shell.16
+	IC Number
+	1551A-14FBX
+	Industry Canada certification number.17
+	Board ID
+	231451-0010 (Common)
+	Often printed on the PCB itself.
+	OEM Part #
+	8990H-0C010
+	Primary part number for the standard smart key.18
+	Alt. Part #
+	8990H-0C011
+	Superceded or alternative supplier part.18
+	Alt. Part #
+	8990H-AK020
+	Often associated with accessory or port-installed keys.17
+	Technicians must ensure that any replacement key matches the HYQ14FBX FCC ID. Keys from visually similar Toyota models (like the RAV4 or Camry) may have different FCC IDs (e.g., HYQ14FBC) and will not register to the Tundra's system, even if the frequency appears identical.
+4.3 Key Reusability and Unlocking
+The "BA" smart keys are "locked" to the vehicle upon programming. The Certification ECU writes a specific vehicle ID into the key's memory, preventing it from being registered to a second vehicle. For a locksmith to reuse a previously programmed Tundra key, the key must first undergo an "Unlock" or "Renew" process. This resets the transponder memory to a virgin state. Not all aftermarket tools support unlocking the newer "BA" boards, so purchasing new, virgin OEM keys is the recommended workflow to avoid programming failures.19
+5. Mechanical Specifications: The TOY48 Standard
+While the electronic layers of the Tundra are revolutionary, the mechanical access system relies on the established high-security standards of the Toyota/Lexus lineage.
+5.1 Keyway and Cylinder
+The 2022 Tundra utilizes the TOY48 keyway profile.15 This is a "track" or "laser-cut" key system characterized by a rectangular blade with a central internal groove. The tumblers (wafers) inside the lock cylinder interact with the varying depths of this groove. The TOY48 profile is distinct from the older TOY43 (edge-cut) keys used on pre-2022 Tundra models, reflecting the platform's alignment with Lexus-grade hardware.
+The mechanical key blade is primarily for emergency access to the driver's door in the event of a dead battery. It does not contain a transponder chip itself; the transponder is integrated into the fob mainboard. The emergency key blade part number is compatible with 69515-K0020.15
+5.2 Lishi Tool Decoding
+For non-destructive entry and key generation, the Lishi TOY48 (2-in-1) tool is the industry standard.16
+* Mechanism: The TOY48 lock typically contains a series of split wafers. The Lishi tool allows the technician to pick the lock to the open position by manipulating these wafers individually.
+* Decoding: Once picked, the tool's graduated grid allows the technician to read the depth of each wafer.
+* Key Code: The decoded depths correspond to a key code, typically in the 50000-69999 series range. While the exact code series for the 2022 Tundra is proprietary, the bitting structure adheres to the standard Toyota 4-track logic.21 In "All Keys Lost" scenarios where picking is difficult, the key code may be stamped on the body of the driver's door lock cylinder, though accessing this requires removing the door panel.
+6. Comprehensive Programming Procedures
+Programming a 2022 Tundra requires distinguishing between two distinct scenarios: "Add Key" (where a working key exists) and "All Keys Lost" (where no working keys exist). The presence of the Security Gateway dictates the methodology for each.
+6.1 Method A: "Add Key" (Spare Key Generation)
+When a working master key is available, the programming process is significantly less invasive. In this scenario, the working key acts as a digital token of authority.
+Workflow Narrative:
+1. Diagnostic Authorization: The technician connects the programming tool (e.g., Autel IM508/608) to the OBD-II port. The tool initiates a request to the Smart ECU.
+2. Gateway Bypass via Authority: Because a valid key is present, the Smart ECU can authorize the session. The tool prompts the user to place the registered key near the Start button. The vehicle responds with a beep, confirming it has authenticated the session owner.
+3. Registration: The tool then prompts for the new key to be placed at the Start button. The ECU writes the new key's ID into its memory.
+4. Implications: While this can often be done via OBD-II, some firmware versions and tool updates still recommend or require the 30-pin cable connection even for "Add Key" functions to ensure communication stability and prevent Gateway timeouts.8 If the OBD attempt fails, the technician must revert to the 30-pin method described below.
+6.2 Method B: "All Keys Lost" (AKL) - The 30-Pin Requirement
+This is the most technically demanding scenario. Without a working key, the Security Gateway blocks all attempts to initiate the key learning wizard from the OBD port. The technician must physically bypass the gateway.
+Step-by-Step Technical Workflow:
+Phase 1: Physical Access and Connection
+The technician begins by removing the lower dashboard trim on the driver's side to expose the Certification ECU (Smart Box) located above the kick panel. The target is the top white 30-pin connector.10 The vehicle harness is disconnected from this port, and the 30-pin bypass cable (such as the Autel G-Box 3 adapter or OBDSTAR 30-pin cable) is inserted in-line or directly to the ECU. This cable is then connected to the programmer's interface.
+Phase 2: Data Extraction (EEPROM Read)
+With the connection established, the programming tool is set to "Backup IMMO Data" or "Read EEPROM." The tool communicates directly with the Smart Box via the CAN FD lines exposed on the 30-pin connector (Pins 1 & 2), bypassing the rest of the vehicle network. This process extracts the encrypted immobilizer data file (.bin) from the ECU's non-volatile memory. This data contains the cryptographic seeds required to generate a key.9
+Phase 3: Analog Key Generation
+The extracted data is loaded into the programmer, which then writes a temporary logical key to a specialized emulator (e.g., Autel APB112 or Lonsdor LKE). This emulator is now digitally identical to a valid master key in the eyes of the ECU.
+Phase 4: Key Learning
+The tool initiates the "Add Key" function. When prompted to turn the ignition ON, the technician holds the emulator to the Start button. The Smart Box detects the valid signal and energizes the ignition (IG1/IG2). With the system active, the technician is prompted to touch the new, virgin HYQ14FBX smart key to the button. The ECU registers the new key ID, and the process is complete.
+Phase 5: Reassembly and Verification
+The 30-pin cable is removed, and the original vehicle harness is reconnected. The technician must verify that the new key functions for both proximity starting and remote lock/unlock operations.
+Decision Logic:
+The diagnostic logic for choosing a method follows a binary path: presence of a master key allows for potential OBD authorization (though not guaranteed), whereas total key loss necessitates the physical 30-pin intrusion. Furthermore, both methods generally require an active internet connection on the programming tool to calculate the challenge-response codes on the manufacturer's server.9
+7. Troubleshooting and Common Failures
+Even with the correct hardware, programming the 2022 Tundra can present specific hurdles.
+7.1 Remote Start Functionality
+A frequent issue post-programming is the perceived failure of the remote start system.
+* Symptom: The key starts the truck via the push button, but the remote start sequence (Press Lock 3 times, hold the 3rd press) fails.
+* Technical Context: The 2022 Tundra's remote start logic is tied to the Data Communication Module (DCM) and the user's subscription status.24 If the "Remote Connect" subscription is inactive, the vehicle may disable the fob-based remote start command, even if the key is programmed correctly.
+* Verification: Technicians should verify that the key is an OEM unit with the correct button configuration. Aftermarket keys sometimes lack the correct bitmask to transmit the "long press" signal required for remote start.
+7.2 Steering Lock Synchronization (DTC B2785)
+In some "All Keys Lost" cases, successfully registering the key may result in a "Steering Lock" error or DTC B2785 on the dashboard.
+* Mechanism: The Steering Lock ECU and the Smart Box share a rolling code for authentication. The extraction and reset process can sometimes desynchronize these counters.
+* Resolution: The programming tool typically includes a "ECU Synchronization" or "Learning" function. Running this routine forces the Smart Box and Steering Lock ECU to re-establish a handshake, clearing the error.26
+7.3 Gateway Timeouts
+If the tool hangs or times out during the "Backing up EEPROM" phase, it is almost invariably a connection issue at the 30-pin plug. The pins on these connectors are delicate. A poor connection on Pin 1 (CAN H) or Pin 2 (CAN L) will prevent data transfer, while a poor connection on Pin 6 (+12V) or Pin 29 (GND) will cause the Smart Box to power cycle or fail to wake up.10
+8. Cross-Reference and Platform Compatibility
+The investment in the training and tooling required for the 2022 Tundra yields dividends across the Toyota/Lexus portfolio. The "BA" type architecture and the 30-pin programming requirement are not unique to the Tundra; they are the standard for the heavy-duty and luxury TNGA-F vehicles.
+Direct Architecture Sharing:
+* Toyota Sequoia (2023+): Built on the same TNGA-F platform, utilizing the exact same "BA" immobilizer and 30-pin Smart Box interface.2
+* Toyota Land Cruiser (J300) / Lexus LX600: The global siblings to the Tundra. Tools capable of programming a 2022 Tundra are generally capable of servicing these high-value SUVs.4
+Protocol Sharing (BA Type):
+While the connector location may vary, the "BA" DST-AES logic is also employed in:
+* Toyota Sienna (2021+): Uses the "BA" system but may use a different connector access point.4
+* Toyota Venza (2021+): Shares the cryptographic standard.4
+By mastering the 2022 Tundra, the locksmith effectively masters the security protocol for Toyota's entire flagship lineup for the foreseeable future.
+Works cited
+1. Toyota of Orlando Blog | News, Updates, and Info - Toyota of Orlando, accessed January 3, 2026, https://www.toyotaoforlando.com/blogs/6087/page/57
+2. Toyota Sequoia (2011) - pictures, information & specs - NetCarShow.com, accessed January 3, 2026, https://www.netcarshow.com/toyota/2011-sequoia/
+3. Most Expensive Toyota Cars in Canada for 2024 - Explore now! - Driving.ca, accessed January 3, 2026, https://driving.ca/2024/most-expensive-toyota-cars/
+4. new abrites key programming functionalities for toyota models with ba type ht-aes/dst-aes keys, accessed January 3, 2026, https://abrites.com/news/new-abrites-key-programming-functionalities-for-toyota-modelia-with-ba-type-ht-aes-dst-aes-keys
+5. Key programming for 2020+ Toyota vehicles (BA DST-AES) - ABRITES.com, accessed January 3, 2026, https://abrites.com/products/tn015
+6. optskug/docs: Documentation/News/History/Guide on openpilot with Toyota/Lexus/Subaru with TSK/ECU SECURITY KEY/SecOC - GitHub, accessed January 3, 2026, https://github.com/optskug/docs
+7. DS Firmware Explained: How the DS-150E Maintenance Tool Delivers Reliable Auto-Diagnostic Performance - AliExpress, accessed January 3, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=ds-firmware
+8. 2022 Toyota Tundra add key using Autel IM508 with Obdstar 30 pin. Easy! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=hyXSVEcCm9E
+9. 22 Toyota Tundra add smart key Lonsdor K518 pro LT20 universal no rolling code Lakelandcarkeys.com - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=d9MplNV_u3Y
+10. DB3: Installation Guide. 2022 Toyota Tundra Hybrid (Smart Key). 403.TL17 1.02 - NET, accessed January 3, 2026, https://directechs.blob.core.windows.net/ddt/403-TL17-1.02-ORI_2022-Toyota-Tundra-Hybrid-(Smart-Key)_IG_EN_20231103.pdf
+11. DB3: Installation Guide. 2022 Toyota Tundra Hybrid (Smart Key). 403.TL17 1.01.101 RSR - NET, accessed January 3, 2026, https://directechs.blob.core.windows.net/ddt/403-TL17-1.01.101-RSR_2022-Toyota-Tundra-Hybrid-(Smart-Key)_IG_EN_20230825.pdf
+12. Toyota Tundra Hybrid I Force MAX 12 Volt Battery location. - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=TB8XIrMzfZQ
+13. Guide To The All-New 2022 Toyota Tundra - CarPro, accessed January 3, 2026, https://www.carpro.com/blog/2022-toyota-tundra-guide
+14. 2022 Toyota Tundra i-FORCE MAX Performance near Matteson, IL, accessed January 3, 2026, https://www.orlandtoyota.com/cc-2022-toyota-tundra-i-force-max-performance-near-matteson-il/
+15. 8990H-0C010 Genuine Toyota Tundra Smart Key 2022, accessed January 3, 2026, https://gskeyae.com/product/8990h-0c010-toyota-tundra-2022-smart-key-4-button/
+16. 2022 Toyota Tundra Smart Key 4B W/ Tailgate Fob FCC# HYQ14FBX - 8990H, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2022-toyota-tundra-smart-key-4b-w-tailgate-fob-fcc-hyq14fbx-8990h-0c010-aftermarket
+17. 2022 Toyota Tundra Smart Remote Key Fob - CarandTruckRemotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/2022-toyota-tundra-smart-remote-key-fob
+18. 2022-2024 Toyota Tundra / 4-Button Smart Key / PN: 8990H-0C010 / HYQ14FBX (OEM), accessed January 3, 2026, https://www.uhs-hardware.com/products/2022-toyota-tundra-4-button-smart-key-pn-8990h-0c010-oem
+19. New For 2022 2023 2024 Toyota Tundra Smart Key FOB 4B Tailgate - HYQ14FBX - eBay, accessed January 3, 2026, https://www.ebay.com/itm/305517460685
+20. All The Vehicles Our LISHI Lock Picks Will Work on - LockPickWorld.com, accessed January 3, 2026, https://www.lockpickworld.com/pages/vehicle-locks-our-lishi-picks-will-work-on
+21. Lock Cylinder Set fit your 2022 Toyota Tundra, accessed January 3, 2026, https://www.toyotapartsdeal.com/parts-list/2022-toyota-tundra/body/lock_cylinder_set.html
+22. 2022 Toyota Tundra BOLT Trailer Hitch Receiver Lock for 2" and 2-1/2" Hitches - Codes to Toyota Key - etrailer.com, accessed January 3, 2026, https://www.etrailer.com/BOLT-Locks/Toyota/Tundra/2022/BL7023584.html?VehicleID=2022124485
+23. 2016 - 2024 Toyota Emergency Uncut Blade Key - High Security - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2021-2023-toyota-emergency-uncut-blade-key-high-security
+24. 2022 Tundra Remote Start and Profile Issues - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=uBdN_JF4fJQ
+25. Here's Why Your Toyota Tundra Remote Start is Not Working with The Key Fob Trick, accessed January 3, 2026, https://www.torquenews.com/17612/here-s-why-your-toyota-tundra-remote-start-not-working-key-fob-trick
+26. 2021 toyota c-hr with code b2785 – Submit Your Question HERE - CarKiller, accessed January 3, 2026, https://carkiller.com/scottykilmer/qa/2021-toyota-c-hr-with-code-b2785/

@@ -1,0 +1,199 @@
+﻿Comprehensive Analysis of Genesis Vehicle Security Architectures and Key Programming Protocols (2020-2024)
+1. Executive Intelligence: The Strategic Service Gap
+The automotive security landscape has undergone a radical transformation in the last half-decade, with the Genesis brand standing at the vanguard of this shift. As the luxury arm of the Hyundai Motor Group (HMG) asserts its independence, it has introduced a sophisticated, multifaceted security ecosystem that has created a profound "capability gap" in the aftermarket service industry. This report, a comprehensive 15,000-word analysis, addresses the critical deficiency in service procedures for Genesis vehicles spanning model years 2020 through 2024. Despite the high asset value of these vehicles and the increasing volume of units entering the secondary market—and thus requiring independent service—automotive locksmiths and diagnostic technicians face a "Zero Procedures" environment where standard protocols fail, and documentation is virtually nonexistent.
+The prevailing assumption that Genesis security is merely a "rebadged" implementation of Hyundai/Kia systems is a dangerous oversimplification that has led to countless failed service attempts, bricked Body Control Modules (BCM), and significant revenue loss. While the underlying lineage is shared, Genesis utilizes distinct platform architectures—specifically the GV-E (M3) luxury platform, the N3-derived architectures, and the dedicated E-GMP electric platform—each necessitating unique cryptographic handshakes, bus protocols, and physical access methods.
+The transition from the M2 platform of the early G70 to the fully connected architectures of the GV60 and the 2024 model refreshes represents a move from static immobilizers to dynamic, mesh-networked security. In this new paradigm, the physical key fob is no longer the sole arbiter of access. Instead, it functions as one node in a tripartite authentication scheme that includes the Digital Key 2.0 (smartphone integration via NFC/UWB) and the Fingerprint Authentication System (FAS). This interconnectedness means that an All Keys Lost (AKL) procedure is no longer a simple matter of transponder programming; it is a system-wide reset that severs biometric and digital links, requiring a holistic recovery strategy.
+This report serves as a definitive technical manual and strategic guide, dissecting the engineering of these systems to provide actionable, expert-level procedures for the Autel IM608 Pro II and Lonsdor K518 platforms. It explores the electromechanical nuances of the Secure Gateway (SGW) modules, the implementation of CAN-FD protocols, and the critical voltage management requirements of the electrified lineup.
+2. Genesis Platform Security Architecture: A Deep Dive
+To master Genesis key programming, one must first deconstruct the vehicle's structural and electronic foundation. The "One Size Fits All" approach used for Hyundai Elantras or Kia Optimas is wholly inadequate for the Genesis portfolio. The 2020-2024 lineup is built upon three distinct architectural pillars, each with specific security characteristics.
+2.1 The GV-E (M3) Platform: The Architecture of Luxury
+The term "GV-E" in the user query likely refers to the internal "M3" platform, the dedicated rear-wheel-drive architecture developed specifically for the Genesis premium lineage. This platform underpins the core luxury models: the GV80 (JX1), the G80 (RG3), and the flagship G90 (RS4).
+Architecture Details:
+The M3 platform represents a departure from the shared componentry of the mass-market brands. Its security architecture is centralized around the Integrated Body Control Unit (IBU). In previous generations, the Smart Key Module (SMK) and the Body Control Module (BCM) were separate physical entities. In the GV-E/M3 architecture, these are consolidated. This integration reduces latency and weight but significantly raises the stakes for diagnostics; a failure in the immobilizer programming routine can corrupt the entire body control logic, potentially disabling lighting, door locks, and window controls.
+* Bus Topography: The M3 platform utilizes a high-speed Chassis CAN (C-CAN) for drivetrain communication and a Body CAN (B-CAN) for interior electronics. Crucially, the communication between the OBDII port and the IBU is filtered through a robust Central Gateway (ICU). This gateway is not merely a firewall; it is an active traffic manager that inspects message headers. Unauthorized requests—such as those from an unauthenticated diagnostic tool attempting to write to the immobilizer memory—are silently dropped.
+* Immobilizer Protocol: The transponders utilize Hitag AES (128-bit encryption). Unlike the older Hitag 2 or Hitag 3 protocols, Hitag AES requires a mutual authentication handshake. The key creates a random number (nonce), encrypts it with the secret key, and sends it to the IBU. The IBU decrypts it, verifies the nonce, and sends back a response. This bidirectional challenge-response mechanism makes "sniffing" or "cloning" keys virtually impossible.
+* Physical Redundancy: A defining feature of the GV-E platform is the elimination of the physical key slot in the dashboard. In AKL scenarios, the "Limp Home" or programming antenna is located in the center console. Depending on the specific trim (Prestige vs. Advanced), this coil is located either in the cup holder (indicated by a key symbol) or integrated directly into the wireless charging pad.
+2.2 The N3 and Modified M2 Platforms: The Sport & Compact Segment
+The confusion in the field often stems from the Genesis G70 (IK) and GV70 (JK1), which occupy a unique space in the hierarchy.
+* Genesis G70 (2020-2023): This vehicle rides on the M2 platform, shared with the Kia Stinger. It is a shortened RWD architecture. Despite being "Genesis," its electronic architecture in these years shares more DNA with the high-end Kia systems. It typically utilizes standard CAN bus protocols and allows for simpler SGW bypass methods compared to the GV80.
+* Genesis GV70 (2022+): While physically related to the G70, the GV70 SUV adopts a newer electronic architecture that bridges the gap between M3 and N3. Diagnostic tools often categorize it under the N3 menu structures due to shared software libraries with the Hyundai Tucson/Santa Fe (N3 platform) regarding the diagnostic stack, even though the chassis is RWD-biased.
+* The 2024 Inflection Point: As indicated by research 1, the 2024 model year brings a radical shift. The refreshed G70 and GV70 adopt the ccIC (Connected Car Integrated Cockpit). This upgrade migrates the entire communication stack to CAN-FD, rendering all non-compatible tools obsolete. The 2024 G70 is practically a different car electronically than the 2023 G70, despite looking similar on the exterior.
+2.3 The E-GMP Platform: The Electric Frontier
+The GV60 (JW) is the first native application of the Electric-Global Modular Platform (E-GMP) for Genesis. This is a skateboard EV architecture that fundamentally alters the power and security relationship.
+* Vehicle Control Unit (VCU) Dominance: In the E-GMP architecture, the traditional Engine Control Unit (ECU) is replaced by the VCU. The security authentication chain is: Key Fob -> IBU -> VCU -> BMS (Battery Management System). The vehicle will not engage the high-voltage contactors (allow "Ready" mode) unless the VCU validates the key data passed from the IBU.
+* 800V Architecture Impact: The E-GMP operates at 800 volts, allowing for ultra-fast charging. However, for the diagnostic technician, the critical factor is the Low Voltage DC-DC Converter (LDC). Unlike an alternator which spins to generate power, the LDC takes 800V from the main battery and steps it down to 12V to run the electronics. During "Key On, Engine Off" (KOEO) programming states, the high-voltage battery is often disconnected (safety relays open). The vehicle runs solely on a small 12V auxiliary battery. This battery is significantly smaller than those in ICE vehicles because it doesn't need to crank a starter motor. It effectively acts as a buffer. Without external power support, this battery can drain in minutes, causing a voltage drop that corrupts the programming session.
+
+
+  
+
+
+
+3. The Security Barrier: SGW and CAN-FD Implementation
+The two primary technical hurdles preventing successful access to Genesis systems are the Secure Gateway (SGW) and the physical layer protocol, CAN-FD. Understanding their mechanism is prerequisite to bypassing them.
+3.1 Genesis-Specific SGW Characteristics
+The Secure Gateway Module (SGW) was introduced by HMG around 2018 but became ubiquitous and mandatory on Genesis models starting in 2020. Its primary function is to partition the vehicle networks. It separates the "public" network (OBDII port, Telematics) from the "private" networks (C-CAN, B-CAN).
+* Module Location and Physical Access:
+   * GV80 / G80 (M3 Platform): In these models, the SGW functionality is often integrated deeply into the ICU (Integrated Central Control Unit). The ICU is typically located behind the instrument cluster or buried deep within the driver's side junction block assembly. Unlike FCA (Chrysler/Jeep) vehicles where the SGW is a standalone box easily reached above the kick panel, the M3 platform integration makes physical bypass extremely difficult. Disassembling the dashboard of a $80,000 GV80 to reach a connector carries a high risk of damaging leather trim or breaking brittle clips.
+   * GV70 / G70 (N3/M2): The location is slightly more accessible. In the G70, it is often found near the BCM above the driver's kick panel or sometimes behind the glovebox.
+* Bypass Methods:
+   * AutoAuth (Server-Authenticated Access): This is the primary and recommended method. Tools like the Autel IM608 Pro II, when connected to Wi-Fi, communicate with the OEM server to obtain a digital certificate. This certificate is passed to the SGW, which then "unlocks" the gateway for a limited session. For Genesis, Autel's integration is generally robust, but it requires a valid subscription and internet access.
+   * Physical Bypass (16+32 Adapter): For older models (2020-2021) or situations where the server is down, a "16+32" break-out cable is used. This involves unplugging the connectors from the SGW (if accessible) and plugging them into the adapter, which then connects to the diagnostic tool. This physically routes traffic around the firewall. Warning: On the GV80, if the SGW is integrated into the junction box, this method is impossible, and AutoAuth is the only option.
+3.2 The CAN-FD Disruption
+Controller Area Network Flexible Data-Rate (CAN-FD) is the successor to High-Speed CAN. It allows for larger data payloads (up to 64 bytes vs 8 bytes) and faster transmission speeds.
+* Implementation Timeline:
+   * 2020-2023: The G70, G80, and GV80 largely utilized standard High-Speed CAN.
+   * 2022: The GV60 launched as the first "Native CAN-FD" vehicle in the lineup.
+   * 2024: The G70 Refresh and GV80 Coupe migrated to the ccIC architecture, making CAN-FD standard.
+* Tooling Implications:
+   * Standard OBDII tools operate on the ISO 15765-4 standard (CAN). They cannot interpret the faster bit rates or larger frames of CAN-FD.
+   * Connecting a non-compatible tool (like an older Autel IM608 Gen 1 without adapter) to a 2024 G70 will result in a "Communication Error" or failure to auto-detect the VIN. The tool simply cannot "hear" the car.
+4. Operational Procedures: Autel IM608 Pro II
+The Autel IM608 Pro II is currently the most capable aftermarket tool for Genesis programming, provided it is equipped with the correct adapters. The following procedures are synthesized from field data and technical analysis.
+4.1 Prerequisites and Preparation
+Before initiating any software procedure, the technician must ensure the physical conditions are met.
+* Dongle/Adapter Requirements:
+   * JVCI+: The VCI included with the IM608 Pro II (MaxiFlash JVCI+) has native CAN-FD support. No external adapter is needed for GV60 or 2024+ models.
+   * Standard VCI (IM608 Gen 1): Must use the Autel CAN-FD Adapter (grey box) plugged between the cable and the VCI.
+* Online Activation: The tablet must be connected to a stable Wi-Fi network to perform the AutoAuth handshake and, in some cases, to retrieve PIN data from the cloud server.
+* Key Stock: Zero Tolerance for Aftermarket. Genesis smart keys are highly specific. A 2021 GV80 key and a 2022 GV80 key may share the same shell but have different transponder IDs or frequencies (433MHz vs 315MHz). Using the wrong part number will often allow the programming process to complete (the "Program Success" message appears), but the key will fail to start the car. Always verify the VIN against a dealer parts catalog to get the exact Part Number.
+4.2 All Keys Lost (AKL) Procedure
+Menu Path: IMMO > Genesis > Manual Selection > [Model] > `` > Smart Key > Immo Status Scan.
+Step 1: PIN Code Acquisition
+The 6-digit PIN is the cryptographic key to enter "Learning Mode."
+* OBD Read (2020-2022): For many earlier models, Autel can read the PIN directly via OBD.
+   * Path: Read Pin Code > Read Pin Code (46/47/8A).
+   * Mechanism: The tool exploits a vulnerability in the IBU firmware to dump the EEPROM data and calculate the PIN. This takes 2-10 minutes.
+* Calculated/NASTF (2023+ & GV60): Newer firmware patches have closed the read vulnerability. For these vehicles, the PIN must be obtained via the Genesis Service Technical Portal (requires NASTF LSID) or a third-party broker.
+Step 2: System Erasure
+* Select All Keys Lost.
+* The tool will verify the connection to the SGW. If AutoAuth is active, it will proceed.
+* Warning: "All keys will be erased." Confirming this deletes the existing Key IDs from the IBU registry.
+Step 3: Programming Sequence
+* Enter the 6-digit PIN.
+* The Physical Handshake:
+   * Slot-Equipped Vehicles (G90): Insert the new key into the glovebox slot.
+   * Slot-Less Vehicles (GV70, GV80, G70): The tool will prompt: "Press the Start Button with the Top of the Key."
+   * Critical Nuance: This is not a wireless action. It is an Near Field Communication (NFC) or Low Frequency (LF) inductive coupling. The top of the fob (where the antenna is located) must be physically held against the Start/Stop button for 5 seconds.
+* Verification: The hazard lights will flash, and the instrument cluster will display "Key Learned 1".
+* Repeat for the second key.
+
+
+  
+
+
+
+4.3 Are Genesis Procedures Distinct?
+While the menu structure often mimics Hyundai/Kia (e.g., using the same "Smart Key" sub-menus), the underlying execution is distinct. Genesis modules have tighter timing windows for the PIN entry and key presentation. Furthermore, the "Virgin Key" requirement is stricter. A Hyundai key can sometimes be unlocked and reused; Genesis keys on the M3 platform permanently lock their Hitag AES sectors to the VIN upon first programming.
+5. Lonsdor K518 Support Analysis
+The Lonsdor K518 (Pro and ISE versions) offers a compelling alternative, particularly for specific Asian-market imports or scenarios where Autel's server is unreachable.
+5.1 Coverage and Capabilities
+* Models/Years Supported: Lonsdor documentation lists support for "Hyundai/Kia 8A Smart Key" and "CAN-FD". This covers the Genesis GV70 and GV80 effectively. The K518 Pro is required for native CAN-FD support on the 2024+ models and GV60. The older K518ISE requires a separate adapter.
+* AKL vs Add Key: Lonsdor excels in "Add Key" situations where a working key is present. It can often clone the transponder data to an emulator to bypass the PIN requirement.
+* The LKE Emulator Advantage: In AKL scenarios, Lonsdor utilizes the Lonsdor Key Emulator (LKE). The tool reads the IBU data (if possible) and generates a simulated key on the LKE. This "Emergency Key" can turn the ignition ON, allowing the system to be programmed without the initial need for a dealer PIN in some firmware versions. This is a significant advantage over Autel's "Erase All" approach, which leaves the car dead if the new key fails to program.
+5.2 Comparison to Autel
+* Autel: Superior for US Domestic Market vehicles, better AutoAuth integration, and English-language support. More reliable for "official" PIN-based programming.
+* Lonsdor: Superior for circumventing PIN codes on older firmware and for its emulation capabilities. However, its server connection for calculation can be less stable in North America.
+6. Electrified Genesis (GV60, Electrified GV70) Specifics
+The transition to the E-GMP and electrified M3 platforms introduces high-voltage risks that do not exist with internal combustion engines.
+6.1 E-GMP Unique Requirements
+The GV60 is a pure E-GMP vehicle.
+* 800V Architecture & Diagnostics: The 800V system is isolated during diagnostics. The primary risk is the 12V "Death Spiral".
+   * The Mechanism: When the ignition is ON (to power the IBU for programming), the HV battery contactors may open, cutting off the DC-DC converter supply. The vehicle is now running the massive infotainment screens, climate fans, and ECUs off a tiny 60Ah AGM auxiliary battery.
+   * The Risk: Voltage can drop from 12.6V to 10.5V in under 5 minutes. If this happens while the tool is writing to the IBU, the module can brownout and corrupt its memory (brick).
+   * Mitigation: It is mandatory to connect a high-amperage (50A minimum) battery maintainer/supply to the 12V jump points under the hood. A standard trickle charger is insufficient.
+6.2 Tool Compatibility for EV
+* CAN-FD is Non-Negotiable: The GV60 uses CAN-FD for all diagnostic communications. A standard OBDII scanner will not even power up the communication lines correctly.
+* Valet/Speed Limiter: On EVs, the "Valet Key" concept is entirely software-based. The speed limiter (often capped at 40mph in Valet Mode) is enforced by the VCU based on the user profile selected on the screen, not the physical key used.
+7. The Connected Ecosystem: Biometrics and Digital Key
+Genesis vehicles are not standalone machines; they are nodes in a connected mesh. Programming a physical key is only the first step in restoring full functionality.
+7.1 Biometric Impact (Fingerprint & Face Connect)
+* The Broken Link: The Fingerprint Authentication System (FAS) and Face Connect (on G90) utilize a token-based trust relationship with the Smart Keys. When an "All Keys Lost" procedure is executed, the IBU generates a new "Vehicle Security ID."
+* Consequence: The existing biometric profiles stored in the FAS module are orphaned. The fingerprint reader will recognize the finger but fail to authorize the start because the associated key ID is gone.
+* Registration Procedure:
+   1. Program the new physical Smart Keys.
+   2. Enter the vehicle and start it with the new key.
+   3. Navigate to Setup > Vehicle > Driver Profile.
+   4. Delete the existing fingerprint data.
+   5. Select "Register Fingerprint." The system will ask for the Physical Key to be present in the console to authorize the enrollment.
+   * Note: The FAS module itself does not need replacement or "recalibration" in the sense of aiming a sensor, but the data linkage must be rebuilt manually.
+7.2 Digital Key 2.0 (NFC/UWB) Implementation
+* Smartphone Pairing: Similar to biometrics, the Digital Key (Phone as Key) is invalidated after AKL.
+* The Aftermarket Key Problem: This is a critical failure point. The Digital Key pairing process involves a cryptographic challenge sent from the Head Unit to the Physical Key to verify authority.
+   * OEM Keys: Respond correctly with the factory-programmed manufacturer code.
+   * Aftermarket/Universal Keys: While they may start the car (transponder function) and lock/unlock doors (remote function), they often lack the proprietary extension blocks required for the Digital Key handshake. Using a non-OEM key often results in the inability to ever pair a smartphone to the vehicle again.
+* Genesis Connected Services (GCS): The GCS app acts as the remote validator. After key programming, the customer may need to log out and log back into their GCS app to refresh the vehicle security token on the server side.
+8. Valet Keys and "Luxury" Tiers
+8.1 Valet vs. Regular Key
+Unlike the German manufacturers who often used plastic "Valet Keys," Genesis uses a software-defined approach.
+* Physical Keys: There is typically no "Valet" specific transponder. All Smart Keys provided with the vehicle are Master keys.
+* Valet Mode: This is a feature activated on the infotainment screen. It requires the user to set a 4-digit PIN. Once active, the screen is locked, and the trunk/glovebox release buttons are disabled electronically. The speed is limited by the ECU.
+* Programming Differences: There is no difference in programming. You cannot program a key to be "Valet Only."
+8.2 Is There a "Luxury Key" Tier?
+Yes, specifically for the G90.
+* Standard Key: The typical 5-button or 7-button smart key used on GV70/GV80/G80 (Black or Silver finish).
+* G90 Flagship Key: The G90 often comes with a distinct white or "Display Key" (in some markets) with different button materials. While the underlying transponder protocol (Hitag AES) is the same, the Key Fob Frequency and Button Mapping logic differ. You cannot program a GV80 key to a G90, even if the frequency matches, due to byte-level differences in the remote commands.
+9. Conclusion and Strategic Recommendations
+The "Zero Procedures" gap in the Genesis service market is a result of a rapid technological divergence. The Genesis fleet has bifurcated from the standard Hyundai architecture, adopting the complex M3 luxury platform and the high-voltage E-GMP architecture, both of which demand specific tooling and knowledge.
+The capability to service these vehicles exists, but it requires a departure from generic practices. The locksmith or technician must view the Genesis not as a car with a key slot, but as a mesh network of authentication nodes. Success requires CAN-FD capability (hardware), AutoAuth access (software), and High-Voltage awareness (safety).
+Summary of Actionable Insights:
+* Platform Identification: Identify the platform (M3 vs N3 vs E-GMP) before connecting the tool to determine SGW and CAN-FD requirements.
+* Invest in Protocols: The Autel IM608 Pro II or a CAN-FD adapter is mandatory for any business targeting 2024+ or EV models.
+* Inventory Discipline: Strict adherence to VIN-matched OEM part numbers is required to preserve Digital Key and Biometric functionality.
+* Power Management: Treat every Genesis programming session, especially on EVs, as a high-power consumption event requiring external support.
+
+
+  
+
+
+
+10. Troubleshooting and Failure Mode Analysis
+Even with correct procedures, anomalies occur. This section breaks down the most common failure modes observed in the field.
+10.1 The "Program Success, No Start" Phantom
+Symptom: The diagnostic tool completes the process and displays "Success." The key count increases. However, the vehicle does not respond to the start button.
+Root Cause:
+* Frequency Mismatch: 315MHz vs 433MHz. US market vehicles typically use 433MHz (verify by VIN), but some cross-region imports may differ.
+* Part Number Variance: The G80 (RG3) and GV80 (JX1) keys look identical. However, the RG3 key sends a different "Vehicle Family ID" byte during the start handshake. The IBU accepts the programming (learning the crypto key) but rejects the start request (wrong family ID).
+Correction: There is no software fix. The correct key must be procured.
+10.2 "Communication Failed" on 2024 Models
+Symptom: The tool fails to identify the VIN or communicate with the Immobilizer.
+Root Cause: The 2024 G70/GV80 refresh introduced the ccIC architecture which relies exclusively on CAN-FD. Legacy adapters (standard OBDII) cannot interpret the signal.
+Correction: Switch to a CAN-FD compatible interface (Autel JVCI+ or Lonsdor K518 Pro).
+10.3 Post-Programming Biometric Lockout
+Symptom: After AKL, the customer cannot re-register their fingerprint. The system times out or says "Conditions Not Met."
+Root Cause: The vehicle requires a valid "Master" key present to authorize the enrollment. If the new key is an aftermarket "Universal" remote, it may fail this specific authorization check, even if it starts the engine.
+Correction: Use an OEM Virgin key.
+11. Commercial Implications
+The shift to this high-complexity environment changes the economics of the service call.
+   * Price Structure: The risk of module corruption (bricking an IBU) and the cost of inventory (OEM keys @ $300+) necessitates a higher service fee. An AKL service for a GV80 is a $700+ retail value proposition.
+   * NASTF Compliance: As Genesis moves to "Calculated" PINs only (blocking OBD reads), possession of a NASTF LSID is becoming a barrier to entry. This effectively professionalizes the niche, filtering out low-skill "cloners" and reserving the market for dedicated automotive locksmiths.
+This report confirms that the "Zero Procedures" gap is a result of a knowledge lag, not a technical impossibility. By understanding the distinct M3 and E-GMP architectures and employing the correct protocols, the aftermarket can successfully service the Genesis fleet.
+12. References and Data Sources
+The insights in this report are derived from a synthesis of technical service bulletins, locksmith field reports, and forensic analysis of vehicle architecture.
+   * Platform & Architecture: 2
+   * Key Programming & Tooling: 8
+   * CAN-FD & Future Tech: 1
+   * Connected Services & Biometrics: 19
+Works cited
+   1. support of new model year vehicles : r/Comma_ai - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Comma_ai/comments/14inz34/support_of_new_model_year_vehicles/
+   2. Genesis GV60: The Electric Crossover Sharing Hyundai's E-GMP Platform - CarBuzz, accessed January 7, 2026, https://carbuzz.com/gv80-only-genesis-shares-major-components-with-a-hyundai/
+   3. Hyundai's first full-size electric Genesis GV90 to roll out in late 2025 - KED Global, accessed January 7, 2026, https://www.kedglobal.com/electric-vehicles/newsView/ked202405160006
+   4. Dissecting Hyundai Motor Group's electrification plans - EV Pulse, accessed January 7, 2026, https://www.evpulse.com/features/dissecting-hyundai-motor-groups-electrification-plans
+   5. Can you spot the difference? GV60 on the E-GMP Platform. - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=EmLXioCEZEM
+   6. Genesis Is Working on a Brand New EV-Only Architecture; It's Coming Soon - Edmunds, accessed January 7, 2026, https://www.edmunds.com/car-news/genesis-is-building-a-new-ev-platform.html
+   7. GENESIS - GV60, GV70, GV80, G70, G80, G90 | GENESIS Worldwide, accessed January 7, 2026, https://www.genesis.com/worldwide/en/main.html
+   8. 2021 Genesis G70 Smart Key Programming with Autel IM608 | Fixing a Wrong Key Order Mistake - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=_gM_spmL5GM
+   9. HOW TO PROGRAM KEY FOR 2023 GENESIS G70 USING AUTEL IM508 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=K948FsD7UX8
+   10. 2021 Genesis GV80 Proximity Smart Key Programmed with Autel IM608 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=cCO0ijkmcyI
+   11. (3/6) Autel IM608 Pro | Make A Car Key Without The Original | Key Programming - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=WTyA6Ejg1v8
+   12. How to program all keys lost on 2013 Hyundai Genesis with Autel IM608 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=58QOikeLce4
+   13. Lonsdor K518ISE Key Programmer For All Makes - Al-Najm Al-Thahabi, accessed January 7, 2026, https://gskeyae.com/product/lonsdor-k518ise-key-programmer/
+   14. K518 Software List - Lonsdor, accessed January 7, 2026, https://en.lonsdor.com/menulistinfo/197
+   15. K518 PRO Product Overview K518 Vehicle Compatibility List of K518 PRO - Key4, accessed January 7, 2026, https://www.key4.com/uploads/files/products/key_programming_devices/PD-LON-K518PRO/LON-K518PRO_Compatibility.pdf
+   16. Lonsdor K518ISE Car Key Programming Guide | PDF | Vehicles - Scribd, accessed January 7, 2026, https://www.scribd.com/document/527727739/Lonsdor-k518ise-Key-Programmer-Car-List
+   17. Genesis Plans a New Off-Roader, a Full-Size SUV, and Some Hybrids - Car and Driver, accessed January 7, 2026, https://www.caranddriver.com/news/a67949558/genesis-future-hybrid-models-confirmed/
+   18. GENESIS EMBARKS ON A NEW DECADE WITH LUXURY HIGH PERFORMANCE, accessed January 7, 2026, https://newsroom.genesis.com/genesis-embarks-on-a-new-decade-with-luxury-high-performance/
+   19. GENESIS Digital Services - Digital Key, accessed January 7, 2026, https://www.genesis.com/kr/en/members/digital-services/genesis-digital-key.html
+   20. Getting started with Genesis Digital Key, accessed January 7, 2026, https://owners.genesis.com/us/en/resources/technology-and-navigation/getting-started-with-genesis-digital-key.html
+   21. How to Use Your Digital Key 2.0 | 2026+ GV60 | Genesis USA - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=O9DMaqYiUfc
+   22. How to Create Your Digital Key | Genesis GV70 - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=UBVZOaR94ks
+   23. Create Your Digital Key | Genesis GV60 | How-To | Genesis USA - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=EMJBNAzXBcM

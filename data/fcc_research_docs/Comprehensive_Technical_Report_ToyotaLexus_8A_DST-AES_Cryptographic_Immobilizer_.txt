@@ -1,0 +1,397 @@
+﻿Comprehensive Technical Report: Toyota/Lexus 8A (DST-AES) Cryptographic Immobilizer Protocols and Programming Procedures (2019–2026)
+Authored by: Dr. Aris Thorne, Lead Automotive Security Architect & Forensic Analyst
+Date: January 8, 2026
+Subject: Exhaustive Analysis of DST-AES "8A" & "BA" Immobilizer Systems, Procedure Extraction, and Tool Chain Interoperability
+1. Introduction: The Evolution of Toyota Immobilizer Security (2019–2026)
+The automotive security landscape for Toyota and Lexus platforms has undergone a radical paradigm shift between 2019 and 2026, driven by the transition from legacy encryption standards to high-security cryptographic architectures. This report provides an exhaustive technical analysis of the programming methodologies required for "All Keys Lost" (AKL) and "Add Key" scenarios on Toyota and Lexus vehicles equipped with 8A transponders utilizing DST-AES encryption. The scope of this research encompasses the "H-Chip" blade key systems and, more critically, the sophisticated Proximity Smart Key systems, including the latest "BA" type TMLF19D Smart ECUs found in the 2022+ Tundra, Sienna, and RAV4 Prime.
+We analyze the efficacy and procedural workflows of four primary toolchains: Autel IM608 Pro II, Xhorse VVDI Key Tool Plus, Advanced Diagnostics Smart Pro, and the OEM Toyota Techstream. The analysis reveals that the 2019–2026 era is defined by a "Cat-and-Mouse" dynamic between OEM security gateways (SGW) and aftermarket bypass solutions.1 The introduction of the rolling seed-code logic and the "BA" system necessitated the development of direct-connection hardware—specifically the 30-pin bypass cables—to circumvent the verification logic of the Certification ECU.
+1.1 Chronological Evolution of Cryptography
+To understand the current procedural requirements, one must contextualize the technological progression. Historical data indicates a distinct timeline of cryptographic escalation. From 2015 to 2018, the ecosystem was dominated by the H-Chip (Blade) and early 8A Smart systems (Page 4: A8/A9). These systems, while using 128-bit AES encryption, were susceptible to OBDII-based emulation because the diagnostic ports remained largely open.3
+However, the turning point occurred in late 2018 with the introduction of the TNGA (Toyota New Global Architecture) platforms, which brought the "AA" Page 4 systems found in the RAV4 and Avalon. This marked the beginning of tighter OBDII filtering. The most significant hardening event occurred in 2022 with the release of the Tundra and the "BA" system (TMLF19D ECU). This architecture introduced a rolling code algorithm that effectively blocked traditional OBDII key addition methods, forcing the industry to adopt physical intervention techniques.5 By 2024 and moving into the 2025-2026 model years, the integration of Over-the-Air (OTA) security patches and aggressive Security Gateways has made the "Direct Connection" method the standard operating procedure for professional locksmiths.7
+________________
+2. Cryptographic Architecture: The DST-AES Paradigm
+To master the procedure extraction for Toyota 8A vehicles, one must first comprehend the underlying cryptographic architecture. The term "8A" refers to the first byte of the transponder's ID (the "Page 0" or Family ID) in the Texas Instruments DST-AES protocol. Unlike its 40-bit (4D) and 80-bit (G) predecessors, the DST-AES system employs a 128-bit secret key, making brute-force attacks computationally infeasible within a practical timeframe.9
+2.1 The "Page 4" Differentiation Strategy
+Within the 8A ecosystem, Toyota segregates vehicle compatibility through "Page 4" data. This byte acts as a subtype identifier, dictating which key firmware is compatible with a specific chassis. Understanding this byte is critical for inventory management and procedure selection.
+Page 4 Value
+	Transponder Type
+	Target Models (Representative)
+	System Characteristics
+	88
+	8A Blade (H-Chip)
+	Camry (2015-2017), Corolla (2014-2019)
+	Mechanical key with embedded transponder.
+	A8
+	8A Smart
+	Highlander (2017-2019), Land Cruiser (2017+)
+	Early implementation of DST-AES prox.
+	A9
+	8A Smart
+	Camry (2018+), RAV4 (2019-2021)
+	Standard modern prox system.
+	AA
+	8A Smart
+	RAV4 (2019+), Avalon (2019+)
+	Enhanced dual-frequency support.
+	BA
+	8A-BA Smart
+	Tundra (2022+), Sienna (2021+), BZ4X
+	TMLF19D Smart ECU. New architecture requiring 30-pin bypass.
+	The shift to the "BA" system (2022+) represents the most significant hurdle. In this architecture, the ID Code Box and Certification ECU utilize a hardened rolling code algorithm. Unlike previous generations where OBDII injection of data was possible via a simple seed-key exchange, the BA system often blocks OBDII generic key addition without a valid dealer authentication or a hardware bypass that physically intercepts the Smart ECU traffic.10
+2.2 The Role of the Certification ECU (Smart Box)
+The Certification ECU is the "brain" of the Keyless Entry system. It stores the registered Key IDs and communicates with the ID Code Box (which authorizes the engine start) and the Steering Lock ECU. In the 2018–2021 legacy 8A era, the EEPROM data containing key IDs could be read or backed up via OBDII using an emulator (like the Autel APB112) to act as a "master key." The vehicle's gateway allowed read commands to pass through to the Smart ECU.
+However, in the modern BA era (2022–2026), the Smart Box (often Part No. 89990-XXXXX) sits behind a stricter Security Gateway (SGW). To program a key in an AKL scenario without the dealer server (NASTF), the locksmith must connect directly to the Smart Box using a specialized cable (TOY-BA or ADC2021). This connection effectively performs a "Man-in-the-Middle" operation, allowing the tool to read the IMMO data directly by bypassing the gateway filters.6
+________________
+3. Hardware Ecosystem and Toolchain Interoperability
+The successful execution of AKL procedures relies heavily on the correct combination of software logic and hardware adapters. A tool is only as effective as the cables connecting it to the vehicle's bus.
+3.1 Autel IM608 Pro II Infrastructure
+The Autel ecosystem is modular and requires specific adapters for different generations of Toyota vehicles. For 2019–2026 Toyotas, the standalone tablet is insufficient. The XP400 Pro is essential for reading/writing the EEPROM data if bench work is required, though most modern procedures focus on OBD or Direct-Connect methods.
+For All Keys Lost scenarios on "H-Chip" blade systems, the G-Box3 is critical. It accelerates the calculation of the password from the immobilizer unit, reducing the time from hours to minutes.13 For smart keys, the APB112 Smart Key Simulator is indispensable. It acts as a temporary "Master Key" by emulating the data retrieved from the Smart Box, allowing the ignition to turn on so a new permanent key can be registered.14
+The newest addition to the Autel arsenal is the 8A-BA 30-Pin Cable. This cable connects the Smart Box directly to the OBDII cable of the tablet, bypassing the vehicle's OBD port restrictions entirely. This is mandatory for 2022+ models like the Tundra and Sienna.6
+3.2 Xhorse VVDI Key Tool Plus Infrastructure
+Xhorse focuses on universality and inventory consolidation. The core of their strategy is the XM38 Smart Key, a universal programmable PCB that can be generated to mimic A8, A9, AA, or BA transponders.16 This significantly reduces inventory costs for locksmiths, as they do not need to stock specific OEM keys for every Toyota model.
+For programming, Xhorse utilizes the TOY-BA Cable, which is the functional equivalent of the Autel 30-pin bypass. It is mandatory for 2022+ Tundra, Sienna, and BZ4X. Xhorse relies heavily on cloud-based calculation for the EEPROM data analysis, requiring a stable internet connection during the "calculation" phase of the AKL procedure.11
+3.3 Smart Pro (Advanced Diagnostics)
+Smart Pro utilizes a "token" or subscription model and emphasizes hardware dongles. The ADC2021 Gateway Bypass Cable connects to the Smart ECU to bypass the Rolling Code logic. Unlike Autel, which focuses on generating a simulator, Smart Pro often uses the ADC2015/ADC2020 emulators to ping the ignition during the programming sequence.12 Smart Pro is often favored by fleet technicians for its "guided" software interface, which strictly delineates between the "Bypass" method and the "NASTF" method, reducing the chance of user error.
+
+
+  
+
+
+
+3.4 Toyota Techstream (TIS)
+Techstream is the only "official" method endorsed by Toyota. It requires no bypass cables but demands a clean regulatory profile. The requirements include a subscription to TIS (Technical Information System) and a Security Professional (VSP) credential registered with NASTF.20 The mechanism involves a "Seed Code" generated by the vehicle, which the technician submits to the TIS portal to receive a "Passcode." It is important to note that Techstream cannot "bypass" the system; it authenticates through it. Therefore, it generally requires the vehicle to be in a specific state and does not support "emulation" of lost keys without a full system reset.22
+________________
+4. Safety Protocols: High Voltage (HV) Risks in Hybrids
+A critical, often overlooked aspect of programming modern Toyotas—specifically the RAV4 Prime and Prius Prime—is the interaction with the High Voltage (HV) system. In "All Keys Lost" scenarios, the technician may be required to force the ignition "ON" or perform repeated start attempts. In Plug-in Hybrid Electric Vehicles (PHEVs), the HV system is interlocked with the immobilizer. If the immobilizer data is corrupted or if the procedure is interrupted, the HV ECU may lock down, preventing the "Ready" mode.
+4.1 HV Isolation Procedures
+For invasive procedures involving ECU removal (uncommon but possible), the HV service plug (grip) must be removed. This physically disconnects the high-voltage battery from the rest of the vehicle. However, for most key programming tasks, the primary risk involves the 12V auxiliary battery. The 12V battery in PHEVs is often smaller and buried in the trunk. It is paramount to connect a high-quality maintainer (e.g., 13.4V constant) because a voltage drop below 11.8V during the EEPROM write phase of the BA system can brick the Smart ECU. This would necessitate a costly replacement and complex HV system resynchronization.24
+Furthermore, research indicates that RAV4 Primes suffer from HV cable corrosion, often referred to as "Cablegate".26 While not directly related to key programming, a technician pushing on rear components to access modules could disturb compromised connectors. A visual inspection of the undercarriage cable shielding is recommended before beginning work to avoid liability for pre-existing conditions.
+________________
+5. Detailed Vehicle Class Analysis
+To provide precise procedures, we must categorize the target vehicles into three distinct classes based on their immobilizer architecture.
+5.1 Class A: Legacy TNGA (2018–2021)
+* Models: Camry, RAV4 (Gas/Hybrid), Highlander, Corolla.
+* System: Page 4 AA/A9.
+* Characteristics: OBDII programming is generally open. AKL requires an emulator (APB112/ADC2015) to back up data via OBD and generate a master key.
+* Tooling: Autel IM608 (Smart Mode), Key Tool Plus (OBD).
+5.2 Class B: The "BA" Architecture (2022–2026)
+* Models: Tundra, Sequoia, Sienna, Venza, BZ4X, Lexus NX/RX/LX.
+* System: Page 4 BA (TMLF19D ECU).
+* Characteristics: OBDII is locked for AKL. Rolling code encryption prevents simple emulation.
+* Tooling: Requires 30-Pin Bypass Cable (Autel 8A-BA, Xhorse TOY-BA, ADC2021). Connection is made directly at the Smart ECU.
+5.3 Class C: Blade "H-Chip" (2019–2022)
+* Models: Tacoma (Base), 4Runner (Keyed), Corolla (L/LE), Yaris.
+* System: Page 4 88 (128-bit).
+* Characteristics: Mechanical key. AKL requires G-Box3 to sniff the immobilizer data from the ignition coil and fuse box relay.
+* Tooling: Autel IM608 + G-Box3 + APB112.
+________________
+6. Toolchain Deep Dive: Autel IM608 Pro II
+The Autel IM608 Pro II is arguably the most versatile tool in this sector due to its "Guided Mode," but reliance on it without understanding the "Expert Mode" steps can lead to failure.
+6.1 8A Blade Key (H-Chip) - All Keys Lost Procedure
+This procedure applies to the 2019 Tacoma (Base), 2019 Yaris (Keyed), and 2019 Corolla (L/LE Keyed). The H-chip system requires a master key to add a secondary key. When all keys are lost, we must calculate the password to generate a simulator.
+* Step 1: Connect G-Box3 to the vehicle OBD and the IM608.
+* Step 2: Locate the Fuse Box. Bridge the designated fuses (usually IGN NO.1 or equivalent) as per the on-screen diagram. The G-Box3 speeds up the calculation from ~30 minutes to ~2 minutes.13
+* Step 3: Select Toyota -> Blade Key -> All Keys Lost.
+* Step 4: The tool reads the Immobilizer data and calculates the "Master Key Data".
+* Step 5: Connect APB112. The tool writes the data to the APB112.
+* Step 6: Insert APB112 into the keyway. The security light turns off.
+* Step 7: Use the "Add Key" function. Insert the new H-chip key to register it.
+6.2 8A Smart Key (BA System) - All Keys Lost (2022-2026)
+This procedure targets the 2022+ Tundra, 2021+ Sienna, and 2023+ Prius. Crucially, this procedure bypasses the rolling code check, meaning you do not need a NASTF LSID.
+YAML Procedure Block: Autel_IM608_Toyota_BA_AKL
+
+
+YAML
+
+
+
+
+procedure_id: TOY-BA-AKL-AUTEL-001
+title: Toyota 2022+ 8A-BA Smart Key AKL (Autel)
+compatible_vehicles:
+ - Toyota Tundra (2022-2026)
+ - Toyota Sienna (2021-2026)
+ - Toyota Venza (2021-2026)
+ - Lexus NX (2022-2026)
+required_tools:
+ - Autel IM608 Pro II
+ - Autel 8A-BA 30-Pin Cable (APB112/G-Box3 integrated in new cables)
+ - New Virgin Smart Key (ensure correct FCC ID)
+steps:
+ - step: 1
+   action: "Locate Smart ECU"
+   detail: "Locate the Certification ECU (Smart Box). Locations: Tundra (Passenger glovebox/kick panel), Sienna (Driver kick panel)."
+ - step: 2
+   action: "Connect Bypass Cable"
+   detail: "Disconnect the 30-pin connector from the Smart ECU. Connect the Autel 8A-BA cable inline (Vehicle Harness -> Autel Cable -> Smart ECU)."
+ - step: 3
+   action: "Connect Diagnostic Tool"
+   detail: "Connect the OBDII end of the 8A-BA cable to the Autel VCI."
+ - step: 4
+   action: "Backup EEPROM Data"
+   path: "IMMO > Toyota > Manual Selection > [Model] > Smart Key > Control Unit > Keyless System (CAN) > Backup IMMO Data"
+   note: "Ensure network connection is stable. This process reads the EEPROM via the direct connection."
+ - step: 5
+   action: "Generate Simulator Key"
+   detail: "Select 'Generate Analog Key'. Load the backed-up EEPROM file. Connect APB112 (if required by software version) or use internal simulation."
+ - step: 6
+   action: "Add Smart Key"
+   path: "Add Smart Key"
+   detail: "The tool will ask to place the 'Simulator Key' near the Start Button. Listen for one beep."
+ - step: 7
+   action: "Register New Key"
+   detail: "Place the new virgin smart key near the Start Button. Listen for two beeps."
+ - step: 8
+   action: "Restore Vehicle"
+   detail: "Disconnect 8A-BA cable. Reconnect original 30-pin connector to Smart ECU. Test key functions (Prox, Buttons, Start)."
+   warning: "Do not force the connector. Pins are fragile."
+
+________________
+7. Toolchain Deep Dive: Xhorse VVDI Key Tool Plus
+Xhorse offers a compelling alternative due to the XM38 Universal Smart Key. This allows locksmiths to stock a single SKU for almost all Toyota/Lexus 8A models, rewriting the firmware on the fly to match the required Page 4 ID (A8, AA, BA).
+7.1 Generating the XM38 Key
+Before programming, the blank key must be "generated" to the correct profile.
+1. Place XM38 in the Key Tool Plus coil.
+2. Select Remote Program -> Toyota.
+3. Search by FCC ID (e.g., HYQ14FBC) or Model (e.g., "Tundra 2023").
+4. Select the option that matches the BA designation.
+5. Click Generate. The tool writes the specific firmware to the PCB.
+7.2 8A-BA AKL Workflow (Xhorse)
+A distinct difference in the Xhorse workflow (compared to Autel) is the explicit instruction to restore the original wiring before the "Add Key" step. Xhorse reads the data directly but prefers to write/register the key via the standard OBDII network using the backed-up file as authorization. Failure to restore wiring often leads to "Communication Failed" errors during the registration phase.
+YAML Procedure Block: Xhorse_KTP_Toyota_BA_AKL
+
+
+YAML
+
+
+
+
+procedure_id: TOY-BA-AKL-XHORSE-002
+title: Toyota 2022+ 8A-BA Smart Key AKL (Xhorse)
+compatible_vehicles:
+ - Toyota BZ4X (2023-2026)
+ - Toyota RAV4 Prime (2023-2026)
+ - Lexus RX (2023-2026)
+required_tools:
+ - VVDI Key Tool Plus
+ - Xhorse TOY-BA Cable (XD8ABAGL)
+ - Xhorse XM38 Smart Key
+steps:
+ - step: 1
+   action: "Hardware Connection"
+   detail: "Locate Smart Box. Connect TOY-BA cable between the Smart Box and the vehicle harness. Connect the OBD end to the Key Tool Plus."
+ - step: 2
+   action: "Menu Navigation"
+   path: "Immo Programming > Toyota > Select by Type > Smart Key System (8A/4A) > Type 4 (8A-BA)"
+ - step: 3
+   action: "Read Immo Data"
+   detail: "Select 'Backup Smart Box EEPROM Data'. The tool communicates via the direct cable to dump the memory."
+   note: "Turn on hazard lights if prompted to wake the bus."
+ - step: 4
+   action: "Restore Connection"
+   detail: "CRITICAL: Once data is saved, disconnect the TOY-BA cable and restore the original vehicle connection BEFORE programming."
+   reasoning: "Programming requires the full vehicle network integrity which the bypass cable might segment."
+ - step: 5
+   action: "Add Smart Key"
+   detail: "Select 'Add Smart Key'. Load the saved EEPROM file."
+ - step: 6
+   action: "Programming Sequence"
+   detail: "1. Touch Start Button with the original key (or Simulator Key generated from EEPROM) -> 1 Beep. 2. Touch Start Button with New XM38 Key -> 2 Beeps."
+ - step: 7
+   action: "Finalization"
+   detail: "Wait for the 'Learning Complete' message. Test remote and start."
+
+________________
+8. Toolchain Deep Dive: Advanced Diagnostics Smart Pro
+Advanced Diagnostics (Smart Pro) utilizes the ADC2021 cable. This tool is often favored by enterprise locksmiths for its reliability and simplified UI. The Smart Pro does not typically "Generate" a simulator key in the same way Autel does. Instead, it uses the ADC2015 emulator connected to the device to act as the key antenna.27
+The "ID Registration Box" step is a unique nuance of the Smart Pro software on newer Tundras.30 Other tools might automate this, but Smart Pro exposes it as a manual step to ensure synchronization is confirmed between the ID Code Box and the Certification ECU.
+YAML Procedure Block: SmartPro_Toyota_BA_AddKey
+
+
+YAML
+
+
+
+
+procedure_id: TOY-BA-ADD-SMARTPRO-003
+title: Toyota 2022+ 8A-BA Add Key (Smart Pro)
+compatible_vehicles:
+ - Toyota Corolla Cross (2022-2026)
+ - Toyota Crown (2023-2026)
+required_tools:
+ - Smart Pro Programmer
+ - ADC2021 Bypass Cable
+ - OEM or Refurbished Virgin Key
+steps:
+ - step: 1
+   action: "Connection"
+   detail: "Connect ADC2021 to the Smart ECU (30-pin). Connect Smart Pro to the OBD port on the cable."
+ - step: 2
+   action: "Software Selection"
+   path: "Toyota > [Model] > 2022+ > Smart Key"
+ - step: 3
+   action: "Bypass & Connect"
+   detail: "Select 'Connect'. The software will automatically attempt to bypass the security gateway using the direct connection."
+ - step: 4
+   action: "Add Key Function"
+   detail: "Select 'Program Keys' or 'Add Key'. Note: Ensure internet connection is active for server calculation."
+ - step: 5
+   action: "Key Registration"
+   detail: "Follow the '1 Beep, 2 Beep' protocol. Hold the registered key to the button, then the new key."
+ - step: 6
+   action: "ID Registration Box"
+   detail: "For some 2023+ models (Tundra), a secondary step 'ID Reg Box' is required to synchronize the ID Code Box with the Smart ECU."
+   note: "If the car starts but remote doesn't work, this step was missed."
+
+________________
+9. Toolchain Deep Dive: Toyota Techstream (OEM Path)
+This is the only "official" method endorsed by Toyota. It requires no bypass cables but demands a clean regulatory profile.
+Prerequisites:
+1. TIS Professional Diagnostic Subscription ($1,295/year or $65/2 days).20
+2. NASTF VSP ID (Vehicle Security Professional).
+3. Techstream Software (v18.00.008 or later).
+The "Seed Code" generation is the failure point for many clones or unauthorized tools. If the Techstream version is cracked or if the internet connection is unstable, the Seed might not generate, or the Passcode will be rejected. Furthermore, Toyota limits the number of Key Codes a VSP can pull per day to prevent abuse.
+YAML Procedure Block: Techstream_Toyota_SeedCode
+
+
+YAML
+
+
+
+
+procedure_id: TOY-OEM-NASTF-004
+title: Toyota Techstream Smart Code Registration (NASTF)
+compatible_vehicles:
+ - All Toyota/Lexus Models (2019-2026)
+required_tools:
+ - Techstream ADVI / Mini VCI
+ - TIS Subscription
+ - NASTF VSP Credentials
+steps:
+ - step: 1
+   action: "Navigate to Utility"
+   path: "System Select > Smart Key > Utility > Smart Code Registration"
+ - step: 2
+   action: "Selection"
+   detail: "Choose 'I am just registering keys' (Add Key) or 'I am resetting the system' (AKL)."
+   note: "AKL requires 'Smart Code Reset' first."
+ - step: 3
+   action: "Get Seed Code"
+   detail: "The software displays a 96-character Seed Code."
+ - step: 4
+   action: "Calculate Passcode"
+   detail: "Copy Seed Code. Log into TIS (techinfo.toyota.com). Navigate to 'Immobilizer Reset'. Paste Seed. Generate Passcode."
+ - step: 5
+   action: "Input Passcode"
+   detail: "Return to Techstream. Paste the Passcode. Click Next."
+ - step: 6
+   action: "Registration"
+   detail: "Touch the emblem of the new key to the Start Button within 30 seconds."
+
+________________
+10. Troubleshooting, Anomalies, and Recovery
+Even with the correct procedures, technicians may encounter specific anomalies in the field. Understanding these edge cases is vital for successful servicing.
+10.1 The "Brick" Risk (Lexus NX 2024)
+Research indicates programming failures on 2024 Lexus NX models where the "BA" system is highly sensitive to voltage fluctuations.6 If the procedure fails during the "Write" phase (synchronizing the ID Code Box), the vehicle may become completely unresponsive. It is recommended to always use a stable power supply (Midtronics or equivalent) providing 13.8V during the process. Do not rely on jumper cables or the internal battery alone.
+10.2 Rolling Code Desynchronization
+When using the 30-pin bypass (Autel/Xhorse), the technician is effectively taking the Smart ECU "offline" from the car's gateway. If the door is opened/closed or the lock button is pressed while the cable is connected but the software is idle, the rolling code counter in the Body Control Module (BCM) may drift from the Smart ECU.
+* Symptom: The key programs successfully (starts the car), but the remote buttons (Lock/Unlock) do not function.
+* Fix: After restoring the original wiring, perform a "Synchronization." This usually involves holding the programmed key to the start button for 10 seconds, then pressing start. If that fails, perform a "Loopback" reset by disconnecting the negative battery terminal for 10 minutes to force the BCM to handshake with the Smart ECU again.
+10.3 Aftermarket Key Compatibility
+Not all "8A" keys are equal. A generic 8A key for a 2019 RAV4 (AA) will not work on a 2023 Tundra (BA), even if they look identical. The frequency (315MHz vs 433MHz) is often model-dependent (US vs. Europe).3 However, the critical differentiator is the Page 4 hex data. Tools like the Key Tool Plus can "Detect Transponder" to read this.
+* A9: Camry 2018-2019
+* AA: RAV4 2019-2021
+* BA: Tundra 2022+, Sienna 2021+
+________________
+11. Comprehensive Procedure Library (YAML Database)
+This section aggregates the extracted data into a unified database format for the tool_vehicle_procedures table, designed for direct ingestion into automated systems.
+
+
+YAML
+
+
+
+
+procedures:
+ - id: TOY-2022-BA-AUTEL
+   vehicle_class: "Toyota 8A-BA (2022+)"
+   models:
+   tool: "Autel IM608 Pro II"
+   connection_type: "Direct (30-Pin Bypass)"
+   key_type: "Smart Key (BA/TMLF19D)"
+   akl_method: "EEPROM Backup -> Simulator Generation"
+   add_key_method: "EEPROM Backup -> Simulator -> Add"
+   steps:
+     - "Connect 8A-BA cable to Smart ECU (Passenger side for Tundra)."
+     - "Read IMMO Data via 'Keyless System (CAN)'."
+     - "Generate Analog Key on APB112."
+     - "Use Analog Key to wake ignition."
+     - "Register new Virgin Key."
+
+ - id: TOY-2019-8A-XHORSE
+   vehicle_class: "Toyota 8A (2019-2021)"
+   models:
+   tool: "VVDI Key Tool Plus"
+   connection_type: "OBDII (No Bypass needed for most)"
+   key_type: "Smart Key (A9/AA)"
+   akl_method: "OBD Backup -> Server Calculation -> Write to XM38"
+   steps:
+     - "Connect Key Tool Plus to OBD."
+     - "Select 'Toyota 8A Smart Key'."
+     - "Backup EEPROM Data (requires internet)."
+     - "Generate XM38 Remote using EEPROM data."
+     - "Add Smart Key using generated XM38 as Master."
+
+ - id: TOY-HV-SAFETY-RAV4
+   vehicle_class: "Toyota Hybrid/PHEV"
+   models:
+   tool: "Any"
+   safety_protocol: "High Voltage Isolation"
+   steps:
+     - "Verify 12V battery stability (>13V)."
+     - "Do NOT disconnect 12V without memory saver if possible."
+     - "If removing Smart ECU, Disconnect HV Service Grip (Orange)."
+     - "Wait 10 minutes for capacitor discharge before touching modules."
+
+
+
+  
+
+
+
+________________
+12. Conclusion and Future Outlook (2025-2026)
+The data indicates a clear trajectory: Toyota is eliminating OBDII key programming. The 2025+ models (Camry, Crown Signia) are expected to transition fully to the "BA" system, potentially with OTA (Over-the-Air) security patches that rotate the encryption keys dynamically, further hardening the system against static EEPROM dumps.
+For the immediate future (2025-2026), the Direct Connection (30-Pin) method remains the gold standard for aftermarket locksmiths. The reliance on Gateway Bypass cables will increase. Tools that fail to update their hardware adapters (relying solely on software) will become obsolete for Toyota/Lexus programming. We recommend that all service providers invest in Universal Smart Keys (XM38) to mitigate stock issues with specific Page 4 variants, 30-Pin Bypass Cables for both Autel and Xhorse platforms, and clean power supplies to prevent bricking during the sensitive EEPROM write phases of the new TMLF19D ECUs.
+Works cited
+1. Keydiy KD-MATE Toyota Lexus Full Vehicle List Explained | Add Key & All Keys Lost Guide, accessed January 8, 2026, https://www.youtube.com/watch?v=uhLsq9WCR2w
+2. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 8, 2026, https://autel.us/autel-adds-24-25-immo-key/
+3. 2026 XTOOL AnyToyo SK1 For Toyota / Lexus 8A/4A Smart Key Programming All Lost, accessed January 8, 2026, https://www.ebay.com/itm/396670961153
+4. Lonsdor Super ADP 8A/4A Adapter Works with Toyota Lexus Smart Key - Key4, accessed January 8, 2026, https://www.key4.com/lonsdor-super-adp-8a4a-adapter-toyota-lexus-proximity-key-programming
+5. VD5200-Xhorse TOY8A AKL Toyota 8A Smart Key Adapter | VVDI, accessed January 8, 2026, https://www.vvdi.com/vd5200-xhorse-toy8a-akl-toyota-8a-key-adapter-xd8askgl
+6. UPDATE - Autel, accessed January 8, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202306/30023814u356.pdf
+7. 2025 Toyota Prado Key Guide Smart Solutions for Modern Drivers, accessed January 8, 2026, https://www.icartea.com/en/wiki/2025-toyota-prado-key-guide-smart-solutions-for-modern-drivers
+8. 2025 Toyota Camry Key Smart Upgrades Replacement Guide, accessed January 8, 2026, https://www.icartea.com/en/wiki/2025-toyota-camry-key-smart-upgrades-replacement-guide
+9. Original 8A Transponder Chip H59 – for Toyota - Royal Key Supply, accessed January 8, 2026, https://royalkeysupply.com/products/original-toyota-8a-transponder-chip-h39-h59-compatible-with-camry-corolla-rav4
+10. OBDStar Toyota 30 PIN Cable Supports 4A and 8A-BA All Key Lost - ABK-1553 - ABKEYS, accessed January 8, 2026, https://abkeys.com/products/obdstar-toyota-30-pin-cable-supports-4a-8a-ba-all-key-lost-1553
+11. How to Use XHORSE TOY-BA Programming Cable for 2020 - 2024 Toyota Lexus Smart Key All Key Lost - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=GnbzK6mbK80
+12. Advanced Diagnostics ADC2021 Smart Pro Bypass Cable for Toyota - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-adc2021-smart-pro-bypass-cable-for-toyota
+13. Autel KM100 + G-BOX2 Program 2017-2022 Toyota 8A(H) AKL - AutelShop.de Official Blog, accessed January 8, 2026, http://blog.autelshop.de/autel-km100-g-box2-program-2017-2022-toyota-8ah-akl/
+14. IMPORTANT TOOLS YOU NEED TOYOTA 8A BLADE AKL KIT, accessed January 8, 2026, https://m.media-amazon.com/images/I/91cqHKmNbHL.pdf?ref=dp_product_quick_view
+15. Autel Key Programmer Program 2016 Toyota Camry AKL Without Disassembling, accessed January 8, 2026, http://www.autelscanner.org/autel-key-programmer-program-2016-toyota-camry-akl-without-disassembling/
+16. One Smart Key Fob Works on MOST Toyotas | Xhorse XM38 (key generating w/Xhorse pro max tool) - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=OKIPbgUqFt8
+17. Xhorse - XSTO01EN - XM38 Toyota / Lexus Universal Smart Key for 4D - 8A - 4A Chips, accessed January 8, 2026, https://www.uhs-hardware.com/products/xhorse-xsto01en-xm38-toyota-lexus-universal-smart-key-for-4d-8a-4a-chips
+18. How to Use Xhorse VVDI Toyota BA All Key Lost Cable? - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=F8q_Zv7lnGY
+19. 2024 Toyota Grand Highlander all keys lost key programming! - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=jupqjDXyng0
+20. TIS - Techinfo Toyota, accessed January 8, 2026, https://techinfo.toyota.com/techInfoPortal/appmanager/t3/ti?_pageLabel=ti_whats_tis&_nfpb=true
+21. Toyota Techstream scanning for codes( Check for module updates) - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=A-K2LJraiCA
+22. Smart Key Immobilizer Reset and Add/Remove Key - nhtsa, accessed January 8, 2026, https://static.nhtsa.gov/odi/tsbs/2024/MC-10253225-9999.pdf
+23. Techstream Smart Key Programming T-SB-0013-16 | PDF - Scribd, accessed January 8, 2026, https://www.scribd.com/document/974261502/Techstream-Smart-Key-Programming-T-SB-0013-16
+24. 2023 rav4-prime - Power (ignition) switch | Toyota Owners, accessed January 8, 2026, https://www.toyota.com/owners/warranty-owners-manuals/digital/article/rav4%20prime/2023/om42e79u/ch05se020401/
+25. RAV4 PRIME AND ON MOST HYBRIDS DISCONNECTING HYBRID SERVICE PLUG. HYBRID MALFUNCTION NOTICE ON DASH - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=i0T37uSDmB8
+26. The high voltage cable corrosion problem is gone on new R4P's : r/rav4prime - Reddit, accessed January 8, 2026, https://www.reddit.com/r/rav4prime/comments/1ja1f0u/the_high_voltage_cable_corrosion_problem_is_gone/
+27. Advanced Diagnostics Smart Pro Key Programming Machine: Description | PDF - Scribd, accessed January 8, 2026, https://www.scribd.com/document/498674446/ADVANCED-DIAGNOSTICS-Smart-Pro-Key-Programming-Machine
+28. 2024 Toyota Corolla TIS bypass via the Smart Pro ADC-2021 cable - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=zTuAZcmjDdg
+29. The Smart Key for my vehicle is not operating properly. Why? - Support Home - Lexus, accessed January 8, 2026, https://support.lexus.com/s/article/The-Smart-Key-for-my-8145
+30. Toyota Tundra 2023/2024 30 pin cable(ADC2021) New Key Programming Guide - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=Mg4casgysGg

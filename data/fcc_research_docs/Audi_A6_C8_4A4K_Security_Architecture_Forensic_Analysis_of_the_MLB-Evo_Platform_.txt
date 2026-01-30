@@ -1,0 +1,153 @@
+﻿Audi A6 C8 (4A/4K) Security Architecture: Forensic Analysis of the MLB-Evo Platform (2019-2024)
+1. Introduction: The Evolution of MLB-Evo Security
+The automotive landscape has undergone a radical transformation in electronic architecture over the last decade, with the Volkswagen Group's Modularer Längsbaukasten Evo (MLB-Evo) platform serving as the vanguard for this shift. The Audi A6 C8 (internal designation 4A/4K), introduced in 2018 for the 2019 model year, represents the sedan instantiation of this architecture, following the path blazed by the Audi Q7 (4M) and Q8. While the chassis dynamics and powertrain options of the A6 are well-documented in consumer literature, its electronic security architecture—specifically the interactions between the Body Control Module 2 (BCM2), the Engine Control Unit (ECU), and the complex web of chassis-specific authorization nodes—presents a formidable challenge for security professionals, locksmiths, and forensic analysts.
+The transition from the C7 (4G) generation to the C8 (4A) was not merely a cosmetic refresh; it involved a complete overhaul of the onboard network topology. The C8 introduces the high-speed FlexRay bus as a primary carrier for chassis control, integrates a 48-volt Mild Hybrid Electric Vehicle (MHEV) subsystem as standard on V6 models, and deploys the "Immobilizer Vb/VI" generation protocol.1 This protocol relies on a "Locked" NEC microcontroller within the BCM2, a departure from the relatively open architectures of the early 2010s.3
+This report serves as a definitive technical reference for the A6 C8 security framework. It addresses specific operational knowledge gaps that have emerged in the aftermarket and independent service sectors: the divergence in physical access procedures compared to the Q7 SUV, the unique security topology of the Allroad (Avant) estate variant, and the critical, often overlooked, distinctions in powertrain immobilization between the 4-cylinder (45 TFSI) and 6-cylinder (55 TFSI) configurations. Through a granular analysis of component locations, microcontroller architectures, and data synchronization protocols, this document establishes a new standard for understanding the forensic and service realities of the modern Audi sedan.
+________________
+2. The Comfort System Central Control Module (J393): Architecture and Access
+The Comfort System Central Control Module, known in technical nomenclature as J393 and colloquially within the locksmith trade as "BCM2" (Body Control Module 2), acts as the central nervous system for vehicle access and authorization. In the MLB-Evo architecture, the BCM2 is the master node for the "Kessy" (Keyless Entry and Start) system, the central locking logic, the alarm system monitoring, and, crucially, the immobilizer handshake. It stores the Component Security (CS) bytes, the Vehicle Identification Number (VIN), and the cryptographic keys required to authorize the Engine Control Unit (J623) and the Electronic Steering Column Lock (J764).3
+2.1 Historical Context: The Shift from C7 to C8
+To appreciate the complexity of the A6 C8, one must understand the baseline of the preceding A6 C7 (4G). In the C7 generation, the BCM2 was frequently located in the right-rear quarter panel of the luggage compartment. Access was generally achieved by removing the storage cubby or the fuse panel cover on the passenger side. The C8 platform, however, inverts this layout. The migration of electronic components in the MLB-Evo platform was driven by the need to accommodate the 48V lithium-ion battery and DC-DC converter, which dominate the spare wheel well and rear axle area in the C8.2 This necessitated a repacking of the traditional low-voltage modules.
+2.2 Physical Location Analysis: A6 C8 vs. Q7 4M
+A prevailing misconception in the field is that the A6 C8 shares an identical service profile with the Q7 4M because they share the same electronic platform. While the electronic logic is similar, the physical packaging is drastically different, leading to significant variations in service difficulty.
+The Audi Q7 (4M) houses its BCM2 in the left rear quarter panel. Because the Q7 is an SUV with an open cabin-to-cargo design and a high roofline, the interior trim panels are large, vertical slabs that are relatively easy to dismount. A technician can often access the module by popping the rear access cover or partially peeling back the side carpet without extensive tool use.5
+In sharp contrast, the A6 C8 Sedan buries the BCM2 deep within the structural recesses of the left-hand luggage compartment.7 This location is not merely "on the left"; it is positioned behind the heavy, molded sound-deadening liner that forms the wheel arch cover, tucked effectively into the C-pillar void.
+
+
+  
+
+
+
+2.2.1 The Geometry of Access Difficulty
+The primary generator of difficulty in the A6 C8 is the sedan body style itself. The fixed rear parcel shelf and the narrow trunk aperture create a confined workspace that restricts the technician's range of motion. Unlike the Q7, where a technician can kneel in the cargo area, the A6 requires the technician to lean into the trunk or work through the folded rear seats, often in poor lighting conditions.
+The removal process on the A6 C8 is quantitatively harder than the Q7 4M. Field reports and procedural analyses estimate that extracting the BCM2 from an A6 C8 takes approximately 45 to 60 minutes for a skilled technician, compared to 15 to 20 minutes for a Q7 4M.7 This time differential is attributed to three specific impediments:
+1. The Interlocking Latch Panel: On the Q7, the side trim can often be manipulated independently of the rear threshold. On the A6 C8, the rear latch panel (the plastic trim covering the trunk striker) overlaps the side carpets. This panel must be removed first to free the edge of the side liner. It is secured by four metal tension clips that require a strictly vertical pull force. Any angular deviation risks fracturing the plastic retention tabs.7
+2. The "Twist-Lock" Fastener: A specific fastening element unique to the sedan's cargo net system acts as a primary anchor for the side liner. Located just below the D-pillar curve, under the cargo tie-down loop, this clip is not a standard "pull-to-release" fastener. It requires a 90-degree counter-clockwise rotation to disengage. Technicians accustomed to the Q7's standard friction clips often break this mount by applying pry force without rotation.7
+3. The Wiring Harness Obstruction: Once the trim is successfully retracted, the BCM2 is visible—mounted vertically with connectors facing downward. However, the main chassis wiring harness loom for the rear taillights and bumper sensors is frequently routed directly across the lower mounting nut. The technician must carefully de-clip the harness from the body stud to gain socket access to the 10mm nut. In the Q7, this harness is typically routed lower in the floor pan, leaving the module face clear.7
+2.3 Comprehensive BCM2 Removal Procedure (A6 C8 Sedan)
+Given the high risk of trim damage and the specific security implications of the BCM2, a forensic-level procedure is required. This protocol ensures the integrity of the vehicle's interior while accessing the module for bench reading or replacement.
+Phase 1: Preparation and Isolation Before any disassembly, the 12V battery ground must be disconnected. On the A6 C8, the battery is located centrally under the spare tire well cover. Disconnection is critical because the BCM2 manages the vehicle alarm; manipulating the connectors while energized can trigger the siren or log "Tamper Detected" faults in the Gateway.8
+Phase 2: The Approach Vector
+Access is best achieved from the rear left door opening with the seats folded flat, combined with access from the trunk lid.
+1. Rear Seat Management: Fold the left-rear passenger seat backrest forward. This exposes the leading edge of the trunk side liner.
+2. Weather Seal Retraction: Grip the rubber weather seal running along the trunk aperture on the left side. Pull it away from the body pinch weld from the top corner down to the bumper level. This releases the grip on the fabric liner.7
+3. The Latch Panel: Using a wide, flat trim tool, pry up the center section of the rear latch panel. It is held by four clips. Pop it vertically, then slide it slightly to the right to disengage it from the left side liner.7
+Phase 3: Liner Extraction
+1. The Cargo Net Clip: Locate the tie-down point near the seat back release. Inspect the plastic fastener for a slot or grip point. Rotate it 90 degrees (usually counter-clockwise) to unlock it. Remove the fastener completely.
+2. Prying the Liner: Insert a long-reach panel tool behind the grey molded liner at the top edge (near the parcel shelf). Leverage the liner away from the C-pillar. The clips here are stiff metal springs designed to prevent rattles; they require significant, steady force.7
+3. Visualization: With the liner pulled back approximately 30-40cm, use a flashlight to look into the cavity towards the outer body skin. The BCM2 is a black plastic box, roughly 15cm x 20cm.
+Phase 4: Module Extraction
+1. Connector Strategy: The BCM2 typically has three large multi-pin connectors (Blue, Black, and Grey/Brown) and potentially smaller RF antenna fakra connectors. The locking levers on these connectors are "cam-lock" style. Press the retention tab and rotate the lever fully back to eject the plug. It is often easier to unbolt the module first to get better angles on these connectors.
+2. Unbolting: Use a 10mm deep socket on a 1/4" ratchet. Locate the two nuts on the top and bottom flanges of the module. Move the obstructing wire harness if necessary.
+3. Removal: Slide the module off the threaded studs and maneuver it out of the cavity.
+2.4 The "Locked" NEC Processor and Forensic Implications
+Post-2018, the A6 C8 BCM2 units (Part numbers 4N0 907 064 xx) utilize a "Locked" NEC processor.3 This represents a hardening of the IMMO 6 protocol. In previous generations (early C7), the EEPROM (D-Flash) containing the key data could sometimes be read via OBDII or by clipping onto an external EEPROM chip. The C8's BCM2 stores its security data directly within the encrypted sectors of the NEC microcontroller.
+This architecture has two major implications for security professionals:
+1. OBD Limitations: "All Keys Lost" (AKL) situations cannot be solved via OBDII alone. The diagnostic port does not have the privileges to request the raw D-Flash dump needed to calculate the sync data for a new key.
+2. Bench Requirement: The module must be removed (as detailed above) and connected to a specialized programmer (e.g., Autel XP400 Pro, VVDI Prog, Abrites proprietary hardware) that uses a "glitch" or "backdoor" method to bypass the security bit and read the memory.5 This physical requirement is what makes the removal difficulty gap between the Q7 and A6 C8 so operationally significant.
+________________
+3. Chassis Variance: The A6 Allroad (Avant) Security Profile
+The Audi A6 Allroad (Avant/Estate body style) is not merely a sedan with a larger trunk; it represents a distinct chassis configuration within the MLB-Evo family. While the core immobilizer logic remains consistent with the sedan, the peripheral security components—specifically those related to entry authorization and boundary protection—are adapted for the wagon architecture. This distinction is often overlooked, leading to diagnostic errors when attempting to program keys or replace body control modules.
+3.1 The Liftgate Module (J605/J756) and Component Protection
+In the A6 C8 Sedan, the trunk lid operation is a relatively simple electromechanical release managed directly by the BCM2's high-current drivers. The Allroad, however, features a heavy, powered liftgate (hatch) that requires dedicated control modules: the Rear Lid Control Unit (J605) and the Rear Lid Control Unit 2 (J756).10
+These modules are integrated into the vehicle's Component Protection (CP) network.8
+* The CP Mechanism: Component Protection is a VAG-specific anti-theft strategy where modules are cryptographically paired to the Gateway (J533). If a J605 module is harvested from a donor Allroad and installed in a recipient vehicle, the module will detect the VIN mismatch.
+* Operational Consequence: Unlike the engine ECU, triggering CP on the liftgate module does not immobilize the engine. Instead, it disables "convenience" features. The liftgate may unlatch but will refuse to power open or close, and the interior buttons will be non-functional.12
+* Security Relevance: While the liftgate module does not store the Immobilizer CS data, it acts as a gateway for the rear-mounted Keyless Go antennas in the Allroad. If the module is disconnected or in a CP-locked state, the BCM2 may lose communication with the rear antenna array, creating a "blind spot" at the rear of the vehicle where the key cannot be detected.
+3.2 RF Antenna Topology: The Range Differential
+A critical investigation point for the Allroad is the placement of the LF (Low Frequency) antennas used for passive key detection. In the Sedan, the rear antenna (R136) is typically mounted on the rear parcel shelf or behind the bumper fascia, optimized to detect a key standing near the trunk lock.
+In the Allroad, the absence of a fixed parcel shelf and the inclusion of a vertical glass hatch necessitate a different topology:
+* Antenna Migration: The rear internal antenna is often relocated to the D-pillar trim or the roof headliner near the tailgate hinge.14
+* Signal Propagation: This elevated position changes the detection envelope. Locksmiths testing key range on an Allroad must be aware that placing the key on the floor of the cargo area might result in a "Key Not Detected" message, whereas the same position in a Sedan would work. The Allroad's "sweet spot" is higher, closer to the beltline of the vehicle.
+3.3 BCM2 Hardware Variance (4N0 vs. 4H0)
+The research indicates a divergence in BCM2 part numbers between the body styles. The Sedan typically utilizes the 4N0 907 064 series (e.g., index GH, CP).16 The Allroad/Avant often requires a specific variant or parameter set (ZDC) to handle the additional inputs from the glass break sensors (rear side windows) and the complex logic of the power tailgate.
+* Interchangeability Warning: It is physically possible to plug a Sedan BCM2 into an Allroad, as the connectors are identical (MLB-Evo standard). However, the firmware parameters will be mismatched. The Sedan BCM2 lacks the logic to drive the J605 liftgate communication, resulting in a permanent "No Communication" fault for the rear lid and a non-functional trunk. Furthermore, the alarm system may false-trigger because it expects different resistance values from the rear glass continuity loops.
+________________
+4. Powertrain Immobilization: MG1 ECU Architecture (45 TFSI vs. 55 TFSI)
+Perhaps the most technically demanding aspect of the A6 C8 security architecture is the divergence in the Engine Control Unit (ECU) technology between the 4-cylinder and 6-cylinder variants. This is not a trivial difference in fuel maps; it is a fundamental difference in microcontroller architecture that dictates the forensic acquisition method for "All Keys Lost" scenarios.
+The A6 C8 utilizes the Bosch MG1 ECU family. This generation of ECUs replaced the previous Bosch MED17 series. The MG1 introduces a higher level of security, utilizing 32-bit Tricore Aurix or PowerPC microcontrollers with secure bootloaders that validate the digital signature of any code execution.17
+4.1 Hardware Identification and The Split
+The "Gap 3" investigation confirms two distinct hardware profiles:
+1. A6 45 TFSI (2.0L I4 Turbo): This powertrain utilizes the Bosch MG1CS001 ECU.18
+2. A6 55 TFSI (3.0L V6 Turbo): This powertrain utilizes the Bosch MG1CS002 ECU.17
+
+
+  
+
+
+
+4.2 The Microcontroller Divide: TC298 vs. SPC5777
+The crucial distinction for security analysts lies in the specific silicon used inside these metal cases. This dictates the "exploit" or read method required to extract the Component Security (CS) bytes.
+The 45 TFSI (MG1CS001) Profile:
+The MG1CS001 typically runs on an Infineon Aurix TC298 microcontroller.
+* Forensic Access: The automotive security industry (companies like Alientech, MagicMotorsport, Autel) has developed mature protocols for the TC298.
+* Bench Reading: It is generally possible to perform a "Bench Read" on this ECU without opening the lid. By connecting to the pinout (Power, Ground, CAN High/Low, and sometimes a Boot pin), the tool can bypass the password protection and read the full D-Flash memory.22
+* Speed: This process is relatively fast (5-10 minutes) and reliable.
+The 55 TFSI (MG1CS002) Profile: The MG1CS002, specifically the early variants used in the 2019-2020 A6 C8, frequently utilizes the NXP/Freescale SPC5777 microcontroller.22
+* Forensic Access: The SPC5777 is a PowerPC-based architecture with more robust hardware security modules (HSM).
+* The Challenge: Reading this chip often requires a more complex connection strategy involving GPT (General Purpose Timer) signals to brute-force the password. In some cases, if the ECU has been updated by the dealer to a newer SGO software version, the "Bench" exploit may be patched.
+* Implication: Technicians working on a 55 TFSI must be prepared for a potential failure to read via standard Bench cables. It may require "Boot Mode" (opening the ECU lid, breaking the seal) to ground a specific pin on the PCB, which carries a risk of damaging the unit or voiding the warranty.22
+4.3 The "Sync Data" Compatibility Trap
+A critical concept in MLB-Evo security is "Sync Data." In older Audi systems (IMMO 4), having the CS bytes from the ECU was sufficient to program a key. In IMMO 5b/6, there is an additional 32-byte synchronization block that aligns the encryption rolling codes between the BCM2, the ECU, the TCU (Transmission Control Unit), and the ELV.
+When all keys are lost, the locksmith must generate this Sync Data. Since the BCM2 is encrypted/locked (see Section 2.4), the standard workaround is to read the CS from the ECU and use a server-side calculation to "reconstruct" the Sync Data that should be in the BCM2.25
+The Trap: Because the MG1CS001 (45 TFSI) and MG1CS002 (55 TFSI) run on different firmware stacks with different memory structures, the Sync Data structure is likely different.
+* Scenario: A technician buys a generic "A6 C8 Sync Data" file from a third-party file service. The file was harvested from a 4-cylinder (45 TFSI) donor car.
+* Failure Mode: The technician writes this data to the BCM2 of a V6 (55 TFSI) car. The key programs successfully (the BCM2 accepts the key). The ignition turns on. However, the engine will not start. The ECU (MG1CS002) rejects the start authorization because the Sync Data format or the encryption salt derived from the CS does not match its internal logic.
+* Conclusion: One cannot treat "A6 C8" as a single entity for AKL data. The Sync Data must be calculated specifically from the target vehicle's ECU dump. This validates the absolute necessity of the Bench Read detailed in Section 4.2.
+________________
+5. Summary of Findings and Forensic Guidelines
+The Audi A6 C8 represents a maturation of the MLB-Evo security platform, characterized by a shift towards physical obfuscation (BCM2 location), hardware hardening (Locked NEC processors), and powertrain diversification (MG1 variants).
+5.1 Integrated Security Overview
+To synthesize the disparate elements of this report, the following compound visual maps the security nodes of the A6 C8, highlighting the critical distinctions discussed.
+
+
+  
+
+
+
+5.2 Summary of Gap Analysis
+Knowledge Gap
+	Key Finding
+	Operational Implication
+	Gap 1: BCM2 Access
+	Harder than Q7. Located deep in Left Rear Trunk. Requires removal of Latch Panel and Weather Seal.
+	Expect 45-60 min labor time. High risk of breaking "Twist-Lock" clips and side liner mounts.
+	Gap 2: Allroad Variance
+	Unique Topology. Liftgate Module (J605) has Component Protection. Rear antennas moved to D-Pillar/Headliner.
+	Key range testing must account for vertical antenna placement. Liftgate swap requires ODIS adaptation.
+	Gap 3: 45 vs 55 TFSI
+	Hardware Divergence. 45 TFSI = MG1CS001 (TC298). 55 TFSI = MG1CS002 (SPC5777).
+	55 TFSI is significantly harder to read on bench. Generic Sync Data is not cross-compatible between engines.
+	5.3 Guidelines for Forensic & Service Operations
+1. Prioritize ECU Identification: Before quoting an "All Keys Lost" job, identify the engine code. If it is a 55 TFSI (V6), verify your tooling capability for the SPC5777 microcontroller.
+2. Respect the Trim: When accessing the BCM2 in the sedan, do not force the side liner. Remove the latch panel first. Order replacement "Twist-Lock" clips (Part No: 4M0 863 671) beforehand, as they are single-use items in practice.
+3. Bench Reading Hierarchy: Always attempt to read the ECU ISN before removing the BCM2. If the ECU is unreadable (due to new encryption or damage), removing the BCM2 is futile for AKL because the Sync Data cannot be calculated without the ECU ISN.
+4. Allroad Awareness: When replacing BCM2 units in an Allroad, ensure the donor unit has the correct Wagon parameterization. A sedan BCM2 will immobilize the power tailgate, requiring an online SVM (Software Version Management) update to rectify.
+By adhering to these protocols, security professionals can navigate the complex architecture of the A6 C8 with precision, minimizing risk to the vehicle's sensitive electronic ecosystem.
+Works cited
+1. Audi A6 4A Design & Features Guide | PDF | Engines - Scribd, accessed January 26, 2026, https://www.scribd.com/document/822348583/SSP-670-Audi-A6
+2. The 2019 Audi A6 Introduction - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2018/MC-10149155-9999.pdf
+3. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES - Abrites USA, accessed January 26, 2026, https://www.abritesusa.com/the-secrets-of-locked-and-unlocked-bcm2-modules
+4. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES Abrites, accessed January 26, 2026, https://abrites.com/blog/the-secrets-of-locked-and-unlocked-bcm2-modules
+5. AUDI BCM2 MANUAL, accessed January 26, 2026, https://www.keyprogtools.com/images/BCM2-MANUAL.pdf
+6. AUDI Q7 CHASSIS CONTROL MODULE LOCATION - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=JcYl6TvZr3g
+7. BCM2 A6 2016 : r/Locksmith - Reddit, accessed January 26, 2026, https://www.reddit.com/r/Locksmith/comments/1432la2/bcm2_a6_2016/
+8. Audi VW Component Protection, ABS Module Repair Agoura Hills | Four Rings Performance, accessed January 26, 2026, https://www.fourringsperformance.com/audi-component-protection/
+9. BCM2 LOCKED / ENCRYPTED NEC SET1 - Keymaster PolDiag, accessed January 26, 2026, https://keymaster.pl/shop/bcm2-locked-encrypted-nec/
+10. Audi A6 C8 Lifting: The Complete Guide to Installing and Using an Automatic Electric Tailgate for Your 2018–2025 Audi A6 - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=audi-a6-c8-lifting
+11. For Audi A6 C8 Seadon 2019-2024 Electric Tailgate Rear Power Door Liftgate | eBay, accessed January 26, 2026, https://www.ebay.com/itm/177212013101
+12. Component Protection Adaptation - Audi C6 A6 Q7-1046 - SpeedoSolutions, accessed January 26, 2026, https://www.speedosolutions.com/Component-Protection-Adaptation--Audi-C6-A6-Q7_p_59.html
+13. How to perform a component unlock on a Volkswagen/Audi vehicle, accessed January 26, 2026, https://www.shenghaiautoparts.com/how-to-perform-a-component-unlock-on-a-volkswagen-audi-vehicle/
+14. Location of Antenna Amplifier - Audi A6 S6 RS6 - C5 - 1997-2005 - TOTAL TECHNIK, accessed January 26, 2026, https://www.youtube.com/watch?v=khODrtaucB8
+15. Keyless start antenna location : r/AudiS4 - Reddit, accessed January 26, 2026, https://www.reddit.com/r/AudiS4/comments/17r0bbj/keyless_start_antenna_location/
+16. For Audi A6 C8 A4 A5 B9 Q5 BCM2 control unit J393 4N0 907 064 GH 4N0907064GH 8W1907064BH - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005008126159441.html
+17. Audi A6 C8 - 2018 -> 55 TFSI (3.0T) 340hp - MyTuningFiles, accessed January 26, 2026, https://mytuningfiles.com/ecu/vehicles/audi/a6-c8-2018-%3E/421-55-tfsi-30t-340hp
+18. VR Tuned ECU Flash Tune Audi A6 C8 45 TFSI 245hp 2018-2020 - VRT-A6C8-245, accessed January 26, 2026, https://www.lethalperformance.com/vr-tuned-ecu-flash-tune-audi-a6-c8-45-tfsi-245hp-2018-2020-vrt-a6c8-245.html
+19. AUDI A6 - 2.0T 45TFSI (C8)- 265hp (07/2018-2024) - STAGE 1 PERFORMANCE SOFTWARE TUNE (ECU TUNE) - AMT TUNING, accessed January 26, 2026, https://amttuning.com/AUDI-A6-2-0T-45TFSI-C8-265hp-07-2018-2024-STAGE-1-PERFORMANCE-SOFTWARE-TUNE-ECU-TUNE-p723972366
+20. VR Tuned ECU Flash Tune Audi A6 C8 55 TFSI 340hp 2018-2020 - VRT-Audi-ECU-485, accessed January 26, 2026, https://www.lethalperformance.com/vr-tuned-ecu-flash-tune-audi-a6-c8-55-tfsi-340hp-2018-2020-vrt-audi-ecu-485.html
+21. Audi A6 55 TFSI (3.0T) 340hp - OE Tuning, accessed January 26, 2026, https://www.oetuning.com/audi-a6-55-tfsi-3-0t-340hp
+22. VAG Bosch MD1 and MG1 in OBD with KESSv2! - Alientech, accessed January 26, 2026, https://www.alientech-tools.com/news/k-suite-4-37/
+23. VAG Bosch MD1 and MG1 in OBD with KESSv2! - ECUTools, accessed January 26, 2026, https://ecutools.eu/publications/kess-update-11062021/
+24. Performance Upgrade A6 55TFSI (C8) - MTM USA, accessed January 26, 2026, https://www.mtm-usa.com/products/performance-upgrade-a6-55tfsi-c8
+25. How to Calculate VAG MQB AKL Sync Data with Autel IM508 IM608?, accessed January 26, 2026, https://www.auteltool.us/blogs/autel-tech-solutions/how-to-calculate-vag-mqb-akl-sync-data-with-autel-im508-im608
+26. How to Calculate VAG MQB AKL Sync Data with Autel IM508 IM608?, accessed January 26, 2026, https://www.auteldiag.co.uk/blogs/autel-tech-solutions/how-to-calculate-vag-mqb-akl-sync-data-with-autel-im508-im608

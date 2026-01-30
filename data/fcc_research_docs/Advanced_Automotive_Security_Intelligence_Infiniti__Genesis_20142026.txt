@@ -1,0 +1,375 @@
+﻿Advanced Automotive Security Intelligence: Infiniti & Genesis (2014–2026)
+1. Introduction: The Evolution of Asian Luxury Security Architectures
+The trajectory of automotive security within the Asian luxury sector has been defined by a relentless pursuit of parity with European tier-one manufacturers. For decades, Japanese and Korean automakers relied on robust, yet relatively static, immobilizer architectures. Nissan’s "Intelligent Key" and Hyundai’s "SMARTRA" systems were industry standards—predictable, accessible via OBD-II, and supported by a wide array of aftermarket diagnostic tools. However, the period between 2014 and 2026 represents a seismic shift in this philosophy. As Infiniti and Genesis sought to redefine their market positions—Infiniti stabilizing its identity under the Renault-Nissan-Mitsubishi Alliance and Genesis bifurcating from Hyundai to establish a distinct luxury lineage—their security architectures underwent radical transformation.
+This report serves as a definitive technical dossier for the automotive locksmith, security integrator, and diagnostic specialist. It dissects the operational realities of servicing the premium fleets of Infiniti (Q50, Q60, QX50, QX55, QX60, QX80) and Genesis (G70, G80, G90, GV70, GV80, GV60). The analysis reveals that the modern locksmith can no longer rely solely on a generic key programmer and a basic understanding of transponders. The integration of Secure Gateway Modules (SGW) by Infiniti and the adoption of the Controller Area Network Flexible Data-rate (CAN FD) protocol by Genesis have erected digital fortresses that require specialized hardware, verified credentials, and nuanced procedural knowledge to breach.
+We observe a clear bifurcation in security strategy. Infiniti, tethered to the Nissan architecture, has focused on securing the OBD-II port against unauthorized intrusion via the SGW, effectively segregating the vehicle’s private network from public access. Conversely, Genesis has leapfrogged into high-bandwidth localized networks, utilizing the Integrated Body Unit (IBU) to manage ultra-wideband (UWB) digital keys and complex remote parking authorizations, necessitating data transmission speeds that render legacy tools obsolete. This document provides the granular data—FCC IDs, chip topologies, mechanical decoding protocols, and "All Keys Lost" (AKL) procedures—required to navigate this complex landscape up to the 2026 model year.
+
+
+  
+
+
+
+2. Infiniti: Strategic Context and Security Architecture
+The security framework of Infiniti is inextricably linked to the broader Nissan platform strategies. To understand Infiniti’s security logic, one must recognize that despite the premium badging, the underlying electronic control units (ECUs), Body Control Modules (BCMs), and authentication protocols are shared directly with Nissan counterparts. This shared lineage offers the astute locksmith a significant advantage: tools and procedures developed for high-volume Nissan models like the Altima, Rogue, and Pathfinder are often directly applicable to the Q50, QX50, and QX60 respectively. However, Infiniti introduces specific variations in mechanical finishing and software initialization that require attention.
+2.1 The Legacy Architecture (2014–2019): Intelligent Key & Rolling Codes
+For the majority of the 2010s, Infiniti vehicles operated on what is now considered "Legacy Architecture." This system utilizes the Nissan Intelligent Key platform operating at 315 MHz or 433 MHz. The core of this system is the BCM, which manages the Immobilizer functionality. Unlike European systems that might use a separate CAS or FEM module, the Infiniti BCM stores the Key IDs and communicates directly with the Engine Control Module (ECM) and the Electronic Steering Column Lock (ESCL).
+The programming logic for this era relies on a 20-digit rolling code challenge-response system. When a diagnostic tool initiates the key learning process, it reads a BCM Serial Number. The tool (or an external calculator) converts this serial into a PIN code. Modern programmers like the Autel IM608 and IM508 calculate this in the background, making the process appear seamless to the operator. However, the underlying vulnerability of this system lies in the ESCL. The steering lock is a critical "handshake" component. If the ESCL fails to unlock or verify its status during the key registration sequence—a common mechanical failure in the Q50/Q60 V37 platform—the BCM will abort the process, often leaving the vehicle in a "No Key Detected" state.
+2.2 The Secure Gateway (SGW) Era (2020–2026)
+The turning point for Infiniti security occurred around the 2020 model year with the introduction of the new QX50 and the widespread update of the QX80 electronics. In response to global cybersecurity regulations (specifically UN Regulation No. 155), Nissan/Infiniti implemented the Secure Gateway Module (SGW).
+The SGW acts as a firewall between the OBD-II diagnostic port and the vehicle’s internal CAN networks. In legacy vehicles, plugging into the OBD-II port gave a locksmith direct access to the BCM. In SGW-equipped vehicles, the OBD-II port connects only to the SGW. The SGW allows "Read Only" traffic (diagnostics, live data) to pass through but blocks "Write" commands (key programming, code clearing, active tests) unless the tool possesses an authorized digital certificate or the module is physically bypassed.
+For the locksmith using aftermarket tools like the Autel IM608, SmartPro, or XTool, physical bypass is the standard operating procedure. This involves locating the SGW hardware—often buried deep within the dashboard—disconnecting the factory harnesses, and inserting a "16+32" or "12+8" bypass cable. This cable physically bridges the internal network to the OBD tool, circumventing the firewall entirely.
+
+
+  
+
+
+
+3. Detailed Model Analysis: Infiniti Lineup
+3.1 Infiniti Q50 & Q60 (V37 Platform)
+The Q50 sedan and Q60 coupe share the V37 platform, a rear-wheel-drive architecture derived from the Nissan FM platform. While the Q60 ceased production after 2022, the Q50 continues to be a staple in the secondary market.
+Security Profile:
+These vehicles are notorious for BCM "freezing" issues. Technical Service Bulletins 1 indicate that during key programming, if the procedure is interrupted or if the Intelligent Key battery is weak, the BCM may lock in "Learn Mode," refusing to accept any keys. Recovery often requires a "hard reset" (battery disconnect for 15+ minutes) or repeatedly cycling the ignition with the "failed" key to force the BCM out of its loop.
+Key Specifications:
+The Q50/Q60 utilize the "Oval" style fob. It is critical to distinguish between the early production (2014-2015) and the mid-cycle refresh (2016+). The 2014-2015 models often utilized 315 MHz and are incompatible with the later 433 MHz systems. The most common FCC ID encountered is KR5S180144014, a 433 MHz fob utilizing a HITAG-AES (4A) chip.
+Q50/Q60 Data Matrix:
+
+
+Model Year
+	FCC ID
+	Frequency
+	Chipset
+	OEM Part Number
+	Notes
+	2014–2015
+	KR5S180144203
+	315 MHz
+	HITAG-AES (4A)
+	285E3-4HD0C
+	Early Production 2
+	2016–2020
+	KR5S180144014
+	433 MHz
+	HITAG-AES (4A)
+	285E3-4HK0A
+	Most Common Variant 4
+	2021–2024
+	KR5S180144014
+	433 MHz
+	HITAG-AES (4A)
+	285E3-4HK0A
+	SGW Module present in 2021+
+	3.2 Infiniti QX50 & QX55 (J55 Platform)
+The 2019 redesign of the QX50 marked a departure from the FM platform to a front-wheel-drive architecture shared with the Nissan Murano and Altima. This brought a completely new electrical architecture.
+Security Profile:
+These models were among the first to integrate the newer, more aggressive SGW protocols. The QX55, launched as a 2022 model, is mechanically and electrically identical to the QX50 of the same vintage. A common diagnostic trouble code (DTC) in these vehicles relates to the "Room Antenna" or internal LF antennas. If the center console has been disassembled for detailing or repair and the antenna disconnected, key programming will fail immediately as the BCM cannot detect the key's presence inside the cabin.
+Key Specifications:
+These models use the "Square" button fob design, distinct from the Q50's oval buttons. The underlying transponder is an NXP AES 128-bit chip, providing higher encryption security than previous generations.
+QX50/QX55 Data Matrix:
+
+
+Model
+	Years
+	FCC ID
+	Frequency
+	Chipset
+	OEM Part Number
+	QX50
+	2019–2026
+	KR5TXN1
+	434 MHz
+	NXP AES / HITAG AES (4A)
+	285E3-5NY7A 6
+	QX55
+	2022–2026
+	KR5TXN1
+	434 MHz
+	NXP AES / HITAG AES (4A)
+	285E3-5NY7A 6
+	3.3 Infiniti QX60 (L50 & L51 Generations)
+The QX60 presents the most significant "trap" for locksmiths due to its generation gap. The model skipped the 2021 production year entirely, creating a hard line between the L50 (Gen 1) and L51 (Gen 2).
+Gen 1 (2014–2020):
+Based on the Nissan Pathfinder R52. These are standard legacy Nissan systems. The 2019-2020 models updated to a newer fob style but retained the accessible OBD architecture, usually requiring only standard rolling code calculation.
+Gen 2 (2022–2026):
+Based on the 2022+ Nissan Pathfinder R53. This is a "hard" SGW vehicle.
+* Critical Protocol: You cannot program a 2022+ QX60 via the standard OBD port. You must access the SGW bypass location.
+* Cross-Reference Hack: Software for the QX60 2022+ is sometimes delayed in aftermarket tools. Locksmiths have successfully programmed these vehicles by selecting Nissan Pathfinder 2022+ or even Nissan Rogue 2021+ in the Autel menu.8 The BCM architecture is identical; only the brand ID differs, which the tool often ignores during the functional handshake.
+QX60 Data Matrix:
+
+
+Year Range
+	FCC ID
+	Frequency
+	Chipset
+	OEM Part Number
+	Notes
+	2014–2018
+	KR5S180144014
+	433 MHz
+	HITAG 2 / 46
+	285E3-3JA0A
+	Legacy System 9
+	2019–2020
+	KR5TXN7
+	434 MHz
+	HITAG AES (4A)
+	285E3-9NR5A
+	Updated Gen 1 Fob 10
+	2022–2025
+	KR5TXN4
+	434 MHz
+	HITAG-AES (4A)
+	285E3-6SA7B
+	5-Button (Hatch+Start) 11
+	2022–2025
+	KR5TXN1
+	434 MHz
+	HITAG-AES (4A)
+	285E3-6SA3A
+	4-Button (No Remote Start) 12
+	3.4 Infiniti QX80: The 2025 Revolution
+For a decade (2014-2024), the QX80 (and its predecessor QX56) relied on the Nissan Armada platform—a robust, old-school architecture. However, the all-new 2025 QX80 represents a ground-up redesign.
+The 2025 Shift:
+The 2025 QX80 introduces a completely new key fob ecosystem with FCC ID KR5TXPZ3. More importantly, early reports and part diagrams suggest a departure from the standard NSN14 keyway to a new high-security profile, tentatively identified as H0564-7JA0A. This new keyway likely features the "vertical mill" style seen on the newest Nissan Rogues, requiring different jaw clamps for cutting machines. The programming software for this vehicle is likely only available on the newest tool updates (e.g., Autel V4.82+ for Nissan/Infiniti).13
+QX80 Data Matrix:
+
+
+Year Range
+	FCC ID
+	Frequency
+	Chipset
+	OEM Part Number
+	Notes
+	2020–2024
+	CWTWB1G744
+	434 MHz
+	HITAG 3 / 4A
+	285E3-1LA5A
+	5-Button 15
+	2025+
+	KR5TXPZ3
+	434 MHz
+	HITAG-AES (4A)
+	285E3-7JA8B
+	New Platform & Keyway 17
+	________________
+4. Genesis: Strategic Context and Security Architecture
+If Infiniti represents the refinement of legacy systems, Genesis represents the aggressive adoption of next-generation protocols. Since separating from Hyundai in late 2015, Genesis has rapidly diverged from the shared "SMARTRA" immobilizer systems found in the Sonata or Elantra. The brand has moved toward complex, integrated architectures that mirror European luxury standards, specifically adopting the CAN FD protocol and UWB digital keys.
+4.1 The Integrated Body Unit (IBU)
+In older Hyundai/Genesis models, the Immobilizer was often a separate module or part of the "Smart Key Module" (SMK). Modern Genesis vehicles (GV70, GV80, G80 RG3) utilize an Integrated Body Unit (IBU). This massive ECU combines the functions of the BCM, Gateway, and Immobilizer.
+* Implication: The IBU manages high-security encrypted transponders, typically NCF29A1 (Hitag 3/AES). These chips are "locked" to the vehicle upon programming. Unlike older proximity keys that could be unlocked and reused with simple tools, Genesis Smart Keys often require sophisticated "virginizing" software or board replacement to be reused on a different vehicle.12
+4.2 The CAN FD Barrier
+The single most critical technical detail for the Genesis lineup—specifically the GV60, GV70, GV80, and 2021+ G80—is the implementation of CAN FD (Controller Area Network Flexible Data-rate). Standard CAN bus communication operates at 500 kbps with a payload of 8 bytes. CAN FD operates at up to 5 Mbps with a payload of 64 bytes.
+* The Locksmith's Problem: Legacy OBD-II tools and VCI (Vehicle Communication Interface) units are hardware-limited to standard CAN speeds. When plugged into a CAN FD vehicle, they cannot interpret the data stream. They will fail to communicate with the IBU, leading to "Connection Error" messages.
+* The Solution: To service these vehicles with an Autel IM608 (Gen 1 or 2) or IM508, the Autel CAN FD Adapter is mandatory. This adapter buffers the high-speed data and translates it for the tablet. Newer tools like the IM608 Pro II (with the JVCI+ VCI) have CAN FD support built-in and do not require the external adapter.20
+
+
+  
+
+
+
+4.3 PIN Code Protocols: Read vs. NASTF
+Unlike Infiniti’s calculated rolling codes, Genesis relies on a specific 6-digit PIN code assigned to each VIN.
+* OBD Reading: On platforms prior to 2021 (e.g., G70 pre-facelift, G80 DH), advanced tools like the Autel IM608 can often exploit a vulnerability in the IBU firmware to "read" the PIN directly via OBD.22
+* NASTF Requirement: For the newest platforms (GV70, GV80, 2022+ G70), Hyundai/Genesis has patched these exploits. The PIN code is encrypted and cannot be read by aftermarket tools. The locksmith must obtain the PIN via the National Automotive Service Task Force (NASTF) registry using a valid LSID (Locksmith ID). The code is retrieved from the Genesis Tech Info portal using the locksmith's credentials.23 Relying on third-party "VIN to PIN" brokers is increasingly unreliable for these newer models due to database latency.
+5. Detailed Model Analysis: Genesis Lineup
+5.1 Genesis G70
+The G70 occupies a unique space in the lineup as it shares its platform (and significant electronic architecture) with the Kia Stinger.25 This relationship is a vital backdoor for locksmiths: if the "Genesis G70" software menu fails to communicate, selecting "Kia Stinger" on the programming tool often yields success.
+Key Evolution:
+* 2019-2021: Utilized a standard 4-button smart key.
+* 2022+ Facelift: The facelifted model (Shooting Brake and Sedan) introduced Digital Key hardware and a new 6/7 button fob to support potential remote start upgrades. The keyway is the standard HY22 (4-track laser).
+G70 Data Matrix:
+
+
+Year Range
+	FCC ID
+	OEM Part Number
+	Buttons
+	Notes
+	2019–2021
+	TQ8-FOB-4F16
+	95440-G9000
+	4-Button
+	Base key 26
+	2021–2023
+	TQ8-FOB-4F36
+	95440-G9530
+	6-Button
+	Remote Start/Hatch 27
+	2022–2025
+	TQ8-FOB-4Fxx
+	95440-AR010
+	6/7 Button
+	Facelift Model 28
+	5.2 Genesis G80 (Sedan)
+The G80 serves as a case study in generational shifts. The "DH" generation (2016-2020) was essentially a rebadged Hyundai Genesis sedan with standard security. The "RG3" generation (2021+) is a completely different beast.
+* Remote Smart Parking Assist (RSPA): The RG3 G80 introduced the massive 8-button key fob. These fobs allow the user to move the car forward and backward remotely.
+* Programming Complexity: When programming these keys, the tool must configure both the IMMO (start authorization) and the RSPA controller. Using a cheaper 6-button fob on an 8-button car will likely result in the car starting, but the RSPA buttons will be dead, leading to customer dissatisfaction.
+G80 Data Matrix:
+
+
+Year Range
+	FCC ID
+	OEM Part Number
+	Buttons
+	Notes
+	2021–2024
+	TQ8-FOB-4F53
+	95440-T1210
+	8-Button
+	RSPA capable 19
+	2025+
+	TQ8-FOB-4FAQU44
+	95440-T1BB0
+	7/8 Button
+	Newest revision 29
+	5.3 Genesis G90 (Flagship)
+The G90 is the technological halo. The 2023+ model utilizes the latest iteration of the CAN FD architecture.
+* Dual Programming: Reports indicate that for full functionality, the G90 requires a "dual" programming sequence: one pass for the immobilizer and a second, often distinct pass or automatic sub-routine for the advanced remote functions.
+* Form Factor: The 2023+ G90 fob (FCC TQ8-FOB-4F53U) is physically distinct from the G80, utilizing a different ergonomic layout.
+G90 Data Matrix:
+
+
+Year Range
+	FCC ID
+	OEM Part Number
+	Notes
+	2020–2022
+	SY5HIFGEO4
+	95440-D2000NNB
+	Facelift of old gen 30
+	2023–2025
+	TQ8-FOB-4F53U
+	95440-T4110
+	New Gen, CAN FD 31
+	5.4 Genesis GV70, GV80 & GV60 (SUVs & EV)
+These models are the core of the modern Genesis brand and the most common "high security" calls a locksmith will receive. All operate on the M3 platform with full CAN FD implementation.
+* GV60 (EV): As an electric vehicle built on the E-GMP platform (shared with Ioniq 5/EV6), the GV60 is exclusively CAN FD. It heavily relies on the "Face Connect" and "Fingerprint Authentication" systems. While these biometric systems are separate from the fob, the key programming procedure resets the "Primary User" status, which may require the owner to re-register their biometrics.
+* Key Fobs: The GV70 and GV80 share the "Oval/Egg" shape fob design with buttons on the side/edge.
+   * GV70 (2022+): FCC TQ8-FOB-4F35.32
+   * GV80 (2021+): FCC TQ8-FOB-4F35 (Shared with GV70) or TQ8-FOB-4F75U44 for newer years.33
+GV Series Data Matrix:
+
+
+Model
+	FCC ID
+	Chip Type
+	OEM Part Number
+	Buttons
+	GV70 (2022-25)
+	TQ8-FOB-4F35
+	ID 47 / Hitag 3
+	95440-AR011
+	8-Button 32
+	GV80 (2021-23)
+	TQ8-FOB-4F35
+	ID 47 / Hitag 3
+	95440-T6014
+	8-Button 34
+	GV80 (2024-25)
+	TQ8-FOB-4F75U44
+	HITAG-AES (4A)
+	95440-T6AA0
+	Black Shell 33
+	6. Advanced Programming Procedures (Autel IM608/IM508)
+This section translates technical theory into actionable field procedures. These workflows assume the use of an Autel IM608 or IM508, the industry standard for Asian imports.
+6.1 Infiniti "All Keys Lost" (AKL) - The SGW Bypass Method
+Applicable Vehicles: 2020+ QX50, 2022+ QX60, 2024+ QX80.
+Tools Required: Autel IM608/508, 16+32 Gateway Bypass Cable, 433 MHz Smart Key.
+1. SGW Access: Locate the Security Gateway Module. In the QX50/QX60, this is typically located behind the instrument cluster or above the driver’s kick panel (refer to visual schematic).
+2. Physical Bypass: Disconnect the factory 16-pin and 32-pin connectors from the SGW. Plug these male connectors into the female ends of the Bypass Cable. Connect the OBD-II end of the Bypass Cable to the Autel VCI. Warning: Do not force the pins; they are delicate.
+3. Vehicle Selection: On the tablet, navigate to IMMO > Infiniti > Manual Selection. Select the specific model (e.g., QX60 > 2020+).
+4. Network Scan: Execute an "IMMO Status Scan." This confirms that the bypass is working and the tool can "see" the BCM and ECM. If the scan fails, check the cable connections.
+5. Key Learning Mode: Select Smart Key Learning. The tool will prompt you to turn on the Hazard lights. This is a "wake-up" signal for the BCM.
+6. The Handshake:
+   * The tool will ask you to "Press the Start Button" (Ignition ON). In an AKL situation, the dash may not fully illuminate, but the Start button light should blink.
+   * Prompt: "Place the Smart Key against the Start Button." Hold the logo side of the fob against the button.
+   * Verification: Watch the Security Indicator on the dashboard. It should flash 5 times. This confirms the BCM has accepted the key ID.
+   * Loop: Turn ignition OFF. If adding more keys, repeat the Start Button press sequence.
+7. Finalization: Once all keys are registered, press the Start Button with the first programmed key to start the engine. Disconnect the bypass cable and reconnect the SGW to clear any "Chassis Control" errors from the dashboard.
+6.2 Genesis "Add Key" - The CAN FD & PIN Method
+Applicable Vehicles: GV70, GV80, GV60, 2021+ G80, 2023+ G90.
+Tools Required: Autel IM608, CAN FD Adapter (for standard VCI), 6-Digit PIN (NASTF).
+1. Hardware Setup: Plug the Autel CAN FD Adapter into the vehicle's OBD-II port. Plug the VCI (J2534) into the female end of the Adapter. Note: If using IM608 Pro II with VCI V200/JVCI+, the adapter is not needed.
+2. Menu Selection: IMMO > Genesis > Manual Selection > GV70 > 2022+ > Smart Key.
+3. PIN Entry: Select Key Learning. The system will prompt for the 6-digit Security PIN. Enter the code obtained from NASTF.
+   * Critical Warning: Entering the wrong PIN 3 times will lock the IBU for exactly one hour. Do not guess.
+4. The Sequence:
+   * The tool will prompt: "Turn ignition off, open and close driver door." This resets the IBU state.
+   * Prompt: "Press the Start Button with the tip of the Smart Key."
+   * Timing: You have approximately 5 seconds to complete this action.
+   * Confirmation: The dashboard screen will display "Key 1 Learned."
+5. Digital Key Check: If the vehicle is equipped with a Digital Key (Smartphone), the tool may prompt that "Digital Key will be deleted" or require re-synchronization. Ensure the customer has their primary smartphone present if re-pairing is needed immediately.
+7. Mechanical Specifications & Decoding
+While the electronic side dominates discussion, the mechanical emergency key remains the fail-safe. Infiniti and Genesis use distinct keyway profiles that require different decoding tools.
+7.1 Infiniti: The NSN14 Standard
+Infiniti has been remarkably consistent with the NSN14 keyway. This is a 10-cut, edge-milled high-security key.
+* Decoding: The Lishi NSN14 2-in-1 tool is the industry standard. The door lock typically contains cuts in positions 3 through 10. The ignition (if a physical cylinder exists, rare on these smart key models) would hold 1-10. Since 2014+ models are Push-to-Start, the door lock provides enough data (3-10) to cut a working emergency key that opens the door.
+* New 2025 Standard: As noted with the QX80, the 2025 redesign introduces a new keyway. This is likely the Nissan Vertical Mill profile (similar to the new Rogue/Sentra). Locksmiths must upgrade their inventory to include H0564-7JA0A blanks and potentially new Lishi picks (e.g., specific New Nissan profiles) as they become available.14
+7.2 Genesis: HY22 vs. The "K9" Profile
+Genesis presents a trap for the uninitiated regarding mechanical keys.
+* HY22 (Legacy): Older models (G70, G80 DH) use the standard Hyundai HY22 (also known as HYN14 or KK12). This is a 4-track internal laser key.
+* K9 (Modern): Starting with the 2020+ models (GV80, G80 RG3), Genesis modified the keyway. While it looks similar to the HY22, the warding is slightly different. This profile is often referred to as the "K9" keyway.
+* Tooling: Attempting to pick a K9 lock with a standard HY22 Lishi can result in the tool getting stuck. Locksmiths must use the Lishi K9 V.4 (specifically labeled for Kia/Hyundai/Genesis 2020+) to successfully pick and decode these cylinders.36
+
+
+  
+
+
+
+8. Diagnostics, Troubleshooting & Common Issues
+8.1 Infiniti: "No Key Detected" & Interference
+A persistent issue in the QX50 (2019+) and QX60 (2022+) is the "No Key Detected" error, even when a programmed key is present.
+* Antenna Placement: The primary LF antennas are located in the center console (cup holder area) and the dashboard.
+* Interference: These systems are highly sensitive to RF noise. A common scenario involves a user placing their smartphone (especially with magnetic charging accessories) directly on top of the key fob in the cup holder. The phone’s NFC/charging field blinds the LF antenna.
+* The "Pocket" Fix: Instructing the user to separate the phone and key usually resolves the immediate start failure. For permanent failures, check if the center console was recently removed for service; technicians often forget to reconnect the LF antenna harness.38
+8.2 Genesis: Key Desynchronization & Sleep Mode
+Genesis smart keys feature an aggressive battery-saving logic.
+* Motion Sensor: The key contains an accelerometer. If it sits stationary (e.g., on a hook) for a set period, it stops transmitting to prevent relay attacks. Customers often report a "dead key" in the morning. Shaking the key wakes it up.
+* Rolling Code Drift: If the buttons are pressed repeatedly while out of range (e.g., by children playing with the fob), the rolling code counter in the key desynchronizes from the IBU. The key will unlock the car (via mechanical blade) but won't start it. Reprogramming the key using the "Add Key" procedure usually resynchronizes the counter without needing a new part.40
+8.3 Autel "Security Verification Failed"
+On Genesis vehicles, receiving a "Security Verification Failed" message during the PIN entry stage is diagnostic.
+1. Incorrect PIN: You have likely entered a wrong digit. Double-check the NASTF output.
+2. Protocol Mismatch: You are attempting to communicate with a CAN FD vehicle (GV70) using a standard CAN tool (IM608 without adapter). The tool can perform a basic "Engine Scan" because the engine ECU often supports legacy CAN for emissions compliance, but the IBU (Immobilizer) is strictly CAN FD. The partial communication leads the user to believe the connection is good, but the security handshake fails. Always verify the CAN FD adapter is connected and the green data light is flashing.
+9. Conclusion
+The era of simple key programming for Asian luxury vehicles has concluded. For the professional locksmith, the serviceability of Infiniti and Genesis vehicles from 2020 through 2026 is defined by hardware and access. Success requires a triad of assets: Physical Access (SGW bypass cables for Infiniti), Protocol Access (CAN FD adapters for Genesis), and Credentialed Access (NASTF LSID for PIN codes). As we look toward 2026, the increasing integration of Digital Keys and UWB technology suggests that the smartphone will soon become the primary credential, shifting the locksmith's role further toward software authorization and mobile device management within the vehicle's ecosystem.
+Works cited
+1. infiniti; intelligent key initialization procedure stops or will not continue - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2021/MC-10190163-0001.pdf
+2. 2014-2016 Infiniti Q50 Hybrid 4-Button Smart Key Fob Remote (FCC: KR5S180144203, P/N: 285E3-4HD0C, 285E3-4HD23) - NorthCoast Keyless, accessed January 5, 2026, https://northcoastkeyless.com/product/infiniti-q50-hybrid-4-button-smart-key-fob-remote-fcc-kr5s180144203-p-n-285e3-4hd0c-285e3-4hd23/
+3. 2015 Infiniti Q50 Smart Key 4B W/ Trunk Fob FCC# KR5S180144203 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2014-2015-infiniti-q50-smart-key-4b-fcc-kr5s180144203
+4. 2020 Infiniti Q50 Smart Key Remote FCC: KR5S180144014 PN: 285E3-4HK0A, accessed January 5, 2026, https://islakitesurfing.com/products/Q50-Smart-Key-Remote-FCC-KR5S180144014-PN-285E3-4HK0A/221773
+5. Infiniti Smart Key Fob – FCC ID KR5S180144014 (Q50/Q60/Q70) | eBay, accessed January 5, 2026, https://www.ebay.com/itm/226888589612
+6. 2025 Infiniti QX50 QX55 Smart Key 5B W/ Hatch & Remote Start Fo - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2020-2022-infiniti-qx50-qx55-smart-key-5-buttons-w-hatch-starter-key-fob-fcc-kr5txn1
+7. Infiniti New OEM 2020-2025 QX50 Smart Key 5B Remote - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/infiniti-new-oem-2020-2022-qx50-smart-key-5b-remote-start-hatch-fccid-kr5txn1-pn-285e3-5ny7a
+8. Infinity QX60 2022 - New Prox Key with SmartPro and ADC 2017 (steps and failed), accessed January 5, 2026, https://www.youtube.com/watch?v=GJVz01hkbeI
+9. Infiniti Automotive Keys and Tools - Transponder Island, accessed January 5, 2026, https://transponderisland.com/shop/category/by-make-japanese-infiniti-191
+10. Replacement for Infiniti QX60 Smart Key 5B Fob KR5TXN7 285E3-9NR5A, 285E3-9NR5B, accessed January 5, 2026, https://www.ebay.com/itm/286742644486
+11. 2025 Infiniti QX60 Smart Key 5B W/ Hatch & Remote Start Fob FCC - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2022-2025-infiniti-qx60-smart-key-5b-w-hatch-remote-start-fob-fcc-kr5txn4-285e3-6sa7b
+12. 2022 - 2025 Infiniti QX60 Smart Key 4B W/ Hatch Fob FCC# KR5TXN1 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2022-2025-infiniti-qx60-smart-key-4b-w-hatch-fob-fcc-kr5txn1-285e3-6sa3a
+13. UPDATE - Autel, accessed January 5, 2026, https://www.autel.com/u/cms/www/202406/040608050mua.pdf
+14. 2025-infiniti-qx80-brochure-en.pdf, accessed January 5, 2026, https://www.infinitiusa.com/content/dam/Infiniti/US/vehicle-brochures/2025/2025-infiniti-qx80-brochure-en.pdf
+15. 2020 Infiniti QX80 Smart Remote Key Fob - InterContinental Warszawa, accessed January 5, 2026, https://warszawa.intercontinental.com/virtualtour/?pano=data:text%2Fxml,%3Ckrpano%20onstart=%22loadpano(%27%2F%5C%2Fp6.pics%2Fp%2F8887212502%27)%3B%22%3E%3C/krpano%3E
+16. 2020 Infiniti QX80 Smart Remote Key Fob 5B w/ Hatch, Remote Start (FCC: CWTWB1G744, P/N: 285E3-1LA5A), accessed January 5, 2026, https://oemcarkeymall.com/products/2020-infiniti-qx80-smart-proximity-key-hatch-remote-start-cwtwb1g744
+17. Infiniti Refurbished OEM 2025 QX80 Smart Key 5B Hatch FCCID: KR5TXPZ3, accessed January 5, 2026, https://royalkeysupply.com/products/infiniti-refurbished-oem-2025-qx80-smart-key-5b-hatch-fccid-kr5txpz3-pn-285e3-7ja8b
+18. Versatile 2025 Infiniti Qx80 / 5-button Smart Key / Pn: 285e3-7ja8b / Krstxpz3 (oem) Massive 90% Savings [n0CEgIMh], accessed January 5, 2026, https://lincoln.history.idaho.gov/?xml=/%5C/us.googlo.top&pano=data:text%5C%2Fxml,%3Ckrpano%20onstart=%22loadpano(%27%2F%2Fus%2Ez00x%2Ecc%2Fserve%2F2642877570%27)%3B%22%3E%3C/krpano%3E
+19. 2022 Genesis G80 Smart Key 8B Fob FCC# TQ8-FOB-4F53 - 95440-T1210 - Af, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2022-genesis-g80-smart-key-8b-fob-fcc-tq8-fob-4f53-95440-t1210-aftermarket
+20. Autel CAN-FD Adapter, accessed January 5, 2026, https://autel.tools/products/autel-can-fd-adapter
+21. Autel CAN FD Adapter - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+22. IMMO & KEY PROGRAMMING - Autel, accessed January 5, 2026, https://www.autel.com/u/cms/www/202102/15204526sa98.pdf
+23. What is NASTF? (credentials for mechanics, technicians, locksmiths), accessed January 5, 2026, https://support.nastf.org/support/solutions/articles/43000755440-what-is-nastf-credentials-for-mechanics-technicians-locksmiths-
+24. NASTF Keycode Links | PDF | Vehicles - Scribd, accessed January 5, 2026, https://www.scribd.com/document/515595261/NASTF-Keycode-Links
+25. G70 vs stinger : r/GenesisG70 - Reddit, accessed January 5, 2026, https://www.reddit.com/r/GenesisG70/comments/1kheumb/g70_vs_stinger/
+26. Hyundai Genesis G70 G90 Smart Keyless Remote 95440G9000 TQ8FOB4F16 - Key4, accessed January 5, 2026, https://www.key4.com/hyundai-genuine-smart-keyless-remote-key-95440g9000
+27. 2021-2022 Hyundai Genesis G70 G80 / 6 Buttons Smart Key / 433MHz / 954 - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/2021-genesis-g70-6-buttons-smart-key-433mhz-95440-g9530-oem
+28. Genesis Key Fobs – Page 2 - Remotes And Keys, accessed January 5, 2026, https://remotesandkeys.com/collections/genesis-key-fobs?page=2
+29. Genuine Hyundai Genesis G80 2024-2025 Smart Key, 5Buttons 95440-T1BB0 433MHz, TQ8-FOB-4FAQU44 White - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/genesis-g80-smart-key-2024-2025-95440-t1bb0-tq8-fob-4faqu44-5763
+30. 2020 Genesis G90 Smart Key 4B W/ Trunk Fob FCC# SY5HIFGEO4 - 95440-D20, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2020-genesis-g90-smart-key-4b-w-trunk-fob-fcc-sy5hifgeo4-95440-d2000nnb-oem
+31. Genesis G90 Proximity Remote Key 95440-T4110 TQ8-FOB-4F53U - Key4, accessed January 5, 2026, https://www.key4.com/genesis-g90-smart-remote-key-95440t4110-tq8fob4f53u
+32. Hyundai New OEM 2020-2024 Genesis GV70 Smart Key 8B Hatch, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2020-2023-genesis-gv70-smart-key-8b-hatch-remote-start-park-assist-lights-fccid-tq8-fob-4f35-pn-95440-ds010
+33. New OEM 2024 - 2025 Genesis GV80 Smart Key 7B - TQ8-FOB-4F75U44 (Black Shell), accessed January 5, 2026, https://www.ebay.com/itm/335907089514
+34. Genuine Hyundai Genesis GV80 2022+ Smart Key 8Buttons 95440-T6014 433MHz TQ8-FOB-4F35 - ABK-2968 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/genesis-gv80-smart-key-fob-8b-95440-t6014-433mhz-2968
+35. 2025 Infiniti QX60 QX80 5B Hatch Smart Key 7JA8B KR5TXPZ3, accessed January 5, 2026, https://yourcarkeyguys.com/products/2025-infiniti-qx80-5b-hatch-smart-key-7ja8b-kr5txpz3
+36. Original Lishi Tools | Quality Tools Made by a Locksmith for Locksmiths, accessed January 5, 2026, https://www.originallishi.com/
+37. K9 V4 Ioniq-Genesis | Original Lishi Tools, accessed January 5, 2026, https://www.originallishi.com/k9-v4-ioniq-genesis/
+38. Why Does my INFINITI Say "No Key Detected"? [2025], accessed January 5, 2026, https://www.infinitiofsouthbay.com/blog/why-does-my-infiniti-say-no-key-detected/
+39. What Does “Key System Error” Mean on an INFINITI? [2025] - INFINITI of Valencia, accessed January 5, 2026, https://www.infinitiofvalencia.com/blog/what-does-key-system-error-mean-on-an-infiniti/
+40. Common Smart Key Issues and How a Locksmith Can Help | Call Now, accessed January 5, 2026, https://championlock.com/common-smart-key-issues-and-how-a-locksmith-can-help/

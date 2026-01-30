@@ -1,0 +1,236 @@
+﻿Title: Advanced Locksmith Dossier: Lincoln and Genesis Luxury Security Architectures (2015–2026)
+1. Executive Summary: The Divergence of Luxury Security and Operational Implications
+The automotive security landscape has undergone a radical and bifurcated transformation between the years 2015 and 2026. This period marks a definitive departure from the era of homogenous platform sharing, where luxury divisions merely rebadged mainstream architectures with premium leather and distinct sheet metal. For the forensic security analyst and the master locksmith, the divergence of American (Lincoln) and Korean (Genesis) luxury marques from their mass-market siblings (Ford and Hyundai) represents a critical operational challenge. The assumption that a Lincoln Aviator functions identically to a Ford Explorer, or that a Genesis GV60 is merely a Hyundai Ioniq 5 in a tuxedo, is a procedural error that can lead to catastrophic module corruption, permanent alarm lockouts, or the inability to bypass active immobilization protocols.1
+This report serves as an exhaustive operational dossier and procedural guide for the Lincoln and Genesis luxury sectors. It dissects the platform-specific security topologies, detailing the evolution from standard transponder systems to complex, multi-factor authentication ecosystems involving biometric data, Ultra-Wideband (UWB) digital keys, and cloud-dependent immobilization strategies. The analysis highlights that while the underlying Controller Area Network (CAN) architectures often share a lineage with mainstream siblings, the peripheral access points—specifically electronic latches (E-Latch), facial recognition nodes, and telematics units—introduce unique attack vectors and programming constraints that demand specialized tooling and knowledge.1
+From a historical perspective, the divergence began in earnest around 2017 with Lincoln’s introduction of the Continental and its "Quiet Flight" ethos, which necessitated the removal of mechanical noise and the adoption of the E-Latch system.4 This technology, introduced significantly earlier than similar systems in the mass market, created a distinct tier of security complexity involving hidden mechanical overrides and capacitor-backed door release modules. Similarly, Genesis, after spinning off as a standalone brand in 2015, rapidly accelerated past Hyundai’s security stack. By 2022, the introduction of the GV60 brought face recognition and fingerprint authentication to the fore—technologies that would not see widespread adoption in the Hyundai lineup until years later.3 This technological separation means that the "luxury" tier is not just about comfort; it is about a fundamentally different, and often more hostile, security environment for the aftermarket service provider.
+2. The Lincoln Motor Company: American Luxury Security Architecture
+The security philosophy at Lincoln during the 2015–2026 period shifted from passive anti-theft measures to active, user-sensing perimeters. While the brand’s resurgence was built on the "Quiet Flight" design language, the implications for security architecture were profound. The desire to eliminate mechanical intrusion led to the widespread adoption of electronic door latches, creating a critical mechanical bypass challenge for locksmiths during lockout scenarios. Furthermore, the migration from C-segment platforms to the specialized CD6 (rear-wheel-drive architecture) and the highly modified T3 (truck architecture) has bifurcated programming procedures, separating them from the standard Ford protocols.1
+2.1 The E-Latch System: Mechanics, Vulnerabilities, and Emergency Access
+One of the most distinct features separating Lincoln from the Ford lineup is the E-Latch system, a technology that fundamentally alters how a vehicle is accessed. Prominent on the Lincoln Continental (2017–2020), the Lincoln Aviator (2020–Present), and the redesigned Lincoln Nautilus (2024–Present), the E-Latch replaces the traditional mechanical linkage with an electronic switch and solenoid arrangement.4
+In a standard automotive door handle, pulling the lever physically actuates a cable or rod that releases the latch. In the Lincoln E-Latch system, the handle is a fixed, solid-state component containing a microswitch. When the user grasps the handle, a signal is transmitted to the Body Control Module (BCM). If the Passive Entry Passive Start (PEPS) system detects a valid key fob within the 1-meter Low Frequency (LF) zone, the BCM energizes a solenoid to "pop" the door ajar.4 This seamless operation, while aesthetically pleasing, presents a severe complication for locksmiths during a total power loss or dead battery scenario. If the vehicle has no power, the BCM cannot energize the solenoid, rendering the exterior handles completely inoperative.
+Lincoln engineers integrated mechanical redundancies to address this, but they are often concealed to maintain the vehicle's smooth lines, confounding standard lockout procedures. For the driver’s door, a mechanical key cylinder is present but hidden. On the Continental and Aviator, the lock cylinder is located behind a removable cap on the fixed portion of the handle or, in some model years, located under the side mirror housing.8 The removal of this cap is a delicate operation; it usually requires a specific angle of attack with a plastic pry tool or the tip of the emergency key blade. Force applied incorrectly will snap the cosmetic cover clips, leading to expensive cosmetic damage.9
+Once inside the vehicle, a different challenge arises if the vehicle power fails while occupied. The interior door release button is also electronic. To ensure safety, a manual release lever is located at the bottom of the door map pocket or integrated into the armrest storage, varying by model. This emergency egress handle mechanically overrides the latch, allowing the door to open without electrical power.7 Knowledge of these locations is essential for locksmiths who may need to instruct a trapped customer on how to exit the vehicle or for first responders accessing a disabled vehicle.
+2.2 Model-Specific Security Profiles and Specifications
+The Lincoln lineup is diverse, utilizing several different platforms that dictate the security protocol. The locksmith must identify the platform code to determine the correct transponder type and programming method.
+2.2.1 The Lincoln Continental (2017–2020)
+The Continental served as the flagship for Lincoln’s modern design language and security architecture. Built on a modified CD4 platform, it introduced the E-Latch system to the mass market.
+* Key Fob Architecture: This model utilizes a unique 902 MHz frequency for its smart keys, a significant departure from the 315 MHz standard used in older Ford and Lincoln platforms. The shift to 902 MHz was driven by the need for better signal penetration and range in increasingly noisy RF environments.10
+* FCC ID: The primary identifiers for this generation are M3N-A2C94078000 and M3N-A2C940780.11
+* Transponder: The system uses an NXP HITAG-PRO ID49 (128-bit) chip. This high-security encryption is far more robust than the older 40-bit or 80-bit encryption used in previous generations.
+* Keyway: The mechanical override utilizes the High Security HU101 keyway, consistent with the Ford ecosystem.
+* All Keys Lost (AKL) Procedure: The Continental presents a unique challenge due to the latency in the BCM. The complex door modules share the CAN bus, and during an AKL programming session, the BCM read/write latency is higher than on a Ford Fusion. Furthermore, if the alarm is active, the locksmith must gain entry and wait out the 10-minute silence period or use a specialized parameter reset tool that supports active alarm bypass.13
+2.2.2 The Lincoln Navigator (2018–2026)
+As the brand’s largest SUV, the Navigator shares the T3 truck platform (specifically the U554 code) with the Ford Expedition and F-150, but its security software is distinct.6
+* Security Evolution: While the hardware resembles the Ford T3 platform, the Navigator employs different software strategies for the Passive Anti-Theft System (PATS). The BCM architecture dictates the programming method.
+* FCC ID (2018-2020): M3N-A2C931426.14
+* FCC ID (2021+): M3N-A2C93142600. Note the updated revision number; mixing these fobs often results in failure to program the proximity functions, even if the immobilizer learns the chip.15
+* Frequency: 902 MHz.14
+* Critical Programming Note: For 2021 and newer models, the BCM requires a specialized cable or adapter (CAN FD or Gateway bypass) if using aftermarket programmers like the Autel IM608 or Smart Pro. While the T3 platform remained largely standard CAN until the 2023 refresh, the gateway modules were updated to block unauthorized OBDII read commands.16 The 2025 refresh introduces a 48-inch panoramic display which integrates the PATS status display, changing how "Key Learned" messages are presented to the technician.17
+
+
+
+
+2.2.3 The Lincoln Aviator (2020–2026)
+The Aviator rides on the CD6 rear-wheel-drive architecture, sharing its bones with the Ford Explorer but featuring a significantly more complex telematics suite.
+* FCC ID: M3N-A2C931426.18
+* Phone As A Key (PAAK): The Aviator popularized the PAAK feature in the Lincoln lineup. This system allows the user's smartphone to act as a proximity fob via Bluetooth Low Energy (BLE).
+* Locksmith Challenge: PAAK creates "ghost keys" in the system. When performing an All-Keys-Lost (AKL) service, simply erasing the physical fobs may not clear the digital certificates stored in the Telematics Control Unit (TCU). This presents a liability: a lost phone could still unlock the car. To remediate this, a specific "Phone As A Key Reset" function must be executed via the OBDII port or the Sync 4 menu to ensure the customer's lost phone access is revoked.19
+2.2.4 The Lincoln Nautilus (2019–2026) and Corsair (2020–2026)
+The Nautilus represents a transition model. Early versions (2019-2023) were based on the CD4 platform (Edge), while the 2024 redesign moved to the C2 platform.21
+* 2024+ Nautilus Warning: The 2024 Nautilus redesign on the C2 platform has introduced a highly aggressive active alarm system. If the vehicle is locked and the alarm is armed, connecting a programmer to the OBDII port can trigger an immediate communication lockdown. The BCM interprets the OBDII connection as a hacking attempt and ceases communication on the CAN bus.
+* Bypass Technique: Users report needing a specific "Alarm Bypass Cable" or using the "Door Open/Close" trick to wake the BCM without triggering the intrusion sensors before programming. This involves mechanically cycling the driver's door lock (Unlock-Lock-Unlock) using a picked key to disarm the perimeter guard.23
+* Key Code Retrieval: 2024+ models allow key code retrieval (for the keypad) using two programmed fobs. The fobs must be placed in the specific backup slot in the center console, pushing them toward the front. Once recognized, the factory keyless entry code is displayed on the new panoramic screen, a feature not present in older models which required reading the code from the BCM label or via OBDII.23
+2.3 Programming Procedures and Protocols
+The programming environment for modern Lincolns requires tools capable of bypassing the security gateway (SGW) present on 2018+ models and handling the 10-minute security delay inherent to Ford/Lincoln PATS.
+Standard All-Keys-Lost Workflow:
+1. Entry: The first step is gaining entry. The Lishi HU101 pick and decoder is the industry standard. However, 2020+ models may use the HU198 (internal cut) profile or a modified high-security keyway, requiring updated tools.14
+2. Alarm State Management: If the alarm is sounding, the BCM may reject communication. Mechanical key cycling in the door cylinder is the standard method to silence the siren and enter "Programming Mode" readiness. On the 2024 Nautilus, this step is critical to prevent the OBD port lockout mentioned previously.
+3. Connection and Voltage: Connect the Vehicle Communication Interface (VCI) to the OBDII port. It is imperative to ensure steady voltage by hooking up a jump pack or power supply. Voltage drops below 11.5V can brick the BCM during the erasing phase, a risk that is heightened on Lincoln models due to the heavy electrical load of the luxury features (screens, massage seats, etc.) which may wake up during the process.
+4. Parameter Reset: The tool must gain security access. On T3 and CD6 platforms, this involves a calculation of the incode/outcode or a timed wait (approx. 10 minutes) for the system to grant access.
+5. Key Learning: Smart keys must be placed in the specific "backup slot" to be programmed. The location varies by model:
+   * Navigator/Expedition: Under the cup holder mat or inside the center console bin.
+   * Continental/Aviator: Inside the center console, often a vertical slot.9
+   * Nautilus (2024): Bottom of the center console, pushed toward the front.23
+3. The Genesis Motor Company: Korean Luxury Security Architecture
+Genesis represents a more radical departure from its parent company, Hyundai, than Lincoln does from Ford. While early models (2015–2016 Genesis Sedan) shared the "DH" platform and simple smart keys with Hyundai, the migration to the RG3 (G80), JK1 (GV70), and JX1 (GV80) platforms introduced a heavy reliance on biometric authentication (fingerprint and face) and encrypted CAN FD protocols.25 This technological leap was designed to create a "Keyless" ecosystem, but for the locksmith, it created a fortress of biometric and digital barriers.
+3.1 The Biometric Fortress: Face Connect and Fingerprint
+The Genesis GV60 (built on the E-GMP platform) and the 2024+ GV70/GV80 models introduce a "Keyless" paradigm that goes beyond the physical fob. This system, marketed as "Face Connect," uses a Near-Infrared (NIR) camera in the B-pillar and a fingerprint sensor on the center console.3
+The Locksmith's Dilemma:
+Biometric data interacts directly with the immobilizer. A fingerprint can authorize an engine start without a fob present. This creates a significant security loophole during the resale or recovery of a vehicle.
+* Implication: When programming new keys after an All-Keys-Lost event, the locksmith must also consider the biometric profiles. If the previous owner's fingerprint remains stored in the vehicle's memory, they may still have start authority even if the physical fobs are erased from the BCM.
+* Reset Procedure: The infotainment system (Head Unit) controls the biometric profiles. The path to delete them is generally: Setup -> User Profile -> Driver Fingerprint Identification -> Delete.27
+* The "Chicken and Egg" Problem: The system requires a valid smart key to be present inside the vehicle to authorize the deletion of biometric data. This creates a procedural paradox in AKL situations: you must successfully program a fob before you can access the menu to wipe the fingerprints.27 This means that for a short period after programming a new key, the old owner (if they have biometric access) could still theoretically start the car.
+
+
+
+
+3.2 Model-Specific Security Profiles and Specifications
+Genesis vehicles employ a variety of platforms that dictate the physical and digital access methods.
+3.2.1 The Genesis G90 (2017–2026)
+The G90 is the flagship sedan, evolving from the HI platform (2017-2021) to the RS4 platform (2022+).25
+* Key Fob:
+   * 2017-2021: Uses FCC ID SY5HIFGE04 and Part Number 95440-D2000. It operates on 433 MHz, utilizing an ID47 or 8A chip depending on the exact build date.28
+   * 2023+: The new generation introduced Digital Key 2.0 and Ultra-Wideband (UWB) fobs, which offer higher precision and security against relay attacks.
+* Soft Close Doors: The G90 features power-assisted door closing (Soft Close). Locksmiths must be extremely cautious when wedging the door for manual entry. Excessive force with an airbag wedge can damage the soft-close motor mechanism or the sensors within the latch assembly, leading to costly repairs.29
+* Emergency Entry: The mechanical lock cylinder is hidden behind the driver's handle cap. Unlike lower-tier models, the G90 handles are often flush (pop-out). Accessing the keyhole requires popping the handle out electronically (if battery permits) or pushing the front edge to leverage the rear out, revealing the cylinder.30
+3.2.2 The Genesis GV70 (2021–2026) and GV80 (2020–2026)
+These SUVs are built on the JK1 (GV70) and JX1 (GV80) platforms, which share significant architecture.25
+* FCC ID (GV70): TQ8-FOB-4F35. This fob uses a Philips ID 47 / HITAG 3 chip and operates on 433/434 MHz.31
+* FCC ID (GV80): Shares the TQ8-FOB-4F35 in some years or uses updated revisions.
+* Security Protocol: These vehicles utilize a Secure Gateway Module (SGW). Direct OBDII access for programming is restricted.
+* Programming Requirements:
+   1. Read Pin Code: A 6-digit PIN is required to program keys. On older Hyundai/Genesis models (2015-2020), this could be read via OBD or calculated from the VIN using aftermarket tools. However, on 2021+ Genesis models, the PIN is encrypted and difficult to extract via OBD.
+   2. CAN FD Adapter: The GV70 and GV80 communicate via CAN FD (Flexible Data-rate), a high-speed protocol that standard OBDII cables cannot read. An Autel CAN FD adapter or similar interface is mandatory for successful communication.32
+   3. NASTF VSP: There is growing pressure and software blocks preventing aftermarket tools from reading PINs on 2022+ models. Locksmiths may need to purchase the PIN code directly from the dealer or use NASTF (National Automotive Service Task Force) credentials if the tool fails to bypass the gateway. Recent updates to NASTF policies have made this a contested area, with some tools losing the ability to pull PINs without a valid VSP (Vehicle Security Professional) ID.33
+3.2.3 The Genesis GV60 (2022–2026)
+The GV60 is built on the E-GMP (Electric Global Modular Platform), sharing its underpinnings with the Hyundai Ioniq 5 and Kia EV6, but with added luxury layers.
+* FCC ID: TQ8-FOB-4F36.35
+* Dead Battery Access: This is a critical failure point for the electric GV60. If the 12V battery dies, the flush handles will not present themselves, and the electronic latches will not fire.
+   * Entry: The technician must push the front part of the handle to tilt the rear out, exposing the mechanical cylinder for the emergency key.
+   * Frunk Access: Once inside, popping the hood to jump the 12V battery is mechanical. However, if the electronic hood release fails, there is an emergency cable located in the fuse box area or side panel that can be pulled.36
+   * Charge Port Lock: In the event of a dead battery while charging, the charge port may lock the cable in place. A manual release cable is located in the cargo area side panel to disconnect the stuck charger.36
+3.3 Programming and PIN Code Architectures
+The primary hurdle for Genesis vehicles remains the PIN code acquisition.
+* Legacy Genesis (2015-2016): These vehicles, often still branded as Hyundai Genesis, use 46 Chip or 47 Chip Smart Keys. The PIN code is easily readable by most professional tools (Autel, Smart Pro, etc.) via the "Read Pin Code" function.37
+* Modern Genesis (2020+): The system migrated to encrypted rolling codes on the CAN FD bus.
+   * Tool Capability: The Autel IM608/508 with XP400 Pro and the CAN FD adapter has shown success on 2021-2023 models for "All Keys Lost" scenarios by reading the ECU data directly.39
+   * Failure Modes: If the tool returns a "Security Not Released" error, it usually indicates a failure to negotiate with the Secure Gateway or an incorrect PIN entry. After 3 failed attempts, the ECU enters a lockout mode that prevents further attempts for a set period.33
+4. Technical Specifications and Comparison
+4.1 Transponder and Frequency Reference
+The following data consolidates the fragmented FCC ID and frequency information into a single operational reference. The distinction between Lincoln's 902 MHz and Genesis's 433 MHz is crucial for inventory management.
+
+
+Marque
+	Model
+	Year Range
+	FCC ID
+	Frequency
+	Chip Type
+	Notes
+	Lincoln
+	MKC
+	2015-2016
+	M3N-A2C31243300
+	902 MHz
+	ID49
+	41
+	Lincoln
+	Continental
+	2017-2020
+	M3N-A2C94078000
+	902 MHz
+	ID49 (128-bit)
+	E-Latch Control 10
+	Lincoln
+	Navigator
+	2018-2020
+	M3N-A2C931426
+	902 MHz
+	ID49
+	T3 Platform 14
+	Lincoln
+	Aviator
+	2020-2024
+	M3N-A2C931426
+	902 MHz
+	ID49
+	CD6 Platform 18
+	Lincoln
+	Corsair
+	2020-2022
+	M3N-A2C931426
+	902 MHz
+	ID49
+	C2 Platform 14
+	Genesis
+	Sedan (DH)
+	2015-2016
+	SY5DHFNA433
+	433 MHz
+	ID47
+	Legacy Hyundai Tech 37
+	Genesis
+	G90
+	2017-2021
+	SY5HIFGE04
+	433 MHz
+	ID47/8A
+	Flagship 28
+	Genesis
+	GV70 / GV80
+	2021-2024
+	TQ8-FOB-4F35
+	433/434 MHz
+	ID47 (Hitag 3)
+	Req. CAN FD Adapter 31
+	Genesis
+	GV60
+	2022-2024
+	TQ8-FOB-4F36
+	433 MHz
+	ID47/8A
+	Biometric Integrated 35
+	
+
+
+
+4.2 Digital Key and Telematics Forensics
+Both marques have moved aggressively toward "Phone As A Key" (PAAK), but their implementations differ fundamentally in ways that impact security service.
+Lincoln PAAK (Bluetooth Low Energy):
+The Lincoln system uses approximately 11 antennas to triangulate the phone's position (Inside vs. Outside) to prevent lockouts or unauthorized starts. For locksmiths, the critical issue is that PAAK creates a persistent digital credential. Programming a new fob does not fix a broken PAAK connection; the customer must re-pair via the Lincoln Way App.42 Furthermore, PAAK status can keep the alarm system in a "hyper-vigilant" state. Ensuring the phone is off or Bluetooth is disabled on the customer's device is a crucial troubleshooting step during key programming to prevent interference.43 In scenarios where a vehicle is recovered or sold without keys, the PAAK profiles must be deleted via the Sync system: Settings -> General -> Reset -> Lincoln Connect Reset.19
+Genesis Digital Key 2.0 (UWB + NFC):
+The Genesis system utilizes Ultra-Wideband (UWB) for precise localization on GV60/G90 and NFC for a "Card Key" backup. Genesis vehicles often come with an NFC card that functions as a master for setting up the Digital Key on a phone.44 Unlike Lincoln, the Genesis system allows the Digital Key to be "Saved" or "Shared" via the smartphone wallet, meaning the "Key" exists in the cloud as much as in the car. If a customer loses their phone, the Digital Key must be deleted via the Head Unit to ensure security.45
+5. Conclusions and Operational Recommendations
+The divergence of Lincoln and Genesis from their mainstream siblings necessitates a specialized approach for security professionals. The "Ford Strategy" of waiting 10 minutes and cycling the key is no longer sufficient for the active-alarm environment of a 2024 Lincoln Nautilus, nor is the standard "Hyundai Strategy" of reading a PIN via OBD applicable to the CAN FD-protected Genesis GV series.
+Key Takeaways for the Locksmith:
+1. Tooling: A CAN FD adapter is now mandatory for Genesis service. A high-quality J2534 passthrough or proprietary alarm bypass cable is becoming essential for new Lincoln architectures.
+2. Biometrics: On Genesis GV60/GV70/GV80, always perform a biometric data reset after programming new keys to ensure the previous owner cannot access the vehicle via fingerprint.
+3. Inventory: Stock 902 MHz ID49 fobs for Lincoln (Distinct from Ford 315 MHz) and 433 MHz ID47 fobs for Genesis.
+4. E-Latch Awareness: Practice and prepare for non-destructive entry on Lincoln Continentals and Aviators, recognizing that the "handle" is a switch, not a lever, and knowing the location of the emergency bypass is paramount to avoiding damage.
+By understanding the distinct "Personality" of these luxury security stacks—Lincoln's reliance on 902 MHz/E-Latch and Genesis's integration of Biometrics/CAN FD—the security professional can mitigate liability and ensure successful service delivery in the luxury sector.
+Works cited
+1. What's New in Lincoln's 2026 Model Lineup?, accessed January 5, 2026, https://www.garyyeomanslincoln.com/blogs/4427/whats-new-in-lincolns-2026-model-lineup
+2. Genesis Model Lineup, accessed January 5, 2026, https://www.genesisatlanta.com/genesis-models
+3. Face Connect and Fingerprint Start on the 2026 Genesis GV60 — A Smart Luxury Advantage for Riverside, CA Drivers, accessed January 5, 2026, https://www.genesisofcorona.com/blog/face-connect-and-fingerprint-start-on-the-2026-genesis-gv60-a-smart-luxury-advantage-for-riverside-ca-drivers
+4. Learn How to Use the Electronic Door Handle | Grapevine Lincoln News & Info, accessed January 5, 2026, https://www.grapevinelincoln.com/blog/2019/december/17/learn-how-to-use-the-electronic-door-handle.htm
+5. 2024 Genesis GV60 - Face Unlock, Fingerprint Start & Goodbye Key Fob! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=SQINPBMPOOg
+6. Lincoln Navigator - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Lincoln_Navigator
+7. What is Lincoln® Light Touch Handle Electronic Door System? | How-To | Lincoln - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=0PrBDVfUzPk
+8. Lincoln Key Slot Locations (all models) En - Assistance Services Group (ASG), accessed January 5, 2026, https://assistanceservicesgroup.com/wp-content/uploads/2022/08/Lincoln-Key-Slot-Locations-all-models.pdf
+9. How do I find the intelligent key backup slot in my Lincoln vehicle?, accessed January 5, 2026, https://www.lincolncanada.com/support/how-tos/keys-and-locks/replace-and-reprogram-keys/how-do-i-find-the-intelligent-key-backup-slot-in-my-vehicle/
+10. Lincoln Prox Remote Key M3N-A2C940780 164-R8154 5 Button - Key4, accessed January 5, 2026, https://www.key4.com/smart-remote-key-lincoln-continental-mkc-mkz-navigator-m3na2c940780-164r8154
+11. 2017-2020 Lincoln Continental 4-Button Smart Key Fob Remote (M3N-A2C94078000, 164-R8155) - NorthCoast Keyless, accessed January 5, 2026, https://northcoastkeyless.com/product/lincoln-continental-4-button-smart-key-fob-remote-fcc-m3n-a2c94078000-p-n-164-r8155/
+12. Lincoln Refurbished 2017-2021 Continental, MKC, MKZ, Navigator Smart K, accessed January 5, 2026, https://royalkeysupply.com/products/lincoln-refurbished-2017-2021-continental-mkc-mkz-navigator-smart-key-4b-remote-start-fccid-m3n-a2c94078000-pn-5929516-164-r8155
+13. Replacement for Lincoln Continental 17 18 19 2020 Smart Key Fob M3N-A2C94078000, accessed January 5, 2026, https://www.ebay.com/itm/275862261843
+14. 2020-2024 Lincoln Corsair Aviator Nautilus Navigator 5B Hatch Smart Key M3N-A2C931426, accessed January 5, 2026, https://yourcarkeyguys.com/products/2020-2022-lincoln-corsair-aviator-5b-suv-hatch-smart-key-m3n-a2c931426
+15. Lincoln Aviator Corsair Navigator Nautilus Smart Key Fob PN: 164-R8278, 5938568, KL7T-15K601-BA, KL7T15K601BA, Frequency 902 MHz, accessed January 5, 2026, https://www.bestkeysolution.com/products/2021-lincoln-navigator-smart-key-fob-pn-164-r8278-5938568-kl7t-15k601-ba-kl7t15k601ba
+16. How to add Smart keys to 2021 Lincoln Navigator using Autel IM508 Key Programmer, accessed January 5, 2026, https://www.youtube.com/watch?v=TMF_6iGwuws
+17. 2025 Lincoln Navigator Is Grandiose and Full of Screens, as Expected - Car and Driver, accessed January 5, 2026, https://www.caranddriver.com/news/a61889527/2025-lincoln-navigator-revealed/
+18. OEM 2020 2021 2022 2023 LINCOLN CORSAIR AVIATOR SMART KEY REMOTE FOB 164-R8278 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/225539914966
+19. How do I reset my Phone As A Key? - Lincoln.com, accessed January 5, 2026, https://es.lincoln.com/support/how-tos/lincoln-app/phone-as-a-key/how-do-i-reset-my-phone-as-a-key/
+20. How do I reset my Phone As A Key? - Lincoln, accessed January 5, 2026, https://www.lincolncanada.com/support/how-tos/lincoln-app/phone-as-a-key/how-do-i-reset-my-phone-as-a-key/
+21. Lincoln Nautilus - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Lincoln_Nautilus
+22. List of Ford platforms - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/List_of_Ford_platforms
+23. 2024 Lincoln Nautilus - How do I get the code for the Keypad on the driver door? #shorts, accessed January 5, 2026, https://www.youtube.com/shorts/ztCC22YyJrw
+24. XTOOL AKL Alarm Bypass Cable All Key Lost Key Programmer AdapterFor Ford/For LINCOLN - AliExpress, accessed January 5, 2026, https://www.aliexpress.com/i/1005007494563104.html
+25. List of Genesis vehicles - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/List_of_Genesis_vehicles
+26. Genesis GV80 - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Genesis_GV80
+27. How to Use Fingerprint Reader & Face Connect | Genesis GV60 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ILQMebZtEiw
+28. 2017-2021 Genesis G90 Smart Key Fob Remote (SY5HIFGE04, 95440-D2000-NNB), accessed January 5, 2026, https://northcoastkeyless.com/product/genesis-g90-4-button-smart-key-fob-remote-fcc-sy5hifge04-p-n-95440-d2000/
+29. 2023 G90 Quick Reference Guide - Genesis Owners, accessed January 5, 2026, https://owners.genesis.com/genesis/us/mygenesis/manuals/glovebox-manual/2023/g90/2023-G90-Quick-Reference-Guide.pdf
+30. Power Door | Genesis G90 | How-To | Genesis USA - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=DVMhgtZEK_o
+31. 2021 - 2024 Genesis GV70 Smart Key 8B Fob FCC# TQ8-FOB-4F35 - 95440-AR, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-2024-genesis-gv70-smart-key-8b-fob-fcc-tq8-fob-4f35-95440-ar010
+32. Autel CAN FD Adapter Compatible with Autel VCI Maxisys Tablets - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/autel-can-fd-adapter-compatible-with-autel-vci-maxisys-tablets-1409
+33. 2021 Genesis GV80 key fob program failed with im508 - Autel Support Communities, accessed January 5, 2026, https://bbs.autel.com/autelsupport/Diagnostics/38409.jhtml?logoTypeId=3&typeName=USA%20Cars
+34. NASTF Programming – Submit Your Question HERE – Ask Scotty Community - CarKiller, accessed January 5, 2026, https://carkiller.com/scottykilmer/qa/nastf-programming/
+35. VD6387-hyundai-genesis-2022-smart-key-6-buttons-95440-g9630 | VVDI, accessed January 5, 2026, https://www.vvdi.com/vd6387-hyundai-genesis-2022-smart-key-6-buttons-95440-g9630
+36. GENESIS GV60, accessed January 5, 2026, https://owners.genesis.com/genesis/us/mygenesis/manuals/glovebox-manual/2023/gv60/2023%20Genesis%20GV60%20QRG.pdf
+37. 2014 - 2016 Hyundai Genesis Smart Key 4B Fob FCC# SY5DHFNA433 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2015-2016-hyundai-genesis-smart-key-4b-fcc-sy5dhfna433
+38. 2015 Hyundai Genesis Proximity programming via Smart Pro - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=7YT64Z8ZnIo
+39. HOW TO PROGRAM KEY FOR 2023 GENESIS G70 USING AUTEL IM508 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=K948FsD7UX8
+40. 2021 Genesis GV80 Proximity Smart Key Programmed with Autel IM608 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=cCO0ijkmcyI
+41. OEM Refurbished Smart Remote Key Fob Compatible with Lincoln 2015 2016, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2015-2018-lincoln-smart-key-4b-fcc-m3n-a2c31243300
+42. How to Use Lincoln Phone As A Key | Lincoln Way Setup & Features, accessed January 5, 2026, https://www.stiverslincolnofmontgomery.com/blogs/4849/lincoln-phone-as-a-key
+43. Phone as a Key™ for Your Lincoln | Lincoln Owner Support, accessed January 5, 2026, https://www.lincoln.com/support/category/lincoln-app/keyless-remote-with-phone-as-a-key/
+44. Getting started with Genesis Digital Key, accessed January 5, 2026, https://owners.genesis.com/us/en/resources/technology-and-navigation/getting-started-with-genesis-digital-key.html
+45. Digital Key touch user guiDe - Genesis, accessed January 5, 2026, https://www.genesis.com/content/dam/genesis-p2/ca/assets/owners/digital-services/digital-key/documents/G1016_Genesis_Digital_Key_Guide_EN.pdf

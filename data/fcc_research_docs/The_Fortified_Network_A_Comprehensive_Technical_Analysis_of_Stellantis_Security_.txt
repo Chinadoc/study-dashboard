@@ -1,0 +1,393 @@
+﻿The Fortified Network: A Comprehensive Technical Analysis of Stellantis Security Gateway (SGW) and RF Hub Architectures (2018–2026)
+1. The Cybersecurity Paradigm Shift in Automotive Diagnostics
+1.1 The Pre-SGW Era and the Attack Surface
+For decades, the automotive industry operated on a principle of implicit trust regarding on-board diagnostics. The On-Board Diagnostics II (OBD-II) port, mandated for emissions compliance, evolved into a universal access point for the entire Controller Area Network (CAN). Through this 16-pin connector, a technician—or a malicious actor—could theoretically query any module, from the Powertrain Control Module (PCM) to the Body Control Module (BCM), with minimal authentication barriers.
+This open architecture, while beneficial for the aftermarket repair industry, presented a significant vulnerability surface as vehicles became increasingly connected. The integration of cellular telematics, Wi-Fi hotspots, and advanced infotainment systems created remote vectors for cyber-physical attacks. The watershed moment arrived around 2015-2017, when security researchers demonstrated the ability to remotely hijack critical vehicle controls (steering, braking, transmission) via compromised infotainment units. In response, Fiat Chrysler Automobiles (FCA), now Stellantis, initiated a radical hardening of their electronic architecture. This initiative culminated in the deployment of the Security Gateway Module (SGW) beginning in the 2018 model year, a move that fundamentally segmented the vehicle's neural network and ended the era of unrestricted access.1
+
+
+  
+
+
+
+1.2 ISO/SAE 21434 and the Regulatory Landscape
+The implementation of the SGW was not merely a reaction to specific hacks but an alignment with emerging global standards, specifically ISO/SAE 21434. This standard outlines the requirements for cybersecurity engineering in road vehicles. Stellantis' deployment of the SGW serves as a primary compliance mechanism for these regulations, effectively creating a "digital firewall" that separates the "Public" CAN bus—which connects to external interfaces like the Data Link Connector (DLC) and the Telematics Box Module (TBM)—from the "Private" CAN bus that hosts critical safety and control systems.2
+This segmentation ensures that any entry point accessible to the outside world cannot directly command the vehicle's internal organs without passing through a checkpoint. While this enhances security against remote exploits, it inadvertently categorized the independent repair shop and the locksmith as "untrusted actors," necessitating new protocols for authentication that strike a precarious balance between security and the "Right to Repair."
+1.3 The Architecture of the Security Gateway (SGW)
+Technically, the SGW functions as a packet filter and router. Located physically between the DLC and the rest of the network, it inspects every message frame sent from a diagnostic tool.
+* Read-Only Traffic (Allowed): The SGW permits standard diagnostic requests, such as Mode $01 (Request Current Powertrain Diagnostic Data) or Mode $03 (Request Emission-Related Diagnostic Trouble Codes). This ensures that simple code reading and live data streaming remain accessible to non-authenticated tools, preserving basic emissions compliance.1
+* Write/Action Traffic (Blocked): Any command that alters the state of the vehicle is intercepted. This includes Mode $2F (Input/Output Control by Local Identifier) used for bi-directional tests (e.g., rolling windows up/down, cycling ABS pumps) and Mode $31 (Routine Control) used for complex procedures like key programming, odometer writes, or proxy alignment.
+* Response to Blocked Traffic: When an unauthorized tool attempts a restricted command, the SGW does not simply ignore it; it actively rejects the message, typically returning a Negative Response Code (NRC) such as $33 (Security Access Denied). This feedback loop is the technician's primary indicator that they are encountering an SGW lockout rather than a communication failure.1
+1.4 Network Segmentation: Public vs. Private CAN
+The physical manifestation of this architecture involves two distinct sets of CAN lines at the SGW connector:
+1. Public CAN (Input): These wires run directly from the OBD-II port (Pins 6 and 14 for CAN High/Low) to the SGW.
+2. Private CAN (Output): These wires exit the SGW and distribute to the vehicle's various networks, primarily the CAN-C (high-speed chassis/powertrain bus) and the CAN-IHS (Interior High Speed bus).
+By physically interrupting the circuit between the OBD port and the controllers, Stellantis ensures that no signal can bypass the gateway electronically without authentication. This necessitates that any "bypass" must be either a digital authorization (via Wi-Fi) or a physical bridging of the input and output wires.2
+2. Authentication and Authorization Ecosystems
+2.1 The AutoAuth Protocol
+To maintain a functional aftermarket service industry, Stellantis established a "bridge" via a third-party authentication provider known as AutoAuth. This cloud-based system acts as the trusted authority that validates the identity of the technician and the scan tool.
+* Registration and Identity: Independent shops and technicians must create accounts with AutoAuth, verifying their identity. This creates an accountability trail; every restricted action performed on a vehicle is logged and associated with a specific user.1
+* Device Authorization: The specific serial numbers of diagnostic tablets (e.g., Autel MaxiSys, Snap-on Zeus, Launch X431) must be registered to the shop's account. Up to 100 tools can be registered per shop, allowing for scalability in larger service centers.1
+* The Digital Handshake: When a registered tool connects to a vehicle, it detects the SGW. The tool then sends a request via its local Wi-Fi connection to the AutoAuth server. If the account is active and the tool is verified, AutoAuth communicates with the Stellantis backend, which issues a time-limited "Unlock Token" or security key. The scan tool passes this token to the SGW, which then "opens the gate," allowing bi-directional traffic for the duration of the session.1
+2.2 Tool Chain Certification and Limitations
+Not all tools are created equal in the AutoAuth ecosystem. While major players like Autel, Snap-on, and Bosch have fully integrated the protocol, niche tools or older hardware may lack the software capability to handle the handshake. Furthermore, the reliance on an active internet connection poses a significant hurdle for mobile technicians or locksmiths working in areas with poor cellular coverage. In these scenarios, the digital path fails, forcing the technician to revert to hardware bypass methods.1
+2.3 The Economics of Access
+The shift to SGW has introduced a recurring cost model to diagnostics. Shops must pay an annual subscription fee (typically starting at $50 per year) to maintain AutoAuth access. This fee structure is separate from the scan tool's own software update subscriptions. This "pay-to-play" model has been a point of contention in the industry, raising questions about the long-term accessibility of vehicle repair data and the potential for future cost escalations.1
+3. Hardware Bypass Methodologies
+When digital authentication is impossible or unavailable, the industry standard involves physically circumventing the SGW module.
+3.1 The 12+8 Protocol (Mechanism and Application)
+The "12+8" cable is the physical skeleton key for the majority of Stellantis vehicles produced between 2018 and 2021. The name refers to the pin configuration of the SGW connectors: a 12-pin connector (usually carrying power, ground, and public CAN lines) and an 8-pin connector (carrying the private CAN bus lines).
+* Bypass Logic: The bypass cable features a female OBD-II port on one end and two male connectors (12-pin and 8-pin) on the other. By unplugging the factory harnesses from the SGW and plugging them into the bypass cable, the technician effectively removes the SGW from the circuit. The diagnostic tool then connects to the bypass cable's OBD port.
+* Circuit Completion: The bypass cable physically bridges the Public CAN input wires directly to the Private CAN output wires. This creates a continuous circuit from the tool to the controllers, rendering the SGW irrelevant. Because the SGW is no longer in the loop to block messages, the tool has full read/write access.2
+
+
+  
+
+
+
+3.2 The Star Connector Interface (CAN-C/IHS)
+As vehicle architectures evolved, particularly with the 2019+ Ram 1500 (DT platform) and the 2021+ Grand Cherokee (WL), the physical location of the SGW became increasingly inaccessible—often buried deep within the dashboard or integrated into other modules. This necessitated a new access point: the "Star Connector."
+* The Hub Concept: Modern CAN networks use a centralized distribution block, or "Star Connector," to split the CAN signal to multiple modules. These blocks serve as a physical aggregation point for the network traffic.
+* Bypass Execution: Instead of unplugging the SGW, technicians use a specialized probe cable (such as the ADC2011 or ADC2019) to tap directly into an empty port on the Star Connector.
+   * Green Block: Typically carries the CAN-C (Chassis/Powertrain) traffic.
+   * White Block: Typically carries the CAN-IHS (Body/Interior) traffic.
+* Mechanism: By plugging directly into the Star Connector, the diagnostic tool joins the "Private" network downstream of the SGW. The tool becomes just another node on the trusted network, bypassing the firewall upstream.8
+3.3 Physical Access Challenges and Solutions
+The primary challenge with hardware bypasses is physical accessibility.
+* Space Constraints: In vehicles like the Alfa Romeo Giulia or the Jeep Compass, the SGW is often mounted high on the steering column or behind the instrument cluster. Reaching these connectors often requires significant disassembly, leading to labor time that exceeds the actual diagnostic time.
+* Connector Durability: Repeatedly unplugging and replugging the factory connectors carries the risk of damaging the pins or the locking tabs. A damaged connector can lead to intermittent communication faults (U-codes) that mimic module failures.
+* Cable Length: Standard 12+8 cables are often short (approx. 12-18 inches). For vehicles like the Dodge Durango where the SGW is deep in the footwell, a standard cable may leave the scan tool dangling by the pedals. Extension cables or high-quality adapters with longer leads are recommended for professional use.7
+3.4 Active Alarm Bypass Strategies (Battery Discharge)
+A critical operational nuance involves the vehicle's alarm state. Even with a bypass in place, if the Body Control Module (BCM) detects an intrusion (Active Alarm), it will logically reject key programming attempts to prevent theft.
+* The Capacitor Discharge Protocol: To clear the active alarm state when no working key is available, the BCM must be force-reset.
+   1. Disconnect: Remove both the Positive and Negative battery cables from the battery posts.
+   2. Discharge: Touch the metal ends of the two vehicle cables together (creating a short circuit away from the battery) and hold for 30–60 seconds. This drains the capacitors in the BCM, effectively wiping its volatile memory and the "Active Alarm" flag.
+   3. Reconnect: Reattach the cables to the battery.
+   4. The Window of Opportunity: Upon reconnection, the BCM requires a few seconds to boot up and re-arm the alarm system. The technician has a brief window (typically 30–60 seconds) to initiate communication with the key programmer before the security logic locks down the system again.11
+4. Advanced Immobilizer Security: The RF Hub Lockout (2021–2026)
+While the SGW controls diagnostic access, the Radio Frequency Hub Module (RFHM) controls authentication access (keys and starting). Starting in late 2021, Stellantis escalated their security posture by locking down the RFHM on specific high-risk platforms.
+4.1 Radio Frequency Hub Module (RFHM) Architecture
+The RF Hub is the receiver for the remote keyless entry signals. It stores the cryptographic keys (Transponder IDs) that allow the vehicle to start. Historically, this module could be rewritten or reset. However, new architectures utilize a "Write-Once" logic for the Vehicle Identification Number (VIN). Once an RF Hub is paired to a VIN, it is permanently bonded. It cannot be moved to another vehicle, nor can it be reset to a "virgin" state by aftermarket tools.13
+4.2 The "Slam and Lock" TSB (Dodge/Jeep)
+Technical Service Bulletin (TSB) 08-081-21 introduced a software patch for Dodge Charger and Challenger models (specifically Hellcat and Scat Pack trims) to combat relay attacks and key cloning.
+* The Lockdown: This update modifies the RF Hub firmware to disable the "Add Key" routine entirely via the OBD port.
+* The Implication: If a technician encounters a vehicle with this update, standard key programming is impossible. The only solution is to replace the RF Hub with a new unit that has not yet been locked. This effectively turns a software security feature into a hardware replacement requirement for service.14
+4.3 The Virgin Module Requirement
+For the 2019+ Ram 1500 (DT) and 2021+ Jeep Grand Cherokee (WL), the security architecture natively requires a Virgin RF Hub for "All Keys Lost" (AKL) scenarios.
+* AKL Protocol: If all valid keys are lost, the existing RF Hub will not accept a new key programming request because it cannot authenticate the session without a valid key present.
+* Replacement: The technician must install a brand-new, unprogrammed ("Virgin") RF Hub.
+* Initialization: The diagnostic tool must then run a specific "Replace RF Hub" routine. This process writes the vehicle's VIN and configuration data to the new Hub.
+* Logic Flow for AKL Decision:
+   * Step 1: Identify Platform (e.g., Ram DT, Jeep WL).
+   * Step 2: Check Key Status. If at least one valid key exists, "Add Key" is possible.
+   * Step 3: If All Keys Lost, REPLACE RF HUB. Do not attempt to wipe/reset the existing hub; it will fail.
+   * Step 4: Verify Alarm Status. If Active Alarm is present, perform Capacitor Discharge before attempting to initialize the new Hub.13
+4.4 Risk Management in Module Initialization
+The initialization of a Virgin RF Hub is a high-stakes procedure. The writing of the VIN is a one-time operation.
+* Voltage Criticality: If the vehicle's battery voltage drops below 13.0V during the VIN write process, the write may fail or corrupt. Because the Hub is "Write-Once," a failed write often results in a "bricked" module—a piece of expensive hardware that is now useless.
+* Best Practice: Always connect a high-quality battery maintainer (not just a charger) set to a stable 13.5V before initiating the RF Hub replacement routine.16
+5. Detailed Model Analysis: Jeep
+Jeep's lineup features the widest variation in security architectures, mixing legacy Daimler-era platforms with modern Stellantis and Fiat-derived systems.
+
+
+  
+
+
+
+5.1 Wrangler JL (2018–2026) & Gladiator JT (2020–2026)
+These body-on-frame vehicles are the most modified in the lineup, making SGW access frequent for tire size calibration and gear ratio updates.
+* SGW Location: The module is consistently located under the driver's side dashboard, directly behind the knee bolster panel (the plastic panel below the steering wheel). It is mounted slightly to the left of the steering column. Access requires uncliping the bolster. The module is a black box roughly the size of a deck of cards with two connectors (12-pin and 8-pin) facing downward.
+* Key Fob Data:
+   * FCC ID: OHT1130261.
+   * Chip Type: HITAG-AES (4A). This is a critical distinction from the older Wrangler JK which used ID46. The keys look similar but are electronically incompatible.
+   * Part Numbers: 68416784AA (4-button), 68416782AA (3-button).
+* Procedure Notes: For AKL, the "Active Alarm" is a common blocker. The battery discharge method is highly effective here. The SGW bypass is mandatory for any key programming.2
+5.2 Grand Cherokee: The Tale of Two Platforms
+The Grand Cherokee experienced a split production, creating confusion in the aftermarket.
+Grand Cherokee WK2 (2018–2022)
+* SGW Location: Depending on the trim, the SGW is either behind the Radio Head Unit (requiring bezel removal) or behind the Glovebox. The 2018-2019 models heavily favor the radio location.
+* Key Fob Data:
+   * FCC ID: M3N-40821302.
+   * Chip Type: ID46 (PCF7953). This is a legacy chip type.
+   * Warning: Do not confuse with the newer WL keys.
+Grand Cherokee WL (2021–2026) & Grand Cherokee L
+* SGW Location: The architecture shifted completely. The SGW is no longer the primary access point. Instead, technicians use the Star Connector located in the Passenger Footwell (Kick Panel). Removing the plastic kick panel reveals the Green Star Connector block.
+* Key Fob Data:
+   * FCC ID: M3NWXFOB1.
+   * Chip Type: HITAG-AES (4A).
+* Critical Security: This platform enforces the Virgin RF Hub requirement for All Keys Lost. The hub is located in the rear quarter panel area. Attempting to program a key without replacing the hub in an AKL scenario will result in failure.13
+5.3 Cherokee KL (2019–2026)
+* SGW Location: One of the most difficult locations. The module is mounted directly behind the Infotainment/Radio Screen. Access requires removing the upper dash vent bezel, the radio faceplate, and the radio unit itself to reach the module on the bracket behind it.
+* Key Fob Data:
+   * FCC ID: GQ4-54T.
+   * Chip Type: HITAG-AES (4A). Note that 2014-2018 models used GQ4-53T (ID46), so a clear distinction by model year is vital.21
+5.4 Renegade (BU/BV) & Compass (MP)
+These Fiat-derived platforms share a unique problem: the Key Fob FCC ID matches Dodge, but the Chip does not.
+* SGW Location:
+   * Compass: Typically behind the Instrument Cluster. Access requires removing the cluster trim and the gauge cluster itself.
+   * Renegade: Highly variable. Often found near the Driver's Kick Panel (above the dead pedal) or behind the Radio.
+* Key Fob Compatibility Trap:
+   * FCC ID: M3N-40821302.
+   * Chip Type: HITAG-AES (4A).
+   * Warning: The Dodge Charger uses the same M3N-40821302 FCC ID but uses an ID46 chip. If a locksmith attempts to program a Charger key to a Compass, it will fail to pair. Always verify the chip type (4A vs 46) using a key reader tool before attempting programming.24
+6. Detailed Model Analysis: Ram
+6.1 Ram 1500 Classic (DS) [2018–2024]
+The "Classic" body style continues production alongside the new model.
+* SGW Location: Located behind the Radio/Center Stack. Access involves removing the radio bezel and head unit.
+* Bypass: Standard 12+8 cable directly to the module.
+* Key Fob: Uses the older "Fobik" style or proximity keys with FCC ID GQ4-53T and ID46 chips. This is a legacy architecture that does not require a virgin RF Hub for AKL.27
+6.2 Ram 1500 New Body (DT) [2019–2026]
+* SGW Location: The module is effectively inaccessible for service, buried deep in the dash structure.
+* Bypass: The Star Connector method is mandatory. Located behind the Headlight Switch panel on the driver's side. The panel pops out with trim tools, revealing the CAN blocks.
+* Key Fob Data:
+   * FCC ID: OHT-4882056.
+   * Chip Type: HITAG-AES (4A).
+* RF Hub Lockdown: For 2022+ models, the RF Hub (located on the back cab wall behind rear seats) MUST be replaced with a virgin unit for All Keys Lost. The "Replace RF Hub" function in tools like the Autel IM608 is the required procedure.8
+6.3 Ram Heavy Duty (2500/3500) [2019–2026]
+* Architecture: Follows the DT platform logic.
+* SGW/Bypass: Use the Star Connector behind the headlight switch or near the parking brake pedal area.
+* Key Fob: Shares the OHT-4882056 architecture with the 1500 DT.28
+6.4 ProMaster & ProMaster City
+* SGW Location: consistently found behind the Instrument Cluster. Requires removing the cluster to access the 12+8 connectors.
+* Key Fob:
+   * FCC ID: RX2TRF198 (Flip Key).
+   * Chip Type: ID46 (PCF7946).
+   * 2022+ Warning: The shift to a Proximity system in 2022+ models introduced a Marelli BCM that requires specific software updates on key programmers. Some tools may not yet support the 2023+ ProMaster proximity system via OBD, necessitating direct BCM EEPROM work or dealer tools.29
+7. Detailed Model Analysis: Dodge & Chrysler
+7.1 Charger (LD) & Challenger (LA) [2018–2023]
+* SGW Location:
+   * Charger: Often in the Trunk, driver's side, behind the carpet liner near the fuse distribution center.
+   * Challenger: Under the driver's dashboard, near the parking brake/BCM area.
+* Key Fob Data:
+   * FCC ID: M3N-40821302.
+   * Chip Type: ID46 (Hitag 2).
+* The TSB Lock: As previously noted, the TSB 08-081-21 update permanently locks the RF Hub. Technicians must check if the "Add Key" function is available; if blocked, the only remedy is a new RF Hub.
+* Active Alarm: The battery discharge method is highly effective on these platforms. A 60-second short of the battery cables typically grants a sufficient window to bypass the alarm logic.2
+7.2 Durango (WD) [2018–2026]
+* SGW Location: Driver's side Footwell/Kick Panel. It is mounted vertically and is accessible by removing the side kick panel trim.
+* Cable Note: The location is deep; a standard 12+8 cable might be too short to comfortably hold the scanner. An extension is recommended.
+* Key Fob: Shared architecture with the Grand Cherokee WK2 (M3N-40821302 / ID46).2
+7.3 Chrysler Pacifica (RU) [2018–2026]
+* SGW Location: Behind the Climate Control (HVAC) Bezel. The entire bezel with the knobs pulls straight out (held by clips), revealing the SGW mounted in the void behind it.
+* Key Fob Data:
+   * FCC ID: M3N-97395900 (KeySense capable).
+   * Chip Type: HITAG-AES (4A).
+* RF Hub: Located in the rear quarter panel. 2021+ models are subject to the Virgin Hub requirement for AKL.31
+7.4 Chrysler 300 [2018–2023]
+* SGW Location: Driver's side Under Dash, near the steering column base.
+* Architecture: Shares the LD (Charger) platform logic.
+* Key Fob: M3N-40821302 (ID46).33
+8. Detailed Model Analysis: Alfa Romeo
+8.1 Giulia & Stelvio [2018–2026]
+The Giorgio platform represents the pinnacle of access difficulty.
+* SGW Location: Mounted high on the Steering Column or deep within the dashboard support structure. Access via the SGW connectors is often described as "impossible" without major dashboard disassembly.
+* Bypass Strategy:
+   * Method A (Needle Probes): Technicians identify the CAN-C and CAN-IHS twisted pairs at the Body Computer Module (BCM) connectors (located in the passenger footwell). Using fine needle probes, they tap the bypass cable directly into the wires.
+   * Method B (Star Connector): If the vehicle is equipped with accessible Star Connector blocks (passenger footwell), this is the preferred non-destructive entry point.
+* Key Fob Data:
+   * FCC ID: KR5ALFA434.
+   * Chip Type: HITAG-AES (4A).
+   * Programming: Requires the "All Keys Lost" procedure even for adding a key in some software versions. The PIN code is often required and can be pulled via OBD if the bypass is active.34
+9. The Mechanic's Database
+The following sections provide the consolidated data blocks requested for field reference.
+9.1 Vehicle SGW Coverage & Procedure Database
+Vehicle Model
+	Model Year Range
+	SGW Location
+	Bypass Method
+	Active Alarm Protocol
+	Virgin RF Hub (AKL)
+	Jeep Wrangler (JL)
+	2018–2026
+	Driver Knee Bolster
+	12+8 Cable
+	Battery Reset (60s)
+	No
+	Jeep Gladiator (JT)
+	2020–2026
+	Driver Knee Bolster
+	12+8 Cable
+	Battery Reset (60s)
+	No
+	Jeep Grand Cherokee (WK2)
+	2018–2022
+	Behind Radio / Glovebox
+	12+8 Cable
+	Battery Reset
+	No
+	Jeep Grand Cherokee (WL)
+	2021–2026
+	Passenger Kick Panel
+	Star Connector
+	Battery Reset
+	YES
+	Jeep Cherokee (KL)
+	2019–2026
+	Behind Radio Head Unit
+	12+8 Cable
+	Battery Reset
+	No
+	Jeep Renegade
+	2018–2026
+	Kick Panel / Radio
+	12+8 Cable
+	Battery Reset
+	No
+	Jeep Compass
+	2018–2026
+	Behind Inst. Cluster
+	12+8 Cable
+	Battery Reset
+	No
+	Ram 1500 (DT)
+	2019–2026
+	Inaccessible (Dash)
+	Star Connector
+	Battery Reset
+	YES (2022+)
+	Ram 1500 (DS) Classic
+	2018–2024
+	Behind Radio
+	12+8 Cable
+	Battery Reset
+	No
+	Ram 2500/3500
+	2019–2026
+	Inaccessible (Dash)
+	Star Connector
+	Battery Reset
+	YES (2022+)
+	Ram ProMaster
+	2019–2026
+	Behind Inst. Cluster
+	12+8 Cable
+	Battery Reset
+	No
+	Dodge Charger
+	2018–2023
+	Trunk / Under Dash
+	12+8 Cable
+	Battery Reset
+	YES (TSB)
+	Dodge Challenger
+	2018–2023
+	Under Dash (Driver)
+	12+8 Cable
+	Battery Reset
+	YES (TSB)
+	Dodge Durango
+	2018–2026
+	Driver Footwell
+	12+8 Cable
+	Battery Reset
+	No
+	Chrysler Pacifica
+	2018–2026
+	Behind HVAC Bezel
+	12+8 Cable
+	Battery Reset
+	YES (2021+)
+	Chrysler 300
+	2018–2023
+	Driver Under Dash
+	12+8 Cable
+	Battery Reset
+	No
+	Alfa Giulia/Stelvio
+	2018–2026
+	Steering Column
+	Probe / Star
+	Battery Reset
+	No
+	9.2 Key Fob & Transponder Reference Database
+Vehicle Family
+	FCC ID
+	Chip Architecture
+	Frequency
+	Critical Note
+	Jeep JL/JT
+	OHT1130261
+	HITAG-AES (4A)
+	433 MHz
+	Incompatible with JK keys.
+	Ram 1500 (DT)
+	OHT-4882056
+	HITAG-AES (4A)
+	433 MHz
+	Used for push-to-start models.
+	Grand Cherokee WL
+	M3NWXFOB1
+	HITAG-AES (4A)
+	433 MHz
+	Must use Virgin Hub for AKL.
+	Grand Cherokee WK2
+	M3N-40821302
+	ID46 (PCF7953)
+	433 MHz
+	Do not mix with WL keys.
+	Charger/Challenger
+	M3N-40821302
+	ID46 (PCF7953)
+	433 MHz
+	Incompatible with Compass/Renegade.
+	Renegade/Compass
+	M3N-40821302
+	HITAG-AES (4A)
+	433 MHz
+	Same FCC as Charger, DIFFERENT CHIP.
+	Pacifica
+	M3N-97395900
+	HITAG-AES (4A)
+	433 MHz
+	KeySense keys have specific permissions.
+	ProMaster
+	RX2TRF198
+	ID46 (PCF7946)
+	433 MHz
+	Flip key style.
+	Alfa Giulia
+	KR5ALFA434
+	HITAG-AES (4A)
+	433 MHz
+	Requires precise PIN code retrieval.
+	10. Future Outlook: 2026 and Beyond
+As we move toward the 2026 model year, the trajectory of Stellantis security is clear: total component identity management. The introduction of CAN FD (Flexible Data-rate) protocols in the latest Grand Cherokee WL and Wagoneer models signals a shift requiring newer, higher-bandwidth VCI hardware.
+The "Virgin RF Hub" requirement, currently limited to high-theft or new-architecture platforms, is expected to become the standard across the entire fleet. We are also observing the potential for "Secure Gateway 2.0," which may integrate the firewall directly into the BCM or Gateway module in a way that eliminates physical connectors entirely, potentially ending the era of the 12+8 bypass and forcing all traffic through the authenticated AutoAuth tunnel.
+For the aftermarket professional, the era of "plug and pray" is over. Success in the 2018–2026 ecosystem requires a hybridized skillset: the IT knowledge to manage AutoAuth credentials, the mechanical skill to access buried modules, and the locksmithing expertise to manage voltage-sensitive initialization procedures.
+Conclusion
+The implementation of the SGW by Stellantis fundamentally changed the mechanics of automotive service. While initially viewed as a catastrophic lockout, the aftermarket has adapted through a combination of authorized software solutions (AutoAuth) and robust hardware workarounds (12+8, Star Connector). However, the escalation to RF Hub lockouts in 2021 represents a more permanent barrier, shifting the cost burden of security from the manufacturer to the vehicle owner and the repair shop. Understanding these distinct architectures—SGW vs. RF Hub, ID46 vs. 4A, Public vs. Private CAN—is now the baseline requirement for any technician touching a modern Stellantis vehicle.
+Works cited
+1. North America - Secure Gateway Access - Autel, accessed January 8, 2026, https://www.autel.com/c/www/USgateway.jhtml
+2. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 8, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+3. FCA Security Gateway: Timeline, Brands, and Purpose - klavkarr, accessed January 8, 2026, https://www.klavkarr.com/blog/66-fca-brand-security-gateway
+4. JL/JT FCA Security Gateway Module - JScan, accessed January 8, 2026, http://jscan.net/jl-jt-security-bypass/
+5. AutoAuth: Homepage, accessed January 8, 2026, https://info.autoauth.com/
+6. FCA SGW MODULE | Bypass, Installation, & Info - eurocompulsion, accessed January 8, 2026, https://shopeurocompulsion.net/blogs/installation-database/fca-sgw-module-bypass-installation-info
+7. X-Tool - Chrysler / Jeep / Dodge Bypass Programming Cable 12+8 for Sale | UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/products/x-tool-chrysler-jeep-dodge-bypass-cable-for-almost-all-programmers
+8. 2019 Dodge Ram; super easy star connector location revealed - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=vRxpsc5IViA
+9. Bypass the Pesky RAM Security Gateway - HERE'S HOW! - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=-u3Rtx7mThY
+10. Chrysler 12+8 Autel 2018 Dodge Durango - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=XivnZ3aDowI
+11. HOW TO DISCONNECT, CHARGE, & RECONNECT A DISCHARGED 12V BATTERY ON EV CHARGERS (LB) AND WAG S (KM) - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=elCfpWVSQSY
+12. 2019 Ford Mustang alarm bypass via the new ADC-2020 emulator! - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=Lie2bJgsP9E
+13. Customer Satisfaction Notification Z23 Radio Frequency Hub Module - nhtsa, accessed January 8, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10228024-9999.pdf
+14. Dealer TSB for Key programing lockdown and Enhanced security mode - Reddit, accessed January 8, 2026, https://www.reddit.com/r/Challenger/comments/1ctp0ms/dealer_tsb_for_key_programing_lockdown_and/
+15. Customer Satisfaction Notification YA7 Reprogram Powertrain Control Module - nhtsa, accessed January 8, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10222966-9999.pdf
+16. 2022 RAM 1500 RF Hub Module Part# 56029943AA w/ programmed keys | eBay, accessed January 8, 2026, https://www.ebay.com/itm/116575842646
+17. Resetting your RF Hub after a Push Button Conversion (or you just had to replace the hub), accessed January 8, 2026, https://www.youtube.com/watch?v=CNwWHbK4bJk
+18. 2024 Jeep Smart Flip Key Fob 4B W/ Remote Start FCC# OHT1130261 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2018-2020-jeep-smart-remote-flip-key-w-remote-start-4b-fcc-oht1130261
+19. Bypass Gateway Cable Location for 2019 Jeep Cherokee Limited.... - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=ar_bQGb2hiw
+20. 2022 Jeep Grand Cherokee Smart Key 4B W/ Remote Start Fob FCC - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2014-2019-jeep-grand-cherokee-smart-key-4b-fcc-m3n-40821302-2-pack
+21. SGW Bypass Fitment - ECRI Jeep Wrangler Calibrator, accessed January 8, 2026, https://ecri.app/pages/sgw-bypass-fitment
+22. (576) 2021 Jeep Grand Cherokee Location of SGW SGM Secure Gateway Module, accessed January 8, 2026, https://www.youtube.com/watch?v=NDHsbCQVylI
+23. 2019 Jeep Cherokee Smart Key 5B Fob FCC# GQ4-54T - Aftermarket - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2019-jeep-cherokee-smart-key-5b-fob-fcc-gq4-54t-aftermarket
+24. 2018 Jeep Renegade SGW - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=IviWy_I_AvQ
+25. Replacement Keyless Entry Remote Car Key Fob M3N-40821302 433MHz 4A Chip for Jeep Renegade 15-20 4 Buttons with Door Key - Walmart, accessed January 8, 2026, https://www.walmart.com/ip/Replacement-Keyless-Entry-Remote-Car-Key-Fob-M3N-40821302-433MHz-4A-Chip-for-Jeep-Renegade-15-20-4-Buttons-with-Door-Key/504855182
+26. 2016 - 2022 Jeep Renegade Smart Key 4B W/ Remote Start FCC# M3N-408213, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2015-2019-jeep-renegade-prox-key-4b-fcc-m3n-40821302
+27. 2013 - 2023 RAM Fobik Key 4B FCC# GQ4-53T (2 Pack) - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2013-2018-dodge-ram-fobik-key-4b-fcc-gq4-53t-433-mhz-2-pack
+28. Autel IM608 | All Keys Lost on a 2016 Dodge Ram 3500 | Case Study 2020 - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=lumgci703_Y
+29. 2019-2023 RAM PROMASTER 12+8 SGM (security getaway module) LOCATION FOR PROGRAMMING A KEY - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=0DhKI6QrCNY
+30. How to Program & Read PIN 2022-2024 Dodge Ram Promaster full size Van Proximity Key w Smart Pro - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=PoCF9RFU0tM
+31. STE Chrysler Pass Through User Manual - Squarespace, accessed January 8, 2026, https://static1.squarespace.com/static/51fac8cfe4b0339e6c6987e1/t/5df85fc2cde8ca0f95214058/1576558531884/STE_Chrysler_Passthrough_V1_2.pdf
+32. 2024 Chrysler Pacifica Voyager Smart Key 7B Fob FCC# M3N-973959 - Locksmith Keyless, accessed January 8, 2026, https://www.locksmithkeyless.com/products/2017-2020-chrysler-pacifica-smart-key-7b-fcc-m3n-97395900-25-pack
+33. Automotive Security Gateway Locations and Autel Scanner Service Instru - obdprice, accessed January 8, 2026, https://www.obdprice.com/blogs/car-repar-maintenance/security-gateway-autel-scanner-service
+34. SGW bridge - Squadra Tuning, accessed January 8, 2026, https://squadra-tuning.com/obd-tools/sgw-bridge/
+35. 2022 Alfa Romeo Stelvio programming a proximity key with Gateway Security - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=aUwKJcUuulM

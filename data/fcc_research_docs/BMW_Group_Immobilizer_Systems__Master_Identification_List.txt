@@ -1,0 +1,266 @@
+﻿BMW Group Immobilizer Systems: Master Identification & RealOEM List
+1. Master Vehicle Application List
+The following list categorizes vehicles by chassis code and immobilizer generation.
+Legacy & E-Series (CAS Generation)
+Chassis
+	Model
+	Years
+	System
+	Notes
+	E46
+	3 Series
+	1998–2006
+	EWS3 / EWS4
+	Mechanical key with diamond head. Not CAS.
+	E39
+	5 Series
+	1997–2003
+	EWS3
+	
+
+	E53
+	X5
+	1999–2006
+	EWS3
+	
+
+	E83
+	X3
+	2003–2010
+	EWS4
+	Late models may have EWS4.3 or EWS4.4.
+	R50/R53
+	MINI Cooper
+	2001–2006
+	EWS3 / EWS4
+	
+
+	E60/E61
+	5 Series
+	2003–2006
+	CAS2
+	White box.
+	E90
+	3 Series
+	2005–2006
+	CAS2
+	Early production only.
+	E60/E61
+	5 Series
+	2007–2010
+	CAS3 / CAS3+
+	Shifted to CAS3+ around 2008 (ISTAP update).
+	E9x
+	3 Series
+	2007–2013
+	CAS3 / CAS3+
+	The standard CAS3 platform.
+	E70
+	X5
+	2007–2013
+	CAS3+
+	Almost exclusively CAS3+.
+	E71
+	X6
+	2008–2014
+	CAS3+
+	
+
+	E84
+	X1
+	2009–2015
+	CAS3+
+	E-series architecture sold alongside F-series.
+	E89
+	Z4
+	2009–2016
+	CAS3+
+	
+
+	R56
+	MINI Cooper
+	2006–2013
+	CAS3 / CAS3+
+	Round disc key.
+	R60
+	MINI Ctrymn
+	2010–2016
+	CAS3+
+	
+
+	
+
+  
+
+
+
+F-Series Split (CAS4 vs. FEM vs. BDC)
+Critical Era: 2010–2018. Models split into three different architectures.
+Chassis
+	Model
+	System
+	Key Identifier
+	F01/F02
+	7 Series
+	CAS4 / CAS4+
+	Separate CAS module. No FEM.
+	F10/F11
+	5 Series
+	CAS4+
+	Separate CAS module. No FEM.
+	F06/F12
+	6 Series
+	CAS4+
+	Separate CAS module.
+	F25
+	X3
+	CAS4+
+	Warning: X3 (F25) is CAS4, but 3 Series (F30) is FEM.
+	F26
+	X4
+	CAS4+
+	Shared platform with X3.
+	F20/F21
+	1 Series
+	FEM
+	Module in passenger kick panel.
+	F22/F23
+	2 Series
+	FEM
+	
+
+	F30/F31
+	3 Series
+	FEM
+	The most common FEM application.
+	F32/F36
+	4 Series
+	FEM
+	
+
+	F80/F82
+	M3 / M4
+	FEM
+	
+
+	F15
+	X5
+	BDC
+	Skipped FEM. Went straight to BDC.
+	F16
+	X6
+	BDC
+	
+
+	F48
+	X1
+	BDC
+	UKL FWD Platform.
+	F56/F55
+	MINI Cooper
+	BDC
+	All F-Chassis MINIs use BDC.
+	I01/I12
+	i3 / i8
+	BDC
+	
+
+	Modern & G-Series (BDC2 / BDC3)
+Chassis
+	Model
+	System
+	Notes
+	G01
+	X3
+	BDC2
+	Replaced CAS4+.
+	G05
+	X5
+	BDC2 / BDC3
+	Early G05 is BDC2; 2020+ moved to BDC3 (Gen 3).
+	G11/G12
+	7 Series
+	BDC2
+	First car with BDC2.
+	G20
+	3 Series
+	BDC2 / BDC3
+	Replaced FEM.
+	G30
+	5 Series
+	BDC2
+	Replaced CAS4+.
+	J29
+	Toyota Supra
+	BDC2
+	Rebadged BMW Z4 (G29).
+	RR11
+	Phantom VIII
+	BDC2
+	Rolls-Royce Architecture of Luxury.
+	RR31
+	Cullinan
+	BDC2
+	
+
+	
+
+  
+
+
+
+________________
+2. Technical Deep Dive: CAS3 vs. CAS3+
+While they look identical externally (black or white rectangular box), the internal security logic is different.
+Feature
+	CAS 3 (Base)
+	CAS 3+ (Secure/ISTAP)
+	Approx. Year
+	2004 – 2007 (Early)
+	2007 – 2013 (Late)
+	ISN Length
+	4 Bytes (Short ISN)
+	16 Bytes (Long ISN)
+	Security
+	Low. OBD Key learning is fast.
+	High. Requires "Downgrade" or Flash to read OBD.
+	Encryption
+	Static Rolling Code.
+	Cryptographic challenge-response (OM23S mask).
+	Key Function
+	Starts car.
+	Starts car + Enhanced Anti-Theft handshake.
+	DME Pairing
+	DME ISN is 4 bytes.
+	DME ISN is 16 bytes (128-bit).
+	Update
+	Can be flashed to CAS3+ via ISTA-P.
+	Native firmware.
+	RealOEM ID
+	Often listed as "Exchange CAS3"
+	Listed as "Exchange CAS3" (Superseded part #'s)
+	Forensic Check:
+* If the car is an E70 X5 or E71 X6, it is almost guaranteed to be CAS3+.
+* If the car is an E90 328i (2009+), it is CAS3+.
+* If the car is an early E60 525i (2004), it is likely CAS2 or CAS3 (Base).
+________________
+3. RealOEM Part Number Forensics
+Use these prefixes to identify the system on RealOEM.com (Group 61 - Vehicle Electrical System).
+CAS Family (Under Steering Column)
+* CAS2: 61 35 6 943... (White Box)
+* CAS3: 61 35 6 943... / 61 35 9 147... (Black or White Box)
+* CAS4: 61 35 9... (Black Box, roughly 6" x 4")
+   * Identifier: Look for Part # 61.35-9 395 656 (The universal replacement CAS4+).
+   * Visual: Diagram shows module without a key slot.
+FEM Family (Passenger Kick Panel)
+* FEM: 61 35 9...
+   * Common Numbers: 61.35-9 366 409, 61.35-9 868 380.
+   * Visual: Large black module with many fuses directly on it.
+   * Scrape Logic: If the description says "Front Electronic Module" and lists fuses F1-F10 on the unit, it is FEM.
+BDC Family (Passenger Kick Panel)
+* BDC (Gen 1): 61 35 9... or 61 35 8...
+   * Common Numbers: 61.35-9 344..., 61.35-8 801 723.
+   * Visual: Physically larger than FEM. No "REM" (Rear Electronic Module) listed in the car's topology (except some X5s).
+* BDC2 (G-Series): 61 35 5... (Newer numbering)
+   * Identifier: Often labeled "Body Domain Controller" with a white label containing a QR code.
+   * Toyota: Part numbers on the Supra BDC will include the BMW 61 35... string in small print.

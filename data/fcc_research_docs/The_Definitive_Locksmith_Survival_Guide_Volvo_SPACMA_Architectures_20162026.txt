@@ -1,0 +1,449 @@
+﻿The Definitive Locksmith Survival Guide: Volvo SPA/CMA Architectures (2016–2026)
+1. Introduction: The Swedish Fortress
+In the global automotive security landscape, Volvo occupies a unique and formidable position. While manufacturers like Toyota or Ford often prioritize serviceability and standardized component architecture, Volvo’s security philosophy—particularly in the Scalable Product Architecture (SPA) and Compact Modular Architecture (CMA) eras—functions as a tightly integrated digital fortress. For the professional locksmith, the period from 2016 to 2026 represents a paradigm shift. The era of simple EEPROM clips and standardized OBD programming is largely obsolete, replaced by encrypted Central Electronic Modules (CEM), secure gateway firewalls, and a bifurcation of operating systems between the legacy Sensus system and the Google-based Android Automotive OS (AAOS).
+This report serves as an exhaustive tactical manual for the locksmith professional. It analyzes the underlying logic of Volvo’s security philosophy, the economic risks of aftermarket intervention, and the specific failure modes of the XC90, XC60, XC40, and their sedan/wagon counterparts. The analysis suggests that while the barrier to entry for Volvo locksmithing is high, the scarcity of qualified technicians creates a lucrative market for those who master the CEM architecture and the nuances of the "All Keys Lost" (AKL) ecosystem.
+1.1 The Volvo Reality Check: Aftermarket vs. Dealer
+The first decision a locksmith must make when a Volvo client calls is not how to do the job, but if the job should be accepted. The "Volvo Reality" is defined by a rigid separation between dealer capabilities (via VIDA) and aftermarket capabilities (via reverse engineering).
+The "Dealer Only" Myth vs. Reality
+A pervasive myth in the industry is that 2016+ Volvos are strictly "Dealer Only." This is factually incorrect but rooted in a significant technical barrier. The Central Electronic Module (CEM) manages the immobilizer PIN. Unlike many Japanese vehicles where the PIN can be pulled via OBD in seconds using standard seed-key exchange protocols, the Volvo SPA/CMA CEM uses a highly encrypted seed-key exchange that requires massive computational power to decrypt.
+* The Dealer Advantage: Volvo dealerships utilize VIDA (Vehicle Information and Diagnostics for Aftersales) to communicate with Volvo's central servers in Gothenburg. The server verifies the VIN and sends the encrypted software package directly to the car via the Volvo On Call (VOC) or wired ethernet connection. No "decoding" happens locally; the authorization is granted by the mothership.
+* The Aftermarket Reality: Locksmith tools (Autel, Lonsdor, VDASH, Abrites) must "crack" the CEM security. This involves either a massive brute-force attack via OBD (taking 4–12 hours) or physically removing the CEM to read the processor (bench mode). The locksmith is effectively hacking the car's immune system to inject a new key ID.1
+The Economic Equation of a Volvo Job
+Accepting a Volvo job requires a distinct pricing strategy. A simple "Add Key" job on a 2019 XC60 is not a 20-minute task; it is often a multi-hour engagement involving battery support, potential disassembly, and significant liability.
+* Time vs. Money: If utilizing OBD PIN reading, the vehicle must be connected to a high-amperage battery stabilizer (minimum 50-70 Amps) for up to 12 hours. The locksmith cannot use the diagnostic tool for other jobs during this time. This "tool lock" cost must be factored into the quote.
+* Parts Liability: Volvo electronics are notoriously sensitive to voltage fluctuations and RF interference. Using cheap aftermarket keys with poor shielding can cause interference with the Start/Stop system or Keyless Go functions. The industry recommendation is strictly OEM or high-grade refurbished keys. Aftermarket shells often do not fit the emergency blade release mechanism correctly, leading to jammed keys or frustrated customers unable to access the mechanical backup.2
+________________
+2. Architecture & Platforms: SPA vs. CMA
+To successfully navigate Volvo security, one must first identify the terrain. Volvo runs two parallel architectures during this decade, and while they share similar immobilizer logic, their physical layouts and component locations differ.
+2.1 SPA (Scalable Product Architecture)
+Launched with the 2016 XC90, SPA is the platform for Volvo's medium and large vehicles. It features a sophisticated 400V electrical architecture (in T8 Recharge models) and relies heavily on FlexRay communication for high-speed data transfer between the CEM, ECM, and safety modules. This FlexRay backbone makes traditional CAN sniffing difficult and necessitates specialized adapters for some programming tools.4
+SPA Model List:
+* XC90 (II): 2016–Present
+* S90 (II): 2017–Present
+* V90 (II): 2017–Present
+* XC60 (II): 2018–Present
+* V60 (II): 2019–Present
+* S60 (III): 2019–Present
+Locksmith Identifier: SPA vehicles almost universally feature the "Twist Knob" start switch located in the center console near the shifter. This is a distinct tactile identifier; if you are twisting a square knob to start the car, you are in an SPA vehicle.
+2.2 CMA (Compact Modular Architecture)
+Introduced with the XC40 in 2018, CMA was co-developed with Geely (Volvo's parent company) and is shared with the Lynk & Co brand and the Polestar 2. While it shares the CEM PIN security logic with SPA, the physical architecture is simplified.4
+CMA Model List:
+* XC40: 2018–Present
+* C40 Recharge: 2022–Present
+* Polestar 2: 2021–Present (technically separate, but shares architecture)
+Locksmith Identifier: CMA vehicles utilize a standard push-button start located on the dashboard, to the right of the steering wheel. If you are pressing a button on the dash, you are likely in a CMA vehicle.
+2.3 Operating Systems: The Sensus vs. Android Divide
+The most critical distinction for a locksmith is not just the chassis, but the Operating System (OS). The transition from the proprietary Sensus system to the Google-based Android Automotive OS (AAOS) fundamentally altered the security gateways.
+* Legacy Sensus (2016 – ~2021): The original infotainment and control system. These vehicles are now well-supported by aftermarket tools. The CEM PIN can be decoded via OBD (albeit slowly) or bench read.
+* Google Built-in / AAOS (MY2021+): Starting with the XC40 Recharge (MY2021) and rolling out to the XC60/S90/V90 in MY2022, Volvo replaced Sensus with AAOS. This update introduced new secure gateways and firewalls. Early attempts to program these with older tools failed. Updated tools (2024+) claim support, but the locksmith must verify the specific software version before attempting. The transition created a "Danger Zone" of model years where a 2022 XC60 might be AAOS while a 2022 S60 might still be Sensus.8
+Decision Matrix: Determining the OS
+Recent data indicates a staggered rollout of AAOS. Sensus models generally allow for standard aftermarket tooling. AAOS models, marked by the "Google Built-in" interface and lack of the Sensus "four-tile" home screen, require the latest software updates on key programmers like Lonsdor or Autel, and often necessitate server-side calculation rather than local decoding.
+* XC40 Recharge: All years (2021+) are AAOS.
+* XC60 / S90 / V90: MY2022 and later are AAOS.
+* XC90: MY2023 and later are AAOS.
+* S60 / V60: MY2023 and later are AAOS.
+
+
+  
+
+
+
+________________
+3. CEM Architecture: The Nervous System
+To survive a Volvo job, one must understand the Central Electronic Module (CEM). It is the gatekeeper. On the SPA and CMA platforms, the CEM is not just a body control module; it is the master of the cryptographic keys and the central hub for the vehicle's immobilizer handshake.
+3.1 Location and Physical Access
+The location of the CEM varies significantly by platform, a detail that often trips up generalist locksmiths. Knowing where to look prevents unnecessary disassembly.
+* SPA Platform (XC90, S90, V90, XC60): The CEM is typically located under the dashboard on the passenger side (for Left Hand Drive markets). Access is notoriously difficult. It often requires removing the glovebox undertray, pulling back the carpet, and sometimes removing the glovebox assembly itself to reach the connectors. The unit is mounted high up against the firewall, often requiring a "contortionist" approach for removal. It is held in by a bracket with specific release tabs that are difficult to see.1
+* CMA Platform (XC40, C40): The CEM is generally located on the driver's side, near the A-pillar kick panel and the hood release lever. It is more accessible than the SPA CEM but still requires panel removal. The connectors are dense and fragile; care must be taken not to bend pins during removal.1
+3.2 The PIN Extraction Challenge
+The defining characteristic of modern Volvo locksmithing is PIN extraction. Unlike older systems where the PIN was static or easily read, the SPA/CMA PIN is a dynamic key required to gain "Security Access" to the programming session.
+Method A: OBD Decoding (The Slow Road)
+This is the most common method for mobile locksmiths who prefer not to disassemble the car.
+* Mechanism: Tools like VDASH, Autel IM608, or Lonsdor connect via OBDII and run a brute-force algorithm. The tool sends millions of potential keys to the CEM until the correct one is found.
+* Duration: 2 to 24 hours. The average is often around 4-6 hours, but "tough" CEMs can take overnight.
+* Requirement: Stable 13.8V power supply. Critical Alert: If the battery voltage drops below 12V during this process, the CEM data can be corrupted, bricking the module. A standard jump pack is insufficient; a proper AC-powered battery maintainer/charger (like a Victron or Schumacher) capable of sustaining 50A is mandatory.1
+* Applicability: Primarily effective on Sensus-equipped vehicles (Pre-2022).
+Method B: Bench Reading (The Surgical Route)
+This method is preferred by shops with soldering expertise or those who cannot tie up a tool for 6 hours.
+* Mechanism: The locksmith physically removes the CEM from the vehicle. The casing is opened (often requiring breaking warranty seals), and the locksmith connects a programmer (e.g., XP400 Pro, Prog) directly to the MCU (Microcontroller Unit), typically a Renesas or NXP chip.
+* Risk: High. The multi-layer PCB is sensitive. Static discharge or poor soldering can destroy the CEM.
+* Reward: Instant PIN access. Once the dump is read, the tool calculates the PIN in minutes.
+* Procedure: Reading the data dump, loading it into the key programming software, and generating the PIN. The CEM is then reinstalled, and key learning proceeds via OBD using the known PIN.
+Method C: Server Calculation (The Modern Approach)
+Recent updates from tool manufacturers like Lonsdor (K518 Pro) and Autel suggest faster calculation for specific years (e.g., 2022-2024 models) by leveraging cloud computing.
+* Mechanism: The tool reads a small packet of data via OBD and uploads it to the manufacturer's server. The server, using a database of known algorithms or high-power computing clusters, calculates the PIN and sends it back to the tool.
+* Success Rate: Variable. It relies on the car's specific software version being in the "known" database. If the car has a very new dealer software update, this method may fail, reverting the locksmith to Method A or B.11
+3.3 The "Volvo Heart Attack": Bricking Risks
+A "bricked" CEM results in a car that is completely dead—no lights, no ignition, no communication. This is a catastrophic failure mode.
+* Causes: Voltage drop during OBD reading is the #1 cause. Interruption of the data stream (cable disconnect) is #2. Writing corrupt data back to the MCU during bench work is #3.
+* Recovery: Recovery is difficult. It often requires a "CEM Clone" service where a used CEM is sourced from a scrapyard, and the data (if recoverable from the dead unit) is transferred. If the data is unrecoverable, a brand new CEM must be ordered from the dealer ($1,000+) and programmed via VIDA, erasing any profit margin from the job.13
+________________
+4. Key Specifications: The Hardware
+Success depends on bringing the right hardware to the job. Volvo keys from this era are uniform in appearance—the "Leather/Plastic Pebble"—but differ internally. Using the wrong key will result in a failure to program.
+4.1 Transponder & Frequency
+* Chip Type: Most 2016+ Volvos use a Hitag Pro (ID49/ID47 variant) or 8A (128-bit AES) architecture depending on the supplier (Continental vs. Huf). The shift to 8A chips is prevalent in the newer AAOS models.
+* Frequency:
+   * 433/434 MHz: This is the standard for Europe and the vast majority of US models (FCC ID: YG0HUF8423).
+   * 902 MHz: Less common, found in some specific US market segments or earlier SPA iterations. Always check the FCC ID on the original key if available.
+* FCC ID: The dominant FCC ID for the SPA/CMA era is YG0HUF8423. This covers the XC90, XC60, S90, V90, and XC40 from roughly 2016 to 2024. However, locksmiths should verify the IC number (e.g., 4008C-HUF8423).15
+
+
+  
+
+
+
+4.2 Emergency Blades
+* Profile: HU101. This is the standard laser-cut 2-track blade used by Volvo (and Ford/Land Rover).
+* Note: Older Volvos (P3/P2) used NE66. Do not confuse them. The HU101 blade is essential for emergency access when the 12V battery dies.
+* Cutting: Requires a high-security key cutting machine (Condor, Dolphin, Gymkana). The key code series typically runs from 1-4000 or similar HU101 ranges. The cut must be precise; Volvo locks are tight and unforgiving of poorly calibrated machines.18
+4.3 Key Types & Hierarchies
+1. Standard Fob: Black plastic or leather wrapped. Buttons on the side. This is the primary key.
+2. Care Key (Orange): Introduced ~2021. Functionally identical for programming but often speed-limited (programmable by owner). Locksmiths can program these as standard keys, but the "Care Key" restrictions are tied to the key ID in the software.
+3. Key Tag (Sport Key): A small, buttonless waterproof fob. Warning: These have non-replaceable batteries. Once they die (approx. 2-3 years), they are trash. They cannot be opened without destroying the casing. Locksmiths should generally not attempt to repair these; sell a new Standard Fob instead. Programming a used Key Tag is often impossible as they are locked to the VIN.19
+________________
+5. Programming Procedures: The Workflow
+The programming procedure for Volvo is unique because it is effectively two distinct processes: CEM PIN Decoding and Key Learning.
+5.1 The General Workflow (All Tools)
+1. Vehicle Prep: Connect battery support (Must maintain >13V). Turn hazards ON to keep the bus awake (tool dependent). Ensure all doors are closed (or latch mechanisms clicked closed) to prevent BCM sleep.
+2. PIN Retrieval:
+   * OBD Method: Connect tool, select "Read CEM PIN." The tool injects code to force the CEM to reveal the seed. The tool then calculates the PIN (locally or via server).
+   * Bench Method: Remove CEM, read 9S12/SPC56 data, save dump, load into tool to calculate PIN.
+3. Key Learning:
+   * Once PIN is acquired, enter "Add Key" or "All Keys Lost" menu.
+   * Place the new key in the programming slot (usually the cup holder or specifically marked coil area).
+   * The tool writes the key ID to the CEM.
+   * Success Indicator: The dashboard will usually display "Key Found" or the number of keys programmed will increment.
+5.2 Tool-Specific Intelligence
+Autel (IM608 Pro / IM508 + XP400)
+* Strengths: Excellent coverage for SPA (2016-2020). User-friendly guided functions ("Smart Mode").
+* Weaknesses: OBD calculation can be very slow (up to 8 hours for some firmware).
+* Update: Recent updates (2024/2025) claim "All Keys Lost" support for VW/Audi/Volvo AAOS models, but field reports suggest it is still beta for 2023+ Volvos. Requires active subscription.
+* Procedure Tip: If the OBD read stalls at 0% or fails immediately, check the VCM fuse. A hung VCM can block the CEM read.11
+Lonsdor (K518 Pro / ISE)
+* Strengths: Often faster at Volvo PIN calculation than Autel. The "Super Update" in 2024 added support for XC40/XC60 AAOS models.
+* Feature: Supports "Smart Key Programming via OBD" for many 2018-2023 models without extensive bench work.
+* Note: Requires the specific Volvo adapter or reliable internet for server calculation.
+* Procedure Tip: Lonsdor is particularly good at the "Add Key" scenario where one working key exists, often bypassing the long PIN read.12
+VDASH (D5T5)
+* Strengths: The specialist's choice. Uses a DiCE unit (J2534). Can decode PINs guaranteed within 24 hours via their server farm.
+* Use Case: Ideal for shops that can leave a car overnight. It is the most reliable method for "tough" CEMs that other tools fail on. Also allows for configuration changes (e.g., enabling remote start, changing regions).
+* Cost: VDASH operates on a credit system; decoding costs money per VIN.1
+Abrites (AVDI)
+* Strengths: High-level engineering. The VN006/KP001 license allows for standalone key programming.
+* Capability: Strong on component protection and module replacement (e.g., installing a used CEM).
+* Cost: High entry price for interface + software modules, but indispensable for deep repair work (module cloning) beyond just keys.24
+5.3 The "All Keys Lost" (AKL) Protocol
+In an AKL scenario, the alarm will likely be active, and the car will be double-locked (doors cannot be opened from inside).
+1. Access: Open door with Lishi HU101. The alarm will sound.
+2. Silence Strategy: The siren is often on its own battery. Disconnect the battery horn fuse if necessary, but do not disconnect the main battery yet if you need to read via OBD, as this might reset the gateway state.
+3. PIN Read: If the alarm state blocks the OBD read (common on newer models), you must remove the CEM and read on the bench. The alarm cannot block a bench read.
+4. Learning: Once the PIN is known, reinstall the CEM. The alarm may sound again. Proceed immediately to the "All Keys Lost" menu. The moment the first key is programmed, the alarm is silenced and the immobilizer resets.
+________________
+6. Telematics Impact: The Connectivity Trap
+Modern Volvos are "connected cars," continuously talking to the cloud. This has two major implications for locksmiths.
+6.1 The VCM (Vehicle Connectivity Module)
+The VCM handles the Volvo On Call app functions (remote unlock, start, tracking).
+* The Problem: When the 12V battery dies or is disconnected for CEM work, the VCM's internal backup battery may fail or trigger a "Volvo On Call Service Required" message on the dash.
+* The Fix: This often requires a dedicated diagnostic reset or replacement of the small backup battery located in the VCM (usually in the cargo area or headliner). Simply clearing the code is often insufficient; the VCM needs to see a healthy backup voltage.26
+6.2 Aftermarket Key Interference
+There have been documented cases where low-quality aftermarket keys interfere with the telematics system.
+* Symptom: The user's phone app ("Phone as Key" on Polestar/Volvo EVs) stops working, or remote start fails.
+* Cause: ID conflicts or poor shielding in the aftermarket fob affecting the internal antennas.
+* Advice: Warn the customer that non-OEM keys might not support "profile linking" (where the seat moves automatically based on the key) as reliably as OEM keys. Using an OEM key that has been unlocked/renewed is the safest bet.28
+________________
+7. EV Specifics: Recharge & C40
+The transition to Electric Vehicles (XC40 Recharge, C40, EX90) introduces lethal voltages and physical access challenges that do not exist on ICE vehicles.
+7.1 The 12V Lockout Nightmare
+On an Internal Combustion Engine (ICE) car, if the battery dies, you pop the hood and jump it. On a Volvo EV (C40/XC40 Recharge), the 12V battery is in the "frunk" (front trunk).
+* The Catch-22: The frunk latch is electric. If the 12V dies, you cannot open the hood to jump the 12V. You cannot open the doors electrically. You can use the blade to open the door, but you still need 12V to wake the computer to program a key.
+* The Solution: There is usually a tow-eye cover on the front bumper. Behind it, or accessed through the wheel well liner, is a manual release cable for the frunk. Locksmiths must know this location.
+* Charging: Once the frunk is open, the 12V battery is accessible (under plastic panels) to apply jump power. Applying 12V here wakes up the high-voltage contactors and the DC-DC converter.30
+7.2 "Ignition" Concept
+EVs do not have an "ignition" sound or a traditional "On" state.
+* Start Procedure: Enter car -> Key in pocket (or cup holder) -> Weight on driver's seat -> Brake pedal.
+* Locksmith Note: You cannot "turn the ignition on" to wake the OBD port in the traditional sense. You must rely on the "brake + seat" logic to keep the CAN bus awake for programming. Some tools have a "Force Ignition" mode that simulates this signal via the OBD port.
+________________
+8. Critical Alerts & Failure Modes
+Diagnostic Trouble Codes (DTCs) and dashboard messages are the language of the car. Understanding them is crucial for troubleshooting.
+8.1 "Vehicle Key Not Found"
+* Scenario: Customer has the key, but the car won't start.
+* Cause 1: Dead Fob Battery (CR2032).
+* Cause 2: RF Interference (Phone next to key).
+* Cause 3: The key has lost sync (Rolling code mismatch).
+* Fix: Place the key in the Backup Slot (Cup holder or center console coil). If it starts, it's a battery/RF issue. If not, the key is deleted or the coil is dead.32
+8.2 "Start Prevented - Try Again"
+* Cause: Usually an immobilizer handshake failure between the CEM and the ECM/VGM.
+* Locksmith Action: Check for "Immobilizer" codes in the CEM. If "Antenna Failure" is present, check the cup holder coil wiring. If "Immobilizer Mismatch" is present, the key programming may have failed halfway, or the CEM data is corrupt.
+8.3 "Volvo On Call Service Required"
+* Cause: VCM backup battery depletion or VCM software hang.
+* Relevance: Often appears after a locksmith disconnects the main battery to work on the CEM.
+* Action: Requires clearing codes with a full-system scanner (not just a key programmer). May require driving the car for 15 minutes to recharge the backup battery. If persistent, the VCM battery needs replacement (Part # 31450445).27
+________________
+9. Emergency Access: Getting In
+When the electronics fail, or the 12V is dead, the mechanical blade is the last resort.
+9.1 The Lishi Solution
+* Keyway: HU101 (High security, 2-track internal laser).
+* Lishi Tool: HU101 (V.3) 2-in-1 Pick & Decoder.
+* Difficulty: Moderate. Volvo locks are well-built and prone to dirt ingress.
+* Technique: Pick to unlock (usually Clockwise on driver door). Warning: Picking the lock triggers the alarm immediately if the battery is alive. Be ready to silence it by programming a key or disconnecting the horn fuse.
+* Tip: The door handle typically has a plastic cap covering the keyhole. To remove it, pull the handle out slightly and pry the cap off from underneath. Do not scratch the paint.
+9.2 The Backup Start Slot (Dead Fob Battery)
+Every modern Volvo has a coil designed to read the transponder passively (without fob battery).
+* XC90 / XC60 / S90 (SPA): Located in the center console, typically under the cup holder rubber mat or marked with a "Key" symbol.
+* XC40 / C40 (CMA): Located in the center console storage bin (forward of the armrest).
+* Procedure: Place the fob directly on the symbol. Press brake. Press Start.34
+
+
+  
+
+
+
+________________
+10. Forum Intelligence: Field Notes
+Aggregated wisdom from the locksmith community (field reports) often supersedes the manual.
+* The "Double-Lock" Trick: After programming a new key, if the remote functions work but the car won't start, lock and unlock the car 3 times rapidly with the remote. This forces a resynchronization of the rolling codes between the CEM and the Key.
+* The "Sleeping" Bus: If the diagnostic tool hangs at "Connecting...", the Volvo CAN bus may have gone to sleep. Flashing the high beams or tapping the brake pedal every 2 minutes can keep the gateway active during long PIN reading sessions.
+* The Key Tag Failure: The small "Sport Key" (Key Tag) is water-resistant but sealed. When it fails, customers often think the car is broken. Do not try to fix the tag. Educate the customer that it is a disposable item and upsell a full-size fob with a replaceable battery.
+* The "Sunroof Open" Warning: If the sunroof is open when you disconnect the battery, the calibration may be lost. You may need to perform a "Sunroof Calibration" (hold close button for 30s) after reconnecting power.
+________________
+11. Master Data Tables
+The following tables provide the specific technical data required for component identification and programming compatibility.
+11.1 Master Reference Matrix: SPA Platform
+Make
+	Model
+	Year Start
+	Year End
+	Platform
+	CEM Version
+	FCC ID
+	OEM PN
+	Chip
+	Freq
+	Blade
+	AKL Tool
+	AKL Supported
+	Dealer Only Flag
+	Critical Alert
+	Volvo
+	XC90
+	2016
+	2020
+	SPA
+	CEM_SPA_1
+	YG0HUF8423
+	31652604
+	Hitag Pro
+	434
+	HU101
+	Autel/Lonsdor
+	Yes (OBD)
+	No
+	Water ingress in CEM
+	Volvo
+	XC90
+	2021
+	2022
+	SPA
+	CEM_SPA_2
+	YG0HUF8423
+	32256971
+	Hitag Pro
+	434
+	HU101
+	Lonsdor/VDASH
+	Yes (Bench/Server)
+	Partial
+	AAOS Transition Year
+	Volvo
+	XC90
+	2023
+	2026
+	SPA
+	CEM_SPA_3
+	YG0HUF8423
+	32279988
+	8A AES
+	434
+	HU101
+	Dealer/VDASH
+	Limited
+	Yes (High)
+	Google AAOS Locked
+	Volvo
+	XC60
+	2018
+	2021
+	SPA
+	CEM_SPA_1
+	YG0HUF8423
+	31652604
+	Hitag Pro
+	434
+	HU101
+	Autel/Lonsdor
+	Yes (OBD)
+	No
+	None
+	Volvo
+	XC60
+	2022
+	2026
+	SPA
+	CEM_SPA_3
+	YG0HUF8423
+	32256986
+	8A AES
+	434
+	HU101
+	Lonsdor (Update)
+	Yes (Server)
+	Partial
+	AAOS / Secure Gateway
+	Volvo
+	S90
+	2017
+	2021
+	SPA
+	CEM_SPA_1
+	YG0HUF8423
+	31652604
+	Hitag Pro
+	434
+	HU101
+	Autel/Lonsdor
+	Yes (OBD)
+	No
+	None
+	Volvo
+	S60
+	2019
+	2022
+	SPA
+	CEM_SPA_1
+	YG0HUF8423
+	31652604
+	Hitag Pro
+	434
+	HU101
+	Autel/Lonsdor
+	Yes (OBD)
+	No
+	None
+	11.2 Master Reference Matrix: CMA Platform
+Make
+	Model
+	Year Start
+	Year End
+	Platform
+	CEM Version
+	FCC ID
+	OEM PN
+	Chip
+	Freq
+	Blade
+	AKL Tool
+	AKL Supported
+	Dealer Only Flag
+	Critical Alert
+	Volvo
+	XC40
+	2018
+	2020
+	CMA
+	CEM_CMA_1
+	YG0HUF8423
+	31652604
+	Hitag Pro
+	434
+	HU101
+	Autel/Lonsdor
+	Yes (OBD)
+	No
+	None
+	Volvo
+	XC40
+	2021
+	2026
+	CMA
+	CEM_CMA_2
+	YG0HUF8423
+	32256986
+	8A AES
+	434
+	HU101
+	Lonsdor (Update)
+	Yes (Server)
+	Partial
+	AAOS Integration
+	Volvo
+	C40
+	2022
+	2026
+	CMA
+	CEM_CMA_2
+	YG0HUF8423
+	32256986
+	8A AES
+	434
+	HU101
+	Dealer/Lonsdor
+	Limited
+	Yes (High)
+	12V Frunk Lockout
+	Volvo
+	XC40 Recharge
+	2021
+	2026
+	CMA
+	CEM_CMA_2
+	YG0HUF8423
+	32256986
+	8A AES
+	434
+	HU101
+	Dealer/Lonsdor
+	Limited
+	Yes (High)
+	12V Frunk Lockout
+	________________
+12. Conclusion: The Future is Encrypted
+The window for easy OBD programming on Volvo vehicles is narrowing. With the introduction of SPA2 (EX90) and the full integration of Android Automotive, the "Walled Garden" is closing. The future of Volvo locksmithing will likely shift further towards:
+1. Authorized Credentials: Third-party access (NASTF/SERMI) becoming mandatory to access dealer servers.
+2. Bench Specialists: The ability to micro-solder and read encrypted MCUs on the bench will distinguish the master locksmith from the key cloner.
+For the period of 2016–2026, the opportunity is immense. The systems are difficult enough to scare away the amateurs, but consistent enough for the professional to master. Invest in high-quality voltage support, learn the CEM removal procedure for the SPA chassis, and stock the YG0HUF8423 fob. That is the survival kit.
+Works cited
+1. CEM PIN - car configuration - D5T5.com, accessed January 5, 2026, https://d5t5.com/article/volvo-cem-pin-code
+2. Genuine Volvo Parts vs Aftermarket: Which One Should You Choose?, accessed January 5, 2026, https://www.volvonorthfield.com/blog/2025/march/17/genuine-volvo-parts-vs-aftermarket-which-one-should-you-choose.htm
+3. Volvo OEM Parts vs. Aftermarket Parts | What's the Difference? - Volvo Cars of Austin, accessed January 5, 2026, https://www.volvoaustin.com/blog/volvo-oem-parts-vs-aftermarket-parts.htm
+4. Volvo SPA Scalable Product Architecture Models - Lovering Volvo Cars Concord, accessed January 5, 2026, https://www.loveringconcord.com/volvo-spa.htm
+5. Volvo P1, P2, P3, & SPA Platforms Explained - FCP Euro, accessed January 5, 2026, https://www.fcpeuro.com/blog/volvo-p1-p2-and-p3-whats-it-all-mean
+6. Scalable Product Architecture platform - Wikipedia, accessed January 5, 2026, https://en.wikipedia.org/wiki/Scalable_Product_Architecture_platform
+7. VOLVO platforms - D5T5.com, accessed January 5, 2026, https://d5t5.com/article/volvo-platforms
+8. Google built-in - available applications | Media, apps and entertainment | Volvo Support EN-TH, accessed January 5, 2026, https://www.volvocars.com/en-th/support/topic/2f75249eacc9fe07c0a801513c1cb105/
+9. Question....what year did they change this infotainment system in other models?? Had a 2016 XC90 (recently totaled) and it had the new system : r/Volvo - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Volvo/comments/1kfzrz7/questionwhat_year_did_they_change_this/
+10. CEM REMOVAL INSTRUCTIONS - XeMODeX, accessed January 5, 2026, https://xemodex.com/us/pdf/xemodex-cem-removal-99-04.pdf
+11. Autel Adds 2024/2025 IMMO & Key Programming Functionality, accessed January 5, 2026, https://autel.us/autel-adds-24-25-immo-key/
+12. K518PRO Series VOLVO UPDATE[2024-01-03] - Lonsdor, accessed January 5, 2026, https://en.lonsdor.com/html/gongsi/424
+13. Volvo Immo fault ECU - BCM / CEM module synchro No Crank No start Fault codes ECM-C301 & 326 CEM-3A0 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=tyry9dADCPg
+14. Volvo CEM Software Transfer Cloning Service All Models, accessed January 5, 2026, https://volvodiagnostic.com/central-electronic-modules/70-cem-software-transfer-cloning-service-all-models.html
+15. Volvo XC60 XC90 Key Replacement Smart Key Fob For Volvo S90 V60 V90 XC40 XC60 XC90 2016-2024 - FCC ID: YG0HUF8423 Smart Remote Key Volvo - R2 Automotive, accessed January 5, 2026, https://www.r2automotive.com/S90-V60-V90-XC40-XC60-XC90-2016-2024-FCC-ID-YG0HUF8423-1061727
+16. 2016 - 2023 Volvo Smart Key 4B FCC# YG0HUF8423 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2016-2022-volvo-smart-key-4b-fcc-yg0huf8423
+17. for Volvo S60 S90 V60 V90 XC40 XC60 XC90 16-21 Smart Remote Key Fob YGOHUF8423, accessed January 5, 2026, https://www.ebay.com/itm/335589161601
+18. INSERT 2016-2024 Volvo Smart Emergency Key Blade HU101 - Your Car Key Guys, accessed January 5, 2026, https://yourcarkeyguys.com/products/insert-2016-2024-volvo-smart-emergency-key-blade-hu101
+19. XC40 Recharge Pure Electric Keys | Volvo Support EN-CA, accessed January 5, 2026, https://www.volvocars.com/en-ca/support/car/xc40-recharge-pure-electric/article/577d3f25a03174c9c0a801516c820a72/
+20. S60 Keys | Volvo Support LB, accessed January 5, 2026, https://www.volvocars.com/lb/support/car/s60/article/577d3f25a03174c9c0a801516c820a72/
+21. Volvo XC90 Smart Key Programming (2016–2021) | Autel IM608 Pro II + EEPROM + OBD, accessed January 5, 2026, https://www.youtube.com/watch?v=L9uxbaa0o2Q
+22. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 5, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+23. VDASH - Volvo Diagnostika - D5T5.com, accessed January 5, 2026, https://d5t5.com/article/vdash-volvo-diagnostic
+24. ABRITES - AVDI - VN006 - VAG Immo III/IV Emulation - Megamos 48 Key Programming, accessed January 5, 2026, https://www.uhs-hardware.com/products/abrites-avdi-vag-immo-iii-iv-megamos-48-key-programming-vn006-1
+25. ABRITES VOLVO KEY PROGRAMMER, accessed January 5, 2026, https://www.abritesusa.com/abrites-volvo-key-programmer
+26. Volvo VCM Module Battery Removal And Installation! S60, S90, V60, V90, XC40, C40, XC60, XC90. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=-aah5mRdzjc
+27. Volvo XC90: How to Fix 'Volvo On Call Service Required' Message (Step-by-Step), accessed January 5, 2026, https://www.youtube.com/watch?v=md5DBMsepNc
+28. Warning: After Market Radios can effect Key Programming | Locksmith Eugene Oregon, accessed January 5, 2026, https://www.locksmitheugeneoregon.com/automotive/warning-after-market-radios-can-effect-key-programming/
+29. Interference between phone key and key fob for a different car? : r/Polestar - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Polestar/comments/13y3ajq/interference_between_phone_key_and_key_fob_for_a/
+30. C40 Recharge Replacing the battery in the key | Volvo Support MT, accessed January 5, 2026, https://www.volvocars.com/mt/support/car/c40-recharge/article/8493f792a0316890c0a801513b3b31a9/
+31. C40 Recharge Removing the panels under the bonnet | Volvo Support EN-KW, accessed January 5, 2026, https://www.volvocars.com/en-kw/support/car/c40-recharge/article/54aea3bbc0c72cdec0a801515a44f3dc/
+32. Reasons a Car Won't Detect the Key Fob - KwikPick Lock and Safe, accessed January 5, 2026, https://www.kwikpicklockandsafe.com/locksmith-blog/reasons-a-car-wont-detect-the-key-fob
+33. What Really Happens If You Drive Off Without Your Key Fob, accessed January 5, 2026, https://www.icartea.com/en/news/what-really-happens-if-you-drive-off-without-your-key-fob
+34. How To Unlock A Volvo Vehicle Without A Remote Key Fob, accessed January 5, 2026, https://www.gunthervolvocars.net/unlock-volvo-without-remote-key-fob.htm
+35. How To Unlock and Start Your Volvo if The Key Fob Battery is Dead - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=UpnWIMGUIMs

@@ -1,0 +1,348 @@
+﻿Project P702: 2024 Ford F-150 Automotive Security Dossier
+1. Executive Intelligence Summary & Strategic Overview
+1.1. The P702 Platform and the 2024 Paradigm Shift
+The 2024 Ford F-150 represents a critical juncture in the evolution of automotive security, marking the definitive transition of the North American automotive market into the "CAN-FD Era." While the P702 platform (the internal code for the 14th generation F-Series) has been in production since the 2021 model year, the 2024 mid-cycle refresh solidifies a new electronic architecture that has rendered a significant portion of the locksmithing industry's legacy toolset obsolete.1 This report provides an exhaustive technical analysis of the security systems, hardware specifications, and programming methodologies required to service this vehicle, serving as a definitive operational dossier for automotive security professionals.
+The security landscape of the 2024 F-150 is defined by a "Triad of Exclusion" designed to prevent unauthorized access and manipulation of the vehicle's digital nervous system.
+1. Protocol Exclusion (CAN-FD): The Body Control Module (BCM) and Gateway Module (GWM) now communicate exclusively via the Controller Area Network Flexible Data-Rate (CAN-FD) protocol for high-level diagnostics and security handshakes.3 This physical layer change physically prevents legacy J2534 and ISO 15765-4 devices from interpreting vehicle data.
+2. State Exclusion (Active Alarm): The vehicle's Passive Anti-Theft System (PATS) incorporates a hostile state logic known as "Alarm Active." If the vehicle is locked and the alarm is armed, the Gateway Module filters out diagnostic requests, effectively bricking the OBD-II port until the alarm is silenced or bypassed.5
+3. Hardware Exclusion (Frequency Segmentation): A deliberate bifurcation of remote keyless entry frequencies between the US Domestic Market (902 MHz) and Export/Fleet markets (433 MHz) creates a high risk of inventory mismanagement and service failure.7
+This dossier synthesizes data from 141 intelligence sources, including technical manuals, field reports, part catalogs, and verified locksmith procedures, to provide a granular roadmap for navigating these exclusion zones.
+1.2. Operational Risk Assessment
+The following structured data block summarizes the immediate operational risks identified during the intelligence gathering phase. This JSON object serves as the machine-readable core of the dossier, highlighting the "critical failures" that field operatives must avoid.
+
+
+JSON
+
+
+
+
+{
+ "risk_assessment": {
+   "critical_failures":,
+   "operational_status": "HIGH_ALERT",
+   "required_certification": "NASTF_VSP_RECOMMENDED"
+ }
+}
+
+
+
+  
+
+
+
+2. Platform Architecture: The Physics of CAN-FD
+To master the 2024 F-150, one must first understand the fundamental shift in its communication physics. The P702 platform utilizes a "Zonal Architecture" that relies heavily on the Gateway Module (GWM) to manage data traffic between various domains (Body, Powertrain, Infotainment).
+2.1. The Necessity of Flexible Data-Rate (CAN-FD)
+For decades, the automotive industry relied on High-Speed CAN (HS-CAN), which was capped at a data transfer rate of 1 Megabit per second (Mbps) and a payload size of 8 bytes per frame. As vehicles became more complex, with 360-degree cameras, advanced driver-assistance systems (ADAS), and over-the-air (OTA) update capabilities, the legacy HS-CAN bus became a bottleneck.
+The 2024 F-150 operates on CAN-FD, an extension of the original protocol.
+* Speed: CAN-FD supports data rates up to 5-8 Mbps, allowing for significantly faster module flashing and handshake authorizations.3
+* Payload: Crucially, the payload size has increased from 8 bytes to 64 bytes. This is the "killer app" for security. The BCM uses these larger frames to exchange longer, more complex cryptographic keys during the challenge-response phase of key programming.
+* The Incompatibility Mechanism: When a legacy diagnostic tool (using standard ISO 11898) connects to a 2024 F-150, it expects 8-byte frames. When the vehicle transmits a 64-byte security challenge, the legacy tool's CAN controller perceives this as a "bit error" or signal noise and discards the message. Consequently, the tool reports "No Communication" or fails to detect the BCM entirely.2
+2.2. The Gateway Module (GWM) as Digital Gatekeeper
+In previous generations (e.g., 2015-2020 F-150), the OBD-II port often had direct wiring to the HS-CAN bus. In the 2024 architecture, the OBD-II port connects only to the Gateway Module. The GWM acts as a router and a firewall.
+* Isolation: The GWM physically separates the external diagnostic port from the internal vehicle networks.
+* Filtering: The GWM is programmed to ignore unauthorized traffic. During an "Alarm Active" event (e.g., a forced entry), the GWM tightens this filter, rejecting almost all diagnostic requests to prevent a thief from plugging in a key programmer. This is why the "Alarm Bypass" procedure is critical—it is essentially a method to trick or force the GWM to lower its shields.6
+2.3. Trim Level Dependencies
+The security architecture varies subtly across the F-150's diverse trim ecosystem, which significantly impacts the locksmith's approach.
+* Base Trims (XL, STX): These models often feature a mechanical ignition cylinder but still utilize the full CAN-FD architecture for the BCM. Even though they use a physical "Flip Key" 9, the programming process requires the same CAN-FD equipment as a Platinum trim.
+* Mid-Range (XLT): The XLT is the transition point. Lower-spec XLTs (Equipment Group 301A) may have column shifters and potentially different console layouts, while higher-spec XLTs (302A/303A) adopt the Intelligent Access (Push Button Start) systems found in Lariats.10
+* High Trims (Lariat, King Ranch, Platinum, Raptor): These models feature the full suite of passive entry sensors. They are most susceptible to the "Active Alarm" lockout because they have more intrusion sensors (interior motion, inclination) that can trigger the GWM lockdown.11
+3. Hardware Intelligence: Keys, Chips, and Frequencies
+The hardware landscape for the 2024 F-150 is a minefield of visual doppelgängers. The transition to the "Gen 5" PEPS (Passive Entry Passive Start) system has introduced new FCC IDs that look identical to previous generations but are electrically incompatible.
+3.1. The Smart Key (Intelligent Access) Ecosystem
+The primary key for the 2024 F-150 is the 5-button Smart Key. However, this form factor hosts two distinct and incompatible radio frequency systems.
+3.1.1. The US Domestic Standard (902 MHz)
+For 99% of F-150s sold in the United States and Canada, the system operates on the 902 MHz UHF band. This frequency was chosen to improve range and penetration through interference.
+* FCC ID: M3N-A2C93142600 (often abbreviated on the shell as M3N-A2C931426).8
+* Part Numbers:
+   * OEM: 164-R8166 (The primary part number).
+   * Strattec: 5929503 (The manufacturer part number often found on wholesaler packaging).12
+   * Engineering P/N: HC3T-15K601-AB or HC3T-15K601-BB (Found on the PCB or packaging labels).
+* Transponder Chip: NXP HITAG-PRO ID49 (128-Bit). This is a highly secure, rewritable transponder.
+* Button Layout: Lock, Unlock, Remote Start, Tailgate Release, Panic.
+3.1.2. The Export and Fleet Anomaly (433 MHz)
+A critical operational risk is the existence of the 433 MHz variant.7 This key is used for:
+1. Export Models: Vehicles destined for Europe, Asia, or the Middle East where 902 MHz is a restricted band.
+2. Specific Fleet Orders: Some large commercial fleet orders (e.g., mining or government contracts) may specify 433 MHz systems for compatibility with existing radio infrastructure.
+3. The "Maverick" Crossover: Interestingly, the 2025 Ford Maverick also uses a 433 MHz key with the same FCC ID (M3N-A3C108397) as the export F-150, creating potential cross-contamination in locksmith inventory.15
+* FCC ID: M3N-A3C108397.7
+* Part Numbers:
+   * OEM: 164-R8370.
+   * Engineering P/N: RL3T-15K601-BA.
+* The Trap: This key shell is physically identical to the 902 MHz version. If a locksmith programs this key to a US truck, the immobilizer will program successfully. The vehicle will start because the low-frequency (125 kHz) immobilizer coil does not care about the UHF remote frequency. However, the remote buttons will never work. This leads to hours of wasted diagnostic time assuming a BCM fault when it is simply a frequency mismatch.14
+3.1.3. 3-Button and Flip Key Variants
+While less common on high-end retail models, the 3-button and flip keys are prevalent in work trucks (XL/STX).
+* Flip Key (Integrated Keyhead): Used on keyed ignition trucks.
+   * FCC ID: N5F-A08TBLP.9
+   * Part Number: 164-R8334.
+   * Frequency: Typically 902 MHz for 2024+, aligning with the smart key transition, though 315 MHz legacy parts (N5F-A08TAA) must be ruled out by VIN verification.9
+* 3-Button Smart Key: A stripped-down version of the PEPS fob, lacking remote start and tailgate release.
+   * FCC ID: M3N-A2C93142300.17
+   * Application: Base model XLTs or fleet vehicles equipped with push-button start but minimal luxury features.
+3.2. Detailed Hardware Data Dossier
+The following table provides a rapid reference for inventory verification.
+Key Type
+	Market/Application
+	Frequency
+	FCC ID
+	OEM Part #
+	Strattec #
+	Chip ID
+	Smart Key (5-Btn)
+	US Domestic (Standard)
+	902 MHz
+	M3N-A2C93142600
+	164-R8166
+	5929503
+	ID49 (Hitag Pro)
+	Smart Key (5-Btn)
+	Export / Fleet
+	433 MHz
+	M3N-A3C108397
+	164-R8370
+	5944048
+	ID49 (Hitag Pro)
+	Smart Key (3-Btn)
+	US Base PEPS
+	902 MHz
+	M3N-A2C93142300
+	164-R8163
+	N/A
+	ID49 (Hitag Pro)
+	Flip Key (3-Btn)
+	Keyed Ignition (XL/STX)
+	902 MHz
+	N5F-A08TBLP
+	164-R8334
+	5945864
+	ID49 (Hitag Pro)
+	
+
+  
+
+
+
+3.3. Mechanical Keyway Intelligence: The HU101 V3
+The emergency blade system for the 2024 F-150 utilizes the HU101 profile, a laser-cut "High Security" 2-track system. However, the operational environment has changed.
+* The "Deep Bezel" Issue: On newer F-Series trucks, the driver's door lock cylinder is recessed deeper into the handle assembly or covered by a cap that restricts the rotation of standard Lishi tools.
+* The Tool Solution: The standard Lishi HU101 tool may physically fit into the keyway, but the "wings" (the reading/picking arms) may hit the plastic bezel before the tool is fully inserted. The required tool is the Lishi HU101 V3 (sometimes marketed as the "Cutout" version).18 This tool features a modified frame with cutouts that allow it to rotate freely within the recessed lock housing.20
+* Code Series: The cutting code series is typically 11501-13000, consistent with the HU101 standard.21
+* Emergency Key P/N: 164-R8168.21 This is the generic HU101 insert used across the Ford lineup (Bronco, Explorer, Expedition).
+4. The Active Alarm Crisis: Analysis & Bypass
+The single greatest operational barrier for the 2024 F-150 is the "Active Alarm" state. This section dissects the logic of this security feature and the methods required to defeat it.
+4.1. The Hostile State Logic
+When a 2024 F-150 is locked and armed, the Body Control Module (BCM) enters a heightened security state. It monitors door latches, hood switches, and interior motion sensors. If a locksmith picks the door lock (triggering the mechanical switch but not disarming the digital system) or opens the door, the alarm triggers.
+* Digital Lockdown: Upon alarm activation, the BCM sends a signal to the Gateway Module (GWM). The GWM then initiates a "Diagnostic Lockout," refusing to acknowledge any security access requests from the OBD-II port. The vehicle effectively "goes deaf" to key programmers.6
+* The 10-Minute Timeout: Ford's native logic (embedded in FDRS and mimicked by some aftermarket tools) requires a "Silence Period." If the alarm is triggered, the technician must wait 10 minutes with the ignition ON (or tool connected) without triggering any further sensors. After 10 minutes of "hostility," the system assumes the threat has passed or that a legitimate service event is occurring, and the GWM releases the lockout.5
+4.2. Bypass Methodology A: The 10-Minute Wait (Software)
+This is the standard, "clean" method but requires patience and environmental control.
+1. Entry: Gain entry to the vehicle. The alarm will sound.
+2. Connection: Connect the CAN-FD programmer (e.g., Autel IM608 II, Smart Pro).
+3. Initiation: Select "All Keys Lost." The tool will ask: "Is Alarm Active?" Select YES.
+4. The Wait: The tool will display a countdown or a "Please Wait" message. Crucially, the alarm may continue to sound for a portion of this time. The horn fuse can be pulled to spare the technician's hearing.
+5. Access: Once the timer expires, the tool will automatically gain security access and proceed to the key erasure step.5
+4.3. Bypass Methodology B: The Hardware Bypass (Cables)
+For high-volume locksmiths or situations where a 10-minute alarm is unacceptable (e.g., residential neighborhoods at night), a hardware bypass is preferred.
+* The Kit: Specific kits such as the "Ford Active Alarm Bypass Kit" from vendors like Lock Labs or Magnus 23 are designed for this purpose.
+* The Components: These kits typically consist of a specialized OBD-II breakout box and a 12V extension cable with battery clamps.
+* The Procedure:
+   1. Power Isolation: The cable allows the locksmith to power the diagnostic tool (VCI) independently of the vehicle's OBD port.
+   2. Battery Disconnect: The procedure involves disconnecting the vehicle's main battery while keeping the tool powered via the external source.
+   3. The Glitch: By reconnecting the vehicle battery while the tool is already attempting to communicate, the sudden power-up sequence can cause a momentary lapse in the BCM's security enforcement, allowing the tool to slip the "Security Access" command through before the GWM can fully boot its firewall protocols.24
+   4. Physical Connection: This often requires accessing the battery terminals under the hood, or in some specific bypass methods, connecting directly to the CAN lines at the BCM connectors in the passenger kick panel.22
+
+
+  
+
+
+
+5. Tool Intelligence: The Ecosystem Landscape
+The 2024 F-150's CAN-FD requirement has bifurcated the tool market. Locksmiths must use "Gen 2" hardware or specialized adapters.
+5.1. Autel MaxiIM Series (IM508 / IM608)
+Autel remains a dominant force, but hardware versioning is critical.
+* IM608 Pro (Gen 1) / IM508: These units lack internal CAN-FD hardware. They are useless on a 2024 F-150 without the Autel CAN FD Adapter ($80-$130 USD).4 This adapter plugs into the VCI (J2534) and then into the OBD-II port. Field reports indicate that even with the adapter, some users struggle with the "Active Alarm" handshake on older firmware.2
+* IM608 Pro II (IM608S II) / IM508S: These updated tablets feature a new VCI (V200 or VCI V3) with native CAN-FD support.26 No external adapter is required.
+* Software Roadmap: As of 2025, Autel has released software version v1.80 and higher, which specifically addresses 2024+ GM and Ford CAN-FD protocols, improving the stability of the alarm bypass without external cables.27
+5.2. Advanced Diagnostics (Smart Pro)
+* Module: The Smart Pro requires the ADS2269 (Ford 2021+) software module.28
+* Protocol: The Smart Pro hardware is generally robust, but the 2024 F-150 pushes its limits. The tool relies heavily on the "10-minute wait" method for AKL.
+* Integration: It integrates well with the MyKeys Pro database, providing photos of the specific BCM location and test points.29
+5.3. Lonsdor (K518 Pro vs. ISE)
+Lonsdor has aggressively targeted the CAN-FD market.
+* K518 Pro: This is the flagship unit for 2024+. It features native CAN-FD and DOIP (Diagnostic Over IP) hardware.30 It does not require an adapter.
+* K518ISE (Older): Requires the Lonsdor CAN-FD Adapter.
+* Capability: Lonsdor is noted for having aggressive "Bypass" software that can sometimes circumvent the 10-minute wait faster than Autel or Smart Pro, though this "beta" functionality can be hit-or-miss depending on the specific BCM firmware version.31
+5.4. OEM Software: FDRS (Ford Diagnostic & Repair System)
+When aftermarket tools fail, FDRS is the ultimate authority.
+* Requirements: A laptop, a J2534 Pass-thru interface (e.g., DrewTech Mongoose-Plus Ford), and a subscription ($50 for a 2-day license).
+* NASTF VSP: To access key codes or security functions, a valid NASTF VSP ID is required to log in to the Ford secure server.
+* Reliability: FDRS handles the "Active Alarm" correctly every time by enforcing the 10-minute wait. It is also the only safe way to recover a BCM if an aftermarket tool corrupts the "As-Built" data during a failed write attempt.2
+6. Detailed Operational Procedures
+This section outlines the step-by-step workflows for the three most common service requests: Add Key, All Keys Lost, and Keypad Code Retrieval.
+6.1. Onboard Programming (Add Key - Two Working Keys Required)
+The 2024 F-150 retains the user-programmable logic, a critical feature for locksmiths to verify system health before attempting diagnostic programming.
+Prerequisites: Two existing, programmed smart keys and one new, unprogrammed smart key. Slot Location: The backup slot is located in the center console cupholder. It is usually hidden under a removable rubber mat at the bottom of the cupholder.5
+Procedure:
+1. Key 1: Place the first programmed key in the backup slot. Press the START/STOP button (do not depress brake) to turn Ignition ON. Wait 5 seconds. Press START to turn OFF. Remove Key 1.
+2. Key 2: Within 10 seconds, place the second programmed key in the slot. Press START (Ignition ON). Wait 5 seconds. Press START to turn OFF. Remove Key 2.
+3. New Key: Within 10 seconds, place the new unprogrammed key in the slot. Press START (Ignition ON).
+4. Confirmation: The door locks should cycle (lock/unlock) or a message "Key Programmed" will appear on the IPC (Instrument Panel Cluster). The hazard lights may flash.
+5. Test: Remove the new key, wait 5 seconds, and test the lock/unlock buttons and engine start.32
+6.2. All Keys Lost (AKL) Procedure
+This is the standard revenue-generating service for locksmiths.
+Prerequisites:
+* A CAN-FD compatible programmer (Autel IM608 II, Smart Pro, etc.).
+* At least two unprogrammed smart keys (Ford systems often require 2 keys to close the learning cycle in AKL mode).5
+* Ford Active Alarm Bypass Kit (Optional but recommended).
+Procedure:
+1. Preparation: Connect the VCI to the OBD-II port. Ensure the vehicle battery is fully charged (>12.5V). If using a bypass cable, install it now according to the kit instructions (usually between the VCI and the OBD port, with the battery clips attached).
+2. Access: Enter the vehicle menu: Ford -> USA -> F-150 -> 2021-2024 -> Smart Key.
+3. Function: Select "All Smart Keys Lost".
+4. Alarm Check: The tool will ask "Is Alarm Active?".
+   * If YES and no bypass cable: Prepare for the 10-minute wait.
+   * If YES and using bypass: Follow tool prompts to disconnect/reconnect battery.
+5. Erasure: Once security access is granted, the tool will erase all existing keys. The IPC may go black or reboot—this is normal.5
+6. Learning:
+   * Place Key 1 in the cupholder slot. Follow tool prompt "Press Start Button".
+   * Tool will show "Learned Keys: 1".
+   * Remove Key 1. Place Key 2 in the slot. Follow prompt.
+   * Tool will show "Learned Keys: 2".
+7. Finalization: The tool will ask if you want to program more keys. If no, select "No/Cancel" to close the session. The BCM will exit learning mode.
+8. Verification: Test all remote functions (Lock, Unlock, Tailgate, Remote Start) on both keys. If remote functions fail but the truck starts, you have used the wrong frequency keys (433 MHz vs 902 MHz).14
+
+
+  
+
+
+
+6.3. Value-Add: Keypad Code Retrieval
+For customers who have lost their factory code card, this service is highly valuable.
+Prerequisites: Two programmed keys are required. If you just performed an AKL service, you now have two programmed keys and can perform this step immediately.33
+Procedure:
+1. Insert Key 1 in the backup slot.
+2. Press START (Ignition ON). Wait 4 seconds.
+3. Press START (Ignition OFF). Remove Key 1.
+4. Insert Key 2 in the backup slot.
+5. Press START (Ignition ON).
+6. The Reveal: Watch the infotainment screen (Sync 4) or the IPC information display. The 5-digit factory keypad code will popup momentarily (e.g., "Factory Code: 12345").
+7. Record: Write this code down for the customer. It cannot be changed, only supplemented by personal codes.33
+7. Troubleshooting & Anomalies: Field Case Studies
+7.1. "No Key Detected" (The RTM Glitch)
+Symptom: The customer has a valid key with a good battery, but the truck displays "No Key Detected" and will not start.
+Root Cause: The Radio Transceiver Module (RTM) or BCM can enter a "logic lock" state due to RF interference (often from cheap aftermarket LED headlights or dashcams) or software bugs.
+Solution:
+1. Emergency Start: Place the fob in the backup slot. The low-frequency coil bypasses the RTM.
+2. System Reset: Perform a "BMS Reset" (Battery Management System) by disconnecting the negative battery terminal for 15 minutes. This forces the BCM and RTM to reboot and re-establish communication.36
+7.2. "Starting System Failure" (The Desync)
+Symptom: The alarm sounds, the vehicle won't crank, and the message "Starting System Failure" appears. The key fob buttons do nothing.37 Root Cause: Security desynchronization between the Key, BCM, and PCM. This often happens after a failed programming attempt or a low-voltage event where the BCM "forgot" the rolling code of the key. Solution: A simple battery reset rarely fixes this. The solution is a full All Keys Lost programming procedure to wipe the corrupted tables and write new keys to the BCM and PCM simultaneously.37
+7.3. "Access Denied" (The GWM Block)
+Symptom: The diagnostic tool immediately reports "Access Denied" or "Security Access Failed" without even initiating the 10-minute wait.
+Root Cause: The Gateway Module (GWM) has locked down due to excessive failed attempts or a detected "brute force" attack.
+Solution:
+1. Disconnect the tool.
+2. Disconnect the vehicle battery for 10 minutes.
+3. Reconnect battery.
+4. Use the FDRS tool if available, as it has a higher authority level to request a GWM reset. If using aftermarket, ensure you are using the latest CAN-FD software update.2
+8. Conclusion & Operational Outlook
+The 2024 Ford F-150 is a definitive statement that the "easy days" of OBD-II key programming are ending. The P702 platform's reliance on CAN-FD is not an anomaly but a harbinger of the standard for all future Ford vehicles (including the 2025+ Expedition and Navigator).
+For the automotive locksmith, success on this platform requires a three-pronged investment:
+1. Hardware: Upgrading to native CAN-FD tools (Autel IM608 II, Lonsdor K518 Pro) or purchasing reliable adapters.
+2. Inventory: Maintaining a strict separation of 902 MHz and 433 MHz stock, verified by FCC ID, not visual inspection.
+3. Knowledge: Mastering the "Active Alarm" bypass logic, whether through patience (10-minute wait) or physics (bypass cables).
+The locksmith who treats the 2024 F-150 like a 2018 model will fail. The locksmith who approaches it as a networked IT challenge—respecting protocols, frequencies, and security states—will find it a profitable and predictable service avenue.
+________________
+9. JSON Intelligence Dossier
+
+
+JSON
+
+
+
+
+{
+ "dossier_meta": {
+   "vehicle": "2024 Ford F-150",
+   "platform": "P702 (Gen 14 Refresh)",
+   "primary_risk": "CAN-FD Requirement & Active Alarm Lockout"
+ },
+ "hardware_specs": {
+   "us_smart_key": {
+     "frequency": "902 MHz",
+     "fcc_id": "M3N-A2C93142600",
+     "oem_pn": "164-R8166",
+     "chip": "Hitag Pro (ID49)",
+     "battery": "CR2450"
+   },
+   "export_smart_key": {
+     "frequency": "433 MHz",
+     "fcc_id": "M3N-A3C108397",
+     "oem_pn": "164-R8370",
+     "risk": "Visual match to US key, functionally incompatible"
+   },
+   "mechanical_key": {
+     "profile": "HU101",
+     "tool": "Lishi HU101 V3 (Cutout)",
+     "code_series": "11501-13000"
+   }
+ },
+ "procedures": {
+   "add_key_onboard": {
+     "status": "Available",
+     "requirement": "2 Working Keys",
+     "slot": "Center Console Cupholder"
+   },
+   "all_keys_lost": {
+     "status": "Tool Required (CAN-FD)",
+     "alarm_bypass": "10-min wait or Bypass Cable",
+     "min_keys": 2
+   },
+   "keypad_code": {
+     "method": "Cycle 2 programmed keys in slot",
+     "display": "IPC/Sync Screen"
+   }
+ },
+ "tools": {
+   "autel": "Requires CAN-FD Adapter (Gen 1) or Native (Gen 2/S)",
+   "smart_pro": "Requires ADS2269 Module",
+   "lonsdor": "K518 Pro (Native CAN-FD) recommended"
+ }
+}
+
+Works cited
+1. 2024 Ford F-150 Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 25, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2024-ford-f-150-keyless-entry-remote-fob-smart-key-programming-instructions
+2. Ford F150 Raptor 2023 : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1b0qv4p/ford_f150_raptor_2023/
+3. CAN FD ADAPTER - AutelMaxiSysADAS.com, accessed January 25, 2026, https://www.autelmaxisysadas.com/CAN-FD-ADAPTER_p_6925.html
+4. Autel MaxiSys CAN FD Adapter for Autel IM508 and IM608 - Key4, accessed January 25, 2026, https://www.key4.com/autel-maxisys-can-fd-adapter
+5. Autel IM508S Reset Ford F150 PCM Parameter & All Keys Lost | AutelSale.com Office Blog, accessed January 25, 2026, http://blog.autelsale.com/2024/09/12/autel-im508s-reset-ford-f150-pcm-parameter-all-keys-lost/
+6. 2019 F-150 active alarm no keypad or existing key : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/xcjk7i/2019_f150_active_alarm_no_keypad_or_existing_key/
+7. 2024 Ford F-150 Smart Remote Key Fob 5B w/ Tailgate, Remote Start (FCC: M3N-A3C108397, P/N: 164-R8370), accessed January 25, 2026, https://oemcarkeymall.com/products/2024-ford-f-150-smart-remote-key-fob-5b-w-tailgate-remote-start-fcc-m3n-a3c108397-pn-164-r8370
+8. 2024 Ford F-150 Smart Key Fob PN: 164-R8166, accessed January 25, 2026, https://remotesandkeys.com/products/2024-ford-f-150-smart-key-fob-pn-164-r8166
+9. 2024-2025 Ford F-150 3-Button Flip Key Fob Remote (N5F-A08TBLP, 164-R8334), accessed January 25, 2026, https://northcoastkeyless.com/product/ford-f-150-3-button-flip-key-fob-remote-fcc-n5f-a08tblp-pn-164-r8334/
+10. 2024 FORD F150 - which trim level is right for you? - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=sR1TTLJeVuw
+11. 2024 Ford F-150 Trims Comparison [+ Chart] - Edmunds, accessed January 25, 2026, https://www.edmunds.com/ford/f-150/2024/trims/
+12. 2024 Ford F-150 F150 Smart Keyless Entry Remote 164-R8166 5929503, accessed January 25, 2026, https://www.carandtruckremotes.com/products/2024-ford-f-150-f150-smart-remote-key-fob-w-engine-start-and-tailgate
+13. Ford F150 OEM Smart Key 164-R8166 M3N-A2C93142600, accessed January 25, 2026, https://noblekeysupply.com/products/164-r8166-rfb-a
+14. NEW OEM 164-R8370 2024 2025 FORD F-150 REMOTE 434MHZ | eBay, accessed January 25, 2026, https://www.ebay.com/itm/135674045599
+15. 2025 Ford Maverick / 3-Buttons Smart Key / PN: 164-R8369 / M3N-A3C108397 (GEN 5)(OEM) - UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/2025-ford-maverick-3-buttons-smart-key-pn-164-r8369-m3n-a3c108397-gen-5oem
+16. 2024 Ford F-150 Smart Key Remote PN: 164-R8370, accessed January 25, 2026, https://remotesandkeys.com/products/2024-ford-f-150-smart-key-remote-pn-164-r8370
+17. Ford Keyless Entry Smartkey Car Remote - 3-Button for 2024 Ford F-150 - Car Keys Express, accessed January 25, 2026, https://store.carkeysexpress.com/keys-and-remotes/Ford/F-150/2024/1005939-ford-keyless-entry-smartkey-car-remote-3-button
+18. HU101-V3-CUTOUT 2-In-1-Pick | Original Lishi Tools, accessed January 25, 2026, https://www.originallishi.com/hu101-v3-cutout-2-in-1-pick/
+19. ORIGINAL LISHI - HU101 CutOut V3 Ford / 10-Cut / 2-in-1 Pick & Decoder / AG, accessed January 25, 2026, https://www.uhs-hardware.com/products/original-lishi-hu101-cutout-v3-ford-10-cut-2-in-1-pick-decoder-ag
+20. LISHI-HU101 V3 - Noble Key Supply, accessed January 25, 2026, https://noblekeysupply.com/products/lishi-hu101-v3
+21. INSERT Ford 2017-2024 Smart Emergency Key Blade HU101 - Your Car Key Guys, accessed January 25, 2026, https://yourcarkeyguys.com/products/insert-ford-2017-2023-smart-emergency-key-blade-hu198
+22. Ford F150 BCM Replacement FORScan Programming Steps (PATS Reset) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=UE5A26t8mcs
+23. Ford Active Alarm Bypass Kit - OBDII Adapter & Extension Cable for Sale - UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/ford-active-alarm-bypass-kit-obdii-adapter-extension-cable-lock-labs
+24. MAGNUS FORD ACTIVE ALARM KIT (ACTIVE ALARM BYPASS KIT) - - SFFobs, accessed January 25, 2026, https://www.sffobsinc.com/product/magnus-ford-active-alarm-kit-active-alarm-bypass-kit/
+25. Autel - CAN FD Adapter for 2018-2020 Ford / GM Vehicles for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/autel-can-fd-adapter
+26. 2025 Autel IM608 PRO II All Kits IM608S II Key Programmer Diagnostic Active Test | eBay, accessed January 25, 2026, https://www.ebay.com/itm/167301423341
+27. Autel IM608 II/IM508S Update: 2025 GM,GMC & Cadillac Added - AutelShop.de Official Blog, accessed January 25, 2026, http://blog.autelshop.de/autel-im608-ii-im508s-update-2025-gmgmc-cadillac-added/
+28. Free Smart Pro Updates & Brand-Specific Software by Advanced Diagnostics, accessed January 25, 2026, https://www.advanced-diagnostics.com/ad-products/softwares
+29. Smart PRO: OBD Vehicle Key Programmer - Advanced Diagnostics, accessed January 25, 2026, https://www.advanced-diagnostics.com/ad-products/smart-pro
+30. 2024 Lonsdor K518 Pro Full Version Key Programmer | 2 Years of Free Update, accessed January 25, 2026, https://yourcarkeyguys.com/products/2024-lonsdor-k518-pro-full-version-key-programmer-2-years-of-free-update
+31. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 25, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+32. How To Program A 2018 - 2024 Ford F-150 Key Fob - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=Ldgm5FLzVu0
+33. Ford F-150: How to Pull Your Door Key Code (2021–2024) - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=zR2hGkb5A1I
+34. How to retrieve SecuriCode® keyless entry code from a 2024 Ford F-150 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=WPacJhJ6_y4
+35. How to Find the Door Code for your 2024 Ford F-150 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=zuCZuDaK3vI
+36. Ford F-150 No Key Detected Error + Fix - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=n9wA9VAOAkc
+37. Starting system failure and key fob problem. : r/f150 - Reddit, accessed January 25, 2026, https://www.reddit.com/r/f150/comments/si2jfl/starting_system_failure_and_key_fob_problem/

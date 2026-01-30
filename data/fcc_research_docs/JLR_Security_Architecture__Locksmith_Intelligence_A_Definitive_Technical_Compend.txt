@@ -1,0 +1,237 @@
+﻿JLR Security Architecture & Locksmith Intelligence: A Definitive Technical Compendium (2010–2025)
+1. Introduction: The Geopolitics of Automotive Security
+The ecosystem of Jaguar Land Rover (JLR) security represents one of the most volatile and technically demanding frontiers in the global automotive locksmithing industry. Over the past fifteen years, JLR has transitioned from a manufacturer utilizing relatively standard, Ford-derived electrical architectures to a technology firm deploying fortress-like digital environments characterized by Ultra-Wideband (UWB) telemetry, secure cloud handshakes, and heavily encrypted Body Control Modules (BCM). For the modern vehicle security professional, the days of simple OBD-II key programming are largely extinct for new models, replaced by a high-stakes game of electronic warfare involving proprietary connectors, microscopic soldering, and forensic-level data manipulation.1
+This report serves as an exhaustive intelligence dossier for the L-Series platforms (L405, L460, L494, L461, L538, L551, L560, L319, L462, L663). It is designed not merely as a guide but as a comprehensive analysis of the mechanical and digital mechanisms that govern access to these vehicles. The analysis synthesizes data from aftermarket tool capabilities, OEM technical service bulletins (TSBs), and field reports from locksmiths navigating the "Active Alarm" paradox. The trajectory of JLR security—moving from the accessible Low-Frequency wake-up systems of the early 2010s to the draconian Time-of-Flight verification of the 2024 Defender—mirrors the broader industry's shift toward "connected car" security, where the vehicle is no longer a standalone machine but a node in a guarded network.3
+The implications of this shift are profound. The barrier to entry for servicing modern Range Rovers has risen exponentially. Where a generic key programmer sufficed in 2015, a 2023 Range Rover Sport now demands an arsenal comprising specific interface boards, DoIP (Diagnostics over Internet Protocol) compliant hardware, and often, authorized access to JLR’s TOPIx cloud infrastructure.4 This document will dissect these requirements, providing the technical granularity necessary to distinguish between a profitable service opportunity and a potential liability event.
+2. Platform Architecture and Identification Strategy
+Correctly identifying the platform code and its underlying electrical architecture is the foundational step in any JLR security operation. Unlike other manufacturers where the model year is the primary determinant of programming method, JLR security is dictated by the specific "Remote Function Actuator" (RFA) generation and the chassis code. A 2017 Range Rover Sport and a 2017 Discovery 5, for instance, may require vastly different approaches despite sharing a badge year.
+2.1 The Legacy Architectures (2010–2016)
+The early phase of the timeframe in question is dominated by the PLA (Premium Lightweight Architecture) and older Ford-EU derived platforms. These vehicles utilize the "FK72" and "HPLA" generations of Keyless Vehicle Modules (KVM).
+L319 (Discovery 4 / LR4): The final iteration of the L319 (2010–2016) bridges the gap between the older physical key systems and the modern smart key. While robust, the security architecture here is widely considered "cracked" by the aftermarket. The interaction between the Instrument Cluster (IPC) and the BCM is less encrypted than in successor models, allowing tools like the Autel IM608 and Lonsdor K518 to communicate freely via the OBD-II port, even in "All Keys Lost" (AKL) scenarios, provided the alarm can be managed.5
+L538 (Range Rover Evoque Gen 1): Launched in 2011, the L538 brought the "Smart Key" into the mass market for JLR. These vehicles, particularly pre-2015 models, are the most accessible. The KVM location in the rear luggage compartment (left-hand side) is easily accessible, making bench programming a viable backup if OBD fails. However, the prevalence of this model means it is also the most common victim of low-quality aftermarket keys that desynchronize, leading to the dreaded "Smart Key Not Found" error even when the key is technically programmed.1
+L405 (Range Rover Gen 4) & L494 (Range Rover Sport Gen 2): Introduced in 2012 and 2013 respectively, these aluminum-bodied giants represented a quantum leap in luxury but a gradual evolution in security. Early models (2013-2016) retained the FK72 module architecture. For the locksmith, this is the "Golden Era"—programming is fast, rarely requires module removal, and success rates are high.1
+2.2 The Transitional Architectures (2017–2019)
+The introduction of the "JPLA" module marked a hardening of the security perimeter. This transition coincided with the facelift of the L405/L494 and the launch of new platforms like the L560 Velar and L462 Discovery.
+L462 (Discovery 5): Replacing the L319, the L462 (2017+) adopted the full aluminum architecture and the newer electrical systems. This platform was one of the first to widely utilize the DoIP protocol for diagnostics, necessitating new VCI (Vehicle Communication Interface) hardware. The security gateway (SGW) becomes a factor here, blocking unauthorized write commands from the OBD port unless bypassed.6
+L560 (Range Rover Velar): The Velar serves as a technological bridge. Early 2018 models might still exhibit behaviors of the older systems, but they rapidly transitioned to the secure JPLA architecture. The Velar is infamous in the locksmith community for its aggressive BCM lockdown when the alarm is triggered, often necessitating the "connector method" to force communication with the KVM.7
+2.3 The Fortress Architectures (2020–Present)
+The current era, defined by the EVA 2.0 (Electronic Vehicle Architecture) and beyond, introduces the "K8D2", "J9C3", and UWB technologies.
+L663 (Defender): The rebirth of the Defender in 2020 introduced the toughest security yet. The L663 does not just use a KVM; it uses a highly integrated system where the BCM and Gateway modules actively monitor for "implausible" diagnostic requests. The 2020–2022 models are accessible via bench programming of the KVM, but the 2023+ models (and particularly the 2024 facelift) have moved to a server-side authentication model that blocks offline seed-key calculation.8
+L460 (Range Rover Gen 5) & L461 (Range Rover Sport Gen 3): These vehicles (2022+) represent the absolute apex of JLR security. They utilize the latest "M" variant KVMs with UWB transceivers. The aftermarket capability for these is currently extremely limited, often requiring third-party remote technicians who bridge the vehicle to the OEM TOPIx cloud system via a laptop, effectively mimicking a dealer service event.2
+3. The Remote Function Actuator (KVM): The Heart of the System
+To understand JLR programming is to understand the KVM (Keyless Vehicle Module), also technically referred to as the RFA (Remote Function Actuator). This single ECU is the gatekeeper for all passive entry and starting functions. Its generation dictates the required tool, the connection method, and the risk level.
+
+
+  
+
+
+
+3.1 FK72: The Open Door (2010–2015)
+The FK72 series modules are built on the Motorola/Freescale MC9S12XEQ384 microcontroller. From a forensic perspective, these are relatively "soft" targets. The memory structure is not heavily encrypted, allowing diagnostic tools to read the D-FLASH (Data Flash) and EEPROM areas directly. In an "All Keys Lost" scenario, the standard procedure involves reading the module data to extract the cryptographic key (ISK) and then adding a new key ID to the stack. Because these vehicles operate on standard CAN speeds, standard OBD-II programmers face minimal resistance. The primary risk with FK72 is not security lockouts but data corruption; poor voltage maintenance during the read/write process can erase the flash, necessitating a "flash recovery" or module replacement.9
+3.2 HPLA: The Hardened Legacy (2015–2017)
+The HPLA module represents a firmware upgrade on similar hardware architecture. While still accessible, JLR introduced counter-measures to prevent simple cloning. The HPLA modules began to enforce tighter timing windows for key registration. However, the aftermarket adapted quickly. Tools like the Lonsdor K518 and Autel IM608 developed "Write-to-Start" protocols that could inject a key into an HPLA module via OBD, provided the alarm system was not in a triggered state. If the alarm is active, the HPLA module shuts down external communications, forcing the technician to remove the module and program it on the bench using a clip-on interface.10
+3.3 JPLA: The DoIP Era (2018–2020)
+The shift to JPLA modules (often identified by part numbers starting with JPLA- or J9C3-) coincides with the adoption of the SPC560 series processors (STMicroelectronics). These MCUs are significantly more secure.
+* The "Locked" MCU: Unlike the open Motorola chips, the SPC560 chips in JPLA modules are often factory-locked (Secure Boot). This prevents simple reading of the EEPROM.
+* The Replacement Protocol: In many AKL cases for JPLA, the tool cannot simply add a key. Instead, the software will prompt the user to "Replace the MCU." This involves physically desoldering the original processor or verifying a connection on a specialized interface board, then flashing a "Virgin" file onto the chip. This resets the KVM to a "New" state, allowing it to be programmed to the car as if it were a replacement part from the dealer.
+* Connector Requirement: Because JPLA vehicles use DoIP, the OBD port is often gated. Successful programming requires a "JLR Connector" (specific to Lonsdor or Autel) that bridges the CAN High and CAN Low lines at the module or a junction block, physically bypassing the Gateway Module (GWM) to speak directly to the KVM.10
+3.4 K8D2 / J9C3: The UWB Fortress (2021+)
+The latest iteration, found in the L663 Defender and new Range Rovers, utilizes the K8D2 or updated J9C3 hardware.
+* Ultra-Wideband (UWB): This is the critical differentiator. The RFA is no longer just checking for a cryptographic handshake; it is measuring the speed of light travel time of the signal to ensure the key is physically close to the car. This defeats "Relay Attacks" where thieves amplify a signal from a house to the driveway.
+* The Lockout: For the locksmith, UWB means that aftermarket keys must have the correct UWB hardware onboard. A standard 315MHz/433MHz key might start the car (via the emergency low-frequency coil) but will fail to operate the buttons or passive entry because the RFA ignores any signal that lacks the Time-of-Flight verification.3
+4. Mechanical Intelligence and Emergency Access
+While digital security grabs the headlines, physical access remains the prerequisite for any job. JLR's mechanical systems have evolved in subtle but trap-laden ways.
+4.1 The Hidden Keyway: Cap Removal Forensics
+On all modern L-Series vehicles (L405, L494, L462, etc.), the driver's door lock is concealed behind a cosmetic cap. This cap is a frequent point of failure for inexperienced operators.
+* The Mechanism: The cap is held in place by a plastic latch mechanism accessed via a small slot on the underside of the handle.
+* The Risk: On vehicles that are 5-10 years old, road grime and oxidation seize the plastic clips. Inserting the key blade and leveraging aggressively often snaps the retention clip, causing the cap to fall off permanently or fail to reseat.
+* Best Practice: Professional locksmiths apply a small amount of penetrating fluid into the underside slot and wait 60 seconds before attempting removal. The motion is a gentle outward leverage, not a violent pry.12
+4.2 The HU101 vs. HU198 Trap
+For nearly two decades, the HU101 keyway (a 10-cut, 2-track external laser key used by Ford/Volvo/Land Rover) was the standard. However, starting with the 2017 Discovery 5 and late-model Range Rovers, JLR introduced the HU198 keyway.
+* Visual Similarity: To the naked eye, HU101 and HU198 look nearly identical. They share the same blade width and general profile.
+* The Internal Groove: The HU198 features a distinct internal milled track (groove) that interacts with a specific sidebar or wafer setup that the HU101 lacks.
+* Lishi Implication: An HU101 Lishi tool will fit into an HU198 lock, but it will not pick it. The picking tip will slide past the wafers or fail to manipulate the internal track. Locksmiths attempting to pick a 2019 Discovery with an HU101 tool will assume the lock is broken or seized, wasting hours. The Lishi HU198 (often labeled as "Ford 2017+") is mandatory for these newer vehicles.13
+Table 1: Keyway and Emergency Blade Specification by Model
+Model
+	Chassis
+	Model Years
+	Keyway Profile
+	Lishi Tool Required
+	Range Rover
+	L405
+	2013–2016
+	HU101
+	HU101
+	Range Rover
+	L405
+	2017–2021
+	HU101 / HU198
+	Check visually
+	Discovery 4
+	L319
+	2010–2016
+	HU101
+	HU101
+	Discovery 5
+	L462
+	2017–2023
+	HU198
+	HU198
+	Defender
+	L663
+	2020+
+	HU198
+	HU198
+	Evoque
+	L538
+	2011–2019
+	HU101
+	HU101
+	Evoque
+	L551
+	2020+
+	HU198
+	HU198
+	Data compiled from Lishi tool charts and aftermarket blade supplier catalogs.13
+5. Transponder Forensics: Frequencies and UWB
+The selection of the correct key fob is arguably the most complex logistical challenge in JLR locksmithing. The chassis code alone is insufficient; one must verify the exact frequency and technology package.
+5.1 The Frequency Divide (315MHz vs. 433MHz)
+JLR vehicles are strictly regionally segmented.
+* 315 MHz: Standard for North America (USA, Canada).
+* 433 MHz: Standard for UK, Europe, Australia, and Asia.
+* The Detection Trap: Many programming tools (like the Autel KM100 or Key Tool Max) have a "Frequency Detection" mode. However, a 315MHz key might output a signal that a 433MHz car's KVM "sees" during the initial handshake but rejects during the encrypted challenge-response. This leads to the procedure failing at the very last step ("Key Learn Failed"). It is imperative to order keys based on the VIN-derived build sheet or by reading the frequency of an existing working key.16
+5.2 The Ultra-Wideband (UWB) Requirement
+As detailed in the architecture section, UWB is not just a feature; it is a security validation layer.
+* Part Number identification: Non-UWB keys (2018-2020) typically carry FCC IDs like KOBJXF18A and model numbers like FOBU3LR. UWB keys (2021+) may carry similar IDs but usually have specific part number suffixes or internal PCB differences (e.g., PEPSF0B).
+* The "Activity Key" Factor: The Activity Key (wristband) acts as a secondary transponder. Programming this device follows the same logic as a standard fob but requires selecting the "Activity Key" slot in the programming menu (e.g., GAP IID Tool or JLR SDD). Note that Activity Keys are notoriously difficult to reuse once paired to a vehicle.8
+Table 2: Key Fob Technology & Part Identification
+
+
+Year Range
+	Technology
+	Chip ID
+	Frequency (NA/EU)
+	Typical FCC ID
+	Notes
+	2010–2012
+	Smart Key (Pebble)
+	ID49 (Hitag Pro)
+	315 / 433
+	KOBJTF10A
+	Common on L320/Early L405. 19
+	2013–2017
+	Smart Key (Pebble)
+	ID49 (Hitag Pro)
+	315 / 433
+	KOBJTF10A
+	"Low" and "High" line variants. 19
+	2018–2020
+	Smart Key (New Style)
+	ID49 (Hitag Pro)
+	315 / 433
+	KOBJXF18A
+	JPLA/K8D2 Era. Non-UWB. 20
+	2021+
+	UWB Smart Key
+	NXP UWB
+	315 / 433
+	KOBJXF18A / Var.
+	Must be UWB spec. 21
+	6. Comprehensive Programming Procedures and Tooling
+This section outlines the specific methodologies for programming keys across the different architectures, synthesizing data from tool manuals and field realities.
+6.1 Tooling Landscape: A Comparative Analysis
+No single tool covers the entire JLR spectrum perfectly. The professional loadout typically includes three distinct categories of equipment.
+* The Generalist (Autel IM508/IM608): Strong on FK72/HPLA (OBD). Capable of JPLA/K8D2 but often requires the XP400 Pro programmer for bench work. The software update in March 2024 added support for 2022+ RFA modules, but reports of success are mixed and often require firmware flashing.22
+* The Specialist (Lonsdor K518): Widely regarded as the most potent tool for JLR. Its specific "JLR License" and proprietary "JLR Connector" allow for OBD-based programming in scenarios where Autel would require bench removal. It excels at the "Active Alarm" bypass for 2015–2021 models.5
+* The Bench Expert (Yanhua Mini ACDP): The safest option for high-risk modules. ACDP uses "Interface Boards" (Modules 9, 24, 30) that clamp onto the KVM/BCM, avoiding soldering. It allows for forensic backup of the D-Flash and EEPROM before any write attempt, providing a safety net against bricking.9
+
+
+  
+
+
+
+6.2 Procedure 1: OBD Programming (Legacy FK72/HPLA)
+Applicability: L405 (2013-2016), L494 (2014-2016), L538 (2011-2016).
+Scenario: Add Key or All Keys Lost (Alarm Off).
+1. Voltage Stabilization: Connect a high-quality battery support unit (maintaining 13.5V). FK72 modules are prone to flash corruption if voltage dips below 12V during the write cycle.
+2. Tool Connection: Connect via OBD-II.
+3. Selection: Select "Immo Status Scan" to verify module type (FK72/HPLA).
+4. Key Learning: Select "Add Smart Key." The tool will read the vehicle configuration.
+5. The "Sweet Spot": The tool will prompt to hold the new key against the Shifter Console (L405/L494) or the Steering Column Cowl (L538/Discovery 4). This is the location of the emergency low-frequency antenna.
+6. Writing: The tool unlocks the KVM and writes the new key ID. Note: If the process fails at "Unlocking," the KVM may have updated firmware that requires the "Safe Mode" or "Bench" method.
+6.3 Procedure 2: The "Active Alarm" Connector Method (JPLA/K8D2)
+Applicability: L462 (Discovery 5), L560 (Velar), L663 (Defender 2020-2022).
+Scenario: All Keys Lost, Alarm Active (Siren sounding or Red LED flashing).
+This is the most critical procedure for the modern locksmith. The BCM in active alarm state ignores OBD requests.
+
+
+  
+
+
+
+1. Locate the KVM:
+   * L462 (Disco 5): Rear Left Quarter Panel (behind trim).
+   * L560 (Velar): Rear Right Quarter Panel (below fuse box).
+   * L663 (Defender): Under the Driver's Seat (LHD) or Passenger Seat (RHD). Requires removing the seat bolts to access.23
+2. Disconnect CAN: Unplug the main connector from the KVM.
+3. Bridge Connection: Connect the proprietary "JLR Connector" (Lonsdor/Autel) in series or directly to the module pins. This physically isolates the KVM from the BCM's "Silence" command.
+4. Execute: In the tool menu, select "JPLA" -> "All Smart Key Lost" -> "Program via Connector".
+5. MCU Flash: The tool may prompt to "Make Key" by flashing the MCU. This will erase the existing keys and add the new one. Warning: This is a destructive process for old keys; they will be deleted.
+6. Restoration: Once the key is verified, reconnect the original wiring. The alarm should now be disarmed by the new key.
+6.4 Procedure 3: Bench Programming (MCU Refresh/Replacement)
+Applicability: K8D2/J9C3 Modules (2020+) or "Bricked" Modules.
+When the MCU is factory locked or corrupted, it must be refreshed on the bench.
+1. Removal: Extract the KVM from the vehicle.
+2. Interface Board: Using Yanhua ACDP Module 24, align the interface board pins over the MCU test points. Clamp securely.
+3. Operation: Select "Refresh KVM." The tool attempts to unlock the MCU secure bits. If successful, it rewrites the partition table to a "Virgin" state.
+4. Reinstallation: Reinstall the KVM.
+5. Provisioning: Using an OBD tool (or JLR SDD), run the "Configure New Module" routine. The car will treat the KVM as a brand new unit off the shelf and allow key pairing.
+7. The Active Alarm Paradox & Gateway Management
+A pervasive issue in JLR locksmithing is the behavior of the Gateway Module (GWM) during an alarm event. The GWM acts as the router for all CAN traffic. When the alarm is triggered, the GWM enters a "Lockdown" mode, filtering out diagnostic requests to the KVM to prevent unauthorized starting.
+* The Wait Strategy: Some older documentation suggests waiting for the alarm to time out (usually 5-10 minutes of silence). While this worked on L320 models, modern EVA 2.0 vehicles (L663/L460) will re-arm the lockdown immediately upon detecting a bus wake-up signal from an OBD tool.
+* The Connector Bypass: This is why the JLR Connector mentioned in Section 6.3 is non-negotiable for modern work. By connecting directly to the KVM's CAN pins, the locksmith is effectively creating a private network with the KVM, invisible to the GWM's filtering rules.
+8. Common Issues and Diagnostics
+8.1 "Smart Key Not Found" (Antenna Failure)
+A specific plague affects the L405 and L494 platforms. The owner reports "Smart Key Not Found," but the key tests perfect on an RF tester.
+* The Cause: The Radio Frequency (RF) Receiver (Antenna) module often fails internally. It receives the signal but fails to pass the data packet to the KVM.
+* Location: Roof headliner, typically near the rear tailgate or "Shark Fin" area.
+* Diagnosis: If the car starts when the key is placed on the emergency coil (steering column) but buttons don't work, and the key RF is good, the Receiver is the prime suspect.
+* Fix: Replace the RF Receiver. It is generally plug-and-play and does not require complex programming, though a KVM reset might be needed.24
+8.2 RFA "Lock Up" / Bricking
+* Symptom: During programming, the process hangs at "Unlocking..." and fails. Afterwards, the car does not respond to the original key.
+* Cause: The KVM's Transport Layer (TPL) and Diagnostic Layer (DSL) have entered a logic loop due to a failed handshake.
+* The "Hard Reset" Fix: Disconnect both battery terminals. Touch the vehicle's positive and negative leads (cables) together for 30 seconds. This discharges the capacitors in the KVM and BCM, forcing a cold boot of the operating system. Reconnect and try again.25
+9. The 2024+ Lockout: TOPIx and the Future
+The release of the 2024 model year vehicles (L460 Range Rover and L663 Defender Facelift) marks a significant turning point. JLR has moved the security seed calculation entirely to the cloud.
+* The Barrier: Offline tools can no longer calculate the security access seed. The KVM sends a challenge; the tool must send that challenge to JLR's server; JLR's server validates the user's credentials (VSP ID) and returns the answer.
+* NASTF VSP Requirement: For US locksmiths, this means that independent access now requires registration as a Vehicle Security Professional (VSP) via the National Automotive Service Task Force (NASTF). This involves a background check and a $1 million liability insurance policy.
+* The "Remote" Grey Market: In the absence of VSP credentials, locksmiths are turning to "Remote Coding" services. A technician connects a J2534 passthru (e.g., Bosch Mastertech) to the car and a laptop. A third-party provider remotely logs in with their dealer credentials to perform the programming. This is high-risk and expensive, but currently the only option for 2024+ models without official credentials.4
+10. Conclusion
+The domain of JLR locksmithing has bifurcated. For pre-2018 vehicles (L319, L405, early L494), the ecosystem is mature, accessible, and highly profitable for locksmiths equipped with standard tools like Autel or Lonsdor. However, for the post-2020 generation (L663, L460), the environment is hostile. The convergence of UWB hardware requirements, active alarm lockdowns, and cloud-based authentication means that the era of the "all-in-one" key programmer is ending for this brand. Success now demands a tiered approach: legacy tools for the volume work, and specialized bench interfaces (ACDP) combined with NASTF certification for the future fleet.
+Works cited
+1. Range Rover Key Programming in Under 5 Minutes!? - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=92eG4xWRGD8
+2. Land Rover, Range Rover, Mk5 (L460) (2022-), Smart Key - Key Programming, accessed January 5, 2026, https://www.carkeyhelper.com/keys/land-rover/range-rover/mk5-l460-2022/7f11dcc4-30a4-4882-b9e8-ea36eb7d6d0a/key-programming
+3. PEPS Ultra-Wideband (UWB) Here's everything you need to know., accessed January 5, 2026, https://lock50.co.uk/blog/peps-ultra-wideband-uwb-heres-everything-you-need-to-know./
+4. JLR TOPIX Cloud Online Access | SX JLR Engineering Tool, accessed January 5, 2026, https://sx-tool.com/en/product/jlr-topix-cloud-online-access/
+5. Lonsdor JLR-IMMO Key Programmer by OBD for Jaguar and Land Rover - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/lonsdor-jlr-immo-key-programmer-by-obd-covers-95-jaguar-and-land-rover-models
+6. 2017 LAND ROVER DISCOVERY KEY PROGRAMMING USING AUTEL IM508, XP400 & AUTEL IKEY - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=I3Pmkjzso_U
+7. ACDP JLR Key Programming Package Demo - AUTOWAVE - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=BPS25bQsKy4
+8. L663 Add additional key fob | SX JLR Engineering Tool, accessed January 5, 2026, https://sx-tool.com/en/product/l663-add-additional-key-fob/
+9. Mini ACDP Land Rover 2015-2018 KVM Key Programming, accessed January 5, 2026, http://blog.yanhuaacdp.com/mini-acdp-land-rover-2015-2018-kvm-key-programming/
+10. Lonsdor JLR connector for 2015-2021 Land Rover & Jaguar HPLA JPLA K8D2, accessed January 5, 2026, https://yourcarkeyguys.com/products/lonsdor-jlr-connector-for-2015-2021-land-rover-jaguar-hpla-jpla-k8d2-version-all-keys-lost-via-obd
+11. RFA KVM MODULE RENEW / VIRGINIZE SERVICE JPLA K8D2 J9C3 2018+ JAGUAR LAND ROVER | eBay, accessed January 5, 2026, https://www.ebay.com/itm/204454526279
+12. 2018-2023 Defender Key Fob Battery Replacement - EASY DIY - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=Bt6H3zgwG4Y
+13. Original Lishi for Ford HU198 Pick Decoder Door Trunk Ignition AG - Key4, accessed January 5, 2026, https://www.key4.com/original-lishi-hu198-ford-2-in-1-pick-and-decoder-anti-glare
+14. HU198 Lishi doesn't work on a '23 F150. Is there a newer one I am unaware of? - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/11b4ntv/hu198_lishi_doesnt_work_on_a_23_f150_is_there_a/
+15. ORIGINAL LISHI - HU198 Ford 2017 / New Keyway 2-in-1 Pick & Decoder / AG for Sale, accessed January 5, 2026, https://www.uhs-hardware.com/products/original-lishi-ford-2017-hu198-new-keyway-2-in-1-pick-decoder
+16. 1x For Select Land / Range Rover Vehicles. 315 MHz Chip ID 46 New Key Fob Remote, accessed January 5, 2026, https://www.ebay.com/itm/167459114195
+17. Land Rover Flip Key Fob - Range Rover, Discovery - Best Key Solution, accessed January 5, 2026, https://www.bestkeysolution.com/products/land-rover-ranger-rover-sport
+18. 2017-2020 Land Rover Discovery 5 L462 Activity Access Key Bracelet Wristband OEM, accessed January 5, 2026, https://www.ebay.com/p/17038015744
+19. 2020 Land Rover Range Rover / Evoque Sport / 5-Button Smart Key / PN: 5E0U30147 / KOBJTF10A / 315 Mhz (OEM) for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/2010-2020-land-rover-range-rover-evoque-sport-5-button-smart-key-pn-bj32-15k601-ab-kobjtf10a-315-mhz-oem
+20. Mint Condition Genuine OEM 5 Btn Land Rover Smart Key Remote KOBJXF18A FOBU3LR, accessed January 5, 2026, https://www.ebay.com/itm/393998678317
+21. 5AVC11F12-AR Genuine Land Rover Smart Proximity - Techno Lock Keys Trading, accessed January 5, 2026, https://www.tlkeys.com/products/OEM-Land-Rover-2019-2023-UWB-(SUV)-Smart-Key-434mhz-JK52-15K601-DK-36152
+22. Autel IM608 II Update New Update on Land rover Jaguar RFA/KVM Key Prog - AutelShop.us, accessed January 5, 2026, https://www.autelshop.us/blogs/autel-update-information/autel-im608-ii-update-new-update-on-land-rover-jaguar-rfa-kvm-key-programming
+23. 2017 RANGE ROVER SPORT KVM LOCATION - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ajrqaa-Yyoc
+24. Range Rover - smart key not detected - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=4WbhjTs_EmI
+25. Remote Function Actuator module will not repond to diagnostic equipment requests | TOPIx - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2018/MC-10145629-9999.pdf
+26. 6.3 Integrated diagnostics (G3345251) - TOPIx, accessed January 5, 2026, https://topix.jlrext.com/topix/service/procedure/1694991/ODYSSEY_GENERIC/G3345251/en_US?uid=G3345249

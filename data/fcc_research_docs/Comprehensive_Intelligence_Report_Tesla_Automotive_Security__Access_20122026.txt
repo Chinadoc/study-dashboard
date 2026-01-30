@@ -1,0 +1,178 @@
+﻿Comprehensive Intelligence Report: Tesla Automotive Security & Access (2012–2026)
+1. The Paradigm Shift in Automotive Security: From Mechanical to Digital
+The automotive locksmithing industry is currently navigating a period of profound disruption, a transition effectively epitomized by the operational logic of Tesla vehicles. For the better part of a century, the locksmith’s trade was anchored in the physical manipulation of mechanical barriers—wafers, tumblers, and pins—and later, the manipulation of standardized electronic immobilizers via the On-Board Diagnostics (OBD) port. The arrival of the Tesla Model S in 2012, and the subsequent introduction of the Model X, Model 3, and Model Y, signaled the end of this mechanical era and the beginning of the "software-defined vehicle" (SDV) paradigm. This report serves as a foundational operational manual and strategic intelligence document for the professional locksmith, dissecting the Tesla security ecosystem from the legacy architectures of 2012 to the advanced "Highland" and "Palladium" platforms of 2026.
+
+
+  
+
+
+
+The fundamental challenge Tesla presents to the independent locksmith is not merely one of new key blanks or different frequencies; it is a complete restructuring of the "lockout" concept. In a traditional Internal Combustion Engine (ICE) vehicle, a lockout is a mechanical failure or a misplaced physical token. In the Tesla ecosystem, a lockout is almost invariably a power management crisis or a credential authentication failure involving encrypted Bluetooth Low Energy (BLE) handshakes or Near Field Communication (NFC) protocols.1 The vehicle acts less like a car and more like a secured mobile device, where access is granted not by turning a cylinder but by cryptographically validating a digital signature against a cloud-synchronized whitelist.
+This shift has significant implications for the business model of the automotive locksmith. The barrier to entry has been raised significantly. The "Slim Jim" and the Lishi pick are relegated to secondary roles, useful only for the few remaining mechanical backup cylinders, while the primary tools of the trade become high-voltage-safe power supplies, proprietary ethernet cables, and subscriptions to OEM diagnostic software like Tesla Toolbox 3.3 The independent technician must now possess a nuanced understanding of low-voltage (LV) lithium-ion battery architectures, specifically the dangerous shift from 12V lead-acid to 16V lithium-ion systems in newer models.5 Ignorance of these specifications does not merely result in a failed job; it can result in thousands of dollars in damage to the vehicle's Body Control Modules (BCM) or pyro-fuses.
+Furthermore, the "All Keys Lost" (AKL) scenario—traditionally the most lucrative service for a locksmith—is fundamentally different in the Tesla environment. Unlike legacy systems where a technician might wipe an EEPROM and cycle new transponder keys, Tesla's architecture is designed around user-managed access. If a single authorized credential exists (a phone, a card, or a fob), the "programming" of additional keys is a consumer-level task performed on the center touchscreen, requiring no special equipment.1 The locksmith's role in these instances shifts from "programmer" to "hardware supplier" and "consultant." It is only in the total absence of credentials that the locksmith’s technical intervention is required, necessitating access to restricted "Service Mode" menus and OEM server validation.7
+This report will systematically dismantle the technical and operational layers of the Tesla security model. It will analyze the hardware evolution from the 2012 Model S to the 2026 Model 3 Highland, identifying specific FCC IDs, part numbers, and access points.9 It will evaluate the capabilities and limitations of aftermarket tools like the Lonsdor K518 Pro and Autel IM608 12, contrasting them with the capabilities of the official Tesla Toolbox 3.3 Finally, it will delineate the safety protocols required to manage the high-energy environments these vehicles inhabit, providing a roadmap for the modern locksmith to monetize these complex services safely and effectively.
+2. The Cryptographic and Hardware Architecture
+To operate effectively within the Tesla ecosystem, one must first understand the underlying architecture that governs access. Tesla does not utilize the standard automotive immobilizer protocols found in most European or Asian vehicles (such as ID48 or MQB). Instead, it employs a tiered credentialing system deeply integrated into the vehicle's connectivity suite.
+2.1 The Tiered Credential System
+Tesla’s security model is built on redundancy and hierarchy. The "key" is no longer a single physical object but a hierarchy of digital permissions.
+The Phone Key (Primary Credential)
+The primary access method for Model 3, Model Y, and the refreshed (Palladium) Model S and X is the owner's smartphone. This system utilizes Bluetooth Low Energy (BLE) to establish a secure, encrypted connection between the phone and the vehicle's Body Controller. As the user approaches, the vehicle monitors the Received Signal Strength Indicator (RSSI) from the phone to triangulate its position. When the phone is within a specific proximity zone (usually within 1-2 meters), the door handles present themselves (Model S) or the latch unlocks (Model 3/Y).
+For the locksmith, this presents a unique challenge: the "key" is software running on a third-party device. You cannot "clone" a phone key. In a lockout situation where the phone is lost or dead, the locksmith must rely on secondary credentials. The implication is that "programming" a phone key is technically a pairing process that requires the vehicle to be unlocked and authorized first.2
+The Key Card (NFC/RFID Backup)
+The Key Card is the "dumb" backup token, essentially a credit-card-sized distinct RFID credential operating at 13.56 MHz.14 It utilizes Near Field Communication (NFC) protocols. To grant access, it must be physically tapped against the B-pillar (for entry) or placed on the center console (for drive authorization).
+These cards are critical inventory for the locksmith. They are inexpensive and universal across the Model 3 and Model Y lineup, and compatible with the 2021+ Model S and X.15 Part number analysis indicates that the standard key card (Part #1133148-00-*) has remained relatively stable, although newer revisions exist. Importantly, these cards have no battery and are passive devices, making them immune to the dead-battery failures of fobs, but they require precise physical placement to function.16
+The Key Fob (Active Credential)
+The key fob occupies a shifting role in the Tesla lineup. For the legacy Model S (2012–2020) and Model X (2015–2020), the fob was the primary interface, operating on standard RF frequencies (315 MHz in the US, 433 MHz in Europe) with a traditional active transponder system.10
+However, for the Model 3 and Model Y, the fob is an optional accessory that communicates via BLE, similar to the phone key. This distinction is vital: a legacy Model S fob cannot be programmed to a Model 3, and vice-versa. The BLE fobs (FCC ID: 2AEIM-1133148) support Passive Entry, meaning they do not need to be pressed to unlock the car, whereas early versions of the Model 3 fob did not support this feature.16
+2.2 Low Voltage Architecture: The 12V vs. 16V Schism
+Perhaps the most dangerous trap for the uninitiated locksmith is the variation in Low Voltage (LV) power systems. The LV battery is responsible for powering the door latches, the infotainment screen, the BLE receivers, and the main high-voltage (HV) contactors. If the LV battery dies, the car is a brick, regardless of the charge state of the main HV battery.
+Legacy 12V Architecture (Lead-Acid)
+From 2012 until approximately late 2021, Tesla vehicles used a standard 12V AGM (Absorbent Glass Mat) lead-acid battery. This system is robust and familiar. In a lockout scenario caused by a dead 12V battery, a standard jump pack or booster connected to the external jump posts (usually behind a tow eye cover) would energize the system and allow the frunk to pop or the doors to unlock.17
+Modern 16V Architecture (Lithium-Ion)
+Starting with the Model S/X "Palladium" refresh in 2021 and transitioning to the Model 3/Y in late 2021/2022 (often associated with the switch to AMD Ryzen processors), Tesla moved to a 16V Lithium-Ion LV battery.5
+This is a critical safety point. This battery operates at a nominal voltage of nearly 16V. Connecting a standard 12V lead-acid vehicle to jump-start a 16V Tesla can be ineffective or dangerous. The voltage differential means a 12V source may not be sufficient to "wake" the Battery Management System (BMS) of the 16V battery. Conversely, attempting to use the Tesla's 16V system to jump-start a standard 12V car could cause over-voltage damage to the 12V vehicle's electronics.6
+Furthermore, the jump posts for these newer vehicles are not always in the bumper. For the Model Y (2022+) and refreshed Model 3, the jump post is located under the frunk maintenance panel, near the HEPA filter.19 Accessing this requires opening the frunk first, creating a "chicken and egg" problem if the vehicle is completely dead.
+
+
+  
+
+
+
+3. The Locksmith's Toolkit: Capabilities and Limitations
+The market is awash with tools claiming Tesla capabilities, but the reality is nuanced. A professional locksmith must distinguish between tools that simply read codes and those that can perform active key management.
+3.1 The Official Standard: Tesla Toolbox 3
+Tesla Toolbox 3 is the OEM diagnostic environment. Unlike many manufacturers that restrict this software to franchise dealerships, Tesla allows independent repairers—including locksmiths—to subscribe. This is the only "official" way to service these vehicles and carries the least risk of liability or data corruption.3
+Access and Cost:
+Access to Toolbox 3 is subscription-based. The pricing structure is dynamic but generally falls around $75 for a 24-hour pass or up to $700 annually.3 This "pay-per-use" model is viable for locksmiths who may only see one or two Teslas a month, allowing them to pass the cost directly to the client as a "software access fee."
+Hardware Requirements (VCI & Cables):
+Toolbox 3 is a web-based application, but it requires a physical connection to the car. It does not work with a standard J2534 OBDII dongle.
+* The Interface: You need a specialized ethernet-to-vehicle adapter.
+* The Cables: The connection points vary by model.
+   * Legacy Model S/X: Requires a specific Fakra-to-Ethernet cable (often labeled LAN001) that connects to a port behind the driver’s side dashboard panel or the instrument cluster.20
+   * Model 3/Y: Requires a proprietary connector (often CAN001 or similar) that interfaces with the vehicle's internal bus, usually located at the rear of the center console or under the dashboard.21
+   * Diagnostic Port Warning: Newer Model 3s have a port that looks like OBDII but does not support standard OBDII protocols over those pins. Connecting a standard scanner can damage the equipment or the port.23
+Capabilities:
+With Toolbox 3, a locksmith can enter "Service Mode Plus," which grants high-level privileges. This allows for the "Key Repair" or "Key Reset" functions, enabling the pairing of new phone keys, cards, or fobs even when no existing keys are present (AKL). This process involves a challenge-response validation with Tesla's central servers to verify ownership.7
+3.2 Aftermarket Solutions: Lonsdor and Autel
+For locksmiths who prefer standalone tools, two primary players dominate the discussion, though with varying degrees of success.
+Lonsdor K518 Pro / K518ISE
+Lonsdor is currently the aggressive leader in Tesla aftermarket support. The K518 Pro (and the older ISE) claims support for Model S, X, 3, and Y.13
+* Methodology: Lonsdor often requires connecting directly to the MCU (Media Control Unit) or specific CAN lines to bypass the standard gateway.
+* Adapters: Success with Lonsdor is contingent on having the correct adapters. The KPROG 2 Adapter is essential for reading/writing EEPROM data if bench work is required.25 For OBD-style programming, specific cables like the ADP15 (for newer Toyota/Lexus systems, but often cross-referenced in their ecosystem) or specific Tesla-branded cables included in their "Super Update" packages are necessary.27
+* Risk: The Lonsdor approach can be invasive. While it offers "All Keys Lost" capabilities, it carries a higher risk of "bricking" the MCU if the read/write process is interrupted or if the software version on the car is newer than the tool's exploit database.
+Autel IM508 / IM608 Pro
+Autel is a staple in the industry, but its Tesla key programming capabilities are currently ambiguous.
+* Current Status: As of 2025, Autel has removed explicit "Tesla Key Programming" lists from some public-facing materials.28 While the IM608 Pro is an incredibly powerful diagnostic tool (capable of reading codes, resetting BMS, and calibrating sensors), its ability to generate a key from scratch in an AKL scenario is limited compared to Lonsdor.
+* Utility: Autel is excellent for the diagnostics side of a lockout—diagnosing a dead 12V battery, checking HV isolation faults—but should not be relied upon as the primary key programming tool for modern Teslas.12
+
+
+  
+
+
+
+4. Model-Specific Intelligence: Deep Dive (2012–2026)
+4.1 Tesla Model S (2012–2026)
+The Model S has undergone two distinct eras: the "Legacy" era (2012–2020) and the "Palladium" or "Plaid" refresh (2021–Present).
+Legacy Model S (2012–2020)
+* Key Fob: This vehicle relies on a traditional RF fob. The FCC ID is typically AQO002 (315 MHz) or 2AEIM-1048598.10 Note that early models (pre-2016) often had fobs vulnerable to cloning attacks, leading Tesla to issue cryptographic updates.
+* Manual Entry:
+   * Frunk Release: Mechanical cable located inside the cabin, usually under the glove box area or, in very early models, behind the nose cone (requiring prying the nose cone forward).
+   * Jump Start: 12V Lead-Acid battery. Posts are accessible once the nose cone or maintenance panel is removed.
+   * Rear Door Release: In the event of total power failure, the rear doors have a manual release cable located under the front edge of the rear seats. The locksmith must pull the carpet edge back to reveal a mechanical cable loop. Pulling this toward the center of the vehicle releases the latch.30
+Palladium Model S (2021–2026)
+* Key System: Moved to the Phone Key/Card/BLE Fob architecture. The Fob FCC ID is 2AEIM-1614283.31
+* Jump Start: 16V Lithium-Ion. Requires the specific 16V jump procedure.
+* Manual Entry: The rear seat release mechanism remains similar (under the carpet), but the trim removal is tighter.
+4.2 Tesla Model X (2015–2026)
+The Model X presents the most complex liability profile due to the Falcon Wing Doors.
+Falcon Wing Door Emergency Egress:
+If a Model X loses power, the rear Falcon Wing doors are locked down by hydraulic pressure. Opening them manually is a complex procedure intended for emergency responders.
+* Procedure: The manual release is hidden behind the speaker grille on the door. The locksmith must carefully unclip the speaker grille to reveal a cable. This cable must be pulled down and towards the front of the vehicle.32
+* Warning: Once unlatched, the door is extremely heavy (unsupported by hydraulics in the same way). Pushing it open requires significant force. This should only be done in genuine emergencies, not just for a dead battery service if other entry points are available.
+Front Door Manual Release:
+Like the Model S, the front doors have manual release levers. However, unlike the S/3/Y, the Model X front doors are powered "auto-presenting" doors. Forcing them can damage the motorized strut if not done carefully after the latch releases.
+4.3 Tesla Model 3 & Model Y (2017–2026)
+These high-volume models share a largely unified architecture but have diverged significantly with the "Highland" update.
+Key Architecture:
+The primary "key" is the NFC card (Part #1133148-00-*) and the Phone Key. The Fob is optional.
+* Key Card Compatibility: Generally, the key cards are interchangeable between Model 3 and Model Y, and even the new S/X. A stock of OEM key cards is the single most valuable inventory item for a locksmith.33
+* Fob Compatibility: The Model 3/Y fob (FCC ID 2AEIM-1133148) is BLE-based.34
+Manual Releases:
+* Front Doors: A mechanical lever located just forward of the window switches on the armrest. It is intuitive but often mistaken for a window switch.
+* Rear Doors (The Hidden Release): This is a point of confusion.
+   * Model 3: Most Model 3s do not have an accessible rear manual release without removing trim. The mechanism exists in the door shell but is blocked by the door pocket liner.
+   * Model Y: Some production runs of the Model Y include a manual release in the bottom of the rear door pocket. It is hidden under a rubber mat. Removing the mat and a small plastic access cover reveals a cable that can be pulled to release the door.35 However, this is not present on all Model Ys, depending on the region and build date.35
+Highland Model 3 (2024+):
+The "Highland" refresh introduces further changes, including a fully stalkless steering column (gear shift on screen) and potential changes to the LV architecture. The jump post location remains under the frunk hood maintenance panel, utilizing the 16V architecture.
+5. Operational Procedures: The "Dead Car" Lockout
+The most common service call for a Tesla is a "Dead 12V/16V Battery." The owner is locked out because the LV battery has failed, and the electronic latches will not fire.
+5.1 Step 1: External Power Application (Opening the Frunk)
+To access the battery, you must open the frunk. The frunk latch is electronic.
+1. Locate the Tow Eye Cover: On the front bumper, there is a small circular or square cover.
+2. Access the Leads: Pop this cover using a plastic pry tool. Inside, you will find two wires (usually Red and Black).17
+3. Apply Power: Connect a small 12V battery (like an A23 alarm battery, a drill battery, or a small jump pack) to these wires. Polarity matters: Red to Positive, Black to Negative.
+4. The "Pop": The frunk latch should fire immediately.
+   * Note: This circuit is often disabled by the car's security system if the vehicle has power and is just locked. It is designed to work only when the LV system is dead. If the car is alive but locked, these wires will be inactive to prevent theft.
+5.2 Step 2: Identification and Jump Start
+Once the frunk is open, you must identify the battery.
+* The 16V Warning: If you see a Lithium-Ion label (often on a smaller, gray casing under the cowl), STOP. Do not use a standard truck jump pack. Use a power supply regulated to 15.5V-16V or a pack specifically rated for 16V Lithium starts.36
+* Connection: Connect to the dedicated jump posts (Red cover for Positive, Chassis ground bolt for Negative). Do not connect directly to the negative terminal of the battery if a BMS sensor is present on the terminal, as this can bypass the BMS and cause calibration issues.
+* The Wake-Up: Once power is applied, wait. The car needs to boot. The contactors for the main HV battery will close (you may hear a loud "clunk"), and the DC-DC converter will take over, charging the LV battery from the main pack.
+6. Business Models: Monetizing the Impossible
+The independent locksmith must pivot from "key cutter" to "access consultant."
+6.1 Revenue Streams
+1. The "Dead Tesla" Rescue ($150–$300): This is a specialized lockout. Tow trucks often refuse to touch dead EVs due to liability. By marketing yourself as a "Tesla-Certified" (unofficially) lockout specialist with the correct 16V equipment, you can command a premium.
+2. Hardware Sales ($100–$250): Stocking Key Cards and Fobs. Selling a fob to a Model 3 owner who only has a card is a high-margin upsell. The "programming" is simply guiding them through the menu.
+3. The AKL Reset ($400–$800): For the rare total lockout, offering a Toolbox 3 reset service is a high-value alternative to towing the car to a Service Center.
+
+
+  
+
+
+
+6.2 Investment Requirements
+To enter this market, the locksmith needs:
+* Toolbox 3 Hardware: Ethernet adapter and cables (~$300 initial).
+* 16V-Compatible Jump Pack: (e.g., NOCO GB series with boost or specialized Li-ion chargers).37
+* Inventory: 5-10 Key Cards (~$150 cost) and 2-3 BLE Fobs (~$300 cost).
+* Training: Familiarity with LV systems and high-voltage safety.
+7. Conclusion
+The Tesla ecosystem represents a walled garden that is slowly opening a gate for the technically proficient locksmith. It is not a market for the casual operator. The risks of 16V system damage, the complexity of Toolbox 3, and the shifting hardware revisions require a dedication to continuous learning. However, for those who adapt, it offers a lucrative escape from the commoditized world of mechanical lockouts. The future of locksmithing is here; it just doesn't use a keyway.
+Works cited
+1. How Locksmiths Work with New Tesla Vehicles Today, accessed January 5, 2026, https://www.247premierlocksmith.com/how-locksmiths-work-with-new-tesla-vehicles-today/
+2. Locksmith Services for Tesla Cars - WFX Fire, Lock & Security, accessed January 5, 2026, https://wfx1978.com/blog/locksmith-services-for-tesla-cars/
+3. How Do You Fix A Tesla Problem? EV Mechanic Explains Tesla's Diagnostics Tool, 'Tesla Toolbox' - InsideEVs, accessed January 5, 2026, https://insideevs.com/news/770132/tesla-toolbox-diagnostic-software-mechanic/
+4. Loki vs Toolbox 3 - What to choose for Tesla diagnostics, accessed January 5, 2026, https://loki-tesla.com/blog/-loki-vs-toolbox-3---what-to-choose-for-tesla-diagnostics
+5. Locked Out of Tesla Model Y? Reset the 16V Low Voltage Battery FAST - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=M7Qh-2i-OPM
+6. Jumper Cables and Low Voltage Batteries? : r/TeslaLounge - Reddit, accessed January 5, 2026, https://www.reddit.com/r/TeslaLounge/comments/1fts5a5/jumper_cables_and_low_voltage_batteries/
+7. Replacement Keys - Program (No Keys Present) - Tesla Service, accessed January 5, 2026, https://service.tesla.com/docs/ModelY/ServiceManual/en-us/GUID-55917424-BE25-40DF-98B2-B3BBF1ED9646.html
+8. Managing Keys - Tesla Service, accessed January 5, 2026, https://service.tesla.com/docs/Public/diy/models/en_us/GUID-67E192C9-4308-44B7-899F-65344F487F1B.html
+9. Original TESLA Model Y 2017-2024 Smart Key P/N: 1819445-00-B, accessed January 5, 2026, https://www.tlkeys.com/products/Original-TESLA-Model-Y-2017-2024-Smart-Key-P-N-1819445-00-B-40503
+10. OEM Refurbished Prox Smart Remote Key Fob Compatible with Tesla Model, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2012-2019-tesla-model-s-prox-smart-fob-key-fcc-aqo002
+11. 2017-25 TESLA MODEL 3 / Y OEM SMART KEY REMOTE FOB FCC 2AEIM-1133148 ... - eBay, accessed January 5, 2026, https://www.ebay.com/itm/306263959855?chn=ps&mkevt=1&mkcid=28&google_free_listing_action=view_item
+12. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide
+13. Lonsdor K518 Pro Key Programmer ABK-4253 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/lonsdor-k518-pro-key-programmer-lonsdor-key-programmer-4253
+14. Certification Conformity - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/modelx/en_eu/GUID-7C3B5617-245E-4DA3-A620-B842166686FA.html
+15. Key Card - Tesla Shop, accessed January 5, 2026, https://shop.tesla.com/product/key-card
+16. Model 3 Key Fob | Tesla Support, accessed January 5, 2026, https://www.tesla.com/support/shop/model-3-key-fob
+17. Jump Starting - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/model3/en_us/GUID-3567D5F4-A5F4-4323-8BE0-023D5438FFC6.html
+18. Jump Starting - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/models/en_us/GUID-3567D5F4-A5F4-4323-8BE0-023D5438FFC6.html
+19. Jump Starting - Model Y Owner's Manual - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/modely/en_us/GUID-3567D5F4-A5F4-4323-8BE0-023D5438FFC6.html
+20. How Do I Get The Autel Diagnostic Cable To Connect To My Tesla Vehicle - obdprice, accessed January 5, 2026, https://www.obdprice.com/blogs/faqs/autel-tesla-cable-to-connect-to-tesla-vehicle
+21. Tesla-Compatible Diagnostic Adapter Cable - Autel, accessed January 5, 2026, https://autel.us/product/tesla-compatible-diagnostic-adapter-cable/
+22. Autel Tesla Model 3/ Model Y Diagnostic Cable Connection Guide, accessed January 5, 2026, http://www.autelscanner.org/autel-tesla-model-3-model-y-diagnostic-cable-connection-guide/
+23. Toolbox (Connect and Disconnect) - Tesla Service, accessed January 5, 2026, https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-1255FAF4-AB26-4104-91E0-132F0AAFF872.html
+24. Lonsdor K518 PRO USA Key Programmer - Full Configuration - New USA Ver - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/lonsdor-k518-pro-usa-key-programmer-full-configuration-new-usa-version
+25. KPROG2 Adapter - For Lonsdor K518 Pro K518SE And K518S for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/lonsdor-kprog2-adapter-for-lonsdor-k518-pro-k518se-and-k518s
+26. Lonsdor KPROG2 Adapter K518 PRO, K518ISE, K518S | EEPROM & MCU Programmer, accessed January 5, 2026, https://www.key4.com/lonsdor-kprog2-adapter-for-k518
+27. Lonsdor DoIP Cable for K518 Pro and K518 Pro FCV - MK3, accessed January 5, 2026, https://www.mk3.com/lonsdor-doip-cable-for-k518-pro-and-k518-pro-fcv
+28. Autel Website Removed KM100 IM508 IM608 Vehicle Coverage List?, accessed January 5, 2026, https://www.auteltool.us/blogs/autel-tech-solutions/autel-website-removed-km100-im508-im608-vehicle-coverage-list
+29. LOT OF 2 OEM TESLA SMART KEY FOB REMOTE 2AEIM-1048598 3 BUTTON | eBay, accessed January 5, 2026, https://www.ebay.com/itm/376456925000
+30. Opening Doors with No Power - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/2012_2020_models/en_ie/GUID-AAD769C7-88A3-4695-987E-0E00025F64E0.html
+31. 2AEIM-1614283 - FCC ID, accessed January 5, 2026, https://fcc.report/FCC-ID/2AEIM-1614283
+32. Opening Doors with No Power - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/modelx/en_us/GUID-AAD769C7-88A3-4695-987E-0E00025F64E0.html
+33. Original Tesla Model S , 3 , X , Y Key Card (2 Pack) - Car and Truck Remotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/original-tesla-model-s-3-x-y-key-card-2-pack
+34. 2AEIM-1133148 - FCC ID, accessed January 5, 2026, https://fcc.report/FCC-ID/2AEIM-1133148
+35. Opening Doors with No Power - Tesla, accessed January 5, 2026, https://www.tesla.com/ownersmanual/2020_2024_modely/en_us/GUID-AAD769C7-88A3-4695-987E-0E00025F64E0.html
+36. 1500A RUGGED Power Pack & Jump Starter SL1611 - Schumacher Electric, accessed January 5, 2026, https://www.schumacherelectric.com/products/rugged-by-schumacher-lithium-portable-power-pack-and-1500a-12v-jump-starter-3-in-1-powerful-jump-starting-thats-built-to-last/
+37. How to power up a Tesla with a dead low voltage battery - Fearby.com, accessed January 5, 2026, https://fearby.com/article/how-to-power-up-a-tesla-with-a-dead-low-voltage-battery/

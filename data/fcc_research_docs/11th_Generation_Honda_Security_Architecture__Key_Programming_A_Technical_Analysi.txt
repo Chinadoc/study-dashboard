@@ -1,0 +1,263 @@
+﻿11th Generation Honda Security Architecture & Key Programming: A Technical Analysis (2022–2026)
+1. Executive Summary
+The automotive security landscape has undergone a paradigm shift with the introduction of Honda’s 11th generation global platform, initiated with the 2022 Civic and subsequently rolled out to the 2023 Accord, CR-V, Pilot, and Acura Integra. This report provides an exhaustive technical analysis of the new security architecture, characterized by the transition from legacy fixed/rolling code transponders to high-security Hitag AES (4A) encryption and the migration of immobilizer logic into the Body Electrical Controller (BEC/BCM).
+For automotive locksmiths and dealer technicians, this generation represents a "hard break" from previous methodologies. The era of offline, standalone key programming is effectively ending. The 11th generation architecture necessitates server-side authentication, rigorous "alarm active" state management, and the use of next-generation diagnostic tools capable of handling advanced encryption protocols. The legacy "Type 4" and "Type 5" immobilizer systems, which utilized ID46 and ID47 transponders respectively, have been deprecated in favor of a centralized body control architecture that integrates security, access, and remote start functions into a single, high-bandwidth node.1
+This document details the operational requirements for programming keys to these vehicles, analyzing the capability gap between OEM tools (i-HDS) and aftermarket solutions (Smart Pro, Autel, Lonsdor). It further provides critical data on part numbers, FCC IDs, and procedural "pearls" necessary to navigate the complexities of the "Alarm Active" lockout—a primary failure mode in All Keys Lost (AKL) scenarios. The findings indicate that while the aftermarket has rapidly caught up, particularly via Advanced Diagnostics (Smart Pro) and Lonsdor, significant hurdles remain regarding inventory management of distinct Driver 1/2 memory keys and the absolute necessity of battery support during programming to prevent BCM corruption.
+
+
+  
+
+
+
+2. 11th Generation Security Architecture: A Deep Dive
+The fundamental alteration in the 11th generation Honda vehicles lies not just in the key fob, but in the electronic topology of the vehicle itself. Understanding this architecture is prerequisite to diagnosing programming failures. The shift is not merely a component swap but a reorganization of the vehicle's "nervous system" regarding authentication.
+2.1 The Shift to Body Electrical Controller (BEC/BCM)
+In previous generations (e.g., 9th and early 10th Gen), the immobilizer logic was often distributed between the PCM (Powertrain Control Module), a dedicated Immobilizer Control Unit (ICU), or the Dashboard cluster. For instance, in many 10th Gen Civics, the immobilizer data was stored in the Smart Key ECU or the Gauge Control Module, which then communicated authorization to the PCM.3 This distributed system allowed for certain bypass techniques and component swaps that are no longer feasible.
+The 11th generation consolidates these functions into the Body Electrical Controller (BEC), often referred to as the BCM. This module now acts as the central gatekeeper for vehicle access and mobilization.1 The BCM is a high-authority node on the CAN bus, managing not just security but also lighting, door locks, and alarm states.4 This integration means that a failure or lockout in the alarm system directly impacts the ability to mobilize the vehicle.
+When the "Engine Start/Stop" button is pressed, the following sequence occurs within milliseconds:
+1. Low-Frequency (LF) Wake-up: The BCM drives internal LF antennas located in the console and dashboard to "wake up" the key fob.1 This is a proximity check to ensure the key is physically inside the cabin.
+2. Radio Frequency (RF) Response: The key fob responds via RF (433MHz) with its encrypted credential.5 This response includes the unique transponder ID and a rolling code segment calculated using the AES algorithm.
+3. Authentication: The BCM receives this signal and validates the cryptographic signature against its stored keys. This validation is performed internally within the BCM's secure memory sectors.
+4. Handshake: Only upon successful validation does the BCM send a distinct, encrypted release signal to the PCM to enable fuel injection and ignition.3 This handshake is time-sensitive and encrypted, preventing "hot-wiring" or simple signal emulation.
+Implication for Programming: The BCM is highly sensitive to voltage fluctuations and "Alarm Active" states. Unlike the separate immobilizer units of the past which were relatively passive, the BCM manages the alarm, door locks, and lighting simultaneously. If the alarm is triggered, the BCM effectively "locks down" its communication ports to the OBD-II gateway, preventing programming tools from establishing a secure session.7 This behavior is a deliberate security feature designed to prevent unauthorized key programming via the OBD port while the vehicle is under attack (i.e., the alarm is sounding).
+2.2 Hitag AES (4A) Encryption Protocol
+The 11th generation utilizes the NXP Hitag AES transponder technology, colloquially known in the industry as the "4A Chip".5 This replaces the ID47 and ID46 chips used in the 10th generation and earlier platforms.
+* Security Level: Hitag AES uses 128-bit encryption, significantly more robust than the previous 40-bit (Philips Crypto) or 80-bit systems. This makes "cloning" the key virtually impossible without sophisticated sniffing hardware, and even then, highly improbable for a working key.9 The "AES" in the name stands for Advanced Encryption Standard, a globally recognized cryptographic protocol that is computationally infeasible to break via brute force in an automotive context.
+* Rolling Code Evolution: While Honda has used rolling codes for decades, the 11th gen implementation involves a tighter synchronization between the key's counter and the BCM's internal counter. If a key is pressed too many times out of range (e.g., by a child playing with it), it may de-synchronize. However, the system is designed to re-sync upon the next successful authentication.10 The "rolling" aspect means that the code transmitted by the key changes every time it is used, preventing "replay attacks" where a thief records a signal and plays it back later to unlock the car.
+* Chip Identification: Diagnostic tools will identify this transponder as Hitag-AES or 4A. It operates on a 433 MHz frequency bandwidth across global markets, unifying the disparate 315 MHz (US) and 433 MHz (EU/Asia) split seen in older models.11
+2.3 The "Alarm Active" Lockout Mechanism
+A critical architectural feature of the 11th Gen is the aggressive "Alarm Active" lockout. In an All Keys Lost (AKL) scenario, the vehicle is typically locked and armed. Opening the door manually (using the emergency blade) triggers the alarm.
+In 10th Gen vehicles, a technician could often proceed with programming even if the horn was honking. In 11th Gen vehicles (Civic 2022+, Accord 2023+), the BCM rejects diagnostic security access requests while the alarm is sounding.7 This creates a "Catch-22" for the technician:
+* You need to program a key to silence the alarm.
+* You cannot program a key while the alarm is active because the BCM refuses the diagnostic connection.
+This behavior necessitates specific procedural workarounds that were not required on previous platforms. The BCM's logic prioritizes "defense" over "diagnosis" when the security system is triggered.
+Workarounds analyzed later in this report include:
+* Mechanical Key Cycling: On some transition models (early 2022 Civic), physically turning the key cylinder might send a disarm signal, but this is less effective on fully digital 2023+ architectures.12
+* Battery Hard Reset: Disconnecting the 12V battery effectively reboots the BCM. Upon reconnection, the alarm logic often has a slight delay before re-arming, providing a narrow window for tool communication.13
+* Software-Based Bypass: Advanced aftermarket tools like the Smart Pro have developed software protocols (ADS2336) that attempt to bypass the BCM's lockout logic or silence the alarm via the CAN bus before initiating programming.14
+3. Tool Compatibility Matrix & Performance Analysis
+The aftermarket tooling landscape for 11th Gen Honda is divided. While some tools have adapted to the 4A chip and BCM architecture, others lag behind, leading to high failure rates. The complexity of the 128-bit AES encryption means that tools cannot simply "read" a PIN code from the memory dump as easily as before; they must perform a server-side calculation to derive the security access credentials.
+3.1 Advanced Diagnostics (Smart Pro)
+The Smart Pro by Advanced Diagnostics (AD) currently holds the gold standard for aftermarket success on this platform, specifically with the release of software module ADS2336 (Honda 2024).14 This software was developed specifically to address the new proximity key architecture and the 4A encryption challenges.
+* Capabilities:
+   * All Keys Lost (AKL): Fully supported without a working key.14 The software can initiate a "forced" programming session even when no valid keys are present.
+   * Add Key: Supported, but the procedure usually requires removing all keys first and re-adding them to ensure synchronization. This is a departure from the simple "Add Key" functions of the past where existing keys could be ignored.
+   * Alarm Bypass: The software is engineered to bypass the security PIN and communicate even in adverse states, though manual silence (door unlock) is preferred to ensure stability.14
+* Workflow Nuance: The procedure is unique compared to older Hondas. It requires the removal of all keys from the vehicle (even the new one initially). The technician must bring the new key into the vehicle only when prompted, typically within a strict 40-second window.16 This "Key Isolation" step is critical because the BCM's LF antennas are highly sensitive; if they detect multiple transponders or the wrong transponder during the enrollment phase, the process will fail.
+* Cost: Requires the Smart Pro unit and the specific software purchase or token usage. The reliance on AD's server for the calculation ensures that the encryption keys are handled securely.
+3.2 Autel (IM608 Pro / KM100)
+Autel's performance on the 11th Gen is mixed, with a clear demarcation between "Add Key" (possible) and "All Keys Lost" (difficult/risky). The rapid release cycle of Autel updates often means features are added quickly, but stability can vary by specific vehicle firmware version.
+* IM608 Pro / IM608S II:
+   * Status: Supports 2022-2023 Civic and Accord via software updates.17 The "IMMO" software for Honda has been updated to include the 4A chip types.
+   * Failure Modes: Users report that while the tool can communicate, it often fails at the final "verification" step where the immobilizer light is supposed to extinguish.18 This "false positive" success message is dangerous as it can leave the technician believing the job is done when the car will not start.
+   * Risk: There is a higher risk of failing to bypass the "Alarm Active" state compared to Smart Pro. If the alarm is not silenced manually, the IM608 may struggle to maintain the CAN session required for the lengthy key writing process.
+* KM100:
+   * Status: Not recommended for 11th Gen AKL. While it claims support, field reports indicate high failure rates on 2023+ models, often leading technicians to switch to Lonsdor or Smart Pro.18 The device lacks the robust server connection stability required for the 4A handshake in some environments. It is better suited for simple "Add Key" jobs where a working key is already present to authorize the session.
+3.3 Lonsdor (K518 Pro)
+Lonsdor has emerged as a strong competitor for Honda 4A programming, particularly for those without a Smart Pro subscription. The K518 Pro's architecture seems particularly well-suited for the newer CAN and CAN-FD protocols found in modern vehicles.
+* Capabilities: Explicitly lists support for "Honda 4A Smart Key All Key Lost".19 The tool's updates have specifically targeted the 11th Gen Civic and Accord platforms.
+* Architecture: The K518 Pro uses an Android 9 platform with hardware optimizations for CAN-FD (though Honda 11th gen is primarily CAN, the processing speed helps).21 The "Pro" version includes hardware improvements over the older K518ISE that allow for faster communication with the BCM.
+* Advantage: Includes a built-in "LKE" emulator which can sometimes simulate a key to bridge the gap in AKL situations, although for Honda 4A, direct OBD programming is the primary method.21 This emulation capability can be a fallback if direct programming fails, essentially "tricking" the BCM into thinking a working key is present to authorize the add-key procedure.
+3.4 OEM: Honda i-HDS (Interactive Honda Diagnostic System)
+The official dealer path remains the only 100% guaranteed method but comes with significant barriers to entry for independent shops. It utilizes the "official" server-side calculation which is never patched or reverse-engineered, ensuring perfect compatibility with the latest BCM firmware revisions.
+* Requirements:
+   * Hardware: Denso DST-i or approved J2534 interface (e.g., Mongoose Pro). The interface must be fully compliant with SAE J2534-1 and J2534-2 standards.
+   * Software: i-HDS subscription. This is the modern replacement for the older HDS software, offering a more integrated interface.
+   * Security: Immobilizer access requires a separate "Vehicle Security Professional" (VSP) subscription and valid NASTF (National Automotive Service Task Force) credentials.22 This is the biggest hurdle for casual repair shops, as obtaining VSP credentials involves a background check and registry listing.
+* Cost Structure:
+   * 1-Day VSP Access: ~$45 USD.22
+   * 365-Day VSP Access: ~$1,800 USD.22
+   * Per-Transaction Fee: Some operations may incur a $15 code calculation fee.22
+* Performance: Flawless execution, assuming the technician has the credentials. It handles the BCM initialization and server-side code calculation natively. The i-HDS tool also has the capability to "rewrite" the BCM if it becomes corrupted, a feature most aftermarket tools lack.
+
+
+  
+
+
+
+4. Key Hardware Specifications & Dealer Requirements
+A common misconception in the industry is that 11th generation Hondas require a key ordered by VIN from the dealership (a "Dealer Key") in the same way a Mercedes-Benz does. Research confirms that this is partially a myth. While dealer keys are an option, virgin aftermarket keys with the correct 4A chip and FCC ID are fully programmable.23 The system does not use a "pre-coded by VIN" transponder logic where the key is hard-coded to the car at the factory; rather, the "Dealer Key" typically refers to the pre-cut emergency blade that comes with the fob when ordered from a parts counter.
+4.1 Transponder Technology: 4A (Hitag AES)
+The core of the new key is the NXP NCF29A1M (Hitag AES) chip.25 This chip represents a significant upgrade in security:
+* Frequency: 433 MHz is now the global standard for this generation, unifying the previous split where US models might use 315 MHz and others 433 MHz.5 This simplifies inventory for global locksmiths but requires attention to detail when ordering to ensure the correct frequency is selected if working on grey market imports.
+* Chip ID: Often identified by tools as "Hitag-AES" or "4A".
+* Backwards Compatibility: None. These keys are not interchangeable with 10th Gen (ID47) keys. Physically they may look similar (5-button layout), but electronically they are incompatible. Attempting to program an ID47 key to a 4A system will result in immediate failure during the "Enrollment" phase.
+4.2 Part Number & FCC ID Matrix
+Correct part selection is critical. The 11th Gen introduces Driver Memory specific keys (Driver 1 and Driver 2) more aggressively across trims. These keys have different part numbers but often share the same FCC ID. Attempting to program a "Driver 1" key to a slot already occupied by a "Driver 1" key may cause conflicts or overwrite the existing key depending on the tool used. The BCM tracks "Key 1" and "Key 2" for memory seat and mirror positions.
+Master Key Compatibility Table (11th Gen)
+The following table details the specific hardware requirements for the major 11th generation models. Note the distinction between the Civic/Accord platform and the Acura Integra, which uses a different FCC ID despite sharing the underlying chassis.
+
+
+Model
+	Years
+	FCC ID
+	Chip Type
+	OEM Part # (Driver 1)
+	OEM Part # (Driver 2)
+	Notes
+	Civic
+	2022–2025
+	KR5TP-4
+	4A (AES)
+	72147-T20-A01
+	72147-T20-A11
+	Hatch/Sedan differ slightly; verify specific trim 26
+	Accord
+	2023–2025
+	KR5TP-4
+	4A (AES)
+	72147-30A-A01
+	72147-30A-A11
+	Push-to-Start only; "Driver" logic enforced on Touring 28
+	CR-V
+	2023–2025
+	KR5TP-4
+	4A (AES)
+	72147-3A0-A01
+	72147-3A0-A11
+	Shared electronic architecture with Civic 30
+	Integra
+	2023–2025
+	KR5TP-2
+	4A (AES)
+	72147-3S5-A11
+	72147-3S5-A21
+	Different FCC than Civic/Accord. Do not mix. 11
+	Pilot
+	2023–2025
+	KR5TP-4
+	4A (AES)
+	72147-T90-A01
+	72147-T90-A11
+	Uses the same KR5TP-4 series as Accord 30
+	Note on Aftermarket Viability: Aftermarket keys are widely available and viable.23 However, a critical warning applies to "refurbished" or "unlocked" OEM keys. Since the 4A chip is read/write locked to the vehicle upon programming, used keys cannot be reprogrammed unless they are "virginized" using specialized hardware (e.g., VVDI Key Tool Plus or specialized NXP programmers) to reset the Hitag AES sectors. This is a difficult and advanced procedure that risks damaging the PCB. Therefore, new aftermarket or new OEM is the recommended path for most shops to avoid "locked key" errors during the critical enrollment window.
+4.3 Dealer Key Costs vs. Aftermarket
+The economic disparity between dealer sourcing and aftermarket sourcing is significant, driving the demand for independent programming solutions.
+* Dealer Cost:
+   * OEM Fob (Accord 2023): ~$120 - $177 USD.28
+   * Emergency Key Blade: ~$30 - $40 USD.32
+   * Programming Labor: Typically 1.0 hour (~$150 - $180) at dealer rates.
+   * Total Dealer Price: $300 - $400+ per key.
+* Aftermarket/Locksmith Cost:
+   * Aftermarket Fob (KR5TP-4): ~$30 - $40 USD.30
+   * Service Call & Programming: ~$150 - $250 depending on market and AKL/Add Key status.
+   * Total Locksmith Price: $180 - $290.
+The "Dealer Key" requirement is essentially a myth perpetuated by the complexity of the programming, not the hardware itself. However, the cut of the emergency key is high-security (laser cut), requiring a sidewinder duplicator (e.g., Xhorse Condor, Triton, or Silca Futura). The keyway is typically the HO01 or HO03 profile, requiring precise milling.
+5. Procedural Workflows: All Keys Lost (AKL)
+The All Keys Lost procedure for 11th Gen vehicles is where the technical capability gap is most visible. The process is strictly server-dependent and BCM-centric. Unlike older systems where an EEPROM clip could read a PIN code from a chip on the bench, the 11th Gen system requires a live connection to the vehicle and a secure handshake with the OEM or tool manufacturer's server.
+5.1 The "Alarm Active" Crisis
+The most common failure mode is the Alarm Active Lockout. When the alarm is triggered (horn honking, lights flashing), the BCM enters a protective state. In this state, it ignores standard diagnostic requests on the CAN bus related to security. It views any attempt to access the immobilizer sectors as a hacking attempt.
+Symptoms of Alarm Lockout:
+* Tool displays "Communication Failed" or "Security Access Denied".
+* Immobilizer light flashes continuously on the dash.
+* Horn sounds intermittently or continuously.
+* The "Start" button may glow amber instead of white/green.
+Bypass Strategies:
+1. Manual Silence (The "Key Turn"): On some early 2022 Civics, physically turning the new (uncut or cut) key in the door cylinder may silence the alarm if the BCM detects the cylinder rotation switch activation. However, this is less effective on 2023+ models where the digital handshake is required to disarm.12 The BCM logic has been updated to ignore cylinder rotation if no valid transponder is detected nearby.
+2. Battery Hard Reset: Disconnecting the vehicle battery (negative terminal) for 10-15 minutes can reset the BCM logic. Upon reconnection, there is often a distinct 30-60 second window before the alarm re-arms itself. Technicians must be prepared to connect the tool and initiate the "Read PIN" or "Connect" sequence immediately during this window.13 This is a "race against the clock" method.
+3. Software Bypass (Smart Pro): The ADS2336 software is designed to communicate through the alarm state. It forces the BCM into a programming mode that suppresses the alarm logic, but this requires a robust battery voltage to maintain the session.14 The tool effectively sends a "diagnostic session control" packet that overrides the alarm's priority.
+5.2 The Smart Pro (ADS2336) AKL Workflow
+Based on successful field reports and procedural documentation 14, the standard operating procedure (SOP) for the Smart Pro is detailed below. This workflow minimizes the risk of failure.
+1. Environment Prep: Connect a battery maintainer (13.5V). This is non-negotiable; BCMs have been known to corrupt if voltage drops below 12V during writing. Connect Smart Pro to OBD-II. Ensure stable Wi-Fi (Server connection required).
+2. Key Isolation: CRITICAL: Remove all keys from the vehicle. Place them at least 10 feet away or in a Faraday bag. The 11th Gen BCM can be confused by the presence of multiple unprogrammed keys.16 The LF field in the car is strong; any stray transponder signal can corrupt the enrollment packet.
+3. Initialization: Select "Honda 2022+ (4A)" or specific model (e.g., "Accord 2023"). Select "All Keys Lost".
+4. Server Authentication: The tool connects to the AD server to calculate the security bypass. This takes 1-2 minutes. The server is calculating the 128-bit response based on the challenge seed sent by the BCM.
+5. Key Enrollment Prompt: The tool will prompt: "Bring NEW key into vehicle now."
+   * Action: Bring ONE new key into the cabin. Hold it near the Start button (or center console reader).
+   * Time Window: You have approximately 40 seconds to complete this.16 Do not delay.
+6. Ignition Cycling: The tool will command "Switch Ignition ON". Press the Start button twice (do not hold brake). The dash should light up.
+7. Synchronization: The tool writes the Key ID to the BCM. The dashboard immobilizer light (green key icon) should extinguish.
+8. Completion: Cycle ignition OFF. Test remote functions (Lock/Unlock). Test engine start. If the remote works but the car doesn't start, the BCM <-> PCM handshake may not have completed; repeat the ignition cycle.
+
+
+  
+
+
+
+6. Model-Specific Intelligence
+While the underlying 4A architecture is shared across the platform, physical implementation differences create unique challenges for each model. Technicians must be aware of these variances to avoid misdiagnosis.
+6.1 Honda Civic (2022–2026)
+* BCM Location: The BCM is located behind the dashboard, roughly above the driver's kick panel/fuse box area. It is difficult to access for physical work, but programming is done via the OBD-II port (which connects to the Gateway, then BCM).4
+* Known Issues: The 2022 Civic was the first to implement this system. Early firmware versions in the BCM are prone to "bricking" if voltage drops below 12V during the write phase. Battery support is mandatory.
+* Fuse Data: If the tool cannot power up or communicate, check the BCM fuse in the interior fuse box. This is often Fuse #1 or specific "Smart" fuses that supply constant power to the BCM logic.4 A blown fuse here mimics a dead BCM.
+6.2 Honda Accord (2023–2026)
+* Degree of Difficulty: High. The 2023 Accord is widely regarded as the most difficult of the 11th Gen lineup. Autel tools (KM100) have a documented high failure rate on this specific model.18 The handshake timing on the Accord seems tighter than the Civic.
+* Software Glitches: A recall exists for 2023-2025 Accord Hybrids regarding the "Integrated Control Module" (ICM) software, which can cause resets and communication losses.36 This instability can interfere with key programming. If a technician encounters persistent communication drops, it may be due to this vehicle-side defect, not the tool. The recall involves a software update that stabilizes the BCM/ICM communication.
+* Procedure Note: The "Driver 1 / Driver 2" distinction is most strictly enforced on the Accord Touring trims. Using a generic aftermarket key may result in loss of memory seat functions or persistent dashboard warnings.28
+6.3 Honda CR-V (2023–2026)
+* Platform: Shares the Civic platform but often has a more accessible fuse layout.
+* Hybrid Nuance: For CR-V Hybrids, the "Ready" mode is the equivalent of "Engine On". When verifying the key, look for the "Ready" indicator. The high-voltage system does not need to be disabled for key programming, but the 12V auxiliary battery must be maintained.38 The DC-DC converter will usually keep the 12V rail stable if the vehicle is in "Ready" mode, but during programming (Engine Off), external support is needed.
+6.4 Acura Integra (2023–2026)
+* Unique FCC: Uses KR5TP-2 (different from the Honda KR5TP-4).11 This is a critical distinction.
+* Interchange: You cannot use a Civic key on an Integra, despite the shared platform. The BCM checks the "Manufacturer ID" in the 4A chip string and will reject a Honda-coded chip.
+* Cost: OEM keys are significantly more expensive (~$166 for Driver 2).39 Aftermarket options are scarcer compared to the high-volume Civic keys.
+6.5 Honda Pilot (2023–2026)
+* Platform: Uses the new light truck global platform but shares the 4A architecture.
+* Key Type: Uses the KR5TP-4 fob (same as Accord/Civic), simplifying inventory for locksmiths who work on the full Honda lineup.30
+* Access: The OBD port is standard, but the Pilot's larger cabin means the "key isolation" distance should be strictly observed—ensure rejected keys are well outside the vehicle.
+7. Economic & Operational Analysis
+For a workshop or locksmith business, the 11th Gen Honda requires an investment in both tooling and inventory. The barrier to entry has raised, but so has the potential revenue per job.
+7.1 Tooling Investment
+* Minimum Viable Setup: Autel IM608 Pro II (~$3,000). Success rate ~70-80%. Good for "Add Key", risky for "AKL".
+* Recommended Professional Setup: Smart Pro with ADS2336.
+   * Hardware: ~$2,500 - $3,000.
+   * Software: ADS2336 module purchase (~$500-$800) or Token Plan (Unlimited tokens ~$3,000/yr).
+   * Success Rate: >95%.14
+* OEM Setup (The "Fail-Safe"):
+   * Hardware: ~$1,500 (Mongoose/DST-i).
+   * Subscription: $45 per day (VSP).
+   * Note: Only viable for shops with a clean background check to obtain NASTF credentials. This is the ultimate backup plan if aftermarket tools fail.
+7.2 Key Inventory Strategy
+Stocking for 11th Gen is more complex due to the Driver 1/2 split.
+* Recommendation: Stock primarily aftermarket universal or unlocked OEM keys with the KR5TP-4 FCC ID. These can often be programmed into either slot (Driver 1 or 2) by the tool, or the car will auto-assign the next available slot.
+* Acura: Order Integra keys (KR5TP-2) on-demand due to lower volume, unless you specialize in Acura.
+* Pricing: Charge a premium for 11th Gen programming (e.g., $250-$350 All Keys Lost) to cover the risk, tool subscription costs, and technical difficulty.
+
+
+  
+
+
+
+8. Conclusion
+The 11th Generation Honda security architecture represents a significant leap in anti-theft technology, leveraging Hitag AES (4A) encryption and centralized BCM control to mitigate the vulnerabilities of previous generations. For the service industry, this transition necessitates a departure from legacy tools and a move toward server-connected, advanced diagnostic platforms like Smart Pro and Lonsdor K518 Pro.
+While the "Dealer Key" requirement is technically a misnomer—virgin aftermarket keys function correctly—the programming barrier is high. Success depends on stable voltage support, precise management of the "Alarm Active" lockout, and strict adherence to key isolation protocols during the enrollment phase. The ability to distinguish between "communication failure" caused by the alarm state versus actual tool incompatibility is the hallmark of a competent technician on this platform. As 2023+ models exit their warranty periods, demand for these services will surge, making mastery of the ADS2336 workflow and 4A chip inventory a critical competitive advantage for automotive security professionals.
+Works cited
+1. Immobilizer System | CIVIC SEDAN 2024 - Honda TechInfo, accessed January 26, 2026, https://techinfo.honda.com/rjanisis/pubs/OM/AH/AT202424IOM/enu/details/131229047-6591.html
+2. Service Bulletin - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2016/SB-10087261-2280.pdf
+3. Security Indicator: Immobilizer System Symptom Troubleshooting Information | PDF - Scribd, accessed January 26, 2026, https://www.scribd.com/document/511213448/SM-45
+4. HONDA CIVIC BCM (Body Control Module) Fuse Location & Troubleshooting (Electrical Issues 2016-2021) - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=mkXh8UXrklQ
+5. 2023 Honda Accord Smart Key 5 Buttons FCC# KR5TP-4 - Aftermarket - Locksmith Keyless, accessed January 26, 2026, https://www.locksmithkeyless.com/products/2023-honda-accord-smart-key-5-buttons-fcc-kr5tp-4-aftermarket
+6. 2023 Acura Integra Driver 1 Smart Key Remote PN: 72147-3S5-X01, accessed January 26, 2026, https://remotesandkeys.com/products/2023-acura-integra-driver-1-smart-key-remote-pn-72147-3s5-x01
+7. Security System Alarm | INTEGRA 2023 - Honda TechInfo, accessed January 26, 2026, https://techinfo.honda.com/rjanisis/pubs/om/ah/b3s52323iom/enu/details/131236047-6615.html
+8. 2023 Acura Integra Driver 2 Smart Key Remote PN: 72147-3S5-X11, accessed January 26, 2026, https://remotesandkeys.com/products/2023-acura-integra-driver-2-smart-key-remote-pn-72147-3s5-x11
+9. CATALOGUE KEY - Silca, accessed January 26, 2026, https://www.mindasilca.in/catalogues/KEY%20CATALOGUE%202023%20(1).pdf
+10. What to do when the wireless key fob battery dies on a 2005 Hyundai Elantra, accessed January 26, 2026, https://mechanics.stackexchange.com/questions/8524/what-to-do-when-the-wireless-key-fob-battery-dies-on-a-2005-hyundai-elantra
+11. Acura New OEM 2023-2026 Integra A-Spec Smart Key (Memory 1) 4B Hatch FCCID: KR5TP-2 PN# 72147-3S5-A11, accessed January 26, 2026, https://royalkeysupply.com/products/acura-new-oem-2023-integra-a-spec-smart-key-memory-1-4b-hatch-fccid-kr5tp-2-pn-72147-355-a11
+12. How to Turn Off Your Acura Car Alarm, accessed January 26, 2026, https://www.frankletaacura.com/how-to-turn-off-your-acura-car-alarm/
+13. HOW TO TURN OFF CAR ALARM! EASY - No Key FOB Needed! (2024 UPDATED), accessed January 26, 2026, https://www.youtube.com/watch?v=RLf68exf1MQ
+14. Advanced Diagnostics ADS2336 Honda New Key Programming Software, accessed January 26, 2026, https://keyinnovations.com/advanced-diagnostics-ads2336-honda-new-key-programming-software/
+15. Advanced Diagnostics - ILCO.US, accessed January 26, 2026, https://www.ilco.us/support/ad-software-updates
+16. Honda Accord 2023 - Program New Smartkey with SmartPro and K Jaw - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=AKy6vAo8pgc
+17. UPDATE - Autel, accessed January 26, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202401/04060804j75p.pdf
+18. “Autel KM100 vs Honda Accord: Key Programming Disaster!” - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=ILb_x11sS2Y
+19. K518 PRO Product Overview K518 Vehicle Compatibility List of K518 PRO - Key4, accessed January 26, 2026, https://www.key4.com/uploads/files/products/key_programming_devices/PD-LON-K518PRO/LON-K518PRO_Compatibility.pdf
+20. Lonsdor K518 PRO FCV - Full Combination Version Key Programmer with Fr, accessed January 26, 2026, https://www.locksmithkeyless.com/products/lonsdor-k518-pro-full-combination-version-key-programmer-with-free-update
+21. 2024 Lonsdor K518 Pro Full Version Key Programmer | 2 Years of Free Update, accessed January 26, 2026, https://yourcarkeyguys.com/products/2024-lonsdor-k518-pro-full-version-key-programmer-2-years-of-free-update
+22. RJAAI001_LOGON_CONTENT.htm - Honda TechInfo, accessed January 26, 2026, https://techinfo.honda.com/rjanisis/pubs/Web/RJAAI001_LOGON_CONTENT.htm
+23. Smart Remote Car Key For Honda Accord Civic Pilot HR-V CR-V 2022 2023 2024 Smart Key Remote 72147-3A0-A11 KR5TP-4 433MHz 4A Chip - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005009888216604.html
+24. 2023 Honda Accord - 2x New Replacement Proxy Key Fob & DIY OBD Program, accessed January 26, 2026, https://prokeybox.com/products/2023-honda-accord-2x-new-replacement-proxy-key-fob-diy-obd-programmer-tool-a-1166000820646988-210
+25. Genuine Honda Civic 2022-2024 Smart Key, 4Buttons 72147-T20-A01 433MHz, KR5TP-4, accessed January 26, 2026, https://abkeys.com/products/honda-civic-smart-key-72147-t20-a01-433mhz-kr5tp-4-5116
+26. 2022 Honda Civic Smart Key 5 Buttons FCC# KR5TP-4 - Aftermarket - Locksmith Keyless, accessed January 26, 2026, https://www.locksmithkeyless.com/products/2022-honda-civic-smart-key-5-buttons-fcc-kr5tp-4-aftermarket
+27. 2022 Honda Civic Smart Key Fob PN: 72147-T20-A01, accessed January 26, 2026, https://remotesandkeys.com/products/2022-honda-civic-smart-key-fob-pn-72147-t20-a01
+28. Keyless Entry Components for 2023 Honda Accord | OEM Parts Online, accessed January 26, 2026, https://honda.oempartsonline.com/v-2023-honda-accord--ex--1-5l-l4-gas/electrical--keyless-entry-components
+29. 2023 Honda Civic Sedan Smart Remote Key Fob - CarandTruckRemotes, accessed January 26, 2026, https://www.carandtruckremotes.com/products/2023-honda-accord-smart-remote-key-fob
+30. Unique Bargains KR5TP-4 433Mhz Replacement Keyless Entry Remote Smart Key Fob for Honda Civic Hatchback 2022-2024 for Honda CR-V 2023-2025 72147-T43-A11 72147T43A11 4A 5 Buttons - Walmart, accessed January 26, 2026, https://www.walmart.com/ip/Unique-Bargains-KR5TP-4-433Mhz-Replacement-Keyless-Entry-Remote-Smart-Key-Fob-Honda-Civic-Hatchback-2022-2024-Honda-CR-V-2023-2025-72147-T43-A11-7214/16861751155
+31. 2023-2024 Acura Integra Smart Key Remote Fob KR5TP-2 72147-3S5-A01 MINT - eBay, accessed January 26, 2026, https://www.ebay.com/itm/176372329495
+32. 2023 Honda Accord Car Key | Low Price at HondaPartsNow, accessed January 26, 2026, https://www.hondapartsnow.com/oem-2023-honda-accord-car_key.html
+33. honda civic hatchback smart keyless entry, remote key fob fcc id: kr5tp-4, oem p/n, accessed January 26, 2026, https://www.bestkeysolution.com/products/honda-cr-v-2023-honda-pilot-2023-smart-keyless-entry-remote-key-fob-fcc-id-kr5tp-4-oem-refurbished
+34. How To Remove/Access 2016-2021 Honda Civic BCM. 2016-2021 Honda Civic BCM Location. - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=nlmeQz4WPI0
+35. HONDA CIVIC BCM FUSE LOCATION, BODY CONTROL MODULE FUSE 2016 2017 2018 2019 2020 2021 - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=Il3LIj-aIRs
+36. Honda Accord Hybrid Safety Recall Update, accessed January 26, 2026, https://www.harehonda.com/honda-accord-software-glitch-recall.htm
+37. American Honda Recalls Approximately 256,000 Honda Accord Hybrid Vehicles to Correct Software Programming, accessed January 26, 2026, https://hondanews.com/en-US/honda-corporate/releases/release-0af91089c672e8c7eef0558d7601ab2a-american-honda-recalls-approximately-256000-honda-accord-hybrid-vehicles-to-correct-software-programming
+38. Information for First & Second Responders Emergency Response Guide For Vehicle:: Version 3 - Honda TechInfo, accessed January 26, 2026, https://techinfo.honda.com/rjanisis/pubs/web/AER14177.pdf
+39. 2023 Acura Integra Key Fob | Low Price at AcuraPartsWarehouse, accessed January 26, 2026, https://www.acurapartswarehouse.com/oem-2023-acura-integra-car_key.html

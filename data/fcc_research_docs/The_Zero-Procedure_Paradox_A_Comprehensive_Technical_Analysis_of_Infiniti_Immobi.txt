@@ -1,0 +1,244 @@
+﻿The "Zero-Procedure" Paradox: A Comprehensive Technical Analysis of Infiniti Immobilizer Protocols (2018–2024) and Their Homology with Nissan Architectures
+1. Executive Summary: Decoding the "Zero Procedure" Gap
+The automotive security landscape for Infiniti vehicles manufactured between 2018 and 2024 presents a persistent and perplexing anomaly within the aftermarket diagnostic ecosystem: a phenomenon industry analysts classify as the "Zero Procedure" gap. While diagnostic technicians and automotive locksmiths benefit from robust, highly detailed procedure lists for Nissan vehicles—numbering over 43 distinct protocols in major tool databases—the Infiniti subsidiary often appears as a digital phantom. Users navigating menu trees on industry-standard tools like the Autel IM608, Advanced Diagnostics Smart Pro, or Lonsdor K518 frequently encounter blank screens, unlisted models, or generic "system not found" errors when attempting to service flagship models like the QX60 or Q50.1
+This report posits that this operational void is not a result of proprietary exclusion or a lack of developed protocols, but rather a widespread failure in aftermarket categorization and platform association. The Infiniti lineup operates on a strict, verifiable architectural homology with Nissan mass-market platforms. The security logic, Body Control Module (BCM) encryption standards, and Controller Area Network (CAN) topologies are effectively identical to specific Nissan counterparts.3 For instance, the cryptographic handshake required to program a key to a 2023 Infiniti QX60 is indistinguishable from that of a 2023 Nissan Pathfinder, yet the former is often missing from diagnostic menus while the latter is fully supported.6
+This document serves as the definitive technical manual to bridge this gap. It provides an exhaustive mapping of every "missing" Infiniti procedure to its existing Nissan equivalent, exposing the shared engineering DNA that dictates security operations. It analyzes the fragmentation of Secure Gateway (SGW) implementations, detailing the transition from the legacy "open" OBDII ports of the 2018 QX80 to the high-security, CAN-FD based architectures of the 2024 lineup.8 Furthermore, it investigates the systemic dependencies that complicate key programming, such as the mandatory recalibration of ProPILOT Assist sensors following BCM intervention, the interference of InTouch telematics during CAN bus communication, and the specific mitigation strategies for "hood latch" alarm triggers on the Y62 platform.10
+By shifting the technician’s perspective from "programming a lock" to "managing a networked automotive ecosystem," this report provides the granular, actionable intelligence required to service the modern Infiniti fleet with the same confidence and success rate as its Nissan siblings.
+
+
+  
+
+
+
+2. Platform Homology: The Rosetta Stone of Infiniti Programming
+The primary impediment to servicing Infiniti immobilizer systems is the lack of dedicated menu paths in diagnostic tools. Tools often segregate the brands, leaving the Infiniti side populated with legacy data while the Nissan side receives regular updates for new chassis codes. To navigate this, the technician must understand the underlying chassis homology.
+2.1 The QX60 (L50/L51) and Pathfinder (R52/R53) Linkage
+The most critical alignment exists between the Infiniti QX60 and the Nissan Pathfinder. These vehicles are not merely similar; they are engineered upon identical platforms with synchronized electrical architectures.
+* 2013–2020 (L50 / R52): Both vehicles utilize the L50 platform. They share identical Body Control Modules (BCMs) and Intelligent Key systems. The programming logic relies on the BCM reading a 20-digit PIN (converted from the BCM serial data) or, in later years, a rolling code system supported by standard OBDII interaction.4 The immobilizer system here is a standard NATS 5.0/6.0 iteration, where the diagnostic tool initiates a handshake via the K-Line or CAN bus, requests a PIN, and registers the key ID.
+* 2022–2024 (L51 / R53): Following a hiatus in 2021, the QX60 returned on the L51 platform, which is the direct twin of the R53 Pathfinder. This generation introduced the most significant security change: the migration of the Gateway module function and the requirement for direct BCM connection for All Keys Lost (AKL).6
+   * Insight: If an Autel or Smart Pro tool fails to communicate with a 2022+ QX60 under the "Infiniti" menu, the technician must select Nissan -> Pathfinder -> 2022+. The protocol is identical. The "L51" architecture represents a complete break from the "L50," moving to a high-speed CAN network that demands specific bypass cabling to write to the BCM.
+2.2 The Q50/Q60 (V37) and the Altima/Skyline Connection
+The Q50 and Q60 (Coupe) sit on the V37 platform. While often compared to the Maxima or Altima in the US market, the V37 is sold as the "Nissan Skyline" in Japan. This distinction is vital for understanding the programming logic.
+* Immobilizer Logic: The V37 shares its immobilizer architecture with the Nissan Altima (L33/L34) regarding the BCM-to-ECM handshake, but physically, the modules differ due to the V37's Rear-Wheel Drive (RWD) longitudinal layout versus the Altima's Front-Wheel Drive (FWD) transverse layout.3 The "Intelligent Key" system operates on the same frequency protocols (typically 315MHz or 433MHz depending on the precise market and year), utilizing the same HITAG-AES or HITAG-3 encryption standards found in the Altima.
+* Menu Selection: When Infiniti-specific menus fail, selecting Nissan -> Skyline (if available in the tool's region settings) or Nissan -> Altima (Smart Key) often yields a successful protocol handshake.5 Technicians must be aware that while the logic is the same, the physical location of the BCM differs significantly between the FWD Altima and the RWD Q50/Q60, which becomes critical during BCM replacement or direct connection procedures.
+2.3 The QX80 (Z62) and Armada (Y62) Legacy Architecture
+The QX80 is built on the Y62 platform, shared with the Nissan Armada and the global Nissan Patrol. This platform is an anomaly in the modern lineup due to its longevity.
+* Legacy Status: Unlike the unibody crossovers (QX60), the body-on-frame QX80 retains an older electrical architecture even into the 2024 model year. It utilizes a mechanical ignition switch cylinder (or push-to-start with a slot) that relies on older NATS protocols, even as screens and telematics were updated.16 The Y62 platform has proven resistant to the widespread adoption of high-security gateways found in the unibody models.
+* Security Tier: While the QX50 and QX60 moved to high-security BCMs requiring gateway bypasses, the QX80 often remains accessible via standard OBDII programming.2 This makes it a "Legacy" outlier. However, late-model (2021+) updates have introduced rolling codes that require active internet connections on diagnostic tools to calculate, mimicking the newer systems without the physical hardware changes of the gateway modules.
+3. The Security Gateway (SGW) Implementation and Bypass Ecosystem
+The introduction of the Security Gateway (SGW) module represents a paradigm shift in automotive diagnostics. Designed to secure the vehicle's internal networks from external intrusion, the SGW blocks unauthorized scan tools from writing data (such as key IDs) to the CAN bus. For Infiniti, this implementation is fragmented and strictly model-dependent, creating a complex landscape for technicians.
+3.1 SGW Implementation Timeline by Model
+The rollout of SGW across the Infiniti lineup was not simultaneous. It followed the introduction of specific chassis codes and electrical architectures.
+* 2018–2019: Most Infiniti models (Q50, Q60, QX80) did not implement a full-blocking SGW on the OBDII port. They utilized a "Gateway" for network traffic management but allowed read/write access for immobilizer functions via standard CAN-C or CAN-D lines.18
+* 2020+ (The Sentra/Versa Shift): The Nissan Sentra (B18) introduced a secure gateway requiring a 16+32 bypass cable. This architecture bled into the Infiniti QX50 and QX55 updates.19 These vehicles, sharing the underlying electrical architecture of the newer Nissan compacts, require physical interception of the gateway module to authorize key programming.
+* 2022+ (The Rogue/Pathfinder Shift): The QX60 (L51) adopted the high-security architecture of the T33 Rogue and R53 Pathfinder. This system does not use the 16+32 connector location but requires a direct BCM connection (often using the ADC2017 cable).7 This indicates a tiered security approach where larger, more complex platforms (Pathfinder/QX60) utilize a more deeply integrated security architecture than the compact platforms.
+3.2 The Bypass Cable Hierarchy: 16+32 vs. ADC2017
+A critical point of confusion in the locksmith industry is the interchangeability of bypass cables. They are not universal. Using the wrong cable can result in failed communication or potential damage to the vehicle's pins.
+3.2.1 The 16+32 Gateway Adapter
+* Target Architecture: "B18 Chassis" logic (Nissan Sentra, Versa).
+* Applicable Infiniti Models: QX50 (2019+), QX55.22
+* Physical Connection: This cable intercepts the connection at the Gateway Module (often located behind the glovebox or near the steering column). It splits the 16-pin OBD and 32-pin data lines to bypass the firewall. The male end plugs into the vehicle's gateway connector, and the female end accepts the original connector, acting as a "Man-in-the-Middle" to permit write commands from the diagnostic tool.
+* Usage: Required for adding keys when a valid key is present (Add Key) and for AKL situations where the tool can calculate the PIN from the BCM dump.
+3.2.2 The ADC2017 (40-Pin) Direct BCM Cable
+* Target Architecture: "T33/R53 Chassis" logic (Nissan Rogue, Pathfinder).
+* Applicable Infiniti Models: QX60 (2022+).7
+* Physical Connection: This cable does not plug into a gateway module. It connects directly to the Body Control Module (BCM).
+   * QX60 BCM Location: Deep under the driver's side dashboard, often requiring the removal of lower trim panels to access the 40-pin connectors.6
+* Function: In AKL scenarios, the OBD port is completely locked down for writing. The ADC2017 cable energizes the BCM and provides a direct line for the diagnostic tool (Smart Pro or Autel with adapter) to read the configuration data, extract the PIN, and register new keys. The architecture here routes the Immobilizer data lines exclusively through the BCM's private CAN lines, which are not accessible via the Gateway in an AKL state.
+* Critical Warning: Attempting to use a 16+32 cable on a 2022+ QX60 will fail because the architecture does not route the necessary IMMO programming lines through the gateway in the same manner. The connectors simply will not fit, and forcing them or using generic jumpers can cross-wire 12V lines to 5V data lines, causing catastrophic BCM failure.
+
+
+  
+
+
+
+4. Detailed Procedures by Model Family
+4.1 QX60 (2022–2024): The ADC2017 Protocol
+The 2022 redesign of the QX60 marked a hard break from previous procedures, adopting the Nissan Rogue (T33) electronic architecture. This shift renders older OBD-only methods obsolete.
+* Tool Selection: Autel IM608 / Smart Pro.
+* Menu Path:
+   * Autel: IMMO -> Nissan -> Manual Selection -> North America -> Pathfinder -> 2022+ -> Smart Key.6 (Note: Do not search for QX60 initially; if 2022+ QX60 is not listed, the Pathfinder menu is the hard-coded equivalent).
+   * Smart Pro: Select Nissan -> Pathfinder (2022-2023).25
+* Procedure Workflow (All Keys Lost):
+   1. Preparation: Ensure vehicle battery is stable (>12.5V). This is critical as the BCM is sensitive to voltage drops during flash reading. Low voltage can cause a BCM "brick" state where the module loses its configuration data.
+   2. Cable Installation: Locate the BCM under the driver's dash. Disconnect the 40-pin connectors and bridge them using the ADC2017 (or Autel Nissan 40-Pin) cable. This physically isolates the BCM from the rest of the network while maintaining power and communication with the tool.
+   3. Read BCM Data: The tool will read the EEPROM configuration to calculate the 28-digit rolling PIN code. This bypasses the need for a static NASTF code, which was standard on older models.
+   4. Key Registration: Once the PIN is bypassed, the tool enters "Learning Mode."
+      * Hold the Logo Side of the Smart Key against the Start/Stop button. The RFID antenna ring around the button (or integrated into it) energizes the transponder.
+      * Press the button. The dash should light up, and the immobilizer light will flash (typically 5 times indicates success).
+      * Repeat for subsequent keys.
+   5. Reassembly: Disconnect the bypass cable and restore original BCM connections. Warning: Failure to fully seat the BCM connectors will result in "No Key Detected" errors or lighting malfunctions, as the BCM controls exterior lighting and interior accessories.
+4.2 QX80 (2018–2024): The Legacy Loophole
+Despite its high price point, the QX80 sits on the older F-Alpha-derived platform. This creates a "Legacy Loophole" where newer security measures are notably absent.
+* Unique Feature: It utilizes a 20-digit PIN system for 2018-2021 models, transitioning to a rolling code in late 2021/2022. Unlike the QX60, it does not typically require a hardware bypass for OBD communication.2
+* SGW Status: 2018-2020 models generally do not have a blocking SGW on the OBD port. 2021+ models may have a gateway, but many key programming functions remain accessible via standard OBDII pins 6 & 14 without a bypass cable.
+* Procedure Specifics:
+   * Menu: Nissan -> Armada -> 2017+.17
+   * Dead Key Slot: The QX80 retains a physical transponder slot (usually left of the steering column or in the center console). For programming, keys must be inserted into this slot rather than just held against the button. This physical coupling is required for the low-frequency (LF) antenna to energize the transponder chip, which is often a different form factor (PCF7952 or HITAG 2 extended) than the QX60's smart keys.
+4.3 Q50 & Q60 (2018–2024): The BCM Vulnerability
+The Q50 sedan and Q60 coupe share the V37 platform. The key programming procedure is straightforward, but the hardware context is perilous due to environmental vulnerabilities.
+* The "Sunroof Drain" Issue: A well-documented engineering flaw in the V37 platform involves the sunroof drain tubes clogging or disconnecting, leaking water directly onto the BCM located in the passenger-side kick panel.27
+   * Impact on Programming: Technicians attempting AKL on a "dead" Q50 often find the BCM is water-damaged. Diagnostic tools will fail to communicate ("Communication Error" or "ECU No Response").
+   * Requirement: Before attempting programming, physically inspect the BCM for green corrosion or water signs. Programming a new key to a corroded BCM is impossible and may damage the programming tool's VCI due to short circuits on the data lines.
+* Red Sport 400 Specifics: The high-performance Red Sport trims use the same key FCC ID and immobilizer logic as the standard Luxe/Pure trims. There is no separate "performance tier" security. However, they are more likely to be equipped with remote start, requiring the "Remote Start" procedure to be completed (locking the car with the fob) to finalize the programming cycle. The Red Sport's unique ECU tuning does not extend to the BCM's NATS logic.30
+5. 2024+ Updates: The CAN-FD Disruption
+The 2024 model year introduces the CAN-FD (Controller Area Network Flexible Data-Rate) protocol to the Infiniti lineup, specifically on the updated QX60 and the shared architecture with the new Nissan Z and Pathfinder. This is a critical evolution in the vehicle's nervous system.
+5.1 The Protocol Shift
+Standard CAN buses operate at 500 kbps. CAN-FD operates at up to 5 Mbps (variable) and allows for larger data payloads per frame (up to 64 bytes vs. 8 bytes). Newer Infiniti BCMs utilize this speed for faster authentication and OTA (Over-The-Air) update capability. Older OBDII interfaces (VCI) cannot read this signal; they interpret it as noise or fail to connect entirely.9
+5.2 Tool Compatibility Requirements
+* Autel: Requires the V200 VCI (included with IM508S / KM100) or the Ultra VCI. Older J2534 boxes (from original IM608) require the CAN-FD Adapter plugged inline.33 Without this adapter, the tool cannot communicate with the BCM of a 2024+ QX60 or Pathfinder.
+* Key Tool Plus (Xhorse): Requires the specific CAN-FD adapter or the updated hardware revision to interpret the high-speed data frames.34
+* Lonsdor K518 Pro: Supports CAN-FD natively, allowing for direct OBD programming without add-on dongles for the 2024 Pathfinder/QX60 platform.35
+
+
+  
+
+
+
+6. System Integration: ProPILOT, Telematics, and Alarms
+Programming keys in modern Infiniti vehicles is not an isolated event; it interacts with the vehicle's broader ecosystem, often triggering systemic faults if not managed correctly.
+6.1 ProPILOT Assist Recalibration
+When a BCM is replaced (common in Q50 water damage cases or AKL situations where the BCM is "bricked"), the configuration data written to the new BCM impacts the ADAS (Advanced Driver Assistance Systems).
+* The Link: The BCM stores the vehicle configuration (Variant Coding), which tells the ADAS modules (Front Camera, Radar) what features are enabled. If the new BCM does not have the exact variant string of the old unit, the ADAS network detects a configuration mismatch.
+* The Procedure: After BCM replacement and key programming, a "Write Configuration" step is mandatory.10 If this is skipped, the ProPILOT system will disable itself, displaying "Chassis Control System Error." In some cases, the Front Camera Unit will require a static recalibration using targets if the variant coding handshake fails to align the camera's expected parameters with the new BCM's output.
+6.2 Infiniti InTouch Telematics Interference
+The InTouch system (Telematics Control Unit - TCU) actively monitors the CAN bus. In AKL programming, the TCU may interpret the diagnostic tool's attempt to force the BCM into "Learning Mode" as an intrusion event or simply flood the bus with "status check" packets.11
+* Symptom: Programming fails at the "Writing Key ID" stage with a "Time Out" or "Communication Failure" error.
+* Mitigation:
+   1. Service Mode: Enter the InTouch diagnostic menu (usually by holding the Menu button and turning the volume knob) to disable transmission. This puts the TCU into a passive state.
+   2. Physical Disconnect: For persistent failures, locate the TCU fuse (often labeled "TELEM" or "COM" in the fuse box) and pull it.11 This silences the "phone home" traffic on the CAN bus, allowing the key programming packets to pass uninterrupted. This is particularly relevant for 2020+ models with "always-on" 4G LTE connections.
+6.3 The "Hood Latch" Alarm Trigger
+A frequent issue during AKL procedures on the QX60 and QX80 is the factory alarm sounding continuously when the battery is reconnected or the door is opened, locking out the diagnostic tool.
+* The Cause: The BCM monitors the hood latch switch. If the hood is open (often required to connect battery maintainers during programming), the system prevents "Sleep Mode" or triggers the alarm thinking the hood is being forced.37
+* The Fix: Locate the hood latch connector (near the radiator support) and short the connector (or disconnect it, depending on the "Normally Open" vs "Normally Closed" logic of the specific year) to trick the vehicle into thinking the hood is closed. This allows the BCM to enter the programming state without active alarm interference.
+7. Extended Model Analysis: Q50/Q60 Red Sport & Manual Transmissions
+7.1 The Red Sport 400
+The Red Sport 400 represents the highest performance tier. Research confirms that despite the different engine tuning (400hp VR30DDTT), the Immobilizer/Smart Key system is identical to the standard Q50/Q60 3.0t.
+* Key Part Numbers: While the fobs may have a red "Sport" distinct logo or finish, the FCC ID and transponder chip (usually NCF29A1M / HITAG AES) are shared.30
+* Remote Start: Red Sport models almost universally include Remote Start. When programming a new key, ensure the replacement fob has the correct button configuration (5-button). Using a 4-button (non-remote start) fob on a Red Sport may program successfully for ignition but will result in a permanent "Key System Error" on the dash because the BCM expects a remote start signal capability.31
+7.2 The Manual Transmission Q60
+The Q60 (Coupe) was briefly rumored to have manual options or confusion exists regarding the G37 manual legacy.
+* Verification: The 2018-2024 Q60 was never produced with a manual transmission. All models (Pure, Luxe, Sport, Red Sport) use the 7-speed automatic.39
+* Implication: There are no "Clutch Interlock" variations to consider for key programming. The "Brake Pedal" press is the universal interlock for the push-to-start sequence. Technicians should disregard any forum advice pertaining to "clutch switches" for this generation, as it applies solely to the older G37/Q60 (pre-2017) platforms.
+8. Conclusion and Strategic Outlook
+The "Zero Procedure" gap for Infiniti vehicles is a user interface illusion, not a technical reality. By leveraging the chassis homology between Nissan and Infiniti, technicians can achieve 100% coverage. The QX60 is a Pathfinder; the Q50 is a Skyline/Altima derivative; the QX80 is an Armada.
+However, the hardware requirements have evolved drastically. The days of a simple OBDII dongle are over. The modern Infiniti technician requires a triad of hardware:
+1. The 16+32 Cable: For Sentra-based architectures (QX50/QX55).
+2. The ADC2017 (40-Pin) Cable: For the new L51/R53 platform (QX60 2022+).
+3. The CAN-FD Adapter: For the impending wave of 2024+ architectures.
+Success lies not in waiting for tool manufacturers to add an "Infiniti" logo to the menu, but in understanding the Nissan architecture underneath the luxury branding. The future of Infiniti diagnostics is increasingly intertwined with Nissan's global platform consolidation, requiring technicians to be fluent in platform codes (L51, V37, Y62) rather than just badge engineering.
+________________
+9. Appendix: Detailed Programming Workflows
+9.1 Universal AKL Workflow (2020+ Architecture)
+1. Identify Platform: Check VIN. If QX60 (2022+), proceed to BCM Direct method. If QX50 (2019+), proceed to Gateway Bypass method.
+2. Establish Power: Connect battery maintainer (13.2V target).
+3. Silence Alarm: Close all doors. If hood is open, latch the hood switch manually.
+4. Connect Tool:
+   * QX60 (2022+): Remove driver kick panel -> Disconnect BCM connectors -> Install ADC2017 -> Connect Tool to ADC2017 OBD port.
+   * QX50 (2019+): Locate Gateway (glovebox) -> Install 16+32 Cable -> Connect Tool.
+5. Select Menu: Nissan -> [Model Equivalent] -> Smart Key.
+6. Read IMMO Data: Execute "Read Pin Code" or "Read BCM Data".
+7. Program Keys:
+   * Select "Program Smart Key".
+   * Place 1st Key on Start Button (Logo to Button).
+   * Wait for flash.
+   * Place 2nd Key on Start Button.
+   * Wait for flash.
+8. Finalize: Long-press Start Button to turn ignition OFF. Open/Close driver door. Test remotes.
+
+
+  
+
+
+
+9.2 Data Tables
+Infiniti Model
+	Model Years
+	Shared Nissan Platform
+	Chassis Code
+	Primary Tool Menu Selection
+	Hardware Requirement (AKL)
+	QX60
+	2013-2020
+	Pathfinder
+	L50 / R52
+	Nissan Pathfinder (2013-2020)
+	OBDII (No Bypass)
+	QX60
+	2022-2024
+	Pathfinder
+	L51 / R53
+	Nissan Pathfinder (2022+)
+	ADC2017 / 40-Pin Cable
+	QX50
+	2019-2024
+	(Unique/Rogue elements)
+	J55
+	Nissan Altima/Rogue (New)
+	16+32 Gateway Cable
+	QX55
+	2022-2024
+	(Shared w/ QX50)
+	J55
+	Nissan Altima/Rogue (New)
+	16+32 Gateway Cable
+	Q50
+	2014-2024
+	Skyline / Altima logic
+	V37
+	Nissan Skyline / Altima
+	OBDII (Check BCM for water)
+	Q60
+	2017-2022
+	(Shared w/ Q50)
+	V37
+	Nissan Skyline / Altima
+	OBDII (Check BCM for water)
+	QX80
+	2018-2024
+	Armada / Patrol
+	Z62 / Y62
+	Nissan Armada (2017+)
+	OBDII (Legacy NATS)
+	Table 1: The Definitive Infiniti-Nissan Cross-Reference for Key Programming.
+Works cited
+1. How to program key on Infiniti G35 G37 370z - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=sCcr4W8qaUc
+2. Infiniti NATS key programming - Autel Support Communities, accessed January 7, 2026, https://bbs.autel.com/autelsupport/Diagnostics/31148.jhtml
+3. How to program spare Nissan or Infiniti key fob. - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=DZT6PwC5QrA
+4. How to Program INFINITI Key Fob (EASY at Home) - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=hZiHeBnEFlA
+5. How to Program Nissan Altima Key Fob (EASY) - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=HV9MBT50sQ4
+6. Infinity QX60 2022 - New Prox Key with SmartPro and ADC 2017 (steps and failed), accessed January 7, 2026, https://www.youtube.com/watch?v=GJVz01hkbeI
+7. Advanced Diagnostics - Nissan Mitsubishi Bypass Cable ADC2017 for SMAR - Keyless City, accessed January 7, 2026, https://keyless-city.com/products/advanced-diagnostics-nissan-mitsubishi-bypass-cable-adc2017-for-smart-pro-programmer
+8. How to Program the Nissan Intelligent Key | Program Nissan Key Fob | Greenway Nissan of Brunswick, accessed January 7, 2026, https://www.greenwaynissanbrunswick.com/program-nissan-intelligent-key-fob/
+9. Update Info - Autel, accessed January 7, 2026, https://www.autel.com/updateInfo.jhtml
+10. Calibration Research Tips: Nissan/INFINITI Module Programming, accessed January 7, 2026, https://rts.i-car.com/crn-1838.html
+11. 2021 infiniti intouch owner's manual, accessed January 7, 2026, https://www.infinitiusa.com/content/dam/Infiniti/US/manuals_guides/shared/2021/2021-infiniti-InTouch-owner-manual.pdf
+12. WARNING HOOD IS OPEN WHEN HOOD IS CLOSED ON CAR. EASY FIX - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=5DL964iH1gk
+13. INFINITI QX60 vs. Nissan Pathfinder Comparison - TrueCar, accessed January 7, 2026, https://www.truecar.com/compare/infiniti-qx60-vs-nissan-pathfinder/
+14. INFINITI Q50 vs. Nissan Altima Comparison - TrueCar, accessed January 7, 2026, https://www.truecar.com/compare/infiniti-q50-vs-nissan-altima/
+15. 2020 Infiniti QX50 Proximity key programming using Autel IM508 and Autel universal smart key. - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=bUKBB-p1Vrw
+16. How to Program A Key Fob For a Nissan/Infiniti EASY! no tools required! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=hiCYteqy8P0
+17. Nissan Infiniti Smart Keys-How to change Dead Battery Key Fob & Emergency Start, accessed January 7, 2026, https://www.youtube.com/watch?v=z0X9qpt-HUg
+18. 2021 Infiniti QX80 proximity key programming via Smart Pro - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=qrI0u65rWQE
+19. Nissan 16+32 ByPass Cable - AESwave.com, accessed January 7, 2026, https://www.aeswave.com/nissan-16-32-bypass-cable-p10056.html
+20. Autel - Nissan 16+32 OBD Gateway Adapter For B118 Chasis - Keyless City, accessed January 7, 2026, https://keyless-city.com/products/autel-nissan-16-32-obd-gateway-adapter-for-b118-chasis
+21. Advanced Diagnostics ADC2017 Nissan Bypass Cable - Key Innovations, accessed January 7, 2026, https://keyinnovations.com/advanced-diagnotstics-adc2017-nissan-bypass-cable/
+22. Nissan Universal 16+32G Bypass Cable with CGW Adapter (XTOOL) - Keyless City, accessed January 7, 2026, https://keyless-city.com/products/nissan-universal-16-32g-bypass-cable-with-cgw-adapter
+23. Autel - Nissan 16+32 OBD Gateway Adapter for B118 Chasis for Sale | UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/autel-nissan-16-32-obd-gateway-adapter-for-b118-chasis
+24. Advanced Diagnostics - Nissan Mitsubishi Bypass Cable ADC2017 for SMART Pro Programmer for Sale | UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-nissan-mitsubishi-bypass-cable-adc2017-for-smart-pro-programmer
+25. Nissan Pathfinder 2022 -Program Amazon Key with ADC2017. And SmartPro - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=uTts4W1eSsw
+26. Nissan Keyless Remote Replacement Nissan Remote Buttons Nissan Armada & Infiniti QX80 Key Fob Replacement Nissan Key Fob Replacement - Amalthea Cellars, accessed January 7, 2026, https://amaltheacellars.com/Nissan-Remote-Buttons-Nissan-Armada-Infiniti-QX80-Key-Fob-1168518
+27. Infiniti G35 and G37 BCM Repair - YouTube, accessed January 7, 2026, https://www.youtube.com/shorts/pypa3PKB_38
+28. Infiniti G35 how to program a used replacement BCM using Launch X431 IMMO Plus, accessed January 7, 2026, https://www.youtube.com/shorts/ow4Epk36fec
+29. BCM swap and reprogram : r/q50 - Reddit, accessed January 7, 2026, https://www.reddit.com/r/q50/comments/1khg5y5/bcm_swap_and_reprogram/
+30. INFINITI Q50 Intelligent Key Technology, accessed January 7, 2026, https://www.infinitiusa.com/infiniti-news/technology/q50-intelligent-key.html
+31. How to Remote Start INFINITI Q50 & Keyfob Overview - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=gtvAB8tDFnw
+32. 2024 Autel CAN FD Adapter For MY2020 GM Vehicles, accessed January 7, 2026, https://gskeyae.com/product/autel-can-fd-adapter/
+33. Autel CANFD-ADAPT Protocol Adaptor for IM508 / IM608 - Key Innovations, accessed January 7, 2026, https://keyinnovations.com/products/autel-canfd-adapt-protocol-adaptor-for-im508-im608
+34. Xhorse Can-FD Adapter for VVDI Key Tool Plus XDKP34GL ABK-2160 - ABKEYS, accessed January 7, 2026, https://abkeys.com/products/xhorse-can-fd-adapter-for-vvdi-key-tool-plus-xdkp34gl-2160
+35. 2024 Lonsdor K518 Pro Full Version Key Programmer | 2 Years of Free Update, accessed January 7, 2026, https://yourcarkeyguys.com/products/2024-lonsdor-k518-pro-full-version-key-programmer-2-years-of-free-update
+36. INFINITI InTouch Support & FAQs, accessed January 7, 2026, https://www.infiniti.ca/intouch/infiniti-intouch/support-faqs.html
+37. Nissan OEM Hood Alarm Sensor Switch - Nissan 300ZX 90-96 Z32 - Specialty-Z, accessed January 7, 2026, https://www.specialtyz.com/products/hood-switch
+38. How to Fix a 'Hood Open' Warning Sensor - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=jU6zONR1j3s
+39. INFINITI Q60 Luxury Coupe, accessed January 7, 2026, https://www.infinitiusa.com/vehicles/discontinued-vehicles/q60.html
+40. 2018 INFINITI Q60 Press Kit, accessed January 7, 2026, https://usa.infinitinews.com/en-US/releases/us-2018-infiniti-q60-press-kit

@@ -1,0 +1,212 @@
+﻿Forensic Analysis of the 2021 Ford Mustang Mach-E: A Comprehensive Technical Monograph for Automotive Security Professionals
+1. Introduction: The Paradigm Shift in Automotive Security Architecture
+The release of the 2021 Ford Mustang Mach-E marked a definitive schism in the lineage of Ford Motor Company’s vehicle security architectures. While the vehicle bears the Mustang nomenclature, historically associated with internal combustion platforms, its underpinnings represent a radical departure from the legacy C2 architecture that has defined Ford’s compact and mid-size fleet for the past decade. For the automotive locksmith, this transition is not merely a matter of new part numbers or updated aesthetics; it signals the deployment of the Global Electrified 1 (GE1) platform and the Ford Next-Generation Electrical Architecture (FNGEA). This new framework fundamentally alters the protocols for immobilizer programming, diagnostic communication, and emergency access, necessitating a complete re-evaluation of standard operating procedures.
+The GE1 platform introduces a complex interplay between high-voltage electric vehicle (EV) systems and traditional low-voltage security modules. The locksmith is no longer interacting solely with a passive Body Control Module (BCM) and a mechanical ignition cylinder. Instead, the technician must navigate a sophisticated digital ecosystem that includes a strictly enforced Controller Area Network Flexible Data-Rate (CAN FD) protocol, a cloud-dependent "Phone As A Key" (PAAK) infrastructure, and a fragile 12-volt power management system that relies entirely on a high-voltage traction battery for sustenance. The implications of these changes are profound: the margin for error has narrowed significantly. A failure to understand the voltage requirements or the data communication standards can result in a "bricked" vehicle, where the modules enter a non-responsive state that may require dealer-level intervention to recover.
+This monograph serves as an exhaustive forensic analysis of the 2021 Ford Mustang Mach-E’s security systems. It is designed to provide automotive security professionals with the granular technical data required to service this vehicle safely and effectively. The report addresses eight critical domains of inquiry: electrical architecture, transponder part data, mechanical specifications, EV-specific access procedures, security barriers, programming protocols, troubleshooting methodologies, and cross-platform compatibility. By synthesizing data from technical service bulletins, field reports, and component specifications, this document aims to establish a definitive protocol for locksmithing in the age of electrification.
+
+
+  
+
+
+
+2. Electrical Architecture and the CAN FD Imperative
+The primary barrier to entry for locksmiths attempting to interface with the 2021 Mach-E is the vehicle’s communication network. Unlike its predecessors, which utilized High-Speed CAN (HS-CAN) operating at a standard 500 kbps with an 8-byte payload, the Mach-E’s immobilizer and body control functions communicate via the CAN FD protocol. This shift is driven by the massive data throughput required by modern driver-assistance systems and the necessity for secure, encrypted communication between the key fob, the Remote Function Actuator (RFA), and the BCM.
+2.1 The Physics of CAN FD and Locksmith Tool Incompatibility
+The Controller Area Network Flexible Data-Rate (CAN FD) is an extension of the original ISO 11898-1 CAN standard. Its defining characteristic is the ability to switch to a higher data rate after the arbitration phase of the message frame. While the arbitration phase—where node priority is determined—remains at the standard speed (typically 500 kbps), the data phase can accelerate up to 5 Mbps.1 Furthermore, CAN FD expands the maximum data payload from 8 bytes to 64 bytes.1
+For the automotive locksmith, this presents a critical hardware compatibility issue. Most legacy key programming tools, including older iterations of the MVP Pro or standard OBDII dongles, utilize CAN transceivers designed solely for the ISO 11898-2 standard. These transceivers are physically incapable of interpreting the faster data rates or the larger frame sizes of CAN FD. When such a tool is connected to the Mach-E’s OBDII port, the tool’s transceiver interprets the high-speed data phase as an error frame or "noise," causing it to broadcast an error flag. This not only fails to establish communication but can actively disrupt the vehicle’s bus, leading to a cascade of communication faults across modules.2
+The Gateway Module (GWM) in the Mach-E acts as the central router and firewall for these communications. It isolates the external diagnostic port (DLC) from the internal vehicle networks. To gain security access to the BCM or RFA for key programming, the external tool must be able to handshake with the GWM using the CAN FD protocol. Without this capability, the GWM simply refuses to pass diagnostic requests to the immobilizer system, resulting in generic "Communication Failed" or "Unable to Connect" errors on the locksmith’s device.2
+2.2 Hardware Interface Requirements and Selection
+To successfully program keys to the 2021 Mach-E, the locksmith must utilize hardware that explicitly supports the CAN FD physical layer. This can be achieved either through native support within the programming tablet or via an external adapter that acts as a bridge.
+Autel Ecosystem: Users of the Autel IM508 and IM608 (standard models) must utilize the Autel CAN FD Adapter.2 This adapter connects between the main diagnostic cable and the Vehicle Communication Interface (VCI or J2534 box). It contains the necessary high-speed transceivers to buffer and translate the CAN FD messages into a format the older VCI can process. It is important to note that the newer Autel MaxiFlash VCI V200 and the tablets associated with the IM608 Pro II often have this capability built-in, but verification of the specific VCI model is crucial before attempting the job.2 Failure to use the adapter on older hardware is the leading cause of programming failure on this platform.3
+Advanced Diagnostics Smart Pro: The Smart Pro platform is generally capable of handling CAN FD protocols, provided the software subscription is active and the appropriate cables (such as the ADC2011 or ADC2400 depending on region and specific update) are utilized.6 The Smart Pro’s software modules for Ford are frequently updated to manage the handshake requirements of the FNGEA system without requiring a separate, bulky adapter in some configurations, though the specific OBD cable used must be high-speed compliant.
+Ford Diagnostic & Repair System (FDRS): The OEM solution involves the use of the FDRS software paired with a VCM3 interface. The VCM3 is natively designed for CAN FD and is the most reliable method for accessing the vehicle’s deep architectural functions, including module updates that may be required to fix RFA bugs before key programming can even succeed.5 While less common in the independent locksmith market due to cost, it remains the benchmark for compatibility.
+
+
+  
+
+
+
+3. Transponder and Remote Part Data Forensics
+The security token for the 2021 Mach-E is not a simple transponder key but a sophisticated cryptographic device known as the Intelligent Access Key (IAK). The selection of the correct part is critical, as the Mach-E utilizes a specific subset of Ford’s "PEPS" (Passive Entry Passive Start) technology that is not backward compatible with older platforms.
+3.1 Frequency Modulation and FCC ID Specifications
+The OEM key fob operates on a dual-frequency system to support its proximity functions. The primary user commands (Lock, Unlock, Panic, Hatch) are transmitted via Ultra High Frequency (UHF) at 315 MHz.8 This 315 MHz frequency is standard for North American Ford vehicles, distinguishing it from the 433 MHz or 868 MHz systems used in European or Asian markets. However, the exact modulation scheme is specific to the Mach-E’s RFA module.
+The FCC ID for the correct key fob is M3N-A2C931423 or the extended version M3N-A2C93142300.8 The Industry Canada (IC) designation is 7812A-A2C931423.9 Locksmiths must verify this FCC ID explicitly; keys with similar shapes from other Ford models (like the Explorer or Expedition) may physically look identical but operate on different firmware versions or sub-frequencies that the Mach-E’s RFA will not recognize during the programming sequence.
+3.2 Transponder Chipset: NXP HITAG-PRO ID49
+Internally, the key fob utilizes the NXP HITAG-PRO transponder architecture, specifically the ID49 variant.8 This chip employs 128-bit AES encryption, making it significantly more secure than the older 40-bit or 80-bit systems found in previous generations. The "Proximity" nature of the chip means it has an active Low Frequency (LF) receiver coil. When the user approaches the vehicle or presses the start button, the vehicle’s LF antennas (located in the door handles and center console) emit a 125 kHz wake-up signal. The key receives this, calculates a cryptographic response using its stored secret key, and transmits the response back via the 315 MHz UHF link.
+Because of the rolling encryption keys and the 128-bit depth, "cloning" this key is technically impossible with current aftermarket tools. The key cannot simply be copied; it must be introduced to the vehicle’s RFA module as a new, unique trusted device via an OBDII programming session.
+3.3 OEM Part Numbers and Sourcing Strategy
+For professional locksmiths, sourcing the correct OEM part is vital to ensure range and reliability. Aftermarket keys often suffer from poor LF sensitivity, which can lead to "No Key Detected" errors even if the key is programmed, particularly if the key is in a pocket or bag (a phenomenon known as "attenuation").
+The primary OEM part number for the 4-button smart key (Lock, Unlock, Hatch, Panic) is 164-R8310.8 An alternate part number, 164-R8319, is also referenced in some databases and may represent a supersession or a specific supplier variant.8 The Strattec part number, often used by distributors, is 5942083.8 The key is powered by a CR2450 coin cell battery, a high-capacity choice necessary to support the continuous LF polling required for the PAAK and proximity features.8
+The emergency key blade is a separate component that slides into the fob body. It is a High Security milling, designated as part number 164-R8311 or Strattec 5942055.13 It is critical to note that while the blade profile is standard, the head of the emergency key often contains a specific geometric feature used to pry open the driver’s door handle cap, a detail discussed further in the Mechanical Specifications section.
+4. Mechanical Specifications and Access Systems
+Despite the Mach-E’s futuristic electric powertrain, it retains a mechanical fail-safe for vehicle entry. However, Ford engineers have gone to great lengths to conceal this mechanical system for aerodynamic efficiency, creating a unique challenge for locksmiths attempting non-destructive entry.
+4.1 The HU101 V3 Keyway and Lishi Tool Selection
+The lock cylinder on the 2021 Mach-E utilizes the HU101 keyway profile, a 2-track internal laser cut system that has been a staple of the Ford lineup since the mid-2000s.13 However, the specific iteration used in the Mach-E is often referred to as the "Gen 5" or HU101 V3 system. This distinction is crucial for Lishi tool selection.
+The V3 lock cylinders feature slightly different internal warding and tighter tolerances compared to the older V1/V2 locks found on the Ford Focus or early Fusions. While an older Lishi HU101 tool might enter the keyway, it runs a high risk of becoming trapped or failing to read the wafer depths accurately due to the revised spacing. Therefore, the Lishi HU101 V3 (2-in-1 Pick & Decoder) is the mandatory tool for professional servicing of this vehicle.13 The lock contains 10 wafer positions (1 through 10), with depths ranging from 1 to 5.
+4.2 The Concealed Driver’s Door Cylinder
+The driver’s door is the only entry point with a mechanical lock, but it is completely hidden. The Mach-E lacks traditional door handles; instead, it uses electronic buttons on the B-pillar and a small "winglet" pull. The mechanical lock cylinder is located physically inside the door skin, accessible only by removing a plastic beauty cap on the pull handle assembly.
+The emergency key blade (Part # 5942055) is designed with a specific "screwdriver tip" or milled edge.13 This tip is inserted into a small slot on the underside of the handle cap to leverage it off. Using a generic aftermarket HU101 blade without this specific tip makes removing the cap extremely difficult and increases the risk of scratching the vehicle’s paint or damaging the plastic clips. Once the cap is removed, the lock cylinder is exposed, and the Lishi tool can be inserted to pick the lock (Clockwise to unlock) and decode the bitting for cutting a new emergency blade.
+5. EV-Specific Procedures: Power Management and Safety
+The most significant operational difference between the Mach-E and an ICE vehicle is the power management architecture. The locksmith is working on a vehicle where the 12V system is a subsystem of a much larger, more dangerous High Voltage (HV) traction system. Understanding the relationship between these two systems is critical for safety and successful programming.
+5.1 The High Voltage vs. Low Voltage Interplay
+The Mach-E uses a massive Lithium-Ion traction battery (68kWh or 88kWh) to drive the motors. However, all the security modules—the BCM, RFA, Gateway, and Door Latches—run on a standard 12-volt AGM lead-acid battery located in the front trunk (frunk). There is no alternator; instead, a DC-DC converter steps down the high voltage to charge the 12V battery when the vehicle is "ON" or charging.
+A common failure mode in the 2021 Mach-E is the "12V Battery Drain" or "Deep Sleep" mode.15 This occurs when the vehicle is parked for extended periods or if an OTA update hangs, preventing the DC-DC converter from waking up to top off the 12V battery. When the 12V battery dies, the vehicle is effectively "bricked." The electronic door latches will not fire, the RFA cannot detect the key, and the vehicle cannot accept a jump start in the traditional sense because the hood (frunk) latch is also electronic.17
+5.2 Emergency Frunk Access and Jump Start Protocol
+If a locksmith arrives at a locked Mach-E with a dead 12V battery, they cannot pick the door lock to open the hood because the hood release is electronic. They must perform the Bumper Port Jump procedure to gain access to the battery 17:
+1. Locate the Access Cover: On the front bumper, usually near the tow hook cover, there is a small square plastic cutout.
+2. Expose the Leads: Pop this cover to reveal two wires (one red/positive, one black/negative). These are not connected to the battery directly; they are connected solely to the frunk latch solenoid.
+3. Energize the Latch: Connect a 12V booster pack to these leads. This will energize the circuit and pop the frunk latch. It will not charge the battery or power up the car’s computers.
+4. Access the Main Battery: Once the frunk is open, remove the plastic beauty panels at the rear of the frunk compartment to expose the actual 12V AGM battery.
+5. Revive the System: Connect a high-quality battery charger or maintainer to the actual 12V battery posts. This will wake up the BCM and RFA, allowing the door locks to function and key programming to commence.
+5.3 Voltage Stabilization During Programming
+Critical Warning: The programming process for the Mach-E involves cycling the ignition (Start/Stop button) multiple times. This places a significant load on the 12V battery. Unlike an ICE car where the engine might be running (which is dangerous in a shop), or just off, the Mach-E’s DC-DC converter may not be active during the "Key On, Engine Off" state required for programming.
+If the voltage drops below 11.8 Volts during the data writing phase to the RFA or BCM, the module may abort the write process to protect itself.19 This can corrupt the key table, requiring a module reset or replacement. Therefore, it is mandatory to have a 12V power supply (capable of 20-30 Amps continuous clean power) connected to the 12V battery posts in the frunk throughout the entire programming session.15 Do not rely on the vehicle’s traction battery to keep the 12V system topped up during diagnostics.
+6. Programming Protocols, Security Gateways, and Barriers
+Programming keys to the 2021 Mach-E requires navigating a series of digital checkpoints: the Security Gateway, the Active Alarm, and the PATS logic itself.
+6.1 The Security Gateway (SGW) Bypass
+The 2021 Mach-E is equipped with a Security Gateway Module (SGW). This module acts as a firewall between the OBDII port (DLC) and the internal vehicle CAN networks.20 It blocks unauthorized write commands, meaning a standard scan tool can read codes but cannot clear them or write new key IDs.
+Software Bypass: Modern internet-connected programmers (like the Autel IM608 with a valid subscription or Smart Pro) can often perform a "Cloud Bypass." The tool connects to the manufacturer’s server, which then authenticates with the OEM’s server (e.g., Ford or AutoAuth) to unlock the gateway digitally. This requires a stable Wi-Fi connection at the job site.21
+Hardware Bypass: If the software bypass fails (common in areas with poor cellular data), the locksmith must physically bypass the SGW. This involves locating the Gateway Module—typically found behind the glovebox or near the BCM in the passenger footwell—unplugging the connectors, and inserting a Universal Bypass Cable (such as the AutoAuth cable or specific Ford 12+8 style cables depending on the specific harness configuration).20 This physically bridges the CAN High and CAN Low lines, bypassing the firewall entirely.
+6.2 Managing the Active Alarm in "All Keys Lost" Scenarios
+In an "All Keys Lost" (AKL) scenario, unlocking the door with the Lishi tool will trigger the vehicle’s perimeter alarm. On the GE1 platform, an active alarm puts the BCM into a defensive state where it may reject diagnostic communication after a brief window (typically 10-20 seconds).
+The Procedure:
+1. Preparation: Have the programmer connected and the menu selected before opening the door if possible, or immediately upon entry.
+2. Silence Strategy: Advanced tools like the Smart Pro have developed specific software patches that can "silence" the alarm by gaining initial security access and emulating a valid key signal.23 This stops the horn and allows the BCM to stay awake for the 10-minute security delay.
+3. Wait Time: The system generally imposes a 10-minute coded delay to gain security access. This is a theft deterrent feature. During this time, the vehicle voltage must be stable (hence the power supply).
+4. Parameter Reset: Once access is gained, the tool will command the BCM/RFA to erase all known keys and enter learning mode.
+6.3 The "Two Key" Requirement
+Ford’s PATS logic usually requires a minimum of two keys to be present to successfully close the learning cycle. If a locksmith tries to program only one key, the cluster may display "Key Programmed" but the vehicle may not start, or the remote functions may not activate, and the "Key Learning" flag will remain open.24
+Operational Implication: Locksmiths should always carry at least two keys for a Mach-E job. If the customer only wants to pay for one, the locksmith may need to program a second "shop key" to close the cycle and then perform a specific "Erase and Add" sequence (if the tool allows) or simply sell the second key as a necessary component of the repair. Attempting to force the system to close with one key often results in a "Learning Failed" message.
+7. The Backup Slot and "No Key Detected" Diagnostics
+A frequent issue reported by Mach-E owners is the "No Key Detected" message, even when the key battery is good. This is often due to RF interference or software bugs in the RFA. For the locksmith, knowing the location of the Backup Slot (Immobilizer Reader Coil) is essential for programming and for verifying if a key is truly dead or just unlinked.
+7.1 Precise Location of the Backup Slot
+The backup slot is the interface where the key communicates directly with the vehicle via the LF coil, bypassing the UHF radio link. In the 2021 Mach-E, this slot is concealed.
+Location: It is located in the Center Console Storage Bin, specifically at the very bottom, underneath the armrest.
+Access: The locksmith must lift up the rubber mat that lines the bottom of the bin. Underneath this mat, there is a specific depression or molding in the plastic designed to hold the key fob.27
+Orientation: The key fob must be placed in this depression. While manuals vary, the consensus for best induction is to place the key with the buttons facing UP (or sometimes rearward depending on the specific molding), ensuring the coil in the fob aligns with the coil under the plastic.28
+
+
+  
+
+
+
+7.2 Diagnosing RFA Module Failures
+If a key is programmed successfully (the tool reports "Success") but the vehicle still displays "No Key Detected" when the key is removed from the backup slot, the issue is likely with the Remote Function Actuator (RFA) module.
+Symptoms: The vehicle starts only when the key is in the backup slot. The PAAK feature does not work. The Tire Pressure Monitoring System (TPMS) light is on (TPMS sensors transmit to the RFA).
+Root Cause: Early 2021 Mach-E RFA modules had significant software instability. They would often "crash" or lose the ability to process UHF signals while retaining LF capability.30
+Resolution: This is often a software fix rather than a hardware replacement. The module needs to be updated using FDRS. Locksmiths with J2534 pass-through capability and an FDRS subscription can perform this update, potentially restoring key function without replacing the module. If the module is physically dead, it is located deep behind the dashboard instrument panel, requiring major labor to access.32
+8. Cross-References and Interchangeability
+In the field, inventory availability is often a challenge. Knowing which keys from other vehicles can be substituted is a valuable strategic advantage.
+8.1 F-150 Lightning Compatibility
+The Ford F-150 Lightning (the electric version of the F-150) shares the same GE1/modified T3 electrical architecture components as the Mach-E regarding security. The key fobs are electronically cross-compatible.
+The "Frunk" Upgrade: Many Mach-E owners seek out F-150 Lightning key fobs because the Lightning fob has a dedicated "Frunk" button, whereas early Mach-E fobs only had a hatch button (or no frunk button). Programming a Lightning fob to a Mach-E will typically enable the Frunk release feature natively, as the BCM software supports it even if the original fob didn't have the button.33 The FCC ID is generally compatible (M3N-A2C931423).
+8.2 Bronco and Edge Substitutions
+The FCC ID M3N-A2C931423 is a common platform standard used in the 2021+ Ford Bronco and the 2017+ Ford Edge.36
+Emergency Utility: In an "All Keys Lost" emergency where a specific Mach-E key is not available, a locksmith can program a Ford Bronco or Ford Edge smart key to the Mach-E. The vehicle will start and run, and the lock/unlock buttons will work. However, the button icons will be incorrect (e.g., the "Rear Glass" button on a Bronco key might operate the Hatch or do nothing), and the logo on the back will be different. This is a viable temporary solution to get a customer back on the road.
+9. Conclusion
+The 2021 Ford Mustang Mach-E represents a sophisticated convergence of automotive engineering and IT security. For the locksmith, the vehicle demands a shift from mechanical manipulation to digital network administration. Success requires the correct hardware (CAN FD adapters), a robust power supply strategy to support the 12V system during the high-drain programming phase, and a forensic understanding of the component part numbers. By strictly adhering to the "Two Key" rule, utilizing the correct backup slot procedures, and mitigating the risks of the Security Gateway, the automotive professional can effectively service this platform, turning a complex EV challenge into a manageable and repeatable service procedure.
+10. Appendix: Quick Reference Data Tables
+Table 1: Technical Specifications for Mach-E Smart Key
+
+
+Component
+	Specification
+	Notes
+	Source
+	FCC ID
+	M3N-A2C931423
+	Also M3N-A2C93142300
+	8
+	IC
+	7812A-A2C931423
+	Industry Canada ID
+	9
+	Frequency
+	315 MHz
+	N. America Standard
+	8
+	Chip Type
+	NXP HITAG-PRO (ID49)
+	128-Bit AES
+	8
+	OEM Part #
+	164-R8310
+	Primary 4-Button
+	8
+	Strattec #
+	5942083
+	Aftermarket Ref
+	8
+	Battery
+	CR2450
+	High Capacity
+	8
+	Keyway
+	HU101 V3
+	Requires V3 Lishi
+	13
+	Table 2: Troubleshooting Matrix
+
+
+Symptom
+	Probable Cause
+	Corrective Action
+	Source
+	"Communication Failed"
+	Incompatible Tool
+	Use CAN FD Adapter or VCM3.
+	1
+	"Security Access Failed"
+	Voltage Drop or Active Alarm
+	Connect 12V Maintainer; Ensure Alarm is silenced.
+	15
+	"No Key Detected"
+	RFA Software Bug
+	Perform RFA Module Update via FDRS.
+	30
+	"Learning Failed"
+	Single Key Attempt
+	Must program 2 keys to close cycle.
+	25
+	Dead Vehicle (Locked)
+	12V Battery Dead
+	Jump Frunk Solenoid via Bumper Port.
+	17
+	Works cited
+1. CAN-FD Adapter Xtool AutoProPad – CarandTruckRemotes - Car and Truck Remotes, accessed January 3, 2026, https://www.carandtruckremotes.com/products/can-fd-adapter-xtool
+2. Autel CAN FD Adapter - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+3. Autel CAN FD? : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/zurqs4/autel_can_fd/
+4. OBD2 pinout explained. Major car brands pinouts - FlexiHub, accessed January 3, 2026, https://www.flexihub.com/oobd2-pinout/
+5. HOW TO PROGRAM KEYS FOR NEW FORD VEHICLES USING FDRS DEALER SOFTWARE USING AUTEL V200 & PC - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=bSpVWxDALwA
+6. 2021 Ford Mach-E Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 3, 2026, https://keyless2go.com/blogs/program-instructions/2021-ford-mach-e-keyless-entry-remote-fob-smart-key-programming-instructions
+7. How to Get Started with Smart Pro Key Programming Diagnostics Machine_Advanced ... - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=704Z76xQoYU
+8. 2021 Ford Mustang Mach-E Smart Key 4B Hatch Fob FCC# M3N-A2C931423 - A – Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2021-ford-mustang-mach-e-smart-key-4b-hatch-fob-fcc-m3n-a2c931423-aftermarket
+9. Ford New OEM 2021-2023 FORD MUSTANG MACH-E Smart Key 4B Hatch FCCID: M, accessed January 3, 2026, https://royalkeysupply.com/products/ford-new-oem-2021-2023-ford-mustang-mach-e-smart-key-4b-hatch-fccid-m3n-a2c931423-pn-164-r8319
+10. Oem Ford 2021-2025 Mustang Mach-E Keyless Entry Prox Key Fob 164-R8310 | eBay, accessed January 3, 2026, https://www.ebay.com/itm/116686494344
+11. 2021-2023 Ford Mustang Mach-E / 4-Button Smart Key / PN: 164-R8310 / M3N-A2C931423 (OEM Refurb) - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2021-2023-ford-mustang-mach-e-4-button-smart-key-pn-164-r8310-m3n-a2c931423-oem-refurb
+12. 2021 Ford Mustang Mach-E Mach E Smart Key Fob PN: 164-R8310, 5942083, accessed January 3, 2026, https://remotesandkeys.com/products/2021-ford-mustang-mach-e-smart-key-remote-9021
+13. 2021-2023 Ford Mach E / Emergency Key / Gen 5 / w/Screw Driver Tip / 5942055 (Strattec), accessed January 3, 2026, https://www.uhs-hardware.com/products/2021-2023-ford-mach-e-emergency-key-gen-5-w-screw-driver-tip-5942055-strattec
+14. 2021 - 2023 Ford Mustang Mach-E Emergency Key - 5942055 - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2021-2023-ford-emergency-key-5942055
+15. Charging Your Vehicle – Information Messages, accessed January 3, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=7430&languageCode=en&countryCode=USA&moidRef=G2177543&Uid=G2177700&ProcUid=G2177713&userMarket=CAN&div=f&vFilteringEnabled=False&buildtype=web
+16. Troubleshooting - 12V Battery – Information Messages, accessed January 3, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=9193&languageCode=en&countryCode=USA&moidRef=G2186922&Uid=G2187161&ProcUid=G2187164&userMarket=USA&div=f&vFilteringEnabled=False&buildtype=web
+17. How to gain access with dead 12v : r/MachE - Reddit, accessed January 3, 2026, https://www.reddit.com/r/MachE/comments/1huneks/how_to_gain_access_with_dead_12v/
+18. Access When 12 V Is Dead - Ford Mustang Mach-E- Just In Time - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=bwsiPi0pGaA
+19. 12 Volt Battery Warning : r/MachE - Reddit, accessed January 3, 2026, https://www.reddit.com/r/MachE/comments/1lqvd0d/12_volt_battery_warning/
+20. Z Automotive SGW Module SGW Bypass module (2018-2021 All FCA vehicles) - Z_SGW - Lethal Performance, accessed January 3, 2026, https://www.lethalperformance.com/z-automotive-sgw-module-sgw-bypass-module-2018-2021-all-fca-vehicles-z-sgw.html
+21. FORD Mustang Mach E 2021 remote programming : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/109mwn0/ford_mustang_mach_e_2021_remote_programming/
+22. Cables & Adapters – Automotive Locksmith Accessories - Page 1 - Southern Lock, accessed January 3, 2026, https://www.southernlock.com/catsearch/95/cables-and-adapters/1?facet=%5B%5B%22For%20Programmer%22%2C%22For%20Programmer%22%2C%22Smart%20Pro%22%5D%2C%5B%22Make%22%2C%22Make%22%2C%22FORD%22%5D%2C%5B%22Product%20Type%22%2C%22Product%20Type%22%2C%22Bypass%20%26%20Gateway%20Cables%22%5D%5D
+23. Smart Pro Game changing FORD active alarm software! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=0Lcrf_yI0t8
+24. 2011 - 2014 FORD Econoline E-150 E-250 E-350 REMOTE START SYSTEM | eBay, accessed January 3, 2026, https://www.ebay.com/itm/334445590158
+25. PATS Key Type Control Function Type - Motorcraft Service, accessed January 3, 2026, https://www.motorcraftservice.com/pdf/pats_job_aid.pdf
+26. Programing a new key fob is so easy! : r/MachE - Reddit, accessed January 3, 2026, https://www.reddit.com/r/MachE/comments/1dw60l8/programing_a_new_key_fob_is_so_easy/
+27. How do I find the intelligent key backup slot? - Ford, accessed January 3, 2026, https://www.ford.com/support/how-tos/keys-and-locks/replace-and-reprogram-keys/how-do-i-find-the-intelligent-key-backup-slot/
+28. Starting and Powering Off - Accessing the Passive Key Backup Position, accessed January 3, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=7430&languageCode=en&countryCode=USA&moidRef=G2181834&Uid=G2190033&ProcUid=G2190034&userMarket=CAN&div=f&vFilteringEnabled=False&buildtype=web
+29. How to find your Ford Mustang Backup Key Slot Location - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=9yFbOoFmXZY
+30. Anyone ever have their gateway module replaced? : r/MachE - Reddit, accessed January 3, 2026, https://www.reddit.com/r/MachE/comments/1e5vr1o/anyone_ever_have_their_gateway_module_replaced/
+31. The Complete DIY Guide to Updating Your Mach-E with FDRS | Page 263 | MachEforum, accessed January 3, 2026, https://www.macheforum.com/site/threads/the-complete-diy-guide-to-updating-your-mach-e-with-fdrs.10217/page-263
+32. Ford Mustang Mach-E Instrument Panel (IP) Assembly and Analysis - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=hjhKPmTV7Tk
+33. Ford Lightning Key Fob to open My Mustang Mach-E Frunk ! How to program the FOB in Seconds! - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=pnAkmO48TFY
+34. This key fob has been worth every penny. Ford needs to put a frunk release on the actual ones that come with the Mach-E. - Reddit, accessed January 3, 2026, https://www.reddit.com/r/MachE/comments/1ee9fn5/this_key_fob_has_been_worth_every_penny_ford/
+35. I got an F-150 Lightning Key Fob for the Frunk : r/MachE - Reddit, accessed January 3, 2026, https://www.reddit.com/r/MachE/comments/x3jz6d/i_got_an_f150_lightning_key_fob_for_the_frunk/
+36. 2021-2024 Ford Bronco 3-Button Smart Key Fob Remote (M3N-A2C931423, 164-R8295), accessed January 3, 2026, https://northcoastkeyless.com/product/2021-2023-ford-bronco-3-button-smart-key-fob-remote-fcc-m3n-a2c931423-pn-164-r8295/
+37. Ford F-Series Edge Smart Remote Key 164-R8163 M3N-A2C93142300 - Key4, accessed January 3, 2026, https://www.key4.com/ford-f-series-edge-smart-proximity-keyless-remote-key-164r8163

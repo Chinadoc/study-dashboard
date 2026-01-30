@@ -1,0 +1,194 @@
+﻿The Cryptographic Void: A Forensic Analysis of Lexus Immobilizer Architectures and Aftermarket Access Protocols (2015–2024)
+1. Introduction: The Architecture of Exclusion
+The automotive security landscape is defined by a perpetual, asymmetric conflict between Original Equipment Manufacturers (OEMs) securing their assets and the aftermarket service industry striving to maintain legitimate access for repair and recovery. Within this domain, the lineage of Lexus vehicles from 2015 to 2024 represents a distinct and challenging case study. The user query identifies a "procedure gap"—a perceived absence of specific Lexus protocols despite the existence of 138 documented procedures for the parent company, Toyota. This report posits that this gap is not an administrative oversight but a structural artifact of platform engineering, where Lexus vehicles serve as the vanguard for high-security implementations that eventually trickle down to the Toyota mass market.
+The "Zero Procedures" phenomenon arises from a divergence in platform architecture that began accelerating around 2019 and culminated with the universal adoption of the TNGA-K (Toyota New Global Architecture) platform in the 2022 Lexus NX and 2023 Lexus RX. While a 2020 Toyota Camry might still accept a standard OBD-II key addition command, its contemporary Lexus counterpart—often running on identical mechanical running gear—deploys a radically different "Certification ECU" (Smart Box) with a locked gateway and 128-bit AES encryption. This report provides an exhaustive, forensic analysis of this ecosystem. It moves beyond surface-level "key programming" to explore the underlying handshake protocols, the electromechanical interference caused by luxury subsystems like Mark Levinson audio, and the physical interventions required to bypass modern "Security Gateway" modules. By synthesizing technical data from aftermarket development (Autel, Advanced Diagnostics, Lonsdor) with OEM architecture, we establish a unified theory of Lexus access control.
+2. The Hardware of Authorization: Evolution of the Transponder
+To bridge the gap between "Toyota procedures" and Lexus realities, one must first deconstruct the cryptographic substrate of the keys themselves. The confusion often stems from the industry's reliance on generic terms like "Smart Key" or "Proximity Fob," which mask significant generation-over-generation shifts in chip architecture. A 2015 Lexus RX350 and a 2023 Lexus RX350 may both have push-button starts, but electronically, they share almost no DNA.
+
+
+  
+
+
+
+2.1 The Legacy Era: G-Chip (4D-67/72/G)
+Period: Pre-2015 to ~2016 (Model Dependent)
+Key Characteristic: 80-bit Encryption (Texas Instruments)
+FCC IDs: HYQ14ACX, HYQ14AAB
+In the early years of the target window, specifically regarding models like the 2010–2015 Lexus RX350 and the 2013–2016 Lexus ES350, the security architecture relied on what the industry colloquially terms the "G-Chip".1 This system utilizes a Texas Instruments proprietary encryption often identifiable by the stamp "G" on the remote board or blade, although in smart keys, the distinction is internal to the transponder logic. The "G" designation refers to the transponder's Page 1 data value, which acts as a family identifier for the immobilizer system.
+The "Procedure Gap" is minimal here because these systems operate on the legacy "Master Key" principle. The Certification ECU (Smart Key Module) maintains a registry of valid Key IDs. Crucially, this generation allowed for an OBD-based Immobilizer Reset (often called a "Re-seed" or "Pass-Code" reset) without requiring live server communication or invasive hardware bypasses. When a technician connects a tool like Techstream or an aftermarket programmer, the tool sends a specific command to the ECU to wipe all registered keys (except the one being programmed, if applicable) and open the "Auto-Learn" gate. This procedure is functionally identical to the Toyota Camry (2012–2017) or Toyota Avalon (2013–2018) protocols.2 Therefore, a technician facing a "Zero Procedure" listing for a 2015 Lexus RX350 can safely utilize the procedure for a 2015 Toyota Highlander, as the underlying ECU logic (and often the part number series 89904-xxxxx) is shared.
+2.2 The High-Security Transition: H-Chip (8A)
+Period: 2016 – 2021 (Model Dependent)
+Key Characteristic: 128-bit Encryption (AES), Page 1: 88/A8/A9
+FCC IDs: HYQ14FBA, HYQ14FBB, HYQ14FBC
+The divergence begins in earnest with the introduction of the H-Chip or 8A system. This platform rolled out with the 2016 Lexus RX350, 2015 Lexus NX200t, and the 2014 Lexus IS250/350.1 The shift from G-Chip to 8A represents a move to 128-bit AES (Advanced Encryption Standard).
+This architectural change had profound implications for "All Keys Lost" (AKL) scenarios. Unlike the G-Chip ECUs, which readily accepted reset commands, the H-Chip Certification ECUs introduced a "Seed-Key" challenge that required a response code calculated by the manufacturer's server (TIS - Technical Information System).4 This effectively closed the door on simple offline programming tools initially.
+However, the aftermarket closed this gap through "Simulation." Tools like the Autel IM608 (via the APB112 Smart Key Simulator) and Lonsdor K518 (via the LKE Emulator) developed the capability to sniff the data communication between the Start/Stop button and the ECU.5 By collecting data from the ignition coil (the Low Frequency 125kHz wake-up signal), the tool could calculate the encryption key and create a "simulated" Master Key. This simulated key tricks the ECU into believing a valid key is present, allowing the technician to execute the "Add Key" protocol rather than the restricted "Reset" protocol.6 This nuance is critical: the "Gap" exists because official documentation refers to "Resetting" the ECU (which requires TIS), while the working field solution involves "Simulating" a key (which requires no reset).
+2.3 The Modern Fortress: 8A-BA / B9 (DST-AES)
+Period: 2022+ (TNGA-K and TNGA-F Platforms)
+Key Characteristic: TMLF19 T-Type, Board ID: 'BA', 'B9'
+FCC IDs: HYQ14FLB, HYQ14FBZ, HYQ14FLC
+The introduction of the 2022 Lexus NX (the first to adopt the full TNGA-K electronics suite) and subsequently the 2023 Lexus RX and 2024 Lexus GX550 marked the arrival of the 8A-BA (or B9) security platform.7 This is the current frontier where the "Zero Procedures" complaint is most valid and most debilitating.
+These vehicles utilize a Smart Key ECU that is integrated into a highly secure gateway architecture. The rolling code algorithm has been updated to a version that resists the "sniffing" techniques used in the previous generation. Attempting to use an APB112 emulator on a 2023 RX350 will result in a "Communication Failed" or "The current smart main ECU software version is not supported" message.6
+The industry solution has shifted from software emulation to hardware bypass. To program these keys in an AKL situation, the technician must physically disconnect the Smart Key ECU from the vehicle's bus and insert a 30-pin Gateway Bypass Cable (such as the ADC2021 for Smart Pro or the XD8ABAGL for Xhorse).10 This cable isolates the ECU and forces a connection with the programming tool, bypassing the vehicle's central gateway and the TIS verification protocols. This requirement for physical dismantling—often involving the removal of the glovebox and lower dashboard—is a radical departure from the OBD-centric procedures of the past decade.
+3. Platform Specifics: The TNGA-K Paradigm Shift
+The transition to the Toyota New Global Architecture (TNGA) is not merely structural; it is the root cause of the compatibility issues facing technicians today. The TNGA-K platform (mid-size crossovers/sedans) and TNGA-F (body-on-frame) introduce distinct variations in component location and security logic.
+3.1 2022+ Lexus NX & 2023+ Lexus RX (TNGA-K)
+The Lexus NX was the "patient zero" for the 8A-BA system in the US market, launching with the 2022 model year.12 The Lexus RX followed suit in the 2023 model year.13
+* The Programming Wall: On these models, the OBDII port is firewall-protected against unauthorized key programming commands. The "Add Key" function might work if a valid key is present, but "All Keys Lost" is strictly blocked.
+* The 30-Pin Connector: The defining feature of this generation is the 30-pin connector on the Certification ECU. Previous generations typically utilized 24-pin or 28-pin configurations. The ADC2021 and Lonsdor ADP cables are specifically pin-mapped for this 30-pin interface.11
+* Digital Key Integration: High-trim models (Luxury, F-Sport) often come equipped with the "Digital Key" feature (Phone-as-a-Key). This system adds a BLE (Bluetooth Low Energy) module that interacts with the Certification ECU. Crucially, resetting the immobilizer system to program new fobs often wipes the Digital Key pairings, forcing the customer to re-enroll their device through the Lexus Enform app.15 Technicians must advise clients of this unavoidable side effect.
+3.2 2024+ Lexus GX550 & LX600 (TNGA-F)
+The body-on-frame giants have also migrated. The 2022+ Lexus LX600 and the 2024 Lexus GX550 share the TNGA-F electronic architecture with the 2022+ Toyota Tundra.7
+* GX460 vs. GX550 Gap: The GX460 (2010–2023) remained on the older legacy architecture until the very end of its production run. A 2023 GX460 is still programmed via standard OBD methods (often using the "Toyota 4Runner" or "Lexus GX" menu for older chips). However, the 2024 GX550 requires the full 30-pin bypass cable method.17 The generational gap here is abrupt; there is no transition period.
+* Card Keys: The LX600 and GX550 frequently utilize the "Smart Card" key (Credit Card style). While technically an 8A-BA transponder, the antenna placement for programming is different. The card must often be placed in a specific dead spot (often the front cup holder or a marked area on the center console) rather than held against the Start Button, due to the weaker signal transmission of the card form factor.18
+3.3 Lexus IS Series (The Legacy Outlier)
+The Lexus IS (2014–2024) remains an outlier. Despite a heavy refresh for 2021 (the "IS 500" era), the underlying chassis and electronic architecture did not migrate to TNGA.
+* Architecture: It retains the previous generation's electrical backbone.
+* Implication: A 2023 Lexus IS350 often does not require the 30-pin bypass cable and can still be programmed using the "sniffing/simulation" method (Autel APB112 or Lonsdor LKE) via the OBD port.19 This creates confusion for technicians who assume "2023 = Bypass Cable," leading to unnecessary dashboard disassembly.
+4. Diagnostic Tools & Methodologies: A Comparative Matrix
+To address the "Zero Procedures" query, we must map the capability of the primary aftermarket tools against the specific Lexus model years. The "procedure" is defined by the tool's software logic.
+
+
+  
+
+
+
+4.1 Autel IM608 Pro II: The "All-in-One" Workhorse
+The Autel IM608 is a staple in the industry, but its coverage for the newest Lexus models has required significant hardware add-ons.
+* Legacy Capability (2015–2021): The tool is highly effective for H-Chip (8A) systems. The procedure involves the APB112 Smart Key Simulator.
+   * Step 1: Select "Lexus" -> "Manual Selection" -> [Model] -> "Smart Key".
+   * Step 2: Select "Control Unit" -> "Keyless System (CAN)".
+   * Step 3: "Back up IMMO Data". This reads the EEPROM data via OBD. Note: This requires a stable internet connection for server calculation.
+   * Step 4: "Generate Simulator Key". The APB112 becomes a temporary master key.
+   * Step 5: "Add Smart Key". Use the APB112 to turn on the ignition, then register the new OEM key.5
+* Modern Capability (2022+ 8A-BA): The native "OBD" method often fails on the TNGA platforms. Autel has released updates enabling the G-Box3 to be used for "faster calculation," but for the B9 chips specifically, the software increasingly demands a direct connection. Recent updates have enabled a specific menu for "Toyota 8A-BA" which requires the Autel 8A-BA 30-Pin Cable (functionally similar to the ADC2021) to be plugged into the Smart Box.14 Technicians relying solely on the OBD port for a 2024 Lexus TX or RX will face a "Function Not Supported" error.
+4.2 Smart Pro (ADS2306): The Hardware Bypass Specialist
+Advanced Diagnostics (Smart Pro) has adopted a hardware-first strategy for the high-security Lexus models.
+* The ADC2021 Cable Protocol: For all 2022+ models (NX, RX, LX, etc.), Smart Pro mandates the use of the ADC2021 Gateway Bypass Cable.
+   * Mechanism: The cable physically intercepts the communication between the Certification ECU and the vehicle's Gateway. It isolates the ECU, allowing the Smart Pro to inject programming commands directly without TIS authentication or Seed-Code calculation.10
+   * Procedure:
+      1. Disconnect vehicle battery (Safety Precaution).
+      2. Access Certification ECU (See Section 7 for locations).
+      3. Unplug the 30-pin connector.
+      4. Connect ADC2021 in-line.
+      5. Connect Smart Pro to the OBD port (for power) and the ADC2021 (for data).
+      6. Select "Toyota - 2022+ (8A-BA)" software.
+      7. Execute "All Keys Lost" or "Add Key".22
+4.3 Lonsdor K518 & KH100: The 8A-BA Pioneers
+Lonsdor was the first to market with a solution for the 8A-BA encryption, giving them a temporary advantage in the locksmith community.
+* The ADP Adapter: Lonsdor utilizes a specialized adapter called the ADP (Toyota-Lexus 8A/4A Adapter) or the Lonsdor 30-Pin Cable.23
+* License Requirement: Programming these vehicles requires a specific "Toyota 8A-BA" software license activation on the K518 tool.
+* Key Emulation: Lonsdor's LKE (Lonsdor Key Emulator) is used in conjunction with the cable. The process involves connecting the cable to the Smart Box, backing up the IMMO data (which is now accessible due to the bypass), generating an emergency key on the LKE, and then using that to add the final key.13
+5. The Hostile Environment: Interference, Blockers, and Hidden Layers
+A successful key programming session is not merely about having the right tool and cable; it is about managing the vehicle's internal communication network. High-end Lexus models contain subsystems that act as "hostiles" during the programming process.
+
+
+  
+
+
+
+5.1 The Mark Levinson Amplifier Interference
+A frequent and baffling issue for technicians working on the Lexus LS460, LX570, and higher-trim RX350/ES350 models is the "Communication Failed" error caused by the Mark Levinson Premium Audio System.
+* The Mechanism of Failure: The Mark Levinson amplifier is a high-traffic node on the vehicle's communication bus (often the AV-LAN or MOST bus, which gateways into the CAN network). These amplifiers are notorious for internal failure due to overheating or water damage (a known issue with sunroof drains in the IS and GS series).24 When the amp fails, it often defaults to a "broadcast storm" mode, flooding the bus with noise. This noise effectively jams the delicate handshake packets sent between the programming tool and the Certification ECU.
+* Diagnosis: Technicians can confirm this by accessing the hidden Lexus Diagnostic Menu: Hold the "Menu" button on the center console and cycle the headlight switch On/Off three times. If the "Audio" or "MOST" unit shows orange/red status or error code B15C3, the amp is the culprit.26
+* The Forensic Countermeasure: To successfully program a key in this state, the technician must physically disconnect the amplifier. This requires locating the amp (often in the trunk right side for LS/GS, or under the rear floor for RX) and unplugging the optical/digital connectors.27 Once isolated, the bus traffic normalizes, and key programming can proceed.
+5.2 Telematics (DCM) & The "Fuse Pull" Protocol
+Modern Lexus vehicles (2018+) are equipped with a Data Communication Module (DCM) that powers the "Lexus Enform" and "Safety Connect" services.
+* The Conflict: The DCM is an "always-on" device that constantly polls the vehicle's ECUs to report status to the Lexus cloud. During the "All Keys Lost" reset procedure—which can take 16 minutes or more—the DCM may interpret the ECU reset command as an intrusion attempt or simply interrupt the long data stream with its own status queries. This leads to a "Programming Failed" message at the 10% or 80% mark.
+* The Fix: Pulling the DCM Fuse is now a mandatory step in many 2020+ procedures. The fuse is typically located in the engine bay fuse box or the driver's kick panel and is labeled DCM, MAYDAY, or TEL.28
+* Forensic Note: Failure to pull this fuse on a 2023 Lexus RX350 can result in a "bricked" state where the ECU is erased but no new key can be added until the bus is silenced.
+5.3 Valet Mode & Digital Key Restrictions
+* Valet Mode: On the Lexus IS and RC series, the "Valet Mode" button (located in the glovebox or controlled via the infotainment screen) locks the trunk and restricts certain Body ECU functions. Crucially, active Valet Mode can block the registration of new keys to prevent unauthorized duplication by parking attendants. The system must be disarmed (using a working Master Key or physical lock cylinder) before programming.29
+* Digital Key: The shift to "Phone-as-a-Key" (Digital Key) on the 2022+ NX and 2023+ RX introduces a BLE (Bluetooth Low Energy) layer. Resetting the Smart Key ECU for fob programming creates a desynchronization with the Digital Key module. The customer's "Digital Key" on their smartphone will cease to function and must be deleted and re-enrolled via the Lexus App after the physical keys are restored.15
+5.4 F-Sport Trim Variations
+The F-Sport trim levels introduce additional ECUs that can complicate the bus environment.
+* AVS & ASC: F-Sport models are equipped with AVS (Adaptive Variable Suspension) and ASC (Active Sound Control). The ASC system, which pumps synthetic engine noise into the cabin, sits on the same audio bus as the Mark Levinson amp.31 In rare cases where unplugging the amp does not clear the bus noise, unplugging the ASC module (often found behind the glovebox or under the dash) is the secondary containment protocol.
+6. Physical Access & Component Locations
+Since 2022+ procedures require direct connection, locating the Certification ECU (Smart Box) is now the primary challenge for technicians.
+
+
+  
+
+
+
+6.1 Lexus RX Series (RX350 / RX450h)
+* Generation 4 (2016–2022): The Certification ECU is located behind the glovebox assembly. Access requires removing the glovebox liner (usually 3-5 screws and several clips). The ECU is mounted vertically with connectors facing down. This is relatively accessible.2
+* Generation 5 (2023+): On the TNGA-K platform, the Certification ECU has moved deeper. It is often located behind the blower motor assembly or high up near the A-pillar support. Access is significantly more difficult, often requiring the removal of lower airbag knee bolsters and HVAC ducting to reach the 30-pin connector for the bypass cable.32
+6.2 Lexus NX Series (NX200t / NX300 / NX350)
+* Generation 1 (2015–2021): Located behind the glovebox, top area. Identified by a black 24-pin plug.33
+* Generation 2 (2022+): This model presents a high difficulty rating. The Smart ECU is buried deep in the dashboard structure, often requiring extensive trim removal to insert the ADC2021 cable. The "Keyless Control Module" here is physically distinct from the "Immobilizer ID Box," but the bypass cable must connect to the Certification ECU (Smart Key Module).10
+6.3 Lexus LX570 & LX600
+* LX570 (Legacy): The Certification ECU is located above the gas pedal (Driver's side). This is an exception to the "behind glovebox" rule typical of Toyota/Lexus. It has a black top connector.34
+* LX600 (TNGA-F): The location has shifted, necessitating a consult of specific repair diagrams, but it generally follows the Tundra layout—deep behind the dashboard, requiring significant labor to access the 30-pin connector.7
+7. Operational Dossiers: Model-Specific Procedural Guides
+The following "Dossiers" synthesize the tool, chip, and location data into actionable workflows for the specific vehicles mentioned in the query.
+7.1 Dossier: Lexus RX350 (2023+) - The "Bypass" Scenario
+* Problem: All Keys Lost. OBD attempts fail with "ECU Not Supported."
+* Architecture: TNGA-K Platform, 8A-BA Chip (FCC HYQ14FBZ).
+* Required Hardware: Autel IM608 Pro II + G-Box3 + 30-Pin Cable (or Smart Pro + ADC2021).
+* Procedure:
+   1. DCM Isolation: Pull the DCM fuse in the engine bay to prevent telematics interference.
+   2. Access: Remove passenger side dash panels to expose Certification ECU.
+   3. Bypass: Unplug the 30-pin vehicle harness; insert the 30-Pin Bypass Cable.
+   4. Connect: Attach the programmer to the cable's OBD end.
+   5. Software: Select "Toyota" -> "2023+ RX" (or "Toyota Venza 2023" if RX is missing).
+   6. Execute: Run "Back up IMMO Data" (if using Autel) or "Add Key" (if using Smart Pro). The bypass cable allows the tool to ignore the Seed-Key requirement.
+   7. Restoration: Reconnect OEM harness, replace fuse, clear DTCs (Diagnostic Trouble Codes).
+7.2 Dossier: Lexus IS350 (2021-2023) - The "Legacy" Scenario
+* Problem: Add Spare Key.
+* Architecture: Legacy N Platform, 8A Chip (FCC HYQ14FLB).
+* Required Hardware: Autel IM608 or Smart Pro (Standard OBD Cable). No Bypass Cable Needed.
+* Procedure:
+   1. Verification: Confirm FCC ID is HYQ14FLB (Board 231451-3950).19
+   2. Connection: Plug into standard OBDII port.
+   3. Menu: Select "Lexus" -> "IS Series" -> "2014-2020" (Note: Tool menus often group 2021+ with the older generation because the ECU is identical).
+   4. Execute: "Add Smart Key". Hold the registered key to the button, then the new key.
+   5. Note: Do not disassemble the dash. The presence of the "IS 500" badge does not imply the TNGA-K security architecture.
+7.3 Dossier: Lexus NX300 (2018-2021) - The "Emulator" Scenario
+* Problem: All Keys Lost.
+* Architecture: Legacy MC Platform, 8A Chip (FCC HYQ14FBA).
+* Required Hardware: Autel IM608 + APB112 Emulator.
+* Procedure:
+   1. Menu: "Lexus" -> "NX Series" -> "Smart Key".
+   2. Backup: "Back up IMMO Data" via OBD. (Internet required).
+   3. Generate: Create Simulator Key on APB112.
+   4. Add Key: The ECU sees the APB112 as a valid Master Key. Use it to add the new OEM fob.
+   5. Note: This works without a bypass cable because the Gateway on this generation NX allows IMMO data backup via OBD.
+8. Conclusion
+The "Gap" in Lexus procedures is a phantom created by the rapid, staggered adoption of the TNGA security architecture. The perceived lack of documentation stems from the fact that Lexus vehicles often debut these systems (8A-BA/B9) 1-2 years before they appear in the mass-market Toyota models that drive aftermarket R&D.
+For the technician, the solution lies in platform recognition rather than model name matching. Recognizing that a 2023 Lexus RX350 is architecturally a 2023 Toyota Venza/Highlander allows for the cross-application of proven Toyota procedures. The era of the universal OBD reset is effectively over for the brand's modern fleet; the future belongs to those willing to engage in the physical "handshake" of direct ECU connection, bus isolation, and forensic hardware intervention.
+Works cited
+1. Lexus - Your Car Key Guys, accessed January 7, 2026, https://yourcarkeyguys.com/collections/lexus
+2. How to Program Lexus Toyota Replacement Smart Key with Techstream - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=0ZfmOf0yGQY
+3. 2014-2021 Toyota & Lexus / 8A Universal PCB Board / Smart Key for Lonsdor K518USA & KH100+ - UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/2014-2021-toyota-lexus-8a-universal-pcb-board-smart-key-for-lonsdor-k518usa-kh100
+4. Immobilizer and Smart Key Reset - nhtsa, accessed January 7, 2026, https://static.nhtsa.gov/odi/tsbs/2014/MC-10205331-9999.pdf
+5. Autel IM608 PRO2 Program 2015 Lexus NX300H All Keys Lost | AutelSale.com Office Blog, accessed January 7, 2026, http://blog.autelsale.com/2024/10/25/autel-im608-pro2-program-2015-lexus-nx300h-all-keys-lost/
+6. Autel IM608 Pro2 Program 2020 Lexus NX300 All Smart Keys Lost, accessed January 7, 2026, http://blog.autelshop.de/autel-im608-pro2-program-2020-lexus-nx300-all-smart-keys-lost/
+7. Toyota LT20-10-4 8A-BA PCB Board 4 Button Smart Key PCB Lonsdor - Key4, accessed January 7, 2026, https://www.key4.com/lonsdor-lt2010-toyota-48a-ba-pcb-board-4b-smart-key-pcb-switchable-frequency
+8. TN016 - Key programming 2022+ Lexus vehicles (B9 DST-AES key) - KAP Diagnostics, accessed January 7, 2026, https://www.kapdiagnostics.com/tn016-key-programming-2022-lexus-vehicles-b9-dst-aes-key.html
+9. 2023 Lexus RX350 : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/1bftjum/2023_lexus_rx350/
+10. How to connect the ADC-2021 Cable to the CERT Module on the 2022 Lexus LX600 - Quick & Easy Guide - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=KpvmRJwpXxY
+11. How to Use XHORSE TOY-BA Programming Cable for 2020 - 2024 Toyota Lexus Smart Key All Key Lost - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=GnbzK6mbK80
+12. 2022 Lexus NX Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 7, 2026, https://keyless2go.com/blogs/program-instructions/2022-lexus-nx-keyless-entry-remote-fob-smart-key-programming-instructions
+13. How to program all smart key lost Lexus new style by lonsdor & ADP adapter - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=citj6oyRznw
+14. Xhorse XD8ABAGL For 20-24 Toyota / Lexus Smart All Keys Lost Programming Cable, accessed January 7, 2026, https://www.ebay.com/itm/156836858409
+15. How do I setup my Digital Key? - Support Home - Lexus, accessed January 7, 2026, https://support.lexus.com/s/article/How-do-I-setup-my-Digital-Key
+16. Lexus says I cannot program an original Transponder that was deactivated...... - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Lexus/comments/157ok2z/lexus_says_i_cannot_program_an_original/
+17. What is your take on: GX460 vs GX550 : r/LexusGX - Reddit, accessed January 7, 2026, https://www.reddit.com/r/LexusGX/comments/196ynji/what_is_your_take_on_gx460_vs_gx550/
+18. LEXUS GX460 UPGRADE KEYFOB TO SMART KEY CARD DIY PROGRAMMING, accessed January 7, 2026, https://www.youtube.com/watch?v=BzgwfAEt8Gw
+19. HYQ14FLB Keyless Remote Key Fob for Lexus IS300 IS350 RC300 RC350 RCF 2021 2022, accessed January 7, 2026, https://www.ebay.com/itm/145627229021
+20. Autel to remove All Keys Lost function for Toyota vehicles : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/1f54jag/autel_to_remove_all_keys_lost_function_for_toyota/
+21. Advanced Diagnostics - ADC2021 - Toyota - Security Bypass Cable - UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-adc2021-toyota-security-bypass-cable
+22. Gateway Bypass Cable suitable for Toyota* ADC2021 - Code D756924AD July 2024, accessed January 7, 2026, https://cdn.prod.website-files.com/6204d285c027cf6d74492fba/66a9059cb88c9a69c1df1eec_Cable-ADC2021-Toyota-07_2024_EN.pdf
+23. Lonsdor - FP30 Toyota Cable for All Keys Lost Via OBD - 8A-BA and 4A M, accessed January 7, 2026, https://www.locksmithkeyless.com/products/lonsdor-fp30-toyota-cable-for-all-keys-lost-via-obd-8a-ba-and-4a-models-without-pin-code
+24. Lexus LS460 Mark Levinson audio system failure with chirping noise and intermittent operation issues - RepairPal, accessed January 7, 2026, https://repairpal.com/problem/lexus/ls460/mark-levinson-audio-system-amp-401
+25. Lexus LS460 Mark Levinson Amplifier failure problem cause RESOLVED! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=G3sZlKI1R2o
+26. Lexus IS350 IS250 Mark Levinson Amplifier Repair (#2785) - Supertech Electronics, accessed January 7, 2026, https://electronicrepairs.com.au/product/lexus-is250-mark-levinson-amplifier-repair-2785/
+27. 20-315 Lexus RX 04-06 Mark Levinson Amplifier Bypass, accessed January 7, 2026, https://incartec.blob.core.windows.net/product-instructions/6998.pdf
+28. DB3: Installation Guide. 2022 Lexus RX 350L (Smart Key). 403.TL15 1.15 RSR, accessed January 7, 2026, https://directechs.blob.core.windows.net/ddt/403-TL15-1.15-RSR_2022-Lexus-RX-350L-(Smart-Key)_IG_EN_20231017.pdf
+29. 2023 IS500 Valet Mode : r/Lexus - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Lexus/comments/1anjpuz/2023_is500_valet_mode/
+30. How-To Use Valet Mode | Lexus - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=O0hrEfLEQc8
+31. Difference between Fsport and normal : r/Lexus - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Lexus/comments/1b3q654/difference_between_fsport_and_normal/
+32. Advanced Diagnostic Toyota Security Bypass Cable - ADC2021 | Transponder Island Inc., accessed January 7, 2026, https://transponderisland.com/shop/tit-adc-2021-advanced-diagnostic-toyota-security-bypass-cable-adc2021-39191
+33. DB3: Installation Guide. 2017 Lexus NX 200t (Smart Key). 403.TL19 1.04.106 RSR, accessed January 7, 2026, https://directechs.blob.core.windows.net/ddt/403-TL19-1.04.106-RSR_2017-Lexus-NX-200t-(Smart-Key)_IG_EN_20240110.pdf
+34. DB3: Installation Guide. 2019 Lexus LX 570 (Smart Key). 403.TL19 1.03.104 - NET, accessed January 7, 2026, https://directechs.blob.core.windows.net/ddt/403-TL19-1.03.104-ORI_2019-Lexus-LX-570-(Smart-Key)_IG_EN_20230921.pdf

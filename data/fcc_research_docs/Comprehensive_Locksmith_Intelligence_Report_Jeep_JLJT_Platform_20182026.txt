@@ -1,0 +1,297 @@
+﻿Comprehensive Locksmith Intelligence Report: Jeep JL/JT Platform (2018–2026)
+1. Introduction: The Paradigm Shift in Automotive Security
+The automotive security landscape underwent a seismic transformation in 2018 with the introduction of the Jeep Wrangler JL platform. This shift was not merely an incremental update to the outgoing JK model (2007–2018) but a fundamental reimagining of the vehicle's electronic architecture, driven by the convergence of Fiat and Chrysler technologies under the FCA (now Stellantis) umbrella. For the automotive locksmith, the transition from the legacy architectures to the modern JL and Gladiator JT platforms represented an immediate obsolescence of long-standing tools, procedures, and assumptions. The relatively open access of the past, characterized by standard OBDII programming and ID46 transponders, was replaced by a fortified ecosystem designed to thwart high-tech theft and unauthorized Controller Area Network (CAN) intrusion.
+This report serves as an exhaustive technical dossier for the professional locksmith, analyzing the security topography of the Wrangler JL (2018–2026) and Gladiator JT (2020–2026). It covers the 4xe plug-in hybrid variants and the significant 2024 mid-cycle refresh, which introduced new hurdles in Radio Frequency (RF) Hub management. The analysis is grounded in current field data, tool capabilities, and manufacturer specifications.1
+1.1 The Legacy Context: Why the Change Occurred
+To appreciate the complexity of the JL platform, one must understand the vulnerabilities of its predecessor. The Wrangler JK utilized the Wireless Control Module (WCM) and Sentry Key Immobilizer Module (SKIM) architecture. Access was generally unrestricted via the On-Board Diagnostics (OBDII) port; a locksmith could connect a programmer, extract a PIN code, and program a key within minutes. This openness, while convenient for service, posed significant security risks in an era of increasing vehicle connectivity.
+The JL platform introduced a "Defense in Depth" strategy, implementing three critical barriers that define the modern locksmithing challenge:
+1. The Secure Gateway Module (SGW): A firewall placed between the external diagnostic port (DLC) and the vehicle’s internal CAN networks (CAN-C and CAN-IHS), effectively blocking unauthorized "Write" commands.2
+2. Hitag AES (4A) Transponders: A migration from 46 chips to 128-bit AES encryption, necessitating higher fidelity communication between the key and the immobilizer.4
+3. The RF Hub (Radio Frequency Hub): Replacing the WCM/SKIM, this module not only manages keyless entry and immobilization but has become a critical point of liability due to its tendency to "hard lock" to a specific VIN and configuration upon programming.6
+1.2 Electrical Architecture and Network Topology
+The JL/JT platform operates on a sophisticated network topology involving a high-speed CAN-C (Controller Area Network - Chassis) for critical powertrain and safety functions, and a medium-speed CAN-IHS (Interior High Speed) for body electronics. The security architecture is centralized around the Body Control Module (BCM) and the RF Hub, protected by the SGW.
+The SGW (Secure Gateway) acts as the network's gatekeeper. When a diagnostic tool connects to the OBDII port, it communicates primarily with the SGW. While "Read" commands (such as reading Diagnostic Trouble Codes or viewing live data) are permitted, "Write" commands (essential for clearing codes, active tests, or programming keys) are blocked unless the tool possesses a digital certificate authenticated by Stellantis (via AutoAuth) or physically bypasses the module.2
+The RF Hub is the operational "brain" of the immobilizer system for the JL. Located in the rear quarter panel or rear cab wall depending on the body style, it stores the Key IDs and manages the encrypted handshake with the Hitag AES transponders. Crucially, in newer model years (post-2021 and specifically 2024+), the RF Hub has demonstrated a volatility that makes the "All Keys Lost" (AKL) scenario particularly hazardous. If the programming procedure is interrupted or performed with incompatible software, the RF Hub can be "bricked," rendering the vehicle immovable.7
+
+
+  
+
+
+
+2. Platform Identification and Verification
+For the locksmith, correct identification is the prerequisite for a successful job. The 2018 model year is particularly treacherous as it includes both the outgoing Wrangler JK (marketed as "Wrangler JK") and the incoming Wrangler JL. Misidentifying the platform leads to wasted time attempting to connect legacy tools, ordering incorrect key stock, or attempting to access non-existent modules.9
+2.1 Visual Identification Indicators
+While the Vehicle Identification Number (VIN) is the definitive identifier, visual cues provide immediate confirmation upon arrival at the job site. The JL features a more aerodynamic rake to the windshield and a distinct grille design compared to the boxier JK.
+Key Visual Differentiators:
+* Push-to-Start Button: All JL and JT models feature a standard Push-to-Start (PTS) button. While some late-model JKs had remote start, they still utilized a bladed key ignition switch (mechanical turn). A specialized waterproof PTS button is a hallmark of the JL interior.10
+* Grille Geometry: As noted in technical guides, the JK grille is smooth from top to bottom with a narrow space between openings. The JL grille features a "kink" near the top where the face bends slightly, and the slats are wider spaced.11
+* Fender Vents: JL Wranglers have a functional vent behind the front fender flares to reduce hood flutter; JKs do not possess this feature.10
+* Backup Camera: Standard on all JL models, located in the center of the spare tire. This was rare or aftermarket-only on JKs.10
+* Key Fob Architecture: The JK uses the classic "Tombstone" headed remote key (OHT692713AA). The JL uses the rounded, "Flip-style" heavy fob (OHT1130261).12
+2.2 VIN Decoding for Security Profile
+The VIN offers the most reliable method for determining the security profile. The critical character is the 10th digit (Year Model), but the 5th, 6th, and 7th digits (Body/Series) help confirm the platform code.9
+Feature
+	Wrangler JK (Legacy)
+	Wrangler JL (New Platform)
+	Gladiator JT (Pickup)
+	Production Years
+	2007 – 2018
+	2018 – Present
+	2020 – Present
+	SGW Presence
+	No
+	Yes (All 2018+)
+	Yes (All 2020+)
+	Key Type
+	Bladed Remote Head (Y164/Y160)
+	Smart Proximity / Flip Key
+	Smart Proximity / Flip Key
+	Transponder
+	ID46 (Philips Crypto 2)
+	Hitag AES (4A)
+	Hitag AES (4A)
+	Keyway
+	CY24 / Y159
+	SIP22 (High Security)
+	SIP22 (High Security)
+	RF Hub Location
+	Behind Cluster / Roll bar
+	Rear Quarter Panel
+	Rear Cab Wall
+	2.3 The 4xe and Gladiator Variations
+The Wrangler 4xe (Plug-in Hybrid), introduced in 2021, shares the same fundamental immobilizer architecture as the standard JL.13 However, the presence of the high-voltage battery system introduces a critical variable: 12V battery health. The 4xe system charges the 12V battery via the high-voltage pack through a DC-DC converter. If the high-voltage system is locked out or the 12V battery is weak, programming failures are common. Locksmiths must ensure a robust 12V supply (via a jump pack or maintainer) is connected during programming to prevent module brownouts, which are a leading cause of "bricked" RF Hubs in 4xe models.
+The Gladiator (JT) is electronically identical to the JL from the B-pillar forward. The primary difference for the locksmith is the location of the rear antennas and the RF Hub, which are packaged differently to accommodate the truck bed and rear cab wall.1
+3. The Secure Gateway Module (SGW) & Bypass Methodology
+The defining characteristic of locksmithing on the JL platform is the presence of the Secure Gateway Module. Since 2018, simply plugging a programmer into the OBDII port is insufficient for key programming or advanced diagnostics. The SGW blocks the "Write VIN," "Clear Codes," and "Program Key" commands unless specific authentication protocols are met.2
+3.1 The Bypass Ecosystem: Hardware vs. Software
+There are two primary methods to overcome the SGW, each with distinct advantages and limitations:
+1. Software Authentication (AutoAuth):
+* Mechanism: The diagnostic tool (e.g., Autel IM608, Smart Pro) connects to the internet, authenticates with a central server, and passes a digital certificate to the SGW, which then "opens" the gate for a session.15
+* Pros: Zero disassembly required; clean and professional appearance to the customer.
+* Cons: Requires an active internet connection (often unavailable in remote rescue scenarios), a paid AutoAuth subscription ($50/year), and a tool that supports the protocol. Crucially, AutoAuth does not always grant "Immobilizer" privileges. While it allows clearing codes, Stellantis has historically restricted Immobilizer functions in the software permissions for many aftermarket users, forcing locksmiths back to hardware bypasses.3
+2. Hardware Bypass (The "12+8" and Star Connector):
+* Mechanism: The locksmith physically unplugs the connectors from the SGW (or finds an alternative access point) and plugs in a "Bypass Cable." This cable connects the tool directly to the CAN-C and CAN-IHS buses, physically circumventing the firewall module.2
+* Pros: 100% reliable; works offline; grants full read/write access regardless of subscription status.
+* Cons: Requires physical labor to locate and access the connectors; risk of damaging trim pieces.
+3.2 Detailed Bypass Locations and Procedures
+The location of the connection point is the single biggest variable in the JL/JT programming process.
+Method A: The Direct SGW Bypass (Early JL)
+In early 2018-2019 Wrangler JL production models, the SGW itself was sometimes accessible for direct bypass.
+* Location: Often located behind the radio unit or near the BCM in the driver's side kick panel.1
+* Cable: Uses the "Chrysler 12+8" adapter (a Y-cable with 12-pin and 8-pin connectors).
+* Difficulty: High. Removing the radio or accessing the module deep in the dash is time-consuming and risks damaging the infotainment bezel.
+Method B: The Star Connector (The Gold Standard)
+For the vast majority of 2019+ JL and all Gladiator JT models, the most efficient access point is the Star Connector (CAN Junction Block). This acts as a central hub for the CAN bus, and plugging in here is electrically equivalent to plugging into the SGW bypass but is infinitely easier to access.1
+* Location: Located behind the glove box (passenger side). It is typically a green block with multiple empty slots, mounted near the top of the opening.1
+* Cable: Requires the ADC2011 (for Smart Pro) or the Star Connector Male/Female leads (included in Autel 12+8 kits).
+* Procedure:
+   1. Open the glove box.
+   2. Release the dampener arm on the left side.
+   3. Squeeze the tabs at the top of the glove box bin to drop it fully down or remove it.
+   4. Look up towards the dashboard support structure to locate the Green Star Connector bank.
+   5. Plug the bypass cable into any open slot on the CAN-C and CAN-IHS banks (ensure correct orientation).
+* Insight: This method is preferred by 90% of professional locksmiths due to its balance of speed and reliability.17
+Method C: The Z-Automotive / Tazer Bypass
+Enthusiast tools like the Tazer JL use a dedicated bypass module that replaces the SGW connections permanently. If a locksmith encounters a vehicle with a Tazer installed, the SGW is likely already bypassed, and the OBDII port may function for programming without further modification, provided the Tazer is in "Live" mode.20
+
+
+  
+
+
+
+4. Transponder and Key Specifications
+The JL/JT platform utilizes a high-security "Smart Key" system. Unlike the passive entry systems of the past, these keys are active transceivers that maintain constant encrypted communication with the vehicle's RF Hub.
+4.1 Technical Specifications: The Shift to Hitag AES
+The transponder chip used in the JL/JT is the Hitag AES, widely referred to in the aftermarket as the 4A chip. This represents a significant evolution from the Hitag 2 (ID46) used in the JK platform.4
+* Encryption: 128-bit AES (Advanced Encryption Standard).
+* Frequency: 433 MHz (commonly listed as 434 MHz in Europe/Global, but US models are specifically 433.92 MHz).
+* Modulation: FSK (Frequency Shift Keying).
+Critical Distinction: Early data regarding 2018 models can be conflicting, with some databases listing ID46 (Philips Crypto 2). This is incorrect for the JL platform; the ID46 designation applies only to the 2018 Wrangler JK. All JL and JT keys utilize the Hitag AES (4A) architecture.22
+4.2 Key Fob Variants and Part Numbers
+The market offers both OEM and aftermarket key options, though quality varies drastically. The OEM key is manufactured by Continental or Mopar suppliers. The standard FCC ID for all JL and JT remotes is OHT1130261.
+Part Number Matrix:
+Vehicle
+	Buttons
+	Function
+	FCC ID
+	OEM Part Number
+	Chip ID
+	Wrangler JL / Gladiator JT
+	3-Button
+	Lock, Unlock, Panic
+	OHT1130261
+	68416782AA/AB/AC
+	Hitag AES (4A)
+	Wrangler JL / Gladiator JT
+	4-Button
+	Lock, Unlock, Panic, Remote Start
+	OHT1130261
+	68416784AA/AB/AC
+	Hitag AES (4A)
+	Gladiator JT
+	4-Button
+	Lock, Unlock, Panic, Tailgate
+	OHT1130261
+	68416785AA
+	Hitag AES (4A)
+	Wrangler JL / Gladiator JT
+	2-Button
+	Lock, Unlock (Base Models)
+	OHT1130261
+	68416786AA
+	Hitag AES (4A)
+	Insight on "Generic" Keys:
+While aftermarket "Universal" keys (like Autel's IKEY or Xhorse's XS series) can be generated to emulate the OHT1130261 signal, field reports indicate a higher failure rate with Proximity functions (Keyless Go) on these generated keys compared to OEM-style aftermarket keys. The remote buttons often work, but the "Passive Entry" (touching the handle to unlock) requires precise antenna calibration that generic remotes sometimes lack.24 For 2024+ models, OEM keys are strictly recommended to avoid RF Hub lockouts caused by signal mismatch.
+5. Mechanical Access and Keyway Intelligence
+While the electronics are complex, the mechanical key remains the backup access method. The JL/JT platform uses a driver's door lock cylinder and a glove box lock (and tailgate on JT).
+5.1 The SIP22 Keyway Profile
+The move to SIP22 (a FIAT profile) was a major mechanical shift from the Chrysler 8-cut (Y159) used for decades.
+* Profile: A "Laser" or internal 2-track key. The cuts are milled into the flat face of the blade rather than the edge.
+* Wafers: 8 wafers total, located in positions 1 through 8.
+* Depths: 4 depths (1 being deepest, 4 being shallowest). Note: Depth mapping varies by code machine manufacturer; typically Silca cards use 1-4.
+* Compatibility: The SIP22 keyway is incompatible with the Y159/Y160 keyway. Attempting to force a Y159 key or tool into a JL lock can damage the shutters.25
+5.2 Lishi Tool Selection and Strategy
+The only correct Lishi tool for the JL/JT is the SIP22 2-in-1 Pick and Decoder.
+* Picking Strategy: SIP22 locks are generally side-bar free but are prone to dirt ingress in Jeeps, making wafers "sticky." Tension is applied rotationally.
+* Decoding: Once picked, hold tension and read the heights.
+* The "Ghost Wafer" Issue: Locksmiths often misread position 1 or 8 due to the shutter mechanism interference or the deep recession of the wafers. It is critical to verify the key cuts on a test key or "scratch pass" before cutting a final expensive fob blade.
+* Tool Warning: Do not use a CY24 (Chrysler) or Y157/Y159 Lishi tool. It may physically fit into the keyway but will jam against the wafers and fail to align with the spaces, potentially damaging the tool or the lock cylinder.27
+6. The Radio Frequency Hub (RF Hub)
+The RF Hub is the central component of the Keyless Enter-N-Go system. It receives signals from the key fobs, the Tire Pressure Monitoring System (TPMS), and the Remote Keyless Entry (RKE) system.
+6.1 Function and Vulnerability
+The RF Hub communicates with the BCM over the CAN-IHS bus. When a key is programmed, its unique ID is written into the RF Hub's non-volatile memory. In the JL platform, the RF Hub has become a known point of failure during programming, particularly in "All Keys Lost" scenarios.
+* The "Locking" Behavior: In newer model years (2021+), and aggressively in 2024+, the RF Hub can "lock" itself if it detects an unauthorized programming attempt or a sequence of failed PIN entries.
+* The "Brick" Scenario: If the RF Hub locks, the ignition will not turn on, and the dashboard will display "Service Keyless System." In a true brick scenario, there is currently no OBD reset available. The module must be replaced with a virgin unit from the dealer, which then requires the Witech (Dealer Tool) to program.6
+6.2 Module Location
+* Wrangler JL (4-Door): Located in the rear quarter panel area, often accessible by removing the trim panels in the cargo area.
+* Wrangler JL (2-Door): Located behind the rear roll bar trim or quarter panel.
+* Gladiator JT: Located on the rear cab wall, behind the rear seats. Access requires folding or removing the rear seat back.1
+7. Tool-Specific Programming Procedures
+Success in programming the JL/JT depends heavily on the tool ecosystem. This section details the specific workflows for the three major platforms: Autel, Smart Pro, and XTOOL.
+7.1 Autel MaxiIM (IM508 / IM608 / IM608 Pro II)
+Autel is a dominant force due to its diagnostic depth, but it requires careful navigation of its menus.29
+Hardware Setup:
+* 2018–2020: Use the 12+8 Adapter connected to the main cable.
+* 2021+: The Star Connector cable is essential for reliability.
+* 2024+: Requires the newest software updates (FCA V9.80+) and often a specific active internet connection for server calculation.
+Menu Path:
+1. Select Vehicle: IMMO > Chrysler/Dodge/Jeep > System Selection > Jeep > Wrangler (JL) 2018-2023.
+2. Select Control Unit: Select RF Hub (Radio Frequency Hub).
+3. Read IMMO Data: This step attempts to pull the PIN Code. On JL models, the PIN is rolling or encrypted. The tool may require an internet connection to "Calculate" the PIN from the BCM data.
+4. Add Key / All Keys Lost:
+   * Add Key: Requires one working key. The tool puts the RF Hub into learn mode.
+   * AKL: The tool will likely ask to "Backup Vehicle Data" first. This is a safety step to save the coding of the RF Hub.
+5. Key Learning: Follow the prompt to hold the Smart Key against the Start/Stop button. The tool commands the RF Hub to listen for the transponder ID.
+6. Verify: Test proximity functions, lock/unlock, and remote start.32
+Warning: For 2024+ models, Autel users have reported "Communication Failed" errors even with bypass cables. The IM608 Pro II with the latest firmware is often required.30
+7.2 Advanced Diagnostics (Smart Pro by AD/Kaba Ilco)
+The Smart Pro is favored for its speed and "guided" workflow.17
+Hardware:
+* ADC2011 Cable: This is the specific cable for the JL/JT Star Connector. It plugs into the Smart Pro’s main cable and splits into two probes that insert into the CAN blocks behind the glovebox.
+* ADS-2272 Software: The specific software module for 2018+ Jeep Prox.
+Procedure:
+1. Connect: Plug the ADC2011 into the Star Connector (Green bank).
+2. Select Vehicle: Jeep > Wrangler JL 2018+.
+3. Bypass: The tool bypasses the SGW automatically via the ADC2011.
+4. Program Keys: The Smart Pro generally skips the explicit "Read PIN" step for the user, utilizing a background "Bypass PIN" protocol.
+5. Execution: Follow on-screen prompts: "Press Unlock on remote," "Hold key to Start Button."
+6. RF Hub Reset: In some AKL scenarios, the Smart Pro might prompt to "Reset RF Hub." Exercise extreme caution. Only do this if the Hub is truly locked and refuses to accept keys, as it can clear all keys and potentially corrupt the module if interrupted.6
+7.3 XTOOL (D8 / D9 / Pad 3)
+XTOOL has emerged as a cost-effective alternative with surprisingly robust FCA coverage, often releasing updates faster than larger competitors.33
+Hardware:
+* FCA 12+8 Cable: Required.
+* Internet: Mandatory for PIN calculation on most JL models.
+Procedure:
+1. Menu: Diagnosis > Service > Immobilizer > Chrysler/Jeep.
+2. Selection: Wrangler JL.
+3. PIN Code: Select Read PIN Code. XTOOL connects to its server to compute the PIN.
+4. Program: Select Add Smart Key. Follow the prompt to place the key near the gear shifter or start button.
+Insight: XTOOL is particularly aggressive with its updates for the 2024 Gladiator, with reports of successful programming where other tools timed out, likely due to agile server-side updates.35
+
+
+  
+
+
+
+8. The 2024+ Mid-Cycle Refresh: New Challenges
+The 2024 model year introduced a refresh for the Wrangler (and subsequently the Gladiator) that significantly altered the interior technology, most notably with the introduction of the Uconnect 5 system. This update was not just cosmetic; it brought a new electrical architecture that complicates locksmithing operations.35
+8.1 Rolling PINs and Live Authentication
+Field reports indicate that 2024+ models utilize a more aggressive "Rolling PIN" system. Unlike previous years where a PIN might remain static or be easily calculated from the VIN, the new RF Hubs require a PIN that is time-sensitive and generated via a live handshake with the Stellantis servers. This effectively neutralizes offline calculation methods used by older tools.
+8.2 Tool Compatibility for 2024+
+* Autel: Requires the latest "Pro II" hardware and the newest software subscription. The standard IM608 (Gen 1) may struggle with the processing speed required for the new encryption algorithms.30
+* Smart Pro: Requires the latest ADS-2272 update and internet connection.
+* Dealer Tools: The Witech 2.0 with a valid locksmith topology (NASTF VSP) remains the only 100% guaranteed method for these newer vehicles, although the aftermarket is rapidly catching up.36
+9. Common Issues, Troubleshooting, and Error Codes
+Programming the JL/JT is rarely straightforward. The following issues are frequently encountered in the field.
+9.1 Error Code P0513: Invalid SKIM Key
+* Cause: The RF Hub does not recognize the transponder ID. This often happens if an aftermarket key is used that has the wrong chip type (e.g., a standard 4A instead of the specific Hitag AES configuration for Jeep) or if the key was not placed correctly near the antenna during learning.37
+* Solution: Verify the key Part Number. Ensure the key is held flat against the Start button. If using a generated remote, try generating it again as a different sub-model (e.g., "Compass" instead of "Wrangler").
+9.2 "Service Keyless System" / RF Hub Lockout
+* Cause: Too many failed PIN attempts or a battery voltage drop during programming.
+* Solution:
+   1. Hard Reset: Disconnect both battery terminals and touch them together (capacitor discharge) to reset the modules. Wait 15 minutes.
+   2. Voltage: Ensure a maintainer is on the battery (13.5V).
+   3. RF Hub Reset: If supported by the tool (Smart Pro), attempt an RF Hub Reset. If this fails, the module is likely bricked and requires replacement.7
+9.3 Dead Battery Start Procedure
+If the key fob battery is dead, the vehicle will display "Key Fob Not Detected."
+* Procedure: Press the nose of the key fob (the end opposite the key ring) directly against the Start/Stop button and push the button with the fob. This utilizes the low-frequency backup antenna ring located around the button to energize the chip passively.38
+10. Training Resources and Video Analysis
+For the visual learner, specific video tutorials provide invaluable context. Based on the research material, the following resources are highly recommended for review.1
+
+
+Topic
+	Key Learning / Video Content
+	SGW Location
+	Videos detailing the removal of the glove box to access the Star Connector are essential. Look for tutorials that show the green connector block specifically.1
+	Autel AKL
+	Tutorials demonstrating the "All Keys Lost" procedure on the IM608 often highlight the "Backup Vehicle Data" step. Watch for the specific timing of holding the key to the start button.29
+	Smart Pro Bypass
+	Videos showing the ADC2011 installation clarify exactly which slots on the Star Connector can be used (usually any open slot on the CAN-C bus).17
+	Dead Fob Start
+	Tutorials showing the physical "Press-to-Start" method are useful for customer education and verifying if a "Key Not Detected" issue is simply a dead battery versus a programming failure.38
+	11. Conclusion
+The Jeep JL and JT platforms represent a mature, high-security environment that demands respect from the locksmith. The days of the "Plug and Play" programming are over. Success on this platform requires a tripartite approach:
+1. Correct Identification: Utilizing visual cues to confirm the platform and security generation.
+2. Hardware Access: Mastering the Star Connector bypass to circumvent the SGW.
+3. Risk Management: Understanding the fragility of the RF Hub and using stable, updated tools to prevent catastrophic module failure.
+As the platform evolves into the 2026 model year, the reliance on proprietary dealer-level access and live-server tools will likely increase, making the investment in high-end diagnostics and verified credentials (AutoAuth/NASTF) not just an option, but a requirement for the modern automotive locksmith.
+Works cited
+1. 2018 JEEP WRANGLER / GLADIATOR 12+8 LOCATIONS (SGM LOCATION) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=D072R88XJdc
+2. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 5, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+3. Goldcar Chrysler / Dodge / Jeep - 2018+ FCA Security Gateway Module Bypass, accessed January 5, 2026, https://keyinnovations.com/goldcar-chrysler-dodge-jeep-2018-fca-security-gateway-module-bypass/
+4. 2021 Jeep Gladiator Smart Flip Key Fob 4B W/ Remote Start FCC# OHT1130, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-jeep-gladiator-smart-flip-key-fob-4b-w-remote-start-fcc-oht1130261-aftermarket
+5. 2024 Jeep Smart Flip Key Fob 4B W/ Remote Start FCC# OHT1130261 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2018-2020-jeep-smart-remote-flip-key-w-remote-start-4b-fcc-oht1130261
+6. Resetting your RF Hub after a Push Button Conversion (or you just had to replace the hub), accessed January 5, 2026, https://www.youtube.com/watch?v=CNwWHbK4bJk
+7. Locked RF Hub 22 Renegade : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1m3kvyj/locked_rf_hub_22_renegade/
+8. 2022 Wrangler: Lost communication with RF HUB - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=THz8yT7ROKo
+9. Jeep Wrangler JK vs. JL: Key Differences and Which One Is Right for You, accessed January 5, 2026, https://www.dancumminschryslerdodgejeep.com/blogs/7331/what-are-the-differences-between-the-jeep-wrangler-jk-and-jl
+10. Jeep Wrangler JL vs. JK: The Difference - Tate Branch Hobbs, accessed January 5, 2026, https://www.tatebranchhobbs.com/jeep-wrangler-jl-vs-jk-the-difference/
+11. Five Ways To Tell If You Drive a JL Or JK Wrangler | Quadratec, accessed January 5, 2026, https://www.quadratec.com/c/blog/five-ways-to-tell-if-you-have-jl-or-jk-wrangler
+12. OEM JEEP WRANGLER GLADIATOR 2018-25 flip smart keyless remote key fob OHT1130261 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/277414905814
+13. 2021 Jeep Wrangler 4XE JL SGW Cable Install - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=-V93etacytY
+14. FCA Security Gateway Module Bypass Chrysler Dodge Jeep RAM Fiat 2018+, accessed January 5, 2026, https://www.tlkeys.com/products/2018-FCA-Security-Gateway-Module-Bypass-34531
+15. What Vehicles Can Autel IM608 Work On? U.S. Compatibility Guide - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/what-vehicles-can-the-autel-im608-work-on-a-complete-u-s-vehicle-compatibility-guide
+16. XTOOL - 12+8 Gateway Bypass Cable 2018+ for Chrysler Dodge Jeep - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/xtool-12-8-gateway-bypass-cable-2018-for-chrysler-dodge-jeep
+17. Key Programming | The SMART PRO Programs a Proximity Key For a JEEP Cherokee!, accessed January 5, 2026, https://www.clksupplies.com/blogs/news/key-programming-the-smart-pro-programs-a-proximity-key-for-a-jeep-cherokee
+18. Jeep Gladiator 2020 New Key - Star Connector - SmartPro - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=12efoBsj0hA
+19. 2020 Jeep Gladiator in & out proximity programming via Smart Pro - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=MiSzzliKEC0
+20. Security Gateway Bypass Module - ZAutomotive, accessed January 5, 2026, https://www.zautomotive.com/products/z_sgw
+21. JEEP Transponder Catalog | PDF | Jeep | Off Road Vehicles - Scribd, accessed January 5, 2026, https://www.scribd.com/document/669414379/JEEP-Transponder-Catalog
+22. Chrysler, Dodge, Jeep, Ram & Mitsubishi Transponder Car Key – Philips 46 Chip for 2018 Jeep Wrangler, accessed January 5, 2026, https://store.carkeysexpress.com/keys-and-remotes/Jeep/Wrangler/2018/1000376-chrysler-dodge-jeep-ram-mitsubishi-transponder-car-key-philips-46-chip
+23. Transponder Chip for Jeep RAM Kia NXP PCF7939MA 4A - Your Car Key Guys, accessed January 5, 2026, https://yourcarkeyguys.com/products/transponder-chip-for-jeep-ram-kia-nxp-pcf7939ma-4a
+24. Trouble Programming a 2020 Jeep Gladiator : r/Locksmith - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1dut7iy/trouble_programming_a_2020_jeep_gladiator/
+25. INSERT 2018-2024 Jeep Gladiator | Wrangler Flip Key Blade Replacement SIP22, accessed January 5, 2026, https://yourcarkeyguys.com/products/insert-2018-2023-jeep-gladiator-wrangler-flip-key-blade-replacement-sip22
+26. Emergency Keys - Reliable Solutions for Locksmiths | UHS Hardware – tagged "Jeep", accessed January 5, 2026, https://www.uhs-hardware.com/collections/new-mk-emergency-keys/jeep
+27. Y160 Auto Key | 6 Things You Need to Know - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=lBWl4qy7WDY
+28. (636) CY24-CV Lishi Picking & Decoding a Chrysler Jeep Dodge Lock - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=2KMlRvD_VIA
+29. IM608 PRO Training - How To Do An All Keys Lost On A 2010 Jeep Grand Cherokee, accessed January 5, 2026, https://www.youtube.com/watch?v=fpeZd2ghxvE
+30. 2025 Autel IM608 PRO II IMMO Key PROGRAMMING Diagnostic Tool ALL Key Lost | eBay, accessed January 5, 2026, https://www.ebay.com/itm/126777788646
+31. Autel MaxiIM IM608 Pro II Key Fob Programming Tool, accessed January 5, 2026, https://store.autel.com/products/maxiim-im608-pro-ii
+32. 2021 Jeep Wrangler Key Fob Programming | All Keys Lost | Autel Universal Remote | Autel KM100 /IM508 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=G9pV6q1Di2w
+33. User Manual - Xtool Official Car Diagnostic TOOL Store, accessed January 5, 2026, https://www.xtoolglobal.com/pages/user-manual
+34. Avoid Costly Mistakes: Xtool D8S Key Programming - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=7UmNijyj0c0
+35. 2024 JEEP GLADIATOR KEY PROGRAMMING (UPDATE VIDEO) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=LutYO75REeE
+36. 2025 Jeep Gladiator Smart Flipkey Fob PN: 68416785AB - Remotes And Keys, accessed January 5, 2026, https://remotesandkeys.com/products/2025-jeep-gladiator-smart-flipkey-fob-pn-68416785ab
+37. Autel IM608 XP400 PRO All Keys Lost Jeep Liberty P0513 invalid skim key! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=aOsIr862RYA
+38. 2024 JEEP GLADIATOR Key Not Detected - How To Start With Dead, Bad Remote Key Fob Battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=uX3A_MadWeo
+39. Jeep Wrangler 2020 Proximity with security gateway bypass tutorial - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=pakAz1x14_w

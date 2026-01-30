@@ -1,0 +1,187 @@
+﻿Forensic Analysis of Audi Q5 (Type FY) Electronic Architecture: BCM2 Interchangeability, Body Variant Specifics, and PHEV Security Protocols
+1. Introduction to the MLB Evo Platform and the Q5 FY Architecture
+The automotive industry's shift toward modular architectures has fundamentally reshaped vehicle diagnostics, repair, and electronic security. The Audi Q5 (Type FY), introduced in 2017 for the 2018 model year, represents a pivotal moment in this evolution, marking the transition from the first-generation MLB (Modularer Längsbaukasten) platform to the highly sophisticated MLB Evo architecture. This report provides an exhaustive technical analysis of the electronic backbone of the Q5 FY, specifically focusing on the Body Control Module 2 (BCM2/J393), which serves as the central node for access authorization, immobilizer security, and rear-body electronics.
+While the MLB Evo platform facilitates a high degree of component sharing across the Audi lineup—most notably with the Audi Q7 (Type 4M), A4 (Type B9), and A5 (Type F5)—this hardware commonality masks a deeply fragmented software landscape. The "plug-and-play" era of automotive repair has effectively ended, replaced by a regime of Component Protection (CP), encrypted parameter sets (ZDC), and locked microcontrollers. This analysis investigates the precise limits of interchangeability between the Q5 FY and the larger Q7 4M, dissects the unique electronic configuration of the Q5 Sportback variant, and establishes safety protocols for key programming on the complex Q5 55 TFSI e Plug-in Hybrid (PHEV).
+1.1 The Evolution from MLB to MLB Evo
+To understand the challenges of the Q5 FY, one must first contextualize the shift from its predecessor, the Q5 8R. The original MLB platform relied on a relatively distinct separation of duties between the Comfort CAN bus and the Powertrain CAN bus. The BCM2 in the older generation (Immobilizer IV and early V) was accessible via standard EEPROM programmers, allowing for relatively straightforward cloning and data extraction.1
+The MLB Evo platform, however, introduces a FlexRay backbone for high-speed data transmission between safety-critical systems (chassis, driver assistance) and integrates a more robust CAN-FD (Flexible Data-rate) protocol for body electronics in later model years. This architecture centralizes authority in the Gateway (J533) and the BCM2 (J393), creating a tightly coupled network where "module swapping" without authorized online coding is virtually impossible. The BCM2 in the MLB Evo generation is not merely a switch for lights and locks; it is a cryptographic vault holding the vehicle's identity.3
+1.2 The Central Role of the BCM2 (J393)
+In the Q5 FY, the "Central Module for Comfort System," designated J393 or BCM2, acts as the operational commander for the rear third of the vehicle. Its responsibilities are categorized into three critical domains:
+1. Immobilizer Master (Immo V/VI): The BCM2 stores the Component Security (CS) bytes, the unique Dealer Key identities, and the synchronization keys for the Engine Control Unit (ECU) and Transmission Control Unit (TCU). It is the gatekeeper of the "Start Authorization" process. If the BCM2 does not validate the key transponder, Terminal 15 (Ignition) will not energize, and the steering column lock (J764)—if equipped—will not release.5
+2. Access and Authorization: The module manages the Keyless Entry (KESSY) antennas located in the door handles, bumper, and interior console. It processes the 315/433/868 MHz remote signals and controls the central locking motors, fuel flap locking, and, crucially for PHEV models, the charging port locking solenoid.6
+3. Body Electronics Management: The BCM2 directly drives the rear lighting clusters (brake, turn, reverse, fog), manages the rear window defrost grid, and communicates with the Rear Lid Control Module (J605) to orchestrate the powered tailgate's motion. It also serves as the LIN bus master for the rear door control units and ambient lighting modules.8
+The convergence of these functions into a single module means that a failure of the BCM2 results in a "Total Loss" scenario: the vehicle cannot be unlocked, started, or towed easily (due to the electronic parking brake and transmission park lock). Consequently, the demand for repair, cloning, and replacement solutions is high, yet the technical barriers on the Q5 FY are significantly higher than on previous generations.
+
+
+  
+
+
+
+2. The "Locked" MCU Paradigm: A Barrier to Entry
+A critical finding in the investigation of the Q5 FY is the industry-wide shift toward "Locked" microcontrollers. Snippets indicate that around 2013-2014, preceding the launch of the Q5 FY but impacting its development, Audi introduced a security update to the BCM2 architecture that fundamentally altered the repair landscape.5
+2.1 The Silicon Architecture
+The BCM2 in the Q5 FY typically utilizes a high-performance microcontroller from the Renesas V850 or RH850 family (formerly NEC). These processors are designed with built-in security features intended to prevent intellectual property theft and unauthorized tampering.
+* The Security Fuse: The manufacturer "blows" a physical fuse within the silicon of the MCU during the initial factory programming. This action disables the external debugging ports (JTAG/UART/NBD) that aftermarket programmers typically use to read and write data.9
+* Encrypted Data Segments: Even if physical access were possible, the data residing in the P-Flash (Program Flash) and D-Flash (Data Flash) is encrypted. The MCU contains a hardware cryptographic engine that decrypts instructions on the fly. Without the unique decryption key (often tied to the specific MCU serial number), the extracted data appears as pseudo-random noise.
+2.2 Implications for Repair and Cloning
+In the previous Q5 8R generation (pre-2013), a technician could desolder the EEPROM or connect to the BCM2 points, read the "Immo Data" (CS, MAC, PIN), and write it to a used donor unit from a salvage yard. This process, known as "Cloning," is effectively blocked on the Q5 FY.
+* No OBD Read: Standard diagnostic tools cannot read the sensitive immobilizer data via the OBD-II port because the "Locked" firmware rejects the read commands.5
+* No Direct Read: Connecting directly to the circuit board is futile without a specific "Unlock" exploit. The "Unlock" process, mentioned in snippets regarding tools like Abrites (VN020 license), involves exploiting a vulnerability in the MCU's bootloader to temporarily bypass the security fuse or gain read access.5
+* The "Total Loss" Consequence: If a BCM2 in a Q5 FY is water-damaged or burned (common issues due to sunroof drains or rear washer leaks), the data is often unrecoverable. The technician cannot simply buy a used unit from eBay and clone the old one. Instead, they must perform a "Dealer Key" adaptation which requires the new (or virginized) BCM2 to be authorized online via the Audi AG servers (ODIS Service), or use high-end aftermarket tools that can "virginize" a donor BCM2 to a "New" state, allowing it to be adapted as if it were a factory replacement.12
+________________
+3. Interchangeability Forensics: Q5 FY vs. Q7 4M
+The core of the user's inquiry concerns the interoperability of the BCM2 between the Q5 FY (2018–2024) and the Q7 4M (2016–2023). Both vehicles share the MLB Evo platform, suggesting a high probability of hardware sharing. However, detailed analysis reveals that while the hardware is often identical, the software configuration creates a rigid barrier to direct interchangeability.
+3.1 Hardware Commonality and Part Number Taxonomy
+The BCM2 modules for the MLB Evo platform are manufactured by Hella or Continental and share a standardized form factor and connector layout. The mounting points are identical, and the modules physically fit into the bracket behind the left rear trim panel in both the Q5 and Q7.13
+Part Number Analysis:
+* Q5 FY Native Parts: The Q5 typically utilizes BCM2 units with the prefix 8W0 (shared with the A4 B9) or 80A (specific to the Q5). Later models, and those with advanced features, may use the 4N0 prefix (shared with the A8 D5 and A6 C8).8
+   * Example: 8W0 907 064 GH or 4N0 907 064 EP.
+* Q7 4M Native Parts: The Q7 launched with 4M0 prefixed parts but transitioned to 4N0 parts in later model years (post-facelift).
+   * Example: 4M0 907 064 xx.
+The Convergence: Research confirms that the hardware underlying these part numbers is frequently the same. A BCM2 labeled 4N0 907 064 is a "universal" MLB Evo hardware platform. It can be programmed to function in an A6, A7, Q7, or Q5. The snippet 15 explicitly lists a single replacement unit as compatible with "Audi A6 C8, A4 B9, Q5," confirming that the hardware is cross-compatible.
+3.2 The Pinout Matrix: Connector T32c Analysis
+To scientifically verify the potential for interchangeability, we must examine the electrical pinouts. If the Q7 BCM2 outputs 12V on Pin 5 for air suspension, but the Q5 expects a ground signal for a tail lamp on the same pin, direct interchangeability would result in a short circuit.
+Using the wiring diagrams referenced for the Q5 6 and Q7 16, we focus on the T32c connector (the 32-pin black connector), which is the primary interface for body signals.
+
+
+  
+
+
+
+Analysis of the Pinout Data:
+The comparison reveals a very high degree of alignment on critical circuits:
+* Power and Ground: Pins 1 (Terminal 30) and 2 (Terminal 31) are standard across the platform.
+* Network: Pins 17 (CAN High) and 18 (CAN Low) align perfectly, ensuring the module can communicate with the Gateway.
+* Key Functions: Central locking motors, rear lid release signals, and basic lighting outputs generally map to the same pins.
+The Divergence: The differences are not in the presence of pins, but in the assignment of optional features controlled by software.
+* Air Suspension: The Q7 4M features air suspension as a standard or very common option. The Q7 BCM2 parameterization expects to send "wake-up" signals to the Suspension Control Unit (J775). A Q5 (typically steel-sprung) does not need this. If a Q7 BCM2 is plugged into a Q5 without reflashing, it may log "Missing Message" faults for the suspension system.
+* Power Latching (Soft Close): The Q7 often has power-cinching doors. The BCM2 manages the logic for this. The Q5 rarely has this feature. Unused pins on the Q5 harness might be driven active by a Q7-coded module, potentially causing battery drain or confusion on the LIN bus.
+3.3 The Software Barrier: ZDC and Component Protection
+Even if the pinout is a 100% match, you cannot simply plug a Q7 BCM2 into a Q5 and drive away. Two massive software barriers exist:
+1. Component Protection (CP): This is the anti-theft mechanism. Upon boot, the BCM2 queries the Gateway (J533) for the vehicle's VIN. If the VIN stored in the BCM2 (from the donor Q7) does not match the Q5's VIN, the module enters "Safe Mode."
+   * Symptoms: The interior lights may work, but the ignition will not turn on, the steering column will not unlock, and the "Component Protection Active" message will appear on the dashboard.12
+   * Resolution: This requires an online connection to the Audi servers via ODIS Service. The technician must authenticate with a valid Geeko ID to "marry" the donor module to the new car. This process rewrites the authorized VIN in the BCM2. Crucially, if the donor Q7 was reported stolen, this process will flag the Q5 and potentially lock the account.
+2. ZDC Data Containers (VCP): This is the "personality" of the module. The BCM2 firmware is generic; the ZDC file tells it "You are a Q5," "You have LED tail lights," "You have a manual tailgate."
+   * The Mismatch: A Q7 BCM2 contains a ZDC for a Q7 body. It expects the thermal characteristics of Q7 tail lights, the travel distance of a Q7 tailgate, and the lock logic of a Q7.
+   * The Fix: To use a Q7 unit in a Q5, a technician must use a tool like VCP (VAG CAN PRO) or ODIS Engineering to flash the correct Audi_Q5_FY_BCM2_Parametrization.xml file. Without this, the lights may flicker (wrong PWM frequency) or the trunk may slam shut (wrong motor calibration).
+Conclusion on Interchangeability: A Q7 4M BCM2 can physically replace a Q5 FY BCM2, provided it is the same hardware generation (e.g., 4N0 series). However, it is functionally useless until it undergoes two procedures: Component Protection Removal (Online) and ZDC Re-parameterization (Offline/Online). It is not a DIY "plug-and-play" swap.
+________________
+4. Body Variant Analysis: Standard SUV vs. Sportback (FYT)
+The introduction of the Q5 Sportback (Type FYT) in 2021 brought a new aesthetic to the lineup, characterized by a sloping roofline and a heavily raked rear hatch. While visually distinct, the electronic architecture remains rooted in the MLB Evo platform. However, the geometric differences force critical changes in the rear body electronics, specifically regarding the Rear Lid Control Module (J605).
+4.1 Geometric Constraints and the J605 Module
+The J605 module manages the twin spindle drives that lift the tailgate. It relies on Hall effect sensors within the motors to count the "steps" of the spindle, translating this into the opening angle of the hatch.18
+The Conflict: The Sportback's roof hinge point is moved forward and lower compared to the standard SUV. The center of gravity of the hatch is different, and the maximum safe opening angle is more restricted to prevent the glass from hitting the roof antenna or the spoiler from impacting the roof rails.
+Parameterization (ZDC) is Critical:
+* Standard SUV ZDC: Configured for a heavier, vertical hatch with a longer range of motion.
+* Sportback ZDC: Configured for a lighter (potentially), angled hatch with a specialized "Opening Offset."
+* The Risk: Snippet 20 highlights a specific Technical Service Bulletin (TSB) where an incorrect identifier in the Target Data Container caused the tailgate to open 4 to 6 inches too far, specifically in cold weather (where hydraulic resistance changes). In a Sportback, applying the Standard SUV dataset could disastrously drive the spoiler into the mechanical stops or the vehicle roof, causing thousands of dollars in bodywork damage.
+4.2 Sensor Calibration and Pinch Protection
+The Sportback's raked glass changes the angle of attack for the pinch protection strips (anti-trap sensors). The BCM2 monitors the resistance on these strips.
+* Different Sensitivity Curves: The ZDC for the Sportback likely contains different current-monitoring thresholds for the lift motors. Because the leverage ratio of the spindle drives changes as the hatch opens (due to the different hinge geometry), the motor load profile is different.
+* Implication: If a technician replaces a BCM2 or J605 in a Sportback and defaults to the "Standard Q5" coding, the pinch protection might be too sensitive (false reversals) or not sensitive enough (safety risk), due to the mismatch between the expected and actual motor load curves.
+4.3 Part Number and Location Specifics
+Despite the functional differences, the physical location of the modules remains consistent.
+* J393 (BCM2): Located behind the left luggage compartment trim in both variants.
+* J605: Often integrated into the master drive unit or mounted adjacent to it behind the D-pillar trim.
+* Trim Removal: Technicians must be aware that while the location is the same, the access is different. The Sportback's interior C-pillar and D-pillar trims are shaped differently. Snippet 21 suggests that standard removal tools (Torx T25, plastic pry tools) are sufficient, but the leverage points near the raked glass are tighter.
+Summary: The BCM2 itself is shared between SUV and Sportback, but the ZDC loaded into it is variant-specific. The J605 module must be explicitly coded for the body type K8R (Sportback) versus K4H (SUV) to prevent mechanical damage.
+________________
+5. Plug-in Hybrid (TFSI e) Specifics: Security and Safety Protocols
+The Audi Q5 55 TFSI e (PHEV) represents the most complex integration challenge for locksmiths and diagnostic technicians. The presence of a High Voltage (HV) traction battery (14.1 kWh or 17.9 kWh) overlaying the standard MLB Evo electronics introduces severe safety risks and procedural changes for key programming.
+5.1 High Voltage Architecture and Safety
+The Q5 PHEV utilizes a lithium-ion battery pack mounted under the luggage compartment floor, utilizing Samsung SDI prismatic cells.22 This system operates at ~385V DC.
+* The Hazard: In a standard ICE vehicle, the "worst case" electrical accident is a 12V short. In the PHEV, an accidental bridge of the HV bus can be lethal.
+* Interlock Loop: The vehicle features a hardware High Voltage Interlock Loop (HVIL). If any HV connector is unplugged, the Battery Management System (BMS/J840) opens the main contactors, isolating the HV battery.
+* Service Disconnect: For any work involving the BCM2 (which sits near HV cables in the trunk) or invasive electrical repairs, the Service Disconnect Switch (often a green or orange plug located under a yellow warning flap in the cargo floor or front engine bay) must be pulled.24
+5.2 The "Ignition ON" Problem in PHEVs
+Key programming (Adding a Key or All Keys Lost) requires the vehicle to be in a stable "Ignition ON / Engine OFF" state to wake the BCM2 and Gateway.
+* ICE Q5: You press Start. The dash lights up. The engine stays off.
+* PHEV Q5: You press Start. The "Ready" light comes on. The HV contactors CLUNK closed. The DC/DC converter starts pushing 14V to the 12V rail.
+* The Conflict: Many aftermarket key programming tools (Autel, VVDI) require the engine/hybrid system to be OFF to read the BCM2 safely. If the hybrid system cycles on (e.g., to charge the 12V battery or run the AC), the voltage fluctuation or the bus traffic can disrupt the delicate EEPROM reading process, potentially corrupting the BCM2 data.11
+5.3 The "Charging Cable" Hard Interlock
+A unique feature of the TFSI e is the hardware interlock associated with the charging port.
+* Mechanism: When a J1772 or Type 2 charging gun is inserted, a proximity pilot signal tells the Onboard Charger (OBC) to lock the port. Simultaneously, the BCM2 disables the "Terminal 15" relay logic to prevent the car from being driven away while plugged in.26
+* The Trap: Technicians often attempt to program keys while the vehicle is plugged into a wall charger, thinking this will keep the battery full. This is a mistake. The BCM2 will reject "Ignition ON" commands because the charging cable is detected.
+* The Edge Case: If a technician forces the ignition (via fuse jumper) while the cable is plugged in, the BCM2 enters a logic conflict. It may lock the charging cable solenoid permanently, requiring the manual emergency release (yellow ring in the trunk side panel) to free the cable.25
+5.4 Protocol for "All Keys Lost" on TFSI e
+When no working key is available for a Q5 PHEV, the technician cannot turn on the ignition to wake the bus. The standard "Force Ignition" fuse jumper method used on gas models is risky on the PHEV.
+* Risk: Energizing the Terminal 15 fuse rail wakes the Hybrid Manager (J840). If J840 sees "Ignition ON" but "Immobilizer Not Authenticated" (because there is no key), it interprets this as a theft attempt or a high-voltage breach. It may trigger a "Crash Signal" or "Theft Lock," permanently isolating the HV battery via a pyro-fuse or software lock.23
+* Battery Recall Context: If the vehicle is subject to the Samsung SDI battery recall (Recall 93AA), the BMS software is hyper-sensitive. A "Force Ignition" event might trigger the "Cell Monitoring Anomaly" logic, bricking the car.23
+Operational Logic for Safe Key Programming:
+To navigate these risks, technicians must follow a strict decision tree. The system must be manipulated to allow BCM2 communication without fully waking the High Voltage drivetrain.
+* Step 1: Disconnect Charging Cable. Ensure no AC charger is connected.
+* Step 2: External Power. Connect a high-amperage (50A-70A) 12V battery maintainer to the jumper posts in the engine bay. Do not rely on the HV battery to support the 12V rail.
+* Step 3: Wake Bus Safely. Instead of forcing the ignition fuse, use the "Hazard Lights + Brake Pedal" method or a specialized "Connector" (like the G-BOX or OBD breakout) that generates a specific Wake-Up signal on the CAN bus without energizing the HV contactor relays.27
+* Step 4: HV Disconnect (Optional but Recommended). For maximum safety, pull the Service Disconnect. This ensures that no matter what the BCM2 does, the HV contactors physically cannot close. This protects the technician and the programming process from HV interference.
+5.5 Maintenance Mode
+Some diagnostic tools refer to a "Maintenance Mode" for PHEVs. This is effectively a diagnostic state where the HV system is software-disabled, but the 12V DC/DC converter remains active to support vehicle electronics.28
+* Access: This mode is typically entered via ODIS or a specific sequence (e.g., Hood Open + Hazard Lights + specific pedal press).
+* Benefit: It allows for stable voltage (14.7V) provided by the car's own systems without the risk of the engine starting or the wheels turning. However, for Key Programming, an external power supply is still preferred to avoid "noisy" voltage from the DC/DC converter.
+________________
+6. Advanced Programming & Recovery: Forensic Procedures
+When a BCM2 fails or all keys are lost, the repair process is a forensic exercise. Due to the "Locked" nature of the MCU, standard OBD procedures often fail, necessitating "Bench Mode" operations.
+6.1 Bench Reading Strategy
+To read the BCM2 data without the key (which is needed to decrypt the OBD stream), the module must be removed from the vehicle.
+* Connection: The technician connects an adapter (e.g., Xhorse BCM2 Solder-Free Adapter or soldered wires) to specific test points on the PCB. These points tap into the MCU's communication lines before the security fuse logic blocks the external ports, or they utilize a "glitch" method to bypass the check.11
+* Pinout for Bench Power:
+   * T32c Pin 1: +12V (VCC)
+   * T32c Pin 2: Ground (GND)
+   * T32c Pin 17: CAN High
+   * T32c Pin 18: CAN Low
+* Data Extraction: The goal is to extract the "Immo Data" file. This binary file contains the CS (Component Security) bytes, the MAC address, the PIN code, and the Key IDs.
+
+
+  
+
+
+
+6.2 Component Protection Removal
+Once a donor BCM2 is installed (or the original is repaired), Component Protection will be active.
+* The "Virginization" Myth: Some sources suggest you can "virginize" a BCM2 to make it plug-and-play. While possible with sophisticated cryptanalysis, the standard authorized repair path is ODIS Online.
+* The Procedure:
+   1. Connect vehicle to ODIS Service.
+   2. Log in with Geeko (Dealer) credentials.
+   3. Select "Component Protection" from the Special Functions menu.
+   4. The system reads the serial number of the new BCM2.
+   5. It cross-references the FAZIT database.
+   6. If clear, it issues a signed digital certificate to the Gateway, authorizing the new BCM2.
+* Constraint: This does not program the keys. It only allows the modules to talk. Key programming is a separate "Immobilizer Adaptation" step.
+________________
+7. Conclusion
+The Audi Q5 FY (2018–2024) exemplifies the modern automotive security paradox: while physical hardware becomes more standardized (MLB Evo), the logical and software layers become exponentially more fragmented and restricted.
+The investigation yields three definitive conclusions for automotive professionals:
+1. Interchangeability is Illusory: While a Q7 4M BCM2 fits a Q5 FY, it is a blank canvas that requires authorized online intervention (ODIS) and specific ZDC parameterization to function. The days of "junkyard swaps" are effectively over for this platform.
+2. Body Variants Matter: The Sportback (FYT) is not just a cosmetic package; it requires distinct rear lid parameterization. Ignoring this distinction risks significant physical damage to the vehicle body due to liftgate over-travel.
+3. PHEV Safety is Paramount: The TFSI e drivetrain transforms a routine key programming job into a high-stakes operation. The interaction between the BCM2, the HV Battery Manager, and the Charging Port Interlock demands a disciplined "Power Hygiene" protocol—specifically the disconnection of charging cables and the use of robust external 12V support—to prevent system lockouts or bricking.
+For the repair industry, this signals a shift from "hardware replacement" to "software authorization." Success in servicing the Q5 FY depends less on the screwdriver and more on the Geeko ID, the ZDC file, and the precise management of voltage states.
+Works cited
+1. audi platform & chassis codes explained: from b5 to mlb & ppe - Amayak Auto Service, accessed January 26, 2026, https://amayakauto.com/audi-platform-chassis-codes-explained-from-b5-to-mlb-ppe/
+2. Volkswagen Group MLB platform - Wikipedia, accessed January 26, 2026, https://en.wikipedia.org/wiki/Volkswagen_Group_MLB_platform
+3. VW's MLB Evo Platform - The Autoverse, accessed January 26, 2026, https://theautoverse.io/vws-mlb-evo-platform/
+4. Audi's All-New Premium Platform Combustion Isn't As 'All New' As We Thought - CarBuzz, accessed January 26, 2026, https://carbuzz.com/audi-premium-platform-combustion-not-all-new/
+5. THE SECRETS OF LOCKED AND UNLOCKED BCM2 MODULES Abrites, accessed January 26, 2026, https://abrites.com/blog/the-secrets-of-locked-and-unlocked-bcm2-modules
+6. Audi Q5 Wiring Diagram Guide | PDF | Manufactured Goods | Car Body Styles - Scribd, accessed January 26, 2026, https://www.scribd.com/document/713014871/q5-Do-2015-A005Q520020-Basic-Equipment-From-September-2008
+7. Private and public charging - Locking and unlocking charging cable - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=f5TSmm7C6ig
+8. Electrical Components for 2018 Audi Q5 | OEM Parts Online, accessed January 26, 2026, https://audi.oempartsonline.com/v-2018-audi-q5--premium-plus--2-0l-l4-gas/electrical--electrical-components
+9. BCM2 LOCKED / ENCRYPTED NEC SET1 - Keymaster PolDiag, accessed January 26, 2026, https://keymaster.pl/shop/bcm2-locked-encrypted-nec/
+10. Audi BCM D70F3381 | PDF - Scribd, accessed January 26, 2026, https://www.scribd.com/document/458809706/audi-bcm-D70F3381
+11. How to Recover All Lost BMW/Audi Keys with VVDI2 & KEY TOOL PLUS - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=o5eDkM7O0SI
+12. Bcm coding : r/MechanicAdvice - Reddit, accessed January 26, 2026, https://www.reddit.com/r/MechanicAdvice/comments/1hr1huv/bcm_coding/
+13. Original Audi A4 A5 Q5 Q7 Body Control Module BCM2 Comfort System 8W0907064BB 8W, accessed January 26, 2026, https://www.ebay.com/itm/286987565086
+14. FOR 4N0 907 064 DP 4N0907064DP BCM 2 - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005003180575341.html
+15. For Audi A6 C8 A4 A5 B9 Q5 BCM2 control unit J393 4N0 907 064 GH 4N0907064GH 8W1907064BH - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/item/1005008126159441.html
+16. SSP 634 Audi Q7 Type 4M Onboard Power Supply and Networking | PDF - Scribd, accessed January 26, 2026, https://www.scribd.com/document/521093107/SSP-634-Audi-Q7-Type-4M-Onboard-Power-Supply-and-Networking
+17. Audi Q7 Wiring Diagram Overview | PDF - Scribd, accessed January 26, 2026, https://www.scribd.com/document/667297862/Audi-q7-2016-Wiring-Diagram-Eng
+18. Audi Q5 power tailgate lift motor repair - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=Y8qB2jolSpA
+19. MLB based Trunk Electronics (J605) - Ross-Tech Wiki, accessed January 26, 2026, https://wiki.ross-tech.com/wiki/index.php/MLB_based_Trunk_Electronics_(J605)
+20. Technical Service Bulletin - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2022/MC-10208204-0001.pdf
+21. Tailgate Trim Panel Removal Audi Q5 B9 - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=BPxQt_GnsPk
+22. Technical Service Bulletin - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2025/MC-11013713-0001.pdf
+23. Audi Q5 PHEV Battery Fire Risk Recall 93AA – Software Fix (2022-2023) - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=UHuVVzOH-xM
+24. Audi Q5 e-hybrid, accessed January 26, 2026, https://emea-dam.audi.com/adobe/assets/urn:aaid:aem:7c552888-c63e-4f57-90a2-4e05d7e28e38/original/as/Audi_Q5_e-hybrid_SUV_2025_5d_Hybrid_EN.pdf
+25. Q5 TFSI e Audi - Energy Security Agency, accessed January 26, 2026, https://energysecurityagency.com/wp-content/uploads/2021/08/Audi-Q5-Plug-In-Hybrid-EV-2020.pdf
+26. I've accidentally turned my ignition on while charging and - JustAnswer, accessed January 26, 2026, https://www.justanswer.co.uk/car/mxl79-i-ve-accidentally-turned-ignition-charging.html
+27. How To Perform Key Learning for Audi Q5 using Autel IM608 Key Programmer - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=Na_USushH3o
+28. VAG Vehicle Batteries Self Study | PDF - Scribd, accessed January 26, 2026, https://www.scribd.com/document/670295171/VAG-Vehicle-Batteries-self-study
+29. AUTOMOTIVE - Castor Trading, accessed January 26, 2026, https://castortrading.com/Catalogs/F18EN/23_AutomotiveAndTrucks.pdf
+30. How to Use AO.D BCM2 Solder-Free Adapter VW/Audi key programming Xhorse - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=pHETT1dbqT8

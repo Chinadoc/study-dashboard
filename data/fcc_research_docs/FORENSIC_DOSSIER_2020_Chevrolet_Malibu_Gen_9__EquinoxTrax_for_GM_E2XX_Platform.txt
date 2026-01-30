@@ -1,0 +1,240 @@
+﻿FORENSIC DOSSIER: 2020 Chevrolet Malibu (Gen 9) + Equinox/Trax for GM E2XX Platform
+1. Executive Summary: The E2XX Security Paradigm
+The 2020 Chevrolet Malibu (Generation 9) and the associated Equinox and Trax variants represent a critical juncture in the evolution of General Motors’ electronic vehicle architecture. These vehicles are engineered upon the E2XX platform, a modular chassis architecture that succeeds the long-standing Epsilon II. This platform sits precisely on the technological fault line between the legacy Global A electronic architecture, which dominated the 2010s, and the emerging, cryptographically hardened Global B (Vehicle Intelligence Platform or VIP) architecture that characterizes GM's post-2020 roadmap.
+For the forensic locksmith, security integrator, and systems analyst, this transition period creates a highly complex landscape of hybrid protocols, frequency variances, and immobilization distinctives. The E2XX platform is not a monolith; it is a transitional ecosystem where legacy procedures often overlap with next-generation security constraints. The security architecture is defined by a reliance on high-speed communication buses, server-side authentication for programming, and a rigorous dependency on voltage stability, necessitated by the integration of Start/Stop fuel-saving technologies.
+This dossier provides an exhaustive technical reference for the interrogation, programming, and troubleshooting of the access control systems within this platform. The analysis indicates that while the physical lock cylinders—specifically the HU100 milling—remain consistent with the previous decade of GM engineering, the electronic handshake governed by the Body Control Module (BCM), the Remote Control Door Lock Receiver (RCDLR), and the Passive Entry Passive Start (PEPS) systems has introduced new layers of complexity.
+Forensic examination reveals that successful interaction with these vehicles requires a departure from traditional "key turning" methodologies toward a "network management" approach. The technician must manage the vehicle's voltage to prevent Dual Battery Control Module (DBCM) interference, navigate the nuances of Radio Frequency (RF) allocation defined by Regular Production Option (RPO) codes, and potentially interface with GM's back-end servers via Techline Connect for cryptographic clearance.
+Specifically, the integration of Start/Stop technology utilizing dual-battery configurations creates a distinct vulnerability during key programming sequences. If the auxiliary battery voltage deviates below critical thresholds—specifically 8.90V at the Engine Control Module (ECM) input—the immobilizer handshake will abort, often leaving the vehicle in a theft-deterrent state.1 Furthermore, the reliance on high-frequency communication (315 MHz vs. 433 MHz), determined by specific RPO codes (XL7 vs. XL8), necessitates a strict forensic approach to hardware verification before any programming attempt is made.2
+2. Platform Architecture: Global A vs. Global B Transition
+The E2XX platform underpins the 2016–2021+ Malibu and Equinox, serving as the skeletal and nervous system for these vehicles.3 Understanding the electronic architecture is the prerequisite for successful interaction with the vehicle's security modules, as the architecture dictates the available attack vectors for legitimate programming and the nature of the digital walls erected against unauthorized access.
+2.1 The Legacy of Global A and "Global A+"
+For the majority of the 2010s, General Motors utilized the Global A architecture. This system allowed for a relatively modular approach to component swapping and key programming. In a standard Global A environment, modules could often be reprogrammed, and the encryption keys for the immobilizer were static enough to be managed by aftermarket tools (e.g., Autel IM608, OBDStar) with moderate ease. The communication protocols were robust but lacked the intense cybersecurity gateways of modern systems.
+The 2020 Malibu largely retains the high-level logic of Global A but incorporates what industry analysts term "Global A+" security features. These features patch previous vulnerabilities, making unauthorized key addition significantly slower and more reliant on constant voltage and precise timing. The Body Control Module (BCM) in these vehicles acts as the central hub for security operations, managing the authorization of keys and the immobilization of the engine.
+2.2 The Encroachment of Global B (VIP)
+By 2020, GM began phasing in the Global B architecture, also known as the Vehicle Intelligence Platform (VIP). As noted in technical bulletins and industry analysis, Global B offers significantly higher processing power and over-the-air (OTA) update capabilities, but it also introduces a "walled garden" approach to diagnostics and security.4 This architecture is purposefully designed to manage multiple advanced safety systems and technologies concurrently, ensuring that intricate electronic components operate harmoniously.4
+The forensic implications of Global B are profound:
+* Cryptographic Hardening: Global B modules are encrypted individually. The BCM, ECM, and other critical modules share a rolling security key that is verified against the GM back-end servers during programming. This effectively kills the ability to swap used modules (like a BCM or Radio) without high-level intervention or EEPROM hacking.
+* Tooling Implications: While a 2020 Malibu may still respond to standard Global A protocols, the 2020+ Equinox and specifically 2021+ models frequently require CAN FD (Controller Area Network Flexible Data-Rate) adapters and online access to the GM server via ACDelco TDS (Techline Connect) to bypass the security gateway.
+* Identification: A forensic analyst can identify a Global B vehicle by the presence of a massive increase in data traffic on the OBDII port and the requirement for "active" server authentication for even basic diagnostic functions. The 2024 GMC Acadia and other upcoming models are fully committed to this architecture.5
+
+
+  
+
+
+
+2.3 The Gateway Module (SGM)
+In the E2XX platform's evolution toward Global B, the Serial Data Gateway Module (SGM) becomes the primary antagonist for unauthorized interfacing. Located electronically between the Data Link Connector (DLC/OBDII port) and the vehicle's internal networks, the SGM filters all traffic. In Global A vehicles, the OBDII pins connected directly to the High-Speed CAN bus. In late-model E2XX vehicles, they connect to the SGM.
+If the SGM does not recognize the digital signature of the connected tool—typically requiring a certificate download from the OEM server—it will discard the packets. This is why tools like the Autel IM608 or OBDStar must be connected to the internet; they are constantly retrieving security certificates to "handshake" with the SGM, proving they are authorized entities.6
+3. Immobilizer Hardware Forensics
+The physical and electronic tokens used to access the 2020 Malibu and Equinox are strictly defined by their FCC certifications and chipset architectures. A mismatch here is the primary cause of "failed programming" diagnostics. The vehicle does not simply "learn" any key; it requires a precise cryptographic match.
+3.1 Transponder Chipset Analysis: The Move to Hitag AES
+The E2XX platform utilizes the Philips ID 46 architecture as a base but has evolved into the NCF2951E integrated chip.2 This chipset supports the Hitag 2 and Hitag AES extended protocols.
+* Hitag 2: utilized in older GM keys, this protocol is vulnerable to various cryptographic attacks and cloning.
+* Hitag AES: On newer 2020+ models, the encryption advances to Hitag AES (Advanced Encryption Standard). This creates a "Proximity" or "PEPS" smart key system that requires bidirectional challenge-response authentication.
+The forensic implication of this shift is significant. Older cloning tools that support Hitag 2 will fail to write to or emulate Hitag AES keys. Furthermore, the key must undergo a "Pre-coding" or "Preparation" phase. During this phase, the programming tool writes specific dealer data (derived from the BCM) onto the blank key before the key is introduced to the car. If the key is not pre-coded correctly—or if it is an aftermarket key with a locked or incorrect pre-code—the BCM will reject it, often without a specific error message, leaving the technician to guess the point of failure.
+3.2 Frequency Divergence: The XL7 vs. XL8 Variables
+A critical forensic detail often overlooked is the RPO Code dependency for frequency selection. The vehicle's Remote Control Door Lock Receiver (RCDLR) is tuned to a specific bandwidth at the factory. It does not scan for all frequencies; it listens only for the one dictated by its build sheet.
+The divergence is primarily between 315 MHz and 433 MHz.
+* 315 MHz (RPO Code XL7): This was the historical standard for North American GM vehicles. It offers decent range and penetration but is increasingly crowded.2
+* 433 MHz (RPO Code XL8): This frequency is the emerging standard for Global platforms. It offers better penetration and range in interference-heavy environments and is standard in European and Asian markets, now bleeding into North American domestic models.
+The 2016 Chevrolet Cruze (Gen 2) serves as a cautionary case study for the E2XX platform. Early production models suffered from poor remote range. To rectify this, dealers were instructed to upgrade the RCDLR and keys from 315 MHz to 433 MHz. Technicians were then required to mark the Service Parts Identification (SPID) label (located in the trunk or glovebox) by writing "XL8" over the original "XL7" code.2 This historical anomaly has propagated into the Malibu and Equinox lines, where both frequencies coexist depending on the specific trim and build date.
+Therefore, a VIN check alone may be insufficient. Physical verification of the RCDLR part number or a visual inspection of the SPID label is mandatory before ordering or attempting to program a key. Attempting to program a 315 MHz key to a 433 MHz receiver will result in a successful "transponder learn" (the car will start) but a failed "remote learn" (buttons will not work), because the transponder operates on low-frequency (LF) coupling while the remote buttons operate on radio frequency (RF).
+3.3 Hardware Identification Matrix
+The following table synthesizes the critical forensic data regarding FCC IDs, Part Numbers, and RPO codes for the E2XX platform. This data is essential for identifying the correct hardware for a 2020 Malibu, Equinox, or related vehicle.
+Vehicle Model
+	Years
+	Frequency
+	FCC ID
+	RPO Code
+	Compatible Part Numbers
+	Chip / Protocol
+	Chevy Malibu
+	2016 - 2021
+	433 MHz
+	HYQ4EA
+	XL8
+	13529662, 13590048, 13589533, 13508769, 13584497
+	ID46 / NCF2951E (Hitag AES)
+	Chevy Malibu
+	2016 - 2021
+	315 MHz
+	HYQ4AA
+	XL7
+	13529664, 13508767, 13584498
+	ID46 / Hitag 2/AES
+	Chevy Equinox
+	2018 - 2021
+	433 MHz
+	HYQ4EA
+	XL8
+	13529639, 13519177
+	ID46 / NCF2951E
+	Chevy Equinox
+	2018 - 2021
+	315 MHz
+	HYQ4AA
+	XL7
+	13584498, 13529650
+	ID46 / Hitag 2/AES
+	Chevy Cruze
+	2016 - 2019
+	433 MHz
+	HYQ4EA
+	XL8
+	13598815, 13529638
+	ID46 / NCF2951E
+	Chevy Camaro
+	2016 - 2020
+	433 MHz
+	HYQ4EA
+	XL8
+	13508771, 13584504
+	ID46 / NCF2951E
+	Chevy Traverse
+	2018 - 2020
+	433 MHz
+	HYQ4EA
+	XL8
+	13529639, 13519177
+	ID46 / NCF2951E
+	Chevy Blazer
+	2019 - 2020
+	433 MHz
+	HYQ4EA
+	XL8
+	13529639
+	ID46 / NCF2951E
+	Table 1: Forensic Hardware Identification Matrix. Sources: 2
+Insight: The ubiquity of the HYQ4EA FCC ID across the Malibu, Equinox, Cruze, Camaro, and Traverse suggests a high degree of interchangeability. However, the button configurations (3-button, 4-button, 5-button) and the presence of remote start or power liftgate functions are controlled by the specific Part Number. While the FCC ID guarantees the radio frequency matches, the specific Part Number ensures the button mapping corresponds to the vehicle's BCM configuration.
+4. Programming Procedures: Protocols and Anomalies
+Programming keys to the E2XX platform is a procedural challenge that requires adherence to strict timing and environmental protocols. Deviations from these protocols result in BCM lockouts, incomplete registration, or the dreaded "Security Light" loop.
+4.1 The "All Keys Lost" (AKL) Protocol
+When no working keys are present, the system must be completely reset to accept new encryption data. This is a high-security event that the BCM interprets as a potential theft attempt, and thus it imposes significant time barriers.
+4.1.1 The Onboard Programming Method (No Tools)
+Contrary to the industry trend of requiring proprietary dealer tools for all operations, the E2XX platform often retains a "backdoor" for onboard programming, provided the alarm is not active and the mechanical key can turn the ignition cylinder.11 This method is a legacy feature that remains accessible in many 2020 models, though it is increasingly disabled in 2021+ Global B updates.
+The 30-Minute Security Delay:
+This procedure relies on a timer-based security clearance. The logic is that a thief in a hurry cannot wait 30 minutes, whereas a legitimate owner can.
+1. Initiation: Insert the cut mechanical key into the door lock cylinder. Turn the key counterclockwise (Unlock) five times within 10 seconds. This signals the BCM to enter "Learn Mode."
+2. Cycle 1: The Driver Information Center (DIC) may display "Remote Learn Pending, Please Wait." Turn the ignition to the ON/RUN position (Green Light on Push-to-Start button, engine off). Do not start the engine.
+3. The Wait: Wait precisely 10 minutes. The security padlock light on the dashboard will flash and then turn off.
+4. Cycle 2: Turn the ignition OFF, then immediately back ON. Wait another 10 minutes until the security light extinguishes.
+5. Cycle 3: Turn the ignition OFF, then immediately back ON. Wait the final 10 minutes.
+6. Finalization: Turn the ignition OFF, then press the Start button. The cluster should display "Ready for Remote 1."
+7. Registration: Place the new fob into the designated transmitter pocket (see Section 8). Press the Start button. The cluster should confirm "Ready for Remote 2."
+8. Exit: Press and hold the Start button (OFF) for approximately 12 seconds to exit programming mode.
+Forensic Note: This procedure clears all previous keys from the whitelist. Any old keys not present during this session will no longer start the vehicle.12
+4.1.2 The Diagnostic Tool Method (Autel/OBDStar/TDS)
+For professional locksmiths and technicians, the 30-minute wait is often operationally inefficient. Diagnostic tools like the Autel IM608, OBDStar, or the OEM ACDelco Techline Connect (TDS) can bypass this timer, but they require internet access to the GM server for "Security Access" calculation.
+Cost of Entry and Access:
+* ACDelco TDS: To use the official OEM method, a technician must purchase a subscription. As of current pricing, GM charges $45.00 USD per VIN for a "Vehicle Programming" slot.13 This token is valid for 24 months for that specific VIN.
+* NASTF Requirement: To legally access the key codes or immobilizer PINs via official channels, the operator must be a registered Vehicle Security Professional (VSP) with the National Automotive Service Task Force (NASTF).14 This involves a background check and a subscription fee ($435/2 years).
+* The Handshake: The scan tool initiates a request to the BCM. The BCM generates a "seed" (a random hexadecimal number). The tool sends this seed to the server (either Autel's third-party server or GM's TDS server). The server calculates the corresponding "key" using a proprietary algorithm and sends it back to the tool. The tool passes this key to the BCM. If the key matches the seed, the BCM unlocks the "Add Key" function immediately, bypassing the 30-minute wait.
+4.2 The "Add Key" Procedure (with 1 Working Key)
+If a working key is present, the "Add Key" procedure is significantly faster and does not require server access or a 30-minute wait.16
+1. Insert the working key (or place the working fob in the pocket). Turn the ignition to ON. Wait for the security light to extinguish.
+2. Remove the working key/fob.
+3. Within 5 seconds, insert the new key (or place the new fob in the pocket) and turn the ignition to ON.
+4. The system identifies the new transponder ID and appends it to the whitelist.
+5. Verification: The DIC will display the new number of programmed keys (e.g., "3 Keys Programmed").
+5. Critical Failure Points: The Forensic Troubleshooting Guide
+The 2020 Malibu and Equinox are notorious for specific failure modes that mimic bad keys but are actually systemic infrastructure failures within the vehicle's power or control networks.
+5.1 The Dual Battery / Start-Stop Voltage Drop (Code P305F)
+The single most common cause of programming failure on the E2XX platform is the Auto Start-Stop System. These vehicles are equipped with two batteries to manage the electrical load during engine-off idle events:
+1. Main Battery: Located under the hood (standard lead-acid or AGM).
+2. Auxiliary Battery: Often located in the trunk, under a panel, or buried in the fender well.
+The Failure Mechanism:
+During the "Key On, Engine Off" (KOEO) phase required for key programming, the vehicle's modules are fully awake and drawing significant current (up to 20-30 Amps). The Dual Battery Control Module (DBCM) continuously monitors the health of both power sources. If the Auxiliary Battery is weak, aged, or has high internal resistance, the DBCM detects a voltage variance or "sag."
+* Threshold: If the Engine Control Module (ECM) input voltage drops below 8.90 Volts during a crank attempt or a programming handshake, the system sets code P305F (Dual Battery Control Module Performance).1
+* Consequence: The BCM aborts the key programming sequence to protect the EEPROM from data corruption (brownout protection). The diagnostic tool may report "Communication Error," "Security Access Denied," or simply hang indefinitely.
+* Remediation: It is mandatory to connect a high-amperage battery support unit (charger/maintainer) capable of sustaining 13.5V+ during the entire programming session.
+* Forensic Warning: Merely connecting a jump pack to the main battery is often insufficient. If the auxiliary battery is internally shorted, it will act as a parasitic load, dragging down the system voltage regardless of the support on the main battery. In such cases, the auxiliary battery must be physically disconnected, or the DBCM fuse pulled, to allow the main bus voltage to stabilize for programming.
+5.2 Parasitic Battery Drain
+The E2XX platform is susceptible to module "insomnia," where a module fails to enter sleep mode, draining the battery and causing the low-voltage issues described above.
+* Diagnosis: Traditional fuse pulling can wake modules up, leading to false positives. The forensic standard is Voltage Drop Testing across the fuse. Using a high-quality multimeter in the millivolt (mV) scale, a technician measures the resistance across the two external test points of a fuse.
+   * The Physics: Fuses have a known internal resistance. If current is flowing through them, there will be a measurable voltage drop (V = I x R).
+   * Interpretation: A reading of 0.00mV indicates no current is flowing (circuit is asleep). A reading (e.g., 0.5mV or 1.2mV) indicates current flow without breaking the circuit.18
+* Common Culprits: OnStar modules (searching for a signal in garages), the Remote Door Lock Receiver (RCDLR) 20, and aftermarket accessories are frequent sources of parasitic draw in this generation.
+
+
+  
+
+
+
+6. Peripheral Security Systems: The MyLink Theftlock
+A frequent side effect of BCM replacement or deep battery discharge during programming is the locking of the MyLink infotainment system. This is a secondary security layer designed to prevent the fencing of stolen radio units.
+* Mechanism: The radio stores the vehicle's VIN in its EEPROM memory. Upon every boot sequence, it queries the BCM via the CAN bus for the vehicle's VIN. If the VIN reported by the BCM does not match the VIN stored in the radio (e.g., if a used radio was installed, or if the BCM was replaced and not yet programmed with the VIN), the radio enters "LOCKED" mode.21
+* Forensic Workaround: While the dealer method involves retrieving a 4-digit unlock code from the GM database using the radio's serial number, a more robust forensic method exists for units that do not accept the code. This involves EEPROM programming.
+* Procedure: A technician removes the radio, accesses the motherboard, and identifies the 24C256 (or similar) EEPROM chip. Using a CH341a programmer and a SOIC8 clip, the hex data is read. The technician then manually edits the hex code to overwrite the stored VIN with the correct one, or fills the VIN lines with "FF" (blank) values. When the radio is reinstalled, seeing the "blank" VIN, it will automatically initiate a "re-learn" process, pulling the correct VIN from the BCM and locking itself to the new vehicle.23
+7. Physical Access: The HU100 Lishi Protocol
+When electronic access fails—due to dead batteries, RF interference, or module failure—physical manipulation of the lock cylinder is required. The 2020 Malibu utilizes the HU100 keyway, a high-security laser-cut system that has been a GM staple since 2010.
+7.1 Lishi Tool Specification and Mechanics
+The standard forensic tool for this operation is the Lishi HU100 (v3) 2-in-1 Pick & Decoder.24 This tool allows a technician to pick the lock to the open position and then "decode" the depths of the wafers to generate a key code for cutting a replacement.
+* Wafer Configuration: The lock contains 8 wafer positions (1 through 8).
+* Track System: It is an internal 2-track system.
+* Picking Direction: The tension direction is critical. For most driver's side doors on the E2XX platform, Clockwise (CW) is the unlock direction. However, some technicians report needing to pick in the lock direction (CCW) first to set the wafers and then use a "plug spinner" to rapidly flip the cylinder to the unlock position if the mechanism is stiff.26
+7.2 The Ignition vs. Door Bitting Discrepancy
+A critical forensic anomaly exists in the coding of the cylinders on the E2XX platform, which can lead to the creation of "partial" keys.
+The Issue:
+The door lock cylinder often only utilizes wafers 1 through 6 or 1 through 7, while the ignition cylinder (on models that still have a keyed ignition) utilizes the full range of 1 through 8 (or 2 through 8).28
+The Implication:
+If a locksmith decodes the door lock using a Lishi tool, they may obtain the cut depths for positions 1-6. If they cut a key based solely on this data, the key will successfully open the door but will not turn the ignition. The ignition cylinder creates a "stop" because the cuts for positions 7 and 8 are incorrect or missing.
+The Solution:
+The technician must "progress" or "instacode" the missing cuts. Since the HU100 system typically only uses 4 depths (1, 2, 3, 4), the technician can mathematically deduce the potential codes for the remaining positions. Alternatively, they may need to cut a test key with "dummy" cuts for positions 7 and 8 and progressively deepen them until the ignition turns. For push-to-start vehicles, this is less relevant for starting the car (as the fob is used), but crucial for the emergency key blade to function in the glovebox or trunk cylinders.
+8. Fleet and Rental Specific Anomalies
+Vehicles originating from rental fleets (Hertz, Enterprise, Avis) or government auctions often possess non-standard configurations that baffle standard technicians. These "Fleet Spec" vehicles often have features deleted or modified to reduce cost or prevent customer tampering.
+8.1 The "Missing Pocket" Phenomenon
+In retail 2020 Malibus and Equinoxes, the programming pocket (the induction coil where the fob is placed to be recognized when the battery is dead) is located in the cupholder or the center console storage bin.
+Rental Spec Deletion:
+Fleet vehicles often have "delete" packages. The rubber liner in the cupholder may be thicker or lack the embossed key symbol. In some cases, the sensor coil is physically present but buried deeper in the console to prevent customers from attempting to program their own keys.29
+Forensic Workarounds:
+1. Remove Rubber Mats: The sensor range of the programming coil is extremely short (often less than 5mm). Thick rubber liners in rental vehicles often block the signal. Removing the bottom mat in the cupholder is the first diagnostic step.30
+2. The "Hidden" Slot: On some Equinox LS fleet models, the slot is not in the cupholder but is a vertical slot inside the center armrest storage bin, often obscured by items or a false bottom.31
+3. Front vs. Rear Cupholder: For the 2021+ Equinox, the location shifted. While the 2020 often uses the center console, newer models use the front cupholder specifically.32
+4. Coil Location: If no pocket is visible, the technician must place the fob directly on the symbol marked on the plastic. If no symbol exists, placing the fob in the cupholder closest to the dashboard is the standard default.
+
+
+  
+
+
+
+9. Conclusion
+The 2020 Chevrolet Malibu and Equinox present a complex forensic challenge due to their position at the intersection of the outgoing Global A and incoming Global B architectures. The E2XX platform is not forgiving of imprecise procedures. Success in servicing these vehicles requires a holistic approach that integrates electronic network management with physical security fundamentals.
+Summary of Critical Forensic Protocols:
+1. Verify Voltage: Ensure the Start/Stop dual battery system is stable (above 13V) to prevent P305F lockouts. The auxiliary battery is a frequent silent point of failure.
+2. Verify Hardware: Confirm 315 MHz vs. 433 MHz using RPO codes (XL7/XL8) before attempting programming. Do not rely on visual fob appearance alone.
+3. Verify Architecture: Determine if the vehicle requires CAN FD/Server access (Global B) or can be programmed via legacy methods (Global A). This dictates the tooling required (Autel/TDS).
+4. Verify Physical Access: Be alert to the Door-Ignition bitting mismatch on the HU100 keyway to avoid cutting partial keys.
+By adhering to these forensic protocols, the technician ensures not just access, but the integrity of the vehicle's electronic security systems, avoiding costly module lockouts and ensuring a successful repair.
+Works cited
+1. Causes and Fixes Chevy P305F Code: Dual Battery Control Module Performance, accessed January 3, 2026, https://www.youtube.com/watch?v=iInLWzvwCHg
+2. 2016-2020 Chevy Smart Key Fob - HYQ4EA - Best Key Solution, accessed January 3, 2026, https://www.bestkeysolution.com/products/4-buttons-flip-car-key-fob-fits-for-chevy-malibu-2016-2018-chevy-camaro-2016-2018-fcc-id-hyq4ea-433-mhz
+3. List of General Motors platforms - Wikipedia, accessed January 3, 2026, https://en.wikipedia.org/wiki/List_of_General_Motors_platforms
+4. Driving the Future: GM's Global B Architecture Revolutionizes Vehicle Connectivity, accessed January 3, 2026, https://www.mcgoverngmcofwestborough.com/blog/2023/november/15/driving-the-future-gms-global-b-architecture-revolutionizes-vehicle-connectivity.htm
+5. The 2024 GMC Acadia Will Inherit the Global B Electrical Architecture, accessed January 3, 2026, https://www.visionbuickgmc.com/the-2024-gmc-acadia-will-inherit-the-global-b-electrical-architecture/
+6. How to Program New GM 2021-2025 Keys Autel V200 J2534 Setup-Troubleshoot-Guide (Buick,GMC,Chevy) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=hrSnHb5q4us
+7. For 2016 2017 2018 2019 2020 2021 Chevrolet Malibu Remote Key FOB HYQ4EA 433mhz, accessed January 3, 2026, https://www.ebay.com/itm/155878328254
+8. 2020 Chevrolet Equinox Smart Key 3B Fob FCC# HYQ4EA - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2020-chevrolet-equinox-smart-key-3b-fob-fcc-hyq4ea
+9. 2018-2021 Chevrolet Equinox 5B Hatch Smart Key HYQ4AA - Your Car Key Guys, accessed January 3, 2026, https://yourcarkeyguys.com/products/2018-2021-chevrolet-equinox-5b-hatch-smart-key-hyq4aa
+10. POSSBAY 2pcs Full Remote Key Fobs W/4 Buttons For Chevrolet Equinox Cruze Camaro Malibu - Walmart.com, accessed January 3, 2026, https://www.walmart.com/ip/POSSBAY-2pcs-Full-Remote-Key-Fobs-W-4-Buttons-For-Chevrolet-Equinox-Cruze-Camaro-Malibu/279010510
+11. DIY: Onboard Key Programming Procedure For GM Vehicles, accessed January 3, 2026, https://www.carkeysdiy.com/post/diy-onboard-key-programming-procedure-for-gm-vehicles
+12. The Key Reprogram procedure (takes 30 minutes) worked great for my bladed ignition keys on my 2020 Silverado! Dealer wanted $200 to reprogram my new keys, I did it myself without a computer or scanner for $80 for 2 new OEM keys! - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Silverado/comments/1fz64g1/the_key_reprogram_procedure_takes_30_minutes/
+13. ACDelco TDS, accessed January 3, 2026, https://www.acdelcotds.com/
+14. NASTF Memberships – National Automotive Service Task Force, accessed January 3, 2026, https://wp.nastf.org/?page_id=3969
+15. What is NASTF? (credentials for mechanics, technicians, locksmiths), accessed January 3, 2026, https://support.nastf.org/support/solutions/articles/43000755440-what-is-nastf-credentials-for-mechanics-technicians-locksmiths-
+16. Program your own GM Key - LockPro Locksmith, accessed January 3, 2026, https://lockprolocksmith.com/2021/06/01/program-your-own-gm-key/
+17. CHEVY MALIBU P305F DUAL BATTERY FAULT DIAGNOSIS PART 1 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=dUbVKfCBi2k
+18. The Trainer #27: 3 Ways Of Finding The Cause Of Key-Off Battery Drain (Parasitic Draw), accessed January 3, 2026, https://www.youtube.com/watch?v=P-wxG6U5TuY
+19. 2000 GM OBS Truck Parasitic Draw Diagnosis ~ Voltage Drop Testing Methodology (Chevy & GMC) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=vXo7GcROUpI
+20. CHEVROLET MALIBU NO POWER BUT NOT DEAD BATTERY 2016 2017 2018 2019 2020 2021 2022 2023 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=W9v0sjvks0g
+21. Why is Your Chevy's Radio Locked? [2025] - Applegate Chevrolet, accessed January 3, 2026, https://www.applegatechev.com/blog/why-is-your-chevys-radio-locked-2025/
+22. Is Your Chevy's Radio Locked? Here are Some Tips and Tricks To Unlock It - CarParts.com, accessed January 3, 2026, https://www.carparts.com/blog/is-your-chevys-radio-locked-here-are-some-tips-and-tricks-to-unlock-it/
+23. 2016 How to VIN Unlock Salvage Yard GM BYOM MyLink Radio by EEPROM (Chevy Sonic, Spark, Trax) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=wDJmtKbX-vQ
+24. Original Lishi 2-1 Pick/Decoder for HU100 (8-Cut, B116) - CLK Supplies, accessed January 3, 2026, https://www.clksupplies.com/products/copy-of-original-lishi-2-1-pick-decoder-for-vw-hu66-twin-lifter
+25. Original Lishi GM HU100 V.3 (8 Cuts) 2in1 Decoder and Pick - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/lishi-gm-hu100-v-3-8-cuts-2in1-decoder-and-pick
+26. Car Unlocked in Less than a MINUTE! Picking Chevy Silverado High-Security Lock with Lishi HU100-10. - YouTube, accessed January 3, 2026, https://m.youtube.com/shorts/uHbNps4-Ojg
+27. ORIGINAL LISHI - HU100 GM / 8 Cut / 2-In-1 Pick & Decoder / AG - Keyless City, accessed January 3, 2026, https://keyless-city.com/products/original-lishi-hu100-gm-8-cut-2-in-1-pick-decoder-ag
+28. Ignition biting different than door lock biting : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/lx5aau/ignition_biting_different_than_door_lock_biting/
+29. Center console slot : r/chevymalibu - Reddit, accessed January 3, 2026, https://www.reddit.com/r/chevymalibu/comments/1ivxzaw/center_console_slot/
+30. DIY Replacement of a Chevrolet Key Fob! (Camaro, Cruze, Equinox, Malibu) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=dXhzSYrPOew
+31. 2025 Chevy Equinox - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Chevy/comments/1j7k25j/2025_chevy_equinox/
+32. 2021 Chevy Equinox Smart Key Programming Slot Location #automobile #gm #chevyequinox #keyfob - YouTube, accessed January 3, 2026, https://www.youtube.com/shorts/ETpFxA-_JyI

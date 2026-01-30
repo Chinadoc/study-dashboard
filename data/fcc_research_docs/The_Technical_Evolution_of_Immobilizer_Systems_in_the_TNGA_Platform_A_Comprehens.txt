@@ -1,0 +1,169 @@
+﻿The Technical Evolution of Immobilizer Systems in the TNGA Platform: A Comprehensive Analysis of Toyota RAV4 Key Programming (2019–2025)
+1. Introduction: The TNGA Security Paradigm Shift
+The automotive industry has witnessed a paradigm shift in vehicle security architecture with the introduction of the Toyota New Global Architecture (TNGA). This modular unibody automobile platform, which underpins the fifth-generation Toyota RAV4 (XA50, model years 2019–2025), integrates a sophisticated, multi-layered security model that fundamentally departs from previous immobilizer iterations. For automotive security professionals, locksmiths, and diagnostic technicians, the XA50 RAV4 represents a critical case study in the bifurcation of immobilizer technology. The platform’s lifecycle is bisected into two distinct cryptographic eras: the "8A" era (2019–2022) and the "8A-BA" era (2023–2025), each demanding radically different approaches to key programming, diagnostic access, and hardware interface.
+The complexity of the TNGA security suite lies in its integration of the Certification ECU (Smart Key ECU), the Central Gateway Module (CGW), and the Engine Control Module (ECM). Unlike legacy systems where the immobilizer function was often a discrete negotiation between the key and the ECM, the TNGA architecture employs a highly integrated Certification ECU that manages Low Frequency (LF) wake-up signals, Radio Frequency (RF) authentication, and Controller Area Network (CAN) gateway functions. This integration has elevated the difficulty of aftermarket servicing, particularly in "All Keys Lost" (AKL) scenarios, by closing the software vulnerabilities that previously allowed for purely OBDII-based key injection.
+This report provides an exhaustive technical analysis of the programming procedures, security protocols, and hardware requirements for the Toyota RAV4 XA50. It dissects the operational nuances between the standard 8A smart systems and the advanced 8A-BA architecture, addresses the specific challenges posed by the RAV4 Prime (PHEV) variants, and offers a comparative evaluation of aftermarket diagnostic tools—specifically the Autel MaxiIM series and Advanced Diagnostics Smart Pro—against the OEM Techstream platform. Furthermore, it deconstructs prevalent industry myths regarding PIN code acquisition and elucidates the role of the National Automotive Service Task Force (NASTF) in the modern security landscape.
+
+
+  
+
+
+
+2. Cryptographic Architecture and Transponder Identification
+A fundamental prerequisite for successful programming on the TNGA platform is the accurate identification of the smart key transponder and its underlying cryptographic protocol. The external housing of Toyota smart keys has remained largely consistent throughout the XA50 generation, rendering visual inspection of the casing insufficient for determining the internal electronic architecture. The distinction lies in the transponder's memory pages and the specific FCC ID associated with the vehicle's production date and trim level.
+2.1 The Legacy "8A" System (2019–2022)
+The initial phase of the TNGA rollout utilized the "8A" system, based on Texas Instruments' 128-bit AES encryption but implemented in a way that maintained backward compatibility with certain diagnostic protocols. In the industry vernacular, these are often referred to as "RF430" or "H-chip" smart keys, although the "H" designation more accurately applies to the preceding bladed key generation.
+When interrogated by a transponder reading tool such as the Autel XP400Pro or Xhorse Key Tool Max, the critical data point is "Page 4" of the transponder memory. For the 2019–2022 RAV4, Page 4 will typically display hex values such as A8, A9, or AA.1 These values indicate the specific sub-type of the 8A protocol. Keys in this category generally utilize the FCC ID HYQ14FBC.2 It is crucial to note that while the encryption is robust, the implementation of the key exchange protocol on the CAN bus during this era left an opening for diagnostic tools to request an EEPROM data dump via the OBDII port, a vulnerability that became the cornerstone of "All Keys Lost" solutions for this period.
+2.2 The Modern "8A-BA" System (2023–2025)
+Starting in late 2022 for the 2023 model year, Toyota introduced a revised security system known as "BA" type. This update was not merely a change in the transponder ID but a comprehensive overhaul of the Certification ECU's firmware and the vehicle's gateway filtering rules.
+When reading a key from this generation, the Page 4 value explicitly reads BA.3 This signals the presence of the updated DST-AES protocol. These keys utilize the FCC ID HYQ14FBX.3 The primary implication of the BA system is the elimination of the OBDII EEPROM dump capability. The Certification ECU in BA-equipped vehicles ignores the diagnostic commands used by previous generation tools to extract immobilizer data over the standard CAN lines. This necessitates a physical intervention—specifically, a direct connection to the ECU—to bypass the gateway filters and access the programming port directly.
+2.3 Transponder Compatibility and Interchangeability
+The interchangeability of smart keys across the XA50 generation is strictly limited by the FCC ID and the board ID (an internal identifier printed on the PCB). Attempting to program a 2021 key (HYQ14FBC) to a 2023 vehicle (HYQ14FBX) will result in a failure during the registration handshake, often manifesting as a "Key Not Detected" error or a timeout during the learning phase.
+* 2019–2021/22 RAV4 (Gas/Hybrid): These models exclusively use FCC ID HYQ14FBC. The Board ID is typically 0351 or 0410, depending on the specific market (US vs. Canada/Mexico) and trim level (LE vs. Limited).2
+* 2023–2025 RAV4 (Gas/Hybrid/Prime): These models exclusively use FCC ID HYQ14FBX. The Board ID is typically 3041 or related variants within the "BA" family.5
+* The Prime (PHEV) Exception: The RAV4 Prime, introduced later in the cycle, often adopts security updates ahead of the standard gas/hybrid models. While a 2021 Gas RAV4 acts like a standard 8A system, a 2021 RAV4 Prime may exhibit hybrid behaviors or require specific bypass cables earlier in its lifecycle due to its more advanced ECU architecture.7 Technicians must treat the Prime as a distinct sub-model with a higher probability of requiring "BA-style" interventions even in earlier model years.
+
+
+  
+
+
+
+3. The Security Gateway and the Necessity of Physical Bypass
+The term "Security Gateway" is frequently utilized in automotive diagnostics, often conflated with the Secure Gateway (SGW) module found in Stellantis (Chrysler/Jeep/Dodge) vehicles, which functions as a firewall blocking unauthorized write commands via the OBDII port. In the context of the TNGA RAV4, the barrier is more nuanced, involving both the Central Gateway (CGW) which filters CAN messages, and the internal security logic of the Certification ECU itself.
+3.1 Architecture of the Pre-BA Era (2019–2022)
+For the initial years of the RAV4 XA50, the security barrier was primarily software-defined. The Certification ECU was designed to allow key learning via the OBDII port provided the diagnostic tool could successfully complete a challenge-response handshake. This handshake required the calculation of a 12-digit rolling code (seed-key exchange) based on the vehicle's immobilization seed.
+However, aftermarket tool manufacturers like Autel discovered a vulnerability in the data backup process. By sending specific Read Memory commands to the Certification ECU, tools could extract the critical EEPROM data (Immo Data) required to generate a dealer-level "Master Key" signature. This allowed technicians to simulate a working key using an emulator (such as the Autel APB112) and add a new key without ever needing the official rolling code or removing any hardware.8 This method relied entirely on the fact that the Central Gateway did not filter these specific memory-read commands from the OBDII port to the Certification ECU.
+3.2 The Hardware Firewall of the BA Era (2023–2025)
+With the introduction of the BA system, Toyota effectively closed the OBDII vulnerability. The Certification ECU in these newer models does not broadcast the necessary EEPROM data over the standard diagnostic CAN lines, nor does it accept the legacy memory-read commands. Furthermore, the Central Gateway (CGW) was updated to strictly filter traffic, ensuring that only authorized diagnostic messages (like those from a verified Techstream session) are passed to the security modules.
+This architectural hardening necessitates a physical bypass. The solution developed by the aftermarket is the "30-Pin Cable" (e.g., Autel 8A-BA Cable, ADC2021). This cable is designed to connect directly to the Certification ECU, physically interrupting the connection to the vehicle's main harness. By doing so, it isolates the ECU from the vehicle's gateway and connects its communication pins directly to the programmer (e.g., Autel G-Box3 or Smart Pro).9
+This method is effectively "bench programming" the ECU while it remains inside the vehicle. The cable splits the CAN High (CAN-H) and CAN Low (CAN-L) lines, as well as the power and ground circuits. The programmer then powers the ECU directly and communicates with it using a proprietary protocol that bypasses the need for the gateway's permission. The G-Box3 or similar interface manages the power cycling required to force the ECU into programming mode.11
+3.3 Locating and Accessing the Certification ECU
+The most labor-intensive component of the BA bypass procedure is the physical access to the Certification ECU (Smart Key ECU). Unlike older Toyota models where the immobilizer was easily accessible near the ignition cylinder, the TNGA Smart Key ECU is buried deep within the dashboard assembly.
+The standard location for the RAV4 (2019–2025) Smart Key ECU is behind the glove box assembly, mounted high up towards the passenger A-pillar, often obscured by the HVAC ducting and blower motor assembly.12 The access procedure requires significant disassembly:
+1. Removal of the Kick Panel: The passenger side kick panel and scuff plate must be removed to expose the lower mounting points of the glove box.
+2. Glove Box Assembly Removal: The glove box is typically secured by five screws (three along the top edge behind the door, two along the bottom). Once unscrewed, the assembly is held by retention clips and must be pulled firmly to release.
+3. ECU Identification: The ECU is a black plastic box, approximately 5x7 inches in dimension. It will have multiple connectors (typically three). The target for the bypass cable is the 30-pin connector, which is usually the largest or central connector on the unit.11
+4. Connection Strategy: The vehicle's harness connector is unplugged from the ECU, and the male end of the bypass cable is inserted into the ECU. The vehicle harness is then plugged into the female end of the bypass cable (or left disconnected depending on the specific tool's instruction), creating a bridge or tap point for the programmer.
+
+
+  
+
+
+
+4. The RAV4 Prime: High Voltage Challenges and Anomalies
+The RAV4 Prime, Toyota’s plug-in hybrid electric vehicle (PHEV) variant, introduces a unique set of variables to the key programming equation. While sharing the TNGA platform with the standard hybrid and gas models, the Prime's electrical architecture is distinct due to its high-voltage (HV) traction battery and sophisticated power management systems.
+4.1 High Voltage Safety and Interference
+Programming the RAV4 Prime requires strict adherence to safety protocols. The Certification ECU in the Prime interacts closely with the HV management system to authorize the "Ready" state. Technicians have reported that the DC-DC converter, which steps down the high voltage to charge the 12V auxiliary battery, can introduce significant electrical noise or voltage fluctuations on the CAN bus if active during programming.13 This noise can interrupt the delicate data transfer required for reading the EEPROM or calculating the seed-key response.
+It is strictly recommended to ensure the vehicle is not in "Ready" mode and is not connected to a charging station during the programming procedure. The vehicle should be in a purely "Ignition On" (IG-ON) state using the 12V battery power, ideally supported by a high-quality battery maintainer (providing a clean 13.5V–14V) to prevent voltage drop without engaging the HV system.7
+4.2 Prime-Specific Bypass Locations and Cables
+While the gas and standard hybrid models consistently place the Smart Key ECU behind the glove box, the RAV4 Prime's packaging constraints sometimes necessitate slight relocations or the presence of additional shielding. Furthermore, the firmware on the Prime's Certification ECU often aligns with the next model year's security standards. For example, a 2021 RAV4 Prime may require the same "BA" bypass cable techniques as a 2023 Gas RAV4, despite technically being an older model year.14
+Diagnostic tools like the Smart Pro often list the RAV4 Prime as a separate menu item ("RAV4 Prime 2021+"). This distinction is critical because the memory addresses for the immobilizer data backup differ from the standard models. Using the standard RAV4 menu on a Prime can result in a "Data Read Error" or, in rare cases, data corruption. The bypass cable connection remains the same (30-pin), but the software protocol used to communicate with the ECU is unique to the PHEV variant.10
+5. PIN Acquisition, Rolling Codes, and The Door Jamb Myth
+A persistent source of confusion and error in the automotive locksmith community is the "12-digit PIN" found on the door jamb label of newer Toyota vehicles. Understanding the distinction between this label and the actual cryptographic seed required for programming is vital for avoiding failed programming attempts.
+5.1 The Door Jamb Label: Traceability, Not Security
+Since approximately 2020, Toyota has affixed a label to the driver's door jamb or pillar containing a QR code and a 12-digit alphanumeric string. Many technicians, seeing a "code" on a secured vehicle, mistakenly assume this is the "Immobilizer PIN" or "Key Code" required by their diagnostic tool.15
+In reality, this code serves as a factory traceability number, often linked to the laser-cut key pattern (the physical bitting of the emergency key blade) or the vehicle's assembly line sequence. It is not the electronic rolling code required to authorize the Certification ECU for key learning.16 Entering this static string into a programmer that is requesting a calculated rolling code will invariably result in a "Security Access Denied" or "Incorrect PIN" error. The actual authorization code is dynamic, changing every time the ignition is cycled or the diagnostic session is reset.
+5.2 The NASTF VSP and TIS Calculation Process
+The legitimate authorization mechanism for Toyota programming is a Challenge-Response system based on a rolling seed.
+1. Seed Generation: When the diagnostic tool (such as Techstream, Autel, or Smart Pro) initiates a security function like "Immobilizer Reset" or "Add Key," the vehicle generates a random "Seed Code" (typically 96-bit or 128-bit).
+2. Calculation: This seed must be processed through a proprietary algorithm to generate a matching "Passcode."
+3. Acquisition:
+   * The Official Path (NASTF): The technician must be a registered Vehicle Security Professional (VSP) with the National Automotive Service Task Force (NASTF). Using their VSP credentials (LSID), they log into the Toyota Information System (TIS) portal. They enter the vehicle's VIN and the Seed Code displayed on their tool. TIS processes this request and returns the valid Passcode.18 This process ensures a digital paper trail for every security transaction, linking the locksmith to the specific vehicle.
+   * The Aftermarket Path: Advanced tools like the Autel IM608 often feature built-in calculation capabilities. These tools send the Seed Code to the manufacturer's (Autel's) server, which performs the calculation and returns the Passcode to the tool. This service typically requires an active subscription and internet connectivity.8 For the newest BA systems, however, the calculation algorithms are often not yet fully reverse-engineered, forcing even aftermarket tool users to rely on hardware bypass methods or official NASTF credentials if supported.
+6. Detailed Tool Analysis and Comparison
+The choice of diagnostic equipment significantly influences the technician's ability to service modern Toyota vehicles, particularly regarding cost, efficiency, and capability.
+6.1 Autel MaxiIM IM608 Pro / IM508S
+The Autel ecosystem is currently the dominant force in the aftermarket for Toyota AKL programming due to its aggressive approach to reverse-engineering.
+* Operational Philosophy: "Hacking" / Bypass. Autel focuses on reading the EEPROM data directly to simulate a key, bypassing the need for a formal NASTF reset in many cases.
+* Pros: Can often perform AKL without NASTF credentials (using the calculation server or emulator method). The ecosystem includes essential accessories like the APB112 (key simulator) and G-Box3 (for handling the power switching and CAN protocols during the 30-pin bypass).20
+* Cons: Requires an expensive annual subscription (approx. $800-$1000 USD) to maintain server access for calculations. Coverage for the very latest model year (e.g., 2025) can be delayed compared to OEM tools.
+* Required Setup: For a 2023+ RAV4 AKL, the rig involves the IM608 tablet connected to the JVCI (VCI), which connects to the G-Box3, which connects to the 30-pin 8A-BA cable, which plugs into the Certification ECU.
+6.2 Advanced Diagnostics Smart Pro
+The Smart Pro operates closer to the OEM methodology but with streamlined workflows for locksmiths.
+* Operational Philosophy: "Bypass" / Streamlined OEM. Smart Pro uses high-quality hardware bypasses (ADC2021 cable) to force the ignition on and communicate with the ECU.10
+* Pros: Stability and hardware quality. The ADC2021 cable is robust and integrates seamlessly. The "Token" system allows for a pay-per-use model, which can be cost-effective for shops with lower Toyota volume.
+* Cons: Almost always requires an internet connection for transactions. It has less "raw" memory manipulation capability than Autel; if the server cannot calculate the bypass, the tool cannot proceed.
+* Required Setup: Smart Pro device connected to the internet (Wi-Fi), utilizing the ADC2021 cable connected directly to the Certification ECU. An ADC2015 emulator is often required for AKL scenarios to act as the "master" key.14
+6.3 Toyota Techstream (OEM)
+Techstream is the official factory diagnostic software used by dealerships.
+* Operational Philosophy: "Reset" / Authorization. Techstream does not "hack" the system. For an Add Key scenario, it simply authorizes a new key if a working one is present. For AKL, it requires an "Immobilizer Reset" which wipes all keys and requires a new registration.
+* Pros: 100% reliability and compatibility. If Techstream cannot do it, the car likely has a hardware fault.
+* Cons: Zero capability to perform AKL without a NASTF VSP ID to generate the Reset Passcode. The reset process takes 16 minutes (a security delay) and deletes all existing keys from the system, meaning any found keys must be re-registered. It cannot read EEPROM data to make a backup or emulator.
+* Verdict: While essential for deep diagnostics, Techstream is inefficient for profitable AKL work in the aftermarket due to the strict reliance on NASTF and the inability to create emulated keys for testing.19
+
+
+  
+
+
+
+7. Comprehensive Step-by-Step Programming Procedures
+The following Standard Operating Procedures (SOPs) outline the precise workflows for the most common programming scenarios using the Autel IM608, the most ubiquitous tool in the aftermarket for this application.
+7.1 Scenario A: "Add Key" (Spare Key) – 2019–2022 (8A System)
+This scenario assumes a working key is available and the vehicle is a pre-BA model.
+* Prerequisites: One working key, one blank key (FCC ID HYQ14FBC), Autel IM508/608.
+* Step 1: Connect the VCI to the vehicle's OBDII port. Ensure ignition is ON (engine off).
+* Step 2: Navigate to IMMO -> Toyota -> Automatic Selection -> [Confirm Vehicle Profile] -> Control Unit -> Keyless System (CAN).
+* Step 3: Select Add Smart Key. The tool will prompt you to turn on the hazard lights to keep the BCM awake.
+* Step 4: Follow the on-screen prompts:
+   * "Put a learned smart key close to the START button." -> Hold the working key to the button. A single beep confirms authorization.
+   * "Put a smart key to be learned close to the START button." -> Remove the working key and hold the new blank key to the button. Two beeps confirm detection.
+* Step 5: Finalization. The tool will register the key ID. Once complete, test the remote functions (Lock/Unlock) and the proximity start function.
+7.2 Scenario B: "All Keys Lost" (AKL) – 2019–2022 (8A System)
+This scenario assumes no working keys are available.
+* Prerequisites: Autel IM608, APB112 Smart Key Simulator, G-Box (optional but recommended for stability), Blank Key.
+* Step 1 (Backup): Connect VCI to OBDII. Ensure the tablet has internet access. Navigate to IMMO -> Toyota -> RAV4 -> 2019-2021 -> Smart Key. Select Control Unit -> Keyless System -> Backup Immo Data.
+* Step 2 (Execution): The tool will read the EEPROM data via OBD. This may take 1-2 minutes. Save the file (e.g., RAV4_2020_EEPROM.bin).
+* Step 3 (Generation): Connect the APB112 Simulator to the IM608's USB port. Select Generate Analog Key. Select the backup file you just saved. The tool will write the data to the APB112.
+* Step 4 (Learning): The APB112 now functions as a working Master Key. Proceed to the Add Smart Key function (as in Scenario A). When asked to "Put a learned smart key close to the START button," hold the APB112 to the button. Then, use the new blank key when prompted for the "key to be learned."
+7.3 Scenario C: "All Keys Lost" (AKL) – 2023–2025 (BA System)
+This scenario involves the physical bypass due to the BA security firewall.
+* Prerequisites: Autel IM608, G-Box3, Autel 8A-BA 30-Pin Cable, APB112 Simulator (or KM100 generated key).
+* Step 1 (Disassembly): Remove the passenger kick panel and glove box assembly to expose the Certification ECU.
+* Step 2 (Connection):
+   * Disconnect the 30-pin connector from the Certification ECU.
+   * Connect the Autel 8A-BA cable's male end to the ECU.
+   * Connect the vehicle harness to the cable's female end.
+   * Connect the "To G-Box" end of the cable to the G-Box3.
+   * Connect the G-Box3 to the IM608's VCI via the DB15 cable.
+   * Critical: Connect 12V DC power to the G-Box3. The tablet's USB power is insufficient for the switching operations.
+* Step 3 (Backup via Dump): On the IM608, navigate to IMMO -> Toyota -> Manual Selection -> RAV4 -> 2023+ -> Smart Key. Select Control Unit -> Backup Immo Data (via Dump). The tool will communicate directly with the ECU to extract the D-Flash/P-Flash data.
+* Step 4 (Simulation & Add): Use the backup data to generate a simulator on the APB112. Select Add Smart Key. Use the APB112 to authorize the ignition (one beep), then register the new permanent key (two beeps).
+* Step 5 (Reassembly): Carefully disconnect the bypass cable, reconnect the vehicle harness to the ECU, and reinstall the glove box. Clear any communication codes (U-codes) generated during the disconnect using the Diagnostics menu.
+8. Future Outlook: The 2025+ Security Landscape
+As the industry moves deeper into the 2025 model year, Toyota is expected to further tighten the security environment, potentially rendering even the current hardware bypass methods obsolete.
+8.1 Server-Side Authentication and "Connected" Blocks
+Reports indicate that late-2024 and 2025 models are moving towards a "Server-Side Authentication" model for all security transactions. In this architecture, the Certification ECU does not simply accept a password calculated by the tool; it requires a real-time, encrypted handshake with Toyota's central servers via the vehicle's telematics module (DCM) or a verified internet-connected diagnostic tool.
+This shift would effectively neutralize "offline" programming and calculation hacks. Even with a bypass cable connected, the ECU might refuse to enter programming mode without a cryptographic token that can only be obtained through a live NASTF VSP session.21 This aligns with the broader industry trend of "Gateway placement inside the Cloud," where the vehicle's local gateway is merely a relay for a cloud-based decision engine.
+8.2 The Decline of Offline Aftermarket Solutions
+For the aftermarket technician, this trajectory suggests a future where tools like the Autel IM608 must essentially become "wrappers" for the official NASTF/J2534 protocol. The value proposition of these tools will shift from "hacking capability" to "interface efficiency." Technicians will increasingly need to maintain valid NASTF credentials and TIS subscriptions as part of their standard overhead, as the ability to circumvent these requirements through hardware exploits diminishes. The "arms race" is tilting in favor of the OEM, turning key programming from a technical hack into a regulated, authorized transaction.
+
+
+  
+
+
+
+9. Conclusion
+The Toyota RAV4's migration to the TNGA platform and the subsequent BA security update illustrates the relentless evolution of automotive security. For the professional locksmith and technician, the days of "plug and play" OBD programming for late-model Toyotas are effectively over. Success now requires a hybrid skillset: the mechanical aptitude to disassemble dashboards and access ECUs, the technical knowledge to identify 128-bit encryption protocols, and the business infrastructure to maintain NASTF credentials.
+While the "12-digit door jamb code" remains a persistent red herring, the reality of physical gateway isolation and hardware-based bypasses defines the modern standard. Technicians must invest in the 30-pin bypass infrastructure and strictly adhere to FCC ID verification protocols to service the 2023–2025 fleet efficiently. As 2025 models introduce server-side dependencies, the gap between the "hacker" and the "authorized professional" will close, forcing the aftermarket to align more closely with OEM protocols to remain viable.
+Works cited
+1. 2019-2022 Toyota RAV4 / 4-Button Smart Key ( Bundle Of 3 ), accessed January 27, 2026, https://www.mykeysupply.com/product/2019-2020-toyota-rav4-4-button-smart-key-bundle-of-3/
+2. 2022 Toyota RAV4 Smart Key 4B W/ Hatch Fob FCC# HYQ14FBC - Locksmith Keyless, accessed January 27, 2026, https://www.locksmithkeyless.com/products/2022-toyota-rav4-smart-key-4b-w-hatch-fob-fcc-hyq14fbc-0351-8990h-42030-japan-production-aftermarket
+3. VD24806-Toyota Rav4 2023-2024 Genuine Smart R - VVDI, accessed January 27, 2026, https://www.vvdi.com/vd24806-toyota-rav4-genuine-smart-remote-key-8990h-42a40
+4. Toyota Rav4 Prime 2024+ Smart Key 4B 8990H-42A40 315MHz HYQ14FBX - ABKEYS, accessed January 27, 2026, https://abkeys.com/products/toyota-rav4-prime-2024-2025-smart-key-8990h-42a40-315mhz-hyq14fbx-5503
+5. KEYECU 231451-3041 Smart Keyless Remote Key Fob for Toyota RAV4 Prime BZ4X 2022 2023 2024 HYQ14FBX 314.3MHz - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005010024557625.html
+6. MK3. Toyota Rav4 Genuine Smart Remote Key 8990H-42A40, accessed January 27, 2026, https://www.mk3.com/toyota-rav4-genuine-smart-remote-key-8990h-42a40
+7. 2021 Toyota RAV4 Prime CE location for the ADC-2021 bypass cable - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=OLW8Fl-9hNw
+8. Autel IM508/IM608 Program Toyota 2019–2022 Smart Key by OBD Free PIN - Medium, accessed January 27, 2026, https://medium.com/@obd2gate/autel-im508-im608-program-toyota-2019-2022-smart-key-by-obd-free-pin-92214a8086e1
+9. A-30 Cable 8a-ba for Toyota 4a Smart Key Cable Obdstar Autel Im608 K518 Key Tool | eBay, accessed January 27, 2026, https://www.ebay.com/itm/315710411645
+10. Advanced Diagnostics ADC2021 Smart Pro Bypass Cable for Toyota - Locksmith Keyless, accessed January 27, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-adc2021-smart-pro-bypass-cable-for-toyota
+11. 2023 Toyota RAV4 Plug-in Hybrid All Keys Lost/Add Key, BA Type DST-AES keys, accessed January 27, 2026, https://www.youtube.com/watch?v=bOf2F9DXUy8
+12. THEFT DETERRENT / KEYLESS ENTRY: CERTIFICATION ECU: REMOVAL; 2024 - 2025 MY RAV4 RAV4 HV [10/2023 - ], accessed January 27, 2026, https://estimateca.mymitchell.com/t3Portal/document/rm/RM3510U/xhtml/RM100000002GB3B.html?linkId=d8837e609&hashId=RM100000002GB3B
+13. Rav4 PRIME add key : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1j96sgi/rav4_prime_add_key/
+14. 2021 Toyota RAV4 Prime via the ADC-2015 emulator coupled with the ADC-2021 bypass cable - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=_GFOQLV1SHY
+15. TOYOTA KEY CODE ( WHERE TO FIND IT) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=JGmDT2BhGO4
+16. FAQ - Toyota Canada, accessed January 27, 2026, https://www.toyota.ca/en/frequently-asked-questions/
+17. How To Easily Decode Your Toyota's VIN Number | Toyota Parts Center Blog, accessed January 27, 2026, https://parts.olathetoyota.com/blog/4585/how-to-decode-toyota-vin
+18. New Toyota 12 Digit rolling security code : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/16nps68/new_toyota_12_digit_rolling_security_code/
+19. Vehicle Security Professional (VSP) Questions - Keycode Subscription - TIS, accessed January 27, 2026, https://techinfo.toyota.com/techInfoPortal/appmanager/t3/ti?_nfpb=true&_pageLabel=ti_faq_page
+20. How To Program Toyota Corolla All Keys Lost w Autel IM608 Pro 2 Key Programmer, accessed January 27, 2026, https://www.youtube.com/watch?v=iOiM-wNEzfE
+21. RAV4 2025 key programming. : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1pip1ah/rav4_2025_key_programming/

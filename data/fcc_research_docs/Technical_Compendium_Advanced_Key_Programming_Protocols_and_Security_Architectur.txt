@@ -1,0 +1,217 @@
+﻿Technical Compendium: Advanced Key Programming Protocols and Security Architecture for the Hyundai Palisade (2020–2025)
+Executive Summary
+The automotive security landscape has undergone a radical transformation over the last decade, with the Hyundai Palisade (2020–2025) serving as a primary case study for the shift from discrete, modular immobilizer logic to fully integrated, encrypted body control security. For the modern Vehicle Security Professional (VSP) and automotive locksmith, the Palisade represents a significant inflection point in service procedures. It utilizes high-frequency proximity systems, advanced encryption protocols (Hitag 3/ID47), and an increasingly restricted access pathway for security credential acquisition, particularly in post-2022 models.
+This report provides an exhaustive technical analysis of the key programming ecosystem for the Hyundai Palisade. It is designed for automotive locksmiths and security researchers who require granular detail on part identification, module communication, PIN acquisition strategies, and programming execution. The research synthesizes data regarding the Integrated Body Unit (IBU), the transition from SMARTRA architectures, and the specific frequency modulation protocols employed across different trim levels.
+The analysis reveals three critical phases in the Palisade’s lifecycle, each demanding distinct operational strategies:
+1. Phase I (2020–2021): Characterized by relatively open OBD-II access for PIN reading and stable FCC ID configurations, allowing for standard aftermarket programmer intervention.
+2. Phase II (2022–2023): The introduction of rolling updates to the Integrated Body Unit (IBU) firmware, necessitating the use of NASTF or dealer credentials for PIN codes as OBD reading exploits were systematically patched by the manufacturer.
+3. Phase III (2024–2025): The integration of Digital Key 2.0, Ultra-Wideband (UWB) technology, and highly fragmented key part numbers based on trim levels (e.g., Calligraphy vs. SE), significantly increasing the complexity of inventory management and programming procedures.
+This document serves as both a field manual and a theoretical reference, dissecting the "Why" behind the "How," ensuring that practitioners can not only execute procedures but troubleshoot complex failures in the field.
+________________
+1. The Paradigm Shift in Immobilizer Logic
+To master key programming for the Hyundai Palisade, one must first understand the fundamental shift in the underlying architecture. Historically, Hyundai vehicles relied on a discrete architecture involving a SMARTRA (Smart Transponder Antenna) unit. This module acted as a simple signal amplifier and gateway, relaying transponder data from the ignition coil to the Engine Control Module (ECM) for validation. In the Palisade (2020+), this architecture has been deprecated in favor of a more complex, integrated approach.
+1.1 From SMARTRA to IBU/SMK
+While diagnostic tools may still predominantly label menu options as "SMARTRA Status," "Neutralize SMARTRA," or "SMARTRA Live Data," these are legacy descriptors maintained for software backward compatibility. Physically, the functions previously isolated in the SMARTRA unit are now subsumed within the Smart Key Module (SMK) or, more commonly in the Palisade, the Integrated Body Unit (IBU).
+The IBU (Integrated Body Unit) represents the central nervous system of the vehicle's body electronics. Located deep within the dashboard structure—often accessible only by removing the glove box assembly or lower dashboard panels—the IBU acts as the central security gateway. Part number data indicates units such as 95400-S8NE0 serve as the Unit Assembly for the IBU in 2020-2022 models.1 This module manages the logic for the passive entry system, the push-to-start authorization, the alarm system, and the interface with the Digital Key modules.
+The SMK (Smart Key Module) functions as the dedicated RF (Radio Frequency) and LF (Low Frequency) communication handler. It is often integrated directly into the IBU assembly or mounted adjacently. The SMK's primary role is to poll for the key fob’s presence using LF antennas distributed throughout the chassis (door handles, trunk, center console) and receive the RF response (433/434 MHz) from the fob.
+
+
+  
+
+
+
+1.2 Transponder and Encryption Protocols
+The Palisade utilizes the Philips NCF29A1X family of chips, commonly operating on the Hitag 3 (ID47) protocol.2 This is a significant evolution from the older Hitag 2 protocols found in previous generations of Hyundai vehicles (like the Santa Fe prior to 2019 or the Elantra prior to 2017). The shift to Hitag 3 offers 128-bit encryption and supports mutual authentication between the key and the vehicle control unit.
+Hitag 3 Characteristics:
+* Mutual Authentication: The security handshake is bidirectional. The vehicle issues a cryptographic challenge to the key, and the key issues a challenge back to the vehicle. Both entities must solve the mathematical puzzle based on the stored secret keys to authorize a start event. This prevents simple "replay attacks" where a thief might record the signal of a key and play it back later.
+* VIN Locking: A critical implication for locksmiths is the "One-Time Programming" nature of these chips. Once a smart key is successfully programmed to a Palisade, the Hitag 3 chip’s "Configuration" and "Password" pages are cryptographically locked to that specific vehicle’s VIN structure. The key cannot be simply taken to another vehicle and programmed. It must be "unlocked" or "virginized" using specialized hardware (e.g., Xhorse VVDI Key Tool, Autel XP400, or KeyDIY devices) that can reset the specific NCF29A1X chip sectors to a factory state.
+* Frequency Modulation: The system operates on 433 MHz or 434 MHz. While these terms are often used interchangeably in general conversation, the precise frequency modulation—Frequency Shift Keying (FSK) versus Amplitude Shift Keying (ASK)—is critical. The Palisade keys generally use FSK for robustness against interference.
+________________
+2. The Key Fob Ecosystem: The "Trim-Level Trap"
+One of the most defining and challenging characteristics of the 2020–2025 Palisade lineage is the proliferation of distinct key part numbers. Unlike earlier generations where a single key fob might serve all trim levels of a model, the Palisade’s feature-rich environment—including Remote Smart Parking Assist (RSPA), Power Liftgate, and Remote Start—means the key fob is strictly tied to the vehicle's trim package.
+The "Trim-Level Trap" refers to a common error in the field where a locksmith attempts to program a key that visually appears identical to the original and broadcasts on the correct frequency, but lacks the internal logic for specific features. For example, attempting to program a 5-button Limited trim key to a 7-button Calligraphy system will often result in a failure. Sometimes the programming might appear successful on the tool, but the proximity functions or specific remote buttons will fail to operate, leaving the technician confused.
+2.1 Detailed Part Number Analysis
+The research has identified a massive array of part numbers compatible with different years and trims. Locksmiths must verify the FCC ID and Part Number (PN) before attempting programming. The following breakdown categorizes the ecosystem by year and button configuration based on the collected data.2
+
+
+  
+
+
+
+2020–2021 Models (Phase I)
+These early models have a stable configuration but require attention to the specific FCC IDs ending in "4F19" and "4F29".
+* 4-Button Smart Key
+   * Functions: Lock, Unlock, Panic, Remote Start.
+   * Trims: Base trims (SE/SEL) without the power liftgate option.
+   * Part Number: 95440-S8310.4
+   * FCC ID: TQ8-FOB-4F19.8
+   * Chip ID: NCF29A1X / Hitag 3 / ID47.
+   * Frequency: 434 MHz.
+* 5-Button Smart Key
+   * Functions: Lock, Unlock, Panic, Hatch (Power Liftgate), Remote Start.
+   * Trims: Mid-range trims (SEL with Convenience Package, Limited).
+   * Part Number: 95440-S8010 4 or 95440-S8400.2
+   * FCC ID: TQ8-FOB-4F29.2
+   * Chip ID: NCF29A1X / Hitag 3 / ID47.
+   * Note: These two part numbers (S8010 and S8400) appear to be functionally similar but may represent different OEM suppliers or slight revision updates. Always match the FCC ID.
+2022–2025 Models (Phase II & III)
+This era introduces the "Calligraphy" specific keys with Remote Smart Parking Assist (RSPA), adding "Forward" and "Backward" buttons to the fob, and distinct changes in FCC IDs.
+* 7-Button Smart Key (Calligraphy / Limited with RSPA)
+   * Functions: Lock, Unlock, Panic, Hatch, Remote Start, Park In (Forward), Park Out (Backward).
+   * Part Number: 95440-S8600.4
+   * FCC ID: TQ8-FOB-4F28.4
+   * Alternative Part Number: 95440-S8590.4 This variant is often listed for 2022 transitions.
+   * Frequency: 433 MHz (listed as 434 MHz in some sources, but 433 MHz is the effective range).
+   * Notes: This is the highest tier key. The "Park In" and "Park Out" buttons are critical for the RSPA system. Using a 5-button key on a Calligraphy model will disable this premium feature.
+* 5-Button Smart Key (Standard Prox 2022+)
+   * Functions: Lock, Unlock, Panic, Hatch, Remote Start.
+   * Trims: SEL, XRT (without RSPA).
+   * Part Number: 95440-S8550.4
+   * FCC ID: TQ8-F0B-4F27.4
+   * Variant Part Number: 95440-S8540.4 This part number is specifically associated with vehicles equipped with the Digital Key system but not the remote parking assist.
+   * Critical Distinction: Note the FCC ID change from the 2020-2021 models. The 2020 models used TQ8-FOB-4F29. The 2022+ models use TQ8-F0B-4F27. These are not interchangeable. You cannot program a 2020 key to a 2023 vehicle even if they look identical.
+* 4-Button Smart Key (2022+ Base)
+   * Functions: Lock, Unlock, Panic, Remote Start.
+   * Part Number: 95440-S8520.4
+   * FCC ID: TQ8-FOB-4F26.4
+* Flip Key Remote (Rare)
+   * Part Number: 95430-S8500.4
+   * FCC ID: TQ8-RKE-4F41.4
+   * Notes: This is a bladed key remote, likely for lower-tier trims in specific markets or fleet vehicles. It does not use the Proximity/Push-to-Start logic.
+2.2 Critical Part Number Insights
+* Visual Similarity vs. Internal Reality: The 5-button fobs for 2020 (95440-S8010) and 2023 (95440-S8550) are visually indistinguishable to the untrained eye. However, their internal communication protocols with the IBU are distinct. The 2020 key uses FCC TQ8-FOB-4F29, while the 2023 key uses TQ8-F0B-4F27. Cross-programming attempts will fail.
+* The "Digital Key" Variable: Keys for vehicles equipped with "Digital Key" (NFC card/Phone access) often have specific part numbers (e.g., 95440-S8540) to support the synchronization between the physical fob and the digital credential system. This ensures that the vehicle recognizes the fob as a master credential capable of authorizing or de-authorizing digital keys.
+* Emergency Key Profiles: The emergency blade profiles have shifted. While earlier Hyundai models used the HY20/KK12 profile, the Palisade typically uses the LXP90 (often referred to as HY22 in general tool catalogs). This is a high-security, internal laser-cut profile. The wider keyway of the LXP90 requires specific cutting tracers and jaws on automatic key machines.
+________________
+3. The PIN Code Barrier: Acquisition Strategies and Security Protocols
+The single most significant hurdle in programming keys for the Hyundai Palisade is the 6-digit PIN Code. This code is a cryptographic derivative of the Vehicle Identification Number (VIN), required by the IBU to authorize the addition of new keys. Without this code, the IBU will reject any programming attempt.
+3.1 The "Read Pin" Era (2020–2021)
+For models manufactured roughly between 2020 and mid-2021, the firmware on the IBU contained a vulnerability—or perhaps an intentional diagnostic gateway—that allowed advanced automotive programmers to extract the PIN code via the OBD-II port.
+* Tools: Devices such as the Autel IM508/IM608, Smart Pro (Advanced Diagnostics), and Lonsdor K518 were frequently able to pull this PIN in under two minutes.11
+* Method: The tool queries the IBU, bypassing the security seed/key exchange, and decrypts the stored PIN. This allowed locksmiths to be self-sufficient, requiring no external data purchase or internet connection in some cases.
+3.2 The Security Patch (2022+)
+Starting with late 2021 builds and becoming standard on 2022+ models, Hyundai patched this access point. The IBU firmware was updated to block OBD-based PIN reading commands.
+* Impact: Tools attempting to "Read PIN" on a 2023 Palisade will typically fail or return a "Security Access Denied" or "Not Supported" message.13
+* Exceptions: Lonsdor has released updates for their K518 Pro claiming 2022+ coverage, utilizing specific adapters (like the CAN-FD or proprietary Hyundai adapters) to brute-force or exploit newer gateways.14 However, success rates vary by region and specific IBU software version. Reports indicate that while some 2022 models might still yield a PIN via specific bypass cables, the 2023-2024 models are largely impervious to OBD reading.
+3.3 The Current Standard: External Acquisition
+For most professional locksmiths working on 2022–2025 Palisades, the PIN must be acquired externally before connecting the programmer.
+1. NASTF (National Automotive Service Task Force):
+   * The Gold Standard: This is the official, manufacturer-sanctioned method. A locksmith must be a registered Vehicle Security Professional (VSP) with a valid LSID (Locksmith ID).
+   * Process: The locksmith logs into the NASTF portal, requests a code transaction via the Hyundai/Kia technical information site, and receives the PIN instantly.16
+   * Cost: This involves annual subscription fees for the VSP license and potentially per-transaction costs.
+   * Requirement: Strict background checks and commercial insurance are required. This method guarantees a correct code and is immune to vehicle firmware patches.
+2. Dealer Direct:
+   * A locksmith can physically visit a dealership parts counter with proof of ownership (Title/Registration + Owner ID).
+   * Limitation: Dealers are increasingly reluctant to release codes to third-party locksmiths without the vehicle owner present due to liability policies. This method is becoming less viable for mobile service.
+3. Third-Party Brokers:
+   * "Grey market" services exist that resell codes obtained via dealer connections or database leaks. While often reliable, they are expensive ($20-$60 per code) and can be slow (ranging from 15 minutes to 24 hours). Relying on brokers introduces a dependency that can cause delays in emergency lockout situations.
+Decision Protocol for PIN Acquisition:
+To determine the correct strategy, the locksmith should follow this logical check:
+1. Identify Model Year: Is the vehicle a 2020-2021 model or a 2022+ model?
+2. If 2020-2021: Attempt to read the PIN via OBD using a high-end programmer (Autel/Smart Pro). If successful, proceed.
+3. If 2022+ (or if Step 2 fails): Do not waste time trying multiple read attempts, as this can trigger a security lockout. Immediately proceed to acquire the PIN via NASTF or a trusted dealer source.
+________________
+4. Tool Capabilities and Comparative Analysis
+Not all programmers are created equal regarding the Palisade’s advanced security. The choice of tool can determine whether a job is completed in 10 minutes or turned away.
+4.1 Autel IM508 / IM608 (Pro/S/II)
+* Strengths: The Autel ecosystem is the industry standard for many locksmiths. It offers excellent coverage for 2020-2022 PIN reading and intuitive menu guidance.11 The "All Keys Lost" workflow is guided, with clear prompts for ignition cycling.
+* Weaknesses: 2023+ PIN reading is often non-existent due to the firmware patches. The tool relies heavily on internet connectivity for server calculations on newer functions.
+* Verdict: The "daily driver." It is essential for the majority of jobs but requires a NASTF backup plan for newer years.
+4.2 Advanced Diagnostics Smart Pro
+* Strengths: Known for stability on newer Hyundai software. The "Quest" software often receives updates faster than Autel for specific year splits. It supports direct PIN entry easily, making it a perfect companion for NASTF-acquired codes.13
+* Weaknesses: It operates on a token-based system (or expensive unlimited subscription), which adds a cost-per-job. PIN reading on 2022+ models is hit-or-miss.13
+* Verdict: Excellent for professional shops doing high volume who value stability and official software support over the "all-in-one" diagnostic features of tablets.
+4.3 Lonsdor K518 (Pro / ISE)
+* Strengths: The "wildcard." Lonsdor is aggressive in developing proprietary bypass solutions. They claim coverage for 2022-2024 PIN reading using specific adapters (Nissan/Hyundai connectors).14 It can sometimes succeed where Autel fails to read a PIN on a transition-year model.
+* Weaknesses: Documentation can be sparse or poorly translated. Stability is sometimes lower than Autel, and the "bypass" nature of its operations carries a slight risk of instability.
+* Verdict: The specialized backup. When Autel fails to read a PIN on a 2023, the K518 is the tool to try before purchasing a code.
+
+
+  
+
+
+
+________________
+5. Operational Protocols for Key Programming
+It is a critical operational detail that programming a Hyundai smart key almost always equates to an "All Keys Lost" (AKL) event. The system architecture does not typically support "adding" a key without verifying existing keys. The moment the programming sequence initiates, the IBU wipes the current table of registered key IDs.
+Implication: If a customer has one working key and wants a spare, you must have that working key present during the session. If the working key is not presented and re-programmed during the cycle, it will be deleted from the system and rendered useless until it is reprogrammed.
+5.1 Pre-Programming Environmental Checks
+Before connecting any tool, the locksmith must ensure the vehicle environment is stable.
+* Battery Voltage: The Palisade’s electronic systems are power-hungry. The dashboard, infotainment, and various control modules remain awake during the diagnostic session. Ensure the vehicle battery is maintained above 12.5V using a high-quality battery maintainer. Voltage drops during the IBU writing process can result in a "write error," potentially bricking the module.
+* Key State: New OEM keys are preferred. If using used/refurbished keys, they must be "unlocked" (virginized) to a factory state. A locked key from another vehicle will fail to program.
+* PIN Code: Have the 6-digit PIN written down and verified.
+* Door State: The driver’s door should generally be closed but unlocked. Some tools may prompt for the door to be opened to wake the bus; follow the specific tool prompts carefully.
+* Interference: Remove other proximity keys (for other cars) from the cabin to prevent signal cross-talk during the detection phase.
+5.2 Step-by-Step Procedure Analysis
+While specific menus differ between tools (Autel vs. Smart Pro), the core logic dictated by the vehicle remains consistent.
+1. Connection: Connect the programmer to the OBD-II port (located under the driver's dash, left side).
+2. Selection: Navigate to Hyundai > USA > Palisade > > Smart Key.
+3. System Check: Select "Immobilizer Status" or "Number of Keys". This verifies communication with the IBU. If this fails, check the OBD fuse or the IBU connection.
+4. Initiate Programming: Select "Program Smart Keys" or "All Keys Lost".13
+5. Ignition Status: The tool will prompt to turn the ignition OFF. (Press the start button until the cluster is dark).
+6. PIN Entry: Enter the 6-digit security PIN.
+   * Critical Warning: Entering the wrong PIN 3 times will trigger a security lockout (usually 1 hour). Double-check the code before pressing enter.
+7. The "Poke" Method (Induction Programming):
+   * The tool will prompt: "Within 5 seconds, press the Start/Stop button with the tip of the key.".13
+   * Action: Hold the back of the key fob (the end with the logo or the top, depending on antenna placement inside the fob—usually the top) directly against the start button.
+   * Trigger: Use the fob itself to physically push the start button in. The LF antenna ring around the start button energizes the Hitag 3 chip inductively. This works even if the fob battery is dead.
+8. Confirmation: The dash cluster will often flash the immobilizer light, and the tool will display "Success".
+9. Next Key: The tool asks, "Program more keys?".
+   * Yes: Remove the first key from the cabin (throw it on the dashboard or passenger seat out of range) and repeat the "Poke" method with the second key immediately.
+   * No: Finalize the session.
+10. Verification: Wait 10 seconds. Test the lock/unlock buttons on all fobs. Then test the engine start.
+5.3 The 2024+ Nuance
+For 2024 models, reports indicate the timing window for the "Poke" method is significantly tighter (reduced from 5 seconds to approximately 3 seconds). The IBU times out faster to prevent brute-force attacks or interference. Locksmiths must be poised and ready with the key at the button before hitting "OK" on the programmer.
+________________
+6. Advanced Integration: Digital Key and UWB
+The Palisade is at the forefront of the "Phone-as-a-Key" movement, integrating mobile credentials directly into the access control logic.
+6.1 Digital Key 1.0 (NFC)
+Found on 2020–2022 models (Limited/Calligraphy), this system uses Near Field Communication (NFC). It requires the phone to be placed physically on the wireless charging pad or the door handle to gain access.
+* Locksmith Interaction: Generally, locksmiths program the physical fobs. The Digital Key is set up by the user via the BlueLink app and the infotainment screen.18
+* Interdependency: However, programming new physical keys can sometimes de-authorize the Digital Key credentials stored in the IBU, requiring the customer to re-pair their phone.
+6.2 Digital Key 2.0 (UWB)
+Found on 2023–2025 models, this advanced system utilizes Ultra-Wideband (UWB) combined with Bluetooth Low Energy (BLE). This allows the phone to stay in the pocket while unlocking the car, mimicking the behavior of a physical smart key.
+* Impact: This system is tightly integrated with the IBU. When a locksmith performs an "All Keys Lost" reset, the Digital Key credentials stored in the IBU are securely wiped.20
+* Warning: Always inform the customer that creating new physical keys will delete their Digital Key. They will need their original master credentials (owner portal login) to set it up again. The locksmith cannot "program" the phone; the phone must be enrolled by the user after the physical keys are established.
+________________
+7. Troubleshooting and Critical Warnings
+7.1 "Neutral Mode" vs. "Learnt Mode"
+In diagnostic menus, the IBU/ECU states are critical indicators.
+* Virgin/Neutral: The ECU/IBU has no keys registered. It is waiting for the first key.
+* Learnt: The ECU is paired with specific keys.
+* Problem: If you accidentally select "Neutralize" on a module (Smart Key Module) without the PIN or the ability to immediately reprogram, you can "brick" the car into a non-starting state. Never use "Neutralize" functions unless you are replacing a faulty module. For standard key programming, always use "Add Key" or "Program Smart Keys".
+7.2 The Active Alarm Lockout
+If the vehicle is locked and the alarm is armed (indicated by a red LED blinking on the dash):
+1. Unlocking the door with the mechanical Lishi (LXP90) pick will trigger the alarm.
+2. The Issue: An active alarm often disables the OBD port or puts the IBU into a defensive mode where it rejects programming attempts to prevent theft.
+3. The Fix:
+   * Insert the mechanical key in the door lock cylinder. Turn it to the UNLOCK position.
+   * Wait for the alarm to sound for its full cycle (usually 30–60 seconds).
+   * Once it silences, or after a specific wait period (up to 10 minutes on some firmware versions), the system enters a "pre-arm" or "disarmed" state where OBD communication is restored.
+   * Alternatively, turn the ignition ON (press Start button) with a valid key (if adding a spare) or attempt to communicate immediately when the alarm stops.
+7.3 Battery Drain
+The programming process keeps the Palisade's various modules (Cluster, IBU, ECM, Infotainment) awake. The current draw can exceed 20 Amps. If the voltage drops below 11.8V, the IBU may suffer a "Write Error" during the encryption handshake. Always use a jumper pack or stable power supply connected to the battery terminals.
+________________
+Conclusion
+The Hyundai Palisade represents the modern standard of automotive security: integrated, encrypted, and trim-specific. For the locksmith, success is no longer determined solely by possessing the right "key programmer." It requires a logistical mastery of part number identification to avoid the "trim-level trap," a robust strategy for PIN code acquisition via NASTF or reliable brokers, and a strict adherence to voltage management and procedural timing. As the industry moves toward 2025, the convergence of UWB and Digital Key technologies will likely further restrict OBD access, making the "Service Credential" (NASTF VSP) model the only sustainable path for professional servicing of these high-security vehicles.
+Works cited
+1. 95400-S8NE0 Genuine Hyundai Unit Assembly-IBU, accessed January 27, 2026, https://www.hyundaipartsdeal.com/genuine/hyundai-unit-assy-ibu~95400-s8ne0.html
+2. 2020-2021 Hyundai Palisade 5 Buttons Smart Key / 433MHz / 95440-S8400 - Keyless City, accessed January 27, 2026, https://keyless-city.com/products/2020-2021-hyundai-palisade-5-buttons-smart-key-433mhz-95440-s8400-oem
+3. Hyundai Palisade TQ8-F0B-4F28 95440-S8600 Smart Remote Key 7B, accessed January 27, 2026, https://www.key4.com/hyundai-palisade-smart-remote-key-tq8f0b4f28-95440s8600
+4. Hyundai Palisade Key Fobs - Remotes And Keys, accessed January 27, 2026, https://remotesandkeys.com/collections/hyundai-palisade-key-fobs
+5. Hyundai New OEM 2022-2025 Palisade, Smart Key 7B Park Assist/Hatch FCCID: TQ8-FOB-4F28 PN# 95440-S8600, accessed January 27, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2022-2023-palisade-smart-key-7b-park-assist-hatch-fccid-tq8-fob-4f28-pn-95440-s8600
+6. Hyundai Palisade Proximity Remote Key 95440-S8590 TQ8-FOB-4F28 - Key4, accessed January 27, 2026, https://www.key4.com/hyundai-palisade-smart-remote-key-95440s8590-tq8fob4f28
+7. New OEM 2022 - 2025 Hyundai Palisade Smart Key 5B TQ8-FOB-4F27 95440-S8540, accessed January 27, 2026, https://www.ebay.com/itm/335900397850
+8. Hyundai New OEM 2020-2021 Palisade Smart Key 3B - Royal Key Supply, accessed January 27, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2020-2021-palisade-smart-key-3b-fccid-tq8-fob-4f19-pn-95440-s8310
+9. 2021 Hyundai Palisade Smart Keyless Entry Remote 95440-S8010 TQ8-FOB-4F29, accessed January 27, 2026, https://www.carandtruckremotes.com/products/2021-hyundai-palisade-smart-remote-key-fob-w-power-door
+10. Keyless2Go 2022, 2023, 2024, 2025 Hyundai Palisade 5-Button Replacement Smart Keyless Entry Remote Proximity Key Fob, accessed January 27, 2026, https://keyless2go.com/products/hyundai-palisade-smart-remote-95440-s8540-keyless2go
+11. How To Program New Smart Key | 2021 Hyundai Palisade - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=tTcoH4ztZZ8
+12. Smart Aerial + How to use for Hyundai and KIA Pincode Use (recap guide) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=zhA2qctvkCU
+13. 2024-2025 Hyundai Palisade proximity key programming via the Smart Pro! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=ISkkRCCyRME
+14. Lonsdor K518 PRO USA Key Programmer - Full Configuration - New USA Version, accessed January 27, 2026, https://www.uhs-hardware.com/products/lonsdor-k518-pro-usa-key-programmer-full-configuration-new-usa-version
+15. 2023 Hyundai Santa Fe smart key programmimg Lonsdor K518 pro Lakelandcarkeys.com, accessed January 27, 2026, https://www.youtube.com/watch?v=op85bb5eDsA
+16. Understanding Scan Tool Codes - NASTF Support Center, accessed January 27, 2026, https://support.nastf.org/support/solutions/articles/43000755700-understanding-scan-tool-codes
+17. 2022 Hyundai Palisade Add Key Programmed with Autel IM608 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=oPTRT4bVii8
+18. Creating Your Digital Key | Hyundai - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=1U5wb5Gbwq0
+19. Digital Key 1: A Digital Way to Unlock and Start Your Hyundai - MyHyundai, accessed January 27, 2026, https://owners.hyundaiusa.com/us/en/resources/technology-and-navigation/hyundai-digital-key
+20. Digital Key 2 for Apple® Devices | Bluelink® | Hyundai - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=7SZIqIi9ypU

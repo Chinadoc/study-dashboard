@@ -1,0 +1,222 @@
+﻿Technical Reference: Ford Bronco (2021–2025) Key Programming Procedures, Security Protocols, and Immobilizer Architecture
+1. Executive Summary: The Evolution of the U725 Security Landscape
+The reintroduction of the Ford Bronco (U725) marked a significant milestone not only for automotive enthusiasts but also for the automotive security and locksmithing industry. Unlike previous generational shifts that typically involved incremental updates to transponder encryption or frequency modulation, the Bronco represents a radical convergence of Ford’s legacy Passive Anti-Theft System (PATS) architecture with next-generation secure gateway modules, cloud-dependent authorization protocols, and high-speed CAN FD (Controller Area Network Flexible Data-Rate) data buses. For the security professional, the Bronco serves as a primary case study in the industry's rapid transition from standalone, tool-based programming to server-dependent, credentialed access.
+This comprehensive technical report serves as an exhaustive operational guide for programming keys to the Ford Bronco (2021–2025). It is designed to address the specific needs of automotive locksmiths, dealership technicians, and security researchers who must navigate the complex disparities between model years—specifically the "security cliff" observed in 2024+ variants. The analysis provided herein moves beyond generic procedural lists to explore the underlying logic of the Body Control Module (BCM), the Gateway Module (GWM), and the Radio Transceiver Module (RTM), providing validated procedures for both "Add Key" and "All Keys Lost" (AKL) scenarios while highlighting the economic and operational implications of the required tooling.
+Critical Operational Findings:
+* Platform Divergence: The Full-Size Bronco (2021+) shares its immobilizer architecture with the Ford F-150 (2021+) and Ranger, utilizing a T6-derived platform with specific modifications for off-road sensing and modularity.1 It is not compatible with Bronco Sport procedures, which mirror the Ford Escape and focus on the C2 unibody architecture.2
+* 2024+ Lockout: Beginning with late 2023 builds and standardizing in 2024, Ford introduced updated BCM firmware and CAN FD requirements that effectively block most aftermarket programmers (including Autel and Smart Pro) from performing AKL procedures without direct OEM server access via the Ford Diagnostic & Repair System (FDRS).4
+* Active Alarm Barrier: In AKL scenarios, the active alarm system completely inhibits OBD-II communication by shutting down the HS-CAN diagnostic lines. Success requires specific bypass hardware or emulator cables (e.g., ADC2020) to silence the BCM before programming can commence.6
+________________
+2. Architecture and Hardware Identification
+The first and most critical step in any key programming engagement is the positive identification of the vehicle architecture. The marketing nomenclature employed by Ford—branding two distinct vehicles as "Bronco"—has created a significant vector for technician error. Misidentification between the "Sport" and "Full-Size" variants leads to incorrect tool selection, wasted software tokens, and potential module corruption.
+2.1. Platform Distinction: Bronco vs. Bronco Sport
+The confusion stems from the visual branding, but internally, these vehicles are unrelated. The Bronco Sport (CX430) is a unibody crossover based on the C2 platform, sharing its electronic DNA with the Ford Escape and Lincoln Corsair. Its immobilizer system is a standard "Proximity" system accessible by most mid-range programmers. In stark contrast, the Full-Size Bronco (U725) is a body-on-frame truck derived from the T6 architecture (Ranger/Everest), sharing its high-security electronic architecture with the F-150.
+
+
+  
+
+
+
+The distinction extends beyond the chassis. The Bronco Sport utilizes a standard CAN bus for immobilizer communication, whereas the Full-Size Bronco, particularly in later model years, leverages a more advanced secure gateway implementation that requires specific handshake protocols. Attempting to program a Full-Size Bronco using the "Ford Escape" or "Bronco Sport" software menu on a programming device will result in a "Communication Failed" error or, in rare cases, a BCM lockout due to protocol mismatch.2
+2.2. Key Frequency and Transponder Technology
+The 2021-2025 Bronco utilizes a high-security Smart Key (Proximity) system, often referred to as PEPS (Passive Entry Passive Start). The system relies on a complex interaction between the key fob, the Remote Function Actuator (RFA) or RTM, and the BCM.
+* Frequency: The system operates on 902 MHz, a standard frequency for modern Ford PEPS systems in the North American market. This frequency was chosen to reduce interference from other consumer electronics operating in the 315 MHz or 433 MHz bands.8
+* FCC ID: The correct key fobs for the Full-Size Bronco carry the FCC ID M3N-A2C931426 (for the 5-button variant typically used on high-trim models like the Wildtrak or Badlands) or M3N-A2C931423 (for the 3/4-button variants found on Base or Big Bend trims).8
+* Transponder: The transponder chip embedded within the smart key is an ID49 / HITAG Pro utilizing 128-bit AES encryption.10 This encryption standard is significantly more robust than previous 40-bit or 80-bit systems, making cloning virtually impossible without sophisticated sniffer tools that are generally not cost-effective for typical lockout scenarios.
+* Emergency Blade: The mechanical key blade utilizes the HU101 profile (laser cut/high security). This blade is used for emergency entry into the driver's door but does not contain a transponder itself; the transponder is integrated into the fob's PCB.
+Operational Warning: A common "gotcha" for technicians is the attempted use of "Universal" smart keys generated for the Ford Escape or Edge on the Full-Size Bronco. While these universal keys can often be generated to match the 902 MHz frequency and ID49 chip type, the BCM in the U725 platform performs a deeper validation of the key's configuration data (extension bytes) during the handshake procedure. If the key does not perfectly mimic the OEM configuration, the BCM will reject the programming attempt, often without a clear error message, leading the technician to suspect the tool rather than the key.8 Therefore, it is strongly recommended to use OEM refurbished or virgin OEM keys for the Full-Size Bronco.
+________________
+3. Pre-Programming Security Protocols and Immobilizer Theory
+Understanding the security environment of the U725 Bronco is essential for successful programming. Ford’s Gen 4/5 PATS system includes aggressive countermeasures against unauthorized key generation, designed to prevent relay attacks and OBD-II port exploitation.
+3.1. The "Active Alarm" State (AKL Only)
+In an All Keys Lost (AKL) situation, the technician faces an immediate barrier: the vehicle's perimeter alarm. Unlike older systems where the alarm would sound but diagnostic communication was still possible, the Bronco's Gateway Module (GWM) is programmed to sever communication with non-critical CAN bus nodes when the alarm is triggered.
+* The Lockout Mechanism: When the vehicle is locked and the alarm is armed, the BCM monitors the door latch switches. If a door is opened manually (using the picked lock cylinder or the emergency blade) without a valid RKE unlock signal, the alarm triggers. In this state, the GWM isolates the OBD-II port's HS-CAN pins, preventing any external device from initiating a diagnostic session with the BCM or PCM.6
+* The Fix: You cannot simply plug in a programmer and proceed. The alarm state must be neutralized.
+   * Method A (Emulator Cable - Recommended): Professional tools like the Advanced Diagnostics Smart Pro (with the ADC2020 cable) or Autel IM608 (with the APB112/G-Box setup) utilize a specialized "Active Alarm Cable." This cable connects to the vehicle's battery and the tool, creating a bridge. The tool essentially injects a signal that mimics a valid key presence or forces the BCM into a diagnostic mode before the alarm logic can fully engage. This method is the most reliable and least invasive.6
+   * Method B (Battery Reset - High Risk): A legacy workaround involves disconnecting the vehicle's battery, waiting for the capacitors to discharge (often by touching the positive and negative leads together for 60 seconds), and then reconnecting. The theory is that the alarm logic takes a few seconds to boot up and re-arm, creating a narrow window where the programmer can establish communication. However, on the Bronco, the telematics unit (TCU) often has a backup battery or retains state in non-volatile memory, meaning the alarm may re-arm immediately, potentially trapping the BCM in a "theft detected" mode.14
+3.2. The 10-Minute vs. 24-Hour Wait
+There is significant confusion regarding "wait times" in the industry, often conflating standard security delays with penalty lockouts.
+* 10-Minute Security Access: This is a standard, programmed delay inherent to the Ford PATS system logic. When a diagnostic tool requests "Security Access" (a prerequisite to Erase Keys or Add Key), the BCM forces a 10-minute wait. This is a theft deterrent feature designed to make "smash and grab" key programming impractical. During this time, the tool and vehicle must remain connected and powered. The BCM is essentially calculating a response to the tool's seed request, or simply idling to enforce the delay.16
+* 24-Hour Security Lockout: This is not a standard requirement for key programming. However, if the BCM detects a "Brute Force" attack—characterized by multiple failed security access attempts, incorrect PIN entries, or interruption of the data stream during the 10-minute wait—the module may enter a "Security Lockout" mode. In this mode, the BCM refuses all security access requests for a period ranging from 10 minutes to 24 hours.18
+   * Insight: The "24-hour wait" reported by some technicians is almost always a self-inflicted wound caused by attempting to program while the active alarm is still interfering with communication. The intermittent connection is interpreted by the BCM as a hacking attempt, triggering the long lockout. Ensuring the alarm is successfully bypassed first is the only way to avoid this penalty.
+3.3. The Role of the BCM as Gatekeeper
+In the U725 architecture, the Body Control Module is the master of the immobilizer system. It stores the Key IDs and communicates with the PCM (Powertrain Control Module) to authorize engine start. Programming a key involves two distinct steps:
+1. Key Registration: Writing the unique 128-bit ID of the new key into the BCM's memory slots.
+2. PATS Initialization: synchronizing the BCM and PCM security data. In modern Fords, this is often automatic, but in AKL scenarios, a "Parameter Reset" may be required to realign the rolling codes between modules.18
+________________
+4. Procedure: Add Key (Spare)
+Scenario: Customer has at least one working key (Diagnostic) or two working keys (On-Board).
+This is the most common and least risky scenario. The presence of a working key allows the system to authenticate the user, bypassing the 10-minute security delay in many cases (though OBP is the preferred method if two keys are available).
+4.1. On-Board Programming (OBP)
+If the customer possesses two unique, working smart keys, a third and fourth key can be added without any diagnostic tools. This is a critical procedure for locksmiths to teach customers for self-recovery and for selling spare keys by mail.20
+Prerequisites:
+* Two currently programmed, working smart keys.
+* New unprogrammed smart key (must be correct FCC ID and frequency).
+* Vehicle battery fully charged.
+Step-by-Step OBP:
+1. Locate the Programming Slot: Open the center console armrest. The programming slot is a specifically shaped depression at the bottom rear of the console bin. It is essential to remove any coins, pens, or debris from this slot to ensure the key sits flat against the reader coil.20
+2. Cycle Key 1: Place the first working key in the slot (buttons facing rear, key ring up). Press the START/STOP button (without pressing the brake pedal) to turn the ignition ON. Wait 3–5 seconds until the cluster chimes. Press the button again to turn the ignition OFF.
+3. Cycle Key 2: Within 5 seconds, remove Key 1 and insert Key 2 into the slot. Press the START/STOP button to turn the ignition ON. Wait 3–5 seconds. Press the button again to turn the ignition OFF.
+4. Cycle New Key: Within 5 seconds, remove Key 2 and insert the New Key into the slot. Press the START/STOP button to turn the ignition ON.
+5. Verification: The door locks should cycle (lock/unlock) automatically to confirm programming. A message "Key Programmed" will typically appear on the instrument cluster information screen.17
+6. Test: Remove the new key, exit the vehicle, and test the remote functions (Lock/Unlock). Then, re-enter and test the Push-to-Start function.
+Failure Modes for OBP:
+* Timing: The 5-second window between keys is strict. If you are too slow, the system times out and resets.
+* Key Placement: If the key is not sitting perfectly in the slot, the low-frequency (LF) antenna may not energize the transponder.
+* Max Keys: The system allows a maximum of 4 keys (in some configs up to 8). If the slots are full, OBP will fail.
+4.2. Diagnostic "Add Key" (1 Working Key Available)
+If only one working key is available, the OBP method is disabled. Diagnostic tools must be used to gain access.
+* Tool Selection: Autel IM508/IM608 or Smart Pro.
+* Risk Profile: Low. The system grants security access relatively easily when a valid key is detected to authenticate the session.
+* Procedure:
+   1. Connect the tool to the OBD-II port.
+   2. Select Control Unit -> Immobilizer (PATS) -> Add Key.
+   3. The tool will prompt to turn the ignition ON with the working key.
+   4. The tool will read the current key count (e.g., "2 Keys Programmed").
+   5. The tool will request security access. With a working key, this may bypass the 10-minute wait or reduce it significantly.
+   6. Follow prompts to insert the New Key into the center console slot.
+   7. The tool will command the BCM to learn the new key ID.
+   8. Wait for the "Success" message and verify the new key count.
+________________
+5. Procedure: All Keys Lost (AKL) – 2021–2023 Models
+Scenario: No working keys are available. The alarm is likely active. The vehicle is locked.
+This procedure is high-stakes. The vehicle is immobilized, and the active alarm prevents standard access. This section applies to 2021, 2022, and early 2023 models where the "Security Cliff" of 2024 has not yet been implemented.
+5.1. Tools Required
+* Programmer: Autel IM608 (Pro/II) or Advanced Diagnostics Smart Pro.
+* Interface: J2534 VCI or Smart Pro Dongle.
+* Bypass Hardware:
+   * Smart Pro: ADC2000 or ADC2020 Active Alarm Cable. This is the industry standard for bypassing the Ford alarm.6
+   * Autel: G-Box2/3 (optional but recommended for faster calculation) or generic "Ford Alarm Cable" (often sold as the "All Keys Lost Cable" for Ford).24
+5.2. Step-by-Step Execution
+1. Gain Entry: Use a Lishi tool (HU101) to pick the driver's door lock. Warning: Do not open the door yet if you wish to delay the alarm trigger. Prepare all tools and cables beforehand.
+2. Trigger & Silence Alarm:
+   * Open the door. The alarm will sound immediately.
+   * Smart Pro Method: Connect the ADC2020 cable. One end clamps to the vehicle's battery terminals (Positive and Negative), and the other end connects to the Smart Pro unit via USB/DB25. Connect the OBD connector. The emulator sends a "keep-alive" signal or mimics a valid key handshake to trick the BCM.14
+   * Autel Method: Connect the VCI to the OBD port. If communication fails immediately (which is likely), perform the "Battery Disconnect" trick: Disconnect the negative battery terminal, wait 60 seconds, reconnect it, and immediately (within 2-3 seconds) attempt to establish communication with the tool before the BCM re-arms the alarm logic.
+3. Establish Session:
+   * Select Ford -> Bronco -> 2021-2023 -> Smart Key.
+   * Choose All Keys Lost (AKL).
+   * Note: The tool will ask "Is the alarm active?". Select YES. This instructs the tool to use the specific bypass protocol.
+4. Security Access & Erase:
+   * The tool will attempt to gain security access. This will trigger the mandatory 10-minute timed access.16
+   * Critical: During this 10-minute window, ensure the tool does not go to sleep and the connection is stable.
+   * Once access is granted, the tool commands the BCM to erase all known keys. The key count will drop to 0. The vehicle is now effectively a "brick" until new keys are added.
+5. Program New Keys:
+   * Modern Ford systems typically require a minimum of two keys to close the learning loop and exit the programming mode. Failing to program a second key may leave the vehicle in a "Crank No Start" state.25
+   * Insert Key 1 into the center console slot. Follow the tool's prompt to cycle ignition.
+   * Insert Key 2 into the slot. Follow the tool's prompt.
+6. Parameter Reset (If required):
+   * If the vehicle cranks but does not start, or if the remote functions work but the ignition fails, perform a "Parameter Reset" (PATS Relearn) function. This re-synchronizes the security codes between the BCM and the PCM.18
+
+
+  
+
+
+
+________________
+6. The 2024+ Security Cliff: Protocols and Lockouts
+The 2024 model year (and late 2023 builds) introduced a hardened security architecture that has rendered most aftermarket AKL procedures obsolete. This shift is characterized by the mandatory implementation of CAN FD and a new, server-dependent authentication protocol that blocks third-party tools.
+6.1. CAN FD and Secure Gateway
+The 2024 Bronco utilizes the CAN FD protocol for all high-speed communication, including the BCM and Gateway.
+* Implication: Legacy OBD-II interfaces cannot physically read the data stream because they lack the hardware to interpret the variable data rates of CAN FD. You must use a CAN FD adapter (e.g., Autel CAN FD Adapter) or a tool with native CAN FD support (Autel IM608 II, Smart Pro with ADS2328 software updates).26
+* The Problem: Even with the correct adapter, the BCM firmware now blocks the "Erase Keys" command unless the tool possesses a specific cryptographic token. This token is only generated by the official Ford server during a live session. Aftermarket tools often fail at the "Gaining Security Access" stage, either timing out or returning a "Security Access Denied" error.5
+6.2. The FDRS Requirement
+For 2024+ AKL scenarios, the only currently guaranteed method is using the OEM software: FDRS (Ford Diagnostic & Repair System).
+* Requirement: A valid NASTF Vehicle Security Professional (VSP) credential is mandatory. Without a VSP ID (LSID), you cannot access the "PATS Functions" menu within FDRS.19
+* Hardware: A compatible J2534 interface is required. While the Ford VCM3 is the official tool, high-quality aftermarket J2534 devices like the Mongoose-Plus Ford2 or Cardaq-Plus3 are validated for this use.
+* Procedure:
+   1. Log in to FDRS with your VSP credentials.
+   2. Connect to the vehicle (ensure your J2534 tool supports CAN FD, or use the VCM3).
+   3. Select PATS Functions from the toolbox.
+   4. FDRS will contact the Ford backend server to verify your VSP status.
+   5. The system will enforce the 10-minute wait, managed by the server timer.
+   6. Once authorized, the server sends the encrypted "Unlock" command to the vehicle's gateway, opening the learning mode.
+
+
+  
+
+
+
+6.3. Alternative: Remote Programming (SmartLink/Assist)
+For locksmiths who do not hold NASTF credentials or lack the FDRS setup, "Remote Diagnostics" services have become the primary workaround.
+* The Model: This involves using a "bridge" device that connects the vehicle to the internet. A remote technician (who holds the valid VSP credentials and FDRS license) connects to the bridge and performs the programming remotely.
+* Tools: ThinkCar, Launch SmartLink, or proprietary "AirConsole" devices.31
+* Cost Analysis:
+   * Hardware: The bridge device typically costs between $500 and $1,500.31
+   * Subscription: Some devices require an annual subscription ($350+) to maintain server access.34
+   * Per-Event Fee: Each programming session incurs a fee paid to the remote technician, typically ranging from $60 to $150 per car. This cost must be factored into the pricing for the end customer.35
+* Pros/Cons: While this method avoids the need for the locksmith to maintain a VSP ID, it is dependent on internet connectivity (which can be spotty in mobile scenarios) and the availability of the remote technician. It effectively outsources the "hard part" of the job.
+________________
+7. Remote Diagnostics and Economic Implications
+The shift towards server-dependent programming in the 2024+ Bronco has catalyzed the adoption of remote diagnostic solutions, fundamentally altering the economic model for automotive locksmiths.
+7.1. SmartLink and Remote Support Ecosystem
+The Launch SmartLink (and similar white-label devices like the ThinkCar ThinkDiag) operates on a "request and fulfill" model. The local technician plugs the SmartLink C (Client) dongle into the Bronco's OBD-II port. Through an app or built-in interface, they post a request for "Ford Bronco 2024 Key Programming." A remote service provider, utilizing a SmartLink B (Business) unit connected to their own FDRS station, accepts the job.
+* Data Tunneling: The SmartLink system tunnels the CAN FD data from the vehicle, through the internet, to the remote technician's VCM3/J2534 interface. To the remote FDRS software, it appears as if the vehicle is physically connected to the remote PC.
+* Subscription vs. Pay-Per-Use:
+   * Hardware Cost: The initial investment for a SmartLink C is roughly $600-$1500 depending on the distributor.31
+   * Annual Fees: Many ecosystems require an annual "activation card" or subscription (approx. $350/year) to keep the device active on the network.34
+   * Transaction Fees: The remote technician sets their price. For a high-security Ford AKL, this is often premium priced ($100-$150) because it consumes the remote tech's time and NASTF data limits.
+7.2. Cost-Benefit Analysis: DIY vs. Remote
+For a high-volume locksmith shop, investing in the FDRS setup is economically superior in the long run.
+* FDRS License: Ford offers short-term licenses (2-day) for approximately $50, or annual licenses for significantly more.
+* NASTF VSP: Application fees are around $300-$400 initially, with annual renewals.
+* Break-Even: If a shop performs more than 2-3 newer Ford programmings per month, the recurring costs of Remote Programming services ($100+ per car) quickly exceed the cost of maintaining a legitimate NASTF/FDRS setup. However, for mobile locksmiths who only see a 2024+ Bronco rarely, the Remote Programming device is a sensible "insurance policy" against turning away work.
+________________
+8. Troubleshooting and "Gotchas"
+Even with the correct tools and procedures, the Bronco's complex electronic architecture presents several unique failure modes.
+8.1. "Key Not Detected" Loop
+A common scenario involves successfully programming the key (the vehicle starts when the key is in the emergency slot), but the remote buttons do not work, and the cluster displays "Key Not Detected" when the key is removed from the slot.
+* Cause: The RKE (Remote Keyless Entry) portion of the fob failed to sync, or the RTM (Radio Transceiver Module) is hung. The transponder (immobilizer) is programmed, but the UHF remote functions are not.
+* Solution:
+   1. Hard Reset: Disconnect the vehicle battery negative terminal for 15 minutes. This forces the RTM and BCM to reboot and often resolves the sync issue.37
+   2. Frequency Mismatch: Verify the key FCC ID. Using a 315 MHz key on a 902 MHz system will result in exactly this symptom—the low-frequency transponder works (starts in slot), but the high-frequency remote never registers.
+8.2. The "Double Lock" Confusion
+Technicians and customers often report that the vehicle "double honks" when closing the door with the engine running. This is a standard Ford feature indicating the key has left the running vehicle. However, if this happens during programming or immediately after:
+* Cause: The vehicle believes the ignition is ON when it should be OFF, or the key status is indeterminate.
+* Fix: Check the start button status light. In modern Fords, the BCM can stay "awake" even when the cluster is off. Open and close the driver's door to force a "Sleep" cycle, then re-test.
+8.3. Dealer-Only Scenarios
+* Keypad Code Retrieval: On previous generations, the 5-digit factory keypad code was printed on a sticker on the Smart Junction Box (SJB) or BCM. On the 2021+ Bronco, this sticker is often absent or hidden deep behind the dashboard. Furthermore, simple OBD scanners can no longer easily read this code due to security masking. FDRS is often required to retrieve the factory code under the "Body > Security" menu.38
+* MyKey Restrictions: If a customer has "MyKey" active (speed limiter, volume limiter) and loses the Admin key, the vehicle is permanently restricted. You cannot simply "disable" MyKey from the menu without an Admin key. The only fix is to perform a full AKL procedure, which erases all keys and resets the MyKey status to factory default (Admin).17
+________________
+9. Conclusion
+The programming landscape for the Ford Bronco (2021–2025) is defined by a sharp bifurcation. For 2021–2023 models, the ecosystem remains accessible to professional aftermarket tools (Autel, Smart Pro), provided the technician is equipped with the specific hardware (Active Alarm Cables) and knowledge to bypass the perimeter security systems. For 2024–2025 models, the architecture has shifted decisively toward OEM-controlled access via CAN FD and secure gateways.
+The era of "plug and play" simplicity for the Ford T6 platform is effectively over. Success now depends on strict adherence to server-based protocols, the possession of valid security credentials (NASTF), or the willingness to leverage remote diagnostic bridges. For the modern locksmith, the Bronco is not just another vehicle; it is a clear indicator that the future of automotive security lies in the cloud, and adaptability is the only currency that matters.
+Works cited
+1. Ford Bronco vs. Ford F-150 Comparison - TrueCar, accessed January 27, 2026, https://www.truecar.com/compare/ford-bronco-vs-ford-f-150/
+2. 2024 FORD BRONCO SPORT PROXIMITY KEY PROGRAMMED WITH AUTEL IM608, accessed January 27, 2026, https://www.youtube.com/watch?v=PdG3bV3dtWA
+3. Ford Bronco Sport Keyfob Tricks (and how to set them up) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=UuzY_W4ciHk
+4. 2024 Ford Bronco Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 27, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2024-ford-bronco-keyless-entry-remote-fob-smart-key-programming-instructions
+5. Program new FOB using FORscan? | Bronco6G, accessed January 27, 2026, https://www.bronco6g.com/forum/threads/program-new-fob-using-forscan.68466/
+6. Smart Pro Game changing FORD active alarm software! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=0Lcrf_yI0t8
+7. Make a Spare Key for Ford Bronco (EASY) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=lJLWzl8wMHo
+8. Same Key Fobs for all trims / models? - Bronco6G, accessed January 27, 2026, https://www.bronco6g.com/forum/threads/same-key-fobs-for-all-trims-models.81237/
+9. Key Fob Programming MUST DO (to have fully functioning OEM key fob spares) - Bronco6G, accessed January 27, 2026, https://bronco6g.com/forum/threads/key-fob-programming-must-do-to-have-fully-functioning-oem-key-fob-spares.85904/post-2123481
+10. January 2024 Smart Pro Lite Application Chart - Lockmasters, accessed January 27, 2026, https://www.lockmasters.com/images/uploaded/Smart%20Pro%20Lite%20Application%20chart.pdf
+11. Key Fob Programming MUST DO (to have fully functioning OEM key fob spares) | Bronco6G, accessed January 27, 2026, https://www.bronco6g.com/key-fob-programming-must-do-to-have-fully-functioning-oem-key-fob-spares/
+12. How do I use the anti-theft alarm system in my Ford?, accessed January 27, 2026, https://www.ford.com/support/how-tos/keys-and-locks/door-locks-and-alarms/how-do-i-use-the-anti-theft-alarm-system/
+13. 2019 Ford Mustang alarm bypass via the new ADC-2020 emulator! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=Lie2bJgsP9E
+14. Ford Active Alarm Cable - Intelligent Key Solutions, accessed January 27, 2026, https://www.intelligentkeysolutions.com/product/ford-mustang-active-alarm-bypass-cable/
+15. IKS Active Perimeter Alarm Bypass Cable For Select Ford Vehicles - Key Innovations, accessed January 27, 2026, https://keyinnovations.com/products/iks-ford-active-alarm-cable
+16. Quick Tip: Ford PATS Key Programming - Snap-on, accessed January 27, 2026, https://www.snapon.com/Diagnostics/US/KB/Ford-PATS-Key-Programming.htm
+17. How to program your Integrated Keyhead Transmitter - Ford, accessed January 27, 2026, https://www.ford.com/support/how-tos/keys-and-locks/replace-and-reprogram-keys/how-to-program-your-integrated-keyhead-transmitter/
+18. Ford Passive Anti-Theft System Relearn Procedures - my cardone login, accessed January 27, 2026, https://my.cardone.com/techdocs/PT%2078-0004.pdf
+19. Programming: Part II - Ford - Gears Magazine, accessed January 27, 2026, https://gearsmagazine.com/magazine/programming-part-ii-ford/
+20. Key Fob Programming MUST DO (to have fully functioning OEM key fob spares) - Bronco6G, accessed January 27, 2026, https://bronco6g.com/forum/threads/key-fob-programming-must-do-to-have-fully-functioning-oem-key-fob-spares.85904/post-2117966
+21. How do I program a (second ) bronco key fob? - Bronco6G, accessed January 27, 2026, https://www.bronco6g.com/forum/threads/how-do-i-program-a-second-bronco-key-fob.75765/
+22. How to Program a Key for 2024 Bronco — Hidden Slot Location! #ford ##bronco #programming #keyless - YouTube, accessed January 27, 2026, https://www.youtube.com/shorts/4b0QU1RUhnA
+23. Programming additional new keys with 2023 Ford bronco, accessed January 27, 2026, https://thebronconation.com/general-bronco-discussion-n.139/programming-additional-new-keys-with-2023-ford-bronco-t.20203/
+24. Advanced Diagnostics - Results Page 1 :: Southern Lock, accessed January 27, 2026, https://www.southernlock.com/brandsupplier/Advanced%20Diagnostics
+25. How To Program keys All Keys Lost for Ford Fusionusing Autel IM608 Key Programmer, accessed January 27, 2026, https://www.youtube.com/watch?v=TimNTo5l5JE
+26. CAN FD ADAPTER - AutelMaxiSysADAS.com, accessed January 27, 2026, https://www.autelmaxisysadas.com/CAN-FD-ADAPTER_p_6925.html
+27. Autel MaxiSys CAN FD Adapter for Autel IM508 and IM608 - Key4, accessed January 27, 2026, https://www.key4.com/autel-maxisys-can-fd-adapter
+28. Ford 2021+ add a key programming concerns : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1il0o8r/ford_2021_add_a_key_programming_concerns/
+29. Autel Update Ford : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1qb40kf/autel_update_ford/
+30. NASTF Application Process - New VSP Primary Account Set Up, accessed January 27, 2026, https://support.nastf.org/support/solutions/articles/43000562902-nastf-application-process-new-vsp-primary-account-set-up
+31. LAUNCH X431 PRO3S+ SmartLink HD Truck Car Diagnostic Tool ECU J2534 Programming, accessed January 27, 2026, https://www.ebay.com/itm/205274819047
+32. EZ Key - Smart Link - Application Based Universal Car Key Programming Tool, accessed January 27, 2026, https://www.uhs-hardware.com/products/ez-key-smart-link-application-based-universal-car-key-programming-tool
+33. Launch SmartLink C V2.0 Remote Diagnosis Device - Kingbolen official, accessed January 27, 2026, https://kingbolentool.com/products/launch-smartlink-c-v2-0-remote-diagnosis-device-vehicle-data-link-connector
+34. Launch SmartLink B/ C V2.0 Remote Diagnostic Device Vehicle Data Link Connector, accessed January 27, 2026, https://www.vxdas.com/products/launch-smartlink-remote-diagnostic-device
+35. Launch Tech SmartLink C Hardware - 301180792 - ADAS Depot, accessed January 27, 2026, https://adasdepot.com/launch-tech-smartlink-c-hardware-301180792/
+36. Launch X431 Annual Activation Card - 1 Year Subscription - Kingbolen official, accessed January 27, 2026, https://kingbolentool.com/products/launch-x431-annual-activation-card-for-smartlink-b-or-smartlink-c-1-year-validity
+37. Key Not Found - Intermediate Issue | Page 2 - Bronco6G, accessed January 27, 2026, https://www.bronco6g.com/forum/threads/key-not-found-intermediate-issue.94908/page-2
+38. [How-To] - Program a Keypad for your Bronco or Bronco Sport using FDRS - Bronco Nation, accessed January 27, 2026, https://thebronconation.com/accessories-n.136/how-to-program-a-keypad-for-your-bronco-or-bronco-sport-using-fdrs-t.20325/

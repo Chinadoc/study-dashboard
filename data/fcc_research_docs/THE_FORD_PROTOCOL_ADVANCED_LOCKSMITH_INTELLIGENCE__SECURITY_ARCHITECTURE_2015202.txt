@@ -1,0 +1,509 @@
+﻿THE FORD PROTOCOL: ADVANCED LOCKSMITH INTELLIGENCE & SECURITY ARCHITECTURE (2015–2026)
+1. INTRODUCTION: THE DIGITAL TRANSFORMATION OF AUTOMOTIVE ACCESS
+The operational landscape for automotive locksmithing and security integration has undergone a seismic shift over the last decade, nowhere more visibly than within the engineering divisions of the Ford Motor Company. The period from 2015 to 2026 represents a complete architectural metamorphosis, transitioning from discrete, hardware-based immobilizer loops to fully integrated, cloud-dependent cyber-physical systems. For the security professional, this era necessitates a fundamental re-education—moving away from the manipulation of mechanical tumblers and toward the management of digital handshakes, encrypted data packets, and voltage-critical programming environments.
+This report provides an exhaustive technical analysis of Ford’s Passive Anti-Theft System (PATS) and its supporting ecosystem. It is designed not merely as a field guide but as a definitive reference document for the intricacies of Body Control Module (BCM) logic, Federal Communications Commission (FCC) radio frequency compliance, and the proprietary encryption standards that govern access to the modern Ford fleet. The analysis synthesizes technical service bulletins, FCC regulatory filings, locksmith field intelligence, and engineering schematics to create a comprehensive operational picture.
+The central thesis of this intelligence report is that the primary risk in modern Ford locksmithing is no longer the inability to mechanically turn a lock, but the potential for catastrophic electronic failure—specifically, the corruption of control module configuration data known as "bricking." As Ford has migrated from the distributed architecture of the CGEA 1.2 era to the centralized, gateway-protected networks of CGEA 1.3 and the fully networked architectures of the F-150 Lightning and Mustang Mach-E, the margin for error has vanished. This report outlines the precise protocols required to navigate this hostile digital environment safely and profitably.
+________________
+MODULE A: PATS SYSTEM VERSIONS & ARCHITECTURE
+The Passive Anti-Theft System (PATS), commercially marketed as SecuriLock, serves as the backbone of Ford’s vehicle security. While the user experience—inserting a key or pressing a button—has remained relatively static, the underlying technology has evolved through distinct generations of cryptographic complexity. Understanding these generations is the prerequisite for selecting the correct diagnostic approach.
+1.1 The Evolutionary Trajectory: From Standalone to Integrated Security
+The architecture of Ford’s security systems is defined by the location of the "PATS Master"—the electronic control unit responsible for verifying the transponder's cryptographic signature. In the early iterations (PATS I and II), this logic was often housed in a standalone module or the Powertrain Control Module (PCM). However, the 2015–2026 window covers the dominance of PATS III and the emergence of the "Next Generation" PATS (PATS IV/V), characterized by the migration of logic into the Body Control Module (BCM) and the Gateway Module (GWM).
+1.1.1 The Legacy of PATS III (The 80-Bit Era)
+From roughly 2011 through 2018—and extending later into 2019/2020 for legacy platforms like the F-250 Super Duty and Ranger—Ford relied on the Texas Instruments 80-bit encryption standard.1 This system marked a significant departure from the vulnerable 40-bit technology of the early 2000s.
+In the 80-bit architecture, the PATS logic is distributed but heavily reliant on the Instrument Panel Cluster (IPC) or the BCM, depending on the specific platform.3 The operational flow begins when the key is turned in the ignition. The transceiver ring acts as an inductive antenna, energizing the transponder chip in the key head. The chip responds with an 80-bit encrypted string. The transceiver relays this string to the IPC/BCM, which compares it against a stored "whitelist" of authorized keys. Upon validation, the IPC/BCM sends an encrypted "release" message over the CAN bus to the Powertrain Control Module (PCM), enabling the fuel injectors and starter relay.
+A critical vulnerability and feature of this era was the "On-Board Programming" (OBP) capability. If a vehicle owner possessed two unique, already-programmed keys, a third key could be added via a specific ignition cycling procedure—typically requiring eight cycles from OFF to RUN.5 This allowed end-users to bypass locksmiths entirely, provided they had maintained their key inventory.
+1.1.2 The High-Security Shift (128-Bit Hitag Pro)
+Beginning with the 2015 F-150 and expanding to the Fusion, Edge, and Explorer by 2017–2019, Ford transitioned to 128-bit encryption.7 This move was driven by the industry-wide necessity to combat relay attacks and the increasing prevalence of Push-to-Start (PEPS) systems, which require more robust bidirectional communication than simple ignition keys.
+* Chipset Architecture: The industry standard shifted to the NXP Hitag Pro (ID49) chipset, often colloquially referred to as the "128-bit" chip. This chip supports more complex challenge-response algorithms, making cloning significantly more difficult compared to the static or simple rolling codes of the Texas Instruments 4D-63 era.7
+* Mechanical Evolution: Coinciding with the electronic upgrade was a mechanical hardening. The industry moved away from the 8-cut H75 keyway, which was susceptible to picking and wear, to the High Security "Sidewinder" keyways—specifically the HU101 and later the H128 "T-Key".7
+* Deprecation of Self-Programming: A major operational impact of the 128-bit era was the removal of On-Board Programming (OBP) for many models. Specifically, vehicles equipped with Push-to-Start (PEPS) systems generally lost the ability to self-program via the two-key method, forcing a reliance on diagnostic tools for all key additions.9
+1.1.3 The Connected Era (2021+ Active Alarm & PEPS)
+The current generation (2021–2026) introduces the most hostile environment for aftermarket programming. The PATS system is no longer a passive gatekeeper; it is an active, networked monitoring system integrated with the vehicle's alarm and telematics.
+* Active Alarm Lockdown: On newer platforms (Ford F-150 Gen 14, Bronco, Mustang Mach-E), the BCM enters a "lockdown" state if the vehicle is locked and the alarm is armed. Unlike previous generations where an alarm would simply sound while a locksmith programmed a key, the modern BCM actively rejects diagnostic requests. Attempting to force entry into the programming menu while the alarm is active can result in the BCM rejecting the security seed request or, in severe cases, corrupting its own configuration data.10
+* Cloud Synchronization: The vehicle now reports key counts and security states to the Ford cloud via the FordPass modem (Telematics Control Unit - TCU). Discrepancies between the local BCM key count and the cloud record can theoretically trigger alerts or inhibit remote features.4
+
+
+  
+
+
+
+1.2 FordPass App Integration and Telematics (2020+)
+While not a locksmith-serviceable component, the FordPass application acts as a secondary authentication layer that complicates the security landscape. It enables remote start, lock, and unlock commands via cellular networks. It is vital for the technician to understand that FordPass signals travel through a distinct pathway: from the cellular network to the Telematics Control Unit (TCU), then to the Gateway Module (GWM), and finally to the BCM.
+Locksmiths troubleshooting "no start" or "no entry" conditions must differentiate between a failure of the physical PATS handshake (Key <-> BCM) and a failure of the remote command pathway (Phone <-> Cloud <-> TCU). These systems operate in parallel but independently. Furthermore, the PATS system is explicitly not compatible with non-Ford aftermarket remote start systems, which can cause interference with the immobilizer logic.12 Installing third-party remote starters on 2021+ vehicles often results in "No Key Detected" errors because the aftermarket bypass modules conflict with the BCM's constant polling of the transceiver.
+1.3 Key System Architecture by Platform
+The architectural implementation of PATS varies significantly by vehicle platform.
+* CGEA 1.2 (Legacy): Found in older Focus, Escape, and C-Max models. Characterized by distributed logic and slower CAN bus speeds.
+* CGEA 1.3 (Modern): Found in Fusion, Edge, Explorer (pre-2020), and F-150 (2015-2020). Features centralized BCM control and higher security encryption (128-bit).
+* FNV (Ford Networked Vehicle - 2021+): The newest architecture found in the F-150 Lightning, Mach-E, and 2021+ F-150. This architecture utilizes CAN-FD (Flexible Data-rate) and Ethernet for high-speed communication. It introduces the "Active Alarm" programming lockout and requires specialized adapters for OBDII communication.13
+________________
+MODULE B: PLATFORM-BASED FCC ID REGISTRY
+This section provides the definitive lookup table for Ford FCC IDs. In the modern era, a visual match of the key fob is insufficient for identification. Ford reuses external shell designs across multiple frequencies (315 MHz vs 902 MHz vs 433 MHz) and chip types. Locksmiths must verify the FCC ID and Frequency exactly to ensure compatibility.
+2.1 P702 Platform: Ford F-150 (2015–2020)
+This generation of the F-150 (Gen 13) was pivotal, introducing the high-security key and creating a schism between standard bladed keys and intelligent access (smart) keys.
+Table 1: Ford F-150 (2015–2020) Key Registry
+Trim Level
+	Key Type
+	FCC ID
+	Frequency
+	OEM Part Number
+	Strattec P/N
+	Buttons
+	Chip
+	Key Blade
+	XL / XLT
+	Flip Key
+	N5F-A08TAA
+	315 MHz
+	164-R8130
+	5923667
+	3 (Lock, Unlock, Panic)
+	ID49 (Hitag Pro)
+	HU101
+	XLT (w/ RS)
+	Flip Key
+	N5F-A08TDA
+	902 MHz
+	164-R8134
+	5926060
+	4 (L, U, Remote Start, P)
+	ID49 (Hitag Pro)
+	HU101
+	Lariat+
+	Smart Fob
+	M3N-A2C31243800
+	902 MHz
+	164-R8117
+	5925315
+	5 (L, U, RS, Tailgate, P)
+	ID49 (Hitag Pro)
+	HU101
+	Raptor
+	Smart Fob
+	M3N-A2C31243300
+	902 MHz
+	164-R8119
+	5925316
+	5 (L, U, RS, Tailgate, P)
+	ID49 (Hitag Pro)
+	HU101
+	Data Sources: 8
+Critical Technical Insight: The flip keys for this generation come in two distinct frequencies. A common error in the field is attempting to program an N5F-A08TAA (315 MHz) key to a truck that requires the N5F-A08TDA (902 MHz) key. The truck will simply fail to detect the key during the programming sequence. Always verify the original key's FCC ID or check the vehicle's build data for the remote start option, which almost always indicates the 902 MHz system.15
+2.2 P702/P758 Platform: Ford F-150 (2021–2026)
+The 14th Generation F-150 utilizes a completely new key design and updated BCM logic running on the FNV architecture.
+Table 2: Ford F-150 (2021–2026) Key Registry
+Trim Level
+	Key Type
+	FCC ID
+	Frequency
+	OEM Part Number
+	Strattec P/N
+	Buttons
+	Chip
+	Key Blade
+	XL / XLT
+	Flip Key
+	N5F-A08TAA
+	315 MHz
+	164-R8269
+	5939651
+	3 (Lock, Unlock, Panic)
+	ID49 128-Bit
+	HU198
+	Lariat+
+	Smart Fob
+	M3N-A2C93142600
+	902 MHz
+	164-R8166
+	5929503
+	5 (L, U, RS, TG, P)
+	ID49 128-Bit
+	HU198
+	Lightning
+	Smart Fob
+	M3N-A3C054338
+	902 MHz
+	164-R8326
+	5943673
+	5 (L, U, Frunk, P)
+	ID49 128-Bit
+	HU198
+	Data Sources: 18
+Critical Technical Insight: Note the introduction of the HU198 keyway. The 2021+ Flip Key (164-R8269) shares the same FCC ID (N5F-A08TAA) as the previous generation, but the physical blade profile is different. The HU198 has a blunt tip and different spacing compared to the pointed HU101. While the electronics might theoretically program, the blade will not fit the lock cylinder without modification or replacement.22
+2.3 P558 Platform: Ford Mustang (2015–2023) & Mach-E
+The Mustang platform requires careful attention to the specific body style (coupe vs. convertible) as the remote functions for the trunk/convertible top vary.
+Table 3: Mustang & Mach-E Key Registry
+Model
+	Year
+	FCC ID
+	Frequency
+	OEM Part Number
+	Chip
+	Notes
+	Mustang
+	2015-2017
+	M3N-A2C31243800
+	902 MHz
+	164-R8111
+	ID49
+	Standard Smart Key
+	Mustang
+	2018-2023
+	M3N-A2C93142600
+	902 MHz
+	164-R8198
+	ID49
+	Updated aesthetic ("Pony" logo)
+	Mach-E
+	2021-2026
+	M3N-A2C93142600
+	902 MHz
+	164-R8278
+	ID49
+	Identical to Explorer/Edge keys
+	Data Sources: 23
+Critical Technical Insight: The Mustang smart keys are notoriously specific about trunk release buttons versus hatchback release buttons. While a generic Ford smart key (M3N-A2C93142600) may program to the immobilizer allowing the car to start, the remote function for the trunk may fail if the body style configuration in the BCM does not match the fob's specific button map.26
+2.4 CD6 Platform: Ford Explorer (2020–2026)
+The Explorer moved to the CD6 rear-wheel-drive platform in 2020, unifying its key system with the Lincoln Aviator.
+Table 4: Explorer Key Registry
+Year
+	Trim
+	FCC ID
+	Frequency
+	OEM Part Number
+	Strattec P/N
+	2020-2025
+	XLT/Ltd
+	M3N-A2C93142600
+	902 MHz
+	164-R8149
+	5929500
+	2016-2019
+	Legacy
+	M3N-A2C31243300
+	902 MHz
+	164-R8119
+	5925316
+	Data Sources: 27
+Critical Technical Insight: The Explorer key (164-R8149) is cross-compatible with the Fusion, Edge, and Expedition of similar model years. This cross-compatibility makes it a high-value stock item for locksmiths, as one SKU can service multiple high-volume vehicles.30
+2.5 T6 Platform: Ford Ranger (2019–2026)
+The Ranger's reintroduction to the US market brought it in line with global T6 standards, but with US-specific frequencies.
+Table 5: Ranger Key Registry
+Generation
+	Year
+	Key Type
+	FCC ID
+	OEM P/N
+	Blade
+	Gen 1
+	2019-2023
+	Flip Key
+	N5F-A08TAA
+	164-R8130
+	HU101
+	Gen 1
+	2019-2023
+	Smart Key
+	M3N-A2C93142600
+	164-R8182
+	HU101
+	Gen 2
+	2024+
+	Flip Key
+	N5F-A08TAA
+	164-R8269
+	HU198
+	Raptor
+	2024+
+	Smart Key
+	M3N-A3C054339
+	164-R8343
+	HU198
+	Data Sources: 22
+Critical Technical Insight: The 2024+ Ranger Raptor utilizes a specific smart key (M3N-A3C054339) that supports the advanced motion-sensing security features required by Thatcham regulations in some markets. This key operates on a hybrid 433/902 MHz frequency set specific to the "Next Gen" architecture and is not backward compatible.34
+2.6 Super Duty (F-250/F-350/F-450) 2017–2026
+The Super Duty platform is the most complex due to the bifurcation of its market into "Retail" (Luxury) and "Fleet" (Work) trucks, which often use completely different radio frequencies.
+Table 6: Super Duty Key Registry
+Year
+	Configuration
+	Key Type
+	FCC ID
+	Frequency
+	OEM P/N
+	2017-2022
+	Retail (Standard)
+	Flip Key
+	N5F-A08TAA
+	315 MHz
+	164-R8130
+	2017-2022
+	Fleet / Remote Start
+	Flip Key
+	N5F-A08TDA
+	902 MHz
+	164-R8134
+	2017-2022
+	Lariat / Platinum
+	Smart Key
+	M3N-A2C93142600
+	902 MHz
+	164-R8166
+	2023-2026
+	Retail (New Body)
+	Smart Key
+	M3N-A3C108397
+	434 MHz
+	164-R8329
+	2023-2026
+	Fleet (New Body)
+	Flip Key
+	N5F-A08TBLP
+	433 MHz
+	164-R8334
+	Data Sources: 35
+Critical Technical Insight: The 2023+ Super Duty redesign introduced a major frequency shift to 433/434 MHz, breaking compatibility with all previous F-Series keys.35 Do not attempt to use 2022 keys on a 2023 model; they will not be detected. Additionally, fleet vehicles often lack the remote start antenna module, meaning they are physically incapable of receiving 902 MHz signals, restricting them to the 315 MHz (pre-2023) or 433 MHz (post-2023) bands.
+2.7 Ford Transit & E-Transit (2020–2026)
+Table 7: Transit Key Registry
+Year
+	Trim
+	FCC ID
+	OEM P/N
+	Notes
+	2020-2024
+	Cargo/Van
+	N5F-A08TAA
+	164-R8255
+	5-Button Flip (Side Door)
+	2020-2024
+	Transit Connect
+	M3N-A3C054338
+	164-R8326
+	Smart Key (Proximity)
+	Data Sources: 39
+________________
+MODULE C: KEY PROGRAMMING COMPREHENSIVE GUIDE
+The programming methodology for Ford vehicles is dictated by the chip architecture and, crucially, the presence of an active alarm system. The transition from 80-bit to 128-bit encryption fundamentally altered the "Add Key" and "All Keys Lost" (AKL) procedures.
+3.1 80-Bit PATS Programming (2015–2018 Legacy)
+For vehicles utilizing the Texas Instruments 80-bit encryption (PATS III), the process remains relatively accessible.
+* Self-Programming (OBP): This generation retained the "Two-Key Method." If the customer possesses two unique, already-programmed keys, a third key can be added without tools. The procedure typically involves cycling the first key ON/OFF, inserting the second key within 5 seconds and cycling ON/OFF, and then inserting the new unprogrammed key. The door locks will cycle to confirm success.5
+* Diagnostic Programming: When fewer than two keys are available, diagnostic tools are required.
+   * Security Access: Most tools (Autel, Smart Pro, IDS) will encounter a mandatory 10-minute security bypass delay. This is a hard-coded feature of the BCM to deter theft.
+   * Erase Procedure: The "All Keys Lost" (AKL) procedure requires erasing all known keys from the BCM. WARNING: You must have two keys available to complete this procedure on many models (e.g., Focus, Escape). If you only have one key, the vehicle will not start after the erase command, effectively "bricking" it until a second key is sourced and programmed.42
+3.2 128-Bit PATS Programming (2019+ & Smart Keys)
+The 128-bit era introduced strict cryptographic requirements and largely eliminated user self-programming for Push-to-Start vehicles.
+* Self-Programming: Largely disabled on PEPS (Push-to-Start) vehicles. Even with two keys, the "slot" method often fails, requiring diagnostic intervention.
+* The "Killer" Variable: Active Alarm: On 2021+ models (F-150 Gen 14, Bronco, Mach-E), the BCM actively monitors for intrusion during programming. If the vehicle is locked and the alarm is armed, the BCM enters a "lockdown" state.
+   * Symptom: The diagnostic tool will fail to gain security access, hang at "Reading Pincode," or report "Communication Failed."
+   * Solution: The technician must silence the alarm or use a tool capable of an "Active Alarm Bypass."
+      * Method A (Manual): Unlock the door with the physical emergency blade. If the alarm sounds, wait for it to time out (stop sounding) before connecting the OBD tool. Alternatively, try the "door lock method" by holding the key in the unlock position for 30 seconds.43
+      * Method B (Hardware): Use a specialized bypass cable (e.g., the ADC2020 for Smart Pro or the Xhorse All-Keys-Lost cable). These cables connect directly to the CAN bus lines, bypassing the secure gateway and alarm logic to inject the programming commands directly.44
+
+
+  
+
+
+
+3.3 AKL Procedures by Model (2021+ Focus)
+Table 8: All Keys Lost (AKL) Procedures
+
+
+Model
+	Years
+	AKL Tool Recommendation
+	Procedure Summary
+	PIN Source
+	Time Est.
+	Critical Warning
+	F-150
+	2021+
+	Autel IM608 w/ CAN-FD
+	Active Alarm Bypass required. Connect CAN-FD adapter.
+	Online (Server)
+	15-20 min
+	Do not disconnect battery while BCM is writing. 46
+	Bronco Sport
+	2021+
+	Smart Pro (ADS2269)
+	Requires ADS2269 software. Bypasses active alarm via OBD.
+	Online (Server)
+	10 min
+	Ensure battery voltage >12.5V to prevent BCM corruption.
+	Mach-E
+	2021+
+	FDRS / Smart Pro
+	Must verify 12V battery health first. Access frunk if dead.
+	Online (Server)
+	20-30 min
+	Frunk access required if 12V dies. 47
+	Super Duty
+	2023+
+	FDRS (Preferred)
+	New encryption. Aftermarket support is limited/beta.
+	Dealer Portal
+	30+ min
+	Verify FCC ID (433MHz) before starting.
+	________________
+MODULE D: KEY BLADE & MECHANICAL REFERENCE
+While the industry focuses on electronics, mechanical redundancy remains critical, particularly for EVs where a dead 12V battery renders the electronics useless.
+4.1 Key Blade Profiles
+* H75 (8-Cut): The legacy standard used on older F-Series and standard ignition vehicles up to approximately 2017/2018. It is an edge-cut key.
+* HU101 (High Security): The standard "Laser Cut" key (internal 2-track) for the vast majority of Ford vehicles from 2015–2023.
+   * Codes: 10001–13000 series.
+   * Versions: There is a "Standard" HU101 and the "T-Key" (H128) which has a twisted head but an identical blade profile. These are mechanically interchangeable for cutting purposes.7
+* HU198 (Blunt Tip): The "Next Gen" profile used on 2021+ F-150 (Flip Key) and 2024+ Ranger. It is visibly similar to the HU101 but features a distinct blunt tip and different bitting spacing. Do not force an HU101 key into an HU198 cylinder; it may jam. The HU198 requires a specific jaw or adapter for key cutting machines.22
+4.2 Emergency Blades
+Smart keys contain emergency inserts that must be cut to allow physical entry.
+* Explorer/Edge/Fusion (2016+): Use the standard HU101 blade (Part: 164-R8168).48
+* 2021+ F-150/Bronco: Uses a new HU101/HU198 compatible insert. The code series remains 11501-13000, but the blank must be selected carefully to match the fob casing.48
+4.3 MyKey Implications
+Ford's "MyKey" system allows a parent or fleet manager to restrict vehicle speed and audio volume.
+* The Trap: A "restricted" MyKey cannot access the admin menu to disable the restriction.
+* The Fix: You must use an Admin key (a master key without restrictions) to clear the MyKey settings. If all keys are lost or only a restricted key is available, the only solution is to perform a full "All Keys Lost" programming procedure (erasing all keys) or use a specialized reset function in tools like FORScan or Autel to reset the IPC/BCM status to "Factory Mode".50
+________________
+MODULE E: CRITICAL ALERTS - FORD SPECIFIC
+This module outlines high-risk scenarios that can result in vehicle disablement ("bricking") or significant liability.
+5.1 The "Active Alarm" BCM Bricking Risk
+On 2021+ vehicles (F-150, Bronco, Mach-E), the Body Control Module (BCM) monitors for intrusion. If a programming tool attempts to gain security access while the alarm is sounding or in an "armed" state, the BCM may interpret this as a hacking attempt.
+* Consequence: The BCM may lock out all communication or corrupt its configuration data (EEPROM). Recovering a bricked BCM often requires the Ford Diagnostic & Repair System (FDRS) and a "Programmable Module Installation" (PMI) procedure, or physical replacement of the module.52
+* Prevention: ALWAYS silence the alarm before plugging in the OBD tool. Unlock the vehicle physically, wait for the alarm to timeout, or use a bypass cable.10
+5.2 Low Voltage Failure
+Ford BCMs are hypersensitive to voltage fluctuations during the "Key Erase" and "Key Write" phases.
+* Risk: If system voltage drops below 11.8V during the 10-minute security access wait time, the process will abort, potentially leaving the key list empty (0 keys) and the vehicle immobilized.
+* Mandate: Always connect a high-quality battery support unit (maintainer), not just a jumper pack, to maintain a steady 13.5V–14V during programming.11
+5.3 Parameter Reset Loop
+When replacing a PCM or BCM, a "Parameter Reset" is required to sync the security rolling codes between the modules.
+* Issue: On Autel and some aftermarket tools, the parameter reset function may report "Success" but fail to actually write the sync data to the module, resulting in a "Crank No Start" condition.
+* Solution: If aftermarket tools fail, FDRS is the only reliable fallback. Additionally, ensure two keys are available, as a parameter reset often wipes the key memory and requires two keys to close the learning loop.46
+5.4 "No Key Detected" on 2018+ Vehicles
+A common issue on 2018+ F-150s and Explorers is the "No Key Detected" message despite a good battery in the fob.
+* Cause: This is often due to RF interference from the Telematics Control Unit (TCU) or a BCM that has entered a deep sleep state and failed to wake up.
+* Fix: Disconnect the vehicle battery for 10 minutes to force a full module reboot ("Capacitor Discharge"). Then attempt to start using the backup slot to re-sync the transponder.3
+________________
+MODULE F: FORD-SPECIFIC TOOL INTELLIGENCE
+6.1 Autel IM608 Pro / IM508
+* Capabilities: Excellent coverage for most 2015–2020 models. Supports AKL via OBD.
+* Requirements:
+   * CAN-FD Adapter: MANDATORY for 2021+ F-150, Bronco, Maverick, and Transit. Without this, the tool cannot communicate with the vehicle's high-speed bus.13
+   * Ford Active Alarm Cable: Recommended for 2021+ AKL situations to bypass the BCM lockdown.55
+* Limitations: The parameter reset function on older 2011-2014 vehicles is hit-or-miss. High risk of failure on 2023+ Super Duty due to new encryption.56
+6.2 Smart Pro (Advanced Diagnostics)
+* Software: Requires ADS2269 software for 2018–2022 Proximity keys.
+* Hardware: The ADC2020 Emulator Cable is a game-changer. It emulates a working key to silence the active alarm, allowing safe programming without physically accessing the BCM.44
+* Advantage: The ADS2269 software is widely regarded as safer than Autel for "Active Alarm" situations because it manages the alarm state more gracefully.58
+6.3 Ford FDRS / IDS (Dealer Tool)
+* Role: The "Nuclear Option." When aftermarket tools brick a BCM or fail a parameter reset, FDRS is required.
+* Access: Locksmiths can purchase a short-term (2-day) license (approx. $50-$150) from motorcraftservice.com. It requires a J2534 pass-thru device (like the VCM3 or a high-quality generic like Cardaq).
+* Necessity: Essential for 2023+ Super Duty and recovering modules corrupted by low-voltage programming attempts.59
+6.4 Xhorse VVDI
+* Key Cloning: Effective for 80-bit keys (4D-63) using the VVDI Key Tool Max. Can simulate the 128-bit chips for emergency start but typically cannot clone them for full functionality.
+* Key Tool Plus: Offers good support for Ford, including an "All Keys Lost" adapter cable similar to the ADC2020 for bypassing active alarms.45
+________________
+MODULE G: SUPER DUTY SPECIAL CONSIDERATIONS
+The Ford Super Duty (F-250 to F-550) presents unique challenges due to the bifurcation of its market into "Retail" (Luxury) and "Fleet" (Work) trucks.
+7.1 The Fleet vs. Retail Key Frequency Trap
+Unlike the F-150, which standardized frequencies by generation, the Super Duty mixes them based on configuration.
+* Retail (XLT Premium/Lariat/Platinum): Typically uses 902 MHz smart keys (164-R8166) or 902 MHz flip keys (164-R8134) to support long-range remote start.
+* Fleet (XL/Base XLT): Often uses 315 MHz flip keys (164-R8130).
+* The Trap: A 2020 F-250 XL might look identical to an XLT but requires a different frequency key. Always check the VIN. If the truck has factory remote start, it is almost certainly 902 MHz. If it is a base work truck, it is likely 315 MHz.35
+7.2 2023+ "New Body" Super Duty
+The 2023 redesign introduced a new electrical architecture.
+* Key Change: The keys moved to 433/434 MHz (FCC: N5F-A08TBLP for flip, M3N-A3C108397 for smart).
+* Incompatibility: These are NOT backward compatible with 2022 models. The part numbers are specific (164-R8334 / 164-R8329).35
+* Upfitter Issues: Ambulance and RV conversions often relocate the BCM or Gateway. Locating the physical module for direct connection (if OBD fails) can be extremely difficult in these modified chassis.
+________________
+MODULE H: EV KEY SYSTEMS (Mach-E, Lightning, E-Transit)
+Electric vehicles introduce a new critical failure mode: The Dead 12V Battery Lockout. While the high-voltage battery may have charge, if the small 12V accessory battery dies, the car is a brick. It cannot detect the key fob, and the electronic door latches will not function.
+8.1 Emergency Entry (Dead 12V)
+* Mach-E: The electronic door latches will not work.
+   * Frunk Jump: Locate the small plastic panel in the front bumper (tow hook cover). Pull out the two wires (Electronic Hood Release). Connect a 12V jumper pack to these leads to pop the frunk.47
+   * Under-Hood Charge: Once the frunk is open, remove the maintenance panel to access the actual 12V battery posts and charge the system. Only then will the car respond to the key.61
+* F-150 Lightning: Similar manual release process. The 12V battery is located under the frunk cowling on the passenger side.61
+
+
+  
+
+
+
+8.2 Backup Transceiver Slot Locations
+If the key fob battery is dead (but the car has power), the key must be placed in a specific spot to start.
+* F-150 Lightning / 2021+ F-150:
+   * With Console: Under the cup holder mat (rear cup holder).62
+   * Without Console (Bench Seat): In the slot under the center seat storage/armrest.63
+* Mustang Mach-E:
+   * Located in the center console storage bin (under the armrest), specifically in the pocket molded for the key.64
+* E-Transit:
+   * Located in the tray on top of the dashboard or near the steering column, depending on the specific upfit configuration.65
+8.3 Phone-As-A-Key (PAAK) Implications
+* Locksmith Role: Locksmiths generally cannot program PAAK (Phone keys). This is done by the customer via the FordPass app.
+* Interference: If a customer has PAAK set up, it essentially occupies a "key slot" in the system. When adding physical keys, ensure the system does not exceed the maximum key count (usually 4 or 6 keys depending on model). PAAK can be reset via the "Backup Start Passcode" on the center screen if the phone is lost.67
+________________
+9. CONCLUSION
+The era of the "simple" Ford key copy is effectively over. The convergence of 128-bit encryption, active alarm monitoring, and cloud-connected BCMs has raised the technical bar for automotive locksmiths. Success on the 2021+ platforms (Gen 14 F-150, Bronco, Mach-E) requires a strict adherence to voltage management and alarm neutralization protocols. The risk of "bricking" a BCM is real and costly, but manageable with the correct procedures.
+For the professional locksmith, inventory strategy must now include N5F-A08TDA (902 MHz) keys for fleet applications, M3N-A2C93142600 smart keys for the core lineup, and the specialized HU198 blades for new trucks. Tooling must be upgraded to support CAN-FD and Active Alarm Bypass (via cable or software). By following the protocols outlined in this report—specifically regarding the "Retail vs. Fleet" frequency variance and the "Silence before Programming" mandate—operators can navigate this complex ecosystem profitably and safely.
+Works cited
+1. Technology On The Move: Ford 80-Bit Key Blanks | Locksmith Ledger, accessed January 5, 2026, https://www.locksmithledger.com/keys-tools/article/10250626/technology-on-the-move-ford-80-bit-key-blanks
+2. Transponder Keys Explained | H94 Ford 80 Bit | Video Blog - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/blogs/news/transponder-keys-explained-h94-ford-80-bit
+3. Ford Truck BCM only 1 key working after bcm cloning. - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=SZwkIs2TDsk
+4. Add FordPass to Ford Explorer 2015 - Page 3 - Non SYNC 3 Support, accessed January 5, 2026, https://community.cyanlabs.net/t/add-fordpass-to-ford-explorer-2015/7308?page=3
+5. How to Program a Ford Key Fob, accessed January 5, 2026, https://www.weberford.com/service/service-and-parts-tips/how-to-program-ford-key-fob/
+6. How to Program a Ford Key Fob | Sunset Ford St. Louis, accessed January 5, 2026, https://www.sunsetfordstlouis.com/service-and-parts-tips/how-to-program-a-ford-key-fob/
+7. Transponder Keys Explained | H128 Ford "T" Key - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/blogs/news/transponder-keys-explained-h128-ford-t-key
+8. History of the Ford F-150 Key, accessed January 5, 2026, https://www.bestkeysupply.com/blogs/tips-tricks-and-field-notes/history-of-the-ford-f-150-key
+9. 2022 Ford F-550 (XL-XLT Std-Key-with-Keyless) Remote Starter - Start-X, accessed January 5, 2026, https://remotestartx.com/2022-ford-f-550-xl-xlt-std-key-with-keyless-remote-starter/
+10. 2021 Ford Ranger All Keys Lost (Active Alarm) using Autel IM608 Pro2 - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=ZgRVjtMG5hY
+11. Ford factory alarm mode how to disable to add keys? IM608 - Autel Support Communities, accessed January 5, 2026, https://bbs.autel.com/autelsupport/Diagnostics/33100.jhtml?createrId=1315934&view=1
+12. Passive Anti-Theft System - Security, accessed January 5, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=3475&languageCode=en&countryCode=USA&moidRef=G1405321&Uid=G1723356&ProcUid=G1723357&userMarket=PRI&div=f&vFilteringEnabled=False&buildtype=web
+13. Autel - CAN FD Adapter For 2018-2020 Ford / GM Vehicles - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/autel-can-fd-adapter-for-2018-2020-ford-gm-vehicles-1
+14. Unveiling the Power of CAN FD Protocol and 3rd Party CAN FD Adapter in - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/blogs/locksmith-industry-news/unveiling-the-power-of-can-fd-protocol-and-3rd-party-can-fd-adapters-in-automotive-locksmithing
+15. 2015-2022 Ford F-150 Flip Key Fob Remote (FCC: N5F-A08TAA, P/N: 164-R8130), accessed January 5, 2026, https://northcoastkeyless.com/product/ford-f-series-f150-f250-keyless-entry-remote-flip-key-fob-fcc-id-n5f-ao8taa-pn-164-r8130/
+16. SUPALAND Remote Start Control Flip Key Fob Replacement Fits For Ford F-150/F150 2015-2024 F250 F350 2017-2022 Ranger 2019-2022 Bronco 2021-2022... - VisualSP, accessed January 5, 2026, https://www.visualsp.com/515320/Flip-Key-Fob-Replacement-Fits-For-Ford-F-150-F150-2015-2024-F250
+17. 2019 Ford F150 Key OEM Ford Smart Key Fob 164-R8166 For F-150 F-250 F-350 2017-2023 With Remote Start 2015 F 150 Key Fob - Fratelli Pistone, accessed January 5, 2026, https://www.fratellipistone.com/R8166-For-F-150-F-250-F-350-2017-2023-With-Remote-Start-226094
+18. 2024 Ford F-150 Smart Remote Key Fob by Car & Truck Remotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2024-ford-f-150-smart-remote-key-fob
+19. 164-R8166 5929503 M3NA2C931426 Ford Smart Keyless Entry Remote – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/original-smart-remote-for-ford-pn-164-r8166
+20. 2021 Ford F-150 Smart Key 5B FCC# M3N-A2C93142600 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-ford-f-150-smart-key-5b-fcc-m3n-a2c93142600
+21. Keyfob Tricks in the F150 Lightning (and how to set them up) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=5NhMcL8fz7k
+22. 2024 Ford Ranger Remote Key Fob – CarandTruckRemotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/2024-ford-ranger-remote-key-fob
+23. 2023 Ford Mustang Smart Key 5 Buttons FCC# M3N-A3C054339 - Aftermarket, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-ford-mustang-smart-key-5-buttons-fcc-m3n-a3c054339-aftermarket
+24. 2015 Ford Mustang Keys - Advance Auto Parts, accessed January 5, 2026, https://shop.advanceautoparts.com/find/2015-ford-mustang-keys
+25. 2018-2022 OEM Original Ford Mustang Proximity Smart Key FCC ID: M3N-A2C931426, accessed January 5, 2026, https://www.ebay.com/itm/144471920765
+26. How To Program a 2015+ Mustang Key Fob - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=Ax9yW4f-0s0
+27. 2021 Ford Explorer Smart Key 5B FCC# M3N-A2C93142600 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2021-ford-explorer-smart-key-5b-fcc-m3n-a2c93142600
+28. 2017-2024 Ford F-Series / 5-Button Smart Key w/ Tailgate / M3N-A2C93142600 (AFTERMARKET) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/2017-2024-ford-f-series-5-button-smart-key-w-tailgate-m3n-a2c93142600-aftermarket
+29. Ford 164-R8198 M3N-A2C93142600 Smart Remote Key Refurbished Grade B - Key4, accessed January 5, 2026, https://www.key4.com/ford-smart-remote-key-164r8198-m3na2c93142600-refurbished
+30. StandardAutoPart Replacement Smart Key Remote Keyless Entry Compatible With Ford Fusion Explorer Edge Mustang Expedition M3N-A2C93142600 164-R8149 164R8149 R8149 (5 Button Complete Unit - VisualSP, accessed January 5, 2026, https://www.visualsp.com/838561/Key-Remote-Keyless-Entry-Compatible-With-Ford-Fusion-Explorer
+31. 2017-2022 Smart Remote Key For Ford 164-R8149 M3N, accessed January 5, 2026, https://876baldwin.com/Smart-Remote-Key-For-Ford-164-R8149-M3N-A2C93142600-e-830112
+32. Ford and Lincoln Keyless Entry Flip Key Car Remote - 3-Button for 2023 Ford Ranger, accessed January 5, 2026, https://store.carkeysexpress.com/keys-and-remotes/Ford/Ranger/2023/1005524-ford-and-lincoln-keyless-entry-flip-key-car-remote-3-button
+33. Ford New OEM 2022-2024 Ranger Raptor Smart Key 4B Remote, accessed January 5, 2026, https://royalkeysupply.com/products/ford-new-oem-2022-2024-ford-ranger-raptor-smart-key-4b-remote-start-w-motion-sensing-fcci-m3n-a3c054339-pn-5944380
+34. Next Gen Ranger Raptor Remote start spare key programming - New Ford Ranger Raptor how to video - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=xme1bh4kpu4
+35. REPLACEMEN For FORD F-SERIES 2023 2024 REMOTE FOB FLIP KEY N5F-A08TBLP 164-R8334 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/186278108267
+36. Ford Aftermarket 2023-2024 F-250+ Smart Key 3B FCCID - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/ford-aftermarket-2023-2024-f-250-smart-key-3b-fccid-m3n-a3c108397-pn-164-r8329-5944047
+37. 2023-2025 Ford F-250 F-350 Super Duty 3-Button Flip Key Fob Remote (N5F-A08TBLP, 164-R8334) - NorthCoast Keyless, accessed January 5, 2026, https://northcoastkeyless.com/product/ford-f-250-f-350-super-duty-flip-key-fob-remote-fcc-n5f-a08tblp-p-n-164-r8334/
+38. 2024 Ford F-250 350 Super Duty Smart Key 4B FCC# M3N-A3C108397 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-ford-f-250-350-super-duty-smart-key-4b-fcc-m3n-a3c108397
+39. Ford Aftermarket 2020-2024 Transit Remote Flip Key 5B Side Doors FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/ford-aftermarket-2020-2023-transit-remote-flip-key-5b-side-doors-fccid-n5f-a08taa-pn-164-r8255
+40. 2024 Ford Transit Van Flip Key Fob 5B Side Door FCC# N5F-A08TAA - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-ford-transit-van-flip-key-fob-5b-side-door-fcc-n5f-a08taa-aftermarket
+41. 2020 - 2024 Ford Tranit Connect Replacement Smart Keyless Entry Remote Proximity Key Fob by Keyless2Go, accessed January 5, 2026, https://keyless2go.com/products/keyless2go-ford-5-button-smart-key-m3n-a3c054338-164-r8326-315-mhz
+42. Car immobilized : r/FORScan - Reddit, accessed January 5, 2026, https://www.reddit.com/r/FORScan/comments/1c7i206/car_immobilized/
+43. How To Reset The Anti-Theft System On Your Ford, accessed January 5, 2026, https://www.matthewscurrie.com/blog/how-to-reset-the-anti-theft-system-on-your-ford/
+44. ADC2020 - Ford Emulator Cable - For SMART Pro Programmer and Advanced Diagnostics, accessed January 5, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-adc2020-ford-emulator-cable-for-smart-pro-programmer-and-advanced-diagnostics
+45. Xhorse - 16-21 Ford AKL with Active Alarm for VVDI Key - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/xhorse-16-21-ford-akl-with-active-alarm-for-vvdi-key-tool-plus-xdfaklgl
+46. Autel IM508S Reset Ford F150 PCM Parameter & All Keys Lost | AutelSale.com Office Blog, accessed January 5, 2026, http://blog.autelsale.com/2024/09/12/autel-im508s-reset-ford-f150-pcm-parameter-all-keys-lost/
+47. How do I open the front luggage compartment on my Mustang Mach-E without vehicle power? - Ford, accessed January 5, 2026, https://www.ford.com/support/how-tos/more-vehicle-topics/storage-and-trunk/how-do-i-open-the-front-luggage-compartment-on-my-mustang-mach-e-without-vehicle-power/
+48. INSERT Ford 2017-2024 Smart Emergency Key Blade HU101 - Your Car Key Guys, accessed January 5, 2026, https://yourcarkeyguys.com/products/insert-ford-2017-2023-smart-emergency-key-blade-hu198
+49. 2017-2021 Ford / Emergency Key / HU101 / 164-R8168 (AFTERMARKET) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/ekb-ford-7
+50. Lost Your Ford Admin Key? Here's How to Disable MyKey - John Kennedy Ford Feasterville, accessed January 5, 2026, https://www.fordoffeasterville.com/blogs/4896/lost-your-ford-admin-key-heres-how-to-disable-mykey
+51. How to Turn off Ford MyKey Without the Admin Key, accessed January 5, 2026, https://www.jimburkeford.com/blog/how-to-turn-off-ford-mykey-without-the-admin-key/
+52. Car locksmith messed up programming another key fob and cost me $2000 worth of repair. How can I win this lawsuit? - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Locksmith/comments/1dk1vop/car_locksmith_messed_up_programming_another_key/
+53. Ford Passive Anti-Theft System Relearn Procedures - my cardone login, accessed January 5, 2026, https://my.cardone.com/techdocs/PT%2078-0004.pdf
+54. Autel CAN FD Adapter - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/autel-can-fd-adapter
+55. Magnus - Active Alarm Bypass Kit for Ford - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/magnus-active-alarm-bypass-kit-for-ford
+56. Ford Explorer 2011 PCM Programming and Parameter Reset by Autel IM608, accessed January 5, 2026, http://blog.autelshop.de/ford-explorer-2011-pcm-programming-and-parameter-reset-by-autel-im608/
+57. 2019 Ford Mustang alarm bypass via the new ADC-2020 emulator! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=Lie2bJgsP9E
+58. Key Programming Software Update compatible with Ford* FIRST AFTERMARKET SOLUTION IN THE WORLD ADS2269 - Prodib, accessed January 5, 2026, https://prodib.se/app/uploads/2024/03/sw-update-ads2269-ford-10-2023-en.pdf
+59. beware of ford bcm"s - Snap-on Diagnostics Product Forums, accessed January 5, 2026, https://productforum.autorepairdata.com/forum/snap-on-diagnostic-products/diagnostic-platforms/j2534-flash-reprogramming-user-forum/13491-beware-of-ford-bcm-s
+60. Xhorse XDFAKLGL All Key Lost Cable for 16-21 Ford for VVDI Key Tool Plus | eBay, accessed January 5, 2026, https://www.ebay.com/itm/277126193250
+61. How to jump-start an F-150 Lightning 12V battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=9baFbgDWKsA
+62. How do I find the Intelligent Access Key backup slot in my Ford?, accessed January 5, 2026, https://www.ford.com/support/how-tos/keys-and-locks/replace-and-reprogram-keys/how-do-i-find-the-intelligent-key-backup-slot/
+63. Starting and Stopping the Engine - Accessing the Passive Key Backup Position, accessed January 5, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=7953&languageCode=en&countryCode=USA&moidRef=G2161977&Uid=G2206355&ProcUid=G2162236&userMarket=usa&div=f&vFilteringEnabled=False&buildtype=web
+64. Starting and Powering Off - Accessing the Passive Key Backup Position, accessed January 5, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=10234&languageCode=en&countryCode=USA&moidRef=G2181834&Uid=G2444122&ProcUid=G2444125&userMarket=USA&div=f&vFilteringEnabled=False&buildtype=web
+65. 2022 Ford E-Transit, accessed January 5, 2026, https://2932510.fs1.hubspotusercontent-na1.net/hubfs/2932510/2022-Ford-E-Transit-WeakKeyFob-Tipsheet.pdf
+66. Starting and Stopping the Engine - Accessing the Passive Key Backup Position, accessed January 5, 2026, https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?variantid=9103&languageCode=en&countryCode=USA&moidRef=G2161977&Uid=G2211626&ProcUid=G2211627&userMarket=CAN&div=f&vFilteringEnabled=False&buildtype=web
+67. FORD MUSTANG MACH-E Owner's Manual - IIS Windows Server, accessed January 5, 2026, https://www.fordservicecontent.com/Ford_Content/Catalog/owner_information/2021-Ford-Mustang-Mach-E-Owners-Manual-version-1_om_EN-US_09_2020-1.pdf

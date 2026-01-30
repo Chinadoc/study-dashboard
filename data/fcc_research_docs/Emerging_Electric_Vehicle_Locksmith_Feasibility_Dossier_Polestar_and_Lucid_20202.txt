@@ -1,0 +1,181 @@
+﻿Emerging Electric Vehicle Locksmith Feasibility Dossier: Polestar and Lucid (2020–2026)
+1. Introduction: The Divergence of Digital Access
+The automotive security landscape is undergoing its most radical transformation since the introduction of the rolling-code transponder in the mid-1990s. As the industry pivots toward electrification, the underlying electronic architectures are shifting from distributed, discrete control units to centralized, software-defined platforms. This evolution is nowhere more apparent—or more divergent—than in the emerging electric vehicle (EV) sector. This dossier provides an exhaustive technical and operational analysis of the locksmithing feasibility for two critical players in this space: Polestar, the performance EV subsidiary of Volvo Cars and Geely Holding, and Lucid Motors, the American luxury startup redefining high-voltage efficiency. Spanning the model years 2020 through 2026, this report assesses the viability of aftermarket service, key programming, emergency entry, and immobilization diagnostics for independent automotive locksmiths.
+The analysis reveals a bifurcated service landscape that demands a fundamental rethinking of the independent locksmith’s business model and tooling. Polestar, rooted deeply in Volvo’s legacy engineering, presents a profile best characterized as "High Difficulty, Moderate Access." Its reliance on the Volvo Cylinder Compact Modular Architecture (CMA) for the Polestar 2 and the Scalable Product Architecture 2 (SPA2) for the Polestar 3 allows independent locksmiths to leverage existing Volvo-compatible tools, such as the Vehicle Information and Diagnostics for Aftersales (VIDA) system, OrBit, and high-end aftermarket programmers.1 However, success requires navigating stringent server-side security protocols and high administrative barriers.
+In stark contrast, Lucid Motors presents an "Extreme Difficulty, Low Access" profile. The Lucid Air utilizes a proprietary, clean-sheet design known as the Lucid Electric Advanced Platform (LEAP), which employs a heavy reliance on Bluetooth Low Energy (BLE) and Near-Field Communication (NFC) rather than traditional low-frequency (LF) transponder systems.3 For the independent locksmith, Lucid represents a near-total "dealer-only" ecosystem as of the 2024–2025 period, though cracks are appearing in this walled garden via emerging beta updates from tool manufacturers like Autel and XTOOL.5
+Furthermore, the operational reality of servicing these vehicles is defined not just by cryptographic barriers but by the fragility of their low-voltage subsystems. The report identifies the 12-volt (12V) battery subsystem as the single critical failure point for both brands. In a modern EV, the 12V battery powers the door latches, authentication modules, and gateway computers. When it fails, the vehicle becomes a "brick," locking the owner out regardless of whether they possess a valid key. Mastery of the specific, often hidden, manual override and 12V injection procedures is the primary value-add for locksmiths servicing these vehicles today.7
+1.1 The Theoretical Shift: From Mechanical to Zonal
+To understand key programming and entry feasibility, one must first understand the digital chassis upon which these vehicles are built. The divergence in architecture dictates the tools required and the probability of success for aftermarket intervention.
+Polestar’s security architecture is not monolithic; it varies significantly by model due to the brand's transitional phase between Volvo legacy systems and Geely’s dedicated EV platforms. The Polestar 2 (2020–2026) is built on the CMA platform, shared with the Volvo XC40 and C40. Security is managed by the Central Electronic Module (CEM) and utilizes Volvo’s familiar immobilizer protocols, making this the most accessible model for locksmiths familiar with European vehicles.2 However, the Polestar 3 (2024–2026) moves to the SPA2 platform, shared with the Volvo EX90. This platform introduces a centralized core computing architecture powered by NVIDIA and Snapdragon processors, moving away from distributed Electronic Control Units (ECUs). Security logic is likely hosted in a central Vehicle Core Computer (VCC), making traditional OBD-II key adding more complex without authenticated access.2 The Polestar 4 (2025–2026) complicates matters further by adopting the Sustainable Experience Architecture (SEA), a Geely-native platform shared with Zeekr. This suggests a deviation from Volvo-specific diagnostic protocols toward Geely’s global architecture, potentially requiring entirely different diagnostic paths.2
+Lucid Motors, conversely, has adopted a "Post-Transponder" approach with its LEAP architecture. Unlike legacy auto manufacturers that layer EV powertrains onto legacy electrical buses (CAN/LIN), Lucid employs a localized zonal architecture heavily integrated with an Ethernet backbone. Access control is managed by a Pektron-manufactured Body Control Module that authenticates via encrypted BLE handshakes for phone-as-key and Ultra-Wideband (UWB) for fobs.3 While an OBD-II port exists, it is largely a regulatory compliance interface. Real diagnostics and programming are handled via proprietary Ethernet connectors and over-the-air (OTA) tunnels, making "plug-and-play" key programming virtually impossible without manufacturer-level software.5
+
+
+  
+
+
+
+The implications of these architectural decisions are profound. The traditional "immobilizer" loop—where a key reader excites a transponder, reads a hex code, and verifies it against a stored table in the ECU—is effectively obsolete in the Lucid architecture and becoming increasingly abstracted in the newer Polestar platforms. Instead, we see a move toward "credential management," where the vehicle acts as a server authenticating a client (the key or phone). For the locksmith, this means the toolkit must shift from signal sniffers and EEPROM readers to ethernet adapters, pass-thru interfaces, and cloud-authenticated software subscriptions.
+2. Polestar: A Hybridized Locksmith Challenge
+Polestar operates as a distinct brand, yet its umbilical cord to Volvo Cars remains the defining characteristic of its serviceability. This relationship is a double-edged sword for the aftermarket: it provides a stable, well-documented diagnostic environment via Volvo’s infrastructure, but it also imposes the high costs and strict security protocols associated with European luxury service.
+2.1 The Key Ecosystem: Identification and Technology
+The first step in any locksmithing interaction is the correct identification of the credential. Polestar utilizes a multi-tier key strategy comprising standard fobs, activity tags, and digital keys. It is critical for locksmiths to distinguish between standard keys and "Motion Sensing" (MS) keys, a rolling change introduced to combat relay attacks.
+The Standard Key Fob ("The Surfboard") is a rectangular unit featuring buttons on the side for Lock, Unlock, Trunk, and Panic. The primary operating frequency for North American and European markets is 433 MHz, specifically 433.92 MHz. While older documentation references 315 MHz for certain markets, the overwhelming majority of Polestar stock utilizes the 433 MHz band.10 The internal transponder logic is based on the HITAG 3 protocol with AES encryption, consistent with modern Volvo architecture. A crucial distinction lies in the FCC ID: YGOHUF8423MS indicates a Motion Sensing key, while YGOHUF8423 indicates a non-MS key. The "MS" variants contain an accelerometer that puts the fob to sleep after a period of inactivity, rendering it invisible to scanners until moved.13
+The Activity Tag, often referred to as the "Sport Key," presents a unique challenge. Identified by FCC ID YGOHUF8432MS, this smaller, buttonless device is fully waterproof and hermetically sealed. It is designed for active lifestyles but harbors a significant anti-consumer design flaw: the battery is non-replaceable. Once the internal CR2032 is depleted—typically within 2 to 4 years—the official procedure is to discard the key and program a replacement, costing upwards of $150 plus programming fees.10 However, an emerging "refurbishment" market exists where skilled locksmiths carefully cut the casing seam, replace the battery, and reseal the unit with marine-grade epoxy, offering a cost-effective alternative to owners.10
+The Digital Key functionality, utilizing Phone-as-Key (PAK) technology, has evolved significantly. The Polestar 2 relies on Bluetooth Low Energy (BLE), a system that gained a reputation for unreliability in its early years, leading many owners to depend exclusively on physical fobs.14 The Polestar 3 and 4 introduce Ultra-Wideband (UWB) support, allowing for highly accurate spatial awareness and passive entry functionality that does not require the user to wake their phone.14 For the locksmith, this means troubleshooting a "lockout" may involve instructing the customer to place their phone in the specific NFC backup reader tray (often the wireless charging pad) to bypass Bluetooth failures.14
+2.2 Programming Procedures: The VIDA Monopoly and Aftermarket Workarounds
+The barrier to entry for Polestar programming is defined by the Vehicle Information and Diagnostics for Aftersales (VIDA) subscription. This system, shared with Volvo, is the only manufacturer-sanctioned method for key programming.
+Method A: The Official Path (VIDA)
+Independent locksmiths in the United States and other compliant markets can purchase a 3-day subscription to VIDA for approximately $135.16 This access requires a compatible SAE J2534 pass-thru device, such as the Mongoose-Plus Volvo or higher-end tools like the Cardaq Plus 3. The process is strictly server-dependent. The locksmith must connect the vehicle via OBD-II, log in to the VIDA server, and purchase the specific software application for key programming (often separate part numbers for "Add Key" vs. "Erase Key"). The server then authorizes the CEM to accept new credentials.
+Crucially, the VIDA protocol enforces a "total presence" rule: locksmiths must have all intended keys present during the programming session. Any key not present when the new configuration is written will be deleted from the vehicle’s authorized list.1 This is a vital operational detail; adding a spare key for a customer who left their spouse’s key at home will result in the spouse’s key being deactivated.
+Method B: The "OrBit" and VDASH Alternatives
+For the Polestar 2 (CMA platform), a vibrant enthusiast and grey-market ecosystem has developed. Software suites like OrBit and VDASH have reverse-engineered the CEM’s security access mechanisms. These tools can communicate with the CEM to enable or disable features and, critically, perform key programming functions without a live connection to the Volvo/Polestar central server.19
+These tools operate by exploiting diagnostic backdoors to extract the CEM’s security PIN. Once the PIN is known, the software can authorize the addition of a key. This method bypasses the per-key software fees associated with VIDA and does not require an active subscription for every session. However, this cat-and-mouse game is ongoing; Polestar actively patches these exploits via Over-The-Air (OTA) firmware updates. A procedure that works on a Polestar 2 running software version 2.9 might be blocked on version 3.1.19
+Method C: General Aftermarket Tools (Autel/Xtool)
+The major automotive locksmith tool manufacturers, such as Autel (IM508/IM608) and Xtool, offer robust support for the Polestar 2 up to model years 2022/2023. These tools can typically perform "Add Key" functions via OBD-II by emulating the Volvo protocol. However, "All Keys Lost" (AKL) scenarios on the Polestar 2 present a significantly higher risk profile. On the CMA platform, AKL often requires removing the CEM from the vehicle (located under the dashboard) to perform a bench read of the EEPROM data. This process extracts the cryptographic seeds necessary to generate a dealer key. The risk of data corruption or physical damage to the CEM during this process is non-trivial, and "bricking" the module renders the vehicle immobile.22 Support for the newer Polestar 3 and 4 on these platforms is currently in beta or strictly "read-only," as the move to SPA2 and SEA architectures has blinded most current OBD-II scanners.5
+2.3 Emergency Entry Protocols: From Cylinders to Jump Points
+The evolution of Polestar’s design language—from the traditional door handles of the Polestar 2 to the flush, aerodynamic surfaces of the Polestar 3 and 4—has direct implications for emergency entry procedures.
+Polestar 2: The Concealed Mechanical Cylinder
+The Polestar 2 features a standard mechanical lock cylinder, but it is concealed beneath a cosmetic cover on the driver’s door handle. To access it, the locksmith must locate a small slot on the underside of the handle’s fixed cap. By inserting the mechanical key blade (extracted from the fob) into this slot and applying outward pressure, the plastic cap can be removed, revealing the cylinder. A 45-degree clockwise turn unlocks the door.24 Once inside, if the 12V battery is depleted, the hood release lever in the driver's footwell operates a mechanical cable, allowing access to the front jump points.26
+Polestar 3 & 4: The Electronic Entry Paradigm
+The Polestar 3 and 4 complicate this process significantly. The Polestar 3 retains a mechanical lock cylinder, but it is hidden inside the handle mechanism. Because the handles are flush-mounted and electronically actuated, they do not present themselves when the vehicle is dead. The locksmith must manually extract the handle to its "service position"—a task that may require suction cups or careful leverage—to expose the cylinder.28
+The Polestar 4 represents the most radical departure. Snippets and manuals indicate that for many markets, the Polestar 4 lacks a readily accessible external key cylinder, or utilizes a "handle-less" design that relies entirely on electronic actuation. In the event of a total power failure, the primary method of entry is not picking a lock, but energizing the vehicle’s chassis from the outside. This is accomplished via external 12V terminals located behind a tow eye cover in the front bumper. By connecting an external 12V source to these leads, the locksmith energizes the central locking system and Body Control Module (BCM). Once powered, the vehicle can authenticate a valid fob or NFC card and unlock the door electronically.30 This shifts the locksmith’s primary tool from a Lishi pick to a specialized 12V power supply.
+
+
+  
+
+
+
+3. Lucid Air: The Locksmith’s "Walled Garden"
+If Polestar represents a modernization of legacy systems, Lucid Motors represents a complete break from them. The Lucid Air is engineered with a philosophy that prioritizes proprietary integration over aftermarket accessibility. The vehicle’s security is not managed by a standard automotive immobilizer but by a sophisticated, networked access control system that is, as of late 2024, largely impenetrable to the independent locksmith community.
+3.1 The "Pektron" Security Ecosystem
+Lucid partners with Pektron Group Ltd. for its access systems, a UK-based supplier known for high-security electronic modules often found in supercars and specialized industrial applications. This choice is significant. Unlike Huf or Continental systems which are widely documented and reverse-engineered, Pektron systems are comparatively obscure and rigorously secured.
+The Lucid Air key fob (FCC ID AQO013) is an active Bluetooth Low Energy (BLE) device that communicates on the 2.4 GHz band.3 Unlike traditional fobs that sleep until queried by a 125 kHz field, the Lucid fob is constantly broadcasting and handshaking with the vehicle. This architectural choice explains the notoriously short battery life of the fob’s CR2032 cell, often lasting less than a year. A significant portion of "broken key" service calls for Lucid vehicles are simply cases of depleted fob batteries.3
+It is vital to note that standard automotive signal detectors—the handheld devices locksmiths use to verify if a key is transmitting—are typically tuned to 315 MHz, 433 MHz, and 868 MHz. These tools will register "No Signal" when testing a perfectly functional Lucid fob, as they are blind to the 2.4 GHz BLE activity. The Lucid fob does contain a backup 125 kHz transponder for emergency starting, but this is a passive, short-range signal that requires specific placement on the NFC/RFID symbol on the dashboard to be detected.3
+The system also heavily utilizes NFC cards (13.56 MHz) for access via the B-pillar and valet operations. These cards are conceptually simpler but are encrypted and paired to the vehicle’s specific "Allow List" in the BCM.
+3.2 Programming: The "All Keys Lost" Dead End
+Currently, there is no confirmed, reliable aftermarket solution for programming Lucid Air keys in an "All Keys Lost" (AKL) scenario without dealer intervention. The programming procedure involves a proprietary Ethernet diagnostic connection—utilizing a specific connector located under the dash near the A-pillar—and a session with the Lucid diagnostic cloud. The tool authenticates the technician’s credentials before writing the new key ID to the BCM.
+While some aftermarket tool manufacturers like Autel (KM100E) and Xtool (D8) have recently listed "Lucid Air" in their software update logs, operational reality suggests these capabilities are severely limited.5 They typically support "Add Key" functions only when a working master key is present to authorize the session. In an AKL situation, the BCM locks out all requests, requiring a seed-key exchange or cloud token that is only available to Lucid’s internal service tools. Furthermore, replacement fobs from Lucid are expensive (quoted between $300–$600) and used fobs from sources like eBay are highly risky, as Pektron systems often "lock" a key to a specific VIN once programmed, rendering them non-reusable.33
+3.3 The 12V Crisis: Emergency Entry and the "Frunk" Method
+The most common and actionable service call for a Lucid Air is a lockout due to a depleted 12V battery. The Lucid Air’s door handles are electronically actuated; without 12V power, they do not present, they do not unlatch, and the vehicle is effectively a vault.
+Because there is no mechanical key cylinder on the exterior of the vehicle, the locksmith must rely on a specific electronic backdoor engineered by Lucid. This procedure has evolved, and understanding the nuance is critical to avoid damage.
+The Primary "Frunk" Method:
+1. Locate the Access Point: On the front bumper, typically on the passenger side (though some early models may vary), there is a small cutout cover for the tow eye. This must be carefully popped open using a non-marring plastic pry tool.
+2. The Pigtail Harness: Inside the cavity, the locksmith will find a small two-wire harness, typically with Red (+) and Black (-) wires or connectors.
+3. Energize: A 12V power source (jump pack or booster) must be connected to these wires. Crucial Distinction: This connection does not jump start the car. It is wired specifically to the Frunk Latch Actuator. It powers only the latch, bypassing the sleeping or dead BCM.
+4. Access and Charging: Once power is applied, the frunk hood pops open. The locksmith must then remove the cargo tub or cosmetic panels in the frunk to access the actual 12V battery (or the high-amp jump posts) to charge the vehicle’s main low-voltage system. Only after the main 12V system is revitalized will the door handles present themselves.8
+The Legacy "Wheel Well" Method:
+Some earlier documentation and forum discussions reference a 12V pigtail located behind the rear passenger wheel well liner. This was intended as a backup access point for the rear trunk or door actuators. Accessing this requires jacking up the vehicle and removing pins to peel back the wheel liner—a dangerous and time-consuming task in a roadside scenario. This method should be considered a "last resort" if the front bumper pigtail is damaged or inaccessible.36
+
+
+  
+
+
+
+3.4 Neutral Override and Towing
+If the vehicle is dead and must be towed, the locksmith or tow operator faces the issue of the electronic parking brake and transmission pawl. Unlike mechanical shifters, the Lucid Air cannot be shifted into Neutral without 12V power.
+Once the vehicle is energized via the Frunk method described above, the operator can engage "Tow Mode" from the center screen. If the vehicle cannot be energized (e.g., in cases of flood damage or catastrophic electrical failure), the wheels remain locked. In this scenario, the use of wheel dollies (e.g., GoJaks) is mandatory. Dragging a Lucid Air with locked wheels will cause catastrophic damage to the electric motors and tires. Manual neutral override straps exist under the floor mats or in the trunk in some configurations, but these are often purely for the parking brake and may not disengage the transmission park pawl.3
+4. The Locksmith’s Toolkit: 2024–2025 Readiness
+To service these brands, the standard locksmith toolkit—comprising Lishi picks, basic key programmers, and simple wedges—is insufficient. The toolkit must evolve to include IT-grade diagnostic equipment and specialized power delivery systems.
+4.1 Essential Hardware and Diagnostics
+J2534 Pass-Thru Interface: This is the cornerstone of Polestar service. A generic OBD-II scanner cannot interface with VIDA. Locksmiths must invest in a validated J2534 device, such as the DrewTech Mongoose-Plus Volvo, which ensures stable communication during the delicate programming process.
+Portable Power Station: Programming modern EVs is power-intensive. A Polestar 2 programming session can take upwards of 20 minutes, during which the vehicle’s ignition is on, draining the 12V battery. If voltage drops below a critical threshold (typically 12.5V), the CEM may abort the process or corrupt its memory ("brick"). A simple jump pack is insufficient; a power supply capable of delivering a continuous, regulated 13.8V at 25–50 Amps is required to stabilize the vehicle.
+Precision Jump Leads: For the Lucid Air, standard heavy-duty jumper cable clamps are too bulky to fit into the small bumper cutout without shorting against the chassis or damaging the connector. Locksmiths must carry a set of needle-nose clamps or probe-style leads specifically for this application.
+Signal Analyzers: To accurately diagnose Lucid fobs, a signal analyzer capable of detecting 2.4 GHz BLE transmissions is essential. Relying on legacy 433 MHz detectors will lead to misdiagnosis of working fobs.
+4.2 Software and Cost Analysis
+Table 1 summarizes the operational costs and requirements for servicing these brands.
+Tool Ecosystem
+	Polestar (2, 3, 4) Utility
+	Lucid Air Utility
+	Cost Implications
+	Official OEM
+	VIDA (Volvo)
+
+
+Excellent. $135 for 3-day access. Requires J2534 hardware.
+	Lucid Diagnostic System
+
+
+Unavailable to independent locksmiths.
+	VIDA requires a per-VIN software purchase (~$70) in addition to the sub.
+	Autel (IM508/608)
+	Moderate.
+
+
+Good for P2 (CMA). P3/P4 support is emerging/beta.
+	Low/Experimental.
+
+
+Listed in updates (KM100E), but unverified for AKL.
+	Annual update subscription (~$800-$1000) required for latest EV software.
+	OrBit / VDASH
+	High (Specialist).
+
+
+Can read PINs on P2 without VIDA.
+	None.
+	Per-VIN license fees apply (~$100 range). Good ROI for high volume P2 work.
+	Physical Tools
+	Lishi HU101 / HU152
+
+
+For P2/P3 door cylinders.
+	N/A
+
+
+No cylinders to pick.
+	Minimal cost.
+	5. Business Implications and Future Outlook
+The business case for servicing emerging EVs is nuanced. For Polestar, the pathway is clear: it is a viable revenue stream for locksmiths willing to invest in the VIDA ecosystem. The shared DNA with Volvo means that skills and tools acquired for Polestar service are directly transferable to the much larger population of Volvo vehicles. A typical "Add Key" job for a Polestar 2 can command $400–$600, offering a healthy margin even after accounting for the ~$200 in software and subscription costs.40
+Lucid, however, presents a "service call only" market. With programming effectively locked down, the locksmith’s revenue is limited to emergency unlocking services. While these calls can be lucrative due to the specialized knowledge required (the "frunk jump"), they do not offer the recurring revenue of key sales. The risk of damaging proprietary trim or modules on a $100,000+ vehicle also weighs heavily on the feasibility calculation.
+
+
+  
+
+
+
+5.1 The Horizon: 2025–2026
+Looking ahead, two trends will define the sector. First is the standardization of Ultra-Wideband (UWB). Both Polestar (on the 3 and 4) and Lucid are integrating UWB for "Digital Key Plus" functionality. This technology is significantly harder to emulate or relay than BLE. Locksmiths will eventually need "UWB Sniffers" to diagnose signal failures, a tool category that is currently non-existent in the general aftermarket.
+Second is the impact of Right to Repair (R2R) legislation. As Lucid scales production, pressure will mount to release diagnostic tools to independent shops, similar to Tesla’s eventual release of "Toolbox." However, security-related functions like key programming are often exempt from data sharing mandates under "theft prevention" clauses. It is likely that Lucid will remain a closed ecosystem for longer than its peers, potentially following a model of selling expensive, vetted subscriptions rather than opening up to general scan tools.
+For the locksmith, the message is unambiguous: the trade is pivoting from mechanical manipulation to IT administration. Success in the EV era requires a toolkit that looks less like a key ring and more like a server rack.
+Works cited
+1. Polestar Key Fob Programming With VIDA (Applicable to Polestar & Volvo) - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=HDLLTrNivKg
+2. Differences in Software from the 3 to the 4 : r/Polestar - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Polestar/comments/1ma4fkc/differences_in_software_from_the_3_to_the_4/
+3. Lucid Air Owner's Manual North America, accessed January 5, 2026, https://lucidmotors.com/media/document/OM_Air_enUS_v35.pdf
+4. FCC Certification - Lucid Motors, accessed January 5, 2026, https://publications.infotainment.prod.atieva.com/661d6ad5-e394-4d9f-aa0a-b459d3fd56bc/user-manual/GUID-074084E2-F23F-47AF-9241-CD94E56FD16B.html
+5. Autel MaxiIM KM100E: The Ultimate Solution for Modern Key Programming Challenges, accessed January 5, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=autel_1005007878965802
+6. XTOOL D8 W Car Diagnostic Scanner: The Real-World Performance of a Modern ECU Tool, accessed January 5, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=d8-xtool-scanner
+7. How to open and jump start a Polestar or Volvo EV that has a dead start (12-volt) battery., accessed January 5, 2026, https://www.youtube.com/watch?v=m4URnrXVxDo
+8. Frunk Access with Dead Battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=M92cnswHM48
+9. Keyless Entry System, accessed January 5, 2026, https://publications.infotainment.prod.atieva.com/d4e90c3b-0f98-4f8e-b027-64c5c6c8a47c/content_en-US/GUID-7D9E7DAD-E492-48C3-A87D-3D71AFF777A9.html
+10. Start and lock system type designations - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-2/2025/article/5b78f53554543b60c0a8015159b331e4/
+11. Determining the transmit frequency of a key fob - Electrical Engineering Stack Exchange, accessed January 5, 2026, https://electronics.stackexchange.com/questions/545674/determining-the-transmit-frequency-of-a-key-fob
+12. Genuine Black OEM 4 Btn 2021-26 Polestar Smart Key Remote HUF8423MS YGOHUF8423MS | eBay, accessed January 5, 2026, https://www.ebay.com/itm/394236252890
+13. How to buy used key fobs - SPA/CMA key fob and config guide - OrBit Forums, accessed January 5, 2026, https://forums.spaycetech.com/archive/index.php?thread-280.html
+14. Digital key - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-3/2025/article/47d2c97fd33effd3c0a8cc3718c999b7-05c7943009a1cf5bc0a8b09752cce648-8664b2fa77a7e089c0a8296870d1a409/
+15. Key system certification - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-4/2025/article/0a500a085a173960c0a8b09771bff25e-f19ebb76fc2e9629ac1b7acc5528389d-8664b2fa77a7e089c0a8296870d1a409/
+16. VIDA Purchasing | Volvo Car Bookstore, accessed January 5, 2026, https://www.volvotechinfo.com/vida/purchase
+17. Volvo/Polestar VIDA OEM Subscription - AE Tools & Computers, accessed January 5, 2026, https://www.aetools.us/products/volvo-polestar-vida-oem-subscription
+18. Service Manager Bulletin - nhtsa, accessed January 5, 2026, https://static.nhtsa.gov/odi/tsbs/2021/MC-10205396-9999.pdf
+19. Key coding - OrBit Forums, accessed January 5, 2026, https://forums.spaycetech.com/archive/index.php?thread-169-4.html
+20. Any fellow Polestar owners in the area? Need someone that has the VIDA or OrBit software to re-program a car key. : r/FortMyers - Reddit, accessed January 5, 2026, https://www.reddit.com/r/FortMyers/comments/1mezy3h/any_fellow_polestar_owners_in_the_area_need/
+21. Polestar OTA Update Issue due to VIDA system - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Polestar/comments/1aeocqv/polestar_ota_update_issue_due_to_vida_system/
+22. Abrites USA: Abrites AVDI | Auto Key Programming | Auto Parts Programming, accessed January 5, 2026, https://www.abritesusa.com/
+23. Master BMW module cloning - Lock Pick -unlock your BMW - m2kinc, accessed January 5, 2026, https://m2kinc.com/product/bmw-module-cloning/
+24. Detachable key blade - Polestar, accessed January 5, 2026, https://www.polestar.com/en-il/manual/polestar-2/2026/article/1b022077544f7fcfc0a801512db87ba9/
+25. Locking and unlocking with detachable key blade - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-2/2022/article/8a26fbd7544f7a41c0a8015102f7b541/
+26. Using jump starting with another battery - Polestar, accessed January 5, 2026, https://www.polestar.com/en-kw/manual/polestar-2/2023/article/d6c009b8516746fec0a80151776e5bdf/
+27. Jump starting using another battery - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-2/2025/article/d6c009b8516746fec0a80151776e5bdf/
+28. Locking and unlocking with the detachable key blade - Polestar, accessed January 5, 2026, https://www.polestar.com/uk/manual/polestar-2/2025/article/8a26fbd7544f7a41c0a8015102f7b541/
+29. Key reading locations - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-3/2025/article/47d2c97fd33effd3c0a8cc3718c999b7-7e5471e1a34b3166c0a8b04a798a9487-8664b2fa77a7e089c0a8296870d1a409/
+30. Opening and closing - Polestar, accessed January 5, 2026, https://www.polestar.com/us/manual/polestar-4/2025/article/47d2c97fd33effd3c0a8cc3718c999b7-86d20f55ce6a01dfc0a8b04a502af5fd-8664b2fa77a7e089c0a8296870d1a409/
+31. I can't enter my P4. Not opening, not waking up.. : r/Polestar - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Polestar/comments/1lyo7en/i_cant_enter_my_p4_not_opening_not_waking_up/
+32. Powerless or unresponsive car - Polestar, accessed January 5, 2026, https://www.polestar.com/uk/manual/polestar-4/2025/article/f558786dce01385ec0a8b04a5cd4f99b-e72f40e7d3b4148ec0a8cc3738920216-d3199950595ca83ec0a8b097598f99f4/
+33. Keyfob : r/LUCID - Reddit, accessed January 5, 2026, https://www.reddit.com/r/LUCID/comments/1jl1a1j/keyfob/
+34. 2022 - 2025 LUCID AIR SMART KEYLESS ENTRY REMOTE KEY FOB OEM | eBay, accessed January 5, 2026, https://www.ebay.com/itm/127455735526
+35. How to Open the Frunk if Your 12V Battery is Dead - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=bAd5eiJxiLg
+36. Car dead and Lucid won't help until Monday - Reddit, accessed January 5, 2026, https://www.reddit.com/r/LUCID/comments/1ogo1xh/car_dead_and_lucid_wont_help_until_monday/
+37. Some Lucid Air Owners Learn To Jump Their 12 Volt Batteries, accessed January 5, 2026, https://www.lucidinsider.com/2022/09/06/some-lucid-air-owners-learn-to-jump-their-12-volt-batteries/
+38. Battery Access - Job Instruction - Urgently, accessed January 5, 2026, https://jobinstructions.geturgently.com/docs/lucid-air-2021-2022-battery-access
+39. Owner's Manual - Lucid Motors, accessed January 5, 2026, https://lucidmotors.com/media/document/OM_Sapphire_enAE_v25.pdf
+40. DIY Key Replacement Success : r/Polestar - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Polestar/comments/1inb8v4/diy_key_replacement_success/
+41. Has anyone found a way to get a second key that does not cost $700? : r/Polestar - Reddit, accessed January 5, 2026, https://www.reddit.com/r/Polestar/comments/1egrlcu/has_anyone_found_a_way_to_get_a_second_key_that/

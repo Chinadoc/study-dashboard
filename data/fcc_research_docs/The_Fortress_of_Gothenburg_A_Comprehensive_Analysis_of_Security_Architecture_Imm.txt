@@ -1,0 +1,233 @@
+﻿The Fortress of Gothenburg: A Comprehensive Analysis of Security Architecture, Immobilizer Protocols, and Diagnostic Access in Modern Volvo and Polestar Platforms (2016–2024)
+1. Introduction: The Divergence of Scandinavian Security
+In the landscape of modern automotive security, Volvo Cars has carved a unique trajectory that distinguishes it sharply from its German and American contemporaries. While manufacturers like Volkswagen and Ford have historically relied on iterative evolutions of component security (CS) bytes and Gateway modules, Volvo’s transition under Geely ownership marked a radical departure from legacy architectures. The introduction of the Scalable Product Architecture (SPA) in 2016 and the subsequent Compact Modular Architecture (CMA) represented not merely a chassis evolution, but a complete reimagining of the vehicle’s digital nervous system.
+This report provides an exhaustive, forensic-level examination of the security ecosystems governing the XC90, XC60, XC40, S60, V60, and their Polestar derivates. It addresses the critical "coverage gap" faced by independent automotive locksmiths and security researchers—a void created by Volvo’s uncompromising adherence to high-encryption protocols, the surgical necessity of Central Electronic Module (CEM) bench programming, and the disruptive integration of Android Automotive OS (Google Built-In). Furthermore, with the rapid electrification of the fleet through the Recharge line, the boundary between security technician and high-voltage engineer has blurred, necessitating a new standard of safety protocols.
+1.1 The Philosophy of "Connected Safety"
+Volvo’s security logic is inextricably linked to its safety ethos. In the SPA and CMA era, the immobilizer is not merely an anti-theft device; it is a node in a larger safety net that includes the Volvo On Call (VOC) telematics system, the Supplemental Restraint System (SRS), and, in electric models, the Battery Disconnect Unit (BDU). This integration means that a failure in the security handshake does not result in a benign "no crank" scenario; it can trigger a cascade of system lockouts, including the inability to engage high-voltage contactors in EV models.1
+The implication for the aftermarket is profound: "Add Key" procedures are no longer simple EEPROM writes. They are complex cryptographic operations that must preserve the delicate synchronization between the CEM, the Engine Control Module (ECM), and the cloud-connected Telematics hardware. The risks of "bricking" a module or disabling remote services are significantly higher than in previous generations, demanding a deeper understanding of the underlying architecture.
+2. Platform Architecture: The Dual Pillars of Modern Volvo
+To navigate the complexities of Volvo key programming, one must first deconstruct the two platforms that underpin the entire 2016–2024 lineup. While they share a brand identity and infotainment interface (Sensus or Android Automotive), their physical and electronic topologies differ in ways that critically impact service procedures.
+2.1 Scalable Product Architecture (SPA): The Flagship Foundation
+Launched with the second-generation XC90 in 2016, SPA is the bedrock of Volvo's resurgence. It supports the "90" cluster (XC90, S90, V90) and the "60" cluster (XC60, S60, V60).
+2.1.1 The CEM-Centric Topology
+In the SPA architecture, the Central Electronic Module (CEM) acts as the undisputed master of the vehicle's security domain. Unlike the preceding P3 platform (where security data was often distributed across the CEM and a separate Keyless Vehicle Module or KVM), SPA consolidates the Immobilizer Secret Key (ISK) management within the CEM's secure processor environment.
+The CEM in SPA vehicles utilizes high-speed FlexRay communication channels for critical vehicle dynamics and security handshakes. FlexRay, offering data rates up to 10 Mbps (significantly faster than High-Speed CAN), allows for real-time encryption and authentication processes that are resistant to the timing-based attacks (like CAN injection) often used on lesser secure networks.3
+For the technician, the physical location of the SPA CEM is a primary logistical challenge. Situated in the passenger footwell, often obscured by the glovebox assembly and kick panels, it requires significant disassembly to access for the mandatory "All Keys Lost" bench reading procedures. The module itself is a robust unit, heavily shielded, with multi-pin connectors that deter casual probing.4
+2.1.2 Cryptographic Implementation
+The keys programmed to SPA vehicles typically utilize NXP Hitag Pro or advanced AES encryption standards. These transponders are "locked" to the vehicle's VIN upon programming. The VIDA diagnostic system (Volvo's OEM tool) enforces a strict "one-time use" policy for key fobs. Once a key's unique ID is registered to a chassis in the Volvo central database, it cannot be repurposed for another vehicle, effectively eliminating the market for used keys unless specialized aftermarket "unlocking" services are employed.6
+2.2 Compact Modular Architecture (CMA): The Geely Synergy
+Debuting with the XC40 in 2018, the CMA platform was co-developed with Geely Auto to serve the compact luxury segment and facilitate the transition to pure electric powertrains. This platform underpins the XC40 (ICE and Recharge), C40, Polestar 2, and several Lynk & Co models.3
+
+
+  
+
+
+
+2.2.1 The Distributed Architecture of CMA
+While CMA shares the high-level security logic of SPA to ensure brand consistency, its execution reflects cost-optimization and packaging constraints inherent to smaller vehicles.
+* Module Placement: In the XC40 and Polestar 2, the CEM is often located differently—sometimes deeper behind the dashboard or integrated more tightly with the Body Control Module (BCM) functions compared to the XC90. This variance means that a technician trained on XC90 CEM removal cannot simply apply that muscle memory to an XC40; the "surgical approach" must be relearned.9
+* Electrification First: CMA was designed from the outset to accommodate the "Recharge" (BEV) configuration. This results in a tighter integration between the Immobilizer and the High Voltage system. The "start authorization" signal on a CMA EV doesn't just enable the electric drive unit (EDU); it closes the high-voltage contactors in the battery pack. A failure here is absolute; there is no "limp mode" for a security mismatch in a CMA EV.11
+2.3 The Geely Factor: A Double-Edged Sword
+The acquisition of Volvo by Geely has created a fascinating "hybrid" ecosystem. Corporate communications emphasize "synergies" in powertrain and architecture.13 For the security professional, this manifests in component sharing. The underlying hardware of a Lynk & Co 01 is remarkably similar to a Volvo XC40.
+This shared DNA means that aftermarket tools developed in China (like Lonsdor and OBDSTAR) often receive updates for "Volvo" capabilities faster than Western tools, as they leverage research done on domestic Geely models.15 However, it also introduces complexity. The software "dialects" used in the CMA platform can vary significantly based on the market and the specific supplier of the BCM, leading to situations where a tool works perfectly on a 2019 XC40 but fails to communicate with a 2020 Polestar 2, despite them being theoretically identical platforms.18
+3. The 2022+ Paradigm Shift: Android Automotive OS (Google Built-In)
+The most disruptive event in the recent history of Volvo security was the transition from the proprietary Sensus infotainment system to Android Automotive OS (AAOS), marketed as "Google Built-In." This rollout began in late 2021 for the XC40 Recharge and Polestar 2, and expanded to the entire lineup (XC60, S90, V90) for the 2022 model year.3
+3.1 The "Blackout" of 2022
+The introduction of AAOS coincided with a major refresh of the vehicle's electrical architecture, often referred to internally as the "facelift" electronics. This update introduced a new Secure Gateway (SGW) protocol and fundamentally altered the firmware structure of the CEM.
+* Impact on Diagnostics: Overnight, the established aftermarket methods for OBD key programming ceased to function. Tools that relied on exploiting vulnerabilities in the Sensus-era CEM firmware found those backdoors closed. The 2022+ models actively block unauthorized CAN traffic attempting to initiate key learning procedures.21
+* The Cloud Dependency: AAOS integrates the vehicle deeply with the Google ecosystem. Key provisioning—especially for the "Digital Key" (Phone-as-Key)—now involves a complex chain of custody that includes authentication tokens from Volvo's cloud servers. While the physical key fob still interacts with a local immobilizer, the management of those keys is now intertwined with the user's "Volvo ID" and Google profile.23
+3.2 Differentiating Software Bugs from Security Faults
+The transition to AAOS has been notoriously buggy. One of the most pervasive issues reported by owners is the spurious "Key Not Found" error.25
+* The False Positive: In the Sensus era, a "Key Not Found" message almost always indicated a hardware fault (dead battery, bad antenna, damaged key). In the Google Built-In era, this message is frequently a symptom of the infotainment system "hanging" or failing to process the status signal from the CEM correctly.
+* Diagnostic Protocol: Technicians must now incorporate software troubleshooting into their security diagnostics. A "hard reset" of the infotainment system (holding the home button for 20+ seconds) has become a valid first step in diagnosing key recognition failures on 2022+ models—a procedure that would have been irrelevant on older platforms.20
+4. Comprehensive Key Programming Procedures
+This section serves as the technical core of the report, delineating the specific workflows for programming keys. It contrasts the authorized dealer methodology with the "surgical" interventions required by the aftermarket.
+4.1 Dealer Operations: The VIDA/NASTF Pathway
+For authorized repair facilities and independent shops willing to navigate the regulatory landscape, Volvo's Vehicle Information and Diagnostics for Aftersales (VIDA) offers the only guaranteed solution for 2022+ models.
+4.1.1 The VSP Requirement
+In North America, access to security-related software downloads in VIDA is gated by the National Automotive Service Task Force (NASTF).
+* Credentialing: An independent technician must obtain a Vehicle Security Professional (VSP) credential. This involves a rigorous background check and a subscription fee of $435 every two years.27
+* The Process: Once credentialed, the technician logs into VIDA, connects the vehicle via a compliant J2534 interface, and purchases the key application software (typically ~$70-$100 per download, varying by dealer wholesale rates).
+* Limitations:
+   * Cost: The combination of VSP fees, VIDA subscription (3-day or monthly), and per-vehicle software fees makes this expensive for low-volume shops.29
+   * Hardware Lock: VIDA strictly enforces the "new key only" rule. It will reject any key fob that has previously been paired to another VIN, making the use of refurbished keys impossible without prior "unlocking" (which VIDA does not support).6
+4.2 Aftermarket Methodologies: The "Surgical" Approach
+For the vast majority of automotive locksmiths, the aftermarket route is preferred due to cost and speed. However, on SPA/CMA Volvos, this is rarely a simple OBD operation.
+4.2.1 The "Add Key" Scenario (Pre-2022)
+If a valid, working key is present, many advanced tools can perform an "Add Key" function via OBD.
+* Mechanism: The tools (like Autel IM608 or Smart Pro) utilize the working key to authenticate a secure session with the CEM. Once authenticated, the tool can "sniff" the ISK or request the CEM to open a programming window for the new key.32
+* Risk Profile: Low. The risk of data corruption is minimal because the CEM is not being forced into a bootloader mode.
+4.2.2 All Keys Lost (AKL): The CEM Bench Procedure
+When no working keys are available (AKL), the technician faces the most difficult procedure in the Volvo repertoire. The CEM will not communicate with an unauthenticated diagnostic tool via OBD. The security data must be extracted directly from the chip.
+The Workflow:
+1. Module Removal: The technician must physically remove the CEM from the vehicle.
+   * XC90 (SPA): Located in the passenger footwell. Requires removal of the kick panel, disconnection of the battery (critical!), and careful unlatching of the massive multi-pin connectors.4
+   * XC40 (CMA): Often buried deeper, requiring more dashboard disassembly. The compact nature of the CMA platform makes access tighter and more prone to collateral damage of trim pieces.9
+2. Bench Connection: Once on the bench, the CEM must be connected to a programmer.
+   * Solder-Free Adapters: Tools like Yanhua Mini ACDP and Autel XP400 Pro use specialized interface boards that clamp onto the CEM's PCB, making contact with specific test points without the need for soldering. This significantly reduces the risk of thermal damage to the board.34
+   * Reading: The tool reads the encrypted EEPROM/Flash data.
+3. Decryption & Key Production: The tool's software decrypts the dump to locate the ISK. It then either:
+   * Writes the new key ID directly into the file, which is then written back to the CEM.
+   * Generates a "Dealer Key" file that allows the new key to be learned via OBD once the CEM is reinstalled.
+
+
+  
+
+
+
+4.3 Tool Ecosystem Analysis: The "Big Three" Comparison
+4.3.1 Autel IM608 / IM508
+Autel remains the market leader for Volvo coverage up to 2021.
+* Strengths: The "Expert Mode" guidance for CEM removal is excellent, providing photo-rich instructions. The integration with the G-Box and XP400 Pro makes bench reading reliable.37
+* Weaknesses: Coverage for 2022+ Google Built-In models is severely limited. While beta updates occasionally appear, users report mixed success, often requiring a fallback to dealer tools.39
+4.3.2 Lonsdor K518 Pro
+Lonsdor has emerged as a specialist for "difficult" Volvos.
+* Strengths: The K518 Pro features "Super Updates" that claim OBD capabilities for some models that require benching on Autel. It is particularly strong on the Geely-derived architectures, offering better support for 2022+ XC40/Polestar models via specialized adapters.15
+* Weaknesses: Documentation can be sparse, and the tool's interface is less intuitive than Autel's.
+4.3.3 Yanhua Mini ACDP
+The "Anti-Solder" Specialist.
+* Strengths: Yanhua's primary selling point is Module 20 (Volvo), which uses pogo-pin interface boards to read the CEM and KVM without soldering. This is a massive safety net for technicians worried about overheating components. It supports both SPA and CMA platforms effectively.34
+* Weaknesses: It is purely a key programming/EEPROM tool; it lacks the diagnostic breadth (scanning, service resets) of the Autel.
+5. The Key Hardware Ecosystem: Blades, Tags, and Limitations
+Volvo's physical key hardware is as distinct as its software, presenting unique mechanical and electronic challenges.
+5.1 The Mechanical Layer: NE66 Blade
+The emergency key blade utilized in all SPA/CMA fobs is the NE66 profile.
+* Characteristics: This is a high-security, internal track blade. Unlike external cut keys, the bitting is milled into the center of the blade.
+* Duplication: Visual decoding is nearly impossible due to the internal track. Duplication requires a computerized milling machine (e.g., Xhorse Condor, Keyline Ninja) equipped with a specific tracer to "feel" the depth of the cuts.42
+* Usage: The blade is critical for the "Dead Battery" entry procedure, allowing the driver to manually unlock the door via the hidden cylinder in the handle.
+5.2 The Transponder Tiers
+Volvo keys are not created equal. The ecosystem is segmented into three functional tiers:
+
+
+Key Type
+	Color
+	Functionality & Limitations
+	Standard Key
+	Black/Leather/Timber
+	The master key. Full access to all vehicle functions. Contains a UHF transmitter for remote commands and an LF transponder for passive start.
+	Red Key / Care Key
+	Red / Orange
+	Introduced as a "safety" feature. The Red Key (pre-2021) and Care Key (2021+) function as standard keys but with software-imposed restrictions (speed limits, volume caps). These are popular for valet use or teenage drivers. Crucially, they use the same encryption as the master key; the restriction is a software flag in the CEM.45
+	Sport Key (Key Tag)
+	Black (Sealed)
+	A waterproof, button-less tag designed for active lifestyles.
+	5.3 The Sport Key Dilemma: A "Disposable" Design
+The Sport Key (Key Tag) is the source of significant owner frustration.
+* The Problem: It is a fully sealed unit with a non-replaceable battery. Volvo designed it to be disposable; when the battery dies (usually after 2-3 years), the official procedure is to discard it and purchase a new one (~$200+ programming fees).48
+* The "Locksmith Hack": A thriving aftermarket procedure involves carefully cutting the casing along the sonic weld seam to access the board. The battery (typically a CR2032 or CR2450 variant with welded tabs) must be desoldered and replaced. The case is then glued back together.
+   * Risk: The waterproofing is compromised. If not resealed perfectly, moisture ingress will corrode the PCB rapidly. This "repair" is effective but voids any warranty on the key.50
+6. Electrified Security: High Voltage Safety in the Recharge Era
+With the proliferation of the XC40 Recharge, C40, and T8 (PHEV) models, the automotive locksmith is now working in close proximity to lethal electrical systems.
+6.1 The Intersection of Immobilizer and HV Systems
+On a standard internal combustion engine (ICE) vehicle, the immobilizer simply cuts fuel and spark. On a Volvo Recharge (BEV) or T8 (PHEV), the security system controls the Battery Disconnect Unit (BDU).
+* The Handshake: When the valid key is detected, the CEM sends an encrypted authorization signal to the BDU. Only then does the BDU energize the high-voltage contactors, allowing the 400V battery to power the inverter and motors.
+* Implication: A "No Start" condition on a Recharge model may technically be a "No HV" condition triggered by a security mismatch. Technicians must be able to distinguish between a failed contactor and a failed key authorization.2
+6.2 Mandatory Safety: The Manual Service Disconnect (MSD)
+When performing invasive procedures like CEM removal on an EV/PHEV, isolating the High Voltage system is mandatory to prevent accidental arcing or contactor damage.
+* XC40 Recharge / C40 Location: The MSD is typically located under a small access flap in the front of the right rear passenger footwell (or sometimes under the hood in early CMA prototypes, but production is rear).
+* Procedure:
+   1. Verify the vehicle is off and the charging cable is disconnected.
+   2. Open the flap and remove the orange rubber protection cap.
+   3. Pull the locking lever rearward, then rotate/pull to disengage the MSD plug.
+   4. Wait: Allow 5-10 minutes for the capacitors in the inverter to discharge before touching any components.11
+* T8 PHEV (SPA) Location: The disconnect is often located on the top of the center tunnel in the rear seat area, requiring the removal of a trim panel.12
+Safety Warning: Never attempt to probe connectors near orange cabling with standard multimeters. Use CAT III/IV rated equipment and insulated tools.
+7. Troubleshooting: "Key Not Found" and VOC Conflicts
+Even with successful programming, Volvo systems are prone to specific post-service issues.
+7.1 "Vehicle Key Not Found" (The Backup Reader)
+This is the single most common error message reported by owners, often occurring even when the key battery is fresh. It creates panic, but the solution is built into the car.
+* The Mechanism: The vehicle's primary detection method uses UHF antennas. If there is RF interference (cell towers, other fobs) or the key battery is weak, the UHF signal fails.
+* The Backup Solution: Every modern Volvo features a passive Backup Reader (RFID/NFC) that reads the transponder chip directly at close range, bypassing the battery-dependent radio.
+* Locations:
+   * XC90 / XC60 / S90 / V90 (SPA): The reader is located in the center console cup holder. Look for a key symbol embossed on the rubber mat at the bottom.55
+   * XC40 / C40 / Polestar 2 (CMA): The reader is located in the storage compartment of the tunnel console, often near the wireless charging pad.58
+* Procedure: Place the key fob (buttons up) directly on the symbol. Depress the brake pedal. Press the Start button. The vehicle will authenticate via the passive chip and start.
+
+
+  
+
+
+
+7.2 Volvo On Call (VOC) Conflicts
+Aftermarket key programming can sometimes disrupt the Volvo On Call telematics system.
+* The Symptom: After programming a new key via EEPROM/Bench, the cluster displays "Volvo On Call Service Required," and remote start from the phone app fails.
+* The Cause: The VOC module (Telematics) maintains a synchronized rolling code or handshake with the CEM. If the aftermarket tool modifies the CEM's data imperfectly (e.g., forcing a key ID without updating the checksums expected by the VOC module), the handshake breaks.60
+* The Fix: This often requires a "CEM Reload" or "VOC Reload" software download via VIDA to re-synchronize the modules. In severe cases, a battery reset (disconnecting the 12V for 15 minutes) can clear the error if it was merely a communication timeout during programming.62
+8. Polestar 2: The "Twin" with a Twist
+The Polestar 2 acts as a close sibling to the XC40, but its branding separation introduces unique challenges.
+8.1 Tool Compatibility
+While the Polestar 2 sits on the CMA platform, many aftermarket tools do not list it explicitly.
+* The Workaround: Technicians have found high success rates by selecting "Volvo XC40 (2021+)" in their tool's menu when connecting to a Polestar 2. The underlying CAN IDs and security protocols are identical, allowing the tool to communicate even if the "Make" is technically different.18
+* Digital Key Plus: Polestar emphasizes the "Phone-as-Key" feature. It is critical to note that programming a physical key fob does not enable the Digital Key. That is a separate process involving the Polestar App, a pairing code, and the physical key present in the vehicle.63
+9. Conclusion
+The security landscape for Volvo and Polestar vehicles from 2016 to 2024 represents a significant escalation in complexity compared to previous generations. The convergence of high-level encryption, centralized architecture (SPA/CMA), and connected ecosystems (Google Built-In) has effectively ended the era of "simple" OBD key programming for the modern fleet.
+For the independent operator, success now demands a multifaceted approach:
+1. Technical Adaptability: Mastering the "surgical" removal of CEMs for bench programming is a baseline requirement for pre-2022 models.
+2. Regulatory Compliance: The "Blackout" of 2022+ models necessitates engagement with the NASTF/SERMI ecosystems to access official VIDA solutions, as aftermarket tools hit a hard wall with the new architectures.
+3. Safety First: With the rapid adoption of the Recharge line, understanding High Voltage isolation procedures is no longer optional—it is a matter of life and safety.
+As Volvo continues to integrate its security deeper into the cloud and battery management systems, the role of the locksmith will continue to evolve from "key cutter" to "security systems integrator," requiring a blend of mechanical skill, electronic expertise, and software literacy.
+Works cited
+1. Immobilizer - FACT SHEET - Volvo, accessed January 7, 2026, https://stpi.it.volvo.com/STPIFiles/Volvo/FactSheet/IMMOBIL_Eng_01_1283508.pdf
+2. Ordering additional keys - Polestar, accessed January 7, 2026, https://www.polestar.com/us/manual/polestar-2/2025/article/dbb1c676544f755fc0a801510cf3d015/
+3. CMA Product Guide, accessed January 7, 2026, https://personalizeyourvolvo.com/PDF_Brochures/CMA%20Product%20Guide_MY25.pdf
+4. IPD Volvo S60, V60, XC60, S90, V90, XC90 P5 VEA 2.0L Engine ECU / ECM Removal, accessed January 7, 2026, https://www.youtube.com/watch?v=wBIh5hsgLMg&vl=en
+5. CEM REMOVAL INSTRUCTIONS - XeMODeX, accessed January 7, 2026, https://xemodex.com/us/pdf/xemodex-cem-removal-99-04.pdf
+6. How to buy used key fobs - SPA/CMA key fob and config guide - OrBit Forums - SPAyceTech, accessed January 7, 2026, https://forums.spaycetech.com/showthread.php?tid=280
+7. Mastering Volvo Key Programming: Dealer Software & Original Keys Tutorial - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=iq34fNcFaA0
+8. Volvo Cars' new global compact car range to be built on innovative architecture, accessed January 7, 2026, https://www.volvocars.com/intl/media/press-releases/61086F6E0C6DC91B/
+9. Volvo V40 CEM (Body Control Module) How to Remove Faulty Unit & Program (Clone) replacement + Refit - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=jkKDpDZc1Js
+10. How to: Volvo C30 S40 V50 C70 CEM Removal and Cleaning - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=H_M0KW3wFpI
+11. XC40 RECHARGE - Volvo Car Bookstore, accessed January 7, 2026, https://cdn.volvotechinfo.com/ver/MY2021-XC40RechargeFullElectric.pdf
+12. High Voltage Safety Disconnect On T8 Hybrid & Recharge Full Electric Models - IPD, accessed January 7, 2026, https://www.ipdusa.com/Articles/1077/High-Voltage-Safety-Disconnect-On-T8-Hybrid-Recharge-Full-Electric-Models
+13. Volvo Cars and Geely Auto to Deepen Collaboration, accessed January 7, 2026, https://www.volvocars.com/us/media/press-releases/B262DD07B3E6A5AB/
+14. Volvo Cars and Geely agree on technology sharing and the formation of LYNK & CO, accessed January 7, 2026, https://www.volvocars.com/us/media/press-releases/EBA0CD6E0645A8F1/
+15. Lonsdor K518 Pro 2024 Volvo XC40 Dismantled Programming Smart Key - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=kZOXI_RC1Jw
+16. Lonsdor - K518 Pro Key Programmer Full Configuration (With 2 Years Software), accessed January 7, 2026, https://royalkeysupply.com/products/lonsdor-k518-pro-key-programmer-full-configuration
+17. Lonsdor K518 Pro Key Programmer 2025 Update News - ABKEYS, accessed January 7, 2026, https://abkeys.com/blogs/news/lonsdor-k518-pro-key-programmer-update-news
+18. 2023 Polestar 2 Key Programmed with Polestar VIDA Dealer Tool - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=QnLRc7l8oPU
+19. Autel IM608 Pro Key Programmer Demonstration and Q &A - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=c7hEYBcWy4c
+20. Volvo and the Google system: problems finally solved?, accessed January 7, 2026, https://www.volvocarssaintleonard.com/en/news/view/volvo-and-the-google-system-problems-finally-solved-/131935
+21. 2022 Volvo XC90 Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 7, 2026, https://keyless2go.com/blogs/program-instructions/2022-volvo-xc90-keyless-entry-remote-fob-smart-key-programming-instructions
+22. 2022 Volvo XC60 Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 7, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2022-volvo-xc60-keyless-entry-remote-fob-smart-key-programming-instructions
+23. Setting up a digital key for EX30 | Additional features | Volvo Support EN-TH, accessed January 7, 2026, https://www.volvocars.com/en-th/support/topic/8211463166ce9550c0a80151115c206d/
+24. Volvo Cars Tests Replacing Keys with Smart Phone App, accessed January 7, 2026, https://www.volvocars.com/us/media/press-releases/5E82F41B39C677C7/
+25. V70 Immobilizer (start inhibitor) | Volvo Support US, accessed January 7, 2026, https://www.volvocars.com/us/support/car/v70/article/74e5c702b9b95ddbc0a801e801100bf7/
+26. Do you think Volvo will ever fix Android Automotive? - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Volvo/comments/1j7vjf6/do_you_think_volvo_will_ever_fix_android/
+27. What is NASTF? (credentials for mechanics, technicians, locksmiths), accessed January 7, 2026, https://support.nastf.org/support/solutions/articles/43000755440-what-is-nastf-credentials-for-mechanics-technicians-locksmiths-
+28. Choosing the Correct NASTF Account, accessed January 7, 2026, https://support.nastf.org/support/solutions/articles/43000761328-choosing-the-correct-nastf-account
+29. NASTF Memberships – National Automotive Service Task Force, accessed January 7, 2026, https://wp.nastf.org/?page_id=3969
+30. Stuck using Vida Software to replace keys : r/Polestar - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Polestar/comments/1hpymmw/stuck_using_vida_software_to_replace_keys/
+31. VIDA | Volvo Car Bookstore, accessed January 7, 2026, https://www.volvotechinfo.com/vida
+32. 2016 XC90 : ADD key programming with im608pro - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=9KrhjNQh-bo
+33. Volvo XC40 2024 Dismantled Programming Smart Key by K518Pro - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=uwUQGM6q7mg
+34. Yanhua ACDP-2 Master - Volvo IMMO Key Programming Package (w/ Modules, accessed January 7, 2026, https://royalkeysupply.com/products/yanhua-mini-acdp-2-basic-module-with-volvo-immo-key-programming-module-support-volvo-2009-2018-add-key-and-all-key-lost
+35. MINI ACDP-2 Key Programmer Base Unit from Yanhua - Key4, accessed January 7, 2026, https://www.key4.com/yanhua-mini-acdp2-key-programmer-base-unit
+36. YANHUA Mini ACDP Read Volvo KVM and CEM Password Data, accessed January 7, 2026, http://blog.yanhuaacdp.com/yanhua-mini-acdp-read-volvo-kvm-and-cem-password-data/
+37. Volvo XC90 Smart Key Programming (2016–2021) | Autel IM608 Pro II + EEPROM + OBD, accessed January 7, 2026, https://www.youtube.com/watch?v=L9uxbaa0o2Q
+38. MaxiIM IM608 II & IM608 Pro II_User Manual_EN - Autel, accessed January 7, 2026, https://www.autel.com/u/cms/www/202307/27074754wqj0.pdf
+39. Autel All key lost : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/1iat02x/autel_all_key_lost/
+40. All_Keys_Lost - Search - Autel Support Communities, accessed January 7, 2026, https://bbs.autel.com/autelsupport/topic/search.jhtml?keywords=All_Keys_Lost
+41. Yanhua ACDP Key Programming Module #20 Volvo Module - Best Key Supply, accessed January 7, 2026, https://www.bestkeysupply.com/products/yanhua-acdp-key-programming-module-20-volvo-module
+42. RFC NE66 key ID48 transponder blank for Volvo 850 C70 S60 S70 S80 V70 XC90 | eBay, accessed January 7, 2026, https://www.ebay.com/itm/390694292991
+43. Volvo 2004-2015 Flip Key Replacement Blade NE66 For Xhorse KeyDIY, accessed January 7, 2026, https://www.bestkeysupply.com/products/volvo-flip-key-replacement-blade-ne66-bksb123
+44. (456) NE66 Key Cut on the Condor Dolphin with the Key Tool Plus - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=M6ZkyxlExnI
+45. XC60 Keys | Volvo Support EN-TH, accessed January 7, 2026, https://www.volvocars.com/en-th/support/car/xc60/article/577d3f25a03174c9c0a801516c820a72/
+46. Why is the second Volvo key orange, accessed January 7, 2026, https://www.volvocarssaintleonard.com/en/news/view/why-is-the-second-volvo-key-orange/111022
+47. Who else just uses their orange “care key” because it's a fun color? : r/Volvo - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Volvo/comments/1mgxdz9/who_else_just_uses_their_orange_care_key_because/
+48. XC60 Replacing the battery in the key | Volvo Support EN-TH, accessed January 7, 2026, https://www.volvocars.com/en-th/support/car/xc60/article/8493f792a0316890c0a801513b3b31a9/
+49. XC40 Replacing the battery in the key | Volvo Support UK, accessed January 7, 2026, https://www.volvocars.com/uk/support/car/xc40/article/0d1de0f98ec52053c0a801510c6f5e5c/
+50. How to Code a New Battery with YOUCANIC OBD2 Scanner - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=mwUBwtSViHA
+51. HELP My Volvo Key Fob Battery Died! - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=SehxzrMYyYY
+52. Volvo Cars How-To: Remove Key Blade And Replace Battery - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=ig425ySRAEI
+53. Volvo XC40 Recharge (Pure Electric / P8). High voltage battery BDU removal - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=JlGxUOSG5TI
+54. XC40 Recharge Pure Electric Ending charging of an electric car | Volvo Support EN-SA, accessed January 7, 2026, https://www.volvocars.com/en-sa/support/car/xc40-recharge-pure-electric/article/e69c2093ecbb13d9c0a80151728f4336/
+55. How To Unlock A Volvo Vehicle Without A Remote Key Fob, accessed January 7, 2026, https://www.gunthervolvocars.net/unlock-volvo-without-remote-key-fob.htm
+56. 2022 Volvo XC90 VEHICLE KEY NOT FOUND - How To Start XC90 With Dead Key Fob Battery - YouTube, accessed January 7, 2026, https://www.youtube.com/shorts/EZO3323PBk8
+57. S60 Twin Engine Starting the vehicle | Volvo Support US, accessed January 7, 2026, https://www.volvocars.com/us/support/car/s60-twin-engine/article/f1df148bc7f01a62c0a81f6f0b6b960e/5c13df35c8f21349c0a8cc8e55b58dba/c3855cc18a52ecdac0a801511ac442d3/
+58. XC90 Plug-in Hybrid Locking and unlocking using the detachable key blade - Volvo Cars, accessed January 7, 2026, https://www.volvocars.com/lb/support/car/xc90-plug-in-hybrid/article/11e49d21ce704306c0a8b04a184aca39-e72f40e7d3b4148ec0a8cc3738920216-b7fb06a5de0ffe39c0a8b05f298413d4/
+59. XC90 Starting the car | Volvo Support EN-BH, accessed January 7, 2026, https://www.volvocars.com/en-bh/support/car/xc90/2017/article/f655b9ce897703b3c0a8015115526bb6/
+60. Volvo On Call Service Required – Causes & Solutions, accessed January 7, 2026, https://www.volvocarssarasota.com/volvo-on-call-service-required.htm
+61. Volvo on call: service required : r/VolvoXC90 - Reddit, accessed January 7, 2026, https://www.reddit.com/r/VolvoXC90/comments/1buxtkn/volvo_on_call_service_required/
+62. Unable to Start Car after Remote Start : r/Volvo - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Volvo/comments/1hkpsxz/unable_to_start_car_after_remote_start/
+63. Keys - all you need to know : r/VolvoEX90 - Reddit, accessed January 7, 2026, https://www.reddit.com/r/VolvoEX90/comments/1l5gouh/keys_all_you_need_to_know/
+64. Inital thoughts on Digital Key Plus in 1.5.2 : r/ex30 - Reddit, accessed January 7, 2026, https://www.reddit.com/r/ex30/comments/1jf9cuq/inital_thoughts_on_digital_key_plus_in_152/

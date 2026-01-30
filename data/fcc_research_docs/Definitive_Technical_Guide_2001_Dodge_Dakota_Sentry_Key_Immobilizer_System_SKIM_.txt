@@ -1,0 +1,246 @@
+﻿Definitive Technical Guide: 2001 Dodge Dakota Sentry Key Immobilizer System (SKIM) Architecture and "All Keys Lost" Protocol
+1. Introduction and Operational Scope
+The 2001 Dodge Dakota occupies a unique and frequently misunderstood position in the lineage of Chrysler automotive electronics. Standing at the precipice between the analog-heavy designs of the 1990s and the fully integrated digital architectures of the mid-2000s, this vehicle represents a "transitional" platform. For the automotive locksmith, diagnostic engineer, or forensic technician, the 2001 Dakota presents a specific set of challenges that differ significantly from both its predecessors (the 1998–2000 models) and its successors (the 2005+ CAN-bus variants).
+This comprehensive technical report serves as the definitive reference for resolving "All Keys Lost" (AKL) scenarios on the 2001 Dodge Dakota. Unlike generic service manuals that assume the presence of factory diagnostic tools (such as the DRBIII), this document is engineered for the aftermarket professional who must rely on reverse-engineering techniques, third-party programming interfaces, and direct microprocessor manipulation to restore vehicle functionality.
+The analysis provided herein is strictly technical, focusing on the cryptographic interplay between the Sentry Key Immobilizer Module (SKIM), the Powertrain Control Module (PCM), and the specific Texas Instruments transponder hardware. We will dissect the Programmable Communication Interface (PCI) bus physics, the Motorola MC68HC08 microcontroller architecture, and the specific menu logic required for modern programmers like the Lonsdor K518 and Autel IM608.
+1.1 The "Transition Year" Paradox
+The primary source of failure in servicing the 2001 Dakota is misidentification. During this era, Chrysler was phasing out the Chrysler Collision Detection (CCD) bus—a two-wire differential network—in favor of the single-wire J1850 VPW PCI bus. While the body panels of the Dakota remained largely unchanged, the underlying nervous system underwent a radical overhaul.
+Technicians often mistakenly apply CCD-based diagnostics (looking for 2.5V bias voltages) or select "Type 1" systems in their programming tools, leading to immediate communication failures. As confirmed by multiple technical sources, the 2001 Dodge Dakota is exclusively a PCI Bus vehicle regarding its immobilizer architecture.1 Understanding this distinction is not merely a matter of semantics; it dictates the physical connection points, the voltage thresholds for logic states, and the baud rate at which diagnostic tools must handshake with the vehicle.
+1.2 System Topology Overview
+The immobilization network in the 2001 Dakota is comprised of three primary nodes, each playing a distinct role in the "Start Authorization" process:
+1. The Gatekeeper: SKIM (Sentry Key Immobilizer Module): Located on the steering column, this module acts as the RFID transceiver and the primary security decision-maker. It energizes the key coil, demodulates the transponder's response, verifies the cryptographic signature, and—if valid—broadcasts an "Unlock" message to the engine controller. For the 2001 model year, this is almost exclusively Part Number 56038675 (with various suffix revisions like AA, AB, or AP).2
+2. The Enforcer: PCM (Powertrain Control Module):
+The 2001 Dakota utilizes the JTEC (Jeep Truck Engine Controller) engine management system. The PCM does not verify the key directly; instead, it waits for a digitally signed message from the SKIM over the PCI bus. If this message is absent, corrupt, or contains an invalid "Secret Key" code, the PCM permits the engine to start but extinguishes the fuel injector pulse width after exactly two seconds. This "start-and-stall" behavior is the hallmark signature of an immobilization event.
+3. The Messenger: PCI Bus (J1850 VPW):
+Connecting these modules is a single Yellow/Violet wire. This bus carries all security traffic. Unlike CAN bus systems which use a twisted pair for redundancy and noise rejection, the single-wire PCI bus is vulnerable to ground faults. A short anywhere on this wire—even in a non-essential module like the radio or overhead console—will collapse the entire network, rendering key programming impossible via the OBD port.
+
+
+  
+
+
+
+2. Network Architecture: The J1850 VPW PCI Bus
+To successfully interface with the SKIM, one must first master the physics of the transport layer. Many technicians fail to program keys on the 2001 Dakota not because of bad chips or wrong PIN codes, but because their tools cannot establish a stable session on the PCI bus.
+2.1 Protocol Physics and Voltage Thresholds
+The Programmable Communication Interface (PCI) is Chrysler’s implementation of the SAE J1850 VPW (Variable Pulse Width) standard. This protocol operates at a relatively slow speed of 10.4 kbps (Kilobits per second), which is significantly slower than the ISO 9141 K-Line used by Asian contemporaries or the 500 kbps CAN bus used in modern vehicles.1
+The defining characteristic of VPW is that data is encoded not just by voltage levels, but by the duration of those levels.
+   * Recessive State (Idle): The bus floats at or near 0 Volts (Ground). This is a passive state.
+   * Dominant State (Active): Modules drive the bus High to approximately 7.0 to 7.5 Volts. This is the active state.
+This voltage range is critical for diagnostics. If a technician measures the DLC Pin 2 with a multimeter:
+   * 0.00V Constant: Indicates a dead bus, likely shorted to ground or an open circuit between the DLC and the splice pack.
+   * 12.00V Constant: Indicates a short to battery voltage. This is catastrophic for communication and will prevent any tool from syncing.
+   * 7.50V Constant: Indicates a module is "hogging" the bus or a short to the 7.5V regulator inside a module.
+   * Fluctuating (0.5V - 2.5V average): This is the healthy indication of active data traffic on a multimeter, representing the average of the 0V-7.5V pulse train.
+2.2 Arbitration and Message Priority
+The J1850 protocol uses Carrier Sense Multiple Access with Collision Resolution (CSMA/CR). This means multiple modules can attempt to talk at once. The "Collision Resolution" is handled by bitwise arbitration: a module driving a Dominant (High) state "wins" over a module trying to float the bus Recessive (Low).
+In the context of key programming, this is vital. The diagnostic scan tool (e.g., T-300 or Lonsdor) must assert high priority to override "chatter" from other modules like the Central Timer Module (CTM) or Overhead Console. If the bus is noisy or degraded (high resistance in the splice block), the scan tool may fail to win arbitration, resulting in "Communication Error" messages. This explains why unplugging non-essential modules (like the CTM or Radio) often allows a key programmer to connect when it previously failed—by reducing bus traffic, you increase the scan tool's statistical chance of winning arbitration.
+2.3 Physical Connection Points
+The PCI bus is physically accessible at Pin 2 of the OBDII Data Link Connector (DLC).
+   * Pin 2: PCI Bus Data (Yellow/Violet).
+   * Pin 4: Chassis Ground.
+   * Pin 5: Signal Ground.
+   * Pin 16: Battery Voltage (+12V).
+It is important to note that unlike the later CAN bus vehicles which use Pins 6 and 14, the 2001 Dakota does not utilize these pins for immobilizer communication. Any tool attempting to communicate via CAN on Pins 6/14 will receive no response from the SKIM.
+3. Hardware Forensics: The Sentry Key Immobilizer Module (SKIM)
+The SKIM is the nucleus of the anti-theft system. For the 2001 model year, the hardware is specific and distinct from earlier CCD units. The Part Number 56038675 serves as the primary identifier for this generation of PCI-based immobilizers.2
+3.1 Module Identification and Physical Characteristics
+The SKIM is a black, ring-shaped plastic housing that surrounds the ignition lock cylinder. It contains the LF antenna coil (copper winding) and a small Printed Circuit Board (PCB).
+   * Connector: A 6-way black connector. (Note: Earlier CCD modules often used a grey or white connector, though color coding is not 100% consistent).
+   * Labeling: The label will typically bear the FCC ID KOBDR04A and the Chrysler Part Number 56038675 (with suffix).
+   * PCB Architecture: The board is dominated by a large square microcontroller and a localized power supply circuit for the antenna coil.
+3.2 Microcontroller Architecture: The Motorola HC08
+The intelligence of the SKIM resides in a Motorola (now NXP) MC68HC08 series microcontroller. This is an 8-bit MCU with embedded Flash memory and EEPROM. Understanding this chip is the "Nuclear Option" for key programming—if OBD fails, you must attack this chip directly.
+The specific MCU used is typically the MC68HC908AZ60 or MC68HC908AZ32.3
+   * Package: QFP-64 (64 pins, surface mount).
+   * Mask Sets: The "Mask Set" is a batch code printed on the chip that defines its specific silicon revision and, crucially, its security protocols.
+   * 2J74Y: This is the most common mask set found in 2001-2003 PCI SKIMs. It corresponds to the MC68HC908AZ60A. It is notoriously difficult to read in-circuit without lifting the IRQ pin due to the sensitive "Monitor Mode" entry requirements.4
+   * 1H56A / 0J66D: Found in some earlier production units. These have different errata regarding ROM security and oscillator timing.6
+3.3 Memory Map and PIN Storage
+The vehicle's unique 4-digit PIN code (required for programming keys) is stored in the MCU's internal EEPROM. There is no external serial EEPROM (like a 24C02 or 93C56) on this board.
+   * EEPROM Size: typically 512 bytes or 1KB.
+   * PIN Code Location: The PIN is stored in a scrambled hex format within the EEPROM address space. It is not stored in plain ASCII.
+   * Key Data: The identifiers (IDs) of all authorized keys are also stored here. The system can store up to 8 keys.
+   * Secret Key: A 32-bit or longer "Secret Key" is stored in a protected sector. This key is shared with the PCM. During key programming, the SKIM writes this Secret Key to the transponder chip, locking the chip to the vehicle.
+
+
+  
+
+
+
+4. Transponder Forensics: Texas Crypto 4D-64
+A frequent point of failure in servicing the 2001 Dakota is the use of incorrect transponder chips. The transition from 2000 to 2001 marked a shift in transponder technology that is often glossed over in generic data sheets.
+4.1 Chip Identification: 4D-64 "Type 2"
+The 2001 Dodge Dakota utilizes the Texas Instruments Crypto (4D) transponder system. In the locksmith industry, this specific configuration is known as ID64 or Chrysler Type 2.8
+   * Technology: Texas Instruments DST (Digital Signature Transponder).
+   * Encryption: 40-bit Mutual Authentication.
+   * Modulation: Frequency Shift Keying (FSK) is not used here. The system uses a specialized Amplitude Shift Keying (ASK) protocol at 134.2 kHz.
+   * Physical Form Factor: The OEM keys utilized a carbon wedge chip, but glass ampoules (TPX2/CN2) are fully compatible provided they are pre-configured as 4D-64.
+4.2 The Incompatibility Trap: ID46 vs. 4D-64
+It is imperative to distinguish this system from the later "CAN" system used in the 2004+ Dodge Durango and Dakota, which utilized the Philips ID46 (PCF7936) chip.
+   * The Problem: Visually, the keys look identical (both use the Y159/Y160 blade).
+   * The Technical Difference: The Philips ID46 uses a completely different modulation scheme (Manchester encoding) and crypto algorithm (Hitag2).
+   * Result: If a technician attempts to program a Philips ID46 key to a 2001 Dakota, the SKIM will simply not "see" the chip. The LF field will energize, but the chip's response will be unintelligible noise to the SKIM's receiver. Only Texas 4D-64 chips will function.
+
+
+  
+
+
+
+4.3 Key Blade Specifications
+While the electronic component is primary, the mechanical interface remains the physical barrier to entry.
+   * Keyway: Y159 / Y160 (Silca reference).
+   * Bitting: 8 cuts, 4 depths.
+   * Decoding Strategy: In an AKL scenario, the ignition cylinder is typically sidebar-protected and difficult to pick or decode directly. The standard procedure involves decoding the passenger door lock cylinder, which generally contains cuts 1-7 or 2-8, requiring progression or Lishi picking (CY24 keyway) to determine the full bitting for the ignition.
+5. Tool Compatibility Matrix: Navigating the Legacy Protocol
+The 2001 Dakota falls into a "Legacy" category for many modern diagnostic tools. The J1850 VPW timing requirements are strict, and newer tools optimized for high-speed CAN bus often struggle to maintain the stable, slow-speed connection required for PCI operations.
+5.1 Programmer Efficacy Analysis
+The following matrix evaluates the performance of common programmers based on field data and technical specifications 10:
+
+
+Programmer
+	Protocol Handling
+	PIN Extraction (OBD)
+	Programming Success
+	Technical Notes
+	T-300 / MVP Pro
+	Native
+	High Reliability
+	95%
+	The "Gold Standard" for J1850. Its simple, slow architecture matches the 2001 era perfectly. Select "Chrysler > Type 2".
+	Lonsdor K518
+	Emulated
+	High Reliability
+	90%
+	Excellent support for PCI. Specific menu path: "Immo & Remote > Dodge > Dakota > 2001-2003". Supports direct PIN reading via OBD.11
+	Autel IM508/608
+	Emulated
+	Low/Moderate
+	75%
+	Often fails to read PIN via OBD due to timing timeouts on the PCI bus. Programming is reliable if the PIN is already known. If OBD PIN read fails, use the XP400 programmer for Bench Read (see Section 6.2).
+	CK-100 / SBB
+	Native
+	Moderate
+	80%
+	A cost-effective clone tool that surprisingly outperforms some flagship tools on this specific legacy platform. Select "Chrysler Type 2".
+	5.2 Menu Selection Logic: "Type 2"
+A critical operator error involves selecting the wrong system type in the programmer menu.
+   * Type 1: Refers to the older CCD bus systems (1998-2000). Selecting this will cause the tool to look for a differential voltage signal that does not exist.
+   * Type 2: Refers to the PCI bus systems (2001-2003). This is the correct selection.
+   * CAN / Type 3: Refers to NGC systems (2004+). Selecting this will switch the tool's multiplexer to Pins 6/14, resulting in total silence.
+6. Comprehensive "All Keys Lost" Procedure
+This section details the step-by-step workflow for generating a functioning key. The process is divided into logical phases, with contingency plans for common failure modes.
+Phase 1: Physical Access and Mechanical Key Production
+   1. Entry: Gain access to the vehicle cabin. Note that the alarm (if equipped) may trigger. The 2001 Dakota CTM manages the alarm; simply unlocking the door mechanically usually does not disarm the factory alarm. Only cycling a valid transponder key in the ignition or using the RKE fob will disarm it.
+   2. Decode: Use a Lishi CY24 pick to decode the door lock.
+   3. Cut: Originate a key on a Y159/Y160 blank. Verify smooth rotation in the ignition cylinder. Tip: If the key is sticky, the wafers in the ignition are likely worn; try cutting the key with slightly shallower depths (e.g., cut a "2" as a "1.8") to compensate for wear.
+Phase 2: PIN Code Acquisition (The Critical Path)
+The SKIM requires a 4-digit PIN for access. This is the primary hurdle in the AKL process.
+Method A: OBD Extraction (Primary Strategy)
+   1. Connect the programmer (e.g., Lonsdor K518) to the OBDII port.
+   2. Turn the Ignition to the ON position (Engine OFF).
+   3. Select the "Type 2" or "VPW" system.
+   4. Execute "Read Pin Code".
+   5. Technical Note: The tool sends a specific PCI bus query to the SKIM. The SKIM responds with the PIN. If the bus is noisy or the CTM is "chattering," this may fail. If it fails 3 times, STOP. Repeated failures can lock the SKIM. Proceed to Method B.
+Method B: Bench Extraction (The "Nuclear Option")
+If OBD fails, you must read the MCU directly.
+   1. Removal:
+   * Disconnect the battery negative terminal.
+   * Remove the steering column clamshell covers (T-20 Torx).
+   * Unplug the 6-way connector from the SKIM.
+   * Remove the single retention screw and slide the SKIM off the lock cylinder.
+   2. Connection:
+   * Open the SKIM case.
+   * Locate the MC68HC08 microcontroller.
+   * Soldering wires is required. Use the pinout defined in Section 10 to connect your programmer (Autel XP400, XPROG, VVDI Prog).
+   3. Reading:
+   * Select Motorola MC68HC08AZ32 (or AZ60 depending on mask).
+   * Read the EEPROM area.
+   * Save the .bin file.
+   4. Decoding:
+   * Load the file into the programmer's "Dump to PIN" calculator. The software will extract the 4-digit PIN from the hex data.
+Phase 3: Transponder Programming
+   1. Insert the newly cut 4D-64 key into the ignition.
+   2. Turn Ignition ON. Observe the red "Security" light on the dash. It should be solid or flashing (indicating an unprogrammed key).
+   3. On your programmer, select "Program Key" (or "Add Key").
+   4. Input the 4-digit PIN when prompted.
+   5. The tool will send the "Program" command. The SKIM will energize the coil, write the Secret Key to the transponder, and register the transponder's ID in its memory.
+   6. Verification:
+   * The tool should report "Success".
+   * The Security light should turn OFF after approximately 10 seconds.
+   * Turn the key OFF, then ON.
+   * Attempt to start the engine. It must run for at least 5 seconds to confirm that the SKIM has successfully sent the "Unlock" message to the PCM.
+7. Operational Workflow Logic
+The following text describes the decision logic required during the field operation.
+Step 1: Bus Integrity Check
+Before connecting any tool, measure voltage between DLC Pin 2 and Pin 4.
+   * Result A: Voltage fluctuates (0.5V-2.5V). Action: Proceed to OBD Programming.
+   * Result B: Voltage is static 0V or 12V. Action: Stop. Troubleshoot "No Bus" condition (Section 9.1). Programming is impossible.
+Step 2: Chip Validation
+Verify the blank key.
+   * Check: Is it a 4D-64?
+   * Action: Put it in a key tester (e.g., Key Tool Max). It must read "Texas Crypto 4D 64". If it reads "ID46" or "4C", discard it.
+Step 3: PIN Extraction Strategy
+Attempt OBD Read.
+   * Success: Proceed to Program.
+   * Failure: Is the tool communicating at all?
+   * Yes, but PIN read fails: The SKIM firmware may be an early revision that blocks OBD PIN reads. Action: Pull module for Bench Read.
+   * No communication: Check fuses and PCI bus integrity.
+Step 4: Programming Execution
+Execute "Add Key".
+   * Success: Security light out. Engine runs.
+   * Failure: "Programming Failed" message.
+   * Cause 1: Wrong Chip (using ID46).
+   * Cause 2: SKIM Antenna Ring broken (check coil resistance, should be ~10-30 Ohms).
+   * Cause 3: Transponder locked (using a used key from another car). Action: Use a brand new chip.
+8. The PCM Connection: JTEC J1850 Nuances
+The relationship between the SKIM and the PCM is a "bound pair" relationship. The SKIM stores the Secret Key, and the PCM stores a copy of it.
+8.1 The "Secret Key" Exchange
+When a vehicle is new, the PCM is "blank." Upon the first start with a valid SKIM, the SKIM writes its Secret Key into the PCM. This permanently marries them.
+   * Implication for AKL: You are generally programming the SKIM, not the PCM. The PCM passively waits for the SKIM to say "Key Valid."
+   * PCM Replacement: If you replace the PCM with a used unit, the engine will start and stall because the used PCM has another vehicle's Secret Key stored. You must perform a "Secret Key Transfer" or "PCM Replaced" function in the scan tool to overwrite the PCM's memory with the current SKIM's Secret Key.
+8.2 JTEC "No Bus" Failure Mode
+The JTEC PCM is prone to internal regulator failure, which can short the PCI bus to ground.
+   * Symptom: "No Bus" on odometer, no start, no communication.
+   * Diagnostic: Unplug the middle connector (C2 - White) on the PCM. If the bus voltage at the DLC returns to normal, the PCM is shorted internally.
+9. Troubleshooting & Diagnostics
+9.1 "No Bus" on Odometer
+This is the most common showstopper for key programming.
+   * Mechanism: The Instrument Cluster cannot receive data from the PCM.
+   * Impact: If the bus is down, the OBD port is dead. You cannot program keys.
+   * Fix: Systematically unplug modules on the PCI bus (ABS, CTM, Overhead Console, Radio, Transmission Controller) one by one while monitoring DLC Pin 2 voltage. When the voltage restores to pulsing ~2.5V avg, you have found the shorted module. Leave it unplugged and proceed with key programming.
+9.2 "Key Not Programmed" vs. "Invalid SKIM Key"
+   * Key Not Programmed: The SKIM sees a valid 4D-64 chip, but its ID is not in the whitelist. Solution: Program the key.
+   * Invalid SKIM Key: The SKIM sees a chip, but it is the wrong type (e.g., ID46 or 4C). Solution: Change the chip.
+   * No Transponder Detected: The SKIM sees nothing. Solution: Check the antenna coil continuity. Check if the transponder is too far from the ring (common with plastic-headed keys that have the chip set too far back).
+10. Bench Operations: In-Depth MCU Forensics
+When OBD fails, the technician must interface directly with the silicon. This requires precision soldering and an understanding of the Motorola HC08 security mechanism.
+10.1 Required Equipment
+   * Programmer: XPROG-M (Box), VVDI Prog, Autel XP400, or UPA-USB.
+   * Soldering Gear: Fine-tip iron, 30AWG Kynar wire (wrapping wire).
+   * Magnification: Microscope or loupe (pins are 0.65mm pitch).
+10.2 Connection Protocol
+Referencing the specific mask set (usually 2J74Y), connect the programmer wires to the SKIM PCB.
+   * IRQ / Vpp: This pin must be raised to high voltage (~9V) by the programmer to bypass the user code vector and enter Monitor Mode. Ensure the connection to Pin 2 of the MCU is solid.
+   * Oscillator: The programmer must match the board's crystal frequency (usually 4MHz or 8MHz). If the read fails, try manually selecting the frequency in the programmer software.3
+10.3 EEPROM Dump Analysis
+Once read, the bin file (typically skim.bin) contains the PIN.
+   * Structure: The data is often stored in redundant blocks.
+   * Pin Calculation: Do not attempt to manually decipher the hex unless you have the specific XOR algorithm. Use the "File Make Key" or "Dump to PIN" function in your tool.
+   * Write Back? It is safer to read the PIN and perform the programming via OBD (now that you have the code) rather than modifying the dump and writing it back, as checksum errors can brick the SKIM.
+11. Conclusion
+The 2001 Dodge Dakota "All Keys Lost" scenario is a classic case study in automotive transition technology. It requires the technician to rigorously differentiate between the visual similarity of the vehicle and its unique underlying PCI architecture. Success is achieved by adhering to the "Type 2" protocol, utilizing Texas 4D-64 transponders, and maintaining the capability to perform HC08 bench extractions when the aged PCI bus proves too unstable for OBD communication. By strictly following the protocols outlined in this guide, the professional can ensure a successful resolution to what is often considered a problematic vehicle in the immobilizer domain.
+Works cited
+   1. Dodge Bus PCI incorporation - G4x - Forums | Link Engine ..., accessed January 8, 2026, https://forums.linkecu.com/topic/13253-dodge-bus-pci-incorporation/
+   2. Dodge Ram Dakota Durango Skim Theft Module Transponder Immobilizer 56038675AP - eBay, accessed January 8, 2026, https://www.ebay.com/itm/186038429286
+   3. S4.4 CarProg Motorola HC08 Programmer manual - Codecard, accessed January 8, 2026, https://www.codecard.eu/files/Manuals/MCU/CARPROG%20Motorola%20HC08%20programmer%20manual.pdf
+   4. Motorola MC68HC908AZ60 CFU 2J74Y MCU QFP64 - Minitools, accessed January 8, 2026, https://store.minitools.com/en/mc68hc908az60-cfu-2j74y-motorola-mcu-qfp64-sei-908.html
+   5. MC68HC908AZ60 - 2J74Y – MBE Engineering Sp. z o.o., accessed January 8, 2026, https://mbkeyprog.com/products/mc68hc908az60-2j74y
+   6. MSE08AZ32_1H56A, MC68HC08AZ32 Mask Set Errata: 1H56A - NXP Semiconductors, accessed January 8, 2026, https://www.nxp.com/docs/en/errata/MSE08AZ32_1H56A.pdf
+   7. MSE08AZ32_0J66D, MC68HC08AZ32 Mask Set Errata: 0J66D, accessed January 8, 2026, https://www.nxp.com.cn/docs/en/errata/MSE08AZ32_0J66D.pdf
+   8. Dodge Dakota 2001-2004 Transponder Key - 2 Pack With TEX 4D-64 Chip, accessed January 8, 2026, https://kafaatsa.com/2004-Transponder-Key-2-Pack-With-TEX-4D-64-Chip-281827
+   9. Transponder Chip | Chrysler, Dodge, Jeep | 4D64 - CLK Supplies, accessed January 8, 2026, https://www.clksupplies.com/products/4d64-transponder-chip
+   10. Autel IM608 | All Keys Lost on a 2016 Dodge Ram 3500 | Case Study 2020 - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=lumgci703_Y
+   11. Lonsdor - All Keys Lost Bundle For Toyota And Lexus for Sale - UHS Hardware, accessed January 8, 2026, https://www.uhs-hardware.com/products/lonsdor-all-keys-lost-bundle-for-toyota-and-lexus
+   12. T300 key-programmer code use manual | PDF - Slideshare, accessed January 8, 2026, https://www.slideshare.net/slideshow/t300-keyprogrammer/14136097
+   13. Dodge SKIM WCM SKREEM HACKING PIN / CLONE NO Crank DURANGO PT2! Programming USED Immobilizer and PCM - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=h2rTSiiOHdU
+   14. How to program Chrysler & Dodge 2018 to 2021 & up smart key fob using Lonsdor k518 with L-JCD-cable - YouTube, accessed January 8, 2026, https://www.youtube.com/watch?v=Xw1CPq5Rgik

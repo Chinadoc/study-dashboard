@@ -1,0 +1,238 @@
+﻿Toyota TNGA-F Platform Security Dossier: Technical Analysis and Locksmith Procedures for Tundra, Sequoia, Land Cruiser, and Lexus LX 600
+Executive Summary
+The automotive security landscape has undergone a radical transformation with the introduction of Toyota’s Toyota New Global Architecture-F (TNGA-F) platform. This body-on-frame architecture, underpinning the 2022-2026 Toyota Tundra, 2023-2026 Toyota Sequoia, 2024-2026 Toyota Land Cruiser, and 2022-2026 Lexus LX 600, represents a paradigm shift for automotive locksmiths and security professionals. The transition from legacy K-Line and standard CAN bus systems to high-speed CAN FD (Controller Area Network Flexible Data-Rate) architectures, coupled with the implementation of the "BA" type 8A transponder system, has rendered traditional OBD-II programming methods largely obsolete without specialized bypass interventions.
+This dossier serves as an exhaustive technical reference for professional locksmiths and security integrators. It dissects the intricate immobilization protocols, mechanical key specifications, and digital integration layers of the TNGA-F platform. Unlike previous generations where "All Keys Lost" (AKL) situations could be remedied via simple ECU reseeding or EEPROM work, the TNGA-F platform employs a highly encrypted, rolling-code verification process between the Certification ECU (Smart Box), the Steering Lock ECU, and the Engine Control Module (ECM). The introduction of the Security Gateway Module (SGW) further isolates the OBD-II port from critical vehicle networks, necessitating direct physical connection to the immobilization bus for programming success.
+The following analysis is derived from a synthesis of field diagnostics, OEM service literature, and third-party tooling capabilities as of early 2026. It addresses the critical "8A-BA" chip distinction, the requirement for proprietary 30-pin bypass cables, and the emerging challenges posed by smartphone-based Digital Key systems that compete for logical slots within the vehicle's access control list.
+
+
+  
+
+
+
+1. Platform Overview & Architectural Shift
+The introduction of the TNGA-F platform marks Toyota's strategic unification of its body-on-frame vehicle lineup. Historically, models like the Tundra, Land Cruiser, and Sequoia operated on disparate platforms with varying electrical architectures. The TNGA-F unification streamlines manufacturing but introduces a standardized, considerably more robust security environment that locksmiths must navigate. This shift is not merely physical; it is fundamentally digital, moving the vehicle's nervous system to a high-bandwidth, encrypted standard that rejects legacy tools and methods.
+1.1 The CAN FD Revolution and Data Throughput
+The most significant technical hurdle in servicing TNGA-F vehicles is the migration to the CAN FD (Controller Area Network Flexible Data-Rate) protocol. For decades, the automotive industry relied on the standard CAN 2.0 protocol, which transmits data at a maximum speed of 500 kbps with a payload limit of 8 bytes per frame. This bandwidth was sufficient for simple commands like "unlock door" or "verify key," but it created a bottleneck for modern vehicles loaded with telematics, advanced driver-assistance systems (ADAS), and complex cryptographic exchanges.
+The TNGA-F platform, starting with the 2022 Tundra, utilizes CAN FD, which allows for variable data rates up to 5 Mbps and payloads up to 64 bytes.1 This capability is not just for speed; it enables the vehicle to transmit longer, more complex encryption keys in a single frame. For the locksmith, this has immediate practical implications. Legacy key programmers—specifically those manufactured before 2020 or lacking updated Vehicle Communication Interfaces (VCIs)—cannot physically interpret the CAN FD signal. When connected to the OBD-II port of a 2023 Sequoia, a standard CAN tool sees only noise or silence, resulting in immediate communication failure errors.
+The necessity for CAN FD compatibility has forced a hardware refresh across the industry. Tools such as the Autel IM608 Pro II and XTool AutoProPAD G2 Turbo now come with native CAN FD support, while older units require external adapters to translate the high-speed signal into a readable format.3 Without this hardware layer, no software workaround exists; the tool and the car are effectively speaking different languages.
+1.2 The Security Gateway (SGW) as a Digital Fortress
+Coinciding with the adoption of CAN FD is the aggressive implementation of the Security Gateway Module (SGW). Located physically behind the OBD-II diagnostic port, the SGW acts as a rigorous firewall for the vehicle's internal networks. In previous generations, the OBD-II port provided an open door to the vehicle's bus; a locksmith could plug in a tool and immediately send "write" commands to the ECU to register a new key.
+On the TNGA-F platform, the SGW allows diagnostic "read" commands—permitting a mechanic to check engine trouble codes—but it blocks "write" commands or special function requests unless the tool provides a cryptographic digital certificate authorized by Toyota’s Techinfo servers.5 For the aftermarket locksmith, obtaining these certificates in real-time is often impractical or restricted. Therefore, the industry standard has shifted to the "Bypass" method. This involves physically disconnecting the Certification ECU (Smart Box) from the SGW-protected network and inserting a specialized "Y-cable" or 30-pin adapter. This cable acts as a bridge, allowing the locksmith's tool to inject commands directly onto the vehicle's internal immobilization bus, effectively circumventing the SGW entirely.6 This requirement fundamentally changes the labor involved in key programming, turning a plug-and-play operation into one that requires partial dashboard disassembly.
+1.3 The Evolution of the "BA" Immobilizer System
+The nomenclature of Toyota's smart key systems provides the roadmap for selecting the correct blanks and programming procedures. The industry standardizes these based on the "Page 4" data of the transponder or the board ID, a hexadecimal value broadcast by the key.
+* Legacy 8A (H-Chip): Used in 2018-2021 models, this system is now two generations old.
+* 8A-AA: Found in early TNGA unibody models like the RAV4 and Highlander.
+* 8A-BA: The specific, highly encrypted standard for the TNGA-F platform (Tundra, Sequoia, LX 600, Land Cruiser).8
+The "BA" designation is critical. It refers to the specific board ID (often TMLF19D type Smart Main ECU) used in these trucks. The encryption logic for a "BA" key is distinct from an "AA" key. A locksmith attempting to program a 2024 Land Cruiser using "Toyota RAV4 (AA)" software protocols will fail, as the handshake protocols differ. Furthermore, the "BA" system supports enhanced rolling codes that change with every ignition cycle, making replay attacks (a common theft method) significantly more difficult. Tools must be explicitly updated to support "Toyota 8A-BA" protocols to successfully synchronize with the Smart Box.10
+2. Vehicle-Specific Intelligence: Specifications and Quirks
+While the underlying TNGA-F architecture provides a shared foundation, the implementation of key systems varies significantly by model year and trim level. A "one size fits all" approach to inventory will lead to failure. The following detailed breakdown provides the specific FCC IDs, part numbers, and unique operational quirks for each vehicle in the dossier.
+2.1 Toyota Tundra (2022-2026)
+The Tundra was the launch vehicle for TNGA-F in the North American market, arriving with the 2022 model year. It set the standard for the 30-pin smart box connection.
+* System Type: Smart Key (Proximity) with Push-to-Start.
+* Frequency: 315 MHz (North American Market).
+* FCC ID: HYQ14FBX.11
+* IC: 1551A-14FBX.
+* Transponder ID: 8A (BA Type).
+* OEM Part Numbers:
+   * 8990H-0C010: The standard 4-button remote (Lock, Unlock, Tailgate, Panic).
+   * 8990H-0C011 / 0C012: Superseded part numbers incorporating minor internal board revisions.
+   * 8990H-AK020: An alternate part number often seen in 2023+ updates or specific trim levels.13
+* Keyway: High Security "Side Mill" (TOY51 / TOY48 profile).
+* Operational Insight: The "Tailgate" button on the Tundra fob operates a power-drop mechanism. Locksmiths must be careful not to confuse this with the Sequoia fob. While a Sequoia key might theoretically program to start the Tundra engine (due to sharing the HYQ14FBX FCC ID), the button mapping for the tailgate will likely fail or operate unpredictably. Additionally, early 2022 models were transitional; while most are "BA" type, some very early production units might present with "AA" firmware. However, standard procedure is to treat all 2022+ Tundras as 8A-BA systems requiring the bypass cable.
+2.2 Toyota Sequoia (2023-2026)
+The Sequoia followed the Tundra a year later, adopting the same electrical architecture but with SUV-specific modifications.
+* System Type: Smart Key (Proximity).
+* Frequency: 315 MHz.
+* FCC ID: HYQ14FBX.15
+* OEM Part Numbers:
+   * 8990H-0C020 / 0C021: This is the primary 4-button remote for the Sequoia.
+   * 8990H-0C030: A 3-button version (Lock, Unlock, Panic) typically found on lower trims or SR5 models without power liftgate options.17
+* Distinctive Feature: The 4-button Sequoia remote features a "Hatch Glass" release or a full "Power Liftgate" button, distinct from the Tundra's "Tailgate Drop." The button icon is different, and the internal signal sent to the Body Control Module (BCM) triggers a different actuator. Using a Tundra key on a Sequoia is a common error; while the car will start, the customer will be unable to open the rear hatch remotely.
+2.3 Toyota Land Cruiser (2024-2026)
+The return of the Land Cruiser (250 Series) to the US market brings the latest iteration of the TNGA-F security suite.
+* System Type: Smart Key (Proximity).
+* Frequency: 315 MHz (US Market).
+* FCC ID: HYQ14FBX.19
+* OEM Part Number: 8990H-60790.
+* Global Variation Alert: This vehicle poses a significant risk for locksmiths dealing with imported or "grey market" vehicles. International models (often badged as Land Cruiser Prado) frequently operate on 433 MHz with FCC ID B3N2K2R.21 Before attempting to program a Land Cruiser, it is imperative to verify the vehicle's origin and frequency using a frequency counter. A US-spec 315 MHz key will not register to a 433 MHz European/Middle Eastern BCM, leading to wasted inventory and diagnostic time.
+* Keyway: Standard TOY51 emergency insert.
+2.4 Lexus LX 600 (2022-2026)
+As the luxury flagship, the LX 600 introduces dual-frequency complexity and specific Lexus encryption extensions.
+* System Type: Smart Key (Proximity).
+* Frequency:
+   * 315 MHz: The standard for US-delivered vehicles. FCC ID: HYQ14FLC.22
+   * 433 MHz: Found in high-end export markets and occasionally in specific armored or diplomatic vehicles serviced in the US. FCC ID: B3T2K2R.24
+* OEM Part Numbers (US):
+   * 8990H-F6031: The standard 4-button fob (Lock, Unlock, Hatch, Panic).
+   * 8990H-78640: An alternative part number often compatible with the same FCC ID.
+   * Card Key: 8990H-78491 (FCC: HYQ14CBP).25
+* Card Key Specifics: The LX 600 frequently includes a credit-card-sized smart key as a premium feature. Programming this card follows the same "Add Key" procedure as a standard fob, but the physical form factor presents maintenance challenges. The battery in the card key is often sealed or difficult to replace without damaging the casing. If a customer presents a dead card key, the locksmith should advise on the potential need for full replacement rather than a simple battery swap.
+
+
+  
+
+
+
+3. The Immobilizer Ecosystem: Components and Locations
+To effectively service the TNGA-F platform, one must understand the physical and logical layout of the immobilizer ecosystem. It is no longer a single "computer" but a distributed network of modules that must handshake perfectly to allow the engine to start.
+3.1 The Certification ECU (Smart Box)
+The Certification ECU, commonly referred to as the "Smart Box," is the brain of the keyless entry system. It stores the registered key IDs and communicates with the key fob via Low-Frequency (LF) antennas and Radio Frequency (RF) receivers.
+* Role: It verifies the key's ID. If the ID is valid, it sends a release signal to the Steering Lock ECU and the Engine Control Module (ECM).
+* Physical Location (Tundra/Sequoia): The Smart Box is generally located above the driver’s kick panel, tucked high up near the firewall, or occasionally behind the glove box assembly depending on the exact production date and drive-hand configuration.7 Accessing it often requires removing the lower dash panels to expose the connectors.
+* Connector Type: The critical connector for programming is a 30-pin plug. This is where the bypass cable is inserted. The Smart Box is the specific target for "Backing up IMMO Data" because it is the only module accessible via the cabin that contains the necessary encryption data to generate a dealer-equivalent key.
+3.2 The Steering Lock ECU
+On TNGA-F vehicles, the electronic steering column lock (ESCL) is an active participant in the security chain.
+* Synchronization: The Smart Box and the Steering Lock ECU share a unique synchronization code. If this sync is lost (e.g., due to a low battery during programming or an improper reset), the steering wheel will remain locked, and the vehicle will not transition to "Ignition ON."
+* Diagnostics: If a key is programmed but the car does not start, checking the "Steering Lock Status" in the live data stream is a critical diagnostic step. A status of "mismatch" or "unverified" indicates a sync failure.
+3.3 The ID Code Box and Engine ECM
+Deep in the dashboard (often behind the HVAC unit) lies the ID Code Box. This module acts as the bridge between the Smart Box (interior security) and the Engine ECM (powertrain).
+* Communication: When the Smart Box verifies a key, it sends a coded signal to the ID Code Box. The ID Code Box then verifies this signal against its own stored values before sending a "Fuel Cut Disable" command to the Engine ECM.
+* Implication: In "All Keys Lost" scenarios on older platforms, replacing the Smart Box was often enough. On TNGA-F, replacing just the Smart Box without performing a "Handshake" or "Sync" procedure with the ID Code Box will result in a crank-no-start condition. Modern programming tools handle this sync automatically during the "Add Key" process, provided the battery voltage remains stable.
+4. Comprehensive Tooling Ecosystem Analysis
+Success on the TNGA-F platform is heavily dependent on the locksmith's hardware arsenal. The complexity of the "BA" system means that generic OBD tools are useless. The following analysis evaluates the leading platforms based on their capability to handle the "BA" system and CAN FD requirements.
+4.1 Autel MaxiIM (IM508/IM608 Pro II)
+Autel remains the market leader for aftermarket Toyota programming, but the configuration is complex and modular.
+* Essential Hardware:
+   * XP400 Pro: The advanced key programmer is required for reading/writing the transponder data. The standard XP200 is insufficient for "BA" keys.
+   * APB112 (Smart Key Simulator): This dongle is essential for "All Keys Lost" situations without resetting the system. It mimics a master key to turn the ignition ON.26
+   * G-BOX3: While primarily for Mercedes, the G-BOX3 is increasingly used for "All Keys Lost" password calculation on Toyota systems to speed up the brute-force calculation of the encryption key.
+   * Toyota 8A-BA Blade/Bypass Cable: A specific cable released by Autel that splits the connection at the Smart Box, allowing the tablet to communicate directly with the ECU.26
+   * CAN FD Adapter: The IM608 Pro II has native CAN FD support. However, older IM508 and IM608 (Gen 1) units require the external CAN FD Adapter to plug into the VCI.3 Without this adapter, the tool cannot read the high-speed data stream from the Tundra/Sequoia.
+* Performance: Autel offers a high success rate. The software guides the user through the "Back up IMMO Data" process effectively, usually taking 1-2 minutes to read the data via the bypass cable.
+* Known Issues: "Server Calculation" errors (Error 10003) can occur if the Wi-Fi connection is unstable, as the tool relies on Autel's cloud servers to decrypt the IMMO data.27 A robust internet connection is mandatory for the calculation phase.
+4.2 Advanced Diagnostics (Smart Pro)
+Advanced Diagnostics offers a robust, albeit expensive, solution favored by institutional locksmiths.
+* Essential Hardware: ADC2021 Gateway Bypass Cable.
+* Mechanism: The ADC2021 connects directly to the 30-pin connector on the Certification ECU. It works in tandem with the Smart Pro to bypass the need for TIS codes.6
+* Pros: The system is known for stability. The "ADS2328" software module is specifically tuned for these vehicles and offers a "guided" user interface that minimizes user error.
+* Cons: The Smart Pro operates on a token system or an unlimited subscription plan. For low-volume shops, the cost per vehicle can be higher than with Autel.
+4.3 XTool (AutoProPAD / H6 Elite)
+XTool has emerged as a strong competitor with innovative hardware solutions.
+* Essential Hardware: AnyToyo SK1 Smart Key Emulator.29
+* Innovation: The SK1 is unique; it acts as a "data collector" and emulator. Unlike other tools that read data solely via the bypass cable, the SK1 can collect low-frequency (LF) coil data from the Start Button to help calculate the key data without needing a PIN code in some scenarios.
+* CAN FD: Users of older AutoProPAD units must attach the XTool CAN FD Adapter. The newer "G2 Turbo" units have this protocol built-in.1
+4.4 Lonsdor (K518ISE / K518 Pro)
+Lonsdor is a specialist in Toyota immobilizers and often releases solutions before major competitors.
+* Essential Hardware: Lonsdor ADP 8A/4A Adapter.
+* Pros: Lonsdor was one of the first to crack the Toyota 8A encryption. Their "Super ADP" adapter is highly regarded for its ability to read data without pin codes and without needing a server connection in some firmware versions.
+* Cons: The menu navigation can be less intuitive than Autel or Smart Pro, often requiring the user to manually select the correct chip type (8A-BA) rather than auto-detecting it.
+
+
+  
+
+
+
+5. Operational Workflow and Decision Logic
+Navigating the programming process on a TNGA-F vehicle requires a clear decision-making framework. The approach differs fundamentally depending on whether the customer possesses at least one working key. The following narrative outlines the operational logic and branching paths a technician must follow.
+5.1 Initial Assessment
+Upon arriving at the vehicle, the technician must first ascertain the status of the keys.
+* Scenario A (Add Key): The customer has one working master fob and wishes to add a spare.
+* Scenario B (All Keys Lost): The customer has no working keys.
+Critical Logic Check: Before proceeding, the technician must verify the vehicle battery voltage. If it is below 12.5V, a maintainer must be applied. The "BA" system is extremely sensitive to voltage drops during the "EEPROM Read" phase. A drop below 11.5V can cause the Smart Box to abort the data transfer, potentially corrupting the file.
+5.2 The "Add Key" Workflow (Spare Key)
+This is the lowest-risk operation and relies on the vehicle's inherent ability to authorize a new key using an existing credential.
+1. Connection: Even for an "Add Key" scenario, the Bypass Cable is often required due to the Security Gateway blocking the "Add Key" command from the OBD port. The technician must access the Smart Box and install the 30-pin adapter.
+2. Authorization: The diagnostic tool is connected to the bypass cable. The technician selects "Add Smart Key."
+3. The Handshake: The tool will prompt the user to hold the working key to the Start Button. The system will beep (single beep), indicating the current key is verified.
+4. Registration: Within 30 seconds, the user must hold the new key to the Start Button. The system will beep twice, indicating the new key ID has been written to the Smart Box memory.
+5. Verification: The tool will finalize the process. The technician should test the new key's remote functions and proximity starting capability immediately.
+5.3 The "All Keys Lost" (AKL) Workflow
+When no working keys are available, the technician cannot use the standard authorization method. The system is locked. Two primary paths exist to resolve this.
+5.3.1 Path 1: The Emulator Method (Preferred)
+This method avoids the risks associated with a full immobilizer reset and is generally faster.
+1. Data Extraction: The technician connects the bypass cable to the Smart Box and selects "Back up IMMO Data." The tool communicates directly with the Smart Box via CAN FD to extract the encrypted EEPROM data. This data contains the "Master Key ID" logic.
+2. Emulator Generation: The tool (e.g., Autel IM608) uses the extracted data to program a "Smart Key Simulator" (APB112). This simulator now broadcasts the signal of a valid master key.
+3. Ignition Activation: The technician holds the simulator to the Start Button. The vehicle believes a valid key is present and allows the ignition to turn ON.
+4. Key Addition: With the ignition ON, the system is now in a state equivalent to "Scenario A." The technician proceeds with the standard "Add Key" function, using the simulator as the "working key" to authorize the programming of the new permanent fob.
+5.3.2 Path 2: The Server/TIS Reset Method
+If the emulator method fails (e.g., due to unsupported firmware on the Smart Box), the technician must perform a "Reset."
+1. Seed Code Generation: The diagnostic tool requests a "Seed Code" from the vehicle.
+2. Passcode Calculation: The technician must log into the NASTF TIS portal (requiring a valid VSP credential) and enter the Seed Code to receive a calculated "Passcode."
+3. System Reset: Entering the Passcode into the tool initiates a reset of the Smart Box. This erases all previous keys.
+4. Registration: The system opens a 16-minute registration window where new keys can be added from scratch. This method is riskier as it wipes the existing data, meaning if the new keys fail to program, the vehicle is left completely inoperable.
+6. The Mechanical Interface: Keys and Lishi Decoding
+While the electronic programming is the primary challenge, the mechanical emergency key remains a vital component, particularly for dead-battery entry. The TNGA-F platform utilizes a high-security internal laser-cut key, but confusion exists regarding the correct tooling.
+6.1 The "TOY48" vs. "TOY51" Debate
+The locksmith industry uses Lishi tools to pick and decode locks. A persistent point of confusion is whether to use the TOY48 or TOY51 tool for these new trucks.
+* The Profile: The keyway is a 4-track internal laser cut key (side mill).
+* TOY48: Historically used for Lexus vehicles with longer blades. Research confirms this tool is effective for the Lexus LX 600 and can decode the lock cylinders successfully.31
+* TOY51: This tool is often listed for the Toyota Tundra, Sequoia, and Tacoma.32
+* Technical Reality: Both tools interface with the same "10-cut" wafer configurations (Code Series 80000-89999). However, the Lishi TOY51 (2-in-1) is generally the safer recommendation for the Toyota-badged trucks. The keyway depth and the shoulder stop on the Tundra door lock align more precisely with the TOY51 tool, providing a more stable picking platform than the TOY48, which is optimized for the slightly different bezel depth of Lexus handles.33
+6.2 Cutting Specifications
+Creating a working emergency key requires a dedicated milling cutter.
+* Key Code Series: 80000 - 89999.
+* Code Series Type: Z-Key (High Security).
+* Emergency Key Part Number: 69515-K0020 (Uncut Blade).34
+* Equipment: A standard edge-cut duplicator cannot be used. Locksmiths must use a CNC milling machine (e.g., Condor XC-Mini, Triton, Gymkana) configured for the "TOY51" or "TOY48" profile. The cut must be precise; the tolerances on the TNGA-F door cylinders are tight, and a poorly cut key will often jam or fail to turn the heavy mechanism.
+7. Digital Key Integration & "Slot" Management
+The TNGA-F platform heavily pushes the "Digital Key" feature (Remote Connect), allowing smartphones to act as keys. This introduces a new layer of complexity for locksmiths, particularly regarding memory management.
+7.1 The "Slot" Limit Constraint
+A common concern is whether a Digital Key occupies one of the physical key slots in the ECU memory.
+* Total Slots: The Smart Box typically supports up to 7 keys.
+* Digital Key Allocation: Research indicates that Digital Keys are managed via the Toyota App and the vehicle's DCM (Data Communication Module) but do map to a "slot" in the authorized user list.36
+* Implication: If a customer has 2 physical fobs and shares 5 digital keys with family members, the memory slots are full. A locksmith attempting to add a 3rd physical fob will face a "Memory Full" error. The remedy is to erase lost/unused keys first to free up a slot. The technician must ask the customer about their Digital Key usage before diagnosing a "programming failure."
+7.2 Interference and Diagnostics
+Digital Key active sessions can interfere with 315 MHz programming signals. The smartphone communicates with the vehicle via Bluetooth Low Energy (BLE) to authenticate, but the vehicle's response involves the same antennas used for the key fobs.
+* Best Practice: Turn off Bluetooth on the customer's phone and remove it from the vehicle cabin during the programming process.
+* DCM Interaction: In some "No-Start" troubleshooting cases, the Digital Key system (DCM) may hold the immobilizer bus active, preventing the vehicle from entering "Sleep Mode" or resetting properly. Disconnecting the vehicle battery for 10 minutes (Hard Reset) can clear a "hung" Digital Key session and allow physical key programming to proceed.
+8. Troubleshooting Common Failure Modes
+Even with the correct tools, technicians may encounter errors. Understanding the root cause is essential for rapid resolution.
+8.1 "Authorization Failed" / Error 10003
+* Symptom: The tool attempts to calculate the key data but fails with a network or authorization error.
+* Cause: Failure to communicate with the OEM server (for TIS) or the Tool Manufacturer's server (Autel/XTool) for calculation.27 The tool cannot decrypt the 8A-BA data locally; it must upload the packet to the cloud.
+* Fix: Ensure the diagnostic tablet has a strong Wi-Fi connection. A mobile hotspot is often more stable than a shop's cluttered Wi-Fi network.
+8.2 "Process Failed" at 10% or 20%
+* Symptom: The progress bar for "Backing up IMMO Data" starts but halts abruptly.
+* Cause: Poor connection at the 30-pin bypass cable. The pins in the Smart Box are delicate, and the weight of the bypass cable can pull the connector slightly askew.
+* Fix: Reseat the cable firmly. Ensure the ignition is OFF when connecting. Support the weight of the cable so it does not drag on the port.
+8.3 Remote Works, Car Won't Start
+* Symptom: The key allows remote lock/unlock, but the car displays "Key Not Detected" when attempting to start.
+* Cause: The "Proximity" function is disabled, or the key was programmed as a "Sub/Valet" key in a slot that does not have full master privileges.
+* Fix: Check the "Key Oscillator" live data. If the car sees the key but won't start, perform a "Synchronization" of the Steering Lock and Smart Box (special function in the Immobilizer menu). This forces the ECUs to re-handshake and accept the new key ID.
+9. Video Resource Analysis: Case Studies
+The following field reports, derived from verified video resources, illustrate the practical application of these procedures.
+* Case Study 1: 2022 Tundra Add Key with Autel 37: This resource demonstrates the "Bypass Method" on a 2022 Tundra. The technician locates the Smart Box above the driver's kick panel, disconnects the 30-pin connector, and installs the Autel 8A-BA cable. The video highlights the speed of the "Back up IMMO Data" process (approx. 2 minutes) and successfully adds a key without an emulator, as a working key was present.
+* Case Study 2: Lexus LX 600 All Keys Lost with Lonsdor 38: This case study showcases the Lonsdor K518's capability to handle the LX 600. The technician uses the specific "Lexus 8A-BA" menu and the ADP adapter. A critical insight is the requirement to "Generate Emergency Key" on the emulator first to wake up the ignition, reinforcing the "Emulator Path" workflow described in Section 5.3.1.
+* Case Study 3: Toyota Sequoia 2023 with Smart Pro 39: This video confirms the Smart Box location on the Sequoia is identical to the Tundra. It demonstrates the use of the ADC2021 cable. The technician emphasizes that for the Sequoia, the "Hatch Glass" button function must be verified immediately after programming, as incorrect part numbers will program for ignition but fail for the hatch.
+Conclusion
+The Toyota TNGA-F platform represents a high-water mark for automotive security, moving decisively away from simple transponder logic to a networked, encrypted ecosystem. For the locksmith, the Tundra, Sequoia, Land Cruiser, and LX 600 are not just "new Toyotas"; they are CAN FD endpoints that require specific hardware (Bypass Cables), specific credentials (NASTF or sophisticated Emulators), and a specific understanding of the "8A-BA" architecture. Success requires abandoning legacy "OBD-only" habits and embracing a diagnostic approach that involves physical disassembly (to reach the ECU) and cloud-based data calculation. As these vehicles age and enter the secondary market, mastery of the 30-pin bypass and 8A-BA protocol will be the defining skill set for the profitable automotive locksmith.
+Works cited
+1. CAN-FD Adapter Xtool AutoProPad – CarandTruckRemotes - Car and Truck Remotes, accessed January 5, 2026, https://www.carandtruckremotes.com/products/can-fd-adapter-xtool
+2. XTOOL - CANFD Adapter - AutoProPad - Program GM 2020-2023 for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/xtool-can-fd-adapter-autopropad
+3. Autel CAN FD Adapter - ADAS Depot, accessed January 5, 2026, https://adasdepot.com/autel-can-fd-adapter/
+4. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 5, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+5. How to connect the ADC-2021 Cable to the CERT Module on the 2022 Lexus LX600 - Quick & Easy Guide - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=KpvmRJwpXxY
+6. Advanced Diagnostics ADC2021 Smart Pro Bypass Cable for Toyota - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-adc2021-smart-pro-bypass-cable-for-toyota
+7. DB3: Installation Guide. 2022 Toyota Tundra Hybrid (Smart Key). 403.TL17 1.02, accessed January 5, 2026, https://directechs.blob.core.windows.net/ddt/403-TL17-1.02-ORI_2022-Toyota-Tundra-Hybrid-(Smart-Key)_IG_EN_20231103.pdf
+8. OBDSTAR Key SIM 5 in 1 Smart Key Simulator for Toyota 4D/H Chip, accessed January 5, 2026, https://www.ebay.com/itm/297824144163?chn=ps&mkevt=1&mkcid=28&google_free_listing_action=view_item
+9. UPDATE - Autel, accessed January 5, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202306/30023814u356.pdf
+10. Lonsdor Toyota 8A Smart Key P vs H vs PH Smart Key Series - ABKEYS, accessed January 5, 2026, https://abkeys.com/blogs/news/lonsdor-toyota-smart-key-pcb-models-ph-smart-key-series
+11. OEM 2022-2026 TOYOTA TACOMA TUNDRA LOCKED SMART, accessed January 5, 2026, https://www.ebay.com/itm/157509600888
+12. Toyota Tundra, Tacoma Smart Key - HYQ14FBX 8990H-0C012, accessed January 5, 2026, https://transponderisland.com/shop/tik-toy-163-2022-2026-toyota-tundra-tacoma-smart-key-4b-tailgate-hyq14fbx-8990h-0c012-34601
+13. Toyota New OEM 2022-2024 Tundra, Smart Key 4B Tailgate - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/toyota-new-oem-2022-2023-tundra-smart-key-4b-tailgate-fccid-hyq14fbx-pn-8990h-0c010
+14. LOCKED OEM 2022-2026 Toyota Tacoma Tundra 4B Power Tailgate Smart Key HYQ14FBX, accessed January 5, 2026, https://yourcarkeyguys.com/products/locked-oem-2022-2025-toyota-tacoma-tundra-4b-power-tailgate-smart-key-hyq14fbx
+15. 2023 Toyota Sequoia Smart Key 4B W/ Hatch Fob FCC# HYQ14FBX - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2023-toyota-sequoia-smart-key-4b-w-hatch-fob-fcc-hyq14fbx-8990h-0c020-aftermarket
+16. Toyota New OEM 2023-2024 Sequoia, Smart Key 4B Hatch - Royal Key Supply, accessed January 5, 2026, https://royalkeysupply.com/products/toyota-new-oem-2023-sequoia-smart-key-4b-hatch-fccid-hyq14fbx-pn-8990h-0c020
+17. 2023-25 TOYOTA SEQUOIA TACOMA OEM SMART KEY REMOTE FOB (3BTN) FCC: HYQ14FBX NEW! | eBay, accessed January 5, 2026, https://www.ebay.com/itm/176996303558
+18. 2023 - 2024 Toyota Sequoia Tacoma Smart Remote Key 8990H-0C030 FCC ID HYQ14FBX, accessed January 5, 2026, https://keytectools.com/product/2023-2024-toyota-sequoia-tacoma-smart-remote-key-8990h-0c030-fcc-id-hyq14fbx/
+19. Toyota New OEM 2024-2026 Landcruiser, Smart Key 3B FCCID: HYQ14FBX PN, accessed January 5, 2026, https://royalkeysupply.com/products/toyota-new-oem-2024-land-cruiser-smart-key-4b-hatch-fccid-hyq14fbx-pn-8990h-60790
+20. 2024 Toyota Land Cruiser Smart Key Remote PN: 8990H-60790, accessed January 5, 2026, https://remotesandkeys.com/products/2024-toyota-land-cruiser-smart-key-remote-pn-8990h-60790
+21. Toyota Land Cruiser Prado 2024-2025 Smart Key, 4Buttons 8990H-60810 433MHz, B3N2K2R P1 BA - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/toyota-land-cruiser-prado-smart-key-2024-2025-8990h-60810-433mhz-b3n2k2r
+22. 2022 Lexus LX600 NX / 4-Button Smart Key / PN: 8990H-F6031 / HYQ14FLC (OEM), accessed January 5, 2026, https://www.uhs-hardware.com/products/2022-lexus-lx600-nx-4-button-smart-key-pn-8990h-f6031-hyq14fbz-oem
+23. 2022 Lexus LX600 Smart Key Remote PN: 8990H-78640, accessed January 5, 2026, https://remotesandkeys.com/products/2022-lexus-lx600-smart-key-remote-pn-8990h-78640
+24. Lexus Lx600 2022-2024 Smart Key 4Buttons 8990H-78150 433MHz B3T2K2R - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/lexus-lx600-2022-2024-smart-key-4b-8990h-78150-433mhz-b3t2k2r-5596
+25. Lexus LX, GX, NX, TX Smart Access Card Key HYQ14CBP 8990h-78491 - Key4, accessed January 5, 2026, https://www.key4.com/lexus-lx-gx-nx-tx-smart-access-card-8990h78491-hyq14cbp
+26. Autel IM608 Pro II + G-BOX3 Adapter + APB112 Emulator + Toyota Lexus New System Bypass Cable (Autel USA) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/autel-im608-pro-ii-g-box3-adapter-apb112-emulator-toyota-lexus-new-system-bypass-cable-autel-usa
+27. Autel Key Programmer Failures: Causes and Professional Solutions - Autelkeytools, accessed January 5, 2026, https://www.autelkeytools.com/blogs/news/autel-key-programmer-failures
+28. ADC2021 Toyota* Bypass Cable - Advanced Diagnostics, accessed January 5, 2026, https://www.advanced-diagnostics.com/smart-pro-accessories/adc2021-toyota-bypass-cable
+29. XTOOL AnyToyo SK1 Key Programmer for Toyota - Xtool Official Car Diagnostic TOOL Store, accessed January 5, 2026, https://www.xtoolglobal.com/products/xtool-anytoyo-sk1-key-programmer
+30. XTool AnyToyo SK1 - Toyota Smart Key Emulator - XTOOLonline, accessed January 5, 2026, https://www.xtoolonline.com/product/XTOOL-AnyToyo-SK1
+31. Original Lishi 2-1 Pick/Decoder for Toyota, Lexus TOY48 - CLK Supplies, accessed January 5, 2026, https://www.clksupplies.com/products/original-lishi-2-1-pick-decoder-for-toyota-lexus-toy48
+32. Toyota Single Sided Aftermarket Insert Key Blade same as 69515-33100 - Key4, accessed January 5, 2026, https://www.key4.com/toyota-single-sided-insert-blade-6951533100
+33. Classic Lishi TOY51 2in1 Decoder and Pick for TOYOTA, accessed January 5, 2026, https://www.classiclishi.com/product/classic-lishi-toy51
+34. INSERT 2016-2025 Toyota Smart Emergency Key Blade HYQ14FBX HYQ14FBW TOY51, accessed January 5, 2026, https://yourcarkeyguys.com/products/insert-2016-2024-toyota-smart-emergency-key-blade-toy51
+35. Master Key #69515-K0020 | Autoparts.toyota.com, accessed January 5, 2026, https://autoparts.toyota.com/products/product/key-master-69515k0020
+36. Can I share my Digital Key? - Toyota Support, accessed January 5, 2026, https://support.toyota.com/s/article/Can-I-share-my-Digital-Key-Toyota
+37. 2022 Toyota Tundra add key using Autel IM508 with Obdstar 30 pin. Easy! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=hyXSVEcCm9E
+38. 2023 Lexus LX600 Smart Key Added – You Won't Believe How Easy! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=G106yWK7frQ
+39. Tundra/Tacoma Toyota 2022-2024 New Key with ADC2021 30pin Cable and SmartPro, accessed January 5, 2026, https://www.youtube.com/watch?v=kFJ8Uz3Z_Mg

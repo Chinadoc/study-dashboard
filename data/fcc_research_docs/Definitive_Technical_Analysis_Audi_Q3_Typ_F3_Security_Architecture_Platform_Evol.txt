@@ -1,0 +1,183 @@
+﻿Definitive Technical Analysis: Audi Q3 (Typ F3) Security Architecture, Platform Evolution, and Aftermarket Programming Viability
+1. Introduction: The Architectural Identity Crisis of the Typ F3
+The automotive industry is currently navigating a period of profound technological stratification, where the visible evolution of vehicle design often masks the more radical, invisible revolution occurring within electronic control architectures. Nowhere is this dichotomy more palpable than in the second-generation Audi Q3 (Typ F3), a vehicle that occupies a unique and often confounding position in the Volkswagen Group’s lineage. Produced from late 2018 through the 2025 model year, the Q3 F3 serves as a transitional bridge—a "crossover" in the truest technical sense—spanning the chasm between the established, highly accessible MQB (Modularer Querbaukasten) platform and the secure, encrypted, and cloud-dependent MQB Evo architecture.
+For the automotive security researcher, diagnostic engineer, and aftermarket professional, the Q3 F3 presents a fascinating case study in incremental obsolescence and security hardening. While its chassis and suspension hard points remain firmly rooted in the mechanical engineering of the mid-2010s, its neural network—the gateway, infotainment, and immobilizer systems—underwent a silent but tectonic shift midway through its lifecycle. This divergence has created a fractured landscape where two vehicles of the same model designation, and indeed identical physical appearance, requires fundamentally different diagnostic approaches, tooling, and security credentials.
+This report aims to deconstruct the technical reality of the Audi Q3 F3, moving beyond superficial marketing designations to expose the underlying electronic control unit (ECU) topology that dictates serviceability. By synthesizing proprietary production data, field diagnostic reports, and security protocol analysis, we will resolve the ambiguities surrounding its platform identity, definitively map the "cutoff" points for diagnostic access, and evaluate the viability of aftermarket key programming in the face of increasingly draconian security measures like SFD (Schutz Fahrzeug Diagnose). Furthermore, specific attention will be paid to the Sportback variant, analyzing whether its later market introduction imposes unique constraints on security operations.
+2. Platform Phylogeny: Dissecting the MQB A2 vs. MQB Evo Narrative
+To understand the diagnostic challenges of the Q3 F3, one must first rigorously define its platform status. A pervasive misconception in the aftermarket community suggests that the Q3 F3 transitioned mechanically to the MQB Evo platform in later years, akin to the Volkswagen Golf Mk8 or the Audi A3 (Typ 8Y). This assumption, while understandable given the shared electronics, is technically incorrect and leads to flawed diagnostic strategies.
+2.1 The Mechanical Substrate: Persistence of MQB A2
+The Audi Q3 F3, launched in 2018, is built upon the MQB A2 specific variant of the Volkswagen Group’s modular transverse matrix. This architecture is characterized by a standardized localized stiffening of the firewall and pedal box assembly, a defining trait that dictates the vehicle's crash safety performance and HVAC packaging. Crucially, the MQB A2 platform was designed primarily for internal combustion engines with moderate electrification (mild hybrid), distinguishing it from the dedicated MEB electric platforms or the deeply integrated high-voltage architecture of the full MQB Evo.1
+Throughout the entirety of its production run (2019–2025), the Q3 F3 retained this MQB A2 mechanical foundation. It shares its core chassis DNA with the Volkswagen Tiguan (Mk2), the SEAT Tarraco, and the Škoda Kodiaq. It does not share the suspension geometry or the "Evo" specific chassis hard points of the Audi A3 8Y or Cupra Formentor. This distinction is vital for collision repair and suspension tuning, but for the security professional, it serves as a "false friend"—the mechanical familiarity suggests diagnostic continuity that simply does not exist in the later model years.
+2.2 The Electronic Divergence: The "Hybrid" Architecture
+While the steel and aluminum structure remained static, the electronic topology of the Q3 F3 evolved aggressively. This phenomenon represents a decoupling of chassis cycles from electronic architecture cycles, a trend increasingly common as manufacturers rush to deploy connected car features. The Q3 F3 effectively exists in two distinct electronic states:
+1. Phase I (2019–2020): Legacy MQB: The initial production run utilized the MIB2+ (Modular Infotainment Matrix) High system. Security was handled by the BCM (Body Control Module) and Gateway acting on established CAN bus protocols with standard UDS (Unified Diagnostic Services) command structures. Authentication for coding changes relied on static 5-digit login codes (e.g., Security Access 31347), a known quantity in the aftermarket.
+2. Phase II (2021–2025): The Evo Infiltration: Starting with Model Year 2021 (production week 48/2020), the Q3 F3 adopted the MIB3 infotainment backbone.3 While the chassis remained A2, the communication architecture was upgraded to support the bandwidth requirements of the new head unit and connected services. This upgrade necessitated the installation of a new generation of Gateway (J533) capable of enforcing SFD (Vehicle Diagnostic Protection).
+This creates a hybrid vehicle: physically MQB A2, but digitally mimicking MQB Evo. The implementation of SFD is the critical differentiator. Unlike the true MQB Evo vehicles (Golf 8) which feature high-speed Ethernet backbones for almost all modules and a completely redesigned wiring harness, the Q3 F3 grafts the SFD security layer onto the existing CAN bus topology. This results in a vehicle that looks like a standard MQB car to a voltmeter but behaves like a locked fortress to a diagnostic scanner.
+
+
+  
+
+
+
+3. Knowledge Gap 1: Identifying the Security Cutoff
+The ability to distinguish between a "Phase I" legacy vehicle and a "Phase II" SFD-protected vehicle is the single most valuable skill for an Audi diagnostic technician today. Misidentification leads to wasted billable hours, potential module lockouts, and the incorrect purchasing of programming tokens. The transition is not always aligned perfectly with the calendar year due to varying production schedules at the Győr, Hungary plant 4, making reliance on the registration date insufficient.
+3.1 The MY2021 Watershed: Understanding the Split
+The definitive technical boundary for the security transition is Model Year 2021. In Volkswagen Group terminology, the model year changeover typically occurs in Week 22 (late May) or Week 45 (November) of the preceding calendar year. For the Q3 F3, the critical update was the integration of the Modular Infotainment Matrix 3 (MIB3), which mandated the new Gateway architecture. This update was rolled out for vehicles produced from approximately Week 48 of 2020 onwards.3
+It is crucial to note that "Model Year 2021" vehicles were sold in North America starting in late 2020. Therefore, a Q3 purchased in December 2020 is statistically highly likely to be an SFD-equipped unit, despite the "2020" purchase date. This misalignment is a frequent cause of diagnostic failure where technicians assume a 2020 sale date equates to a 2020 Model Year.5
+3.2 Identification Methods: Beyond the Badge
+Since there are no external badges distinguishing an SFD vehicle from a non-SFD one, the technician must rely on specific data points visible either on the VIN plate, the PR codes, or via initial diagnostic interrogation.
+3.2.1 VIN Character Decoding
+The 10th character of the VIN (Vehicle Identification Number) is the standard industry designator for the Model Year. For Audi Q3 F3s:
+* K = 2019 (Legacy Immo V, Non-SFD)
+* L = 2020 (Legacy Immo V, Non-SFD)
+* M = 2021 (SFD Transition Year)
+* N = 2022 (Full SFD, Updated Clusters)
+* P = 2023 (Full SFD, Updated Clusters)
+* R = 2024 (Full SFD, Potential BCM2 5C/MQB49 integration)
+Operational Rule: If the 10th digit is M, N, P, or R, the vehicle must be treated as SFD-protected. The "M" year (2021) requires extra caution as it may contain mixed builds during the changeover weeks, but assuming SFD presence is the safer protocol.2
+3.2.2 Hardware and Module Scan Analysis
+A physical inspection or a simple "Auto Scan" with a diagnostic tool can confirm the architecture level before any invasive work begins.
+The Gateway (J533) Part Number:
+The Gateway is the gatekeeper of the security policy.
+* Legacy (Pre-2021): Part numbers typically start with 3Q0 907 530 (Highline) or 5Q0 907 530. These gateways support standard Security Access (SA) login codes.
+* SFD (2021+): Part numbers often shift to 5WA 907 530 or revised 3Q0 variants with specific software versions (SW: 4xxx and above). The presence of a 5WA prefix is a definitive marker of MQB Evo electrical architecture components being used.6
+The Body Control Module (BCM / J519):
+* Legacy: 5Q0 937 087 series. This is the standard MQB BCM used since the Golf 7.
+* SFD/Sportback: 83A 937 087 series. The 83A prefix indicates a part specifically homologated for the Q3 F3 generation with newer firmware to handshake with the MIB3 system. While pin-compatible with older BCMs, the software stack is hardened against parameterization without ODIS tokens.7
+3.2.3 Infotainment Visual Indicators
+The MIB3 system provides a quick visual check. If the vehicle is equipped with the USB-C ports exclusively, or features the "Audi connect" app store natively in the MMI, it is an MIB3 vehicle and therefore SFD-equipped. MIB2+ vehicles (2019-2020) typically retain at least one USB-A port or the older Audi Music Interface (AMI) port style.3
+4. Immobilizer System Architecture: Immo V in the F3
+The Audi Q3 F3 employs the Fifth Generation Immobilizer System (Immo V), a highly decentralized security topology that integrates multiple control units into an authentication chain. Unlike earlier generations where a single "Immo Box" could be swapped, Immo V relies on a "Master-Slave" relationship between components, all cryptographically bound to the vehicle's unique identity.
+4.1 The Dashboard as the Trust Anchor
+In the MQB platform architecture, the Instrument Cluster (J285) serves as the primary Immobilizer Master. It stores the critical Component Security (CS) bytes, the MAC (Message Authentication Code) for key validation, and the trusted public keys for the transponders.
+* Data Structure: The Immo block consists of 16 bytes of Component Security (CS), the Power Class (PC) of the engine, the Brand Logic (Audi), and the Key IDs.
+* Key Validation: When a key is inserted (or detected via KESSY antennas), the J285 reads the transponder data. If the ID matches, it challenges the key with a cryptographic random number. The key must respond correctly using the pre-programmed 16-byte CS key.
+Upon successful key validation, the J285 releases the "Start Authorization" message to the Engine Control Unit (ECU / J623) and the Transmission Control Unit (TCU / J217) via the CAN bus. If the ECU/TCU does not recognize the authorization (due to mismatched Immo data), the engine may start for 1-2 seconds (fuel pump prime) and then immediately cut out—a classic symptom of Immo V intervention.8
+4.2 Instrument Cluster Variances: JCI vs. VDO
+The specific manufacturer of the instrument cluster is the single most significant variable in determining key programming difficulty. The Q3 F3 uses two primary suppliers, and their internal architectures are vastly different.
+4.2.1 Johnson Controls (JCI) / Visteon
+These clusters are typically found in lower trim levels (Premium) or in the early "Analog" cockpit configurations where physical dials flank a smaller digital screen.
+* Architecture: Often based on the NEC+95320 or NEC+24C64 topology.
+* Vulnerability: Historically, JCI clusters were susceptible to OBD "glitch" attacks where the processor could be put into service mode via the diagnostic port. However, in the F3 generation, JCI updated the bootloader to resist these attacks, pushing technicians toward direct EEPROM reading.9
+* Risk Profile: High. JCI clusters are notorious for corruption during failed OBD unlock attempts, leading to a "dead" cluster requiring JTAG recovery.
+4.2.2 Continental VDO (Virtual Cockpit)
+This is the standard for Premium Plus and Prestige trims, and notably, the vast majority of Q3 Sportbacks.
+* Architecture: Utilizes the NEC D70F35xx series of high-security microcontrollers (e.g., D70F3525, D70F3526, D70F3532, D70F3537). These are BGA (Ball Grid Array) chips with no external legs, making traditional clipping impossible.
+* Generational Split:
+   * Gen 1 (2019–2020): Part numbers like 83A 920 790. These use earlier revision NEC chips that are supported by some advanced OBD tools via specific server calculations.
+   * Gen 2 (2021+): Part numbers like 83A 920 890 (FPK Gen 2).10 These clusters feature updated board layouts and locked processors that strictly forbid OBD reading of critical memory areas. This hardware change coincides with the SFD rollout, creating a "double lock" mechanism: the Gateway blocks the path, and the Cluster locks the door.
+5. Knowledge Gap 2: The "All Keys Lost" (AKL) Reality
+The question of "OBD vs. Bench" for AKL on the Q3 F3 is not a binary choice but a decision matrix dependent on the Model Year and Cluster Manufacturer. The aftermarket's desire for a "one-click OBD" solution has largely collided with the reality of Audi's security enhancements.
+5.1 Pre-2021: The Final Frontier of OBD Access
+For MY2019 and MY2020 vehicles, OBD AKL is theoretically possible but practically risky.
+* Methodology: High-end tools (Xhorse VVDI2, Autel IM608, Lonsdor K518) attempt to exploit the Gateway to gain access to the Cluster.
+* The "Short Circuit" Requirement: In an AKL situation, the ignition cannot be turned on (Terminal 15 is off). Without ignition, the Gateway goes to sleep and refuses communication. The "Short Circuit" or "Force Ignition" method is mandatory here.
+   * Technique: A specialized cable bridges the Gateway Wake-Up line or forces voltage to Pin 1 (Ignition Sense) of the OBD port.11 This tricks the Gateway into staying awake, allowing the tool to communicate with the cluster.
+   * Success Rate: Moderate. Even with the gateway awake, the cluster encryption (VDO D70F35xx) often requires a server-side calculation ("Sync Data") that may fail if the third-party server does not have the specific decrypt key for that software version.
+5.2 Post-2021 (SFD): The End of OBD AKL
+For MY2021+ vehicles, research consistently indicates a near-zero success rate for true aftermarket OBD-only AKL.11
+* The SFD Barrier: Even if the "Short Circuit" cable wakes the gateway, any attempt to read memory addresses (Engineering Mode 0x23/0x3D services) is met with a Negative Response Code (NRC 0x33 - Security Access Denied). The Gateway requires an SFD Token to authorize the session.
+* Token Limitations: While some tools can generate SFD tokens for diagnostics (clearing codes, basic coding), they generally cannot generate the high-privilege tokens required for Immobilizer data extraction. These tokens are cryptographically distinct and strictly controlled by the GeKo (Geheimnis und Komponentenschutz) backend.
+* Result: The technician is blocked at the front door. The only way in is to bypass the Gateway entirely.
+5.3 The "Short Circuit" Cable: Physics and Application
+The term "Short Circuit" is a colloquialism for a Gateway Bypass/Wake-up Harness. It is not a random shorting of wires, which would destroy the BCM, but a targeted application of voltage.
+* Pinout Logic: The OBDII connector (J1962) has standard pins.
+   * Pin 16: +12V Battery (Always Hot).
+   * Pin 4/5: Chassis/Signal Ground.
+   * Pin 6/14: CAN High / CAN Low.
+   * Pin 1: In VAG applications, this is often T15 (Ignition Status) emulation.
+* The Cable Function: The "Godzilla" or "All Keys Lost" cable connects an external power source directly to Pin 16 and usually includes a toggle switch that bridges 12V to the ignition sense pin on the cluster connector or the gateway connector.
+* Warning: Improper use (e.g., shorting CAN lines to power) can instantly fry the Gateway processor or the BCM's CAN transceiver. This method should only be used with cables specifically pinned for the MQB platform.13
+5.4 Bench Programming: The Mandatory Workflow for 2021+
+Given the OBD blockade, Bench Programming has become the standard operating procedure for 2021+ Q3 F3 AKL.
+* Concept: Removing the instrument cluster isolates it from the SFD-protected Gateway. On the bench, the technician communicates directly with the cluster's CPU, bypassing the vehicle's firewall.
+* The Solder-Free Revolution: Early bench methods required soldering wires to microscopic test points (vias) on the PCB, a high-risk procedure. The industry has shifted to Friction Probe Adapters (e.g., Xhorse XD850, Autel APB130).14
+   * Mechanism: These adapters feature spring-loaded pogo pins that align perfectly with the BDM (Background Debug Mode) points on the cluster PCB.
+   * Process: The adapter applies power and data lines directly to the NEC processor. The tool exploits a low-level hardware vulnerability (or uses a factory debug protocol) to dump the EEPROM and Flash memory.
+* Sync Data Acquisition: Once the raw data is dumped, it is uploaded to the tool manufacturer's server (e.g., Xhorse Cloud). The server calculates the "Sync Data" (the cryptographic bridge between the Cluster and the Key). This data is then written back to the cluster (or used to generate a dealer key file).
+* Risk: While safer than soldering, improper alignment of the adapter can cause short circuits across the processor pins, potentially destroying the cluster.
+
+
+  
+
+
+
+6. Knowledge Gap 3: The Q3 Sportback Differentiation
+The Q3 Sportback (Typ F3 Sportback) adds another layer of complexity to the equation, primarily due to its distinct market positioning and production timing.
+6.1 The "Late Arrival" Phenomenon
+While the standard Q3 F3 launched in 2018/2019, the Sportback variant debuted later, with European sales beginning in late 2019 and North American sales delayed until the 2021 Model Year.16
+* Implication for US Market: There are essentially zero Pre-SFD Q3 Sportbacks in the United States. Since the model launched in the US as a 2021 MY vehicle, every single unit on the road is equipped with the MIB3/SFD architecture.
+* Implication for EU Market: A small window of MY2020 Sportbacks exists in Europe (built late 2019 to mid-2020) that might be accessible via legacy OBD methods, but these are rare.
+6.2 Component Specification Shifts
+The Sportback is marketed as a "lifestyle" or "coupe" variant, often carrying a higher base MSRP and richer standard equipment. This directly influences the security hardware encountered by technicians.
+* Cluster Dominance: The Sportback almost exclusively features the Virtual Cockpit (VDO). Base JCI clusters are virtually non-existent in Sportback trims, meaning the "easier" JCI bench methods are rarely applicable. Technicians should prepare for the difficult D70F35xx BGA chips on all Sportbacks.
+* KESSY Advanced: Sportbacks frequently feature the advanced "Keyless Entry and Start" system with Safe Lock functionality (deadlocking latches).
+   * Safe Lock Impact: When a Safe Lock vehicle is locked and armed, the BCM cuts power to non-essential internal circuits more aggressively to prevent battery drain. This makes the "Short Circuit" wake-up method more difficult, as the BCM may actively reject wake-up signals from the OBD port if the KESSY authorization is not detected.
+6.3 The "83A" BCM Divergence
+Physical inspection of Sportback BCMs often reveals the 83A 937 087 part number prefix.7
+* Significance: The "83A" is the chassis code for the Q3. The presence of a chassis-specific BCM (as opposed to the generic "5Q0" used in Tiguan/Golf) implies customized firmware for the Q3's specific body electronics (liftgate logic, frameless windows on other coupes, though Q3 Sportback has framed windows).
+* Programming: While the pinout is identical to the 5Q0 BCM, the EEPROM layout inside the MCU differs. Key programming tools that rely on "Generic MQB" BCM profiles may fail to read the configuration data correctly from an 83A BCM, leading to "Unknown Version" errors.
+7. Tooling Ecosystem Review: The Right Hammer for the Job
+Navigating the landscape of aftermarket tools is treacherous, with marketing claims often outpacing technical reality. Here is a definitive assessment of the major players regarding the Q3 F3.
+7.1 Autel (MaxiIM IM608 Pro / IM508)
+* Role: The "All-Rounder" that struggles with the latest encryption.
+* OBD Performance: Poor on 2021+ Q3s. Frequent "Security Access Failed" or "Function Not Supported" errors due to SFD.12
+* Bench Performance: Excellent. The APB130 Adapter 15 is a standout hardware piece. It is specifically designed to clamp onto the MQB NEC35xx processors. The software guidance for the "Lift Pin" or "Cut Trace" method (required for some specific NEC variants) is visual and detailed.
+* Best For: Technicians comfortable with removing the cluster and performing bench work.
+7.2 Xhorse (VVDI2 / Key Tool Plus)
+* Role: The "Specialist" with the best hardware bypasses.
+* Innovation: The XD850 / MQB48 Solder-Free Adapters 14 are the current gold standard. They allow reading the Virtual Cockpit processors without soldering, significantly reducing the liability of damaging a $1,500 cluster.
+* Software: The Xhorse cloud calculation for "Sync Data" is robust and supports a wide range of VDO software versions.
+* Feature: Supports the "Key Capacitor" method 18 for adding keys if the original key is present (a component-level hack where a capacitor is removed from the key PCB to allow the tool to read it).
+* Best For: High-volume locksmiths who need speed and safety (solder-free) on 2021+ models.
+7.3 ODIS (Offboard Diagnostic Information System)
+* Role: The "Official" Path.
+* Capability: Native support for SFD unlocking via the FAZIT/GeKo backend.
+* Constraint: Requires a valid VAG Group dealership or independent locksmith credential (NASTF VSP in the US). Crucially, ODIS cannot generate aftermarket keys. It allows the adaptation of pre-ordered keys (ordered by VIN from the corporate warehouse). It is not a solution for using refurbished or virginized aftermarket keys.
+* Best For: Dealers and authorized repair facilities who strictly use OEM parts.
+
+
+  
+
+
+
+8. Technical Deep Dive: The "Short Circuit" Cable Schematic
+To demystify the "Short Circuit" or "Godzilla" cable, it is helpful to visualize its electrical function. This is not "hacking" in the software sense, but "phreaking" in the electrical sense—manipulating the hardware to bypass a logical state (Sleep Mode).
+
+
+  
+
+
+
+The diagram above illustrates the critical intervention. In a standard OBD session, the tool relies on the vehicle's ignition switch (T15) to wake up the Gateway (J533). In an All Keys Lost scenario, T15 cannot be activated. The cable injects 12V directly into the "Wake Up" line (often Pin 1 on the OBD port for VAG, or bridged to the fuse box in some variants), forcing the Gateway to energize the CAN bus. This allows the tool to query the Cluster (J285) even though the rest of the car thinks it is off.
+9. Future Outlook: The Typ FJ and UNECE R155
+Looking ahead, the third-generation Q3 (Typ FJ), expected in 2025/2026, will likely close the door on even these bench methods.19 The industry-wide adoption of UNECE R155 (Cybersecurity Management System) regulations mandates a secure by design architecture.
+* The End of Local Immo: Future architectures (already seen in the Q4 e-tron and ID.4) move the immobilizer logic into a High-Performance Computer (HCP) or a central "ICAS" server. The "Immo Data" is no longer stored in a readable EEPROM on the cluster but inside a Secure Element (HSM) that cannot be dumped.
+* Implication: The Q3 F3 (2019-2025) represents the "Last Stand" of the physical immobilizer. It is the final generation where physical possession of the module allows for key generation. The Typ FJ will likely require online-only authorization for all key operations, effectively eliminating the aftermarket's ability to generate keys offline.
+10. Conclusion
+The Audi Q3 F3 is a deceptive vehicle. Its familiar MQB styling hides a bifurcated security architecture that traps unwary technicians. The transition in Model Year 2021 to the SFD-protected MIB3 architecture created a definitive schism in diagnostic capability.
+For the aftermarket professional, the "OBD-only" dream for the modern Q3 is largely defunct. The path to success lies in:
+1. Rigorous Identification: Using VIN and Gateway Part Numbers to identify SFD status before quoting the job.
+2. Investment in Bench Hardware: Adopting solder-free adapters for NEC35xx processors is no longer optional; it is the entry fee for servicing 2021+ models.
+3. Sportback Awareness: Treating every US-market Sportback as a "Hostile" environment (SFD + Virtual Cockpit Gen 2) by default.
+By understanding the underlying mechanisms of the Immo V system and the specific hardware constraints of the F3 platform, the industry can continue to support these vehicles, transitioning from the "glitch and hack" era of the past to the "precision bench engineering" era of the present.
+Works cited
+1. Platform sharing: The many faces of MQB - CarExpert, accessed January 26, 2026, https://www.carexpert.com.au/car-news/platform-sharing-the-many-faces-of-mqb
+2. audi platform & chassis codes explained: from b5 to mlb & ppe - Amayak Auto Service, accessed January 26, 2026, https://amayakauto.com/audi-platform-chassis-codes-explained-from-b5-to-mlb-ppe/
+3. Third-generation modular infotainment matrix - nhtsa, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2021/MC-10189329-0001.pdf
+4. 2026 Audi Q3 Production – Third Gen SUV Built at Győr Factory : r/EngineeringPorn - Reddit, accessed January 26, 2026, https://www.reddit.com/r/EngineeringPorn/comments/1ld497f/2026_audi_q3_production_third_gen_suv_built_at/
+5. 00 MQB/MEB: SFD requirement for diagnostic work, replacement test plan - Technical Service Bulletin, accessed January 26, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10230921-0001.pdf
+6. FOR MQB-EVO A3 8Y Golf MK8 CARS BCM 5WA 937 086 G J519 5WA937086G, accessed January 26, 2026, https://www.aliexpress.com/i/1005008041195059.html
+7. 2019-2025 Audi Q3 Control Module 3Q0-907-590-L | OEM Parts Online, accessed January 26, 2026, https://audi.oempartsonline.com/oem-parts/audi-control-module-3q0907590l
+8. Volkswagen Audi MQB Test Platform Car Key Making Cables - moeecucable, accessed January 26, 2026, https://moeecucable.com/products/volkswagen-audi-mqb-test-platform-car-key-making-cables
+9. VVDI2 Add New Key For VAG All Key Lost Tips - OBD2gate.com, accessed January 26, 2026, https://www.obd2gate.com/product-technical/vvdi2-add-new-key-for-vag-all-key-lost-tips.html
+10. OEM 83A920790A Virtual Cockpit Audi Q3 for 700.00 - Cars Equipment, accessed January 26, 2026, https://www.cars-equipment.com/en/shop/instrument-clusters-3/oem-83a920790a-virtual-cockpit-audi-q3/
+11. Audi Q3 OBDC Port Solutions: The Real-World Guide to Fixing Key Loss and Diagnostics with the MQB Smart Short-Circuit Wire - AliExpress, accessed January 26, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=audi-q3-obd-port
+12. (3/6) Autel IM608 Pro | Make A Car Key Without The Original | Key Programming - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=WTyA6Ejg1v8
+13. Full Test Platform Cable for Volkswagen MQB Smart IMMO Type for Sale | UHS Hardware, accessed January 26, 2026, https://www.uhs-hardware.com/products/full-test-platform-cable-for-volkswagen-mqb-smart-immo-type
+14. accessed December 31, 1969, https://www.xhorsevvdi.com/wholesale/xhorse-adapter-for-mqb48-solder-free.html
+15. Autel APB130 For XP400 PRO Add Key VW MQB NEC35XX Adapter, accessed January 26, 2026, https://www.tlkeys.com/products/Autel-APB130-For-XP400-PRO-Add-Key-VW-MQB-NEC35XX-Adapter-35773
+16. 2020 Audi Q3 Sportback revealed, won't reach US - Motor Authority, accessed January 26, 2026, https://www.motorauthority.com/news/1124185_2020-audi-q3-sportback-usa-revealed
+17. 2020 Audi Q3 Sportback Won't Be Sold In the United States - autoevolution, accessed January 26, 2026, https://www.autoevolution.com/news/2020-audi-q3-sportback-wont-be-sold-in-the-united-states-134733.html
+18. Xhorse XDMQBAGL MQB48 Adapter (Work with MLB TOOL) Add Key Tutorial - YouTube, accessed January 26, 2026, https://www.youtube.com/watch?v=sSdXBVJJLQo
+19. Audi confirms new Q3 and numerous plug-in hybrids for 2025 - Motor Authority, accessed January 26, 2026, https://www.motorauthority.com/news/1142623_audi-q3-plug-in-hybrids-2025

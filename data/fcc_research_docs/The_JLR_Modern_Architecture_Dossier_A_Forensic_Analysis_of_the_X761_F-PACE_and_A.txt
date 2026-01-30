@@ -1,0 +1,245 @@
+﻿The JLR Modern Architecture Dossier: A Forensic Analysis of the X761 F-PACE and Associated Platforms (2015–2024)
+Executive Summary: The Architecture of Security and Obsolescence
+The modern automotive landscape is defined not merely by mechanical performance but by the sophistication of its Electronic Vehicle Architecture (EVA). In this context, Jaguar Land Rover (JLR) represents a quintessential case study of rapid technological migration, shifting from the legacy, Ford-derived proprietary networks of the early 2000s to the high-security, ethernet-based architectures of the late 2010s. This dossier provides an exhaustive technical analysis of the 2020 Jaguar F-PACE (X761), positioned as the pivot point in this transition. However, to understand the F-PACE in isolation is to miss the broader systemic relationships; thus, this report integrates a complete analysis of the associated Modern Jaguar Platform ecosystem, encompassing the XE (X760), XF (X260), E-PACE (X540), and the electric pioneer, the I-PACE (X590).
+Our forensic examination focuses on the critical intersection of physical layout, electronic security implementation, and diagnostic programming capability. The automotive aftermarket is currently engaged in a "security arms race" with JLR engineering. The introduction of the 2018+ encrypted Keyless Vehicle Module (KVM)—also referred to as the Remote Function Actuator (RFA)—marked a definitive watershed moment.1 This architectural update fundamentally altered the service landscape, shifting the paradigm from relatively simple OBD-II based key programming to complex, bench-level microprocessor replacement operations necessitating the manipulation of One-Time Programmable (OTP) chips.3
+Furthermore, this dossier illuminates the severe environmental vulnerabilities embedded within these platforms. Specifically, we analyze the catastrophic water ingress scenarios in the F-PACE that compromise the KVM 5, and the unique High-Voltage (HV) interlock dependencies of the I-PACE that frequently masquerade as standard immobilizer faults.6 By synthesizing data from manufacturer technical service bulletins, aftermarket engineering reverse-engineering efforts (e.g., Yanhua, Lonsdor), and field technician reports, this document serves as the definitive reference for advanced diagnostics, security architecture, and platform cross-compatibility for the professional technician and researcher.
+The transition from the Multi-CAN architecture of the early 2010s to the Ethernet-based DoIP (Diagnostics over Internet Protocol) systems of the post-2017 era represents a complete overhaul of the diagnostic language used by these vehicles.7 Where the Symptom Driven Diagnostics (SDD) tool once reigned supreme, the 2020 F-PACE demands the use of the Pathfinder system, creating a stark line of demarcation in tool compatibility and service procedures. This report will navigate these complexities, offering a granular view of the chips, frequencies, and protocols that define the modern Jaguar.
+________________
+Section I: Platform Genealogy and The Aluminum Architecture (D7a & D7e)
+To fully comprehend the technical nuances of the 2020 F-PACE, one must first deconstruct the chassis and electronic DNA it shares with its stablemates. The vehicles covered in this dossier—F-PACE, XE, XF, E-PACE, and I-PACE—are not merely re-skinned variations of a single theme but represent specific, calculated branches of JLR's Modular Longitudinal Architecture. Understanding these platform codes is essential for predicting part interchangeability, module locations, and programming protocols.
+1.1 The D7a Platform: The Aluminum Backbone (XE, XF, F-PACE)
+The Jaguar F-PACE (X761) utilizes the D7a aluminum-intensive architecture. This platform is the foundational skeleton for the brand's modern renaissance, also underpinning the Jaguar XE (X760) and the second-generation Jaguar XF (X260).9 The extensive use of RC5754 aluminum alloy in the D7a platform is not purely a weight-saving measure; it has profound implications for the vehicle's electrical characteristics. The chassis acts as a distinct ground plane and RF (Radio Frequency) environment, influencing the placement and gain calibration of the remote keyless entry antennas.
+For the diagnostic technician, the shared D7a lineage implies a high degree of architectural symmetry. These vehicles utilize identical locations for many primary control modules, share wiring harness topologies, and, crucially, use interchangeable communication protocols. A key programming procedure or module initialization valid for a 2018 XE is highly likely to apply to a 2018 F-PACE, provided the software versions match the specific "Model Year" (MY) break points. This commonality allows for a "learn once, apply many" approach to diagnostics, where mastery of the X760's network topology directly translates to proficiency with the X761.
+1.2 The D7e Platform: The Electric Divergence (I-PACE)
+The I-PACE (X590) sits on the D7e platform. While structural elements are unique to accommodate the "skateboard" style high-voltage battery pack between the axles, its electronic architecture relies heavily on the D7a component bin.9 The I-PACE represents a hybridization of legacy and future technologies. It retains the KVM/RFA logic and passive entry systems of the combustion-engine D7a cars but integrates them into a complex High Voltage (HV) management system.
+This integration creates unique failure modes unseen in the D7a vehicles. As noted in technical discussions regarding the I-PACE's startup sequence 6, a "Key Not Found" error on the dashboard can often be a symptom of a High Voltage Isolation Fault or a break in the interlock loop, rather than a failure of the key fob or KVM itself. The D7e platform effectively gates the 12-volt "ignition" status behind a successful safety check of the high-voltage system, creating a dependency chain that technicians must navigate carefully.
+1.3 The Transverse Exception: E-PACE (X540)
+The E-PACE (X540) is the outlier in this dossier. Unlike its longitudinal siblings, it is built on the D8 platform (steel), which it shares with the Land Rover Discovery Sport and the Range Rover Evoque.9 This distinction is critical. While the User Interface, infotainment screens, and Key Fobs may appear identical to those in the F-PACE, the Body Control Module (BCM) and KVM locations differ significantly due to the transverse engine layout and the different bulkhead architecture inherent to the D8 platform.
+Diagnostic tools often group the E-PACE with the Evoque for programming routines rather than with the F-PACE or XE. This affects software payload selection and module initialization procedures. Furthermore, the steel construction of the D8 platform results in different RF propagation characteristics compared to the aluminum D7a/D7e bodies, necessitating different antenna tuning parameters in the Car Configuration File (CCF).
+________________
+Section II: The 2020 Jaguar F-PACE (X761) – A Technical Deep Dive
+The 2020 model year for the F-PACE is particularly significant as it represents the peak maturity of the pre-facelift X761 iteration. It sits at the precise intersection of the "Legacy" SDD diagnostic era and the "Modern" Pathfinder era, often requiring a hybrid approach to servicing and a nuanced understanding of tool compatibility.
+2.1 Technical Specifications and Identification
+The X761 chassis code designates the first-generation F-PACE. Production began in 2016 for the 2017 model year, but the 2020 model represents the final iteration before a significant mid-cycle refresh. The 2020 F-PACE operates on JLR's Multi-CAN generation architecture but incorporates significant updates to support FlexRay for high-speed chassis data (suspension, braking, dynamic stability) and DoIP (Diagnostics over IP) for module programming and large data transfers.8
+This shift to DoIP is not trivial. It requires that the OBD-II port pins 3, 11, 12, and 13 be wired to support Ethernet communication, a feature that older J2534 interfaces usually lack. Attempting to program a module on a 2020 F-PACE with a standard CAN-only interface will result in a communication failure, as the vehicle expects high-bandwidth handshakes for firmware loading.
+2.2 The Diagnostic Split: SDD vs. Pathfinder
+One of the most common points of friction for technicians is tool selection. The transition timeline is rigid:
+* JLR SDD (Symptom Driven Diagnostics): This tool is the standard for vehicles produced up to roughly 2016/2017.7 It is built on a legacy architecture designed for the older CAN bus speeds.
+* JLR Pathfinder: This is the mandatory environment for 2017+ vehicles, including the 2020 F-PACE, 2018+ E-PACE, and I-PACE.8 Pathfinder was developed specifically to handle the DoIP protocol and the advanced security gateways of the newer EVA.
+The 2020 Reality: You cannot successfully program a 2020 F-PACE key or replace a major module using SDD. The software simply will not communicate with the newer DoIP-enabled modules correctly. You must use Pathfinder or a specialized aftermarket tool capable of bridging this gap (e.g., Autel IM608, Yanhua ACDP, Lonsdor K518). Pathfinder requires a specific DoIP VCI (Vehicle Communication Interface), such as the JLR VCI or a high-quality aftermarket equivalent (e.g., DA-DoIP dongle).8 The older Mongoose Pro cables, while excellent for SDD, lack the ethernet pins required for Pathfinder's full functionality.
+2.3 Critical Design Flaw: The Rear Water Ingress
+Forensic analysis of field reports and technical service discussions reveals a pervasive and catastrophic environmental vulnerability specific to the F-PACE: Water ingress in the trunk/boot area.5 This is not a minor leak; it is a systemic failure mode that directly targets the vehicle's security electronics.
+The Vector: Water intrusion typically originates from two primary sources:
+1. Failed C-Pillar/Wing Grommets: The sealing grommets located behind the rear bumper/fender interface often degrade or are improperly seated during assembly, allowing road spray and runoff to enter the chassis box sections.
+2. Sunroof Drains and Tailgate Seals: Blocked sunroof drains or pinched tailgate weatherstripping channel water down the interior C-pillars rather than venting it externally.
+The "Kill Zone": The water pools in the lowest point of the trunk, primarily on the right-hand side. This is precisely where JLR engineers positioned the Keyless Vehicle Module (KVM), along with the Audio Amplifier and Telematics Unit. The KVM is often mounted low in this cavity, placing it directly in the "flood plain" of the trunk.
+The Consequence: The result is galvanic corrosion on the KVM's printed circuit board (PCB) and its connector pins. Technicians often find "green crust" (copper oxide) bridging the pins, causing short circuits or open lines on the CAN bus.15 The primary symptom is a "Smart Key Not Found" error displayed on the dashboard. This occurs not because the key is defective, but because the KVM is electrically comatose or disconnected from the network due to corrosion. In severe cases, wicking (capillary action) can draw water up the wiring harness, damaging the connectors of the Body Control Module (BCM) located elsewhere in the vehicle.16
+Any diagnostic procedure for a "Key Not Found" error on an F-PACE must begin with a physical inspection of the right rear trunk well for moisture. Replacing the KVM without rectifying the leak guarantees a repeat failure.
+________________
+Section III: The Security Architecture – KVM, RFA, and BCM
+The security ecosystem of the 2020 F-PACE is managed by a triad of modules, with the KVM/RFA acting as the gatekeeper. Understanding the nomenclature and the physical evolution of these modules is essential for successful repair and programming.
+3.1 The Nomenclature: KVM vs. RFA
+In JLR technical literature and aftermarket discussions, the terms KVM (Keyless Vehicle Module) and RFA (Remote Function Actuator) are used interchangeably.17
+* Historical Context: In the pre-2015 era, the module was almost exclusively referred to as the KVM.
+* Modern Context: With the advent of the Pathfinder era (2017+), the term RFA has become the standard designation in diagnostic trees and parts catalogs.
+* Functionality: Regardless of the name, the module's function remains consistent: it receives the RF signal from the key fob (operating at 315MHz or 433MHz), validates the cryptographic challenge (using Hitag AES logic), and authorizes the BCM to unlock the doors or the PCM (Powertrain Control Module) to initiate the engine start sequence.
+3.2 The 2018+ Security Pivot: The Locked MCU
+Snippet data 1 highlights a critical architectural pivot that occurred between 2017 and 2018. This change is the primary reason why simple OBD-II key programmers often fail on newer models.
+The Legacy Architecture (Pre-2017):
+Older KVMs utilized a Freescale/NXP microcontroller that was relatively open. Technicians could read the D-FLASH (Data Flash) and P-FLASH (Program Flash) directly via OBD-II or by using a clip-on interface (In-Circuit Programming). The data could be manipulated to add a new key ID, and the modified file could be written back to the chip.
+The Modern Hardening (2018+):
+For the 2018 model year and beyond (including the user's 2020 F-PACE), JLR introduced a "Locked" KVM architecture. The module now employs a Secured MCU, typically the SPC560B60L3 or a similar NXP variant, configured with a "Secured" bit or manufactured as OTP (One-Time Programmable).2
+* The Implication: The OTP designation means the chip's memory can be written to only once. Once the factory writes the initial immobilizer data, the chip is locked. You cannot overwrite the existing key data with a new file via the traditional methods.
+* The Diagnostic Wall: When a standard OBD tool attempts to gain security access (Seed-Key exchange), the locked KVM rejects the request or refuses to accept the new data payload. This results in the "Programming Failed" message familiar to many locksmiths.
+The Aftermarket Solution (Yanhua/Lonsdor):
+To circumvent the need to purchase a prohibitively expensive new virgin module from the dealer (often exceeding $500 plus labor), the aftermarket developed a hardware workaround. Tools like the Yanhua Mini ACDP Module 24 4 allow for a surgical intervention:
+1. Removal: The RFA module is physically removed from the vehicle.
+2. Hardware Modification: The technician must desolder or mechanically remove the existing, locked MCU from the PCB.
+3. Replacement: A new, blank MCU (or a specialized interface board containing a blank emulator) is soldered into place.20
+4. Virginization: The tool then programs this new blank chip with the vehicle's specific configuration data, effectively creating a "virgin" module that is ready to accept new keys.
+This process transforms a locked, unusable module into a programmable unit, but it requires significant skill in surface-mount soldering and specific hardware (Module 24 vs. the older Module 9).
+3.3 Module Locations: The "Hide and Seek" Game
+Locating the KVM/RFA is the first hurdle in physical programming or water damage repair. The "official" diagrams often lag behind production reality. Based on aggregated research snippets 17, the locations are platform-dependent:
+Model
+	Model Year
+	Platform
+	KVM / RFA Location
+	Installation Notes
+	Jaguar F-PACE
+	2017–2020
+	D7a
+	Right Rear Quarter (Trunk)
+	Located behind the fuse box/trim panel. Access often requires removing the floor, tire cover, and tie-down hooks. It is mounted vertically against the body in the "water danger zone."
+	Jaguar F-TYPE
+	2014–2020
+	D6a
+	Right Footwell (Passenger)
+	Located in the A-pillar kick panel area. Note: Some documentation incorrectly lists this as rear; physically verify the front passenger footwell first.
+	Jaguar XE
+	2015+
+	D7a
+	Right Rear Quarter (Trunk)
+	Similar to the F-PACE, accessed by pulling back the side trunk carpet liner.
+	Jaguar XF
+	2015+
+	D7a
+	Right Rear Quarter (Trunk)
+	Located behind the side carpet, often requiring the removal of the rear seat bolster to fully access the trim clips.
+	Jaguar E-PACE
+	2018+
+	D8
+	Left Rear Quarter (Trunk)
+	Critical Distinction: Located on the left side, unlike the D7a cars. This reflects the D8 platform's different harness routing.
+	Jaguar I-PACE
+	2018+
+	D7e
+	Rear Right Seat/Trunk Area
+	Typically accessed from the cargo area side panel, near the rear right seat mechanism.
+	Critical Installation Note: When reinstalling the KVM in an F-PACE, experienced technicians often attempt to relocate it slightly higher or shield it with a plastic baffle to protect it from future water ingress, acknowledging the platform's known vulnerability.
+________________
+Section IV: Key Fob Forensics – Chips, Frequencies, and FCC IDs
+The 2020 F-PACE utilizes JLR's "Smart Key" system, a proximity-based solution that allows for passive entry and push-button start. Sourcing the correct replacement key is the single most common failure point for DIYers and independent locksmiths due to the visual similarity of incompatible parts.
+4.1 Frequency Domains: 315MHz vs. 433MHz
+The frequency of the key fob is determined by the target market's regulatory environment, and the vehicle's Receiver (RFA) is tuned to match. There is no cross-compatibility.
+   * 315 MHz: This frequency is the standard for North America (USA, Canada) and Japan.21 Snippet 23 explicitly confirms a 2020 F-PACE key with FCC ID KOBJTF10A operating at 315 MHz.
+   * 433 MHz (434 MHz): This is the standard for Europe (UK, EU), Australia, and most other global markets.21
+   * The Trap: The key fobs for both frequencies are housed in identical plastic shells with identical buttons. A technician holding a 433MHz key (intended for a UK F-PACE) cannot distinguish it from a 315MHz key (for a US F-PACE) without checking the printed details under the emergency blade cover or using a frequency tester. The vehicle will simply ignore the signal of the wrong frequency.
+4.2 The "KOBJTF10A" Dossier
+The FCC ID KOBJTF10A 23 represents the gold standard hardware for the D7a platform during the 2017–2020 era.
+   * Compatible Models: This key is validated for the F-PACE (2017-2020), F-TYPE (2014-2020), XE (2017-2018), XF (2013-2018), and XJ (2011-2017).
+   * Chip Type: The transponder chip utilized is the Hitag AES (ID49) or Hitag Pro variant.23 Earlier JLR models (pre-2015) often used ID46 or ID47 chips. The shift to ID49/AES represents a significant increase in encryption strength (128-bit), designed to thwart "rolljam" and replay attacks.
+   * Part Numbers: Common OEM part numbers associated with this FCC ID include 5E0U50357, C2D51457, and T4A12802.23
+   * Emergency Key Blade: The mechanical key blade is the HU101 profile.26 This is a "High Security" laser-cut blade (milled on the face rather than the edge). It is used for emergency entry when the fob battery fails.
+4.3 The I-PACE Difference
+While the I-PACE key fob appears visually similar to the F-PACE unit, it introduces distinct internal architecture and part numbers (e.g., T4K8898).28
+   * UWB (Ultra-Wideband) Implementation: Later model years (2019/2020+) of the I-PACE and the facelifted F-PACE began implementing UWB technology. This advanced protocol measures the time of flight of the RF signal to determine the precise distance between the key and the car. This is a countermeasure against relay attacks (where thieves boost the signal of a key inside a house to open a car in the driveway). A standard 315MHz key cannot mimic the UWB signal timing.
+   * Functional Mapping: Do not assume an F-PACE key will function correctly on an I-PACE. The I-PACE BCM logic includes specific mapping for Electric Vehicle functions. For example, the button combination that might open the fuel door or trunk on an F-PACE could trigger the charging port unlock or climate pre-conditioning on an I-PACE.
+
+
+  
+
+
+
+________________
+Section V: Programming Pearls & Diagnostic Tradecraft
+This section addresses the practical, "in-the-trenches" application of programming keys and modules for the F-PACE and its platform mates, synthesizing data from tool manuals and field experiences.
+5.1 The Tool Landscape: Yanhua vs. The World
+The research material heavily features the Yanhua Mini ACDP.4 This prominence is not accidental; Yanhua has effectively cornered the market on "No Solder" JLR programming, addressing the high risk of damaging KVMs during traditional work.
+The "No Solder" Revolution:
+Traditionally, reading a secure KVM required the technician to desolder the MCU from the board to read it in a standalone programmer. This process carried a high risk of overheating the chip, lifting pads on the PCB, or damaging adjacent components. Yanhua introduced Interface Boards equipped with precise pogo pins that clamp directly onto the KVM's test points, allowing for data reading without thermal stress.30
+Module 9 vs. Module 24:
+Understanding the distinction between these two Yanhua modules is critical for the 2020 F-PACE:
+   * Module 9: Designed for the 2015–2018 era KVMs (typically using the MC9S12XEQ384 MCU). It supports adding keys and "All Keys Lost" (AKL) via OBD or ICP (In-Circuit Programming). This module works by reading the existing data and adding a key ID.
+   * Module 24: Essential for the 2018+ "New JLR" architecture (JPLA-14C104-AF and similar variants). This module is required for the newer RFA modules found in late 2018, 2019, and 2020 vehicles.4 Crucial Insight: For these 2018+ models, Module 24 often requires replacing the MCU with a blank chip because the original is OTP/Locked.20 The tool facilitates the writing of the "virgin" file to the new chip, but the hardware intervention (chip swap) is unavoidable for an All Keys Lost scenario.
+5.2 The "Lost Key" Recovery Protocol (2018+ Systems)
+If a 2020 F-PACE loses all valid keys, the recovery procedure is invasive and strictly sequential:
+   1. Vehicle Entry: Use the HU101 emergency blade. If the lock cylinder is seized due to disuse, lubrication and gentle "raking" are required.
+   2. Alarm State Management: Opening the door with the blade will trigger the vehicle's alarm. While the alarm is sounding, the BCM disables OBD-II communication as a security measure.
+   3. Silencing the Alarm: Without a working key, the technician must often disconnect the 12V battery (located under the spare tire in the F-PACE) to reset the BCM state. Alternatively, accessing the KVM directly allows for bench programming without the alarm interfering.
+   4. KVM Removal: Access the right rear quarter panel and remove the KVM/RFA.
+   5. Bench Programming: Use Yanhua ACDP (Module 24) or Autel XP400 Pro to read the KVM data (P-Flash/D-Flash).
+   6. MCU Replacement: Identify if the KVM is the 2018+ OTP type. If so, desolder the original MCU and solder in a new, virgin SPC560B60L3 chip.
+   7. Data Restore: Write the vehicle's immobilizer data (VIN, crypto keys) back onto the new MCU using the programmer.
+   8. Key Learn: Program the new aftermarket or OEM keys to the now "Virginized" KVM.
+   9. Reinstall & Sync: Reinstall the KVM. The vehicle should now recognize the new keys, disabling the alarm and allowing the engine to start.
+5.3 The Activity Key: Retrofit and Programming
+The Activity Key (a robust, waterproof wristband) is a highly desirable option for F-PACE owners.32 It functions as a secondary authentication token, allowing the user to lock the primary smart key inside the vehicle (e.g., while surfing or running) and secure the car.
+Functional Logic:
+When activated by holding the wristband to the "J" of the Jaguar logo on the tailgate, the system locks the vehicle and simultaneously disables any smart keys detected inside the cabin.33 This prevents a thief from breaking a window and using the key left in the glovebox to start the car. The interior key is re-enabled only when the vehicle is unlocked via the Activity Key or another valid exterior smart key.
+Retrofit Challenges:
+Retrofitting the Activity Key to a vehicle not factory-equipped involves more than just buying the band:
+   * Hardware: The vehicle must have a KVM that supports the Activity Key frequency. Some base-model KVMs lack the specific LF (Low Frequency) antenna driver required to energize the passive wristband.
+   * CCF Editing: The feature must be enabled in the Car Configuration File (CCF). Technicians must locate parameters such as EUCD021 (Keyless Entry and Start) or specific "Wearable Key" flags.34
+   * Tools: JLR Pathfinder is the primary interface for pairing the key on 2017+ models, but unlocking the CCF option often requires the JLR Engineering Tool or an independent CCF editor if the option is greyed out in the standard menu.
+________________
+Section VI: The Electric Frontier – I-PACE (X590) Specifics
+The Jaguar I-PACE introduces a layer of complexity that can trap even experienced technicians: the critical interdependence of the low-voltage (12V) and High Voltage (HV) systems.
+6.1 The "Dead I-PACE" Paradox
+A common service scenario involves an I-PACE that appears completely dead. The dashboard may light up, but the vehicle refuses to enter "Ready" mode or engage the drivetrain.
+   * The Misdiagnosis: Technicians often immediately suspect a failure of the expensive HV battery pack or the Traction Motors.
+   * The Reality (The "Handshake" Failure): The I-PACE requires a healthy 12V battery to power the BECM (Battery Energy Control Module). The BECM acts as the gatekeeper; it must wake up and perform a safety check, specifically verifying the High Voltage Interlock Loop (HVIL) and the Isolation resistance. Only if these checks pass does the BECM command the HV Contactors to close, energizing the high-voltage bus.35
+   * The P0A0A-13 Phantom: Snippet insight 6 points to a specific, prevalent fault code: P0A0A-13 (HV System Interlock Circuit - Open). This code is frequently caused not by a battery failure, but by a broken low-voltage wire inside the HV harness or corrosion on the connector H288. This relatively inexpensive wire break (often costing less than $5 in materials to fix) prevents the safety loop from completing, causing the BECM to keep the contactors open. The result is a "bricked" car due to a simple continuity fault in the 12V control line.
+   * Action: Before condemning an HV battery, technicians must perform a rigorous 12V battery health check and inspect the pilot/interlock lines for physical continuity.
+6.2 I-PACE Key Programming Differences
+While the I-PACE shares the Pathfinder architecture with the F-PACE, the Start-Up Handshake sequence differs.
+   * Emergency Start Location: On the F-PACE, the emergency start (passive RFID backup) location is under the dash/steering column cowling. On the I-PACE, there is a specific spot—usually marked with three small lines on the steering column cowl or a recess in the center console—where the key must be placed to energize the passive transponder if the battery fails.38
+   * OTA Dependencies: The I-PACE is heavily dependent on software integration. Key programming procedures can fail if the Telematics Control Unit (TCU) or Gateway Module (GWM) is pending a "Software Over The Air" (SOTA) update. The vehicle enters a "inhibit" state during update staging. Technicians should ensure the vehicle is fully updated and not in a "pending install" state before attempting to add keys.
+
+
+  
+
+
+
+________________
+Section VII: Cross-Platform Procedures and "Critical Alerts"
+7.1 Emergency Entry: The HU101 Blade
+The HU101 emergency blade is the universal mechanical backup across the modern JLR range.26
+   * Usage: The blade resides inside the smart fob housing. To access the physical lock, the user must often pop off a cosmetic plastic cap on the rear of the driver's door handle to reveal the lock cylinder.
+   * The "Seized Lock" Alert: Because these mechanical locks are almost never used in the life of the vehicle, they are prone to seizing due to grit and oxidation. It is highly recommended that all F-PACE/I-PACE owners proactively lubricate this cylinder annually with a graphite or PTFE-based spray (avoiding WD-40, which attracts dirt and can gum up the tumblers).
+7.2 "Smart Key Not Found" – The Reset Trick
+Before assuming a catastrophic KVM failure, users and technicians should attempt the "Hard Reset" procedure.
+   1. Disconnect: Remove the negative terminal of the 12V battery.
+   2. Discharge: Wait for at least 10 minutes to allow the capacitors in the BCM and KVM to drain. Some technicians touch the disconnected negative cable to the positive post (capacitive discharge) to speed this up, though a waiting period is safer.
+   3. Reconnect: Reattach the battery.
+   * Why it works: The KVM software can enter a "logic lock" state due to RF interference, low voltage spikes, or software bugs. A hard power cycle clears the volatile memory (RAM) of the module and often restores communication on the CAN bus.40
+7.3 CCF Editing: The "Forbidden" Menu
+For advanced users and independent specialists, editing the Car Configuration File (CCF) allows for the enablement of features locked by the factory configuration.
+   * Tools: Access requires JLR Pathfinder (with Engineering Mode unlocked via a "Seed Key" generator) or third-party CCF editors like the JLR Engineering Tool.42
+   * Risk: Editing the CCF carries significant risk. Incorrect parameters can corrupt the BCM's configuration, "bricking" the vehicle and requiring a dealer-level recovery session.
+   * Popular Edits:
+   * Global Close: Enabling the ability to close all windows by holding the lock button on the fob.
+   * Dynamic Mode: Activating the "Dynamic" driving profile on lower-trim models that possess the hardware but lack the software switch.
+   * Retrofit Enablement: Activating Apple CarPlay / Android Auto on 2018+ vehicles with the 10-inch InControl Touch Pro screens, provided the hardware revision supports the smartphone interface.
+________________
+Section VIII: Conclusions and Future Outlook
+The 2020 Jaguar F-PACE represents a sophisticated, if slightly fragile, convergence of mechanical engineering and cybersecurity. For the owner or technician, success lies in understanding that this is no longer just a car—it is a secure, encrypted network on wheels.
+Key Takeaways:
+   1. Security is paramount: The shift to 2018+ KVM encryption and OTP chips fundamentally changes the repair landscape. It requires specialized tools (Yanhua/Autel) and skills (soldering/MCU replacement) that go beyond traditional locksmithing.
+   2. Water is the enemy: The F-PACE's trunk design leaves the KVM vulnerable to catastrophic water damage. Proactive inspection and sealing of rear grommets is a mandatory preventative measure for long-term reliability.
+   3. Power is everything: In the I-PACE, the health of the 12V system is the absolute gatekeeper to the High Voltage drivetrain. A simple low-voltage wire break can mimic a catastrophic battery failure.
+   4. Tools matter: The era of SDD is over for the 2020 model year. Pathfinder, DoIP interfaces, and high-end aftermarket programmers are the only viable path forward.
+As JLR moves toward EVA 2.0 and fully over-the-air (SOTA) updatable architectures, the "cat and mouse" game of diagnostics will only intensify. The procedures and architectural insights outlined here for the X761 and X590 serve as the foundational knowledge required to navigate this electric, encrypted future.
+Works cited
+   1. THE ULTIMATE GUIDE TO MODERN JAGUAR/LAND ROVER KEY PROGRAMMING FROM AN ABRITES PERSPECTIVE. Abrites, accessed January 3, 2026, https://abrites.com/blog/the-ultimate-guide-to-modern-jaguar-land-rover-key-programming-from-an-abrites-perspective
+   2. ECS AUTO PARTS Land Rover Jaguar 2018+ KVM RFA IMMO Box MCU Chip SPC56, accessed January 3, 2026, https://www.locksmithkeyless.com/products/ecs-auto-parts-land-rover-jaguar-2018-kvm-rfa-immo-box-mcu-chip-spc560b60l3
+   3. Yanhua - ACDP Mini - 2012-2018 Tool Jaguar Land Rover Kit for Sale | UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/yanhua-acdp-mini-2012-2018-tool-jaguar-land-rover-kit
+   4. Yanhua - ACDP - JLR 2018+ - Module #24 - Smart Key without Soldering - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/yanhua-acdp-jlr-2018-module-24-smart-key-without-soldering-preorder
+   5. Jaguar F-Pace | Water Leak Solved Video - New Again, accessed January 3, 2026, https://cars.newagain.co.uk/car-water-leak-found-video.asp?topic=Jaguar-F-Pace-Water-Leak-Solved&tag=&id=140
+   6. P0A0A-13 fault : r/ipace - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ipace/comments/1huic9n/p0a0a13_fault/
+   7. Best Jaguar Land Rover Diagnostic Tools - 2025 Guide - TechRoute66, accessed January 3, 2026, https://techroute66.com/jaguar-land-rover-diagnostic-tools/
+   8. Jaguar XF SDD Programming Setup - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/jaguar-xf-sdd-programming-setup/
+   9. 2017 jaguar f type kvm location and removal spare lost keys - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/2017-jaguar-f-type-kvm-location-and-removal-spare-lost-keys/
+   10. Jaguar Xf Kvm Location - Jaguar XF All keys lost solution HPLA 19h440 ad, accessed January 3, 2026, https://www.jlridssddmongoose.com/jaguar-xf-kvm-location-jaguar-xf-all-keys-lost-solution-hpla-19h440-ad/
+   11. Jaguar F-PACE vs. Jaguar I-PACE Comparison - Jaguar of London, accessed January 3, 2026, https://www.londonjaguar.ca/jaguar-f-pace-vs-jaguar-i-pace-comparison.html
+   12. Jaguar E-PACE or F-PACE - How To Choose The Right Model For You | Rockar, accessed January 3, 2026, https://jaguar.rockar.com/blog/e-pace-vs-f-pace
+   13. Land Rover Diagnostic Software SDD JLR - MK3, accessed January 3, 2026, https://www.mk3.com/land-rover-diagnostic-software-sdd-jlr
+   14. Jaguar F-Pace | Water Leak Solved | #JaguarLeaks - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=EOcFOkjyxT4
+   15. Can You Repair BCMs with Water Damage? - UpFix, accessed January 3, 2026, https://info.upfix.com/kb/can-you-repair-bcms-with-water-damage
+   16. Can You Repair BCMs with Water Damage?, accessed January 3, 2026, https://blog.upfix.com/can-you-repair-bcms-with-water-damage
+   17. Jaguar Land Rover KVM Location Quick Guide - Yanhua Mini ACDP Tech Suport, accessed January 3, 2026, http://blog.yanhuaacdp.com/jaguar-land-rover-kvm-location-quick-guide/
+   18. New Remote Function Actuator (RFA) cannot communicate with Symptom Driven Diagnostics (SDD) - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/kvm-module-range-rover-jaguar-key-programmer-device-fk72/new-remote-function-actuator-rfa-cannot-communicate-with-symptom-driven-diagnostics-sdd/
+   19. SPC560B60L3 MCU Chip Use For Land Rover Jaguar 2018+ KVM (RFA) IMMO Box, accessed January 3, 2026, https://jlr-retrofit.com/spc560b60l3-kvm-rfa/
+   20. Yanhua ACDP Module24 I.MMO OBD Module with License A702 for Jaguar Land Rover | eBay, accessed January 3, 2026, https://www.ebay.com/itm/116885237463
+   21. Remote Keyless Entry Systems Overview - Analog Devices, accessed January 3, 2026, https://www.analog.com/en/resources/app-notes/remote-keyless-entry-systems-overview.html
+   22. jlr smart key transmission frequency - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/jlr-smart-key-transmission-frequency/
+   23. NEW Smart Key For Jaguar F-Pace 2017 - 2020 KOBJTF10A 315MHz Remote Key Fob, accessed January 3, 2026, https://www.ebay.com/itm/286643008679
+   24. 2014-2020 Jaguar F-Type 5-Button Smart Key Fob Remote (KOBJTF10A, 5E0U50357, 5E0U50147) - NorthCoast Keyless, accessed January 3, 2026, https://northcoastkeyless.com/product/jaguar-f-type-5-button-smart-key-fob-remote-fcc-kobjtf10a-p-n-5e0u50357/
+   25. 2011 - 2020 Jaguar Smart Key 5B Fob FCC# KOBJTF10A - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2011-2020-jaguar-smart-key-5b-fcc-kobjtf10a
+   26. Jaguar, Land Rover, Range Rover Emergency Key HU101 - My Key Supply, accessed January 3, 2026, https://www.mykeysupply.com/product/jaguar-land-rover-range-rover-emergency-key-hu101/
+   27. 2010-2019 Land Rover Jaguar / Emergency Key / HU101 / PN: CH22-15K601-AB (AFTERMARKET) - UHS Hardware, accessed January 3, 2026, https://www.uhs-hardware.com/products/2010-2019-land-rover-jaguar-emergency-key-hu101-pn-ch22-15k601-ab-ekb-lrj-001
+   28. 2019-2024 Jaguar I-Pace Keyless Entry Transmitter T4K8898 | OEM Parts Online, accessed January 3, 2026, https://jaguar.oempartsonline.com/oem-parts/jaguar-keyless-entry-transmitter-t4k8898
+   29. Genuine Jaguar I-Pace Remote (T4K8899) - Car Keys Online, accessed January 3, 2026, https://www.car-keys-online.com/genuine-jaguar-i-pace-remote-t4k8899.html
+   30. Yanhua Mini ACDP Module 9 Jaguar/Land Rover KVM Module Support Adding - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/yanhua-mini-acdp-module-9-jaguar-land-rover-key-programming-support-kvm-from-2015-2018-with-add-key-all-key-lost-and-key-refresh
+   31. Mini ACDP Land Rover 2015-2018 KVM Key Programming, accessed January 3, 2026, http://blog.yanhuaacdp.com/mini-acdp-land-rover-2015-2018-kvm-key-programming/
+   32. How To Use The Jaguar Activity Key | Jaguar Glen Cove, accessed January 3, 2026, https://www.jaguarglencove.com/how-to/jaguar-activity-key.htm
+   33. 2019 E-PACE How To: Activity Key | Jaguar USA - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=40aD_4JHyAQ
+   34. CCF file Parameters you can mod with Seed Code Calc with Sdd and Pathfinder and topix cloud - Land Rover, accessed January 3, 2026, https://www.jlridssddmongoose.com/ccf-file-parameters-you-can-mod/
+   35. 2024 Jaguar I-Pace - I-CAR Repairability Technical Support Portal, accessed January 3, 2026, https://rts.i-car.com/hyb-2283.html
+   36. Won't start, says battery fault detected, 2019 jaguar ipace - JustAnswer, accessed January 3, 2026, https://www.justanswer.co.uk/car/ty0d0-won-t-start-says-battery-fault-detected-2019-jaguar-ipace.html
+   37. Jaguar I-PACE High Voltage Fault FIXED? | Dealer Software Update Using TOPIx Online, accessed January 3, 2026, https://www.youtube.com/shorts/rmfoUQ2PlYk
+   38. How To Start Jaguar I-Pace 2023 Using The Emergency Start Function - National Car Keys, accessed January 3, 2026, https://nationalcarkeys.uk/how-to-start-jaguar-i-pace-2023-using-the-emergency-start-function/
+   39. Emergency Uncut Key Blade Blank HU101 for Jaguar XJ Xe XF F-Type Pace KOBJTF10A | eBay, accessed January 3, 2026, https://www.ebay.com/itm/204356020280
+   40. How To Fix Jaguar F-PACE Key Fob Not Working – Battery, Smart Key Reset & Antenna, accessed January 3, 2026, https://www.youtube.com/watch?v=0rVfHsFZj9s
+   41. Jaguar XF Smart Key Not Found Solved. - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=zRs4pd5Zp8U
+   42. CCF TOOLS Editor For Jaguar Land Rover Upgrades - JLR rETROFIT, accessed January 3, 2026, https://jlr-retrofit.com/jlr-ccf-tools-ccf-editor-4-9/
+   43. JLR Car Configuration File Management Help - Studylib, accessed January 3, 2026, https://studylib.net/doc/25773756/jlr-ccf-management-help-document

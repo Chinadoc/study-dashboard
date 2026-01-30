@@ -1,0 +1,352 @@
+﻿LOCKSMITH INTELLIGENCE DOSSIER: HYUNDAI/KIA N3 PLATFORM (2020–2026)
+1. The Strategic Shift in Automotive Security Architecture
+The automotive security landscape for the Hyundai Motor Group (HMG)—encompassing Hyundai, Kia, and Genesis brands—has undergone a radical and forced transformation between the years 2020 and 2026. This period marks a definitive schism in the manufacturer’s engineering philosophy, driven by two converging forces: the architectural migration to the modular N3 platform and the reactive hardening necessitated by the global theft epidemic known as the "Kia Challenge." For the automotive locksmith, security researcher, and diagnostic technician, understanding this shift is not merely academic; it is the prerequisite for successful service delivery. The era of static PIN codes, interchangeable transponders, and low-speed CAN bus communication has concluded, replaced by a fortress of AES encryption, rolling authentication codes, and high-speed CAN FD (Flexible Data-Rate) protocols.
+The N3 platform, which underpins the third-generation core vehicles including the Hyundai Palisade, Kia Telluride, Hyundai Tucson (NX4), Kia Sorento (MQ4), and the luxury Genesis GV80, represents a unified chassis architecture that integrates advanced body control logic with safety and security systems.1 Unlike previous generations where security was often an isolated subsystem managed by a discrete Immobilizer Control Unit (ICU) or Smart Key Module (SMK), the N3 architecture consolidates these critical functions into the Integrated Body Unit (IBU). This centralization improves vehicle responsiveness and integration with Advanced Driver Assistance Systems (ADAS) but significantly raises the stakes for locksmithing operations. A failure in programming or a corrupted data stream during an All Keys Lost (AKL) attempt on an IBU does not result in a simple non-start condition; it can lead to a catastrophic failure of body electronics, rendering the vehicle a "brick" that requires dealer-level intervention or module replacement.2
+Furthermore, the public relations and insurance crisis precipitated by the theft of millions of legacy mechanical-key vehicles 1 forced HMG to accelerate the deployment of high-security immobilizers across all trim levels. While the "Kia Boys" exploited the lack of immobilizers in base model turn-key vehicles from 2011–2021 5, the N3 platform vehicles covered in this dossier are predominantly equipped with "Smart Key" Push-to-Start systems that were never vulnerable to that specific USB-cable exploit. However, the manufacturer's response—a software update campaign affecting 4 million vehicles and a hardened stance on security access 4—has led to a tightening of the diagnostic ports. The "open" OBD-II access that locksmiths relied upon for decades has been gated behind security gateways (SGW) and rolling PIN algorithms that require authenticated server access, effectively closing the door on offline programming tools.7
+
+
+  
+
+
+
+The timeline of this transition reveals a critical overlap period between 2021 and 2023. During these years, vehicles on the same dealer lot could be equipped with vastly different security architectures depending on their specific build date or assembly plant. A 2022 Hyundai Tucson, for instance, might utilize a legacy HITAG 3 system programmable with standard tools, while a 2022 Kia Carnival sitting next to it employs the new HITAG AES (4A) architecture requiring entirely different hardware. This heterogeneity demands that the modern locksmith acts as an intelligence analyst, verifying FCC IDs and part numbers against VIN data before ever connecting a tool to the vehicle.
+2. Transponder Technology and Encryption Protocols
+The core of the N3 platform's defense against unauthorized operation is the migration of transponder technology. For nearly a decade, Hyundai and Kia relied heavily on the Philips ID46 and later the NXP HITAG 3 (ID47) encryption standards. These systems, while secure against casual theft, became well-understood by the aftermarket, allowing for the proliferation of third-party cloning tools and offline PIN calculation methods. The N3 platform marks the definitive end of this era and the adoption of high-security cryptographic standards that mirror those used by European luxury manufacturers.
+2.1. The HITAG 3 (ID47) Legacy
+In the early phase of the N3 rollout (approximately 2020 through early 2022), vehicles such as the initial Hyundai Palisade and Kia Telluride continued to utilize the NXP HITAG 3 transponder, commonly referred to in the locksmith trade as ID47.9 This chip operates on a 128-bit secret key but utilizes a challenge-response algorithm that sophisticated diagnostic tools can navigate.
+Key characteristics of the ID47 era on N3 vehicles include:
+* Static or Calculated PINs: Access to the immobilizer programming function typically requires a 6-digit PIN code. In ID47 systems, this code is often static (fixed to the VIN) and can be retrieved from third-party databases or calculated by the programming tool using a "read PIN" function via the OBD-II port.11
+* Remote Generation: Aftermarket universal remotes (like the Xhorse or Autel universal keys) can successfully generate functional emulators for these vehicles, provided the correct FCC ID is mimicked.
+2.2. The HITAG AES (4A) Revolution
+Starting in late 2021 with the Kia Carnival and rolling out to the Tucson, Sorento, and eventually the refreshed Palisade and Telluride, HMG transitioned to the NXP HITAG AES transponder, identified by diagnostic tools as chip type "4A".12 This shift is the single most significant technical hurdle for locksmiths working on modern Korean vehicles.
+* Advanced Encryption Standard (AES): The move to 128-bit AES encryption means that the communication between the key and the IBU is significantly more robust against interception or manipulation. Unlike the ID47, the 4A chip cannot be easily emulated by generic aftermarket remotes without specific licensing or proprietary hardware.
+* Incompatibility: It is crucial to note that ID47 and 4A keys are physically indistinguishable to the naked eye. They often share similar shell designs and button layouts. However, they are mutually exclusive. Attempting to program a 2022 Palisade key (ID47) into a 2025 Palisade (4A) will result in a communication failure, often displayed as "Condition Not Met" or "Key Mismatch" on the programmer.15
+* Rolling PIN Codes: The PIN code architecture for 4A systems has evolved. The static VIN-to-PIN database is no longer reliable. The vehicle and the diagnostic tool must perform a handshake with the manufacturer's server (or a third-party broker server) to calculate a rolling PIN based on a seed provided by the IBU at the moment of connection. This necessitates that the locksmith's tool has an active internet connection and, in many cases, a valid subscription to a PIN calculation service.7
+2.3. Ultra-Wideband (UWB) and Digital Key 2.0
+At the apex of the N3 platform's security hierarchy—primarily found in the Genesis GV80 and high-trim Hyundai/Kia models from 2024 onwards—is the integration of Ultra-Wideband (UWB) technology. This goes beyond simple immobilization and enables the "Digital Key 2.0" ecosystem.17
+* Precision Localization: Unlike Bluetooth Low Energy (BLE) or standard RF, UWB allows the vehicle to measure the exact distance of the key fob (or smartphone) with centimeter-level accuracy. This prevents "relay attacks" where thieves amplify the signal of a key from inside a house to open a car in the driveway. The vehicle knows if the key is 2 meters away or 20 meters away and will not authorize a start if the signal latency suggests relay amplification.
+* Hardware Implications: Keys for UWB-equipped vehicles contain additional transceiver hardware. For example, the 2024+ Genesis GV80 key (P/N 95440-T6DA0) includes both the 4A immobilizer chip for backup starting and the UWB chipset for passive entry.18 Locksmiths must use OEM keys for these vehicles; aftermarket keys lacking the UWB component may start the car (via the emergency coil) but will fail to support passive entry or "phone-as-a-key" pairing.
+2.4. The CAN FD Communication Barrier
+The final technical barrier introduced with the updated N3 platform is the Controller Area Network Flexible Data-Rate (CAN FD) protocol. As vehicle electronic architectures became saturated with data from radar, lidar, and high-definition cameras, the legacy CAN bus (limited to 1 Mbps) became a bottleneck. CAN FD allows for data rates up to 5-8 Mbps and larger payload sizes per frame.7
+* Diagnostic Lockout: While often associated with General Motors vehicles, CAN FD is now standard on the 2024+ Hyundai/Kia N3 fleet and specifically the Genesis GV80 IBU. Older locksmith programmers (such as the first-generation Autel IM608 or standard X100 pads) operate on standard CAN hardware. When connected to a CAN FD vehicle, these tools cannot decipher the high-speed data stream. The tool will simply fail to communicate with the immobilizer system, leading to a misdiagnosis of a "dead module" or "blown fuse".20
+* Adapter Necessity: To service these vehicles, locksmiths must utilize a CAN FD adapter that bridges the tool to the OBD-II port, or upgrade to newer hardware (e.g., Autel IM608 Pro II, XTool AutoProPad G3) that has native CAN FD transceivers built into the VCI (Vehicle Communication Interface).22
+3. Vehicle-Specific Intelligence: Hyundai Models
+3.1. Hyundai Palisade (2020–2026)
+As the flagship SUV, the Palisade has undergone a complex evolution in its security hardware, necessitating precise identification of the model year and trim level to ensure successful key programming.
+3.1.1. 2020–2022: The ID47 Era
+The initial launch version of the Palisade utilized the reliable ID47 (Hitag 3) system. These vehicles are generally accessible to standard programming tools without specialized adapters.
+* Key Fob: The primary smart key is a 5-button remote featuring Lock, Unlock, Hatch, Panic, and Remote Start. The FCC ID is TQ8-FOB-4F29 and the OEM Part Number is 95440-S8010.9
+* Emergency Key: These fobs utilize the Lishi HY22 (Silca HYN14R) mechanical keyway. The emergency key blade (P/N 81999-G3020) is essential for accessing the vehicle in dead battery situations, where the driver's door lock cylinder is hidden beneath a cosmetic cap that must be pried off.24
+3.1.2. 2023–2024: The Mid-Cycle Complexity
+With the 2023 refresh, Hyundai introduced new aesthetic designs for the key fobs and expanded the feature set to include Remote Smart Parking Assist (RSPA) on upper trims.
+* Standard Key: The 5-button configuration continued but switched to a new FCC ID: TQ8-FOB-4F27 with Part Number 95440-S8550.26
+* RSPA Key: The high-trim "Calligraphy" models utilize a 7-button key (adding forward/backward parking buttons). This key carries FCC ID TQ8-FOB-4F28 and Part Number 95440-S8600.28
+* Programming Note: While these still largely utilize the ID47 chip, the encryption logic for the PIN code became more aggressive. Locksmiths report higher failure rates with offline PIN calculators, often necessitating the use of online broker services or official NASTF credentials.
+3.1.3. 2025–2026: The AES Shift
+The latest iteration of the Palisade marks the full transition to the 4A (Hitag AES) architecture.
+* New Hardware: The smart key for the 2025+ model is Part Number 95440-P9080 with FCC ID TQ8-FOB-4FA2U44. This key is absolutely incompatible with previous years.29
+* Diagnostic Requirement: Programming this vehicle requires a CAN FD compatible tool and an online connection for the rolling PIN calculation.
+3.2. Hyundai Tucson (NX4) (2022–2026)
+The NX4 Tucson represents one of the most fragmented key ecosystems in the N3 lineup due to its global production base and rapid technology insertion.
+3.2.1. The "Split Year" Confusion (2022–2024)
+Locksmiths must exercise extreme caution with 2022-2024 Tucsons. Depending on the build date and factory, the vehicle may require one of several incompatible keys.
+* Standard Proximity: The most common 4-button key (Lock, Unlock, Panic, Remote Start) for this period is Part Number 95440-N9052 (or N9050) with FCC ID TQ8-FOB-4F26. This uses the Philips ID47 chip.30
+* RSPA / Limited: The 7-button version for autonomous parking trims is Part Number 95440-N9080 with FCC ID TQ8-FOB-4F28.32
+* Refurbished Warning: The market is flooded with "refurbished" keys for this model. Since these keys lock to the vehicle's IBU upon programming, used keys must be "unlocked" or "virginized" using specialized hardware (like the VVDI Key Tool Max) before they can be programmed to a new car.
+3.2.2. The 2024+ AES Transition
+Late 2024 and 2025 models have migrated to the 4A chip standard.
+* New Keys: The 4-button key for this generation is Part Number 95440-N9530 with FCC ID TQ8-FOB-4F61M43.12
+* Hatch Variant: A 5-button version (adding Hatch release) is available as Part Number 95440-N9570 (FCC ID: TQ8-FOB-4F89U44). These keys are often silver/chrome in finish compared to the black plastic of earlier years.33
+3.3. Hyundai Santa Cruz (2022–2026)
+The Santa Cruz, sharing the NX4 platform with the Tucson, mirrors its security architecture but typically lags slightly in the adoption of new standards.
+* 2022–2024: The primary key is Part Number 95440-K5002 with FCC ID TQ8-FOB-4F27. This is a 5-button ID47 remote.34
+* 2024–2025: Like the Tucson, the Santa Cruz has adopted the 4A chip for newer production. The Part Number is 95440-K5500 with FCC ID TQ8-FOB-4F61M43.35
+* Tailgate Security: Unlike the SUVs, the Santa Cruz tailgate lock is solenoid-driven but manual-lift. The key fob releases the latch, but does not power the gate. This distinction is important when testing remote functionality after programming.
+4. Vehicle-Specific Intelligence: Kia Models
+4.1. Kia Telluride (2020–2026)
+The Telluride's security evolution parallels the Palisade but utilizes distinct key hardware.
+4.1.1. 2020–2022: The First Generation
+* Standard Key: The 4-button smart key (Lock, Unlock, Hatch, Panic) is Part Number 95440-S9000 with FCC ID TQ8-FOB-4F24.36
+* Remote Start Variant: A 5-button version exists, Part Number 95440-S9200 (FCC ID: TQ8-FOB-4F34), which adds the remote start button.38
+* Immobilizer Warning: A common issue in this generation is the "Key Not Detected" error even with a good battery. This is often due to interference or a failing LF antenna in the center console. The emergency start procedure—pressing the Start/Stop button with the top of the fob—bypasses the LF check and relies on the RF transponder signal.39
+4.1.2. 2023–2024: The Facelift
+* New Aesthetic: The 2023 update introduced a new key shape with side-mounted buttons. The Part Number is 95440-S9610 (or S9640/S9650 depending on trim) with FCC ID TQ8-FOB-4F71. This key retains the ID47 chip architecture.40
+4.2. Kia Carnival (2022–2026)
+The Carnival (replacing the Sedona) serves as a case study for the complexity of button configurations.
+* Early Adoption of 4A: The Carnival was one of the first Kia models to utilize the 4A (Hitag AES) chip in the US market, starting with the 2022 model year. Early keys carried the FCC ID SY5MQ4AFGE04 and Part Number 95440-R0000.13
+* The "MVP" Key: The high-trim Carnival features a massive 7-button key known as the "MVP" (Multi-Purpose Vehicle) fob. It controls Lock, Unlock, Hatch, Panic, Remote Start, and both Left and Right Power Sliding Doors. Part Number 95440-R0420 (FCC ID: SY5KA4FGE07).42
+* Configuration Mismatch: Locksmiths must be wary of aftermarket "universal" keys for the Carnival. If a 5-button universal remote is programmed to a 7-button vehicle, the sliding doors may not operate remotely. The BCM expects specific RF signals for those channels that generic remotes often lack.
+* 2024+ Updates: Newer models use Part Number 95440-R840 (FCC ID: TQ8-FOB-4F81U44) 43 and the 2025+ model introduces Part Number 95440-R0910 (FCC ID: TQ8-FOB-4F61M44).44
+4.3. Kia Sorento (MQ4) (2021–2026)
+The MQ4 Sorento introduces a confusing array of FCC IDs due to its multiple powertrain options (Gas, Hybrid, PHEV).
+* 2021–2023: The standard key is Part Number 95440-R5000 with FCC ID SY5MQ4AFGE04. This is a 4-button 4A chip remote.45
+* 5-Button Variant: Part Number 95440-P2020 (FCC ID: SY5MQ4FGE05) adds the hatch release.46
+* 2023–2025: Later models shifted to the "TQ8" prefix FCC IDs, such as TQ8-FOB-4F61M44 (P/N 95440-P2AK0).14
+* The Flip Key Anomaly: Unlike most N3 vehicles, base model Sorentos (LX trim) may be equipped with a mechanical flip key. This key (P/N 95430-R0100, FCC ID SY5SKRGE03) still utilizes the 4A transponder chip, meaning the programming difficulty (rolling PIN, online calculation) remains the same as the smart key models.47
+5. The Genesis GV80: Anomaly in the Architecture
+The Genesis GV80 stands apart as the most technically demanding vehicle on the N3 platform. It functions as the technology demonstrator for the group, integrating features like Remote Smart Parking Assist 2.0 and Digital Key 2.0 well before they trickled down to Hyundai and Kia models.
+5.1. The "Gateway Locked" Scenario
+In an All Keys Lost (AKL) scenario on a 2021+ GV80, standard OBD-II programming attempts frequently fail. The IBU enforces a strict "Gateway Lock" that rejects programming requests unless a valid key is present to authorize the session. Since the locksmith has no valid key in an AKL situation, the OBD port becomes effectively useless for adding keys.8
+5.2. Bench Programming Protocol
+To bypass this lockout, forensic locksmiths must perform a "Bench Mode" procedure.
+1. IBU Access: The Integrated Body Unit must be physically removed from the vehicle. On the GV80, the IBU is typically located deep within the dashboard assembly, often requiring significant disassembly of the passenger side glovebox area or center console kick panels.2
+2. EEPROM Extraction: Once removed, the technician must open the module case and locate the EEPROM or MCU chip (often a Renesas or specialized NXP microcontroller) containing the immobilizer data.
+3. Data Reading: Using a high-level programmer like the Autel XP400 Pro or VVDI Prog, the technician reads the binary data directly from the chip.8
+4. Dealer Key Generation: This data is loaded into the programmer's software to generate a "Dealer Key" file. This file is then written to a specialized emulator (such as the Autel APB112).8
+5. OBD Completion: The IBU is reinstalled, and the emulator is held to the Start button. The vehicle recognizes the emulator as a valid key, unlocking the gateway and allowing the locksmith to program a permanent OEM fob via the OBD port.
+
+
+  
+
+
+
+5.3. Key Hardware
+* 8-Button Remote: The GV80 often uses a complex 8-button fob (P/N 95440-T6014, FCC ID TQ8-FOB-4F35) capable of controlling the Remote Smart Parking Assist (RSPA) system which allows the car to be driven remotely forward and backward into parking spots.48
+* UWB Integration: 2024+ models (P/N 95440-T6DA0) incorporate UWB for the "Genesis Digital Key 2" feature, requiring specific compatibility checks.18
+6. The Digital Key Ecosystem and Locksmith Diagnostics
+The integration of "Phone-as-a-Key" technology has introduced a new layer of diagnostic trouble codes (DTCs) that locksmiths must navigate.
+6.1. Digital Key 2.0 vs. 2.0 Touch
+HMG distinguishes between two tiers of digital access, which rely on different hardware protocols.17
+* Digital Key 2 Touch: This system utilizes Near Field Communication (NFC). The user must physically tap their smartphone against the door handle driver's side NFC reader to unlock, and place the phone on the wireless charging pad (which contains a second NFC reader) to start the engine. This is standard on mid-range N3 vehicles (Tucson, Sorento).
+* Digital Key 2 (Advanced): Utilizing Ultra-Wideband (UWB) and Bluetooth Low Energy (BLE), this system allows for passive entry. The user can keep their phone in their pocket. The vehicle's BLE modules detect the phone's approach, and the UWB nodes verify the precise distance to authorize unlocking. This is found on the Genesis GV80 and high-trim Palisade/Telluride.17
+6.2. The "Check Digital Key System" Error
+A frequent issue encountered by locksmiths is the "Check Digital Key System" warning message on the instrument cluster.51 This error often disables the ability to program new physical keys because the IBU is in a fault state regarding its external authentication nodes.
+* Causes: The error is typically caused by a handshake failure between the IBU and the BLE/NFC modules, often triggered by a low battery event or a failed attempt to pair a phone.
+* Locksmith Fix: The most effective field repair is a "Capacitive Discharge." This involves disconnecting both the positive and negative battery terminals from the battery posts and touching the cable ends together for approximately 10 minutes. This drains the residual voltage from the capacitors in the control modules, forcing a hard reboot of the IBU logic upon reconnection. This often clears the "Check Digital Key" error and restores the ability to program physical fobs.25
+7. Operational Tradecraft: Tooling and Mechanical Access
+For the locksmith in the field, success on the N3 platform depends on having the correct mechanical tools and a robust budget for PIN code calculation.
+7.1. Mechanical Keyways: HY22 vs. K9
+The transition of the mechanical emergency key blade is a subtle but critical detail.
+* Lishi HY22: The standard keyway for most Hyundai/Kia vehicles since 2012 has been the "HY22" (also known as HYN14R). This is a laser-cut, 4-track internal keyway. It remains the standard for the 2020-2023 Palisade, Telluride, and Tucson.52
+* Lishi K9: Starting with the Genesis GV80, Ioniq 6, and increasingly on 2024+ N3 facelifts, a new keyway profile designated "K9" has been introduced. This keyway is physically different from the HY22. Locksmiths attempting to insert a standard Lishi HY22 tool into a K9 lock cylinder risks jamming the tool or damaging the wafers. The "Lishi K9 V.4" 2-in-1 pick and decoder is the required tool for these newer locks.53
+* Lock Orientation: On many N3 vehicles, the door lock cylinder is not vertical but horizontal, hidden behind a decorative cap. The "Right Side" (passenger) and "Left Side" (driver) distinctions in parts catalogs 2 refer to the specific cam orientation of the lock cylinder tailpiece, which matters if replacing a damaged lock.
+7.2. Programming Tool Matrix and Token Economics
+The economics of programming N3 vehicles have shifted from a one-time hardware purchase to a recurring cost model due to the need for online PIN calculation.
+
+
+  
+
+
+
+* Autel (IM508S/IM608 Pro II): The Autel ecosystem is currently the most versatile for N3 vehicles. The IM608 Pro II features native CAN FD support, eliminating the need for dongles. Its strength lies in its ability to perform bench reading of EEPROMs for Genesis AKL jobs. However, OBD PIN reading for 2023+ models can be inconsistent.54
+* Advanced Diagnostics (Smart Pro): The Smart Pro is favored for its reliability in PIN calculation via the "ADS2331" software module. It connects to the AD server to calculate the rolling PIN seamlessly. The downside is the cost; each successful programming event consumes "Tokens" (virtual currency), which can cost the locksmith between $10 and $15 per vehicle depending on the bulk pack purchased.56
+* XTool (AutoProPad G3): A cost-effective alternative that has gained traction. The G3 hardware includes CAN FD natively. XTool is aggressive in updating software for US-market vehicles, but may lack the deep EEPROM work capabilities of the Autel for complex bench jobs.20
+8. Part Number Reference Dossier
+The following tables provide the critical FCC ID and Part Number data required for procurement. All data is verified against the research snippets provided.
+8.1. Hyundai Master List
+
+
+Vehicle
+	Model Years
+	Buttons
+	FCC ID
+	Chip Type
+	OEM Part Number
+	Notes
+	Palisade
+	2020-2022
+	5 (R-Start)
+	TQ8-FOB-4F29
+	ID47
+	95440-S8010
+	9
+	Palisade
+	2022-2024
+	5 (R-Start)
+	TQ8-FOB-4F27
+	ID47
+	95440-S8550
+	Refresh 26
+	Palisade
+	2023-2024
+	7 (RSPA)
+	TQ8-FOB-4F28
+	ID47
+	95440-S8600
+	Calligraphy 28
+	Palisade
+	2025+
+	7 (RSPA)
+	TQ8-FOB-4FA2U44
+	4A
+	95440-P9080
+	AES Shift 29
+	Tucson
+	2021-2024
+	4
+	TQ8-FOB-4F26
+	ID47
+	95440-N9052
+	31
+	Tucson
+	2022-2024
+	7 (RSPA)
+	TQ8-FOB-4F28
+	ID47
+	95440-N9080
+	Limited 32
+	Tucson
+	2024-2025
+	4
+	TQ8-FOB-4F61M43
+	4A
+	95440-N9530
+	AES Shift 12
+	Santa Cruz
+	2022-2024
+	5
+	TQ8-FOB-4F27
+	ID47
+	95440-K5002
+	34
+	Santa Cruz
+	2024-2025
+	5
+	TQ8-FOB-4F61M43
+	4A
+	95440-K5500
+	35
+	8.2. Kia Master List
+
+
+Vehicle
+	Model Years
+	Buttons
+	FCC ID
+	Chip Type
+	OEM Part Number
+	Notes
+	Telluride
+	2020-2022
+	4
+	TQ8-FOB-4F24
+	ID47
+	95440-S9000
+	37
+	Telluride
+	2020-2022
+	5
+	TQ8-FOB-4F34
+	ID47
+	95440-S9200
+	38
+	Telluride
+	2023-2024
+	5
+	TQ8-FOB-4F71
+	ID47
+	95440-S9610
+	New Look 40
+	Carnival
+	2022-2024
+	7 (MVP)
+	SY5KA4FGE07
+	4A
+	95440-R0420
+	AES Early Adopter 42
+	Carnival
+	2024-2026
+	7
+	TQ8-FOB-4F81U44
+	4A
+	95440-R840
+	43
+	Sorento
+	2021-2023
+	4
+	SY5MQ4AFGE04
+	4A
+	95440-R5000
+	45
+	Sorento
+	2023-2025
+	4
+	TQ8-FOB-4F61M44
+	4A
+	95440-P2AK0
+	14
+	8.3. Genesis Master List
+
+
+Vehicle
+	Model Years
+	Buttons
+	FCC ID
+	Chip Type
+	OEM Part Number
+	Notes
+	GV80
+	2021-2024
+	8 (RSPA)
+	TQ8-FOB-4F35
+	4A/47
+	95440-T6014
+	48
+	GV80
+	2024-2025
+	5
+	TQ8-FOB-4F75M44
+	4A/UWB
+	95440-T6DA0
+	UWB Digital Key 18
+	9. Conclusion
+The Hyundai/Kia N3 platform represents a watershed moment in the history of automotive security. The convergence of the "Kia Challenge" hardening measures with the technological leap to CAN FD and UWB has created a vehicle ecosystem that is hostile to the unprepared locksmith. The days of generic inventory and offline programming are effectively over for this manufacturer. To remain viable, service providers must invest in CAN FD capable hardware, maintain active subscriptions for online PIN calculation, and develop the forensic skills required for module-level bench programming. This dossier provides the foundational intelligence required to navigate this new reality, but the field technician must remain vigilant, as HMG continues to iterate its security protocols with each model year update.
+Works cited
+1. Home - Hyundai, accessed January 5, 2026, https://hyundaiantitheft.com/
+2. 2024 GENESIS GV80 IBU BCM BODY CONTROL MODULE UNIT OEM 95400T6BM4 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/205828078379
+3. 95400T6110 Genuine UNIT ASSY-IBU For Hyundai Genesis GV80 / Fedex - eBay, accessed January 5, 2026, https://www.ebay.com/itm/146499620227
+4. Hyundai, Kia to Address Theft Vulnerability by Upgrading 4 Million Vehicles | Cars.com, accessed January 5, 2026, https://www.cars.com/articles/hyundai-kia-to-address-theft-vulnerability-by-upgrading-4-million-vehicles-519697/
+5. How Hyundai and Kia Owners Can Avoid Car Theft in 2024 - Red Key Locksmith, accessed January 5, 2026, http://redkeyllc.com/2024/12/04/how-hyundai-and-kia-owners-can-avoid-car-theft-in-2024/
+6. Anti-Theft Software Upgrade - MyHyundai, accessed January 5, 2026, https://owners.hyundaiusa.com/us/en/resources/technology-and-navigation/anti-theft-software-upgrade
+7. DiagCar SMARTOBD CAN FD Adapter - MK3, accessed January 5, 2026, https://mk3.com/en/diagcar-smartobd-can-fd-adapter
+8. all keys lost - Autel Support Communities, accessed January 5, 2026, https://bbs.autel.com/autelsupport/Diagnostics/29989.jhtml?createrId=954456&view=1
+9. 20-22 Hyundai Palisade Smart Proximity Key 95440-S8010 TQ8-FOB-4F29 - Key4, accessed January 5, 2026, https://www.key4.com/hyundai-palisade-smart-prox-key-95440s8010
+10. Kia Smart Key for 2020 Kia Telluride - Car Keys Express, accessed January 5, 2026, https://store.carkeysexpress.com/keys-and-remotes/Kia/Telluride/2020/1010354-kia-smart-key
+11. Autel, FIX PIN CODE READ OF GM CARS!!!!, accessed January 5, 2026, https://bbs.autel.com/autelsupport/Diagnostics/27354.jhtml
+12. Hyundai Tucson Smart Key 2024-2025 4B 95440-N9530 433MHz - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/hyundai-tucson-2024-2025-smart-key-4buttons-95440-n9530-433mhz-5593
+13. 2022 Kia Carnival Smart Key 5B W/ Hatch & Remote Start Fob FCC# SY5MQ4, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2022-kia-carnival-smart-key-5b-w-hatch-remote-start-fob-fcc-sy5mq4afge04-95440-r0000-aftermarket
+14. Kia Refurbished OEM 2023-2025 Sorento Smart Key 4B Remote Start FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/kia-refurbished-oem-2023-2025-sorento-smart-key-4b-remote-start-fccid-tq8-fob-4f61m44-pn-95440-p2ak0
+15. How to Fix Smart Key Errors on Newer Hyundai Kia Models with Autel IM508 IM608 – Easy Solution! - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=goLSahetS_o
+16. KIA Hyundai Online Pincode Calculator 500 Token, accessed January 5, 2026, https://gskeyae.com/product/kia-hyundai-online-pincode-calculator-500-token/
+17. Digital Key - Kia Owners Portal, accessed January 5, 2026, https://owners.kia.com/content/owners/en/digital-key.html
+18. 2024-2025 Hyundai Genesis GV80 / 5-Button Smart Key / PN: 95440-T6DA0 / TQ8-FOB-4F75M44 (OEM) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-2025-hyundai-genesis-gv80-5-button-smart-key-pn-95440-t6da0-tq8-fob-4f75m44-oem
+19. OBDSTAR CAN FD Programming Adapter - 2020-2023 GM - Your Car Key Guys, accessed January 5, 2026, https://yourcarkeyguys.com/products/obd-star-can-fd-programming-adapter-2020-2021-gm
+20. XTool AutoProPAD CAN-FD Adapter For 2020-2023+ GM Vehicles - Key Innovations, accessed January 5, 2026, https://keyinnovations.com/products/xtool-can-fd-adapter
+21. XTOOL AutoProPAD Core Key Programmer with CAN FD Adapter (2020 - 2021), accessed January 5, 2026, https://www.locksmithkeyless.com/products/xtool-autopropad-core-key-programmer-with-can-fd-adapter-2020-2021-bundle
+22. Autel CAN FD Adapter Compatible with Autel VCI Maxisys Tablets - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/autel-can-fd-adapter-compatible-with-autel-vci-maxisys-tablets-1409
+23. XTOOL AutoProPAD G3 Evolution Key Programmer with CAN FD Adapter, accessed January 5, 2026, https://www.locksmithkeyless.com/products/xtool-autopropad-g3-evolution-key-programmer-with-can-fd-adapter-bundle
+24. 95440-S8010 TQ8-FOB-4F29 Hyundai Palisade Smart Keyless Entry Remote, accessed January 5, 2026, https://www.carandtruckremotes.com/products/original-smart-remote-for-hyundai-palisade-pn-95440-s8010
+25. 2023 - 2025 HYUNDAI PALISADE - How to Unlock, Open & Start With Dead Remote Key Fob Battery - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=O33lQ3IZT5E
+26. 2022-2024 Hyundai Palisade / 5-Button Smart Key / PN: 95440-S8550 / TQ - Keyless City, accessed January 5, 2026, https://keyless-city.com/products/2022-2023-hyundai-palisade-5-button-smart-key-pn-95440-s8550-tq8-f0b-4f27-aftermarket
+27. Hyundai Palisade 2023-2024 5-Button Smart Key w/Remote Start - Nitrous Keys, accessed January 5, 2026, https://nitrouskeys.com/products/hyundai-palisade-2023-2024-5-button-smart-key-w-remote-start
+28. 2024 Hyundai Palisade Smart Key 7B Fob FCC# TQ8-FOB-4F28 - 95440-S8600 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-hyundai-palisade-smart-key-7b-fob-fcc-tq8-fob-4f28-95440-s8600-oem
+29. Hyundai New OEM 2025-2026 Palisade Smart Key 7B FCCID: TQ8-FOB-4FA2U44, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2025-2026-palisade-smart-key-7b-fccid-tq8-fob-4fa2u44-pn-95440-p9080
+30. Hyundai Refurbished 2021-2024 Tucson Smart Key 4B Remote Start FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-refurbished-2021-2022-tucson-smart-key-4b-remote-start-fccid-tq8-fob-4f26-pn-95440-n9050
+31. 2 Remote Key Fob for Hyundai Tucson 2021 2022 2023 2024 95440-N9052 TQ8-FOB-4F26, accessed January 5, 2026, https://www.ebay.com/itm/404735959251
+32. Hyundai Tucson Proximity Remote Key 95440N9080 TQ8-FOB-4F28 - Key4, accessed January 5, 2026, https://www.key4.com/hyundai-tucson-prox-remote-key-95440n9080
+33. OEM UNLOCKED 2024 - 2025 Hyundai Tucson Smart Key 5B Hatch 95440-N9570 | eBay, accessed January 5, 2026, https://www.ebay.com/itm/326782048619
+34. Hyundai Santa Cruz 2022+ Smart Key 5B 95440-K5002 TQ8-FOB-4F27 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/hyundai-santa-cruz-2022-smart-key-95440-k5002-tq8-fob-4f27-5219
+35. 2024-2025 Hyundai Santa Cruz / 5-Button Smart Key / PN: 95440-K5500/ FCC: TQ8-FOB-4F61M43/ MHz 433 (OEM) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/2024-2025-hyundai-santa-cruz-5-button-smart-key-pn-95440-k5500-fcc-tq8-fob-4f61m43-mhz-433-oem
+36. Kia New OEM 2020 Telluride Smart Key 4B Hatch FCCID: TQ8-FOB-4F24 PN, accessed January 5, 2026, https://royalkeysupply.com/products/kia-new-oem-2020-telluride-smart-key-4b-hatch-fccid-tq8-fob-4f24-pn-95440-s9000
+37. 2020 Kia Telluride Smart Key 4B Fob FCC# TQ8-FOB-4F24 - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2020-kia-telluride-smart-key-4b-w-hatch-fcc-tq8-fob-4f24
+38. Genuine Kia Telluride 2020-2022 Smart Key, 5Buttons 95440-S9200 433MHz, TQ8-FOB-4F34 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/kia-telluride-smart-key-5buttons-433mhz-tq8-fob-4f34-95440-s9200-4978
+39. 2020 - 2022 Kia Telluride Key Not Detected - How To Start With Dead, Bad Key Fob Battery, accessed January 5, 2026, https://www.youtube.com/watch?v=r3EWTc-cKuI
+40. 2024 Kia Telluride Smart Key Remote PN: 95440-S9610, accessed January 5, 2026, https://remotesandkeys.com/products/2024-kia-telluride-smart-key-remote-pn-95440-s9610
+41. 2024 Kia Telluride Smart Key 5B w/ Remote Start & Hatch Fob FCC# TQ8-F, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2024-kia-telluride-smart-key-5b-w-remote-start-hatch-fob-fcc-tq8-fob-4f71-w-o-touch-handle-95440-s9640-oem
+42. Kia New OEM 2022-2024 Carnival MPV Smart Key 7B Remote Start/Hatch/Pow, accessed January 5, 2026, https://royalkeysupply.com/products/kia-new-oem-2022-2023-carnival-mvp-smart-key-7b-remote-start-hatch-power-doors-fccid-sy5ka4fge07-pn-95440-r0420
+43. New OEM 2024 - 2025 Kia Carnival Smart Prox Key 7B - TQ8-FOB-4F81U44 95440-R0840, accessed January 5, 2026, https://www.ebay.com/itm/335900475104
+44. Kia Carnival Smart Key 2025+ 6B 95440-R0910 433MHz ABK-5595 - ABKEYS, accessed January 5, 2026, https://abkeys.com/products/kia-carnival-2025-smart-key-6buttons-95440-r0910-433mhz-5595
+45. Kia New OEM 2021-2024 Sorento Smart Key 4B Remote Start FCCID: SY5MQ4A, accessed January 5, 2026, https://royalkeysupply.com/products/kia-new-oem-2021-2023-sorento-smart-key-4b-remote-start-fccid-sy5mq4afge04-pn-95440-r5000
+46. 2024 Kia Sorento Smart Key 5B w/ Remote Start & Hatch Fob FCC - Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/products/2020-2024-kia-sorento-smart-key-5b-w-remote-start-hatch-fob-fcc-sy5mq4fge05-95440-p2020
+47. Buy KIA Sorento Key Fob → Up To 80% Discount | Locksmith Keyless, accessed January 5, 2026, https://www.locksmithkeyless.com/collections/kia-sorento-key-fobs
+48. Hyundai New OEM 2022-2024 Genesis GV80 Smart Key 8B Hatch, Park Assist, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2022-2023-genesis-gv80-smart-key-8b-hatch-remote-start-park-assist-lights-fccid-tq8-fob-4f35-pn-95440-t6014
+49. Hyundai New OEM 2024 - 2025 Genesis GV80 Smart Key 5B Hatch/Remote Start FCCID, accessed January 5, 2026, https://royalkeysupply.com/products/hyundai-new-oem-2024-2025-genesis-gv80-smart-key-5b-hatch-remote-start-fccid-tq8-fob-4f75m44-pn-95440-t6da0-copy
+50. Difference between Digital Key and Digital Key 2 on Kia's? : r/KiaTelluride - Reddit, accessed January 5, 2026, https://www.reddit.com/r/KiaTelluride/comments/1bcjjmp/difference_between_digital_key_and_digital_key_2/
+51. “Check digital key system” warning in Hyundai vehicles - YouTube, accessed January 5, 2026, https://www.youtube.com/watch?v=XmdgbG12_NE
+52. Key Blanks & Automotive Equipment, accessed January 5, 2026, https://www.leegov.com/procurement/Project%20Documents/Locksmith%20Parts%20Equipment%20and%20Service%20Annual%20B210185CJV/ILCO%20Key%20Blanks%20and%20Automotive%20Equipment_MSRP_11012025.Updated%2012.11.25.pdf
+53. K9 V4 Ioniq-Genesis | Original Lishi Tools, accessed January 5, 2026, https://www.originallishi.com/k9-v4-ioniq-genesis/
+54. (US Ship)Autel MaxiIM IM608 PRO II (IM608 II/IM608S II)IMMO Key Fob Programming Tool Upgrade of IM608PRO with XP400 PRO Key Programmer Support ECU Coding & Bidirectional 40+ Services 1 Year Free Update - AutelShop.us, accessed January 5, 2026, https://www.autelshop.us/products/autel-maxiim-im608-ii-im608-pro-ii-automotive-all-in-one-key-programming-tool-support-all-key-lost
+55. 2025 Autel MaxiIM IM608 PRO II IMMO Key Fob Programming Car Diagnostic Scanner | eBay, accessed January 5, 2026, https://www.ebay.com/itm/277033429784
+56. Advanced Diagnostics - D745265AD - Token Packs for the SMART Pro Key Programmer (10/25/50/250) - (Machine Sold Separately) - UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/advanced-diagnostics-d745265ad-token-packs-for-the-smart-pro-key-programmer-10-25-50-250-machine-sold-separately
+57. Smart Pro Key Programmer - Hickleys, accessed January 5, 2026, https://www.hickleys.com/diagnostics/smartpro.php
+58. Xtool - AutoProPad BASIC - Automotive Key Programmer - w/ GM 2021+ CANFD Adapter (CAN FD BASIC BUNDLE) for Sale | UHS Hardware, accessed January 5, 2026, https://www.uhs-hardware.com/products/xtool-autopropad-basic-automotive-key-programmer-w-gm-2021-canfd-adapter-can-fd-basic-bundle

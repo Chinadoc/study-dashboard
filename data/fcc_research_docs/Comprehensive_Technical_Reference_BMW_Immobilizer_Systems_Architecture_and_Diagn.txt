@@ -1,0 +1,548 @@
+﻿Comprehensive Technical Reference: BMW Immobilizer Systems Architecture and Diagnostics
+1. Introduction to BMW Security Architectures
+The domain of automotive security within the BMW ecosystem represents one of the most sophisticated and rapidly evolving engineering landscapes in the industry. For the automotive diagnostic specialist, security researcher, or systems integrator, the progression of immobilizer technologies from the rudimentary Electronic Vehicle Immobilization (EWS) systems of the mid-1990s to the integrated Body Domain Controller (BDC) architectures of the modern G-series chassis is not merely a timeline of product releases. Rather, it is a history of cryptographic escalation, hardware integration, and the continuous struggle between authorized serviceability and theft prevention.
+This report provides an exhaustive, granular analysis of these systems, specifically addressing the technical request for detailed vehicle application lists, hardware distinctions, and data structures. It serves as a definitive technical manual for distinguishing between the frequently conflated CAS3 and CAS3+ architectures and offers "hard core" technical data regarding microcontroller (MCU) masks, communication protocols, and system dependencies.
+The analysis is structured to move beyond surface-level descriptions, diving into the silicon-level differences that define compatibility. We explore the migration from Motorola 68HC11 architectures in early EWS units to the complex, multicore Power Architecture and Renesas V850 platforms found in contemporary BDC3 units. By understanding the underlying hardware—specifically the specific "masks" or semiconductor revisions—technicians can predict system behavior, identifying why a 2013 X5 might require a completely different programming approach than a 2012 model of the same chassis.
+This document prioritizes high-density technical information, formatted to facilitate rapid lookup and integration into automated systems via provided JSON and CSV data structures.
+2. Historical Evolution and System Taxonomy
+To accurately diagnose or service a BMW immobilizer, one must first classify the vehicle’s architecture. The evolution is broadly categorized into four distinct epochs, each defined by the level of integration between the security functions and the vehicle's general body electronics.
+2.1 The Epoch of Discrete Logic: EWS (1994–2006)
+The Elektronische Wegfahrsperre (EWS) represented BMW's initial foray into transponder-based security. Prior to this, immobilization was often achieved via simple starter interrupts or OBC (On-Board Computer) code entry.
+* EWS I: Essentially a glorified starter relay kill switch, often triggered by the central locking system and the alarm (DWA). It did not utilize a transponder key in the modern sense.
+* EWS II: The first true transponder system. It introduced a separate control module (EWS module) located behind the glovebox or under the driver's dash. The key contains a transponder chip (typically NXP/Philips PCF7930/35) which is energized by a ring antenna (coil) around the ignition barrel. The EWS module reads the key’s fixed code and password. If validated, it energizes the internal starter relay and sends a distinct "enable signal" (ISN - Individual Serial Number) to the Digital Motor Electronics (DME/DDE) via a dedicated single-wire K-line.
+* EWS III (3.2/3.3/3.D): This iteration introduced "Rolling Codes." Every time the engine is started, the EWS module and the key transponder agree on a new random code for the next start sequence. This defeated "replay attacks" where a thief could record the signal and play it back. EWS3 also moved the storage of the remote keyless entry (RKE) data into the module in some configurations, though the RKE receiver often remained in the rear-view mirror or a separate box.
+* EWS IV: The final standalone iteration, used in the X3 (E83), Z4 (E85/E86), and Range Rover (L322). Physically, it often resembles the EWS3 box but utilizes a more advanced Motorola 9S12 microcontroller (mask 2L86D) capable of stronger encryption (the "EWS4 Mode").
+2.2 The Epoch of Integrated Access: CAS (2002–2010)
+The Car Access System (CAS) marked a fundamental shift in philosophy. BMW engineers recognized that immobilization and door access (locking/unlocking) were intrinsically linked. CAS merged the EWS function with the Remote Keyless Entry (RKE) receiver and the control logic for the Start/Stop button, which replaced the mechanical turnkey in the E65 7-Series and subsequently the E90/E60.
+* CAS1: Found exclusively on the early E65 7-Series. A transitional unit, typically housed in a large box, distinct from later generations.
+* CAS2: The standard for the early "E-Series" generation (E60, E90 pre-2007). It utilized the Motorola MC9S12DG256 processor (Mask 2K79X). It retained the mechanical key blade for the ignition lock in some models (E60) but moved to the slot-in fob for others (E90). Security was effectively EWS3-logic running on newer hardware.
+* CAS3: The refinement of CAS2. It introduced full support for "Comfort Access" (keyless go), necessitating multiple LF (Low Frequency) antennas distributed around the car to triangulate the key's position.
+2.3 The Epoch of Encryption: CAS+ and CAS4 (2007–2016)
+As theft tools became more sophisticated, utilizing OBD ports to read the ISN directly from the CAS unit, BMW introduced cryptographic hardening.
+* CAS3+: While physically identical to CAS3, the internal logic shifted to "EWS4 Mode" encryption. The ISN became 128-bit (16 bytes) and was cryptographically bound to the key data using a challenge-response algorithm managed by a more powerful MCU (9S12XDP512).
+* CAS4/4+: Introduced with the F01 7-Series and F10 5-Series. The CAS module became a small white or black plastic box, distinctly different from the CAS3 shape. It utilized the MC9S12XEP100 processor (Mask 5M48H/1N35H). CAS4+ (EWS5 active) further hardened the link between the CAS and the DME/transmission, making component swapping extremely difficult without authorized servers.
+2.4 The Epoch of Domain Controllers: FEM/BDC (2012–Present)
+The modern era abandons the "Immobilizer" as a distinct concept. Instead, the security function is a software application running on a "Domain Controller" that manages a zone of the vehicle.
+* FEM (Front Electronic Module): Used in F-series compact cars (1, 2, 3, 4 Series). It combines the functions of the CAS, the FRM (Footwell Module - lights/windows), and the ZGM (Central Gateway). Replacing a FEM requires reprogramming the entire front-end electronics configuration.
+* BDC (Body Domain Controller): Used in F-series SUVs (X1, X5, X6) and Minis. Conceptually similar to FEM but manages more body functions suitable for larger platforms.
+* BDC2/3: The G-Series evolution. These units move to entirely new processor families (NXP MPC5xxx, Renesas V850/RH850), featuring Secure Boot, Hardware Security Modules (HSM), and inability to easily read data via direct pin contact (BGA packaging).
+3. Deep Dive: CAS3 vs. CAS3+ (The Critical Distinction)
+The differentiation between CAS3 and CAS3+ is the single most frequent point of confusion in the diagnostic field. This is because the label often does not explicitly state "CAS3+". Both units may be labeled "CAS 3" on the casing. The difference is internal, determined by the hardware (MCU) and the firmware (Bootloader).
+3.1 The Hardware Definition (MCU Masks)
+The definitive method to distinguish CAS3 from CAS3+ is to check the "Mask" of the microcontroller. The Mask is a 5-character alphanumeric code printed on the processor package that identifies the specific silicon revision.
+* CAS3 (Standard):
+   * Processor: Freescale MC9S12DG256.
+   * Flash Memory: 256 Kilobytes.
+   * EEPROM Memory: 2/4 Kilobytes (Emulated).
+   * Typical Mask: 0L01Y. (Rarely 2K79X in very early transitional units).
+   * Security Logic: Stores the ISN in a readable format within the EEPROM dump. Programming a key via OBD is possible because the tool can request a memory dump, extract the ISN, and calculate the key logic.
+* CAS3+ (High Security):
+   * Processor: Freescale MC9S12XDP512.
+   * Flash Memory: 512 Kilobytes.
+   * EEPROM Memory: 4 Kilobytes (Emulated).
+   * Typical Masks: 0L15Y, 0M23S.
+   * Security Logic: "EWS4 Mode" is active. The ISN is 16 bytes long and encrypted. The CAS will not yield the ISN via a simple memory dump request. The tool must perform a cryptographic handshake. If all keys are lost, the tool cannot derive the encryption key without reading the ISN from the Engine Control Unit (DME) first.
+
+
+ Image 3.2 The ISTAP Variable (CAS3++)
+A critical nuance is the "ISTAP" version, often colloquially referred to as "CAS3++". This does not necessarily denote a hardware change but a firmware change.
+Around 2012/2013, BMW released a software update via their ISTA-P (Integrated Service Technical Application - Programming) system. This update was specifically designed to counter aftermarket OBD key programming tools. It patched the CAS bootloader.
+* Behavior: When an OBD tool attempts to use the standard "backdoor" to read the CAS memory, the ISTAP firmware detects the intrusion sequence (which differs from standard diagnostic requests).
+* Response: The CAS refuses the connection or resets.
+* Resolution: To program keys on a CAS3+ ISTAP unit, the technician must "downgrade" the CAS firmware. This involves flashing an older, vulnerable version of the bootloader (Flash data) onto the unit. This often requires connecting a battery stabilizer (maintaining 13.8V) because the flashing process takes 10–20 minutes and failure results in a "bricked" unit (immobilized vehicle).
+3.3 Summary of Differences
+Feature
+	CAS3 (Standard)
+	CAS3+ (Base)
+	CAS3+ (ISTAP/Secure)
+	Primary MCU
+	MC9S12DG256
+	MC9S12XDP512
+	MC9S12XDP512
+	Mask ID
+	0L01Y, 2K79X
+	0L15Y, 0M23S
+	0L15Y, 0M23S
+	Flash Size
+	256 KB
+	512 KB
+	512 KB
+	Encryption Mode
+	EWS3 (Rolling Code)
+	EWS4 (128-bit ISN)
+	EWS4 + Bootloader Lock
+	OBD Key Learn
+	Direct Read (Fast)
+	Secure Read (Medium)
+	Requires Flash Downgrade (Slow)
+	All Keys Lost
+	OBD Read Possible
+	Needs DME ISN
+	Needs DME ISN + Flash Downgrade
+	Key Frequency
+	315/433/868 MHz
+	315/433/868 MHz
+	315/433/868 MHz
+	Compatibility
+	Interchangeable with CAS2
+	Not Interchangeable
+	Not Interchangeable
+	4. Vehicle Application Lists (The "Hard Core" Data)
+The following tables provide the definitive mapping of chassis codes to immobilizer systems. Note that "Split Year" vehicles are the most dangerous for technicians. A 2007 BMW 3-Series is a borderline case; early 2007 builds may be CAS2, while late 2007 builds are typically CAS3. A 2012 BMW 3-Series (E90) is CAS3+, while a 2012 BMW 3-Series (F30) is FEM.
+Guideline: Always prioritize the Chassis Code over the Calendar Year when identifying the system.
+
+
+ Image 4.1 EWS Application List
+The EWS system is distinct in that the module is purely an immobilizer. It does not control central locking (that is handled by the GM/ZKE module).
+Chassis
+	Model
+	Production Years
+	System Variant
+	MCU / Notes
+	E31
+	8 Series
+	1995 - 1999
+	EWS2
+	Motorola OD46J
+	E34
+	5 Series
+	1995 - 1996
+	EWS2
+	Motorola OD46J
+	E36
+	3 Series
+	1995 - 1999
+	EWS2 / EWS3
+	OD46J / 2D47J
+	E38
+	7 Series
+	1994 - 1997
+	EWS2
+	OD46J
+	E38
+	7 Series
+	1998 - 2001
+	EWS3
+	2D47J (Rolling Code)
+	E39
+	5 Series
+	1995 - 1997
+	EWS2
+	OD46J
+	E39
+	5 Series
+	1998 - 2003
+	EWS3
+	2D47J
+	E46
+	3 Series
+	1998 - 2006
+	EWS3 / EWS4.3
+	0D46J / 2D47J
+	E52
+	Z8
+	1999 - 2003
+	EWS3
+	2D47J
+	E53
+	X5
+	1999 - 2003
+	EWS3
+	2D47J
+	E53
+	X5
+	2004 - 2006
+	EWS4.3 / EWS4.4
+	2L86D (Secured)
+	E83
+	X3
+	2004 - 2010
+	EWS4.3 / EWS4.4
+	2L86D (9S12)
+	E85
+	Z4
+	2002 - 2009
+	EWS3 / EWS4
+	2D47J / 2L86D
+	R50/R53
+	Mini Cooper
+	2001 - 2006
+	EWS3 / EWS4
+	2D47J / 2L86D
+	L322
+	Range Rover
+	2002 - 2005
+	EWS3 / EWS4
+	BMW System Sharing
+	Technical Insight: The transition from EWS3 to EWS4 (seen in late E46, E53, and E83) marks the introduction of the 9S12 processor family. This is significant because older reading tools (like the AK90+) often fail or corrupt EWS4 modules. EWS4 requires tools capable of handling the 9S12 secured memory (e.g., R270 Programmer, VVDI Prog).
+4.2 CAS / CAS3 / CAS3+ Application List
+This generation introduced the slot-in key fob and the Start/Stop button.
+Chassis
+	Model
+	Years
+	System
+	Mask ID (Typical)
+	E81/E82
+	1 Series
+	2004 - 2006
+	CAS2
+	2K79X
+	E81/E82
+	1 Series
+	2007 - 2013
+	CAS3 / CAS3+
+	0L01Y / 0L15Y
+	E87/E88
+	1 Series
+	2004 - 2013
+	CAS2 / CAS3+
+	2K79X / 0L15Y
+	E90/E91
+	3 Series
+	2005 - 2006
+	CAS2
+	2K79X
+	E90-E93
+	3 Series
+	2007 - 2013
+	CAS3 / CAS3+
+	0L01Y / 0L15Y
+	E60/E61
+	5 Series
+	2003 - 2006
+	CAS2
+	2K79X
+	E60/E61
+	5 Series
+	2007 - 2010
+	CAS3 / CAS3+
+	0L01Y / 0L15Y
+	E63/E64
+	6 Series
+	2003 - 2006
+	CAS2
+	2K79X
+	E63/E64
+	6 Series
+	2007 - 2010
+	CAS3 / CAS3+
+	0L01Y / 0L15Y
+	E65/E66
+	7 Series
+	2002 - 2008
+	CAS1 / CAS2
+	0K50E / 2K79X
+	E70
+	X5
+	2007 - 2013
+	CAS3 / CAS3+
+	0L01Y / 0L15Y
+	E71
+	X6
+	2008 - 2014
+	CAS3 / CAS3+
+	0L15Y / 0M23S
+	E84
+	X1
+	2009 - 2015
+	CAS3+
+	0L15Y / 0M23S
+	E89
+	Z4
+	2009 - 2016
+	CAS3+
+	0L15Y / 0M23S
+	R56
+	Mini Cooper
+	2006 - 2014
+	CAS3 / CAS3+
+	0L01Y / 0L15Y
+	R60
+	Mini Countryman
+	2010 - 2016
+	CAS3+
+	0L15Y / 0M23S
+	Technical Insight: Note the prevalence of CAS3+ in the "Cross-over" chassis like the X1 (E84) and Z4 (E89). These cars remained in production well into the F-series era (up to 2015/2016) but stuck with the older E-series electrical architecture (CAS3+). They did not switch to CAS4 or FEM.
+4.3 CAS4 / CAS4+ Application List
+CAS4 represents the F-series architecture for larger executive cars. It is physically smaller than CAS3 and almost always white or black plastic.
+Chassis
+	Model
+	Production Years
+	System Variant
+	MCU
+	F01/F02
+	7 Series
+	2009 - 2015
+	CAS4 / CAS4+
+	1L15Y / 5M48H
+	F07
+	5 GT
+	2010 - 2017
+	CAS4 / CAS4+
+	1L15Y / 5M48H
+	F10/F11
+	5 Series
+	2010 - 2017
+	CAS4 / CAS4+
+	1L15Y / 5M48H
+	F12/F13
+	6 Series
+	2011 - 2018
+	CAS4 / CAS4+
+	1L15Y / 5M48H
+	F06
+	6 Gran Coupe
+	2012 - 2018
+	CAS4+
+	5M48H
+	F25
+	X3
+	2011 - 2017
+	CAS4 / CAS4+
+	1L15Y / 5M48H
+	F26
+	X4
+	2014 - 2018
+	CAS4+
+	5M48H
+	i3
+	Electric
+	2013 - Present
+	BDC (Not CAS4)
+	SPC560
+	i8
+	Hybrid
+	2014 - 2020
+	BDC (Not CAS4)
+	SPC560
+	Clarification on i3/i8: Despite launching in the "CAS4 era," the i-series vehicles utilize the BDC architecture, skipping CAS4 entirely.
+4.4 FEM & BDC Application List
+The shift to Domain Controllers. These modules are structurally different—they are large fuse-box-like units located in the passenger footwell.
+Chassis
+	Model
+	Production Years
+	System
+	Hardware Note
+	F20/F21
+	1 Series
+	2011 - 2019
+	FEM
+	SPC560B60L3
+	F22/F23
+	2 Series
+	2014 - 2021
+	FEM
+	SPC560B60L3
+	F30-F34
+	3 Series
+	2012 - 2019
+	FEM
+	SPC560B60L3
+	F32-F36
+	4 Series
+	2013 - 2020
+	FEM
+	SPC560B60L3
+	F80/F82
+	M3 / M4
+	2014 - 2020
+	FEM
+	SPC560B60L3
+	F48
+	X1
+	2015 - 2022
+	BDC (Gen1)
+	SPC560B60L3
+	F39
+	X2
+	2017 - 2023
+	BDC (Gen1)
+	SPC560B60L3
+	F15
+	X5
+	2014 - 2018
+	BDC (Gen1)
+	SPC560B60L3
+	F16
+	X6
+	2015 - 2019
+	BDC (Gen1)
+	SPC560B60L3
+	F85/F86
+	X5M / X6M
+	2015 - 2019
+	BDC (Gen1)
+	SPC560B60L3
+	F54-F60
+	Mini
+	2014 - Present
+	BDC (Gen1)
+	SPC560B60L3
+	4.5 BDC2 vs. BDC3 Application List (G-Series)
+This is the modern frontier. BDC2 was a short-lived generation before the rapid switch to BDC3.
+Chassis
+	Model
+	Production Years
+	System
+	MCU Type
+	G11/G12
+	7 Series
+	2015 - 02/2019
+	BDC2
+	MPC5777C (NXP)
+	G11/G12
+	7 Series (LCI)
+	03/2019 - 2022
+	BDC3
+	Renesas/NXP
+	G30/G31
+	5 Series
+	2017 - 2019
+	BDC2
+	MPC5777C
+	G30/G31
+	5 Series (LCI)
+	2020 - 2023
+	BDC3
+	Renesas/NXP
+	G32
+	6 GT
+	2017 - 2020
+	BDC2
+	MPC5777C
+	F90
+	M5
+	2018 - 2020
+	BDC2
+	MPC5777C
+	G01
+	X3
+	2017 - 07/2021
+	BDC2
+	MPC5777C
+	G02
+	X4
+	2018 - 07/2021
+	BDC2
+	MPC5777C
+	G05
+	X5
+	2019 - Present
+	BDC3
+	Renesas/NXP
+	G20
+	3 Series
+	2019 - Present
+	BDC3
+	Renesas/NXP
+	G07
+	X7
+	2019 - Present
+	BDC3
+	Renesas/NXP
+	G22/G23
+	4 Series
+	2020 - Present
+	BDC3
+	Renesas/NXP
+	Critical Warning: The G20 3-Series and G05 X5 launched almost immediately with BDC3. Diagnostic tools that claim "G-Series Support" often only cover BDC2 (MPC5777). Attempting to use a BDC2 adapter on a BDC3 unit will fail mechanically and electrically.
+5. Hardware Specifications: MCU Masks & Encryption
+To provide the requested "hard core info," this section details the specific semiconductor components that define the security boundaries. A "Mask" is the manufacturer's code for the silicon die revision.
+5.1 Motorola / Freescale 9S12 Family (CAS2 / CAS3)
+* Chip: MC9S12DG256
+* Package: QFP-112 (Quad Flat Package - 112 pins)
+* Typical Masks:
+   * 2K79X: Early production. Often found in CAS2. Unsecured.
+   * 0L01Y: The standard CAS3 mask. EEPROM is easily readable.
+5.2 Freescale 9S12X Family (CAS3+ / CAS4)
+* Chip: MC9S12XDP512 (CAS3+) / MC9S12XEP100 (CAS4)
+* Package: QFP-112 (CAS3+) / QFP-144 (CAS4)
+* Typical Masks:
+   * 0L15Y: The standard CAS3+ mask. Secured memory.
+   * 0M23S: Later CAS3+ mask. Identical security logic to 0L15Y.
+   * 1L15Y: Early CAS4. Often found in F01 7-series (2009-2010).
+   * 5M48H: The standard CAS4+ mask. Contains "XGATE" co-processor. The security bytes are located in the D-Flash (Data Flash) area.
+5.3 STMicroelectronics SPC56 Family (FEM / BDC1)
+* Chip: SPC560B60L3
+* Package: QFP-100
+* Architecture: Power Architecture (32-bit).
+* Security: The chip itself is not usually locked in a way that prevents reading, but the Immobilizer Data is NOT in the MCU. It is stored in a separate SPI EEPROM (95128 or 95256) on the PCB.
+   * Procedure: The technician must read the 95128 EEPROM, modify it to "Service Mode," write it back, put the FEM back in the car to "preprocess" (unlock), and then read the full data.
+5.4 NXP MPC57xx Family (BDC2)
+* Chip: MPC5777C
+* Package: BGA-416 or BGA-516 (Ball Grid Array).
+* Security:
+   * This is the biggest hurdle for technicians. The chip has no legs (BGA).
+   * Reading requires probing specific test points on the back of the motherboard or careful soldering to microscopic vias.
+   * The chip is often coated in a thick, hard varnish (conformal coating) that must be chemically or mechanically removed to make electrical contact.
+
+
+ Image 6. Data Integration Formats
+As requested, the following sections provide the vehicle and system data in structured formats suitable for database importation or automated parsing.
+6.1 JSON Data Structure (System Mapping)
+This JSON block represents the relationship between the Chassis ID and the likely Immobilizer System.
+,
+   "notes": "EWS4 introduced in late models (2004+)"
+ },
+ {
+   "chassis": "E90",
+   "model": "3 Series",
+   "years": "2005-2013",
+   "systems":,
+   "notes": "CAS2 in 2005-2006. CAS3+ post-2007. Check Mask."
+ },
+ {
+   "chassis": "F10",
+   "model": "5 Series",
+   "years": "2010-2017",
+   "systems":,
+   "notes": "CAS4+ (EWS5) standard on most."
+ },
+ {
+   "chassis": "F30",
+   "model": "3 Series",
+   "years": "2012-2019",
+   "systems": ["FEM"],
+   "notes": "Module located in passenger kick panel."
+ },
+ {
+   "chassis": "G30",
+   "model": "5 Series",
+   "years": "2017-2023",
+   "systems":,
+   "notes": "Switch to BDC3 around 2020 (LCI)."
+ },
+ {
+   "chassis": "G05",
+   "model": "X5",
+   "years": "2019-Present",
+   "systems":,
+   "notes": "Requires BDC3-specific adapter. BDC2 tools incompatible."
+ }
+]
+
+6.2 CSV Data Export (Mask Reference)
+This CSV block provides a quick lookup for MCU Masks to System types.
+Mask_ID,Processor_Family,System_Type,Security_Level,Package_Type
+0D46J,HC11,EWS2,Low (Fixed Code),PLCC52
+2D47J,HC11,EWS3,Medium (Rolling Code),PLCC52
+2L86D,9S12,EWS4,High (Encrypted),QFP80
+2K79X,9S12DG256,CAS2,Medium,QFP112
+0L01Y,9S12DG256,CAS3,Medium,QFP112
+0L15Y,9S12XDP512,CAS3+,High (EWS4 Mode),QFP112
+0M23S,9S12XDP512,CAS3+,High (EWS4 Mode),QFP112
+1L15Y,9S12XEP100,CAS4,High,QFP144
+5M48H,9S12XEP100,CAS4+,Very High (Secure),QFP144
+N/A (Chip),SPC560B60L3,FEM/BDC1,Very High (Gateway),QFP100
+N/A (Chip),MPC5777C,BDC2,Extreme (BGA),BGA516
+
+7. Strategic Implications and Future Outlook
+The trajectory of BMW's immobilizer development reveals a clear intent: the elimination of the "local" security loophole.
+1. Closing the OBD Gap: EWS and CAS1/2 were vulnerable to simple OBD manipulation. CAS3+ closed this with encryption, forcing hackers to open the unit (Bench Mode).
+2. Closing the Bench Gap: BDC2/3 utilizes BGA chips and conformal coating to make physical tampering risky and difficult.
+3. The Server Dependency: With BDC3 and future architectures, the cryptographic keys are increasingly derived from backend servers (BMW AOS/ISTA), making offline key generation nearly impossible without cloning existing "working key" credentials.
+For the technician, this signifies that the era of simple "EEPROM Clipping" is ending. Service providers must invest in:
+* High-precision soldering equipment for BGA rework.
+* Logic Analyzers to understand CAN-FD traffic.
+* Authorized Credentials (NASTF VSP) to access official BMW servers for key ordering, as "All Keys Lost" scenarios on G-series vehicles often become "Dealer Only" repairs due to the inability to extract ISNs from the newer Engine Control Units (DMEs like MG1/MD1).
+The "hard core info" provided in this report—lists, masks, and architectures—is the baseline knowledge required to navigate this increasingly hostile repair environment. It confirms that in the world of BMW diagnostics, hardware identification is not just a preliminary step; it is the decisive factor in the success or failure of the repair.

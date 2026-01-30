@@ -1,0 +1,175 @@
+﻿2020 Volvo XC90 (SPA Platform) Forensic Locksmith Intelligence Dossier
+1. Executive Intelligence Summary & Operational Context
+The 2020 Volvo XC90 represents a pivotal juncture in automotive security, situated at the apex of the Scalable Product Architecture (SPA) platform's maturity. For the forensic locksmith and automotive security professional, this vehicle is not merely a transport mechanism but a sophisticated, encrypted node within a high-security ecosystem. Unlike the preceding P3 platform, which allowed for relatively permissive OBD-II based manipulation via aftermarket exploits, the SPA architecture integrates a "Security by Design" philosophy. This philosophy relies heavily on centralized authorization via the Central Electronic Module (CEM) and, increasingly, the Vehicle Connectivity Module (VCM), creating a "walled garden" that resists traditional intrusion methods.
+This dossier serves as an exhaustive technical reference for the identification, analysis, and forensic manipulation of the access control systems in the 2020 Volvo XC90. It synthesizes intelligence on the specific mandates for "Care Keys" (speed-limited fobs), forensic data extraction from the CEM utilizing Renesas and Power Architecture microcontrollers, and the critical recovery procedures for "bricked" modules and Volvo On Call (VOC) desynchronization events.
+The operational landscape for this vehicle is defined by a dichotomy of access: the "Add Key" scenario, which remains a standard cryptographic handshake facilitated by a working credential, and the "All Keys Lost" (AKL) scenario, which has evolved into a complex forensic operation requiring either massive computational time (OBD brute-forcing) or invasive surgical intervention (bench reading). Furthermore, the 2020 model year sits on the precipice of the transition to Android Automotive OS (iCUP), a change that fundamentally alters the diagnostic protocols and effectively closes many of the "backdoors" utilized by current aftermarket tooling. Understanding the nuances of the SPA security architecture is no longer optional; it is a prerequisite for successful engagement with the vehicle.
+2. Platform Architecture: The SPA Security Ecosystem
+To manipulate the security systems of the 2020 XC90, one must first understand the terrain. The SPA platform fundamentally changes how the immobilizer system synchronizes components compared to previous Volvo generations. In the P2 and P3 eras, the relationship between the Central Electronic Module (CEM) and the Engine Control Module (ECM) was a static handshake that could often be emulated or bypassed with relatively simple emulator devices. In the SPA architecture, the security model is tighter, involving dynamic rolling codes, higher-bit encryption standards, and a stricter dependency on the unique CEM PIN code.
+
+
+  
+
+
+
+2.1 The Central Electronic Module (CEM): The Gatekeeper
+The CEM is the nucleus of the vehicle's electrical topology.1 It is the master controller for access authorization, gateway security, and configuration management.
+* Physical Location: In the 2020 XC90 (LHD), the CEM is mounted underneath the passenger side dashboard. Access requires the removal of the lower trim panel and the glovebox kick guard. It is secured by a specific bracket system involving a 10mm retention bolt and plastic locking tabs that must be depressed to release the module.2
+* Hardware Variants: The forensic locksmith must identify the specific microcontroller unit (MCU) used within the CEM, as this dictates the extraction method. The 2020 model year typically utilizes a CEM based on the SPC5748G (NXP Power Architecture) or a Renesas RH850/V850 series MCU. Identification is critical; applying the connection diagram of an SPC chip to a Renesas board will result in a catastrophic communication failure or physical damage.4
+* Data Residency: The CEM stores the encrypted immobilizer table (Immo Block), the vehicle's unique configuration file (CarConfig), and the gateway security keys. It acts as the firewall between the OBD-II port and the critical internal networks (FlexRay/CAN FD).
+2.2 The Keyless Vehicle Module (KVM) & Transponder Handling
+While the CEM makes the decision to start the car, it relies on the KVM (also known as the TRM or TRPM in some diagrams) to gather the evidence.
+* Role: The KVM handles the passive entry functions. It energizes the Low-Frequency (LF) antennas located in the door handles and cabin to wake up the key fob. It then receives the Ultra-High Frequency (UHF) response from the fob.
+* Forensic Relevance: In "All Keys Lost" situations on older platforms, reading the KVM was sometimes a viable shortcut. On the SPA platform, the KVM data is insufficient to generate a master key without the corresponding synchronization data from the CEM. The KVM acts more as a peripheral sensor than a standalone authority.6
+2.3 The Vehicle Connectivity Module (VCM): The Watchdog
+The VCM handles telematics, internet connectivity, and the "Volvo On Call" (VOC) system. It introduces a unique complication for locksmiths: Active Tamper Detection.
+* Backup Power: The VCM is equipped with its own internal backup battery, typically a specialized Lithium-Ion or NiMH pack. This ensures that even if a thief cuts the main 12V battery cable, the VCM can still broadcast a distress signal and GPS coordinates.7
+* Service Interactions: Disconnecting the main vehicle battery—a standard safety step before removing the CEM—is interpreted by the VCM as a potential crash or theft event. When power is restored, the VCM frequently flags a "Volvo On Call Service Required" error on the Driver Information Module (DIM). This is not a failure of the programming procedure but a system reaction to power loss.9
+3. Credential Analysis: Key Fob Hardware & Protocols
+The 2020 XC90 utilizes a sophisticated "Smart Key" system that has evolved to counter modern theft techniques. It is vital for the specialist to distinguish between the various hardware profiles, as they dictate the programming approach and the feature set available to the end-user.
+3.1 Transponder Technology: The "8A" Standard
+The underlying transponder technology for the SPA platform is the Hitag 3 / AES 128-bit system. In the aftermarket community, this is colloquially and broadly referred to as the "8A chip," a reference to the ID type displayed on cloning tools like the Xhorse Key Tool or Autel MaxiIM.11
+* Encryption: The AES 128-bit encryption implies a significantly higher barrier to "cloning" than older Hitag 2 systems. The key does not just emit a static ID; it engages in a challenge-response interaction with the vehicle's KVM and CEM.
+* Frequency: The standard frequency for the North American and European markets is 433.92 MHz. It is crucial to verify this, as Asian markets (specifically South Korea) may utilize a "narrow band" 434 MHz or 315 MHz variation that is hardware-incompatible despite looking identical.13
+3.2 The Motion Sensing (MS) Countermeasure
+Starting roughly in late 2020/early 2021, Volvo began phasing in key fobs equipped with an internal accelerometer, designated by the suffix "MS" (e.g., FCC ID: YG0HUF8423MS).11
+* Function: This is a direct hardware countermeasure to "Relay Attacks." If the key fob remains stationary for a set period (typically 15 to 30 minutes), the internal motion sensor cuts power to the UHF receiver/transmitter circuit. The key effectively "goes to sleep."
+* Diagnostic Implication: A client may report that their key "doesn't work" when approaching the vehicle after it has been sitting on a hook overnight. The forensic locksmith must instruct the user to physically move or shake the fob to wake it up before diagnostics can proceed. This is a feature, not a bug.14
+3.3 The "Care Key" (Orange Key) Mandate
+A significant source of confusion and friction for owners of the 2020 model year is the "Care Key" initiative. Announced by Volvo as a safety mandate, all new vehicles in this era were capped at a top speed of 112 mph (180 km/h), and the Orange Key was introduced to facilitate further, user-defined restrictions.
+3.3.1 Technical Implementation of Restrictions
+The Orange Key is hardware-identical to the standard black key regarding its transponder chip (Hitag 3/8A). The restriction is not in the key's silicon but in the Vehicle Configuration (CarConfig) stored in the CEM. The CEM recognizes the unique Key ID of the Orange fob and applies a specific profile.15
+* Limitations: The primary owner (using a non-restricted Black Key) can set a maximum speed limit for the Orange Key user, typically between 30-112 mph. Audio volume limitations and driver assist safety system locks can also be enforced.
+3.3.2 The "De-Restriction" Challenge
+A frequent request in the secondary market is to convert an Orange Care Key into a regular admin key.
+* Official Limitation: The dealer service tool (VIDA) generally does not offer a simple toggle to "make admin." The "Care Key" status is often linked to the physical ID of the key in the Volvo central database. Erasing and reprogramming the key may revert it to restricted status because the system recognizes the ID.17
+* Aftermarket Solutions: To fully remove the restriction typically requires modifying the vehicle's configuration file (CarConfig) using advanced engineering tools like VDASH or OrBit. These tools can alter the parameter that flags "Key ID X" as a restricted profile, effectively neutralizing the Care Key limitations without replacing the hardware.18
+4. Operational Workflow: The "All Keys Lost" Decision Matrix
+Forensic programming of the 2020 XC90 fundamentally bifurcates based on the presence of a valid credential. The "Add Key" scenario is trivial: the working key provides the cryptographic trust anchor, allowing the CEM to open a programming window for a new ID.20 The "All Keys Lost" (AKL) scenario, however, is a hostile environment. Without a working key, the CEM rejects OBD access to the immobilizer block.
+The locksmith must choose between two divergent paths: the "Safe but Slow" OBD decoding method, or the "Fast but Invasive" Bench reading method. This choice is governed by the vehicle's specific OS and the technician's risk appetite.
+4.1 The Critical Prerequisite: OS Identification (Sensus vs. iCUP)
+Before touching a tool, the technician must identify the infotainment Operating System.
+* Sensus (2016 - ~2021): The standard Volvo OS. Forensically accessible via OBD exploits.
+* Android Automotive OS (iCUP) (Late 2021+): Google-based system. This OS introduces a secure gateway that blocks the known OBD brute-force exploits used by tools like VDASH and Smok. For a 2020 XC90, it is almost certainly Sensus, but verify for late-production models. If iCUP is present, the OBD path is effectively closed.21
+4.2 Path A: OBD PIN Decoding (The Non-Invasive Route)
+This method utilizes the OBD-II port to derive the CEM PIN code through cryptographic analysis.
+* Mechanism: Tools like VDASH (using a DiCE or VOE adapter) or Smok send a continuous stream of seed requests to the CEM. By analyzing the pseudo-random responses, the software can eventually calculate the secure PIN.
+* Duration: This is a computationally intensive process. It is not instantaneous. Decoding can take anywhere from 4 to 24 hours depending on the complexity of the key and the server load.18
+* Infrastructure Requirement: The vehicle acts as a massive server during this process. The ignition is often cycled, and modules are awake. A robust Battery Support Unit (BSU) capable of sustaining a clean 13V+ at 20-30 Amps is mandatory. A simple trickle charger is insufficient; a voltage drop during the decode can interrupt the process or, in worst-case scenarios, corrupt the CEM flash.22
+* Feasibility: This is the preferred method for technicians who wish to avoid physical disassembly and liability, provided the client can tolerate the downtime.
+4.3 Path B: Bench Reading (The Surgical Route)
+When time is critical or OBD decoding is blocked (e.g., updated firmware), the CEM must be physically removed and its memory read directly.
+* Extraction: The CEM is removed from the passenger footwell. This requires disconnecting the main battery (triggering the VCM alert discussed in Section 7.1).
+* The Surgery:
+   1. Disassembly: The CEM casing is opened to expose the PCB.
+   2. Connection: The technician must solder jumper wires to specific test points on the motherboard. These points correspond to the JTAG/BDM interface of the MCU (TDI, TDO, TCK, RESET, VCC, GND).
+   3. Reading: A high-level programmer (Autel XP400 Pro, Xhorse VVDI Prog, Yanhua Mini ACDP) is used to dump the D-Flash (Data Flash) and P-Flash (Program Flash).
+   4. Decryption: This binary dump is loaded into the key programming software. The tool parses the file, locating the encrypted CEM PIN and component security bytes.23
+   5. Reassembly & Programming: The CEM is reinstalled. With the PIN now known, the tool communicates via OBD to authorize the "Learn Key" command.
+* Risk Profile: This method is high-risk. Solder bridges, electrostatic discharge (ESD), or overheating can physically destroy the CEM. Furthermore, interrupting the read/write process can corrupt the flash memory, "bricking" the module and rendering the vehicle unresponsive.25
+5. Technical Deep Dive: Bench Connections & Pinouts
+For the forensic analyst electing the Bench Method (Path B), precise technical data is the difference between a successful job and a $1,500 module replacement. The 2020 XC90 CEM typically features an internal board layout that requires specific JTAG connectivity.
+5.1 SPC5748G & Renesas Connectivity
+The target MCU is most commonly the NXP/Freescale SPC5748G (Power Architecture) or a Renesas RH850/V850. These chips are Ball Grid Array (BGA) or high-density QFP packages, meaning direct clipping is impossible. Connection relies on microscopic test points (pads) on the PCB.
+
+
+  
+
+
+
+5.2 The "Solder-Free" Alternative
+To mitigate the risks of soldering, the aftermarket has developed friction-based adapters.
+* Adapters: Tools like the Xhorse XDNP52 adapter for the Mini Prog or Key Tool Plus are designed to clamp onto the CEM PCB, aligning pogo pins with the necessary test points.27
+* Pros/Cons: While this eliminates the heat risk of soldering, it introduces the risk of connection instability. A microscopic movement of the adapter during the read process can corrupt the data stream. It is imperative to clean the contact points on the PCB with alcohol to remove any conformal coating or oxidation before attaching the adapter.
+6. Alerts, Symptoms & Recovery: The "Oh No" Section
+Even with perfect execution, the SPA platform often reacts defensively to forensic intervention. The professional must be prepared to handle these systematic responses.
+6.1 The "Volvo On Call Service Required" Loop
+This is the most common post-procedure error message. It appears on the DIM after the battery has been disconnected or the CEM removed.
+* Root Cause Analysis: The VCM (Vehicle Connectivity Module) constantly monitors the main 12V power rail. When this power is cut (as is necessary to remove the CEM), the VCM interprets the event as a catastrophic failure (e.g., a crash severing the battery cable) or a theft attempt. It immediately switches to its internal backup battery to maintain cellular and GPS fix. If the interruption is prolonged, or if the backup battery is aged and voltage sags, the VCM logs a "Backup Battery Low" or "Internal Fault" code.7
+* Remediation Protocols:
+   1. The "Wait and See": Often, driving the vehicle for 15-20 minutes allows the VCM to perform a self-test, recharge the backup battery from the main rail, and clear the error pending a sleep cycle.
+   2. Diagnostic Reset: Using a diagnostic tool (VIDA, VDASH, or a high-end scanner), access the VCM and DIM modules to clear the stored DTCs (typically U-codes related to power management).
+   3. Battery Replacement: If the message persists, the VCM backup battery itself has likely failed. It is a consumable part (Part # 31450445) located in the VCM, which is often found in the cargo area or under the headliner, depending on the specific body style. It is not a standard CR2032; it is a proprietary pack.29
+6.2 The "Bricked" CEM: Symptoms & Recovery
+A "brick" scenario is the nightmare of every locksmith. It occurs when the data in the CEM's flash memory is corrupted during the read/write process.
+* Symptoms: The vehicle exhibits a "No Crank, No Start" condition. The dashboard may be completely dark, or conversely, it may light up with every possible error message (Brake Failure, SRS Failure). A tell-tale sign is the windshield wipers operating continuously without input, a failsafe mode for the wiper motor when it loses CAN communication with the CEM.25
+* Recovery Strategy:
+   1. Flash Restoration: If a backup of the original data was successfully saved before the corruption occurred, simply writing this file back to the chip (using the programmer) should restore function.
+   2. Virgin File Injection: If the original data is corrupt, the technician may need to source a "virgin" file (a clean factory software image) for that specific CEM part number. After writing this file, the CEM must be re-initialized to the vehicle using VIDA, effectively treating it as a new unit.
+   3. Hardware Replacement: If the physical MCU is damaged (heat/ESD), the only option is to source a used CEM, clone the data (if readable) or program it from scratch using online VIDA services.
+6.3 Pilot Assist Calibration Loss
+Reports from the field indicate that prolonged battery disconnects can essentially "reset" the learned values for the Advanced Driver Assistance Systems (ADAS), specifically the Pilot Assist and Lane Keeping Aid.
+* Operational Impact: The customer may notice the vehicle "drifting" or a "Pilot Assist Reduced" warning.
+* Resolution: This is usually self-correcting. The vehicle needs to be driven for a calibration period (typically 10-15 miles) on a highway with clear lane markings for the camera and radar to re-learn the environmental parameters.31
+6.4 Key Shell Replacement Risks
+Owners of the high-trim Inscription models often seek to upgrade or replace their key shells with matching wood or leather variants.
+* The Trap: The transponder coil in the SPA key is exceptionally delicate. When prying open the plastic casing to transfer the internal board to a new shell (e.g., a "Real Wood" aftermarket shell), technicians often inadvertently stress or crack the coil or the PCB.
+* Consequence: The remote buttons may still work (as they use a different circuit/antenna), but the vehicle will refuse to start, displaying "Key Not Found." Always verify the vehicle starts with the bare board before snapping the new, expensive shell shut.33
+7. Tool Matrix: Capabilities & Limitations
+Selecting the right tool for the 2020 XC90 is a function of the technician's risk appetite, budget, and time constraints.
+
+
+  
+
+
+
+* Autel IM608 Pro: The industry workhorse. Strong capabilities for Bench Reading (Method B) via the XP400 Pro programmer. It provides clear wiring diagrams but requires manual soldering or the use of generic adapters.
+* VDASH (D5T5): The specialist's choice. It excels at OBD-based decoding (Method A), significantly lowering the risk of hardware damage. It allows for advanced configuration changes (e.g., enabling remote start, changing regions) that general tools cannot touch. However, the 4-24 hour decode time makes it less suitable for "emergency" roadside AKL jobs.18
+* Volvo VIDA: The official dealer tool. It is the only "guaranteed" safe method, as it downloads the keys directly from Volvo's central server. However, it requires an active subscription, a specific J2534 interface (DiCE), and cannot program used/locked keys. It is the ultimate fallback if aftermarket methods fail.
+* OrBit: A newer entrant focused on enthusiast configuration. While powerful for modifying car settings (e.g., removing the 112mph limiter), its key programming capabilities are often contingent on already having the PIN or using it in conjunction with other exploits.35
+8. Procedures & Workflows
+8.1 Mechanical Forensics: The NE66 Interface
+The emergency key blade for the 2020 XC90 utilizes the NE66 keyway (laser track).
+* Lishi Tool: The correct tool is the Lishi NE66 (2-in-1) pick and decoder.
+* Decoding: The lock is a high-security internal track system. Decoding requires significant practice to feel the wafer depths accurately. Once decoded, the key code can be entered into a cutter (e.g., Condor XC-Mini) to originate a new blade.37
+* Entry: Note that unlocking the door with the mechanical blade will trigger the alarm immediately. The alarm will only silence once a valid transponder is detected in the backup reader slot.
+8.2 The "Dead Fob" Start Procedure
+A common service call involves a user unable to start the car due to a dead fob battery.
+1. Enter: Use the mechanical blade to unlock the driver's door (Alarm will sound).
+2. Locate Reader: The backup RFID reader is located in the center console cup holder (usually the one closest to the dashboard or marked with a key symbol).
+3. Action: Place the key fob (buttons facing up or down depending on the specific console revision, usually logo up) directly on the symbol.
+4. Start: Depress the brake and turn the start knob. The KVM will energize the coil, reading the chip passively even without battery power.39
+9. Conclusion and Future Outlook
+The 2020 Volvo XC90 (SPA) represents a significant hardening of automotive access control. It essentially eliminates the "casual" locksmith from the equation, demanding a practitioner who is part locksmith, part electronics engineer, and part data analyst.
+For the immediate future, the "Sweet Spot" for forensic recovery remains a hybrid approach: utilizing Bench Reading (Method B) for speed in AKL scenarios while strictly adhering to safety protocols (battery support, ESD protection) to avoid module corruption. However, professionals must remain vigilant regarding the encroachment of Android Automotive OS (iCUP). As this operating system permeates the fleet, the "backdoors" currently exploited by tools like VDASH and Autel will likely close, forcing the industry back toward official, server-authenticated channels (VIDA) or necessitating the discovery of entirely new, likely more complex, hardware exploits.
+Final Recommendation: For any shop engaging with SPA Volvos, investment in a high-quality BSU (Battery Support Unit), a dedicated J2534 interface for VIDA/VDASH, and a reliable bench programmer (XP400 Pro/Prog) is not optional—it is the baseline requirement for entry. Treat every CEM removal as a potential "brick" event, and price the service accordingly to account for the high expertise and risk involved.
+Works cited
+1. Aftermarket Wiring Diagrams SPA MY24 SJ1001861 Service Operations United States and Canada 4/25/23 4/25/23 Page 1 of 178 - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10236766-9999.pdf
+2. IPD Volvo S60, V60, XC60, S90, V90, XC90 P5 VEA 2.0L Engine ECU / ECM Removal, accessed January 3, 2026, https://www.youtube.com/watch?v=wBIh5hsgLMg&vl=en
+3. volvo CEM removal | Xemodex blog, accessed January 3, 2026, https://xemodex.com/blog/tag/volvo-cem-removal/
+4. MPC5748G Low Cost EVB User Guide (MPC5748G-LCEVB) - DigiKey, accessed January 3, 2026, https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/5783/MPC5748G-LCEVB.pdf
+5. 26-pin KEL Renesas V850 - iSYSTEM, accessed January 3, 2026, https://www.isystem.com/downloads/user-manuals/26-pin-kel-renesas-v850.html
+6. Volvo-S60 smart key-Full Keyless -Help File - Harkan, accessed January 3, 2026, https://harkan.pl/images/Sprzet/Lonsdor%20K518/Manual/lonsdor-k518-program-volvo-s60-smart-key-help-file.pdf
+7. On Call service required. : r/VolvoXC90 - Reddit, accessed January 3, 2026, https://www.reddit.com/r/VolvoXC90/comments/1nxft2g/on_call_service_required/
+8. Volvo – On Call Service Required - Autohaus Lake Norman, accessed January 3, 2026, https://www.autohausnc.com/volvo-on-call-service-required/
+9. Volvo On Call App Retailer Pairing Guide for XC40 Recharge, accessed January 3, 2026, https://personalizeyourvolvo.com/PDF_Brochures/Volvo%20On%20Call%20App%20Retailer%20Pairing%20Guide%20for%20XC40%20Recharge-july-2021.pdf
+10. Volvo On Call Service Required – Causes & Solutions, accessed January 3, 2026, https://www.volvocarssarasota.com/volvo-on-call-service-required.htm
+11. Volvo XC60 XC90 S90 Smart Keyless Fob | FCCIDYGOHUF8423MS | OE | Orange Warranty | Portugal - eBay, accessed January 3, 2026, https://www.ebay.com/itm/304750393845
+12. 2016 - 2023 Volvo Smart Key 4B FCC# YG0HUF8423 - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/2016-2022-volvo-smart-key-4b-fcc-yg0huf8423
+13. How to buy used key fobs - SPA/CMA key fob and config guide - OrBit Forums, accessed January 3, 2026, https://forums.spaycetech.com/showthread.php?tid=280
+14. Mastering Volvo Key Programming: Dealer Software & Original Keys Tutorial - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=iq34fNcFaA0
+15. XC90 Settings for Care Key | Volvo Support MT, accessed January 3, 2026, https://www.volvocars.com/mt/support/car/xc90/2022/article/8d5ce21f8c14b3a6c0a8cc7221c68fd0/16c8c292c7e5c384c0a81f6f7f757087/4282b97a8c1668ecc0a8cc7272bf6b3f/c16f62d08ecf7d3dc0a80151619b44db/
+16. XC90 Care Key - restricted remote control key | Volvo Support PR - Volvo Cars, accessed January 3, 2026, https://www.volvocars.com/pr/support/car/xc90/20w17/article/df3d95f58ecb454ec0a801510fbbd1fe
+17. Convert CARE KEY to normal key TJ 35978.2.1 Technical Service 11/22/23 11/29/23 United States and Canada 3 US 7510 Volvo Car USA - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10249346-9999.pdf
+18. Volvo PIN codes explained - D5T5.com, accessed January 3, 2026, https://d5t5.com/article/volvo_pin_codes_explained?do=shareModal
+19. Volvo Care Key - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=6ULBoHZLIOo
+20. 2021 Volvo XC-40 add key using Vida - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=QFEju4d6ZiQ
+21. CEM PIN - car configuration - D5T5.com, accessed January 3, 2026, https://d5t5.com/article/volvo-cem-pin-code
+22. ECM PIN decoding (applicable only for P3, SPA/CMA and P1 MY2012+) | D5T5.com, accessed January 3, 2026, https://d5t5.com/wiki/optimize/article-pin-decoding-for-ecm
+23. Volvo XC90 Smart Key Programming (2016–2021) | Autel IM608 Pro II + EEPROM + OBD, accessed January 3, 2026, https://www.youtube.com/watch?v=L9uxbaa0o2Q
+24. XP400 Pro_User Manual_EN - Autel, accessed January 3, 2026, https://www.autel.com/u/cms/www/202307/14112633lmor.pdf
+25. Complete Guide to Volvo Key Programming - VXDIAG Official Website, accessed January 3, 2026, https://vxdiag.com/blogs/blog/complete-guide-to-volvo-key-programming
+26. Volvo Immo fault ECU - BCM / CEM module synchro No Crank No start Fault codes ECM-C301 & 326 CEM-3A0 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=tyry9dADCPg
+27. How to read EEPROM from VOLVO CEM via MINI PROG? - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=aV1MkawuBrs
+28. XDNP52 / MPC5748G Volvo CEM Adapter for Mini PROG / Key Tool Plus (Xhorse), accessed January 3, 2026, https://www.uhs-hardware.com/products/volvo-cem-xdnp52-mpc5748g-adapter-for-mini-prog-key-tool-plus-xhorse
+29. Volvo XC90 On Call Service Required Light - VCM Battery Replacement - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=MF91g5cgmiY
+30. Volvo dealer software KILLED this ECU Bricked ECU Recovery ‍ ✅️ - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=hNVGy1v1xW8
+31. XC90 Activating Pilot Assist | Volvo Support LB, accessed January 3, 2026, https://www.volvocars.com/lb/support/car/xc90/article/d6cfcf50d422fa2ac0a8cc37796a4b5f-69b1d5f35a03429ac0a8b0970ac5ed2e-8664b2fa77a7e089c0a8296870d1a409/
+32. Additional Calibration Requirements: Volvo - I-CAR Repairability Technical Support Portal, accessed January 3, 2026, https://rts.i-car.com/crn-670.html
+33. Car Won't Start After Key Shell Change? Here's What the Transponder Chip Does, accessed January 3, 2026, https://mr-key.com/post-details/b7a5kg4r4t/car-wont-start-after-key-shell-change-heres-what-the-transponder-chip-does
+34. SPA Volvo Keyfob Shell Replacement - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=THYI3F2VrXE
+35. DIY CEM (and VGM) PIN Retrieval for Volvo and Polestar - OrBit Forums, accessed January 3, 2026, https://forums.spaycetech.com/showthread.php?pid=254
+36. Key coding - OrBit Forums - SPAyceTech, accessed January 3, 2026, https://forums.spaycetech.com/showthread.php?tid=169
+37. Volvo XC40 Spare Key Programming - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=lOd4zGpoo6k
+38. XC90 Locking and unlocking using the detachable key blade | Volvo Support EN-CA, accessed January 3, 2026, https://www.volvocars.com/en-ca/support/car/xc90/article/47d2c97fd33effd3c0a8cc3718c999b7-6a697b8de1a0680ec0a8cc535b48c0de-8664b2fa77a7e089c0a8296870d1a409/47d2c97fd33effd3c0a8cc3718c999b7-5359fb2bce6efea2c0a8b04a7a295c94-8664b2fa77a7e089c0a8296870d1a409/11e49d21ce704306c0a8b04a184aca39-e72f40e7d3b4148ec0a8cc3738920216-b7fb06a5de0ffe39c0a8b05f298413d4/
+39. XC90 Twin Engine Locking and unlocking with the detachable key blade | Volvo Support UK, accessed January 3, 2026, https://www.volvocars.com/uk/support/car/xc90-twin-engine/article/1bf2b57a8edbe35ac0a801514bc62010/
+40. How To Start A 2016 - 2022 Volvo XC90 With Dead Remote Key Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=bggpCzsNfP8

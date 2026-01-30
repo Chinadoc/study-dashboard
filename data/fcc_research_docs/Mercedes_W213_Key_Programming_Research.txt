@@ -1,0 +1,194 @@
+﻿The Mercedes-Benz W213 and W214 Security Paradigm: A Comprehensive Technical Report for the Professional Automotive Locksmith
+1. Introduction: The Cryptographic Horizon of Automotive Security
+The automotive security landscape has undergone a profound transformation over the last decade, a shift nowhere more evident than in the engineering lineage of the Mercedes-Benz E-Class. For the professional locksmith, the introduction of the W213 chassis (2017–2023) and its successor, the W214 (2024–Present), marked the definitive end of the "calculation era" and the onset of the "authorization era." This report serves as an exhaustive technical dossier on the security architecture of these vehicles, specifically focusing on the Fourth Generation Drive Authorization System (Fahrberechtigungssystem 4 or FBS4).
+Unlike previous generations where aftermarket ingenuity could reliably reverse-engineer password algorithms to generate keys for "All Keys Lost" (AKL) scenarios, the FBS4 architecture represents a fortress of 128-bit encryption that, as of 2025, remains largely impenetrable to standard key calculation methods.1 The implications of this technological leap are existential for the automotive locksmith industry. The business model has been forced to pivot from high-margin key generation to complex diagnostics, module harmonization, and the logistical management of dealer-supplied credentials.
+This document dissects the W213’s distributed security network, detailing the intricate "digital handshake" that occurs between the Electronic Ignition Switch (EIS), the Engine Control Unit (ECU), and the transmission. It provides a granular analysis of the tooling ecosystem—evaluating the capabilities and hard limitations of industry standards like the Autel IM608, Xhorse VVDI MB, and Abrites AVDI. Furthermore, it offers a definitive guide to the physical and electronic interventions required to service these vehicles, from the delicate disassembly of the Widescreen Cockpit to the "virginization" of control modules on the bench. By understanding the physics, the code, and the strict operational protocols required to navigate this environment, the modern locksmith can define the boundary between a profitable service and a catastrophic liability.
+
+
+  
+
+
+
+2. Architectural Anatomy: The FBS4 Ecosystem
+To operate effectively on the W213 platform, one must first abandon the concept of a singular "immobilizer." The vehicle employs a distributed consensus network, a federated security model where authorization is not a single gate but a series of cryptographic checks performed simultaneously across multiple independent control units. This section analyzes the data flow and component hierarchy that defines the FBS4 system.
+2.1 The Distributed Consensus Network
+The security of the W213 is anchored in the concept of "Married Components." In the FBS4 architecture, specific control units are permanently linked via a unique, pre-programmed digital signature—comprising a Service Set Identifier (SSID) and a complex password hash—established at the factory. These components cannot be simply swapped between vehicles; they must be cryptographically "virginized" (reset to factory state) and then "personalized" (taught in) to the new host vehicle.1
+2.1.1 The Electronic Ignition Switch (EIS / EZS)
+The EIS serves as the central gateway and the master orchestrator of the security domain. Located deep within the dashboard structure, the W213 EIS is physically smaller and more integrated than its W212 predecessor, reflecting the shift toward compact, solid-state electronics. Its primary function is to initiate the "Wake-Up" sequence. When a key is inserted (or detected via Keyless-Go antennas), the EIS powers the key via induction and retrieves the key's hash. It then validates this hash against its internal database of authorized tracks.
+Crucially, in the W213, the EIS does not unilaterally authorize the start. It acts as a relay, validating the key and then issuing encrypted challenges to the steering lock, engine ECU, and transmission. Only when these peripheral units return the correct response does the EIS permit "Circuit 50" (starter motor actuation).1
+2.1.2 The Engine Control Unit (ECU / DME)
+The Engine Control Unit acts as the final executioner in the start sequence. Even if the EIS successfully validates the key and energizes "Ignition Circuit 15" (illuminating the instrument cluster), the engine will not crank—or will crank but not fire—if the ECU does not independently verify the authorization message. The communication between the EIS and ECU occurs over the Chassis CAN bus using a rolling code system that is significantly more robust than previous iterations.
+The W213 platform utilizes various engine management systems, most notably the MED17.7 and the newer MD1/MG1 series in facelift models. These units are tightly coupled to the FBS4 protocol. The "Personalization" of these units—transferring the vehicle's specific security data into a replacement ECU—remains one of the few viable aftermarket interventions for module failure.3
+2.1.3 The Transmission Control Unit (TCU / VGS)
+Integrated directly into the transmission valve body (7G-Tronic Plus or 9G-Tronic), the TCU (VGS) serves as a critical immobilization node. It is responsible for the "Drive Authorization" component that releases the parking pawl and engages gears. A mismatch in FBS data between the TCU and the EIS often manifests as a "Limp Mode" condition or a vehicle that starts but refuses to shift out of Park. This "Safety Limp Mode" is a deliberate security feature designed to prevent vehicle theft via ECU swapping.3
+2.1.4 The Electronic Steering Lock (ESL / ELV)
+Historically, the ESL was the Achilles' heel of Mercedes-Benz security, known for the mechanical failure of the locking bolt motor in the W204 chassis. The W213 E-Class represents a divergence in this design philosophy. While some early or lower-spec models retain a discrete steering column lock, many W213 vehicles, particularly those with specific driver-assistance packages, rely on an electric power steering rack that locks electronically or depend solely on the transmission's park mechanism for immobilization.1 Despite the mechanical changes, the logical requirement for a "Steering Authorization" signal remains in the software handshake.
+2.2 The Cryptographic Barrier: Why FBS4 Resists Calculation
+The transition from FBS3 to FBS4 is technically analogous to the shift from WEP to WPA2 in wireless network security. It is a move from short, static keys to long, dynamic encryption.
+In the FBS3 era (approx. 2008–2014), the password exchange relied on a shorter bit-length. Specialized tools could exploit the timing of the challenge-response mechanism. By sending thousands of queries to the EIS or the key (a process known as "sniffing"), the tool could analyze the responses and mathematically deduce the password within a manageable timeframe—ranging from 10 minutes to a few hours. This allowed for the calculation of the "Key Password," which could then be used to write a new file to a blank key.1
+The FBS4 era (2015–Present) introduced 128-bit encryption and a high-entropy algorithm that resists both brute-force attacks and side-channel analysis. The internal calculation logic is robust, meaning that observing the "handshake" does not reveal the underlying password. Consequently, the "All Keys Lost" password calculation method—the bread and butter of the Mercedes locksmith trade for nearly a decade—is effectively non-existent for the W213.2 This reality defines the current service limits: we can read data, we can diagnose faults, but we cannot mathematically derive the authorization codes required to create a key from scratch.
+3. The Tooling Ecosystem: Capabilities and Limitations
+The market is saturated with diagnostic tools claiming "Mercedes Key Programming" capabilities. However, for the W213 chassis, marketing claims often outpace technical reality. It is imperative for the locksmith to distinguish between tools that support Legacy modes (FBS3) and those that offer genuine utility for Modern architectures (FBS4).
+3.1 Autel MaxiIM IM608 Pro / IM608 II
+The Autel IM608 series has established itself as the standard-bearer for the North American automotive locksmith market, primarily due to its integration of advanced diagnostics with key programming functions.
+Diagnostic Utility: For the W213, the IM608 is indispensable for diagnostics. Its ability to scan all control modules (EIS, ECU, SAM, Gateway) allows the technician to pinpoint the root cause of "Key Not Detected" errors. It can read live data streams to verify if the EIS is recognizing the insertion of the key or the presence of a transponder, which is the first step in differentiating between a bad key and a bad module.8
+Module Renewal: The IM608, particularly when paired with the G-Box 3, supports the renewal of specific FBS4 control units. The G-Box 3 is an essential accessory for this work. It manages the high-voltage and "Boot Mode" connections required to read and write to the internal memory of newer Bosch and Continental ECUs on the bench.9 This capability allows a locksmith to take a used ECU from a salvage yard, reset it to a virgin state, and adapt it to a customer's vehicle—a critical service when new OEM parts are backordered.
+XP400 Pro Programmer: The XP400 Pro is critical for verifying the physical health of the key hardware. It can detect the Infrared (IR) signal emitted by the key and read the key's frequency (315 vs 433 MHz). Even if the key cannot be programmed, the XP400 provides the empirical data needed to confirm if a client's existing key is transmitting data.8
+The Menu Trap: Technicians must be wary of the IM608's menu structure. Navigating to IMMO -> Mercedes-Benz -> Expert Selection -> Key Learning will display options for key calculation. However, attempting these functions on a W213 will typically result in a "Not Supported" message or a failed calculation, as the software's calculation algorithms are primarily designed for the older FBS3 protocol.11
+3.2 Xhorse VVDI MB BGA Tool
+The Xhorse ecosystem is renowned for its speed and "engineering-level" access, often providing more granular control than the guided workflows of Autel.
+FBS4 Management: While it cannot calculate AKL passwords, the VVDI MB Tool offers unique utility in managing the "Key Tracks." It supports the FBS4 Disable Key function for models including the W213. This allows the locksmith to electronically disable a lost or stolen key track within the EIS, ensuring that the missing key can no longer start the vehicle—a vital security service for customers who have lost a key but do not need a replacement immediately.6
+Key Testing and Frequency: The tool excels at rapid frequency identification. By placing the key in the coil, the technician can instantly distinguish between 315 MHz and 433 MHz variants, a crucial step in ordering the correct replacement hardware or service part.14
+3.3 Abrites AVDI (Mercedes)
+Abrites is often the pioneer in cracking new encryptions, serving as the "surgeon's scalpel" of the industry.
+Advanced Personalization: The Abrites ecosystem, specifically the MN032 and MN034 software licenses, has demonstrated the ability to personalize virgin ECUs and TCUs in facelift W213 models (2021+).3 This process involves reading the FBS4 data from the vehicle via OBD or direct CAN connection and writing it to the donor unit. This capability is often superior to competitors when dealing with the newest software versions found in late-model W213s.
+Emulator Support: Abrites also leads in emulation technology. If a steering lock fails, the EM001 or EM014 emulators can be programmed to mimic the signal of a functioning ESL, bypassing the mechanical failure entirely. While less common on the W213 than the W204, this remains a critical backup solution for vehicles equipped with legacy-style steering locks.15
+4. Operational Procedures: The Reality of "Add Key" and "All Keys Lost"
+The procedural landscape for the W213 is defined by what cannot be done as much as by what can. The following section outlines the strict operational realities for key programming.
+4.1 All Keys Lost (AKL): The Dealer Dependency
+It must be stated unequivocally: As of early 2026, there is no public aftermarket solution to calculate an FBS4 key password via OBD or IR for a W213 if all keys are lost.1
+The Official Procedure:
+The only sanctioned method for resolving an AKL situation is to order a "Replacement Key" (often referred to as a "Green Key" or "Workshop Key") from a verified Mercedes-Benz dealership. This process is administratively burdensome. It requires the locksmith or vehicle owner to present proof of ownership (Title, Registration) and valid identification. The dealer then orders a key pre-coded to the specific VIN from the central Mercedes-Benz secure server in Germany or the regional hub (e.g., Fort Worth, Texas). The key arrives pre-programmed to one of the 8 available tracks in the EIS and does not require "programming" in the traditional sense, only a "Teach-in" procedure where it is inserted into the ignition to finalize the synchronization.
+The "Server" Scams: The desperation for an aftermarket solution has spawned a gray market of "online calculation services" advertising FBS4 support for fees ranging from $500 to $1,000 per key. These services typically rely on individuals with illicit access to OEM backend servers or stolen NASTF credentials. Relying on such services poses a severe risk to a legitimate business, including the potential for bricked modules, theft of customer data, and legal liability.2
+The "Module Set" Workaround:
+In extreme cases where a dealer key is unobtainable (e.g., backordered parts or salvage title vehicles), some advanced specialists employ the "Set Replacement" method. This involves sourcing a matched set—EIS, ECU, and Key—from a donor vehicle (usually a wreck). The technician installs the entire set into the customer's car. While this restores the ability to start the engine, it creates a VIN mismatch across the vehicle's network (e.g., the Airbag module or Gateway will see a different VIN than the EIS). This often triggers "Variant Coding" errors or warning lights, requiring extensive coding to resolve and potentially devaluing the vehicle.
+
+
+  
+
+
+
+4.2 Add Key Procedures (Spare Key)
+Adding a key when a working key is present is marginally more accessible but still heavily restricted compared to older models.
+Cloning Limitations:
+Unlike simple transponders used by other manufacturers, FBS4 keys utilize a rolling code algorithm that prevents static cloning. One cannot simply "copy" the data from a working key onto a blank. The new key must have its own unique track ID and rolling code seed.
+Dealer Ordering vs. Aftermarket: The standard procedure for a spare key mirrors the AKL process: ordering a pre-coded key from the dealer. However, certain advanced aftermarket tools (like the Abrites MN032) claim limited success in specific "Add Key" scenarios, primarily involving the management of key tracks or the duplication of data for specific sub-variants of the FBS4 system. These solutions are fluid and depend heavily on the specific firmware version of the EIS. Technicians should treat any claim of "FBS4 Add Key" support with skepticism and verify the exact software version coverage before committing to a job.3
+4.3 Module Renewal and Personalization: The Locksmith's Niche
+The true area of opportunity for the aftermarket locksmith on the W213 lies in component replacement. When an ECU or TCU fails, the cost of a new dealer unit is often prohibitive. The locksmith can offer a cost-effective solution via the following workflow:
+1. Sourcing: Obtain a used module with the same part number from a salvage yard.
+2. Virginization: Connect the module to a tool like the Autel IM608 (via G-Box) or Abrites. Execute the "Renew" or "Virginize" function. This wipes the old vehicle's VIN and FBS data, returning the unit to a "Delivery State".3
+3. Personalization: Install the virgin module into the customer's vehicle. Using the diagnostic tool, initiate the "Personalization" or "Teach-in" sequence. The module will communicate with the existing (working) EIS, learn the vehicle's hash and VIN, and "marry" itself to the car.4
+4. Activation: The final step is activation, which may require an online connection to the OEM server or specific "SCN Coding" to finalize the configuration and clear any interlock codes.4
+5. Physical Access: EIS Removal and Dashboard Disassembly
+In many diagnostic scenarios—such as a suspected "bricked" EIS or the need for bench testing—the locksmith must physically remove the EIS from the vehicle. On the W213, this is a labor-intensive task that requires precise knowledge of the dashboard assembly to avoid expensive cosmetic damage.
+Required Tooling:
+* T20 Torx Driver: Ideally with a magnetic tip to prevent screw loss.
+* Nylon Pry Tools: To manipulate trim without marring leather or plastic.
+* Mercedes Vent Pulling Hook: A specialized T-Handle tool with a 90-degree tip, essential for removing the air vents without breakage.16
+5.1 Step-by-Step EIS Removal Protocol
+1. Power Isolation: Before touching any dashboard component, disconnect the negative terminal of the main battery. This prevents accidental airbag deployment and protects the sensitive electronics of the EIS from short circuits during disconnection.19
+2. Air Vent Extraction (The High-Risk Step):
+The center air vents conceal the mounting screws for the Widescreen Cockpit. These vents are held in place by strong internal spring clips.
+* Technique: Insert the pulling hook into the vent slats. Navigate the hook deep into the vent housing (approximately 3-4 inches) to catch the internal locking tab. This is often located at the 2 o'clock or 10 o'clock position depending on the specific vent cylinder.
+* Extraction: Once the hook engages the internal catch, pull firmly and steadily straight out towards the rear of the vehicle. Do not pry against the dashboard leather.
+* Warning: The vents are made of brittle ABS plastic. Using a screwdriver or standard pick will almost certainly chip the bezel or snap the slats. Always use the specialized hook tool. Be mindful of the delicate ribbon cables for the ambient lighting system attached to the rear of the vents—yank them too hard, and you will tear the connector.16
+3. Display Module Removal:
+With the vents removed, the mounting points for the display are exposed.
+* Fasteners: Locate the T20 Torx screws securing the bottom bracket of the Widescreen Cockpit (Display) unit.20
+* Removal: Remove the screws carefully. Gently pull the display assembly forward; it is held at the top by friction clips.
+* Connections: Disconnect the large LVDS (video) and power connectors on the back. The LVDS connector is fragile; ensure the locking tab is fully depressed before pulling.21
+* Storage: Place the display unit on a soft microfiber cloth in a safe location. The screen surface is easily scratched and expensive to replace.
+4. EIS Access and Extraction:
+The EIS is mounted behind the dashboard void, generally to the left of the steering column.
+* Mounting: Depending on the specific sub-model, the EIS may be secured by a threaded locking ring (rosette) on the face of the ignition slot or by bolts accessible from behind the instrument cluster opening.19
+* Disconnection: Reach through the opening created by the removed display to access the EIS. Disconnect the two main connectors: the larger Power/CAN connector and the smaller data connector.
+* Removal: Slide the EIS out through the dashboard opening.
+
+
+  
+
+
+
+6. Key Identification and Logistics: The Matrix
+Identifying the correct key for a W213 is a source of constant confusion due to the generational overlap and regional variations. The W213 lifecycle (2017–2023) spans the transition from legacy "Smart Keys" to the modern "Matte" and "Glossy" fobs.
+6.1 Frequency Standards: 315 MHz vs. 433 MHz
+The operating frequency of the key is determined by the region of the vehicle's original sale and cannot be interchanged.
+* 315 MHz: This is the standard for the North American market (USA, Canada) and Japan.
+* 433 MHz (433.92 MHz): This is the standard for Europe, Asia (excluding Japan), and the Middle East.
+* Verification: One cannot determine the frequency by visual inspection alone. The only reliable method is to use a frequency tester (such as the coil on the Autel XP400 or a Key Tool Max). Place the key in the reader and press a button to confirm the transmission frequency.14
+6.2 FCC IDs and Part Number Evolution
+The transition from Pre-Facelift to Facelift models introduced new key hardware with distinct FCC IDs.
+* Pre-Facelift (2017–2020): These vehicles typically utilize the "IYZ" series of FCC IDs.
+   * Common FCC IDs: IYZ-MS5, IYZDC11, IYZDC12.
+   * Style: These are often the "Glossy" or "Matte" Black smart keys with a rounded, organic shape and either 3 or 4 buttons (Panic button inclusion varies by region).23
+* Facelift (2021–2023) & W214 (2024+): The newest generation of vehicles has migrated to updated transponder architecture.
+   * Common FCC ID: NBGDM3 is the dominant identifier for the Gen 4/5 Smart Keys.25
+   * Part Numbers: A common shell and electronic part number for this series is A-177-905-22-01.27
+   * W214 Warning: Keys for the W214 (2024+) may appear physically identical to the late W213 keys but often contain updated firmware to support the newer MBUX generation. Cross-compatibility is not guaranteed, and locksmiths should verify the specific chassis code before ordering.28
+
+
+  
+
+
+
+6.3 Battery Standardization
+The W213 era marked a consolidation in battery types.
+* W213/W214 (2017–Present): These keys almost exclusively use a single CR2032 coin cell.
+* Legacy Context: This is a departure from older "Smart Keys" (pre-2013) which often required two CR2025 batteries. The shift to the slimmer profile of the modern key necessitated the single, higher-capacity CR2032 cell.30
+7. Diagnostics and Troubleshooting: Avoiding the "Brick"
+The margin for error when working on the W213 is razor-thin. The vehicle's electronics are sensitive to voltage fluctuations, and improper procedures can lead to catastrophic module failure, known as "bricking."
+7.1 The "Start Error" and Battery Management
+A common scenario involves a locksmith completing a job, only for the dashboard to display a yellow battery icon with the message "Start Engine See Operator's Manual" or "Stop Vehicle Leave Engine Running."
+Root Cause: This error is rarely caused by the key programming process itself. Instead, it indicates a failure or low state-of-charge in the vehicle's dual battery system. The W213 utilizes a Main Battery (AGM) for cranking and an Auxiliary Battery (often a capacitor bank located in the passenger footwell) for supporting the start-stop system and standby electronics. If the voltage drops below a critical threshold (typically 12.5V) during diagnostics, the sensor triggers this persistent warning.33
+Mitigation:
+Locksmiths must connect a high-quality voltage stabilizer (capable of maintaining 13.5V–14V at 50A+) to the vehicle's jumper points before connecting any diagnostic tool. Relying on a standard trickle charger is insufficient given the high current draw of the W213's ignition-on state.
+7.2 The "Brick" Risk: EIS Corruption
+Scenario: The EIS stops responding to communications after an attempted write operation or during a scan. Cause: Interruption of data transfer. This can occur if the OBD cable is bumped, the laptop freezes, or, most commonly, if the vehicle voltage sags during the "Personalization" write process. Recovery: Recovering a bricked FBS4 EIS is extremely difficult. Unlike FBS3 units, which can often be revived by rewriting the EEPROM on a bench programmer, FBS4 units are encrypted. Without a valid backup of the specific EIS data (which is hard to get if the unit is dead), the locksmith may be forced to buy a new EIS from the dealer, costing upwards of $1,000. Rule of Thumb: Always attempt to back up coding data before performing any write operation, and ensure power supply stability.4
+
+
+  
+
+
+
+7.3 "Key Not Detected" (Red Text)
+Symptom: The customer presents a key, but the instrument cluster displays "Key Not Detected" in red text.
+Troubleshooting Protocol:
+1. Battery Check: Replace the CR2032. Low voltage prevents the UHF transmitter from reaching the rear SAM antenna.36
+2. IR Verification: Use the XP400 or a phone camera to verify the key emits an IR flash when a button is pressed. No light indicates a hardware failure (board level).
+3. Emergency Start: Place the key in the designated "Emergency Slot" (usually located in the cupholder or marked on the steering column). If the car starts, the transponder coil in the key is working, but the UHF transmitter or the vehicle's Keyless-Go antenna system is faulty. If it does not start in the slot, the key is likely de-synchronized or broken.36
+8. Future Outlook: The W214 and the Digital Key Revolution
+The introduction of the W214 E-Class (2024–Present) signals the next phase of exclusion for the traditional locksmith. The W214 integrates the Digital Vehicle Key architecture.
+* Technology: This system leverages Near Field Communication (NFC) and Ultra-Wideband (UWB) chips embedded in the vehicle and the user's smartphone (iPhone/Apple Watch).
+* Mechanism: The "key" is no longer a physical object but a secure token stored in the user's Apple Wallet. Authorization is granted via the "Mercedes me connect" cloud service.
+* Implication: Key creation is moving entirely into the software domain, managed by the OEM and the user's cloud account. The locksmith has no role in "programming" a digital key; it is a user-provisioned entitlement. While the physical fob (NBGDM3) remains as a backup, the trend suggests that physical keys may eventually become optional, further shrinking the addressable market for hardware-based locksmithing.37
+9. Conclusion
+The Mercedes-Benz W213 E-Class represents a definitive pivot point in the automotive security industry. The era of calculating passwords via OBD for All Keys Lost—a practice that sustained the high-end locksmith market for a decade—has effectively ended with the widespread adoption of the 128-bit FBS4 architecture.
+For the professional locksmith, success on this platform requires a fundamental shift in business strategy. The focus must move away from key generation and toward diagnostics, maintenance (shells/batteries), and module personalization. Tools like the Autel IM608 and Abrites AVDI remain powerful assets, not for creating keys from thin air, but for managing the complex network of "married" components that keep these vehicles on the road. The W213 demands not just a tool, but a technician—one who understands the distributed nature of the authorization handshake, possesses the mechanical skill to navigate complex dashboard assemblies without damage, and exercises the discipline to maintain rigorous voltage control. As the industry looks toward the W214 and the rise of digital keys, this technical adaptability will be the sole determinant of survival in an increasingly encrypted world.
+Works cited
+1. FBS4 Mercedes Key Programming: What You Need to Know - Monty Locksmith, accessed January 27, 2026, https://www.montyslocksmith.ca/blog/fbs4-mercedes-key-programming-what-you-need-to-know-and-what-we-can-do/
+2. fsb4 : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/xs07gz/fsb4/
+3. FBS4 TRAINING PROGRAM AND DETAILS NOW AVAILABLE! Abrites, accessed January 27, 2026, https://abrites.com/news/fbs4-training-program-and-details-now-available
+4. FBS4 ECU Personalization in a W213 E-Class Mercedes-Benz 2021 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=lzGU0koNF8g
+5. How to check if ESL, EIS or Key Fob problem on Mercedes Benz No Start, Full Detail Diagnose Repair - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=VFEK3eQUE_0
+6. Xhorse VVDI MB BGA Tool Device for Mercedes Benz Key Programming - Al Muhandes, accessed January 27, 2026, https://al-muhands.com/auto-key-programmer/1279-xhorse-vvdi-mb-bga-tool-device-for-mercedes-benz-key-programming.html
+7. Mercedes-Benz | ALL KEYS LOST | ADD KEY | Key Programming Service - eBay, accessed January 27, 2026, https://www.ebay.com/itm/388370511982
+8. How To Replace Mercedes Benz Key in 5 minutes w Autel IM608 Pro 2 Key Programmer All Keys Lost - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=HIWmA7mtSes
+9. Benz FBS4 ECU Cloning by Autel IM608 and Gbox3 | by obdii365 - Medium, accessed January 27, 2026, https://medium.com/@obd365com/benz-fbs4-ecu-cloning-by-autel-im608-and-gbox3-f18239cc28e7
+10. Mercedes Key Programming with Autel IM608 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=3_bsd1C8x40
+11. Step-by-Step Guide to Programming a Mercedes-Benz Key with Autel Tools, accessed January 27, 2026, https://www.autelkeytools.com/blogs/news/step-by-step-guide-to-programming-a-mercedes-benz-key-with-autel-tools
+12. MaxiIM IM608 II & IM608 Pro II_User Manual_EN - Autel, accessed January 27, 2026, https://www.autel.com/u/cms/www/202307/27074754wqj0.pdf
+13. Xhorse VVDI MB BGA Tool Mercedes Benz Key Programmer Plus, accessed January 27, 2026, https://www.tlkeys.com/products/xhorse-vvdi-mb-tool-benz-key-programmer-32056
+14. Change Frequency on Mercedes BE Key - Quick and easy job 315 to 433 mhz - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=kWqGy3neYso
+15. abrites diagnostics for mercedes/maybach/smart, accessed January 27, 2026, https://abrites.com/page/abrites-diagnostics-for-mercedes-maybach-smart
+16. Mercedes W212 | How To Remove Front Air Vents - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=pzUrqdvqo0M
+17. Mercedes W212 | How To | Repair Front Air Vent - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=mx3Pjn_pkNo
+18. Mercedes Vent Removal Tools: The Essential Guide for Safe, Damage-Free Dashboard Disassembly - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=mercedes-vent-removal-tools_1005006064250709
+19. How to easily remove Electronic Ignition Switch (EIS) For Mercedes W221 S Class 2007-2013 CL500 C216 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=QoTO7zjNvKo
+20. Mercedes-Benz E-Class Maintenance: How to Remove and Install the Instrument Cluster (W213) - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=mv7no_fIyIo
+21. Mercedes-Benz E-Class - Removing the display module | W213 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=IwNzIMQa1k0
+22. Determining the transmit frequency of a key fob - Electrical Engineering Stack Exchange, accessed January 27, 2026, https://electronics.stackexchange.com/questions/545674/determining-the-transmit-frequency-of-a-key-fob
+23. FCC ID:IYZDC11 OEM MERCEDES BENZ SMART 4 BUTTON KEY LESS REMOTE FOB CHROME | eBay, accessed January 27, 2026, https://www.ebay.com/itm/292983823150
+24. 2017-2018 Mercedes Benz SLC-Class 4-Button Key Fob Remote (FCC: IYZDC07, IYZDC10, IYZDC11, IYZDC12) - NorthCoast Keyless, accessed January 27, 2026, https://northcoastkeyless.com/product/mercedes-benz-slc-class-4-button-key-fob-remote-fcc-iyzdc07-iyzdc10-iyzdc11-iyzdc12/
+25. 2021-2024 Mercedes-Benz 315MHz Matte Smart Remote Key FOB DM3FCCIDNBGDM3 201-170887 | Black | OEM - eBay, accessed January 27, 2026, https://www.ebay.com/itm/394377410088
+26. Used OEM Mercedes Smart Key FOB - Matte Black, FCC ID: NBGDM3 For 2021-2024 Models - Histamine Intolerance, accessed January 27, 2026, https://www.histamineintolerance.org.uk/Smart-Key-FOB-Matte-Black-FCC-ID-NBGDM3-For-2021-2024-Models-314975/
+27. Smart Remote Key Shell for Mercedes-Benz 4 Button FCCID: NBGDM3 - Key4, accessed January 27, 2026, https://www.key4.com/smart-remote-key-shell-mercedes-benz-4b-fccid-nbgdm3
+28. W214 vs W213 E-Class — NEW vs OLD Mercedes! What's REALLY Changed? - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=1rzdSt4C1eE
+29. 2019 - 2024 Mercedes-Benz E-Class Retrospective | W213 vs W214 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=FFsPPlDJZ7g
+30. Mercedes Benz E Class S Class W213 2017 2018 Key Fob Battery Replacement Instructions - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=20ybicWc1WU
+31. How to Change Your Mercedes-Benz Key Fob Battery, accessed January 27, 2026, https://www.mboffresno.com/how-to-change-your-mercedes-benz-key-fob-battery/
+32. Mercedes w213 - Key Battery Replacement - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=hUdfrT-LqWw
+33. Mercedes Benz Yellow Battery Symbol Start Engine See Owner's Manual Warning Message, accessed January 27, 2026, https://xenons4u.co.uk/blog/mercedes-benz-yellow-battery-symbol-start-engine-see-owners-manual-warning-message/
+34. Mercedes Warning Fix: Stop Vehicle Leave Engine Running Solved!##mercedestutorials #mercedesf1 - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=ZrSj52o5Ngw
+35. Autel IM608 Pro | Adding a key for a Mercedes-Benz | Key programming - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=-WUtUaPEST0
+36. Mercedes Key Replacement and Programming - Advanced Locksmith, accessed January 27, 2026, https://advancedlocksmithtx.com/mercedes-key-replacement-and-programming/
+37. The Ultimate Mercedes-Benz Key Fob Guide, accessed January 27, 2026, https://www.mboffresno.com/the-ultimate-mercedes-benz-key-fob-guide/

@@ -1,0 +1,217 @@
+﻿Technical Deep-Dive into the All Keys Lost Procedure for the 2024–2026 Acura ZDX
+The automotive industry is currently witnessing a paradigm shift in vehicle architecture, exemplified by the collaborative engineering between Honda and General Motors that resulted in the 2024–2026 Acura ZDX. This vehicle represents a departure from traditional Acura security frameworks, moving away from the proprietary Honda Diagnostic System (HDS) toward the General Motors Ultium electric vehicle platform, specifically the Global B (VIP) electrical architecture.1 This transition necessitates a comprehensive re-evaluation of All Keys Lost (AKL) procedures, as the ZDX adopts the Service Programming System 2 (SPS2) workflow and the highly encrypted CAN-FD communication protocols characteristic of modern GM vehicles.3 Understanding the technical nuances of this platform—from mechanical entry through the HU100 keyway to the final electronic synchronization of the 128-bit transponders—is essential for automotive security professionals and diagnostic technicians.5
+Hardware Identification and Technical Specifications
+The foundational component of the Acura ZDX security system is the proximity smart key, identified by FCC ID YG0G21TB2.8 This hardware is not a standard Honda-derived unit but is instead shared across the GM Ultium ecosystem, including models such as the Chevrolet Silverado EV and the Cadillac LYRIQ.10 The fob operates on a frequency of    and incorporates an NXP HITAG-PRO ID49 128-bit transponder chip, which provides the cryptographic complexity required for the Global B architecture.5
+Smart Key Component Analysis
+The physical fob (GM Part Number 85024681 or 85160432) features a five-button configuration optimized for the Acura luxury market.9 The internal Printed Circuit Board (PCB) is designed to accommodate a CR2450 coin cell battery, which is significantly larger and has a higher capacity than the CR2032 batteries used in legacy Acura proximity systems.8 This choice is driven by the power requirements of the high-speed security handshakes and the passive entry/exit (PEPS) functionality that requires frequent LF (Low Frequency) and RF (Radio Frequency) communication cycles.1
+
+
+Component
+	Technical Specification
+	Data Source
+	FCC ID
+	YG0G21TB2
+	8
+	IC Identification
+	4008C-G21TB2
+	9
+	Primary OEM Part Number
+	85024681
+	8
+	Secondary OEM Part Number
+	85160432
+	12
+	Operating Frequency
+	  
+ /   
+	7
+	Transponder Chip
+	NXP HITAG-PRO ID49 (128-Bit)
+	5
+	Battery Type
+	CR2450 Lithium 3V
+	8
+	Keyway Profile
+	HU100 (High Security)
+	6
+	Button Logic
+	Lock, Unlock, Remote Start, Hatch, Panic
+	7
+	The fobs are typically sold in a "Locked" or "New" state. While original equipment manufacturer (OEM) units are traditionally not reusable once programmed, the locksmith community has developed "unlocking" services that allow for the refurbishment of used boards.11 This is particularly relevant given the high replacement cost of these units, which can range from $180 to $390 depending on whether they are sourced through a dealership or a mobile locksmith service.15
+Battery Management and Field Durability
+The CR2450 battery provides a nominal voltage of 3V with a diameter of 24 mm and a height of 5.0 mm.15 For technicians performing AKL services, verifying the battery health of the new fobs is a critical first step, as a weak battery can lead to intermittent communication failures during the programming phase.1 Market data indicates that high-quality brands such as Murata, Renata, and Toshiba are preferred for these applications to ensure stable power delivery during the 128-bit encryption challenge-response cycles.8
+Mechanical Access and Decoding of the HU100 Keyway
+In an AKL scenario, the technician must first gain physical entry to the vehicle without causing damage to the bodywork or the locking mechanism. The Acura ZDX utilizes the HU100 high-security 10-cut internal 2-track system.6 This keyway is a hallmark of GM vehicles from the last decade and represents a departure from the HON66 profile used in most other Acura models.13
+The Lishi HU100 Decoding Workflow
+The standard tool for this operation is the Original Lishi HU100 (10-cut) 2-in-1 pick and decoder.6 The driver’s door handle contains a concealed lock cylinder, often protected by a plastic cap that must be removed using the emergency blade or a non-marring pry tool.19 Once the cylinder is exposed, the Lishi tool is inserted to manipulate the ten internal wafers.
+The decoding process is a delicate operation where the technician identifies the bitting (depths 1–4) for each of the 10 positions.21 Analysis of locksmith forums suggests that the HU100 can present challenges such as wafer stickiness or inaccurate bitting reads if improper tension is applied.23 A specialized insight shared among experienced professionals is that removing the door lock cylinder entirely—a task taking approximately 15 seconds—can lead to a 100% accurate read rate compared to decoding inside the door handle, where the angle and tension are less consistent.23
+
+
+Wafer Position
+	Function in Ignition
+	Function in Door/Trunk
+	Code Series
+	1 thru 7
+	Active
+	Inactive
+	V0001–V5573 6
+	5 thru 10
+	Active
+	Active
+	V0001–V5573 6
+	For the 2024–2026 ZDX, the code series typically begins with a "V," signifying a 10-cut system, whereas legacy 8-cut systems often utilize a "Z" series.6 This distinction is vital for technicians using automated key cutters, as selecting the wrong code series will result in a non-functional emergency insert.6
+Emergency Insert Blade Fabrication
+The emergency blade for the ZDX (SKU: IN-051 or GM PN: 13536164) is a high-security internal cut blade.5 Once the bitting is decoded via the Lishi tool, the data is entered into a key-cutting machine such as the Xhorse Dolphin or the Silca Futura. This physical key is necessary not just for emergency entry, but also for specific programming steps in the SPS2 workflow where the ignition must be cycled or the door lock turned to trigger the "Remote Learn Pending" message on the Driver Information Center (DIC).19
+The Ecosystem of Techline Connect and SPS2
+The transition to the Ultium platform means the ZDX is no longer programmed using standard Honda software. Instead, it utilizes the GM Techline Connect ecosystem, which integrates service information, diagnostics, and module programming into a single application.2 The Service Programming System 2 (SPS2) is the primary engine for security synchronization and all keys lost procedures.1
+Software and Subscription Framework
+Performing an AKL on a 2024–2026 ZDX requires an active subscription to the ACDelco Technical Delivery System (TDS).25 This subscription is VIN-specific and typically costs approximately $45 to $50 for a short-term access window.26
+The computer requirements for Techline Connect are rigorous. The software must be installed on a Windows-based PC, and locksmith forums strongly advise the use of a "clean" or dedicated laptop.26 Third-party antivirus software and firewalls must often be disabled to allow the high-speed data packets of the CAN-FD protocol to pass through without interruption.27 Failure to adhere to these OS-level requirements can result in module communication "time-outs," which may brick sensitive control units such as the Body Control Module (BCM) or the Drive Motor Control Module (DMCM).1
+J2534 Interface and Hardware Stability
+A J2534 pass-through device is mandatory for this workflow. While the official GM MDI-2 is the gold standard for stability, several aftermarket units are frequently used in the field.2
+
+
+Tool Name
+	CAN-FD Support
+	Reliability Note
+	GM MDI-2
+	Native
+	Most stable, official tool 2
+	Autel JVCI+ / V200
+	Native
+	High success with updated firmware 3
+	Topdon Phoenix Smart
+	Native
+	Reliable for Global B architecture 30
+	Launch MaxiFlash
+	Native
+	Frequently used by mobile techs 3
+	The stability of the interface is paramount because the ZDX utilizes the Global B (VIP) architecture. This system is designed with a "Secure Gateway" that prevents unauthorized access via the OBD-II port.27 The programming tool must successfully perform a cryptographic handshake with GM’s central servers before the BCM will allow any key learning commands to execute.27
+Electronic Handshaking and CAN-FD Protocol Stability
+The Acura ZDX is one of the first vehicles in its class to rely entirely on CAN-FD for its security backbone.4 CAN-FD (Flexible Data-Rate) is an evolution of the traditional CAN protocol, offering higher bandwidth and faster data transmission speeds—essential for the large data payloads of 128-bit encryption keys.4
+The Challenge of Global B Security
+The Global B architecture represents a massive increase in cybersecurity compared to previous platforms. Each electronic control unit (ECU) on the CAN-FD bus is digitally signed, and any attempt to inject unauthorized messages into the stream is blocked by the gateway.4 During an AKL procedure, the programming tool must generate an application code. This code is then sent to the GM server, which returns a 24-digit security verification code.27
+This 24-digit code is the single biggest bottleneck for aftermarket programmers. Tools like the Autel IM608 or the Xtool Pad G2 Turbo may sometimes struggle to retrieve these codes if the manufacturer’s secondary servers are down.28 In contrast, the official SPS2 workflow retrieves these codes natively through the Techline Connect handshake, providing a more reliable, albeit more expensive, path to success.3
+Voltage Management and Signal Integrity
+CAN-FD is notoriously sensitive to electrical noise and voltage fluctuations. During the 15 to 20 minutes required for the standard key learning phase—and especially during the 2-hour wait mandated for AKL scenarios—the vehicle's 12V battery must be kept at a perfectly stable voltage, ideally above   .1
+Technicians are warned against using standard AC-driven battery chargers, which can introduce "AC ripple" into the DC circuit.2 This ripple can interfere with the high-speed timing of the CAN-FD packets, leading to a "handshake failure" and an aborted programming session.1 Instead, a clean power supply or a high-capacity jump pack is recommended to maintain the steady voltage required by the BCM.2
+The AKL Protocol: The Two-Key Rule and Security Delays
+The All Keys Lost procedure for the 2024–2026 Acura ZDX is governed by strict logic embedded in the BCM. There are two critical rules that differentiate this procedure from a standard "Add Key" scenario: the Two-Key Rule and the 2-hour Security Wait.1
+The Two-Key Rule
+Unlike legacy systems where a vehicle could be programmed with a single functional key, the ZDX will not exit the learn mode until at least two transmitters have been synchronized.1 This is a safety and security measure designed by GM to ensure the owner has a backup. If a technician attempts to complete the procedure with only one key, the BCM will remain in "learn mode," the immobilizer will stay active, and the vehicle will not enter the "Run" state.1
+This rule has significant implications for the cost of the AKL service, as the owner is forced to purchase two fobs at once. Technicians must explain this to the client beforehand to avoid confusion when the vehicle fails to start with only one programmed remote.1
+The 2-Hour Security Wait
+In a standard "Add Key" situation, where an existing recognized transmitter is present, the wait time is often bypassed or reduced to 10–15 minutes.19 However, when all keys are lost, the system initiates a mandatory 2-hour security countdown.36
+This countdown is a defensive measure to prevent rapid, unauthorized key programming in theft scenarios. During these 120 minutes, the Techline Connect session must remain active, the internet connection must be stable, and the vehicle's voltage must be maintained.26 Any interruption in these factors will reset the timer, effectively doubling the time required for the job.
+Step-by-Step AKL Programming Sequence
+1. Preparation: Ensure the vehicle is in Park, the parking brake is set, and a clean power supply is connected to the 12V battery.1
+2. SPS2 Initiation: Connect the J2534 device, launch Techline Connect, and input the VIN.3
+3. Module Access: Select "Reprogram DMCM" and then "IMMO Immobilizer Learn - Setup".1
+4. Security Mode: Select "Program Transponder or Remote Key (Delete)." This function wipes all previous keys and initiates the security wait.1
+5. The Countdown: Wait for the 2-hour security period to elapse. The technician should monitor the laptop periodically to ensure the session has not timed out.36
+6. Key Placement: When prompted, place the first new smart key in the transmitter pocket.1 For the ZDX, this is typically located in the center console or the front cup holder.1
+7. First Key Learn: Press the Start/Stop button. The DIC should display "READY FOR REMOTE #2" once the first fob is recognized.1
+8. Second Key Learn: Place the second key in the pocket and repeat the process. The DIC will then show "READY FOR REMOTE #3" or "Programming Complete".1
+9. Exit Learn Mode: Once at least two keys are programmed, press and hold the Start/Stop button for approximately 12 seconds to finalize the session.19
+10. Activation: Cycle the transmission from Park to Drive and back. Press the Lock and Unlock buttons on each transmitter to "awaken" the RF circuit and establish passive entry functionality.1
+Diagnostic Interoperability: Aftermarket Tools vs. OEM Solutions
+The locksmith industry is currently divided between those who utilize official OEM software (SPS2) and those who rely on aftermarket tablets such as Autel, Xtool, or Lonsdor.15 For the 2024–2026 Acura ZDX, this choice carries high stakes.
+Autel and Aftermarket Limitations
+The Autel IM608, while powerful, requires a specific CAN-FD adapter to communicate with the ZDX.29 Even with the adapter, users report that the "All Keys Lost" function can be inconsistent. In some cases, the tablet may require the user to manually send the BCM and ECM application codes to an aftermarket technical support team in China, who then return the 24-digit verification code.32 This "remote calculation" service can introduce significant delays, sometimes taking hours or even days if the servers are offline.32
+
+
+Tool Category
+	Brand/Model
+	ZDX (Global B) Performance
+	OEM Portal
+	GM Techline Connect
+	100% success rate; requires subscription 3
+	Pro Aftermarket
+	Autel IM608 II
+	Requires CAN-FD adapter; hit-or-miss handshake 29
+	Specialized Tool
+	Xtool Pad G2 Turbo
+	Stronger server support for Global B codes 33
+	Entry-Level
+	Autel KM100
+	Good for cloning; rarely successful for Global B AKL 27
+	The "Bricking" Risk and Infotainment Recovery
+One of the most significant insights from technician forums is the risk of "bricking" the infotainment unit during an AKL session.2 Because the security architecture is centralized, a failure during the BCM synchronization can leave the vehicle's Android-based infotainment screen in a permanent recovery mode.2
+Recovery is a complex, two-stage process. First, the Android system must be updated via a specific NTFS-formatted USB drive containing over 1GB of firmware files.2 Once the USB update is complete, the technician must return to SPS2 to reprogram the QNX software that handles the low-level vehicle integration.2 This illustrates that AKL on the ZDX is not merely a key-matching exercise but a full-scale module programming event.
+Professional Economics: Costs, Codes, and Workflow Integration
+The financial reality of performing an AKL on a 2024–2026 Acura ZDX is substantially different from legacy Acura models. The technician must account for hardware costs, subscription fees, and the significant time investment required by the 2-hour security wait.15
+Cost Breakdown for the Consumer
+For a mobile locksmith, the service must be priced to reflect the specialized equipment and the mandatory two-key requirement.1
+
+
+Expense Item
+	Estimated Cost (USD)
+	Source Note
+	New OEM Smart Keys (x2)
+	$210 – $500
+	Dealer vs. Refurbished 5
+	SPS2 Subscription
+	$45 – $50
+	Per-VIN basis 25
+	Key Code Retrieval
+	$0 – $100
+	NASTF vs. Factory Code 15
+	Labor (3+ Hours)
+	$250 – $400
+	Includes 2-hour wait and setup 15
+	Total Professional Cost
+	$505 – $1050
+	Reflective of high-security luxury tech
+	Many dealerships charge on the higher end of this spectrum, often requiring the vehicle to be towed to their facility, which adds further expense for the owner.15 Mobile locksmiths who invest in Techline Connect can offer a more convenient on-site solution, but they must maintain the technical discipline to manage the CAN-FD stability issues and battery sustainment.15
+Key Code Retrieval and NASTF
+When the mechanical bitting is not available via Lishi decoding (e.g., a damaged lock cylinder), the technician must retrieve the factory key code using the vehicle’s VIN.38 This requires authorization through the National Automotive Service Task Force (NASTF).27 The key code allows the technician to cut a perfect factory-spec blade, which is often the first step in regaining access to the vehicle’s electrical systems.15
+Synthesis of Field Insights and Best Practices
+Data gathered from YouTube walkthroughs and locksmith forums like r/Locksmith provide a "boots-on-the-ground" perspective that service manuals often lack. These practical insights are essential for navigating the edge cases of the ZDX platform.
+Troubleshooting the "No Key Detected" Error
+A common frustration in the field is the "No Key Detected" error even after the SPS2 session reports success.1 This is often caused by the fob being in a "shipping mode" to save battery life. Technicians have found that cycling the transmission through its gears (Park-Drive-Park) and immediately pressing the Lock/Unlock buttons can "handshake" the fob's RF transmitter with the BCM's receiver, resolving the error.1
+The Importance of the "Run" Mode Verification
+During the SPS2 process, the software will repeatedly instruct the technician to "turn the ignition to the run position".1 On an EV like the ZDX, there is no engine sound to confirm this state. Technicians must look for the green LED on the ignition mode switch.1 If the vehicle is not truly in the "Run" mode, the learn procedure will fail at the 90% mark, forcing a restart of the entire 2-hour process.1
+Handling the Security Gateway (SGW)
+While some 2018+ vehicles require a physical "SGW Bypass" block to be plugged into the module, the Acura ZDX (via its GM architecture) handles the gateway electronically through Techline Connect.27 The technician does not typically need to disassemble the dashboard to find a gateway module; however, they must have a verified internet connection to allow the GM servers to "unlock" the OBD-II port remotely during the session.26
+Conclusion and Professional Outlook
+The All Keys Lost procedure for the 2024–2026 Acura ZDX is a masterclass in the complexity of modern automotive security. By shifting to the GM Ultium platform, Acura has adopted a system that is significantly more resistant to traditional theft methods but also more demanding for legitimate service professionals. The reliance on CAN-FD, the mandatory two-key rule, and the centralized authentication of the SPS2 workflow represent a new standard for the industry.
+For the technician, success on this platform is predicated on three pillars: official software access, stable hardware interfaces, and rigorous electrical discipline. The 2-hour security wait and the sensitivity of the Global B architecture leave no room for shortcuts. As vehicles continue to evolve into "software-defined" entities, the role of the automotive locksmith will increasingly mirror that of a network administrator, requiring a deep understanding of cryptographic handshakes and high-speed data protocols to keep the next generation of luxury EVs on the road.
+Works cited
+1. lost both of my Acura Zdx keys : r/Acura - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Acura/comments/1k4ujky/lost_both_of_my_acura_zdx_keys/
+2. [How-to] DIY update infotainment : r/AcuraZDX - Reddit, accessed January 25, 2026, https://www.reddit.com/r/AcuraZDX/comments/1p4dzmk/howto_diy_update_infotainment/
+3. How to Program 2021 2025 GM New System Smart Key with Techline Connect SPS2?, accessed January 25, 2026, https://www.youtube.com/watch?v=wnbX-cKNvYQ
+4. The Importance of DoIP and CAN FD in Vehicle Diagnostics - obdprice, accessed January 25, 2026, https://www.obdprice.com/blogs/news/the-importance-of-doip-and-can-fd-in-vehicle-diagnostics
+5. Acura New OEM 2024 ZDX Smart Key 5B Hatch/Remote Start - Royal Key Supply, accessed January 25, 2026, https://royalkeysupply.com/products/acura-new-oem-2024-zdx-smart-key-5b-hatch-remote-start-fccid-yg0g21tb2-pn-85024681
+6. ORIGINAL LISHI HU100 GM CHEVROLET GMC 10 CUTS 2 IN 1 PICK TOOL DECODER READER IGNITION DOOR TRUNK - Car and Truck Remotes, accessed January 25, 2026, https://www.carandtruckremotes.com/products/original-lishi-hu100-gm-chevrolet-gmc-10-cuts-2-in-1-pick-tool-decoder-reader-ignition-door-tailgate
+7. 2024 Acura ZDX / 5-Button Smart key / PN: 85024681 / YG0G21TB2 (OEM) - UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/2024-acura-zdx-5-button-smart-key-pn-85024681-yg0g21tb2-oem
+8. 2024-2025 Acura ZDX 5B Hatch Smart Key YG0G21TB2, accessed January 25, 2026, https://yourcarkeyguys.com/products/2024-2025-acura-zdx-5b-hatch-smart-key-yg0g21tb2
+9. Acura 5 Button Proximity Smart Key YG0G21TB2, 85024681, 433 MHz, New OEM, accessed January 25, 2026, https://keyinnovations.com/acura-zdx-5-button-proximity-smart-key-434mhz-yg0g21tb2-85024681-new-oem/
+10. CNSZKEY FCC ID: YG0G21TB2 Smart Key 6 Buttons 433Mhz ASK ID49 Chip For Chevrolet Suburban Silverado for GMC Yukon XL/Denali - AliExpress, accessed January 25, 2026, https://www.aliexpress.com/item/1005005354223820.html
+11. Acura ZDX Smart Key Hatch/Remote Start - 85024681 - Transponder Island, accessed January 25, 2026, https://transponderisland.com/shop/tik-acu-74-2024-acura-zdx-smart-key-5b-hatch-remote-start-ygog21tb2-85024681-39263
+12. OEM 2024 Acura ZDX Smart Key Fob Remote 5B YGOG21TB2 | eBay, accessed January 25, 2026, https://www.ebay.com/itm/205806684873
+13. 2024-2025 ACURA ZDX 5B SMART KEY PROXIMITY REMOTE TRANSMITTER YG0G21TB2 85024681 - - SFFobs Inc., accessed January 25, 2026, https://www.sffobsinc.com/product/2024-2025-acura-zdx-5b-smart-key-proximity-remote-transmitter-yg0g21tb2-85024681/
+14. OEM 2024 2025 ACURA ZDX SMART KEYLESS PROXIMITY REMOTE FOB YG0G21TB2 85024681 | eBay, accessed January 25, 2026, https://www.ebay.com/itm/116649965045
+15. Acura ZDX Key Replacement - What To Do, Options, Costs & More, accessed January 25, 2026, https://lost-car-keys-replacement.com/acura/zdx/
+16. ORIGINAL LISHI - HU100 GM / 10 Cut / 2-In-1 Pick / AG for Sale | UHS Hardware, accessed January 25, 2026, https://www.uhs-hardware.com/products/original-lishi-gm-hu100-2-in-1-pick-ignition-door-trunk-10-cut-ag
+17. Original Lishi HU100(10) 10-Cut 2in1 Decoder and Pick - Locksmith Keyless, accessed January 25, 2026, https://www.locksmithkeyless.com/products/lishi-hu10010-10-cut-2in1-decoder-and-pick
+18. Original Lishi HU100 10Cut V3 3-in-1 Pick & Decoder for GM Lishi Tool - ABKEYS, accessed January 25, 2026, https://abkeys.com/products/original-lishi-hu100-10cut-v3-pick-decoder-for-gm-lishi-tool-5287
+19. General Motors Vehicles Smart Key Programming Instructions (All Keys Lost & With Two Keys) - Car Keys Express, accessed January 25, 2026, https://guide.carkeysexpress.com/hc/en-us/articles/360061223772-general-motors-vehicles-keyless-entry-remote-fob-smart-key-programming-instructions
+20. Open and Start Acura models with a dead key fob battery: Updated. - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=dRW3g_yvNss
+21. (463) Which NSN14 Lishi to Use 10 Cut vs 8 Cut - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=ird0vN4kTnk
+22. Original Lishi 2-in-1 HU100 GM 10-Cut 2-in-1 Pick and Decoder for Door, Ignition, and Trunk - Anti Glare, accessed January 25, 2026, https://www.southernlock.com/itemdetail/132-4110
+23. Never fight a HU100 again. I have found that simply removing the door lock and Lishi in hand, reads right 10/10 times. Not sure if it's due to tension or what but taking 15 seconds to remove door lock will save you 15 minutes of frustration trying to decide the code. Give it a shot and let - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/11szg8g/never_fight_a_hu100_again_i_have_found_that/
+24. Hu100, 10 cuts : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1j16a37/hu100_10_cuts/
+25. ACDelco TDS, accessed January 25, 2026, https://www.acdelcotds.com/
+26. How to Program GM Keys 2021–2025 with Autel V200 — obdprice, accessed January 25, 2026, https://www.obdprice.com/blogs/news/program-gm-keys-with-autel-v200
+27. 24 digit ECM security code : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/1on1tds/24_digit_ecm_security_code/
+28. 22' Silverado stuck on ecm security check code : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/12eb9n3/22_silverado_stuck_on_ecm_security_check_code/
+29. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 25, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+30. How To Start Programming with GM SPS2 - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=TPXDudx6TuU
+31. Z Auto SGW Bypass - streetdrivenperformance, accessed January 25, 2026, https://streetdrivenspeed.com/products/z-auto-sgw-bypass
+32. Autel IM508 IM608 Calculate 2021 GM Security Verification Code Guide, accessed January 25, 2026, http://blog.autelshop.de/autel-im508-im608-calculate-2021-gm-security-verification-code-guide/
+33. Autel CAN FD? : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/zurqs4/autel_can_fd/
+34. Programmer : r/Locksmith - Reddit, accessed January 25, 2026, https://www.reddit.com/r/Locksmith/comments/13b0l2m/programmer/
+35. AUTEL CAN FD Adapter for MaxiSys Series IM508 IM608 Supports GM Ford 2020 | eBay, accessed January 25, 2026, https://www.ebay.com/itm/168032547713
+36. How to bypass GM Techline SPS2 2 Hour Wait - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=1MJMRoXvw5w
+37. Autel CANFD-ADAPT Protocol Adaptor for IM508 / IM608 - Key Innovations, accessed January 25, 2026, https://keyinnovations.com/products/autel-canfd-adapt-protocol-adaptor-for-im508-im608
+38. Honda & Acura All Keys Lost | How to Find Your Key Code Tutorial - YouTube, accessed January 25, 2026, https://www.youtube.com/watch?v=MCMyKSlD08Y

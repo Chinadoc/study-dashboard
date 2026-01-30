@@ -1,0 +1,223 @@
+﻿Comprehensive Technical Analysis of Mercedes-Benz Drive Authorization Systems (FBS3/FBS4) in W205 and W206 Chassis
+1. Introduction: The Paradigm Shift in Automotive Security
+The automotive security landscape has undergone a radical transformation over the last decade, with few manufacturers exemplifying this shift as starkly as Mercedes-Benz. For the automotive locksmith and security professional, the transition from the W204 C-Class to the W205 (2015–2021) and subsequently the W206 (2022–Present) represents more than a mere model year update; it marks the deployment of the Fahrberechtigungssystem 4 (FBS4), or Drive Authorization System 4. This architecture fundamentally alters the serviceability of the vehicle, moving from a localized, calculable security model to a centralized, server-dependent authentication protocol.
+Historically, the independent aftermarket thrived on the ability to reverse-engineer manufacturer security protocols. The preceding generation, FBS3 (found in W204, W212, W221, etc.), utilized a static "Grey Key" concept and 64-bit encryption that, while robust for its time, was eventually susceptible to computational analysis. Locksmiths could interrogate the Electronic Ignition Switch (EIS/EZS), extract data, and utilize powerful calculation servers to derive the "Key Password" required to program aftermarket keys. This capability created a thriving ecosystem of third-party tools and services.1
+However, the introduction of the W205 chassis brought FBS4, a system designed specifically to close these "loopholes." By implementing 128-bit encryption, disabling local read commands on the NEC microcontrollers, and mandating a real-time "handshake" with the Daimler backend servers for initialization, Mercedes-Benz effectively walled off the independent creation of keys. This report provides an exhaustive technical analysis of this environment, detailing the architectural constraints, the few remaining procedural pathways for service, and the precise limitations of current aftermarket hardware. It serves as a definitive guide for navigating the complex reality of modern Mercedes-Benz key programming.
+2. Architectural Evolution and System Topology
+To understand the constraints of key programming on the W205 and W206, one must first dissect the underlying hardware and communication topology that governs the vehicle's security.
+2.1 The Legacy Architecture: FBS3 (Drive Authorization System 3)
+The FBS3 system, dominant from roughly 2004 to 2014, relied on a distributed trust model. The central component, the Electronic Ignition Switch (EIS/EZS), stored a set of "Key Tracks" (typically 8 tracks with 3 segments each). When a key was inserted:
+1. Induction: The EIS powered the key via an inductive coil.
+2. IR Communication: The key transmitted its unique ID and a rolling code hash via Infrared.
+3. Verification: The EIS checked this hash against its internal memory.
+4. Authorization: If valid, the EIS sent a distinct "Enable" signal over the CAN bus to the Electronic Steering Lock (ESL/ELV), the Engine Control Unit (ECU/ME), and the Transmission Control Unit (TCU/VGS).1
+Crucially, the "Password" required to generate a valid hash was static. Tools like the Xhorse VVDI MB or Autel IM608 could perform a "Password Calculation" attack. By simulating a key insertion thousands of times and measuring the millisecond-level variances in the EIS response time, the tool could mathematically deduce the password. Once the password was known, a "Grey Key" file could be generated and written to a blank aftermarket key, which the car would accept as OEM.3
+2.2 The Current Standard: FBS4 (Drive Authorization System 4)
+With the W205, Mercedes-Benz introduced FBS4. This system retains the physical concept of the EIS as the gateway but revolutionizes the digital logic.
+1. Encryption Standard: FBS4 upgrades the cryptographic primitive from proprietary 64-bit algorithms to industry-standard 128-bit encryption (likely AES-128 variants). This exponential increase in key space renders the "response time analysis" and brute-force attacks mathematically infeasible. Even with a supercomputer, deriving the key would take decades.1
+2. The "Online" Mandate: Unlike FBS3, where the authorization data lived statically within the modules, FBS4 components are heavily dependent on the Mercedes-Benz backend. When a new component (like an ECU or Key) is introduced, it is not enough for it to mathematically match the EIS; it must be "Personalized" and "Activated" via a secure tunnel to the Daimler servers. The server tracks the "Count" of every key track. If an aftermarket tool attempts to clone a key, the server will recognize the duplicate counter and reject the authorization request.1
+3. Hardware Hardening: The NEC microcontrollers used in FBS4 EIS units (often BGA mounted) have their "Read" secure access bits permanently blown at the factory. This means the memory sectors containing the hash strings physically refuse to output data to a programmer, preventing the initial data dump required for any calculation attempt.2
+
+
+  
+
+
+
+2.3 The W206 "Star3" Architecture
+The W206 (2022+) introduces the Star3 electrical architecture. While securely rooted in FBS4 principles, Star3 integrates the security functions deeply into the Central Gateway (ZGW) and the MBUX (Mercedes-Benz User Experience) system. The EIS is no longer a standalone "master" in the same way; it is a node in a highly integrated domain controller network.
+* DoIP (Diagnostics over IP): Communication with W206 modules for coding or diagnostics largely occurs over Ethernet (DoIP) rather than traditional CAN lines, requiring newer interface hardware (e.g., eCOM or DoIP-capable J2534 devices).5
+* UWB (Ultra-Wideband): To combat relay attacks, W206 keys utilize UWB technology. This allows the vehicle to measure the "Time of Flight" of the signal, calculating the precise physical distance of the key from the sensor. If the signal is amplified (as in a relay attack), the time delay reveals the anomaly, and the car refuses to start. This hardware change makes W206 keys physically and electronically incompatible with previous FBS4 keys.6
+3. System Identification and Diagnostic Procedures
+The single most critical step in the locksmith workflow for C-Class vehicles is accurate identification. The W205 chassis exists in a "transitional" era where a visual inspection is insufficient to determine the security generation. A misdiagnosis here leads to wasted time, purchased tokens, and potentially corrupted modules.
+3.1 The "Gray Zone" of W205 (2014–2015)
+The W205 C-Class entered production in 2014. During the initial production ramp-up, and specifically for the C-Class Coupe models (which lingered on the W204 platform longer than the Sedan), there is an overlap.
+* W204 Chassis (up to 2015 Coupe): Almost exclusively FBS3. These are serviceable by locksmiths using calculation tools.
+* W205 Chassis (2015+ Sedan): Almost exclusively FBS4. These are not serviceable for key creation.1
+Rule of Thumb:
+* MY 2014: High probability of FBS3.
+* MY 2015: "Danger Zone." Requires OBD verification.
+* MY 2016+: 100% FBS4.1
+3.2 Visual Analysis vs. Digital Reality
+Technicians often rely on the key style (Chrome vs. Black Plastic) or the ignition type (Slot vs. Push Button). These are unreliable indicators.
+* Key Shells: FBS3 keys can be retrofitted into newer "FBS4-style" shells.
+* Push-to-Start: Many W205 FBS4 vehicles have a removable Start Button that reveals a slot. The presence of a slot does not imply FBS3; the slot in FBS4 vehicles is merely a coil reader for emergency starting and does not support the data modulation required for password calculation.7
+3.3 Definitive OBD Identification Protocols
+The only liability-free method to confirm the system type is via digital interrogation using a high-level diagnostic tool.
+Protocol A: Autel IM608 / IM508 Identification
+The Autel MaxiIM series provides a specific routine for this verification.8
+1. Hardware Setup: Connect the MaxiFlash JVCI (VCI) to the OBDII port. Ensure the tablet has internet access.
+2. Menu Navigation: Select IMMO > Mercedes-Benz > Smart Selection.
+3. Scan Process: Select All Keys Lost (Use "Fast" mode if available). The tool will attempt to communicate with the EIS.
+4. Data Interpretation: The tool will display a "Vehicle Information" or "EIS Information" screen.
+   * Actionable: If the screen shows "FBS3," "DAS3," or displays a computed password field, the vehicle is supported.
+   * Blocked: If the tool displays a popup: "This is a 4th generation EIS and the software does not support!" or lists the system as "FBS4," stop immediately. No further attempts should be made to read the password.
+Protocol B: Xhorse VVDI MB Tool Identification
+The VVDI MB Tool is a specialized interface widely used for Mercedes operations.10
+1. Hardware Setup: Connect the VVDI MB interface via OBD.
+2. Menu Navigation: Select EIS Tools from the main menu.
+3. Operation: Click Read EIS Data.
+4. Analysis: Examine the log window.
+   * FBS3: The tool will populate the SSID, Hash, and Key Track status fields.
+   * FBS4: The tool may read the VIN but will often show "Unknown Version" for the SSID or explicitly warn "FBS4 Detected - Function Limited." The "Get Password" button will be greyed out or return an immediate error.2
+
+
+  
+
+
+
+4. The "All Keys Lost" (AKL) Reality for FBS4
+The most common query from locksmiths regarding the W205/W206 is: "Can I do All Keys Lost?"
+The definitive technical answer is No, not via calculation or EEPROM methods.
+4.1 The "Wall" of Encryption
+In the W204 (FBS3) era, AKL was solved by removing the EIS, reading the EEPROM data (using a programmer like the XP400), and then using a "Sniffer" key or the "G-Box" adapter to brute-force the password on the bench.
+For W205/W206 (FBS4):
+1. No EEPROM Read: The internal memory of the FBS4 EIS is locked. You cannot extract the initial data set required to start a calculation.
+2. No Sniffer: The "Sniffer" method relies on the EIS attempting to authenticate a key and leaking timing data. The FBS4 EIS uses a challenge-response mechanism that does not leak this data, rendering sniffer tools useless.
+3. Server Validation: Even if you could mathematically generate a key file, the W205 EIS communicates with the backend. A key created "offline" would not have its serial number registered in the Daimler database, causing the online validation check to fail during the engine start sequence.1
+4.2 The "Bypass" Myth: Emulators and Universal Remotes
+The market is flooded with devices claiming to "solve" FBS4. It is vital to distinguish between ESL Emulators and Key Emulators.
+* ESL Emulators: Devices like the "Magic Box" or generic ELV emulators do work on W205/W206 steering locks. If the steering lock fails but you have a working key, you can install an emulator to bypass the mechanical lock. This allows the car to start. However, this requires a working key to authorize the ignition. It does not solve an AKL situation.11
+* Universal Remotes (Xhorse/KeyDIY): These tools can generate a remote that transmits on the correct frequency (315MHz or 433MHz) to unlock the doors. However, they cannot generate the infrared (IR) or proprietary RF sequence required for Drive Authorization. They will unlock the car, but the dashboard will display "Key Not Detected" when the start button is pressed.7
+4.3 The Only Path: Dealer Proxy via NASTF
+For the legitimate locksmith, the only way to facilitate an AKL job on a W205/W206 is to act as an authorized agent for the vehicle owner, utilizing the NASTF (National Automotive Service Task Force) Vehicle Security Professional (VSP) credentials. This process effectively routes the key creation back to the Mercedes-Benz factory, bypassing the need for local programming.
+5. Administrative Procedure: The NASTF VSP Protocol
+Since technical programming is blocked, the locksmith's service offering shifts from "technical labor" to "administrative concierge." Mastering the NASTF protocol is the only way to monetize W205/W206 key requests legally and effectively.
+5.1 Prerequisites for the Professional
+To perform this work, the locksmith must be a registered VSP. This is a rigorous vetting process.
+1. Registry ID (LSID): Obtained through NASTF.org. Requires a background check and a $335-$435 biennial fee.13
+2. Insurance: You must carry a Commercial General Liability policy of at least $1,000,000 aggregate / $500,000 per event. The certificate must be sent directly from the insurance agent to NASTF.15
+3. Dealer Relationship: You must establish a wholesale account with a local Mercedes-Benz dealership that participates in the TRP (Theft-Relevant Parts) program. Not all dealers will work with independent VSPs.
+5.2 The D1 Form: Documentation and Compliance
+The core of the process is the Mercedes-Benz TRP D1 Form. This is a legal document that indemnifies the dealer and the locksmith.
+Step-by-Step D1 Submission:
+1. Client Verification: You must physically inspect the customer's Government-Issued ID (Driver's License/Passport) and the Vehicle Registration/Title. The names must match exactly.
+   * Gotcha: If the vehicle is owned by a corporate entity (LLC, Inc.), you require a letter of authorization on company letterhead, signed by an officer of the company, designating the requestor as an authorized agent.16
+2. SDRM Portal: Log in to the NASTF SDRM (Secure Data Release Model) portal.
+3. Form Selection: Choose the specific "Mercedes Benz Theft Relevant Part (TRP) Order Form." Do not use the generic D1 form, as Mercedes-Benz has a unique integration.18
+4. Data Entry:
+   * VIN: Triple-check the VIN. A single digit error results in a non-refundable key ordered for the wrong car.
+   * Part Type: Select "Replacement Key" (if replacing a lost one) or "Additional Key" (if adding a spare). "Replacement" orders typically come with instructions to the dealer to disable the specific "Track" of the lost key in the database.19
+   * Dealer Selection: Select your partnering dealership from the dropdown list.
+5. Uploads: Upload high-resolution scans of the ID and Registration.
+6. Submission: Submit the form electronically. This sends a secure packet to the dealership's parts department.
+5.3 Fulfillment and Logistics
+Timeline Analysis:
+Unlike the 1-hour turnaround for FBS3 keys, the FBS4 process is logistical.
+* Approval: The dealer parts counter reviews the D1 (usually within 2-4 hours).
+* Ordering: The dealer places the order with the PDC (Parts Distribution Center). For the US market, this is typically in Texas. For rare keys, it may go to Germany.
+* Shipping: Standard shipping is 1-2 days.
+* Pickup: The VSP must physically pick up the key. You cannot send a runner or the customer. You must present your VSP credentials and ID at the counter.
+Temporal Analysis of Service Workflows:
+While an FBS3 key calculation and write process takes approximately 45-60 minutes on-site, the FBS4 NASTF workflow requires a minimum of 24 to 72 hours. This delay is strictly administrative and logistical. The "Teach-In" process itself (described below) is rapid, often taking less than 15 minutes. This creates a significant divergence in customer service expectations: "Immediate Resolution" vs. "Concierge Procurement."
+5.4 The "Teach-In" (Initialization) Procedure
+Once the pre-coded key is obtained, it must be initialized to the vehicle.
+1. Insertion: Insert the new key into the EIS slot. For Keyless-Go W206 models without a slot, place the key in the designated emergency induction spot (see Section 8.2).
+2. Wait State: Turn the ignition to Position 1 (Accessory). The red LED on the key fob may illuminate or flash.
+3. Do Not Disturb: Leave the key in this position. The EIS is now performing the handshake with the key's transponder, verifying the hash, and writing the specific vehicle data to the key's memory.
+4. Duration: This typically takes 1–5 minutes. In some cases, if the specific Key Track needs to be enabled, it can take up to 60 minutes. Do not remove the key until the steering lock (if equipped) disengages or the cluster powers on fully.20
+5. Verification: Start the engine. Check remote lock/unlock functions.
+6. Add Key Procedures (The "Spare Key" Scenario)
+A common misconception is that "Adding a Key" is possible on W205/W206 if a working key is present, similar to the "Clone" functions on other brands.
+The Reality:
+In the FBS4 architecture, having a working key provides no advantage for generating a new key. The security barrier is identical to the AKL scenario. You cannot "clone" the working key because you cannot extract the write-protected data from the EIS, nor can you extract the private key from the working fob itself.
+* Procedure: The procedure for "Add Key" is identical to AKL: NASTF D1 -> Dealer Order -> Teach-In.
+* Differentiation: The only difference is in the D1 form selection ("Additional" vs "Replacement"). The technical barrier remains absolute.22
+The Repair Loophole:
+While you cannot create a key, locksmiths can often repair a non-functional W205 key. A common failure mode in W205 fobs is the fracture of the soldered joints on the inductive coil or the battery contacts.
+* Symptoms: Key buttons work (RF is good), but the car does not start (IR/Induction failed).
+* Fix: Carefully opening the shell and resoldering the coil components can restore the key without any programming. This is a high-margin service that avoids the NASTF process entirely.1
+7. Peripheral Opportunities: Module Renewal and Adaptation
+Since the core business of key programming is blocked, the astute locksmith pivots to Module Renewal. W205/W206 vehicles frequently suffer from failures in the ECU, TCU (7G-Tronic/9G-Tronic), and ISM (Intelligent Servo Module).
+7.1 The Renewal Process
+When a module fails, a new one from the dealer costs thousands. A used module from a donor car is "locked" to the donor's VIN and will not authorize.
+Tools like the Abrites AVDI (with MN032 license) and Autel IM608 (with G-Box3) offer "FBS4 Manager" or "ECU Renewal" functions.
+Procedure:
+1. Bench Connection: Connect the used module (e.g., MED17.7.2 ECU) to the tool on the bench using the specific pinout (often requiring a breakout box like the G-Box).
+2. Virginize: Use the tool to "Renew" or "Virginize" the module. This wipes the donor VIN and authorization data, returning the module to a "Transport Mode" or "Factory State".23
+   * Note: This does not require an online connection to Mercedes for the wiping phase.
+3. Personalization: Install the virgin module into the customer's car.
+4. Activation: This is the bottleneck. To "marry" the virgin module to the car, you generally need an OEM-level pass-through (Xentry) and a valid Mercedes-Benz dealer login to perform the "Initial Startup" and "Personalization." The aftermarket tool prepares the hardware, but the dealer software finalizes the handshake.25
+8. W206 Specifics: MBUX and The Future
+The W206 chassis (2022+) represents the next generation of security, heavily integrated with the MBUX infotainment system.
+8.1 Ultra-Wideband (UWB) Keys
+W206 keys utilize UWB technology to prevent relay attacks. This adds a "Time of Flight" measurement to the authentication.
+* Implication: Old "RF Extenders" used by thieves no longer work.
+* Incompatibility: W206 keys are hardware-incompatible with W205 keys. They operate on different protocols and frequencies managed by the Star3 architecture.6
+8.2 Emergency Start Procedures
+The W206 eliminates the physical "Start Button Plug." There is no slot behind the button.
+* Location: The emergency induction coil is located in the center console. Depending on the trim, it is either in the front cupholder (marked with a key symbol) or in the storage bin under the armrest.
+* Protocol:
+   1. Remove the mechanical key blade from the fob (to ensure the transponder sits flush against the sensor).
+   2. Place the fob in the marked spot.
+   3. Press the brake and the Start button.
+   4. The system will display "Searching for Key" and then authorize the start via the induction loop.26
+8.3 The "Coding" Business Model
+With key programming blocked, the W206 market has shifted to Variant Coding. Locksmiths are using tools like DTS Monaco and Vediamo to unlock hidden features.
+* Popular Services: Activating "AMG Menus" (Supersport cluster layout), "Digital Light" animations, and enabling "Distronic" features.
+* Hardware: This requires a DoIP-capable interface (e.g., VXDIAG VCX SE, Tactrix OpenPort) as the large data volumes of MBUX overwhelm standard CAN interfaces.28
+9. Comprehensive Tool Analysis
+
+
+  
+
+
+
+9.1 Autel IM608 Pro / IM508
+* Strengths: Excellent diagnostics and "Guided Functions." The "FBS4 ECU Renewal" function is robust, supporting Bosch MED17 and Continental SIM271 DE modules.
+* Weaknesses: Cannot generate keys. The "Key Programming" menu for FBS4 is essentially a dead end that directs you to "Consult Dealer."
+* Required Accessories: XP400 Pro (for key reading/IR), G-Box3 (for "Fast" mode password calc on older FBS3 and for bench connections on FBS4 modules).
+9.2 Xhorse VVDI MB BGA Tool
+* Strengths: The industry standard for FBS3. extremely fast password calculation for older cars. Good at identifying the EIS generation quickly.
+* Weaknesses: Limited FBS4 utility. The tool offers an "FBS4 Disable Key" function (useful if a key is stolen), but no add key/AKL capability.
+* Utility: Primarily used by locksmiths to confirm a car is FBS4 so they can decline the job or switch to the NASTF workflow.
+9.3 Abrites AVDI (with MN032)
+* Strengths: The most advanced tool for Module Renewal. Abrites often leads the market in "Virginizing" difficult FBS4 modules (ISM, DSM, TCU) that other tools cannot touch.
+* Weaknesses: High cost of entry and subscription fees (AMS). Still cannot make FBS4 keys.
+10. Troubleshooting & Failure Modes
+10.1 The "Fatal Error" on ESL (Code B225409)
+A common failure on W205 is the steering lock jamming in the locked position.
+* Symptom: Key inserts, turns, but no lights on dash, no start. Diagnostic scan shows Code B225409 (ESL Component Fault) or B225464.
+* Solution: Since the ESL is part of the FBS4 chain, you cannot simply swap it.
+   * Option A (Dealer): Order a new TRP ESL (expensive + wait).
+   * Option B (Emulator): Use a specialized W205 ESL Emulator. You must remove the old ESL (often requiring drilling/cutting if locked). The emulator mimics the "Unlock" signal on the LIN bus. Note: This usually requires the original working key and EIS to be functional to authorize the "Unlock" command that the emulator listens for.11
+10.2 The "7-Day Wait" (Synchronization Latency)
+In rare cases, particularly with W206 models or after multiple module replacements, the Daimler server may impose a "Synchronization Delay."
+* Mechanism: After a TRP is taught in, the server analyzes the "Hash Count." If there are discrepancies or if the vehicle was flagged for suspicious activity, the server delays the final "Enable" bit.
+* Symptom: Key is taught in, remote works, but engine cranks and does not start (or does not crank).
+* Resolution: Connect the vehicle to a battery maintainer. Leave the ignition ON (Position 2) for up to 48 hours. In extreme cases, the wait can be up to 7 days before the server releases the block. This is a known "feature," not a bug.
+11. Conclusion
+The transition to FBS4 in the Mercedes-Benz W205 and W206 chassis marks the end of the "Hacker Era" for this specific platform. The encryption is robust, the hardware is locked, and the dependency on the Daimler backend is absolute. For the locksmith, this necessitates a pivot from computational expertise to administrative and diagnostic expertise.
+Success in this market segment depends on three pillars:
+1. Accurate Identification: Using OBD tools to swiftly distinguish between the profitable FBS3 "Gray Zone" cars and the FBS4 "Dealer Only" cars.
+2. NASTF Compliance: Mastering the VSP/TRP workflow to offer a concierge key ordering service that is faster and more customer-centric than the typical dealership service department experience.
+3. Peripheral Services: Capitalizing on module renewal and coding opportunities where aftermarket tools still provide a competitive advantage over dealer pricing.
+While the "Add Key" button on the programmer may be greyed out, the opportunity for the professional locksmith remains—provided they adapt to the rules of the FBS4 environment.
+Works cited
+1. FBS4 Mercedes Key Programming: What You Need to Know - Monty Locksmith, accessed January 27, 2026, https://www.montyslocksmith.ca/blog/fbs4-mercedes-key-programming-what-you-need-to-know-and-what-we-can-do/
+2. EIS version's knowing the difference between them, accessed January 27, 2026, https://diagspeed.com/pages/eis-versions-knowing-the-difference-between-them
+3. (5/6) Autel IM608 Pro | All Keys Lost for a Mercedes - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=xlpnH4M_r6A
+4. How to program EZS MERCEDES KEY with Xhorse Key tool Plus (Add Key Function), accessed January 27, 2026, https://www.youtube.com/watch?v=tcD6jiCfq08
+5. Remote Coding Globally — RJAutomotive - Mercedes Benz Specialists, accessed January 27, 2026, https://rjautomotive.net/pages/coding-options
+6. Managing the Digital Vehicle Key | C-Class Saloon March 2025 W206 MBUX | Owner's Manual - Mercedes-Benz, accessed January 27, 2026, https://www.mercedes-benz-mena.com/iraq/en/services/manuals/c-class-saloon-2025-03-w206-mbux/digital-vehicle-key/managing-the-digital-vehicle-key/
+7. How to Add a New Key to Your Mercedes FBS4 System Using the EASYGUARD Keyless Entry Remote - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=mercedes-fbs4-add-key_1005005300277083
+8. How to Check if Your Mercedes-Benz Has FBS3 or FBS4 Using the YOUCANIC Scanner, accessed January 27, 2026, https://www.youtube.com/watch?v=aSHdOZ78pBw
+9. Autel IM608 II Detect Mercedes FBS4 for Key Programming - AutelShop.de Official Blog, accessed January 27, 2026, https://blog.autelshop.de/autel-im608-ii-detect-mercedes-fbs4-for-key-programming/
+10. Xhorse VVDI MB BGA Tool Device for Mercedes Benz Key Programming - NazirProg, accessed January 27, 2026, https://www.npshops.com/products/xhorse-vvdi-mb-bga-tool-device-for-mercedes-benz-key-programming
+11. Extreme FBS4 ESL Tool | Mercedes FBS4 ESL Diagnostic & Repair Software - Diagcode, accessed January 27, 2026, https://www.diagcode.com/products/extreme-fbs4-esl-diagnostic-tool/
+12. FBS4 All Key Lost? Here's Exactly How to Replace Your Mercedes Key with the EASYGUARD PKE Smart Keyfit - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/p/wiki/article.html?keywords=fbs4-all-key-lost
+13. What does the VSP subscription cost? - NASTF Support Center, accessed January 27, 2026, https://support.nastf.org/support/solutions/articles/43000755447-what-does-the-vsp-subscription-cost-
+14. Membership Types and Registration - National Automotive Service Task Force, accessed January 27, 2026, https://wp.nastf.org/?page_id=3628
+15. Need help with NASTF Registration / Application, accessed January 27, 2026, https://support.nastf.org/support/solutions/articles/43000755702-need-help-with-nastf-registration-application
+16. NASTF VSP Tipsheet, accessed January 27, 2026, https://wp.nastf.org/wp-content/uploads/2025/03/VSP-TIP-SHEET-NASTF-V15.pdf
+17. MBUSA DVUSA Theft- Relevant Parts Policy - StarTek Info, accessed January 27, 2026, https://www.startekinfo.com/service/download-document/outside/224078/
+18. 1 Ordering Mercedes-Benz Theft Relevant Parts February, 2022 How to order a Theft-Relevant Part This document was developed to s - StarTek Info, accessed January 27, 2026, https://www.startekinfo.com/service/download-document/outside/226062/
+19. TRP Form Sheet - AWS, accessed January 27, 2026, https://di-uploads-pod3.s3.amazonaws.com/fletcherjonesmercedesbenzontario/uploads/2015/04/Key-Replacement-Form.pdf
+20. How to Program a Mercedes Key Your Complete Guide, accessed January 27, 2026, https://www.bladeautokeys.co.uk/post/how-to-program-a-mercedes-key-your-complete-guide
+21. BS or legit? Car key taking 2 hours to program. - Reddit, accessed January 27, 2026, https://www.reddit.com/r/cars/comments/4c1ryy/bs_or_legit_car_key_taking_2_hours_to_program/
+22. Xhorse VVDI MB BGA Tool Device for Mercedes Benz Key Programming with 1 Year Unlimited Token Subscription, accessed January 27, 2026, https://www.vvdi.com/xhorse-vvdi-mb-bga-tool-mercedes-benz-key-programmer
+23. Benz FBS4 ECU Cloning by Autel IM608 and Gbox3 | by obdii365 - Medium, accessed January 27, 2026, https://medium.com/@obd365com/benz-fbs4-ecu-cloning-by-autel-im608-and-gbox3-f18239cc28e7
+24. DAS MANAGER FOR FBS3/FBS4 VEHICLES - Simon Touch, accessed January 27, 2026, https://www.keyprogtools.com/avdi-news/1368-das-manager-for-fbs3-fbs4-vehicles
+25. Autel MaxiIM New Release: Engine ECU Programming And Cloning For Mercedes-Benz FBS4 Vehicles | AutelSale.com Office Blog, accessed January 27, 2026, http://blog.autelsale.com/2023/11/16/autel-maxiim-new-release-engine-ecu-programming-and-cloning-for-mercedes-benz-fbs4-vehicles/
+26. Starting the vehicle in emergency operation mode | C-Class Sedan September 2024 W206 MBUX | Owner's Manual - Mercedes-Benz | New Zealand, accessed January 27, 2026, https://www.mercedes-benz.co.nz/passengercars/services/manuals.html/c-class-sedan-2024-09-w206-mbux/driving/starting-the-vehicle-in-emergency-operation-mode
+27. Starting the vehicle with the key in the marked space (emergency operation mode) | C-Class Saloon February 2024 W206 MBUX | Owner's Manual - Mercedes-Benz, accessed January 27, 2026, https://www.mercedes-benz-mena.com/iraq/en/services/manuals/c-class-saloon-2024-02-w206-mbux/starting-the-vehicle/starting-the-vehicle-with-the-key-in-the-marked-space-emergency-operation-mode/
+28. Mercedes coding - Enable the AMG Menu on Instrument Clusters - MBTools, accessed January 27, 2026, https://mbtools.com/guide/amg

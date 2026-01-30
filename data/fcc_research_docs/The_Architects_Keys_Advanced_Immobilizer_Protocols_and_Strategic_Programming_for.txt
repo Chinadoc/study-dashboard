@@ -1,0 +1,305 @@
+﻿The Architect’s Keys: Advanced Immobilizer Protocols and Strategic Programming for GM Global B & Ultium Architectures (2021–2025)
+1. Executive Summary: The Kinetic Shift in Automotive Security
+The automotive security landscape has undergone its most radical transformation in two decades with General Motors’ migration from the Global A electrical architecture to the Global B (Vehicle Intelligence Platform or VIP) and Ultium architectures. For the automotive locksmith, diagnostic technician, and security professional, this is not merely a protocol update; it is a fundamental restructuring of how vehicle modules communicate, authenticate, and authorize access. The era of static challenge-response systems has been superseded by high-bandwidth, server-dependent, and encrypted communication ecosystems.
+The 2021+ model years for the Cadillac Escalade, GMC Yukon, and their platform mates marked the definitive arrival of this architecture in the full-size luxury segment. Unlike the sequential programming of the past, VIP architecture utilizes a centralized, ethernet-integrated control strategy with robust cybersecurity gateways that necessitate CAN-FD (Controller Area Network Flexible Data-Rate) protocols for diagnostics and programming. The subsequent introduction of the Ultium platform in the Hummer EV and Cadillac Lyriq has further complicated this domain, demanding a new discipline centered on high-voltage safety and 12V subsystem management, where a battery failure during programming can result in a catastrophic "brick" state.
+This report serves as an exhaustive technical dossier on the procedural, hardware, and software requirements for servicing these vehicles. It goes beyond the generic instructions found in tool manuals to analyze the specific nuances between GMC and Cadillac implementations—distinctions that are often the difference between a successful job and a tow truck. We will explore the "skin" of the software—particularly in Cadillac’s luxury integrations like Super Cruise, the OLED infotainment interface, and cloud-connected encryption—and how these variables introduce distinct failure points if not anticipated.
+
+
+  
+
+
+
+2. Theoretical Framework: The Anatomy of Global B and Ultium
+To successfully navigate the programming procedures for modern GMC and Cadillac vehicles, one must first understand the theoretical underpinnings of the Global B architecture. This is not simply "faster wires"; it is a philosophical change in how the vehicle validates identity.
+2.1 The CAN-FD Imperative and Bandwidth Throttling
+The primary barrier to entry for programming 2021+ GMC and Cadillac vehicles is the ISO 11898-2:2016 standard, commonly known as CAN-FD (Controller Area Network Flexible Data-Rate). The Vehicle Intelligence Platform (VIP) utilizes this protocol to handle the massive data throughput required by active safety systems (ADAS), Super Cruise, and high-resolution digital cockpits.1
+Legacy OBD-II interfaces operating on high-speed CAN (500 kbps) utilize a fixed data frame that limits the payload to 8 bytes. In contrast, CAN-FD allows for data rates up to 5 Mbps and payloads of up to 64 bytes per frame. This increased capacity is essential for the encrypted handshakes that occur between the Body Control Module (BCM), the Radio Frequency Hub (RFHM), and the external diagnostic tool.
+When a locksmith connects a legacy tool (e.g., an older J2534 device or a first-generation tablet programmer) to a 2022 GMC Sierra 2, the tool attempts to initiate communication at 500 kbps. The vehicle's gateway, expecting a CAN-FD modulation, rejects the packet structure immediately. This is often misdiagnosed as a "connection error" or "bad cable," when in reality, it is a protocol mismatch. The hardware gap is physical; older transceiver chips simply cannot modulate the frequency required for the flexible data rate phase of the transmission. This necessitates either a native CAN-FD Vehicle Communication Interface (VCI), such as the Autel V200, or a specific active adapter that translates the signal between the vehicle's OBD port and the programmer.3
+2.2 The Cybersecurity Gateway and Server-Side Authentication
+Unlike previous generations (Global A), where the challenge/response security algorithm was often static or contained within the tool's firmware, Global B vehicles heavily rely on server-side calculation. The security architecture is designed to prevent "man-in-the-middle" attacks and unauthorized module swapping.
+In a typical programming event for a 2024 Cadillac CT5 4, the workflow is as follows:
+1. Seed Request: The tool requests a security seed from the BCM.
+2. Transmission: The tool transmits this seed, along with the VIN and tool serial number, to the manufacturer’s server (via the tool vendor's cloud).
+3. Calculation: The server validates the tool's credentials and calculates a time-sensitive, one-time-use PIN.
+4. Response: The PIN is sent back to the tool, which then authenticates with the vehicle gateway to unlock the immobilizer.
+This process has two profound implications for the technician. First, an active, low-latency internet connection is no longer optional—it is a critical tool requirement. A drop in connectivity during the "Calculation" phase will abort the procedure, potentially leaving the BCM in a "secure wait" state. Second, "server down" situations on the aftermarket side are a reality. Before attempting an All Keys Lost (AKL) scenario—which involves deleting all existing keys—it is vital to verify the status of the tool vendor's GM calculation server. If the server is offline, deleting keys without the ability to calculate the new PIN will leave the vehicle completely immobilized.
+3. Deep Dive: Cadillac Escalade & Escalade ESV (2021–2025)
+The Escalade represents the pinnacle of GM’s security complexity due to the convergence of luxury features with the immobilizer system. While it shares the C1XX platform with the Chevrolet Tahoe and GMC Yukon, the electronic integration is distinct, particularly regarding the user interface and auxiliary modules.
+3.1 Platform Architecture: C1XX and the Luxury Layer
+The Escalade sits on the C1XX platform, but unlike its Chevrolet brethren, it integrates a "Luxury Layer" of electronics that can interfere with standard programming. The primary differentiator is the 38-inch curved OLED display. This massive screen is not just a display; it is a node on the high-speed ethernet bus. During key programming, the vehicle must be in "Ignition On / Engine Off" mode. The current draw of the OLED screen, combined with the 36-speaker AKG audio system amplifier (which often wakes up with the bus), creates a massive parasitic load on the battery.
+Research Insight: Unlike the Tahoe, where a standard 10-amp charger might suffice, the Escalade requires a clean power supply capable of sustaining 30-50 amps to prevent voltage sag. If the voltage drops below 12.2V, the OLED screen may flicker or reboot, sending "noise" (U-codes) across the CAN bus that can interrupt the delicate BCM programming sequence.5
+3.2 Procedure Profile: Cadillac Escalade (2021+)
+Header Data
+* Make/Model: Cadillac Escalade / Escalade ESV
+* Year Range: 2021 – 2025
+* Platform: C1XX (Global B / VIP)
+* Key Type: Smart Proximity Fob (6-Button typical, includes Glass Break/Hatch)
+* FCC ID: YG0G21TB2.7 Note: Always verify the specific part number by VIN, as features like "Power Steps" or "Super Cruise" may demand specific fob variants.
+* Keyway: High Security (Side Mill), typically HU100 profile.
+Tool Requirements
+1. Primary Programmer:
+   * Autel: IM608 Pro II / IM508S (XP400 Pro required for key reading/writing).8
+   * Proprietary: GM Techline Connect (MDI2 interface) – The "Gold Standard" for liability mitigation.9
+   * Alternative: Smart Pro with ADS2326 software and CAN FD Adapter.
+2. Adapters:
+   * Autel: V200 VCI (Native CAN-FD) or MaxiFlash VCI with CAN FD Adapter. Critical: The V200 supports CAN-FD natively without an external dongle.10 Using the older J2534 box without the adapter will result in communication failure.
+3. Software Prerequisites:
+   * Autel GM Software Version v3.70 or higher.11
+   * GM Techline Connect: Requires active subscription ($40-45 per VIN) and NASTF VSP credentials for key code retrieval.
+Prerequisites & Setup
+* Voltage Stabilization: Connect a Power Supply Unit (PSU) set to 13.8V. Do not rely on a simple jump pack.
+* Key Status: You need at least one new, unprogrammed key. If using a refurbished key, it must be unlocked/virginized using the XP400 Pro prior to entering the vehicle.
+* Network: Connect the tablet to a high-speed Wi-Fi network (Hotspot is acceptable if stable).
+* Vehicle State: Hazard lights MUST be ON. This keeps the BCM awake during the silent phases of the programming script.12
+Step-by-Step Procedure (Autel IM608 Workflow)
+1. Initialization:
+   * Connect the V200 to the OBDII port.
+   * Enter the vehicle and close all doors.
+   * Turn Hazard Lights ON.
+   * Select IMMO > GM > System Selection > Read Immobilizer Password (CAN-FD).
+2. Authentication:
+   * The tool will read the VIN and request the seed.
+   * It will connect to the server to calculate the password. Time Estimate: 2-5 minutes.
+   * Warning: Do not let the tablet screen sleep.
+3. Key Learning Mode:
+   * Once the password is verified, select Add Smart Key (for adding a spare) or All Keys Lost (if no keys exist).
+   * For All Keys Lost, the tool may initiate a 10-minute security wait to bypass the existing alarm state.
+   * System Response: The instrument cluster and infotainment screen will dim or display "Remote Learn Pending, Please Wait".12
+4. The Physical Handshake:
+   * The tool will prompt: "Place the New Key in the Key Programming Pocket."
+   * Crucial Step: Locate the Front Cupholder. Remove the rubber liner at the bottom. The pocket is a molded depression specifically shaped for the fob. Insert the key vertically or flat depending on the specific mold (usually vertical, buttons facing rear).12
+5. Finalization:
+   * Press Start on the tablet.
+   * Monitor the Driver Information Center (DIC). It should change to "Ready for Remote #3" (or the next sequential number).
+   * Press and hold the vehicle's Start/Stop button for 2 seconds.
+   * Verification: The cluster will chime, and the key count will increment.
+6. Exit Strategy:
+   * Select "Exit" or "Finish" on the tool.
+   * Press the Unlock button on the newly programmed remote.
+   * Turn off Hazard lights. Open and close the driver's door to reset the BCM sleep cycle.
+Specific Nuances: Escalade vs. ESV
+The Escalade ESV (Extended Wheelbase) shares the same BCM location (typically under the driver's side dashboard, near the firewall), but the extended wiring harness introduces a higher resistance load. While the procedure is identical, the "Communication Timeout" tolerance is lower on the ESV. Ensure your VCI connection is secure and your PSU is robust. There are no distinct "ESV-only" menu selections in the programmer; you will select the standard "Escalade" or "Escalade ESV" option, which generally points to the same protocol ID.13
+The Super Cruise Variable
+Vehicles equipped with Super Cruise have an additional Driver Attention Camera (DAC) module on the steering column and a dedicated map module. These modules are also on the high-speed bus. While they do not directly block key programming, they are highly sensitive to "forced" BCM wake-ups. If you encounter a "Conditions Not Correct" error, it may be due to the Super Cruise module detecting a fault. Clearing DTCs (Diagnostic Trouble Codes) before attempting the key learn is a recommended best practice for Super Cruise models.
+
+
+  
+
+
+
+4. Deep Dive: GMC Sierra & Yukon (2019/2022–2025)
+The GMC lineup presents a more fragmented landscape than Cadillac due to the staggered rollout of the Global B architecture across the truck (T1XX) platform.
+4.1 The Platform Split: Sierra vs. Silverado (T1XX)
+While the Chevrolet Silverado and GMC Sierra are mechanical twins, their electronic evolution diverged slightly in timing and trim-level complexity.
+* 2019-2021 (Pre-Refresh): These models typically utilize a hybrid Global A/B architecture. They may not require CAN-FD adapters and often function with standard high-speed CAN tools.
+* 2022.5+ (The "Refresh"): This is the critical demarcation line. GMC introduced a mid-cycle refresh for the 2022 model year.
+   * Identification: Look at the interior. If the vehicle has the fully digital 12.3-inch instrument cluster and the horizontal 13.4-inch infotainment screen, it is Global B and requires CAN-FD.15
+   * Legacy Interior: If the 2022 model has the older analog gauge cluster and smaller embedded screen, it is likely the "Limited" or "Pro" trim that retains the older architecture.
+* HD Models (2500/3500): The heavy-duty trucks lagged behind the 1500 series.
+   * 2020-2023: Mostly Global A (or hybrid).
+   * 2024+: Definitively Global B. The 2024 Sierra HD refresh brought the digital interior and the VIP architecture to the heavy-duty line.15 Implication: A 2023 Sierra 2500HD might be programmable with an older tool, but a 2024 absolutely requires a CAN-FD setup.
+4.2 Research Sub-Query: AT4 vs. Denali Specifics
+The distinction between the AT4 (Off-Road) and Denali (Luxury) trims goes beyond aesthetics and affects the key fob hardware and programming logic.
+* Key Fob Hardware:
+   * Denali: Typically utilizes a 5-button fob. The critical fifth button is often the Power Tailgate release or Remote Start (depending on configuration). The Part Number is typically 13548442.17
+   * AT4: This trim creates confusion. High-spec AT4 models with the "MultiPro" tailgate may use the same 5-button fob as the Denali. However, base AT4 implementations might utilize a 4-button fob.
+   * Interchangeability: The FCC ID: YG0G21TB2 is the master identifier for the Global B Sierra/Yukon platform.18 As long as the FCC ID matches, a Denali fob can technically be programmed to an AT4. The extra buttons (e.g., Power Tailgate) simply will not function if the vehicle lacks the hardware. Conversely, a 4-button fob programmed to a Denali will start the truck but will deny the user remote tailgate access.
+* Off-Road Modules: The AT4’s locking differentials and suspension modules reside on the Chassis CAN bus. They do not interfere with the BCM’s immobilizer logic on the Body CAN.
+* MultiPro Tailgate: There is no separate "Tailgate Programming" step. The BCM controls the tailgate release solenoid. When the key is programmed to the BCM, the BCM automatically assigns the "Button 5" signal to the tailgate circuit if the VIN indicates the vehicle is equipped with MultiPro.
+4.3 Procedure Profile: GMC Sierra (Refreshed) & Yukon
+Header Data
+* Make/Model: GMC Sierra 1500 (2022.5+) / 2500HD & 3500HD (2024+) / Yukon (2021+)
+* Platform: T1XX (Trucks) / C1XX (SUVs)
+* Key Type: Smart Proximity Fob
+* FCC ID: YG0G21TB2.18
+Procedure Steps
+The procedure is 95% identical to the Cadillac Escalade (Section 3.2), utilizing the same menu structure in Autel (IMMO > GM > GMC > Sierra > 2022+).
+* Pocket Location: Front Cupholder.
+* Time Estimate: 15 minutes (Add Key), 30 minutes (AKL).
+Verification:
+* MultiPro Check: After programming, specifically test the tailgate release. Ensure the inner and outer gate releases (if equipped on the fob) trigger the correct solenoids.
+5. Deep Dive: Cadillac Sedans (CT4 / CT5)
+The Cadillac CT4 and CT5 sedans utilize the Alpha 2 platform. They were among the first vehicles to debut the Global B architecture (alongside the C8 Corvette) in 2020, serving as the testbed for the encryption protocols we now see in the SUVs.1
+5.1 Procedure Profile: CT4 / CT5
+Header Data
+* Make/Model: Cadillac CT4 / CT5
+* Year Range: 2020 – 2025
+* Platform: Alpha 2
+* Key Type: Smart Proximity Fob
+* FCC ID:
+   * 2020-2021: Often YG0G20TB1.20
+   * 2022+: Transitions to YG0G21TB2.
+   * Warning: These FCC IDs look similar but are generally NOT interchangeable due to frequency modulation differences (315 MHz vs 433 MHz). Always verify by VIN.
+Critical Variance: The "Dead Slot" Location
+Unlike the trucks and SUVs that utilize the cupholder, the CT4 and CT5 have a distinct programming slot location.
+* Location: Inside the Center Console Armrest storage bin.
+* Specificity: It is not just "in the bin." There is a specific molded pocket, often located at the very bottom or against the front wall of the bin.21
+* Common Error: Placing the key in the cupholder (as one would for an Escalade) will result in a "No Remote Detected" error during the "Press Start Button" phase of programming.
+Emergency Access: The Door Handle Nuance
+In an All Keys Lost scenario, you must gain physical entry to the vehicle. The CT4/CT5 door handles are flush and aerodynamic.
+* Cap Removal: The key cylinder is hidden behind a cap on the driver’s door handle.
+* Technique: Pull the handle out to the open position. Locate a small slot on the bottom (not the side) of the cap. Insert the emergency key blade into this slot and leverage it upward to pop the cap off.21
+* Risk: This plastic clip is extremely fragile, especially in cold weather. It is advisable to warm the plastic with your hand or a heat source before prying to prevent snapping the retention tabs.
+6. The Ultium Revolution: Hummer EV & Cadillac Lyriq
+The transition to the Ultium platform (Hummer EV, Lyriq, Silverado EV) introduces high-voltage variables into the locksmith equation. While the BCM logic remains rooted in Global B, the power management is radically different, creating new risks for the uninitiated.
+6.1 The 12V Vulnerability (The "Brick" Risk)
+Electric vehicles do not have an alternator in the traditional sense. They use an Accessory Power Module (APM) or DC-DC converter to step down high voltage (400V/800V) from the traction battery to charge the 12V accessory battery.
+* The Programming Risk: During the key programming process, the vehicle is placed in "Service Mode" (Key On, Engine Off). In this state, the high-voltage contactors are often open (disconnected) for safety, meaning the DC-DC converter is OFF. The vehicle is running purely on the small 12V AGM/Lead-Acid battery.
+* The Load: The Hummer EV and Lyriq feature massive infotainment screens, multiple cooling pumps for the thermal management system, and always-on telematics. These systems can draw 20-40 amps continuously. The undersized 12V battery can drain to critical levels (below 10.5V) in less than 15 minutes.24
+* The Consequence: If the 12V rail drops below the threshold while the BCM is writing data to the key, the write process will fail, and the BCM encryption keys may corrupt. This leaves the module in a "bootloader" state, effectively "bricking" the car until a dealer can perform a recovery (if possible).
+* Mandatory Step: You must connect a clean power supply unit (PSU) capable of delivering 50 Amps to the 12V jump points during programming. A standard jump pack is insufficient because it cannot provide sustained current for the duration of the programming event.25
+6.2 Procedure Profile: GMC Hummer EV & Cadillac Lyriq
+Header Data
+* Make/Model: GMC Hummer EV (Pickup/SUV) / Cadillac Lyriq
+* Year Range: 2022 – 2025
+* Platform: Ultium
+* Key Type: Smart Proximity Fob
+* FCC ID: YG0G21TB2 (Hummer) / YG0G20TB1 (Lyriq - verify).27
+Prerequisites
+* 12V Support: Connect the PSU to the under-hood posts.
+   * Lyriq: Open the front hood (Frunk). You must remove a cosmetic trim panel near the cowl/fender to access the Positive (+) post. The Negative (-) post is typically a dedicated stud on the chassis/strut tower.29
+   * Hummer EV: Located under the front hood (Frunk), similar to the Lyriq.
+* High Voltage State: Ensure the High Voltage (Traction) battery has at least 20% charge. Some low-level BCM functions may be inhibited if the main battery is in a critical low state to preserve energy.
+Step-by-Step Procedure (Ultium Specifics)
+1. Preparation:
+   * Pop the Frunk. (If Frunk is dead/locked due to 12V failure, look for the manual release cables, often hidden behind the front bumper tow hook cover or in the footwell, though strictly electronic releases may require 12V injection at the bumper port 30).
+   * Connect 50A PSU.
+   * Connect V200 VCI to OBDII.
+2. Menu Selection:
+   * Autel: GMC > Hummer EV > Smart Key.
+   * Note: Early software versions listed Hummer EV under "GMC > Other" or "Sierra EV". Ensure your software is updated to v3.70+.11
+3. Pocket Location (The Deviation):
+   * Hummer EV: The slot is NOT in the front cupholder like the Sierra. It is located in the Rear Cupholder (back of the center console, accessible to rear passengers).31
+   * Lyriq: Utilizes the Front Cupholder (similar to Escalade).28
+4. Programming:
+   * Follow standard Global B "Add Key" steps. The calculated PIN time may be longer (up to 10 minutes) due to additional encryption wrappers on Ultium BCMs.
+5. CrabWalk & Drive Modes:
+   * CrabWalk Interaction: The 4-Wheel Steer module is on the chassis bus. It does not block key programming. However, after a successful key learn, the vehicle may display "Service Driver Assist System" or "Steering Calibration Needed" due to the power cycle. These usually clear after a short drive cycle (lock-to-lock steering turn).
+
+
+  
+
+
+
+7. Digital Key, YubiKey, and Phone-as-Key
+As manufacturers push toward a "keyless" future, the 2024+ models introduce Digital Key functionality (often branded as "Phone as Key").
+7.1 Implementation Status
+* Availability: Standard or available on 2024+ GMC Sierra Denali, Hummer EV, Cadillac Lyriq, and Escalade.
+* Technology: Uses Bluetooth Low Energy (BLE) and Ultra-Wideband (UWB) for localization.
+* Hardware Token (YubiKey): While YubiKey (FIDO2) is a standard for web authentication, GM's implementation currently focuses on the smartphone (via the myCadillac/myGMC app) and Key Cards (NFC). There is no native support for enrolling a generic YubiKey as a driving credential directly in the vehicle's infotainment system at this time. The "Digital Key" is a software token stored in the phone's Secure Element (Apple Wallet / Google Wallet).33
+7.2 The Locksmith "Catch-22"
+A common customer request is: "I lost my keys, can you just set up my phone to drive the car?"
+* The Answer: NO.
+* The Restriction: To set up a Digital Key or an NFC Key Card, the vehicle must detect two programmed physical key fobs inside the cabin.35
+* Implication: You cannot bypass the need for physical hardware. You must sell and program two physical fobs first. Only then can the customer enable their phone as a backup. This is a critical upsell opportunity and a necessary reality check for the client.
+8. Comparative Tool Coverage Matrix
+The market for Global B programming tools is evolving rapidly. Below is a comparative analysis of the primary players as of early 2025.
+Tool
+	CAN-FD Support
+	Escalade '21+
+	Sierra '24
+	Hummer EV
+	Lyriq
+	Analysis
+	Autel IM608 Pro II
+	Native (w/ V200)
+	Yes (Add/AKL)
+	Yes
+	Yes
+	Yes
+	The dominant market leader. High success rate, but dependent on server uptime. Best for All Keys Lost.
+	Smart Pro (AD)
+	Adapter Req.
+	Yes
+	Yes
+	Limited
+	Limited
+	"ADS2326" software required. Very reliable for "Add Key" but token/subscription costs are high.
+	Lonsdor K518
+	Adapter Req.
+	Yes (Selected)
+	Partial
+	No
+	No
+	Supports basic Global B (e.g., T1XX trucks), but struggles with Ultium and encrypted Cadillac BCMs.
+	Xtool (AutoProPad)
+	Adapter Req.
+	Yes
+	Yes
+	Limited
+	Limited
+	A solid backup. Server calculation can be slower than Autel. Good for standard Sierra/Tahoe, less proven on Lyriq.
+	OEM Techline
+	Native (MDI2)
+	Yes
+	Yes
+	Yes
+	Yes
+	100% success rate. Requires laptop, NASTF VSP ID, and subscription. The only option if aftermarket servers fail.
+	9. Troubleshooting & Advanced "Gotchas"
+9.1 The "Service Mode" Confusion
+To program keys, the ignition must be in "Service Mode" (Key On, Engine Off), which is distinct from "Accessory Mode."
+* How to Enter: Hold the Start/Stop button for 5-10 seconds without touching the brake pedal.
+* Indicator: The Green LED on the button will illuminate, and the instrument cluster will fully wake up (gauges sweep).37
+* Common Error: Pressing the button once enters Accessory Mode (Amber light). Programming will fail here because the BCM is not fully energized.
+9.2 Cadillac CUE / OLED Interference
+On the 2021+ Escalade, the infotainment system (CUE) is deeply integrated with the vehicle's bus.
+* Symptom: Programming fails at "Communicating with BCM."
+* Fix: If the screen is stuck on a boot loop or blank, disconnect the negative battery terminal for 5 minutes to force a hard reset of the VIP modules. Reconnect, ensure 13.5V support, and retry.
+9.3 Recovering a "Bricked" BCM
+If a programming event fails (due to voltage drop or internet loss) and the vehicle will not respond:
+1. Hard Reset: Disconnect 12V battery (negative terminal) for 15 minutes.
+2. Server Restore: Reconnect tool. Many tools (Autel) have a "Restore" or "Retry" function that attempts to resume the session using the cached security data.
+3. OEM Rescue: If the BCM is truly corrupted (bootloader damage), the only fix is to use GM Techline Connect with an MDI2 to "Replace/Reprogram Module" (SPS2). This rewrites the entire firmware image, not just the key data.
+10. Conclusion
+The programming of 2021+ GMC and Cadillac vehicles is defined by the CAN-FD protocol, Server-Side Verification, and High-Voltage Awareness. The "Wild West" era of offline programming is over. Success requires a modernization of the locksmith's toolkit to include CAN-FD capable interfaces (like the Autel V200) and high-amperage power supply units for the emerging EV fleet.
+For the technician, the actionable pillars are clear:
+1. Architecture ID: Confirm Global B via dashboard/VIN.
+2. Physical Precision: Place the key in the exact model-specific slot (Cupholder vs. Console).
+3. Power Management: Support the 12V rail with 50A, especially on EVs.
+4. Connectivity: Verify server status before attempting AKL.
+By adhering to these protocols, the complex layers of the Vehicle Intelligence Platform become navigable, turning a high-risk lockout into a routine service procedure.
+
+
+  
+
+
+
+Works cited
+1. Vehicle Intelligence Platform - TechLink, accessed January 7, 2026, https://gm-techlink.com/wp-content/uploads/2021/04/GM_TechLink_06_Mid-March_2021.pdf
+2. How To Program A GMC Sierra Key Fob – Remote Pairing, Step-By ..., accessed January 7, 2026, https://www.youtube.com/watch?v=nfxGVM6PH4s
+3. Autel - CAN FD Adapter for 2018-2020 Ford / GM Vehicles for Sale | UHS Hardware, accessed January 7, 2026, https://www.uhs-hardware.com/products/autel-can-fd-adapter
+4. 2024 Cadillac CT5 Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 7, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2024-cadillac-ct5-keyless-entry-remote-fob-smart-key-programming-instructions
+5. How to Program New GM 2021-2025 Keys Autel V200 J2534 Setup ..., accessed January 7, 2026, https://www.youtube.com/watch?v=hrSnHb5q4us
+6. 2021 Escalade OLED Infotainment System Guide - Cadillac, accessed January 7, 2026, https://www.cadillac.com/content/dam/cadillac/na/us/english/index/ownership/technology/2021-escalade/02-pdfs/2021-cadillac-escalade-oled-infotainment-system-feature-guide-v2.pdf
+7. Chevrolet New OEM 2022-2026 Silverado, Tahoe Smart Key 4B Remote Start FCCID: YG0G21TB2 PN# 13548442, accessed January 7, 2026, https://royalkeysupply.com/products/chevrolet-new-oem-2022-2023-silverado-tahoe-smart-key-4b-remote-start-fccid-yg0g21tb2-pn-13548442
+8. Autel IM608 Pro | Make A Car Key Without The Original | Key Programming - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=4Dg8lKsGx3g
+9. HOW TO PROGRAM 2021-2025 CHEVROLET CADILLAC GMC BUICK KEYS USING GM TECHLINE CONNECT SOFTWARE - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=WuyBH20TKok
+10. Can Autel IM608 Support DOIP & CAN FD Protocol? | AutelSale.com Office Blog, accessed January 7, 2026, http://blog.autelsale.com/2024/03/22/can-autel-im608-support-doip-can-fd-protocol/
+11. im software - update - Autel, accessed January 7, 2026, https://autel.com/au/wp-content/themes/autel/u/cms/www/202212/12024605cqed.pdf
+12. 2021 Cadillac Escalade Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 7, 2026, https://www.carandtruckremotes.com/blogs/program-instructions/2021-cadillac-escalade-keyless-entry-remote-fob-smart-key-programming-instructions
+13. How to Replace a BCM (Body Control Module) - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=Z2ukBJlP6aI
+14. Cadillac Escalade/Escalade ESV ELECTRICAL Section - GM Upfitter, accessed January 7, 2026, https://www.gmupfitter.com/wp-content/uploads/2022/10/23_Escalade_Escalade_ESV_Electrical_Body_Builder_SM_en_US_2022OCT25.pdf
+15. What's Changed Between the 2024 and 2025 GMC Sierra 3500 HD?, accessed January 7, 2026, https://www.bakerbuickgmchudsonville.com/blog/2025/may/24/whats-changed-between-the-2024-and-2025-gmc-sierra-3500-hd.htm
+16. GMC Sierra 2500HD Generations - CarsDirect, accessed January 7, 2026, https://www.carsdirect.com/gmc/sierra-2500hd/generations
+17. 2024 Chevrolet Silverado Smart Key Remote PN: 13548442, accessed January 7, 2026, https://remotesandkeys.com/products/2024-chevrolet-silverado-smart-key-remote-pn-13548442
+18. Replacement Smart Key Fob for 2024 Chevrolet Silverado - FCC ID: YG0G21TB2 | eBay, accessed January 7, 2026, https://www.ebay.com/itm/176694775588
+19. Brand new 2024 GMC Sierra Smart Remote 13548439 YG0G21TB2 – CarandTruckRemotes, accessed January 7, 2026, https://www.carandtruckremotes.com/products/2024-gmc-sierra-smart-remote-13548439
+20. Cadillac CT5 Key Replacement - How to Get a New Key. (Tips to Save Money, Costs, Keys & More.) - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=ms3g1YW4Qnw
+21. 2020 Cadillac CT4 Keyless Entry Remote Programming Instructions, accessed January 7, 2026, https://northcoastkeyless.com/2020-cadillac-ct4-keyless-entry-remote-programming-instructions/
+22. Cadillac Escalade / CT4 / CT5 Key Fob remote battery replacement - EASY DIY - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=KMt9sKJTwco
+23. Cadillac XT5 XT4 and Others Door Handle Removal & Reinstall Procedure - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=cJBI5a7nfdI
+24. 12-Volt Battery Service in EVs - TechLink, accessed January 7, 2026, https://gm-techlink.com/wp-content/uploads/2024/02/GM_TechLink_20_Mid-October_2023.pdf
+25. Correct battery support operation. : r/Locksmith - Reddit, accessed January 7, 2026, https://www.reddit.com/r/Locksmith/comments/1froyny/correct_battery_support_operation/
+26. I-CAR Just In Time: 12 V Battery Support, accessed January 7, 2026, https://rts.i-car.com/crn-2063.html
+27. 2024 GMC Hummer Ev Smart Key Remote PN: 13542577, accessed January 7, 2026, https://remotesandkeys.com/products/2024-gmc-hummer-ev-smart-key-remote-pn-13542577
+28. 2023 Cadillac LYRIQ Keyless Entry Remote Fob Smart Key Programming Instructions, accessed January 7, 2026, https://keyless2go.com/blogs/program-instructions/2023-cadillac-lyriq-keyless-entry-remote-fob-smart-key-programming-instructions
+29. How to open and jump start a Cadillac EV that has a dead start (12-volt) battery - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=AlkCfwSQR5s
+30. Frunk Access with Dead Battery - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=M92cnswHM48
+31. Locating Transmitter Key Pocket on 2025 GMC Hummer EV #pocket #transmitter #hummer #howto - YouTube, accessed January 7, 2026, https://www.youtube.com/shorts/5TBLKfX7Iso
+32. How to Start Your GMC if Your Key Fob Battery Dies [2025] - Eagle Buick GMC, accessed January 7, 2026, https://www.eaglebuickgmc.com/blogs/6949/how-to-start-your-gmc-if-your-key-fob-battery-dies-2025
+33. About Digital Key | Vehicle Support - Cadillac, accessed January 7, 2026, https://www.cadillac.com/support/vehicle/security/digital-key
+34. Set up or manage a digital car key - Android Help, accessed January 7, 2026, https://support.google.com/android/answer/12060041?hl=en
+35. Setup Digital Key After Removing Missing Second Key Fob - BMW X5 Forum (G05), accessed January 7, 2026, https://g05.bimmerpost.com/forums/showthread.php?t=2114104
+36. Digital key : r/EquinoxEv - Reddit, accessed January 7, 2026, https://www.reddit.com/r/EquinoxEv/comments/1gdoypt/digital_key/
+37. How to Activate Service Mode on GM Push-Button Start Vehicles (Fast & Easy) - YouTube, accessed January 7, 2026, https://www.youtube.com/watch?v=G558pq-tU9E

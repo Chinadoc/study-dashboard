@@ -1,0 +1,220 @@
+﻿Advanced Technical Report: Immobilizer Protocols and Key Programming Architectures for BMW F10 and G30 Platforms
+1. Introduction: The Evolution of Automotive Security
+The automotive security landscape has undergone a radical transformation over the last decade, driven by the escalating sophistication of theft techniques and the parallel demand for enhanced vehicle connectivity. This report provides an exhaustive technical analysis of the key programming procedures for two seminal generations of the BMW 5-Series: the F10 (2010–2017) and the G30 (2017–2025). These platforms represent a pivotal shift in engineering philosophy, moving from the centralized, dedicated immobilizer architecture of the Car Access System (CAS) to the distributed, integrated complexity of the Body Domain Controller (BDC).
+Understanding these systems requires more than a superficial knowledge of tool menus; it demands a deep comprehension of the underlying cryptographic handshakes, memory structures (EEPROM/D-Flash), and inter-module communication protocols. The transition from the F-Chassis to the G-Chassis was not merely an update but a complete re-architecture of the vehicle's "nervous system." The F10 relied on the CAS4/CAS4+ module, a distinct unit responsible for access authorization and start permission. The G30, conversely, adopted the BDC architecture, which amalgamated the functions of the CAS, the Footwell Module (FRM), the Junction Box Electronics (JBE), and the Central Gateway (ZGM) into a single, high-security domain controller.
+This report serves as a definitive operational guide for automotive forensic specialists, advanced locksmiths, and diagnostic engineers. It synthesizes technical data to establish best-practice protocols for "Add Key" and "All Keys Lost" (AKL) scenarios, rigorously analyzing the critical role of the Individual Serial Number (ISN), the impact of hardware-level security locks introduced in June 2020, and the mitigation of catastrophic failure modes. By examining the disparate tool ecosystems—ranging from Autel and Yanhua ACDP to Xhorse—this document aims to standardize procedures and elevate the technical proficiency of operators in the field.
+
+
+  
+
+
+
+2. Theoretical Framework: Cryptography and Authorization
+Before dissecting specific procedures, it is essential to establish the theoretical framework governing BMW's immobilizer systems. At the core of both CAS and BDC systems lies a challenge-response authentication mechanism involving multiple cryptographic keys. The most critical of these is the 128-bit Individual Serial Number (ISN), a unique hexadecimal string burned into the read-only memory of the Digital Motor Electronics (DME) and the Immobilizer module during the vehicle's initial assembly.
+The ISN serves as the "trust anchor" for the vehicle. When a key is inserted (or detected via Low-Frequency antennas in Keyless Go systems), the Immobilizer validates the key's transponder ID and rolling code. However, starting the engine requires a secondary handshake: the Immobilizer must prove to the DME that it possesses the correct ISN. If the ISN stored in the Immobilizer does not match the ISN in the DME, the DME will disable the fuel injection and ignition coils, resulting in a "crank, no start" condition.
+In the context of key programming, the ISN is the "Golden Key." If a technician can read the ISN from the DME, they can mathematically generate the encrypted data required to program a new key, even if all original keys are lost. This dependency on the ISN is the central theme of modern BMW locksmithing and the primary bottleneck in G-Chassis operations post-2020. Furthermore, the varying frequencies used for remote transmission—315 MHz for North America/Japan and 434 MHz or 868 MHz for Europe and other regions—add another layer of complexity, necessitating precise hardware selection and frequency testing during the programming process.1
+3. BMW F10 5-Series (2010–2017): The CAS4/CAS4+ Ecosystem
+The F10 5-Series employs the fourth generation of the Car Access System, commonly referred to as CAS4. However, within the F10 lifespan, there are two distinct hardware iterations that dictate the programming strategy: standard CAS4 and the secure CAS4+. Correctly identifying the system version is the first and most critical step in the workflow, as it determines whether the technician can proceed via OBD-II or must resort to bench operations.
+3.1 Architecture and Identification
+The CAS module in the F10 is typically located above the driver's footwell, acting as the gateway for the PT-CAN (Powertrain CAN) and K-CAN (Body CAN) networks.
+* CAS4 (Early Models, Pre-2012/2013): This variant is generally identified by the 1L15Y mask set on the Motorola/Freescale MC9S12XDP512 microcontroller. Crucially, standard CAS4 systems often do not have the EWS5 security layer active. This implies that the encryption used for key data is less dependent on the DME-CAS pairing code, often allowing for easier manipulation via the OBD port without needing to extract the ISN from the engine control unit.3
+* CAS4+ (Late Models, 2013–2017): Identified by the 5M48H mask set (MC9S12XEP100), CAS4+ is characterized by the activation of EWS5. EWS5 introduces a more rigorous encryption standard where the key data is cryptographically bound to the 128-bit ISN. In this environment, the tool cannot simply write a key ID; it must encrypt the new key's data using the ISN to ensure the CAS accepts it. Without the correct ISN, a key might function in the emergency slot (inductive coupling) but fail to operate the remote central locking due to desynchronized rolling codes.5
+3.2 "Add Key" Protocols for F10
+The "Add Key" scenario assumes the availability of at least one valid, working key. This key is instrumental because it possesses the cryptographic credentials to unlock the CAS module's security partition, allowing the diagnostic tool to read the necessary EEPROM and D-Flash data.
+3.2.1 The Operational Logic of "Working Key"
+There is a nuanced operational logic that technicians must navigate regarding the necessity of the ISN in Add Key scenarios. The binary decision tree is as follows:
+* Path A: Standard CAS4 (1L15Y): If the vehicle is equipped with a standard CAS4 module, the working key provides sufficient authorization for tools like the Autel IM608 or Yanhua ACDP to access the memory. The system generally allows the addition of a key via OBD-II without requesting the ISN. The tool reads the CAS data, decrypts it using the working key, and generates the new key file.3
+* Path B: CAS4+ (5M48H) with EWS5: This is where complexity arises. High-capability tools attempt to use the working key to perform an on-the-fly decryption of the EWS5 storage blocks. If successful, the process mimics Path A. However, if the tool fails to decrypt the specific EWS5 blocks—a common occurrence with complex encryption keys—it will halt and prompt the user to input the ISN manually.
+   * Risk: Technicians who force the procedure without providing the requested ISN in this scenario often encounter a "semi-functional" key. The vehicle may start because the transponder ID is valid, but the remote functions (Lock/Unlock) will not work. This is because the remote rolling codes are generated based on a seed value that requires the ISN for correct calculation.2
+Recommendation: To ensure a 100% success rate on F10 CAS4+ vehicles, the best practice is to proactively read the ISN from the DME via OBD (if supported) or bench before initiating the key learning process. This ensures that all cryptographic requirements are met regardless of the CAS decryption success.5
+3.2.2 Step-by-Step Procedure: OBD-II Workflow (Autel/ACDP)
+The following workflow synthesizes the optimal procedure for adding a key to an F10 via OBD-II, integrating safety protocols to prevent data corruption.
+1. Environmental Stabilization:
+   * Voltage: Connect a high-quality battery support unit (PSU) capable of delivering a stable 13.8V–14.2V at up to 100 Amps. The F10 chassis has high static power consumption (15-20A with ignition on). A voltage drop below 12.5V during the flash reading/writing process can corrupt the CAS firmware, bricking the vehicle.5
+   * Connectivity: Ensure the vehicle's ignition is ON (Engine Off). For "Keyless Go" models, ensure the working key is inside the cabin.
+2. Tool Initialization:
+   * Connect the programmer (e.g., Autel IM608) to the OBD-II port.
+   * Navigate to IMMO > BMW > Smart Selection. The tool will automatically scan the vehicle to identify the system (CAS4 vs CAS4+).
+   * Verification: Check the "ECU Information" screen to confirm the Mask ID (1L15Y or 5M48H).3
+3. Data Acquisition (Read & Unlock):
+   * Select "Key Learning" > "Add Key".
+   * The tool will attempt to read the CAS coding data and EEPROM.
+   * Working Key Prompt: The tool will request the user to hold the working key against the emergency coil (marked on the steering column). This step reads the key's frequency and ID to authorize the access.7
+   * Network Calculation: For ACDP and some Autel functions, the tool requires an internet connection to send encrypted data to the manufacturer's server for calculation. This process decrypts the CAS data to reveal the Key IDs.8
+4. Key Generation:
+   * Once the key data table is displayed, select an empty key slot (e.g., Key Position 3).
+   * Select "Program Key" or "Write Key via Programmer".
+   * Place the new, blank key into the tool's key slot (XP400 Pro for Autel, BAV Adapter for ACDP).
+   * The tool writes the encrypted authorization data, ISN, and remote frequency settings to the new key transponder.
+5. Synchronization and Learning:
+   * Take the newly programmed key into the vehicle.
+   * Hold the key against the steering column emergency coil.
+   * Press and hold the Start/Stop button for approximately 10 seconds.
+   * Indication: The instrument cluster will light up, and the steering lock (if present) will release.
+   * Test: Test the remote lock/unlock functions. If the remote does not work but the car starts, the rolling code synchronization failed, likely due to missing ISN data.9
+3.3 F10 All Keys Lost (AKL) Protocols
+The "All Keys Lost" scenario for the F10 is fundamentally different because there is no working key to authorize the CAS reading or decrypt the data. Therefore, the technician must provide the ISN to the tool to generate a valid dealer key.
+3.3.1 The Critical Path: Mandatory ISN Extraction
+In AKL, the workflow is blocked until the 128-bit ISN is retrieved. This necessitates interacting with the Digital Motor Electronics (DME).
+* Engine Variants: F10 models are commonly equipped with N20 (4-cylinder), N55 (6-cylinder turbo), N63 (V8), or diesel variants N47/N57. All utilize Bosch MEVD17.2.x series ECUs.
+* Extraction Methods:
+   * OBD Reading: While some tools claim OBD ISN reading for F-Series, it is notoriously unstable and often requires a working key to turn on the ignition to wake the DME. In AKL, waking the DME without a key is difficult, often requiring "force ignition" methods (shorting the relay or using a specialized cable).5
+   * Bench Reading (Factory Mode): This is the industry standard for reliability. It involves removing the DME from the engine bay and connecting it to a breakout box (e.g., Autel G-Box3, ACDP Module 3 Interface Board) on the workbench. This method bypasses the gateway and allows direct communication with the Tricore processor via CAN bus, reading the ISN without opening the ECU casing.11
+3.3.2 Execution Workflow
+1. DME Removal & ISN Read: Physically remove the DME. Connect the pins for Power (12V), Ground, CAN High, CAN Low, and T15 (Ignition). Use the diagnostic tool to "Read ISN". Save the resulting 32-character hexadecimal string.
+2. CAS Data Access:
+   * OBD Unlock: With the ISN in hand, some tools (ACDP, Autohex) can attempt to unlock the CAS4 module via OBD. The ISN is used to bypass the security usually handled by the working key.5
+   * Bench/ICP Read: If OBD fails, remove the CAS module. Use an In-Circuit Programming (ICP) method (e.g., ACDP Module 1 Interface Board) to read the EEPROM and D-Flash from the 5M48H chip. This is a "solder-free" method that uses pogo pins to contact the test points, significantly reducing the risk of damaging the PCB compared to traditional soldering.13
+3. Dealer Key Generation:
+   * Load the CAS data (EEPROM) into the key programming software.
+   * Select "Make Dealer Key" or "Generate Key".
+   * When prompted, manually enter the 128-bit ISN extracted from the DME.
+   * The software calculates the new key data, combining the CAS security bytes with the ISN.
+4. Writing and Finalization:
+   * Place the blank key in the programmer and write the data.
+   * Insert the key into the vehicle's emergency coil and perform the start sequence to synchronize the ELV (Steering Lock) and CAS.
+4. BMW G30 5-Series (2017–2025): The BDC Ecosystem
+The introduction of the G30 5-Series marked the transition to the Body Domain Controller (BDC), specifically the BDC2 (or BDC_BODY2) architecture. This module represents a quantum leap in complexity and security. Unlike the CAS4, which could largely be manipulated via OBD-II, the BDC is designed with "Secure Boot" protocols that block unauthorized read/write attempts over the standard diagnostic bus. This necessitates a "Bench Pre-processing" step for nearly all key programming operations.
+4.1 The BDC "Pre-processing" Imperative
+To program a key for a G30, the BDC module must first be placed into a "Service Mode." This state disables the secure boot checks temporarily, allowing the technician to write new Key IDs into the EEPROM.
+* Mechanism: The pre-processing operation involves reading the encrypted coding data (CAFD) and the EEPROM, modifying the software to unlock the bootloader (often referred to as "Downgrading" the SWFL to an exploitable version), and then rewriting the data.
+* Risk Profile: This is the single most dangerous phase in modern BMW locksmithing. If power is interrupted, or if the incorrect SWFL version is forced onto the unit, the BDC will be "bricked." A bricked BDC results in a totally dead vehicle—no ignition, no lights, no communication.14
+* Technological Shift: Early methods required dismantling the BDC case and soldering wires to the tiny legs of the 95256 EEPROM chip. This was high-risk and prone to human error. The market has since shifted to Interface Board Technology (e.g., Yanhua ACDP Module 38, Xhorse XDNP adapters). These boards clamp over the BDC's processor and test points using precision pogo pins, allowing for a secure, solder-free connection that drastically mitigates the risk of physical damage.15
+4.2 G30 "Add Key" Protocols (Bench Unlock + OBD Learn)
+Even when a working key is present, the G30 BDC typically cannot be programmed purely via OBD-II. While Autel has introduced limited OBD capabilities for some BDC versions (BDC03), these often require expensive subscriptions and carry higher stability risks compared to the bench method. The standard professional workflow involves removing the BDC.17
+4.2.1 Phase 1: Bench Pre-processing (The Unlock)
+1. Component Removal:
+   * Disconnect the negative battery terminal. This is mandatory to prevent shorts and airbag errors.
+   * Locate the BDC module (A258) in the passenger footwell (Right Hand Drive) or driver footwell (Left Hand Drive), usually behind the kick panel.
+   * Disconnect all harness connectors. The BDC has multiple high-density connectors; care must be taken not to bend pins.
+2. Solder-Free Connection:
+   * Open the BDC casing to expose the PCB.
+   * Cleaning: Clean the contact points on the PCB with isopropyl alcohol to remove conformal coating or oxidation.
+   * Mounting: Align the interface board (e.g., ACDP Module 38) over the specific alignment holes on the BDC. Tighten the locking mechanism to ensure firm contact of all pogo pins.
+   * Verification: Most tools perform a "Pin Detection" test to verify that all pins have good continuity before applying power.19
+3. Data Operation:
+   * Select "BDC2 Add Key" > "Bench Mode".
+   * Mandatory Backup: The tool will first read and save the Coding Data (CAFD), EEPROM Data, and FAFP (Vehicle Order/Coding). Crucially, verify these files are saved and valid (non-zero size) before proceeding. These are the only recovery options if the unlock fails.21
+   * The Unlock: The tool will automatically patch the BDC firmware. This process can take 5–20 minutes depending on the tool and processor speed. Do not disturb the setup.
+4. Re-Installation: Once the tool confirms "Pre-processing Complete" or "Service Mode Active," disconnect the interface board, reassemble the BDC, and reinstall it in the vehicle.
+4.2.2 Phase 2: OBD Key Learning
+With the BDC unlocked and back in the car, the remainder of the process is done via OBD.
+1. System Connection: Connect the programmer to the OBD port.
+2. Authentication: Select "Key Learning". The tool will prompt to hold the working key to the ring coil. This validates the session.
+3. Programming: The tool will then prompt to hold the new blank key to the ring coil. The BDC, now in Service Mode, accepts the new key ID and writes it to memory.
+4. Coding Restoration: After the key is added, the tool may automatically restore the original CAFD/Coding data to take the BDC out of Service Mode. If this does not happen automatically, the technician must manually write back the saved "Coding Data" file. Failure to do this will result in a starting car with malfunctioning windows, lights, and wipers.7
+4.3 G30 All Keys Lost (AKL) Protocols and the "June 2020" Barrier
+The AKL scenario for the G30 is the most challenging operation in the current landscape due to the intersection of BDC encryption and DME protection.
+4.3.1 The "June 2020" Security Cliff
+For G30 models, the production date of June 2020 is a definitive watershed moment.
+* Pre-June 2020: Vehicles utilize Bosch B48/B58 DMEs (MG1/MD1) that contain a bootloader vulnerability. This allows aftermarket tools (with appropriate licenses and adapters) to read the ISN on the bench. Once the ISN is obtained, it can be fed into the BDC (via the bench pre-processing method described above) to generate a key.22
+* Post-June 2020: BMW/Bosch introduced a new hardware-level security patch that locked the bootloader completely. This effectively blocks all known aftermarket methods for reading the ISN via OBD or Bench.
+   * Operational Impact: It is currently impossible to perform an AKL job on a post-June 2020 G30 using standard locksmith tools (Autel, Xhorse, ACDP). The tool cannot extract the ISN from the DME, and without the ISN, the BDC cannot be programmed to accept a new key.
+   * The Only Solution: The only viable path for post-2020 AKL is to order a replacement key directly from the BMW dealership using the VIN and proof of ownership. Alternatively, the DME can be removed and shipped to specialized unlocking facilities (e.g., Femto in Finland) that have proprietary methods to unlock the ECU, but this is logistically complex and expensive.23
+4.3.2 AKL Procedure (Pre-June 2020 Vehicles)
+For vehicles eligible for ISN extraction, the workflow is as follows:
+1. DME ISN Extraction: Remove the DME. Use a G-Box or ACDP Module 27/3 interface board to read the ISN on the bench. (See Section 5 for detailed ISN protocols).
+2. BDC Bench Unlock: Remove the BDC and perform the "Bench Pre-processing" using the "All Keys Lost" option in the software.
+3. Dealer Key Generation: When the tool asks for the ISN, input the code extracted from the DME. The software uses this ISN to calculate the encryption keys necessary to authorize the new key in the BDC.
+4. Key Writing: Program the blank key.
+5. Restoration: Reinstall both modules. The new key should start the vehicle.
+5. ISN Extraction: Tools, Pinouts, and Methodologies
+The extraction of the Individual Serial Number (ISN) is a technical discipline in itself. Success depends heavily on using the correct connection topology and understanding the specific requirements of the engine control unit.
+5.1 DME Generations and Connection Protocols
+* N55/N20 (F-Series): These engines use Bosch MEVD17.2.x ECUs.
+   * Bench Mode: Preferred over Boot Mode as it does not require opening the ECU lid (which is sealed with tough sealant).
+   * Pinout: Requires connections for 12V Power, Ground, CAN High, CAN Low, and T15 (Ignition Wake-up).
+   * Tools: Autel IM608 with G-Box3 is highly effective here. The G-Box modulates the T15 signal to bypass the password protection. ACDP Module 3 is also widely used.25
+* B48/B58 (G-Series): These use Bosch MG1CS003 / MG1CS024 / MD1CS001 (Diesel).
+   * Interface Requirements: These units are extremely sensitive to pin contact issues. Manual probing is discouraged.
+   * Tools:
+      * Xhorse Key Tool Plus: Requires the "BMW Bench Read ISN License" and the XDNP30 Bosch ECU Adapter. This adapter fits the specific proprietary connector shape of the MG1 ECU, ensuring perfect pin alignment.11
+      * Yanhua ACDP Module 27: Uses a specific interface board that clamps over the ECU connector. This is arguably the safest method as it eliminates the "human hand" variable from the connection.28
+5.2 The Role of the Breakout Box (G-Box/Adapter)
+Directly connecting an OBD tool to the DME pins is insufficient. A breakout box (like the Autel G-Box or Xhorse Adapter) is mandatory. Its function is twofold:
+1. Signal Modulation: It handles the precise timing of the ignition (T15) signal required to exploit the "Service Mode" vulnerability in the bootloader.
+2. Gateway Bypass: It acts as a surrogate gateway, terminating the CAN bus resistance (120 ohms) to allow communication. Without this, the tool will report "Communication Failed".29
+
+
+  
+
+
+
+6. Critical Failure Modes and Recovery Strategies
+The manipulation of BDC modules and DMEs carries inherent risks. Understanding these failure modes and their recovery paths is what separates a novice from an expert.
+6.1 The "Bricked" BDC
+A "bricked" BDC occurs when the unlock/flash process is interrupted or corrupted.
+* Symptoms: The vehicle is completely unresponsive. The ignition will not turn on. Diagnostic tools generally fail to communicate with the BDC, or the BDC stays in "Boot Mode" (blue screen on some tools).
+* Root Causes:
+   * Voltage Instability: A drop in voltage during the flash write causes a checksum error in the bootloader.
+   * Version Mismatch: Attempting to downgrade a BDC with very new firmware (e.g., post-2023 dealer update) using an older tool database can corrupt the SWFL.14
+* Recovery Workflow:
+   1. Force Programming (Expert Mode): Tools like Autel IM608 have an "Expert Mode" or "Program/Code" section. If the BDC bootloader is still partially active, you can attempt to force-write the original Coding Data (CAFD) and Flash files back to the unit. This requires the backup files created earlier.30
+   2. EEPROM Surgery: If OBD recovery fails, the BDC must be removed. The 95256 EEPROM chip must be read on the bench. By analyzing the hex data, a specialist can sometimes repair the corrupt header or inject a "virgin" file structure (renew), which allows the BDC to be relearned to the car (though this requires the ISN).30
+   3. Hardware Replacement: If the processor is physically damaged or the data is irrecoverable, a replacement BDC is required. A used BDC can be installed, but it must be "Unlocked" and then adapted to the vehicle by writing the original VIN and the DME's ISN into it. This effectively clones the identity of the old BDC into the new one.31
+6.2 DME Damage
+* Mechanism: The most common cause of DME damage is short-circuiting pins during bench ISN reading. The Tricore processor pins are microscopic, and manual probing often results in slipping probes that bridge the 12V rail to a 3.3V data line, instantly frying the CPU.
+* Prevention: The adoption of Solder-Free Interface Boards (ACDP/Xhorse) is the primary mitigation strategy. By using a rigid board that clamps into place, the risk of manual error is eliminated.
+* Recovery: A fried DME usually requires replacement. The ISN must be extracted from the old DME (if the EEPROM is still alive) or the CAS/BDC (if accessible) to program the replacement DME to the car.
+7. Tool Ecosystem and Comparative Analysis
+The market for BMW key programming is dominated by three major players, each with distinct philosophies and strengths.
+7.1 Autel IM608 / IM508
+* Philosophy: "Guidance and Breadth." Autel excels in user interface, providing step-by-step graphical guides.
+* Strengths: Excellent OBD capabilities for F10 CAS4+. Strong diagnostic functions (scanning, coding) integrated into the tablet.
+* Weaknesses: Bench work for G30 BDC and ISN reading often requires the G-Box and complex wiring, which is more error-prone than interface boards. The new OBD Add Key for BDC03 is expensive and subscription-based.17
+7.2 Yanhua Mini ACDP
+* Philosophy: "Modular and Solder-Free." ACDP focuses on hardware safety.
+* Strengths: The Module 38 (BDC) and Module 27 (DME) interface boards are the industry benchmark for safety. The mobile/PC app is efficient at managing backup files.
+* Weaknesses: Requires a consistent internet connection for server calculations. The "Module" system can get expensive as you buy individual boards for each chassis.15
+7.3 Xhorse VVDI Key Tool Plus
+* Philosophy: "All-in-One Powerhouse." A dedicated tablet for locksmiths.
+* Strengths: Powerful hardware. The XDNP adapters offer similar solder-free safety to ACDP. Excellent coverage for older E-Series and newer G-Series alike.
+* Weaknesses: The interface can be technical and less guided than Autel. Requires purchasing specific licenses for ISN reading.27
+
+
+  
+
+
+
+8. Conclusion and Strategic Recommendations
+The transition from the F10 to the G30 platform represents a significant escalation in the technical requirements for automotive locksmiths. While the F10's CAS4 system has become a mature and relatively low-risk operation (provided ISN protocols are respected), the G30's BDC2 system demands a rigorous "Bench-First" mentality and specialized hardware.
+Strategic Recommendations for Practitioners:
+1. Adopt Interface Board Technology: For G30 BDC and G-Series DME work, the risk of manual soldering or pin probing is no longer acceptable. The investment in solder-free interface boards (like ACDP Module 38) is a mandatory insurance policy against bricking modules.
+2. Verify Production Dates: Immediately identify the "June 2020" threshold for G30 vehicles. For post-2020 models, manage customer expectations upfront: AKL is likely impossible without dealership intervention.
+3. Prioritize Data Backup: Never initiate a BDC unlock without verified backups of the Coding Data (CAFD) and EEPROM. These files are the only lifeline in the event of a flash failure.
+4. Master ISN Extraction: In the modern landscape, the ability to reliably read ISN on the bench is the distinguishing skill. It is the key to unlocking AKL jobs and performing module replacements.
+By adhering to these technically rigorous protocols, operators can navigate the complex security landscape of modern BMWs with confidence, minimizing liability and maximizing operational success.
+Works cited
+1. How to Add a New BMW Key with Autel - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=5sL3IhxfeiA&vl=en
+2. Add key failed cas4+ f01 - Microtronik Autohex II and Hexprog forum, accessed January 27, 2026, https://forum.microtronik.com/Posts/t584-Add-key-failed-cas4-f01
+3. BMW F10 CAS4/CAS4+ How to Add key with Autel MaxiIM IM608 - obdprice, accessed January 27, 2026, https://www.obdprice.com/blogs/car-repar-maintenance/bmw-f10-cas4-cas4-how-to-add-key-with-autel-maxiim-im608
+4. Mini ACDP BMW CAS1-CAS4+, FEM/BDC Key Programming& Odometer Correction Car List, accessed January 27, 2026, http://blog.yanhuaacdp.com/mini-acdp-bmw-cas1-cas4-fem-bdc-key-programming-odometer-correction-car-list/
+5. CAS4/4+ Key Programming - Microtronik Autohex II and Hexprog forum, accessed January 27, 2026, https://forum.microtronik.com/Posts/t1139-CAS4-4-Key-Programming
+6. CAS4 and CAS4+ Key Programming - autohex - Microtronik, accessed January 27, 2026, https://www.microtronik.com/technical-info/autohex/cas4-key-programming
+7. How To Program key BMW F chassis BDC IMMO via DoIP OBD w Mini ACDP Module 31 - No Solder Auto EEPROM - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=GtmLmu2xd6o
+8. 2015 BMW F10 (CAS4 )All Keys Lost- Key programming with AVDI - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=aiwW7YvCYwM
+9. Complete BMW CAS4 OBD Key Programming with Autel IM608 | Step-by-Step Guide, accessed January 27, 2026, https://www.youtube.com/watch?v=VJju5JO3ZcM
+10. 2021 G30 540 Key programming : r/BmwTech - Reddit, accessed January 27, 2026, https://www.reddit.com/r/BmwTech/comments/1fbmin2/2021_g30_540_key_programming/
+11. Read BMW ISN on Bench Using KEY TOOL PLUS | Xhorse - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=rTPjhZBuN6c
+12. Xhorse BMW Bench Read ISN Software License For VVDI / Key Tool Max, accessed January 27, 2026, https://www.bestkeysupply.com/products/xhorse-bmw-bench-isn-license-vvdi-keytoolmax-p796
+13. Yanuha ACDP BMW Module 1 IMMO key programming - Key4, accessed January 27, 2026, https://www.key4.com/yanuha-acdp-module-1-cas1-cas2-cas3-cas3-cas3-cas4-immo-key-programming
+14. Bricked BMW X5 with Autel IM508 and XP400 - PLEASE HELP : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1d5fuxb/bricked_bmw_x5_with_autel_im508_and_xp400_please/
+15. Yanhua Mini ACDP: BMW BDC2 All-Keys-Lost - World's First - No tokens/subs! - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=S8tn39JQtbY
+16. Connecting Xhorse BMW BDC2 Adapter and VVDI2: A Comprehensive Guide - VXDAS, accessed January 27, 2026, https://www.vxdas.com/blogs/diagnostic-tool/connecting-xhorse-bmw-bdc2-adapter-and-vvdi2-a-comprehensive-guide
+17. Autel just enabled add key on G body BMWs but there's a huge catch. : r/Locksmith - Reddit, accessed January 27, 2026, https://www.reddit.com/r/Locksmith/comments/1iuzz1g/autel_just_enabled_add_key_on_g_body_bmws_but/
+18. Yanhua ACDP Module 38: Revolutionizing BMW G-Chassis Key Programming - VXDAS, accessed January 27, 2026, https://www.vxdas.com/blogs/diagnostic-tool/yanhua-acdp-module-38-revolutionizing-bmw-g-chassis-key-programming
+19. How To Use BM.W-G BDC2 Adapter Read BMW Immo Data with Xhorse VVDI2 #bmw, accessed January 27, 2026, https://www.youtube.com/watch?v=TkZdwWCOtG0
+20. Xhorse BMW G BDC2 Adapter Connection and Removal Guide - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=G72lHI9bIok
+21. ACDP Module 38 Addon: BMW BDC2 17-22 ALL-KEYS-LOST Bench Test Platform + License A504, accessed January 27, 2026, https://keyshop-online.com/products/acdp-module-38-addon-bmw-bdc2-2017-2022-immo-all-keys-lost-test-platform-license-a504
+22. DME lock? - BMW 5-Series Forum (G30) - Bimmerpost, accessed January 27, 2026, https://g30.bimmerpost.com/forums/showthread.php?t=1848008
+23. Bench unlock your DME It's THAT easy #bmw #g30 #550i #g80 #m3 #m3 #femto, accessed January 27, 2026, https://www.youtube.com/watch?v=-JVunrRmwJA
+24. Programming additional key fob - BMW 5-Series Forum (G30) - Bimmerpost, accessed January 27, 2026, https://g30.bimmerpost.com/forums/showthread.php?t=1790754
+25. BMW MEVD17.2.x N13 & N20 N55 B38 DME Adapter for the Autel G-BOX3 & IM608 - EASILY READ ISN - UHS Hardware, accessed January 27, 2026, https://www.uhs-hardware.com/products/bmw-mevd17-2-x-n13-n20-n55-b38-dme-adapter-for-the-autel-gbox
+26. G-BOX Upgrades to Gbox2, Support BMW Read&Write ISN Code in Bench Mode - obdprice, accessed January 27, 2026, https://www.obdprice.com/blogs/news/g-box-upgrade-to-gbox2-support-bmw-read-write-isn-code-in-bench-mode
+27. Xhorse for BMW BENCH READ ISN for KEY TOOL PLUS License Activate Online - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005006624645522.html
+28. ACDP2 ISN Module and B48 bench interface board for BMW BDC2 ALL keys lost read ISN form B48/B58 DME before 2020 JUNE - AliExpress, accessed January 27, 2026, https://www.aliexpress.com/item/1005009438810657.html
+29. Autel G-BOX3 + IM508S Reads BMW ISN Data on Bench Tutorial - YouTube, accessed January 27, 2026, https://www.youtube.com/watch?v=qk0_qUmjyEo
+30. Autel IM608 No Connect with BDC After OBD Programming Solution | by obdii365 - Medium, accessed January 27, 2026, https://medium.com/@obd365com/autel-im608-no-connect-with-bdc-after-obd-programming-solution-be46111c1d94
+31. BMW FEM BDC Unlocking for Replacement and Programming Keys - Microtronik, accessed January 27, 2026, https://www.microtronik.com/technical-info/autohex/fem-and-bdc-unlocking
+32. "Add Key" BMW | Autel, accessed January 27, 2026, https://autel.us/add-key-bmw/
+33. Xhorse BMW Bench Read ISN License for Key Tool Plus (Online Activation) - Key4, accessed January 27, 2026, https://www.key4.com/xhorse-bmw-bench-read-isn-license

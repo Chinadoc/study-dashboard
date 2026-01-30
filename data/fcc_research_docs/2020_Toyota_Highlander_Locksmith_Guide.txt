@@ -1,0 +1,282 @@
+﻿2020 Toyota Highlander Locksmith Intelligence: A Technical Compendium of Security Architectures, Programming Protocols, and Risk Mitigation
+1. Executive Intelligence Summary and Strategic Overview
+The automotive security landscape underwent a seismic shift with the introduction of the 2020 Toyota Highlander. This vehicle does not merely represent a new model year; it signifies the deployment of Toyota’s "Type 4" security architecture, a system that fundamentally alters the relationship between the locksmith, the diagnostic tool, and the vehicle’s Controller Area Network (CAN). For the security professional, the 2020 Highlander is a watershed moment that demarcates the obsolescence of legacy programming methods and the necessity of advanced, invasive, and cryptographic-aware interventions.
+This report provides an exhaustive, forensic analysis of the locksmithing ecosystem surrounding the 2020 Toyota Highlander. The findings herein are derived from a synthesis of OEM technical service bulletins, field data from the world’s leading key programming platforms (Autel, Lonsdor, Xhorse, Advanced Diagnostics), and granular analysis of the transponder encryption protocols.
+Our analysis reveals that the 2020 Highlander introduces three primary technical barriers that were absent or nascent in previous generations: the integration of a Security Gateway Module (SGW) that acts as a firewall against unauthorized OBDII access; the adoption of 128-bit DST-AES encryption with a rolling seed-code exchange that defies static calculation; and a hardware topology that physically separates the Smart Key Certification ECU from the ID Code Box, introducing critical risks of desynchronization during "All Keys Lost" recovery procedures.
+Crucially, this report distinguishes between the two divergent immobilizer systems present in this model year: the Smart Proximity System (Push-to-Start) and the Bladed "H" Chip System (Turn-to-Start). While these systems share a chassis, their programming logic is diametrically opposed. The Smart system requires a bypass of the Certification ECU to inject data, while the Bladed system often necessitates a "fuse box attack" to power the immobilizer rail directly, circumventing the need for dashboard disassembly.
+The following sections will deconstruct these systems with molecular precision, offering the "Programming Pearls"—high-value, field-tested insights—that separate successful jobs from catastrophic module failures. We will explore the physics of voltage stabilization, the cryptography of the rolling code, and the specific pin-out architectures required to bypass the modern digital fortress that is the 2020 Toyota Highlander.
+
+
+  
+
+
+
+2. The Architectural Paradigm Shift: "AA/BA" and the Security Gateway
+To successfully navigate the programming of a 2020 Highlander, one must first understand the theoretical underpinnings of its security architecture. Toyota has moved away from the static "Master Key" concept where the key simply holds a fixed ID that the car recognizes. The 2020 model operates on a challenge-response verification system protected by a Security Gateway.
+2.1 The Security Gateway (SGW) Firewall
+The most immediate hurdle for any technician connecting a diagnostic tool to the OBDII port of a 2020 Highlander is the Security Gateway Module. Modeled after the architecture first seen in Stellantis (FCA) vehicles, the SGW segments the vehicle's network into public and private domains.
+The Public Domain includes the OBDII port (DLC) and the Telematics unit.
+The Private Domain includes the critical control units: the Engine Control Module (ECM), Body Control Module (BCM), Certification ECU (Smart Box), and the Immobilizer ID Code Box.1
+When a locksmith connects a standard key programmer to the OBDII port, the tool attempts to send "Write" commands (e.g., "Reset Immobilizer," "Add Key"). The SGW intercepts these commands. Unless the tool possesses a digital certificate authorized by Toyota's central servers (a capability generally restricted to the TIS Techstream dealer tool), the SGW rejects the write request. This effectively "read-only" lock prevents aftermarket tools from modifying the immobilizer data via the standard port.
+This architectural reality necessitates a physical bypass. The locksmith must gain access to the CAN bus behind the firewall. This is achieved not by hacking the software, but by physically connecting to the specific communication wires (CAN High and CAN Low) of the Certification ECU or by using a "Star Connector" bypass cable that plugs into the gateway module itself.
+2.2 The Rolling Code "Seed-Key" Exchange
+Beyond the physical firewall lies a cryptographic barrier. Previous Toyota systems (Type 3 / H-Chip) utilized a 96-digit seed code. While complex, this seed was static enough that aftermarket servers could calculate the response in minutes. The 2020 Highlander, however, utilizes a 12-digit Rolling Code algorithm.3
+Every time the diagnostic tool requests access to the programming partition of the ECU, the vehicle generates a new, random 12-digit "Seed." The tool must respond with the correct mathematical "Key" derived from that seed. Because the algorithm changes dynamically and requires a server-side calculation that matches Toyota's current encryption keys, offline calculators are rendered useless.
+This development has forced the aftermarket industry to develop "Bypass Adapters" (such as the Lonsdor ADP or Autel 8A Cable). These adapters do not solve the math problem; they circumvent it. By connecting directly to the pins of the Smart ECU, these adapters dump the EEPROM data directly, retrieving the stored key data without ever asking the ECU for permission to enter programming mode. This "Direct Read" method is the cornerstone of modern Toyota locksmithing.5
+3. System Identification and Transponder Philology
+A critical failure point in the field is the misidentification of the key system. The 2020 Highlander sits at a crossroads of technology, offering both a cutting-edge Smart Key system and a highly secure Bladed Key system. These two systems share almost no hardware commonality regarding the immobilizer, yet they are often confused due to similar-looking key blades and shells.
+3.1 The Smart Proximity System (Push-to-Start)
+The Smart Key system is standard on XLE, Limited, and Platinum trims. It is governed by the Certification ECU, often referred to in the trade as the "Smart Box."
+FCC ID and Frequency Analysis
+The proximity fob for the 2020 Highlander is identified by the FCC ID HYQ14FBC.7 This is a paramount detail. Technicians often attempt to program the visually identical fob from a 2020 RAV4 (FCC ID HYQ14FBN). These fobs are not interchangeable.
+* Highlander (HYQ14FBC): Uses a specific "Page 4" application ID of AA.
+* RAV4 (HYQ14FBN): Uses a "Page 4" application ID of A9 or AA but with different firmware masking.5
+Attempting to program a RAV4 key to a Highlander will result in a "Learning Failed" error after the reset procedure has already wiped the existing keys, potentially leaving the customer stranded. The internal board number for the correct Highlander key is 231451-0351.9 The system operates on 315 MHz for the US market.
+Transponder Architecture
+The chip embedded in the board is a DST-AES ID8A transponder. Diagnostic tools will read this as "8A" or "H" type smart keys. The encryption is 128-bit, making cloning impossible without specialized sniffing tools that can capture the challenge-response pair during a valid start sequence.
+3.2 The Bladed "H" Chip System (Turn-to-Start)
+Found on the L and LE trims, the mechanical key system is deceptive. It uses a standard-looking metal blade, but the head contains a sophisticated 128-bit H-Chip.10
+The "H" Distinction
+The metal blade of the key is stamped with the letter "H". This denotes the H-Chip system (Texas Instruments 128-bit). It is vital to distinguish this from the older "G" chip (80-bit) or "Dot" chip (4D-67). The H-chip system does not use a Smart ECU; it uses a standalone Immobilizer ECU (ID Code Box) located deep within the dashboard.13
+Keyway and Code Series
+The mechanical interface utilizes the TOY51 (High Security / Laser Cut) keyway. The key code series for this generation typically falls within the 80000-89999 range.14 This requires a specialized tracer probe on key cutting machines (like the Condor or Dolphin) due to the precise internal milling of the track.
+3.3 Comparative Systems Matrix
+Feature
+	Smart Proximity System
+	Bladed H-Chip System
+	Ignition Type
+	Push-to-Start Button
+	Mechanical Ignition Cylinder
+	Primary ECU
+	Certification ECU (Smart Box)
+	Immobilizer ECU (ID Code Box)
+	Transponder
+	DST-AES ID8A (Page 4: AA)
+	H-Chip 128-bit AES
+	FCC ID
+	HYQ14FBC
+	HYQ12BDM / HYQ12BEL
+	Frequency
+	315 MHz
+	315 MHz
+	AKL Method
+	Smart Box Bypass (ADP/30-Pin)
+	Fuse Box Power Injection (G-Box)
+	SGW Presence
+	Yes (High Probability)
+	Yes (Moderate Probability)
+	Risk Profile
+	High (Desynchronization)
+	Moderate (Voltage Sensitivity)
+	4. Component Topology and Mapping Data
+Successful intervention in an "All Keys Lost" (AKL) scenario requires physical access to specific modules. The "OBD-only" days are largely over for this platform. We must map the physical location of the digital assets.
+4.1 The Certification ECU (Smart Box)
+Function: This is the brain of the proximity system. It stores the registered Key IDs and manages the Low-Frequency (LF) wake-up signals sent to the fob and the Radio Frequency (RF) signals received back.
+Location: The Certification ECU is located behind the glove box assembly, typically mounted high up on the passenger side near the A-pillar or adjacent to the blower motor housing.15
+Visual Identification: It is a black plastic module, roughly the size of a paperback book. It is distinguishable by its connector density. For the 2020 model, look specifically for the 30-pin connector.16 This is the interface point for the bypass cables used by Autel and Lonsdor.
+Access Protocol: Removal of the glove box damper and the glove box bin is required. In some configurations, a lower kick panel must also be removed to gain clear visibility.
+4.2 The Immobilizer ECU (ID Code Box)
+Function: In Bladed Key systems, this unit holds the master key database. In Smart Key systems, it acts as a secondary validator, storing a code that must match the Smart ECU to authorize the Engine Control Module (ECM).
+Location: This component is notoriously difficult to access. It is mounted behind the HVAC heater core assembly, effectively sandwiched between the firewall and the air handling unit.13
+Locksmith Warning: Do not attempt to remove the ID Code Box. Accessing this module requires the complete removal of the dashboard, steering column, and HVAC unit—a job rated for 6-8 labor hours. All programming solutions for this vehicle must utilize a method that avoids physical access to this box (e.g., the "Fuse Box" method for Bladed keys).
+4.3 The Security Gateway (SGW) Module
+Function: Filters OBDII traffic.
+Location: The SGW is typically integrated near the Body ECU (Main Body Domain Controller) or mounted directly behind the glove box, often identifiable by its two connectors (12-pin and 8-pin) which match the standard "12+8" bypass cables.1
+Access: Accessible via the glove box or driver's side under-dash panels depending on the specific build date.
+4.4 False Friends: The Audio Amplifier
+Research indicates confusion regarding module locations due to the presence of the JBL Audio Amplifier.
+Location: The audio amplifier is often located under the front passenger seat or in the rear cargo area.18
+Distinction: Technicians searching for the "Smart Box" have occasionally mistaken the amp for the security module due to similar black box casing. The Smart ECU is always behind the glove box area in this generation, never under the seat.
+5. Critical Alerts and Risk Mitigation Protocols
+The transition to the "AA/BA" architecture has introduced risks that can render the vehicle inoperable ("bricked"). These are not theoretical risks; they are documented failure modes resulting from improper procedure.
+5.1 The Desynchronization Event Horizon
+Severity: CRITICAL
+The most catastrophic failure mode on the 2020 Highlander involves the desynchronization of the Certification ECU and the ID Code Box.
+Mechanism: During an "All Keys Lost" reset, the diagnostic tool commands the Certification ECU to erase all stored keys. Once erased, the ECU enters a "Learning Mode." At this specific moment, the handshake between the Certification ECU and the ID Code Box is suspended.
+The Trigger: If the ignition is cycled (Start Button pressed to ON and OFF) more than 4 or 5 times without successfully registering a new key, the ID Code Box interprets this as a tamper event or a system fault. It then permanently rejects the Certification ECU.20
+The Result: The vehicle enters a hard lockout. The Smart ECU can no longer communicate with the ID Code Box. Even if a valid key is subsequently added, the engine will not start. The official repair is the replacement of both the Certification ECU and the ID Code Box—a repair exceeding $4,000.
+Mitigation Protocol:
+1. Ensure you have the correct key (HYQ14FBC) before starting.
+2. Ensure the key battery is fresh (3.0V+).
+3. Do not cycle the ignition to "test" the system during the reset phase. Follow the tool prompts implicitly. If the key fails to learn on the first attempt, check the key placement and frequency immediately; do not keep cycling the ignition.
+5.2 Voltage Stabilization Threshold
+Severity: HIGH
+Modern Toyota ECUs are extremely sensitive to voltage fluctuation during flash programming. The 2020 Highlander requires a stable 13.5 Volts to maintain the programming session.21
+The Physics of Failure: During the "Reset" command, the ECUs draw significant current. A standard lead-acid battery resting at 12.2V can dip below 11.5V under this load. If the voltage drops below the threshold, the packet transfer typically fails. In a worst-case scenario, the ECU memory is partially overwritten, corrupting the firmware.
+Mitigation Protocol:
+1. Mandatory Power Supply: Connect a dedicated Power Supply Unit (PSU) capable of delivering at least 30 Amps at a constant 13.5V.
+2. Avoid Jump Packs: Simple jump packs or "boosters" provide amperage but lack the voltage regulation required for programming stability. They often provide chaotic voltage spikes or drops.
+5.3 The "Bricking" of the BCM
+Severity: MODERATE
+While less common than desynchronization, there are reports of Body Control Module (BCM) corruption when forcing programming through the OBDII port without a proper bypass on models equipped with strict SGW protocols.23 The interruption of the CAN bus traffic by the gateway during a "Write" event can leave the BCM in an indeterminate state.
+Mitigation Protocol: Always use the direct-connection cables (Toyota 30-Pin or ADP) which physically bypass the gateway, ensuring a clean line of communication to the Certification ECU.
+6. Programming Pearls: 8 Key Insights for Success
+These insights represent high-level "tribal knowledge" distilled from successful field interventions.
+Pearl 1: The Rolling Code Calculation (The 12-Digit Challenge)
+The 2020 Highlander utilizes a 12-digit rolling seed code. This is a dynamic challenge-response. The seed generated by the car changes every time the ignition is cycled or the tool re-queries the ECU.3
+* Insight: You cannot use static look-up tables or offline calculators. Your programming tool must have an active internet connection to its manufacturer's server (Autel, Xhorse, Lonsdor) to perform the calculation in real-time, OR you must use a "Direct Read" method that reads the key data directly from the EEPROM, bypassing the calculation entirely.
+Pearl 2: The "Smart Pro" Bypass Ecosystem
+For users of the Advanced Diagnostics Smart Pro, the ADC2021 cable is the magic wand.
+* Insight: This cable connects directly to the Certification ECU. By doing so, it allows the Smart Pro to bypass the requirement for a TIS Techstream subscription and a NASTF LSID credential. It effectively emulates the dealer's authority by physically tapping into the private CAN line.25
+Pearl 3: The "Lonsdor Super ADP" Advantage
+Lonsdor's K518 tool was previously unable to handle the rolling code system. The introduction of the Super ADP 8A/4A Adapter changed this.
+* Insight: The ADP adapter is unique because it connects to both the Smart ECU and the OBD port. It reads the "S-DAT" (Smart Data) file from the ECU. This backup file allows the generation of an emergency emulator key even in an All Keys Lost situation, without needing to calculate the password.6
+Pearl 4: The Bladed "G-Box" Necessity
+For Bladed H-Chip Highlanders, the "Fuse Box Method" is the only viable commercial solution for All Keys Lost.
+* Insight: Because the ID Code Box is inaccessible, you cannot clip onto the EEPROM directly. Tools like the Autel G-Box allow you to inject power into the specific fuse relays (IGN_NO.1) to wake up the Immobilizer ECU without turning the key (since you have no working key to turn). This allows the tool to read the immobilizer data via the K-Line or CAN bus while the car thinks the ignition is ON.27
+Pearl 5: The "Emulator" Bridge
+In an All Keys Lost scenario on a Smart Key vehicle, you cannot simply "Add" a key because the system is locked.
+* Insight: You must first generate a Smart Key Emulator (e.g., Autel APB112, Xhorse XM38, Lonsdor LKE). The diagnostic tool reads the ECU data, writes a temporary "Master Key" signature to the emulator, and the vehicle recognizes this emulator as a valid key. Only then does the system unlock to allow the programming of the permanent OEM fob.29
+Pearl 6: The "Two-Manager" Rule
+Technicians attempting to use a cracked or valid version of TIS Techstream often hit a wall.
+* Insight: The 2020+ immobilizer reset logic in the official software requires digital approval from two separate managers with registered TIS accounts to release the passcode.31 This administrative bottleneck makes aftermarket tools (Autel, Smart Pro) significantly faster and more autonomous for independent locksmiths.
+Pearl 7: The Battery Management System (BMS) Interference
+The 2020 Highlander features a sophisticated BMS that monitors battery state-of-charge.
+* Insight: If the BMS detects the battery is below a certain threshold (often 12.0V), it may aggressively shut down non-essential ECUs (including the Certification ECU) to save power for the starter motor. This shutdown can occur during programming. Connecting the PSU directly to the battery posts (bypassing the BMS sensor on the negative terminal if possible, or ensuring the ground is chassis-based) ensures the ECU stays awake.32
+Pearl 8: The "Key Sleep Mode"
+Toyota smart keys have a battery-saving "Sleep Mode" (activated by holding Lock and pressing Unlock twice).
+* Insight: A brand new key, or a key taken from inventory, might be in this sleep mode. If the key is in sleep mode, it will not respond to the LF wake-up signal during programming, leading to a "Programming Failed" error. Always press a button on the new remote to ensure the LED flashes (confirming it is awake) before attempting to program.13
+7. Detailed Programming Protocols
+This section provides step-by-step workflows for the three dominant aftermarket platforms.
+7.1 Autel IM508/IM608 Protocol (Smart Key AKL)
+Hardware Required:
+* MaxiIM IM508/IM608 Tablet.
+* XP400/XP400 Pro Programmer.
+* APB112 Smart Key Simulator.
+* Toyota 30-Pin Cable (Preferred) or G-Box (Universal).
+Workflow:
+1. Preparation: Connect the PSU to the vehicle battery (13.5V). Locate the Certification ECU behind the glove box.
+2. Connection: Unplug the 30-pin connector from the Certification ECU. Connect the Autel 30-Pin cable in series (Vehicle Harness -> Autel Cable -> Smart ECU). Connect the OBD end to the IM608.
+3. Backup Data:
+   * Path: Toyota > Manual Selection > Highlander > 2020+ > Smart Key.
+   * Select Control Unit > Keyless System (CAN) > Back up IMMO Data.
+   * The tool will read the EEPROM data via the direct connection. Save this file.33
+4. Generate Simulator:
+   * Select Generate Analog Key.
+   * Select the backup file you just saved.
+   * Connect the APB112 Simulator to the tablet via USB.
+   * The tool writes the digital signature to the APB112.
+5. Add Key:
+   * Select Add Smart Key.
+   * The tool will ask for a "Learned Key." Place the APB112 near the Start Button.
+   * The dashboard should beep (authorizing the addition).
+   * Remove the APB112 and place the New HYQ14FBC Fob near the Start Button.
+   * The dashboard should beep twice (registration complete).
+6. Reassembly: Disconnect the 30-pin cable and restore original connections. Test all functions.
+7.2 Lonsdor K518 Protocol (Smart Key AKL)
+Hardware Required:
+* Lonsdor K518ISE or K518S.
+* Super ADP 8A/4A Adapter.
+* LKE (Lonsdor Key Emulator).
+Workflow:
+1. Connection: Similar to Autel, locate the Smart ECU and install the ADP Adapter in series with the 30-pin connector. Connect the ADP power cable to the K518 OBD cable.
+2. Backup Data:
+   * Path: Immo & Remote > Toyota > Select from type > All Smart Key Lost > Type 2 (2016+) > 8A.
+   * Select Backup Immo Data. The ADP adapter facilitates the bypass of the rolling code.
+3. Generate Emulator:
+   * Select Generate Emulator Key.
+   * Insert the LKE into the K518 key slot.
+   * The tool writes the S-DAT to the emulator.
+4. Add Key:
+   * Use the LKE to turn the ignition ON (Cluster lights up).
+   * Select Add Smart Key.
+   * Follow prompts: Tap LKE (Beep) -> Tap New Key (Beep-Beep).
+7.3 Bladed H-Chip AKL (The Fuse Box Method)
+Hardware Required:
+* Autel IM608/508 + G-Box2/3 + 8A Blade Adapter.
+* APB112 Simulator.
+Workflow:
+1. Fuse Box Attack:
+   * Locate the interior fuse box (usually driver kick panel) and under-hood fuse box.
+   * Locate the IGN_NO.1 fuse (10A). Remove it.
+   * Insert the G-Box fuse tap into the IGN_NO.1 slot.
+   * Connect the G-Box battery clips to the vehicle battery.
+   * Connect the G-Box OBD cable to the vehicle OBD port and the IM608.28
+2. Read IMMO Data:
+   * Path: Toyota > Blade Key > Immobilizer (H 8A/8E) > All Keys Lost.
+   * The G-Box will inject power to "wake up" the Immobilizer ECU without the key turning the ignition cylinder.
+   * The tool reads the immobilizer data.
+3. Generate Simulator:
+   * Create a master H-chip simulator using the APB112.
+4. Programming:
+   * Insert the physical blade of the new key into the ignition cylinder.
+   * Hold the APB112 near the ignition coil (plastic collar).
+   * The vehicle sees the APB112 as the master key.
+   * The tool then programs the physical H-chip in the new key to the ID Code Box.
+
+
+  
+
+
+
+8. Mechanical Locksmithing: The TOY51 Keyway
+While digital programming is the primary hurdle, the mechanical interface remains a necessary component of the job, particularly for emergency access and the Bladed Key system.
+8.1 Keyway Architecture
+The 2020 Highlander utilizes the TOY51 keyway. This is a "High Security" or "Laser Cut" key, featuring an internal milled track on both sides of the blade.
+* Cutting Profile: It is a 4-track internal system, but often simplified to a 2-track external simulation on some duplicators. The code series is generally 80000-89999.
+* Lishi Tool: The correct tool for decoding the door lock is the Lishi TOY51 (2-in-1 Pick and Decoder). Note that some 2020 models may feature the updated cylinder that requires the Lishi TOY43 tool if the lock cylinder is a hybrid carryover, though TOY51 is standard for the Smart Key emergency blade.34
+8.2 Cutting Protocol
+When cutting the emergency blade for a Smart Key:
+1. Decoding: Use the Lishi tool on the driver's door cylinder. Read the wafer depths (typically 1 through 4).
+2. Input: Input the bitting into the key cutting machine (e.g., Xhorse Dolphin, Condor XC-Mini).
+3. Jaw Selection: Use the High Security clamp (Clamp M2 for Xhorse).
+4. Warning: The door cylinder contains all the cuts required for the ignition (on Bladed models). Toyota does not typically use "Ignition-only" wafers in the 80000 series, meaning a door-generated key should turn the ignition smoothly.
+9. Troubleshooting and Diagnostics
+Even with the correct tools, variables can prevent success.
+9.1 Symptom: "Learning Failed" (Smart Key)
+* Cause 1: Incorrect FCC ID. You may be using a RAV4 key (HYQ14FBN) instead of the Highlander key (HYQ14FBC). Check the PCB number (231451-0351).
+* Cause 2: Key is in Sleep Mode. Press a button; if the LED doesn't flash, the key is asleep or the battery is dead.
+* Cause 3: Aftermarket Key Quality. Some generic "Universal" keys fail the rolling code check. Use OEM or high-quality unlocked OEM keys.
+9.2 Symptom: "Communication Failed" (OBD)
+* Cause: The Security Gateway (SGW) is blocking the connection.
+* Remedy: You must use the 30-Pin bypass cable or the 12+8 bypass cable. You cannot program this car via the OBD port directly without a bypass unless using a TIS tool with online credentials.
+9.3 Symptom: "Device Unable to Read Data" (Bladed)
+* Cause: The G-Box connection to the fuse box is poor. The "IGN_NO.1" fuse contacts are small.
+* Remedy: Ensure the spade connector on the G-Box wire is firmly seated. Verify 13.5V at the battery. Ensure the "KSW" (Key Switch) wire is connected if the tool prompts for it (some firmware versions require a physical tap into the ignition switch harness to simulate key insertion).
+10. Tools and Ecosystem Comparison
+The market offers several solutions, each with specific hardware requirements.
+
+
+  
+
+
+
+11. Conclusion and Strategic Outlook
+The 2020 Toyota Highlander stands as a definitive case study in the modern era of automotive locksmithing. It marks the end of the "Plug and Play" OBDII programming era for Toyota. The convergence of Rolling Code Encryption, Security Gateways, and Split-Module Architectures has raised the barrier to entry significantly.
+For the automotive security professional, the "Smart Proximity" and "Bladed H-Chip" systems must be treated as entirely separate vehicle platforms that happen to share a chassis. The Smart System demands a bypass of the Certification ECU (via ADP or 30-Pin cables) to manage the rolling code. The Bladed System demands a power-injection attack on the fuse box to access the buried Immobilizer ECU.
+Success on this platform is not a matter of luck; it is a matter of protocol. It requires the strict maintenance of 13.5V system voltage, the discipline to avoid ignition cycling during reset, and the investment in the specific bypass hardware required to circumvent the Security Gateway. By adhering to the comprehensive protocols outlined in this report, the technician can navigate the risks of "bricking" and desynchronization, turning a complex, high-risk procedure into a routine and profitable service. The 2020 Highlander is not just a car; it is a test of the modern locksmith's adaptability.
+Works cited
+1. Security Gateway Bypass Module - ZAutomotive, accessed January 3, 2026, https://www.zautomotive.com/products/z_sgw
+2. FCA Security Gateway Module Basic Info and Location - JScan, accessed January 3, 2026, https://jscan.net/fca-security-gateway-module-basic-info-and-location/
+3. New Toyota 12 Digit rolling security code : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/16nps68/new_toyota_12_digit_rolling_security_code/
+4. 2020+ Toyota Highlander Key Programming by OBD Using AVDI, PROTAG and TA68 (NO internal CAN needed!) - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=OtPyo8rDS1g
+5. [4A 8A AKL] Xhorse XD8ASKGL Toyota 8A AKL Adapter for VVDI Key Tool Plus Bypass 2017-2022 Toyota Lexus PIN - TechRoute66, accessed January 3, 2026, https://techroute66.com/product/4a-8a-akl-xhorse-xd8askgl-toyota-8a-akl-adapter-for-vvdi-key-tool-plus-bypass-2017-2022-toyota-lexus-pin/
+6. Lonsdor Super ADP Adapter for Toyota Smart Key Programming - ABKEYS, accessed January 3, 2026, https://abkeys.com/products/lonsdor-super-adp-adapter-for-toyota-smart-key-programming-2019up-5080
+7. OEM 2020 Toyota Highlander Remote Smart Proximity Key Hyq14fbc for sale online | eBay, accessed January 3, 2026, https://www.ebay.com/p/11038992943
+8. Toyota Highlander 2020-2022 Smart Key, 3Buttons 8990H-0E010 315MHz, HYQ14FBC P1 AA - ABKEYS, accessed January 3, 2026, https://abkeys.com/products/toyota-highlander-smart-key-3buttons-8990h-0e010-315mhz-hyq14fbc-3452
+9. Toyota Highlander 2020-2023 4-Button Smart Key w/Hatch (HYQ14FBC) | ZIPPY LOCKS, accessed January 3, 2026, https://www.zippylocks.com/products/toyota-highlander-2020-2023-4-button-smart-key-w-hatch-hyq14fbc
+10. Toyota Transponder Key | Does the "H" Matter- TOY44H - CLK Supplies, accessed January 3, 2026, https://www.clksupplies.com/blogs/news/toyota-transponder-key-does-the-h-matter-toy44h
+11. Toyota Transponder Key Does the H Matter? TOY44H - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=WYBlhFZob20
+12. Toyota 2013-2020 Transponder Key TOY44H-PT With OEM H Chip, accessed January 3, 2026, https://www.bestkeysupply.com/products/toyota-2013-2020-transponder-key-h-chip-toy44h-pt
+13. All you need to know about Toyota Keys Mechanical and Smart keys - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=vYtU5-OLv-k
+14. 2020-2024 TOYOTA HIGHLANDER 3B SMART KEY REMOTE HYQ14FBC / HYQ14FLA (FOR USE WITH AUTOKEY TOYOTA TOOL & TANGO) - - SFFobs, accessed January 3, 2026, https://www.sffobsinc.com/product/2020-2023-toyota-highlander-3b-smart-key-remote-hyq14fbc-hyq14fla-for-use-with-autokey-toyota-tool-tango/
+15. DB3: Installation Guide. 2020 Toyota Highlander (Smart Key). 403.TL19 1.03.05.106, accessed January 3, 2026, https://directechs.blob.core.windows.net/ddt/403-TL19-1.03.05.106-ORI_2020-Toyota-Highlander-(Smart-Key)_IG_EN_20240118.pdf
+16. OBDSTAR Toyota-30 Cable Support 4A and 8A-BA All Key Lost for X300 DP PLUS, accessed January 3, 2026, https://www.newegg.com/p/0JZ-0126-00001
+17. How To Start A 2020 - 2022 Toyota Highlander With Key Not Detected - Dead Remote Key Fob Battery - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=du4g5C5j6fI
+18. Where is the sub and amp located in the 2023 Highlander? : r/ToyotaHighlander - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ToyotaHighlander/comments/113589r/where_is_the_sub_and_amp_located_in_the_2023/
+19. 2020-2024 Toyota Highlander add amplifiers to stock stereo Audio Control LC5I Pro Line Out Converter - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=IRVrX6ExQvc
+20. How accurate is this? : r/Locksmith - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/198kawy/how_accurate_is_this/
+21. Smart Key Immobilizer Reset and Add/Remove Key - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2024/MC-10253225-9999.pdf
+22. GTS+ ECU Flash Reprogramming With Security Signature - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2023/MC-10241404-9999.pdf
+23. [COURT UPDATE] Car locksmith messed up programming another key fob and cost me $2000 worth of repair. - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1ff5imr/court_update_car_locksmith_messed_up_programming/
+24. Car locksmith messed up programming another key fob and cost me $2000 worth of repair. How can I win this lawsuit? - Reddit, accessed January 3, 2026, https://www.reddit.com/r/Locksmith/comments/1dk1vop/car_locksmith_messed_up_programming_another_key/
+25. Advanced Diagnostics ADC2021 Smart Pro Bypass Cable for Toyota - Locksmith Keyless, accessed January 3, 2026, https://www.locksmithkeyless.com/products/advanced-diagnostics-adc2021-smart-pro-bypass-cable-for-toyota
+26. 2020 Toyota Highlander; TIS bypass coupled with the ADC 2015 emulator - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=oyei-022ChE
+27. Autel Toyota 8A AKL Cable For Lost Non-Smart Keys Adapter APB112 UPS DELIVERY, accessed January 3, 2026, https://www.ebay.com/itm/304952109616
+28. IMPORTANT TOOLS YOU NEED TOYOTA 8A BLADE AKL KIT, accessed January 3, 2026, https://m.media-amazon.com/images/I/91cqHKmNbHL.pdf?ref=dp_product_quick_view
+29. 2020 Toyota Highlander All Smart Keys Lost using Autel IM608 Pro2 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=XyqOn7QspDs
+30. How To add Prox Key 2024 Toyota Grand Highlander all keys lost via Smart Pro Key Programmer ADC2021 - YouTube, accessed January 3, 2026, https://www.youtube.com/watch?v=YIZsKtrIcVY
+31. Smart Key Immobilizer Reset and Add/Remove Key - nhtsa, accessed January 3, 2026, https://static.nhtsa.gov/odi/tsbs/2020/MC-10177579-9999.pdf
+32. 2020 Highlander 3.5L V6 not starting : r/ToyotaHighlander - Reddit, accessed January 3, 2026, https://www.reddit.com/r/ToyotaHighlander/comments/1p8yfc5/2020_highlander_35l_v6_not_starting/
+33. How to Perform an All Key Lost Procedure for Toyota 8A with M822 Adapt, accessed January 3, 2026, https://www.xtoolglobal.com/blogs/news/how-to-perform-an-all-key-lost-procedure-for-toyota-8a-with-m822-adapter-a-step-by-step-guide
+34. Toyota New OEM 2020-2022 Highlander, Smart Key - Royal Key Supply, accessed January 3, 2026, https://royalkeysupply.com/products/toyota-new-oem-2020-2022-highlander-smart-key-3b-fccid-hyq14fbc-0351-pn-8990h-0e010
