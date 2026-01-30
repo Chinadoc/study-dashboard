@@ -14,6 +14,71 @@ import {
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
 
+// Click-to-expand vehicles popover component (matches FCC page pattern)
+function VehiclesPopover({
+    vehicles,
+    maxVisible = 2
+}: {
+    vehicles: string;
+    maxVisible?: number;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const vehicleList = vehicles ? vehicles.split(',').map(v => v.trim()).filter(Boolean) : [];
+    const visibleVehicles = vehicleList.slice(0, maxVisible);
+    const hiddenCount = vehicleList.length - maxVisible;
+
+    if (vehicleList.length === 0) {
+        return <span className="text-zinc-500 text-sm italic">No vehicles</span>;
+    }
+
+    return (
+        <div className="relative">
+            <span className="text-sm text-gray-400">
+                {visibleVehicles.join(', ')}
+                {hiddenCount > 0 && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                        className="ml-1 text-yellow-500 hover:text-yellow-400 font-medium transition-colors"
+                    >
+                        +{hiddenCount}
+                    </button>
+                )}
+            </span>
+
+            {/* Expanded popover */}
+            {isOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsOpen(false)}
+                    />
+                    <div className="absolute z-50 left-0 top-full mt-2 w-80 max-h-64 overflow-y-auto bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl p-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">All Compatible Vehicles ({vehicleList.length})</span>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="text-zinc-500 hover:text-zinc-300 transition-colors text-lg leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {vehicleList.map((v, i) => (
+                                <span
+                                    key={i}
+                                    className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-lg"
+                                >
+                                    {v}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
 interface InventoryItem {
     id?: string;
     itemKey: string;
@@ -285,7 +350,7 @@ function InventoryRow({
                     )}
                 </div>
                 <div className="font-bold text-white truncate">{item.itemKey}</div>
-                {item.vehicle && <div className="text-sm text-gray-400">{item.vehicle}</div>}
+                {item.vehicle && <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />}
                 {item.fcc_id && <div className="text-xs text-yellow-500 font-mono">{item.fcc_id}</div>}
             </div>
 
