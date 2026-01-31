@@ -37,17 +37,105 @@ export default function ImageGalleryClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentSourceImages, setCurrentSourceImages] = useState<GalleryImage[]>([]);
 
-  // Close lightbox with Escape key
+  // Touch handling for swipe gestures
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
+
+  // Navigate to next/previous image
+  const navigateImage = (direction: number) => {
+    if (currentSourceImages.length <= 1) return;
+    const newIndex = currentImageIndex + direction;
+    if (newIndex >= 0 && newIndex < currentSourceImages.length) {
+      // Check if target image is locked for non-pro users
+      const images = (imageManifest as { images: GalleryImage[] }).images;
+      const filteredImgs = images.filter((image) => {
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          const matchesDoc = image.source_doc.toLowerCase().includes(query);
+          const matchesTags = image.tags.some((t) => t.toLowerCase().includes(query));
+          const matchesId = image.id.toLowerCase().includes(query);
+          if (!matchesDoc && !matchesTags && !matchesId) return false;
+        }
+        if (selectedTags.length > 0) {
+          const hasMatchingTag = selectedTags.some((tag) =>
+            image.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
+          );
+          if (!hasMatchingTag) return false;
+        }
+        return true;
+      });
+
+      const targetImage = currentSourceImages[newIndex];
+      const globalIdx = filteredImgs.indexOf(targetImage);
+      const isLocked = !isPro && globalIdx >= FREE_IMAGE_LIMIT;
+
+      if (!isLocked) {
+        setCurrentImageIndex(newIndex);
+        setSelectedImage(targetImage);
+      }
+    }
+  };
+
+  // Open image in lightbox with navigation context
+  const openImageInLightbox = (image: GalleryImage, sourceImages: GalleryImage[]) => {
+    const index = sourceImages.indexOf(image);
+    setCurrentSourceImages(sourceImages);
+    setCurrentImageIndex(index >= 0 ? index : 0);
+    setSelectedImage(image);
+  };
+
+  // Handle touch events for swipe navigation
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      navigateImage(1); // Next image
+    } else if (isRightSwipe) {
+      navigateImage(-1); // Previous image
+    }
+
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Close lightbox with Escape key, navigate with arrow keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && selectedImage) {
-        setSelectedImage(null);
+      if (!selectedImage) return;
+
+      switch (e.key) {
+        case 'Escape':
+          setSelectedImage(null);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          navigateImage(-1);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          navigateImage(1);
+          break;
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImage]);
+  }, [selectedImage, currentImageIndex, currentSourceImages]);
 
   const images = (imageManifest as { images: GalleryImage[] }).images;
 
@@ -368,6 +456,78 @@ export default function ImageGalleryClient() {
           pointer-events: none;
         }
 
+        /* Navigation Arrows */
+        .lightbox-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          font-size: 2.5rem;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          z-index: 1001;
+        }
+
+        .lightbox-nav:hover {
+          background: rgba(255, 255, 255, 0.25);
+          transform: translateY(-50%) scale(1.1);
+        }
+
+        .lightbox-nav-prev {
+          left: 1.5rem;
+        }
+
+        .lightbox-nav-next {
+          right: 1.5rem;
+        }
+
+        /* Image Counter */
+        .lightbox-counter {
+          position: absolute;
+          top: 1.5rem;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.6);
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          z-index: 1001;
+        }
+
+        /* Mobile adjustments for lightbox */
+        @media (max-width: 768px) {
+          .lightbox-nav {
+            width: 44px;
+            height: 44px;
+            font-size: 1.8rem;
+          }
+
+          .lightbox-nav-prev {
+            left: 0.5rem;
+          }
+
+          .lightbox-nav-next {
+            right: 0.5rem;
+          }
+
+          .lightbox-counter {
+            top: 1rem;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+          }
+        }
+
         .no-results {
           text-align: center;
           padding: 4rem 2rem;
@@ -491,7 +651,7 @@ export default function ImageGalleryClient() {
                     <div
                       key={image.id}
                       className="image-card"
-                      onClick={() => !isLocked && setSelectedImage(image)}
+                      onClick={() => !isLocked && openImageInLightbox(image, sourceImages)}
                       style={isLocked ? {
                         opacity: 0.4,
                         filter: 'blur(3px)',
@@ -544,10 +704,51 @@ export default function ImageGalleryClient() {
         </div>
       )}
 
-      {/* Lightbox - click anywhere outside image to close, or press Escape */}
+      {/* Lightbox with navigation - swipe or use arrows */}
       {selectedImage && (
-        <div className="lightbox-overlay" onClick={() => setSelectedImage(null)}>
-          <div className="lightbox-hint">Click anywhere or press ESC to close</div>
+        <div
+          className="lightbox-overlay"
+          onClick={() => setSelectedImage(null)}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Image counter */}
+          {currentSourceImages.length > 1 && (
+            <div className="lightbox-counter">
+              {currentImageIndex + 1} / {currentSourceImages.length}
+            </div>
+          )}
+
+          {/* Navigation hint */}
+          <div className="lightbox-hint">
+            {currentSourceImages.length > 1
+              ? 'Swipe or use ← → to navigate • ESC to close'
+              : 'Click anywhere or press ESC to close'}
+          </div>
+
+          {/* Previous arrow */}
+          {currentSourceImages.length > 1 && currentImageIndex > 0 && (
+            <button
+              className="lightbox-nav lightbox-nav-prev"
+              onClick={(e) => { e.stopPropagation(); navigateImage(-1); }}
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+          )}
+
+          {/* Next arrow */}
+          {currentSourceImages.length > 1 && currentImageIndex < currentSourceImages.length - 1 && (
+            <button
+              className="lightbox-nav lightbox-nav-next"
+              onClick={(e) => { e.stopPropagation(); navigateImage(1); }}
+              aria-label="Next image"
+            >
+              ›
+            </button>
+          )}
+
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
             <button className="lightbox-close" onClick={() => setSelectedImage(null)} title="Close (ESC)">
               ×
@@ -556,8 +757,6 @@ export default function ImageGalleryClient() {
               src={getImageUrl(selectedImage)}
               alt={selectedImage.id}
               className="lightbox-image"
-              onClick={() => setSelectedImage(null)}
-              style={{ cursor: 'pointer' }}
             />
             <div className="lightbox-info">
               <div className="lightbox-source">{selectedImage.source_doc.replace('.html', '')}</div>
