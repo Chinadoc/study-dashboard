@@ -7,6 +7,7 @@ import { getLowStockItems, TOOL_CATEGORIES, ToolType } from '@/lib/inventoryType
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
+import CoverageMap from '@/components/business/CoverageMap';
 import { API_BASE } from '@/lib/config';
 
 // FCC data for image lookups
@@ -118,7 +119,7 @@ function VehiclesPopover({
     );
 }
 
-type InventorySubTab = 'all' | 'keys' | 'blanks' | 'tools' | 'consumables' | 'low';
+type InventorySubTab = 'all' | 'keys' | 'blanks' | 'tools' | 'consumables' | 'low' | 'coverage';
 
 export default function InventoryPage() {
     const { isAuthenticated, login, loading: authLoading } = useAuth();
@@ -250,6 +251,7 @@ export default function InventoryPage() {
         { id: 'tools', label: 'Tools', icon: '💻', count: tools.length },
         { id: 'consumables', label: 'Supplies', icon: '📦', count: consumables.length },
         { id: 'low', label: 'Low Stock', icon: '⚠️', count: lowStock.length },
+        { id: 'coverage', label: 'Coverage', icon: '🗺️' },
     ];
 
     const handleDelete = (itemKey: string) => {
@@ -377,122 +379,135 @@ export default function InventoryPage() {
                 </div>
             )}
 
-            {/* Inventory List */}
-            {loading ? (
-                <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
+            {/* Coverage Heatmap View */}
+            {activeSubTab === 'coverage' ? (
+                <div className="space-y-4">
+                    <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+                        <h3 className="font-bold text-lg mb-2">🗺️ Inventory Coverage Map</h3>
+                        <p className="text-sm text-gray-400">
+                            See which vehicles you can service based on your current key/tool inventory and programming tools.
+                        </p>
+                    </div>
+                    <CoverageMap />
                 </div>
-            ) : displayItems.length > 0 ? (
-                <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-                    <div className="divide-y divide-gray-800">
-                        {displayItems.map((item) => {
-                            const keyImage = item.type === 'key' ? getKeyImage(item.itemKey) : undefined;
-                            return (
-                                <div
-                                    key={item.itemKey}
-                                    className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
-                                    style={keyImage ? {
-                                        backgroundImage: `linear-gradient(to right, rgba(17,24,39,0.95), rgba(17,24,39,0.85)), url(${keyImage})`,
-                                        backgroundPosition: 'right center',
-                                        backgroundSize: 'contain',
-                                        backgroundRepeat: 'no-repeat'
-                                    } : undefined}
-                                >
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
-                                            <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
+            ) : (
+                /* Inventory List */
+                loading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="animate-spin h-8 w-8 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
+                    </div>
+                ) : displayItems.length > 0 ? (
+                    <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                        <div className="divide-y divide-gray-800">
+                            {displayItems.map((item) => {
+                                const keyImage = item.type === 'key' ? getKeyImage(item.itemKey) : undefined;
+                                return (
+                                    <div
+                                        key={item.itemKey}
+                                        className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
+                                        style={keyImage ? {
+                                            backgroundImage: `linear-gradient(to right, rgba(17,24,39,0.95), rgba(17,24,39,0.85)), url(${keyImage})`,
+                                            backgroundPosition: 'right center',
+                                            backgroundSize: 'contain',
+                                            backgroundRepeat: 'no-repeat'
+                                        } : undefined}
+                                    >
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
+                                                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
                                                     item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
                                                         item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
                                                             'bg-green-500/20 text-green-400'
-                                                }`}>
-                                                {/* Small key image thumbnail instead of emoji */}
-                                                {item.type === 'key' ? (
-                                                    <span className="flex items-center gap-1">
-                                                        <KeyImageThumbnail imageUrl={keyImage} itemKey={item.itemKey} />
-                                                        Key
-                                                    </span>
-                                                ) : item.type === 'blank' ? '🔧 Blank' :
-                                                    item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
-                                                        '📦 Supply'}
-                                            </span>
-                                            {item.qty <= 2 && (
-                                                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
+                                                    }`}>
+                                                    {/* Small key image thumbnail instead of emoji */}
+                                                    {item.type === 'key' ? (
+                                                        <span className="flex items-center gap-1">
+                                                            <KeyImageThumbnail imageUrl={keyImage} itemKey={item.itemKey} />
+                                                            Key
+                                                        </span>
+                                                    ) : item.type === 'blank' ? '🔧 Blank' :
+                                                        item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
+                                                            '📦 Supply'}
+                                                </span>
+                                                {item.qty <= 2 && (
+                                                    <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
+                                                )}
+                                                {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
+                                                    <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">Warranty</span>
+                                                )}
+                                            </div>
+                                            <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
+                                            {item.serialNumber && (
+                                                <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
                                             )}
-                                            {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
-                                                <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">Warranty</span>
+                                            {item.vehicle && (
+                                                <div className="text-[10px] sm:text-sm text-gray-400 truncate max-w-[180px] sm:max-w-none">
+                                                    {item.vehicle.split(',').slice(0, 2).join(', ')}{item.vehicle.split(',').length > 2 ? '...' : ''}
+                                                </div>
                                             )}
                                         </div>
-                                        <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
-                                        {item.serialNumber && (
-                                            <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
-                                        )}
-                                        {item.vehicle && (
-                                            <div className="text-[10px] sm:text-sm text-gray-400 truncate max-w-[180px] sm:max-w-none">
-                                                {item.vehicle.split(',').slice(0, 2).join(', ')}{item.vehicle.split(',').length > 2 ? '...' : ''}
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    {/* Quantity controls - Compact on mobile */}
-                                    <div className="flex items-center gap-1 flex-shrink-0">
-                                        <button
-                                            onClick={() => updateQuantity(item.itemKey, -1)}
-                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
-                                        >−</button>
-                                        <span className={`w-6 sm:w-10 text-center font-bold text-xs sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
-                                            {item.qty}
-                                        </span>
-                                        <button
-                                            onClick={() => updateQuantity(item.itemKey, 1)}
-                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
-                                        >+</button>
-                                    </div>
-
-                                    {/* Delete button - Desktop only */}
-                                    <div className="hidden sm:flex items-center gap-2">
-                                        {deleteConfirm === item.itemKey ? (
-                                            <>
-                                                <button
-                                                    onClick={() => handleDelete(item.itemKey)}
-                                                    className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold"
-                                                >Delete</button>
-                                                <button
-                                                    onClick={() => setDeleteConfirm(null)}
-                                                    className="px-3 py-1.5 bg-zinc-700 text-gray-300 rounded-lg text-sm"
-                                                >Cancel</button>
-                                            </>
-                                        ) : (
+                                        {/* Quantity controls - Compact on mobile */}
+                                        <div className="flex items-center gap-1 flex-shrink-0">
                                             <button
-                                                onClick={() => setDeleteConfirm(item.itemKey)}
-                                                className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
-                                                title="Delete item"
-                                            >🗑️</button>
+                                                onClick={() => updateQuantity(item.itemKey, -1)}
+                                                className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
+                                            >−</button>
+                                            <span className={`w-6 sm:w-10 text-center font-bold text-xs sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
+                                                {item.qty}
+                                            </span>
+                                            <button
+                                                onClick={() => updateQuantity(item.itemKey, 1)}
+                                                className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
+                                            >+</button>
+                                        </div>
+
+                                        {/* Delete button - Desktop only */}
+                                        <div className="hidden sm:flex items-center gap-2">
+                                            {deleteConfirm === item.itemKey ? (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleDelete(item.itemKey)}
+                                                        className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold"
+                                                    >Delete</button>
+                                                    <button
+                                                        onClick={() => setDeleteConfirm(null)}
+                                                        className="px-3 py-1.5 bg-zinc-700 text-gray-300 rounded-lg text-sm"
+                                                    >Cancel</button>
+                                                </>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setDeleteConfirm(item.itemKey)}
+                                                    className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                                                    title="Delete item"
+                                                >🗑️</button>
+                                            )}
+                                        </div>
+
+                                        {/* Buy Link for Low Stock */}
+                                        {item.qty <= 2 && (
+                                            <a
+                                                href={generateAmazonSearchUrl(item.itemKey)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-[10px] sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
+                                            >
+                                                🛒 <span className="hidden sm:inline">Buy</span>
+                                            </a>
                                         )}
                                     </div>
-
-                                    {/* Buy Link for Low Stock */}
-                                    {item.qty <= 2 && (
-                                        <a
-                                            href={generateAmazonSearchUrl(item.itemKey)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-[10px] sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
-                                        >
-                                            🛒 <span className="hidden sm:inline">Buy</span>
-                                        </a>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            ) : (
-                <div className="text-center py-12 text-gray-500">
-                    <div className="text-4xl mb-3">📦</div>
-                    <p className="font-medium">{searchQuery ? 'No matching items' : 'No items in this view'}</p>
-                    <p className="text-sm mt-1">{searchQuery ? 'Try a different search term' : 'Add inventory items to track your stock'}</p>
-                </div>
+                ) : (
+                    <div className="text-center py-12 text-gray-500">
+                        <div className="text-4xl mb-3">📦</div>
+                        <p className="font-medium">{searchQuery ? 'No matching items' : 'No items in this view'}</p>
+                        <p className="text-sm mt-1">{searchQuery ? 'Try a different search term' : 'Add inventory items to track your stock'}</p>
+                    </div>
+                )
             )}
         </div>
     );

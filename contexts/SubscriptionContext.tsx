@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { API_BASE } from '@/lib/config';
+import { useAuth } from './AuthContext';
 
 export interface Subscription {
     id: string;
@@ -36,8 +37,26 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { isAuthenticated, user } = useAuth();
 
-    const fetchSubscriptions = async () => {
+    const fetchSubscriptions = useCallback(async () => {
+        // Don't fetch if not authenticated - silently use cache instead
+        if (!isAuthenticated || !user) {
+            setLoading(false);
+            // Load from cache for offline access
+            if (typeof window !== 'undefined') {
+                const cached = localStorage.getItem('eurokeys_user_subscriptions');
+                if (cached) {
+                    try {
+                        setSubscriptions(JSON.parse(cached));
+                    } catch {
+                        // Invalid cache, ignore
+                    }
+                }
+            }
+            return;
+        }
+
         setLoading(true);
         setError(null);
         try {
@@ -55,7 +74,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
                 localStorage.setItem('eurokeys_user_subscriptions', JSON.stringify(subscriptionsArray));
             }
         } catch (err) {
-            console.error('Error fetching subscriptions:', err);
+            // Only log in development
+            if (process.env.NODE_ENV === 'development') {
+                console.warn('Subscription fetch failed, using cache:', err);
+            }
             setError('Could not load subscriptions. Using cached data if available.');
 
             // Fallback to local storage
@@ -68,11 +90,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [isAuthenticated, user]);
 
     useEffect(() => {
         fetchSubscriptions();
-    }, []);
+    }, [fetchSubscriptions]);
 
     const getSubscriptionStatus = (toolName: string) => {
         const sub = subscriptions.find(

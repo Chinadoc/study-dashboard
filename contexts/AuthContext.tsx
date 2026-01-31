@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { API_BASE } from '@/lib/config';
 
 export interface User {
@@ -31,6 +31,12 @@ const WORKER_AUTH_URL = `${API_BASE}/api/auth/google`;
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [hasMounted, setHasMounted] = useState(false);
+
+    // Track when component has mounted to avoid hydration mismatch
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
 
     // Capture auth token from URL (callback from OAuth)
     const captureAuthToken = useCallback(() => {
@@ -156,7 +162,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('eurokeys_user');
     }, []);
 
-    const isPro = !!(user && (user.is_pro || (user.trial_until && user.trial_until > Date.now() / 1000)));
+    // Compute isPro only after mount to avoid hydration mismatch from Date.now()
+    const isPro = useMemo(() => {
+        if (!hasMounted || !user) return false;
+        return !!(user.is_pro || (user.trial_until && user.trial_until > Date.now() / 1000));
+    }, [hasMounted, user]);
     const isDeveloper = !!(user && user.is_developer);
 
     return (
