@@ -8,6 +8,7 @@ import CommentSection from '@/components/CommentSection';
 import KeyCards from '@/components/vehicle/KeyCards';
 import VisualReferences from '@/components/vehicle/VisualReferences';
 import TechnicalPearls from '@/components/vehicle/TechnicalPearls';
+import DossierReferences from '@/components/vehicle/DossierReferences';
 import VehicleProcedures from '@/components/vehicle/VehicleProcedures';
 import LocksmithSidebar from '@/components/vehicle/LocksmithSidebar';
 import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
@@ -977,6 +978,13 @@ export default function VehicleDetailClient() {
 
                     {/* Technical Pearls / Insights (General only) */}
                     <TechnicalPearls pearls={generalPearls} />
+
+                    {/* Research Dossier References */}
+                    <DossierReferences
+                        make={make}
+                        year={year}
+                        sourceDocs={[...new Set(pearlsList.filter((p: any) => p.source_doc).map((p: any) => p.source_doc))]}
+                    />
 
                     {/* Community Discussion Section */}
                     <CommentSection make={make} model={model} />

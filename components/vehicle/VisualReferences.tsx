@@ -1,6 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import UpgradePrompt from '@/components/UpgradePrompt';
+
+const FREE_VEHICLE_IMAGE_LIMIT = 1;
 
 interface ImageReference {
     url?: string;
@@ -18,6 +22,7 @@ interface VisualReferencesProps {
 const R2_PROXY = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
 
 export default function VisualReferences({ images }: VisualReferencesProps) {
+    const { isPro } = useAuth();
     const [modalImage, setModalImage] = useState<ImageReference | null>(null);
     const [showAll, setShowAll] = useState(false);
 
@@ -55,14 +60,21 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {displayedImages.map((img, index) => {
                     const imageUrl = getImageUrl(img);
+                    const isLocked = !isPro && index >= FREE_VEHICLE_IMAGE_LIMIT;
 
                     return (
                         <div
                             key={`img-${index}-${img.filename || img.r2_key || 'unknown'}`}
-                            className="bg-zinc-800/50 rounded-xl overflow-hidden border border-zinc-700/50 hover:border-purple-500/50 transition-all cursor-pointer"
-                            onClick={() => setModalImage(img)}
+                            className={`bg-zinc-800/50 rounded-xl overflow-hidden border border-zinc-700/50 transition-all ${isLocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-purple-500/50 cursor-pointer'}`}
+                            onClick={() => !isLocked && setModalImage(img)}
+                            style={isLocked ? { filter: 'blur(3px)' } : {}}
                         >
                             <div className="relative h-44 bg-zinc-900">
+                                {isLocked && (
+                                    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ filter: 'none' }}>
+                                        <span className="text-3xl">🔒</span>
+                                    </div>
+                                )}
                                 {imageUrl ? (
                                     <img
                                         src={imageUrl}
@@ -109,6 +121,17 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
                     );
                 })}
             </div>
+
+            {/* Show upgrade prompt for locked images */}
+            {!isPro && images.length > FREE_VEHICLE_IMAGE_LIMIT && (
+                <div className="mt-4">
+                    <UpgradePrompt
+                        itemType="images"
+                        remainingCount={images.length - FREE_VEHICLE_IMAGE_LIMIT}
+                        compact={true}
+                    />
+                </div>
+            )}
 
             {images.length > 6 && (
                 <div className="text-center mt-4">

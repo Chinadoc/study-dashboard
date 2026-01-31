@@ -2,6 +2,10 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import imageManifest from '@/public/data/image_gallery_manifest.json';
+import { useAuth } from '@/contexts/AuthContext';
+import UpgradePrompt from '@/components/UpgradePrompt';
+
+const FREE_IMAGE_LIMIT = 10;
 
 interface GalleryImage {
   filename: string;
@@ -29,6 +33,7 @@ const YEAR_TAGS = [
 ];
 
 export default function ImageGalleryClient() {
+  const { isPro } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -468,38 +473,75 @@ export default function ImageGalleryClient() {
           </button>
         </div>
       ) : (
-        groupedBySource.map(([source, sourceImages]) => (
-          <div key={source} className="source-section">
-            <div className="source-header">
-              <h2>{source}</h2>
-              <span className="source-count">{sourceImages.length} images</span>
-            </div>
+        groupedBySource.map(([source, sourceImages]) => {
+          return (
+            <div key={source} className="source-section">
+              <div className="source-header">
+                <h2>{source}</h2>
+                <span className="source-count">{sourceImages.length} images</span>
+              </div>
 
-            <div className="image-grid">
-              {sourceImages.map((image) => (
-                <div
-                  key={image.id}
-                  className="image-card"
-                  onClick={() => setSelectedImage(image)}
-                >
-                  <img
-                    src={getImageUrl(image)}
-                    alt={image.id}
-                    className="image-preview"
-                    loading="lazy"
-                  />
-                  <div className="image-info">
-                    <div className="image-tags">
-                      {image.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="image-tag">{tag}</span>
-                      ))}
+              <div className="image-grid">
+                {sourceImages.map((image, idx) => {
+                  // Calculate global index for gating
+                  const globalIdx = filteredImages.indexOf(image);
+                  const isLocked = !isPro && globalIdx >= FREE_IMAGE_LIMIT;
+
+                  return (
+                    <div
+                      key={image.id}
+                      className="image-card"
+                      onClick={() => !isLocked && setSelectedImage(image)}
+                      style={isLocked ? {
+                        opacity: 0.4,
+                        filter: 'blur(3px)',
+                        cursor: 'not-allowed',
+                        position: 'relative'
+                      } : {}}
+                    >
+                      {isLocked && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: 10,
+                          fontSize: '2rem',
+                          filter: 'none'
+                        }}>
+                          🔒
+                        </div>
+                      )}
+                      <img
+                        src={getImageUrl(image)}
+                        alt={image.id}
+                        className="image-preview"
+                        loading="lazy"
+                      />
+                      <div className="image-info">
+                        <div className="image-tags">
+                          {image.tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className="image-tag">{tag}</span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
+      )}
+
+      {/* Show upgrade prompt if there are more images than free limit */}
+      {!isPro && filteredImages.length > FREE_IMAGE_LIMIT && (
+        <div style={{ marginTop: '2rem' }}>
+          <UpgradePrompt
+            itemType="images"
+            remainingCount={filteredImages.length - FREE_IMAGE_LIMIT}
+          />
+        </div>
       )}
 
       {/* Lightbox - click anywhere outside image to close, or press Escape */}

@@ -1,0 +1,807 @@
+{
+  "session": 9,
+  "generated_at": "2026-01-30T18:25:40.868526",
+  "total_images": 100,
+  "classifications": [
+    {
+      "image_path": "gdrive_exports/2022_Lexus_RX_350RX_350L_AL20_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image1.png",
+      "section": "security_architecture",
+      "years": "2022-2025",
+      "description": "Lexus RX AL20 platform security topology diagram",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Cryptographic_Void_A_Forensic_Analysis_of_Lexus_Immobilizer_Architectures_an/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2025",
+      "description": "Lexus immobilizer cryptographic analysis - void security zones",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Evolution_of_ToyotaLexus_Security_Architectures_20182024_A_Comprehensive_Tec/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2024",
+      "description": "Toyota/Lexus security evolution timeline - DST80 to DST-AES transition",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Subaru_Outback_Locksmith_Intelligence/images/image1.png",
+      "section": "key_info",
+      "years": "2020-2024",
+      "description": "Subaru Outback key fob specifications - HYQ14AHK vs HYQ14AKB differentiation",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Digital_Fortress_A_Comprehensive_Technical_Analysis_of_Subaru_Security_Archi/images/image1.png",
+      "section": "security_architecture",
+      "years": "2015-2026",
+      "description": "Subaru security architecture evolution - immobilizer generations",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Digital_Fortress_A_Comprehensive_Technical_Analysis_of_Subaru_Security_Archi/images/image2.png",
+      "section": "procedure",
+      "years": "2019-2024",
+      "description": "Subaru SGW bypass procedures - StarLink interference mitigation",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Digital_Fortress_A_Comprehensive_Technical_Analysis_of_Subaru_Security_Archi/images/image3.png",
+      "section": "key_info",
+      "years": "2019-2024",
+      "description": "Subaru key fob specifications - board ID identification",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Analysis_of_the_Subaru_Global_Platform_SGP_Security_Architecture_Gen_6/images/image1.png",
+      "section": "security_architecture",
+      "years": "2019-2026",
+      "description": "Subaru Global Platform Gen 6 security topology",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Analysis_of_the_Subaru_Global_Platform_SGP_Security_Architecture_Gen_6/images/image2.png",
+      "section": "tools",
+      "years": "2019-2026",
+      "description": "Subaru SGP tool compatibility matrix - CAN bus access",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2021_Mazda_CX-5_KF_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image1.png",
+      "section": "security_architecture",
+      "years": "2017-2024",
+      "description": "Mazda CX-5 KF platform security architecture",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2021_Mazda_CX-5_KF_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image2.png",
+      "section": "procedure",
+      "years": "2017-2024",
+      "description": "Mazda CX-5 programming workflow - 10-minute window critical",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2021_Mazda_CX-5_KF_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image3.png",
+      "section": "key_info",
+      "years": "2017-2024",
+      "description": "Mazda CX-5 key specifications - ID49 transponder",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Definitive_Mazda_Locksmith_Intelligence_Report_20152026/images/image1.png",
+      "section": "security_architecture",
+      "years": "2015-2026",
+      "description": "Mazda security generation timeline - Gen 1 vs Gen 2",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Definitive_Mazda_Locksmith_Intelligence_Report_20152026/images/image2.png",
+      "section": "key_info",
+      "years": "2015-2026",
+      "description": "Mazda transponder evolution - 4D63 to ID49 6A",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Definitive_Mazda_Locksmith_Intelligence_Report_20152026/images/image3.png",
+      "section": "tools",
+      "years": "2015-2026",
+      "description": "Mazda tool compatibility - 2024+ OEM only warning",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Definitive_Mazda_Locksmith_Intelligence_Report_20152026/images/image4.png",
+      "section": "procedure",
+      "years": "2020-2026",
+      "description": "Mazda Gen 2 programming protocol - cannot clone ID49 6A",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Mazda_Security_Architecture__Key_Programming_2014-2025_Complete_Technical_Refere/images/image1.png",
+      "section": "security_architecture",
+      "years": "2014-2025",
+      "description": "Mazda security architecture comprehensive timeline",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Mazda_Security_Architecture__Key_Programming_2014-2025_Complete_Technical_Refere/images/image2.png",
+      "section": "procedure",
+      "years": "2014-2025",
+      "description": "Mazda programming decision tree - generation identification",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Mazda_Security_Architecture__Key_Programming_2014-2025_Complete_Technical_Refere/images/image3.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Mazda PCF7939MA transponder specifications",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Acura_Automotive_Locksmith_Intelligence_Report_20152026_Comprehensive_Analysis_o/images/image1.png",
+      "section": "security_architecture",
+      "years": "2015-2026",
+      "description": "Acura security architecture overview - platform evolution",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Deep-Dive_into_the_All_Keys_Lost_Procedure_for_the_20242026_Acura_ZDX/images/image1.png",
+      "section": "procedure",
+      "years": "2024-2026",
+      "description": "Acura ZDX AKL procedure - Ultium platform integration",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Deep-Dive_into_the_All_Keys_Lost_Procedure_for_the_20242026_Acura_ZDX/images/image2.png",
+      "section": "tools",
+      "years": "2024-2026",
+      "description": "Acura ZDX tool requirements - cloud authorization",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Deep-Dive_into_the_All_Keys_Lost_Procedure_for_the_20242026_Acura_ZDX/images/image3.png",
+      "section": "key_info",
+      "years": "2024-2026",
+      "description": "Acura ZDX smart key specifications",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image1.png",
+      "section": "procedure",
+      "years": "2022-2026",
+      "description": "Acura immobilizer programming protocol overview",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image2.png",
+      "section": "key_info",
+      "years": "2022-2026",
+      "description": "Acura key frequency differentiation - Integra vs others",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image3.png",
+      "section": "tools",
+      "years": "2022-2026",
+      "description": "Acura professional tool support matrix - Autel IM608 Pro II, XTOOL, KM100",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image4.png",
+      "section": "procedure",
+      "years": "2022-2026",
+      "description": "Acura AKL workflow step-by-step",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image5.png",
+      "section": "security_architecture",
+      "years": "2022-2026",
+      "description": "Acura BCM architecture - 11th gen platform",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image6.png",
+      "section": "key_info",
+      "years": "2022-2026",
+      "description": "Acura hardware specifications by model year",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image7.png",
+      "section": "tools",
+      "years": "2022-2026",
+      "description": "Acura tool success rate comparison",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image8.png",
+      "section": "procedure",
+      "years": "2022-2026",
+      "description": "Acura verification steps post-programming",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Comprehensive_Tesla_Locksmith_Security_Intelligence_Report_20122026_A_Defin/images/image1.png",
+      "section": "security_architecture",
+      "years": "2012-2026",
+      "description": "Tesla operational paradigm shift - Standard ICE vs Tesla comparison",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Comprehensive_Tesla_Locksmith_Security_Intelligence_Report_20122026_A_Defin/images/image2.png",
+      "section": "procedure",
+      "years": "2017-2026",
+      "description": "Tesla key service protocol decision matrix - lost key workflow",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Comprehensive_Tesla_Locksmith_Security_Intelligence_Report_20122026_A_Defin/images/image3.png",
+      "section": "key_info",
+      "years": "2012-2026",
+      "description": "Tesla locksmith specification timeline - 12V to 16V Li-Ion transition",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Comprehensive_Tesla_Locksmith_Security_Intelligence_Report_20122026_A_Defin/images/image4.png",
+      "section": "tools",
+      "years": "2017-2026",
+      "description": "Tesla revenue potential - premium pricing $75-300 vs standard $50-100",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Comprehensive_Tesla_Locksmith_Security_Intelligence_Report_20122026_A_Defin/images/image5.png",
+      "section": "procedure",
+      "years": "2021-2026",
+      "description": "Tesla Model 3/Y 16V Li-Ion jump post access via HEPA filter",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Fortress_of_Intelligence_A_Comprehensive_Technical_Analysis_of_GM_Global_B_V/images/image1.png",
+      "section": "security_architecture",
+      "years": "2019-2026",
+      "description": "GM Global A vs Global B architectural shift - VIP gateway",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Fortress_of_Intelligence_A_Comprehensive_Technical_Analysis_of_GM_Global_B_V/images/image2.png",
+      "section": "tools",
+      "years": "2019-2026",
+      "description": "GM Global B key programming tool matrix - CAN FD adapter requirements",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Fortress_of_Intelligence_A_Comprehensive_Technical_Analysis_of_GM_Global_B_V/images/image3.png",
+      "section": "procedure",
+      "years": "2022-2026",
+      "description": "2022 Silverado/Sierra VIN 12th digit identification logic tree",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_GM_T1XX_Architecture_and_2021_GMC_Yukon_Technical_Dossier_A_Forensic_Analysi/images/image1.png",
+      "section": "security_architecture",
+      "years": "2019-2026",
+      "description": "GM Global A vs Global B (VIP) architecture evolution - CGM central gateway",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_GM_T1XX_Architecture_and_2021_GMC_Yukon_Technical_Dossier_A_Forensic_Analysi/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Multi-Pro/Multi-Flex tailgate lockout logic - hitch detection TSB",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_GM_T1XX_Architecture_and_2021_GMC_Yukon_Technical_Dossier_A_Forensic_Analysi/images/image3.png",
+      "section": "key_info",
+      "years": "2019-2025",
+      "description": "T1XX platform key fob identification matrix - FCC/frequency/OEM parts",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_GM_T1XX_Architecture_and_2021_GMC_Yukon_Technical_Dossier_A_Forensic_Analysi/images/image4.png",
+      "section": "procedure",
+      "years": "2019-2025",
+      "description": "Duramax manual immobilizer relearn 30-minute 3-cycle sequence",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Ultium_Protocol_A_Definitive_Technical_Dossier_on_GMs_Electric_Vehicle_Secur/images/image1.png",
+      "section": "security_architecture",
+      "years": "2022-2026",
+      "description": "GM Ultium security evolution - Global A Open vs Global B Encrypted/Gateway",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Ultium_Protocol_A_Definitive_Technical_Dossier_on_GMs_Electric_Vehicle_Secur/images/image2.png",
+      "section": "key_info",
+      "years": "2022-2026",
+      "description": "Ultium platform key system matrix - Hummer/Silverado EV/Lyriq/Celestiq",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2024_Chevrolet_Silverado_Smart_Key_System_Global_B_The_Definitive_Technical_Lock/images/image1.png",
+      "section": "security_architecture",
+      "years": "2024-2026",
+      "description": "Chevrolet Silverado Global A vs Global B SDGM gateway shift",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2024_Chevrolet_Silverado_Smart_Key_System_Global_B_The_Definitive_Technical_Lock/images/image2.png",
+      "section": "tools",
+      "years": "2024-2026",
+      "description": "2024 Silverado tool capability matrix - Lonsdor K518 built-in CAN-FD",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2024_Chevrolet_Silverado_Smart_Key_System_Global_B_The_Definitive_Technical_Lock/images/image3.png",
+      "section": "key_info",
+      "years": "2024-2026",
+      "description": "HU100 mechanical distinction - 8-Cut Z-Series vs 10-Cut V-Series",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2024_Chevrolet_Silverado_Smart_Key_System_Global_B_The_Definitive_Technical_Lock/images/image4.png",
+      "section": "procedure",
+      "years": "2024-2026",
+      "description": "Programming failure diagnostic workflow - voltage/FCC/pocket/CAN-FD",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2024_Chevrolet_Silverado_Smart_Key_System_Global_B_The_Definitive_Technical_Lock/images/image5.png",
+      "section": "procedure",
+      "years": "2024-2026",
+      "description": "Programming pocket locations - bench seat vs bucket seat",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Sentinels_Gate_A_Comprehensive_Technical_Analysis_of_2024_Chevrolet_Silverad/images/image1.png",
+      "section": "security_architecture",
+      "years": "2024-2026",
+      "description": "Silverado architectural evolution - SDGM central gateway CAN FD",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Sentinels_Gate_A_Comprehensive_Technical_Analysis_of_2024_Chevrolet_Silverad/images/image2.png",
+      "section": "procedure",
+      "years": "2024-2026",
+      "description": "Critical key slot locations - bucket vs bench seat (concealed armrest)",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Sentinels_Gate_A_Comprehensive_Technical_Analysis_of_2024_Chevrolet_Silverad/images/image3.png",
+      "section": "tools",
+      "years": "2024-2026",
+      "description": "2024 Silverado AKL tool capability matrix - OBDSTAR G3 lowest risk",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Sentinels_Gate_A_Comprehensive_Technical_Analysis_of_2024_Chevrolet_Silverad/images/image4.png",
+      "section": "security_architecture",
+      "years": "2015-2026",
+      "description": "The Security Curve - OEM vs aftermarket difficulty over time",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Exhaustive_Technical_Analysis_2021-2025_Chevrolet_Tahoe_Key_Programming__Securit/images/image1.png",
+      "section": "security_architecture",
+      "years": "2021-2025",
+      "description": "Tahoe Global A vs Global B architecture - Cybersecurity Gateway",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Exhaustive_Technical_Analysis_2021-2025_Chevrolet_Tahoe_Key_Programming__Securit/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Tahoe BCM & programming pocket location diagram",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Exhaustive_Technical_Analysis_2021-2025_Chevrolet_Tahoe_Key_Programming__Securit/images/image3.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "GM SPS2 immobilizer programming workflow - 10-minute security wait",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/FORENSIC_DOSSIER_2020_Chevrolet_Malibu_Gen_9__EquinoxTrax_for_GM_E2XX_Platform/images/image1.png",
+      "section": "security_architecture",
+      "years": "2016-2023",
+      "description": "E2XX network topology - Global A vs Global B SGM firewall",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/FORENSIC_DOSSIER_2020_Chevrolet_Malibu_Gen_9__EquinoxTrax_for_GM_E2XX_Platform/images/image2.png",
+      "section": "procedure",
+      "years": "2016-2023",
+      "description": "Malibu/Equinox transmitter pocket locations - fleet rubber liner removal",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/FORENSIC_DOSSIER_2020_Chevrolet_Malibu_Gen_9__EquinoxTrax_for_GM_E2XX_Platform/images/image3.png",
+      "section": "procedure",
+      "years": "2016-2023",
+      "description": "Parasitic drain forensic analysis - voltage drop method (DO NOT pull fuses)",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2018_Cadillac_CTS_Locksmith_Data/images/image1.png",
+      "section": "key_info",
+      "years": "2014-2019",
+      "description": "Cadillac CTS security profile - FCC HYQ2AB, HU100 10-Cut, OBD programming",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2018_Cadillac_CTS_Locksmith_Data/images/image2.png",
+      "section": "key_info",
+      "years": "2014-2019",
+      "description": "HU100 10-Cut keyway profile - 2-track internal cross-section",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2018_Cadillac_CTS_Locksmith_Data/images/image3.png",
+      "section": "key_info",
+      "years": "2014-2019",
+      "description": "Smart key identification HYQ2AB vs HYQ2EB - 5-button layout FCC location",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2018_Cadillac_CTS_Locksmith_Data/images/image4.png",
+      "section": "procedure",
+      "years": "2014-2019",
+      "description": "CTS AKL 30-minute programming timeline - 3\u00d710-minute wait cycles",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Cadillac_Escalade_K2XL_Forensic_Locksmith_Intelligence_Dossier/images/image1.png",
+      "section": "security_architecture",
+      "years": "2015-2020",
+      "description": "Escalade K2XL Global A immobilizer topology - ASCM noise interference",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Cadillac_Escalade_K2XL_Forensic_Locksmith_Intelligence_Dossier/images/image2.png",
+      "section": "procedure",
+      "years": "2015-2020",
+      "description": "Escalade 30-minute forensic programming cycle - security delay phases",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Cadillac_Escalade_K2XL_Forensic_Locksmith_Intelligence_Dossier/images/image3.png",
+      "section": "key_info",
+      "years": "2015-2020",
+      "description": "Escalade transponder forensics - HYQ2AB 315MHz vs HYQ2EB 433MHz",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Strategic_Locksmith_Intelligence_Advanced_Architectures_of_GMC_and_Cadillac_2015/images/image1.png",
+      "section": "security_architecture",
+      "years": "2015-2026",
+      "description": "GM architectural evolution - K2XX\u2192T1XX\u2192Global B protocol/frequency shift",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Strategic_Locksmith_Intelligence_Advanced_Architectures_of_GMC_and_Cadillac_2015/images/image2.png",
+      "section": "key_info",
+      "years": "2020-2026",
+      "description": "Cadillac Global B key fob compatibility matrix - XT series vs CT series",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Strategic_Locksmith_Intelligence_Advanced_Architectures_of_GMC_and_Cadillac_2015/images/image3.png",
+      "section": "procedure",
+      "years": "2019-2026",
+      "description": "2019 Sierra visual identification - Limited K2XX vs New Body T1XX",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Strategic_Locksmith_Intelligence_Advanced_Architectures_of_GMC_and_Cadillac_2015/images/image4.png",
+      "section": "procedure",
+      "years": "2015-2026",
+      "description": "GM key programming failure diagnostic logic tree",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2019_GMC_Sierra_1500_Locksmith_Intelligence_Report_Platform_Transition_Security_/images/image1.png",
+      "section": "procedure",
+      "years": "2019-2025",
+      "description": "Sierra platform identification - K2XX sail panel vs T1XX door skin mirror",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2019_GMC_Sierra_1500_Locksmith_Intelligence_Report_Platform_Transition_Security_/images/image2.png",
+      "section": "procedure",
+      "years": "2019-2025",
+      "description": "Sierra inductive programming pocket - center console vs bench seat",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2019_GMC_Sierra_1500_Locksmith_Intelligence_Report_Platform_Transition_Security_/images/image3.png",
+      "section": "key_info",
+      "years": "2019-2025",
+      "description": "2019 Sierra key fob compatibility matrix - K2XX vs T1XX vs Smart Key",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/HondaAcura_11th_Gen_BSI__Rolling_Code_Blockade_20222025_A_Comprehensive_Technica/images/image1.png",
+      "section": "security_architecture",
+      "years": "2016-2025",
+      "description": "Honda security evolution - 10th Gen Hitag 3 to 11th Gen Hitag AES",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/HondaAcura_11th_Gen_BSI__Rolling_Code_Blockade_20222025_A_Comprehensive_Technica/images/image2.png",
+      "section": "key_info",
+      "years": "2017-2025",
+      "description": "11th Gen Honda/Acura key hardware compatibility matrix - KR5TP series",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/HondaAcura_11th_Gen_BSI__Rolling_Code_Blockade_20222025_A_Comprehensive_Technica/images/image3.png",
+      "section": "procedure",
+      "years": "2020-2025",
+      "description": "Honda bricking decision tree - MUST use manual protocol for 2020+ Civic/Accord",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/HondaAcura_11th_Gen_BSI__Rolling_Code_Blockade_20222025_A_Comprehensive_Technica/images/image4.png",
+      "section": "tools",
+      "years": "2022-2025",
+      "description": "11th Gen Honda tool risk assessment - Xhorse recommended over Autel",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Locksmith_Intelligence_Report_Nissan__Infiniti_Security_Gateway_Protocols_Bypass/images/image1.png",
+      "section": "security_architecture",
+      "years": "2014-2026",
+      "description": "Nissan immobilizer evolution - Legacy CAN vs 2020+ SGW blocked access",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Locksmith_Intelligence_Report_Nissan__Infiniti_Security_Gateway_Protocols_Bypass/images/image2.png",
+      "section": "procedure",
+      "years": "2020-2026",
+      "description": "Nissan SGW bypass schematic - 16+32 cable direct BCM connection",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Locksmith_Intelligence_Report_Nissan__Infiniti_Security_Gateway_Protocols_Bypass/images/image3.png",
+      "section": "procedure",
+      "years": "2020-2026",
+      "description": "Nissan 16+32 bypass cable connection logic - SGW sidelined",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Locksmith_Intelligence_Report_Nissan__Infiniti_Security_Gateway_Protocols_Bypass/images/image4.png",
+      "section": "tools",
+      "years": "2020-2026",
+      "description": "Nissan/Infiniti BCM stability & programming risk matrix - HIGH BRICK WARNING",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Toyota_TNGA-F_Platform_Security_Dossier_Technical_Analysis_and_Locksmith_Procedu/images/image1.png",
+      "section": "security_architecture",
+      "years": "2022-2026",
+      "description": "TNGA-F security architecture - SGW blockade with 30-pin bypass",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Toyota_TNGA-F_Platform_Security_Dossier_Technical_Analysis_and_Locksmith_Procedu/images/image2.png",
+      "section": "tools",
+      "years": "2022-2026",
+      "description": "TNGA-F tooling capability matrix - Autel/Smart Pro/XTool/Lonsdor",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Toyota_TNGA-F_Platform_Security_Dossier_Technical_Analysis_and_Locksmith_Procedu/images/image3.png",
+      "section": "key_info",
+      "years": "2022-2026",
+      "description": "TNGA-F smart key specifications - Tundra/Sequoia/Land Cruiser/LX 600",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Comprehensive_Technical_Report_ToyotaLexus_8A_DST-AES_Cryptographic_Immobilizer_/images/image1.png",
+      "section": "procedure",
+      "years": "2022-2026",
+      "description": "30-pin Smart Box bypass connection topology - direct EEPROM access",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Comprehensive_Technical_Report_ToyotaLexus_8A_DST-AES_Cryptographic_Immobilizer_/images/image2.png",
+      "section": "security_architecture",
+      "years": "2018-2026",
+      "description": "Toyota/Lexus 8A DST-AES cryptographic immobilizer architecture",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Security_Architecture_of_Toyota_and_Lexus_A_Longitudinal_Analysis_20182025/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2025",
+      "description": "Toyota/Lexus security longitudinal analysis overview",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Security_Architecture_of_Toyota_and_Lexus_A_Longitudinal_Analysis_20182025/images/image2.png",
+      "section": "key_info",
+      "years": "2018-2025",
+      "description": "Toyota/Lexus key specifications timeline",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/The_Security_Architecture_of_Toyota_and_Lexus_A_Longitudinal_Analysis_20182025/images/image3.png",
+      "section": "tools",
+      "years": "2018-2025",
+      "description": "Toyota/Lexus tool compatibility evolution",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Nissan_Rogue_T32_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image1.png",
+      "section": "security_architecture",
+      "years": "2014-2020",
+      "description": "Nissan Rogue T32 security architecture diagram",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Nissan_Rogue_T32_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image2.png",
+      "section": "procedure",
+      "years": "2014-2020",
+      "description": "Nissan Rogue T32 programming workflow",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2020_Nissan_Rogue_T32_FORENSIC_LOCKSMITH_INTELLIGENCE_DOSSIER/images/image3.png",
+      "section": "key_info",
+      "years": "2014-2020",
+      "description": "Nissan Rogue T32 key specifications",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2022_Honda_Civic_FE__Accord_CV11th_Gen_Forensic_Locksmith_Dossier_Platform_Archi/images/image1.png",
+      "section": "security_architecture",
+      "years": "2022-2025",
+      "description": "Honda Civic FE/Accord CV 11th Gen platform architecture",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2022_Honda_Civic_FE__Accord_CV11th_Gen_Forensic_Locksmith_Dossier_Platform_Archi/images/image2.png",
+      "section": "procedure",
+      "years": "2022-2025",
+      "description": "Honda 11th Gen programming procedure - BSI rolling code",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/2022_Honda_Civic_FE__Accord_CV11th_Gen_Forensic_Locksmith_Dossier_Platform_Archi/images/image3.png",
+      "section": "tools",
+      "years": "2022-2025",
+      "description": "Honda 11th Gen tool compatibility - Xhorse vs Autel brick risk",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Analysis_of_the_Subaru_Global_Platform_SGP_Security_Architecture_Gen_6/images/image3.png",
+      "section": "procedure",
+      "years": "2019-2026",
+      "description": "Subaru SGP Gen 6 programming workflow - StarLink interference",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Mazda_Security_Architecture__Key_Programming_2014-2025_Complete_Technical_Refere/images/image4.png",
+      "section": "tools",
+      "years": "2020-2025",
+      "description": "Mazda tool compatibility matrix - 2024+ OEM restriction",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Locksmith_Intelligence_Report_Nissan__Infiniti_Security_Gateway_Protocols_Bypass/images/image5.png",
+      "section": "key_info",
+      "years": "2020-2026",
+      "description": "Nissan/Infiniti key hardware specifications - SGW era",
+      "visually_verified": true,
+      "session": 9
+    },
+    {
+      "image_path": "gdrive_exports/Technical_Protocol_for_Key_Generation_and_Immobilizer_Programming_for_2022-2026_Acura_Models/images/image9.png",
+      "section": "procedure",
+      "years": "2022-2026",
+      "description": "Acura verification and finalization steps",
+      "visually_verified": true,
+      "session": 9
+    }
+  ]
+}

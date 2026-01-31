@@ -474,6 +474,222 @@ export default {
         return corsResponse(request, JSON.stringify({ success: true }), 200, headers, "application/json");
       }
 
+      // ==============================================
+      // STRIPE SUBSCRIPTION ENDPOINTS
+      // ==============================================
+
+      // POST /api/stripe/checkout - Create Stripe Checkout Session
+      if (path === "/api/stripe/checkout" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const userEmail = payload.email as string;
+
+          // Get or create Stripe customer
+          const user = await env.LOCKSMITH_DB.prepare("SELECT stripe_customer_id FROM users WHERE id = ?").bind(userId).first<any>();
+
+          let customerId = user?.stripe_customer_id;
+
+          if (!customerId) {
+            // Create Stripe customer
+            const customerRes = await fetch("https://api.stripe.com/v1/customers", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                email: userEmail,
+                metadata: { user_id: userId } as any,
+              }),
+            });
+            const customer = await customerRes.json() as any;
+            if (customer.error) {
+              return corsResponse(request, JSON.stringify({ error: customer.error.message }), 400);
+            }
+            customerId = customer.id;
+
+            // Save customer ID to DB
+            await env.LOCKSMITH_DB.prepare("UPDATE users SET stripe_customer_id = ? WHERE id = ?").bind(customerId, userId).run();
+          }
+
+          // Create checkout session with 7-day trial
+          const origin = request.headers.get("Origin") || "https://eurokeys.app";
+          const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              "customer": customerId,
+              "mode": "subscription",
+              "line_items[0][price]": env.STRIPE_PRICE_ID,
+              "line_items[0][quantity]": "1",
+              "subscription_data[trial_period_days]": "7",
+              "success_url": `${origin}/pricing?success=true`,
+              "cancel_url": `${origin}/pricing?canceled=true`,
+              "metadata[user_id]": userId,
+            }),
+          });
+          const session = await checkoutRes.json() as any;
+
+          if (session.error) {
+            return corsResponse(request, JSON.stringify({ error: session.error.message }), 400);
+          }
+
+          return corsResponse(request, JSON.stringify({ url: session.url }));
+        } catch (err: any) {
+          console.error("/api/stripe/checkout error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/stripe/webhook - Handle Stripe webhook events
+      if (path === "/api/stripe/webhook" && request.method === "POST") {
+        try {
+          const body = await request.text();
+          const sig = request.headers.get("stripe-signature");
+
+          if (!sig || !env.STRIPE_WEBHOOK_SECRET) {
+            return new Response("Missing signature or webhook secret", { status: 400 });
+          }
+
+          // Verify webhook signature using Stripe's algorithm
+          const signatureParts = sig.split(",").reduce((acc: any, part) => {
+            const [key, value] = part.split("=");
+            acc[key] = value;
+            return acc;
+          }, {});
+
+          const timestamp = signatureParts.t;
+          const expectedSig = signatureParts.v1;
+
+          if (!timestamp || !expectedSig) {
+            return new Response("Invalid signature format", { status: 400 });
+          }
+
+          // Verify timestamp is within tolerance (5 minutes)
+          const timestampAge = Math.floor(Date.now() / 1000) - parseInt(timestamp);
+          if (timestampAge > 300) {
+            return new Response("Timestamp too old", { status: 400 });
+          }
+
+          // Compute expected signature
+          const signedPayload = `${timestamp}.${body}`;
+          const encoder = new TextEncoder();
+          const key = await crypto.subtle.importKey(
+            "raw",
+            encoder.encode(env.STRIPE_WEBHOOK_SECRET),
+            { name: "HMAC", hash: "SHA-256" },
+            false,
+            ["sign"]
+          );
+          const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(signedPayload));
+          const computedSig = Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, "0"))
+            .join("");
+
+          if (computedSig !== expectedSig) {
+            return new Response("Invalid signature", { status: 400 });
+          }
+
+          const event = JSON.parse(body);
+          console.log("Stripe webhook event:", event.type);
+
+          // Handle subscription events
+          if (event.type === "checkout.session.completed") {
+            const session = event.data.object;
+            const customerId = session.customer;
+
+            // Find user by customer ID and update is_pro
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE users SET is_pro = 1, subscription_status = 'active' 
+              WHERE stripe_customer_id = ?
+            `).bind(customerId).run();
+
+            console.log("User upgraded to Pro:", customerId);
+          }
+
+          if (event.type === "customer.subscription.updated") {
+            const subscription = event.data.object;
+            const customerId = subscription.customer;
+            const status = subscription.status; // active, trialing, past_due, canceled, etc.
+
+            const isPro = status === "active" || status === "trialing";
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE users SET is_pro = ?, subscription_status = ? 
+              WHERE stripe_customer_id = ?
+            `).bind(isPro ? 1 : 0, status, customerId).run();
+
+            console.log("Subscription updated:", customerId, status);
+          }
+
+          if (event.type === "customer.subscription.deleted") {
+            const subscription = event.data.object;
+            const customerId = subscription.customer;
+
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE users SET is_pro = 0, subscription_status = 'canceled' 
+              WHERE stripe_customer_id = ?
+            `).bind(customerId).run();
+
+            console.log("Subscription canceled:", customerId);
+          }
+
+          return new Response(JSON.stringify({ received: true }), { status: 200 });
+        } catch (err: any) {
+          console.error("/api/stripe/webhook error:", err);
+          return new Response(err.message, { status: 400 });
+        }
+      }
+
+      // GET /api/stripe/portal - Create Stripe Customer Portal session
+      if (path === "/api/stripe/portal" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const user = await env.LOCKSMITH_DB.prepare("SELECT stripe_customer_id FROM users WHERE id = ?").bind(userId).first<any>();
+
+          if (!user?.stripe_customer_id) {
+            return corsResponse(request, JSON.stringify({ error: "No subscription found" }), 404);
+          }
+
+          const origin = request.headers.get("Origin") || "https://eurokeys.app";
+          const portalRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${env.STRIPE_SECRET_KEY}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              customer: user.stripe_customer_id,
+              return_url: `${origin}/business`,
+            }),
+          });
+          const portal = await portalRes.json() as any;
+
+          if (portal.error) {
+            return corsResponse(request, JSON.stringify({ error: portal.error.message }), 400);
+          }
+
+          return corsResponse(request, JSON.stringify({ url: portal.url }));
+        } catch (err: any) {
+          console.error("/api/stripe/portal error:", err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
       // 5. Sync Data (Frontend -> Cloud)
       if (path === "/api/sync" && request.method === "POST") {
         try {

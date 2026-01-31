@@ -304,4 +304,188 @@ window.openInfographic = function (imgUrl, title) {
     modal.style.display = 'flex';
 };
 
+// ================== IMAGE GALLERY MODAL WITH NAVIGATION ==================
+// Track current gallery state for navigation
+let currentGalleryImages = [];
+let currentGalleryIndex = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+
+/**
+ * Open an image in a fullscreen modal with navigation controls
+ * @param {string} imageUrl - URL of the image to display
+ * @param {string} caption - Caption/title for the image
+ * @param {Array} allImages - Optional array of all images in gallery [{url, caption}]
+ * @param {number} startIndex - Optional starting index in allImages array
+ */
+window.openGuideImageModal = function (imageUrl, caption, allImages, startIndex) {
+    // If allImages provided, use gallery mode; otherwise single image mode
+    if (allImages && allImages.length > 0) {
+        currentGalleryImages = allImages;
+        currentGalleryIndex = startIndex || 0;
+    } else {
+        // Try to find images from the DOM context (guide-images-carousel)
+        const carousel = document.querySelector('.guide-images-carousel');
+        if (carousel) {
+            const cards = carousel.querySelectorAll('.guide-image-card');
+            currentGalleryImages = Array.from(cards).map(card => ({
+                url: card.querySelector('img')?.src || '',
+                caption: card.querySelector('.guide-image-caption')?.textContent || ''
+            })).filter(img => img.url);
+
+            // Find current index
+            currentGalleryIndex = currentGalleryImages.findIndex(img => img.url === imageUrl);
+            if (currentGalleryIndex === -1) currentGalleryIndex = 0;
+        } else {
+            currentGalleryImages = [{ url: imageUrl, caption: caption || '' }];
+            currentGalleryIndex = 0;
+        }
+    }
+
+    renderGalleryModal();
+};
+
+/**
+ * Render the gallery modal with current image and navigation controls
+ */
+function renderGalleryModal() {
+    const current = currentGalleryImages[currentGalleryIndex];
+    if (!current) return;
+
+    // Check if modal already exists
+    let modal = document.getElementById('guideImageModal');
+
+    if (!modal) {
+        // Create the modal structure
+        modal = document.createElement('div');
+        modal.id = 'guideImageModal';
+        modal.className = 'guide-image-modal';
+        modal.innerHTML = `
+            <button class="modal-close" onclick="closeGuideImageModal()" aria-label="Close">×</button>
+            <button class="modal-nav modal-nav-prev" onclick="navigateGallery(-1)" aria-label="Previous">‹</button>
+            <div class="modal-image-container">
+                <img src="" alt="" id="guideImageModalImg">
+            </div>
+            <button class="modal-nav modal-nav-next" onclick="navigateGallery(1)" aria-label="Next">›</button>
+            <div class="modal-caption" id="guideImageModalCaption"></div>
+            <div class="modal-counter" id="guideImageModalCounter"></div>
+        `;
+        document.body.appendChild(modal);
+
+        // Add touch event listeners for swipe
+        modal.addEventListener('touchstart', handleTouchStart, { passive: true });
+        modal.addEventListener('touchmove', handleTouchMove, { passive: true });
+        modal.addEventListener('touchend', handleTouchEnd);
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', handleGalleryKeydown);
+
+        // Close on backdrop click
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeGuideImageModal();
+            }
+        });
+    }
+
+    // Update content
+    const img = document.getElementById('guideImageModalImg');
+    const captionEl = document.getElementById('guideImageModalCaption');
+    const counterEl = document.getElementById('guideImageModalCounter');
+
+    img.src = current.url;
+    img.alt = current.caption || 'Technical Diagram';
+    captionEl.textContent = current.caption || '';
+
+    // Show counter if multiple images
+    if (currentGalleryImages.length > 1) {
+        counterEl.textContent = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
+        counterEl.style.display = 'block';
+        // Show/hide nav buttons
+        modal.querySelector('.modal-nav-prev').style.display = currentGalleryIndex > 0 ? 'flex' : 'none';
+        modal.querySelector('.modal-nav-next').style.display = currentGalleryIndex < currentGalleryImages.length - 1 ? 'flex' : 'none';
+    } else {
+        counterEl.style.display = 'none';
+        modal.querySelector('.modal-nav-prev').style.display = 'none';
+        modal.querySelector('.modal-nav-next').style.display = 'none';
+    }
+
+    // Show modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent body scroll
+}
+
+/**
+ * Navigate to next/previous image in gallery
+ * @param {number} direction - -1 for previous, +1 for next
+ */
+window.navigateGallery = function (direction) {
+    const newIndex = currentGalleryIndex + direction;
+
+    if (newIndex >= 0 && newIndex < currentGalleryImages.length) {
+        currentGalleryIndex = newIndex;
+        renderGalleryModal();
+    }
+};
+
+/**
+ * Close the image gallery modal
+ */
+window.closeGuideImageModal = function () {
+    const modal = document.getElementById('guideImageModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+};
+
+// Touch event handlers for swipe navigation
+function handleTouchStart(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}
+
+function handleTouchMove(e) {
+    touchEndX = e.changedTouches[0].screenX;
+}
+
+function handleTouchEnd(e) {
+    const swipeThreshold = 50; // Minimum swipe distance
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swiped left - next image
+            navigateGallery(1);
+        } else {
+            // Swiped right - previous image
+            navigateGallery(-1);
+        }
+    }
+
+    // Reset
+    touchStartX = 0;
+    touchEndX = 0;
+}
+
+// Keyboard navigation handler
+function handleGalleryKeydown(e) {
+    const modal = document.getElementById('guideImageModal');
+    if (!modal || !modal.classList.contains('active')) return;
+
+    switch (e.key) {
+        case 'ArrowLeft':
+            e.preventDefault();
+            navigateGallery(-1);
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            navigateGallery(1);
+            break;
+        case 'Escape':
+            e.preventDefault();
+            closeGuideImageModal();
+            break;
+    }
+}
+
 console.log('✅ Premium guide assets loaded:', Object.keys(GUIDE_ASSETS).length, 'makes');

@@ -15,6 +15,58 @@ interface FccData {
     image_url?: string;
 }
 
+// Click-to-expand key image thumbnail component
+function KeyImageThumbnail({ imageUrl, itemKey }: { imageUrl?: string; itemKey: string }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    if (!imageUrl) {
+        return <span className="text-xs">🔑</span>;
+    }
+
+    return (
+        <>
+            {/* Small clickable thumbnail */}
+            <button
+                onClick={(e) => { e.stopPropagation(); setIsExpanded(true); }}
+                className="w-3 h-3 sm:w-4 sm:h-4 rounded overflow-hidden hover:ring-1 hover:ring-yellow-500/50 transition-all cursor-pointer flex-shrink-0"
+                title="Click to expand"
+            >
+                <img
+                    src={imageUrl}
+                    alt={itemKey}
+                    className="w-full h-full object-contain opacity-80 hover:opacity-100 transition-opacity"
+                />
+            </button>
+
+            {/* Expanded overlay modal */}
+            {isExpanded && (
+                <>
+                    <div
+                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                        onClick={() => setIsExpanded(false)}
+                    />
+                    <div className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 shadow-2xl">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">{itemKey}</span>
+                                <button
+                                    onClick={() => setIsExpanded(false)}
+                                    className="text-zinc-500 hover:text-zinc-300 transition-colors text-lg"
+                                >×</button>
+                            </div>
+                            <img
+                                src={imageUrl}
+                                alt={itemKey}
+                                className="w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] object-contain rounded-lg bg-zinc-800"
+                            />
+                        </div>
+                    </div>
+                </>
+            )}
+        </>
+    );
+}
+
 // Click-to-expand vehicles popover component
 function VehiclesPopover({
     vehicles,
@@ -201,7 +253,6 @@ export default function InventoryPage() {
     ];
 
     const handleDelete = (itemKey: string) => {
-        // Get full quantity to remove
         const item = inventory.find(i => i.itemKey === itemKey);
         if (item) {
             removeFromInventory(itemKey, item.qty);
@@ -224,38 +275,38 @@ export default function InventoryPage() {
     return (
         <div className="space-y-6">
             {/* Stats Header */}
-            <div className="grid grid-cols-3 gap-4">
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-white">{totalItems}</div>
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide">Item Types</div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-2 sm:p-4 text-center">
+                    <div className="text-xl sm:text-3xl font-bold text-white">{totalItems}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wide">Item Types</div>
                 </div>
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-green-400">{totalQuantity}</div>
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide">Total Units</div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-2 sm:p-4 text-center">
+                    <div className="text-xl sm:text-3xl font-bold text-green-400">{totalQuantity}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wide">Total Units</div>
                 </div>
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-center">
-                    <div className={`text-3xl font-bold ${lowStockCount > 0 ? 'text-red-400' : 'text-zinc-500'}`}>{lowStockCount}</div>
-                    <div className="text-xs text-zinc-500 uppercase tracking-wide">Low Stock</div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-2 sm:p-4 text-center">
+                    <div className={`text-xl sm:text-3xl font-bold ${lowStockCount > 0 ? 'text-red-400' : 'text-zinc-500'}`}>{lowStockCount}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wide">Low Stock</div>
                 </div>
             </div>
 
             {/* Search and Subtabs */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center gap-2 p-1 bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-x-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-x-auto">
                     {subtabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveSubTab(tab.id as InventorySubTab)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all
+                            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all
                                 ${activeSubTab === tab.id
                                     ? 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20 text-yellow-400 border border-yellow-500/30'
                                     : 'text-gray-400 hover:text-gray-200 hover:bg-zinc-800/50'
                                 }`}
                         >
-                            {tab.icon && <span>{tab.icon}</span>}
+                            {tab.icon && <span className="hidden sm:inline">{tab.icon}</span>}
                             <span>{tab.label}</span>
                             {tab.count !== undefined && (
-                                <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeSubTab === tab.id ? 'bg-yellow-500/30 text-yellow-300' : 'bg-zinc-700 text-gray-400'}`}>
+                                <span className={`text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-full ${activeSubTab === tab.id ? 'bg-yellow-500/30 text-yellow-300' : 'bg-zinc-700 text-gray-400'}`}>
                                     {tab.count}
                                 </span>
                             )}
@@ -270,13 +321,13 @@ export default function InventoryPage() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search FCC, vehicle..."
-                        className="w-full sm:w-64 px-4 py-2 pl-10 bg-zinc-900/50 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-yellow-500/50"
+                        className="w-full sm:w-64 px-3 sm:px-4 py-1.5 sm:py-2 pl-8 sm:pl-10 bg-zinc-900/50 border border-zinc-700 rounded-lg text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-yellow-500/50"
                     />
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">🔍</span>
+                    <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">🔍</span>
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
                         >×</button>
                     )}
                 </div>
@@ -285,13 +336,13 @@ export default function InventoryPage() {
                 <div className="flex gap-2">
                     <button
                         onClick={handleExport}
-                        className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium transition-colors"
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs sm:text-sm font-medium transition-colors"
                         title="Export to CSV"
                     >
-                        📤 Export
+                        📤 <span className="hidden sm:inline">Export</span>
                     </button>
-                    <label className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm font-medium cursor-pointer transition-colors">
-                        📥 Import
+                    <label className="px-2 sm:px-3 py-1.5 sm:py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs sm:text-sm font-medium cursor-pointer transition-colors">
+                        📥 <span className="hidden sm:inline">Import</span>
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -313,13 +364,13 @@ export default function InventoryPage() {
 
             {/* Sign-in prompt */}
             {!isAuthenticated && !authLoading && (
-                <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-4 py-4 rounded-lg">
-                    <div className="flex items-center justify-between gap-4">
+                <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-3 sm:px-4 py-3 sm:py-4 rounded-lg">
+                    <div className="flex items-center justify-between gap-3 sm:gap-4">
                         <div>
-                            <p className="font-medium">📱 Sign in to sync your inventory</p>
-                            <p className="text-sm opacity-75 mt-1">Your data will be saved to the cloud and accessible across devices</p>
+                            <p className="font-medium text-sm sm:text-base">📱 Sign in to sync your inventory</p>
+                            <p className="text-xs sm:text-sm opacity-75 mt-0.5 sm:mt-1">Your data will be saved to the cloud</p>
                         </div>
-                        <button onClick={login} className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-lg whitespace-nowrap transition-colors">
+                        <button onClick={login} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-lg whitespace-nowrap transition-colors text-xs sm:text-sm">
                             Sign In
                         </button>
                     </div>
@@ -337,45 +388,39 @@ export default function InventoryPage() {
                         {displayItems.map((item) => {
                             const keyImage = item.type === 'key' ? getKeyImage(item.itemKey) : undefined;
                             return (
-                                <div key={item.itemKey} className="p-3 sm:p-4 flex items-start sm:items-center gap-3 hover:bg-gray-800/30 transition-colors">
-                                    {/* Key Image - Desktop: fixed width, Mobile: smaller */}
-                                    <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
-                                        {keyImage ? (
-                                            <img
-                                                src={keyImage}
-                                                alt={item.itemKey}
-                                                className="w-full h-full object-contain"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                                }}
-                                            />
-                                        ) : null}
-                                        <span className={keyImage ? 'hidden' : 'text-xl sm:text-2xl'}>
-                                            {item.type === 'key' ? '🔑' :
-                                                item.type === 'blank' ? '🔧' :
-                                                    item.type === 'tool' ? '💻' : '📦'}
-                                        </span>
-                                    </div>
-
-                                    {/* Content - More compact on mobile */}
+                                <div
+                                    key={item.itemKey}
+                                    className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
+                                    style={keyImage ? {
+                                        backgroundImage: `linear-gradient(to right, rgba(17,24,39,0.95), rgba(17,24,39,0.85)), url(${keyImage})`,
+                                        backgroundPosition: 'right center',
+                                        backgroundSize: 'contain',
+                                        backgroundRepeat: 'no-repeat'
+                                    } : undefined}
+                                >
+                                    {/* Content */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
                                             <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
                                                     item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
                                                         item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
                                                             'bg-green-500/20 text-green-400'
                                                 }`}>
-                                                {item.type === 'key' ? 'Key' :
-                                                    item.type === 'blank' ? 'Blank' :
-                                                        item.type === 'tool' ? `${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
-                                                            'Supply'}
+                                                {/* Small key image thumbnail instead of emoji */}
+                                                {item.type === 'key' ? (
+                                                    <span className="flex items-center gap-1">
+                                                        <KeyImageThumbnail imageUrl={keyImage} itemKey={item.itemKey} />
+                                                        Key
+                                                    </span>
+                                                ) : item.type === 'blank' ? '🔧 Blank' :
+                                                    item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
+                                                        '📦 Supply'}
                                             </span>
                                             {item.qty <= 2 && (
                                                 <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
                                             )}
                                             {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
-                                                <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">In Warranty</span>
+                                                <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">Warranty</span>
                                             )}
                                         </div>
                                         <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
@@ -383,26 +428,28 @@ export default function InventoryPage() {
                                             <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
                                         )}
                                         {item.vehicle && (
-                                            <div className="text-[10px] sm:text-sm text-gray-400 truncate">{item.vehicle.split(',').slice(0, 1).join('')}{item.vehicle.includes(',') ? '...' : ''}</div>
+                                            <div className="text-[10px] sm:text-sm text-gray-400 truncate max-w-[180px] sm:max-w-none">
+                                                {item.vehicle.split(',').slice(0, 2).join(', ')}{item.vehicle.split(',').length > 2 ? '...' : ''}
+                                            </div>
                                         )}
                                     </div>
 
-                                    {/* Quantity controls - Smaller on mobile */}
-                                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                                    {/* Quantity controls - Compact on mobile */}
+                                    <div className="flex items-center gap-1 flex-shrink-0">
                                         <button
                                             onClick={() => updateQuantity(item.itemKey, -1)}
-                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm sm:text-base"
+                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
                                         >−</button>
-                                        <span className={`w-6 sm:w-10 text-center font-bold text-sm sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
+                                        <span className={`w-6 sm:w-10 text-center font-bold text-xs sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
                                             {item.qty}
                                         </span>
                                         <button
                                             onClick={() => updateQuantity(item.itemKey, 1)}
-                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm sm:text-base"
+                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-xs sm:text-base"
                                         >+</button>
                                     </div>
 
-                                    {/* Delete button - Hidden on mobile, or smaller */}
+                                    {/* Delete button - Desktop only */}
                                     <div className="hidden sm:flex items-center gap-2">
                                         {deleteConfirm === item.itemKey ? (
                                             <>
@@ -424,13 +471,13 @@ export default function InventoryPage() {
                                         )}
                                     </div>
 
-                                    {/* Buy Link for Low Stock - More compact on mobile */}
+                                    {/* Buy Link for Low Stock */}
                                     {item.qty <= 2 && (
                                         <a
                                             href={generateAmazonSearchUrl(item.itemKey)}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-xs sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
+                                            className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-[10px] sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
                                         >
                                             🛒 <span className="hidden sm:inline">Buy</span>
                                         </a>
@@ -450,4 +497,3 @@ export default function InventoryPage() {
         </div>
     );
 }
-
