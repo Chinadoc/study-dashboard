@@ -977,7 +977,7 @@ export default function VehicleDetailClient() {
                     <VisualReferences images={imagesList} />
 
                     {/* Technical Pearls / Insights (General only) */}
-                    <TechnicalPearls pearls={generalPearls} />
+                    <TechnicalPearls pearls={generalPearls} make={make} model={model} />
 
                     {/* Research Dossier References */}
                     <DossierReferences

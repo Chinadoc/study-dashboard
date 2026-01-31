@@ -1755,6 +1755,302 @@ export default {
       }
 
       // ==============================================
+      // PEARL INTERACTION ENDPOINTS
+      // ==============================================
+
+      // POST /api/pearls/vote - Vote on a pearl
+      if (path === "/api/pearls/vote" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to vote" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { pearl_id, vote } = body;
+
+          if (!pearl_id || ![-1, 1].includes(vote)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid pearl_id or vote" }), 400);
+          }
+
+          // Check existing vote
+          const existingVote = await env.LOCKSMITH_DB.prepare(
+            `SELECT vote FROM pearl_votes WHERE pearl_id = ? AND user_id = ?`
+          ).bind(pearl_id, userId).first<{ vote: number }>();
+
+          if (existingVote) {
+            if (existingVote.vote === vote) {
+              // Toggle off - remove vote
+              await env.LOCKSMITH_DB.prepare(
+                `DELETE FROM pearl_votes WHERE pearl_id = ? AND user_id = ?`
+              ).bind(pearl_id, userId).run();
+            } else {
+              // Change vote
+              await env.LOCKSMITH_DB.prepare(
+                `UPDATE pearl_votes SET vote = ?, created_at = ? WHERE pearl_id = ? AND user_id = ?`
+              ).bind(vote, Date.now(), pearl_id, userId).run();
+            }
+          } else {
+            // New vote
+            await env.LOCKSMITH_DB.prepare(
+              `INSERT INTO pearl_votes (pearl_id, user_id, vote, created_at) VALUES (?, ?, ?, ?)`
+            ).bind(pearl_id, userId, vote, Date.now()).run();
+          }
+
+          // Get updated vote counts
+          const counts = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              COALESCE(SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END), 0) as upvotes,
+              COALESCE(SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END), 0) as downvotes
+            FROM pearl_votes WHERE pearl_id = ?
+          `).bind(pearl_id).first<{ upvotes: number; downvotes: number }>();
+
+          // Get user's current vote
+          const userVote = await env.LOCKSMITH_DB.prepare(
+            `SELECT vote FROM pearl_votes WHERE pearl_id = ? AND user_id = ?`
+          ).bind(pearl_id, userId).first<{ vote: number }>();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            upvotes: counts?.upvotes || 0,
+            downvotes: counts?.downvotes || 0,
+            score: (counts?.upvotes || 0) - (counts?.downvotes || 0),
+            user_vote: userVote?.vote || 0
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/pearls/:id/votes - Get vote counts for a pearl
+      if (path.match(/^\/api\/pearls\/\d+\/votes$/) && request.method === "GET") {
+        try {
+          const pearlId = parseInt(path.split('/')[3]);
+
+          const counts = await env.LOCKSMITH_DB.prepare(`
+            SELECT 
+              COALESCE(SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END), 0) as upvotes,
+              COALESCE(SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END), 0) as downvotes
+            FROM pearl_votes WHERE pearl_id = ?
+          `).bind(pearlId).first<{ upvotes: number; downvotes: number }>();
+
+          // Check user vote if authenticated
+          let userVote = 0;
+          const sessionToken = getSessionToken(request);
+          if (sessionToken) {
+            const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+            if (payload?.sub) {
+              const vote = await env.LOCKSMITH_DB.prepare(
+                `SELECT vote FROM pearl_votes WHERE pearl_id = ? AND user_id = ?`
+              ).bind(pearlId, payload.sub).first<{ vote: number }>();
+              userVote = vote?.vote || 0;
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({
+            upvotes: counts?.upvotes || 0,
+            downvotes: counts?.downvotes || 0,
+            score: (counts?.upvotes || 0) - (counts?.downvotes || 0),
+            user_vote: userVote
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/pearls/:id/reply - Reply to a pearl (creates comment linked to pearl)
+      if (path.match(/^\/api\/pearls\/\d+\/reply$/) && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to reply" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const pearlId = parseInt(path.split('/')[3]);
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { content, vehicle_key } = body;
+
+          if (!content || content.trim().length === 0) {
+            return corsResponse(request, JSON.stringify({ error: "Content required" }), 400);
+          }
+          if (!vehicle_key) {
+            return corsResponse(request, JSON.stringify({ error: "vehicle_key required" }), 400);
+          }
+
+          // Get user info
+          const user = await env.LOCKSMITH_DB.prepare(
+            `SELECT name, picture FROM users WHERE id = ?`
+          ).bind(userId).first<{ name: string; picture: string }>();
+
+          const commentId = crypto.randomUUID();
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO vehicle_comments (id, vehicle_key, user_id, user_name, user_picture, content, pearl_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            commentId,
+            vehicle_key,
+            userId,
+            user?.name || 'Anonymous',
+            user?.picture || null,
+            content.trim(),
+            pearlId,
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            comment_id: commentId
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/pearls/suggest-edit - Submit edit suggestion
+      if (path === "/api/pearls/suggest-edit" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in to suggest edits" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { pearl_id, original_content, suggested_content, reason } = body;
+
+          if (!pearl_id || !original_content || !suggested_content) {
+            return corsResponse(request, JSON.stringify({ error: "Missing required fields" }), 400);
+          }
+
+          if (suggested_content === original_content) {
+            return corsResponse(request, JSON.stringify({ error: "No changes detected" }), 400);
+          }
+
+          // Get user name
+          const user = await env.LOCKSMITH_DB.prepare(
+            `SELECT name FROM users WHERE id = ?`
+          ).bind(userId).first<{ name: string }>();
+
+          const suggestionId = crypto.randomUUID();
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pearl_edit_suggestions (id, pearl_id, user_id, user_name, original_content, suggested_content, reason, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            suggestionId,
+            pearl_id,
+            userId,
+            user?.name || 'Anonymous',
+            original_content,
+            suggested_content,
+            reason || null,
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            suggestion_id: suggestionId
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/pearls/suggestions - Get pending suggestions (admin)
+      if (path === "/api/pearls/suggestions" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          // TODO: Add admin check here
+          const status = url.searchParams.get('status') || 'pending';
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM pearl_edit_suggestions 
+            WHERE status = ?
+            ORDER BY created_at DESC
+            LIMIT 50
+          `).bind(status).all();
+
+          return corsResponse(request, JSON.stringify({
+            suggestions: result.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/pearls/suggestions/:id/review - Approve/reject suggestion
+      if (path.match(/^\/api\/pearls\/suggestions\/[^/]+\/review$/) && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const suggestionId = path.split('/')[4];
+          const reviewerId = payload.sub as string;
+          const body: any = await request.json();
+          const { action } = body; // 'approve' or 'reject'
+
+          if (!['approve', 'reject'].includes(action)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid action" }), 400);
+          }
+
+          // Get suggestion
+          const suggestion = await env.LOCKSMITH_DB.prepare(
+            `SELECT * FROM pearl_edit_suggestions WHERE id = ?`
+          ).bind(suggestionId).first<any>();
+
+          if (!suggestion) {
+            return corsResponse(request, JSON.stringify({ error: "Suggestion not found" }), 404);
+          }
+
+          const pointsAwarded = action === 'approve' ? 10 : 0;
+
+          // Update suggestion status
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE pearl_edit_suggestions 
+            SET status = ?, reviewed_by = ?, reviewed_at = ?, points_awarded = ?
+            WHERE id = ?
+          `).bind(
+            action === 'approve' ? 'approved' : 'rejected',
+            reviewerId,
+            Date.now(),
+            pointsAwarded,
+            suggestionId
+          ).run();
+
+          // Award points if approved
+          if (action === 'approve' && suggestion.user_id) {
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO user_reputation (user_id, reputation_score, edits_approved, updated_at)
+              VALUES (?, ?, 1, ?)
+              ON CONFLICT(user_id) DO UPDATE SET 
+                reputation_score = reputation_score + ?,
+                edits_approved = COALESCE(edits_approved, 0) + 1,
+                updated_at = ?
+            `).bind(suggestion.user_id, pointsAwarded, Date.now(), pointsAwarded, Date.now()).run();
+          }
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            points_awarded: pointsAwarded
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // USER PREFERENCES ENDPOINTS
       // ==============================================
 
