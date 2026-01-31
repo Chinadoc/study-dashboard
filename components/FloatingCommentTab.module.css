@@ -1,8 +1,9 @@
-/* Floating Tab Button */
+/* Floating Tab Button - positioned above nav bar */
 .floatingTab {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 80px;
+    /* Above the nav bar */
+    right: 16px;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -16,7 +17,8 @@
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 900;
+    /* Below nav bar but above content */
 }
 
 .floatingTab:hover {
@@ -25,7 +27,7 @@
 }
 
 .floatingTab:active {
-    transform: translateY(0);
+    transform: scale(0.95);
 }
 
 .tabIcon {
@@ -58,7 +60,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 1001;
+    z-index: 9998;
     animation: fadeIn 0.2s ease;
 }
 
@@ -82,7 +84,7 @@
     max-height: 85vh;
     background: var(--bg-primary, #1a1a24);
     border-radius: 20px 20px 0 0;
-    z-index: 1002;
+    z-index: 9999;
     display: flex;
     flex-direction: column;
     transform: translateY(100%);
@@ -93,14 +95,21 @@
     transform: translateY(0);
 }
 
-/* Sheet Header */
+/* Sheet Header - draggable area */
 .sheetHeader {
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
     gap: 1rem;
     position: relative;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+.sheetHeader:active {
+    cursor: grabbing;
 }
 
 .handle {
@@ -109,9 +118,9 @@
     left: 50%;
     transform: translateX(-50%);
     width: 40px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
 }
 
 .headerContent {
@@ -135,10 +144,10 @@
     background: rgba(255, 255, 255, 0.1);
     border: none;
     color: var(--text-secondary, rgba(255, 255, 255, 0.6));
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -155,13 +164,33 @@
 .sheetContent {
     flex: 1;
     overflow-y: auto;
-    padding: 0 1rem 1.5rem;
+    padding: 0.5rem 0.75rem 1.5rem;
     -webkit-overflow-scrolling: touch;
+}
+
+/* Swipe hint */
+.swipeHint {
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted, rgba(255, 255, 255, 0.3));
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Hide on desktop - comments already visible */
 @media (min-width: 768px) {
     .floatingTab {
         display: none;
+    }
+}
+
+/* Safe area for notched phones */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .floatingTab {
+        bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .sheetContent {
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
     }
 }

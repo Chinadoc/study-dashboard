@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, TouchEvent } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import CommentSection from './CommentSection';
 import styles from './FloatingCommentTab.module.css';
@@ -13,7 +13,10 @@ interface FloatingCommentTabProps {
 export default function FloatingCommentTab({ make, model }: FloatingCommentTabProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [commentCount, setCommentCount] = useState(0);
-    const { isAuthenticated } = useAuth();
+    const [dragY, setDragY] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const startY = useRef(0);
+    const sheetRef = useRef<HTMLDivElement>(null);
 
     // Fetch comment count
     useEffect(() => {
@@ -45,9 +48,40 @@ export default function FloatingCommentTab({ make, model }: FloatingCommentTabPr
         };
     }, [isOpen]);
 
+    // Handle touch start on header
+    const handleTouchStart = (e: TouchEvent) => {
+        startY.current = e.touches[0].clientY;
+        setIsDragging(true);
+    };
+
+    // Handle touch move
+    const handleTouchMove = (e: TouchEvent) => {
+        if (!isDragging) return;
+        const currentY = e.touches[0].clientY;
+        const delta = currentY - startY.current;
+        // Only allow dragging down
+        if (delta > 0) {
+            setDragY(delta);
+        }
+    };
+
+    // Handle touch end
+    const handleTouchEnd = () => {
+        setIsDragging(false);
+        // If dragged more than 100px, close the sheet
+        if (dragY > 100) {
+            setIsOpen(false);
+        }
+        setDragY(0);
+    };
+
+    const sheetStyle = isDragging && dragY > 0
+        ? { transform: `translateY(${dragY}px)`, transition: 'none' }
+        : {};
+
     return (
         <>
-            {/* Floating Tab Button */}
+            {/* Floating Tab Button - positioned above nav bar */}
             <button
                 className={styles.floatingTab}
                 onClick={() => setIsOpen(true)}
@@ -66,8 +100,17 @@ export default function FloatingCommentTab({ make, model }: FloatingCommentTabPr
             )}
 
             {/* Slide-up Sheet */}
-            <div className={`${styles.sheet} ${isOpen ? styles.open : ''}`}>
-                <div className={styles.sheetHeader}>
+            <div
+                ref={sheetRef}
+                className={`${styles.sheet} ${isOpen ? styles.open : ''}`}
+                style={sheetStyle}
+            >
+                <div
+                    className={styles.sheetHeader}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                >
                     <div className={styles.handle} />
                     <div className={styles.headerContent}>
                         <h2 className={styles.sheetTitle}>
@@ -85,7 +128,12 @@ export default function FloatingCommentTab({ make, model }: FloatingCommentTabPr
                 </div>
 
                 <div className={styles.sheetContent}>
-                    <CommentSection make={make} model={model} />
+                    {isOpen && <CommentSection make={make} model={model} />}
+                </div>
+
+                {/* Swipe hint */}
+                <div className={styles.swipeHint}>
+                    Swipe down to close
                 </div>
             </div>
         </>

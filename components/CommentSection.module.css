@@ -270,15 +270,55 @@
 /* Responsive */
 @media (max-width: 640px) {
     .commentSection {
-        padding: 1rem;
+        padding: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .comment {
+        padding: 0.5rem;
+        gap: 0.5rem;
     }
 
     .reply {
         margin-left: 0.5rem;
     }
 
+    /* Larger vote buttons on mobile for easier tapping */
     .voteColumn {
-        min-width: 28px;
+        min-width: 36px;
+        gap: 0.15rem;
+    }
+
+    .voteBtn {
+        font-size: 1rem;
+        padding: 0.4rem;
+        min-width: 32px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .score {
+        font-size: 0.9rem;
+        padding: 0.2rem 0;
+    }
+
+    .commentContent {
+        font-size: 0.9rem;
+    }
+
+    .commentHeader {
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .userName {
+        font-size: 0.85rem;
+    }
+
+    .timestamp {
+        font-size: 0.75rem;
     }
 }
 

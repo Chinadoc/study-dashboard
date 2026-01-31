@@ -1,0 +1,439 @@
+{
+  "session": 10,
+  "generated": "2026-01-30T20:32:57.079304",
+  "total_images": 72,
+  "classifications": [
+    {
+      "path": "gdrive_exports/The_Lincoln_Security_Architecture_A_Comprehensive_Locksmith_Intelligence_Report_/images/image2.png",
+      "section": "key_info",
+      "years": "2013-2025",
+      "description": "Lincoln Master Key Fob Reference Matrix - Navigator/MKX/MKS/MKT 315MHz M3N5WY8609 vs Continental/MKC/MKZ 902MHz M3N-A2C940780 vs Corsair/Aviator/Nautilus 902MHz M3N-A2C931426 vs Navigator 2022+ 902MHz M3N-A3C054339 vs Navigator/Nautilus/Aviator 2023+ 434MHz M3N-A3C108397 - Highlighted frequency indicates European Standard 434MHz"
+    },
+    {
+      "path": "gdrive_exports/The_Lincoln_Security_Architecture_A_Comprehensive_Locksmith_Intelligence_Report_/images/image3.png",
+      "section": "procedure",
+      "years": "2018-2026",
+      "description": "Lincoln Navigator Key Programming Decision Matrix - Gen 4/Early Gen 5 (2018-2022) 902MHz M3N-A3C054339 Active Alarm\u2192OBD Procedure vs ADC2020 Cable Bypass + 10s Loop Fail\u2192Retry vs 2023-2026 Check Frequency 902MHz M3N-A3C054339\u2192Proceed to Alarm Check 2022+ Logic - Keys NOT interchangeable between frequency bands"
+    },
+    {
+      "path": "gdrive_exports/The_Lincoln_Security_Architecture_A_Comprehensive_Locksmith_Intelligence_Report_/images/image4.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Lincoln Backup Slot Location Guide - Navigator: Under cup holder mat, Aviator: Center console bin, Nautilus 2024+: Wireless charger pad area - Passive key programming and emergency starting locations"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Grand_Cherokee_L_WL_Security_Architecture__Forensic_Locksmithing_Dossi/images/image1.png",
+      "section": "security_architecture",
+      "years": "2011-2025",
+      "description": "Jeep Grand Cherokee WK2 vs WL Security Topography - 2020 WK2 SGW/Star Connector Y160 Keyway Fobik/Prox Fob vs 2021+ WL SGW/Star Connector SIP22 Keyway M3NWXF0B1 Fob - RF Hub migration to roof line, mechanical keyway transition"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Grand_Cherokee_L_WL_Security_Architecture__Forensic_Locksmithing_Dossi/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Jeep WL Programming Decision Matrix - WARNING: Voltage \u226413.5V Connect Charger\u2192Step 1 Check Battery Voltage >13.5V Required\u2192Step 2 Tool Selection OEM WiTech 2.0 vs Aftermarket SmartPro/Autel\u2192Step 3 Connect Bypass Star Connector or ADC-2011/2012 Cable\u2192CRITICAL SAFETY: DO NOT SCAN VIN risks soft-locking RF Hub\u2192Step 4 Interference Detected? If Yes Pull Fuses\u2192Execute Program Function"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Grand_Cherokee_L_WL_Security_Architecture__Forensic_Locksmithing_Dossi/images/image3.png",
+      "section": "security_architecture",
+      "years": "2021-2025",
+      "description": "Jeep WL RF Hub Soft Lock Failure Mechanism - Bootloader Injection Phase vulnerability window\u2192Failure leads to Error: Service Passive Entry\u2192Recovery requires new RF Hub & Dealer programming - Programming interruption during bootloader phase causes permanent corruption"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Grand_Cherokee_L_WL_Security_Architecture__Forensic_Locksmithing_Dossi/images/image4.png",
+      "section": "tools",
+      "years": "2021-2025",
+      "description": "Jeep WL Critical Fuse Locations - Passenger Compartment Fuse Box: F28 10A Radar, F31 10A RF Hub | Power Distribution Center (Underhood): F05 10A RF Hub, F11 10A Blind Spot, F12 10A Radar - F31/F05 required for Hard Reset, F28/F11/F12 removed to diagnose radar interference"
+    },
+    {
+      "path": "gdrive_exports/Deep_Research_Jeep_Grand_Cherokee_WL_2021-2025_Immobilizer__Key_Programming_Prot/images/image1.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Jeep WL Star Connector Access Point - CAN-C/CAN-IHS Star Connector bank located in passenger footwell behind silence panel/kick plate - Remove panel to access 12+8 bypass connection"
+    },
+    {
+      "path": "gdrive_exports/Deep_Research_Jeep_Grand_Cherokee_WL_2021-2025_Immobilizer__Key_Programming_Prot/images/image2.png",
+      "section": "key_info",
+      "years": "2021-2025",
+      "description": "Jeep WL RF Hub Identification - Critical Part Numbers - Radio Frequency Hub Module (RFHM) KPR01H0ABO-B02-AM Part Number Suffix -AM = Updated Bootloader Security - HIGH BRICK RISK for OBD brute-force attacks"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Wrangler_JL__Gladiator_JT_Forensic_Locksmith_Dossier/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2026",
+      "description": "Jeep JL/JT Security Topology & Authorization Flow - Key Fob Wireless Signal\u2192Secure Gateway (SGW) Firewall blocks OBD-II Write Commands\u2192Bypass Cable enables Direct Write\u2192RF Hub (Master)\u2192Auth to BCM + PCM - SGW separates vehicle into public/private networks"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Wrangler_JL__Gladiator_JT_Forensic_Locksmith_Dossier/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2026",
+      "description": "Jeep 4xe 'Silent Start' Verification Protocol - Press Start Button\u2192Engine Noise?\u2192YES: Engine Running ICE\u2192NO (Silent): Check Dashboard\u2192Green READY Car Icon = Electric Mode EV Verified\u2192No Icon = Cluster Error / None Check Key Fob / 12V Battery - Unlike ICE 4xe may not crank on successful start"
+    },
+    {
+      "path": "gdrive_exports/2021_Jeep_Wrangler_JL__Gladiator_JT_Forensic_Locksmith_Dossier/images/image3.png",
+      "section": "procedure",
+      "years": "2018-2026",
+      "description": "Jeep JL/JT SGW & Star Connector Physical Locations - SGW Module behind glove box (requires removal) or near driver's side kick panel/knee bolster - 12+8 Bypass Cable must bridge specific CAN-C and CAN-IHS lines to grant RF Hub write access"
+    },
+    {
+      "path": "gdrive_exports/Comprehensive_Locksmith_Intelligence_Report_Jeep_JLJT_Platform_20182026/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2026",
+      "description": "Jeep JK vs JL/JT Security Architecture Evolution - Legacy JK: Direct OBDII Port\u2192Data Line\u2192CAN Bus\u2192RF Hub/BCM Direct Access | Modern JL: OBDII Port\u2192CAN Bus blocked by SGW (Secure Gateway)\u2192Only Authorized Path via bypass to RF Hub/BCM - Write commands blocked by SGW"
+    },
+    {
+      "path": "gdrive_exports/Comprehensive_Locksmith_Intelligence_Report_Jeep_JLJT_Platform_20182026/images/image2.png",
+      "section": "tools",
+      "years": "2018-2025",
+      "description": "Jeep JL/JT Tool Capability Matrix - Autel IM608: High all years | Smart Pro: High 2018-2023, Moderate 2024+ | XTOOL D8: High all years - 2024+ reliability dip due to new RF Hub encryption across all platforms"
+    },
+    {
+      "path": "gdrive_exports/Comprehensive_Locksmith_Intelligence_Report_Jeep_JLJT_Platform_20182026/images/image3.png",
+      "section": "procedure",
+      "years": "2018-2026",
+      "description": "Jeep JL/JT SGW Bypass Strategy Decision Logic - Vehicle Year <2018: Standard OBDII No SGW | 2018-2026: Internet & AutoAuth?\u2192YES: Software Bypass (AutoAuth)\u2192NO: Hardware Bypass\u2192Check Model\u2192Gladiator/Late JL: Star Connector (Glovebox)\u2192Early JL: SGW Module (Radio/Kick)"
+    },
+    {
+      "path": "gdrive_exports/2022_Dodge_ChargerChallenger_LDLC_FORENSIC_LOCKSMITH_DOSSIER/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2023",
+      "description": "Dodge LD/LC Access Control Architecture - 'Fortress Architecture' - DLC (OBD Port) blocked by SGW firewall\u2192RF Hub/PCM/BCM locked. Star Connector bypasses SGW firewall to access critical CAN-C and CAN-IH networks"
+    },
+    {
+      "path": "gdrive_exports/2022_Dodge_ChargerChallenger_LDLC_FORENSIC_LOCKSMITH_DOSSIER/images/image2.png",
+      "section": "security_architecture",
+      "years": "2015-2023",
+      "description": "Dodge Hellcat Power Authorization Protocol Logic Flow - Start Button Pressed\u2192RF Hub Pings Key Validates Transponder Chip\u2192Key ID Validated?\u2192NO: No Start\u2192YES: Send ID to PCM Engine Control Module\u2192Linked to Red Profile?\u2192NO (Black Key): Valet/Eco Map 500HP 4,000 RPM Limit\u2192YES (Red Key): High Output Map 797HP Unrestricted - Software map selection not physical limiter"
+    },
+    {
+      "path": "gdrive_exports/2022_Dodge_ChargerChallenger_LDLC_FORENSIC_LOCKSMITH_DOSSIER/images/image3.png",
+      "section": "security_architecture",
+      "years": "2011-2023",
+      "description": "Dodge Charger/Challenger Timeline of Security Escalation Path to TSB 08-086-22 - 2011-2017 Legacy Era FOBIK/Standard Smart Key Open Network | 2018 Firewall Era SGW Introduction 12+8 Bypass Cable Required | 2021 Enhanced Security Mode Valet Mode PCM Power Limits | 2022+ TSB 08-086-22 Lockdown Era RF Hub Write-Protect - AKL requires RF Hub module replacement"
+    },
+    {
+      "path": "gdrive_exports/2022_Dodge_ChargerChallenger_LDLC_FORENSIC_LOCKSMITH_DOSSIER/images/image4.png",
+      "section": "tools",
+      "years": "2022-2023",
+      "description": "Dodge 2022 Methodology Matrix Programming Pathways - Direct OBD Connection: Standard Adapter BLOCKED/FAILS Cannot authenticate with SGW Low Labor | Star Connector Bypass: 12+8 Bypass Cable EFFECTIVE* for Add Key scenarios Medium Labor locate SGW dash/cables - May fail if Hub permanently locked | RF Hub Replacement: New OEM RF Hub + Pro Diagnostic Tools ONLY SOLUTION if TSB 08-086-22 present AKL Hub bricked High Labor dashboard disassembly"
+    },
+    {
+      "path": "gdrive_exports/The_Definitive_Professional_Locksmith_Guide_20182023_Dodge_Challenger_Security_A/images/image1.png",
+      "section": "security_architecture",
+      "years": "2015-2023",
+      "description": "Mopar Security Paradigm Shift 2015-2023 - Pre-2018: OBD Port\u2192Star Connector Direct Access ID46 Philips Key Fob | 2018: OBD Port SGW Firewall\u2192Star Connector blocked ID46 Key Fob | 2019+: OBD Port SGW Firewall\u2192Star Connector Encrypted & Firewalled AES 4A Key Fob"
+    },
+    {
+      "path": "gdrive_exports/The_Definitive_Professional_Locksmith_Guide_20182023_Dodge_Challenger_Security_A/images/image2.png",
+      "section": "key_info",
+      "years": "2015-2023",
+      "description": "Dodge Challenger Key Fob Identification Guide - 2015-2018 Legacy Architecture M3N-40821302 Philips ID46 Hitag 2 433/434MHz Y159 SRT Red Key P/N 68234959AA | 2019-2023 AES High Security M3M-40821302 or M3M-40824301 HITAG-AES (4A) 433/434MHz Y159 - Verify FCC ID on original key or RFHUB label"
+    },
+    {
+      "path": "gdrive_exports/The_Definitive_Professional_Locksmith_Guide_20182023_Dodge_Challenger_Security_A/images/image3.png",
+      "section": "procedure",
+      "years": "2018-2023",
+      "description": "Dodge Challenger Star Connector Access Points - Dual locations: Passenger Kick Panel + Trunk Right Side - Trunk location preferred for 2019+ models due to RFHUB proximity and ease of access in All Keys Lost scenarios"
+    },
+    {
+      "path": "gdrive_exports/The_Definitive_Professional_Locksmith_Guide_20182023_Dodge_Challenger_Security_A/images/image4.png",
+      "section": "procedure",
+      "years": "2018-2023",
+      "description": "Dodge LA Platform Field Diagnostics - Why Is The Key Not Programming? Connect Tool (SGW Bypass)\u2192Communication OK?\u2192NO: Check Star Connector / 12+8\u2192YES: Read PIN?\u2192NO: Check Internet / Server\u2192YES: Program Key\u2192Failure/Success - SGW Bypass is root prerequisite for all operations"
+    },
+    {
+      "path": "gdrive_exports/2019_Ram_1500_DT_5th_Gen_Locksmith_Forensic_Intelligence_Report/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2025",
+      "description": "Ram DS (Classic) vs DT (New Style) Architectural Divergence - 2019 'Split Year Crisis' - DS Classic 2018-2024: SGW Behind Radio requires dash disassembly, Legacy Platform Tip-Start/Fobik 315/433MHz mix, GQ4-53T | DT New Style 2019-2025: SGW Driver Footwell accessible, Push-to-Start Only Prox Keyless OHT-4882056 433MHz - CRITICAL: Both platforms produced 2019-2024"
+    },
+    {
+      "path": "gdrive_exports/2019_Ram_1500_DT_5th_Gen_Locksmith_Forensic_Intelligence_Report/images/image2.png",
+      "section": "procedure",
+      "years": "2019-2025",
+      "description": "Ram 1500 DT Key Blank Selection Logic - Ignition Type\u2192Turn Key: DS Classic GQ4-53T | Push Button: Features?\u2192Standard Entry: GQ4-76T | Air Susp/Tailgate: OHT-4882056 - Strict separation between DS and DT hardware"
+    },
+    {
+      "path": "gdrive_exports/2019_Ram_1500_DT_5th_Gen_Locksmith_Forensic_Intelligence_Report/images/image3.png",
+      "section": "procedure",
+      "years": "2019-2025",
+      "description": "Ram 1500 DT SGW & Star Connector Access Map - 'Dual-Vector' Attack Surface - Primary: SGW (1500 DT) located at driver's footwell Green Zone, HD models: SGW behind cluster | Secondary: Star Connector behind passenger glovebox Blue Zone with 12+8 Cable connection"
+    },
+    {
+      "path": "gdrive_exports/2019_Ram_1500_DT_5th_Gen_Locksmith_Forensic_Intelligence_Report/images/image4.png",
+      "section": "key_info",
+      "years": "2019-2025",
+      "description": "Ram DT 'All Keys Lost' Root Cause Analysis - 50% True Lost Key | 25% RF Hub Water Damage | 15% SGW/Programming Error | 10% eTorque/EMI Interference + Door Handle Short - Nearly 40% of 'Key Failure' service calls on DT platform are actually hardware failures (RF Hub) or environmental interference not lost keys"
+    },
+    {
+      "path": "gdrive_exports/The_Technical_Compendium_of_Stellantis_Immobilizer_Architectures_Ram_1500_Heavy_/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2024",
+      "description": "Stellantis Security Evolution Platform Divergence 2018-2024 - Ram 1500 DT/HD (RF Hub): SGW 2019\u2192RF Hub 2021\u2192CAN-FD Era 2023 | Ram 1500 DS (Classic): Legacy architecture unchanged | ProMaster (Fiat BCM): SGW 2019\u2192CAN-FD Era 2023 - Critical 2019 split between DS Classic Legacy and DT RF Hub Architecture"
+    },
+    {
+      "path": "gdrive_exports/The_Technical_Compendium_of_Stellantis_Immobilizer_Architectures_Ram_1500_Heavy_/images/image2.png",
+      "section": "security_architecture",
+      "years": "2019-2025",
+      "description": "Ram DT vs ProMaster Immobilizer Topology Comparison - Ram 1500 DT: Key\u2192RF Antenna UHF\u2192RF Hub (Rear Wall)\u2192SGW\u2192PCM | ProMaster: Key\u2192Ignition Coil\u2192Marelli BCM (Dash)\u2192SGW\u2192PCM - Both use SGW firewall but DT has dedicated RF Hub on rear cab wall while ProMaster integrates into dashboard Marelli BCM"
+    },
+    {
+      "path": "gdrive_exports/Ford_BCM_Security_Bypass_Analysis/images/image1.png",
+      "section": "key_info",
+      "years": "2018-2025",
+      "description": "Ford PATS & Transponder Mapping - Transit Mk8/Transit Custom 2018-2022: Gen 5 Late Hitag Pro ID47/49 PCF7945F 128-bit AES | Expedition/Explorer/Escape/Maverick 2018-2022: Smart Key Fob NXP HITAG-PRO ID49 128 Bit 315MHz | Transit Van USA 2020: Remote Key Fob TEXAS ID 4D 63 128 BIT 315MHz | Transit Connect 2022: Transponder Key H91 TEX 4D-63 80-Bit | Transit & Transit Custom 2023-2025: Smart Key Systems 128-bit AES Rolling Code"
+    },
+    {
+      "path": "gdrive_exports/Ford_BCM_Security_Bypass_Analysis/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Ford 2021+ F-150 Gateway Module Schematic & Bypass Location - Gateway Module (GWM) situated directly below Radio Unit. Bypass requires accessing 26-pin connector on underside of module. Connection point behind radio for active alarm bypass scenarios"
+    },
+    {
+      "path": "gdrive_exports/Ford_BCM_Security_Bypass_Analysis/images/image3.png",
+      "section": "key_info",
+      "years": "2017-2022",
+      "description": "Ford Key Intelligence - Frequency & FCC ID Matrix - 902MHz M3N-A2C93142600 HIGH TRIM Enhanced Range & Remote Start: Edge 2017-2021, Explorer 2018-2021, Fusion 2018-2020, Mustang 2017-2020, Lincoln Continental 2020 | 315MHz M3N-A2C931423 BASE MODEL Standard Range: Expedition 2018-2022, Explorer 2019-2022, Escape 2020-2022, Maverick 2022 | 315MHz N5F-A08TAA: Transit Van 2020 - Frequencies NOT interchangeable"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Analysis_of_the_2021_Ford_Mustang_Mach-E_A_Comprehensive_Technical_Mono/images/image1.png",
+      "section": "security_architecture",
+      "years": "2021-2025",
+      "description": "Ford Protocol Evolution - Legacy C2 vs Mach-E GE1 CAN FD Topology - Legacy Ford C2 Architecture: Standard CAN 500 kbps direct OBDII Port\u2192BCM/RFA | Mach-E GE1 Architecture: CAN FD up to 5 Mbps via Gateway Module (GWM) firewall - CAN FD Adapter required for OBDII access - Traditional 500 kbps tools CANNOT handshake with GWM"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Analysis_of_the_2021_Ford_Mustang_Mach-E_A_Comprehensive_Technical_Mono/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Mach-E Backup Slot Locator - Center Console Bin - Remove rubber mat at bottom, key fob placed in molded pocket with buttons facing upward - Emergency starting location when fob battery is dead or for key programming"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Analysis_of_the_2021_Ford_Mustang_Mach-E_A_Comprehensive_Technical_Mono/images/image3.png",
+      "section": "tools",
+      "years": "2021-2025",
+      "description": "Mach-E Hardware Compatibility Logic - Programmer & Adapter Decision Flow - Autel IM508/IM608: Have CAN FD Adapter?\u2192YES: Proceed\u2192NO: Acquire Adapter | Smart Pro: Software Update?\u2192YES: Proceed\u2192NO: Update Firmware | FDRS/VCM3: Compatible Proceed - CAN FD protocol support REQUIRED or RFA module communication fails"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Technical_Report_2022_Ford_Maverick_Immobilizer_Architecture_and_Locksm/images/image1.png",
+      "section": "security_architecture",
+      "years": "2022-2025",
+      "description": "Ford Maverick Security Network Topology - Gateway Module (GWM) acts as firewall intercepting OBDII traffic before it reaches Body Control Module (BCM PATS) - CAN FD protocol support required for authorized communication"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Technical_Report_2022_Ford_Maverick_Immobilizer_Architecture_and_Locksm/images/image2.png",
+      "section": "procedure",
+      "years": "2022-2025",
+      "description": "Ford Maverick Locksmith Operational Workflow - Start Job\u21922+ Working Keys Available?\u2192YES: On-Board Programming (OBP)\u2192NO <2 Keys: Connect Tool (CAN FD Required)\u2192Is Alarm Active?\u2192YES: 10 Min Wait\u2192NO: Instant Access - Critical branch points for Active Alarm status and existing key availability"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Technical_Report_2022_Ford_Maverick_Immobilizer_Architecture_and_Locksm/images/image3.png",
+      "section": "key_info",
+      "years": "2022-2025",
+      "description": "Ford Maverick Transponder & Remote Data Matrix - Flip Key Keyed Ignition: FCC N5F-A08TAA 315MHz NXP HITAG-PRO ID49 128 Bit Ford 164-R8269 / Strattec 5939651 3-Button Lock/Unlock/Panic HU198 Blunt Tip | Smart Key Push-to-Start: FCC M3N-A2C931426 902MHz Ford 164-R8182 164-R8297 / Strattec 5933004 4-Button Lock/Unlock/Remote Start/Panic Emergency Insert 164-R8168 - Distinct frequency difference 315MHz keyed vs 902MHz push-to-start"
+    },
+    {
+      "path": "gdrive_exports/Forensic_Technical_Report_2022_Ford_Maverick_Immobilizer_Architecture_and_Locksm/images/image4.png",
+      "section": "procedure",
+      "years": "2022-2025",
+      "description": "Ford Maverick Interior Service Points - 1. Programming Slot (Center Console/Cupholder) 2. Gateway Module (Behind Glovebox) 3. OBDII Port 4. BCM/Fuse Panel (Passenger Footwell) - Critical service locations for key programming"
+    },
+    {
+      "path": "gdrive_exports/2021_Ford_Transit_VN__Ford_Commercial_Platform_Dossier_Technical_Architecture_Pr/images/image1.png",
+      "section": "security_architecture",
+      "years": "2021-2025",
+      "description": "Ford Platform Genealogy - C2 vs T6 Security Divide - Ford Security Ecosystem: Transit (VN) Commercial/Van\u2192Ford T / Transit Custom | Truck (T6) Body-on-Frame\u2192Ford Ranger / Ford Bronco / Ford Everest | Compact (C2) Unibody\u2192Bronco Sport / Ford Maverick - Bronco Sport (C2) completely separate from Bronco (T6) despite branding"
+    },
+    {
+      "path": "gdrive_exports/2021_Ford_Transit_VN__Ford_Commercial_Platform_Dossier_Technical_Architecture_Pr/images/image2.png",
+      "section": "key_info",
+      "years": "2021-2025",
+      "description": "Ford Hardware Matrix - Maverick Bronco Sport & Ranger 2021+ - Maverick XL: Flip Key 315MHz N5F-A08TAA | Maverick Lariat: Smart Remote 902MHz M3N-A2C931426 Emergency Insert | Bronco Sport: Flip Key 315MHz N5F-A08TAA | Ranger NA: Smart Remote M3N-A2C931423 Differs - Frequency divergence 315MHz vs 902MHz based on trim level and platform"
+    },
+    {
+      "path": "gdrive_exports/2021_Ford_Transit_VN__Ford_Commercial_Platform_Dossier_Technical_Architecture_Pr/images/image3.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Ford Transit 2021+ Active Alarm Lockout Bypass Workflow - Connect Programmer Autel/MDDI/ProPad\u2192Attempt Security Access\u2192Show Security Access Failed?\u2192Is Vehicle in Active Alarm?\u2192Critical Battery Disconnect Bypass: 1. Disconnect Negative Battery Cable 2. Connect Isolator Attach Clamps Red-Blk 3. Verify LED On 4. Connect OBD Do NOT Program 5. Toggle Switch OFF\u2192ON\u2192Retry Programming - If Switch Check Failure: Pull Liftgate Fuse Check Wiring / Abort"
+    },
+    {
+      "path": "gdrive_exports/2018_Ford_Expedition_Locksmith_Research/images/image1.png",
+      "section": "security_architecture",
+      "years": "2018-2024",
+      "description": "Ford U553 (Expedition) Immobilizer Network Topology & Signal Flow - OBD Port\u2192GWM Active Alarm blocks\u2192BCM\u2194PCM. RFA Module: UHF 902MHz + LF 125kHz x4 Antennas\u2192Push Button\u2192Smart Key. PEPS dual-frequency handshake: 125kHz LF Challenge / 902MHz UHF Response"
+    },
+    {
+      "path": "gdrive_exports/2018_Ford_Expedition_Locksmith_Research/images/image2.png",
+      "section": "key_info",
+      "years": "2018-2024",
+      "description": "Ford U553 Part Identification Matrix - Smart Key M3N-A2C931426 Part No: 164-R8198 5-Button for PEPS models | Transponder Key H128-PT for XL/Fleet models without PEPS - Verify FCC ID M3N-A2C931426 identifier on PEPS Smart Key"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Escape_Locksmith_Intelligence/images/image1.png",
+      "section": "key_info",
+      "years": "2020-2024",
+      "description": "Ford Escape Key Frequency & Part Matrix - S Base Model: Flip Key 315MHz N5F-A08TAA 164-R8269/R8130 3-Button Lock/Unlock/Panic | SE/SE Sport/Hybrid: Smart Key 4-Btn 315MHz M3N-A2C931423 164-R8197 | SEL/Titanium w/Power Liftgate & Remote Start: Smart Key 5-Btn 902MHz M3N-A2C931426 164-R8198/R8149 Lock/Unlock/Remote Start/Hatch/Panic | SEL/Titanium No Remote Start: Smart Key 4-Btn 902MHz M3N-A2C931426 164-R8182 - 902MHz = Remote Start/Enhanced Security HIGH TRIM"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Escape_Locksmith_Intelligence/images/image2.png",
+      "section": "procedure",
+      "years": "2020-2024",
+      "description": "Ford Escape Emergency Backup Slot Location - Passive programming slot located in center console - For dead fob battery emergency starting and key programming"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Escape_Locksmith_Intelligence/images/image3.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Ford Escape Mechanical Intelligence - HU101 vs HU198 Keyway - HU101: External Edge Cuts (Legacy Ford profile) | HU198: Internal Groove Cuts (2020+ profile) - 2020+ models transitioned to HU198 internal track blade profile"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Explorer_CD6_Platform_Comprehensive_Technical_Forensic_Analysis_for_Au/images/image1.png",
+      "section": "security_architecture",
+      "years": "2020-2025",
+      "description": "Ford CD6 Digital Topology & Security Gateway Interaction - Diagnostic Tool CAN FD Adapter\u2192CAN FD\u2192Gateway Module Firewall\u2192High Speed CAN Bus\u2192BCM Standard CAN / PCM Standard CAN - Tools must support CAN FD protocol to penetrate Gateway Module layer and reach BCM"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Explorer_CD6_Platform_Comprehensive_Technical_Forensic_Analysis_for_Au/images/image2.png",
+      "section": "procedure",
+      "years": "2020-2025",
+      "description": "Ford Explorer Active Alarm Bypass Workflows - Method A (Emulator Recommended): ADC2020 Emulator Smart Pro + Emulator Cable USB\u2192Connect Emulator\u2192Emulate Key\u2192Instant Bypass Total Time <2.5 mins | Method B (Standard/Risky): OBD Wait Procedure Autel/Standard Tools\u2192Connect & Wait Open driver door. Do not disturb sensors. Risk: Ultrasonic sensors may reset timer\u2192Access Gained Wait for double honk ~10 mins\u2192Window Opens Total Time 10+ mins High failure rate if battery low | Method C (Hardware): Power Isolation Bypass Kit Magnus/Lock Labs\u2192Install Kit External power to VCI. Isolate vehicle\u2192Power Cycle Disc. Batt + Rec. Batt\u2192Forced Reset Useful when emulation fails"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Explorer_CD6_Platform_Comprehensive_Technical_Forensic_Analysis_for_Au/images/image3.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Ford Explorer Key Identification Matrix - HIGH SPEC Remote Start 902MHz M3N-A2C931426 or M3N-A2C93142600: 5 Buttons Lock/Unlock/Remote Start/Hatch/Panic Smart Key (Prox) Factory Remote Start Push-to-Start HITAG PRO ID49/NCF295 164-R8149/R8198/R8275/R8244/KT4T-15K601-CC | STANDARD/LOW SPEC 315MHz N5F-A08TAA: 3 Buttons Lock/Unlock/Panic Flip Key Turn-Key Ignition No Remote Start HITAG PRO ID49 128-Bit 164-R8130/R8269/FL3Z-15K601-A/FL3T-15K601-AB | 315MHz M3N-A2C931423: 4 Buttons Lock/Unlock/Trunk/Panic Smart Key (Prox) Push-to-Start NO Remote Start ID49 Check VIN Typically Low Spec"
+    },
+    {
+      "path": "gdrive_exports/2020_Ford_Explorer_CD6_Platform_Comprehensive_Technical_Forensic_Analysis_for_Au/images/image4.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Ford CD6 BCM Programming Voltage Safety Thresholds - CRITICAL RISK <12.0V (Red) | UNSTABLE 12.0-12.6V (Yellow) | SAFE ZONE >12.6V (Green) Threshold 12.6V - CD6 BCM highly susceptible to corruption during Parameter Reset 'Handshake'. Technicians must maintain voltage above 12.6V using external power supply"
+    },
+    {
+      "path": "gdrive_exports/Technical_Reference_Ford_Bronco_20212025_Key_Programming_Procedures_Security_Pro/images/image1.png",
+      "section": "key_info",
+      "years": "2021-2025",
+      "description": "Ford Platform Architecture - Bronco (U725) vs Bronco Sport (CX430) - Bronco Full-Size U725: Body-on-Frame, OEM Key FCC M3N-A2C931423 315MHz, Smart Key Fob 3-Button/4-Button configurations, On-Board Programmable user can add spares if 2 keys present, 4 Slots Total backup slot in center console | Bronco Sport CX430: Unibody C2 Platform, FCC FLIP-FORD-3B1HS Ilco Ref / Different Protocol, Proximity or Flip Key (Trim dependent), Diagnostic Tool Required Autel/Smart Pro No on-board, Varies by System Standard Ford Prox limits - COMPLETELY INCOMPATIBLE platforms despite naming"
+    },
+    {
+      "path": "gdrive_exports/Technical_Reference_Ford_Bronco_20212025_Key_Programming_Procedures_Security_Pro/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Ford Bronco 10-Minute Security Access Cycle - Setup (~1 min) | WAIT 10 MIN Security Wait Do Not Touch (orange) | ACT NOW 60-second Action Window (green at ~10-10.5 min) - Failing to act within 60-second Action Window requires restarting entire cycle. Battery stabilizer required throughout"
+    },
+    {
+      "path": "gdrive_exports/Technical_Reference_Ford_Bronco_20212025_Key_Programming_Procedures_Security_Pro/images/image3.png",
+      "section": "procedure",
+      "years": "2021-2023",
+      "description": "Ford Bronco 2021-2023 All Keys Lost Decision Tree - Start Procedure\u2192Alarm Status?\u2192ACTIVE: Choose Bypass Method EMULATOR CABLE or BATTERY RESET\u2192ESTABLISH COMMS\u2192SECURITY ACCESS (10 min)\u2192ERASE KEYS\u2192ADD KEY 1\u2192ADD KEY 2\u2192PROCEDURE COMPLETE - Workflow prioritizes silencing BCM to restore OBD-II communication"
+    },
+    {
+      "path": "gdrive_exports/Technical_Compendium_The_2021_Ford_F-150_Generation_14_Security_Architecture_and/images/image1.png",
+      "section": "security_architecture",
+      "years": "2021-2025",
+      "description": "Ford Gen 14 Network Topology - The Gateway Firewall - Diagnostic Tool\u2192CAN FD Adapter\u2192CAN FD\u2192OBDII Port\u2192GWM (Firewall blocks direct access)\u2192Standard CAN to BCM/IPC/PCM - CAN FD-capable hardware required to negotiate passage through GWM"
+    },
+    {
+      "path": "gdrive_exports/Technical_Compendium_The_2021_Ford_F-150_Generation_14_Security_Architecture_and/images/image2.png",
+      "section": "key_info",
+      "years": "2021-2025",
+      "description": "Ford Gen 14 Key Identification - 315MHz vs 902MHz - 3-Button Fob 315MHz FCC M3N-A2C93142300 | 5-Button Fob 902MHz FCC M3N-A2C93142600 - NOT INTERCHANGEABLE. Always verify FCC ID inside battery compartment"
+    },
+    {
+      "path": "gdrive_exports/Technical_Compendium_The_2021_Ford_F-150_Generation_14_Security_Architecture_and/images/image3.png",
+      "section": "procedure",
+      "years": "2021-2025",
+      "description": "Ford Gen 14 Protocol - Defeating Active Alarm - Alarm Active?\u2192Have Bypass Cable?\u2192YES: Connect to GWM\u2192Program Key\u2192NO: Close Latch\u2192Wait 10 Min (Risk Ultrasonic Trigger) - GWM bypass cable essential for reliable AKL procedure"
+    },
+    {
+      "path": "gdrive_exports/Project_P702_2024_Ford_F-150_Automotive_Security_Dossier/images/image1.png",
+      "section": "security_architecture",
+      "years": "2024-2025",
+      "description": "2024 Ford F-150 (P702) Security Architecture & Signal Path - Diagnostic Tool\u2192VCI CAN-FD Adapter\u2192CAN-FD Bus\u2192Gateway Module (GWM) Firewall\u2192High Speed CAN-FD Bus\u2192Body Control Module (BCM)\u2192Passive Anti-Theft System (PATS) - CAN-FD protocol required to pass GWM firewall"
+    },
+    {
+      "path": "gdrive_exports/Project_P702_2024_Ford_F-150_Automotive_Security_Dossier/images/image2.png",
+      "section": "procedure",
+      "years": "2024-2025",
+      "description": "2024 F-150 Field Guide - BCM Location & Access Points - Body Control Module (BCM) concealed behind passenger-side kick panel. Access requires removal of door sill plate and side kick trim. BCM is primary target for Active Alarm bypass connections in AKL scenarios"
+    },
+    {
+      "path": "gdrive_exports/Project_P702_2024_Ford_F-150_Automotive_Security_Dossier/images/image3.png",
+      "section": "key_info",
+      "years": "2024-2025",
+      "description": "2024 F-150 Smart Key Identification Matrix - US vs Export - US DOMESTIC MARKET Standard North American Spec: 902MHz M3N-A2C93142600 also M3N-A2C931426 NXP HITAG-PRO ID49 128 Bit OEM 164-R8166 / 5929503 / 164-R8185 / 5933019 | EXPORT/FLEET International & Special Order: 434MHz M3N-A3C108397 OEM 164-R8370 / RL3T-15K601-BA - Physical shells identical but internal frequency incompatible. Verify FCC ID on shell spine or internal PCB"
+    },
+    {
+      "path": "gdrive_exports/Project_P702_2024_Ford_F-150_Automotive_Security_Dossier/images/image4.png",
+      "section": "procedure",
+      "years": "2024-2025",
+      "description": "2024 F-150 Operational Workflow - All Keys Lost & Active Alarm Bypass - Start AKL Procedure\u2192Check CAN-FD Adapter\u2192Connect Tool IM508/608\u2192Is Alarm Active?\u2192NO: Clear All Keys\u2192Program 2 Keys\u2192Success/Test Keys\u2192YES: Have Bypass Cable?\u2192YES: Connect Bypass Cable\u2192NO: Wait 10 Minutes - Critical divergence based on Alarm Status and CAN-FD adapter requirement"
+    },
+    {
+      "path": "gdrive_exports/Advanced_Forensic_Analysis_of_FordLincoln_Immobilizer_Architectures_2015-2026_Pr/images/image1.png",
+      "section": "security_architecture",
+      "years": "2020-2025",
+      "description": "Ford/Lincoln CD6 Platform Network Topology - Lincoln Aviator 2020+ - Gateway Module (GWM) hub connecting MS-CAN / HS-CAN / CAN-FD networks to BCM. Firewall separates diagnostic port from vehicle control networks"
+    },
+    {
+      "path": "gdrive_exports/Advanced_Forensic_Analysis_of_FordLincoln_Immobilizer_Architectures_2015-2026_Pr/images/image2.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Ford/Lincoln CD6 Key Fob Specification Matrix - Aviator 2020-2022: 902MHz M3N-A2C931426 ID49 Hitag-Pro = Explorer | Navigator 2020-2022: 902MHz M3N-A3C054339 | Corsair 2020-2022: 902MHz M3N-A2C931426 | All Platforms 2023+: Transition to 434MHz M3N-A3C108397 for European Standard - Verify VIN for 2022/2023 transition years"
+    },
+    {
+      "path": "gdrive_exports/Advanced_Forensic_Analysis_of_FordLincoln_Immobilizer_Architectures_2015-2026_Pr/images/image3.png",
+      "section": "security_architecture",
+      "years": "2015-2026",
+      "description": "Lincoln Security Architecture Evolution Timeline - T3 Platform (MKC 2015-2019) | CD6 Platform (Aviator 2020+) | C2 Platform (Corsair 2020+) | CD4 Platform (Continental 2017-2020) | Legacy Platforms (MKX/MKT 2015-2019) - 902MHz\u2192434MHz convergence post-2023"
+    },
+    {
+      "path": "gdrive_exports/Advanced_Forensic_Analysis_of_FordLincoln_Immobilizer_Architectures_2015-2026_Pr/images/image4.png",
+      "section": "tools",
+      "years": "2020-2026",
+      "description": "Ford/Lincoln CD6/C2 Tool Compatibility Matrix - SmartPro: Full Support with SGW subscription | Autel IM608: Full Support CAN-FD adapter required | XTOOL D8: Partial Support 2024+ beta | OEM FDRS: Full Support dealer only - All aftermarket tools require CAN-FD adapter for CD6 platform"
+    },
+    {
+      "path": "gdrive_exports/Title_The_Fortress_Architecture_An_Exhaustive_Analysis_of_Fords_Locked_BCM_Activ/images/image1.png",
+      "section": "security_architecture",
+      "years": "2021-2026",
+      "description": "Ford Fortress Architecture - Locked BCM Active Alarm - Gateway Module (GWM) intercepts OBD-II diagnostic commands and implements active alarm lockout. BCM enters protective state when alarm is triggered, blocking key programming until alarm is defeated"
+    },
+    {
+      "path": "gdrive_exports/Title_The_Fortress_Architecture_An_Exhaustive_Analysis_of_Fords_Locked_BCM_Activ/images/image2.png",
+      "section": "procedure",
+      "years": "2021-2026",
+      "description": "Ford Active Alarm Defeat Protocol - GWM Bypass Approach - Connect GWM bypass cable\u2192Close latch + Wait 10 min risk ultrasonic sensors\u2192Access BCM directly - Ultrasonic motion sensors inside cabin can reset 10-minute timer if triggered"
+    },
+    {
+      "path": "gdrive_exports/Title_The_Fortress_Architecture_An_Exhaustive_Analysis_of_Fords_Locked_BCM_Activ/images/image3.png",
+      "section": "tools",
+      "years": "2021-2026",
+      "description": "Ford BCM Voltage Safety Requirements - Battery stabilizer mandatory during programming. BCM corruption risk increases significantly below 12.6V threshold - External power supply recommended for all AKL procedures on CD6/Gen14 platforms"
+    },
+    {
+      "path": "gdrive_exports/Lincoln_Key_Programming_Research___Procedures/images/image1.png",
+      "section": "key_info",
+      "years": "2018-2025",
+      "description": "Lincoln Navigator 2018-2025 Key Fob Matrix - 2018-2022: 902MHz M3N-A3C054339 5-Button Smart Key ID49 HITAG-Pro | 2023+: Check frequency 902MHz or 434MHz based on VIN production date - Keys NOT interchangeable between frequency bands"
+    },
+    {
+      "path": "gdrive_exports/Lincoln_Key_Programming_Research___Procedures/images/image2.png",
+      "section": "procedure",
+      "years": "2018-2025",
+      "description": "Lincoln Navigator Programming Workflow - Check Key Frequency\u2192902MHz 2018-2022: Standard OBD Programming or Emulator Bypass | 434MHz 2023+: Frequency-specific procedure required - Always verify FCC ID before ordering replacement keys"
+    },
+    {
+      "path": "gdrive_exports/Lincoln_Key_Programming_Research___Procedures/images/image3.png",
+      "section": "key_info",
+      "years": "2020-2025",
+      "description": "Lincoln Aviator/Corsair CD6/C2 Platform Key Specifications - 902MHz M3N-A2C931426 same as Ford Explorer CD6. Backup slot in center console bin. On-board programming available with 2 working keys"
+    },
+    {
+      "path": "gdrive_exports/Lincoln_Key_Programming_Research___Procedures/images/image4.png",
+      "section": "procedure",
+      "years": "2020-2025",
+      "description": "Lincoln CD6 Active Alarm Bypass - Same procedure as Ford Explorer CD6 - ADC2020 emulator recommended for fastest bypass. 10-minute OBD wait as fallback. Power isolation kit for failed emulation"
+    }
+  ]
+}
