@@ -2383,6 +2383,258 @@ Keep response under 300 words, practical and actionable.`;
       }
 
       // ==============================================
+      // EXPANDED LOCKSMITH VERIFICATION ENDPOINTS
+      // ==============================================
+
+      // GET /api/verification/status - Get user's verification status across all proof types
+      if (path === "/api/verification/status" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          // Get user's verification status
+          const user = await env.LOCKSMITH_DB.prepare(
+            `SELECT locksmith_verified, locksmith_verified_at, verification_level, nastf_verified FROM users WHERE id = ?`
+          ).bind(userId).first<any>();
+
+          // Get all proofs
+          const proofs = await env.LOCKSMITH_DB.prepare(
+            `SELECT proof_type, status, rejection_reason, created_at FROM locksmith_proofs WHERE user_id = ? ORDER BY created_at DESC`
+          ).bind(userId).all();
+
+          const allProofs = (proofs.results || []) as any[];
+
+          return corsResponse(request, JSON.stringify({
+            locksmith_verified: user?.locksmith_verified === 1 || user?.nastf_verified === 1,
+            verification_level: user?.verification_level || 'none',
+            nastf_verified: user?.nastf_verified === 1,
+            approved_proofs: allProofs.filter(p => p.status === 'approved'),
+            pending_proofs: allProofs.filter(p => p.status === 'pending'),
+            rejected_proofs: allProofs.filter(p => p.status === 'rejected')
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/verification/upload-proof - Upload proof image and create verification request
+      if (path === "/api/verification/upload-proof" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const formData = await request.formData();
+          const fileEntry = formData.get('file');
+          const proofType = formData.get('proof_type') as string;
+
+          if (!fileEntry || typeof fileEntry === 'string') {
+            return corsResponse(request, JSON.stringify({ error: "Missing file" }), 400);
+          }
+          const file = fileEntry as unknown as File;
+
+          const validProofTypes = ['nastf_vsp', 'business_license', 'aloa_card', 'state_license', 'tool_photo', 'insurance_cert', 'work_van'];
+          if (!proofType || !validProofTypes.includes(proofType)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid proof type" }), 400);
+          }
+
+          // Check for existing pending proof of same type
+          const existing = await env.LOCKSMITH_DB.prepare(
+            `SELECT id FROM locksmith_proofs WHERE user_id = ? AND proof_type = ? AND status = 'pending'`
+          ).bind(userId, proofType).first();
+
+          if (existing) {
+            return corsResponse(request, JSON.stringify({ error: "You already have a pending submission for this proof type" }), 400);
+          }
+
+          // Upload to R2
+          const fileBuffer = await file.arrayBuffer();
+          const fileName = `verification/${userId}/${proofType}_${Date.now()}.${file.name.split('.').pop()}`;
+
+          await env.ASSETS_BUCKET.put(fileName, fileBuffer, {
+            httpMetadata: { contentType: file.type }
+          });
+
+          const imageUrl = `https://pub-6f55decd53fc486a97f4a7c74e53f6c4.r2.dev/${fileName}`;
+
+          // Create verification record
+          const proofId = `proof_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO locksmith_proofs (id, user_id, proof_type, proof_image_url, status, created_at)
+            VALUES (?, ?, ?, ?, 'pending', ?)
+          `).bind(proofId, userId, proofType, imageUrl, Date.now()).run();
+
+          // Also add to nastf_verifications if it's NASTF VSP
+          if (proofType === 'nastf_vsp') {
+            const nvId = `nv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO nastf_verifications (id, user_id, proof_image_url, proof_type, status, created_at)
+              VALUES (?, ?, ?, ?, 'pending', ?)
+            `).bind(nvId, userId, imageUrl, proofType, Date.now()).run();
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true, proof_id: proofId, image_url: imageUrl }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/verification/pending - Admin gets all pending verifications
+      if (path === "/api/verification/pending" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT lp.id, lp.user_id, lp.proof_type, lp.proof_image_url, lp.created_at,
+                   u.name as user_name, u.email as user_email, u.picture as user_picture
+            FROM locksmith_proofs lp
+            LEFT JOIN users u ON lp.user_id = u.id
+            WHERE lp.status = 'pending'
+            ORDER BY lp.created_at ASC
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ verifications: result.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/verification/review - Admin approves or rejects a proof
+      if (path === "/api/verification/review" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const adminId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const body: any = await request.json();
+          const { proof_id, action, rejection_reason, admin_notes } = body;
+
+          if (!proof_id || !['approve', 'reject'].includes(action)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid proof_id or action" }), 400);
+          }
+
+          // Get proof
+          const proof = await env.LOCKSMITH_DB.prepare(
+            `SELECT user_id, proof_type, status FROM locksmith_proofs WHERE id = ?`
+          ).bind(proof_id).first<any>();
+
+          if (!proof) {
+            return corsResponse(request, JSON.stringify({ error: "Proof not found" }), 404);
+          }
+          if (proof.status !== 'pending') {
+            return corsResponse(request, JSON.stringify({ error: "Proof already processed" }), 400);
+          }
+
+          const now = Date.now();
+          const newStatus = action === 'approve' ? 'approved' : 'rejected';
+
+          // Update proof record
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE locksmith_proofs 
+            SET status = ?, reviewed_by = ?, reviewed_at = ?, rejection_reason = ?, admin_notes = ?
+            WHERE id = ?
+          `).bind(newStatus, adminId, now, rejection_reason || null, admin_notes || null, proof_id).run();
+
+          if (action === 'approve') {
+            // Check how many approved proofs user now has
+            const approvedCount = await env.LOCKSMITH_DB.prepare(
+              `SELECT COUNT(*) as count FROM locksmith_proofs WHERE user_id = ? AND status = 'approved'`
+            ).bind(proof.user_id).first<any>();
+
+            const hasNASTF = proof.proof_type === 'nastf_vsp' || (await env.LOCKSMITH_DB.prepare(
+              `SELECT id FROM locksmith_proofs WHERE user_id = ? AND proof_type = 'nastf_vsp' AND status = 'approved'`
+            ).bind(proof.user_id).first());
+
+            // Determine verification level
+            let verificationLevel = 'none';
+            if (hasNASTF) {
+              verificationLevel = 'nastf';
+            } else if (approvedCount?.count >= 2) {
+              verificationLevel = 'professional';
+            } else if (approvedCount?.count >= 1) {
+              verificationLevel = 'basic';
+            }
+
+            // Update user if verified (2+ proofs or NASTF)
+            if (approvedCount?.count >= 2 || hasNASTF) {
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE users SET locksmith_verified = 1, locksmith_verified_at = ?, verification_level = ? WHERE id = ?
+              `).bind(now, verificationLevel, proof.user_id).run();
+
+              // Award badge if newly verified
+              const existingBadge = await env.LOCKSMITH_DB.prepare(
+                `SELECT id FROM user_badges WHERE user_id = ? AND badge_type = 'licensure'`
+              ).bind(proof.user_id).first();
+
+              if (!existingBadge) {
+                const badgeName = hasNASTF ? 'NASTF Verified' : 'Verified Locksmith';
+                const badgeIcon = hasNASTF ? '🛡️' : '🔐';
+                const badgeId = `badge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+                await env.LOCKSMITH_DB.prepare(`
+                  INSERT INTO user_badges (id, user_id, badge_type, badge_name, badge_icon, badge_tier, earned_at)
+                  VALUES (?, ?, 'licensure', ?, ?, 1, ?)
+                `).bind(badgeId, proof.user_id, badgeName, badgeIcon, now).run();
+
+                // Award points
+                const yearMonth = new Date().toISOString().slice(0, 7);
+                await env.LOCKSMITH_DB.prepare(`
+                  INSERT INTO nastf_monthly_points (user_id, year_month, points_awarded, awarded_at)
+                  VALUES (?, ?, 100, ?)
+                  ON CONFLICT DO NOTHING
+                `).bind(proof.user_id, yearMonth, now).run();
+
+                await env.LOCKSMITH_DB.prepare(`
+                  INSERT INTO user_reputation (user_id, total_score, member_since, updated_at)
+                  VALUES (?, 100, ?, ?)
+                  ON CONFLICT(user_id) DO UPDATE SET
+                    total_score = total_score + 100,
+                    updated_at = excluded.updated_at
+                `).bind(proof.user_id, now, now).run();
+              }
+
+              // Update NASTF status if applicable
+              if (hasNASTF && proof.proof_type === 'nastf_vsp') {
+                await env.LOCKSMITH_DB.prepare(`
+                  UPDATE users SET nastf_verified = 1, nastf_verified_at = ? WHERE id = ?
+                `).bind(now, proof.user_id).run();
+              }
+            } else {
+              // Just update verification level
+              await env.LOCKSMITH_DB.prepare(`
+                UPDATE users SET verification_level = ? WHERE id = ?
+              `).bind(verificationLevel, proof.user_id).run();
+            }
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true, status: newStatus }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // PEARL INTERACTION ENDPOINTS
       // ==============================================
 

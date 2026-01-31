@@ -7,7 +7,9 @@ import { AnalyticsProvider } from '@/contexts/AnalyticsProvider';
 import { InventoryProvider } from '@/contexts/InventoryContext';
 import { GoalProvider } from '@/contexts/GoalContext';
 import { AdminModeProvider } from '@/contexts/AdminModeContext';
+import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
+import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -17,8 +19,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <InventoryProvider>
                         <GoalProvider>
                             <AdminModeProvider>
-                                {children}
-                                <InventoryLoginPrompt />
+                                <OnboardingProvider>
+                                    {children}
+                                    <InventoryLoginPrompt />
+                                    <OnboardingWizard />
+                                </OnboardingProvider>
                             </AdminModeProvider>
                         </GoalProvider>
                     </InventoryProvider>

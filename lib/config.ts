@@ -1,2 +1,2 @@
-export const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+export const API_BASE = 'http://localhost:8787';
 export const AFFILIATE_TAG = 'eurokeys-20';

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOnboarding } from '@/contexts/OnboardingContext';
 import Link from 'next/link';
 
 interface ReputationData {
@@ -14,6 +15,7 @@ interface ReputationData {
 
 export const GoogleSignInButton = () => {
     const { user, loading, login, logout, isDeveloper } = useAuth();
+    const { openWizard } = useOnboarding();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [reputation, setReputation] = useState<ReputationData | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -213,6 +215,16 @@ export const GoogleSignInButton = () => {
                             <span>📦</span>
                             Inventory
                         </Link>
+                        <button
+                            onClick={() => {
+                                setDropdownOpen(false);
+                                openWizard();
+                            }}
+                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-amber-500/20 hover:text-white"
+                        >
+                            <span>🎓</span>
+                            Take a Tour
+                        </button>
                         <button
                             onClick={logout}
                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"

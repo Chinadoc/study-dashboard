@@ -1,0 +1,227 @@
+.container {
+    padding: 1.5rem;
+    background: var(--card-bg, rgba(30, 30, 40, 0.6));
+    border-radius: 12px;
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.header {
+    margin-bottom: 1.5rem;
+}
+
+.header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    margin: 0 0 0.5rem 0;
+}
+
+.description {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.signInPrompt {
+    text-align: center;
+    padding: 2rem;
+}
+
+.signInPrompt h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.signInPrompt p {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.loading {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Status Banner */
+.statusBanner {
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.statusBanner.verified {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+}
+
+.statusBanner.nastf {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(184, 134, 11, 0.15));
+    border-color: rgba(184, 134, 11, 0.4);
+    color: #FFD700;
+}
+
+/* Messages */
+.error {
+    background: rgba(255, 87, 87, 0.15);
+    border: 1px solid rgba(255, 87, 87, 0.3);
+    color: #ff5757;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Proof Grid */
+.proofGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+/* Proof Card */
+.proofCard {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+
+.proofCard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.proofCard.premium {
+    border-color: rgba(184, 134, 11, 0.3);
+}
+
+.proofCard.approved {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.proofCard.pending {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.proofCard.rejected {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.proofHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.proofIcon {
+    font-size: 1.25rem;
+}
+
+.proofName {
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    flex: 1;
+}
+
+.premiumTag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    background: linear-gradient(135deg, #FFD700, #B8860B);
+    color: #1a1a1a;
+    border-radius: 4px;
+}
+
+.proofDescription {
+    font-size: 0.8rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+/* Status Tags */
+.statusTag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.approvedTag {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.pendingTag {
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+}
+
+.rejectedTag {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.rejectedSection {
+    margin-top: 0.5rem;
+}
+
+.rejectionReason {
+    font-size: 0.75rem;
+    color: var(--text-muted, rgba(255, 255, 255, 0.5));
+    margin: 0.35rem 0 0 0;
+    font-style: italic;
+}
+
+/* Upload Button */
+.uploadBtn {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent-color, #6366f1);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.uploadBtn:hover {
+    background: var(--accent-hover, #818cf8);
+    transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .proofGrid {
+        grid-template-columns: 1fr;
+    }
+}
