@@ -30,8 +30,10 @@ export interface JobFormData {
     customerPhone?: string;
     customerAddress?: string;
     partsCost?: number;
-    keyCost?: number;     // Cost of key/fob itself (~$30-75 aftermarket, $150-400 OEM)
-    gasCost?: number;     // Travel/mileage cost (~$10-30 local, $30-75 extended)
+    keyCost?: number;     // Cost of key/fob from AKS pricing
+    serviceCost?: number; // Labor/service charge
+    milesDriven?: number; // Miles driven for gas calculation
+    gasCost?: number;     // Auto-calculated from miles (3.5$/gal at 30mpg = $0.117/mile)
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
     status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
 }
@@ -74,6 +76,8 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         customerAddress: '',
         partsCost: 0,
         keyCost: 0,
+        serviceCost: 0,
+        milesDriven: 0,
         gasCost: 0,
         referralSource: undefined,
         status: 'completed',
@@ -167,7 +171,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         onClose();
     };
 
-    const totalCosts = (formData.partsCost || 0) + (formData.keyCost || 0) + (formData.gasCost || 0);
+    const totalCosts = (formData.partsCost || 0) + (formData.keyCost || 0) + (formData.serviceCost || 0) + (formData.gasCost || 0);
     const profit = (formData.price || 0) - totalCosts;
 
     // Parse vehicle string to extract year, make, model
@@ -606,7 +610,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     {/* Cost Tracking Section */}
                     {showCostTracking && (
                         <div className="space-y-3 p-4 bg-green-950/30 rounded-xl border border-green-900/30">
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">
                                         🔑 Key Cost ($)
@@ -620,22 +624,42 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                         onChange={e => setFormData(prev => ({ ...prev, keyCost: parseFloat(e.target.value) || 0 }))}
                                         className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30 text-yellow-400 font-bold"
                                     />
-                                    <div className="text-[10px] text-zinc-500 mt-1">Aftermarket: $35-75 | OEM: $150-400</div>
+                                    <div className="text-[10px] text-zinc-500 mt-1">From AKS pricing</div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                                        ⛽ Gas/Travel ($)
+                                    <label className="block text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">
+                                        ⚙️ Service Cost ($)
                                     </label>
                                     <input
                                         type="number"
-                                        placeholder="15"
+                                        placeholder="75"
                                         min="0"
                                         step="0.01"
-                                        value={formData.gasCost || ''}
-                                        onChange={e => setFormData(prev => ({ ...prev, gasCost: parseFloat(e.target.value) || 0 }))}
+                                        value={formData.serviceCost || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, serviceCost: parseFloat(e.target.value) || 0 }))}
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-purple-400 font-bold"
+                                    />
+                                    <div className="text-[10px] text-zinc-500 mt-1">Labor charge</div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
+                                        ⛽ Miles Driven
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="25"
+                                        min="0"
+                                        step="1"
+                                        value={formData.milesDriven || ''}
+                                        onChange={e => {
+                                            const miles = parseFloat(e.target.value) || 0;
+                                            // Calculate gas cost: $3.50/gallon at 30mpg = $0.117/mile
+                                            const gasCost = Math.round(miles * 0.117 * 100) / 100;
+                                            setFormData(prev => ({ ...prev, milesDriven: miles, gasCost }));
+                                        }}
                                         className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-blue-400 font-bold"
                                     />
-                                    <div className="text-[10px] text-zinc-500 mt-1">Local: $10-20 | Extended: $30-75</div>
+                                    <div className="text-[10px] text-zinc-500 mt-1">= ${((formData.milesDriven || 0) * 0.117).toFixed(2)} gas (30mpg @ $3.50)</div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">

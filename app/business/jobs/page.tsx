@@ -39,6 +39,8 @@ export default function JobsPage() {
             customerAddress: data.customerAddress,
             partsCost: data.partsCost,
             keyCost: data.keyCost,
+            serviceCost: data.serviceCost,
+            milesDriven: data.milesDriven,
             gasCost: data.gasCost,
             referralSource: data.referralSource,
             status: data.status || 'completed',
