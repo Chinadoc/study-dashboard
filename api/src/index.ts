@@ -475,6 +475,128 @@ export default {
       }
 
       // ==============================================
+      // JOBS CLOUD SYNC ENDPOINTS
+      // ==============================================
+
+      // GET /api/jobs - Get all jobs for authenticated user
+      if (path === "/api/jobs" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(
+            "SELECT id, data, created_at FROM job_logs WHERE user_id = ? ORDER BY created_at DESC"
+          ).bind(userId).all();
+
+          // Parse the JSON data field for each job
+          const jobs = (result.results || []).map((row: any) => {
+            try {
+              const jobData = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+              return { ...jobData, id: row.id, createdAt: row.created_at };
+            } catch {
+              return { id: row.id, createdAt: row.created_at };
+            }
+          });
+
+          return corsResponse(request, JSON.stringify({ jobs }), 200);
+        } catch (err: any) {
+          console.error('/api/jobs GET error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/jobs - Create or sync a job
+      if (path === "/api/jobs" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const jobData = await request.json() as any;
+
+          // Generate ID if not provided
+          const jobId = jobData.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+          const createdAt = jobData.createdAt || Date.now();
+
+          // Upsert job - INSERT OR REPLACE
+          await env.LOCKSMITH_DB.prepare(
+            "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at) VALUES (?, ?, ?, ?)"
+          ).bind(jobId, userId, JSON.stringify(jobData), createdAt).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, id: jobId }), 200);
+        } catch (err: any) {
+          console.error('/api/jobs POST error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // DELETE /api/jobs/:id - Delete a job
+      if (path.startsWith("/api/jobs/") && request.method === "DELETE") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const jobId = path.replace("/api/jobs/", "");
+
+          // Only delete if the job belongs to this user
+          await env.LOCKSMITH_DB.prepare(
+            "DELETE FROM job_logs WHERE id = ? AND user_id = ?"
+          ).bind(jobId, userId).run();
+
+          return corsResponse(request, JSON.stringify({ success: true }), 200);
+        } catch (err: any) {
+          console.error('/api/jobs DELETE error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/jobs/sync - Bulk sync jobs from localStorage
+      if (path === "/api/jobs/sync" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const { jobs } = await request.json() as { jobs: any[] };
+
+          if (!Array.isArray(jobs)) {
+            return corsResponse(request, JSON.stringify({ error: "jobs must be an array" }), 400);
+          }
+
+          // Batch insert/update all jobs
+          let synced = 0;
+          for (const job of jobs) {
+            const jobId = job.id || `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            const createdAt = job.createdAt || Date.now();
+            await env.LOCKSMITH_DB.prepare(
+              "INSERT OR REPLACE INTO job_logs (id, user_id, data, created_at) VALUES (?, ?, ?, ?)"
+            ).bind(jobId, userId, JSON.stringify(job), createdAt).run();
+            synced++;
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true, synced }), 200);
+        } catch (err: any) {
+          console.error('/api/jobs/sync error:', err);
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // STRIPE SUBSCRIPTION ENDPOINTS
       // ==============================================
 
@@ -1006,6 +1128,274 @@ export default {
         `).bind(id, userId).run();
 
           return corsResponse(request, JSON.stringify({ success: true, id }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // USER PREFERENCES ENDPOINTS (AI Insights Memory)
+      // ==============================================
+
+      // GET /api/user/preferences - Fetch user preferences
+      if (path === "/api/user/preferences" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM user_preferences WHERE user_id = ?
+          `).bind(userId).first();
+
+          if (!result) {
+            return corsResponse(request, JSON.stringify({ preferences: null }));
+          }
+
+          return corsResponse(request, JSON.stringify({
+            preferences: {
+              state: result.state,
+              sales_tax_rate: result.sales_tax_rate,
+              business_name: result.business_name,
+              default_labor_rate: result.default_labor_rate,
+              preferences: result.preferences ? JSON.parse(result.preferences as string) : {},
+              updated_at: result.updated_at
+            }
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/user/preferences - Set user preferences
+      if (path === "/api/user/preferences" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { state, sales_tax_rate, business_name, default_labor_rate, preferences } = body;
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO user_preferences (user_id, state, sales_tax_rate, business_name, default_labor_rate, preferences, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+              state = COALESCE(excluded.state, user_preferences.state),
+              sales_tax_rate = COALESCE(excluded.sales_tax_rate, user_preferences.sales_tax_rate),
+              business_name = COALESCE(excluded.business_name, user_preferences.business_name),
+              default_labor_rate = COALESCE(excluded.default_labor_rate, user_preferences.default_labor_rate),
+              preferences = COALESCE(excluded.preferences, user_preferences.preferences),
+              updated_at = excluded.updated_at
+          `).bind(
+            userId,
+            state || null,
+            sales_tax_rate || null,
+            business_name || null,
+            default_labor_rate || null,
+            preferences ? JSON.stringify(preferences) : null,
+            Date.now()
+          ).run();
+
+          return corsResponse(request, JSON.stringify({ success: true }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // AI INSIGHTS ENDPOINTS
+      // ==============================================
+
+      // POST /api/ai/business-insights - Generate AI insights about business stats
+      if (path === "/api/ai/business-insights" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          // Check if user has AI Insights subscription (is_pro for now)
+          const userCheck = await env.LOCKSMITH_DB.prepare(
+            "SELECT is_pro FROM users WHERE id = ?"
+          ).bind(userId).first<any>();
+
+          if (!userCheck?.is_pro) {
+            return corsResponse(request, JSON.stringify({
+              error: "AI Insights subscription required",
+              upgrade_url: "/pricing"
+            }), 403);
+          }
+
+          const body: any = await request.json();
+          const { insightType } = body; // 'tax', 'revenue', 'general'
+
+          // Fetch user preferences
+          const prefs = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM user_preferences WHERE user_id = ?
+          `).bind(userId).first<any>();
+
+          // Fetch recent job logs (last 30 days)
+          const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+          const jobs = await env.LOCKSMITH_DB.prepare(`
+            SELECT data FROM job_logs WHERE user_id = ? AND created_at > ? ORDER BY created_at DESC LIMIT 50
+          `).bind(userId, thirtyDaysAgo).all();
+
+          const jobData = (jobs.results || []).map((r: any) => {
+            try { return JSON.parse(r.data); } catch { return null; }
+          }).filter(Boolean);
+
+          // Calculate stats
+          const totalRevenue = jobData.reduce((sum: number, j: any) => sum + (j.price || 0), 0);
+          const totalKeyCost = jobData.reduce((sum: number, j: any) => sum + (j.keyCost || 0), 0);
+          const totalGasCost = jobData.reduce((sum: number, j: any) => sum + (j.gasCost || 0), 0);
+          const totalPartsCost = jobData.reduce((sum: number, j: any) => sum + (j.partsCost || 0), 0);
+          const netProfit = totalRevenue - totalKeyCost - totalGasCost - totalPartsCost;
+          const avgJobValue = jobData.length > 0 ? totalRevenue / jobData.length : 0;
+
+          // Build context for AI
+          const userState = prefs?.state || 'unknown';
+          const taxRate = prefs?.sales_tax_rate || 0;
+          const businessName = prefs?.business_name || 'your business';
+
+          let prompt = `You are a professional locksmith business consultant providing actionable insights.
+
+BUSINESS CONTEXT:
+- Business: ${businessName}
+- Location: ${userState}
+- Sales Tax Rate: ${taxRate}%
+- Period: Last 30 days
+
+FINANCIAL STATS:
+- Total Jobs: ${jobData.length}
+- Revenue: $${totalRevenue.toFixed(2)}
+- Key/Fob Costs: $${totalKeyCost.toFixed(2)}
+- Gas/Travel: $${totalGasCost.toFixed(2)}
+- Parts/Supplies: $${totalPartsCost.toFixed(2)}
+- Net Profit: $${netProfit.toFixed(2)}
+- Average Job Value: $${avgJobValue.toFixed(2)}
+
+`;
+
+          if (insightType === 'tax') {
+            prompt += `Provide specific tax insights for a locksmith in ${userState}:
+1. Estimated quarterly tax liability at the ${taxRate}% rate
+2. Common deductible expenses for mobile locksmiths
+3. Business expense tracking recommendations
+4. Any state-specific tax considerations for ${userState}
+
+Keep response under 300 words, practical and actionable.`;
+          } else if (insightType === 'revenue') {
+            prompt += `Analyze the revenue and suggest optimizations:
+1. Profit margin analysis (current: ${((netProfit / totalRevenue) * 100 || 0).toFixed(1)}%)
+2. Job type mix recommendations
+3. Pricing strategy suggestions
+4. Cost reduction opportunities
+
+Keep response under 300 words, practical and actionable.`;
+          } else {
+            prompt += `Provide a comprehensive business health check:
+1. Overall financial health assessment
+2. Key metrics that stand out
+3. Top 3 actionable recommendations
+4. Any concerns or areas needing attention
+
+Keep response under 300 words, practical and actionable.`;
+          }
+
+          // Call OpenRouter with DeepSeek
+          const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer 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`,
+              "HTTP-Referer": "https://eurokeys.app",
+              "X-Title": "EuroKeys AI Insights",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              "model": "deepseek/deepseek-v3.2",
+              "messages": [
+                { "role": "system", "content": "You are a professional business consultant specializing in mobile automotive locksmith businesses. Provide concise, actionable advice." },
+                { "role": "user", "content": prompt }
+              ],
+              "max_tokens": 800
+            })
+          });
+
+          if (!aiResponse.ok) {
+            throw new Error(`AI API error: ${aiResponse.status}`);
+          }
+
+          const aiData: any = await aiResponse.json();
+          const insight = aiData.choices?.[0]?.message?.content;
+
+          // Save to history
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO ai_insights_history (user_id, insight_type, content, context_data)
+            VALUES (?, ?, ?, ?)
+          `).bind(
+            userId,
+            insightType || 'general',
+            insight,
+            JSON.stringify({ jobCount: jobData.length, revenue: totalRevenue, profit: netProfit, state: userState })
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            insight,
+            stats: {
+              jobCount: jobData.length,
+              revenue: totalRevenue,
+              expenses: totalKeyCost + totalGasCost + totalPartsCost,
+              profit: netProfit,
+              avgJobValue,
+              state: userState,
+              taxRate
+            }
+          }));
+
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/ai/insights-history - Get past AI insights
+      if (path === "/api/ai/insights-history" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT id, insight_type, content, context_data, created_at 
+            FROM ai_insights_history 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT 10
+          `).bind(userId).all();
+
+          const insights = (result.results || []).map((row: any) => ({
+            id: row.id,
+            type: row.insight_type,
+            content: row.content,
+            context: row.context_data ? JSON.parse(row.context_data) : {},
+            createdAt: row.created_at
+          }));
+
+          return corsResponse(request, JSON.stringify({ insights }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }

@@ -3,8 +3,9 @@
 import React, { useState, useMemo } from 'react';
 import { useJobLogs } from '@/lib/useJobLogs';
 import { useSubscriptions } from '@/contexts/SubscriptionContext';
+import AIInsightsPanel from '@/components/business/AIInsightsPanel';
 
-type AccountingSubTab = 'overview' | 'expenses' | 'invoices' | 'reports';
+type AccountingSubTab = 'overview' | 'expenses' | 'invoices' | 'reports' | 'ai-insights';
 
 export default function AccountingPage() {
     const [activeSubTab, setActiveSubTab] = useState<AccountingSubTab>('overview');
@@ -66,6 +67,7 @@ export default function AccountingPage() {
         { id: 'expenses', label: 'Expenses', icon: '💸' },
         { id: 'invoices', label: 'Invoices', icon: '📄' },
         { id: 'reports', label: 'Reports', icon: '📈' },
+        { id: 'ai-insights', label: 'AI Insights', icon: '🧠' },
     ];
 
     return (
@@ -322,6 +324,11 @@ export default function AccountingPage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* AI Insights Tab */}
+            {activeSubTab === 'ai-insights' && (
+                <AIInsightsPanel />
             )}
         </div>
     );

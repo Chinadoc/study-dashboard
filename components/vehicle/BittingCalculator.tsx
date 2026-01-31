@@ -37,6 +37,66 @@ const HALF_DEPTH_EXPANSIONS: Record<number, number[]> = {
     [-12]: [2, 3], // T = 2 or 3
 };
 
+// Forensic rules by keyway - baked into calculator for validation
+const KEYWAY_RULES: Record<string, {
+    fixedPositions?: Record<number, number>; // Position must be this depth
+    doorOnly?: number[]; // Door lock only has these positions
+    ignitionOnly?: number[]; // Ignition-specific positions
+    maxConsecutiveSame?: number; // Max consecutive same depths
+    reverseDepth?: boolean; // Depth logic inverted
+    angular?: boolean; // Uses angles not depths
+    hint?: string;
+}> = {
+    'HU101': {
+        fixedPositions: { 10: 2 },
+        hint: '⚠️ Ford HU101: Position 10 is ALWAYS depth 2'
+    },
+    'Y159': {
+        doorOnly: [2, 3, 4, 5, 6, 7, 8],
+        hint: '⚠️ Chrysler: Door lock missing P1. Only ~2600 valid M-codes exist.'
+    },
+    'HU100': {
+        doorOnly: [4, 5, 6, 7, 8, 9, 10],
+        ignitionOnly: [1, 2, 3, 4, 5, 6, 7],
+        hint: '⚠️ GM HU100: Door has P4-10, Ignition has P1-7. Little overlap!'
+    },
+    'HU100-10': {
+        doorOnly: [4, 5, 6, 7, 8, 9, 10],
+        ignitionOnly: [1, 2, 3, 4, 5, 6, 7],
+        hint: '⚠️ GM HU100: Door has P4-10, Ignition has P1-7. Little overlap!'
+    },
+    'NSN14': {
+        doorOnly: [4, 5, 6, 7, 8, 9, 10],
+        hint: '⚠️ Nissan: Door lock has P4-10. P1 usually depth 3.'
+    },
+    'HU64': {
+        maxConsecutiveSame: 3,
+        hint: '⚠️ Mercedes: No more than 3 consecutive same depths allowed.'
+    },
+    'HON66': {
+        hint: '💡 Honda: Read Axis A (1,3,5) and Axis B (2,4,6) separately.'
+    },
+    'HY20': {
+        reverseDepth: true,
+        hint: '⚠️ Hyundai: Depth logic may be INVERTED. Verify with Card 1311.'
+    },
+    'KK10': {
+        reverseDepth: true,
+        hint: '⚠️ Kia: Depth logic may be INVERTED. Same as HY20.'
+    },
+    'MAZ24R': {
+        hint: '⚠️ Mazda REVERSE: Mirror image of MAZ24. Wrong blank = destroyed key!'
+    },
+    'Tibbe-6': {
+        angular: true,
+        hint: '💡 Ford Tibbe: Cuts are ANGLES (0°-30°), not depths.'
+    },
+    'Tibbe-8': {
+        angular: true,
+        hint: '💡 Jaguar Tibbe: 8 positions, only 3 angles (no deep cut 4).'
+    }
+};
+
 function getDisplayValue(value: number): string {
     if (value === 0) return '';
     if (value === -1) return '?';
@@ -398,6 +458,18 @@ export default function BittingCalculator({
                     )}
                 </div>
 
+                {/* Keyway-specific hint */}
+                {keyway && KEYWAY_RULES[keyway]?.hint && (
+                    <div className="mx-5 mt-3 p-3 bg-amber-900/20 border border-amber-700/50 rounded-lg text-xs text-amber-300">
+                        {KEYWAY_RULES[keyway].hint}
+                        {KEYWAY_RULES[keyway].doorOnly && (
+                            <div className="mt-1 text-amber-400/70">
+                                Door positions: {KEYWAY_RULES[keyway].doorOnly?.join(', ')}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Main Content */}
                 <div className="flex-1 overflow-y-auto p-5 space-y-5">
                     {/* Code Input */}
@@ -516,14 +588,14 @@ export default function BittingCalculator({
                                     >
                                         <div
                                             className={`rounded-t transition-all duration-200 ${macsViolations.includes(index)
-                                                    ? 'bg-red-500'
-                                                    : depth > 0
-                                                        ? 'bg-gradient-to-t from-purple-600 to-purple-400'
-                                                        : isHalf
-                                                            ? 'bg-gradient-to-t from-cyan-600 to-cyan-400'
-                                                            : isWildcard
-                                                                ? 'bg-gradient-to-t from-pink-600 to-pink-400'
-                                                                : 'bg-zinc-700 border border-dashed border-amber-500/50'
+                                                ? 'bg-red-500'
+                                                : depth > 0
+                                                    ? 'bg-gradient-to-t from-purple-600 to-purple-400'
+                                                    : isHalf
+                                                        ? 'bg-gradient-to-t from-cyan-600 to-cyan-400'
+                                                        : isWildcard
+                                                            ? 'bg-gradient-to-t from-pink-600 to-pink-400'
+                                                            : 'bg-zinc-700 border border-dashed border-amber-500/50'
                                                 }`}
                                             style={{
                                                 height: depth > 0 ? `${(displayDepth / maxDepth) * 100}%` : (isHalf || isWildcard ? '60%' : '100%'),

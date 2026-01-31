@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+// API base URL - use environment variable or default to production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://jeremy-samuels17.workers.dev';
 
 export interface JobLog {
     id: string;
@@ -49,77 +52,191 @@ export interface JobStats {
     topKeys: { fccId: string; count: number }[];
     jobsByType: Record<string, { count: number; revenue: number }>;
 
-    // NEW: Profit tracking
+    // Profit tracking
     totalPartsCost: number;
     totalProfit: number;
     avgProfit: number;
     thisMonthProfit: number;
 
-    // NEW: Job status counts
+    // Job status counts
     pendingJobs: number;
     completedJobs: number;
 
-    // NEW: Labor metrics
+    // Labor metrics
     avgLaborMinutes: number;
 
-    // NEW: Referral breakdown
+    // Referral breakdown
     referralSources: Record<string, number>;
 
-    // NEW: Top customers
+    // Top customers
     topCustomers: { name: string; count: number; revenue: number }[];
 }
 
 const STORAGE_KEY = 'eurokeys_job_logs';
+const SYNCED_KEY = 'eurokeys_jobs_synced';
 
 function generateId(): string {
     return `job_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
+function getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('auth_token');
+}
+
+async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const token = getAuthToken();
+    if (!token) return null;
+
+    const res = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            ...options.headers,
+        },
+    });
+
+    if (!res.ok) {
+        console.error(`API error ${res.status}:`, await res.text());
+        return null;
+    }
+
+    return res.json();
+}
+
 export function useJobLogs() {
     const [jobLogs, setJobLogs] = useState<JobLog[]>([]);
     const [loading, setLoading] = useState(true);
+    const hasSyncedRef = useRef(false);
 
-    // Load from localStorage on mount
+    // Load jobs - prioritize cloud, fallback to localStorage
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                setJobLogs(JSON.parse(saved));
+
+        const loadJobs = async () => {
+            const token = getAuthToken();
+
+            if (token) {
+                // Try to load from cloud
+                try {
+                    const data = await apiRequest('/api/jobs');
+                    if (data?.jobs) {
+                        setJobLogs(data.jobs);
+                        // Cache in localStorage for offline access
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.jobs));
+                        setLoading(false);
+
+                        // Check if we need to sync localStorage jobs to cloud
+                        if (!hasSyncedRef.current && !localStorage.getItem(SYNCED_KEY)) {
+                            const localJobs = getJobLogsFromStorage();
+                            if (localJobs.length > 0 && data.jobs.length === 0) {
+                                // User has local jobs but no cloud jobs - migrate them
+                                await apiRequest('/api/jobs/sync', {
+                                    method: 'POST',
+                                    body: JSON.stringify({ jobs: localJobs }),
+                                });
+                                localStorage.setItem(SYNCED_KEY, 'true');
+                                hasSyncedRef.current = true;
+                            }
+                        }
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Failed to load jobs from cloud:', e);
+                }
             }
-        } catch (e) {
-            console.error('Failed to load job logs:', e);
+
+            // Fallback to localStorage
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    setJobLogs(JSON.parse(saved));
+                }
+            } catch (e) {
+                console.error('Failed to load job logs from localStorage:', e);
+            }
+            setLoading(false);
+        };
+
+        loadJobs();
+    }, []);
+
+    // Save to localStorage (for cache) and cloud (for sync)
+    const saveJob = useCallback(async (job: JobLog): Promise<boolean> => {
+        // Always save to localStorage as cache
+        const current = getJobLogsFromStorage();
+        const exists = current.findIndex(j => j.id === job.id);
+        if (exists >= 0) {
+            current[exists] = job;
+        } else {
+            current.unshift(job);
         }
-        setLoading(false);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+
+        // Save to cloud if authenticated
+        const token = getAuthToken();
+        if (token) {
+            try {
+                await apiRequest('/api/jobs', {
+                    method: 'POST',
+                    body: JSON.stringify(job),
+                });
+            } catch (e) {
+                console.error('Failed to sync job to cloud:', e);
+            }
+        }
+
+        return true;
     }, []);
 
-    // Save to localStorage whenever jobLogs changes
-    const saveToStorage = useCallback((logs: JobLog[]) => {
-        if (typeof window === 'undefined') return;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
-    }, []);
-
-    const addJobLog = useCallback((log: Omit<JobLog, 'id' | 'createdAt'>) => {
+    const addJobLog = useCallback((log: Omit<JobLog, 'id' | 'createdAt'>): JobLog => {
         const newLog: JobLog = {
             ...log,
             id: generateId(),
             createdAt: Date.now(),
         };
-        setJobLogs(prev => {
-            const updated = [newLog, ...prev];
-            saveToStorage(updated);
-            return updated;
-        });
-        return newLog;
-    }, [saveToStorage]);
 
-    const deleteJobLog = useCallback((id: string) => {
+        setJobLogs(prev => [newLog, ...prev]);
+        saveJob(newLog);
+
+        return newLog;
+    }, [saveJob]);
+
+    const deleteJobLog = useCallback(async (id: string) => {
+        setJobLogs(prev => prev.filter(log => log.id !== id));
+
+        // Remove from localStorage
+        const current = getJobLogsFromStorage();
+        const updated = current.filter(j => j.id !== id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+        // Delete from cloud
+        const token = getAuthToken();
+        if (token) {
+            try {
+                await apiRequest(`/api/jobs/${id}`, { method: 'DELETE' });
+            } catch (e) {
+                console.error('Failed to delete job from cloud:', e);
+            }
+        }
+    }, []);
+
+    const updateJobLog = useCallback((id: string, updates: Partial<Omit<JobLog, 'id' | 'createdAt'>>) => {
         setJobLogs(prev => {
-            const updated = prev.filter(log => log.id !== id);
-            saveToStorage(updated);
+            const updated = prev.map(log =>
+                log.id === id ? { ...log, ...updates } : log
+            );
+
+            // Find the updated job and save it
+            const updatedJob = updated.find(j => j.id === id);
+            if (updatedJob) {
+                saveJob(updatedJob);
+            }
+
             return updated;
         });
-    }, [saveToStorage]);
+    }, [saveJob]);
 
     const getJobStats = useCallback((): JobStats => {
         const now = Date.now();
@@ -148,50 +265,61 @@ export function useJobLogs() {
         let completedJobs = 0;
 
         jobLogs.forEach(log => {
+            // Vehicle counting
             if (log.vehicle) {
                 vehicleCounts[log.vehicle] = (vehicleCounts[log.vehicle] || 0) + 1;
             }
+            // Key/FCC counting
             if (log.fccId) {
                 keyCounts[log.fccId] = (keyCounts[log.fccId] || 0) + 1;
             }
-            // Track by job type
+            // Job type breakdown
             if (!jobsByType[log.jobType]) {
                 jobsByType[log.jobType] = { count: 0, revenue: 0 };
             }
-            jobsByType[log.jobType].count += 1;
-            jobsByType[log.jobType].revenue += log.price || 0;
+            jobsByType[log.jobType].count++;
+            jobsByType[log.jobType].revenue += log.price;
 
-            // Track customers
+            // Customer stats
             if (log.customerName) {
                 if (!customerStats[log.customerName]) {
                     customerStats[log.customerName] = { count: 0, revenue: 0 };
                 }
-                customerStats[log.customerName].count += 1;
-                customerStats[log.customerName].revenue += log.price || 0;
+                customerStats[log.customerName].count++;
+                customerStats[log.customerName].revenue += log.price;
             }
 
-            // Track referral sources
+            // Labor tracking
+            if (log.laborMinutes) {
+                totalLaborMinutes += log.laborMinutes;
+                laborJobCount++;
+            }
+
+            // Status counting
+            if (log.status === 'pending' || log.status === 'in_progress') {
+                pendingJobs++;
+            } else if (log.status === 'completed') {
+                completedJobs++;
+            }
+
+            // Referral sources
             if (log.referralSource) {
                 referralSources[log.referralSource] = (referralSources[log.referralSource] || 0) + 1;
             }
-
-            // Track labor
-            if (log.laborMinutes && log.laborMinutes > 0) {
-                totalLaborMinutes += log.laborMinutes;
-                laborJobCount += 1;
-            }
-
-            // Track status
-            if (log.status === 'pending' || log.status === 'in_progress') {
-                pendingJobs += 1;
-            } else if (log.status === 'completed') {
-                completedJobs += 1;
-            } else {
-                // Default: treat jobs without status as completed
-                completedJobs += 1;
-            }
         });
 
+        // Calculate totals
+        const totalRevenue = jobLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const totalPartsCost = jobLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
+        const totalProfit = totalRevenue - totalPartsCost;
+
+        const thisWeekRevenue = thisWeekLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const thisMonthRevenue = thisMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+        const thisMonthPartsCost = thisMonthLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
+        const thisMonthProfit = thisMonthRevenue - thisMonthPartsCost;
+        const lastMonthRevenue = lastMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
+
+        // Top vehicles and keys
         const topVehicles = Object.entries(vehicleCounts)
             .map(([vehicle, count]) => ({ vehicle, count }))
             .sort((a, b) => b.count - a.count)
@@ -202,20 +330,11 @@ export function useJobLogs() {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
+        // Top customers
         const topCustomers = Object.entries(customerStats)
             .map(([name, stats]) => ({ name, ...stats }))
-            .sort((a, b) => b.count - a.count || b.revenue - a.revenue)
+            .sort((a, b) => b.revenue - a.revenue)
             .slice(0, 5);
-
-        const totalRevenue = jobLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const totalPartsCost = jobLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
-        const totalProfit = totalRevenue - totalPartsCost;
-
-        const thisWeekRevenue = thisWeekLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const thisMonthRevenue = thisMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const thisMonthPartsCost = thisMonthLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.serviceCost || 0) + (log.gasCost || 0), 0);
-        const thisMonthProfit = thisMonthRevenue - thisMonthPartsCost;
-        const lastMonthRevenue = lastMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
 
         return {
             totalJobs: jobLogs.length,
@@ -230,11 +349,12 @@ export function useJobLogs() {
             topVehicles,
             topKeys,
             jobsByType,
-            // New stats
+
             totalPartsCost,
             totalProfit,
             avgProfit: jobLogs.length > 0 ? totalProfit / jobLogs.length : 0,
             thisMonthProfit,
+
             pendingJobs,
             completedJobs,
             avgLaborMinutes: laborJobCount > 0 ? totalLaborMinutes / laborJobCount : 0,
@@ -242,16 +362,6 @@ export function useJobLogs() {
             topCustomers,
         };
     }, [jobLogs]);
-
-    const updateJobLog = useCallback((id: string, updates: Partial<Omit<JobLog, 'id' | 'createdAt'>>) => {
-        setJobLogs(prev => {
-            const updated = prev.map(log =>
-                log.id === id ? { ...log, ...updates } : log
-            );
-            saveToStorage(updated);
-            return updated;
-        });
-    }, [saveToStorage]);
 
     // Get unique recent customers for quick-fill
     const getRecentCustomers = useCallback((): Array<{ name: string; phone?: string; address?: string }> => {
@@ -288,7 +398,7 @@ export function useJobLogs() {
     };
 }
 
-// Standalone functions for use outside React components
+// Standalone functions for use outside React components (GoalContext)
 export function getJobLogsFromStorage(): JobLog[] {
     if (typeof window === 'undefined') return [];
     try {
