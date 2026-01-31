@@ -2,10 +2,20 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { parseVehicleQuery, generateSuggestions } from '@/lib/vehicle-search';
 import { trackSearch } from '@/lib/analytics';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+const R2_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
+
+// Get vehicle model image URL from R2
+const getVehicleImageUrl = (make: string, model?: string): string | null => {
+    if (!model) return null;
+    const makeLower = make.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+    const modelLower = model.toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+    return `${R2_BASE}/vehicles/${makeLower}/${makeLower}_${modelLower}.png`;
+};
 
 
 interface SearchResult {
@@ -28,6 +38,7 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
     const [isLoading, setIsLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
@@ -337,18 +348,42 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                                 ${index !== results.length - 1 ? 'border-b border-gray-700/50' : ''}
                             `}
                         >
-                            {/* Icon based on type */}
-                            <span className={`
-                                w-8 h-8 rounded-lg flex items-center justify-center text-sm
-                                ${result.type === 'make'
-                                    ? 'bg-purple-500/20 text-purple-400'
-                                    : result.type === 'model'
-                                        ? 'bg-blue-500/20 text-blue-400'
-                                        : 'bg-emerald-500/20 text-emerald-400'
-                                }
-                            `}>
-                                {result.type === 'make' ? '🏭' : result.type === 'model' ? '🚙' : '🚗'}
-                            </span>
+                            {/* Icon/Image based on type */}
+                            {(result.type === 'model' || result.type === 'vehicle') && result.model ? (
+                                (() => {
+                                    const imageUrl = getVehicleImageUrl(result.make, result.model);
+                                    const imageKey = `${result.make}-${result.model}`;
+                                    const hasError = imageErrors.has(imageKey);
+
+                                    if (imageUrl && !hasError) {
+                                        return (
+                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
+                                                <Image
+                                                    src={imageUrl}
+                                                    alt={result.model}
+                                                    width={40}
+                                                    height={40}
+                                                    className="w-full h-full object-cover"
+                                                    onError={() => setImageErrors(prev => new Set(prev).add(imageKey))}
+                                                />
+                                            </div>
+                                        );
+                                    }
+                                    // Fallback to emoji
+                                    return (
+                                        <span className={`
+                                            w-10 h-10 rounded-lg flex items-center justify-center text-lg
+                                            ${result.type === 'model' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400'}
+                                        `}>
+                                            {result.type === 'model' ? '🚙' : '🚗'}
+                                        </span>
+                                    );
+                                })()
+                            ) : (
+                                <span className="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-purple-500/20 text-purple-400">
+                                    🏭
+                                </span>
+                            )}
                             <div className="flex-1">
                                 <div className="font-medium">{result.display}</div>
                                 <div className="text-xs text-gray-400">
