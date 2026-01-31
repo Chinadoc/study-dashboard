@@ -92,16 +92,20 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
         'DST-AES': 'Toyota Smart (DST-AES)'
     };
 
-    let architecture = config.architecture || walkthrough.platform;
+    let architecture = null; // Start with null - let glossary determine if possible
     const chipType = config.chip_type || walkthrough.chip_type || config.chip || walkthrough.chip;
 
-    // GLOSSARY-DRIVEN LOOKUP: Query curated chip database first
-    // This allows architecture to be derived from the glossary for ALL makes
+    // GLOSSARY-DRIVEN LOOKUP: Query curated chip database FIRST (source of truth)
     if (chipType && typeof getArchitectureForChip === 'function') {
         const glossaryArch = getArchitectureForChip(chipType);
         if (glossaryArch) {
             architecture = glossaryArch;
         }
+    }
+
+    // Fallback to database-stored architecture only if glossary didn't provide one
+    if (!architecture) {
+        architecture = config.architecture || walkthrough.platform;
     }
 
     // FALLBACK for Toyota/Lexus when glossary not available

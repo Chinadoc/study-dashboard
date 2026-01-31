@@ -56,6 +56,16 @@ const ADD_ONS: AddOn[] = [
         yearlyPrice: 60,
         features: ['Job logging & CRM', 'Inventory tracking', 'Invoice generation'],
         color: 'from-amber-500 to-amber-600'
+    },
+    {
+        id: 'ai-insights',
+        name: 'AI Insights',
+        emoji: '🧠',
+        description: 'AI-powered business intelligence',
+        monthlyPrice: 10,
+        yearlyPrice: 60,
+        features: ['Tax implications analysis', 'Revenue optimization', 'Personalized memory'],
+        color: 'from-cyan-500 to-cyan-600'
     }
 ];
 
@@ -175,8 +185,8 @@ export default function PricingClient() {
                         <button
                             onClick={() => setSelectedBilling('monthly')}
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${selectedBilling === 'monthly'
-                                    ? 'bg-amber-500 text-black'
-                                    : 'text-zinc-400 hover:text-white'
+                                ? 'bg-amber-500 text-black'
+                                : 'text-zinc-400 hover:text-white'
                                 }`}
                         >
                             Monthly
@@ -184,8 +194,8 @@ export default function PricingClient() {
                         <button
                             onClick={() => setSelectedBilling('yearly')}
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${selectedBilling === 'yearly'
-                                    ? 'bg-amber-500 text-black'
-                                    : 'text-zinc-400 hover:text-white'
+                                ? 'bg-amber-500 text-black'
+                                : 'text-zinc-400 hover:text-white'
                                 }`}
                         >
                             Yearly <span className="text-green-400 ml-1">Save 50%</span>
