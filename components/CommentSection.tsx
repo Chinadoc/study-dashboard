@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import NASTFBadge from './NASTFBadge';
 import styles from './CommentSection.module.css';
 
 interface Comment {
@@ -22,6 +23,7 @@ interface Comment {
     verified_type?: string;
     rank_level?: number;
     rank_name?: string;
+    nastf_verified?: boolean | number;
     badges?: { badge_icon: string; badge_name: string }[];
     replies: Comment[];
 }
@@ -42,6 +44,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     const [error, setError] = useState<string | null>(null);
     const [reportingComment, setReportingComment] = useState<string | null>(null);
     const [reportReason, setReportReason] = useState<string>('misinformation');
+    const [nastfOnly, setNastfOnly] = useState(false);
 
     const vehicleKey = `${make.toLowerCase()}_${model.toLowerCase()}`;
 
@@ -49,14 +52,15 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-                        }
+                let url = `${process.env.NEXT_PUBLIC_API_URL}/api/vehicle-comments?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+                if (nastfOnly) {
+                    url += '&nastf_only=true';
+                }
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
                     }
-                );
+                });
                 const data = await response.json();
                 if (data.comments) {
                     setComments(data.comments);
@@ -69,7 +73,7 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
         };
 
         fetchComments();
-    }, [make, model]);
+    }, [make, model, nastfOnly]);
 
     // Submit new comment
     const handleSubmitComment = async (e: React.FormEvent) => {
@@ -344,6 +348,9 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
                                 {rank.icon}
                             </span>
                         )}
+                        {!comment.is_deleted && (comment.nastf_verified === 1 || comment.nastf_verified === true) && (
+                            <NASTFBadge size="sm" />
+                        )}
                         {comment.is_verified && (
                             <span className={styles.verifiedBadge} title={`Verified: ${comment.verified_type}`}>
                                 ✓ Pearl
@@ -437,10 +444,22 @@ export default function CommentSection({ make, model }: CommentSectionProps) {
 
     return (
         <div className={styles.commentSection}>
-            <h3 className={styles.title}>
-                Community Discussion
-                <span className={styles.subtitle}>Share tips and experiences for {make} {model}</span>
-            </h3>
+            <div className={styles.headerRow}>
+                <h3 className={styles.title}>
+                    Community Discussion
+                    <span className={styles.subtitle}>Share tips and experiences for {make} {model}</span>
+                </h3>
+                <label className={styles.nastfToggle}>
+                    <input
+                        type="checkbox"
+                        checked={nastfOnly}
+                        onChange={(e) => setNastfOnly(e.target.checked)}
+                    />
+                    <span className={styles.toggleLabel}>
+                        <NASTFBadge size="sm" showTooltip={false} /> Only
+                    </span>
+                </label>
+            </div>
 
             {error && <div className={styles.error}>{error}</div>}
 

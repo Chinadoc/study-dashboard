@@ -1518,16 +1518,24 @@ Keep response under 300 words, practical and actionable.`;
           }
 
           // Fetch all comments for this vehicle
-          let whereClause = vehicleKey ? 'vehicle_key = ?' : 'vehicle_key = ?';
+          const nastfOnly = url.searchParams.get('nastf_only') === 'true';
           const bindValue = vehicleKey || `${make?.toLowerCase()}_${model?.toLowerCase()}`;
 
+          // Build query with NASTF filter support
+          let whereConditions = 'vc.vehicle_key = ?';
+          if (nastfOnly) {
+            whereConditions += ' AND COALESCE(u.nastf_verified, 0) = 1';
+          }
+
           const result = await env.LOCKSMITH_DB.prepare(`
-            SELECT id, parent_id, user_id, user_name, user_picture, content, job_type, tool_used, 
-                   upvotes, COALESCE(downvotes, 0) as downvotes, created_at, updated_at, 
-                   COALESCE(is_deleted, 0) as is_deleted
-            FROM vehicle_comments
-            WHERE ${whereClause}
-            ORDER BY created_at ASC
+            SELECT vc.id, vc.parent_id, vc.user_id, vc.user_name, vc.user_picture, vc.content, vc.job_type, vc.tool_used, 
+                   vc.upvotes, COALESCE(vc.downvotes, 0) as downvotes, vc.created_at, vc.updated_at, 
+                   COALESCE(vc.is_deleted, 0) as is_deleted,
+                   COALESCE(u.nastf_verified, 0) as nastf_verified
+            FROM vehicle_comments vc
+            LEFT JOIN users u ON vc.user_id = u.id
+            WHERE ${whereConditions}
+            ORDER BY vc.created_at ASC
           `).bind(bindValue).all();
 
           const comments = result.results || [];
@@ -2140,6 +2148,235 @@ Keep response under 300 words, practical and actionable.`;
           return corsResponse(request, JSON.stringify({
             leaderboard
           }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // NASTF VSP VERIFICATION ENDPOINTS
+      // ==============================================
+
+      // POST /api/nastf/submit-verification - User submits proof image
+      if (path === "/api/nastf/submit-verification" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+          const body: any = await request.json();
+          const { proof_image_url } = body;
+
+          if (!proof_image_url) {
+            return corsResponse(request, JSON.stringify({ error: "Missing proof image URL" }), 400);
+          }
+
+          // Check if user already has a pending or approved verification
+          const existing = await env.LOCKSMITH_DB.prepare(
+            `SELECT id, status FROM nastf_verifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 1`
+          ).bind(userId).first<any>();
+
+          if (existing?.status === 'approved') {
+            return corsResponse(request, JSON.stringify({ error: "Already verified" }), 400);
+          }
+          if (existing?.status === 'pending') {
+            return corsResponse(request, JSON.stringify({ error: "Verification already pending" }), 400);
+          }
+
+          const verificationId = `nv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO nastf_verifications (id, user_id, proof_image_url, status, created_at)
+            VALUES (?, ?, ?, 'pending', ?)
+          `).bind(verificationId, userId, proof_image_url, Date.now()).run();
+
+          return corsResponse(request, JSON.stringify({ success: true, verification_id: verificationId }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/nastf/status - User checks their verification status
+      if (path === "/api/nastf/status" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Please sign in" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userId = payload.sub as string;
+
+          // Get user's NASTF status
+          const user = await env.LOCKSMITH_DB.prepare(
+            `SELECT nastf_verified, nastf_verified_at FROM users WHERE id = ?`
+          ).bind(userId).first<any>();
+
+          // Get latest verification request
+          const verification = await env.LOCKSMITH_DB.prepare(
+            `SELECT id, status, rejection_reason, created_at FROM nastf_verifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 1`
+          ).bind(userId).first<any>();
+
+          return corsResponse(request, JSON.stringify({
+            nastf_verified: user?.nastf_verified === 1,
+            nastf_verified_at: user?.nastf_verified_at,
+            pending_verification: verification?.status === 'pending' ? verification : null,
+            last_rejection: verification?.status === 'rejected' ? { reason: verification.rejection_reason, created_at: verification.created_at } : null
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // GET /api/nastf/pending - Admin gets pending verifications
+      if (path === "/api/nastf/pending" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const result = await env.LOCKSMITH_DB.prepare(`
+            SELECT nv.id, nv.user_id, nv.proof_image_url, nv.created_at,
+                   u.name as user_name, u.email as user_email, u.picture as user_picture
+            FROM nastf_verifications nv
+            LEFT JOIN users u ON nv.user_id = u.id
+            WHERE nv.status = 'pending'
+            ORDER BY nv.created_at ASC
+          `).all();
+
+          return corsResponse(request, JSON.stringify({ verifications: result.results || [] }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/nastf/approve - Admin approves or rejects verification
+      if (path === "/api/nastf/approve" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const adminId = payload.sub as string;
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const body: any = await request.json();
+          const { verification_id, action, rejection_reason } = body;
+
+          if (!verification_id || !['approve', 'reject'].includes(action)) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid verification_id or action" }), 400);
+          }
+
+          // Get verification
+          const verification = await env.LOCKSMITH_DB.prepare(
+            `SELECT user_id, status FROM nastf_verifications WHERE id = ?`
+          ).bind(verification_id).first<any>();
+
+          if (!verification) {
+            return corsResponse(request, JSON.stringify({ error: "Verification not found" }), 404);
+          }
+          if (verification.status !== 'pending') {
+            return corsResponse(request, JSON.stringify({ error: "Verification already processed" }), 400);
+          }
+
+          const now = Date.now();
+          const newStatus = action === 'approve' ? 'approved' : 'rejected';
+
+          // Update verification record
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE nastf_verifications 
+            SET status = ?, reviewed_by = ?, reviewed_at = ?, rejection_reason = ?
+            WHERE id = ?
+          `).bind(newStatus, adminId, now, rejection_reason || null, verification_id).run();
+
+          if (action === 'approve') {
+            // Update user's NASTF status
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE users SET nastf_verified = 1, nastf_verified_at = ? WHERE id = ?
+            `).bind(now, verification.user_id).run();
+
+            // Award NASTF badge
+            const badgeId = `badge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO user_badges (id, user_id, badge_type, badge_name, badge_icon, badge_tier, earned_at)
+              VALUES (?, ?, 'licensure', 'NASTF Verified', '🛡️', 1, ?)
+              ON CONFLICT DO NOTHING
+            `).bind(badgeId, verification.user_id, now).run();
+
+            // Award initial 100 points for current month
+            const yearMonth = new Date().toISOString().slice(0, 7);
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO nastf_monthly_points (user_id, year_month, points_awarded, awarded_at)
+              VALUES (?, ?, 100, ?)
+              ON CONFLICT DO NOTHING
+            `).bind(verification.user_id, yearMonth, now).run();
+
+            // Update user reputation
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO user_reputation (user_id, total_score, member_since, updated_at)
+              VALUES (?, 100, ?, ?)
+              ON CONFLICT(user_id) DO UPDATE SET
+                total_score = total_score + 100,
+                updated_at = excluded.updated_at
+            `).bind(verification.user_id, now, now).run();
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true, status: newStatus }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // POST /api/nastf/award-monthly - Award monthly points (called by cron or admin)
+      if (path === "/api/nastf/award-monthly" && request.method === "POST") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const payload = await verifyInternalToken(sessionToken, env.JWT_SECRET || 'dev-secret');
+          if (!payload || !payload.sub) return corsResponse(request, JSON.stringify({ error: "Unauthorized" }), 401);
+
+          const userIsDev = payload.is_developer || isDeveloper(payload.email as string, env.DEV_EMAILS);
+          if (!userIsDev) return corsResponse(request, JSON.stringify({ error: "Admin access required" }), 403);
+
+          const yearMonth = new Date().toISOString().slice(0, 7);
+          const now = Date.now();
+
+          // Get all NASTF verified users who haven't received points this month
+          const verifiedUsers = await env.LOCKSMITH_DB.prepare(`
+            SELECT u.id FROM users u
+            WHERE u.nastf_verified = 1
+            AND u.id NOT IN (
+              SELECT user_id FROM nastf_monthly_points WHERE year_month = ?
+            )
+          `).bind(yearMonth).all();
+
+          let awarded = 0;
+          for (const user of (verifiedUsers.results || []) as any[]) {
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO nastf_monthly_points (user_id, year_month, points_awarded, awarded_at)
+              VALUES (?, ?, 100, ?)
+            `).bind(user.id, yearMonth, now).run();
+
+            await env.LOCKSMITH_DB.prepare(`
+              UPDATE user_reputation SET total_score = total_score + 100, updated_at = ?
+              WHERE user_id = ?
+            `).bind(now, user.id).run();
+
+            awarded++;
+          }
+
+          return corsResponse(request, JSON.stringify({ success: true, users_awarded: awarded, year_month: yearMonth }));
         } catch (err: any) {
           return corsResponse(request, JSON.stringify({ error: err.message }), 500);
         }

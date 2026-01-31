@@ -46,14 +46,23 @@ const ADD_ONS: AddOn[] = [
         yearlyPrice: 30,
         features: ['20+ keyway profiles', 'Progressive cutting', 'MACS validation'],
         color: 'from-green-500 to-green-600'
+    },
+    {
+        id: 'business-insights',
+        name: 'Business Insights',
+        emoji: '📊',
+        description: 'Advanced business analytics & documents',
+        monthlyPrice: 10,
+        yearlyPrice: 60,
+        features: ['Receipt & invoice generation', 'Tax reports', 'Revenue analytics'],
+        color: 'from-amber-500 to-amber-600'
     }
 ];
 
 const PRO_FEATURES = [
-    { emoji: '💼', text: 'Full Business Suite: Job logging, CRM & invoices' },
-    { emoji: '📦', text: 'Inventory management & tracking' },
+    { emoji: '📝', text: 'Basic job logging & tracking' },
+    { emoji: '📦', text: 'Inventory management' },
     { emoji: '🔍', text: 'Vehicle database access' },
-    { emoji: '📊', text: 'Basic business analytics' },
     { emoji: '👥', text: 'Share credentials with your team (up to 3)' },
     { emoji: '⚡', text: 'Early access to new features' },
     { emoji: '🎯', text: 'Priority support' },
