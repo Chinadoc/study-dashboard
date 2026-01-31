@@ -2,10 +2,20 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import Link from 'next/link';
+
+interface ReputationData {
+    reputation_score: number;
+    rank_level: number;
+    rank_name: string;
+    pearls_validated: number;
+    edits_approved?: number;
+}
 
 export const GoogleSignInButton = () => {
     const { user, loading, login, logout, isDeveloper } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [reputation, setReputation] = useState<ReputationData | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -18,6 +28,37 @@ export const GoogleSignInButton = () => {
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
+
+    // Fetch reputation when logged in
+    useEffect(() => {
+        const fetchReputation = async () => {
+            if (!user) return;
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/reputation`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setReputation(data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch reputation:', err);
+            }
+        };
+        fetchReputation();
+    }, [user]);
+
+    const getRankDisplay = (level: number) => {
+        const ranks = [
+            { name: 'Apprentice', icon: '🔧', color: 'text-zinc-400' },
+            { name: 'Journeyman', icon: '⚙️', color: 'text-blue-400' },
+            { name: 'Master Tech', icon: '🔑', color: 'text-purple-400' },
+            { name: 'Legend', icon: '👑', color: 'text-yellow-400' }
+        ];
+        return ranks[level - 1] || ranks[0];
+    };
 
     if (loading) {
         return (
@@ -64,6 +105,8 @@ export const GoogleSignInButton = () => {
         .substring(0, 2)
         .toUpperCase();
 
+    const rank = reputation ? getRankDisplay(reputation.rank_level) : getRankDisplay(1);
+
     return (
         <div ref={containerRef} className="relative">
             <button
@@ -94,33 +137,82 @@ export const GoogleSignInButton = () => {
                 </svg>
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown Menu - SOLID background */}
             {dropdownOpen && (
-                <div className="absolute right-0 top-12 z-50 w-56 rounded-xl border border-eurokeys-border bg-eurokeys-dark shadow-xl">
+                <div className="absolute right-0 top-12 z-50 w-64 rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
                     {/* User Info */}
-                    <div className="border-b border-eurokeys-border p-4">
+                    <div className="border-b border-slate-700 p-4">
                         <p className="font-medium text-white">{user.name}</p>
                         <p className="text-sm text-slate-400">{user.email}</p>
                     </div>
 
+                    {/* Reputation Section */}
+                    <div className="border-b border-slate-700 p-4">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs text-slate-400 uppercase tracking-wide">Community Rank</span>
+                            <Link
+                                href="/community"
+                                className="text-xs text-purple-400 hover:text-purple-300"
+                                onClick={() => setDropdownOpen(false)}
+                            >
+                                View Hub →
+                            </Link>
+                        </div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="text-2xl">{rank.icon}</span>
+                            <div>
+                                <div className={`font-semibold ${rank.color}`}>
+                                    {reputation?.rank_name || rank.name}
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                    {reputation?.reputation_score || 0} points
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-slate-800 rounded-lg p-2 text-center">
+                                <div className="text-lg font-bold text-green-400">
+                                    {reputation?.pearls_validated || 0}
+                                </div>
+                                <div className="text-[10px] text-slate-500">Pearls Verified</div>
+                            </div>
+                            <div className="bg-slate-800 rounded-lg p-2 text-center">
+                                <div className="text-lg font-bold text-blue-400">
+                                    {reputation?.edits_approved || 0}
+                                </div>
+                                <div className="text-[10px] text-slate-500">Edits Approved</div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Menu Items */}
                     <div className="p-2">
+                        <Link
+                            href="/community"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
+                        >
+                            <span>💬</span>
+                            Community Hub
+                        </Link>
                         {isDeveloper && (
-                            <a
+                            <Link
                                 href="/dev"
-                                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-eurokeys-purple/20 hover:text-white"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
                             >
                                 <span>🛠️</span>
                                 Dev Panel
-                            </a>
+                            </Link>
                         )}
-                        <a
+                        <Link
                             href="/inventory"
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-eurokeys-purple/20 hover:text-white"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-purple-600/20 hover:text-white"
                         >
                             <span>📦</span>
                             Inventory
-                        </a>
+                        </Link>
                         <button
                             onClick={logout}
                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"

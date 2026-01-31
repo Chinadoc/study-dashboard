@@ -4,11 +4,13 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useJobLogs } from '@/lib/useJobLogs';
+import BusinessAlerts from '@/components/business/BusinessAlerts';
 
 const BUSINESS_TABS = [
     { id: 'inventory', label: 'Inventory', href: '/business/inventory', icon: '📦' },
     { id: 'jobs', label: 'Jobs', href: '/business/jobs', icon: '📝' },
     { id: 'tools', label: 'Tools', href: '/business/tools', icon: '🛠️' },
+    { id: 'subscriptions', label: 'Subscriptions', href: '/business/subscriptions', icon: '🔔' },
 ];
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -55,12 +57,6 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                             <h1 className="text-2xl font-black italic">Business Dashboard</h1>
                             <p className="text-sm text-gray-500">Track inventory, jobs, and tool subscriptions.</p>
                         </div>
-                        <Link
-                            href="/subscriptions"
-                            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold rounded-lg hover:from-amber-400 hover:to-yellow-400 transition-all"
-                        >
-                            🔔 Subscriptions
-                        </Link>
                     </div>
 
                     {/* Monthly Stats Banner - Always Visible */}
@@ -111,14 +107,19 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                         </div>
                     </div>
 
+                    {/* Alerts & Insights */}
+                    <div className="mb-4">
+                        <BusinessAlerts />
+                    </div>
+
                     {/* Main Tab Navigation */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 overflow-x-auto">
                         {BUSINESS_TABS.map((tab) => (
                             <Link
                                 key={tab.id}
                                 href={tab.href}
                                 className={`
-                                    flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all
+                                    flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all whitespace-nowrap
                                     ${activeTab === tab.id
                                         ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20'
                                         : 'bg-zinc-800 text-gray-400 hover:text-white hover:bg-zinc-700'
@@ -140,3 +141,4 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
         </div>
     );
 }
+
