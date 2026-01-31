@@ -146,6 +146,15 @@ function FccContent() {
         }
     }, []);
 
+    // Initialize search from URL query param
+    useEffect(() => {
+        const searchQuery = searchParams?.get('search');
+        if (searchQuery) {
+            setSearch(searchQuery);
+        }
+    }, [searchParams]);
+
+
     // Save view preference
     const handleViewChange = (mode: 'card' | 'list') => {
         setViewMode(mode);

@@ -3894,6 +3894,11 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           const result = await env.LOCKSMITH_DB.prepare(sql).bind(make).all();
           let models = (result.results || []).map((r: any) => r.model);
 
+          // Universal filter: Remove motorcycle/watercraft models for all makes
+          models = models.filter((model: string) =>
+            !model.startsWith('(Motorcycle/Watercraft)')
+          );
+
           // Filter out motorcycle models for BMW (clutters automotive locksmith browse)
           if (make.toLowerCase() === 'bmw') {
             const motorcyclePatterns = [

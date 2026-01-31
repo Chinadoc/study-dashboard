@@ -383,7 +383,7 @@ export default function BittingCalculator({
                         <div className="font-mono font-bold text-amber-400">{macs}</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-[10px] text-zinc-500 uppercase">Combos</div>
+                        <div className="text-[10px] text-zinc-500 uppercase">Blanks</div>
                         <div className="font-mono font-bold text-cyan-400">
                             {combinationStats.totalCombinations > 9999
                                 ? `${(combinationStats.totalCombinations / 1000).toFixed(1)}k`
@@ -448,28 +448,15 @@ export default function BittingCalculator({
                         </div>
 
                         {/* Grid of positions */}
-                        <div className="flex flex-wrap justify-center gap-2 pt-4">
+                        <div className="flex flex-wrap justify-center gap-2">
                             {positions.map((depth, index) => {
-                                const cutInfo = cuttingOrder.find(c => c.index === index);
-                                const isNextToCut = nextToCut === index;
                                 const displayVal = getDisplayValue(depth);
-                                const isSpecial = depth < 0;
                                 const isHalf = isHalfDepth(depth);
                                 const isWildcard = depth === -2;
                                 const isUnknown = depth === 0 || depth === -1;
 
                                 return (
-                                    <div key={index} className="flex flex-col items-center relative">
-                                        {/* Cut order indicator */}
-                                        {cutInfo && (
-                                            <div className={`absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isNextToCut
-                                                    ? 'bg-green-500 text-white animate-pulse'
-                                                    : 'bg-zinc-700 text-zinc-400'
-                                                }`}>
-                                                {isNextToCut ? '✂️ NEXT' : `#${cutInfo.order}`}
-                                            </div>
-                                        )}
-
+                                    <div key={index} className="flex flex-col items-center">
                                         {/* Depth input */}
                                         <input
                                             ref={el => { inputRefs.current[index] = el; }}
@@ -483,30 +470,28 @@ export default function BittingCalculator({
                                             placeholder="?"
                                             maxLength={1}
                                             className={`w-10 h-10 sm:w-12 sm:h-12 text-center font-mono font-bold text-lg sm:text-xl rounded-lg border-2 transition-all focus:outline-none focus:ring-2 ${macsViolations.includes(index)
-                                                    ? 'bg-red-900/50 border-red-500 text-red-300 focus:ring-red-500'
-                                                    : isNextToCut && depth > 0
-                                                        ? 'bg-green-900/30 border-green-500 text-green-300 focus:ring-green-500 ring-2 ring-green-500/50'
-                                                        : depth > 0
-                                                            ? 'bg-purple-900/30 border-purple-500 text-white focus:ring-purple-500'
-                                                            : isHalf
-                                                                ? 'bg-cyan-900/30 border-cyan-500 text-cyan-400 focus:ring-cyan-500'
-                                                                : isWildcard
-                                                                    ? 'bg-pink-900/30 border-pink-500 text-pink-400 focus:ring-pink-500'
-                                                                    : isUnknown || depth === -1
-                                                                        ? 'bg-amber-900/30 border-amber-500 text-amber-400 focus:ring-amber-500'
-                                                                        : 'bg-zinc-900/80 border-zinc-600 border-dashed text-zinc-500 focus:ring-amber-500 placeholder-zinc-600'
+                                                ? 'bg-red-900/50 border-red-500 text-red-300 focus:ring-red-500'
+                                                : depth > 0
+                                                    ? 'bg-purple-900/30 border-purple-500 text-white focus:ring-purple-500'
+                                                    : isHalf
+                                                        ? 'bg-cyan-900/30 border-cyan-500 text-cyan-400 focus:ring-cyan-500'
+                                                        : isWildcard
+                                                            ? 'bg-pink-900/30 border-pink-500 text-pink-400 focus:ring-pink-500'
+                                                            : isUnknown || depth === -1
+                                                                ? 'bg-amber-900/30 border-amber-500 text-amber-400 focus:ring-amber-500'
+                                                                : 'bg-zinc-900/80 border-zinc-600 border-dashed text-zinc-500 focus:ring-amber-500 placeholder-zinc-600'
                                                 }`}
                                         />
                                         {/* Position label */}
                                         <span className={`text-[10px] mt-1 ${macsViolations.includes(index)
-                                                ? 'text-red-400'
-                                                : isHalf
-                                                    ? 'text-cyan-400'
-                                                    : isWildcard
-                                                        ? 'text-pink-400'
-                                                        : isUnknown
-                                                            ? 'text-amber-500'
-                                                            : 'text-zinc-500'
+                                            ? 'text-red-400'
+                                            : isHalf
+                                                ? 'text-cyan-400'
+                                                : isWildcard
+                                                    ? 'text-pink-400'
+                                                    : isUnknown
+                                                        ? 'text-amber-500'
+                                                        : 'text-zinc-500'
                                             }`}>
                                             {index + 1}
                                         </span>
@@ -515,34 +500,10 @@ export default function BittingCalculator({
                             })}
                         </div>
 
-                        {/* Progressive cutting guide */}
-                        {cuttingOrder.length > 0 && (
-                            <div className="mt-3 p-2 bg-green-900/20 border border-green-700/50 rounded-lg">
-                                <div className="flex items-center gap-2 text-xs">
-                                    <span className="text-green-400">✂️ Cut Order:</span>
-                                    <div className="flex items-center gap-1 flex-wrap">
-                                        {cuttingOrder.map((item, idx) => (
-                                            <span key={item.index} className="flex items-center">
-                                                <span className={`font-mono px-1.5 py-0.5 rounded ${idx === 0
-                                                    ? 'bg-green-500 text-white font-bold'
-                                                    : 'bg-zinc-700 text-zinc-300'
-                                                    }`}>
-                                                    P{item.index + 1}:{item.depth}
-                                                </span>
-                                                {idx < cuttingOrder.length - 1 && (
-                                                    <span className="text-zinc-500 mx-0.5">→</span>
-                                                )}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Visual depth representation */}
                         <div className="mt-4 flex justify-center gap-1 h-12 sm:h-16">
                             {positions.map((depth, index) => {
-                                const isNextToCut = nextToCut === index;
                                 const isHalf = isHalfDepth(depth);
                                 const isWildcard = depth === -2;
                                 const isUnknown = depth <= 0 && !isHalf && !isWildcard;
@@ -556,15 +517,13 @@ export default function BittingCalculator({
                                         <div
                                             className={`rounded-t transition-all duration-200 ${macsViolations.includes(index)
                                                     ? 'bg-red-500'
-                                                    : isNextToCut && depth > 0
-                                                        ? 'bg-gradient-to-t from-green-600 to-green-400 animate-pulse'
-                                                        : depth > 0
-                                                            ? 'bg-gradient-to-t from-purple-600 to-purple-400'
-                                                            : isHalf
-                                                                ? 'bg-gradient-to-t from-cyan-600 to-cyan-400'
-                                                                : isWildcard
-                                                                    ? 'bg-gradient-to-t from-pink-600 to-pink-400'
-                                                                    : 'bg-zinc-700 border border-dashed border-amber-500/50'
+                                                    : depth > 0
+                                                        ? 'bg-gradient-to-t from-purple-600 to-purple-400'
+                                                        : isHalf
+                                                            ? 'bg-gradient-to-t from-cyan-600 to-cyan-400'
+                                                            : isWildcard
+                                                                ? 'bg-gradient-to-t from-pink-600 to-pink-400'
+                                                                : 'bg-zinc-700 border border-dashed border-amber-500/50'
                                                 }`}
                                             style={{
                                                 height: depth > 0 ? `${(displayDepth / maxDepth) * 100}%` : (isHalf || isWildcard ? '60%' : '100%'),
@@ -610,27 +569,36 @@ export default function BittingCalculator({
                                 <span className="font-bold text-amber-300">
                                     {matchingCodes.length === 1 && !matchingCodes[0].includes('Too many')
                                         ? 'Matching Code'
-                                        : `${matchingCodes.length} Possible Codes`}
+                                        : `Progression: ${matchingCodes.length} Codes to Try`}
                                 </span>
                             </div>
 
                             {matchingCodes[0].includes('Too many') ? (
                                 <p className="text-amber-400 text-sm">{matchingCodes[0]}</p>
                             ) : (
-                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-40 overflow-y-auto">
+                                <div className="space-y-1 max-h-48 overflow-y-auto">
                                     {matchingCodes.map((code, idx) => (
-                                        <button
+                                        <div
                                             key={idx}
-                                            onClick={() => {
-                                                // Apply this code to positions
-                                                const newPositions = code.split('').map(d => parseInt(d));
-                                                setPositions(newPositions);
-                                                setMatchingCodes([]);
-                                            }}
-                                            className="font-mono text-sm bg-zinc-800 hover:bg-purple-900/50 px-2 py-1.5 rounded border border-zinc-700 hover:border-purple-500 text-white transition-all"
+                                            className="flex items-center gap-2 group"
                                         >
-                                            {code}
-                                        </button>
+                                            <span className="text-xs text-zinc-500 w-8 text-right font-mono">
+                                                {idx + 1}.
+                                            </span>
+                                            <button
+                                                onClick={() => {
+                                                    const newPositions = code.split('').map(d => parseInt(d));
+                                                    setPositions(newPositions);
+                                                    setMatchingCodes([]);
+                                                }}
+                                                className="font-mono text-sm bg-zinc-800 hover:bg-purple-900/50 px-3 py-1.5 rounded border border-zinc-700 hover:border-purple-500 text-white transition-all tracking-wider"
+                                            >
+                                                {code.split('').join(' ')}
+                                            </button>
+                                            {idx === 0 && (
+                                                <span className="text-[10px] text-green-400 bg-green-900/30 px-2 py-0.5 rounded">START HERE</span>
+                                            )}
+                                        </div>
                                     ))}
                                 </div>
                             )}

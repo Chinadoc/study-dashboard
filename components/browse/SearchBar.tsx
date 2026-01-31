@@ -209,6 +209,18 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     }
                 }
 
+                // Search glossary terms (technical terms like CAS3, BDC, MQB)
+                const glossaryMatches = searchGlossaryTerms(lowerQuery);
+                for (const term of glossaryMatches) {
+                    suggestions.push({
+                        type: 'glossary',
+                        make: term.makes[0] || 'General',
+                        display: `${term.term}: ${term.display_name}`,
+                        glossaryTerm: term.term,
+                        subtitle: term.description
+                    });
+                }
+
                 // Deduplicate
                 const uniqueSuggestions = suggestions.filter((item, index, self) =>
                     index === self.findIndex(t => t.display === item.display)
@@ -253,6 +265,9 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
             // Navigate to browse with make pre-selected (and year if present)
             const yearParam = result.year ? `&year=${result.year}` : '';
             window.location.href = `/browse?make=${encodeURIComponent(result.make)}${yearParam}`;
+        } else if (result.type === 'glossary' && result.glossaryTerm) {
+            // Navigate to glossary page for this term
+            window.location.href = `/glossary?term=${encodeURIComponent(result.glossaryTerm)}`;
         } else if (result.type === 'model' && result.model) {
             // Navigate to browse with make and model
             window.location.href = `/browse?make=${encodeURIComponent(result.make)}&model=${encodeURIComponent(result.model)}`;

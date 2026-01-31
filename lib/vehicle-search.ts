@@ -249,6 +249,17 @@ export function parseVehicleQuery(query: string): ParsedQuery {
         'Jaguar', 'Porsche', 'Tesla', 'Mini', 'Alfa Romeo', 'Fiat', 'Maserati'
     ];
 
+    // Check multi-word makes FIRST (before single-word check)
+    const TWO_WORD_MAKES = ['Land Rover', 'Alfa Romeo', 'Mercedes-Benz'];
+    if (!make) {
+        for (const twoWordMake of TWO_WORD_MAKES) {
+            if (normalized.includes(twoWordMake.toLowerCase())) {
+                make = twoWordMake;
+                break;
+            }
+        }
+    }
+
     if (!make) {
         for (const standardMake of STANDARD_MAKES) {
             if (parts.includes(standardMake.toLowerCase())) {

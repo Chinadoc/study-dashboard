@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface RecentCustomer {
     name: string;
@@ -21,7 +21,7 @@ export interface JobFormData {
     vehicle: string;
     fccId: string;
     keyType: string;
-    jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'safe' | 'other';
+    jobType: 'add_key' | 'akl' | 'remote' | 'blade' | 'rekey' | 'lockout' | 'other';
     price: number;
     date: string;
     notes: string;
@@ -43,7 +43,6 @@ const JOB_TYPES = [
     { value: 'blade', label: 'Blade Cut', icon: '✂️' },
     { value: 'rekey', label: 'Rekey', icon: '🔄' },
     { value: 'lockout', label: 'Lockout', icon: '🚗' },
-    { value: 'safe', label: 'Safe Work', icon: '🔐' },
     { value: 'other', label: 'Other', icon: '🔧' },
 ];
 
@@ -58,8 +57,9 @@ const REFERRAL_SOURCES = [
 export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', recentCustomers = [] }: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(false);
     const [showCostTracking, setShowCostTracking] = useState(false);
-    const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: string; button_count?: number }>>([]);
+    const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: number; button_count?: number; image_url?: string }>>([]);
     const [loadingFcc, setLoadingFcc] = useState(false);
+    const [showFccPicker, setShowFccPicker] = useState(false);
 
     const [formData, setFormData] = useState<JobFormData>({
         vehicle: prefillVehicle,
@@ -78,6 +78,68 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         referralSource: undefined,
         status: 'completed',
     });
+
+    // Keep track of last looked-up FCC ID to avoid duplicate lookups
+    const lastLookedUpFcc = useRef<string>('');
+
+    // Auto-lookup FCC details when FCC ID changes (with debounce)
+    useEffect(() => {
+        const fccId = formData.fccId.trim().toUpperCase();
+
+        // Skip if empty, too short, or already looked up
+        if (!fccId || fccId.length < 4 || fccId === lastLookedUpFcc.current) {
+            return;
+        }
+
+        const timeoutId = setTimeout(async () => {
+            try {
+                // Fetch FCC details from API
+                const response = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/fcc-detail/${encodeURIComponent(fccId)}`);
+                if (!response.ok) return;
+
+                const data = await response.json();
+                lastLookedUpFcc.current = fccId;
+
+                // Extract key type from first OEM part or FCC info
+                let keyType = '';
+                let estimatedKeyCost = 0;
+
+                if (data.oem_parts && data.oem_parts.length > 0) {
+                    const firstPart = data.oem_parts[0];
+                    // Determine key type from key_type field or buttons
+                    if (firstPart.vehicles?.[0]?.key_type) {
+                        const kt = firstPart.vehicles[0].key_type.toLowerCase();
+                        if (kt.includes('smart')) keyType = 'Smart Key';
+                        else if (kt.includes('flip')) keyType = 'Flip Key';
+                        else if (kt.includes('remote head') || kt.includes('rhk')) keyType = 'Remote Head Key';
+                        else if (kt.includes('transponder')) keyType = 'Transponder Key';
+                        else if (kt.includes('remote')) keyType = 'Remote';
+                        else keyType = firstPart.vehicles[0].key_type;
+                    }
+
+                    // Estimate key cost based on type
+                    // Smart keys: $40-75 aftermarket, Remote head: $30-50, Transponder: $15-30
+                    const ktLower = keyType.toLowerCase();
+                    if (ktLower.includes('smart')) estimatedKeyCost = 55;
+                    else if (ktLower.includes('flip')) estimatedKeyCost = 45;
+                    else if (ktLower.includes('remote head')) estimatedKeyCost = 40;
+                    else if (ktLower.includes('transponder')) estimatedKeyCost = 25;
+                    else if (ktLower.includes('remote')) estimatedKeyCost = 35;
+                }
+
+                // Auto-fill if we got data and fields are empty
+                setFormData(prev => ({
+                    ...prev,
+                    keyType: prev.keyType || keyType,
+                    keyCost: prev.keyCost || estimatedKeyCost
+                }));
+            } catch (err) {
+                console.error('FCC detail lookup error:', err);
+            }
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [formData.fccId]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -128,15 +190,16 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         return { year, make, model };
     };
 
-    // Lookup FCC IDs for current vehicle
-    const lookupFccIds = async () => {
-        if (!formData.vehicle.trim()) return;
+    // Lookup FCC IDs for current vehicle (enhanced with images)
+    const lookupFccIds = async (vehicleInput?: string) => {
+        const vehicle = vehicleInput || formData.vehicle;
+        if (!vehicle.trim()) return;
 
         setLoadingFcc(true);
         setFccSuggestions([]);
 
         try {
-            const { year, make, model } = parseVehicle(formData.vehicle);
+            const { year, make, model } = parseVehicle(vehicle);
             if (!make) {
                 setLoadingFcc(false);
                 return;
@@ -150,19 +213,93 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             const response = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/vehicle-keys?${params}`);
             if (response.ok) {
                 const data = await response.json();
-                const keys = (data.keys || []).slice(0, 5).map((k: any) => ({
-                    fcc_id: k.fcc_id || 'Unknown',
-                    key_type: k.key_type || 'Key',
-                    price: k.price,
-                    button_count: k.button_count
-                }));
-                setFccSuggestions(keys);
+                const rawKeys = (data.keys || []).slice(0, 8);
+
+                // Fetch images for each FCC ID from the FCC database
+                const keysWithImages = await Promise.all(
+                    rawKeys.map(async (k: any) => {
+                        const fccId = k.fcc_id || 'Unknown';
+                        let imageUrl = '';
+
+                        // Try to get image from FCC database
+                        try {
+                            const fccRes = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/fcc?q=${encodeURIComponent(fccId)}&limit=1`);
+                            if (fccRes.ok) {
+                                const fccData = await fccRes.json();
+                                if (fccData.rows?.[0]?.image_url) {
+                                    imageUrl = fccData.rows[0].image_url;
+                                }
+                            }
+                        } catch {
+                            // Ignore image fetch errors
+                        }
+
+                        // Calculate estimated key cost based on type
+                        const keyType = k.key_type?.toLowerCase() || '';
+                        let estimatedCost = 35;
+                        if (keyType.includes('smart')) estimatedCost = 55;
+                        else if (keyType.includes('flip')) estimatedCost = 45;
+                        else if (keyType.includes('remote head') || keyType.includes('rhk')) estimatedCost = 40;
+                        else if (keyType.includes('transponder')) estimatedCost = 25;
+
+                        return {
+                            fcc_id: fccId,
+                            key_type: k.key_type || 'Key',
+                            price: estimatedCost,
+                            button_count: k.button_count,
+                            image_url: imageUrl
+                        };
+                    })
+                );
+
+                // Deduplicate by FCC ID
+                const uniqueKeys = keysWithImages.filter((key, idx, arr) =>
+                    arr.findIndex(k => k.fcc_id === key.fcc_id) === idx
+                );
+
+                setFccSuggestions(uniqueKeys);
+
+                // Auto-fill if only one result
+                if (uniqueKeys.length === 1) {
+                    const key = uniqueKeys[0];
+                    setFormData(prev => ({
+                        ...prev,
+                        fccId: key.fcc_id,
+                        keyType: key.key_type,
+                        keyCost: key.price || 0
+                    }));
+                    setFccSuggestions([]); // Clear since auto-filled
+                } else if (uniqueKeys.length > 1) {
+                    setShowFccPicker(true);
+                }
             }
         } catch (err) {
             console.error('FCC lookup error:', err);
         }
         setLoadingFcc(false);
     };
+
+    // Auto-lookup FCC IDs when vehicle changes (debounced)
+    const lastVehicleLookup = useRef<string>('');
+    useEffect(() => {
+        const vehicle = formData.vehicle.trim();
+
+        // Skip if empty, too short, or same as last lookup
+        if (!vehicle || vehicle.length < 8 || vehicle === lastVehicleLookup.current) {
+            return;
+        }
+
+        // Only trigger if we have make, model, and year
+        const { year, make, model } = parseVehicle(vehicle);
+        if (!year || !make || !model) return;
+
+        const timeoutId = setTimeout(() => {
+            lastVehicleLookup.current = vehicle;
+            lookupFccIds(vehicle);
+        }, 800); // 800ms debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [formData.vehicle]);
 
     if (!isOpen) return null;
 
@@ -195,6 +332,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     <div>
                         <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
                             Vehicle *
+                            {loadingFcc && <span className="ml-2 text-yellow-500 animate-pulse">⏳ Finding keys...</span>}
                         </label>
                         <input
                             type="text"
@@ -213,12 +351,28 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 FCC ID
                                 <button
                                     type="button"
-                                    onClick={lookupFccIds}
+                                    onClick={() => lookupFccIds()}
                                     disabled={loadingFcc || !formData.vehicle.trim()}
-                                    className="ml-2 text-yellow-500 hover:text-yellow-400 disabled:text-zinc-600 text-xs normal-case font-medium"
+                                    className="ml-2 text-zinc-400 hover:text-zinc-300 disabled:text-zinc-600 text-xs normal-case font-medium"
+                                    title="Suggest FCC IDs for vehicle"
                                 >
-                                    {loadingFcc ? '⏳' : '🔍'} Lookup
+                                    {loadingFcc ? '⏳' : '🔍'}
                                 </button>
+                                <a
+                                    href={`/fcc?search=${encodeURIComponent(formData.fccId || '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => {
+                                        if (!formData.fccId.trim()) {
+                                            e.preventDefault();
+                                            return;
+                                        }
+                                    }}
+                                    className={`ml-1 text-xs normal-case font-medium ${formData.fccId.trim() ? 'text-yellow-500 hover:text-yellow-400 cursor-pointer' : 'text-zinc-600 cursor-not-allowed'}`}
+                                    title={formData.fccId.trim() ? 'Open FCC page in new tab' : 'Enter an FCC ID first'}
+                                >
+                                    Lookup
+                                </a>
                             </label>
                             <input
                                 type="text"
@@ -227,27 +381,53 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 onChange={e => setFormData(prev => ({ ...prev, fccId: e.target.value }))}
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 font-mono text-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
                             />
-                            {/* FCC Suggestions */}
-                            {fccSuggestions.length > 0 && (
-                                <div className="mt-2 flex flex-wrap gap-1">
-                                    {fccSuggestions.map((s, i) => (
+                            {/* FCC Suggestions with Images */}
+                            {fccSuggestions.length > 0 && showFccPicker && (
+                                <div className="mt-2 relative">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs text-zinc-400">Select key:</span>
                                         <button
-                                            key={i}
                                             type="button"
-                                            onClick={() => {
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    fccId: s.fcc_id,
-                                                    keyType: s.key_type || prev.keyType
-                                                }));
-                                                setFccSuggestions([]);
-                                            }}
-                                            className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 font-mono"
+                                            onClick={() => { setShowFccPicker(false); setFccSuggestions([]); }}
+                                            className="text-xs text-zinc-500 hover:text-zinc-400"
                                         >
-                                            {s.fcc_id}
-                                            {s.button_count && <span className="text-zinc-400 ml-1">({s.button_count}btn)</span>}
+                                            ✕ Close
                                         </button>
-                                    ))}
+                                    </div>
+                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-700">
+                                        {fccSuggestions.map((s, i) => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        fccId: s.fcc_id,
+                                                        keyType: s.key_type || prev.keyType,
+                                                        keyCost: s.price || prev.keyCost
+                                                    }));
+                                                    setFccSuggestions([]);
+                                                    setShowFccPicker(false);
+                                                }}
+                                                className="flex-shrink-0 w-24 bg-zinc-800 border border-zinc-700 rounded-xl p-2 hover:border-yellow-500/50 hover:bg-zinc-750 transition-all"
+                                            >
+                                                {s.image_url ? (
+                                                    <img
+                                                        src={s.image_url}
+                                                        alt={s.fcc_id}
+                                                        className="w-full h-16 object-contain rounded-lg bg-zinc-900 mb-1"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-16 bg-zinc-900 rounded-lg flex items-center justify-center text-2xl mb-1">
+                                                        🔑
+                                                    </div>
+                                                )}
+                                                <div className="text-xs font-mono text-yellow-500 truncate">{s.fcc_id}</div>
+                                                <div className="text-xs text-zinc-500">{s.key_type}</div>
+                                                {s.price && <div className="text-xs text-green-500">${s.price}</div>}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
