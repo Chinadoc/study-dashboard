@@ -12,7 +12,7 @@ export interface CoverageGroup {
     id: string;
     vehicle_group: string;
     years: string;
-    barrier: string;
+    barrier: string | { akl?: string; add_key?: string };
     risk: string;
     tools_claiming_coverage: CoverageTool[];
     gap_assessment: string;

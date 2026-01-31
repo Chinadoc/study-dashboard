@@ -7,6 +7,13 @@ import { getLowStockItems, TOOL_CATEGORIES, ToolType } from '@/lib/inventoryType
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
+import { API_BASE } from '@/lib/config';
+
+// FCC data for image lookups
+interface FccData {
+    fcc_id: string;
+    image_url?: string;
+}
 
 // Click-to-expand vehicles popover component
 function VehiclesPopover({
@@ -71,6 +78,36 @@ export default function InventoryPage() {
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [importError, setImportError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [fccImageMap, setFccImageMap] = useState<Map<string, string>>(new Map());
+
+    // Fetch FCC data for key images
+    useEffect(() => {
+        async function fetchFccImages() {
+            try {
+                const res = await fetch(`${API_BASE}/api/fcc?limit=1000`);
+                const json = await res.json();
+                const rows: FccData[] = json.rows || [];
+                const map = new Map<string, string>();
+                rows.forEach(row => {
+                    if (row.image_url) {
+                        // Normalize FCC ID for matching
+                        const normalizedFcc = row.fcc_id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                        map.set(normalizedFcc, row.image_url);
+                    }
+                });
+                setFccImageMap(map);
+            } catch (err) {
+                console.error('Failed to fetch FCC images:', err);
+            }
+        }
+        fetchFccImages();
+    }, []);
+
+    // Helper to get image URL for an inventory item
+    const getKeyImage = (itemKey: string): string | undefined => {
+        const normalizedKey = itemKey.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        return fccImageMap.get(normalizedKey);
+    };
 
     // Export handler
     const handleExport = () => {
@@ -297,82 +334,110 @@ export default function InventoryPage() {
             ) : displayItems.length > 0 ? (
                 <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
                     <div className="divide-y divide-gray-800">
-                        {displayItems.map((item) => (
-                            <div key={item.itemKey} className="p-4 flex items-center gap-4 hover:bg-gray-800/30 transition-colors">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className={`text-xs px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
-                                                    item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
-                                                        'bg-green-500/20 text-green-400'
-                                            }`}>
-                                            {item.type === 'key' ? '🔑 Key' :
-                                                item.type === 'blank' ? '🔧 Blank' :
-                                                    item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
-                                                        '📦 Supply'}
+                        {displayItems.map((item) => {
+                            const keyImage = item.type === 'key' ? getKeyImage(item.itemKey) : undefined;
+                            return (
+                                <div key={item.itemKey} className="p-3 sm:p-4 flex items-start sm:items-center gap-3 hover:bg-gray-800/30 transition-colors">
+                                    {/* Key Image - Desktop: fixed width, Mobile: smaller */}
+                                    <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
+                                        {keyImage ? (
+                                            <img
+                                                src={keyImage}
+                                                alt={item.itemKey}
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                }}
+                                            />
+                                        ) : null}
+                                        <span className={keyImage ? 'hidden' : 'text-xl sm:text-2xl'}>
+                                            {item.type === 'key' ? '🔑' :
+                                                item.type === 'blank' ? '🔧' :
+                                                    item.type === 'tool' ? '💻' : '📦'}
                                         </span>
-                                        {item.qty <= 2 && (
-                                            <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low Stock</span>
+                                    </div>
+
+                                    {/* Content - More compact on mobile */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                                            <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                    item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
+                                                        item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
+                                                            'bg-green-500/20 text-green-400'
+                                                }`}>
+                                                {item.type === 'key' ? 'Key' :
+                                                    item.type === 'blank' ? 'Blank' :
+                                                        item.type === 'tool' ? `${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
+                                                            'Supply'}
+                                            </span>
+                                            {item.qty <= 2 && (
+                                                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
+                                            )}
+                                            {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
+                                                <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">In Warranty</span>
+                                            )}
+                                        </div>
+                                        <div className="font-bold text-sm sm:text-base text-white truncate">{item.itemKey}</div>
+                                        {item.serialNumber && (
+                                            <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
                                         )}
-                                        {item.warrantyExpiry && new Date(item.warrantyExpiry) > new Date() && (
-                                            <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">In Warranty</span>
+                                        {item.vehicle && (
+                                            <div className="text-[10px] sm:text-sm text-gray-400 truncate">{item.vehicle.split(',').slice(0, 1).join('')}{item.vehicle.includes(',') ? '...' : ''}</div>
                                         )}
                                     </div>
-                                    <div className="font-bold text-white truncate">{item.itemKey}</div>
-                                    {item.serialNumber && (
-                                        <div className="text-xs text-zinc-500">S/N: {item.serialNumber}</div>
+
+                                    {/* Quantity controls - Smaller on mobile */}
+                                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                                        <button
+                                            onClick={() => updateQuantity(item.itemKey, -1)}
+                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm sm:text-base"
+                                        >−</button>
+                                        <span className={`w-6 sm:w-10 text-center font-bold text-sm sm:text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
+                                            {item.qty}
+                                        </span>
+                                        <button
+                                            onClick={() => updateQuantity(item.itemKey, 1)}
+                                            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm sm:text-base"
+                                        >+</button>
+                                    </div>
+
+                                    {/* Delete button - Hidden on mobile, or smaller */}
+                                    <div className="hidden sm:flex items-center gap-2">
+                                        {deleteConfirm === item.itemKey ? (
+                                            <>
+                                                <button
+                                                    onClick={() => handleDelete(item.itemKey)}
+                                                    className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold"
+                                                >Delete</button>
+                                                <button
+                                                    onClick={() => setDeleteConfirm(null)}
+                                                    className="px-3 py-1.5 bg-zinc-700 text-gray-300 rounded-lg text-sm"
+                                                >Cancel</button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={() => setDeleteConfirm(item.itemKey)}
+                                                className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                                                title="Delete item"
+                                            >🗑️</button>
+                                        )}
+                                    </div>
+
+                                    {/* Buy Link for Low Stock - More compact on mobile */}
+                                    {item.qty <= 2 && (
+                                        <a
+                                            href={generateAmazonSearchUrl(item.itemKey)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/20 text-green-400 rounded-lg text-xs sm:text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap flex-shrink-0"
+                                        >
+                                            🛒 <span className="hidden sm:inline">Buy</span>
+                                        </a>
                                     )}
-                                    {item.vehicle && <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />}
                                 </div>
-
-                                {/* Quantity controls */}
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => updateQuantity(item.itemKey, -1)}
-                                        className="w-8 h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
-                                    >−</button>
-                                    <span className={`w-12 text-center font-bold text-lg ${item.qty <= 2 ? 'text-red-400' : 'text-white'}`}>
-                                        {item.qty}
-                                    </span>
-                                    <button
-                                        onClick={() => updateQuantity(item.itemKey, 1)}
-                                        className="w-8 h-8 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
-                                    >+</button>
-                                </div>
-
-                                {/* Delete button */}
-                                {deleteConfirm === item.itemKey ? (
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => handleDelete(item.itemKey)}
-                                            className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-bold"
-                                        >Delete</button>
-                                        <button
-                                            onClick={() => setDeleteConfirm(null)}
-                                            className="px-3 py-1.5 bg-zinc-700 text-gray-300 rounded-lg text-sm"
-                                        >Cancel</button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={() => setDeleteConfirm(item.itemKey)}
-                                        className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
-                                        title="Delete item"
-                                    >🗑️</button>
-                                )}
-
-                                {/* Buy Link for Low Stock */}
-                                {item.qty <= 2 && (
-                                    <a
-                                        href={generateAmazonSearchUrl(item.itemKey)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm font-bold hover:bg-green-500/30 transition-colors whitespace-nowrap"
-                                    >
-                                        🛒 Buy
-                                    </a>
-                                )}
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             ) : (

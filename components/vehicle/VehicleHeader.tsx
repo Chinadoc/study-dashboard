@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { EditModeToggle } from '@/components/admin';
 
 interface VehicleHeaderProps {
     make: string;
@@ -35,13 +36,16 @@ export default function VehicleHeader({
 }: VehicleHeaderProps) {
     return (
         <div className="mb-8">
-            {/* Back Button */}
-            <a
-                href="/browse"
-                className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-purple-400 transition-colors mb-4"
-            >
-                ← Back to Browse
-            </a>
+            {/* Back Button & Edit Mode Toggle */}
+            <div className="flex items-center justify-between mb-4">
+                <a
+                    href="/browse"
+                    className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-purple-400 transition-colors"
+                >
+                    ← Back to Browse
+                </a>
+                <EditModeToggle />
+            </div>
 
             {/* Main Header */}
             <div className="glass p-6 mb-4">

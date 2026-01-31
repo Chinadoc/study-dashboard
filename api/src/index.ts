@@ -4043,6 +4043,503 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
       }
 
       // ==============================================
+      // PEARL ADMIN: Update Pearl (PUT /api/pearls/:id)
+      // ==============================================
+      // Dev: instant update with version history
+      // Community: creates pending edit for approval
+      if (path.match(/^\/api\/pearls\/[^/]+$/) && request.method === "PUT") {
+        try {
+          const pearlId = path.split('/').pop();
+          if (!pearlId) {
+            return corsResponse(request, JSON.stringify({ error: "Pearl ID required" }), 400);
+          }
+
+          // Auth required
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          const body = await request.json() as any;
+          const { content, category, make, model, year_start, year_end, risk, tags, display_tags, section, subsection, display_order, edit_reason } = body;
+
+          // Fetch current pearl state for version history
+          const currentPearl = await env.LOCKSMITH_DB.prepare(
+            "SELECT * FROM refined_pearls WHERE id = ?"
+          ).bind(pearlId).first();
+
+          if (!currentPearl) {
+            return corsResponse(request, JSON.stringify({ error: "Pearl not found" }), 404);
+          }
+
+          if (userIsDev) {
+            // DEV: Instant update with version tracking
+            // 1. Get next version number
+            const versionResult = await env.LOCKSMITH_DB.prepare(
+              "SELECT COALESCE(MAX(version_number), 0) + 1 as next_version FROM pearl_versions WHERE pearl_id = ?"
+            ).bind(pearlId).first<{ next_version: number }>();
+            const nextVersion = versionResult?.next_version || 1;
+
+            // 2. Save current state to version history
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO pearl_versions (pearl_id, version_number, content, action, category, make, model, year_start, year_end, risk, tags, display_tags, section, subsection, display_order, edited_by, edit_reason, edit_type)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'update')
+            `).bind(
+              pearlId, nextVersion,
+              currentPearl.content, currentPearl.action, currentPearl.category,
+              currentPearl.make, currentPearl.model, currentPearl.year_start, currentPearl.year_end,
+              currentPearl.risk, currentPearl.tags, currentPearl.display_tags,
+              currentPearl.section || 'general', currentPearl.subsection, currentPearl.display_order || 0,
+              userEmail, edit_reason || 'Direct edit'
+            ).run();
+
+            // 3. Update pearl with new values (only provided fields)
+            const updates: string[] = [];
+            const updateParams: any[] = [];
+
+            if (content !== undefined) { updates.push("content = ?"); updateParams.push(content); }
+            if (category !== undefined) { updates.push("category = ?"); updateParams.push(category); }
+            if (make !== undefined) { updates.push("make = ?"); updateParams.push(make); }
+            if (model !== undefined) { updates.push("model = ?"); updateParams.push(model); }
+            if (year_start !== undefined) { updates.push("year_start = ?"); updateParams.push(year_start); }
+            if (year_end !== undefined) { updates.push("year_end = ?"); updateParams.push(year_end); }
+            if (risk !== undefined) { updates.push("risk = ?"); updateParams.push(risk); }
+            if (tags !== undefined) { updates.push("tags = ?"); updateParams.push(typeof tags === 'string' ? tags : JSON.stringify(tags)); }
+            if (display_tags !== undefined) { updates.push("display_tags = ?"); updateParams.push(typeof display_tags === 'string' ? display_tags : JSON.stringify(display_tags)); }
+            if (section !== undefined) { updates.push("section = ?"); updateParams.push(section); }
+            if (subsection !== undefined) { updates.push("subsection = ?"); updateParams.push(subsection); }
+            if (display_order !== undefined) { updates.push("display_order = ?"); updateParams.push(display_order); }
+
+            updates.push("last_edited_by = ?"); updateParams.push(userEmail);
+            updates.push("last_edited_at = ?"); updateParams.push(new Date().toISOString());
+
+            if (updates.length > 2) { // More than just the edited_by/at fields
+              updateParams.push(pearlId);
+              await env.LOCKSMITH_DB.prepare(
+                `UPDATE refined_pearls SET ${updates.join(", ")} WHERE id = ?`
+              ).bind(...updateParams).run();
+            }
+
+            return corsResponse(request, JSON.stringify({
+              success: true,
+              message: "Pearl updated",
+              version: nextVersion,
+              pearl_id: pearlId
+            }));
+          } else {
+            // COMMUNITY: Create pending edit for approval
+            await env.LOCKSMITH_DB.prepare(`
+              INSERT INTO pearl_edits (pearl_id, content, action, category, make, model, year_start, year_end, risk, tags, display_tags, section, subsection, display_order, submitted_by, edit_reason, status)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+            `).bind(
+              pearlId,
+              content || null, body.action || null, category || null,
+              make || null, model || null, year_start || null, year_end || null,
+              risk || null, tags ? (typeof tags === 'string' ? tags : JSON.stringify(tags)) : null,
+              display_tags ? (typeof display_tags === 'string' ? display_tags : JSON.stringify(display_tags)) : null,
+              section || null, subsection || null, display_order || null,
+              userEmail, edit_reason || 'Community edit'
+            ).run();
+
+            return corsResponse(request, JSON.stringify({
+              success: true,
+              message: "Edit submitted for approval",
+              pearl_id: pearlId
+            }));
+          }
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL ADMIN: Reorder Pearl (POST /api/pearls/:id/reorder)
+      // ==============================================
+      // Dev only: Update display_order for drag-and-drop
+      if (path.match(/^\/api\/pearls\/[^/]+\/reorder$/) && request.method === "POST") {
+        try {
+          const pearlId = path.split('/')[3];
+
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          if (!userIsDev) {
+            return corsResponse(request, JSON.stringify({ error: "Developer access required" }), 403);
+          }
+
+          const body = await request.json() as any;
+          const { section, subsection, display_order } = body;
+
+          if (display_order === undefined) {
+            return corsResponse(request, JSON.stringify({ error: "display_order required" }), 400);
+          }
+
+          // Update pearl position
+          const updates = ["display_order = ?", "last_edited_by = ?", "last_edited_at = ?"];
+          const params: any[] = [display_order, userEmail, new Date().toISOString()];
+
+          if (section !== undefined) { updates.push("section = ?"); params.push(section); }
+          if (subsection !== undefined) { updates.push("subsection = ?"); params.push(subsection); }
+
+          params.push(pearlId);
+          await env.LOCKSMITH_DB.prepare(
+            `UPDATE refined_pearls SET ${updates.join(", ")} WHERE id = ?`
+          ).bind(...params).run();
+
+          // Log reorder in version history
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pearl_versions (pearl_id, version_number, section, subsection, display_order, edited_by, edit_reason, edit_type)
+            SELECT ?, COALESCE(MAX(version_number), 0) + 1, ?, ?, ?, ?, 'Reordered via drag-and-drop', 'reorder'
+            FROM pearl_versions WHERE pearl_id = ?
+          `).bind(pearlId, section, subsection, display_order, userEmail, pearlId).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            message: "Pearl reordered",
+            pearl_id: pearlId,
+            display_order
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL ADMIN: Get Version History (GET /api/pearls/:id/history)
+      // ==============================================
+      if (path.match(/^\/api\/pearls\/[^/]+\/history$/) && request.method === "GET") {
+        try {
+          const pearlId = path.split('/')[3];
+
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          // Fetch current pearl
+          const currentPearl = await env.LOCKSMITH_DB.prepare(
+            "SELECT * FROM refined_pearls WHERE id = ?"
+          ).bind(pearlId).first();
+
+          if (!currentPearl) {
+            return corsResponse(request, JSON.stringify({ error: "Pearl not found" }), 404);
+          }
+
+          // Fetch version history
+          const versions = await env.LOCKSMITH_DB.prepare(`
+            SELECT * FROM pearl_versions WHERE pearl_id = ? ORDER BY version_number DESC LIMIT 50
+          `).bind(pearlId).all();
+
+          return corsResponse(request, JSON.stringify({
+            pearl_id: pearlId,
+            current: currentPearl,
+            versions: versions.results || [],
+            version_count: versions.results?.length || 0
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL ADMIN: List Pending Edits (GET /api/pearls/pending)
+      // ==============================================
+      // Dev only: List all pending community edits
+      if (path === "/api/pearls/pending" && request.method === "GET") {
+        try {
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          if (!userIsDev) {
+            return corsResponse(request, JSON.stringify({ error: "Developer access required" }), 403);
+          }
+
+          const pendingEdits = await env.LOCKSMITH_DB.prepare(`
+            SELECT pe.*, rp.content as current_content, rp.make as current_make, rp.model as current_model
+            FROM pearl_edits pe
+            LEFT JOIN refined_pearls rp ON pe.pearl_id = rp.id
+            WHERE pe.status = 'pending'
+            ORDER BY pe.submitted_at DESC
+            LIMIT 100
+          `).all();
+
+          return corsResponse(request, JSON.stringify({
+            pending_count: pendingEdits.results?.length || 0,
+            edits: pendingEdits.results || []
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL ADMIN: Approve Pending Edit (POST /api/pearls/pending/:id/approve)
+      // ==============================================
+      if (path.match(/^\/api\/pearls\/pending\/\d+\/approve$/) && request.method === "POST") {
+        try {
+          const editId = path.split('/')[4];
+
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          if (!userIsDev) {
+            return corsResponse(request, JSON.stringify({ error: "Developer access required" }), 403);
+          }
+
+          // Fetch the pending edit
+          const edit = await env.LOCKSMITH_DB.prepare(
+            "SELECT * FROM pearl_edits WHERE id = ? AND status = 'pending'"
+          ).bind(editId).first<any>();
+
+          if (!edit) {
+            return corsResponse(request, JSON.stringify({ error: "Pending edit not found" }), 404);
+          }
+
+          // Fetch current pearl for version history
+          const currentPearl = await env.LOCKSMITH_DB.prepare(
+            "SELECT * FROM refined_pearls WHERE id = ?"
+          ).bind(edit.pearl_id).first<any>();
+
+          if (!currentPearl) {
+            return corsResponse(request, JSON.stringify({ error: "Pearl not found" }), 404);
+          }
+
+          // Save current state to version history
+          const versionResult = await env.LOCKSMITH_DB.prepare(
+            "SELECT COALESCE(MAX(version_number), 0) + 1 as next_version FROM pearl_versions WHERE pearl_id = ?"
+          ).bind(edit.pearl_id).first<{ next_version: number }>();
+          const nextVersion = versionResult?.next_version || 1;
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pearl_versions (pearl_id, version_number, content, action, category, make, model, year_start, year_end, risk, tags, display_tags, section, subsection, display_order, edited_by, edit_reason, edit_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'update')
+          `).bind(
+            edit.pearl_id, nextVersion,
+            currentPearl.content, currentPearl.action, currentPearl.category,
+            currentPearl.make, currentPearl.model, currentPearl.year_start, currentPearl.year_end,
+            currentPearl.risk, currentPearl.tags, currentPearl.display_tags,
+            currentPearl.section || 'general', currentPearl.subsection, currentPearl.display_order || 0,
+            edit.submitted_by, `Community edit approved by ${userEmail}`
+          ).run();
+
+          // Apply the edit to the pearl (only non-null fields)
+          const updates: string[] = [];
+          const updateParams: any[] = [];
+
+          if (edit.content !== null) { updates.push("content = ?"); updateParams.push(edit.content); }
+          if (edit.category !== null) { updates.push("category = ?"); updateParams.push(edit.category); }
+          if (edit.make !== null) { updates.push("make = ?"); updateParams.push(edit.make); }
+          if (edit.model !== null) { updates.push("model = ?"); updateParams.push(edit.model); }
+          if (edit.year_start !== null) { updates.push("year_start = ?"); updateParams.push(edit.year_start); }
+          if (edit.year_end !== null) { updates.push("year_end = ?"); updateParams.push(edit.year_end); }
+          if (edit.risk !== null) { updates.push("risk = ?"); updateParams.push(edit.risk); }
+          if (edit.tags !== null) { updates.push("tags = ?"); updateParams.push(edit.tags); }
+          if (edit.display_tags !== null) { updates.push("display_tags = ?"); updateParams.push(edit.display_tags); }
+          if (edit.section !== null) { updates.push("section = ?"); updateParams.push(edit.section); }
+          if (edit.subsection !== null) { updates.push("subsection = ?"); updateParams.push(edit.subsection); }
+          if (edit.display_order !== null) { updates.push("display_order = ?"); updateParams.push(edit.display_order); }
+
+          updates.push("last_edited_by = ?"); updateParams.push(edit.submitted_by);
+          updates.push("last_edited_at = ?"); updateParams.push(new Date().toISOString());
+
+          if (updates.length > 2) {
+            updateParams.push(edit.pearl_id);
+            await env.LOCKSMITH_DB.prepare(
+              `UPDATE refined_pearls SET ${updates.join(", ")} WHERE id = ?`
+            ).bind(...updateParams).run();
+          }
+
+          // Mark edit as approved
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE pearl_edits SET status = 'approved', reviewed_by = ?, reviewed_at = ? WHERE id = ?
+          `).bind(userEmail, new Date().toISOString(), editId).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            message: "Edit approved and applied",
+            edit_id: editId,
+            pearl_id: edit.pearl_id
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL ADMIN: Reject Pending Edit (POST /api/pearls/pending/:id/reject)
+      // ==============================================
+      if (path.match(/^\/api\/pearls\/pending\/\d+\/reject$/) && request.method === "POST") {
+        try {
+          const editId = path.split('/')[4];
+
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          if (!userIsDev) {
+            return corsResponse(request, JSON.stringify({ error: "Developer access required" }), 403);
+          }
+
+          const body = await request.json() as any;
+          const { review_notes } = body;
+
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE pearl_edits SET status = 'rejected', reviewed_by = ?, reviewed_at = ?, review_notes = ? WHERE id = ? AND status = 'pending'
+          `).bind(userEmail, new Date().toISOString(), review_notes || null, editId).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            message: "Edit rejected",
+            edit_id: editId
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
+      // PEARL ADMIN: Revert to Version (POST /api/pearls/:id/revert/:version)
+      // ==============================================
+      if (path.match(/^\/api\/pearls\/[^/]+\/revert\/\d+$/) && request.method === "POST") {
+        try {
+          const parts = path.split('/');
+          const pearlId = parts[3];
+          const targetVersion = parseInt(parts[5], 10);
+
+          const sessionToken = getSessionToken(request);
+          if (!sessionToken) {
+            return corsResponse(request, JSON.stringify({ error: "Authentication required" }), 401);
+          }
+
+          const payload = await verifySession(sessionToken, env.SESSION_SECRET);
+          if (!payload?.email) {
+            return corsResponse(request, JSON.stringify({ error: "Invalid session" }), 401);
+          }
+
+          const userEmail = payload.email as string;
+          const userIsDev = payload.is_developer || isDeveloper(userEmail, env.DEV_EMAILS);
+
+          if (!userIsDev) {
+            return corsResponse(request, JSON.stringify({ error: "Developer access required" }), 403);
+          }
+
+          // Fetch target version
+          const targetVersionData = await env.LOCKSMITH_DB.prepare(
+            "SELECT * FROM pearl_versions WHERE pearl_id = ? AND version_number = ?"
+          ).bind(pearlId, targetVersion).first<any>();
+
+          if (!targetVersionData) {
+            return corsResponse(request, JSON.stringify({ error: "Version not found" }), 404);
+          }
+
+          // Fetch current pearl for version history
+          const currentPearl = await env.LOCKSMITH_DB.prepare(
+            "SELECT * FROM refined_pearls WHERE id = ?"
+          ).bind(pearlId).first<any>();
+
+          if (!currentPearl) {
+            return corsResponse(request, JSON.stringify({ error: "Pearl not found" }), 404);
+          }
+
+          // Save current state to version history as 'revert'
+          const versionResult = await env.LOCKSMITH_DB.prepare(
+            "SELECT COALESCE(MAX(version_number), 0) + 1 as next_version FROM pearl_versions WHERE pearl_id = ?"
+          ).bind(pearlId).first<{ next_version: number }>();
+          const nextVersion = versionResult?.next_version || 1;
+
+          await env.LOCKSMITH_DB.prepare(`
+            INSERT INTO pearl_versions (pearl_id, version_number, content, action, category, make, model, year_start, year_end, risk, tags, display_tags, section, subsection, display_order, edited_by, edit_reason, edit_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'revert')
+          `).bind(
+            pearlId, nextVersion,
+            currentPearl.content, currentPearl.action, currentPearl.category,
+            currentPearl.make, currentPearl.model, currentPearl.year_start, currentPearl.year_end,
+            currentPearl.risk, currentPearl.tags, currentPearl.display_tags,
+            currentPearl.section || 'general', currentPearl.subsection, currentPearl.display_order || 0,
+            userEmail, `Reverted to version ${targetVersion}`
+          ).run();
+
+          // Apply target version to pearl
+          await env.LOCKSMITH_DB.prepare(`
+            UPDATE refined_pearls SET
+              content = ?, action = ?, category = ?, make = ?, model = ?,
+              year_start = ?, year_end = ?, risk = ?, tags = ?, display_tags = ?,
+              section = ?, subsection = ?, display_order = ?,
+              last_edited_by = ?, last_edited_at = ?
+            WHERE id = ?
+          `).bind(
+            targetVersionData.content, targetVersionData.action, targetVersionData.category,
+            targetVersionData.make, targetVersionData.model,
+            targetVersionData.year_start, targetVersionData.year_end,
+            targetVersionData.risk, targetVersionData.tags, targetVersionData.display_tags,
+            targetVersionData.section, targetVersionData.subsection, targetVersionData.display_order,
+            userEmail, new Date().toISOString(), pearlId
+          ).run();
+
+          return corsResponse(request, JSON.stringify({
+            success: true,
+            message: `Reverted to version ${targetVersion}`,
+            pearl_id: pearlId,
+            new_version: nextVersion
+          }));
+        } catch (err: any) {
+          return corsResponse(request, JSON.stringify({ error: err.message }), 500);
+        }
+      }
+
+      // ==============================================
       // WALKTHROUGHS ENDPOINT - Step-by-step procedures
       // ==============================================
       // Returns Add Key and AKL procedures from walkthroughs_v2

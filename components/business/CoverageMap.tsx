@@ -134,7 +134,7 @@ function CoverageCard({ group, style, isExpanded, onToggle }: { group: CoverageG
                     </div>
                     <div className="text-sm text-gray-400 flex items-center gap-2">
                         <span className="font-semibold text-gray-500">Barrier:</span>
-                        {group.barrier}
+                        {typeof group.barrier === 'string' ? group.barrier : JSON.stringify(group.barrier)}
                     </div>
                     {!isExpanded && (
                         <div className={`text-xs mt-2 font-medium ${style.text}`}>
