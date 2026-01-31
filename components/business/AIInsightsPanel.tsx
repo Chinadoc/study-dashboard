@@ -50,7 +50,8 @@ const US_STATES = [
 ];
 
 export default function AIInsightsPanel() {
-    const { isPro, isAuthenticated } = useAuth();
+    const { isPro, isDeveloper, isAuthenticated } = useAuth();
+    const hasAccess = isPro || isDeveloper; // Developers get free access
     const [preferences, setPreferences] = useState<UserPreferences>({
         state: null,
         sales_tax_rate: null,
@@ -159,7 +160,7 @@ export default function AIInsightsPanel() {
         );
     }
 
-    if (!isPro) {
+    if (!hasAccess) {
         return (
             <div className="text-center py-12">
                 <div className="text-5xl mb-4">🧠</div>

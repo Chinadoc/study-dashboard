@@ -46,26 +46,15 @@ const ADD_ONS: AddOn[] = [
         yearlyPrice: 30,
         features: ['20+ keyway profiles', 'Progressive cutting', 'MACS validation'],
         color: 'from-green-500 to-green-600'
-    },
-    {
-        id: 'business',
-        name: 'Business Tools',
-        emoji: '💼',
-        description: 'Complete business management suite',
-        monthlyPrice: 10,
-        yearlyPrice: 60,
-        features: ['Job logging & CRM', 'Inventory tracking', 'Invoice generation'],
-        color: 'from-amber-500 to-amber-600'
     }
 ];
 
 const PRO_FEATURES = [
-    { emoji: '📚', text: 'Unlimited access to 230+ technical dossiers' },
-    { emoji: '📷', text: 'Full image gallery with 1800+ technical diagrams' },
-    { emoji: '🔧', text: 'All vehicle page images unlocked' },
-    { emoji: '🔑', text: 'Bitting calculator with 20+ keyways' },
-    { emoji: '💼', text: 'Business tools suite' },
-    { emoji: '👥', text: 'Share credentials with your team' },
+    { emoji: '💼', text: 'Full Business Suite: Job logging, CRM & invoices' },
+    { emoji: '📦', text: 'Inventory management & tracking' },
+    { emoji: '🔍', text: 'Vehicle database access' },
+    { emoji: '📊', text: 'Basic business analytics' },
+    { emoji: '👥', text: 'Share credentials with your team (up to 3)' },
     { emoji: '⚡', text: 'Early access to new features' },
     { emoji: '🎯', text: 'Priority support' },
 ];
@@ -258,23 +247,34 @@ export default function PricingClient() {
                     </button>
 
                     {showAddOns && (
-                        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {ADD_ONS.map((addon) => (
-                                <div
-                                    key={addon.id}
-                                    className="rounded-xl border border-zinc-700 bg-zinc-800/50 p-4 text-left"
-                                >
-                                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${addon.color} flex items-center justify-center text-lg mb-3`}>
-                                        {addon.emoji}
+                        <div className="mt-8">
+                            <p className="text-center text-zinc-400 text-sm mb-4">
+                                <span className="text-green-400 font-semibold">✓ 7-day free trial</span> on each add-on (once every 6 months)
+                            </p>
+                            <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                                {ADD_ONS.map((addon) => (
+                                    <div
+                                        key={addon.id}
+                                        className="relative rounded-xl border border-zinc-700 bg-zinc-800/50 p-4 text-left"
+                                    >
+                                        <span className="absolute top-2 right-2 text-[10px] bg-green-600/80 text-white px-2 py-0.5 rounded">
+                                            7-day trial
+                                        </span>
+                                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${addon.color} flex items-center justify-center text-lg mb-3`}>
+                                            {addon.emoji}
+                                        </div>
+                                        <h4 className="font-semibold mb-1">{addon.name}</h4>
+                                        <p className="text-zinc-400 text-xs mb-2">{addon.description}</p>
+                                        <p className="text-sm">
+                                            <span className="font-bold">${addon.monthlyPrice}</span>
+                                            <span className="text-zinc-500">/mo</span>
+                                            <span className="text-zinc-600 mx-1">or</span>
+                                            <span className="font-bold">${addon.yearlyPrice}</span>
+                                            <span className="text-zinc-500">/yr</span>
+                                        </p>
                                     </div>
-                                    <h4 className="font-semibold mb-1">{addon.name}</h4>
-                                    <p className="text-zinc-400 text-xs mb-2">{addon.description}</p>
-                                    <p className="text-sm">
-                                        <span className="font-bold">${addon.monthlyPrice}</span>
-                                        <span className="text-zinc-500">/mo</span>
-                                    </p>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>

@@ -1225,12 +1225,13 @@ export default {
 
           const userId = payload.sub as string;
 
-          // Check if user has AI Insights subscription (is_pro for now)
+          // Check if user has AI Insights subscription (is_pro or is_developer)
           const userCheck = await env.LOCKSMITH_DB.prepare(
-            "SELECT is_pro FROM users WHERE id = ?"
+            "SELECT is_pro, is_developer FROM users WHERE id = ?"
           ).bind(userId).first<any>();
 
-          if (!userCheck?.is_pro) {
+          const hasAccess = userCheck?.is_pro || userCheck?.is_developer;
+          if (!hasAccess) {
             return corsResponse(request, JSON.stringify({
               error: "AI Insights subscription required",
               upgrade_url: "/pricing"

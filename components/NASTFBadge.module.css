@@ -1,0 +1,63 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    vertical-align: middle;
+}
+
+.shield {
+    display: inline-block;
+}
+
+.vspText {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 6px;
+    font-weight: 900;
+    fill: #1a1a1a;
+    letter-spacing: -0.5px;
+}
+
+.label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #B8860B;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Size variants */
+.sm .shield {
+    width: 16px;
+    height: 16px;
+}
+
+.md .shield {
+    width: 24px;
+    height: 24px;
+}
+
+.md .vspText {
+    font-size: 7px;
+}
+
+.md .label {
+    font-size: 12px;
+}
+
+.lg .shield {
+    width: 32px;
+    height: 32px;
+}
+
+.lg .vspText {
+    font-size: 8px;
+}
+
+.lg .label {
+    font-size: 14px;
+}
+
+/* Glow effect on hover */
+.badge:hover .shield {
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.6));
+}

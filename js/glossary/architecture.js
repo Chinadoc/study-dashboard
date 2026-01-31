@@ -74,6 +74,41 @@ const GLOSSARY_ARCHITECTURE = {
         vehicles: ["2019+ Camry", "2019+ RAV4", "2020+ Highlander", "2019+ Lexus ES/RX"],
         criticalNotes: "AKL requires bypass cable/emulator and longer calculation times. Some models are restricted/dealer-only.",
         related: ["8a_ba", "tnga", "toyota_h_system"]
+    },
+
+    // Ford / Lincoln Architecture Systems
+    "ford_pats_2": {
+        term: "Ford PATS 2",
+        category: "architecture",
+        definition: "Ford Passive Anti-Theft System Gen 2 (2004-2010). Uses 40-bit 4D-63 transponder. Fully clonable via sniffing.",
+        vehicles: ["2004-2010 F-150", "2005-2010 Mustang", "2004-2010 Explorer"],
+        related: ["4d_63_40", "ford_pats_3"]
+    },
+    "ford_pats_3": {
+        term: "Ford PATS 3",
+        category: "architecture",
+        definition: "Ford Passive Anti-Theft System Gen 3 (2011-2014). Uses 80-bit 4D-63 DST transponder. NOT clonable - OBD programming required.",
+        vehicles: ["2011-2014 F-150", "2011-2014 Mustang", "2011-2014 Explorer"],
+        criticalNotes: "No clone method. OBD Add Key works. 10-minute security delay on some models.",
+        related: ["4d_63_80", "ford_pats_2", "ford_pats_4"]
+    },
+    "ford_pats_4": {
+        term: "Ford PATS 4 (Hitag Pro)",
+        category: "architecture",
+        definition: "Ford Passive Anti-Theft System Gen 4 (2015+). Uses 128-bit ID49 Hitag Pro chip. Smart key era. NOT clonable.",
+        vehicles: ["2015+ F-150", "2015+ Mustang", "2017+ Super Duty", "2015+ Edge"],
+        criticalNotes: "10-minute security delay on Add Key. HU101 keyway. Some 2020+ have Security Gateway.",
+        related: ["id49", "ford_pats_3"]
+    },
+
+    // Honda / Acura Architecture Systems
+    "honda_smart": {
+        term: "Honda Smart Key",
+        category: "architecture",
+        definition: "Honda/Acura smart key system (2013+) using ID47 Hitag3 chips. Push-button start with proximity detection.",
+        vehicles: ["2013+ Accord", "2015+ Civic", "2014+ CR-V", "2014+ MDX"],
+        criticalNotes: "NOT clonable. OBD Add Key required. Some 2020+ models have Anti-Clone protection.",
+        related: ["id47", "id4a"]
     }
 };
 

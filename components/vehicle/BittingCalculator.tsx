@@ -125,8 +125,17 @@ export default function BittingCalculator({
     keyway,
     lishi
 }: BittingCalculatorProps) {
-    // Parse depths to get max depth value
-    const maxDepth = typeof depths === 'number' ? depths : parseInt(String(depths)) || 4;
+    // Parse depths to get max depth value - handle both number and comma-separated string
+    const maxDepth = useMemo(() => {
+        if (typeof depths === 'number') return depths;
+        const depthStr = String(depths);
+        // Handle comma-separated like "1,2,3,4,5"
+        if (depthStr.includes(',')) {
+            const values = depthStr.split(',').map(d => parseInt(d.trim())).filter(n => !isNaN(n));
+            return Math.max(...values, 4);
+        }
+        return parseInt(depthStr) || 4;
+    }, [depths]);
 
     // Initialize position values
     const [positions, setPositions] = useState<number[]>(Array(spaces).fill(0));
