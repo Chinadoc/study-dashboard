@@ -653,7 +653,7 @@ export default {
               "mode": "subscription",
               "line_items[0][price]": env.STRIPE_PRICE_ID,
               "line_items[0][quantity]": "1",
-              "subscription_data[trial_period_days]": "3",
+              "subscription_data[trial_period_days]": "7",
               "success_url": `${origin}/pricing?success=true`,
               "cancel_url": `${origin}/pricing?canceled=true`,
               "metadata[user_id]": userId,

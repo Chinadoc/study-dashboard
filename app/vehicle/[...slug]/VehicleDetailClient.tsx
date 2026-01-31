@@ -859,6 +859,17 @@ export default function VehicleDetailClient() {
 
     return (
         <div className="container mx-auto px-4 py-6 max-w-7xl">
+            {/* Breadcrumb Navigation */}
+            <nav className="flex items-center gap-2 text-sm mb-4 text-zinc-400">
+                <a href="/browse" className="hover:text-purple-400 transition-colors">Browse</a>
+                <span className="text-zinc-600">›</span>
+                <a href={`/browse?make=${encodeURIComponent(make)}`} className="hover:text-purple-400 transition-colors">{make}</a>
+                <span className="text-zinc-600">›</span>
+                <a href={`/browse?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`} className="hover:text-purple-400 transition-colors">{model}</a>
+                <span className="text-zinc-600">›</span>
+                <span className="text-zinc-200">{year}</span>
+            </nav>
+
             {/* Header with title and badges */}
             <VehicleHeader
                 make={make}

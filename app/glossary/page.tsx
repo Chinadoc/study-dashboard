@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface GlossaryTerm {
     term: string;
@@ -183,10 +184,34 @@ const CATEGORIES = [
     { id: 'tool', label: 'Tools' }
 ];
 
-export default function GlossaryPage() {
+function GlossaryPageContent() {
+    const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedTerm, setSelectedTerm] = useState<GlossaryTerm | null>(null);
+
+    // Handle URL parameters
+    useEffect(() => {
+        const termParam = searchParams?.get('term');
+        const searchParam = searchParams?.get('search');
+
+        if (termParam) {
+            // Direct link to a term - find and select it
+            const foundTerm = GLOSSARY_TERMS.find(t =>
+                t.term.toLowerCase() === termParam.toLowerCase() ||
+                t.aliases.some(a => a.toLowerCase() === termParam.toLowerCase())
+            );
+            if (foundTerm) {
+                setSelectedTerm(foundTerm);
+            } else {
+                // Term not found - use as search query
+                setSearchQuery(termParam);
+            }
+        } else if (searchParam) {
+            // Search query from fallback navigation
+            setSearchQuery(searchParam);
+        }
+    }, [searchParams]);
 
     const filteredTerms = useMemo(() => {
         return GLOSSARY_TERMS.filter(term => {
@@ -241,8 +266,8 @@ export default function GlossaryPage() {
                                 key={cat.id}
                                 onClick={() => setSelectedCategory(cat.id)}
                                 className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${selectedCategory === cat.id
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                                    ? 'bg-purple-600 text-white'
+                                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
                                     }`}
                             >
                                 {cat.label}
@@ -409,5 +434,17 @@ export default function GlossaryPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function GlossaryPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+                <div className="text-purple-400 animate-pulse">Loading glossary...</div>
+            </div>
+        }>
+            <GlossaryPageContent />
+        </Suspense>
     );
 }

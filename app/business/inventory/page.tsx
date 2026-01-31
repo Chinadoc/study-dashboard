@@ -3,17 +3,18 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInventory } from '@/contexts/InventoryContext';
-import { getLowStockItems, TOOL_CATEGORIES, ToolType } from '@/lib/inventoryTypes';
+import { getLowStockItems, TOOL_CATEGORIES, ToolType, KEY_CATEGORIES, detectKeyCategory, KeyCategory } from '@/lib/inventoryTypes';
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
 import MiniHeatmap from '@/components/business/MiniHeatmap';
 import { API_BASE } from '@/lib/config';
 
-// FCC data for image lookups
+// FCC data for image lookups and key type detection
 interface FccData {
     fcc_id: string;
     image_url?: string;
+    product_type?: string;
 }
 
 // Click-to-expand key image thumbnail component
@@ -68,7 +69,7 @@ function KeyImageThumbnail({ imageUrl, itemKey }: { imageUrl?: string; itemKey: 
     );
 }
 
-// Click-to-expand vehicles popover component
+// Click-to-expand vehicles popover component with clickable links
 function VehiclesPopover({
     vehicles,
     maxVisible = 2
@@ -81,14 +82,64 @@ function VehiclesPopover({
     const visibleVehicles = vehicleList.slice(0, maxVisible);
     const hiddenCount = vehicleList.length - maxVisible;
 
+    // Convert vehicle string to browse URL, e.g. "2021 Toyota Camry" -> /browse/toyota/camry/2021
+    const getVehicleUrl = (vehicle: string): string | null => {
+        // Parse vehicle string - expect format like "2021 Toyota Camry" or "Toyota Camry 2021"
+        const parts = vehicle.split(/\s+/).filter(Boolean);
+        if (parts.length < 2) return null;
+
+        // Try to find year first
+        let year: string | null = null;
+        let make = '';
+        let model = '';
+
+        for (let i = 0; i < parts.length; i++) {
+            if (/^(19|20)\d{2}$/.test(parts[i])) {
+                year = parts[i];
+            }
+        }
+
+        // Extract make and model (excluding year)
+        const nonYearParts = parts.filter(p => !/^(19|20)\d{2}$/.test(p));
+        if (nonYearParts.length >= 1) make = nonYearParts[0];
+        if (nonYearParts.length >= 2) model = nonYearParts.slice(1).join('-');
+
+        if (make) {
+            const url = `/browse/${make.toLowerCase()}${model ? `/${model.toLowerCase()}` : ''}${year ? `/${year}` : ''}`;
+            return url;
+        }
+        return null;
+    };
+
     if (vehicleList.length === 0) {
         return <span className="text-zinc-500 text-sm italic">No vehicles</span>;
     }
 
+    const renderVehicleLink = (vehicle: string) => {
+        const url = getVehicleUrl(vehicle);
+        if (url) {
+            return (
+                <a
+                    href={url}
+                    className="text-yellow-400 hover:text-yellow-300 hover:underline transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {vehicle}
+                </a>
+            );
+        }
+        return vehicle;
+    };
+
     return (
         <div className="relative">
             <span className="text-sm text-gray-400">
-                {visibleVehicles.join(', ')}
+                {visibleVehicles.map((v, i) => (
+                    <span key={i}>
+                        {renderVehicleLink(v)}
+                        {i < visibleVehicles.length - 1 && ', '}
+                    </span>
+                ))}
                 {hiddenCount > 0 && (
                     <button
                         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
@@ -108,9 +159,20 @@ function VehiclesPopover({
                             <button onClick={() => setIsOpen(false)} className="text-zinc-500 hover:text-zinc-300 transition-colors text-lg leading-none">×</button>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            {vehicleList.map((v, i) => (
-                                <span key={i} className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-lg">{v}</span>
-                            ))}
+                            {vehicleList.map((v, i) => {
+                                const url = getVehicleUrl(v);
+                                return url ? (
+                                    <a
+                                        key={i}
+                                        href={url}
+                                        className="text-xs bg-zinc-800 text-yellow-400 hover:text-yellow-300 hover:bg-zinc-700 px-2 py-1 rounded-lg transition-colors"
+                                    >
+                                        {v}
+                                    </a>
+                                ) : (
+                                    <span key={i} className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-lg">{v}</span>
+                                );
+                            })}
                         </div>
                     </div>
                 </>
@@ -131,35 +193,36 @@ export default function InventoryPage() {
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [importError, setImportError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [fccImageMap, setFccImageMap] = useState<Map<string, string>>(new Map());
+    const [fccDataMap, setFccDataMap] = useState<Map<string, { imageUrl?: string; productType?: string }>>(new Map());
 
-    // Fetch FCC data for key images
+    // Fetch FCC data for key images and product types
     useEffect(() => {
-        async function fetchFccImages() {
+        async function fetchFccData() {
             try {
                 const res = await fetch(`${API_BASE}/api/fcc?limit=1000`);
                 const json = await res.json();
                 const rows: FccData[] = json.rows || [];
-                const map = new Map<string, string>();
+                const map = new Map<string, { imageUrl?: string; productType?: string }>();
                 rows.forEach(row => {
-                    if (row.image_url) {
-                        // Normalize FCC ID for matching
-                        const normalizedFcc = row.fcc_id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                        map.set(normalizedFcc, row.image_url);
-                    }
+                    // Normalize FCC ID for matching
+                    const normalizedFcc = row.fcc_id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                    map.set(normalizedFcc, {
+                        imageUrl: row.image_url,
+                        productType: row.product_type
+                    });
                 });
-                setFccImageMap(map);
+                setFccDataMap(map);
             } catch (err) {
-                console.error('Failed to fetch FCC images:', err);
+                console.error('Failed to fetch FCC data:', err);
             }
         }
-        fetchFccImages();
+        fetchFccData();
     }, []);
 
-    // Helper to get image URL for an inventory item
-    const getKeyImage = (itemKey: string): string | undefined => {
+    // Helper to get FCC data for an inventory item
+    const getFccData = (itemKey: string): { imageUrl?: string; productType?: string } | undefined => {
         const normalizedKey = itemKey.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-        return fccImageMap.get(normalizedKey);
+        return fccDataMap.get(normalizedKey);
     };
 
     // Export handler
@@ -396,7 +459,13 @@ export default function InventoryPage() {
                     <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
                         <div className="divide-y divide-gray-800">
                             {displayItems.map((item) => {
-                                const keyImage = item.type === 'key' ? getKeyImage(item.itemKey) : undefined;
+                                const fccData = item.type === 'key' ? getFccData(item.itemKey) : undefined;
+                                const keyImage = fccData?.imageUrl;
+                                // Detect key category for smart/prox/remote head distinction
+                                const keyCategory = item.type === 'key'
+                                    ? detectKeyCategory({ itemKey: item.itemKey, keyType: fccData?.productType })
+                                    : undefined;
+                                const categoryInfo = keyCategory ? KEY_CATEGORIES[keyCategory] : undefined;
                                 return (
                                     <div
                                         key={item.itemKey}
@@ -435,7 +504,7 @@ export default function InventoryPage() {
                                                     </button>
                                                 ) : (
                                                     <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 flex items-center justify-center">
-                                                        <span className="text-2xl">🔑</span>
+                                                        <span className="text-2xl">{categoryInfo?.icon || '🔑'}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -444,13 +513,19 @@ export default function InventoryPage() {
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
-                                                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded ${item.type === 'key'
+                                                    ? (keyCategory === 'smart_key' ? 'bg-purple-500/20 text-purple-400' :
+                                                        keyCategory === 'remote_head' ? 'bg-blue-500/20 text-blue-400' :
+                                                            keyCategory === 'transponder' ? 'bg-green-500/20 text-green-400' :
+                                                                keyCategory === 'remote_only' ? 'bg-cyan-500/20 text-cyan-400' :
+                                                                    'bg-yellow-500/20 text-yellow-400') :
                                                     item.type === 'blank' ? 'bg-blue-500/20 text-blue-400' :
                                                         item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
                                                             'bg-green-500/20 text-green-400'
                                                     }`}>
-                                                    {item.type === 'key' ? '🔑 Key' :
-                                                        item.type === 'blank' ? '🔧 Blank' :
+                                                    {item.type === 'key'
+                                                        ? `${categoryInfo?.icon || '🔑'} ${categoryInfo?.label || 'Key'}`
+                                                        : item.type === 'blank' ? '🔧 Blank' :
                                                             item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
                                                                 '📦 Supply'}
                                                 </span>

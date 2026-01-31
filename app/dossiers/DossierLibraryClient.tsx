@@ -95,6 +95,7 @@ export default function DossierLibraryClient() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedMake, setSelectedMake] = useState('All Makes');
   const [expandedDossier, setExpandedDossier] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const dossiers = dossierManifest as Dossier[];
 
@@ -543,7 +544,8 @@ export default function DossierLibraryClient() {
                       <div
                         key={dossier.id}
                         className="dossier-card"
-                        style={isLocked ? { opacity: 0.5, filter: 'blur(2px)', pointerEvents: 'none' } : {}}
+                        style={isLocked ? { opacity: 0.5, filter: 'blur(2px)', cursor: 'pointer' } : {}}
+                        onClick={() => isLocked && setShowUpgradeModal(true)}
                       >
                         <div className="card-header">
                           <h3 className="card-title">
@@ -629,6 +631,49 @@ export default function DossierLibraryClient() {
             </div>
           )}
         </>
+      )}
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            zIndex: 9999
+          }}
+          onClick={() => setShowUpgradeModal(false)}
+        >
+          <div style={{ maxWidth: '420px', width: '100%' }} onClick={e => e.stopPropagation()}>
+            <UpgradePrompt
+              itemType="dossiers"
+              message="Unlock All Technical Dossiers"
+              remainingCount={filteredDossiers.length - FREE_DOSSIER_LIMIT}
+            />
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              style={{
+                width: '100%',
+                marginTop: '0.75rem',
+                padding: '0.75rem',
+                background: '#333',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#888',
+                cursor: 'pointer'
+              }}
+            >
+              Maybe Later
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

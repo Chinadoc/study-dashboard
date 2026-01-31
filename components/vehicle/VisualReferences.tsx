@@ -29,6 +29,7 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
     const { isPro } = useAuth();
     const [modalImage, setModalImage] = useState<ImageReference | null>(null);
     const [showAll, setShowAll] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
     if (!images || images.length === 0) {
         return (
@@ -69,8 +70,8 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
                     return (
                         <div
                             key={`img-${index}-${img.filename || img.r2_key || 'unknown'}`}
-                            className={`bg-zinc-800/50 rounded-xl overflow-hidden border border-zinc-700/50 transition-all ${isLocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-purple-500/50 cursor-pointer'}`}
-                            onClick={() => !isLocked && setModalImage(img)}
+                            className={`bg-zinc-800/50 rounded-xl overflow-hidden border border-zinc-700/50 transition-all ${isLocked ? 'opacity-50 cursor-pointer' : 'hover:border-purple-500/50 cursor-pointer'}`}
+                            onClick={() => isLocked ? setShowUpgradeModal(true) : setModalImage(img)}
                             style={isLocked ? { filter: 'blur(3px)' } : {}}
                         >
                             <div className="relative h-44 bg-zinc-900">
@@ -182,6 +183,29 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
                                 </span>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Upgrade Modal */}
+            {showUpgradeModal && (
+                <div
+                    className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/90 flex items-center justify-center p-4"
+                    style={{ zIndex: 9999 }}
+                    onClick={() => setShowUpgradeModal(false)}
+                >
+                    <div className="max-w-md w-full" onClick={e => e.stopPropagation()}>
+                        <UpgradePrompt
+                            itemType="images"
+                            message="Unlock All Vehicle Images"
+                            remainingCount={images.length - FREE_VEHICLE_IMAGE_LIMIT}
+                        />
+                        <button
+                            onClick={() => setShowUpgradeModal(false)}
+                            className="w-full mt-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-lg transition-colors"
+                        >
+                            Maybe Later
+                        </button>
                     </div>
                 </div>
             )}

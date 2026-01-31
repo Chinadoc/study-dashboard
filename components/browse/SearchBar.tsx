@@ -150,13 +150,25 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     });
                 }
 
+                // Search glossary terms FIRST (higher priority for locksmith-specific terms)
+                const glossaryMatches = searchGlossaryTerms(lowerQuery);
+                for (const term of glossaryMatches) {
+                    suggestions.push({
+                        type: 'glossary',
+                        make: term.makes[0] || 'General',
+                        display: `${term.term}: ${term.display_name}`,
+                        glossaryTerm: term.term,
+                        subtitle: term.description
+                    });
+                }
+
                 // Filter makes locally (fallback if smart parsing didn't match)
                 const matchingMakes = allMakes
                     .filter(make => make.toLowerCase().includes(lowerQuery))
                     .slice(0, 5);
 
                 // Only add make suggestions if smart parsing didn't find anything
-                if (suggestions.length === 0) {
+                if (suggestions.filter(s => s.type !== 'glossary').length === 0) {
                     matchingMakes.forEach(make => {
                         suggestions.push({
                             type: 'make',
@@ -209,17 +221,7 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     }
                 }
 
-                // Search glossary terms (technical terms like CAS3, BDC, MQB)
-                const glossaryMatches = searchGlossaryTerms(lowerQuery);
-                for (const term of glossaryMatches) {
-                    suggestions.push({
-                        type: 'glossary',
-                        make: term.makes[0] || 'General',
-                        display: `${term.term}: ${term.display_name}`,
-                        glossaryTerm: term.term,
-                        subtitle: term.description
-                    });
-                }
+                // Glossary terms already added at higher priority above
 
                 // Deduplicate
                 const uniqueSuggestions = suggestions.filter((item, index, self) =>
@@ -281,8 +283,12 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
     const handleSubmit = () => {
         if (selectedIndex >= 0 && results[selectedIndex]) {
             handleSelect(results[selectedIndex]);
+        } else if (results.length > 0) {
+            // Auto-select first result if user hits Enter without selecting
+            handleSelect(results[0]);
         } else if (query.trim()) {
-            onSearch(query);
+            // No results - navigate to glossary page with search query
+            window.location.href = `/glossary?search=${encodeURIComponent(query.trim())}`;
             setShowDropdown(false);
         }
     };
