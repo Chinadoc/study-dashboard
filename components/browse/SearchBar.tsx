@@ -9,12 +9,12 @@ import { trackSearch } from '@/lib/analytics';
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 const R2_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
 
-// Get vehicle model image URL from R2
+// Get vehicle model thumbnail URL from R2 (optimized 200x200px images)
 const getVehicleImageUrl = (make: string, model?: string): string | null => {
     if (!model) return null;
     const makeLower = make.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
     const modelLower = model.toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
-    return `${R2_BASE}/vehicles/${makeLower}/${makeLower}_${modelLower}.png`;
+    return `${R2_BASE}/vehicles_thumb/${makeLower}/${makeLower}_${modelLower}.png`;
 };
 
 
