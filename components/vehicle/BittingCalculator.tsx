@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 
 interface BittingCalculatorProps {
     isOpen: boolean;
@@ -165,16 +166,19 @@ export default function BittingCalculator({
 
     if (!isOpen) return null;
 
-    return (
+    // Use portal to render modal at body level, above all other elements
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
         <>
-            {/* Backdrop */}
+            {/* Backdrop - highest z-index to ensure it's above everything */}
             <div
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999]"
                 onClick={onClose}
             />
 
-            {/* Modal */}
-            <div className="fixed inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal - also highest z-index, full screen on mobile */}
+            <div className="fixed inset-0 sm:inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl bg-zinc-900 border-0 sm:border sm:border-zinc-700 sm:rounded-2xl shadow-2xl z-[9999] overflow-hidden flex flex-col md:max-h-[90vh]">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 bg-gradient-to-r from-purple-900/30 to-zinc-900">
                     <div className="flex items-center gap-3">
@@ -221,14 +225,14 @@ export default function BittingCalculator({
                         <label className="text-xs text-zinc-400 uppercase tracking-wider mb-2 block">
                             Enter Full Key Code (or enter partial depths below)
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <input
                                 type="text"
                                 value={keyCode}
                                 onChange={(e) => setKeyCode(e.target.value.toUpperCase())}
                                 onKeyDown={(e) => e.key === 'Enter' && handleCodeInput()}
                                 placeholder={`e.g., ${codeSeries.split('-')[0]}1234`}
-                                className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 font-mono text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                className="flex-1 min-w-[150px] bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 font-mono text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             />
                             <button
                                 onClick={handleCodeInput}
@@ -247,17 +251,17 @@ export default function BittingCalculator({
 
                     {/* Position Grid */}
                     <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                             <div>
                                 <label className="text-xs text-zinc-400 uppercase tracking-wider">
                                     Position Depths
                                 </label>
                                 <p className="text-[10px] text-zinc-500 mt-0.5">
-                                    Enter depths from picking. Leave blank (0) for unknown positions.
+                                    Enter known depths. Leave blank for unknown.
                                 </p>
                             </div>
                             {lishi && (
-                                <span className="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded-full">
+                                <span className="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded-full w-fit">
                                     🔓 Lishi: {lishi}
                                 </span>
                             )}
@@ -275,7 +279,7 @@ export default function BittingCalculator({
                                         value={depth || ''}
                                         onChange={(e) => handlePositionChange(index, parseInt(e.target.value) || 0)}
                                         placeholder="?"
-                                        className={`w-12 h-12 text-center font-mono font-bold text-xl rounded-lg border-2 transition-all focus:outline-none focus:ring-2 ${macsViolations.includes(index)
+                                        className={`w-10 h-10 sm:w-12 sm:h-12 text-center font-mono font-bold text-lg sm:text-xl rounded-lg border-2 transition-all focus:outline-none focus:ring-2 ${macsViolations.includes(index)
                                                 ? 'bg-red-900/50 border-red-500 text-red-300 focus:ring-red-500'
                                                 : depth > 0
                                                     ? 'bg-purple-900/30 border-purple-500 text-white focus:ring-purple-500'
@@ -289,18 +293,18 @@ export default function BittingCalculator({
                                                 ? 'text-amber-500'
                                                 : 'text-zinc-500'
                                         }`}>
-                                        {index + 1}{depth === 0 && ' ?'}
+                                        {index + 1}{depth === 0 && '?'}
                                     </span>
                                 </div>
                             ))}
                         </div>
 
                         {/* Visual depth representation */}
-                        <div className="mt-4 flex justify-center gap-1 h-16">
+                        <div className="mt-4 flex justify-center gap-1 h-12 sm:h-16">
                             {positions.map((depth, index) => (
                                 <div
                                     key={index}
-                                    className="relative w-6 flex flex-col justify-end"
+                                    className="relative w-4 sm:w-6 flex flex-col justify-end"
                                 >
                                     <div
                                         className={`rounded-t transition-all duration-200 ${macsViolations.includes(index)
@@ -315,16 +319,16 @@ export default function BittingCalculator({
                                         }}
                                     >
                                         {depth === 0 && (
-                                            <span className="absolute inset-0 flex items-center justify-center text-amber-500 text-[10px]">?</span>
+                                            <span className="absolute inset-0 flex items-center justify-center text-amber-500 text-[8px] sm:text-[10px]">?</span>
                                         )}
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Status bar */}
-                        <div className="mt-3 flex items-center justify-between text-xs">
-                            <span className="text-zinc-400">
+                        {/* Status bar with Find button */}
+                        <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                            <span className="text-xs text-zinc-400">
                                 <span className="text-purple-400 font-bold">{knownPositions.length}</span> known,
                                 <span className="text-amber-400 font-bold ml-1">{unknownPositions.length}</span> unknown
                             </span>
@@ -332,9 +336,9 @@ export default function BittingCalculator({
                                 <button
                                     onClick={findMatchingCodes}
                                     disabled={isSearching}
-                                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+                                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 text-white font-semibold rounded-lg transition-all flex items-center gap-2 w-full sm:w-auto justify-center"
                                 >
-                                    {isSearching ? '⏳' : '🔍'} Find Matching Codes
+                                    {isSearching ? '⏳ Searching...' : '🔍 Find Matching Codes'}
                                 </button>
                             )}
                         </div>
@@ -374,7 +378,7 @@ export default function BittingCalculator({
                             )}
 
                             {matchingCodes.length === 50 && (
-                                <p className="text-xs text-amber-500 mt-2">Showing first 50 results. Enter more depths to narrow down.</p>
+                                <p className="text-xs text-amber-500 mt-2">Showing first 50. Enter more depths to narrow down.</p>
                             )}
                         </div>
                     )}
@@ -388,10 +392,10 @@ export default function BittingCalculator({
                             <span className="text-lg">
                                 {macsViolations.length > 0 ? '⚠️' : '✓'}
                             </span>
-                            <span className={macsViolations.length > 0 ? 'text-red-300' : 'text-green-300'}>
+                            <span className={`text-sm ${macsViolations.length > 0 ? 'text-red-300' : 'text-green-300'}`}>
                                 {macsViolations.length > 0
-                                    ? `MACS Violation! Adjacent cuts differ by more than ${macs}`
-                                    : `All known cuts within MACS specification (max ${macs})`
+                                    ? `MACS Violation! Adjacent cuts exceed ${macs}`
+                                    : `MACS OK (max ${macs})`
                                 }
                             </span>
                         </div>
@@ -406,27 +410,27 @@ export default function BittingCalculator({
                     <div className="text-xs text-zinc-500 bg-zinc-800/40 p-3 rounded-lg">
                         <p className="font-semibold text-zinc-400 mb-1">💡 Quick Reference</p>
                         <ul className="space-y-1">
-                            <li>• <strong>Depths 1-{maxDepth}</strong>: 1 is shallowest cut, {maxDepth} is deepest</li>
-                            <li>• <strong>MACS {macs}</strong>: Maximum allowed difference between adjacent cuts</li>
-                            <li>• <strong>Unknown positions</strong>: Leave blank - click "Find Matching Codes" to see valid completions</li>
-                            <li>• Door locks often give positions 2-8; position 1 may need lookup</li>
+                            <li>• <strong>Depths 1-{maxDepth}</strong>: 1 = shallow, {maxDepth} = deep</li>
+                            <li>• <strong>MACS {macs}</strong>: Max difference between adjacent cuts</li>
+                            <li>• Leave unknown positions blank, then click "Find Matching Codes"</li>
                         </ul>
                     </div>
                 </div>
 
                 {/* Footer */}
                 <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-900 flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-zinc-500 hidden sm:inline">
                         Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">Esc</kbd> to close
                     </span>
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-all"
+                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-all w-full sm:w-auto"
                     >
                         Close
                     </button>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     );
 }
