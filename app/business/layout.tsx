@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useJobLogs } from '@/lib/useJobLogs';
 
 const BUSINESS_TABS = [
     { id: 'inventory', label: 'Inventory', href: '/business/inventory', icon: '📦' },
@@ -10,8 +11,28 @@ const BUSINESS_TABS = [
     { id: 'tools', label: 'Tools', href: '/business/tools', icon: '🛠️' },
 ];
 
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export default function BusinessLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const { jobLogs, getJobStats } = useJobLogs();
+    const stats = getJobStats();
+
+    // Calculate current month's daily activity for mini calendar
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    const daysWithJobs = useMemo(() => {
+        const days = new Set<number>();
+        jobLogs.forEach(job => {
+            const jobDate = new Date(job.date);
+            if (jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear) {
+                days.add(jobDate.getDate());
+            }
+        });
+        return days;
+    }, [jobLogs, currentMonth, currentYear]);
 
     // Determine active tab based on pathname
     const getActiveTab = () => {
@@ -40,6 +61,54 @@ export default function BusinessLayout({ children }: { children: React.ReactNode
                         >
                             🔔 Subscriptions
                         </Link>
+                    </div>
+
+                    {/* Monthly Stats Banner - Always Visible */}
+                    <div className="mb-4 p-3 bg-gradient-to-r from-zinc-900/80 to-zinc-800/50 rounded-xl border border-zinc-700/50">
+                        <div className="flex items-center justify-between gap-4 overflow-x-auto">
+                            {/* Mini Calendar */}
+                            <Link href="/business/jobs" className="flex-shrink-0 flex items-center gap-3 group">
+                                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/20 to-amber-600/10 rounded-lg border border-yellow-500/30 flex flex-col items-center justify-center group-hover:border-yellow-400/50 transition-colors">
+                                    <span className="text-[10px] uppercase text-yellow-500 font-bold">{MONTH_NAMES[currentMonth]}</span>
+                                    <span className="text-lg font-black text-white leading-none">{today.getDate()}</span>
+                                </div>
+                                <div className="hidden sm:block">
+                                    <div className="text-xs text-gray-500 uppercase">This Month</div>
+                                    <div className="text-sm font-bold text-white">{daysWithJobs.size} active days</div>
+                                </div>
+                            </Link>
+
+                            {/* Stats Row */}
+                            <div className="flex items-center gap-4 sm:gap-6">
+                                {/* Revenue */}
+                                <div className="text-center flex-shrink-0">
+                                    <div className="text-xs text-gray-500 uppercase tracking-wide">Revenue</div>
+                                    <div className="text-xl font-black text-green-400">${stats.thisMonthRevenue.toFixed(0)}</div>
+                                </div>
+
+                                {/* Profit */}
+                                <div className="text-center flex-shrink-0">
+                                    <div className="text-xs text-gray-500 uppercase tracking-wide">Profit</div>
+                                    <div className="text-xl font-black text-emerald-400">${stats.thisMonthProfit.toFixed(0)}</div>
+                                </div>
+
+                                {/* Jobs */}
+                                <div className="text-center flex-shrink-0">
+                                    <div className="text-xs text-gray-500 uppercase tracking-wide">Jobs</div>
+                                    <div className="text-xl font-black text-yellow-400">{stats.thisMonthJobs}</div>
+                                </div>
+
+                                {/* Pending Badge */}
+                                {stats.pendingJobs > 0 && (
+                                    <Link href="/business/jobs" className="flex-shrink-0">
+                                        <div className="px-3 py-1.5 bg-orange-500/20 border border-orange-500/40 rounded-lg text-center hover:bg-orange-500/30 transition-colors">
+                                            <div className="text-xs text-orange-400 uppercase">Pending</div>
+                                            <div className="text-lg font-bold text-orange-300">{stats.pendingJobs}</div>
+                                        </div>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Main Tab Navigation */}
