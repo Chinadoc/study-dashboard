@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { loadBusinessProfile, saveBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
-import CoverageMap from '@/components/business/CoverageMap';
+import MiniHeatmap from '@/components/business/MiniHeatmap';
 
 type ToolsSubTab = 'mytools' | 'coverage' | 'add';
 
@@ -100,7 +100,9 @@ export default function ToolsPage() {
 
             {/* Coverage View */}
             {activeSubTab === 'coverage' && (
-                <CoverageMap />
+                <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+                    <MiniHeatmap title="🛠️ Tool Coverage Map" maxTiles={60} />
+                </div>
             )}
 
             {/* Add Tool View */}

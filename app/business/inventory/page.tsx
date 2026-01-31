@@ -7,7 +7,7 @@ import { getLowStockItems, TOOL_CATEGORIES, ToolType } from '@/lib/inventoryType
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
-import CoverageMap from '@/components/business/CoverageMap';
+import MiniHeatmap from '@/components/business/MiniHeatmap';
 import { API_BASE } from '@/lib/config';
 
 // FCC data for image lookups
@@ -383,12 +383,8 @@ export default function InventoryPage() {
             {activeSubTab === 'coverage' ? (
                 <div className="space-y-4">
                     <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                        <h3 className="font-bold text-lg mb-2">🗺️ Inventory Coverage Map</h3>
-                        <p className="text-sm text-gray-400">
-                            See which vehicles you can service based on your current key/tool inventory and programming tools.
-                        </p>
+                        <MiniHeatmap title="🗺️ Key Inventory Coverage" maxTiles={50} />
                     </div>
-                    <CoverageMap />
                 </div>
             ) : (
                 /* Inventory List */
