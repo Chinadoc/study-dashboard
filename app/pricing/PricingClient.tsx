@@ -260,7 +260,7 @@ export default function PricingClient() {
                             <p className="text-center text-zinc-400 text-sm mb-4">
                                 <span className="text-green-400 font-semibold">✓ 7-day free trial</span> on each add-on (once every 6 months)
                             </p>
-                            <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {ADD_ONS.map((addon) => (
                                     <div
                                         key={addon.id}
