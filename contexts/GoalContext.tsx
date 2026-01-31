@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
+import { JobLog, getJobLogsFromStorage } from '@/lib/useJobLogs';
 
 // ============================================================================
 // Types
@@ -9,16 +10,14 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 export interface ProfitGoal {
     month: string; // Format: "2026-01"
     target: number;
-    achieved: number;
     createdAt: number;
 }
 
 interface GoalContextType {
-    currentGoal: ProfitGoal | null;
+    currentGoal: (ProfitGoal & { achieved: number }) | null;
     goals: ProfitGoal[];
     // Actions
     setMonthlyGoal: (target: number) => void;
-    updateAchieved: (amount: number) => void;
     getGoalForMonth: (month: string) => ProfitGoal | null;
     // Derived
     progressPercent: number;
@@ -29,7 +28,7 @@ interface GoalContextType {
 // Constants
 // ============================================================================
 
-const GOALS_STORAGE_KEY = 'eurokeys_profit_goals';
+const GOALS_STORAGE_KEY = 'eurokeys_profit_goals_v2';
 
 // ============================================================================
 // Context
@@ -60,21 +59,56 @@ function saveGoalsToStorage(goals: ProfitGoal[]) {
     localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
 }
 
+// Calculate revenue from jobs for a given month
+function calculateMonthRevenue(jobs: JobLog[], month: string): number {
+    return jobs.reduce((sum, job) => {
+        const jobMonth = job.date.slice(0, 7); // "2026-01"
+        if (jobMonth === month) {
+            return sum + (job.price || 0);
+        }
+        return sum;
+    }, 0);
+}
+
 // ============================================================================
 // Provider
 // ============================================================================
 
 export function GoalProvider({ children }: { children: ReactNode }) {
     const [goals, setGoals] = useState<ProfitGoal[]>([]);
+    const [jobLogs, setJobLogs] = useState<JobLog[]>([]);
     const currentMonth = getCurrentMonth();
 
-    // Load from storage on mount
+    // Load from storage on mount and listen for changes
     useEffect(() => {
         setGoals(getGoalsFromStorage());
+        setJobLogs(getJobLogsFromStorage());
+
+        // Listen for storage changes to update job logs
+        const handleStorage = () => {
+            setJobLogs(getJobLogsFromStorage());
+        };
+        window.addEventListener('storage', handleStorage);
+
+        // Poll for changes every 2 seconds to catch same-tab updates
+        const interval = setInterval(() => {
+            setJobLogs(getJobLogsFromStorage());
+        }, 2000);
+
+        return () => {
+            window.removeEventListener('storage', handleStorage);
+            clearInterval(interval);
+        };
     }, []);
 
-    // Get current month's goal
-    const currentGoal = goals.find(g => g.month === currentMonth) || null;
+    // Calculate current month's achieved revenue from actual jobs
+    const currentMonthRevenue = useMemo(() => {
+        return calculateMonthRevenue(jobLogs, currentMonth);
+    }, [jobLogs, currentMonth]);
+
+    // Get current month's goal with calculated achieved
+    const goalData = goals.find(g => g.month === currentMonth);
+    const currentGoal = goalData ? { ...goalData, achieved: currentMonthRevenue } : null;
 
     // Set/update goal for current month
     const setMonthlyGoal = useCallback((target: number) => {
@@ -94,27 +128,9 @@ export function GoalProvider({ children }: { children: ReactNode }) {
                 updated = [...prev, {
                     month: currentMonth,
                     target,
-                    achieved: 0,
                     createdAt: Date.now(),
                 }];
             }
-
-            saveGoalsToStorage(updated);
-            return updated;
-        });
-    }, [currentMonth]);
-
-    // Update achieved amount (add to it)
-    const updateAchieved = useCallback((amount: number) => {
-        setGoals(prev => {
-            const existingIndex = prev.findIndex(g => g.month === currentMonth);
-            if (existingIndex < 0) return prev;
-
-            const updated = [...prev];
-            updated[existingIndex] = {
-                ...updated[existingIndex],
-                achieved: updated[existingIndex].achieved + amount,
-            };
 
             saveGoalsToStorage(updated);
             return updated;
@@ -146,7 +162,6 @@ export function GoalProvider({ children }: { children: ReactNode }) {
             currentGoal,
             goals,
             setMonthlyGoal,
-            updateAchieved,
             getGoalForMonth,
             progressPercent,
             isOnTrack,
@@ -167,3 +182,4 @@ export function useGoals() {
     }
     return context;
 }
+

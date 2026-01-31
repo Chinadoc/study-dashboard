@@ -192,12 +192,17 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
                                 `}
                             >
                                 <span className={`text-sm font-medium ${isToday ? 'font-bold' : ''}`}>{day}</span>
-                                {dayJobs.length > 0 && (
-                                    <div className="flex gap-0.5 mt-1">
-                                        {hasCompleted && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
-                                        {hasPending && <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />}
-                                    </div>
-                                )}
+                                {dayJobs.length > 0 && (() => {
+                                    const dayRevenue = dayJobs.reduce((sum, j) => sum + j.price, 0);
+                                    // Scale dot size based on revenue: small < $100, medium $100-$300, large $300+
+                                    const dotSize = dayRevenue < 100 ? 'w-2 h-2' : dayRevenue < 300 ? 'w-3 h-3' : 'w-4 h-4';
+                                    const dotColor = hasCompleted ? 'bg-green-500' : 'bg-yellow-500';
+                                    return (
+                                        <div className={`${dotSize} rounded-full ${dotColor} flex items-center justify-center mt-0.5`}>
+                                            {dayRevenue >= 300 && <span className="text-[6px] font-bold text-black">{Math.round(dayRevenue / 100)}</span>}
+                                        </div>
+                                    );
+                                })()}
                             </button>
                         );
                     })}
