@@ -15,8 +15,10 @@ const EUROKEYS_GLOSSARY = {
     ...(typeof GLOSSARY_PROCEDURE !== 'undefined' ? GLOSSARY_PROCEDURE : {}),
     ...(typeof GLOSSARY_TOOL !== 'undefined' ? GLOSSARY_TOOL : {}),
     ...(typeof GLOSSARY_KEY_TYPE !== 'undefined' ? GLOSSARY_KEY_TYPE : {}),
-    ...(typeof GLOSSARY_FIELD !== 'undefined' ? GLOSSARY_FIELD : {})
+    ...(typeof GLOSSARY_FIELD !== 'undefined' ? GLOSSARY_FIELD : {}),
+    ...(typeof GLOSSARY_CHIPS !== 'undefined' ? GLOSSARY_CHIPS : {})
 };
+
 
 /**
  * Get glossary entry by key

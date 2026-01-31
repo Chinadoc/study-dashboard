@@ -45,6 +45,9 @@ export default function ImageGalleryClient() {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const minSwipeDistance = 50;
 
+  // Upgrade modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
   // Navigate to next/previous image
   const navigateImage = (direction: number) => {
     if (currentSourceImages.length <= 1) return;
@@ -651,11 +654,11 @@ export default function ImageGalleryClient() {
                     <div
                       key={image.id}
                       className="image-card"
-                      onClick={() => !isLocked && openImageInLightbox(image, sourceImages)}
+                      onClick={() => isLocked ? setShowUpgradeModal(true) : openImageInLightbox(image, sourceImages)}
                       style={isLocked ? {
                         opacity: 0.4,
                         filter: 'blur(3px)',
-                        cursor: 'not-allowed',
+                        cursor: 'pointer',
                         position: 'relative'
                       } : {}}
                     >
@@ -769,6 +772,71 @@ export default function ImageGalleryClient() {
           </div>
         </div>
       )}
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <div
+          className="upgrade-modal-overlay"
+          onClick={() => setShowUpgradeModal(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '420px',
+              width: '100%',
+              animation: 'slideUp 0.3s ease-out'
+            }}
+          >
+            <UpgradePrompt
+              itemType="images"
+              message="Unlock All Technical Images"
+            />
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              style={{
+                display: 'block',
+                width: '100%',
+                marginTop: '1rem',
+                padding: '0.75rem',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '8px',
+                color: '#888',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              Maybe Later
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

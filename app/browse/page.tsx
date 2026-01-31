@@ -26,6 +26,8 @@ function BrowsePageContent() {
     // Read initial selection from URL params
     const initialMake = searchParams?.get('make') ?? null;
     const initialModel = searchParams?.get('model') ?? null;
+    const initialYear = searchParams?.get('year');
+    const initialPendingYear = initialYear ? parseInt(initialYear, 10) : null;
 
     // State
     const [makes, setMakes] = useState<string[]>([]);
@@ -35,6 +37,9 @@ function BrowsePageContent() {
     const [selectedMake, setSelectedMake] = useState<string | null>(initialMake);
     const [selectedModel, setSelectedModel] = useState<string | null>(initialModel);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+    // Pending year from search (e.g., "toyota 2008" stores 2008 to auto-select after model chosen)
+    const [pendingYear, setPendingYear] = useState<number | null>(initialPendingYear);
 
     const [loadingModels, setLoadingModels] = useState(false);
     const [loadingYears, setLoadingYears] = useState(false);
@@ -165,6 +170,15 @@ function BrowsePageContent() {
             return;
         }
 
+        // Handle make + year (e.g., "toyota 2008") - select make and store year for auto-selection
+        if (parsed.make && parsed.year && !parsed.model) {
+            setSelectedMake(parsed.make);
+            setSelectedModel(null);
+            setSelectedYear(null);
+            setPendingYear(parsed.year);
+            return;
+        }
+
         // If we have a make identified, check if remaining parts could be a model
         if (parsed.make) {
             const queryLower = query.toLowerCase();
@@ -252,6 +266,29 @@ function BrowsePageContent() {
         setSelectedMake(make);
         setSelectedModel(null);
         setSelectedYear(null);
+        setPendingYear(null); // Clear pending year when manually selecting a make
+    };
+
+    // Handle model selection with pending year auto-select
+    const handleModelSelect = async (model: string) => {
+        setSelectedModel(model);
+        setSelectedYear(null);
+
+        // If we have a pending year from search, check if it's valid and auto-select
+        if (pendingYear && selectedMake) {
+            try {
+                const res = await fetch(`${API_BASE}/api/vyp/years?make=${encodeURIComponent(selectedMake)}&model=${encodeURIComponent(model)}`);
+                const data = await res.json();
+                const validYears = (data.years || []).map((y: any) => typeof y === 'number' ? y : y.year).filter(Boolean) as number[];
+
+                if (validYears.includes(pendingYear)) {
+                    setSelectedYear(pendingYear);
+                }
+            } catch (error) {
+                console.error('Failed to validate pending year:', error);
+            }
+            setPendingYear(null); // Clear pending year after checking
+        }
     };
 
     return (
@@ -340,10 +377,7 @@ function BrowsePageContent() {
                                                     key={model.name}
                                                     label={model.display}
                                                     isSelected={selectedModel === model.name}
-                                                    onClick={() => {
-                                                        setSelectedModel(model.name);
-                                                        setSelectedYear(null);
-                                                    }}
+                                                    onClick={() => handleModelSelect(model.name)}
                                                 />
                                             ))}
                                         </>

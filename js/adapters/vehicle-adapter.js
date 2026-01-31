@@ -79,7 +79,57 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
     // Known invalid values: PK3/PEPS are immobilizer types, NOT architecture names
     const INVALID_GM_ARCHITECTURE = ['PK3', 'PK3+', 'PEPS', 'PK3/PEPS', 'PK3 / PK3+'];
 
+    // Toyota/Lexus chip-to-architecture fallback (used when glossary not loaded)
+    // Based on dossier research: 4D-67 is Dot System, not G-System
+    const TOYOTA_CHIP_ARCHITECTURE_FALLBACK = {
+        '4C': 'Toyota Fixed Code',
+        '4D-67': 'Toyota Dot System',      // 40-bit, 2002-2010
+        '4D-68': 'Toyota Dot System',      // 40-bit variant
+        '4D-72': 'Toyota G-System',        // 80-bit, 2010-2014
+        '8A-H': 'Toyota H-System',         // 128-bit AES, 2014-2019
+        '8A-BA': 'Toyota Smart (DST-AES)', // 128-bit, 2019+ TNGA
+        'DST': 'Toyota Smart (DST-AES)',
+        'DST-AES': 'Toyota Smart (DST-AES)'
+    };
+
     let architecture = config.architecture || walkthrough.platform;
+    const chipType = config.chip_type || walkthrough.chip_type || config.chip || walkthrough.chip;
+
+    // GLOSSARY-DRIVEN LOOKUP: Query curated chip database first
+    // This allows architecture to be derived from the glossary for ALL makes
+    if (chipType && typeof getArchitectureForChip === 'function') {
+        const glossaryArch = getArchitectureForChip(chipType);
+        if (glossaryArch) {
+            architecture = glossaryArch;
+        }
+    }
+
+    // FALLBACK for Toyota/Lexus when glossary not available
+    if (!architecture && (make === 'Toyota' || make === 'Lexus' || make === 'Scion')) {
+        if (chipType) {
+            // Normalize chip type for lookup (handle variations like "TEX 4D 67" -> "4D-67")
+            const normalizedChip = chipType.replace(/TEX\s*/i, '').replace(/\s+/g, '-').toUpperCase();
+            const chipArch = TOYOTA_CHIP_ARCHITECTURE_FALLBACK[normalizedChip] ||
+                TOYOTA_CHIP_ARCHITECTURE_FALLBACK[chipType.toUpperCase()];
+            if (chipArch) {
+                architecture = chipArch;
+            }
+        }
+        // Year-based fallback for Toyota
+        if (!architecture) {
+            if (year >= 2019) {
+                architecture = 'Toyota Smart (DST-AES)';
+            } else if (year >= 2014) {
+                architecture = 'Toyota H-System';
+            } else if (year >= 2010) {
+                architecture = 'Toyota G-System';
+            } else if (year >= 2002) {
+                architecture = 'Toyota Dot System';
+            } else {
+                architecture = 'Toyota Fixed Code';
+            }
+        }
+    }
 
     // Validate source architecture - ignore if it contains invalid GM immobilizer names
     if (architecture && (make === 'Chevrolet' || make === 'GMC' || make === 'Cadillac' || make === 'Buick')) {
@@ -90,7 +140,7 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
         }
     }
 
-    // Derive architecture if not provided or invalid
+    // Derive architecture if not provided or invalid (generic fallback)
     if (!architecture) {
         if (make === 'Chevrolet' || make === 'GMC' || make === 'Cadillac' || make === 'Buick') {
             architecture = (year >= 2021) ? "Global B (VIP)" : "Global A";
@@ -102,6 +152,8 @@ function mapBrowseDataToDetail(walkthrough, config, vehicle) {
             architecture = "Standard Architecture";
         }
     }
+
+
 
     // Specification Resiliency
     const detail = {

@@ -16,7 +16,7 @@ export default function JobsPage() {
     const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
     const [invoiceJob, setInvoiceJob] = useState<JobLog | undefined>(undefined);
 
-    const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats } = useJobLogs();
+    const { jobLogs, addJobLog, updateJobLog, deleteJobLog, getJobStats, getRecentCustomers } = useJobLogs();
     const stats = getJobStats();
 
     // Filter jobs based on subtab
@@ -145,6 +145,7 @@ export default function JobsPage() {
                     isOpen={jobModalOpen}
                     onClose={() => setJobModalOpen(false)}
                     onSubmit={handleJobSubmit}
+                    recentCustomers={getRecentCustomers()}
                 />
             )}
 

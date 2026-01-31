@@ -9,6 +9,7 @@ import BusinessAlerts from '@/components/business/BusinessAlerts';
 const BUSINESS_TABS = [
     { id: 'inventory', label: 'Inventory', href: '/business/inventory', icon: '📦' },
     { id: 'jobs', label: 'Jobs', href: '/business/jobs', icon: '📝' },
+    { id: 'accounting', label: 'Accounting', href: '/business/accounting', icon: '💰' },
     { id: 'tools', label: 'Tools', href: '/business/tools', icon: '🛠️' },
     { id: 'subscriptions', label: 'Subscriptions', href: '/business/subscriptions', icon: '🔔' },
 ];

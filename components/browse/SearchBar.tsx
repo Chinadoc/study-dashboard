@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { parseVehicleQuery, generateSuggestions } from '@/lib/vehicle-search';
 import { trackSearch } from '@/lib/analytics';
+import { searchGlossaryTerms, GlossaryTerm } from '@/lib/glossaryUtils';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
 const R2_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev/api/r2';
@@ -19,11 +20,13 @@ const getVehicleImageUrl = (make: string, model?: string): string | null => {
 
 
 interface SearchResult {
-    type: 'make' | 'model' | 'vehicle';
+    type: 'make' | 'model' | 'vehicle' | 'glossary';
     make: string;
     model?: string;
     year?: number;
     display: string;
+    subtitle?: string; // Optional subtitle for additional context
+    glossaryTerm?: string; // For glossary type results
 }
 
 interface SearchBarProps {
@@ -135,6 +138,18 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                     }
                 }
 
+                // NEW: Handle make + year queries (e.g., "toyota 2008")
+                if (parsed.make && parsed.year && !parsed.model) {
+                    // Add a make+year suggestion at the top
+                    suggestions.unshift({
+                        type: 'make',
+                        make: parsed.make,
+                        year: parsed.year,
+                        display: `${parsed.year} ${parsed.make}`,
+                        subtitle: `View all ${parsed.year} models`
+                    });
+                }
+
                 // Filter makes locally (fallback if smart parsing didn't match)
                 const matchingMakes = allMakes
                     .filter(make => make.toLowerCase().includes(lowerQuery))
@@ -235,8 +250,9 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
         trackSearch(result.display, results.length);
 
         if (result.type === 'make') {
-            // Navigate to browse with make pre-selected
-            window.location.href = `/browse?make=${encodeURIComponent(result.make)}`;
+            // Navigate to browse with make pre-selected (and year if present)
+            const yearParam = result.year ? `&year=${result.year}` : '';
+            window.location.href = `/browse?make=${encodeURIComponent(result.make)}${yearParam}`;
         } else if (result.type === 'model' && result.model) {
             // Navigate to browse with make and model
             window.location.href = `/browse?make=${encodeURIComponent(result.make)}&model=${encodeURIComponent(result.model)}`;
@@ -387,7 +403,7 @@ export function SearchBar({ onSearch, placeholder = "Search by Year/Make/Model/V
                             <div className="flex-1">
                                 <div className="font-medium">{result.display}</div>
                                 <div className="text-xs text-gray-400">
-                                    {result.type === 'make' ? 'View all models' : result.type === 'model' ? 'View years' : 'View details'}
+                                    {result.subtitle || (result.type === 'make' ? 'View all models' : result.type === 'model' ? 'View years' : 'View details')}
                                 </div>
                             </div>
                             <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

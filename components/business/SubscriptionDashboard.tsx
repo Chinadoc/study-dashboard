@@ -46,10 +46,10 @@ export default function SubscriptionDashboard() {
                         <p className="text-sm text-gray-500">Track your programming tool renewals</p>
                     </div>
                     <a
-                        href="/inventory?action=subscriptions"
+                        href="/business/tools"
                         className="text-sm text-yellow-500 hover:text-yellow-400"
                     >
-                        Manage Subscriptions →
+                        Manage Tools →
                     </a>
                 </div>
 

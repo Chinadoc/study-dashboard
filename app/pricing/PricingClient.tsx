@@ -109,13 +109,13 @@ export default function PricingClient() {
                     <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-zinc-900 to-zinc-800 p-8">
                         {/* Badge */}
                         <div className="absolute top-0 right-0 bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg">
-                            7-DAY FREE TRIAL
+                            3-DAY FREE TRIAL
                         </div>
 
                         {/* Price */}
                         <div className="text-center mb-8">
                             <div className="flex items-baseline justify-center gap-1">
-                                <span className="text-5xl font-bold">$20</span>
+                                <span className="text-5xl font-bold">$25</span>
                                 <span className="text-zinc-400">/month</span>
                             </div>
                             <p className="text-zinc-500 text-sm mt-2">Cancel anytime. No commitment.</p>
@@ -151,7 +151,7 @@ export default function PricingClient() {
                                 disabled={isLoading || loading}
                                 className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
                             >
-                                {isLoading ? 'Loading...' : isAuthenticated ? 'Start 7-Day Free Trial' : 'Sign In to Start Trial'}
+                                {isLoading ? 'Loading...' : isAuthenticated ? 'Start 3-Day Free Trial' : 'Sign In to Start Trial'}
                             </button>
                         )}
                     </div>

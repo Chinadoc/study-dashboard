@@ -163,3 +163,40 @@ export function getTermByCode(code: string): GlossaryTerm | undefined {
 export function getAllTerms(): GlossaryTerm[] {
     return GLOSSARY_TERMS;
 }
+
+/**
+ * Search glossary terms by query string
+ * Matches against term, display_name, aliases, and make+term combinations
+ */
+export function searchGlossaryTerms(query: string): GlossaryTerm[] {
+    if (!query || query.length < 2) return [];
+
+    const q = query.toLowerCase().trim();
+    const qParts = q.split(/\s+/);
+
+    return GLOSSARY_TERMS.filter(term => {
+        // Direct term match
+        if (term.term.toLowerCase().includes(q)) return true;
+
+        // Display name match
+        if (term.display_name.toLowerCase().includes(q)) return true;
+
+        // Alias match
+        if (term.aliases.some(a => a.toLowerCase().includes(q))) return true;
+
+        // Make + term combo match (e.g., "toyota 8A", "bmw bdc")
+        const termLower = term.term.toLowerCase();
+        for (const make of term.makes) {
+            const makeLower = make.toLowerCase();
+            // Check if query contains both make and part of term
+            if (qParts.some(p => makeLower.includes(p)) &&
+                qParts.some(p => termLower.includes(p))) {
+                return true;
+            }
+            // Check "make term" pattern
+            if (q.includes(makeLower) && q.includes(termLower)) return true;
+        }
+
+        return false;
+    }).slice(0, 5); // Limit results
+}

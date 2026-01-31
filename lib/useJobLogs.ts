@@ -251,6 +251,30 @@ export function useJobLogs() {
         });
     }, [saveToStorage]);
 
+    // Get unique recent customers for quick-fill
+    const getRecentCustomers = useCallback((): Array<{ name: string; phone?: string; address?: string }> => {
+        const customerMap = new Map<string, { name: string; phone?: string; address?: string; lastUsed: number }>();
+
+        jobLogs.forEach(log => {
+            if (log.customerName && log.customerName.trim()) {
+                const existing = customerMap.get(log.customerName);
+                if (!existing || log.createdAt > existing.lastUsed) {
+                    customerMap.set(log.customerName, {
+                        name: log.customerName,
+                        phone: log.customerPhone || existing?.phone,
+                        address: log.customerAddress || existing?.address,
+                        lastUsed: log.createdAt,
+                    });
+                }
+            }
+        });
+
+        return Array.from(customerMap.values())
+            .sort((a, b) => b.lastUsed - a.lastUsed)
+            .slice(0, 10)
+            .map(({ name, phone, address }) => ({ name, phone, address }));
+    }, [jobLogs]);
+
     return {
         jobLogs,
         loading,
@@ -258,6 +282,7 @@ export function useJobLogs() {
         updateJobLog,
         deleteJobLog,
         getJobStats,
+        getRecentCustomers,
     };
 }
 

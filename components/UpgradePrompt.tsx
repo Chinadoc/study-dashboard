@@ -96,7 +96,7 @@ export default function UpgradePrompt({
                 </p>
 
                 <div className="mb-4">
-                    <span className="text-3xl font-bold text-white">$20</span>
+                    <span className="text-3xl font-bold text-white">$25</span>
                     <span className="text-zinc-400 text-sm">/month</span>
                 </div>
 
@@ -105,7 +105,7 @@ export default function UpgradePrompt({
                     disabled={isLoading || loading}
                     className="w-full max-w-xs px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold rounded-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
                 >
-                    {isLoading ? 'Loading...' : isAuthenticated ? 'Start 7-Day Free Trial' : 'Sign In to Start Trial'}
+                    {isLoading ? 'Loading...' : isAuthenticated ? 'Start 3-Day Free Trial' : 'Sign In to Start Trial'}
                 </button>
 
                 <p className="text-zinc-500 text-xs mt-3">

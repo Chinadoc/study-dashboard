@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 interface BittingCalculatorProps {
@@ -12,6 +12,47 @@ interface BittingCalculatorProps {
     macs?: number;
     keyway?: string;
     lishi?: string;
+}
+
+// Special position values:
+// 0 = blank (unknown)
+// -1 = ? (explicit unknown)
+// -2 = X (wildcard - any depth valid)
+// -10 = A (1½ = 1 or 2)
+// -11 = B (3½ = 3 or 4)
+// -12 = T (2½ = 2 or 3)
+// 1-9 = actual depth values
+
+const SPECIAL_CODES = {
+    '?': -1,
+    'X': -2,
+    'A': -10, // 1½ (1 or 2)
+    'B': -11, // 3½ (3 or 4)
+    'T': -12, // 2½ (2 or 3)
+} as const;
+
+const HALF_DEPTH_EXPANSIONS: Record<number, number[]> = {
+    [-10]: [1, 2], // A = 1 or 2
+    [-11]: [3, 4], // B = 3 or 4
+    [-12]: [2, 3], // T = 2 or 3
+};
+
+function getDisplayValue(value: number): string {
+    if (value === 0) return '';
+    if (value === -1) return '?';
+    if (value === -2) return 'X';
+    if (value === -10) return 'A';
+    if (value === -11) return 'B';
+    if (value === -12) return 'T';
+    return value.toString();
+}
+
+function isUnknownOrSpecial(value: number): boolean {
+    return value <= 0;
+}
+
+function isHalfDepth(value: number): boolean {
+    return value === -10 || value === -11 || value === -12;
 }
 
 export default function BittingCalculator({
@@ -27,16 +68,20 @@ export default function BittingCalculator({
     // Parse depths to get max depth value
     const maxDepth = typeof depths === 'number' ? depths : parseInt(String(depths)) || 4;
 
-    // Initialize position values (0 = unknown/blank, 1-maxDepth = known depth)
+    // Initialize position values
     const [positions, setPositions] = useState<number[]>(Array(spaces).fill(0));
     const [keyCode, setKeyCode] = useState('');
     const [macsViolations, setMacsViolations] = useState<number[]>([]);
     const [matchingCodes, setMatchingCodes] = useState<string[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
-    // Count unknown (blank) positions
+    // Refs for auto-advance
+    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    // Count unknown/special positions (includes ?, X, A, B, T, and blank)
     const unknownPositions = useMemo(() =>
-        positions.map((v, i) => v === 0 ? i : -1).filter(i => i >= 0),
+        positions.map((v, i) => isUnknownOrSpecial(v) ? i : -1).filter(i => i >= 0),
         [positions]
     );
     const knownPositions = useMemo(() =>
@@ -44,12 +89,52 @@ export default function BittingCalculator({
         [positions]
     );
 
+    // Calculate total combinations and blanks needed
+    const combinationStats = useMemo(() => {
+        let totalCombinations = 1;
+        let maxBlanksNeeded = 1;
+
+        positions.forEach(val => {
+            let optionsForPosition = 1;
+            if (val === 0 || val === -1) {
+                // Unknown: all depths possible
+                optionsForPosition = maxDepth;
+            } else if (val === -2) {
+                // X wildcard: all depths possible
+                optionsForPosition = maxDepth;
+            } else if (isHalfDepth(val)) {
+                // Half-depth: 2 options
+                optionsForPosition = 2;
+            }
+            totalCombinations *= optionsForPosition;
+        });
+
+        // Blanks needed is ceil(log_maxDepth(totalCombinations)) but simplified:
+        // It's basically how many different keys you'd need to try
+        maxBlanksNeeded = Math.min(totalCombinations, 999);
+
+        return { totalCombinations, maxBlanksNeeded };
+    }, [positions, maxDepth]);
+
+    // Calculate progressive cutting order (shallow to deep)
+    const cuttingOrder = useMemo(() => {
+        const ordered = positions
+            .map((depth, index) => ({ index, depth }))
+            .filter(p => p.depth > 0) // Only known exact positions
+            .sort((a, b) => a.depth - b.depth);
+        return ordered.map((p, order) => ({ ...p, order: order + 1 }));
+    }, [positions]);
+
+    const nextToCut = useMemo(() => {
+        if (cuttingOrder.length === 0) return null;
+        return cuttingOrder[0]?.index ?? null;
+    }, [cuttingOrder]);
+
     // Check MACS violations for known positions
     useEffect(() => {
         const violations: number[] = [];
         for (let i = 1; i < positions.length; i++) {
             const diff = Math.abs(positions[i] - positions[i - 1]);
-            // Only check if both positions are known (non-zero)
             if (positions[i] > 0 && positions[i - 1] > 0 && diff > macs) {
                 violations.push(i - 1);
                 violations.push(i);
@@ -58,31 +143,115 @@ export default function BittingCalculator({
         setMacsViolations([...new Set(violations)]);
     }, [positions, macs]);
 
-    // Handle position depth change
-    const handlePositionChange = (index: number, value: number) => {
+    // Handle position depth change with auto-advance
+    const handlePositionChange = (index: number, value: number | string, shouldAutoAdvance = false) => {
         const newPositions = [...positions];
-        // Allow 0 (unknown) or clamp value between 1 and maxDepth
-        if (value === 0 || value === -1) {
-            newPositions[index] = 0;
+
+        if (typeof value === 'string') {
+            const upper = value.toUpperCase();
+            // Check for special codes
+            if (upper in SPECIAL_CODES) {
+                newPositions[index] = SPECIAL_CODES[upper as keyof typeof SPECIAL_CODES];
+            } else {
+                const numValue = parseInt(value);
+                if (isNaN(numValue) || numValue === 0) {
+                    newPositions[index] = 0;
+                } else {
+                    newPositions[index] = Math.max(1, Math.min(maxDepth, numValue));
+                }
+            }
+        } else if (value <= 0) {
+            // Special code passed as number
+            newPositions[index] = value;
         } else {
             newPositions[index] = Math.max(1, Math.min(maxDepth, value));
         }
+
         setPositions(newPositions);
-        setMatchingCodes([]); // Clear previous results when positions change
+        setMatchingCodes([]);
+
+        // Auto-advance to next position if a value was entered
+        if (shouldAutoAdvance && newPositions[index] !== 0) {
+            const nextIndex = index + 1;
+            if (nextIndex < spaces) {
+                setTimeout(() => {
+                    inputRefs.current[nextIndex]?.focus();
+                    inputRefs.current[nextIndex]?.select();
+                }, 50);
+            }
+        }
     };
 
-    // Parse key code and populate positions
-    const handleCodeInput = useCallback(() => {
-        // Extract numeric portion of code (e.g., "V1234" -> "1234")
-        const numericPart = keyCode.replace(/[^0-9]/g, '');
+    // Handle keyboard input on position fields
+    const handlePositionKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+        const key = e.key.toUpperCase();
 
-        if (numericPart.length > 0) {
+        // Handle special codes: ?, X, A, B, T
+        if (key === '?' || key === 'X' || key === 'A' || key === 'B' || key === 'T') {
+            e.preventDefault();
+            handlePositionChange(index, key, true);
+            return;
+        }
+
+        // Handle numeric keys 1-9 for quick entry with auto-advance
+        if (/^[1-9]$/.test(e.key)) {
+            e.preventDefault();
+            const digit = parseInt(e.key);
+            if (digit <= maxDepth) {
+                handlePositionChange(index, digit, true);
+            }
+            return;
+        }
+
+        // Handle 0 to clear
+        if (e.key === '0') {
+            e.preventDefault();
+            handlePositionChange(index, 0, true);
+            return;
+        }
+
+        // Handle arrow keys for navigation
+        if (e.key === 'ArrowRight' || e.key === 'Tab') {
+            if (!e.shiftKey && index < spaces - 1) {
+                e.preventDefault();
+                inputRefs.current[index + 1]?.focus();
+                inputRefs.current[index + 1]?.select();
+            }
+        } else if (e.key === 'ArrowLeft' || (e.key === 'Tab' && e.shiftKey)) {
+            if (index > 0) {
+                e.preventDefault();
+                inputRefs.current[index - 1]?.focus();
+                inputRefs.current[index - 1]?.select();
+            }
+        }
+
+        // Handle Backspace to clear and go back
+        if (e.key === 'Backspace') {
+            if (positions[index] !== 0) {
+                e.preventDefault();
+                handlePositionChange(index, 0, false);
+            } else if (index > 0) {
+                e.preventDefault();
+                inputRefs.current[index - 1]?.focus();
+                inputRefs.current[index - 1]?.select();
+            }
+        }
+    };
+
+    // Parse key code and populate positions (supports A, B, T, X, ?)
+    const handleCodeInput = useCallback(() => {
+        const chars = keyCode.toUpperCase().split('');
+        if (chars.length > 0) {
             const newPositions = Array(spaces).fill(0);
-            // Each digit represents a depth for each position
-            for (let i = 0; i < Math.min(numericPart.length, spaces); i++) {
-                const digit = parseInt(numericPart[i]);
-                if (!isNaN(digit) && digit >= 1 && digit <= maxDepth) {
-                    newPositions[i] = digit;
+            for (let i = 0; i < Math.min(chars.length, spaces); i++) {
+                const char = chars[i];
+                if (char in SPECIAL_CODES) {
+                    newPositions[i] = SPECIAL_CODES[char as keyof typeof SPECIAL_CODES];
+                } else {
+                    const digit = parseInt(char);
+                    if (!isNaN(digit) && digit >= 1 && digit <= maxDepth) {
+                        newPositions[i] = digit;
+                    }
                 }
             }
             setPositions(newPositions);
@@ -90,56 +259,59 @@ export default function BittingCalculator({
         }
     }, [keyCode, spaces, maxDepth]);
 
-    // Find matching codes for unknown positions
+    // Find matching codes - now handles half-depths and wildcards
     const findMatchingCodes = useCallback(() => {
         setIsSearching(true);
         const results: string[] = [];
 
-        // Generate all possible combinations for unknown positions
-        const unknownCount = unknownPositions.length;
-
-        if (unknownCount === 0) {
-            // All positions are known - just format the code
-            const code = positions.map(d => d.toString()).join('');
-            results.push(code);
-        } else if (unknownCount <= 4) {
-            // Reasonable number of unknowns to enumerate
-            const combinations = Math.pow(maxDepth, unknownCount);
-
-            for (let combo = 0; combo < combinations; combo++) {
-                // Generate combination of depths for unknown positions
-                const testPositions = [...positions];
-                let temp = combo;
-
-                for (let i = unknownCount - 1; i >= 0; i--) {
-                    const depthValue = (temp % maxDepth) + 1;
-                    temp = Math.floor(temp / maxDepth);
-                    testPositions[unknownPositions[i]] = depthValue;
-                }
-
-                // Check MACS validity
-                let valid = true;
-                for (let i = 1; i < testPositions.length; i++) {
-                    if (Math.abs(testPositions[i] - testPositions[i - 1]) > macs) {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if (valid) {
-                    const code = testPositions.map(d => d.toString()).join('');
-                    results.push(code);
-                }
+        // Build list of possible values for each position
+        const possibleValues: number[][] = positions.map(val => {
+            if (val > 0) return [val]; // Known depth
+            if (val === -2) return Array.from({ length: maxDepth }, (_, i) => i + 1); // X = all
+            if (isHalfDepth(val)) {
+                const expansion = HALF_DEPTH_EXPANSIONS[val] || [];
+                return expansion.filter(d => d <= maxDepth);
             }
+            // Unknown (0 or -1): all depths
+            return Array.from({ length: maxDepth }, (_, i) => i + 1);
+        });
+
+        // Calculate total combinations
+        const totalCombos = possibleValues.reduce((acc, vals) => acc * vals.length, 1);
+
+        if (totalCombos > 100000) {
+            results.push(`Too many combinations (${totalCombos.toLocaleString()}). Add more known depths.`);
         } else {
-            // Too many unknowns - show message
-            results.push(`Too many unknown positions (${unknownCount}). Enter more depths to narrow down.`);
+            // Generate all combinations
+            const generateCombinations = (index: number, current: number[]): void => {
+                if (results.length >= 50) return; // Cap results
+
+                if (index === positions.length) {
+                    // Check MACS validity
+                    let valid = true;
+                    for (let i = 1; i < current.length; i++) {
+                        if (Math.abs(current[i] - current[i - 1]) > macs) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid) {
+                        results.push(current.join(''));
+                    }
+                    return;
+                }
+
+                for (const val of possibleValues[index]) {
+                    generateCombinations(index + 1, [...current, val]);
+                }
+            };
+
+            generateCombinations(0, []);
         }
 
-        // Limit results to show
-        setMatchingCodes(results.slice(0, 50));
+        setMatchingCodes(results);
         setIsSearching(false);
-    }, [positions, unknownPositions, maxDepth, macs]);
+    }, [positions, maxDepth, macs]);
 
     // Reset calculator
     const handleReset = () => {
@@ -197,7 +369,7 @@ export default function BittingCalculator({
                 </div>
 
                 {/* Specs Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-3 bg-zinc-800/50 border-b border-zinc-800">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 px-5 py-3 bg-zinc-800/50 border-b border-zinc-800">
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">Spaces</div>
                         <div className="font-mono font-bold text-white">{spaces}</div>
@@ -209,6 +381,14 @@ export default function BittingCalculator({
                     <div className="text-center">
                         <div className="text-[10px] text-zinc-500 uppercase">MACS</div>
                         <div className="font-mono font-bold text-amber-400">{macs}</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-[10px] text-zinc-500 uppercase">Combos</div>
+                        <div className="font-mono font-bold text-cyan-400">
+                            {combinationStats.totalCombinations > 9999
+                                ? `${(combinationStats.totalCombinations / 1000).toFixed(1)}k`
+                                : combinationStats.totalCombinations}
+                        </div>
                     </div>
                     {keyway && (
                         <div className="text-center">
@@ -257,7 +437,7 @@ export default function BittingCalculator({
                                     Position Depths
                                 </label>
                                 <p className="text-[10px] text-zinc-500 mt-0.5">
-                                    Enter known depths. Leave blank for unknown.
+                                    1-{maxDepth}=depth, ?=unknown, X=any, A=1½, B=3½, T=2½
                                 </p>
                             </div>
                             {lishi && (
@@ -268,62 +448,140 @@ export default function BittingCalculator({
                         </div>
 
                         {/* Grid of positions */}
-                        <div className="flex flex-wrap justify-center gap-2">
-                            {positions.map((depth, index) => (
-                                <div key={index} className="flex flex-col items-center">
-                                    {/* Depth input */}
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        max={maxDepth}
-                                        value={depth || ''}
-                                        onChange={(e) => handlePositionChange(index, parseInt(e.target.value) || 0)}
-                                        placeholder="?"
-                                        className={`w-10 h-10 sm:w-12 sm:h-12 text-center font-mono font-bold text-lg sm:text-xl rounded-lg border-2 transition-all focus:outline-none focus:ring-2 ${macsViolations.includes(index)
-                                                ? 'bg-red-900/50 border-red-500 text-red-300 focus:ring-red-500'
-                                                : depth > 0
-                                                    ? 'bg-purple-900/30 border-purple-500 text-white focus:ring-purple-500'
-                                                    : 'bg-zinc-900/80 border-zinc-600 border-dashed text-zinc-500 focus:ring-amber-500 placeholder-zinc-600'
-                                            }`}
-                                    />
-                                    {/* Position label */}
-                                    <span className={`text-[10px] mt-1 ${macsViolations.includes(index)
-                                            ? 'text-red-400'
-                                            : depth === 0
-                                                ? 'text-amber-500'
-                                                : 'text-zinc-500'
-                                        }`}>
-                                        {index + 1}{depth === 0 && '?'}
-                                    </span>
-                                </div>
-                            ))}
+                        <div className="flex flex-wrap justify-center gap-2 pt-4">
+                            {positions.map((depth, index) => {
+                                const cutInfo = cuttingOrder.find(c => c.index === index);
+                                const isNextToCut = nextToCut === index;
+                                const displayVal = getDisplayValue(depth);
+                                const isSpecial = depth < 0;
+                                const isHalf = isHalfDepth(depth);
+                                const isWildcard = depth === -2;
+                                const isUnknown = depth === 0 || depth === -1;
+
+                                return (
+                                    <div key={index} className="flex flex-col items-center relative">
+                                        {/* Cut order indicator */}
+                                        {cutInfo && (
+                                            <div className={`absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isNextToCut
+                                                    ? 'bg-green-500 text-white animate-pulse'
+                                                    : 'bg-zinc-700 text-zinc-400'
+                                                }`}>
+                                                {isNextToCut ? '✂️ NEXT' : `#${cutInfo.order}`}
+                                            </div>
+                                        )}
+
+                                        {/* Depth input */}
+                                        <input
+                                            ref={el => { inputRefs.current[index] = el; }}
+                                            type="text"
+                                            inputMode="text"
+                                            value={displayVal}
+                                            onChange={(e) => handlePositionChange(index, e.target.value, false)}
+                                            onKeyDown={(e) => handlePositionKeyDown(index, e)}
+                                            onFocus={() => setFocusedIndex(index)}
+                                            onBlur={() => setFocusedIndex(null)}
+                                            placeholder="?"
+                                            maxLength={1}
+                                            className={`w-10 h-10 sm:w-12 sm:h-12 text-center font-mono font-bold text-lg sm:text-xl rounded-lg border-2 transition-all focus:outline-none focus:ring-2 ${macsViolations.includes(index)
+                                                    ? 'bg-red-900/50 border-red-500 text-red-300 focus:ring-red-500'
+                                                    : isNextToCut && depth > 0
+                                                        ? 'bg-green-900/30 border-green-500 text-green-300 focus:ring-green-500 ring-2 ring-green-500/50'
+                                                        : depth > 0
+                                                            ? 'bg-purple-900/30 border-purple-500 text-white focus:ring-purple-500'
+                                                            : isHalf
+                                                                ? 'bg-cyan-900/30 border-cyan-500 text-cyan-400 focus:ring-cyan-500'
+                                                                : isWildcard
+                                                                    ? 'bg-pink-900/30 border-pink-500 text-pink-400 focus:ring-pink-500'
+                                                                    : isUnknown || depth === -1
+                                                                        ? 'bg-amber-900/30 border-amber-500 text-amber-400 focus:ring-amber-500'
+                                                                        : 'bg-zinc-900/80 border-zinc-600 border-dashed text-zinc-500 focus:ring-amber-500 placeholder-zinc-600'
+                                                }`}
+                                        />
+                                        {/* Position label */}
+                                        <span className={`text-[10px] mt-1 ${macsViolations.includes(index)
+                                                ? 'text-red-400'
+                                                : isHalf
+                                                    ? 'text-cyan-400'
+                                                    : isWildcard
+                                                        ? 'text-pink-400'
+                                                        : isUnknown
+                                                            ? 'text-amber-500'
+                                                            : 'text-zinc-500'
+                                            }`}>
+                                            {index + 1}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
+
+                        {/* Progressive cutting guide */}
+                        {cuttingOrder.length > 0 && (
+                            <div className="mt-3 p-2 bg-green-900/20 border border-green-700/50 rounded-lg">
+                                <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-green-400">✂️ Cut Order:</span>
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                        {cuttingOrder.map((item, idx) => (
+                                            <span key={item.index} className="flex items-center">
+                                                <span className={`font-mono px-1.5 py-0.5 rounded ${idx === 0
+                                                    ? 'bg-green-500 text-white font-bold'
+                                                    : 'bg-zinc-700 text-zinc-300'
+                                                    }`}>
+                                                    P{item.index + 1}:{item.depth}
+                                                </span>
+                                                {idx < cuttingOrder.length - 1 && (
+                                                    <span className="text-zinc-500 mx-0.5">→</span>
+                                                )}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Visual depth representation */}
                         <div className="mt-4 flex justify-center gap-1 h-12 sm:h-16">
-                            {positions.map((depth, index) => (
-                                <div
-                                    key={index}
-                                    className="relative w-4 sm:w-6 flex flex-col justify-end"
-                                >
+                            {positions.map((depth, index) => {
+                                const isNextToCut = nextToCut === index;
+                                const isHalf = isHalfDepth(depth);
+                                const isWildcard = depth === -2;
+                                const isUnknown = depth <= 0 && !isHalf && !isWildcard;
+                                const displayDepth = depth > 0 ? depth : (isHalf ? 2.5 : 0);
+
+                                return (
                                     <div
-                                        className={`rounded-t transition-all duration-200 ${macsViolations.includes(index)
-                                                ? 'bg-red-500'
-                                                : depth > 0
-                                                    ? 'bg-gradient-to-t from-purple-600 to-purple-400'
-                                                    : 'bg-zinc-700 border border-dashed border-amber-500/50'
-                                            }`}
-                                        style={{
-                                            height: depth > 0 ? `${(depth / maxDepth) * 100}%` : '100%',
-                                            minHeight: '4px'
-                                        }}
+                                        key={index}
+                                        className="relative w-4 sm:w-6 flex flex-col justify-end"
                                     >
-                                        {depth === 0 && (
-                                            <span className="absolute inset-0 flex items-center justify-center text-amber-500 text-[8px] sm:text-[10px]">?</span>
-                                        )}
+                                        <div
+                                            className={`rounded-t transition-all duration-200 ${macsViolations.includes(index)
+                                                    ? 'bg-red-500'
+                                                    : isNextToCut && depth > 0
+                                                        ? 'bg-gradient-to-t from-green-600 to-green-400 animate-pulse'
+                                                        : depth > 0
+                                                            ? 'bg-gradient-to-t from-purple-600 to-purple-400'
+                                                            : isHalf
+                                                                ? 'bg-gradient-to-t from-cyan-600 to-cyan-400'
+                                                                : isWildcard
+                                                                    ? 'bg-gradient-to-t from-pink-600 to-pink-400'
+                                                                    : 'bg-zinc-700 border border-dashed border-amber-500/50'
+                                                }`}
+                                            style={{
+                                                height: depth > 0 ? `${(displayDepth / maxDepth) * 100}%` : (isHalf || isWildcard ? '60%' : '100%'),
+                                                minHeight: '4px'
+                                            }}
+                                        >
+                                            {(isUnknown || isHalf || isWildcard) && (
+                                                <span className="absolute inset-0 flex items-center justify-center text-[8px] sm:text-[10px] font-bold ${
+                                                    isHalf ? 'text-cyan-200' : isWildcard ? 'text-pink-200' : 'text-amber-500'
+                                                }">
+                                                    {getDisplayValue(depth) || '?'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         {/* Status bar with Find button */}
@@ -385,8 +643,8 @@ export default function BittingCalculator({
 
                     {/* MACS Status */}
                     <div className={`p-3 rounded-xl border ${macsViolations.length > 0
-                            ? 'bg-red-900/20 border-red-700/50'
-                            : 'bg-green-900/20 border-green-700/50'
+                        ? 'bg-red-900/20 border-red-700/50'
+                        : 'bg-green-900/20 border-green-700/50'
                         }`}>
                         <div className="flex items-center gap-2">
                             <span className="text-lg">
@@ -408,12 +666,15 @@ export default function BittingCalculator({
 
                     {/* Reference Info */}
                     <div className="text-xs text-zinc-500 bg-zinc-800/40 p-3 rounded-lg">
-                        <p className="font-semibold text-zinc-400 mb-1">💡 Quick Reference</p>
-                        <ul className="space-y-1">
-                            <li>• <strong>Depths 1-{maxDepth}</strong>: 1 = shallow, {maxDepth} = deep</li>
-                            <li>• <strong>MACS {macs}</strong>: Max difference between adjacent cuts</li>
-                            <li>• Leave unknown positions blank, then click "Find Matching Codes"</li>
-                        </ul>
+                        <p className="font-semibold text-zinc-400 mb-1">💡 FILL-Style Codes</p>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
+                            <span><strong className="text-white">1-{maxDepth}</strong> = exact depth</span>
+                            <span><strong className="text-amber-400">?</strong> = unknown (all depths)</span>
+                            <span><strong className="text-pink-400">X</strong> = wildcard (any valid)</span>
+                            <span><strong className="text-cyan-400">A</strong> = 1½ (1 or 2)</span>
+                            <span><strong className="text-cyan-400">B</strong> = 3½ (3 or 4)</span>
+                            <span><strong className="text-cyan-400">T</strong> = 2½ (2 or 3)</span>
+                        </div>
                     </div>
                 </div>
 

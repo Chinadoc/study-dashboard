@@ -2,12 +2,19 @@
 
 import React, { useState } from 'react';
 
+interface RecentCustomer {
+    name: string;
+    phone?: string;
+    address?: string;
+}
+
 interface JobLogModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (job: JobFormData) => void;
     prefillFccId?: string;
     prefillVehicle?: string;
+    recentCustomers?: RecentCustomer[];
 }
 
 export interface JobFormData {
@@ -48,7 +55,7 @@ const REFERRAL_SOURCES = [
     { value: 'other', label: 'Other' },
 ];
 
-export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '' }: JobLogModalProps) {
+export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '', recentCustomers = [] }: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(false);
     const [showCostTracking, setShowCostTracking] = useState(false);
     const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: string; button_count?: number }>>([]);
@@ -337,6 +344,32 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     {/* Customer Info Section */}
                     {showCustomerInfo && (
                         <div className="space-y-3 p-4 bg-blue-950/30 rounded-xl border border-blue-900/30">
+                            {/* Quick-fill from recent customers */}
+                            {recentCustomers.length > 0 && (
+                                <div>
+                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
+                                        ⚡ Quick Fill
+                                    </label>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {recentCustomers.slice(0, 5).map((customer, i) => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({
+                                                    ...prev,
+                                                    customerName: customer.name,
+                                                    customerPhone: customer.phone || prev.customerPhone,
+                                                    customerAddress: customer.address || prev.customerAddress,
+                                                    referralSource: 'repeat'
+                                                }))}
+                                                className="text-xs px-2.5 py-1.5 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors border border-blue-500/30"
+                                            >
+                                                👤 {customer.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                             <div>
                                 <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
                                     Customer Name
