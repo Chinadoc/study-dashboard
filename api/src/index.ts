@@ -3958,12 +3958,27 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
           };
 
           // Merge model variants (G35 + G35 Coupe → G35 with variants indicator)
+          // These are suffixes where the key system is typically identical to the base model
           const variantSuffixes = [
-            'Coupe', 'Sedan', 'Convertible', 'Wagon', 'Hatchback',
-            'Sport', 'Sports', 'Touring', 'Limited', 'Premium',
+            // Body styles
+            'Coupe', 'Sedan', 'Convertible', 'Wagon', 'Hatchback', 'Cab',
+            // Trim levels
+            'Sport', 'Sports', 'Touring', 'Limited', 'Premium', 'Base', 'SE', 'LE', 'XLE', 'XSE',
+            // Drivetrain (same key system)
             'AWD', '4WD', '2WD', 'FWD', 'RWD', 'Quattro', 'xDrive', '4Matic',
-            'Hybrid', 'PHEV', 'Sport Sedan', 'Gran Coupe', 'Gran Turismo',
-            'Cross Country', 'Sportback', 'Avant', 'Allroad'
+            // Powertrain variants (same key system)
+            'Hybrid', 'PHEV', 'EV', 'Diesel', 'Turbo', 'V6', 'V8',
+            // Performance trims (Jeep/Dodge especially - same key system)
+            'SRT', 'SRT8', 'Trackhawk', 'Hellcat', 'Demon', 'Scat Pack', 'R/T', 'GT',
+            // Extended/size variants (same key system)  
+            'L', 'XL', 'Long', 'Short',
+            // Generation/platform suffixes (same key system within generation)
+            'WK', 'WK2', 'WL', 'JK', 'JL', 'JT', 'KL', 'MK',
+            // Luxury package variants
+            'Sport Sedan', 'Gran Coupe', 'Gran Turismo',
+            'Cross Country', 'Sportback', 'Avant', 'Allroad',
+            // Common trim packages
+            'Laredo', 'Overland', 'Summit', 'Trailhawk', 'High Altitude', 'Limited X'
           ];
 
           // Build a map of base model → variants

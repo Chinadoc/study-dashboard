@@ -190,7 +190,7 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         return { year, make, model };
     };
 
-    // Lookup FCC IDs for current vehicle (enhanced with images)
+    // Lookup all key types for current vehicle (using vehicle-products-v2 for complete coverage)
     const lookupFccIds = async (vehicleInput?: string) => {
         const vehicle = vehicleInput || formData.vehicle;
         if (!vehicle.trim()) return;
@@ -200,76 +200,73 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
 
         try {
             const { year, make, model } = parseVehicle(vehicle);
-            if (!make) {
+            if (!make || !model) {
                 setLoadingFcc(false);
                 return;
             }
 
             const params = new URLSearchParams();
             params.set('make', make);
-            if (model) params.set('model', model);
+            params.set('model', model);
             if (year) params.set('year', year);
 
-            const response = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/vehicle-keys?${params}`);
+            // Use vehicle-products-v2 which includes ALL key types (smart, transponder, RHK, etc.)
+            const response = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/vehicle-products-v2?${params}`);
             if (response.ok) {
                 const data = await response.json();
-                const rawKeys = (data.keys || []).slice(0, 8);
+                const products = data.products || [];
 
-                // Fetch images for each FCC ID from the FCC database
-                const keysWithImages = await Promise.all(
-                    rawKeys.map(async (k: any) => {
-                        const fccId = k.fcc_id || 'Unknown';
-                        let imageUrl = '';
+                // Filter to only include actual keys (not shells, blades, or batteries)
+                const keyProducts = products.filter((p: any) => {
+                    const type = (p.product_type || p.type || '').toLowerCase();
+                    return type.includes('smart') ||
+                        type.includes('remote') ||
+                        type.includes('transponder') ||
+                        type.includes('flip') ||
+                        type.includes('fobik') ||
+                        type === 'mechanical key';
+                });
 
-                        // Try to get image from FCC database
-                        try {
-                            const fccRes = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/fcc?q=${encodeURIComponent(fccId)}&limit=1`);
-                            if (fccRes.ok) {
-                                const fccData = await fccRes.json();
-                                if (fccData.rows?.[0]?.image_url) {
-                                    imageUrl = fccData.rows[0].image_url;
-                                }
-                            }
-                        } catch {
-                            // Ignore image fetch errors
-                        }
+                // Map to suggestion format
+                const suggestions = keyProducts.slice(0, 8).map((p: any) => {
+                    // Get FCC ID if available (first one from array)
+                    const fccIds = p.fcc_ids || [];
+                    const fccId = fccIds[0]?.split(/[\s\\n]/)[0]?.trim() || '';
 
-                        // Calculate estimated key cost based on type
-                        const keyType = k.key_type?.toLowerCase() || '';
-                        let estimatedCost = 35;
-                        if (keyType.includes('smart')) estimatedCost = 55;
-                        else if (keyType.includes('flip')) estimatedCost = 45;
-                        else if (keyType.includes('remote head') || keyType.includes('rhk')) estimatedCost = 40;
-                        else if (keyType.includes('transponder')) estimatedCost = 25;
+                    // Get first image
+                    const imageUrl = p.images?.[0] || '';
 
-                        return {
-                            fcc_id: fccId,
-                            key_type: k.key_type || 'Key',
-                            price: estimatedCost,
-                            button_count: k.button_count,
-                            image_url: imageUrl
-                        };
-                    })
-                );
+                    // Calculate price from price_range
+                    const minPrice = p.price_range?.min || 0;
+                    let estimatedCost = Math.round(minPrice) || 35;
+                    // Adjust estimates for aftermarket prices
+                    const keyType = (p.type || p.product_type || '').toLowerCase();
+                    if (keyType.includes('smart')) estimatedCost = Math.max(estimatedCost, 45);
+                    else if (keyType.includes('remote head')) estimatedCost = Math.max(estimatedCost, 25);
+                    else if (keyType.includes('transponder')) estimatedCost = Math.max(estimatedCost, 10);
 
-                // Deduplicate by FCC ID
-                const uniqueKeys = keysWithImages.filter((key, idx, arr) =>
-                    arr.findIndex(k => k.fcc_id === key.fcc_id) === idx
-                );
+                    return {
+                        fcc_id: fccId || `(${p.type || 'Key'})`,
+                        key_type: p.type || p.product_type || 'Key',
+                        price: estimatedCost,
+                        button_count: p.buttons ? parseInt(p.buttons) : undefined,
+                        image_url: imageUrl
+                    };
+                });
 
-                setFccSuggestions(uniqueKeys);
+                setFccSuggestions(suggestions);
 
                 // Auto-fill if only one result
-                if (uniqueKeys.length === 1) {
-                    const key = uniqueKeys[0];
+                if (suggestions.length === 1) {
+                    const key = suggestions[0];
                     setFormData(prev => ({
                         ...prev,
-                        fccId: key.fcc_id,
+                        fccId: key.fcc_id.startsWith('(') ? '' : key.fcc_id, // Don't fill placeholder
                         keyType: key.key_type,
                         keyCost: key.price || 0
                     }));
                     setFccSuggestions([]); // Clear since auto-filled
-                } else if (uniqueKeys.length > 1) {
+                } else if (suggestions.length > 1) {
                     setShowFccPicker(true);
                 }
             }
