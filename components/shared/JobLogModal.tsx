@@ -23,6 +23,8 @@ export interface JobFormData {
     customerPhone?: string;
     customerAddress?: string;
     partsCost?: number;
+    keyCost?: number;     // Cost of key/fob itself (~$30-75 aftermarket, $150-400 OEM)
+    gasCost?: number;     // Travel/mileage cost (~$10-30 local, $30-75 extended)
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
     status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
 }
@@ -49,6 +51,8 @@ const REFERRAL_SOURCES = [
 export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = '', prefillVehicle = '' }: JobLogModalProps) {
     const [showCustomerInfo, setShowCustomerInfo] = useState(false);
     const [showCostTracking, setShowCostTracking] = useState(false);
+    const [fccSuggestions, setFccSuggestions] = useState<Array<{ fcc_id: string; key_type: string; price?: string; button_count?: number }>>([]);
+    const [loadingFcc, setLoadingFcc] = useState(false);
 
     const [formData, setFormData] = useState<JobFormData>({
         vehicle: prefillVehicle,
@@ -62,6 +66,8 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         customerPhone: '',
         customerAddress: '',
         partsCost: 0,
+        keyCost: 0,
+        gasCost: 0,
         referralSource: undefined,
         status: 'completed',
     });
@@ -82,6 +88,8 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
             customerPhone: '',
             customerAddress: '',
             partsCost: 0,
+            keyCost: 0,
+            gasCost: 0,
             referralSource: undefined,
             status: 'completed',
         });
@@ -90,7 +98,64 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
         onClose();
     };
 
-    const profit = (formData.price || 0) - (formData.partsCost || 0);
+    const totalCosts = (formData.partsCost || 0) + (formData.keyCost || 0) + (formData.gasCost || 0);
+    const profit = (formData.price || 0) - totalCosts;
+
+    // Parse vehicle string to extract year, make, model
+    const parseVehicle = (vehicleStr: string) => {
+        // Format: "2023 Toyota Camry" or "Toyota Camry 2023"
+        const parts = vehicleStr.trim().split(/\s+/);
+        let year = '';
+        let make = '';
+        let model = '';
+
+        for (const part of parts) {
+            if (/^(19|20)\d{2}$/.test(part)) {
+                year = part;
+            } else if (!make) {
+                make = part;
+            } else {
+                model = model ? `${model} ${part}` : part;
+            }
+        }
+        return { year, make, model };
+    };
+
+    // Lookup FCC IDs for current vehicle
+    const lookupFccIds = async () => {
+        if (!formData.vehicle.trim()) return;
+
+        setLoadingFcc(true);
+        setFccSuggestions([]);
+
+        try {
+            const { year, make, model } = parseVehicle(formData.vehicle);
+            if (!make) {
+                setLoadingFcc(false);
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.set('make', make);
+            if (model) params.set('model', model);
+            if (year) params.set('year', year);
+
+            const response = await fetch(`https://euro-keys.jeremy-samuels17.workers.dev/api/vehicle-keys?${params}`);
+            if (response.ok) {
+                const data = await response.json();
+                const keys = (data.keys || []).slice(0, 5).map((k: any) => ({
+                    fcc_id: k.fcc_id || 'Unknown',
+                    key_type: k.key_type || 'Key',
+                    price: k.price,
+                    button_count: k.button_count
+                }));
+                setFccSuggestions(keys);
+            }
+        } catch (err) {
+            console.error('FCC lookup error:', err);
+        }
+        setLoadingFcc(false);
+    };
 
     if (!isOpen) return null;
 
@@ -139,6 +204,14 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                         <div>
                             <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
                                 FCC ID
+                                <button
+                                    type="button"
+                                    onClick={lookupFccIds}
+                                    disabled={loadingFcc || !formData.vehicle.trim()}
+                                    className="ml-2 text-yellow-500 hover:text-yellow-400 disabled:text-zinc-600 text-xs normal-case font-medium"
+                                >
+                                    {loadingFcc ? '⏳' : '🔍'} Lookup
+                                </button>
                             </label>
                             <input
                                 type="text"
@@ -147,6 +220,29 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                                 onChange={e => setFormData(prev => ({ ...prev, fccId: e.target.value }))}
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 font-mono text-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/30"
                             />
+                            {/* FCC Suggestions */}
+                            {fccSuggestions.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1">
+                                    {fccSuggestions.map((s, i) => (
+                                        <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    fccId: s.fcc_id,
+                                                    keyType: s.key_type || prev.keyType
+                                                }));
+                                                setFccSuggestions([]);
+                                            }}
+                                            className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 font-mono"
+                                        >
+                                            {s.fcc_id}
+                                            {s.button_count && <span className="text-zinc-400 ml-1">({s.button_count}btn)</span>}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
@@ -300,28 +396,64 @@ export default function JobLogModal({ isOpen, onClose, onSubmit, prefillFccId = 
                     {/* Cost Tracking Section */}
                     {showCostTracking && (
                         <div className="space-y-3 p-4 bg-green-950/30 rounded-xl border border-green-900/30">
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-3 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
-                                        Parts Cost ($)
+                                    <label className="block text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2">
+                                        🔑 Key Cost ($)
                                     </label>
                                     <input
                                         type="number"
-                                        placeholder="50"
+                                        placeholder="45"
+                                        min="0"
+                                        step="0.01"
+                                        value={formData.keyCost || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, keyCost: parseFloat(e.target.value) || 0 }))}
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500/30 text-yellow-400 font-bold"
+                                    />
+                                    <div className="text-[10px] text-zinc-500 mt-1">Aftermarket: $35-75 | OEM: $150-400</div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
+                                        ⛽ Gas/Travel ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="15"
+                                        min="0"
+                                        step="0.01"
+                                        value={formData.gasCost || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, gasCost: parseFloat(e.target.value) || 0 }))}
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-blue-400 font-bold"
+                                    />
+                                    <div className="text-[10px] text-zinc-500 mt-1">Local: $10-20 | Extended: $30-75</div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
+                                        🔧 Other Parts ($)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="0"
                                         min="0"
                                         step="0.01"
                                         value={formData.partsCost || ''}
                                         onChange={e => setFormData(prev => ({ ...prev, partsCost: parseFloat(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500/30 text-red-400 font-bold"
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-orange-400 font-bold"
                                     />
+                                    <div className="text-[10px] text-zinc-500 mt-1">Blades, batteries, etc.</div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
-                                        Profit
-                                    </label>
-                                    <div className={`w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 font-bold ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            </div>
+                            {/* Profit Summary */}
+                            <div className="bg-zinc-800/50 rounded-lg p-3 flex justify-between items-center">
+                                <div className="text-sm">
+                                    <span className="text-zinc-500">Total Costs: </span>
+                                    <span className="text-red-400 font-bold">${totalCosts.toFixed(2)}</span>
+                                </div>
+                                <div className="text-lg">
+                                    <span className="text-zinc-500">Profit: </span>
+                                    <span className={`font-black ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                         ${profit.toFixed(2)}
-                                    </div>
+                                    </span>
                                 </div>
                             </div>
                         </div>

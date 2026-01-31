@@ -26,6 +26,8 @@ export interface JobLog {
 
     // Cost tracking
     partsCost?: number;
+    keyCost?: number;     // Cost of key/fob itself
+    gasCost?: number;     // Travel/mileage cost
 
     // Additional details
     referralSource?: 'google' | 'yelp' | 'referral' | 'repeat' | 'other';
@@ -204,12 +206,12 @@ export function useJobLogs() {
             .slice(0, 5);
 
         const totalRevenue = jobLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const totalPartsCost = jobLogs.reduce((sum, log) => sum + (log.partsCost || 0), 0);
+        const totalPartsCost = jobLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.gasCost || 0), 0);
         const totalProfit = totalRevenue - totalPartsCost;
 
         const thisWeekRevenue = thisWeekLogs.reduce((sum, log) => sum + (log.price || 0), 0);
         const thisMonthRevenue = thisMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
-        const thisMonthPartsCost = thisMonthLogs.reduce((sum, log) => sum + (log.partsCost || 0), 0);
+        const thisMonthPartsCost = thisMonthLogs.reduce((sum, log) => sum + (log.partsCost || 0) + (log.keyCost || 0) + (log.gasCost || 0), 0);
         const thisMonthProfit = thisMonthRevenue - thisMonthPartsCost;
         const lastMonthRevenue = lastMonthLogs.reduce((sum, log) => sum + (log.price || 0), 0);
 

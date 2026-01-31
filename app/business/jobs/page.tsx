@@ -38,6 +38,8 @@ export default function JobsPage() {
             customerPhone: data.customerPhone,
             customerAddress: data.customerAddress,
             partsCost: data.partsCost,
+            keyCost: data.keyCost,
+            gasCost: data.gasCost,
             referralSource: data.referralSource,
             status: data.status || 'completed',
         });

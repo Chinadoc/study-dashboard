@@ -27,6 +27,12 @@ interface Dossier {
     sections: DossierSection[];
 }
 
+interface YearExcerpt {
+    heading: string;
+    preview: string;
+    searchUrl: string;
+}
+
 interface DossierReferencesProps {
     make: string;
     year: number;
@@ -36,6 +42,107 @@ interface DossierReferencesProps {
 export default function DossierReferences({ make, year, sourceDocs = [] }: DossierReferencesProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedDossier, setSelectedDossier] = useState<Dossier | null>(null);
+
+    // Helper to extract year-specific excerpts from dossier sections
+    // Also matches sections by platform terms (e.g., "BDC3" for 2019+ BMW)
+    const getYearExcerpts = (dossier: Dossier, targetYear: number, targetMake: string): YearExcerpt[] => {
+        if (!dossier.sections) return [];
+
+        // Get platform terms applicable to this vehicle
+        const applicablePlatforms = getApplicablePlatforms(targetMake, targetYear);
+
+        // Filter sections that match by year+make OR by platform terms
+        const matchingSections = dossier.sections.filter(section => {
+            const makeMatch = !section.makes?.length ||
+                section.makes.some(m => m.toLowerCase() === targetMake.toLowerCase());
+
+            if (!makeMatch) return false;
+
+            // Match by explicit year
+            const yearMatch = section.years?.includes(targetYear);
+            if (yearMatch) return true;
+
+            // Match by platform term (e.g., section mentions "BDC3" which applies to 2019+ BMW)
+            if (section.platforms?.length) {
+                const platformMatch = section.platforms.some(p =>
+                    applicablePlatforms.some(ap =>
+                        ap.toLowerCase() === p.toLowerCase()
+                    )
+                );
+                if (platformMatch) return true;
+            }
+
+            // Also check if the section preview mentions a platform term
+            const previewLower = section.preview.toLowerCase();
+            const platformInPreview = applicablePlatforms.some(p =>
+                previewLower.includes(p.toLowerCase())
+            );
+            if (platformInPreview) return true;
+
+            return false;
+        });
+
+        // Return top 2 excerpts with search URLs
+        return matchingSections.slice(0, 2).map(section => {
+            // Use heading for search query, clean it up for URL
+            const searchQuery = section.heading.replace(/^\d+\.\d*\s*/, '').trim();
+            const baseUrl = dossier.view_url.replace('/edit?', '/edit?');
+            const searchUrl = `${baseUrl.split('?')[0]}?usp=sharing&q=${encodeURIComponent(searchQuery)}`;
+
+            return {
+                heading: section.heading,
+                preview: section.preview.substring(0, 150) + (section.preview.length > 150 ? '...' : ''),
+                searchUrl
+            };
+        });
+    };
+
+    // Get platform terms that apply to this vehicle's make and year
+    const getApplicablePlatforms = (targetMake: string, targetYear: number): string[] => {
+        // BMW platforms by year range
+        const bmwPlatforms: Record<string, { start: number; end: number | null }> = {
+            'CAS2': { start: 2001, end: 2010 },
+            'CAS3': { start: 2007, end: 2014 },
+            'CAS4': { start: 2010, end: 2018 },
+            'FEM': { start: 2012, end: 2019 },
+            'BDC': { start: 2016, end: null },
+            'BDC2': { start: 2017, end: 2019 },
+            'BDC3': { start: 2019, end: null }
+        };
+
+        const vwPlatforms: Record<string, { start: number; end: number | null }> = {
+            'MQB': { start: 2012, end: 2022 },
+            'MQB-Evo': { start: 2019, end: null }
+        };
+
+        const gmPlatforms: Record<string, { start: number; end: number | null }> = {
+            'Global A': { start: 2013, end: null },
+            'Global B': { start: 2019, end: null }
+        };
+
+        const toyotaPlatforms: Record<string, { start: number; end: number | null }> = {
+            'TNGA-K': { start: 2017, end: null },
+            'TNGA-F': { start: 2022, end: null }
+        };
+
+        let platformMap: Record<string, { start: number; end: number | null }> = {};
+
+        const makeLower = targetMake.toLowerCase();
+        if (makeLower === 'bmw') platformMap = bmwPlatforms;
+        else if (['volkswagen', 'audi', 'vw'].includes(makeLower)) platformMap = vwPlatforms;
+        else if (['chevrolet', 'gmc', 'cadillac', 'buick'].includes(makeLower)) platformMap = gmPlatforms;
+        else if (['toyota', 'lexus'].includes(makeLower)) platformMap = toyotaPlatforms;
+
+        const applicablePlatforms: string[] = [];
+        for (const [platform, range] of Object.entries(platformMap)) {
+            const end = range.end || 9999;
+            if (targetYear >= range.start && targetYear <= end) {
+                applicablePlatforms.push(platform);
+            }
+        }
+
+        return applicablePlatforms;
+    };
 
     // Filter dossiers relevant to this vehicle
     const relevantDossiers = useMemo(() => {
@@ -132,6 +239,41 @@ export default function DossierReferences({ make, year, sourceDocs = [] }: Dossi
                                             Years: {Math.min(...dossier.years)}–{Math.max(...dossier.years)}
                                         </p>
                                     )}
+
+                                    {/* Year-specific excerpts */}
+                                    {(() => {
+                                        const excerpts = getYearExcerpts(dossier, year, make);
+                                        if (excerpts.length === 0) return null;
+                                        return (
+                                            <div className="mt-3 pt-2 border-t border-zinc-700/30">
+                                                <p className="text-[10px] text-amber-400/80 font-medium mb-1.5 flex items-center gap-1">
+                                                    <span>📌</span> {year} References
+                                                </p>
+                                                {excerpts.map((excerpt, idx) => (
+                                                    <a
+                                                        key={idx}
+                                                        href={excerpt.searchUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="block text-[11px] text-zinc-400 hover:text-purple-300 mb-1.5 leading-relaxed transition-colors"
+                                                    >
+                                                        <span className="text-amber-300/70">"</span>
+                                                        {excerpt.preview.split(String(year)).map((part, i, arr) => (
+                                                            <React.Fragment key={i}>
+                                                                {part}
+                                                                {i < arr.length - 1 && (
+                                                                    <span className="text-amber-300 font-medium">{year}</span>
+                                                                )}
+                                                            </React.Fragment>
+                                                        ))}
+                                                        <span className="text-amber-300/70">"</span>
+                                                        <span className="text-purple-400 ml-1">→</span>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </div>

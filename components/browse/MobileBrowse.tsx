@@ -65,7 +65,11 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
             try {
                 const res = await fetch(`${API_BASE}/api/vyp/models?make=${encodeURIComponent(selectedMake!)}`);
                 const data = await res.json();
-                setModels((data.models || []) as string[]);
+                // Filter out "Misc Models" from browse - they're still accessible via search
+                const filteredModels = ((data.models || []) as string[]).filter(
+                    (m: string) => !m.toLowerCase().includes('misc')
+                );
+                setModels(filteredModels);
             } catch (error) {
                 console.error('Failed to fetch models:', error);
             } finally {
@@ -128,7 +132,22 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
         return `/assets/vehicles/${makeLower}/${makeLower}_${modelLower}.png`;
     };
 
-    // Group items into rows of 3 for horizontal scroll
+    // Group items into 3x3 blocks for horizontal scroll (9 items per page)
+    const groupInto3x3Blocks = <T,>(items: T[]): T[][][] => {
+        const blocks: T[][][] = [];
+        for (let i = 0; i < items.length; i += 9) {
+            const block: T[][] = [];
+            for (let row = 0; row < 3; row++) {
+                const startIdx = i + (row * 3);
+                const rowItems = items.slice(startIdx, startIdx + 3);
+                if (rowItems.length > 0) block.push(rowItems);
+            }
+            if (block.length > 0) blocks.push(block);
+        }
+        return blocks;
+    };
+
+    // Group items into rows (legacy for years)
     const groupIntoRows = <T,>(items: T[], rowSize: number = 3): T[][] => {
         const rows: T[][] = [];
         for (let i = 0; i < items.length; i += rowSize) {
@@ -280,7 +299,7 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                 </section>
             )}
 
-            {/* Horizontal Scroll Grid - Models */}
+            {/* 3x3 Horizontal Scroll Grid - Models */}
             {selectedMake && !selectedModel && (
                 <section>
                     <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -291,11 +310,15 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                             Loading models...
                         </div>
                     ) : (
-                        <div className="overflow-x-auto pb-2 -mx-4 px-4">
-                            <div className="flex gap-3" style={{ width: 'max-content' }}>
-                                {groupIntoRows(models, 3).map((row, rowIndex) => (
-                                    <div key={rowIndex} className="flex flex-col gap-3" style={{ minWidth: '300px' }}>
-                                        {row.map(model => {
+                        <div className="overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
+                            <div className="flex gap-4" style={{ width: 'max-content' }}>
+                                {groupInto3x3Blocks(models).map((block, blockIndex) => (
+                                    <div
+                                        key={blockIndex}
+                                        className="grid grid-cols-3 gap-2 snap-center"
+                                        style={{ minWidth: 'calc(100vw - 32px)', maxWidth: 'calc(100vw - 32px)' }}
+                                    >
+                                        {block.flat().map(model => {
                                             const imageSrc = getModelImage(selectedMake, model);
                                             const hasError = modelImageErrors.has(`${selectedMake}-${model}`);
 
@@ -303,17 +326,21 @@ export function MobileBrowse({ onSearch }: MobileBrowseProps) {
                                                 <button
                                                     key={model}
                                                     onClick={() => handleModelSelect(model)}
-                                                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
+                                                    className="aspect-square flex flex-col items-center justify-center gap-1 p-2 rounded-xl border border-gray-700 bg-gray-800/50 hover:border-purple-400 hover:bg-gray-800 transition-all"
                                                 >
                                                     {!hasError ? (
                                                         <img
                                                             src={imageSrc}
                                                             alt={model}
-                                                            className="w-12 h-8 object-contain flex-shrink-0"
+                                                            className="w-16 h-12 object-contain flex-shrink-0"
                                                             onError={() => setModelImageErrors(prev => new Set(prev).add(`${selectedMake}-${model}`))}
                                                         />
-                                                    ) : null}
-                                                    <span className={`font-medium ${hasError ? 'text-white' : 'text-gray-200 text-sm'}`}>
+                                                    ) : (
+                                                        <div className="w-16 h-12 rounded bg-gray-700/50 flex items-center justify-center">
+                                                            <span className="text-2xl">🚗</span>
+                                                        </div>
+                                                    )}
+                                                    <span className="text-xs text-gray-200 font-medium text-center leading-tight line-clamp-2">
                                                         {model}
                                                     </span>
                                                 </button>

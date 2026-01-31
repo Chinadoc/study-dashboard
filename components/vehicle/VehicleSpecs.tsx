@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import GlossaryChipType from './GlossaryChipType';
+import BittingCalculator from './BittingCalculator';
 
 interface FccEntry {
     fcc: string;
@@ -188,7 +189,14 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                             <BittingItem label="MACS" value={specs.macs} />
                         )}
                         {specs.codeSeries && (
-                            <BittingItem label="Code Series" value={specs.codeSeries} />
+                            <CodeSeriesWithCalculator
+                                codeSeries={specs.codeSeries}
+                                spaces={specs.spaces}
+                                depths={specs.depths}
+                                macs={specs.macs}
+                                keyway={specs.keyway}
+                                lishi={specs.lishi}
+                            />
                         )}
                     </div>
                 </div>
@@ -231,6 +239,53 @@ function BittingItem({ label, value }: { label: string; value: string | number }
             <span className="text-xs text-zinc-400">{label}</span>
             <span className="font-mono font-bold text-white">{value}</span>
         </div>
+    );
+}
+
+// Code Series with Calculator button
+function CodeSeriesWithCalculator({
+    codeSeries,
+    spaces,
+    depths,
+    macs,
+    keyway,
+    lishi
+}: {
+    codeSeries: string;
+    spaces?: number;
+    depths?: number | string;
+    macs?: number;
+    keyway?: string;
+    lishi?: string;
+}) {
+    const [showCalculator, setShowCalculator] = useState(false);
+
+    return (
+        <>
+            <button
+                onClick={() => setShowCalculator(true)}
+                className="flex justify-between items-center bg-zinc-900/50 px-3 py-2 rounded-lg w-full hover:bg-purple-900/30 hover:border-purple-500/50 border border-transparent transition-all group cursor-pointer"
+            >
+                <span className="text-xs text-zinc-400 group-hover:text-purple-300">Code Series</span>
+                <span className="font-mono font-bold text-white flex items-center gap-2">
+                    {codeSeries}
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-600 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        🧮
+                    </span>
+                </span>
+            </button>
+
+            <BittingCalculator
+                isOpen={showCalculator}
+                onClose={() => setShowCalculator(false)}
+                codeSeries={codeSeries}
+                spaces={spaces}
+                depths={depths}
+                macs={macs}
+                keyway={keyway}
+                lishi={lishi}
+            />
+        </>
     );
 }
 

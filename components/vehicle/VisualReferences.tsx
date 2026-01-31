@@ -13,6 +13,10 @@ interface ImageReference {
     description?: string;
     tags?: string[];
     r2_key?: string;
+    relevance?: {
+        score: number;
+        reasons: string[];
+    };
 }
 
 interface VisualReferencesProps {
@@ -95,6 +99,13 @@ export default function VisualReferences({ images }: VisualReferencesProps) {
                                 {img.image_type && (
                                     <span className="absolute top-2 left-2 px-2 py-1 bg-amber-500/90 text-black text-[10px] font-bold uppercase rounded">
                                         {img.image_type}
+                                    </span>
+                                )}
+
+                                {/* Relevance reason badge */}
+                                {img.relevance?.reasons?.[0] && (
+                                    <span className="absolute top-2 right-2 px-2 py-1 bg-purple-500/80 text-white text-[10px] font-medium rounded">
+                                        {img.relevance.reasons[0]}
                                     </span>
                                 )}
                             </div>

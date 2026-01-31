@@ -281,8 +281,8 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                                                     {getTitle(pearl)}
                                                 </div>
                                                 {!isExpanded && (
-                                                    <div className="text-xs text-zinc-400 line-clamp-1 mt-0.5">
-                                                        {getContent(pearl).substring(0, 60)}...
+                                                    <div className="text-xs text-zinc-400 line-clamp-2 mt-0.5">
+                                                        {getContent(pearl)}
                                                     </div>
                                                 )}
                                             </div>

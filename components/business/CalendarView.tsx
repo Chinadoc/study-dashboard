@@ -55,7 +55,7 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
             return jobDate.getMonth() === currentMonth && jobDate.getFullYear() === currentYear;
         });
         const revenue = monthJobs.reduce((sum, j) => sum + j.price, 0);
-        const costs = monthJobs.reduce((sum, j) => sum + (j.partsCost || 0), 0);
+        const costs = monthJobs.reduce((sum, j) => sum + (j.partsCost || 0) + (j.keyCost || 0) + (j.gasCost || 0), 0);
         return {
             jobs: monthJobs.length,
             revenue,
@@ -231,8 +231,8 @@ export default function CalendarView({ jobLogs, onAddJob, monthlyProfit }: Calen
                                     <div className="text-right">
                                         <div className="font-bold text-green-400">${job.price.toFixed(0)}</div>
                                         <span className={`text-xs px-2 py-0.5 rounded-full ${job.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                                                job.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                    'bg-blue-500/20 text-blue-400'
+                                            job.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                'bg-blue-500/20 text-blue-400'
                                             }`}>
                                             {job.status?.replace('_', ' ') || 'pending'}
                                         </span>

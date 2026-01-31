@@ -321,7 +321,9 @@ function JobCard({
     const dateStr = new Date(job.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
     const status = job.status || 'completed';
     const statusColors = STATUS_COLORS[status] || STATUS_COLORS.completed;
-    const profit = (job.price || 0) - (job.partsCost || 0);
+    const totalCosts = (job.partsCost || 0) + (job.keyCost || 0) + (job.gasCost || 0);
+    const profit = (job.price || 0) - totalCosts;
+    const hasCosts = totalCosts > 0;
 
     return (
         <div className="hover:bg-gray-800/30 transition-colors">
@@ -387,17 +389,39 @@ function JobCard({
                     )}
 
                     {/* Cost/Profit Info */}
-                    {job.partsCost && job.partsCost > 0 && (
-                        <div className="bg-green-950/30 border border-green-900/30 rounded-lg p-3 flex justify-between">
-                            <div>
-                                <span className="text-xs text-gray-500">Parts Cost: </span>
-                                <span className="text-red-400 font-bold">${job.partsCost.toFixed(0)}</span>
+                    {hasCosts && (
+                        <div className="bg-green-950/30 border border-green-900/30 rounded-lg p-3 space-y-2">
+                            <div className="flex flex-wrap gap-3 text-sm">
+                                {job.keyCost && job.keyCost > 0 && (
+                                    <div>
+                                        <span className="text-zinc-500">🔑 Key: </span>
+                                        <span className="text-yellow-400 font-bold">${job.keyCost.toFixed(0)}</span>
+                                    </div>
+                                )}
+                                {job.gasCost && job.gasCost > 0 && (
+                                    <div>
+                                        <span className="text-zinc-500">⛽ Gas: </span>
+                                        <span className="text-blue-400 font-bold">${job.gasCost.toFixed(0)}</span>
+                                    </div>
+                                )}
+                                {job.partsCost && job.partsCost > 0 && (
+                                    <div>
+                                        <span className="text-zinc-500">🔧 Parts: </span>
+                                        <span className="text-orange-400 font-bold">${job.partsCost.toFixed(0)}</span>
+                                    </div>
+                                )}
                             </div>
-                            <div>
-                                <span className="text-xs text-gray-500">Profit: </span>
-                                <span className={`font-bold ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                    ${profit.toFixed(0)}
-                                </span>
+                            <div className="flex justify-between border-t border-green-900/30 pt-2">
+                                <div>
+                                    <span className="text-xs text-gray-500">Total Costs: </span>
+                                    <span className="text-red-400 font-bold">${totalCosts.toFixed(0)}</span>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-gray-500">Profit: </span>
+                                    <span className={`font-bold ${profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                        ${profit.toFixed(0)}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     )}

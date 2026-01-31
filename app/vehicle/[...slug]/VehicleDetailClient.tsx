@@ -15,6 +15,7 @@ import ToolCoverageSidebar from '@/components/vehicle/ToolCoverageSidebar';
 import FloatingCommentTab from '@/components/FloatingCommentTab';
 import { API_BASE } from '@/lib/config';
 import { trackVehicleView } from '@/lib/analytics';
+import { filterRelevantImages } from '@/lib/imageRelevanceScorer';
 
 // Transform products_by_type from API into KeyConfig[] for KeyCards
 function transformProductsByType(pbt: Record<string, any>): any[] {
@@ -596,7 +597,17 @@ export default function VehicleDetailClient() {
     const rawPearls = data.pearls?.pearls;
     const pearlsList = Array.isArray(rawPearls) ? rawPearls : [];
     const rawImages = data.images?.images;
-    const imagesList = Array.isArray(rawImages) ? rawImages : [];
+    const rawImagesList = Array.isArray(rawImages) ? rawImages : [];
+
+    // Apply intelligent relevance filtering to images
+    // Scores based on model match, platform/architecture, and year overlap
+    const imagesList = filterRelevantImages(rawImagesList, {
+        make,
+        model,
+        year,
+        platform: header.platform,
+        architecture: header.immobilizer_system
+    }, { minScore: 10, maxResults: 30 });
 
     // Extract dynamic sidebar content from pearls
     const criticalPearl = pearlsList.find((p: any) => (p.risk || '').toLowerCase() === 'critical');

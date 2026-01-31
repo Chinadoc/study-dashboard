@@ -400,14 +400,47 @@ export default function InventoryPage() {
                                 return (
                                     <div
                                         key={item.itemKey}
-                                        className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
-                                        style={keyImage ? {
-                                            backgroundImage: `linear-gradient(to right, rgba(17,24,39,0.95), rgba(17,24,39,0.85)), url(${keyImage})`,
-                                            backgroundPosition: 'right center',
-                                            backgroundSize: 'contain',
-                                            backgroundRepeat: 'no-repeat'
-                                        } : undefined}
+                                        className="p-2.5 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-gray-800/30 transition-colors relative"
                                     >
+                                        {/* Key Image - Left Side */}
+                                        {item.type === 'key' && (
+                                            <div className="flex-shrink-0">
+                                                {keyImage ? (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            // Open expanded view
+                                                            const modal = document.createElement('div');
+                                                            modal.innerHTML = `
+                                                                <div class="fixed inset-0 z-50 flex items-center justify-center" onclick="this.remove()">
+                                                                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+                                                                    <div class="relative bg-zinc-900 border border-zinc-700 rounded-xl p-4 shadow-2xl">
+                                                                        <div class="flex justify-between items-center mb-3">
+                                                                            <span class="text-xs font-bold text-zinc-400 uppercase tracking-wide">${item.itemKey}</span>
+                                                                            <button class="text-zinc-500 hover:text-zinc-300 text-lg">×</button>
+                                                                        </div>
+                                                                        <img src="${keyImage}" alt="${item.itemKey}" class="w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] object-contain rounded-lg bg-zinc-800" />
+                                                                    </div>
+                                                                </div>
+                                                            `;
+                                                            document.body.appendChild(modal.firstElementChild!);
+                                                        }}
+                                                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 overflow-hidden hover:ring-2 hover:ring-yellow-500/50 transition-all cursor-pointer"
+                                                    >
+                                                        <img
+                                                            src={keyImage}
+                                                            alt={item.itemKey}
+                                                            className="w-full h-full object-contain p-1"
+                                                        />
+                                                    </button>
+                                                ) : (
+                                                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-zinc-800 flex items-center justify-center">
+                                                        <span className="text-2xl">🔑</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
@@ -416,15 +449,10 @@ export default function InventoryPage() {
                                                         item.type === 'tool' ? 'bg-purple-500/20 text-purple-400' :
                                                             'bg-green-500/20 text-green-400'
                                                     }`}>
-                                                    {/* Small key image thumbnail instead of emoji */}
-                                                    {item.type === 'key' ? (
-                                                        <span className="flex items-center gap-1">
-                                                            <KeyImageThumbnail imageUrl={keyImage} itemKey={item.itemKey} />
-                                                            Key
-                                                        </span>
-                                                    ) : item.type === 'blank' ? '🔧 Blank' :
-                                                        item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
-                                                            '📦 Supply'}
+                                                    {item.type === 'key' ? '🔑 Key' :
+                                                        item.type === 'blank' ? '🔧 Blank' :
+                                                            item.type === 'tool' ? `💻 ${item.toolType ? TOOL_CATEGORIES[item.toolType as ToolType]?.label || 'Tool' : 'Tool'}` :
+                                                                '📦 Supply'}
                                                 </span>
                                                 {item.qty <= 2 && (
                                                     <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-red-500/20 text-red-400">Low</span>
@@ -438,9 +466,7 @@ export default function InventoryPage() {
                                                 <div className="text-[10px] sm:text-xs text-zinc-500">S/N: {item.serialNumber}</div>
                                             )}
                                             {item.vehicle && (
-                                                <div className="text-[10px] sm:text-sm text-gray-400 truncate max-w-[180px] sm:max-w-none">
-                                                    {item.vehicle.split(',').slice(0, 2).join(', ')}{item.vehicle.split(',').length > 2 ? '...' : ''}
-                                                </div>
+                                                <VehiclesPopover vehicles={item.vehicle} maxVisible={2} />
                                             )}
                                         </div>
 

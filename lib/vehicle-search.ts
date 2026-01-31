@@ -64,6 +64,9 @@ export const MODEL_TO_MAKE: Record<string, string> = {
     // Cadillac
     'Escalade': 'Cadillac', 'CT4': 'Cadillac', 'CT5': 'Cadillac',
     'XT4': 'Cadillac', 'XT5': 'Cadillac', 'XT6': 'Cadillac',
+    'CTS': 'Cadillac', 'ATS': 'Cadillac', 'XTS': 'Cadillac',
+    'SRX': 'Cadillac', 'STS': 'Cadillac', 'DTS': 'Cadillac',
+    'ELR': 'Cadillac', 'Lyriq': 'Cadillac', 'CT6': 'Cadillac',
 
     // Toyota
     'Camry': 'Toyota', 'Corolla': 'Toyota', 'RAV4': 'Toyota',

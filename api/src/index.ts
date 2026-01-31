@@ -3285,7 +3285,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
                 AND pearl_title NOT LIKE 'http%'
                 AND pearl_content NOT LIKE '%accessed December%'
                 AND pearl_content NOT LIKE '%accessed January%'
-                GROUP BY pearl_title
+                GROUP BY SUBSTR(pearl_content, 1, 100)
                 ORDER BY 
                   CASE target_section
                     WHEN 'voltage' THEN 1
@@ -4515,6 +4515,7 @@ Be specific about dollar amounts and which subscriptions to focus on.`;
               source_doc, action
             FROM refined_pearls
             ${whereClause}
+            GROUP BY SUBSTR(content, 1, 100)
             ORDER BY 
               CASE risk WHEN 'critical' THEN 1 WHEN 'important' THEN 2 ELSE 3 END,
               make, model
