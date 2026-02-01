@@ -1,5 +1,5 @@
-// v22 - Resilient caching that doesn't fail on individual asset errors
-const CACHE_NAME = 'euro-keys-v22';
+// v23 - Cache bust for stale phone PWAs
+const CACHE_NAME = 'euro-keys-v23';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
