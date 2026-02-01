@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 // API base URL - use environment variable or default to production
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://jeremy-samuels17.workers.dev';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://euro-keys.jeremy-samuels17.workers.dev';
 
 export interface JobLog {
     id: string;
