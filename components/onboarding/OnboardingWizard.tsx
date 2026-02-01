@@ -4,6 +4,7 @@ import React from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE } from '@/lib/config';
+import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 
 const STEPS = [
     { id: 'welcome', title: 'Welcome', icon: '👋' },
@@ -17,7 +18,44 @@ export default function OnboardingWizard() {
     const { user, isAuthenticated, login } = useAuth();
     const [businessName, setBusinessName] = React.useState('');
     const [businessState, setBusinessState] = React.useState('');
+    const [businessLogo, setBusinessLogo] = React.useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState(false);
+
+    // Load existing profile data on mount
+    React.useEffect(() => {
+        const profile = loadBusinessProfile();
+        if (profile.businessName) setBusinessName(profile.businessName);
+        if (profile.logo) setBusinessLogo(profile.logo);
+    }, []);
+
+    // Handle logo file upload
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Limit file size to 500KB
+        if (file.size > 500 * 1024) {
+            alert('Logo must be under 500KB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setBusinessLogo(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // Save business info and proceed to next step
+    const handleSaveAndContinue = () => {
+        const profile = loadBusinessProfile();
+        saveBusinessProfile({
+            ...profile,
+            businessName,
+            logo: businessLogo || undefined,
+        });
+        nextStep();
+    };
 
     if (!showWizard) return null;
 
@@ -103,6 +141,40 @@ export default function OnboardingWizard() {
                         </div>
 
                         <div className="space-y-4">
+                            {/* Logo Upload */}
+                            <div>
+                                <label className="block text-zinc-400 text-sm mb-2">Business Logo (optional)</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-zinc-800 border border-zinc-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                        {businessLogo ? (
+                                            <img src={businessLogo} alt="Logo" className="w-full h-full object-contain" />
+                                        ) : (
+                                            <span className="text-2xl">🏢</span>
+                                        )}
+                                    </div>
+                                    <label className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleLogoUpload}
+                                            className="hidden"
+                                        />
+                                        <span className="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg text-sm cursor-pointer transition-colors inline-block">
+                                            {businessLogo ? 'Change Logo' : 'Upload Logo'}
+                                        </span>
+                                    </label>
+                                    {businessLogo && (
+                                        <button
+                                            onClick={() => setBusinessLogo(null)}
+                                            className="text-red-400 hover:text-red-300 text-sm"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-zinc-500 text-xs mt-1">Max 500KB. PNG or JPG.</p>
+                            </div>
+
                             <div>
                                 <label className="block text-zinc-400 text-sm mb-2">Business Name</label>
                                 <input
@@ -139,7 +211,7 @@ export default function OnboardingWizard() {
                                 ← Back
                             </button>
                             <button
-                                onClick={nextStep}
+                                onClick={handleSaveAndContinue}
                                 className="flex-1 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-colors"
                             >
                                 Continue →
@@ -266,10 +338,10 @@ export default function OnboardingWizard() {
                         <div
                             key={step.id}
                             className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs ${i === currentStep
-                                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                    : i < currentStep
-                                        ? 'bg-green-500/20 text-green-400'
-                                        : 'bg-zinc-800 text-zinc-500'
+                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                : i < currentStep
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : 'bg-zinc-800 text-zinc-500'
                                 }`}
                         >
                             <span>{i < currentStep ? '✓' : step.icon}</span>

@@ -7,7 +7,6 @@ import { getLowStockItems, TOOL_CATEGORIES, ToolType, KEY_CATEGORIES, detectKeyC
 import { loadBusinessProfile, saveBusinessProfile } from '@/lib/businessTypes';
 import { exportInventoryToCSV, parseInventoryCSV, generateAmazonSearchUrl } from '@/lib/inventoryIO';
 import ToolSetupWizard from '@/components/business/ToolSetupWizard';
-import MiniHeatmap from '@/components/business/MiniHeatmap';
 import { API_BASE } from '@/lib/config';
 
 // FCC data for image lookups and key type detection
@@ -444,10 +443,23 @@ export default function InventoryPage() {
 
             {/* Coverage Heatmap View */}
             {activeSubTab === 'coverage' ? (
-                <div className="space-y-4">
-                    <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
-                        <MiniHeatmap title="🗺️ Key Inventory Coverage" maxTiles={50} />
-                    </div>
+                <div className="space-y-3">
+                    <a
+                        href="/business/coverage-heatmap"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/80 rounded-lg border border-zinc-700 hover:border-amber-500/40 hover:bg-zinc-800 transition-all group"
+                    >
+                        <span>🔑</span>
+                        <span className="font-medium text-white group-hover:text-amber-400 transition-colors">Key Coverage</span>
+                        <span className="text-amber-500 text-sm">View Map →</span>
+                    </a>
+                    <a
+                        href="/business/coverage-heatmap"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/80 rounded-lg border border-zinc-700 hover:border-purple-500/40 hover:bg-zinc-800 transition-all group ml-2"
+                    >
+                        <span>🔧</span>
+                        <span className="font-medium text-white group-hover:text-purple-400 transition-colors">Tool Coverage</span>
+                        <span className="text-purple-500 text-sm">View Map →</span>
+                    </a>
                 </div>
             ) : (
                 /* Inventory List */

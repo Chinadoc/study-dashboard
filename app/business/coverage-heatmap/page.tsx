@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import CriticalWarnings from '@/components/business/CriticalWarnings';
 import PearlProcedures from '@/components/business/PearlProcedures';
 import ToolRankings from '@/components/business/ToolRankings';
 import CrossVehicleRelationships from '@/components/business/CrossVehicleRelationships';
+import { loadBusinessProfile, AVAILABLE_TOOLS } from '@/lib/businessTypes';
 import vehicleCoverageData from '../../../src/data/unified_vehicle_coverage.json';
 
 // Unified coverage data with rich limitation/cable/flag data
@@ -108,6 +109,70 @@ export default function CoverageHeatMap() {
     const [searchQuery, setSearchQuery] = useState('');
     const [showAllVehicles, setShowAllVehicles] = useState(false);
     const MAX_VISIBLE_VEHICLES = 50;
+
+    // My Coverage overlay state
+    const [showMyCoverage, setShowMyCoverage] = useState(false);
+    const [ownedToolIds, setOwnedToolIds] = useState<string[]>([]);
+    const [keyInventoryVehicles, setKeyInventoryVehicles] = useState<Set<string>>(new Set());
+
+    // Load user's owned tools and key inventory
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const profile = loadBusinessProfile();
+            setOwnedToolIds(profile.tools || []);
+
+            // Load key inventory and parse vehicle associations
+            const inventoryRaw = localStorage.getItem('eurokeys_inventory');
+            if (inventoryRaw) {
+                try {
+                    const inventory = JSON.parse(inventoryRaw);
+                    const vehicleSet = new Set<string>();
+                    inventory.forEach((item: { vehicle?: string }) => {
+                        if (item.vehicle) {
+                            // Parse comma-separated vehicles and normalize
+                            item.vehicle.split(',').forEach(v => {
+                                const normalized = v.trim().toLowerCase();
+                                if (normalized) vehicleSet.add(normalized);
+                            });
+                        }
+                    });
+                    setKeyInventoryVehicles(vehicleSet);
+                } catch {
+                    console.error('Failed to parse inventory');
+                }
+            }
+        }
+    }, []);
+
+    // Check if a vehicle is covered by owned keys
+    const hasKeyForVehicle = (make: string, model: string, year: number): boolean => {
+        const searchTerms = [
+            `${year} ${make} ${model}`.toLowerCase(),
+            `${make} ${model} ${year}`.toLowerCase(),
+            `${make} ${model}`.toLowerCase(),
+        ];
+        return searchTerms.some(term =>
+            [...keyInventoryVehicles].some(v => v.includes(term) || term.includes(v))
+        );
+    };
+
+    // Check if owned tools cover a vehicle
+    const hasToolForVehicle = (v: VehicleCoverage): boolean => {
+        // Map owned tool IDs to heatmap tool keys
+        const toolIdToKey: Record<string, typeof TOOLS[number]> = {
+            'autel_im608': 'autel',
+            'smart_pro': 'smartPro',
+            'lonsdor_k518': 'lonsdor',
+            'vvdi': 'vvdi',
+        };
+
+        return ownedToolIds.some(toolId => {
+            const toolKey = toolIdToKey[toolId];
+            if (!toolKey) return false;
+            const level = getCoverageLevel(v[toolKey].status || '');
+            return level === 'full' || level === 'partial';
+        });
+    };
 
     // Year range for timeline view (1980-2026, defaulting to show recent years)
     const YEAR_START = 1990;
@@ -333,6 +398,23 @@ export default function CoverageHeatMap() {
                                     📅 Timeline
                                 </button>
                             </div>
+
+                            {/* My Coverage Overlay Toggle */}
+                            <button
+                                onClick={() => setShowMyCoverage(!showMyCoverage)}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 border ${showMyCoverage
+                                    ? 'bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500 text-white shadow-lg shadow-amber-500/20'
+                                    : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-600'
+                                    }`}
+                            >
+                                <span>✨</span>
+                                <span>My Coverage</span>
+                                {(ownedToolIds.length > 0 || keyInventoryVehicles.size > 0) && (
+                                    <span className={`text-xs px-1.5 py-0.5 rounded ${showMyCoverage ? 'bg-white/20' : 'bg-gray-700'}`}>
+                                        {ownedToolIds.length}🔧 {keyInventoryVehicles.size}🔑
+                                    </span>
+                                )}
+                            </button>
 
                             {/* Conditional filter based on view mode */}
                             {viewMode === 'vehicle' ? (
@@ -650,6 +732,26 @@ export default function CoverageHeatMap() {
                                             <span className="text-sm text-gray-400">{LEVEL_LABELS[level as keyof typeof LEVEL_LABELS]}</span>
                                         </div>
                                     ))}
+                                    {showMyCoverage && (
+                                        <>
+                                            <div className="w-px h-4 bg-gray-700" />
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 rounded bg-gray-600 ring-2 ring-amber-400" />
+                                                <span className="text-sm text-amber-400">🔧 Tool owned</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="relative w-4 h-4">
+                                                    <div className="w-4 h-4 rounded bg-gray-600" />
+                                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                                                </div>
+                                                <span className="text-sm text-blue-400">🔑 Key in stock</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm">⭐</span>
+                                                <span className="text-sm text-amber-300">Both</span>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
 
                                 {/* Timeline Grid - horizontally scrollable with sticky Make column */}
@@ -686,15 +788,34 @@ export default function CoverageHeatMap() {
                                                             const models = cellData?.models || [];
                                                             const status = cellData?.status || 'No data';
 
+                                                            // My Coverage overlay checks
+                                                            const vehicleRecords = COVERAGE_DATA.filter(r =>
+                                                                r.make === make && year >= r.yearStart && year <= r.yearEnd
+                                                            );
+                                                            const hasTool = showMyCoverage && vehicleRecords.some(v => hasToolForVehicle(v));
+                                                            const hasKey = showMyCoverage && hasKeyForVehicle(make, models[0] || '', year);
+
                                                             return (
                                                                 <td
                                                                     key={year}
                                                                     className="w-10 p-1 text-center"
-                                                                    title={`${make} ${year}\n${models.length > 0 ? `Models: ${models.join(', ')}\n` : ''}${status}`}
+                                                                    title={`${make} ${year}\n${models.length > 0 ? `Models: ${models.join(', ')}\n` : ''}${status}${hasTool ? '\n🔧 Tool available' : ''}${hasKey ? '\n🔑 Key in stock' : ''}`}
                                                                 >
-                                                                    <div
-                                                                        className={`w-6 h-6 mx-auto rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125`}
-                                                                    />
+                                                                    <div className="relative w-6 h-6 mx-auto">
+                                                                        <div
+                                                                            className={`w-6 h-6 rounded-sm ${LEVEL_COLORS[level]} ${level !== 'unknown' ? 'shadow-md' : 'opacity-30'} cursor-pointer transition-transform hover:scale-125 ${showMyCoverage && hasTool ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-gray-950' : ''}`}
+                                                                        />
+                                                                        {/* Key in stock indicator */}
+                                                                        {showMyCoverage && hasKey && (
+                                                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-gray-950 flex items-center justify-center text-[8px]">
+                                                                                🔑
+                                                                            </div>
+                                                                        )}
+                                                                        {/* Both tool and key indicator */}
+                                                                        {showMyCoverage && hasTool && hasKey && (
+                                                                            <div className="absolute -bottom-1 -right-1 text-[10px]">⭐</div>
+                                                                        )}
+                                                                    </div>
                                                                 </td>
                                                             );
                                                         })}

@@ -8,8 +8,6 @@ To appreciate the specificity of the FCC IDs discussed in this report, one must 
 This architectural requirement means that every key fob discussed herein—whether for a 2006 Jetta or a 2014 Passat—is not merely a radio transmitter. It is a cryptographic device that must be pre-loaded with specific vehicle data before it can be authorized via the On-Board Diagnostics (OBDII) port. This fusion of remote entry functions and immobilizer security within the same hardware package (the key fob) created a dependency where the correct FCC ID dictates not just remote locking capabilities, but the fundamental ability to start the engine.
 
 
-  
-
 
 
 2. Theoretical Framework: Frequency and Modulation
@@ -43,8 +41,6 @@ A significant potential for error exists regarding the "AM" suffix. The snippets
 * 1K0 (Mk5 Platform): The 1K0 prefix denotes the fifth-generation chassis. If a 1K0 959 753 AM exists, it would be a specific revision for the Mk5. However, the research overwhelmingly points to 1K0 959 753 P as the correct current specification.
 * The Verdict: When sourcing keys for a 2006–2010 Jetta, technicians must rigorously verify the 1K0 prefix. Using a 1J0 key is a common cause of "remote programming failure" where the key starts the car (if the chip is correct) but the buttons refuse to sync.
 
-
-  
 
 
 

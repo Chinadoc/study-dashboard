@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import PearlRenderer from '@/components/shared/PearlRenderer';
 
 interface Pearl {
     id?: number;
@@ -291,9 +292,7 @@ export default function TechnicalPearls({ pearls, make, model }: TechnicalPearls
                                         {/* Expanded content */}
                                         {isExpanded && (
                                             <div className="mt-3 pt-3 border-t border-zinc-700/50">
-                                                <p className="text-sm text-zinc-300 leading-relaxed">
-                                                    {getContent(pearl)}
-                                                </p>
+                                                <PearlRenderer content={getContent(pearl)} />
                                                 {pearl.source_doc && (
                                                     <div className="mt-2 text-[10px] text-zinc-500">
                                                         Source: {pearl.source_doc}

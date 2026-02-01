@@ -39,18 +39,31 @@ export const WizardStepOption: React.FC<{
     label: string | number;
     isSelected: boolean;
     onClick: () => void;
-}> = ({ label, isSelected, onClick }) => {
+    thumbnailUrl?: string;
+}> = ({ label, isSelected, onClick, thumbnailUrl }) => {
+    const [imgError, setImgError] = React.useState(false);
+
     return (
         <div
             onClick={onClick}
             className={`
-                px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 border
+                px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 border flex items-center gap-3
                 ${isSelected
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium border-transparent'
                     : 'bg-transparent text-gray-300 border-transparent hover:bg-purple-500/10 hover:border-white/10'}
             `}
         >
-            {label}
+            {thumbnailUrl && !imgError && (
+                <img
+                    src={thumbnailUrl}
+                    alt=""
+                    className="w-10 h-10 rounded object-cover flex-shrink-0 bg-zinc-800"
+                    onError={() => setImgError(true)}
+                    loading="lazy"
+                />
+            )}
+            <span>{label}</span>
         </div>
     );
 };
+

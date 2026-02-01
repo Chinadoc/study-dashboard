@@ -103,3 +103,25 @@ export function formatDate(dateString: string): string {
         day: 'numeric',
     });
 }
+
+/**
+ * Generate email content for sending an invoice
+ */
+export function generateInvoiceEmailContent(invoice: Invoice): {
+    subject: string;
+    body: string;
+} {
+    const subject = `Invoice ${invoice.invoiceNumber} from ${invoice.businessInfo.name}`;
+    const body = `Dear ${invoice.customerInfo.name || 'Customer'},
+
+Please find attached Invoice ${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.
+
+Invoice Date: ${formatDate(invoice.createdAt)}
+Amount Due: ${formatCurrency(invoice.total)}
+
+Thank you for your business!
+
+${invoice.businessInfo.name}${invoice.businessInfo.phone ? '\n' + invoice.businessInfo.phone : ''}${invoice.businessInfo.email ? '\n' + invoice.businessInfo.email : ''}`;
+
+    return { subject, body };
+}

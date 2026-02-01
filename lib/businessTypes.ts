@@ -5,6 +5,11 @@
  */
 
 export interface BusinessProfile {
+    businessName?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    logo?: string; // Base64 encoded image
     tools: string[];
     setupComplete: boolean;
     setupStep: 'tools' | 'coverage' | 'inventory' | 'subscriptions' | 'complete';

@@ -8,8 +8,10 @@ import { InventoryProvider } from '@/contexts/InventoryContext';
 import { GoalProvider } from '@/contexts/GoalContext';
 import { AdminModeProvider } from '@/contexts/AdminModeContext';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
+import { FleetPanelProvider } from '@/contexts/FleetPanelContext';
 import InventoryLoginPrompt from '@/components/shared/InventoryLoginPrompt';
 import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
+import FleetPanelWrapper from '@/components/business/FleetPanelWrapper';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -20,9 +22,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
                         <GoalProvider>
                             <AdminModeProvider>
                                 <OnboardingProvider>
-                                    {children}
-                                    <InventoryLoginPrompt />
-                                    <OnboardingWizard />
+                                    <FleetPanelProvider>
+                                        {children}
+                                        <InventoryLoginPrompt />
+                                        <OnboardingWizard />
+                                        <FleetPanelWrapper />
+                                    </FleetPanelProvider>
                                 </OnboardingProvider>
                             </AdminModeProvider>
                         </GoalProvider>

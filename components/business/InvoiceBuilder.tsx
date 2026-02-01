@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     Invoice,
     InvoiceLineItem,
@@ -14,17 +13,11 @@ import {
     formatCurrency,
     getInvoicesFromStorage,
     saveInvoicesToStorage,
+    generateInvoiceEmailContent,
 } from '@/lib/invoiceTypes';
 import { JobLog } from '@/lib/useJobLogs';
 import { loadBusinessProfile } from '@/lib/businessTypes';
 
-// Dynamic import for PDF (client-side only)
-const PDFDownloadLink = dynamic(
-    () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-    { ssr: false, loading: () => <span className="text-zinc-500">Loading PDF...</span> }
-);
-
-const InvoicePDF = dynamic(() => import('./InvoicePDF'), { ssr: false });
 
 interface InvoiceBuilderProps {
     isOpen: boolean;
@@ -34,10 +27,14 @@ interface InvoiceBuilderProps {
 }
 
 export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: InvoiceBuilderProps) {
-    // Business info from profile
+    // Track if component is mounted (for react-pdf which needs browser environment)
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Business info + logo
     const [businessInfo, setBusinessInfo] = useState<BusinessInfo>({
         name: 'My Locksmith Business',
     });
+    const [businessLogo, setBusinessLogo] = useState<string | null>(null);
 
     // Customer info
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -53,15 +50,21 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
     const [taxRate, setTaxRate] = useState(0);
     const [notes, setNotes] = useState('');
 
-    // Load business profile on mount
+    // Mark as mounted on client side and load business profile
     useEffect(() => {
+        setIsMounted(true);
         const profile = loadBusinessProfile();
         if (profile.businessName) {
-            setBusinessInfo({
-                name: profile.businessName,
-                phone: profile.phone,
-                email: profile.email,
-            });
+            setBusinessInfo(prev => ({ ...prev, name: profile.businessName || prev.name }));
+        }
+        if (profile.phone) {
+            setBusinessInfo(prev => ({ ...prev, phone: profile.phone }));
+        }
+        if (profile.email) {
+            setBusinessInfo(prev => ({ ...prev, email: profile.email }));
+        }
+        if (profile.logo) {
+            setBusinessLogo(profile.logo);
         }
     }, []);
 
@@ -71,6 +74,7 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
             setCustomerInfo({
                 name: job.customerName || '',
                 phone: job.customerPhone,
+                email: job.customerEmail,
             });
             setLineItems([
                 {
@@ -138,6 +142,126 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
         saveInvoicesToStorage(invoices);
         onSave?.(invoice);
         onClose();
+    };
+
+    // Print invoice (opens print dialog for PDF)
+    const handlePrint = () => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return;
+
+        const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${invoice.invoiceNumber}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; border-bottom: 3px solid #f59e0b; padding-bottom: 20px; margin-bottom: 30px; }
+        .business-header { display: flex; align-items: center; gap: 15px; }
+        .business-logo { width: 60px; height: 60px; object-fit: contain; border-radius: 8px; }
+        .business-name { font-size: 24px; font-weight: bold; color: #1f2937; }
+        .invoice-title { font-size: 32px; font-weight: bold; color: #f59e0b; text-align: right; }
+        .invoice-number { color: #6b7280; margin-top: 5px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 12px; font-weight: bold; color: #6b7280; text-transform: uppercase; margin-bottom: 10px; }
+        .customer-box { background: #f9fafb; padding: 15px; border-radius: 5px; }
+        .customer-name { font-weight: bold; font-size: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1f2937; color: white; padding: 12px; text-align: left; }
+        th:last-child, td:last-child { text-align: right; }
+        td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+        tr:nth-child(even) { background: #f9fafb; }
+        .totals { margin-top: 20px; text-align: right; }
+        .total-row { display: flex; justify-content: flex-end; margin-bottom: 5px; }
+        .total-label { color: #6b7280; margin-right: 20px; }
+        .grand-total { font-size: 18px; font-weight: bold; color: #f59e0b; border-top: 2px solid #f59e0b; padding-top: 10px; margin-top: 10px; }
+        .notes { background: #fffbeb; padding: 15px; border-radius: 5px; margin-top: 30px; }
+        .notes-title { font-weight: bold; color: #92400e; margin-bottom: 5px; }
+        .footer { text-align: center; color: #9ca3af; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+        @media print { body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="business-header">
+            ${businessLogo ? `<img src="${businessLogo}" alt="Logo" class="business-logo" />` : ''}
+            <div>
+                <div class="business-name">${invoice.businessInfo.name}</div>
+                ${invoice.businessInfo.phone ? `<div>${invoice.businessInfo.phone}</div>` : ''}
+                ${invoice.businessInfo.email ? `<div>${invoice.businessInfo.email}</div>` : ''}
+            </div>
+        </div>
+        <div>
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-number">${invoice.invoiceNumber}</div>
+            <div style="color: #6b7280; margin-top: 8px;">Date: ${new Date(invoice.createdAt).toLocaleDateString()}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Bill To</div>
+        <div class="customer-box">
+            <div class="customer-name">${invoice.customerInfo.name}</div>
+            ${invoice.customerInfo.phone ? `<div>${invoice.customerInfo.phone}</div>` : ''}
+            ${invoice.customerInfo.email ? `<div>${invoice.customerInfo.email}</div>` : ''}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${invoice.lineItems.map(item => `
+                <tr>
+                    <td>${item.description}</td>
+                    <td style="text-align: center;">${item.quantity}</td>
+                    <td style="text-align: right;">${formatCurrency(item.unitPrice)}</td>
+                    <td style="text-align: right;">${formatCurrency(item.total)}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div class="total-row">
+            <span class="total-label">Subtotal</span>
+            <span>${formatCurrency(invoice.subtotal)}</span>
+        </div>
+        ${invoice.taxAmount && invoice.taxAmount > 0 ? `
+            <div class="total-row">
+                <span class="total-label">Tax (${invoice.taxRate}%)</span>
+                <span>${formatCurrency(invoice.taxAmount)}</span>
+            </div>
+        ` : ''}
+        <div class="total-row grand-total">
+            <span style="margin-right: 20px;">Total</span>
+            <span>${formatCurrency(invoice.total)}</span>
+        </div>
+    </div>
+
+    ${invoice.notes ? `
+        <div class="notes">
+            <div class="notes-title">Notes</div>
+            <div>${invoice.notes}</div>
+        </div>
+    ` : ''}
+
+    <div class="footer">Thank you for your business! • Generated by EuroKeys</div>
+</body>
+</html>
+        `;
+
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => printWindow.print(), 250);
     };
 
     if (!isOpen) return null;
@@ -312,13 +436,12 @@ export default function InvoiceBuilder({ isOpen, onClose, job, onSave }: Invoice
                     >
                         Save Draft
                     </button>
-                    <PDFDownloadLink
-                        document={<InvoicePDF invoice={invoice} />}
-                        fileName={`${invoice.invoiceNumber}.pdf`}
+                    <button
+                        onClick={handlePrint}
                         className="px-4 py-2 bg-yellow-500 text-black rounded-lg hover:bg-yellow-400 font-bold"
                     >
-                        {({ loading }) => (loading ? 'Generating...' : '📥 Download PDF')}
-                    </PDFDownloadLink>
+                        🖨️ Print / Save PDF
+                    </button>
                 </div>
             </div>
         </div>

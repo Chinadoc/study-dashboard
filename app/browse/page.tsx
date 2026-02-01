@@ -10,6 +10,15 @@ import { POPULAR_MAKES } from '@/lib/make-data';
 import { parseVehicleQuery } from '@/lib/vehicle-search';
 
 const API_BASE = 'https://euro-keys.jeremy-samuels17.workers.dev';
+const ASSETS_BASE = 'https://assets.eurokeys.com';
+
+// Generate thumbnail URL for a vehicle model
+function getModelThumbnailUrl(make: string | null, model: string): string | undefined {
+    if (!make) return undefined;
+    const makeSlug = make.toLowerCase().replace(/\s+/g, '-').replace(/-benz/i, '');
+    const modelSlug = model.toLowerCase().replace(/\s+/g, '-');
+    return `${ASSETS_BASE}/vehicles/${makeSlug}/${modelSlug}.png`;
+}
 
 // Type for merged model from API
 interface MergedModel {
@@ -378,6 +387,7 @@ function BrowsePageContent() {
                                                     label={model.display}
                                                     isSelected={selectedModel === model.name}
                                                     onClick={() => handleModelSelect(model.name)}
+                                                    thumbnailUrl={getModelThumbnailUrl(selectedMake, model.name)}
                                                 />
                                             ))}
                                         </>

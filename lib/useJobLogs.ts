@@ -19,6 +19,7 @@ export interface JobLog {
     // Customer info
     customerName?: string;
     customerPhone?: string;
+    customerEmail?: string;
     customerAddress?: string;
 
     // Job tracking
@@ -364,8 +365,8 @@ export function useJobLogs() {
     }, [jobLogs]);
 
     // Get unique recent customers for quick-fill
-    const getRecentCustomers = useCallback((): Array<{ name: string; phone?: string; address?: string }> => {
-        const customerMap = new Map<string, { name: string; phone?: string; address?: string; lastUsed: number }>();
+    const getRecentCustomers = useCallback((): Array<{ name: string; phone?: string; email?: string; address?: string }> => {
+        const customerMap = new Map<string, { name: string; phone?: string; email?: string; address?: string; lastUsed: number }>();
 
         jobLogs.forEach(log => {
             if (log.customerName && log.customerName.trim()) {
@@ -374,6 +375,7 @@ export function useJobLogs() {
                     customerMap.set(log.customerName, {
                         name: log.customerName,
                         phone: log.customerPhone || existing?.phone,
+                        email: log.customerEmail || existing?.email,
                         address: log.customerAddress || existing?.address,
                         lastUsed: log.createdAt,
                     });
@@ -384,7 +386,7 @@ export function useJobLogs() {
         return Array.from(customerMap.values())
             .sort((a, b) => b.lastUsed - a.lastUsed)
             .slice(0, 10)
-            .map(({ name, phone, address }) => ({ name, phone, address }));
+            .map(({ name, phone, email, address }) => ({ name, phone, email, address }));
     }, [jobLogs]);
 
     return {
