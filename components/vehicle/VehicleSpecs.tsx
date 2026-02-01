@@ -132,28 +132,11 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
 
                 {/* Lishi Tool */}
                 {specs.lishi && (
-                    <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
-                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
-                            Lishi Tool
-                        </div>
-                        <div className="font-semibold text-green-400">
-                            {specs.lishi}
-                        </div>
-                        {specs.lishiSource && (
-                            <div className={`text-[9px] mt-1 px-2 py-0.5 rounded-full inline-block ${specs.lishiSource === 'enrichments' ? 'bg-green-900/40 text-green-400' :
-                                specs.lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
-                                    'bg-zinc-800 text-zinc-500'
-                                }`}>
-                                {specs.lishiSource === 'vyp' ? 'VYP' : specs.lishiSource}
-                            </div>
-                        )}
-                        {/* Lishi contextual pearl */}
-                        {pearls?.lishi?.[0] && (
-                            <div className="mt-2 text-[11px] text-amber-300 bg-amber-900/20 p-2 rounded border border-amber-800/30">
-                                🔑 {pearls.lishi[0].content}
-                            </div>
-                        )}
-                    </div>
+                    <LishiToolWithPearl
+                        lishi={specs.lishi}
+                        lishiSource={specs.lishiSource}
+                        pearl={pearls?.lishi?.[0]}
+                    />
                 )}
 
                 {/* Keyway */}
@@ -202,6 +185,74 @@ export default function VehicleSpecs({ specs, make, year, pearls }: VehicleSpecs
                 </div>
             )}
         </section>
+    );
+}
+
+// Lishi Tool with expandable pearl (avoids cramped layout in grid)
+function LishiToolWithPearl({
+    lishi,
+    lishiSource,
+    pearl
+}: {
+    lishi: string;
+    lishiSource?: string;
+    pearl?: Pearl;
+}) {
+    const [showPearl, setShowPearl] = useState(false);
+
+    return (
+        <div className="bg-zinc-800/60 p-4 rounded-xl border border-zinc-700/50">
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                Lishi Tool
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="font-semibold text-green-400">{lishi}</span>
+                {pearl && (
+                    <button
+                        onClick={() => setShowPearl(!showPearl)}
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full transition-all ${showPearl
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-amber-600/80 text-white hover:bg-amber-500'
+                            }`}
+                    >
+                        {showPearl ? '×' : '💡 Tip'}
+                    </button>
+                )}
+            </div>
+            {lishiSource && (
+                <div className={`text-[9px] mt-1 px-2 py-0.5 rounded-full inline-block ${lishiSource === 'enrichments' ? 'bg-green-900/40 text-green-400' :
+                        lishiSource === 'vyp' ? 'bg-purple-900/40 text-purple-400' :
+                            'bg-zinc-800 text-zinc-500'
+                    }`}>
+                    {lishiSource === 'vyp' ? 'VYP' : lishiSource}
+                </div>
+            )}
+            {/* Expandable pearl - positioned as overlay to avoid cramped grid */}
+            {showPearl && pearl && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowPearl(false)}>
+                    <div className="absolute inset-0 bg-black/60" />
+                    <div
+                        className="relative bg-zinc-900 border border-amber-700/50 rounded-xl p-4 max-w-lg shadow-2xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-bold text-amber-400 flex items-center gap-2">
+                                🔑 Lishi Tool Tip: {lishi}
+                            </h4>
+                            <button
+                                onClick={() => setShowPearl(false)}
+                                className="text-zinc-400 hover:text-white text-xl leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="text-amber-200 text-sm leading-relaxed">
+                            {pearl.content}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 

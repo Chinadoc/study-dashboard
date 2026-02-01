@@ -125,16 +125,29 @@ export default function BittingCalculator({
     keyway,
     lishi
 }: BittingCalculatorProps) {
-    // Parse depths to get max depth value - handle both number and comma-separated string
+    // Parse depths to get max depth value - handle multiple formats:
+    // - Number: 4
+    // - Comma-separated: "1,2,3,4" or "1,2,3,4,5"
+    // - Range format: "1 (Shallow) to 4 (Deep)" or "1-4"
     const maxDepth = useMemo(() => {
         if (typeof depths === 'number') return depths;
         const depthStr = String(depths);
+
         // Handle comma-separated like "1,2,3,4,5"
         if (depthStr.includes(',')) {
             const values = depthStr.split(',').map(d => parseInt(d.trim())).filter(n => !isNaN(n));
-            return Math.max(...values, 4);
+            return values.length > 0 ? Math.max(...values) : 4;
         }
-        return parseInt(depthStr) || 4;
+
+        // Handle range format like "1 (Shallow) to 4 (Deep)" or "1-4" or "1 to 4"
+        // Extract all numbers and take the max
+        const numbers = depthStr.match(/\d+/g);
+        if (numbers && numbers.length > 0) {
+            const values = numbers.map(n => parseInt(n));
+            return Math.max(...values);
+        }
+
+        return 4; // fallback
     }, [depths]);
 
     // Initialize position values
