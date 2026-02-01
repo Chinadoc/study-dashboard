@@ -51,7 +51,14 @@ const US_STATES = [
 
 export default function AIInsightsPanel() {
     const { isPro, isDeveloper, isAuthenticated } = useAuth();
-    const hasAccess = isPro || isDeveloper; // Developers get free access
+
+    // Local development bypass - developers get free access when running locally
+    const isLocalDev = typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    // In local dev mode, we bypass auth and subscription checks entirely
+    const hasAccess = isLocalDev || isPro || isDeveloper;
+
     const [preferences, setPreferences] = useState<UserPreferences>({
         state: null,
         sales_tax_rate: null,
@@ -150,7 +157,8 @@ export default function AIInsightsPanel() {
         }
     };
 
-    if (!isAuthenticated) {
+    // In local dev, don't require authentication
+    if (!isAuthenticated && !isLocalDev) {
         return (
             <div className="text-center py-12 text-zinc-500">
                 <div className="text-5xl mb-4">🔐</div>
@@ -187,6 +195,19 @@ export default function AIInsightsPanel() {
 
     return (
         <div className="space-y-6">
+            {/* Local Development Mode Banner */}
+            {isLocalDev && (
+                <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3 flex items-center gap-3">
+                    <span className="text-xl">🛠️</span>
+                    <div>
+                        <span className="font-bold text-amber-400">Developer Mode</span>
+                        <span className="text-amber-200 text-sm ml-2">
+                            AI Insights using your OpenRouter API key (free for devs)
+                        </span>
+                    </div>
+                </div>
+            )}
+
             {/* Preferences Setup */}
             <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-6">
                 <h3 className="text-lg font-bold mb-4">⚙️ Business Settings</h3>
