@@ -1,10 +1,8 @@
 // ================== CONFIG & GLOBALS ==================
 
-// API base: Relative paths in production (same-origin → secure cookies, no CORS issues)
-// Direct Worker URL only for local development (avoids proxy/reverse issues during dev)
-const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'https://euro-keys.jeremy-samuels17.workers.dev'
-    : '';
+// API base: Use full Worker URL in ALL environments since Pages proxy is not functioning
+// The Worker at euro-keys.jeremy-samuels17.workers.dev has OAuth, D1, R2 configured
+const API = 'https://euro-keys.jeremy-samuels17.workers.dev';
 const API_BASE = API; // Legacy alias (safe to keep for any old references)
 const AFFILIATE_TAG = 'eurokeys-20';
 
