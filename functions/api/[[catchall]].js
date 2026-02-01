@@ -18,7 +18,14 @@ export async function onRequestOptions(context) {
 
 export async function onRequest(context) {
     const url = new URL(context.request.url);
-    const targetUrl = `${WORKER_API}${url.pathname}${url.search}`;
+
+    // Strip trailing slash from pathname (fixes Cloudflare's trailing slash normalization)
+    let pathname = url.pathname;
+    if (pathname.length > 1 && pathname.endsWith('/')) {
+        pathname = pathname.slice(0, -1);
+    }
+
+    const targetUrl = `${WORKER_API}${pathname}${url.search}`;
 
     console.log(`[Pages Function] Proxying: ${context.request.method} ${url.pathname} -> ${targetUrl}`);
 
