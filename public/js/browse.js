@@ -3288,7 +3288,7 @@ async function searchVehicle() {
                     procedures: data.procedures || [],
                     guide: data.guide || null,
                     walkthroughs: data.walkthroughs || [],
-                    configs: data.configs || []
+                    configs: data.aks_key_configs || []
                 };
                 displayResults(data.rows, year, make, model, extras);
             } catch (innerE) {
@@ -3712,9 +3712,12 @@ function renderKeyConfigCards(configs, inventory = {}, vehicle = {}) {
     const amazonTag = 'eurokeys-20';
 
     return configs.map((config, idx) => {
-        const fccId = config.fcc_id || 'N/A';
-        const keyType = config.config_type || config.key_type || 'Smart Key';
-        const buttons = config.buttons || config.button_count || '?';
+        // Handle both old (vehicles) and new (aks_key_configs) API schemas
+        // aks_key_configs: fccIds (array), keyType, buttonCount, chip, battery
+        // vehicles: fcc_id, key_type, buttons, chip, battery
+        const fccId = (config.fccIds && config.fccIds[0]) || config.fcc_id || 'N/A';
+        const keyType = config.keyType || config.config_type || config.key_type || 'Smart Key';
+        const buttons = config.buttonCount || config.buttons || config.button_count || '?';
         const chip = config.chip || config.chip_family || 'N/A';
         const battery = config.battery || 'CR2032';
 
