@@ -3288,7 +3288,8 @@ async function searchVehicle() {
                     procedures: data.procedures || [],
                     guide: data.guide || null,
                     walkthroughs: data.walkthroughs || [],
-                    configs: data.aks_key_configs || []
+                    // Use aks_key_configs (primary) with vehicles fallback when empty
+                    configs: (data.aks_key_configs && data.aks_key_configs.length > 0) ? data.aks_key_configs : data.rows || []
                 };
                 displayResults(data.rows, year, make, model, extras);
             } catch (innerE) {
