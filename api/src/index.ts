@@ -1994,7 +1994,7 @@ Keep response under 300 words, practical and actionable.`;
             const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
               method: "POST",
               headers: {
-                "Authorization": `Bearer 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`,
+                "Authorization": `Bearer ${env.OPENROUTER_API_KEY}`,
                 "HTTP-Referer": "https://eurokeys.app",
                 "X-Title": "EuroKeys AI Insights",
                 "Content-Type": "application/json"
@@ -2262,7 +2262,7 @@ Guidelines:
             const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
               method: "POST",
               headers: {
-                "Authorization": `Bearer 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`,
+                "Authorization": `Bearer ${env.OPENROUTER_API_KEY}`,
                 "HTTP-Referer": "https://eurokeys.app",
                 "X-Title": "EuroKeys Chat",
                 "Content-Type": "application/json"
